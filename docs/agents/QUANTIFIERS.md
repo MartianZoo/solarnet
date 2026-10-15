@@ -71,8 +71,10 @@ same World. Quantifiers do not preserve trigger-time target existence.
 
 Resolution checks execution prerequisites and calculates quantities; it does not predict whether
 the completed operation will satisfy count invariants. Mandatory choices can lead to recoverable
-dead ends. Exploring and pruning those branches for a client belongs to its Agent, not engine
-resolution.
+dead ends. Exploring and pruning those branches belongs to the player's agent or client, not
+engine resolution. Under the [universal design assumption](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client),
+either the caller presents only choices known not to dead-end the turn or exposing dead ends is
+acceptable; a missing pruner does not justify changing quantifier semantics.
 
 ## Invariants at operation completion
 
@@ -106,8 +108,18 @@ not postpone their invariant checks.
 A family can own replacement with `This:: -Family(NOT This).` and a family-wide maximum of one.
 The initiating gain must be mandatory to cross that maximum. Repeating the same concrete value
 still fails: `NOT This` excludes both copies, and adding `HAS MAX 1 This` would only restate the
-rejection. Turmoil's `Dominant` and party-scoped `PartyLeader` use this pattern after their callers
-select the new value; the cleanup does not choose the winner.
+rejection. Turmoil's `Dominant` uses this pattern after its caller selects the new value; the cleanup
+does not choose the winner. Its `PartyLeader` uses the same allowance to demote the previous leader
+into a `PartyFollower` before checking the party's maximum of a single leader. Therefore neutral
+event placement uses a mandatory `PartyDelegate` gain guarded by the neutral reserve count: AMAP
+would see the occupied leader seat and gain zero before demotion could make room.
+
+Turmoil's player supply check is a queued `Delegate` gain effect, after automatic consequences.
+A placement can temporarily make eight delegates when the unused lobby delegate is still present;
+`LobbyDelegate` automatically removes itself before the queued supply check. With no lobby delegate,
+the eighth delegate instead dead-ends the turn. `PartyDelegate` is not `Atomized`: Canon authors
+individual placements explicitly, using a shared party variable when required, and Canon invariants
+reject bulk delegate gains.
 
 ## Syntax and defaults
 

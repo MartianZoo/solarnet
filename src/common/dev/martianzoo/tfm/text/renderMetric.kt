@@ -33,14 +33,6 @@ internal fun renderRequirementMetricPhrase(
     describers: Describers,
 ): NounPhrase? = renderMetric(metric, describers, possessorEstablished = true, count)?.phrase
 
-internal fun renderRankedMetricPhrase(metric: Metric, describers: Describers): NounPhrase? {
-  val rendering = renderMetric(metric, describers, possessorEstablished = true) ?: return null
-  return when (rendering.ranking) {
-    MetricRendering.Ranking.MOST -> rendering.phrase.asPlural().withDeterminer(Determiner.MOST)
-    MetricRendering.Ranking.HIGHEST -> rendering.phrase.withDeterminer(Determiner.HIGHEST)
-  }
-}
-
 /** Total ranked-metric boundary used by goal text. */
 internal fun lexicalizeRankedMetricPhrase(metric: Metric, describers: Describers): NounPhrase {
   val rendering = lexicalizeMetric(metric, describers, possessorEstablished = true)
@@ -221,6 +213,19 @@ private fun Describers.recognizeCountedExpression(
     count: Int?,
     possessorEstablished: Boolean,
 ): MetricRendering? {
+  val exclusion = expression.refinement as? Expression.Refinement.Not
+  if (exclusion != null) {
+    val included =
+        recognizeCountedExpression(expression.copy(refinement = null), count, possessorEstablished)
+            ?: return null
+    val excluded =
+        recognizeCountedExpression(exclusion.excluded, null, possessorEstablished = true)
+            ?: return null
+    return included.copy(
+        phrase =
+            included.phrase.withModifier(Modifier.Relation("excluding", excluded.phrase.asPlural()))
+    )
+  }
   val allResourceProduction = productionCategoryExpression(expression, this)
   if (
       expression.refinement == null &&
@@ -414,32 +419,10 @@ private fun Describers.renderMetricFilter(
     requirement: Requirement,
 ): Modifier? {
   cardCriterion(requirement)?.let { criterion ->
-    return when (criterion) {
-      is CardCriterion.Tag -> {
-        val tag = tagNoun(criterion.className) ?: return null
-        Modifier.Relation("with", NounPhrase.plural(tag.plural))
-      }
-      CardCriterion.NoTags ->
-          Modifier.Relation(
-              "with",
-              NounPhrase(
-                  "tag",
-                  "tags",
-                  determiner = Determiner.NO,
-                  grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
-              ),
-          )
-      is CardCriterion.PropertyPresence ->
-          Modifier.Relation("with", NounPhrase.plural("${criterion.noun}s"))
-      is CardCriterion.ResourceIcon -> return null
-      is CardCriterion.NonNegativeIcon -> {
-        val noun =
-            fact(criterion.className, ComponentDescriber::score)?.singular
-                ?: componentNoun(criterion.className, 1)
-        Modifier.Relation("with", NounPhrase.plural("non-negative $noun icons"))
-      }
-    }
+    if (criterion is CardCriterion.ResourceIcon) return null
+    return cardCriterionModifier(criterion, singular = false, this)
   }
+
   val counting = requirement as? Requirement.Counting ?: return null
   val property = counting.metric as? Property ?: return null
   if (property.receiver != null) return null
@@ -458,20 +441,7 @@ private fun Describers.renderMetricFilter(
         }
     return Modifier.Phrase("whose $propertyName is $comparison ${counting.target}")
   }
-  val comparison =
-      when (counting) {
-        is Requirement.Min -> "or more"
-        is Requirement.Max -> "or less"
-        is Requirement.Exact -> "exactly"
-      }
-  val unit = threshold.unit?.let { " $it" }.orEmpty()
-  val value =
-      if (counting is Requirement.Exact) {
-        "${threshold.noun} of exactly ${counting.target}$unit"
-      } else {
-        "${threshold.noun} of ${counting.target}$unit $comparison"
-      }
-  return Modifier.Relation("with", NounPhrase(value, determiner = Determiner.INDEFINITE))
+  return renderPropertyThreshold(threshold, counting)
 }
 
 private fun NounPhrase.withOwnership(
@@ -715,14 +685,18 @@ private fun Describers.renderPlacementLocation(expression: Expression): Modifier
     }
   }
   val site = placementSite(expression.className) ?: return null
+  val namedSite =
+      fact(expression.className, ComponentDescriber::noun) as? ComponentDescriber.Noun.Fixed
   val noun =
-      when (val described = site.noun) {
-        is ComponentDescriber.Noun.Counted -> NounPhrase.plural(described.plural)
-        is ComponentDescriber.Noun.Fixed -> NounPhrase.text(described.text)
-        ComponentDescriber.Noun.ClassName ->
-            NounPhrase.plural(componentNoun(expression.className, 2))
-      }
-  val authoredRefinement = expression.refinement ?: return Modifier.Relation("on", noun)
+      if (concrete(expression.className) && namedSite != null) NounPhrase.text(namedSite.text)
+      else
+          when (val described = site.noun) {
+            is ComponentDescriber.Noun.Counted -> NounPhrase.plural(described.plural)
+            is ComponentDescriber.Noun.Fixed -> NounPhrase.text(described.text)
+            ComponentDescriber.Noun.ClassName ->
+                NounPhrase.plural(componentNoun(expression.className, 2))
+          }
+  val authoredRefinement = expression.refinement ?: return Modifier.Relation(site.relation, noun)
   val refinement = authoredRefinement as? Expression.Refinement.Has ?: return null
   val modifier =
       renderSpatialFilter(refinement.requirement, expression.className)
@@ -733,7 +707,7 @@ private fun Describers.renderPlacementLocation(expression: Expression): Modifier
                   Unresolved(refinement.requirement, RefusalReason.UNSUPPORTED_METRIC)
               ),
           )
-  return Modifier.Relation("on", noun.withModifier(modifier))
+  return Modifier.Relation(site.relation, noun.withModifier(modifier))
 }
 
 private fun Describers.renderSpatialFilter(

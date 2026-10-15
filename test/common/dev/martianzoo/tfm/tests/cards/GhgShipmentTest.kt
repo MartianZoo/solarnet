@@ -9,12 +9,12 @@ internal class GhgShipmentTest : TfmSandboxTest() {
   internal fun `Counts its owners floaters and ignores the other players floaters`() {
     newTestGame("GhgShipment, TurmoilExpansion")
     kim.exMachina(
-        "$ForcedPrecipitation, 3 Floater<$ForcedPrecipitation>, 2 PartyDelegate<Kelvinists>"
+        "$ForcedPrecipitation, 3 Floater<$ForcedPrecipitation>, PartyLeader<Kelvinists>, PartyFollower<Kelvinists>"
     )
     stan.exMachina("$AerialMappers, 2 Floater<$AerialMappers>")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<GhgShipment>>", "-3 MC")
+      doTasks("PlayProject<Class<GhgShipment>>", "3 Pay<> FROM MC")
       doTasks(
           "GhgShipment FROM ProjectCard",
           "PROD[Heat]",

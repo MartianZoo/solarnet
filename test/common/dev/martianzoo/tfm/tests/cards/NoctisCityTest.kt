@@ -11,7 +11,7 @@ internal class NoctisCityTest : TfmSandboxTest() {
     kim.setToExMachina(18, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<NoctisCity>>", "-18 MC")
+      doTasks("PlayProject<Class<NoctisCity>>", "18 Pay<> FROM MC")
       doTasks(
           "NoctisCity FROM ProjectCard",
           "PROD[-Energy]",

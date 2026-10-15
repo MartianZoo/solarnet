@@ -17,7 +17,7 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks(
           "UseStandardProject<AquiferProject>",
-          "-18 MC",
+          "18 Pay<> FROM MC",
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
       )
@@ -33,7 +33,7 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<GiantIceAsteroid>>",
-          "-36 MC",
+          "36 Pay<> FROM MC",
           "GiantIceAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
@@ -57,7 +57,7 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
     stan.exMachina("$ArcticAlgae, 2 Plant")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<GiantIceAsteroid>>", "-36 MC")
+      doTasks("PlayProject<Class<GiantIceAsteroid>>", "36 Pay<> FROM MC")
       doTasks(
           "GiantIceAsteroid FROM ProjectCard",
       )

@@ -16,6 +16,12 @@
 
 ## The idea in brief
 
+**Pruning belongs here, in agent/client policy, not in the engine or Pets model.** Under the
+[universal design assumption](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client),
+the player's agent or client either presents only choices known not to dead-end the turn, or
+exposing dead ends is acceptable. The engine and model do not wait for this proposed policy work
+to be implemented. Protected Habitats requiring rollback after an attempted theft is valid today.
+
 A Player's interaction is a walk through a decision graph: which task to select, how to narrow it,
 which task next. Many paths end in the same state; taking a Plant and then a Steel is the same as
 the reverse order. **Pruning** removes edges that can only lead to dead ends. **Collapsing** groups
@@ -42,6 +48,9 @@ Pruning is the hard part. Autoexecution only walks the path that pruning leaves.
   from its user. Some players will still want convenience that does.
 - **D6. The model comes first** (2026-10-13). Do not argue for a Pets or engine design from
   autoexecution behavior. Policy adapts to the model.
+- **D7. Dead ends are acceptable** (2026-10-14). Their exposure, late discovery, and need for caller
+  rollback are not engine/model defects. Pruning them is the agent or client's responsibility;
+  its absence does not justify changes to the model.
 
 ## The decision graph
 

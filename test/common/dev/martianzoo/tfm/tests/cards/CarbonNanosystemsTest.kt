@@ -13,8 +13,8 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<AsteroidCard>>",
-          "-6 MC",
-          "-2 Graphene<CarbonNanosystems>",
+          "2 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          "6 Pay<> FROM MC",
           "AsteroidCard FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -34,8 +34,8 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<AsteroidCard>>",
-          "-6 MC",
-          "-2 Graphene<CarbonNanosystems>",
+          "2 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          "6 Pay<> FROM MC",
           "AsteroidCard FROM ProjectCard",
       )
       doTask("TemperatureStep")

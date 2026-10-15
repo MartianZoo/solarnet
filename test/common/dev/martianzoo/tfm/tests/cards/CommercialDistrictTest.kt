@@ -11,7 +11,7 @@ internal class CommercialDistrictTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("NormalCityTile<Kim, Tharsis_3_2>")
     kim.inTurn {
-      doTasks("PlayProject<Class<CommercialDistrict>>", "-16 MC")
+      doTasks("PlayProject<Class<CommercialDistrict>>", "16 Pay<> FROM MC")
       doTasks(
           "CommercialDistrict FROM ProjectCard",
           "PROD[-Energy]",

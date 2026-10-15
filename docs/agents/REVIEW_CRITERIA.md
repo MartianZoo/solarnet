@@ -13,6 +13,19 @@ Apply these criteria to the entire final diff, not only the last revision. A vio
 change unacceptable to commit. Remove it, or explain why the criterion does not apply and obtain the
 user's explicit acceptance before committing.
 
+## Do not mistake dead ends for defects
+
+Apply the [decision-tree principle](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client)
+before raising findings: assume the player's agent or client presents only choices known not to
+dead-end the turn, or accept that dead ends are exposed. No implemented pruner is required for this design
+assumption. Protected Habitats allowing an attempted theft that later dead-ends and requires
+rollback is valid modeling.
+
+Reject findings, TODOs, and proposed engine/model changes justified only by an exposed dead end,
+late failure, or caller rollback. Require a separate rule failure: for example, a prohibited theft
+surviving successful turn completion, or a required legal outcome being excluded. This does not
+prevent work explicitly requested on agent/client pruning.
+
 ## Scope and conceptual cost
 
 Reject the change if:
@@ -42,7 +55,8 @@ Reject the change if:
   which history players accept, responsibilities assigned outside the calculator by
   [ADVERSARIAL.md](ADVERSARIAL.md); or
 - autoexecution, incidental iteration order, `THEN`, `::`, priority, or pre-pruning was used to hide
-  missing choice, task identity, completion, or engine semantics.
+  missing choice, task identity, completion, or engine semantics. Exposing a path that must later
+  be rolled back is not itself missing semantics; apply the dead-end principle above.
 
 Use [`VALUES.md`](VALUES.md#keep-pets-central), [`TESTING.md`](TESTING.md#test-design),
 and [`SEQUENCING.md`](SEQUENCING.md#before-adding-order) for the detailed tests. Inspect the current

@@ -8,6 +8,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
@@ -355,7 +356,8 @@ internal constructor(
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
   /**
    * Whether selecting [taskId] could complete normally in the current world. The probe rolls back
-   * its own changes and returns false on any thrown failure.
+   * its own changes and returns false on failures other than [ResourceLimitException], which
+   * propagates.
    */
   public fun canSelectTask(taskId: TaskId): Boolean {
     timeline.requireAtEnd()
@@ -374,6 +376,8 @@ internal constructor(
       false
     } catch (_: SelectionProbeSucceeded) {
       true
+    } catch (e: ResourceLimitException) {
+      throw e
     } catch (_: Exception) {
       false
     }
@@ -382,7 +386,8 @@ internal constructor(
   @Suppress("TooGenericExceptionCaught") // Keep this probe aligned with canSelectTask for now.
   /**
    * Whether [taskId] could be selected and finished now without a remaining task or handoff. The
-   * probe rolls back its own changes and returns false on any thrown failure.
+   * probe rolls back its own changes and returns false on failures other than
+   * [ResourceLimitException], which propagates.
    */
   public fun canExecuteTask(taskId: TaskId): Boolean {
     timeline.requireAtEnd()
@@ -395,6 +400,8 @@ internal constructor(
       false
     } catch (_: ExecutionProbeSucceeded) {
       true
+    } catch (e: ResourceLimitException) {
+      throw e
     } catch (_: Exception) {
       false
     }

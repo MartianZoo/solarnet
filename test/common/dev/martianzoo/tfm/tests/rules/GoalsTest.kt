@@ -16,7 +16,7 @@ internal class GoalsTest : TfmSandboxTest() {
     kim.setToExMachina(20, "MC")
 
     kim.inTurn {
-          doTasks("ClaimMilestone<Class<Briber>>", "-8 MC")
+          doTasks("ClaimMilestone<Class<Briber>>", "8 Pay<> FROM MC")
           doTask("Briber")
           doTask("-12 MC")
         }
@@ -31,7 +31,7 @@ internal class GoalsTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Briber>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Briber")
         doTask("-12 MC")
       }
@@ -53,14 +53,14 @@ internal class GoalsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Philantropist>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Philantropist")
       }
     }
 
     kim.exMachina("$SpaceElevator")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Philantropist>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC")
       doTask("Philantropist")
     }
   }
@@ -74,7 +74,7 @@ internal class GoalsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Merchant>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Merchant")
       }
     }
@@ -83,7 +83,7 @@ internal class GoalsTest : TfmSandboxTest() {
 
     kim.setToExMachina(10, "MC")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Merchant>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Merchant>>", "8 Pay<> FROM MC")
       doTask("Merchant")
     }
   }
@@ -92,7 +92,7 @@ internal class GoalsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "UseStandardProject<AquiferProject>",
-          "-18 MC",
+          "18 Pay<> FROM MC",
           "OceanTile<$area>",
           "TerraformRating",
           "OceanCredit",
@@ -114,12 +114,12 @@ internal class GoalsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       stan.inTurn {
         doTask("ClaimMilestone<Class<Hydrologist>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Hydrologist")
       }
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Hydrologist>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Hydrologist>>", "8 Pay<> FROM MC")
       doTask("Hydrologist")
     }
   }
@@ -132,14 +132,14 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks("ClaimMilestone<Class<$milestone>>", "-8 MC")
+        doTasks("ClaimMilestone<Class<$milestone>>", "8 Pay<> FROM MC")
         doTask(milestone)
       }
     }
 
     kim.exMachina("PROD[Energy]")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<$milestone>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<$milestone>>", "8 Pay<> FROM MC")
       doTask(milestone)
     }
   }
@@ -160,14 +160,14 @@ internal class GoalsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Producer>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Producer")
       }
     }
 
     kim.exMachina("PROD[Energy]")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Producer>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Producer>>", "8 Pay<> FROM MC")
       doTask("Producer")
     }
   }
@@ -180,26 +180,28 @@ internal class GoalsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Producer22>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Producer22")
       }
     }
 
     kim.exMachina("PROD[Energy]")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Producer22>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Producer22>>", "8 Pay<> FROM MC")
       doTask("Producer22")
     }
   }
 
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
+    // Unresolved adjudication (question 27, 2026-10-14); this records current behavior.
+    // https://boardgamegeek.com/thread/3478406/article/47218204#47218204
     @Test
     internal fun `Dry Deserts does not erase Hydrologist credit for a removed ocean`() {
       newTestGame(addOptions = "TurmoilExpansion, Hydrologist, Builder, Engineer", playerCount = 2)
       // Generation 1: Kim earns the credit that Dry Deserts will later test.
       // Revealed events fix delegate placements; none will resolve before the final claim.
       kim.completeOperation {
-        doTasks("UseStandardProject<AquiferProject>", "-18 MC")
+        doTasks("UseStandardProject<AquiferProject>")
         doTask("OceanTile<Tharsis_1_2>")
         autoExecNow(EAGER)
       }
@@ -210,7 +212,9 @@ internal class GoalsTest : TfmSandboxTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
+      admin.doTask("PartyLeader<Greens, Neutral>")
       admin.doTask("SolarnetGlobalEvent")
+      admin.doTask("PartyLeader<Unity, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 2: Democratic Reform adds an Admin ocean elsewhere, preserving Kim's ocean.
@@ -223,7 +227,9 @@ internal class GoalsTest : TfmSandboxTest() {
       stan.doTask("OceanTile<Tharsis_1_4> BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
+      admin.doTask("PartyFollower<Unity, Neutral>")
       admin.doTask("FreeAcademiaTreaty")
+      admin.doTask("PartyLeader<Scientists, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 3: Minimal Impact Policy's Dry Deserts removes Kim's original ocean.
@@ -234,27 +240,29 @@ internal class GoalsTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       kim.doTask("-OceanTile<Tharsis_1_2>")
+      admin.doTask("PartyFollower<Greens, Neutral>")
       admin.doTask("SelfSufficiencyProgram")
+      admin.doTask("PartyFollower<Greens, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 4: reusing the emptied area still earns another credit toward four placements.
       stan.doTask("Pass")
       kim.completeOperation {
-        doTasks("UseStandardProject<AquiferProject>", "-18 MC")
+        doTasks("UseStandardProject<AquiferProject>")
         doTask("OceanTile<Tharsis_1_2>")
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AquiferProject>", "-18 MC")
+        doTasks("UseStandardProject<AquiferProject>")
         doTask("OceanTile<Tharsis_1_5>")
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AquiferProject>", "-18 MC")
+        doTasks("UseStandardProject<AquiferProject>")
         doTask("OceanTile<Tharsis_2_6>")
         autoExecNow(EAGER)
       }
-      kim.doTasks("ClaimMilestone<Class<Hydrologist>>", "-8 MC")
+      kim.doTasks("ClaimMilestone<Class<Hydrologist>>")
     }
   }
 }

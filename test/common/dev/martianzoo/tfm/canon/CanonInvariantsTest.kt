@@ -12,6 +12,7 @@ import dev.martianzoo.pets.ast.Instruction.Transform as InstructionTransform
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.Class
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -299,6 +300,51 @@ internal class CanonInvariantsTest {
     assertTrue(
         offenders.isEmpty(),
         "GreeneryTile gains need an area (or use DefaultGreeneryTile); CityTile gains need explicit arguments or <>:\n${offenders.joinToString("\n")}",
+    )
+  }
+
+  @Test
+  internal fun delegateChangesSpecifyTheirState() {
+    val offenders =
+        Canon.explicitClassDeclarations.flatMap { declaration ->
+          declaration.allNodes
+              .flatMap { it.descendantsOfType<Instruction.Change>() }
+              .filter {
+                it.gaining?.className == cn("Delegate") || it.removing?.className == cn("Delegate")
+              }
+              .map { "${declaration.className}: $it" }
+        }
+    assertTrue(
+        offenders.isEmpty(),
+        "Delegate changes must name PartyDelegate, PartyLeader, PartyFollower, LobbyDelegate or Chairman; Delegate is for counting:\n" +
+            offenders.distinct().joinToString("\n"),
+    )
+  }
+
+  @Test
+  internal fun delegateGainsAreAuthoredAsIndividualPlacements() {
+    val delegate = table.getClass(cn("Delegate"))
+    fun isDelegateGain(change: Instruction.Change): Boolean =
+        change.gaining?.className?.let(table::findClass)?.isSubtypeOf(delegate) == true
+
+    val offenders =
+        Canon.explicitClassDeclarations.flatMap { declaration ->
+          declaration.allNodes.flatMap { authored ->
+            val bulk =
+                authored.descendantsOfType<Instruction.Change>().filter {
+                  isDelegateGain(it) && it.count != ActualScalar(1)
+                }
+            val multiplied =
+                authored.descendantsOfType<Instruction.Per>().filter {
+                  it.descendantsOfType<Instruction.Change>().any(::isDelegateGain)
+                }
+            (bulk + multiplied).map { "${declaration.className}: $it" }
+          }
+        }
+    assertTrue(
+        offenders.isEmpty(),
+        "Write delegate gains separately, or inside EACH. Use a shared party variable when placements must stay in the same party:\n" +
+            offenders.distinct().joinToString("\n"),
     )
   }
 

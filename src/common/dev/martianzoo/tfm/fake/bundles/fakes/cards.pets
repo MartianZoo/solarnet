@@ -99,8 +99,8 @@ CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
 
 "One robot unit stored with a card that reduces its play cost by 1 MC"
 CLASS RobotUnit<Class<@CardFront>> : Resource, Owned<Player> {
-  OWN[ReplicateForStagedProject<Class<@CardFront>>: This!]
-  OWN[PlayCard<Class<CardBack>, Class<@CardFront>>: -Owed, -This!]
+  OWN[ReplicateForStagedProject<Class<@CardFront>>: This]
+  OWN[PlayCard<Class<CardBack>, Class<@CardFront>>: -Owed, -This]
   OWN[FirstPlace<Collector> IF This:: Audit]
   OWN[SecondPlace<Collector> IF This:: Audit]
 }

@@ -16,7 +16,7 @@ internal class TradingColonyTest : TfmSandboxTest() {
     admin.setToExMachina(2, "ColonyProduction<Europa>")
 
     kim.inTurn {
-      doTasks("TradeAction", "-9 MC")
+      doTasks("TradeAction", "9 Pay<> FROM MC")
 
       doTasks("Trade<Europa>")
       // Hand the colony-track change to Admin before collecting trade income.

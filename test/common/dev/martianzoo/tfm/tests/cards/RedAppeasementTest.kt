@@ -13,11 +13,11 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
   internal fun prepareRedsSupport() {
     newTestGame("RedAppeasement, TurmoilExpansion", playerCount = 2)
     kim.doTasks(
-        "LobbyAction<Action1>",
-        "PartyDelegate<Reds>",
-        "LobbyAction<Action2>",
-        "-5 MC",
-        "PartyDelegate<Reds>",
+        "LobbyAction",
+        "PartyFollower<Reds> FROM LobbyDelegate",
+        "PaidLobbyAction",
+        "5 Pay<> FROM MC",
+        "PartyLeader<Reds>",
     )
   }
 

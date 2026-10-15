@@ -11,7 +11,11 @@ internal class CloudTourismTest : TfmSandboxTest() {
     kim.exMachina("$Sponsors, $EarthOffice, $VenusGovernor, $VenusWaystation, $ForcedPrecipitation")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<CloudTourism>>", "-9 MC", "CloudTourism FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<CloudTourism>>",
+          "9 Pay<> FROM MC",
+          "CloudTourism FROM ProjectCard",
+      )
       doTask("PROD[2 MC]")
     }
   }
@@ -24,7 +28,11 @@ internal class CloudTourismTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("PlayProject<Class<CloudTourism>>", "-9 MC", "CloudTourism FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<CloudTourism>>",
+          "9 Pay<> FROM MC",
+          "CloudTourism FROM ProjectCard",
+      )
       doTask("PROD[2 MC]")
     }
   }

@@ -16,7 +16,7 @@ internal class PublicPlansTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<PublicPlans>>",
-          "-7 MC",
+          "7 Pay<> FROM MC",
           "PublicPlans FROM ProjectCard",
       )
       doTask("2 ProjectCard<Revealed FROM Hand>")
@@ -33,7 +33,7 @@ internal class PublicPlansTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<PublicPlans>>",
-          "-7 MC",
+          "7 Pay<> FROM MC",
           "PublicPlans FROM ProjectCard",
       )
       doTask("ProjectCard<Revealed FROM Hand>")
@@ -52,7 +52,7 @@ internal class PublicPlansTest : TfmSandboxTest() {
         doTask("PlayProject<Class<PublicPlans>>")
 
         doTasks(
-            "-7 MC",
+            "7 Pay<> FROM MC",
             "PublicPlans FROM ProjectCard",
         )
         doTask("ProjectCard<Revealed FROM Hand>")

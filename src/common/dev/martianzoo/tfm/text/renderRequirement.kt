@@ -127,9 +127,6 @@ private fun Describers.renderDescribedMinimumCondition(
     requirement: Requirement.Min,
     references: TypeVariableReferences,
 ): Clause? {
-  renderDescribedDifferenceCondition(requirement)?.let {
-    return it
-  }
   val expression = countedExpression(requirement) ?: return null
   return when (val frame = fact(expression.className, ComponentDescriber::requirementCondition)) {
     is ComponentDescriber.RequirementCondition.ArgumentState -> {
@@ -180,38 +177,16 @@ private fun Describers.renderDescribedMinimumCondition(
   }
 }
 
-private fun Describers.renderDescribedDifferenceCondition(
-    requirement: Requirement.Min,
-): Clause? {
-  val difference = requirement.metric as? Metric.Subtract ?: return null
-  val included = (difference.minuend as? Metric.Count)?.expression ?: return null
-  val excluded = (difference.subtrahend as? Metric.Count)?.expression ?: return null
-  if (
-      included.arguments != excluded.arguments ||
-          included.refinement != null ||
-          excluded.refinement != null
-  ) {
-    return null
-  }
-  val frame =
-      fact(included.className, ComponentDescriber::requirementCondition)
-          as? ComponentDescriber.RequirementCondition.OwnedCount ?: return null
-  val differenceNoun = frame.differences[excluded.className] ?: return null
-  return renderOwnedCountCondition(
-      included,
-      requirement.target,
-      frame.copy(noun = differenceNoun),
-  )
-}
-
 private fun Describers.renderDescribedMaximumCondition(
     requirement: Requirement.Max,
 ): Clause? {
   if (requirement.maximum != 0) return null
   val expression = countedExpression(requirement) ?: return null
-  val frame =
-      fact(expression.className, ComponentDescriber::requirementCondition)
-          as? ComponentDescriber.RequirementCondition.OwnerState ?: return null
+  val frame = fact(expression.className, ComponentDescriber::requirementCondition)
+  if (frame is ComponentDescriber.RequirementCondition.OwnedCount) {
+    return renderOwnedCountCondition(expression, 0, frame)
+  }
+  if (frame !is ComponentDescriber.RequirementCondition.OwnerState) return null
   if (expression.refinement != null || expression.arguments.singleOrNull() != anyoneExpression) {
     return null
   }
@@ -228,26 +203,40 @@ private fun Describers.renderOwnedCountCondition(
 ): Clause? {
   if (expression.refinement != null) return null
   val resolved = resolveExpression(expression) ?: return null
-  val owner = frame.ownerDependency?.let(resolved::sourceDependency)
-  val ownerAdjective = owner?.let {
-    if (!it.simple) return null
-    frame.ownerAdjectives[it.className] ?: return null
-  }
+  if (
+      resolved.sourceDependencies.keys.any {
+        it != frame.ownerDependency && it != frame.qualifierDependency
+      }
+  )
+      return null
+  val owner =
+      frame.ownerDependency?.let(resolved::sourceDependency)?.takeUnless { it == ownerExpression }
+  val ownerAdjective =
+      owner
+          ?.takeUnless { it == anyoneExpression }
+          ?.let {
+            if (!it.simple) return null
+            fact(it.className, ComponentDescriber::ownerAdjective) ?: return null
+          }
+  val countedNoun =
+      if (owner != null && frame.ownerVerb != null)
+          positionedFrame(expression.className)?.noun ?: return null
+      else frame.noun
   val noun =
       if (ownerAdjective != null) {
         ComponentDescriber.Noun.Counted(
-            "$ownerAdjective ${frame.noun.singular}",
-            "$ownerAdjective ${frame.noun.plural}",
+            "$ownerAdjective ${countedNoun.singular}",
+            "$ownerAdjective ${countedNoun.plural}",
         )
       } else {
-        frame.noun
+        countedNoun
       }
   var amount = quantifiedNoun(noun, count)
   frame.qualifierDependency?.let { dependency ->
     val qualifier = resolved.sourceDependency(dependency)
     val qualifierPhrase =
         when {
-          qualifier == null || !concrete(qualifier.className) ->
+          qualifier == null || (qualifier.simple && !concrete(qualifier.className)) ->
               NounPhrase.text(frame.unboundQualifier ?: return null)
           qualifier.simple -> NounPhrase.text(componentNoun(qualifier.className, 1))
           else -> return null

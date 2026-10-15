@@ -49,9 +49,8 @@ internal class SoloGenerationCountdownTest {
     game.classTable.isInhabited(cn("BufferGasProject")) shouldBe true
 
     player.runOperation("16 MC")
-    player.runOperation("UseAction<BufferGasProject, Action1>") {
-      doTask("-16 MC")
-    }
+    player.runOperation("UseAction<BufferGasProject, Action1>") {}
+
     player.count("MC<Player1>") shouldBe 0
     player.count("TerraformRating<Player1>") shouldBe 15
 

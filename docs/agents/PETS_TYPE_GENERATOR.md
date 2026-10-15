@@ -5,11 +5,19 @@
 >
 > **Read when:** changing the isolated Pets-to-Kotlin generator or its output model.
 >
-> **Status:** current tool behavior. No production or test source set consumes its output.
+> **Status:** current tool behavior. Generated output is compiled for verification only.
 
 The JVM-only `codegen` module contains a KotlinPoet generator over any resolved Pets `ClassTable`.
-It has no Canon or Terraforming Mars dependency. The current experiment is a library rather than a
-command-line application; no production or test source set consumes its output.
+Its production code has no Canon or Terraforming Mars dependency. The current experiment is a
+library rather than a command-line application; gameplay code does not consume its output.
+
+`./gradlew :codegen:test` generates Kotlin for every class in `Canon.classTable` and compiles it
+in the isolated `generatedCanon` source set before running the generator's unit tests. Canon is a
+test-only dependency. The test launcher `generateCanonCompilationTest.kt` writes under the module's
+`build/generated/canonCompilationTest` directory (relocated by local build isolation). Generation
+tracks the test runtime classpath, including Canon and the generator, so changes to either invalidate
+the output. This verification also runs through the normal repository `test`, `check`, and `build`
+tasks. It checks JVM compilation, not execution of the generated classes or JavaScript compilation.
 
 The generator writes the supplied vocabulary to one Kotlin file. Abstract Pets classes become
 interfaces and concrete classes become final classes. Generated components retain their Pets
@@ -34,5 +42,5 @@ their bound class abbreviations, with numeric suffixes only when independent par
 otherwise have the same name.
 
 The generator omits invariants, defaults, executable inherited effects, and component values. Its
-tests verify the generated source model and semantic file split; the module compiles generated
-output as a verification step but does not adopt it in callers.
+unit tests verify the generated source model using small Pets vocabularies; the full Canon
+compilation test verifies that the complete vocabulary produces compilable Kotlin.

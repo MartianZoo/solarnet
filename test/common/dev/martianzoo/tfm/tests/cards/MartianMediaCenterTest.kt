@@ -14,36 +14,36 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
     kim.exMachina("$MartianMediaCenter")
 
     kim.inTurn {
-          doTasks("UseCardAction<MartianMediaCenter, Action1>", "-3 MC")
-          doTask("PartyDelegate<Greens>")
+          doTasks("UseCardAction<MartianMediaCenter, Action1>", "3 Pay<> FROM MC")
+          doTask("PartyLeader<Greens>")
         }
-        .expect("-3 MC, 0 LobbyActionAvailable")
+        .expect("-3 MC, 0 LobbyDelegate")
   }
 
   @Test
   internal fun `Martian Media Center may spend the last unplaced Lobby delegate`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("$MartianMediaCenter")
-    kim.exMachina("6 PartyDelegate<Unity>")
+    kim.exMachina("PartyLeader<Unity>, 5 PartyFollower<Unity>")
 
     kim.inTurn {
-          doTasks("UseCardAction<MartianMediaCenter, Action1>", "-3 MC")
-          doTask("PartyDelegate<Greens>")
+          doTasks("UseCardAction<MartianMediaCenter, Action1>", "3 Pay<> FROM MC")
+          doTask("PartyLeader<Greens>")
         }
-        .expect("-3 MC, -LobbyActionAvailable")
+        .expect("-3 MC, -LobbyDelegate")
   }
 
   @Test
   internal fun `Martian Media Center action cannot be used without an available delegate`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("$MartianMediaCenter")
-    kim.exMachina("7 PartyDelegate<Unity>")
+    kim.exMachina("PartyLeader<Unity>, 6 PartyFollower<Unity>")
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
         doTask("UseCardAction<MartianMediaCenter, Action1>")
-        doTask("-3 MC")
-        doTask("PartyDelegate<Greens>")
+        doTask("3 Pay<> FROM MC")
+        doTask("PartyLeader<Greens>")
       }
     }
 

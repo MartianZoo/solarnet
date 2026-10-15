@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
@@ -25,18 +25,16 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   internal fun `Updates party leadership and dominance after removal`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("Chairman<Kim FROM Neutral>")
-    stan.exMachina("2 PartyDelegate<MarsFirst>")
-    kim.exMachina("2 PartyDelegate<MarsFirst>, 4 PartyDelegate<Unity>")
-    kim.exMachina("PartyDelegate<Unity, Neutral>")
+    stan.exMachina("PartyFollower<MarsFirst>, PartyLeader<MarsFirst>")
+    kim.exMachina("2 PartyFollower<MarsFirst>, PartyLeader<Unity>, 3 PartyFollower<Unity>")
+    kim.exMachina("PartyFollower<Unity, Neutral>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          // Hand the chosen removal to Admin, which updates the delegate reserve.
-          selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>*")
-          doTask("-PartyDelegate<Stan, MarsFirst>")
+          doTask("-PartyFollower<Stan, MarsFirst>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
@@ -49,17 +47,17 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   internal fun `Replaces an incumbent below a dominance tie`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("Chairman<Kim FROM Neutral>")
-    stan.exMachina("2 PartyDelegate<MarsFirst>")
-    kim.exMachina("3 PartyDelegate<Kelvinists, Neutral>, 2 PartyDelegate<Reds, Neutral>")
+    stan.exMachina("PartyFollower<MarsFirst>, PartyLeader<MarsFirst>")
+    kim.exMachina(
+        "PartyLeader<Kelvinists, Neutral>, 2 PartyFollower<Kelvinists, Neutral>, 2 PartyFollower<Reds, Neutral>"
+    )
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          // Hand the chosen removal to Admin, which updates the delegate reserve.
-          selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>*")
-          doTask("-PartyDelegate<Stan, MarsFirst>")
+          doTask("-PartyFollower<Stan, MarsFirst>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-Dominant<MarsFirst>, Dominant<Kelvinists>, 0 Dominant<Reds>")
@@ -69,18 +67,18 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   internal fun `Breaks a dominance tie clockwise from the removed party`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("Chairman<Kim FROM Neutral>")
-    stan.exMachina("2 PartyDelegate<Greens>")
-    kim.exMachina("PartyDelegate<Greens>")
-    kim.exMachina("2 PartyDelegate<Reds, Neutral>, 3 PartyDelegate<Unity, Neutral>")
+    stan.exMachina("PartyLeader<Greens>, PartyFollower<Greens>")
+    kim.exMachina("PartyFollower<Greens>")
+    kim.exMachina(
+        "2 PartyFollower<Reds, Neutral>, PartyLeader<Unity, Neutral>, 2 PartyFollower<Unity, Neutral>"
+    )
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          // Hand the chosen removal to Admin, which updates the delegate reserve.
-          selectTask("BannedDelegateRemoval<Kim, Greens, Stan>*")
-          doTask("-PartyDelegate<Stan, Greens>")
+          doTask("-PartyFollower<Stan, Greens>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-Dominant<Greens>, Dominant<Unity>, 0 Dominant<Reds>")
@@ -90,18 +88,16 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   internal fun `Breaks a leader tie from the active player's seat`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("Chairman<Kim FROM Neutral>")
-    stan.exMachina("2 PartyDelegate<Scientists>")
-    kim.exMachina("2 PartyDelegate<Scientists>")
-    kim.exMachina("2 PartyDelegate<Scientists, Neutral>")
+    stan.exMachina("PartyLeader<Scientists>, PartyFollower<Scientists>")
+    kim.exMachina("2 PartyFollower<Scientists>")
+    kim.exMachina("2 PartyFollower<Scientists, Neutral>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          // Hand the chosen removal to Admin, which updates the delegate reserve.
-          selectTask("BannedDelegateRemoval<Kim, Scientists, Stan>*")
-          doTask("-PartyDelegate<Stan, Scientists>")
+          doTask("-PartyFollower<Stan, Scientists>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
@@ -114,18 +110,16 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   internal fun `Preserves the former leader after a removal tie`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("Chairman<Kim FROM Neutral>")
-    kim.exMachina("3 PartyDelegate<Scientists, Rob>")
-    kim.exMachina("2 PartyDelegate<Scientists>")
-    stan.exMachina("2 PartyDelegate<Scientists>")
+    kim.exMachina("PartyLeader<Scientists, Rob>, 2 PartyFollower<Scientists, Rob>")
+    kim.exMachina("2 PartyFollower<Scientists>")
+    stan.exMachina("2 PartyFollower<Scientists>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          // Hand the chosen removal to Admin, which updates the delegate reserve.
-          selectTask("BannedDelegateRemoval<Kim, Scientists, Rob>*")
-          doTask("-PartyDelegate<Rob, Scientists>")
+          doTask("-PartyFollower<Rob, Scientists>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
@@ -139,9 +133,9 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   internal fun `Measures a challenger tie from the acting seat`() {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 4)
     stan.exMachina("Chairman<Stan FROM Neutral>")
-    kim.exMachina("4 PartyDelegate<Scientists, Maya>")
-    kim.exMachina("4 PartyDelegate<Scientists>")
-    kim.exMachina("4 PartyDelegate<Scientists, Rob>")
+    kim.exMachina("PartyLeader<Scientists, Maya>, 3 PartyFollower<Scientists, Maya>")
+    kim.exMachina("4 PartyFollower<Scientists>")
+    kim.exMachina("4 PartyFollower<Scientists, Rob>")
 
     stan
         .inTurn {
@@ -149,9 +143,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          // Hand the chosen removal to Admin, which updates the delegate reserve.
-          selectTask("BannedDelegateRemoval<Stan, Scientists, Maya>*")
-          doTask("-PartyDelegate<Maya, Scientists>")
+          doTask("-PartyFollower<Maya, Scientists>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
@@ -164,16 +156,14 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   internal fun `Removes a selected non-leader delegate`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("Chairman<Kim FROM Neutral>")
-    stan.exMachina("2 PartyDelegate<MarsFirst>")
+    stan.exMachina("PartyFollower<MarsFirst>, PartyLeader<MarsFirst>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<$BannedDelegate>>",
               "$BannedDelegate FROM ProjectCard",
           )
-          // Hand the chosen removal to Admin, which updates the delegate reserve.
-          selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
-          doTask("-PartyDelegate<MarsFirst, Stan>")
+          doTask("-PartyFollower<MarsFirst, Stan>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("0 PartyLeader<MarsFirst, Stan>")
@@ -182,37 +172,33 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   @Test
   internal fun `Can remove an owned non-leader`() {
     arrangeChairman()
-    kim.exMachina("2 PartyDelegate<Scientists>")
+    kim.exMachina("PartyLeader<Scientists>, PartyFollower<Scientists>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          // Hand the chosen removal to Admin, which updates the delegate reserve.
-          selectTask("BannedDelegateRemoval<Kim, Scientists, Kim>*")
-          doTask("-PartyDelegate<Scientists>")
+          doTask("-PartyFollower<Scientists>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
-        .expect("-PartyDelegate<Scientists>, 0 PartyLeader<Scientists>")
+        .expect("-PartyFollower<Scientists>, 0 PartyLeader<Scientists>")
   }
 
   @Test
   internal fun `Can remove a neutral non-leader`() {
     arrangeChairman()
-    kim.exMachina("2 PartyDelegate<Scientists, Neutral>")
+    kim.exMachina("PartyLeader<Scientists, Neutral>, PartyFollower<Scientists, Neutral>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          // Hand the chosen removal to Admin, which updates the delegate reserve.
-          selectTask("BannedDelegateRemoval<Kim, Scientists, Neutral>*")
-          doTask("-PartyDelegate<Neutral, Scientists>")
+          doTask("-PartyFollower<Neutral, Scientists>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
-        .expect("-PartyDelegate<Scientists, Neutral>, 0 PartyLeader<Scientists, Neutral>")
+        .expect("-PartyFollower<Scientists, Neutral>, 0 PartyLeader<Scientists, Neutral>")
   }
 
   @Test
@@ -223,8 +209,8 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
+              "Ok",
           )
-          doTask("0* BannedDelegateRemoval<Anyone, Party>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("0 PartyDelegate<Anyone>")
@@ -233,7 +219,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   @Test
   internal fun `Must remove a delegate when a non-leader exists`() {
     arrangeChairman()
-    stan.exMachina("2 PartyDelegate<MarsFirst>")
+    stan.exMachina("PartyFollower<MarsFirst>, PartyLeader<MarsFirst>")
 
     shouldThrow<TaskException> {
       kim.inTurn {
@@ -249,17 +235,15 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   @Test
   internal fun `An unrelated non-leader does not permit selecting a party leader`() {
     arrangeChairman()
-    stan.exMachina("2 PartyDelegate<MarsFirst>, PartyDelegate<Scientists>")
+    stan.exMachina("PartyFollower<MarsFirst>, PartyLeader<MarsFirst>, PartyLeader<Scientists>")
 
-    shouldThrow<DeadEndException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
             "PlayProject<Class<BannedDelegate>>",
             "BannedDelegate FROM ProjectCard",
         )
-        // Select the removal choice before testing an incompatible partial narrowing.
-        selectTask("BannedDelegateRemoval")
-        narrowTask("BannedDelegateRemoval<Kim, Scientists, Stan>")
+        doTask("-PartyLeader<Scientists, Stan>")
       }
     }
   }
@@ -267,18 +251,16 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   @Test
   internal fun `Another owner's non-leader does not permit selecting the sole leader`() {
     arrangeChairman()
-    kim.exMachina("PartyDelegate<Scientists>")
-    stan.exMachina("PartyDelegate<Scientists>")
+    kim.exMachina("PartyLeader<Scientists>")
+    stan.exMachina("PartyFollower<Scientists>")
 
-    shouldThrow<DeadEndException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
             "PlayProject<Class<BannedDelegate>>",
             "BannedDelegate FROM ProjectCard",
         )
-        // Select the removal choice before testing an incompatible partial narrowing.
-        selectTask("BannedDelegateRemoval")
-        narrowTask("BannedDelegateRemoval<Kim, Scientists, Kim>")
+        doTask("-PartyLeader<Scientists, Kim>")
       }
     }
   }
@@ -286,19 +268,55 @@ internal class BannedDelegateTest : TfmSandboxTest() {
   @Test
   internal fun `Removal affects only the selected party`() {
     arrangeChairman()
-    stan.exMachina("2 PartyDelegate<MarsFirst>, PartyDelegate<Scientists>")
+    stan.exMachina("PartyFollower<MarsFirst>, PartyLeader<MarsFirst>, PartyLeader<Scientists>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          // Hand the chosen removal to Admin, which updates the delegate reserve.
-          selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>*")
-          doTask("-PartyDelegate<Stan, MarsFirst>")
+          doTask("-PartyFollower<Stan, MarsFirst>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
-        .expect("-PartyDelegate<MarsFirst, Stan>, 0 PartyDelegate<Scientists, Stan>")
+        .expect("-PartyFollower<MarsFirst, Stan>, 0 PartyDelegate<Scientists, Stan>")
+  }
+
+  @Test
+  internal fun `Cannot evade removal by selecting an empty party while followers exist elsewhere`() {
+    arrangeChairman()
+    stan.exMachina("PartyLeader<Scientists>, PartyFollower<Scientists>")
+
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTasks(
+            "PlayProject<Class<BannedDelegate>>",
+            "BannedDelegate FROM ProjectCard",
+            "-PartyFollower<Greens, Stan>",
+            "PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate",
+        )
+      }
+    }
+    stan.count("PartyFollower<Scientists>") shouldBe 1
+    kim.count("PlayedEvent<Class<BannedDelegate>>") shouldBe 0
+  }
+
+  @Test
+  internal fun `Cannot evade removal by selecting an owner with no follower in the chosen party`() {
+    arrangeChairman()
+    stan.exMachina("PartyLeader<Scientists>, PartyFollower<Scientists>")
+
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTasks(
+            "PlayProject<Class<BannedDelegate>>",
+            "BannedDelegate FROM ProjectCard",
+            "-PartyFollower<Scientists, Rob>",
+            "PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate",
+        )
+      }
+    }
+    stan.count("PartyFollower<Scientists>") shouldBe 1
+    kim.count("PlayedEvent<Class<BannedDelegate>>") shouldBe 0
   }
 
   private fun arrangeChairman() {

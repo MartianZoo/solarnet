@@ -10,7 +10,7 @@ internal class AphroditeTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Aphrodite)
 
     stan.inTurn {
-      doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
+      doTasks("UseStandardProject<AirScrappingProject>", "15 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
       kim.doTask("2 MC")

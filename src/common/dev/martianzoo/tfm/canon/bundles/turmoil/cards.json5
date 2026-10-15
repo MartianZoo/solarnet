@@ -15,20 +15,14 @@
           "requirement": "Chairman",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "direct":
-            "BannedDelegateRemoval<Party, Anyone>* / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1",
-          "components": [
-            // Returns a selected non-leader delegate, then resolves its party leadership.
-            // A transfer also removes a delegate; leadership changes only after this selected removal.
-            "CLASS BannedDelegateRemoval<@Party, @Owner> : Owned<Player>, Barrier, System { HAS MAX 1 This; This IF MAX 0 (PartyDelegate<@Party, @Owner> - PartyLeader<@Party, @Owner>):: Die; This: -PartyDelegate<@Party, @Owner> THEN -This!; -This:: EACH Next@Owner(HAS MAX 0 PartyLeader<@Party>, HAS =1 (RANK Ranked@Owner { PartyDelegate<@Party, Ranked@>, PartyLeader<@Party, Ranked@>, Player - PlayerDistance<Me@, Ranked@> })) { PartyLeader<@Party, Next@> FROM PartyLeader<@Party, Anyone> } }"
-          ],
+          "direct": "-PartyFollower<Party, Anyone> OR (MAX 0 PartyFollower<Party, Anyone>: Ok)",
         },
         {
           "name": "CulturalMetropolis",
           "requirement": "Ruling<Unity> OR 2 PartyDelegate<Unity>",
           "cost": 20,
           "tags": [ "CityTag", "BuildingTag" ],
-          "direct": "PROD[-Energy, 3 MC], CityTile<>, 2 PartyDelegate",
+          "direct": "PROD[-Energy, 3 MC], CityTile<>, PartyDelegate<@Party> THEN PartyDelegate<@Party>",
         },
         {
           "name": "DiasporaMovement",
@@ -87,7 +81,7 @@
           "cost": 2,
           "tags": [ "EventTag" ],
           "direct":
-            "PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Me@ FROM Neutral>",
+            "PartyDelegate<@Party> FROM PartyFollower<@Party, Neutral>",
         },
         {
           "name": "RedTourismWave",

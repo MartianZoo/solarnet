@@ -110,7 +110,12 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
     players.forEach { it.autoExecNow(EAGER) }
     if (kimCorporation != null || !playCorporations) kim.doTask("-5 ProjectCard<Selecting>")
     if (admin.count("RevealComingEvent") > 0) {
-      admin.doTasks("DemocraticReform", "MinimalImpactPolicy")
+      admin.doTasks(
+          "DemocraticReform",
+          "PartyLeader<MarsFirst, Neutral>",
+          "MinimalImpactPolicy",
+          "PartyLeader<Reds, Neutral>",
+      )
     }
     if (players.size == 1) {
       val placements =
@@ -136,9 +141,6 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
         // Resolve the corporation's concrete starting benefits before the five-card purchase.
         player.completeOperation {
           doTask("PlayCard<Class<CorporationCard>, Class<$kimCorporation>>")
-          autoExecNow(EAGER)
-          // Shared setup buys five projects at the corporation's actual price.
-          doTask("-${player.count("Owed")} MC")
           autoExecNow(EAGER)
         }
       } else {

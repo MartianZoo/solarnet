@@ -17,7 +17,7 @@ internal class HellasMapTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks("ConvertPlants", "-8 Plant")
+        doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
         // Hand the paid conversion to Admin to offer the legal greenery areas.
         selectTask("DefaultGreeneryTile")
         doTask("GreeneryTile<Hellas_1_5>")
@@ -33,7 +33,7 @@ internal class HellasMapTest : TfmSandboxTest() {
     kim.setToExMachina(8, "Plant")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "-8 Plant")
+          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
           // Hand the paid conversion to Admin to offer the legal greenery areas.
           selectTask("DefaultGreeneryTile")
           doTask("GreeneryTile<Hellas_9_7>")

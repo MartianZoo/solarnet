@@ -6256,16 +6256,16 @@ Class: `BannedDelegate`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires that you are Chairman. Remove any NON-LEADER delegate. | — |
-| Generated text | Requires that you are chairman. \[BannedDelegateRemoval&lt;Party, Anyone&gt;. / (PartyDelegate&lt;Party, Anyone&gt; - PartyLeader&lt;Party, Anyone&gt;) MAX 1\]. | — |
+| Generated text | Requires that you are chairman. Remove a non-leader delegate in a party, or if there are 0 non-leader delegates in any party, do nothing. | — |
 
 Pets declaration:
 
 ```pets
 CLASS BannedDelegate : EventCard {
-  HAS =1 EventTag<This>
+  HAS MAX 1 BannedDelegate, =1 EventTag<This>
   cost = 0
   requirement = HAS "Chairman"
-  This: BannedDelegateRemoval<Party, Anyone>* / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
+  This: -PartyFollower<Party, Anyone> OR (MAX 0 PartyFollower<Party, Anyone>: Ok)
 }
 ```
 
@@ -6276,16 +6276,16 @@ Class: `CulturalMetropolis`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires that Unity is ruling or that you have 2 delegates there. Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile. Place 2 delegates in 1 party. | — |
-| Generated text | Requires that you meet the party requirement for Unity. Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile and 2 delegates. | — |
+| Generated text | Requires that either Unity is ruling or you have 2 delegates in Unity. Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile. Place a delegate in a party, then place a delegate in that party. | — |
 
 Pets declaration:
 
 ```pets
 CLASS CulturalMetropolis : AutomatedCard {
-  HAS =1 CityTag<This>, =1 BuildingTag<This>
+  HAS MAX 1 CulturalMetropolis, =1 CityTag<This>, =1 BuildingTag<This>
   cost = 20
-  requirement = HAS "PartyRequirement<Unity>"
-  This: PROD[-Energy, 3 MC], CityTile<>, 2 PartyDelegate
+  requirement = HAS "Ruling<Unity> OR 2 PartyDelegate<Unity>"
+  This: PROD[-Energy, 3 MC], CityTile<>, PartyDelegate<@Party> THEN PartyDelegate<@Party>
 }
 ```
 
@@ -6439,15 +6439,15 @@ Class: `Recruitment`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Exchange one NEUTRAL NON-LEADER delegate with one of your own from the reserve. | — |
-| Generated text | \[PartyDelegate&lt;Party(HAS 1 (PartyDelegate&lt;Neutral&gt; - PartyLeader&lt;Neutral&gt;)), Me@Owner FROM Neutral&gt;\]. | — |
+| Generated text | Change a neutral non-leader delegate in any party into a delegate of your own in that party. | — |
 
 Pets declaration:
 
 ```pets
 CLASS Recruitment : EventCard {
-  HAS =1 EventTag<This>
+  HAS MAX 1 Recruitment, =1 EventTag<This>
   cost = 2
-  This: PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Me@ FROM Neutral>
+  This: PartyDelegate<@Party> FROM PartyFollower<@Party, Neutral>
 }
 ```
 
@@ -7201,13 +7201,13 @@ Class: `KaguyaTech`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Increase your M€ production 2 steps. Draw 1 card. Remove 1 of your greenery tiles (does not affect oxygen). Place a city tile there, regardless of other restrictions. Gain placement bonuses as usual. | — |
-| Generated text | Increase your M€ production 2 steps. Draw 1 card. Change a greenery tile on any area into a city tile on that area. | — |
+| Generated text | Increase your M€ production 2 steps. Draw 1 card. Change a greenery tile of your own on any Mars area into a city tile of your own on that Mars area. | — |
 
 Pets declaration:
 
 ```pets
 CLASS KaguyaTech : AutomatedCard {
-  HAS =1 CityTag<This>, =1 PlantTag<This>
+  HAS MAX 1 KaguyaTech, =1 CityTag<This>, =1 PlantTag<This>
   cost = 10
   This: PROD[2 MC], ProjectCard, CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>
 }
@@ -7279,12 +7279,13 @@ Class: `MarsNomads`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | PLACE THE NOMADS (a gold cube) on a non-reserved, empty area on the game board. | Action: Move the Nomads to an adjacent, non-reserved, empty area, and GAIN PLACEMENT BONUSES as if placing a special tile there. No tiles may be placed on the Nomad area. |
-| Generated text | Place a nomads marker on a land area with no occupant. | Action: \[NomadsMarker&lt;NewHome@LandArea(HAS MAX 0 Occupant, HAS Neighbor&lt;NomadsMarker&gt;) FROM LandArea&gt;\], then \[Placement&lt;NewHome@LandArea&gt;\]. |
+| Generated text | Place a nomads marker on a land area with no occupant. | Action: Change a nomads marker on any land area into a nomads marker on a land area with no occupant next to a nomads marker, then \[Placement&lt;NewHome@LandArea&gt;\]. |
 
 Pets declaration:
 
 ```pets
 CLASS MarsNomads : ActiveCard, ActionCard {
+  HAS MAX 1 MarsNomads
   cost = 13
   This: NomadsMarker<LandArea(HAS MAX 0 Occupant)>
   -> NomadsMarker<NewHome@LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>) FROM LandArea> THEN Placement<NewHome@LandArea>
@@ -8321,16 +8322,16 @@ Class: `EnvoysFromVenus`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires 3 Venus tags. Place 2 delegates in 1 party. | — |
-| Generated text | Requires 3 Venus tags. Place 2 delegates. | — |
+| Generated text | Requires 3 Venus tags. Place a delegate in a party, then place a delegate in that party. | — |
 
 Pets declaration:
 
 ```pets
 CLASS EnvoysFromVenus : EventCard {
-  HAS =1 VenusTag<This>, =1 EventTag<This>
+  HAS MAX 1 EnvoysFromVenus, =1 VenusTag<This>, =1 EventTag<This>
   cost = 1
   requirement = HAS "3 VenusTag"
-  This: 2 PartyDelegate
+  This: PartyDelegate<@Party> THEN PartyDelegate<@Party>
 }
 ```
 
@@ -8381,16 +8382,16 @@ Class: `JovianEnvoys`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires 2 Jovian tags. Place 2 delegates in 1 party. | — |
-| Generated text | Requires 2 Jovian tags. Place 2 delegates. | — |
+| Generated text | Requires 2 Jovian tags. Place a delegate in a party, then place a delegate in that party. | — |
 
 Pets declaration:
 
 ```pets
 CLASS JovianEnvoys : EventCard {
-  HAS =1 EventTag<This>
+  HAS MAX 1 JovianEnvoys, =1 EventTag<This>
   cost = 2
   requirement = HAS "2 JovianTag"
-  This: 2 PartyDelegate
+  This: PartyDelegate<@Party> THEN PartyDelegate<@Party>
 }
 ```
 
@@ -8441,16 +8442,16 @@ Class: `SponsoringNation`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires 4 Earth tags. Raise TR 3 steps and place 2 delegates. | — |
-| Generated text | Requires 4 Earth tags. Raise your terraform rating 3 steps. Place 2 delegates. | — |
+| Generated text | Requires 4 Earth tags. Raise your terraform rating 3 steps. Place a delegate in a party, then place a delegate in that party. | — |
 
 Pets declaration:
 
 ```pets
 CLASS SponsoringNation : AutomatedCard {
-  HAS =1 EarthTag<This>
+  HAS MAX 1 SponsoringNation, =1 EarthTag<This>
   cost = 21
   requirement = HAS "4 EarthTag"
-  This: 3 TerraformRating, 2 PartyDelegate
+  This: 3 TerraformRating, PartyDelegate<@Party> THEN PartyDelegate<@Party>
 }
 ```
 

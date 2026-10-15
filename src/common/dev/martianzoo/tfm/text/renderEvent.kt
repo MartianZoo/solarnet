@@ -315,16 +315,7 @@ internal fun Describers.renderActionUse(expression: Expression): NounPhrase? {
         )
     )
   }
-  val unit = property.unit?.let { " $it" }.orEmpty()
-  return objectPhrase.withModifier(
-      Modifier.Relation(
-          "with",
-          NounPhrase(
-              "${property.noun} of ${minimum.target}$unit or more",
-              determiner = Determiner.INDEFINITE,
-          ),
-      )
-  )
+  return objectPhrase.withModifier(renderPropertyThreshold(property, minimum))
 }
 
 private fun Describers.renderActionProviderPresence(
@@ -471,18 +462,8 @@ internal fun Describers.playedCardEvent(expression: Expression): Event? {
             if (metric.receiver != null) return null
             val property = description.minimumProperties[metric.propertyName.value] ?: return null
             when (property) {
-              is ComponentDescriber.MinimumProperty.Threshold -> {
-                val unit = property.unit?.let { " $it" }.orEmpty()
-                cardPhrase.withModifier(
-                    Modifier.Relation(
-                        "with",
-                        NounPhrase(
-                            "${property.noun} of ${minimum.target}$unit or more",
-                            determiner = Determiner.INDEFINITE,
-                        ),
-                    )
-                )
-              }
+              is ComponentDescriber.MinimumProperty.Threshold ->
+                  cardPhrase.withModifier(renderPropertyThreshold(property, minimum))
               is ComponentDescriber.MinimumProperty.Presence -> {
                 if (minimum.target != 1) return null
                 cardPhrase.withModifier(

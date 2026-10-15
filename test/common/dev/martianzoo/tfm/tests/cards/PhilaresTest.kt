@@ -20,7 +20,11 @@ internal class PhilaresTest : TfmSandboxTest() {
   internal fun `Pays its owner when an opponent places an adjacent greenery`() {
     stan
         .inTurn {
-          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
+          doTasks(
+              "UseStandardProject<GreeneryProject>",
+              "23 Pay<> FROM MC",
+              "GreeneryTile<Tharsis_3_2>",
+          )
           kim.doTask("Titanium")
           doTask("OxygenStep")
           doTask("TerraformRating")
@@ -34,7 +38,11 @@ internal class PhilaresTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
 
     kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Tharsis_3_2>",
+      )
       doTask("OxygenStep")
       doTask("TerraformRating")
 
@@ -48,7 +56,11 @@ internal class PhilaresTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_1>")
+          doTasks(
+              "UseStandardProject<GreeneryProject>",
+              "23 Pay<> FROM MC",
+              "GreeneryTile<Tharsis_2_1>",
+          )
           doTask("OxygenStep")
           doTask("TerraformRating")
         }
@@ -62,7 +74,11 @@ internal class PhilaresTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
 
     kim.inTurn {
-          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
+          doTasks(
+              "UseStandardProject<GreeneryProject>",
+              "23 Pay<> FROM MC",
+              "GreeneryTile<Tharsis_3_2>",
+          )
           doTask("OxygenStep")
           doTask("TerraformRating")
         }
@@ -77,7 +93,7 @@ internal class PhilaresTest : TfmSandboxTest() {
         .inTurn {
           doTasks(
               "PlayProject<Class<KaguyaTech>>",
-              "-10 MC",
+              "10 Pay<> FROM MC",
               "KaguyaTech FROM ProjectCard",
               "PROD[2 MC]",
           )

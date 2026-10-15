@@ -16,7 +16,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     admin.setToExMachina(4, "ColonyProduction<Luna>")
 
     kim.inTurn {
-          doTasks("TradeAction", "-9 MC")
+          doTasks("TradeAction", "9 Pay<> FROM MC")
 
           doTasks("Trade<Luna>")
           // Hand the colony-track change to Admin before collecting trade income.
@@ -58,7 +58,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     admin.setToExMachina(6, "ColonyProduction<Luna>")
 
     kim.inTurn {
-          doTasks("TradeAction", "-9 MC")
+          doTasks("TradeAction", "9 Pay<> FROM MC")
 
           doTasks("Trade<Luna>")
           // Hand the colony-track change to Admin before collecting trade income.
@@ -78,7 +78,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
 
     kim.inTurn {
           // Decline the other card's additional optional track increase.
-          doTasks("TradeAction", "-9 MC")
+          doTasks("TradeAction", "9 Pay<> FROM MC")
 
           doTasks("Trade<Luna>")
           // Hand the colony-track change to Admin before collecting trade income.

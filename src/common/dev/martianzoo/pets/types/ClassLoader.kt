@@ -2,9 +2,10 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
+import dev.martianzoo.pets.api.Exceptions.DomainException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.OK
@@ -44,6 +45,9 @@ import dev.martianzoo.pets.types.InhabitanceInterpreter.SimplifiedRequirement
  * Name lookup and resolution are available while loading. [loadEverything] completes and freezes a
  * master universe. A game table freezes its combined structural namespace before computing the
  * premise's inclusion closure, so every enumeration used by that closure has a stable namespace.
+ * Compilation rejects inheritance deeper than 128 classes (including `Component`) or more than 128
+ * simultaneous class constructions with [ResourceLimitException], before recursive class processing
+ * exhausts the stack.
  */
 public class ClassLoader
 private constructor(
@@ -613,18 +617,27 @@ private constructor(
   private fun loadSingle(name: ClassName): Class =
       findClass(name)?.also { includeClass(name) } ?: loadRelated(name, include = true)
 
+  private var constructionDepth = 0
+
   // All classes are created here (aside from Component and Class, at top).
   private fun construct(source: ClassDeclaration, includeRelated: Boolean = true): Class {
     check(masterSource == null || source.className in declarations) {
       "a game table may construct only premise classes"
     }
     require(!frozen) { "class table is already frozen" }
+    if (constructionDepth >= 128) {
+      throw ResourceLimitException(
+          "class construction exceeds 128 levels at `${source.className}`",
+          sourceLocation = source.className.sourceLocation,
+      )
+    }
     val decl = source.also(validateDeclaration)
 
     fun store(c: Class?) {
       loadedClasses[decl.className] = c
     }
     store(null) // to detect reentrancy
+    constructionDepth++
     try {
       val klass = Class(decl, this, includeRelated)
       validateCustomInheritance(klass)
@@ -633,6 +646,8 @@ private constructor(
     } catch (e: Throwable) {
       loadedClasses.remove(decl.className)
       throw e
+    } finally {
+      constructionDepth--
     }
   }
 
@@ -657,7 +672,7 @@ private constructor(
             e,
             e.sourceLocation ?: declaration.className.sourceLocation,
         )
-      } catch (e: PetException) {
+      } catch (e: DomainException) {
         if (e.sourceLocation == null) e.sourceLocation = declaration.className.sourceLocation
         throw e
       }

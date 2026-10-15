@@ -13,7 +13,7 @@ internal class SupercapacitorsTest : TfmGameplayTest() {
   @BeforeTest
   fun initializeGame() {
     newTestGame(addOptions = "-VenusNextExpansion", playerCount = 2)
-    kim.doTasks("PlayProject<Class<$Supercapacitors>>", "-4 MC")
+    kim.doTasks("PlayProject<Class<$Supercapacitors>>")
     kim.doTask("0 StandardAction") // Decline the second action.
     stan.doTask("Pass")
     kim.doTask("Pass")

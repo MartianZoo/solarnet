@@ -103,7 +103,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(SaturnSurfing).expect("-Floater, 3 MC")
       playProject(DesignedMicroorganisms, 16)
       playProject(RotatorImpacts, 2, titanium = 1)
-      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(2, titanium = 1) })
 
       pass()
       wgt("OceanTile<Tharsis_4_8>")
@@ -151,7 +151,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(ElectroCatapult)
       cardAction1(TitanShuttles) { addCardResources(SaturnSurfing) }
       cardAction1(SaturnSurfing).expect("-Floater, 5 MC")
-      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(2, titanium = 1) })
       cardAction1(Tardigrades)
       playProject(BribedCommittee, 7)
       playProject(ReleaseOfInertGases, 14)
@@ -206,7 +206,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       }
       playProject(AsteroidRights, 10)
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
-      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(2, titanium = 1) })
       cardAction1(Tardigrades)
       playProject(PowerSupplyConsortium, 5)
       cardAction1(ForcedPrecipitation)

@@ -18,7 +18,7 @@ internal class EnergyTappingTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<$EnergyTapping>>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "Energy", // Manutech gains the resource even though production is then lost.

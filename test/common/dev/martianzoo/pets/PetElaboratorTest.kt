@@ -176,7 +176,7 @@ internal class PetElaboratorTest {
         componentType,
         classEffect,
         componentType.expressionFull,
-    ) shouldBe parse<Effect>("This: ContextRule<Player1>, Token<Player1>!")
+    ) shouldBe parse<Effect>("This: ContextRule<Player1>!, Token<Player1>!")
   }
 
   @Test

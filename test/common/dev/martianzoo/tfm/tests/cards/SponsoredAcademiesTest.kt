@@ -17,7 +17,7 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<SponsoredAcademies>>",
-              "-9 MC",
+              "9 Pay<> FROM MC",
               "SponsoredAcademies FROM ProjectCard",
           )
           // Expand the reward into separate tasks for each other player.
@@ -40,7 +40,7 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("PlayProject<Class<SponsoredAcademies>>")
-        doTasks("-9 MC", "SponsoredAcademies FROM ProjectCard")
+        doTasks("9 Pay<> FROM MC", "SponsoredAcademies FROM ProjectCard")
         // Expand the reward into separate tasks for each other player.
         selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
         doTask("ProjectCard<Stan, Hand>")

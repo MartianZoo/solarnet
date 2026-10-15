@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Exceptions.RunawayEffectChainException
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -13,6 +12,7 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.DIE
@@ -313,9 +313,10 @@ internal constructor(
       ancestors: List<PendingTask> = automaticEffectStack,
   ) {
     if (ancestors.size >= MAX_AUTOMATIC_EFFECT_DEPTH) {
-      throw RunawayEffectChainException(
-          MAX_AUTOMATIC_EFFECT_DEPTH,
-          (ancestors + task).map(PendingTask::instruction),
+      throw ResourceLimitException(
+          "automatic effect chain exceeded depth $MAX_AUTOMATIC_EFFECT_DEPTH: " +
+              (ancestors + task).joinToString(" -> ") { it.instruction.toString() },
+          sourceLocation = task.instruction.sourceLocation,
       )
     }
     val enclosingStack = automaticEffectStack

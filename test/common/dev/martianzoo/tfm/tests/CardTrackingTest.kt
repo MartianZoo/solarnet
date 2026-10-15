@@ -642,7 +642,7 @@ internal class CardTrackingTest : TfmTest() {
     tracking.expectArrivals(player, cn("VenusGovernor"))
     agent.runOperation("TakeSelectedCard<TagFilter<Class<VenusTag>>>")
     tracking.expectArrivals(player, cn("AcquiredCompany"))
-    agent.runOperation("BuySelectedCards") { agent.pay(3) }
+    agent.runOperation("BuySelectedCards")
 
     tracking.hand(player) shouldBe setOf(cn("VenusGovernor"), cn("AcquiredCompany"))
     tracking.requireComplete()

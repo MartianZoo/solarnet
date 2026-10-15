@@ -17,7 +17,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<RoboticWorkforce>>",
-          "-9 MC",
+          "9 Pay<> FROM MC",
           "RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<StripMine>",
           "PROD[-2 Energy]",
@@ -35,7 +35,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTask("PlayProject<Class<RoboticWorkforce>>")
-        doTasks("-9 MC", "RoboticWorkforce FROM ProjectCard")
+        doTasks("9 Pay<> FROM MC", "RoboticWorkforce FROM ProjectCard")
         doTask("CopyProductionBox<MassConverter>")
       }
     }
@@ -50,7 +50,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTask("PlayProject<Class<RoboticWorkforce>>")
-        doTasks("-9 MC", "RoboticWorkforce FROM ProjectCard")
+        doTasks("9 Pay<> FROM MC", "RoboticWorkforce FROM ProjectCard")
         doTask("CopyProductionBox<Mine<Stan>>")
       }
     }
@@ -64,7 +64,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTask("PlayProject<Class<RoboticWorkforce>>")
-        doTasks("-9 MC", "RoboticWorkforce FROM ProjectCard")
+        doTasks("9 Pay<> FROM MC", "RoboticWorkforce FROM ProjectCard")
         doTask("CopyProductionBox<Mine>")
       }
     }
@@ -84,7 +84,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<RoboticWorkforce>>",
-              "-9 MC",
+              "9 Pay<> FROM MC",
               "RoboticWorkforce FROM ProjectCard",
               "CopyProductionBox<IndustrialComplex>",
           )
@@ -99,7 +99,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
   internal fun `Counts current building tags when copying Medical Lab`() {
     newTestGame()
     kim.inTurn {
-          doTasks("PlayProject<Class<MedicalLab>>", "-13 MC")
+          doTasks("PlayProject<Class<MedicalLab>>", "13 Pay<> FROM MC")
           doTasks("MedicalLab FROM ProjectCard")
           doTask("PROD[0 MC]")
         }
@@ -109,7 +109,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<RoboticWorkforce>>",
-          "-9 MC",
+          "9 Pay<> FROM MC",
           "RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<MedicalLab>",
       )
@@ -123,7 +123,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     kim.setToExMachina(2, "PROD[Heat]")
     stan.setToExMachina(2, "PROD[Heat]")
     kim.inTurn {
-      doTasks("PlayProject<Class<HeatTrappers>>", "-6 MC")
+      doTasks("PlayProject<Class<HeatTrappers>>", "6 Pay<> FROM MC")
       doTasks(
           "HeatTrappers FROM ProjectCard",
           "PROD[Energy]",
@@ -135,7 +135,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<RoboticWorkforce>>",
-              "-9 MC",
+              "9 Pay<> FROM MC",
               "RoboticWorkforce FROM ProjectCard",
               "CopyProductionBox<HeatTrappers>",
               "PROD[Energy]",

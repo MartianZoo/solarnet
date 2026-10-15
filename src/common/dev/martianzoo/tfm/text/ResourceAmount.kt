@@ -21,9 +21,6 @@ internal data class ResourceAmount(
 
   val phrase: NounPhrase
     get() = NounPhrase(singularNoun, pluralNoun, count)
-
-  fun withNoun(noun: ComponentDescriber.Noun.Counted): ResourceAmount =
-      copy(singularNoun = noun.singular, pluralNoun = noun.plural)
 }
 
 internal fun owedReduction(

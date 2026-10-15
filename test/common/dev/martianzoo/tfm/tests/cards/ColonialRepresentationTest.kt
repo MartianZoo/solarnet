@@ -16,7 +16,7 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<ColonialRepresentation>>",
-              "-10 MC",
+              "10 Pay<> FROM MC",
               "ColonialRepresentation FROM ProjectCard",
           )
           doTask("6 MC")
@@ -28,7 +28,7 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
     @Test
     internal fun `Its influence improves a Global Event payout even without colonies`() {
       newTestGame("ColonialRepresentation, TurmoilExpansion", playerCount = 2)
-      kim.doTasks("PlayProject<Class<$ColonialRepresentation>>", "-10 MC")
+      kim.doTasks("PlayProject<Class<$ColonialRepresentation>>")
       kim.doTask("0 StandardAction") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")
@@ -36,7 +36,9 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
+      admin.doTask("PartyLeader<Greens, Neutral>")
       admin.doTask("ExploreFirstDirective")
+      admin.doTask("PartyFollower<Reds, Neutral>")
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("Pass")

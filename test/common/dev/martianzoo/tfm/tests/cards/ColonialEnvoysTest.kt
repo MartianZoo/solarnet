@@ -8,19 +8,19 @@ internal class ColonialEnvoysTest : TfmSandboxTest() {
   @Test
   internal fun `Each owned colony supplies a delegate even when colonies share a tile`() {
     newTestGame("ColonialEnvoys, TurmoilExpansion, Luna, Io")
-    kim.exMachina("2 Colony<Luna>, 2 PartyDelegate<Unity>")
+    kim.exMachina("2 Colony<Luna>, PartyLeader<Unity>, PartyFollower<Unity>")
     stan.exMachina("Colony<Io>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<ColonialEnvoys>>",
-              "-4 MC",
+              "4 Pay<> FROM MC",
               "ColonialEnvoys FROM ProjectCard",
           )
           // Expand the per-colony reward into separate delegate choices.
           selectOnlyTask()
-          doTask("PartyDelegate<Scientists>")
-          doTask("PartyDelegate<Greens>")
+          doTask("PartyLeader<Scientists>")
+          doTask("PartyLeader<Greens>")
           doTask("PlayedEvent<Class<ColonialEnvoys>> FROM ColonialEnvoys")
         }
         .expect("0 PartyDelegate<Stan>")

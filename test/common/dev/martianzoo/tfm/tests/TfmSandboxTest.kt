@@ -240,7 +240,12 @@ internal abstract class TfmSandboxTest {
       }
     }
     if (admin.count("RevealComingEvent") > 0) {
-      admin.doTasks("DemocraticReform", "MinimalImpactPolicy")
+      admin.doTasks(
+          "DemocraticReform",
+          "PartyLeader<MarsFirst, Neutral>",
+          "MinimalImpactPolicy",
+          "PartyLeader<Reds, Neutral>",
+      )
     }
     if (players.size == 1) {
       val placements =
@@ -265,7 +270,7 @@ internal abstract class TfmSandboxTest {
       if (index == 0 && kimCorporation != null) {
         player.inTurn {
           doTask("PlayCard<Class<CorporationCard>, Class<$kimCorporation>>")
-          doWithAutoExecPolicy(EAGER) { doTask("-MC / Owed") }
+          autoExecNow(EAGER)
         }
       } else {
         player.inTurn {

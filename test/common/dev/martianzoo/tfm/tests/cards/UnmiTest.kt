@@ -14,13 +14,13 @@ internal class UnmiTest : TfmSandboxTest() {
     newTestGame(kimCorporation = UnitedNationsMarsInitiative)
     kim.setToExMachina(17, "MC")
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
 
     kim.inTurn {
-      doTasks("UseCardAction<UnitedNationsMarsInitiative, Action1>", "-3 MC")
+      doTasks("UseCardAction<UnitedNationsMarsInitiative, Action1>", "3 Pay<> FROM MC")
       doTask("TerraformRating")
     }
   }
@@ -32,7 +32,7 @@ internal class UnmiTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("UseCardAction<UnitedNationsMarsInitiative, Action1>")
-        doTask("-3 MC")
+        doTask("3 Pay<> FROM MC")
         // Resolve the TR reward so the earlier-TR-gain requirement is checked.
         selectTask("TerraformRating")
       }
@@ -56,8 +56,7 @@ internal class UnmiTest : TfmSandboxTest() {
       stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
       stan.autoExecNow(EAGER)
 
-      kim.doTasks("UseCardAction<$UnitedNationsMarsInitiative, Action1>", "-3 MC")
-          .expect("TerraformRating")
+      kim.doTasks("UseCardAction<$UnitedNationsMarsInitiative, Action1>").expect("TerraformRating")
     }
 
     @Test
@@ -76,8 +75,7 @@ internal class UnmiTest : TfmSandboxTest() {
       stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
       stan.autoExecNow(EAGER)
 
-      kim.doTasks("UseCardAction<$UnitedNationsMarsInitiative, Action1>", "-3 MC")
-          .expect("TerraformRating")
+      kim.doTasks("UseCardAction<$UnitedNationsMarsInitiative, Action1>").expect("TerraformRating")
     }
   }
 }

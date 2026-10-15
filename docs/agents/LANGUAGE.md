@@ -108,6 +108,14 @@ for every fake wild tag, placing it below the artwork with the card's play-time 
 derivation. These serve contexts that already established a narrower semantic role; do not use them
 to recreate a competing general expression dispatcher.
 
+`cardCriterionModifier` owns the shared tag, property-presence, and icon filter wording for card
+searches and metrics. Callers retain their context-specific restrictions and choice of an attributive
+tag name versus a `with` modifier. `renderPropertyThreshold` shares numeric property comparisons
+between metrics and event triggers; action-use triggers retain their positive-value shorthand.
+Payment effects and persistent value grants share `renderExtraResourceValue` after their separate
+recognizers establish the resource and value. The best-effort qualifier is `Modifier.BEST_EFFORT`;
+modifier ordering must use that shared value rather than independently spelling its text.
+
 `ChangeFrame` is the one axis that got this right: a closed classification, dispatched exhaustively,
 declared as data. Treat it as the template, not as a finished job.
 
@@ -256,6 +264,8 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. A card count linked to
   an action cost uses `that many` only when the quantities match. This distinction depends
   on the quantities, not the card. Preserve genuinely zero-inclusive choices separately.
+- Recognize payment value from explicit `Pay` and `PayFromCard` events. Ordinary resource-loss
+  triggers do not establish payment purpose.
 - Keep permission to use special payment resources concise: `Spend 8 M€ (steel may be used)`.
 - Use `raise`/`lower` for global parameters and terraform rating; `increase`/`decrease` for
   production. Spell out `terraform rating`.
@@ -284,6 +294,14 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   not `higher` or `lower`.
 - In reviewed card goals, spell out a party requirement as the named party ruling or the player
   having 2 delegates there.
+- Delegates use the ordinary positioned-component construction; vocabulary supplies `in` for a
+  party and the nouns for delegates, non-leader delegates, and party leaders. Preserve sequential
+  placements and use `that party` only for a shared Type variable. Replacements retain source and
+  destination ownership; `neutral` comes from the owner's vocabulary. Do not infer reserve/lobby
+  choices from a bare placement instruction.
+- Render a counted `NOT` refinement by composing the included and excluded count phrases with
+  `excluding`, as in Lobbyist's delegates excluding lobby delegates. Preserve unsupported filters
+  as bracketed Pets rather than silently omitting them.
 - Use `spend` when a standard resource or one of your card resources is consumed as an action cost.
   Use `remove` for taking resources from any player's card and for standalone or involuntary
   reductions. Use `decrease` for production costs. Use `pay` for

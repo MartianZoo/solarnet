@@ -18,7 +18,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
           "TerraformRating",
       )
       doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-      doTask("2 PartyDelegate<Scientists>")
+      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
     }
 
     kim.inTurn {
@@ -29,9 +29,9 @@ internal class HighCirclesTest : TfmSandboxTest() {
           )
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-25* Owed")
+          doTask("Ok") // The discount covers the full cost.
           doTask("SupportedResearch FROM ProjectCard")
           doTask("2 ProjectCard<Kim, Hand>")
-          doTask("Ok" /* No MC payment. */)
         }
         .expect("ProjectCard, $SupportedResearch")
   }
@@ -49,7 +49,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
           "TerraformRating",
       )
       doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-      doTask("2 PartyDelegate<Scientists>")
+      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
     }
 
     kim.inTurn {
@@ -61,7 +61,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
           )
           // Hand the requirement waiver to Admin before playing the project.
           selectTask("-Required* / Required")
-          doTasks("-3 MC", "SupportedResearch FROM ProjectCard")
+          doTasks("3 Pay<> FROM MC", "SupportedResearch FROM ProjectCard")
           doTask("2 ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard, $SupportedResearch")
@@ -73,7 +73,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
       newTestGame("PreludeExpansion, HighCircles, TurmoilExpansion", playerCount = 2)
       kim.completeOperation {
         doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
-        doTask("2 PartyDelegate<Scientists>")
+        doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
         autoExecNow(EAGER)
       }
       kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
@@ -90,7 +90,11 @@ internal class HighCirclesTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       kim.count("Chairman") shouldBe 1
-      admin.doTask("ExploreFirstDirective")
+      admin.doTasks(
+          "PartyLeader<Greens, Neutral>",
+          "ExploreFirstDirective",
+          "PartyFollower<Reds, Neutral>",
+      )
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("Pass")

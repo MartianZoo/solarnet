@@ -15,13 +15,17 @@ internal class WgProjectTest : TfmSandboxTest() {
     kim.exMachina("-Chairman<Neutral>, Chairman")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<WgProject>>",
+              "9 Pay<> FROM MC",
+              "WgProject FROM ProjectCard",
+          )
           doTask("3 PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<HighCircles>>")
           doTask("HighCircles FROM PreludeCard<Selecting>")
           doTask("TerraformRating")
           doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-          doTask("2 PartyDelegate<Unity>")
+          doTasks("PartyLeader<Unity>", "PartyFollower<Unity>")
         }
         .expect("$HighCircles, 0 PreludeCard, 0 PreludeCard<Selecting>")
   }
@@ -36,7 +40,7 @@ internal class WgProjectTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("PlayProject<Class<WgProject>>")
-        doTasks("-9 MC", "WgProject FROM ProjectCard")
+        doTasks("9 Pay<> FROM MC", "WgProject FROM ProjectCard")
         doTask("3 PreludeCard<Kim, Selecting>")
         doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
         doTask("IndustrialComplex FROM PreludeCard<Selecting>")
@@ -44,7 +48,11 @@ internal class WgProjectTest : TfmSandboxTest() {
       }
     }
     kim.inTurn {
-          doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<WgProject>>",
+              "9 Pay<> FROM MC",
+              "WgProject FROM ProjectCard",
+          )
           doTask("3 PreludeCard<Kim, Selecting>")
           doTask("-PreludeCard<Selecting>")
           // Hand the fizzle audit to Admin before receiving compensation.
@@ -65,7 +73,11 @@ internal class WgProjectTest : TfmSandboxTest() {
     kim.setToExMachina(9, "MC")
     kim.setToExMachina(1, "ProjectCard")
     return kim.inTurn {
-      doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<WgProject>>",
+          "9 Pay<> FROM MC",
+          "WgProject FROM ProjectCard",
+      )
       doTask("3 PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")

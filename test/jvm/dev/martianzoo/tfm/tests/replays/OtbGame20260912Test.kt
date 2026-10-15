@@ -49,7 +49,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // "Our coming global event is Mud Slides, and our distant global event is Venus
     // Infrastructure."
     admin.doTask("ThawMining")
+    admin.doTask("PartyLeader<Kelvinists, Neutral>")
     admin.doTask("MartianProtectionism")
+    admin.doTask("PartyLeader<MarsFirst, Neutral>")
 
     // "Septim Triboos [Septem Tribus]. I get 36 money, and then I buy 10 cards. Don't tell me I
     // bought 10."
@@ -77,7 +79,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // the second: "Let's just use my free delegate thingy ... put it in Scientists."
       playPrelude(FakeHeadStart) {
         playProject(SfMemorial, 3, steel = 2)
-        useStdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+        useStdAction("LobbyAction") { doTask("PartyLeader<Scientists> FROM LobbyDelegate") }
       }
     }
     yellow.turn {
@@ -90,11 +92,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // "Established methods. Gain 30 monies." "Wow." "I'm gonna greenery for 23. I'm gonna put
       // it here for two cards... And that gave me the temperatura."
       playPrelude(EstablishedMethods) {
-        doTask("UseAction<GreeneryProject, Action1>")
-        yellow.pay(23)
+        useStdAction("UseAction<GreeneryProject, Action1>", payment = { yellow.pay(23) })
         placeTile(5, 9)
-        doTask("UseAction<AsteroidProject, Action1>")
-        yellow.pay(14)
+        useStdAction("UseAction<AsteroidProject, Action1>", payment = { yellow.pay(14) })
       }
       // The players acknowledged this initial Greens-policy payout during Prelude as the same rule
       // mistake. Yellow nevertheless took 4 M€ here (transcript and Yellow ledger entry 15).
@@ -116,7 +116,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       playProject(ArtificialPhotosynthesis, 12) { doTask("PROD[2 Energy]") }
       // "Actually, no, I'm going to also spend five to put another one of my dudes in community
       // [Unity]."
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
+      stdAction("PaidLobbyAction") { doTask("PartyLeader<Unity>") }
     }
     yellow.turn {
       // "I'm going to lava flows for 18. Raise temperature, two steps. Oh, and I get the heat. Oh,
@@ -125,7 +125,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // "I'm also going to place my delegate in the Grens [Greens] since that's coming into power.
       // I was going to try and go for red since that would work better with Prestar [Pristar], but
       // now I've terraformed. I screwed that up."
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") }
+      stdAction("LobbyAction") { doTask("PartyLeader<Greens> FROM LobbyDelegate") }
     }
     blue.turn {
       // "I'm going to pay five for Power Supply Consortium. I believe I'm increasing [Green's]
@@ -150,7 +150,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn {
       // "I think I'm going to pay five to put another doodage in red."
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Reds>") }
+      stdAction("PaidLobbyAction") { doTask("PartyLeader<Reds>") }
     }
     yellow.turn {
       // "Titanium mine. Pay seven, gain titanium production."
@@ -159,7 +159,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.turn {
       // "I like science. Put me in the scientist party."
       // "The ruler's blue lobbyist is in the science party."
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") }
+      stdAction("LobbyAction") { doTask("PartyFollower<Scientists> FROM LobbyDelegate") }
     }
     // "Oh, dominance moved over to the Scientists." Green's recovered Head Start placement and
     // Blue's placement make Scientists the first party with two delegates.
@@ -226,7 +226,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // advances both printed events before requesting only the next distant event.
     // "Changing times. Got the coming global event. Move a distant global event to coming. Turn the
     // top part of global event face up. It is sponsored projects."
+    admin.doTask("PartyFollower<Greens, Neutral>")
     admin.doTask("ScienceSummit")
+    admin.doTask("PartyLeader<Scientists, Neutral>")
 
     // "Really, because you're the chairman. Oh, did you give yourself TR for being chairman?" "No,
     // because you didn't say it." "Oh, yeah, that is what I skipped. Sorry."
@@ -290,24 +292,24 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     blue.turn {
       // "Put my blue lobbyist in the Unity party, please."
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Unity>") }
+      stdAction("LobbyAction") { doTask("PartyFollower<Unity> FROM LobbyDelegate") }
     }
     green.turn {
       // "I'm gonna use my free action to put a dude into Greens."
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") }
+      stdAction("LobbyAction") { doTask("PartyFollower<Greens> FROM LobbyDelegate") }
     }
     yellow.turn {
       // "I'll put my free guy in Reds."
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Reds>") }
+      stdAction("LobbyAction") { doTask("PartyFollower<Reds> FROM LobbyDelegate") }
     }
     blue.turn {
       // "Blue's going to pay five money to put another delegate in Unity."
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
+      stdAction("PaidLobbyAction") { doTask("PartyLeader<Unity>") }
     }
     green.turn {
       // "Recruitment in the Greens ... I become the party leader. I paid two for that."
       playProject(Recruitment, 2) {
-        doTask("PartyDelegate<Greens, Green FROM Neutral>")
+        doTask("PartyLeader<Greens> FROM PartyFollower<Greens, Neutral>")
       }
     }
 
@@ -316,7 +318,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // This is Yellow's turn between Green's Recruitment and Blue's House Printing. Her ledger
       // includes the 5 M€ payment, board-12-18-40.jpg shows both Yellow delegates in Reds, and
       // she later cites those two delegates as satisfying Red Appeasement.
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Reds>") }
+      stdAction("PaidLobbyAction") { doTask("PartyLeader<Reds>") }
     }
     blue.turn {
       // "Blue is paying ten for House Printing, which gives me a steel production."
@@ -324,7 +326,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn {
       // "I'm gonna pay five and put a dude in Kelvinists."
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Kelvinists>") }
+      stdAction("PaidLobbyAction") { doTask("PartyFollower<Kelvinists>") }
     }
     yellow.turn {
       // "Local Shading, add floater."
@@ -337,7 +339,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // Green has six delegates deployed and the seventh still in reserve. The later photograph
       // shows Green represented in Scientists, and Green's aggregated ledger includes this 5 M€
       // payment along with Recruitment, Kelvinists, and Lobbyist.
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
+      stdAction("PaidLobbyAction") { doTask("PartyFollower<Scientists>") }
     }
 
     yellow.turn {
@@ -421,7 +423,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.wgt("OceanTile<Vastitas_5_7>").expect("-1 TerraformRating<Yellow>")
     // Mud Slides charges nobody because influence covers every adjacent owned tile. Greens forms
     // the government and Green becomes chairman.
+    admin.doTask("PartyFollower<Unity, Neutral>")
     admin.doTask("BioengineeringBoom")
+    admin.doTask("PartyLeader<Greens, Neutral>")
     // "So you're saying this moves to Unity now?" During Changing Times, Venus Infrastructure's
     // neutral delegate raises Unity from three delegates to four, ahead of Reds' three. The engine
     // therefore moves the dominance marker to Unity normally, matching board-12-18-40.jpg.
@@ -467,7 +471,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.turn {
       // "I'm going to use my free action to put a dude into Mars First." The former Green chairman
       // and one non-leader Green delegate returned when Greens formed, so this placement is legal.
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<MarsFirst>") }
+      stdAction("LobbyAction") { doTask("PartyFollower<MarsFirst> FROM LobbyDelegate") }
     }
     yellow.turn {
       // "Sponsored Academies. I pay nine. I pitch a card and draw three and everyone else gets
@@ -521,13 +525,13 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "I add a delegate in Unity ... for an influence."
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Unity>") }
+      stdAction("LobbyAction") { doTask("PartyFollower<Unity> FROM LobbyDelegate") }
       // "Red Appeasement for zero ... gain two money production and this counts as me passing."
       playProject(RedAppeasement, 0).expect("PROD[2 MC], Pass")
     }
     blue.turn {
       // "Blue is going to send her lobbyist to ... Greens."
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") }
+      stdAction("LobbyAction") { doTask("PartyFollower<Greens> FROM LobbyDelegate") }
     }
     green.turn {
       // "I'm going to use Orbital Cleanup ... and get four money." Green again chooses both wild
@@ -567,7 +571,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // Venus tags and influence. Unity then pays 1/3/2 M€ for planetary tags and makes Blue
     // chairman. Diversity—the event headed "Free Academia Treaty"—is revealed with its neutral
     // Scientist delegate.
+    admin.doTask("PartyFollower<Greens, Neutral>")
     admin.doTask("FreeAcademiaTreaty")
+    admin.doTask("PartyFollower<Scientists, Neutral>")
 
     // Complete Generation 3 Solar ledgers.
     with(green) {
@@ -605,13 +611,14 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // supplies the recorded two titanium and two M€ placement bonuses.
       playProject(CulturalMetropolis, 20) {
         placeTile(6, 9)
-        doTask("2 PartyDelegate<Reds>")
+        doTask("PartyFollower<Reds>")
+        doTask("PartyLeader<Reds>")
       }
     }
     yellow.turn {
       // "I'm gonna go place my free delegate in Punity." The board photo shows that the otherwise
       // unlabeled speaker placed Yellow's delegate, not Green's.
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Unity>") }
+      stdAction("LobbyAction") { doTask("PartyLeader<Unity> FROM LobbyDelegate") }
     }
     blue.turn {
       // "Mining Area. I'm going to pay two steel for it."
@@ -647,7 +654,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn {
       // "Free lobby into Kelvinists"; then "Sponsored Mohole for five ... two heat production."
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Kelvinists>") }
+      stdAction("LobbyAction") { doTask("PartyLeader<Kelvinists> FROM LobbyDelegate") }
       playProject(SponsoredMohole, 5)
     }
     yellow.turn {
@@ -676,7 +683,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn {
       cardAction2(LocalShading).expect("-Floater<$LocalShading>, PROD[MC]")
     }
-    blue.turn { stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") } }
+    blue.turn {
+      stdAction("LobbyAction") { doTask("PartyFollower<Greens> FROM LobbyDelegate") }
+    }
     green.pass()
     yellow.turn { cardAction1(FakeAppliedScience) { addCardResources(SecurityFleet) } }
     blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
@@ -718,7 +727,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.wgt("OxygenStep").expect("OxygenStep")
     // At 6:38:48 pm, the table notes that Search for Life has no science to receive a bonus.
     yellow.assertCardResources(0 to SearchForLife)
+    admin.doTask("PartyFollower<Scientists, Neutral>")
     admin.doTask("SecondEnergyCrisis")
+    admin.doTask("PartyFollower<Scientists, Neutral>")
 
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 2, venus = 2)
     admin.assertCounts(
@@ -751,7 +762,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn {
       // "I'm going to put my free delegate in reds."
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Reds>") }
+      stdAction("LobbyAction") { doTask("PartyLeader<Reds> FROM LobbyDelegate") }
     }
     yellow.turn {
       // Dusk Laser Mining: one titanium and five M€. Satellites: three titanium and one M€.
@@ -765,7 +776,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.turn { sellPatents(2) }
     green.turn { playProject(MercurianAlloys, 1) }
     yellow.turn { cardAction2(LocalShading) }
-    blue.turn { stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<MarsFirst>") } }
+    blue.turn {
+      stdAction("LobbyAction") { doTask("PartyFollower<MarsFirst> FROM LobbyDelegate") }
+    }
     green.turn { cardAction1(FakeSeptemTribus).expect("8 MC") }
     yellow.turn {
       // Symbiotic Fungus is revealed, so Search for Life succeeds.
@@ -805,9 +818,11 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn { playProject(CarbonateProcessing, 4) }
     yellow.turn { cardAction1(RedShips).expect("MC") }
-    blue.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<MarsFirst>") } }
+    blue.turn { stdAction("PaidLobbyAction") { doTask("PartyLeader<MarsFirst>") } }
     green.turn { playProject(Supercapacitors, 2) }
-    yellow.turn { stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") } }
+    yellow.turn {
+      stdAction("LobbyAction") { doTask("PartyFollower<Greens> FROM LobbyDelegate") }
+    }
     blue.turn { cardAction1(TychoMagnetics, x = 2) }
     green.pass(unused = WaterSplittingPlant)
     yellow.pass()
@@ -840,7 +855,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.wgt("OceanTile<Vastitas_4_3>").expect("-1 TerraformRating<Yellow>")
     // Spin-Off Products and the Scientists ruling bonus pay for science tags. Diversity becomes
     // current, Improved Energy Templates becomes coming, and Revolution is revealed.
+    admin.doTask("PartyLeader<Scientists, Neutral>")
     admin.doTask("WorldGovernmentDirectives")
+    admin.doTask("PartyFollower<Unity, Neutral>")
     // Blue has two printed Science tags, so Spin-Off Products and the Scientists ruling bonus pay
     // 4 M€ and 2 M€. The transcript instead says, consecutively, "you get four money and you get
     // six money" for Blue's and Yellow's event awards; Blue's lone +10 row is exactly 4 + 6. The
@@ -899,20 +916,21 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // "I'm going to envoys from Venus ... put two delegates in one party ... unity."
       exMachina(fakeWildTags("VenusTag", 2))
       playProject(EnvoysFromVenus, 1) {
-        doTask("2 PartyDelegate<Unity>")
+        doTask("PartyFollower<Unity>")
+        doTask("PartyFollower<Unity>")
       }
       // board-21-13-22.jpg shows Yellow leading an otherwise empty player delegation in Unity
       // before Generation 6. Yellow then announces placing two Yellow Envoys delegates there, but
       // board-21-53-02.jpg instead shows Green as leader with another Green non-leader, while the
       // displaced original Yellow leader remains as Yellow's only Unity delegate. The exact color
       // counts show that the two Envoys cubes were physically taken from Green's supply.
-      exMachina("-2 PartyDelegate<Unity>")
-      green.exMachina("2 PartyDelegate<Unity>")
+      exMachina("-2 PartyFollower<Unity>")
+      green.exMachina("PartyFollower<Unity>, PartyLeader<Unity>")
       // The table called Envoys free, and Yellow's ledger contains no payment.
       exMachina("MC")
       playProject(EcologicalZone, 12) {
         placeTile(4, 8)
-        doTask("PartyDelegate<Greens>")
+        doTask("PartyFollower<Greens>")
       }
     }
     blue.turn {
@@ -927,7 +945,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       stdAction("UseTurmoilPolicyAction").expect("-10 MC, 3 ProjectCard")
     }
     blue.turn { playProject(ReleaseOfInertGases, 14) }
-    green.turn { stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") } }
+    green.turn {
+      stdAction("LobbyAction") { doTask("PartyFollower<Scientists> FROM LobbyDelegate") }
+    }
     yellow.turn {
       // Summit Logistics: two steel, one titanium, three M€, then five planetary tags.
       exMachina(fakeWildTags("EarthTag", 2))
@@ -972,17 +992,18 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.turn { cardAction1(TychoMagnetics, x = 1) }
     green.turn { playProject(TransNeptuneProbe, 4) }
     yellow.turn { cardAction1(SecurityFleet) }
-    blue.turn { stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") } }
+    blue.turn {
+      stdAction("LobbyAction") { doTask("PartyFollower<Scientists> FROM LobbyDelegate") }
+    }
     green.turn {
       intentionalUnderpay()
       // "I'm going to spend sixteen on aquifer pumping"; Green kept its plants.
       playProject(AquiferPumping, 16)
     }
     yellow.turn { cardAction1(FakeAppliedScience) { addCardResources(SecurityFleet) } }
-    blue.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") } }
+    blue.turn { stdAction("PaidLobbyAction") { doTask("PartyFollower<Unity>") } }
     green.turn {
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         placeTile(5, 6)
       }
     }
@@ -1034,7 +1055,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // The Turmoil phase's TR revision follows World Government at once and costs Blue one TR.
     blue.wgt("VenusStep").expect("-1 TerraformRating<Blue>")
     // Diversity resolves, Greens takes government, and Snow Cover is revealed.
+    admin.doTask("PartyFollower<Kelvinists, Neutral>")
     admin.doTask("MoholeLakeGlobalEvent")
+    admin.doTask("PartyLeader<Kelvinists, Neutral>")
     // The physical Greens delegation makes Yellow chairman; the engine retained the neutral
     // tie-break. The spoken transition awards Yellow the corresponding TR.
     yellow.exMachina("-Chairman<Neutral>, Chairman, TerraformRating")
@@ -1090,8 +1113,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
     green.turn {
       cardAction1(DeuteriumExport)
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         placeTile(6, 6)
       }
     }
@@ -1117,11 +1139,11 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn { playProject(ImportOfAdvancedGhg, 5) }
     blue.turn {
       cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) }
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") }
+      stdAction("LobbyAction") { doTask("PartyLeader<Greens> FROM LobbyDelegate") }
     }
     green.turn { convertHeat() }
     yellow.turn { cardAction1(FakeAppliedScience) { addCardResources(SecurityFleet) } }
-    blue.turn { cardAction1(MartianMediaCenter) { doTask("PartyDelegate<Unity>") } }
+    blue.turn { cardAction1(MartianMediaCenter) { doTask("PartyFollower<Unity>") } }
     green.turn { convertHeat() }
     yellow.turn { playProject(SnowAlgae, 10) }
     blue.turn { convertPlants { placeTile(8, 9) } }
@@ -1180,7 +1202,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     assertSidebar(gen = 7, temp = -4, oxygen = 12, oceans = 6, venus = 12)
 
     green.wgt("OxygenStep")
+    admin.doTask("PartyFollower<MarsFirst, Neutral>")
     admin.doTask("ExperimentalLifeforms")
+    admin.doTask("PartyFollower<Greens, Neutral>")
     // The two wrong-color Envoys cubes make Green Unity leader with a Green non-leader still in the
     // party. Those supply two rules-correct influence; Event Analysts supplies the third. Five
     // Power tags plus three influence produce four Improved Energy Templates steps, after which
@@ -1223,7 +1247,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn {
       // Green says this is a Lobby delegate; the app stays at 57 M€ until Frontier Town.
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<MarsFirst>") }
+      stdAction("LobbyAction") { doTask("PartyFollower<MarsFirst> FROM LobbyDelegate") }
       // Frontier Town repeats the temperature/-4 M€ bonus printed at 5-5 and crosses the
       // zero-degree ocean threshold; the table placed that ocean at 3-3.
       intentionalUnderpay()
@@ -1247,8 +1271,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn { playProject(Research, 9) }
     blue.turn { playProject(VenusianAnimals, 15) }
     green.turn {
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         placeTile(5, 3)
       }
       convertPlants { placeTile(4, 4) }
@@ -1269,14 +1292,14 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     yellow.turn {
       playProject(DawnCity, 7, titanium = 1)
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Unity>") }
+      stdAction("LobbyAction") { doTask("PartyLeader<Unity> FROM LobbyDelegate") }
     }
     blue.turn {
       // The transcript skips Blue in this rotation and narrates this action after Yellow's next
       // turn. Advance that next Blue action here to preserve the legal turn sequence. It considers
       // Greens and Scientists without saying which was chosen; the next photograph shows Blue
       // leading Greens.
-      cardAction1(MartianMediaCenter) { doTask("PartyDelegate<Greens>") }
+      cardAction1(MartianMediaCenter) { doTask("PartyFollower<Greens>") }
     }
     green.turn {
       exMachina("ScienceTag<$FakeSeptemTribus>, ScienceTag<$FakeNobelPrize>")
@@ -1329,7 +1352,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.wgt("TemperatureStep")
     // Revolution resolves, Mars First takes government, and the final photograph identifies
     // Interplanetary Trade as the newly revealed distant event.
+    admin.doTask("PartyFollower<Kelvinists, Neutral>")
     admin.doTask("CharismaticWgPresident")
+    admin.doTask("PartyFollower<Unity, Neutral>")
     // The table announces Green/Yellow counts of eleven/seven; their face-up cards contain
     // twelve/eight Building tags. Yellow's missing tag is most likely Martian Industries, a Prelude
     // separated from the project tableau. Green's omitted card cannot be isolated from the spoken
@@ -1364,8 +1389,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     blue.turn { stdProject("AquiferProject") { placeTile(7, 6) } }
     green.turn {
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") }
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<MarsFirst>") }
+      stdAction("LobbyAction") { doTask("PartyLeader<Scientists> FROM LobbyDelegate") }
+      stdAction("PaidLobbyAction") { doTask("PartyLeader<MarsFirst>") }
     }
     yellow.turn {
       stdProject("CityProject") { placeTile(8, 7) }
@@ -1412,7 +1437,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
           .expect("11 Microbe<$Decomposers>")
       exMachina("Microbe<$Decomposers>")
     }
-    blue.turn { cardAction1(MartianMediaCenter) { doTask("PartyDelegate<Reds>") } }
+    blue.turn { cardAction1(MartianMediaCenter) { doTask("PartyFollower<Reds>") } }
     green.turn { playProject(Mangrove, 10) { placeTile(6, 5) } }
     yellow.turn {
       playProject(NoctisFarming, steel = 4)
@@ -1423,7 +1448,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       cardAction1(DevelopmentCenter)
     }
     green.turn {
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Reds>") }
+      stdAction("PaidLobbyAction") { doTask("PartyFollower<Reds>") }
       // Both physical wild tags are chosen as Jovian for MicrogravityHealthProblems Movement.
       // Together with the
       // card's own Jovian tag, they explain the spoken three-M€ payout.
@@ -1431,7 +1456,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       playProject(DiasporaMovement, 5).expect("-2 MC")
     }
     yellow.turn { cardAction1(LocalShading) }
-    blue.turn { stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Unity>") } }
+    blue.turn { stdAction("LobbyAction") { doTask("PartyFollower<Unity> FROM LobbyDelegate") } }
     green.turn { cardAction1(FakeSeptemTribus).expect("8 MC") }
     yellow.turn { cardAction2(EnergyMarket).expect("PROD[-Energy], 8 MC") }
     blue.turn {
@@ -1477,13 +1502,13 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // delayed unrecorded one-M€ gain from earlier in the interval cannot be excluded.
       exMachina("MC")
     }
-    blue.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Greens>") } }
+    blue.turn { stdAction("PaidLobbyAction") { doTask("PartyFollower<Greens>") } }
     yellow.turn {
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") }
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Greens>") }
+      stdAction("LobbyAction") { doTask("PartyFollower<Greens> FROM LobbyDelegate") }
+      stdAction("PaidLobbyAction") { doTask("PartyFollower<Greens>") }
     }
     blue.pass(unused = TychoMagnetics, BioPrintingFacility)
-    yellow.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Kelvinists>") } }
+    yellow.turn { stdAction("PaidLobbyAction") { doTask("PartyFollower<Kelvinists>") } }
     yellow.pass(unused = SearchForLife, FakeAppliedScience)
 
     // Green once more retained Supercapacitors' energy during final production.

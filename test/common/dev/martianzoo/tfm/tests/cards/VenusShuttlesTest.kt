@@ -13,7 +13,7 @@ internal class VenusShuttlesTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("UseCardAction<VenusShuttles, Action1>", "-6 MC")
+      doTasks("UseCardAction<VenusShuttles, Action1>", "6 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
     }

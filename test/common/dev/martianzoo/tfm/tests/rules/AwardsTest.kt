@@ -96,38 +96,25 @@ internal class AwardsTest : TfmTest() {
     val p1 = game.testTfm(PLAYER1)
     p1.sneak("100 MC")
 
-    val first =
-        p1.runOperation("FundAward<Class<Landlord>>") {
-          doTask("-MC / Owed")
-        }
+    val first = p1.runOperation("FundAward<Class<Landlord>>")
     first.expect("-8 MC")
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     shouldThrow<LimitsException> {
-      p1.runOperation("FundAward<Class<Landlord>>") {
-        doTask("-MC / Owed")
-      }
+      p1.runOperation("FundAward<Class<Landlord>>")
     }
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
-    val second =
-        p1.runOperation("FundAward<Class<Scientist>>") {
-          doTask("-MC / Owed")
-        }
+    val second = p1.runOperation("FundAward<Class<Scientist>>")
     second.expect("-14 MC")
     p1.assertCounts(78 to "MC", 1 to "Scientist")
 
-    val third =
-        p1.runOperation("FundAward<Class<Thermalist>>") {
-          doTask("-MC / Owed")
-        }
+    val third = p1.runOperation("FundAward<Class<Thermalist>>")
     third.expect("-20 MC")
     p1.assertCounts(58 to "MC", 1 to "Thermalist", 3 to "Award")
 
     shouldThrow<DeadEndException> {
-      p1.runOperation("FundAward<Class<Miner>>") {
-        doTask("-MC / Owed")
-      }
+      p1.runOperation("FundAward<Class<Miner>>")
     }
     p1.assertCounts(58 to "MC", 3 to "Award", 0 to "Miner")
   }

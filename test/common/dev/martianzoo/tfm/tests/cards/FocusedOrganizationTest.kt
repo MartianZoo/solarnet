@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
@@ -31,16 +32,25 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
   internal fun `Can spend a Stormcraft floater as heat for its action`() {
     setupStormcraftFloater()
 
-    useStormcraftFloaterForFocusedOrganization()
+    useFocusedOrganization {
+          doTask("PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>")
+        }
         .expect("-Floater<$StormcraftIncorporated>, Plant, 0 Heat, 0 ProjectCard")
   }
 
+  // Unresolved adjudication (question 15, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3443314/article/45507249#45507249
   @Test
   internal fun `BUG - Rejects a Stormcraft floater when spending a standard resource`() {
     setupStormcraftFloater()
     kim.setToExMachina(1, "ProjectCard")
 
-    shouldThrow<TaskException> { useStormcraftFloaterForFocusedOrganization() }
+    useFocusedOrganization {
+      shouldThrow<TaskException> {
+        doTask("PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>")
+      }
+      abort()
+    }
     kim.count("Floater<$StormcraftIncorporated>") shouldBe 1
     kim.count("ProjectCard") shouldBe 1
     kim.count("$FocusedOrganization") shouldBe 1
@@ -51,11 +61,11 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
     kim.exMachina("$FocusedOrganization, Floater<$StormcraftIncorporated>")
   }
 
-  private fun useStormcraftFloaterForFocusedOrganization(): TaskResult = kim.inTurn {
+  private fun useFocusedOrganization(spendResource: OperationBlock): TaskResult = kim.inTurn {
     doTask("UseCardAction<FocusedOrganization, Action1>")
     doTask("-ProjectCard<Kim, Hand>")
-    doTask("-MC")
-    doTask("-Floater<$StormcraftIncorporated>")
+    spendResource()
+    doTask("ProjectCard<Kim, Hand>")
     doTask("Plant")
   }
 }

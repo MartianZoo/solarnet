@@ -1,7 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -13,16 +14,15 @@ internal class RecruitmentTest : TfmSandboxTest() {
   internal fun `Recruitment cannot be played without a neutral non-leader delegate`() {
     newTestGame(addOptions = "TurmoilExpansion")
 
-    shouldThrow<NotNowException> {
+    shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("PlayProject<Class<Recruitment>>")
 
         doTasks(
-            "-2 MC",
+            "2 Pay<> FROM MC",
             "Recruitment FROM ProjectCard",
         )
-        // Resolve the delegate choice to expose the missing eligible delegate.
-        selectTask("PartyDelegate<Kim FROM Neutral>")
+        doTask("PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>")
       }
     }
   }
@@ -32,16 +32,16 @@ internal class RecruitmentTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
 
     kim.exMachina(
-        "PartyDelegate<MarsFirst, Neutral>, " +
-            "PartyDelegate<Unity, Neutral>, PartyDelegate<Unity, Neutral>"
+        "PartyFollower<MarsFirst, Neutral>, " +
+            "PartyLeader<Unity, Neutral>, PartyFollower<Unity, Neutral>"
     )
     admin.count("Dominant<MarsFirst>") shouldBe 1
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
-              "PartyDelegate<MarsFirst, Kim FROM Neutral>",
+              "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
@@ -53,16 +53,16 @@ internal class RecruitmentTest : TfmSandboxTest() {
   @Test
   internal fun `Recruitment makes only the recruiting player leader after a tied challenge`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("PartyDelegate<MarsFirst, Neutral>")
-    kim.exMachina("PartyDelegate<MarsFirst>")
-    stan.exMachina("PartyDelegate<MarsFirst>, PartyDelegate<MarsFirst>")
+    kim.exMachina("PartyFollower<MarsFirst, Neutral>")
+    kim.exMachina("PartyFollower<MarsFirst>")
+    stan.exMachina("2 PartyFollower<MarsFirst>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
-              "PartyDelegate<MarsFirst, Kim FROM Neutral>",
+              "PartyLeader<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
@@ -74,16 +74,16 @@ internal class RecruitmentTest : TfmSandboxTest() {
   @Test
   internal fun `Recruitment promotes another player with the sole largest delegation`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("2 PartyDelegate<MarsFirst, Neutral>")
-    kim.exMachina("PartyDelegate<MarsFirst>")
-    stan.exMachina("3 PartyDelegate<MarsFirst>")
+    kim.exMachina("2 PartyFollower<MarsFirst, Neutral>")
+    kim.exMachina("PartyFollower<MarsFirst>")
+    stan.exMachina("3 PartyFollower<MarsFirst>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
-              "PartyDelegate<MarsFirst, Kim FROM Neutral>",
+              "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
@@ -95,16 +95,16 @@ internal class RecruitmentTest : TfmSandboxTest() {
   @Test
   internal fun `Recruitment preserves a tied player incumbent`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("PartyDelegate<MarsFirst, Neutral>")
-    stan.exMachina("3 PartyDelegate<MarsFirst>")
-    kim.exMachina("2 PartyDelegate<MarsFirst>")
+    kim.exMachina("PartyFollower<MarsFirst, Neutral>")
+    stan.exMachina("2 PartyFollower<MarsFirst>, PartyLeader<MarsFirst>")
+    kim.exMachina("2 PartyFollower<MarsFirst>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
-              "PartyDelegate<MarsFirst, Kim FROM Neutral>",
+              "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
@@ -114,17 +114,17 @@ internal class RecruitmentTest : TfmSandboxTest() {
   @Test
   internal fun `Recruitment chooses the nearest clockwise challenger when the recruiter trails`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.setToExMachina(3, "PartyDelegate<MarsFirst, Neutral>")
-    kim.setToExMachina(1, "PartyDelegate<MarsFirst>")
-    stan.setToExMachina(3, "PartyDelegate<MarsFirst>")
-    rob.setToExMachina(3, "PartyDelegate<MarsFirst>")
+    kim.exMachina("2 PartyFollower<MarsFirst, Neutral>")
+    kim.exMachina("PartyFollower<MarsFirst>")
+    stan.exMachina("3 PartyFollower<MarsFirst>")
+    rob.exMachina("3 PartyFollower<MarsFirst>")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<$Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "$Recruitment FROM ProjectCard",
-              "PartyDelegate<MarsFirst, Kim FROM Neutral>",
+              "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
@@ -137,18 +137,18 @@ internal class RecruitmentTest : TfmSandboxTest() {
   @Test
   internal fun `Recruitment measures clockwise order from the recruiting player`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("2 PartyDelegate<MarsFirst, Neutral>")
-    stan.exMachina("PartyDelegate<MarsFirst>")
-    kim.exMachina("3 PartyDelegate<MarsFirst>")
-    kim.exMachina("3 PartyDelegate<MarsFirst, Rob>")
+    kim.exMachina("2 PartyFollower<MarsFirst, Neutral>")
+    stan.exMachina("PartyFollower<MarsFirst>")
+    kim.exMachina("3 PartyFollower<MarsFirst>")
+    kim.exMachina("3 PartyFollower<MarsFirst, Rob>")
 
     stan
         .inTurn {
           doTasks(
               "PlayProject<Class<Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
-              "PartyDelegate<MarsFirst, Stan FROM Neutral>",
+              "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
@@ -159,20 +159,72 @@ internal class RecruitmentTest : TfmSandboxTest() {
   }
 
   @Test
+  internal fun `Recruitment consumes the lobby when every reserve delegate is placed`() {
+    newTestGame("TurmoilExpansion")
+    kim.exMachina("PartyFollower<MarsFirst, Neutral>, PartyLeader<Unity>, 5 PartyFollower<Unity>")
+
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<Recruitment>>",
+              "2 Pay<> FROM MC",
+              "Recruitment FROM ProjectCard",
+              "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
+              "PlayedEvent<Class<Recruitment>> FROM Recruitment",
+          )
+        }
+        .expect("-LobbyDelegate, 0 Delegate, -Delegate<Neutral>")
+  }
+
+  @Test
+  internal fun `Recruitment cannot replace the neutral leader`() {
+    newTestGame("TurmoilExpansion")
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTasks(
+            "PlayProject<Class<Recruitment>>",
+            "2 Pay<> FROM MC",
+            "Recruitment FROM ProjectCard",
+            "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>",
+        )
+      }
+    }
+    kim.count("MC") shouldBe 42
+    admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
+  }
+
+  @Test
+  internal fun `Recruitment cannot move the replacement to another party`() {
+    newTestGame("TurmoilExpansion")
+    kim.exMachina("PartyFollower<MarsFirst, Neutral>")
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTasks(
+            "PlayProject<Class<Recruitment>>",
+            "2 Pay<> FROM MC",
+            "Recruitment FROM ProjectCard",
+            "PartyLeader<Scientists> FROM PartyFollower<MarsFirst, Neutral>",
+        )
+      }
+    }
+    kim.count("PartyDelegate") shouldBe 0
+    admin.count("PartyDelegate<MarsFirst, Neutral>") shouldBe 2
+  }
+
+  @Test
   internal fun `Recruitment cannot be played without an available owned delegate`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("PartyDelegate<MarsFirst, Neutral>")
-    kim.exMachina("7 PartyDelegate<Unity>")
+    kim.exMachina("PartyFollower<MarsFirst, Neutral>")
+    kim.exMachina("PartyLeader<Unity>, 6 PartyFollower<Unity>")
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
         doTask("PlayProject<Class<Recruitment>>")
 
         doTasks(
-            "-2 MC",
+            "2 Pay<> FROM MC",
             "Recruitment FROM ProjectCard",
         )
-        doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")
+        doTask("PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>")
       }
     }
 

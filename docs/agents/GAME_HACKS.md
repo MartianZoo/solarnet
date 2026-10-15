@@ -38,6 +38,8 @@ audit now lives in test sources; structural Pets and per-game configuration vali
 | Event scoring uses bare End; event cards have no other external subscriptions | Entry 18. Played-event records only restore End effects. |
 | Card declarations have no untransformed gain subscriptions capable of observing Heat | Entries 1–2. Production triggers are distinct. This does not scan indirect reactions in helper components or claim that the solo replenishment machinery observes no resource gains. |
 | Authored declarations contain no same-class tile or colony transmutations | Entries 8–9. Such transfers would repeat gain-triggered placement/building rewards. This does not prove that a sequence of separate removal/gain instructions cannot do the same thing. |
+| Delegate changes name a state, rather than bare `Delegate` | `Delegate` is for counts; changes name `PartyDelegate`, `PartyLeader`, `PartyFollower`, `LobbyDelegate`, or `Chairman`. |
+| Delegate gains are individual placements, without scalar or per-unit multiplication | Role selection and its consequences resolve for each placement. Use separate instructions or `EACH`; use a shared party variable when the delegates must enter the same party. |
 | Tile gains specify placement | `GreeneryTile` gains name an area or use `DefaultGreeneryTile`. Empty `GreeneryTile<>` does not name an area. `CityTile<>` explicitly requests its placement default. |
 
 The card generator additionally rejects multiple inferred resource-storage kinds instead of silently
@@ -86,6 +88,12 @@ level or surviving ocean tiles. In particular, Hydrologist's `OceanCredit` must 
 do not reopen this as an unresolved marker-identity question.
 
 ## Inclusion rule
+
+**An exposed dead end is not a hack or defect.** Apply the
+[decision-tree principle](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client):
+the player's agent or client handles pruning, or we accept unsuccessful paths. Do not add an entry
+merely because a choice fails later or requires rollback, even if no pruner exists. Protected
+Habitats is valid as modeled; it needs no precheck to prevent an attempted plant theft.
 
 A **truthful** implementation makes the game changes its rules actually call for. Another card
 can observe them without needing special knowledge of its implementation. Rejecting an illegal
@@ -378,24 +386,6 @@ space (8,9): the shortcut produces **6 steel and 1 titanium**, rather than **2 s
 [Prelude 2 cards](../../src/common/dev/martianzoo/tfm/canon/bundles/prelude2/cards.json5),
 `RepeatPlacementBonus` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt), and
 [Tharsis map](../../src/common/dev/martianzoo/tfm/canon/bundles/tharsis/tharsis.pets).
-
-### 21. Delegate removal relies on Banned Delegate to repair leadership
-
-**Hack:** ordinary delegate removal clears a party leader only when that owner has no delegates
-left in the party. Replacing a leader who still has delegates but has lost the majority is handled
-inside `BannedDelegateRemoval`, rather than by the shared delegate rule. Dominance is recalculated
-on general removals; leadership is not fully recalculated there.
-
-**Fan card — Political Retreat:** “Action: Return two of your delegates from one party to your
-reserve to gain 4 M€.” **Literal:** remove the two placed delegates, then gain the money. Start
-with three of your delegates and two opposing delegates in that party. After the action you have
-one, your opponent has two, but you incorrectly remain party leader. That also affects subsequent
-leadership benefits and scoring.
-
-**Source:** `PartyDelegate` and `PartyLeader` in
-[Turmoil classes](../../src/common/dev/martianzoo/tfm/canon/bundles/turmoil/classes.pets), and
-`BannedDelegateRemoval` in Banned Delegate's `components` in
-[Turmoil cards.json5](../../src/common/dev/martianzoo/tfm/canon/bundles/turmoil/cards.json5).
 
 ### 22. Political influence is a snapshot, not a live quantity
 

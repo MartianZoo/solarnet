@@ -26,7 +26,12 @@ internal class StandardActionTest : TfmTest() {
     p1.autoExecPolicy = NONE
 
     p1.beginOperation("NewTurn")
-    p1.doTasks("PlayProject<Class<Mine>>", "-4 MC", "Mine FROM ProjectCard", "PROD[Steel]")
+    p1.doTasks(
+        "PlayProject<Class<Mine>>",
+        "4 Pay<> FROM MC",
+        "Mine FROM ProjectCard",
+        "PROD[Steel]",
+    )
     game.isIdle() shouldBe true
   }
 
@@ -39,9 +44,9 @@ internal class StandardActionTest : TfmTest() {
     p1.autoExecPolicy = NONE
 
     p1.beginOperation("NewTurn")
-    p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "-8 MC", "Terraformer35")
+    p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "8 Pay<> FROM MC", "Terraformer35")
     p1.beginOperation("NewTurn")
-    p1.doTasks("FundAward<Class<Banker>>", "-8 MC", "Banker")
+    p1.doTasks("FundAward<Class<Banker>>", "8 Pay<> FROM MC", "Banker")
 
     p1.count("MC") shouldBe 24
     game.isIdle() shouldBe true
@@ -61,7 +66,7 @@ internal class StandardActionTest : TfmTest() {
 
     p1.count("RequiredAction") shouldBe 0
     p1.beginOperation("NewTurn")
-    p1.doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+    p1.doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
     game.isIdle() shouldBe true
   }
 
@@ -74,7 +79,11 @@ internal class StandardActionTest : TfmTest() {
     p1.autoExecPolicy = NONE
 
     p1.beginOperation("NewTurn")
-    p1.doTasks("UseCardAction<DevelopmentCenter, Action1>", "-Energy", "ProjectCard")
+    p1.doTasks(
+        "UseCardAction<DevelopmentCenter, Action1>",
+        "Pay<Class<Energy>> FROM Energy",
+        "ProjectCard",
+    )
     p1.count("ActionUsedMarker<DevelopmentCenter>") shouldBe 1
     p1.beginOperation("NewTurn")
     shouldThrow<LimitsException> { p1.doTask("UseCardAction<DevelopmentCenter, Action1>") }
@@ -95,7 +104,11 @@ internal class StandardActionTest : TfmTest() {
 
     p1.beginOperation("NewTurn")
     shouldThrow<RequirementException> {
-      p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "-8 MC", "Terraformer35")
+      p1.doTasks(
+          "ClaimMilestone<Class<Terraformer35>>",
+          "8 Pay<> FROM MC",
+          "Terraformer35",
+      )
     }
     p1.count("Terraformer35") shouldBe 0
     p1.count("MC") shouldBe 8
@@ -113,7 +126,7 @@ internal class StandardActionTest : TfmTest() {
     p1.autoExecPolicy = NONE
 
     p1.beginOperation("NewTurn")
-    p1.doTasks("ConvertPlants", "-7 Plant")
+    p1.doTasks("ConvertPlants", "7 Pay<Class<Plant>> FROM Plant")
     p1.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p1.doTasks(
         "GreeneryTile<Tharsis_1_3>",
@@ -141,9 +154,9 @@ internal class StandardActionTest : TfmTest() {
     val startingMoney = p1.count("MC")
 
     p1.beginOperation("NewTurn")
-    p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "Terraformer35")
+    p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "Ok", "Terraformer35")
     p1.beginOperation("NewTurn")
-    p1.doTasks("FundAward<Class<Banker>>", "Banker")
+    p1.doTasks("FundAward<Class<Banker>>", "Ok", "Banker")
 
     p1.count("MC") shouldBe startingMoney
     game.isIdle() shouldBe true
@@ -165,7 +178,7 @@ internal class StandardActionTest : TfmTest() {
 
     p1.runOperation("NewTurn") {
           doTask("UseStandardProject<PowerPlantProject>")
-          doTask("-11 MC")
+          doTask("11 Pay<> FROM MC")
           doTask("PROD[Energy]")
           p1.selectTask(p1.tasks.ids().single())
           autoExecNow()

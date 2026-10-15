@@ -101,8 +101,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       playProject(AquiferPumping, 18)
 
       // "And then pay eight for an ocean place. So I'm gonna lose 26 money."
-      cardAction1(AquiferPumping) {
-            pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
             // "You had 30 and now you have four."
             assertCounts(4 to "MC") // ledger entry 13
             placeTile(5, 7)
@@ -187,8 +186,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // 11:43 am
     // "I'm gonna pay eight to pump an aquifer."
     yellow.turn {
-      cardAction1(AquiferPumping) {
-            pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
             assertCounts(14 to "MC") // ledger entry 35
             placeTile(4, 7)
           }
@@ -242,8 +240,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     yellow.turn {
       // "I feel like I can always start by Aquifer Pumping."
       // "Eight real money to use Aquifer Pumping."
-      cardAction1(AquiferPumping) {
-            pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
             // "I'm going on the one-one. I get two plants and a TR."
             placeTile(1, 1)
           }
@@ -515,8 +512,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I will spend eight money to place the last ocean."
     yellow.turn {
-      cardAction1(AquiferPumping) {
-            pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
             // "I get a TR."
             // "It'll go on the two-one space for two plants and two money."
             placeTile(2, 1)
@@ -770,7 +766,8 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
       // "I'm going to use Rotator Impacts to spend two titanium and put an asteroid on Rotator"
       // "Impacts."
-      cardAction1(RotatorImpacts) { pay(titanium = 2) }.expect("Asteroid")
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(titanium = 2) })
+          .expect("Asteroid")
 
       // "I'm going to use Search for Life to pay one money and flip Titan Shuttles, which does not"
       // "get me a thing thing."
@@ -1061,7 +1058,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       cardAction1(Extremophiles) { addCardResources(VenusianInsects) }.expect("1 MC")
 
       // "I use Rotator Impacts to spend six money to add an asteroid."
-      cardAction1(RotatorImpacts) { pay(6) }.expect("Asteroid")
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(6) }).expect("Asteroid")
 
       // "I use Titan Floating Launch-Pad to add a floater to Titan Floating Launch-Pad."
       cardAction1(TitanFloatingLaunchPad) { addCardResources(TitanFloatingLaunchPad) }
@@ -1404,7 +1401,8 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
       // "I'm going to use Rotator Impacts to pay two titanium to put an asteroid on Rotator
       // Impacts."
-      cardAction1(RotatorImpacts) { pay(titanium = 2) }.expect("Asteroid")
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(titanium = 2) })
+          .expect("Asteroid")
 
       // "I'm going to use Search for Life to spend one and flip this microbe tag right here, which"
       // "is Deimos Down, which is not a microbe tag. So I still do not get a science resource."

@@ -33,7 +33,6 @@ internal class StinaScriptTest {
         tfm_play MediaGroup, 3 MC
 
         tfm_play InvestmentLoan
-        task Ok
 
         tfm_play IndenturedWorkers
 
@@ -41,7 +40,6 @@ internal class StinaScriptTest {
 
         tfm_play HiredRaiders
         task 2 Steel<Me> FROM Steel<SoloOpponent>
-        task Ok
 
         tfm_play OlympusConference, 2 Steel, 1 MC
 
@@ -54,7 +52,6 @@ internal class StinaScriptTest {
         task CityTile<Elysium_9_7>
 
         tfm_play InventionContest
-        task Ok
         task ProjectCard FROM Science<OlympusConference>
 
         tfm_play BusinessContacts, 1 MC
@@ -64,21 +61,13 @@ internal class StinaScriptTest {
         tfm_play SpaceStation, 1 Titanium, 1 MC
 
         tfm_play OptimalAerobraking
-        task Ok
-        task Ok
 
         tfm_play TechnologyDemonstration
-        task Ok
-        task Ok
         task ProjectCard FROM Science<OlympusConference>
 
         tfm_play ImportOfAdvancedGhg
-        task Ok
-        task Ok
 
         tfm_play ImportedGhg
-        task Ok
-        task Ok
 
         tfm_play MassConverter, 5 MC
 
@@ -99,7 +88,10 @@ internal class StinaScriptTest {
         .lineSequence()
         .map { it.substringBefore("//").trim() }
         .filter(String::isNotEmpty)
-        .forEach(repl::command)
+        // Let command errors fail the replay instead of returning ignored error text.
+        .forEach { line ->
+          repl.commands.getValue(line.substringBefore(' ')).withArgs(line.substringAfter(' '))
+        }
 
     val p1 = repl.game.testTfm(repl.game.actors.filterIsInstance<Player>().single())
     p1.assertResources(m = 9, s = 0, t = 3, p = 2, e = 0, h = 15)

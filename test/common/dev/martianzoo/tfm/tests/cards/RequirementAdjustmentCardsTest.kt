@@ -21,7 +21,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Algae>>",
-          "-10 MC",
+          "10 Pay<> FROM MC",
           "Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
@@ -41,7 +41,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Algae>>",
-          "-10 MC",
+          "10 Pay<> FROM MC",
           "Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
@@ -61,7 +61,11 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("PlayProject<Class<DustSeals>>", "-2 MC", "DustSeals FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<DustSeals>>",
+          "2 Pay<> FROM MC",
+          "DustSeals FROM ProjectCard",
+      )
     }
   }
 
@@ -78,7 +82,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<SpecialDesign>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "SpecialDesign FROM ProjectCard",
       )
       doTask("SpecialDesign_NextCardEffect")
@@ -88,7 +92,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Farming>>",
-          "-16 MC",
+          "16 Pay<> FROM MC",
           "Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",
@@ -110,7 +114,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<SpecialDesign>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "SpecialDesign FROM ProjectCard",
       )
       doTask("SpecialDesign_NextCardEffect")
@@ -119,7 +123,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Farming>>",
-          "-16 MC",
+          "16 Pay<> FROM MC",
           "Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",
@@ -130,7 +134,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("PlayProject<Class<Birds>>")
-        doTask("-10 MC")
+        doTask("10 Pay<> FROM MC")
         // Resolve the pending play to evaluate the card requirement before transferring it.
         selectTask("Birds FROM ProjectCard")
       }
@@ -147,7 +151,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.setToExMachina(9, "VenusStep")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<RotatorImpacts>>", "-6 MC")
+      doTasks("PlayProject<Class<RotatorImpacts>>", "6 Pay<> FROM MC")
       doTasks("RotatorImpacts FROM ProjectCard")
     }
   }
@@ -164,7 +168,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("PlayProject<Class<Algae>>")
-        doTask("-10 MC")
+        doTask("10 Pay<> FROM MC")
         // Resolve the pending play to evaluate the card requirement before transferring it.
         selectTask("Algae FROM ProjectCard")
       }
@@ -178,21 +182,21 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<SpecialDesign>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "SpecialDesign FROM ProjectCard",
       )
       doTask("SpecialDesign_NextCardEffect")
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Mine>>", "-4 MC")
+      doTasks("PlayProject<Class<Mine>>", "4 Pay<> FROM MC")
       doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("PlayProject<Class<ArcticAlgae>>")
-        doTask("-12 MC")
+        doTask("12 Pay<> FROM MC")
         // Resolve the pending play to evaluate the card requirement before transferring it.
         selectTask("ArcticAlgae FROM ProjectCard")
       }
@@ -206,26 +210,32 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<SpecialDesign>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "SpecialDesign FROM ProjectCard",
       )
       doTask("SpecialDesign_NextCardEffect")
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<DustSeals>>", "-2 MC", "DustSeals FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<DustSeals>>",
+          "2 Pay<> FROM MC",
+          "DustSeals FROM ProjectCard",
+      )
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("PlayProject<Class<ArcticAlgae>>")
-        doTask("-12 MC")
+        doTask("12 Pay<> FROM MC")
         // Resolve the pending play to evaluate the card requirement before transferring it.
         selectTask("ArcticAlgae FROM ProjectCard")
       }
     }
   }
 
+  // Unresolved adjudication (question 11, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/2143393
   @Test
   internal fun `Keeps Special Design when a Prelude intervenes before the next project`() {
     newTestGame(addOptions = "PreludeExpansion, prelude2:cards")
@@ -235,7 +245,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<SpecialDesign>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "SpecialDesign FROM ProjectCard",
       )
       doTask("SpecialDesign_NextCardEffect")
@@ -252,7 +262,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Farming>>",
-          "-16 MC",
+          "16 Pay<> FROM MC",
           "Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",

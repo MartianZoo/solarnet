@@ -15,7 +15,7 @@ internal class CorroderSuitsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<CorroderSuits>>",
-              "-8 MC",
+              "8 Pay<> FROM MC",
               "CorroderSuits FROM ProjectCard",
               "PROD[2 MC]",
           )
@@ -33,7 +33,7 @@ internal class CorroderSuitsTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTask("PlayProject<Class<CorroderSuits>>")
-        doTasks("-8 MC", "CorroderSuits FROM ProjectCard")
+        doTasks("8 Pay<> FROM MC", "CorroderSuits FROM ProjectCard")
         doTask("PROD[2 MC]")
         doTask("Ok")
       }

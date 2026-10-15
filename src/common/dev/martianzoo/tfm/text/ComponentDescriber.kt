@@ -6,6 +6,7 @@ import dev.martianzoo.pets.types.Dependency.Key
 /** Sparse English-language facts declared for one component Class. */
 internal data class ComponentDescriber(
     internal val noun: Noun? = null,
+    internal val ownerAdjective: String? = null,
     internal val numericSingularChange: Boolean? = null,
     internal val changeFrame: ChangeFrame? = null,
     internal val cardResourceHolder: Noun.Counted? = null,
@@ -85,21 +86,10 @@ internal data class ComponentDescriber(
         internal val cardTargetRelation: String? = null,
     ) : ChangeFrame
 
-    public data class CountedProcedure(
-        internal val verb: String,
-        internal val noun: Noun.Counted,
-        internal val singularDeterminer: Determiner? = null,
-    ) : ChangeFrame
-
     public data class State(
         internal val enter: Procedure,
         internal val leave: Procedure,
         internal val ownershipTransfers: Map<ClassName, Procedure> = emptyMap(),
-    ) : ChangeFrame
-
-    public data class CappedProcedure(
-        internal val verb: String,
-        internal val noun: Noun.Counted,
     ) : ChangeFrame
 
     public data class ScopedInstruction(internal val resultModifier: String) : ChangeFrame
@@ -115,6 +105,7 @@ internal data class ComponentDescriber(
       internal val noun: Noun,
       internal val determiner: Determiner = Determiner.INDEFINITE,
       internal val forSubclasses: Boolean = true,
+      internal val relation: String = "on",
   )
 
   internal data class PlacementBonus(internal val noun: Noun.Counted)
@@ -185,8 +176,6 @@ internal data class ComponentDescriber(
         internal val qualifierRelation: String? = null,
         internal val unboundQualifier: String? = null,
         internal val ownerDependency: Key? = null,
-        internal val ownerAdjectives: Map<ClassName, String> = emptyMap(),
-        internal val differences: Map<ClassName, Noun.Counted> = emptyMap(),
         internal val ownerVerb: String? = null,
         internal val singleOwnerState: String? = null,
     ) : RequirementCondition
@@ -240,7 +229,6 @@ internal data class ComponentDescriber(
 
   internal data class PaymentDiscount(
       internal val predicate: String,
-      internal val categoryNoun: Noun.Counted? = null,
       internal val objectPronoun: Boolean = true,
   )
 
@@ -256,6 +244,5 @@ internal data class ComponentDescriber(
   internal enum class PaymentRole {
     OWED,
     ACCEPTANCE,
-    BARRIER,
   }
 }

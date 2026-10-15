@@ -11,7 +11,7 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
     kim.exMachina("$Ecoline, $Mine, $SearchForLife")
     kim.setToExMachina(43, "MC")
     kim.inTurn {
-      doTasks("PlayProject<Class<ImportedHydrogen>>", "-16 MC")
+      doTasks("PlayProject<Class<ImportedHydrogen>>", "16 Pay<> FROM MC")
       doTasks(
           "ImportedHydrogen FROM ProjectCard",
           "3 Plant",
@@ -23,7 +23,7 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("PlayProject<Class<InterplanetaryTrade>>", "-27 MC")
+      doTasks("PlayProject<Class<InterplanetaryTrade>>", "27 Pay<> FROM MC")
       doTasks("InterplanetaryTrade FROM ProjectCard")
       doTask("PROD[4 MC]")
     }

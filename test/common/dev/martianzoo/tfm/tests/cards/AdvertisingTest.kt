@@ -13,7 +13,7 @@ internal class AdvertisingTest : TfmSandboxTest() {
     kim.exMachina("$Advertising")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<LunarExports>>", "-19 MC")
+      doTasks("PlayProject<Class<LunarExports>>", "19 Pay<> FROM MC")
       doTasks("LunarExports FROM ProjectCard", "PROD[5 MC]")
     }
   }
@@ -23,7 +23,7 @@ internal class AdvertisingTest : TfmSandboxTest() {
     kim.exMachina("$Advertising")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<GanymedeColony>>", "-20 MC")
+      doTasks("PlayProject<Class<GanymedeColony>>", "20 Pay<> FROM MC")
       doTasks("GanymedeColony FROM ProjectCard")
       doTask("CityTile<Kim, GanymedeColony_RemoteArea>")
       doTask("PROD[MC]")

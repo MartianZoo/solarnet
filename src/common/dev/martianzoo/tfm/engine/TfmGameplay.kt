@@ -4,7 +4,6 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.Agents
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.engine.World
@@ -236,8 +235,11 @@ public class TfmGameplay(
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
   ) {
-    doTask(option)
-    payment()
+    doWithAutoExecPolicy(NONE) {
+      doTask(option)
+      payment()
+    }
+    autoExecNow()
     body()
   }
 
@@ -252,8 +254,9 @@ public class TfmGameplay(
   private fun OperationScope.payInvoiceFromItsResourceIfOffered() {
     val billingCause = openPendingBilling()
     val resource = acceptedResources().singleOrNull()
-    if (resource != null) {
-      doTask("-$resource / Owed<Class<$resource>>")
+    if (resource != null && this@TfmGameplay.count("Owed<Class<$resource>>") > 0) {
+      declineUnusedPaymentOffers(fromCards = true)
+      doTask("Pay<Class<$resource>> FROM $resource / Owed<Class<$resource>>")
     }
     if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
   }
@@ -353,7 +356,7 @@ public class TfmGameplay(
   /**
    * Selects the offered project card [cardName], pays with the specified resource quantities, and
    * runs `body` for remaining choices. [payment] replaces the quantity-based default when supplied.
-   * Unused card-payment offers are declined after the bill reaches zero. An unavailable resource or
+   * Unused alternatives are declined before the exact MC remainder. An unavailable resource or
    * unoffered card fails through the underlying operation.
    */
   public fun playProject(
@@ -403,11 +406,13 @@ public class TfmGameplay(
         )
             "PlayCard<Class<ProjectCard>, Class<$cardName>>"
         else "PlayProject<Class<$cardName>>"
-    doTask(instruction)
-
-    payment()
+    doWithAutoExecPolicy(NONE) {
+      doTask(instruction)
+      payment()
+      if (this@TfmGameplay.count("Owed") == 0) finishBilling(null)
+    }
+    autoExecNow()
     body()
-    if (this@TfmGameplay.count("Owed") == 0) declineUnusedPaymentOffers(fromCards = true)
     autoExecNow()
   }
 
@@ -416,7 +421,7 @@ public class TfmGameplay(
    * processed as plants, energy, heat, titanium, steel, then MC. A unit is rejected if removing it
    * would still leave the whole bill covered; unavoidable excess is permitted. Each positive
    * quantity must be accepted by an available payment task and owned by the payer. When the bill
-   * reaches zero, unused payment offers are declined and concrete follow-up work is advanced.
+   * reaches zero, its remainder is acknowledged and concrete follow-up work is advanced.
    *
    * [requireExplicitPaymentChoices] adds an audit of the default allocation. A call to
    * [intentionalUnderpay] skips that audit for this call only; it does not bypass the game's
@@ -434,7 +439,7 @@ public class TfmGameplay(
     allowNondefaultPayment = false
     // Billing effects are queued; safely advance them until the payment choices are available.
     val previousAutoExecPolicy = autoExecPolicy
-    if (autoExecPolicy != NONE) autoExecPolicy = CONCRETE
+    autoExecPolicy = NONE
 
     return try {
       continueOperation {
@@ -452,8 +457,11 @@ public class TfmGameplay(
         if (explicitPaymentChoicesRequired && !nondefaultPaymentAllowed) auditSourcedTender(tender)
         for ((currency, units) in tender) {
           if (units > 0) {
+            if (count("Owed<Class<$currency>>") > 0) {
+              declineUnusedPaymentOffers(fromCards = true)
+            }
             preparePayment(currency)
-            doTask("-$units $currency")
+            doTask("$units Pay<Class<$currency>> FROM $currency")
           }
         }
         if (count("Owed") == 0) finishBilling(billingCause)
@@ -500,12 +508,7 @@ public class TfmGameplay(
                   "call intentionalUnderpay() immediately before paying if this is sourced"
           )
         }
-      } else if (
-          value == 1 &&
-              units > 0 &&
-              pendingPaymentOffers(MC.toString()).isNotEmpty() &&
-              count(MC.toString()) >= remainingDebt
-      ) {
+      } else if (value == 1 && units > 0 && count(MC.toString()) >= remainingDebt) {
         throw IllegalArgumentException(
             "$actor paid $units $currency while $remainingDebt M€ could settle the bill; " +
                 "call intentionalUnderpay() immediately before paying if this is sourced"
@@ -516,14 +519,14 @@ public class TfmGameplay(
   }
 
   private fun OperationScope.openPendingBilling(): Cause? {
-    if (this@TfmGameplay.count("Owed") != 0) return null
     val billing =
         game.tasks
             .extract { it }
             .filter { task ->
               task.assignee == actor &&
                   task.instruction.descendantsOfType<Change>().any { change ->
-                    change.gaining?.className == cn("Owed")
+                    change.gaining?.className == cn("Owed") ||
+                        change.removing?.className == cn("Owed")
                   }
             }
             .singleOrNull() ?: return null
@@ -534,21 +537,25 @@ public class TfmGameplay(
 
   private fun OperationScope.payAllMc() {
     val billingCause = openPendingBilling()
+    declineUnusedPaymentOffers(fromCards = true)
     val owed = this@TfmGameplay.count("Owed")
-    if (owed > 0) doTask("-$owed MC")
+    if (owed > 0) doTask("$owed Pay<Class<MC>> FROM MC")
     if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
   }
 
   private fun OperationScope.finishBilling(billingCause: Cause?) {
-    declineUnusedPaymentOffers()
+    declineUnusedPaymentOffers(fromCards = true)
     autoExecNow()
     advanceSingleConcreteTask(billingCause)
   }
 
-  /** Declines unused payment offers after their bill has been settled. */
+  /** Declines unused alternatives and acknowledges a zero remainder. */
   private fun OperationScope.declineUnusedPaymentOffers(fromCards: Boolean = false) {
     while (true) {
-      val offer = pendingPaymentOffers(fromCards = fromCards).firstOrNull() ?: return
+      val offer =
+          pendingPaymentOffers(fromCards = fromCards).minByOrNull {
+            it.cause?.context?.className == cn("Billing")
+          } ?: return
       selectTaskForActor(offer)
       if (offer.id in game.tasks) narrowTask("Ok")
     }
@@ -597,6 +604,7 @@ public class TfmGameplay(
                             it.arguments.singleOrNull()?.className == cn(currency)
                           }
                   cn("AcceptingFromCard") -> fromCards && currency == null
+                  cn("Billing") -> currency == null && count("Owed") == 0
                   else -> false
                 }
           }

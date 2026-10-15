@@ -16,10 +16,12 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
           "40 MC",
       )
       doTask("TharsisRepublic_RequiredAction!")
-      doTasks("PROD[2 MC]", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("PROD[2 MC]", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
 
+  // Unresolved adjudication (question 25, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3745041
   @Test
   internal fun `Does not gain the solo starting bonus when acquired through Merger`() {
     newTestGame(addOptions = "PreludeExpansion", playerCount = 1, kimCorporation = CrediCor)

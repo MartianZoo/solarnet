@@ -26,7 +26,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           // Hand the production loss to its owner before that player resolves it.
           selectTask("-2! Production<Rob, Class<MC>> BY Rob")
           rob.doTask("PROD[-2 MC]")
-          doTasks("-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+          doTasks("15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
         }
         .expect("PROD[-2 MC<Stan>, -2 MC<Rob>]")
   }
@@ -45,11 +45,13 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTask(
               "EACH Other@Player(NOT Kim) { -2! Production<Other@Player, Class<MC>> BY Other@Player }"
           )
-          doTasks("-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+          doTasks("15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
         }
         .expect("PROD[0 MC<SoloOpponent>]")
   }
 
+  // Unresolved adjudication (question 9, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3067197
   @Test
   internal fun `Merger after Manutech pays for its own production gain only`() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = Manutech)
@@ -84,7 +86,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks(
           "PlayProject<Class<HiredRaiders>>",
-          "-1 MC",
+          "1 Pay<> FROM MC",
           "HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
@@ -107,14 +109,12 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           )
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-25* Owed")
+          doTask("Ok") // The discount covers the full cost.
           doTasks(
               "AsteroidCard FROM ProjectCard",
           )
           doTask("TemperatureStep")
           doTasks("2 Titanium", "TerraformRating")
-          // Other optional tasks also accept Ok; identify the MC payment first.
-          selectTask("-X? MC")
-          doTask("Ok" /* No MC payment. */)
           doTasks("-Plant<Stan>")
           doTask("3 MC<Stan FROM Kim>")
           doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
@@ -132,7 +132,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Birds>>",
-              "-10 MC",
+              "10 Pay<> FROM MC",
               "Birds FROM ProjectCard",
               "PROD[-2 Plant<Stan>]",
           )
@@ -151,7 +151,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
         .inTurn {
           doTasks(
               "PlayProject<Class<Moss>>",
-              "-4 MC",
+              "4 Pay<> FROM MC",
               "Moss FROM ProjectCard",
               "PROD[Plant]",
               "-Plant",
@@ -170,7 +170,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks(
           "PlayProject<Class<$HiredRaiders>>",
-          "-MC",
+          "Pay<> FROM MC",
           "$HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
@@ -186,7 +186,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan.exMachina("$PharmacyUnion")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
+          doTasks("PlayProject<Class<IndustrialMicrobes>>", "12 Pay<> FROM MC")
           doTasks(
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
@@ -205,7 +205,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan.exMachina("Plant")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+          doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
           doTasks(
               "AsteroidCard FROM ProjectCard",
           )
@@ -225,7 +225,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<HiredRaiders>>",
-              "-1 MC",
+              "1 Pay<> FROM MC",
               "HiredRaiders FROM ProjectCard",
               "3 MC<Kim FROM SoloOpponent>",
           )
@@ -247,7 +247,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+          doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
           doTasks(
               "AsteroidCard FROM ProjectCard",
           )

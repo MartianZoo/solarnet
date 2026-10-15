@@ -14,7 +14,13 @@ internal class MartianLumberCorporationTest : TfmSandboxTest() {
     kim.setToExMachina(2, "Plant")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Mine>>", "-1 MC", "-Plant", "Mine FROM ProjectCard", "PROD[Steel]")
+      doTasks(
+          "PlayProject<Class<Mine>>",
+          "Pay<Class<Plant>> FROM Plant",
+          "1 Pay<> FROM MC",
+          "Mine FROM ProjectCard",
+          "PROD[Steel]",
+      )
     }
   }
 }

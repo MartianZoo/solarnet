@@ -67,7 +67,7 @@ CLASS Thawer : Milestone {
 
 CLASS ThawerWatcher<Class<Thawer>> : CardWatcher {
   TemperatureStep BY @Player: ThawerCredit<@Player>
-  Thawer: -This!
+  Thawer: -This
 }
 
 CLASS ThawerCredit : Owned<Player>

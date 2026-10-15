@@ -190,14 +190,15 @@ extraction remains a separate library-design direction below, not a prerequisite
    defaults, instruction-valued printed facts, and richer cardinality remain promising but
    unsettled. Adopt them only after inheritance, querying, binding, and materialization have a
    coherent systemic rule and the result removes existing bridges.
+   [ELSE and instruction-level `(A)*`](docs/agents/ELSE.md) are exploratory fallback candidates
+   with concrete Canon uses and distinct shallow/deep semantics.
 
 ## Canon and game-rule modeling
 
 1. **Keep ordinary game meaning in authored Pets.** Canon should describe cards, maps, goals,
    expansions, and global rules through general language concepts. Bounded custom semantics remain
    acceptable when they are smaller and more honest than a general feature; runtime orchestration
-   must not learn card or expansion identities. An [exploratory Turmoil delegate model](docs/agents/DELEGATES.md)
-   tests whether party leadership can be expressed by the delegate's subtype.
+   must not learn card or expansion identities.
 
 2. **Finish the content-selection model.** **Selected direction.** Distinguish source bundles,
    ambient Modules, and individually selectable Content. Support selecting all applicable Content

@@ -12,7 +12,11 @@ internal class TestHelpersTest : TfmSandboxTest() {
   internal fun `Net-change expectations reject empty argument lists`() {
     newTestGame()
     val result = kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_6_6>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Tharsis_6_6>",
+      )
       doTask("OxygenStep")
       doTasks("Plant", "TerraformRating")
     }

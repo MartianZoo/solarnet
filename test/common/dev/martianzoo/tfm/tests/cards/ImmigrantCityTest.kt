@@ -16,9 +16,10 @@ internal class ImmigrantCityTest : TfmSandboxTest() {
     kim.setToExMachina(13, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<ImmigrantCity>>", "-13 MC")
+      doTask("PlayProject<Class<ImmigrantCity>>")
+      doTask("Ok") // Keep the steel.
+      doTask("13 Pay<> FROM MC")
       doTasks(
-          "Ok" /* No Steel payment. */,
           "ImmigrantCity FROM ProjectCard",
           "PROD[-Energy]",
           "CityTile<Tharsis_7_4>",

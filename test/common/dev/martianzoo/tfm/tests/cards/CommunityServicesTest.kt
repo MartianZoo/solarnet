@@ -16,7 +16,7 @@ internal class CommunityServicesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<CommunityServices>>",
-          "-13 MC",
+          "13 Pay<> FROM MC",
           "CommunityServices FROM ProjectCard",
       )
       doTask("PROD[2 MC]")

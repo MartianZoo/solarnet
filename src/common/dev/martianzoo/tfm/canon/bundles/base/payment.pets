@@ -9,37 +9,53 @@ CLASS Owed<@Class<StandardResource>> : Owned<Player>, Barrier, System {
 CLASS PayingFor<Class<Component>> : Owned<Player>, Signal, System
 
 "A finalized debt; removing it signals that its denomination has been fully paid"
-CLASS Billing<Class<Component>, ActionSlot, @Class<StandardResource>> : Owned<Player>, Barrier, System {
+CLASS Billing<Class<Component>, ActionSlot, Class<@StandardResource>> : Owned<Player>, Barrier, System {
   DEFAULT +Billing<Class<Component>, Action1, Class<MC>>
   HAS MAX 1 This
-  OWN[This IF MAX 0 Owed<@Class>:: -This!]
-  OWN[-X Owed<@Class> IF MAX 0 Owed<@Class>:: -This!]
+  OWN[This IF MAX 0 Owed<Class<@StandardResource>>:: -This]
+  // Skip the queued payment if the automatic zero-debt check already removed this bill.
+  OWN[This IF This: \
+    (MAX 0 (Accepting(NOT Accepting<Class<@StandardResource>>) OR AcceptingFromCard): \
+      1! Pay<Class<@StandardResource>> FROM @StandardResource / Owed<Class<@StandardResource>>) THEN -This]
 }
 
 CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp, System {
   HAS MAX 1 This
   DEFAULT +Accepting*
-  OWN[Billing IF @StandardResource OR Owed<Class<@StandardResource>>: -X? @StandardResource]
-  OWN[-@StandardResource BY Me@:: -Owed<Class<@StandardResource>>]
-  OWN[-X Billing:: -This!]
+  OWN[Billing<Class<Component>, Class<StandardResource>(NOT Class<@StandardResource>)> IF @StandardResource: \
+    (X Pay<Class<@StandardResource>> FROM @StandardResource OR Ok) THEN -This]
+  // Billing can itself install acceptance, so inspect empty alternatives after its automatic effects.
+  OWN[Billing<Class<Component>, Class<StandardResource>(NOT Class<@StandardResource>)> IF MAX 0 @StandardResource: -This]
+  OWN[-X Billing:: -This]
+}
+
+"Records an explicit payment in units of the resource spent"
+CLASS Pay<@Class<StandardResource>> : Owned<Player>, Signal {
+  DEFAULT +Pay<Class<MC>>
+  OWN[This:: -Owed<@Class>]
 }
 
 "Offers payment using the resource held by a specific card"
 CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, MustCleanUp, System {
   HAS MAX 1 This
-  OWN[Billing: -X? @CardResource<@ResourceCard>]
-  OWN[-X Billing:: -This!]
+  OWN[Billing IF @CardResource<@ResourceCard>: \
+    (X PayFromCard<@ResourceCard> FROM @CardResource<@ResourceCard> OR Ok) THEN -This]
+  OWN[Billing IF MAX 0 @CardResource<@ResourceCard>: -This]
+  OWN[-X Billing:: -This]
 }
+
+"Records an explicit payment from a particular card's resources"
+CLASS PayFromCard<ResourceCard<Class<CardResource>, @Player>> : Owned<@Player>, Signal
 
 "A card-owned adjustment that remains in play until the next project card play"
 ABSTRACT CLASS NextCardEffect<GenerationScope> : Owned<Player> {
-  OWN[PayingFor<Class<CardFront>>:: -This!]
+  OWN[PayingFor<Class<CardFront>>:: -This]
 }
 
 "A component that makes a standard resource worth one M€ when paid"
 ABSTRACT CLASS ResourceValue<Class<@StandardResource>> : Owned<Player> {
   // The resource being spent can be Steel or Titanium, but it settles the default M€ debt.
-  OWN[-@StandardResource BY Me@ IF Accepting<Class<@StandardResource>>:: -Owed<Class<MC>>]
+  OWN[Pay<Class<@StandardResource>>:: -Owed<Class<MC>>]
 
   "One M€ of a standard resource's ordinary payment value"
   CLASS BaseResourceValue

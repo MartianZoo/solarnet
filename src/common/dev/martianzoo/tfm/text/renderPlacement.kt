@@ -13,57 +13,73 @@ internal fun renderPlacement(
     instruction: Instruction,
     description: ComponentDescriber.ChangeFrame.Positioned,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause? {
-  val gain = instruction as? Gain
-  if (gain == null) {
-    val removal = instruction as? Remove ?: return null
-    if (
-        removal.quantifier.modality() != Modality.REQUIRED ||
-            removal.removing.refinement != null ||
-            !removal.removing.simple ||
-            !describers.concrete(removal.removing.className)
-    ) {
+  val expression =
+      when (instruction) {
+        is Gain -> instruction.gaining
+        is Remove -> instruction.removing
+        else -> return null
+      }
+  val change = instruction as Instruction.Change
+  if (change.quantifier.modality() != Modality.REQUIRED || expression.refinement != null)
       return null
-    }
-    val count = removal.count.fixedQuantity() ?: return null
-    return Clause.Simple(
-        Predicate(
-            Verb("remove"),
-            Coordination.one(
-                describers.quantifiedComponentNounPhrase(
-                    removal.removing.className,
-                    count,
-                    description.noun.singular,
-                    description.noun.plural,
-                    description.determiner,
-                )
-            ),
-        )
-    )
-  }
-  if (gain.quantifier.modality() != Modality.REQUIRED) return null
-  if (gain.gaining.refinement != null) return null
-
-  val placement = resolvePlacementExpression(gain.gaining, describers) ?: return null
-  if (placement.owner != null || placement.unknownDependencies.isNotEmpty()) return null
-  val implicitSites = describers.gainDefaultExpressions(gain.gaining.className)
+  val placement = resolvePlacementExpression(expression, describers) ?: return null
+  if (placement.unknownDependencies.isNotEmpty()) return null
+  if (instruction is Gain && placement.owner == describers.anyoneExpression) return null
+  val implicitSites =
+      if (instruction is Gain) describers.gainDefaultExpressions(expression.className)
+      else emptyList()
   val siteModifiers =
       renderRelaxedPlacementDefault(placement, implicitSites, description, describers)
-          ?: renderPlacementSites(placement, describers, implicitSites)
+          ?: renderPlacementSites(placement, describers, implicitSites, references)
           ?: return null
-  val count = gain.count.fixedQuantity() ?: return null
+  val count = change.count.fixedQuantity() ?: return null
   if (siteModifiers.isNotEmpty() && count != 1) return null
   val noun =
-      if (count == 1) {
-        NounPhrase(
-            description.noun.singular,
-            description.noun.plural,
-            determiner = description.determiner,
-        )
-      } else {
-        NounPhrase(description.noun.singular, description.noun.plural, count = count)
-      }
-  return placementClause(noun, siteModifiers)
+      renderPlacedComponentNoun(placement, count, description, describers, instruction is Remove)
+          ?: return null
+  return Clause.Simple(
+      Predicate(
+          Verb(if (instruction is Gain) "place" else "remove"),
+          Coordination.one(noun),
+          modifiers = siteModifiers,
+      )
+  )
+}
+
+/** Ownership is explicit when selecting an existing piece or describing a replacement. */
+internal fun renderPlacedComponentNoun(
+    placement: PlacementExpression,
+    count: Int,
+    description: ComponentDescriber.ChangeFrame.Positioned,
+    describers: Describers,
+    explicitOwnership: Boolean,
+): NounPhrase? {
+  val noun =
+      NounPhrase(
+          description.noun.singular,
+          description.noun.plural,
+          count = count.takeUnless { it == 1 },
+          determiner = description.determiner.takeIf { count == 1 },
+      )
+  val owner = placement.owner
+  return when {
+    owner == null ->
+        if (
+            explicitOwnership &&
+                description.unqualifiedOwnership == ComponentDescriber.OwnershipPhrase.YOURS
+        ) {
+          noun.withModifier(Modifier.Relation("of", NounPhrase.text("your own")))
+        } else noun
+    owner == describers.anyoneExpression && description.anyoneOwnership != null -> noun
+    owner.simple -> {
+      val adjective =
+          describers.fact(owner.className, ComponentDescriber::ownerAdjective) ?: return null
+      noun.withAttributiveModifier(NounPhrase.text(adjective))
+    }
+    else -> null
+  }
 }
 
 private fun renderRelaxedPlacementDefault(
@@ -112,6 +128,8 @@ internal fun renderPlacementSites(
     placement: PlacementExpression,
     describers: Describers,
     implicitSites: List<Expression> = emptyList(),
+    references: TypeVariableReferences = TypeVariableReferences.EMPTY,
+    siteDeterminer: Determiner? = null,
 ): List<Modifier>? {
   // No dependencies, including an explicitly authored <>, accept the placement defaults.
   if (placement.sites.isEmpty()) return emptyList()
@@ -121,11 +139,23 @@ internal fun renderPlacementSites(
   val resolvedSite = describers.resolveExpression(expression) ?: return null
   if (resolvedSite.sourceDependencies.isNotEmpty()) return null
 
-  val siteNoun = describers.describedNoun(expression.className, site.noun, 1)
-  val modifiers =
-      mutableListOf<Modifier>(
-          Modifier.Relation("on", NounPhrase(siteNoun, determiner = site.determiner))
-      )
+  val siteNoun =
+      if (
+          describers.concrete(expression.className) &&
+              describers.fact(expression.className, ComponentDescriber::noun) is
+                  ComponentDescriber.Noun.Fixed
+      ) {
+        NounPhrase.text(describers.componentNoun(expression.className, 1))
+      } else {
+        NounPhrase(
+            describers.describedNoun(expression.className, site.noun, 1),
+            determiner =
+                siteDeterminer
+                    ?: if (references.variableUsedAt(expression) == null) site.determiner
+                    else Determiner.THAT,
+        )
+      }
+  val modifiers = mutableListOf<Modifier>(Modifier.Relation(site.relation, siteNoun))
   expression.refinement?.let {
     val authoredRequirements = it.requirementsOrNull() ?: return null
     val implicitRequirements =

@@ -217,12 +217,12 @@ internal class EnglishTest {
   }
 
   @Test
-  internal fun paymentValuesRequireMatchingAcceptedLossByOwner() {
+  internal fun paymentValuesRequireAnExplicitPayment() {
     english.describe(
         parseClasses(
                 """
                 CLASS PaymentValue : Owned<Player> {
-                  -Steel BY Me@ IF Accepting<Class<Steel>>:: -Owed
+                  Pay<Class<Steel>>:: -Owed
                 }
                 """
             )
@@ -236,6 +236,9 @@ internal class EnglishTest {
     val unsupported =
         listOf(
             "-Steel",
+            "Pay<Anyone, Class<Steel>>",
+            "-Pay<Class<Steel>>",
+            "Pay<Class<Steel>> IF ScienceTag",
             "-Steel BY Me@",
             "-Steel IF Accepting<Class<Steel>>",
             "-Steel BY Anyone IF Accepting<Class<Steel>>",
@@ -277,7 +280,7 @@ internal class EnglishTest {
             CLASS HeatPayingScience : ActiveCard, ResourceCard<Class<Science>> {
               cost = 0
               Billing<Class<Component>, Class<Heat>>:: AcceptingFromCard<This>
-              -Science<This> BY Me@ IF AcceptingFromCard<This>:: -3 Owed<Class<Heat>>
+              PayFromCard<This>:: -3 Owed<Class<Heat>>
             }
             """
         )
@@ -404,8 +407,9 @@ internal class EnglishTest {
   @Test
   internal fun describesPositionedComponentConversions() {
     english.describe(
-        parse<InstructionTree>("CityTile<LandArea> FROM GreeneryTile<LandArea>")
-    ) shouldBe "Change a greenery tile on any land area into a city tile on that land area."
+        parse<InstructionTree>("CityTile<@LandArea> FROM GreeneryTile<@LandArea>")
+    ) shouldBe
+        "Change a greenery tile of your own on any land area into a city tile of your own on that land area."
   }
 
   @Test

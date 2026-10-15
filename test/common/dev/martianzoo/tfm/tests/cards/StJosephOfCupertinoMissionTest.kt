@@ -13,11 +13,11 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Stan, Tharsis_4_2>")
 
     kim.inTurn {
-      doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "-5 MC")
+      doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "5 Pay<> FROM MC")
       doTasks("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
       doTask("CathedralOffer<Stan>")
       stan.doTasks("UseAction<CathedralOption, Action1>")
-      stan.doTasks("-2 MC")
+      stan.doTasks("2 Pay<> FROM MC")
       stan.doTasks("ProjectCard")
     }
   }
@@ -30,7 +30,7 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
 
     kim.inTurn {
       // Decline paying 2 MC for the city owner's card draw.
-      doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "-5 MC")
+      doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "5 Pay<> FROM MC")
       doTasks("Cathedral<CityTile<Anyone, Tharsis_2_5>>")
       doTask("CathedralOffer<Stan>")
       stan.doTask("0 UseAction<CathedralOption>")
@@ -46,8 +46,8 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
           // Decline paying 2 MC for the city owner's card draw.
           doTasks(
               "UseCardAction<StJosephOfCupertinoMission, Action1>",
-              "-2 Steel",
-              "-1 MC",
+              "2 Pay<Class<Steel>> FROM Steel",
+              "1 Pay<> FROM MC",
               "Cathedral<CityTile<Anyone, Tharsis_4_2>>",
           )
           doTask("CathedralOffer")
@@ -62,7 +62,7 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
     kim.exMachina("$StJosephOfCupertinoMission")
 
     kim.inTurn {
-      doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "-5 MC")
+      doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "5 Pay<> FROM MC")
       doTasks("Cathedral<CityTile<Anyone, Tharsis_4_1>>")
       doTask("CathedralOffer<SoloOpponent>")
     }

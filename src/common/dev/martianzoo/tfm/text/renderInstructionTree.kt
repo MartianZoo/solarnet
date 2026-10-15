@@ -338,7 +338,7 @@ private fun renderOpponentFanout(
               Predicate(
                   Verb("removes", "remove"),
                   Coordination.one(resource),
-                  listOf(Modifier.Parenthetical("to the extent possible")),
+                  listOf(Modifier.BEST_EFFORT),
               ),
               subject = NounPhrase.text("each other player"),
           )
@@ -349,7 +349,7 @@ private fun renderOpponentFanout(
                   Coordination.one(resource),
                   listOf(
                       Modifier.Relation("from", NounPhrase.plural("each opponent")),
-                      Modifier.Parenthetical("to the extent possible"),
+                      Modifier.BEST_EFFORT,
                   ),
               )
           )
@@ -627,9 +627,6 @@ private fun renderPer(
   renderRemainingRemoval(instruction, describers)?.let {
     return it
   }
-  renderCappedProcedure(instruction, describers)?.let {
-    return it
-  }
   val clause =
       renderLoweredInstructions(instruction.inner, describers, references).clauses.singleOrNull()
           ?: return null
@@ -642,7 +639,7 @@ private fun renderPer(
   val simple = clause as? Clause.Simple ?: return null
   val modifiers = simple.predicate.modifiers
   val trailing = modifiers.filter {
-    it is Modifier.Supplement || it == Modifier.Parenthetical("to the extent possible")
+    it is Modifier.Supplement || it == Modifier.BEST_EFFORT
   }
   return simple.copy(
       predicate =
@@ -709,25 +706,6 @@ private fun renderRemainingRemoval(
               )
           )
   return Clause.Simple(Predicate(Verb("remove"), Coordination.one(resources), modifiers))
-}
-
-private fun renderCappedProcedure(
-    instruction: Instruction.Per,
-    describers: Describers,
-): Clause.Simple? {
-  val gain = instruction.inner as? Gain ?: return null
-  if (gain.count.fixedQuantity() != 1 || gain.gaining.refinement != null) return null
-  val frame =
-      describers.changeFrame(gain.gaining.className)
-          as? ComponentDescriber.ChangeFrame.CappedProcedure ?: return null
-  val cap = instruction.metric as? Metric.Max ?: return null
-  if ((cap.maximum as? Metric.Constant)?.value != 1) return null
-  if (gain.quantifier.modality() == Modality.OPTIONAL) return null
-  val noun = NounPhrase(frame.noun.singular, frame.noun.plural, count = 1)
-  val result = Clause.Simple(Predicate(Verb(frame.verb), Coordination.one(noun)))
-  return if (gain.quantifier.modality() == Modality.BEST_EFFORT)
-      result.withModifier(Modifier.Parenthetical("to the extent possible"))
-  else result
 }
 
 private fun renderScopedInstruction(

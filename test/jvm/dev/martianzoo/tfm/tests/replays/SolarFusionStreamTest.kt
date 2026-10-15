@@ -69,10 +69,8 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.turn {
       playPrelude(FakeResearchNetwork).expect("PROD[1 MC], FakeWildTag")
       playPrelude(EstablishedMethods) {
-            doTask("UseAction<PowerPlantProject, Action1>")
-            pay(11)
-            doTask("UseAction<PowerPlantProject, Action1>")
-            pay(11)
+            useStdAction("UseAction<PowerPlantProject, Action1>", payment = { pay(11) })
+            useStdAction("UseAction<PowerPlantProject, Action1>", payment = { pay(11) })
           }
           .expect("8 MC")
     }
@@ -184,8 +182,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     ER.sellPatents(1)
     JR.pass()
     KB.pass()
-    ER.cardAction1(WaterImportFromEuropa) {
-          ER.pay(12)
+    ER.stdAction("UseCardAction<$WaterImportFromEuropa, Action1>", payment = { ER.pay(12) }) {
           placeTile(4, 4)
         }
         .expect("2 Plant")
@@ -212,8 +209,10 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     JR.declineSecondAction()
     KB.sellPatents(1)
     KB.playProject(EquatorialMagnetizer, 10)
-    ER.cardAction1(WaterImportFromEuropa) {
-      ER.pay(titanium = 4)
+    ER.stdAction(
+        "UseCardAction<$WaterImportFromEuropa, Action1>",
+        payment = { ER.pay(titanium = 4) },
+    ) {
       placeTile(5, 4)
     }
     ER.playProject(CommercialDistrict, 0, steel = 8) {
@@ -238,8 +237,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     JR.playProject(FieldCappedCity, 29) { placeTile(6, 5) }
     KB.convertHeat()
     KB.convertHeat()
-    ER.cardAction1(WaterImportFromEuropa) {
-      ER.pay(12)
+    ER.stdAction("UseCardAction<$WaterImportFromEuropa, Action1>", payment = { ER.pay(12) }) {
       placeTile(4, 6)
     }
     ER.convertPlants { placeTile(5, 8) }
@@ -298,8 +296,10 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.cardAction1(EquatorialMagnetizer)
     KB.sellPatents(1)
     ER.playProject(AdvancedAlloys, 9)
-    ER.cardAction1(WaterImportFromEuropa) {
-          ER.pay(titanium = 3)
+    ER.stdAction(
+            "UseCardAction<$WaterImportFromEuropa, Action1>",
+            payment = { ER.pay(titanium = 3) },
+        ) {
           placeTile(1, 3)
         }
         .expect("TerraformRating, ProjectCard")
@@ -333,8 +333,10 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.cardAction1(RestrictedArea)
     KB.cardAction1(EquatorialMagnetizer)
     ER.cardAction1(TychoMagnetics, x = 3)
-    ER.cardAction1(WaterImportFromEuropa) {
-      ER.pay(titanium = 3)
+    ER.stdAction(
+        "UseCardAction<$WaterImportFromEuropa, Action1>",
+        payment = { ER.pay(titanium = 3) },
+    ) {
       placeTile(1, 4)
     }
     JR.cardAction1(SpaceMirrors)

@@ -42,7 +42,7 @@ internal fun renderChange(
   val rendered =
       renderChangeOrNull(mandatory, expression, describers, references) as? Clause.Simple
           ?: return null
-  return rendered.withModifier(Modifier.Parenthetical("to the extent possible"))
+  return rendered.withModifier(Modifier.BEST_EFFORT)
 }
 
 internal fun changeRefusalReason(
@@ -83,13 +83,10 @@ private fun renderChangeOrNull(
     renderCardBackExchange(instruction, describers)?.let {
       return it
     }
-    renderPlayedEventRecovery(instruction, describers)?.let {
-      return it
-    }
     renderCardResourceDrawExchange(instruction, describers)?.let {
       return it
     }
-    renderPositionedConversion(instruction, describers)?.let {
+    renderPositionedConversion(instruction, describers, references)?.let {
       return it
     }
   }
@@ -109,17 +106,14 @@ private fun renderChangeOrNull(
       is ComponentDescriber.ChangeFrame.Scale ->
           renderScaleChange(instruction, expression, frame, references)
       is ComponentDescriber.ChangeFrame.Positioned ->
-          renderPlacement(instruction, frame, describers)
+          renderPlacement(instruction, frame, describers, references)
       ComponentDescriber.ChangeFrame.Deck ->
           renderCardKeep(instruction, describers)
               ?: renderDiscard(instruction, describers)
               ?: renderCardDrawOrLook(instruction, describers)
       is ComponentDescriber.ChangeFrame.Procedure ->
           renderProcedure(instruction, frame, describers, references)
-      is ComponentDescriber.ChangeFrame.CountedProcedure ->
-          renderCountedProcedure(instruction, frame, describers)
       is ComponentDescriber.ChangeFrame.State -> renderStateChange(instruction, frame, describers)
-      is ComponentDescriber.ChangeFrame.CappedProcedure -> null
       is ComponentDescriber.ChangeFrame.ScopedInstruction -> null
       ComponentDescriber.ChangeFrame.RequiredAction -> renderRequiredAction(instruction, describers)
       ComponentDescriber.ChangeFrame.NextCardEffect -> renderNextCardEffect(instruction, describers)
@@ -195,36 +189,13 @@ private fun changeRefusalReason(
     is ComponentDescriber.ChangeFrame.Positioned -> RefusalReason.UNSUPPORTED_PLACEMENT_CHANGE
     ComponentDescriber.ChangeFrame.Countable -> RefusalReason.UNSUPPORTED_STANDARD_RESOURCE_CHANGE
     is ComponentDescriber.ChangeFrame.Procedure,
-    is ComponentDescriber.ChangeFrame.CountedProcedure,
     is ComponentDescriber.ChangeFrame.State,
-    is ComponentDescriber.ChangeFrame.CappedProcedure,
     is ComponentDescriber.ChangeFrame.ScopedInstruction,
     ComponentDescriber.ChangeFrame.RequiredAction,
     ComponentDescriber.ChangeFrame.NextCardEffect,
     ComponentDescriber.ChangeFrame.Play -> RefusalReason.UNSUPPORTED_DECLARED_CHANGE
     null -> RefusalReason.UNKNOWN_CHANGE_FRAME
   }
-}
-
-private fun renderCountedProcedure(
-    instruction: Instruction,
-    frame: ComponentDescriber.ChangeFrame.CountedProcedure,
-    describers: Describers,
-): Clause.Simple? {
-  val gain = instruction as? Gain ?: return null
-  if (gain.quantifier.modality() != Modality.REQUIRED || gain.gaining.refinement != null)
-      return null
-  val count = gain.count.fixedQuantity() ?: return null
-  val noun =
-      if (count == 1 && frame.singularDeterminer != null) {
-        NounPhrase(frame.noun.singular, frame.noun.plural, determiner = frame.singularDeterminer)
-      } else {
-        NounPhrase(frame.noun.singular, frame.noun.plural, count = count)
-      }
-  return clause(
-      frame.verb,
-      noun,
-  )
 }
 
 private fun renderStateChange(
@@ -348,16 +319,6 @@ private fun renderCardDrawOrLook(
   return clause("draw", describers.quantifiedComponentNounPhrase(gain.gaining.className, count))
 }
 
-internal fun standardResourceGain(
-    instruction: Instruction,
-    describers: Describers,
-): Pair<ClassName, Int>? {
-  val (className, count) = concreteMandatoryGain(instruction) ?: return null
-  return (className to count).takeIf {
-    describers.concrete(className) && describers.isStandardResource(className)
-  }
-}
-
 private fun renderProcedure(
     instruction: Instruction,
     frame: ComponentDescriber.ChangeFrame.Procedure,
@@ -400,42 +361,58 @@ private fun renderActionUseChange(
 private fun renderPositionedConversion(
     transmute: Transmute,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause.Simple? {
   if (transmute.quantifier.modality() != Modality.REQUIRED) return null
   if (transmute.count.fixedQuantity() != 1) return null
   val gaining = transmute.gaining
   val removing = transmute.removing
-  if (
-      gaining.refinement != null ||
-          removing.refinement != null ||
-          !describers.concrete(removing.className)
-  ) {
-    return null
-  }
+  if (gaining.refinement != null || removing.refinement != null) return null
   val gainingFrame = describers.positionedFrame(gaining.className) ?: return null
   val removingFrame = describers.positionedFrame(removing.className) ?: return null
   val gainingPlacement = resolvePlacementExpression(gaining, describers) ?: return null
   val removingPlacement = resolvePlacementExpression(removing, describers) ?: return null
   if (
-      gainingPlacement.owner != null ||
-          removingPlacement.owner != null ||
-          gainingPlacement.unknownDependencies.isNotEmpty() ||
+      gainingPlacement.unknownDependencies.isNotEmpty() ||
           removingPlacement.unknownDependencies.isNotEmpty()
-  ) {
-    return null
-  }
+  )
+      return null
+  if (gainingPlacement.owner == describers.anyoneExpression) return null
   val site = gainingPlacement.sites.singleOrNull() ?: return null
   val sourceSite = removingPlacement.sites.singleOrNull() ?: return null
-  if (sourceSite != site && !sameNamedTypeVariable(sourceSite, site) || !site.simple) return null
-  val siteDescription = describers.placementSite(site.className) ?: return null
-  val siteNoun = describers.describedNoun(site.className, siteDescription.noun, 1)
+  val sourceModifiers =
+      renderPlacementSites(removingPlacement, describers, siteDeterminer = Determiner.ANY)
+          ?: return null
+  val destinationModifiers =
+      renderPlacementSites(
+          gainingPlacement,
+          describers,
+          siteDeterminer =
+              Determiner.THAT.takeIf {
+                sourceSite === site || references.sameVariable(sourceSite, site)
+              },
+      ) ?: return null
   val source =
-      NounPhrase(removingFrame.noun.singular, determiner = removingFrame.determiner)
-          .withModifier(Modifier.Relation("on", NounPhrase(siteNoun, determiner = Determiner.ANY)))
+      renderPlacedComponentNoun(
+          removingPlacement,
+          1,
+          removingFrame,
+          describers,
+          explicitOwnership = true,
+      ) ?: return null
   val destination =
-      NounPhrase(gainingFrame.noun.singular, determiner = gainingFrame.determiner)
-          .withModifier(Modifier.Relation("on", NounPhrase(siteNoun, determiner = Determiner.THAT)))
-  return clause("change", source, Modifier.Relation("into", destination))
+      renderPlacedComponentNoun(
+          gainingPlacement,
+          1,
+          gainingFrame,
+          describers,
+          explicitOwnership = true,
+      ) ?: return null
+  return clause(
+      "change",
+      sourceModifiers.fold(source, NounPhrase::withModifier),
+      Modifier.Relation("into", destinationModifiers.fold(destination, NounPhrase::withModifier)),
+  )
 }
 
 private fun renderCardPlay(instruction: Instruction, describers: Describers): Clause.Simple? {
@@ -532,7 +509,7 @@ private fun renderNextCardEffect(
           ?.untransformed
           ?.let(describers::prepareForRendering) ?: return null
   paymentDiscount(effect, describers)?.let { discount ->
-    if (discount.categoryReduction || discount.reduction.count == 0) return null
+    if (discount.reduction.count == 0) return null
     val trigger =
         Clause.Simple(
             subject = NounPhrase.you(),
@@ -1109,14 +1086,6 @@ private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int
   if (!gain.gaining.simple) return null
   val count = gain.count.fixedQuantity() ?: return null
   return gain.gaining.className to count
-}
-
-private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, Int>? {
-  val removal = instruction as? Remove ?: return null
-  if (removal.quantifier.modality() != Modality.REQUIRED) return null
-  if (!removal.removing.simple) return null
-  val count = removal.count.fixedQuantity() ?: return null
-  return removal.removing.className to count
 }
 
 private fun Describers.renderCardResourceHolder(expression: Expression): NounPhrase? {

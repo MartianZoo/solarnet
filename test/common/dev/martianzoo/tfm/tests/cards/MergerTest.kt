@@ -70,6 +70,7 @@ internal class MergerTest : TfmSandboxTest() {
           doTask("4 CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
           doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
+          doTask("54 MC")
           doTask("-42 MC")
           doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
           doTask("Disease<PharmacyUnion>")
@@ -80,6 +81,8 @@ internal class MergerTest : TfmSandboxTest() {
         .expect("4 MC, 2 Disease<$PharmacyUnion>")
   }
 
+  // Unresolved adjudication (question 3, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3067197
   @Test
   internal fun `Pharmacy Union's loss makes Board Merger Recyclon unaffordable`() {
     newTestGame(addOptions = "PreludeExpansion, BoardOfDirectors")
@@ -107,6 +110,7 @@ internal class MergerTest : TfmSandboxTest() {
             "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
             "Recyclon FROM CorporationCard<Selecting>",
             "38 MC",
+            "Disease<PharmacyUnion>",
             "-4* MC",
             "-42 MC",
         )
@@ -120,7 +124,7 @@ internal class MergerTest : TfmSandboxTest() {
   }
 
   internal class Gameplay : TfmGameplayTest() {
-    // Resolved FAQ: a corporation acquired after Preludes takes its first action immediately.
+    // Adjudication is unresolved; immediate resolution remains the locally adopted target.
     // https://boardgamegeek.com/thread/2886401/article/44823945#44823945
     @Ignore // Merger leaves the mandatory city placement for a later action.
     @Test
@@ -128,6 +132,8 @@ internal class MergerTest : TfmSandboxTest() {
       acquireTharsisThroughBoard { doTask("CityTile<Tharsis_3_3>") }.expect("CityTile<Tharsis_3_3>")
     }
 
+    // Unresolved adjudication (question 4, 2026-10-14); this records current behavior.
+    // https://boardgamegeek.com/thread/2886401/article/44823945#44823945
     @Test
     internal fun `BUG - Defers Tharsis first action when acquired after Preludes`() {
       acquireTharsisThroughBoard().expect("0 CityTile")

@@ -44,7 +44,7 @@ CLASS Placement<MarsArea> : Owned<Player>, Signal, System
 
 "A player cube placed on an area by LandClaim or ArcadianCommunities"
 CLASS Community : OwnedOccupant<@LandArea> {
-  Tile<@LandArea> BY Me@:: -This!
+  Tile<@LandArea> BY Me@:: -This
 }
 
 "A hexagonal tile in play"
@@ -94,7 +94,7 @@ CLASS DefaultGreeneryTile : Owned, Signal, System {
 
 CLASS Photosynthesis : System {
   HAS MAX 1 This
-  FinalGreeneryPhase: -This!
+  FinalGreeneryPhase: -This
 }
 
 "A bonus icon of a particular resource type printed on a map area"
@@ -157,7 +157,7 @@ CLASS GpComplete<Class<@GlobalParameter>> : System {
 "An obstacle to the game ending"
 CLASS GpGameEndBarrier<@Class<GlobalParameter>> : GameEndBarrier, System {
   HAS MAX 1 This
-  GpComplete<@Class>:: -This!
+  GpComplete<@Class>:: -This
 }
 
 "Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"
