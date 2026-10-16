@@ -1,0 +1,4 @@
+/Canon/Card[isA/Type/@name = 'EventCard']/effects/Effect[
+  trigger//OnGainOf[expression/Expression/@className = 'End'] and
+  not(trigger/OnGainOf[expression/Expression/@pets = 'End'])
+]

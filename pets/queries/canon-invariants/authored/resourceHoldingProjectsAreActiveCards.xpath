@@ -1,0 +1,1 @@
+/Canon/Card[isA/Type/@name = 'ResourceCard'][@deck = 'ProjectCard'][not(isA/Type/@name = 'ActiveCard')]

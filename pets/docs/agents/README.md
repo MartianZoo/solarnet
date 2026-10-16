@@ -34,6 +34,7 @@ client has not implemented pruning.
 | English rendering, vocabulary, wording, or card layout | [LANGUAGE.md](LANGUAGE.md); [NLG_REVIEW.md](NLG_REVIEW.md) is a review snapshot |
 | Generated Kotlin vocabulary | [PETS_TYPE_GENERATOR.md](PETS_TYPE_GENERATOR.md) |
 | Generated map areas | [MAP_PETS_GENERATION.md](MAP_PETS_GENERATION.md) |
+| Canon XPath queries, authored/elaborated views, or CLI | [Canon XPath](canon-xpath.md); multiplatform module `search`, source and tests under `dev/martianzoo/search` |
 | Static resource monotonicity report | [MONOTONICITY.md](MONOTONICITY.md) |
 
 ## Verification and maintenance

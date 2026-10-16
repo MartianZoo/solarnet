@@ -1,0 +1,5 @@
+/Canon/Card[tags/Tag/@name = 'BuildingTag']/effects/Effect[@automatic = 'false'][trigger/WhenGain]
+/instruction//*[self::Gated or self::Or or self::Per or self::By or self::Each]
+[(@kind = 'Instruction' or @kind = 'InstructionTree')]
+[not(ancestor::Transform[@transformKind = 'PROD'][(@kind = 'Instruction' or @kind = 'InstructionTree')])]
+[.//Transform[@transformKind = 'PROD'][(@kind = 'Instruction' or @kind = 'InstructionTree')]]

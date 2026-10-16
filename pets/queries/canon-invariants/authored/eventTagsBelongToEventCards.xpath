@@ -1,0 +1,2 @@
+/Canon/*[@name = 'EventCard'][not(invariants/Exact[@pets = '=1 EventTag<This>'])]
+| /Canon/Card[tags/Tag/@name = 'EventTag'][not(isA/Type/@name = 'EventCard')]

@@ -16,16 +16,30 @@ val allBrowserTestsRequested =
 
 extra["allBrowserTestsRequested"] = allBrowserTestsRequested
 
-// Kotlin creates a browser-test task for every JS target. Pets and Almanac run routinely.
+// Pets, Almanac, and Search run browser tests routinely. Search covers both JS and Wasm.
 // Other modules are inert unless the full-browser target below is temporarily restored.
 subprojects {
-  if (name !in setOf("pets", "almanac")) {
+  if (name !in setOf("pets", "almanac", "search")) {
     tasks
         .matching { it.name == "jsBrowserTest" }
         .configureEach {
           description = "Disabled except through the temporary full-browser test target."
           inputs.property("allBrowserTestsRequested", allBrowserTestsRequested)
-          onlyIf("only the Pets and Almanac browser suites run routinely") { task ->
+          onlyIf("only the Pets, Almanac, and Search browser suites run routinely") { task ->
+            task.inputs.properties["allBrowserTestsRequested"] == true
+          }
+        }
+  }
+}
+
+// Wasm dependencies publish their main code; Search owns the routine Wasm integration suite.
+subprojects {
+  if (name != "search") {
+    tasks
+        .matching { it.name == "wasmJsBrowserTest" }
+        .configureEach {
+          inputs.property("allBrowserTestsRequested", allBrowserTestsRequested)
+          onlyIf("full dependency Wasm suites are opt-in") { task ->
             task.inputs.properties["allBrowserTestsRequested"] == true
           }
         }

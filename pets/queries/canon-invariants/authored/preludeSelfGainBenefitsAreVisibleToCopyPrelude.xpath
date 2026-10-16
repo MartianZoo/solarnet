@@ -1,0 +1,3 @@
+/Canon/Card[@deck = 'PreludeCard']/effects/Effect[trigger//WhenGain][
+  not(trigger/WhenGain) or (@automatic = 'true' and instruction//*[@gainingClass])
+]
