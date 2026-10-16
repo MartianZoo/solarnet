@@ -13,6 +13,7 @@ import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.soloTileAreas
 import dev.martianzoo.tfm.engine.TfmEngine
 
 /**
@@ -118,16 +119,9 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
       )
     }
     if (players.size == 1) {
-      val placements =
-          when {
-            admin.count("TharsisMap") == 1 ->
-                listOf("Tharsis_4_1", "Tharsis_5_1", "Tharsis_2_2", "Tharsis_2_3")
-            admin.count("HellasMap") == 1 ->
-                listOf("Hellas_5_1", "Hellas_6_2", "Hellas_8_4", "Hellas_9_5")
-            admin.count("ElysiumMap") == 1 ->
-                listOf("Elysium_2_6", "Elysium_1_5", "Elysium_8_9", "Elysium_7_8")
-            else -> error("The solo fixture needs neutral placements for this map")
-          }
+      val map = Canon.marsMapDefinitions.single { admin.count(it.className.toString()) == 1 }
+      // The four most common printed project-card costs in Canon, in frequency order.
+      val placements = soloTileAreas(map, listOf(11, 10, 12, 8)).map { it.className }
       placements.chunked(2).forEach { (city, greenery) ->
         admin.doTask("CityTile<$city>")
         admin.doTask("GreeneryTile<$greenery>")

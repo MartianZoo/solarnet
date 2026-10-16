@@ -418,7 +418,7 @@ The standard game has three players. A scenario may instead pass `playerCount` f
 five; Maya and Nadia occupy the fourth and fifth seats. The protected `players` list exposes every
 seat in order. Accessing `stan` in solo or `rob` with fewer than three players fails immediately
 with a fixture error. Both styles resolve neutral solo placements through the setup tasks, using
-the same fixed positions on Tharsis, Hellas, and Elysium; other solo maps still need positions.
+`soloTileAreas` with fixed card costs 11, 10, 12, and 8 on the selected map.
 
 The sandbox prepares and caches up to eight recently used `World`s, keyed by option-set,
 player-count, Kim corporation, and entry-point combination, then gives every test an independent

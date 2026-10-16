@@ -59,11 +59,12 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
   @Test
   internal fun `Places a Cathedral on a neutral solo city`() {
     newTestGame(playerCount = 1)
+    val city = admin.list("CityTile<SoloOpponent>").elements.first()
     kim.exMachina("$StJosephOfCupertinoMission")
 
     kim.inTurn {
       doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "5 Pay<> FROM MC")
-      doTasks("Cathedral<CityTile<Anyone, Tharsis_4_1>>")
+      doTasks("Cathedral<$city>")
       doTask("CathedralOffer<SoloOpponent>")
     }
 
