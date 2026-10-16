@@ -1007,10 +1007,10 @@ Trigger ::= TriggerChoice ( "BY" Expression )? ( "IF" Requirement )?
 > `IF` would ask about board state rather than attribute who performed the placement.
 
 **L6-8. Matching marked occurrences explicitly identify an Effect-local Type variable.**
-Following L1-7, a matching expression in the trigger supplies the value and the instruction must
-contain the same marker. Requirements, metrics and refinements may observe that
-value without supplying it. The marked trigger occurrence's complete structural expression is the
-variable's bound.
+Following L1-7, a matching expression in the trigger supplies the value. Named trigger bindings
+may be unused in the instruction; anonymous markers must also occur there. Requirements, metrics
+and refinements may observe that value without supplying it. The marked trigger occurrence's
+complete structural expression is the variable's bound.
 
 For example, Manutech writes `PROD[@StandardResource]: @StandardResource`: the production
 increase supplies the resource kind, and the instruction shares that choice.
@@ -1395,15 +1395,14 @@ capture their own selection instead.
 > context; evaluating too early would have only the abstract `Metric` property bound.
 
 **L9-13. A class's effects are elaborated against that class's own context.** They are gathered from
-every superclass. Only a whole-effect OWN mark may infer a missing trigger binding: if the
-effect has no inherited or explicit `Me` and its instruction needs an omitted owner, OWN declares
+every superclass. A whole-effect OWN mark always supplies a missing trigger binding: if the
+effect has no inherited or explicit `Me`, OWN declares
 effect-local `Me@Player` in an owned trigger when possible, or adds `BY Me@Player` to its trigger.
-An unresolved EVAL without its own Me capture also requires this binding, so later property
-expansion receives the same context. The instruction then uses that same variable. The event or changed
-component does not implicitly replace literal `Anyone`. A marked rule whose results supply all
-needed bindings locally, such as an EACH Me body, may retain an owner-unspecified trigger.
-An `OR` trigger cannot supply that binding from just one arm; an effect that needs `Me` must bind
-it around the whole trigger and name it in the instruction.
+The instruction and deferred property expansion use that same variable wherever it is needed.
+The event or changed component does not implicitly replace literal `Anyone`. Global subscriptions
+stay unmarked or mark only their instructions, for example `Phase: OWN[EACH Me@Player { Plant }]`.
+An `OR` trigger cannot supply that binding from just one arm; a whole-effect OWN mark requires
+an explicit binding around the whole trigger.
 A System event without an owned recipient cannot supply a Player through BY; that inferred
 binding is rejected instead of producing a rule that cannot fire.
 

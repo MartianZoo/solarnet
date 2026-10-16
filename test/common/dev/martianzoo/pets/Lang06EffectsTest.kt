@@ -114,6 +114,14 @@ internal class Lang06EffectsTest {
   // L6-8 Explicit Type-variable markers
 
   @Test
+  internal fun `L6-8 named trigger bindings may be unused by the result`() {
+    roundTrip<Effect>("Pulse BY Acting@Player: Prize<Player1>")
+    roundTrip<Effect>("Notice<Recipient@Player>: Prize<Player1>")
+    shouldThrow<PetSyntaxException> { parse<Effect>("Pulse BY @Player: Prize<Player1>") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("Pulse: Prize<Recipient@Player>") }
+  }
+
+  @Test
   internal fun `L6-8 a trigger expression can name a Type variable used by the Effect`() {
     roundTrip<Effect>("@StandardResource: @StandardResource")
     roundTrip<Effect>("Production<Class<@StandardResource>>: @StandardResource<Anyone>")

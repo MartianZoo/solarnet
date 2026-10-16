@@ -61,14 +61,16 @@ ABSTRACT CLASS Tile : Occupant {
 ABSTRACT CLASS OwnedTile : OwnedOccupant, Tile {
   CLASS GreeneryTile : Tile<MarsArea> {
     This IF Photosynthesis: OxygenStep
-    OWN[End: VictoryPoint]
+    End: EACH Scorer@Player(HAS This) { VictoryPoint<Scorer@Player> }
   }
 
   "A city tile, including Capital's"
   ABSTRACT CLASS CityTile {
     DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
 
-    OWN[End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>]
+    End: EACH Scorer@Player(HAS This) { \
+      VictoryPoint<Scorer@Player> / Adjacency<This, GreeneryTile<Anyone>> \
+    }
 
     CLASS NormalCityTile
   }

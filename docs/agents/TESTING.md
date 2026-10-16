@@ -684,9 +684,10 @@ characterization over a disproportionate workaround.
 ## Game replay tests
 
 `Game20230521Test` deliberately exercises the raw Agent task API. Its players use `NONE` during
-the replay, while Admin retains normal autoexecution and handles fixed payment
-bookkeeping and final scoring. `VictoryPoint` and `ScoreEventVps` are `System`; players do not submit
-scoring tasks. A pending negative score can wait for a positive score to supply the points.
+the played turns, while Admin retains normal autoexecution and handles fixed payment
+bookkeeping. After final greenery, explicit `autoExecNow(EAGER)` calls finish the queued Player
+selections in tile scoring. `VictoryPoint` and `ScoreEventVps` are `System`, so Admin applies the
+resulting points. A pending negative score can wait for a positive score to supply the points.
 Follow the game's flow through the last passes, production, final greenery, and scoring; do not
 manually supply turns or phase transitions. Omit copied game-log
 comments that only restate the submitted tasks.

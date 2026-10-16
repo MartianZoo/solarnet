@@ -605,6 +605,49 @@ internal class Lang09ElaborationTest {
   // L9-13 Class effects
 
   @Test
+  internal fun `L9-13 whole-effect OWN binds the trigger independently of its results`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Owner, Actor",
+            "CLASS Player1 : Player",
+            "CLASS Pulse : Signal",
+            "CLASS Prize : Owned<Player>",
+            "CLASS Plant : Owned<Player>",
+            "CLASS Rule { OWN[Pulse: Prize<Player1>] }",
+            "CLASS ExtraRule { OWN[Pulse: Prize<Player1>, Plant] }",
+            "CLASS LocalRule { OWN[Pulse: EACH Me@Player { Plant }] }",
+        )
+    val elaborator = PetElaborator(table)
+    val trigger = parse<Effect>("Pulse BY Me@Player: Ok").trigger
+    listOf("Rule", "ExtraRule", "LocalRule").forEach { name ->
+      elaborator.classEffects(table.getClass(cn(name))).single().trigger shouldBe trigger
+    }
+    elaborator.classEffects(table.getClass(cn("ExtraRule"))).single() shouldBe
+        parse<Effect>("Pulse BY Me@Player: Prize<Player1>!, Plant<Me@Player>!")
+  }
+
+  @Test
+  internal fun `L9-13 ownership reaches a represented Class reference before its declaration`() {
+    val table =
+        loadTypes(
+            """
+        ABSTRACT CLASS Player : Owner, Actor { CLASS Player1 }
+        CLASS Pulse : Signal
+        ABSTRACT CLASS Resource : Owned<Player> { CLASS Plant }
+        CLASS Prize : Owned<Player>
+        CLASS Receipt<Class<Resource>>
+        CLASS Rule {
+          OWN[Pulse: Prize / @Resource THEN Receipt<Class<@Resource>>]
+        }
+        """
+        )
+    PetElaborator(table).classEffects(table.getClass(cn("Rule"))).single() shouldBe
+        parse<Effect>(
+            "Pulse BY Me@Player: Prize<Me@Player>! / @Resource<Me@Player> THEN Receipt<Class<@Resource>>!"
+        )
+  }
+
+  @Test
   internal fun `L9-13 an ownerless System trigger cannot infer a Player actor`() {
     listOf("Phase", "-Phase", "This", "-This").forEach { trigger ->
       val table =
@@ -660,7 +703,7 @@ internal class Lang09ElaborationTest {
   }
 
   @Test
-  internal fun `L9-13 an unowned class whose result needs an owner binds Me in the trigger`() {
+  internal fun `L9-13 a marked effect in an unowned class binds Me in the trigger`() {
     // `Rule` is neither an `Anyone` nor `Owned`, so its instruction has no owner of its own.
     classEffects("SimpleRule").single().trigger.toString() shouldBe "This BY Me@Player"
     classEffects("OwnedRule").single().trigger.toString() shouldBe "This"

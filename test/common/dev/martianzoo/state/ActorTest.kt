@@ -24,12 +24,13 @@ internal class ActorTest {
   }
 
   @Test
-  internal fun componentOwnershipExcludesActorOnlyIdentities() {
+  internal fun componentOwnershipComesOnlyFromItsOwnedDependency() {
     val table =
         testCatalog(
                 """
                 ABSTRACT CLASS Player : Owner, Actor { CLASS Blue }
                 CLASS Passive : Owner
+                CLASS Proxy : Owner, Owned
                 CLASS Plant : Owned
                 """
                     .trimIndent()
@@ -39,10 +40,12 @@ internal class ActorTest {
     fun component(expression: String) = Component(table.resolve(parse(expression)))
 
     component("Admin").owner shouldBe null
-    component("Blue").owningPlayer shouldBe Player(cn("Blue"))
+    component("Blue").owner shouldBe null
+    component("Blue").owningPlayer shouldBe null
     component("Plant<Blue>").owner shouldBe table.resolve(parse("Blue"))
     component("Plant<Blue>").owningPlayer shouldBe Player(cn("Blue"))
-    component("Passive").owner shouldBe table.resolve(parse("Passive"))
+    component("Passive").owner shouldBe null
+    component("Proxy<Blue>").owner shouldBe table.resolve(parse("Blue"))
     component("Plant<Passive>").owner shouldBe table.resolve(parse("Passive"))
     component("Plant<Passive>").owningPlayer shouldBe null
   }

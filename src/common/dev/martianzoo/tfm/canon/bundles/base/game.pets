@@ -44,7 +44,7 @@ CLASS NoPreludes : Module {
 CLASS QuickStartVariant : Module {
   autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
 
-  OWN[SetupPhase: EACH Me@Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }]
+  SetupPhase: OWN[EACH Me@Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }]
 }
 
 "A singleton immutable provider of rule content based on game options"
@@ -73,7 +73,7 @@ ABSTRACT CLASS GameMode : Module {
     HAS Class<ClaimMilestone>, Class<FundAward>
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
 
-    OWN[VictoryPhase: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }]
+    VictoryPhase: OWN[EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }]
     CheckGameEnd: FinalGreeneryPhase FROM ProductionPhase
   }
 }
@@ -94,8 +94,10 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 2 BaseResourceValue<This, Class<Steel>>, 3 BaseResourceValue<This, Class<Titanium>>
 
   SetupPhase IF MAX 0 BeginnerVariant: NonBeginnerMode<This>
-  SetupPhase IF BeginnerVariant: BeginnerMode<This> OR NonBeginnerMode<This>
-  ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4? ProjectCard<This, Selecting> THEN BuySelectedCards<This>
+  SetupPhase IF BeginnerVariant: TASK This { BeginnerMode<This> OR NonBeginnerMode<This> }
+  ResearchPhase: TASK This { \
+    4 ProjectCard<This, Selecting> THEN -4? ProjectCard<This, Selecting> THEN BuySelectedCards<This> \
+  }
   NewTurn<This>: LATER Admin { EACH @CardBack<This, Selecting> { -@CardBack } }
   -Billing<This, Class<BuySelectedCards>, Action1>: \
     ProjectCard<This, Hand> FROM ProjectCard<This, Selecting> / ProjectCard<This, Selecting>
@@ -166,7 +168,7 @@ ABSTRACT CLASS Phase : System, Real {
   }
   CLASS ActionPhase {
     // A player who has already passed this generation stays out.
-    OWN[This:: EACH Me@Player { ImAwake* }]
+    This:: OWN[EACH Me@Player { ImAwake* }]
     This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
 
     // Production starts once everyone has passed.

@@ -51,10 +51,7 @@ internal class VerminTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_3_2>")
     rob.exMachina("NormalCityTile<Tharsis_3_3>")
 
-    victoryPoints {
-      // Expand the per-player deductions; Admin applies the scoring changes.
-      kim.selectOnlyTask()
-    } shouldBe listOf(18, 19, 19)
+    victoryPoints() shouldBe listOf(18, 19, 19)
   }
 
   // This synthetic listener tests engine attribution, rather than Vermin's player-facing result.

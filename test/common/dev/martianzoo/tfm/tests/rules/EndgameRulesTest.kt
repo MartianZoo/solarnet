@@ -118,6 +118,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     playSoloTerraforming(completeVenus = false)
     kim.count("Victory") shouldBe 1
     kim.doTask("Done") // Decline final greenery.
+    kim.autoExecNow(EAGER)
     admin.count("VictoryPhase") shouldBe 1
   }
 
@@ -139,6 +140,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     playSoloTerraforming(completeVenus = true)
     kim.count("Victory") shouldBe 1
     kim.doTask("Done") // Decline final greenery.
+    kim.autoExecNow(EAGER)
   }
 
   @Test

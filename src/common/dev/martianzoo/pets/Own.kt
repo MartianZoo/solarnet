@@ -1,6 +1,5 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.pets.TransformHandler.Companion.selectedMe
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
@@ -19,11 +18,8 @@ import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Resolution
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Unchanged
-import dev.martianzoo.pets.ast.Instruction.Dispatch
-import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.withTypeVariables
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Dependency.Key
@@ -129,54 +125,6 @@ internal class Own(private val classTable: ClassTable) : TransformHandler {
           is Expression.Refinement.Not -> transformer.transformRefinement(refinement)
         }
 
-    fun needsMe(node: PetNode, available: Boolean = false): Boolean {
-      // An OWN-marked EVAL must capture its trigger player before its value can be expanded.
-      if (
-          !available &&
-              ((node is Metric.Eval && node.me == null) ||
-                  (node is Requirement.Eval && node.me == null))
-      )
-          return true
-      if (node is Dispatch) {
-        return (node.actor?.let { needsMe(it, available) } ?: false) ||
-            needsMe(node.body, available || node.actor != null)
-      }
-      if (node is Each) {
-        val selected = available || selectedMe(node.selector) != null
-        return needsMe(node.selector, selected) || needsMe(node.body, selected)
-      }
-      if (node is Metric.Rank) {
-        val selected = available || node.selector?.let(::selectedMe) != null
-        return withinRefinementCandidate(null) {
-          (node.selector?.let { needsMe(it, selected) } ?: false) ||
-              node.metrics.any { needsMe(it, selected) }
-        }
-      }
-      if (node is Expression) {
-        if (node.className == CLASS) {
-          activeRepresentedClassMarkers +=
-              node.arguments.mapNotNull { it.typeVariableName?.identity }
-          return node.refinement?.let { needsMe(it, available) } ?: false
-        }
-        if (missingOwningArgument(node) && !available) return true
-        if (withinRefinementCandidate(null) { node.arguments.any { needsMe(it, available) } })
-            return true
-        val candidate = node.copy(refinement = null)
-        fun needsMeInRefinement(refinement: Expression.Refinement): Boolean =
-            when (refinement) {
-              is Expression.Refinement.And -> refinement.refinements.any(::needsMeInRefinement)
-              is Has -> {
-                withinRefinementCandidate(candidate) {
-                  needsMe(refinement.requirement, available)
-                }
-              }
-              is Expression.Refinement.Not -> needsMe(refinement.excluded, available)
-            }
-        return node.refinement?.let(::needsMeInRefinement) ?: false
-      }
-      return node.childNodes().any { needsMe(it, available) }
-    }
-
     fun supplyFromTrigger(trigger: Effect.Trigger): Pair<Effect.Trigger, Expression> {
       if (trigger.descendantsOfType<Effect.Trigger.Or>().any()) {
         throw PetSyntaxException(
@@ -246,19 +194,12 @@ internal class Own(private val classTable: ClassTable) : TransformHandler {
           override fun rewrite(node: PetNode): PetNode {
             if (node is Effect) {
               activeRepresentedClassMarkers += scope.representedClassMarkers
-              if (scope.me == null && needsMe(node.instruction)) {
+              if (scope.me == null) {
                 val (trigger, me) = supplyFromTrigger(node.trigger)
                 scope = scope.copy(me = me)
                 return transformChildren(
                     node.copy(trigger = trigger).withTypeVariables(node.typeVariables)
                 )
-              }
-              // With locally supplied recipients, a whole effect can still watch a global
-              // condition.
-              if (scope.me == null) {
-                return node
-                    .copy(instruction = transformInstructionTree(node.instruction))
-                    .withTypeVariables(node.typeVariables.transformedBy(this))
               }
               return transformChildren(node)
             }

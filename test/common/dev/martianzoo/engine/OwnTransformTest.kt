@@ -44,6 +44,64 @@ internal class OwnTransformTest {
   }
 
   @Test
+  internal fun `whole-effect ownership filters events even when the result names its recipient`() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+        CLASS Pulse : Signal
+        CLASS Prize : Owned<Player>
+        CLASS ExtraPrize : Owned<Player>
+        CLASS Plant : Owned<Player>
+        CLASS Rule : System {
+          OWN[Pulse: Prize<Player1>]
+          OWN[Pulse: ExtraPrize<Player1>, Plant]
+        }
+        """,
+                players = 2,
+            )
+        )
+    val admin = game.testAgent(ADMIN)
+    val p1 = game.testAgent(PLAYER1)
+    val p2 = game.testAgent(PLAYER2)
+    admin.runOperation("Rule, Pulse")
+    p1.count("Prize") shouldBe 0
+    p1.count("ExtraPrize") shouldBe 0
+    p2.runOperation("Pulse")
+    p1.count("Prize") shouldBe 1
+    p1.count("ExtraPrize") shouldBe 1
+    p1.count("Plant") shouldBe 0
+    p2.count("Plant") shouldBe 1
+  }
+
+  @Test
+  internal fun `instruction ownership preserves a global System trigger and condition`() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+        CLASS Phase : Signal, System
+        CLASS Score : Owned<Player>
+        CLASS Prize : Owned<Player>
+        CLASS Rule : System {
+          Phase IF =3 Score: OWN[EACH Me@Player { Prize }]
+        }
+        """,
+                players = 2,
+            )
+        )
+    val admin = game.testAgent(ADMIN)
+    val p1 = game.testAgent(PLAYER1)
+    val p2 = game.testAgent(PLAYER2)
+    admin.runOperation("Rule")
+    p1.runOperation("Score")
+    p2.runOperation("2 Score")
+    admin.runOperation("Phase")
+    p1.count("Prize") shouldBe 1
+    p2.count("Prize") shouldBe 1
+  }
+
+  @Test
   internal fun `a deferred body uses the recipient inferred by its whole effect mark`() {
     val game =
         Engine.newGame(
@@ -73,7 +131,7 @@ internal class OwnTransformTest {
                 """
       CLASS Prize : Owned<Player>
       CLASS Rule : Owned<Player> { OWN[This: TASK Player2 { Prize }] }
-      CLASS GlobalRule : System { OWN[This: TASK Player2 { Prize }] }
+      CLASS GlobalRule : System { This: OWN[TASK Player2 { Prize }] }
     """,
                 players = 2,
             )

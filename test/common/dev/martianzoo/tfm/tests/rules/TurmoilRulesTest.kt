@@ -12,6 +12,59 @@ import kotlin.test.Test
 
 internal class TurmoilRulesTest : TfmSandboxTest() {
   @Test
+  internal fun `A player follower under a Neutral leader receives only delegate influence`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.exMachina("PartyLeader<Scientists, Neutral>")
+    kim.inTurn {
+      doTasks("LobbyAction", "PartyFollower<Scientists> FROM LobbyDelegate")
+    }
+
+    admin
+        .runOperation("MeasureInfluence<Kim>, MeasureInfluence<Stan>, MeasureInfluence<Rob>")
+        .expect(
+            "DelegateInfluence<Kim>, 0 PartyLeaderInfluence, 0 ChairmanInfluence, " +
+                "0 Influence<Stan>, 0 Influence<Rob>"
+        )
+  }
+
+  @Test
+  internal fun `A Neutral follower under a player leader gives nobody delegate influence`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.inTurn {
+      doTasks("LobbyAction", "PartyLeader<Scientists> FROM LobbyDelegate")
+    }
+    kim.exMachina("PartyFollower<Scientists, Neutral>")
+
+    admin
+        .runOperation("MeasureInfluence<Kim>, MeasureInfluence<Stan>, MeasureInfluence<Rob>")
+        .expect(
+            "PartyLeaderInfluence<Kim>, 0 DelegateInfluence, 0 ChairmanInfluence, " +
+                "0 Influence<Stan>, 0 Influence<Rob>"
+        )
+  }
+
+  @Test
+  internal fun `Neutral party leaders award no victory points`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.exMachina("PartyLeader<Unity, Neutral>")
+
+    victoryPoints() shouldBe listOf(20, 20, 20)
+  }
+
+  @Test
+  internal fun `Only player chairmen and party leaders score`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    victoryPoints() shouldBe listOf(20, 20, 20)
+
+    kim.inTurn {
+      doTasks("LobbyAction", "PartyLeader<Scientists> FROM LobbyDelegate")
+    }
+    stan.exMachina("Chairman<Stan FROM Neutral>")
+
+    victoryPoints() shouldBe listOf(21, 21, 20)
+  }
+
+  @Test
   internal fun `Each player has a free lobby action followed by paid lobbying`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.inTurn {

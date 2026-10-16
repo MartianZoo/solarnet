@@ -152,7 +152,7 @@ internal class PetElaboratorTest {
     elaborator.classEffects(table.getClass(parse("AreaRule"))).single() shouldBe
         parse<Effect>("This BY Me@Player: ContextualTile<Me@Player, This>!")
     elaborator.classEffects(table.getClass(parse("HolderRule"))).single() shouldBe
-        parse<Effect>("This: ContextualTile<This, LandArea>!")
+        parse<Effect>("This BY Me@Player: ContextualTile<This, LandArea>!")
     elaborator.classEffects(table.getClass(parse("NarrowedHolder"))).single().toString() shouldBe
         "This: Token<Me@Player>!"
   }

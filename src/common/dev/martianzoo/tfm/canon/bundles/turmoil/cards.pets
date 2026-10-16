@@ -2,7 +2,7 @@
 
 // Published Turmoil Global Events.
 CLASS DemocraticReform : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<AquiferReleasedByPublicCouncil>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<AquiferReleasedByPublicCouncil>>
 }
 
 CLASS AquiferReleasedByPublicCouncil : GlobalEffect {
@@ -11,7 +11,7 @@ CLASS AquiferReleasedByPublicCouncil : GlobalEffect {
 }
 
 CLASS MiningRestrictions : GePartyDistant<Reds>, GePartyCurrent<Unity> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<AsteroidMiningGlobalEffect>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<AsteroidMiningGlobalEffect>>
 }
 
 CLASS AsteroidMiningGlobalEffect : GlobalEffect {
@@ -19,7 +19,7 @@ CLASS AsteroidMiningGlobalEffect : GlobalEffect {
 }
 
 CLASS SolarnetGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Greens> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<CelebrityLeaders>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<CelebrityLeaders>>
 }
 
 CLASS CelebrityLeaders : GlobalEffect {
@@ -27,7 +27,7 @@ CLASS CelebrityLeaders : GlobalEffect {
 }
 
 CLASS FreeAcademiaTreaty : GePartyDistant<Scientists>, GePartyCurrent<Scientists> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Diversity>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<Diversity>>
 }
 
 CLASS Diversity : GlobalEffect {
@@ -35,7 +35,7 @@ CLASS Diversity : GlobalEffect {
 }
 
 CLASS MinimalImpactPolicy : GePartyDistant<Reds>, GePartyCurrent<Unity> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<DryDeserts>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<DryDeserts>>
 }
 
 CLASS DryDeserts : GlobalEffect {
@@ -44,7 +44,7 @@ CLASS DryDeserts : GlobalEffect {
 }
 
 CLASS ExperimentalLifeforms : GePartyDistant<Greens>, GePartyCurrent<Reds> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<EcoSabotage>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<EcoSabotage>>
 }
 
 CLASS EcoSabotage : GlobalEffect {
@@ -52,7 +52,7 @@ CLASS EcoSabotage : GlobalEffect {
 }
 
 CLASS SelfSufficiencyProgram : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Election>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<Election>>
 }
 
 CLASS Election : GlobalEffect {
@@ -62,7 +62,7 @@ CLASS Election : GlobalEffect {
 }
 
 CLASS TerraformingLobbying : GePartyDistant<Kelvinists>, GePartyCurrent<Unity> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<GenerousFunding>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<GenerousFunding>>
 }
 
 CLASS GenerousFunding : GlobalEffect {
@@ -70,7 +70,7 @@ CLASS GenerousFunding : GlobalEffect {
 }
 
 CLASS HeatFirstPolicy : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<GlobalDustStorm>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<GlobalDustStorm>>
 }
 
 CLASS GlobalDustStorm : GlobalEffect {
@@ -78,7 +78,7 @@ CLASS GlobalDustStorm : GlobalEffect {
 }
 
 CLASS RedResistance : GePartyDistant<Reds>, GePartyCurrent<Unity> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<HomeworldSupport>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<HomeworldSupport>>
 }
 
 CLASS HomeworldSupport : GlobalEffect {
@@ -86,7 +86,7 @@ CLASS HomeworldSupport : GlobalEffect {
 }
 
 CLASS SecondEnergyCrisis : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<ImprovedEnergyTemplates>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<ImprovedEnergyTemplates>>
 }
 
 CLASS ImprovedEnergyTemplates : GlobalEffect {
@@ -94,7 +94,7 @@ CLASS ImprovedEnergyTemplates : GlobalEffect {
 }
 
 CLASS CharismaticWgPresident : GePartyDistant<Unity>, GePartyCurrent<Unity> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<InterplanetaryTradeGlobalEffect>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<InterplanetaryTradeGlobalEffect>>
 }
 
 CLASS InterplanetaryTradeGlobalEffect : GlobalEffect {
@@ -102,7 +102,7 @@ CLASS InterplanetaryTradeGlobalEffect : GlobalEffect {
 }
 
 CLASS RisingAlloyDemand : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<MinersOnStrike>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<MinersOnStrike>>
 }
 
 CLASS MinersOnStrike : GlobalEffect {
@@ -110,7 +110,7 @@ CLASS MinersOnStrike : GlobalEffect {
 }
 
 CLASS ThawMining : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<MudSlides>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<MudSlides>>
 }
 
 CLASS MudSlides : GlobalEffect {
@@ -118,7 +118,7 @@ CLASS MudSlides : GlobalEffect {
 }
 
 CLASS ViralModificationsApproved : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Pandemic>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<Pandemic>>
 }
 
 CLASS Pandemic : GlobalEffect {
@@ -126,7 +126,7 @@ CLASS Pandemic : GlobalEffect {
 }
 
 CLASS ScientificConsensus : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<ParadigmBreakdown>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<ParadigmBreakdown>>
 }
 
 CLASS ParadigmBreakdown : GlobalEffect {
@@ -134,7 +134,7 @@ CLASS ParadigmBreakdown : GlobalEffect {
 }
 
 CLASS ScientificProgress : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Productivity>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<Productivity>>
 }
 
 CLASS Productivity : GlobalEffect {
@@ -142,7 +142,7 @@ CLASS Productivity : GlobalEffect {
 }
 
 CLASS AntarcticaMelts : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<RedInfluence>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<RedInfluence>>
 }
 
 CLASS RedInfluence : GlobalEffect {
@@ -150,7 +150,7 @@ CLASS RedInfluence : GlobalEffect {
 }
 
 CLASS WorldGovernmentDirectives : GePartyDistant<Unity>, GePartyCurrent<MarsFirst> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Revolution>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<Revolution>>
 }
 
 CLASS Revolution : GlobalEffect {
@@ -160,7 +160,7 @@ CLASS Revolution : GlobalEffect {
 }
 
 CLASS IndependenceMovement : GePartyDistant<MarsFirst>, GePartyCurrent<Reds> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Riots>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<Riots>>
 }
 
 CLASS Riots : GlobalEffect {
@@ -168,7 +168,7 @@ CLASS Riots : GlobalEffect {
 }
 
 CLASS CorporateAlliance : GePartyDistant<Unity>, GePartyCurrent<Reds> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SabotageGlobalEffect>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<SabotageGlobalEffect>>
 }
 
 CLASS SabotageGlobalEffect : GlobalEffect {
@@ -176,7 +176,7 @@ CLASS SabotageGlobalEffect : GlobalEffect {
 }
 
 CLASS ExploreFirstDirective : GePartyDistant<Reds>, GePartyCurrent<Scientists> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<ScientificCommunity>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<ScientificCommunity>>
 }
 
 CLASS ScientificCommunity : GlobalEffect {
@@ -184,7 +184,7 @@ CLASS ScientificCommunity : GlobalEffect {
 }
 
 CLASS MoholeLakeGlobalEvent : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SnowCover>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<SnowCover>>
 }
 
 CLASS SnowCover : GlobalEffect {
@@ -193,7 +193,7 @@ CLASS SnowCover : GlobalEffect {
 }
 
 CLASS IncreasedInterplanetaryTrade : GePartyDistant<Unity>, GePartyCurrent<Kelvinists> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SolarFlare>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<SolarFlare>>
 }
 
 CLASS SolarFlare : GlobalEffect {
@@ -201,7 +201,7 @@ CLASS SolarFlare : GlobalEffect {
 }
 
 CLASS AiResearch : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SolarnetShutdown>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<SolarnetShutdown>>
 }
 
 CLASS SolarnetShutdown : GlobalEffect {
@@ -209,7 +209,7 @@ CLASS SolarnetShutdown : GlobalEffect {
 }
 
 CLASS BioengineeringBoom : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SpinOffProducts>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<SpinOffProducts>>
 }
 
 CLASS SpinOffProducts : GlobalEffect {
@@ -217,7 +217,7 @@ CLASS SpinOffProducts : GlobalEffect {
 }
 
 CLASS ScienceSummit : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SponsoredProjects>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<SponsoredProjects>>
 }
 
 CLASS SponsoredProjects : GlobalEffect {
@@ -226,7 +226,7 @@ CLASS SponsoredProjects : GlobalEffect {
 }
 
 CLASS MoralMovement : GePartyDistant<Reds>, GePartyCurrent<MarsFirst> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<StrongSociety>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<StrongSociety>>
 }
 
 CLASS StrongSociety : GlobalEffect {
@@ -234,7 +234,7 @@ CLASS StrongSociety : GlobalEffect {
 }
 
 CLASS LocalTerraformingSupport : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SuccessfulOrganisms>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<SuccessfulOrganisms>>
 }
 
 CLASS SuccessfulOrganisms : GlobalEffect {
@@ -242,7 +242,7 @@ CLASS SuccessfulOrganisms : GlobalEffect {
 }
 
 CLASS PateraBoring : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<VolcanicEruptions>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<VolcanicEruptions>>
 }
 
 CLASS VolcanicEruptions : GlobalEffect {
@@ -251,7 +251,7 @@ CLASS VolcanicEruptions : GlobalEffect {
 }
 
 CLASS SeparatistMovement : GePartyDistant<MarsFirst>, GePartyCurrent<Kelvinists> {
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<WarOnEarth>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<WarOnEarth>>
 }
 
 CLASS WarOnEarth : GlobalEffect {

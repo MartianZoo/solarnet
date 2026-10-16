@@ -29,6 +29,8 @@ The user has selected these requirements:
   authorize unmarked rules to borrow a player from the event.
 - Runtime code may require a concrete Effect and reject an unresolved enclosing transform.
   Source-copying code must preserve authored marks.
+- All owners use ordinary effect specialization. Rules that can belong to non-Players explicitly
+  select a Player before producing Player-only results; city and greenery scoring stays on the tiles.
 
 Ownership, recipient, and performing Actor remain distinct. For example,
 `Placement<This, @Player>: Plant<@Player>` carries a recipient explicitly. An unowned, non-System
@@ -85,19 +87,33 @@ implementation responsibilities are:
   next step. Expansion preserves composition order and the captured Me, then resumes the ordinary
   dispatcher. There is no separate ownership pass or OWN-specific property branch.
 - [LiveEffect](../../src/common/dev/martianzoo/engine/LiveEffect.kt) consumes the resulting trigger;
-  it no longer adds actor filters during execution.
+  it no longer adds actor filters during execution or skips invalid effects for passive owners.
 
 `Owned<Me@Owner>` supplies an inherited lexical name for its owner dependency; subclasses may
 narrow it to Me@Player. An input producer may supply Me directly, and a named EACH/RANK selector
 may shadow it. Merely being an Owner does not bind Me to This. Explicit recipients remain explicit
 through all these scopes.
 
-Whole-effect OWN still contains a conditional rule. Without a visible Me, `needsMe` scans the body.
-If it needs a binding, OWN captures an omitted owner in an owned trigger, or introduces
+Whole-effect OWN always supplies a binding when Me is not visible. It captures an omitted owner
+in an owned trigger, or introduces
 `BY Me@Player` for an unowned non-System trigger. A System event without an owned recipient cannot
 supply a Player Actor and is rejected. OR requires an explicit binding around the whole trigger.
-If the body supplies all its recipients locally, the trigger can remain global. This is a retained
-compromise, not the desired final simplification.
+The instruction's contents do not select the subscription. Global rules stay unmarked or mark only
+their instructions, for example `SetupPhase: OWN[EACH Me@Player { TradeFleet }]`. Named trigger
+bindings may be unused in the result, so this rule needs no scan for an omitted owner.
+
+`Component.owner` reads only its `Owned` dependency; being an `Owner` no longer makes a component
+its own owner. Player-Agent input still supplies that Player as its explicit elaboration scope.
+
+City and greenery scoring stays on each tile. `EACH Scorer@Player(HAS This)` selects its Player
+owner before awarding points; a SoloOpponent tile selects nobody. City points still count adjacent
+greenery owned by anyone. Turmoil chairman and party-leader scoring uses the same selection.
+Influence triggers explicitly bind a Player who holds the relevant chairman, leader, or delegate
+component, so Neutral never becomes an invalid Player argument. These are ordinary Pets queries;
+`LiveEffect` specializes and validates every component through the same path. See
+[TileScoringTest](../../test/common/dev/martianzoo/tfm/tests/rules/TileScoringTest.kt) and the scoring
+and influence scenarios in
+[TurmoilRulesTest](../../test/common/dev/martianzoo/tfm/tests/rules/TurmoilRulesTest.kt).
 
 ## Things that need human review
 
@@ -109,63 +125,38 @@ identified explicitly.
    share an interface but add marks differently. Card requirements, invariants, and auto-selection
    predicates differ from card effects. These distinctions follow the fields' contexts, but the
    user may prefer separate entry points or a more uniform contract.
-2. **A body's contents still affect its subscription.** In an ownerless class,
-   `OWN[Pulse: Prize<Player1>]` can hear every Pulse. Adding bare `Plant` makes the effect need Me,
-   so it gains `BY Me@Player` and stops hearing Admin's Pulse. Keeping `needsMe` preserved the first
-   migration's behavior while reaching a tested stopping point. It should not become an unnoticed
-   permanent rule.
-3. **OWN also means actor filtering.** It is more than filling a dependency argument. With a
+2. **OWN also means actor filtering.** It is more than filling a dependency argument. With a
    non-Player Owner, the new static BY can name an owner that cannot act, making the subscription
    unable to fire; the old runtime filter constrained only Player owners. No affected Canon rule
    is known. This consequence was identified by inspection and still needs an executable scenario
    and a decision about intended meaning.
-4. **HAS EVAL is conservatively restricted.** In a HAS-candidate position,
+3. **HAS EVAL is conservatively restricted.** In a HAS-candidate position,
    `EACH Starter@Player(HAS EVAL Rule.requirement) { ... }` is rejected. Expanding a property there
    loses the positional candidate for defaults as well as OWN. Inline `HAS StartToken` works, as
    does EVAL inside RANK comparison keys. The rejection also excludes properties that would not
    actually need the candidate. It is a deliberate temporary restriction.
-5. **Inside-out dispatch limits inferred bindings.** In an ownerless rule,
+4. **Inside-out dispatch limits inferred bindings.** In an ownerless rule,
    `OWN[Pulse: PROD[OWN[Plant]]]` fails because the inner OWN runs before the outer application
    supplies Me. `OWN[Pulse: PROD[Plant]]` works. Explicitly binding and using Me also works, for
    example `OWN[Pulse BY Me@Player: PROD[OWN[Plant<Me@Player>]]]`. A preparatory handler phase was
    deliberately avoided; review whether this visible ordering is an acceptable authoring rule.
-6. **Named selectors bind Me in their own refinements.** EACH and RANK now agree: `Me@Player` is
+5. **Named selectors bind Me in their own refinements.** EACH and RANK now agree: `Me@Player` is
    visible in the selector's refinement and its body or comparison metrics. The previous traversal
    used different scopes for EACH and RANK refinements. The distinction matters for owned types
    nested inside arguments; direct HAS candidate binding often hides it.
-7. **PROD transforms property values and allows unchanged metric factors.** A Plant count supplied
+6. **PROD transforms property values and allows unchanged metric factors.** A Plant count supplied
    through EVAL inside PROD now counts plant production, matching inline syntax. Previously that
    property value escaped PROD. Also, `PROD[CityTile]` as a metric is accepted and unchanged: a
    deferred scale factor need not contain a resource. Nonresource gains and costs remain invalid.
 
 The larger qualification is architectural: Own still recognizes Owned, the owner dependency,
 System, and Me. Deferred EVAL still has a dedicated Me field, and shared scope carries internal
-represented-Class marker identities. Task assignment and passive-owner applicability still treat
-ownership specially. Explicit syntax makes these rules inspectable; it has not yet removed them.
+represented-Class marker identities. Task assignment still treats ownership specially. Explicit
+syntax makes these remaining rules inspectable; it has not yet removed them.
 
 ## Next steps
 
-### 1. Remove the body scan after auditing affected Canon rules
-
-**Recommended next change, not yet implemented:** whole-effect OWN without a visible Me always
-supplies its trigger binding. Global subscriptions instead stay unmarked, mark only their
-instructions, or spell out a binding. This would remove `needsMe` and the surprising relationship
-between adding a result and changing the subscription.
-
-Before changing the rule, temporarily make the existing no-binding shortcut report every hit.
-Enumerate effects for every Canon class, including generated cards, maps, and inline classes;
-searching authored OWN lines is insufficient. For each hit, choose the intended scope explicitly.
-Check these semantic traps:
-
-- Adding BY Player excludes Admin events.
-- Capturing an owned trigger through Me@Player can exclude Neutral and SoloOpponent recipients.
-- A global `IF 3 CityTile` can turn into a count of that player's cities.
-- OR triggers and ownerless System triggers may require a different spelling.
-
-Remove the temporary audit and the scan only after migrating those cases. Keep forward references
-to represented-Class declarations in the test coverage; the old scan also collected marker facts.
-
-### 2. Design explicit refinement-candidate references
+### 1. Design explicit refinement-candidate references
 
 **Selected direction; syntax unsettled:** let a refinement name its candidate, as recorded in the
 [Pets roadmap](../../PETS_ROADMAP.md#language-and-modeling). Use examples with another player's
@@ -173,7 +164,7 @@ StartToken, nested dependencies, shared requirement properties, and award rankin
 should replace L9-9's positional rule and both candidate stacks in defaults and OWN. Adding a new
 candidate field to transform scope did not solve property expansion for defaults and was abandoned.
 
-### 3. Repair represented-Class role tracking
+### 2. Repair represented-Class role tracking
 
 **Known concern from code inspection, not yet reproduced in a test:** with
 `PROD[@StandardResource]: OWN[@StandardResource]`, an instruction-level mark can see the trigger's
@@ -191,14 +182,14 @@ that a transform changes, instead of reconstructing it in another pass. Retain a
 trigger declarations outside an instruction's mark; that is why simply deleting
 `representedClassMarkers` is insufficient.
 
-### 4. Settle filtering and then audit the remaining engine special cases
+### 3. Remove the remaining engine ownership special cases
 
 Write a scenario for a non-Player Owner watching an unowned non-System event, then choose the
 intended rule with the human. **Tentative alternatives:** OWN could always mean “performed by this
 owner,” with a diagnostic for an impossible actor, or actor filtering could become a separate
 explicit part of the rule. Do not restore a hidden runtime filter to preserve an accidental result.
 
-Next inventory ownership-sensitive task assignment and passive-owner applicability. Distinguish
+Also inventory ownership-sensitive task assignment. Distinguish
 real ownership from components made Owned only to carry a player through Admin work. Any replacement
 must preserve recipients, delegated choices, event attribution, and phases without a unique player;
 coordinate those decisions with [IDENTITY](IDENTITY.md), rather than guessing a current player.

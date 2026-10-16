@@ -5,7 +5,6 @@ import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
@@ -166,28 +165,6 @@ internal class BugsTest {
     // T7-1 requires Pets, but the implementation stops at the ambiguous root classes.
     table.glb(card, animalHolder) shouldBe null
     table.glb(animalHolder, card) shouldBe null
-  }
-
-  @Test
-  internal fun `adding an owned result unexpectedly restricts an ownerless rule's trigger`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Player : Owner, Actor",
-            "CLASS Player1 : Player",
-            "CLASS Player2 : Player",
-            "CLASS Pulse : Signal",
-            "CLASS Prize : Owned<Player>",
-            "CLASS Plant : Owned<Player>",
-            "CLASS Rule { OWN[Pulse: Prize<Player1>] }",
-            "CLASS ExtraRule { OWN[Pulse: Prize<Player1>, Plant] }",
-        )
-    val elaborator = PetElaborator(table)
-    // Adding a consequence stops the entire rule hearing Admin's Pulse. Decide the intended
-    // binding contract before changing this existing inference behavior.
-    elaborator.classEffects(table.getClass(cn("Rule"))).single() shouldBe
-        parse<Effect>("Pulse: Prize<Player1>!")
-    elaborator.classEffects(table.getClass(cn("ExtraRule"))).single() shouldBe
-        parse<Effect>("Pulse BY Me@Player: Prize<Player1>!, Plant<Me@Player>!")
   }
 
   @Test

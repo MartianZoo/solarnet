@@ -60,6 +60,9 @@ Delete entries when they are done.
   unnamed overlap, not disjointness, so discarding that candidate can return a false greatest
   type. `Spec07BoundsTest` preserves the competing `Broad<Second>` and `Narrow` witness.
 
+- Investigate `This` inside a trigger dependency's HAS refinement:
+  `MeasureInfluence<Measured@Player(HAS This)>` fails before component specialization; the explicit
+  `Chairman<Me@>` spelling works.
 - Simplify Flooding and Artificial Lake's ocean instructions, preserving full-track behavior,
   mandatory placement, and Flooding's victim choice.
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations

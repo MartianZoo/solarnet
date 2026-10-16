@@ -6,8 +6,8 @@ CLASS ColoniesExpansion : Module {
   This: BuildColonyProject
   HAS Class<TradeAction>, Class<Action3>
   OWN[-Billing<Class<TradeAction>>: Trade]
-  OWN[SetupPhase: EACH Me@Player { TradeFleet }]
-  OWN[SetupPhase IF SoloMode, SelectedColonyTile: EACH Me@Player { SoloColoniesSetup }]
+  SetupPhase: OWN[EACH Me@Player { TradeFleet }]
+  SetupPhase IF SoloMode, SelectedColonyTile: OWN[EACH Me@Player { SoloColoniesSetup }]
   SetupPhase IF SoloMode: PROD[-2 MC<Player>]
   SolarPhase: AdvanceColonyTracks
 }

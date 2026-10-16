@@ -18,7 +18,7 @@ CLASS TurmoilExpansion : Module {
 "Turmoil's part of the solar phase; a signal, not a game Phase"
 CLASS TurmoilPhase : Signal, System {
   // Revise TR and resolve the current event, then form the government and change times.
-  OWN[This:: EACH Me@Player { -TerraformRating*, MeasureInfluence }]
+  This:: OWN[EACH Me@Player { -TerraformRating*, MeasureInfluence }]
   This: ResolveGlobalEvent, LATER { FormGovernment THEN ChangingTimes }
 }
 
@@ -103,7 +103,7 @@ ABSTRACT CLASS Party : Real {
     })) { Dominant<Next@> }, RefillLobby
 }
 CLASS MarsFirst : Party {
-  OWN[ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BuildingTag }]
+  ApplyRulingBonus<This>:: OWN[EACH Me@Player { 1 MC / BuildingTag }]
   ActionPhase IF Ruling<This>:: MarsFirstPolicy
 }
 CLASS MarsFirstPolicy : Policy<Ruling<MarsFirst>> {
@@ -112,7 +112,7 @@ CLASS MarsFirstPolicy : Policy<Ruling<MarsFirst>> {
 
 CLASS Scientists : Party {
   HAS =1 AfterParty<This, MarsFirst>
-  OWN[ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / ScienceTag }]
+  ApplyRulingBonus<This>:: OWN[EACH Me@Player { 1 MC / ScienceTag }]
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
 CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, HasActions {
@@ -123,18 +123,18 @@ CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player>, System, Real {
 }
 
 CLASS Unity : Party {
-  OWN[ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PlanetaryTag }]
+  ApplyRulingBonus<This>:: OWN[EACH Me@Player { 1 MC / PlanetaryTag }]
   ActionPhase IF Ruling<This>:: UnityPolicy
 }
 CLASS UnityPolicy : Policy<Ruling<Unity>> {
-  OWN[This:: EACH Me@Player { UnityTitaniumValue }]
+  This:: OWN[EACH Me@Player { UnityTitaniumValue }]
 }
 CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
   HAS MAX 1 This
 }
 
 CLASS Greens : Party {
-  OWN[ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BioTag }]
+  ApplyRulingBonus<This>:: OWN[EACH Me@Player { 1 MC / BioTag }]
   ActionPhase IF Ruling<This>:: GreensPolicy
 }
 CLASS GreensPolicy : Policy<Ruling<Greens>> {
@@ -153,7 +153,7 @@ CLASS RedsPolicy : Policy<Ruling<Reds>> {
 }
 
 CLASS Kelvinists : Party {
-  OWN[ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PROD[Heat] }]
+  ApplyRulingBonus<This>:: OWN[EACH Me@Player { 1 MC / PROD[Heat] }]
   ActionPhase IF Ruling<This>:: KelvinistsPolicy
 }
 CLASS KelvinistsPolicy : Policy<Ruling<Kelvinists>>, HasActions {
@@ -195,14 +195,15 @@ ABSTRACT CLASS Delegate : Owned, Real {
   "The delegate holding the committee chair"
   CLASS Chairman {
     HAS MAX 1 Chairman
-    OWN[MeasureInfluence:: ChairmanInfluence]
-    OWN[End: VictoryPoint]
+    MeasureInfluence<Measured@Player(HAS Chairman<Me@>)>:: ChairmanInfluence<Measured@>
+    End: EACH Scorer@Player(HAS This) { VictoryPoint<Scorer@Player> }
   }
 
   "A delegate currently assigned to a political party"
   ABSTRACT CLASS PartyDelegate<Delegation@Party> {
     X This OR -X This:: RecalculateDominance<Delegation@>
-    OWN[MeasureInfluence IF Dominant<Delegation@>, PartyFollower<Delegation@>:: DelegateInfluence*]
+    OWN[MeasureInfluence<Measured@Player(HAS PartyDelegate<Me@, Delegation@>)> \
+      IF Dominant<Delegation@>, PartyFollower<Delegation@>:: DelegateInfluence<Measured@>*]
 
     "A party member outside the leader seat"
     CLASS PartyFollower {
@@ -221,8 +222,9 @@ ABSTRACT CLASS Delegate : Owned, Real {
       This:: EACH Former@Owner(NOT Me@, HAS PartyLeader<Delegation@>) { \
         1 (PartyDelegate<Delegation@, Me@> - PartyDelegate<Delegation@, Former@>): \
           PartyFollower<Delegation@, Former@> FROM PartyLeader<Delegation@, Former@> }
-      OWN[MeasureInfluence IF Dominant<Delegation@>:: PartyLeaderInfluence]
-      OWN[End: VictoryPoint]
+      MeasureInfluence<Measured@Player(HAS PartyLeader<Me@, Delegation@>)> \
+        IF Dominant<Delegation@>:: PartyLeaderInfluence<Measured@>
+      End: EACH Scorer@Player(HAS This) { VictoryPoint<Scorer@Player> }
     }
   }
 

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -2157,6 +2158,10 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks("GreeneryTile<Vastitas_2_4>")
     p2.doTasks("Done") // no more plants to convert
+    // Finish the queued scoring selections; Admin applies the resulting points.
+    p1.autoExecNow(EAGER)
+    p2.autoExecNow(EAGER)
+
     // board-16-47-03.jpg, after final greenery.
     p2.assertCounts(7 to "GreeneryTile", 3 to "CityTile", 56 to "TerraformRating")
     // "Almost completely shut me out, but not quite."

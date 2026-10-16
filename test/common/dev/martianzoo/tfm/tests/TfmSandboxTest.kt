@@ -179,15 +179,18 @@ internal abstract class TfmSandboxTest {
 
   /**
    * Scores the current position in seat order without retaining scoring effects or history. [body]
-   * resolves any player choices offered during scoring.
+   * resolves any player choices offered during scoring; afterward, EAGER settles the remaining
+   * choice-free scoring tasks for each player and completion validation checks required cleanup.
    */
   protected fun victoryPoints(body: OperationBlock = {}): List<Int> {
     check(game.tasks.isEmpty()) { "Finish pending choices before querying victory points" }
     game.timeline.recordPosition()
     val checkpoint = game.timeline.checkpoint()
     try {
-      admin.runOperation("End FROM Phase", body)
+      admin.beginOperation("End FROM Phase", body)
+      players.forEach { it.autoExecNow(EAGER) }
       check(game.tasks.isEmpty()) { "Final scoring has unresolved choices" }
+      admin.completeOperation()
       return players.map { it.count("VictoryPoint") }
     } finally {
       game.timeline.recordPosition()

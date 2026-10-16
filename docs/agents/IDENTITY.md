@@ -35,6 +35,13 @@ A Task stores only its current `assignee` as an Actor identity. That Actor suppl
 choices and performs the concrete instruction. `TASK Actor { body }` explicitly admits new work to
 another Actor; `BY Actor` hands concrete execution to its named Actor.
 
+`Component.owner` reads only the actual `Owned` dependency. An `Owner`, including a Player or
+SoloOpponent, is not automatically its own owner. Its effects therefore use ordinary event-based
+routing unless it also has an `Owned` dependency or explicitly dispatches work. This does not
+change the Player scope supplied by a Player Agent to its own input.
+Canon's Player declaration uses `TASK This` for the beginner-mode choice and research-card
+decisions so those tasks explicitly belong to that Player.
+
 ## Who is on-turn, and who decides
 
 **Proposed representation and intended routing, not implemented.** The

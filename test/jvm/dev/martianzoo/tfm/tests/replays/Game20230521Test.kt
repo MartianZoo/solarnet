@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
@@ -2425,6 +2426,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "2 MC",
     )
     p2.doTasks("Done") // no more greenery
+
+    // Finish the queued scoring selections; Admin applies the resulting points.
+    p1.autoExecNow(EAGER)
+    p2.autoExecNow(EAGER)
 
     p1.assertCounts(126 to "VictoryPoint", 1 to "Victory")
     p2.assertCounts(92 to "VictoryPoint", 0 to "Victory")

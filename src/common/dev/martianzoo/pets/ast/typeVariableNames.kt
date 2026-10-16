@@ -595,7 +595,8 @@ public fun <P : PetNode> resolveTypeVariableNames(
       declarations
           .mapNotNull { declaration ->
             declaration.typeVariableName!!.key.takeIf { key ->
-              key in usageKeys ||
+              (root is Effect && key.second != null) ||
+                  key in usageKeys ||
                   usageRegion.descendantsOfType<Expression>().any {
                     it.typeVariableName is UnqualifiedReference &&
                         it.typeVariableName.name == key.second
@@ -624,7 +625,6 @@ public fun <P : PetNode> resolveTypeVariableNames(
         }
       }
   val restoredRoot = outerMarkerRestorer.transformWithoutKindCheck(root)
-  @Suppress("UNCHECKED_CAST") val typedRoot = restoredRoot as P
   val restoredDeclarationRegion =
       when (restoredRoot) {
         is Effect -> restoredRoot.trigger
@@ -636,8 +636,11 @@ public fun <P : PetNode> resolveTypeVariableNames(
           ?.nonObservingTypeVariableDeclarations()
           ?.filter { it.typeVariableName!!.key in selectedKeys }
           .orEmpty()
+  @Suppress("UNCHECKED_CAST")
   return resolveTypeVariableNames(
-      typedRoot,
-      restoredDeclarations,
-  )
+          listOf(restoredRoot),
+          restoredDeclarations,
+          requireSharedUse = root !is Effect,
+      )
+      .single() as P
 }

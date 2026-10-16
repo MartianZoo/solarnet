@@ -2,9 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
-import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.bindXTo
-import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -160,70 +158,34 @@ private constructor(
     }
 
     private fun specialize(component: Component, elaborator: PetElaborator): List<Effect> {
-      val thisBinding = replaceThisExpressionsWith(component.expression)
-
-      return if (component.owner == null || component.owningPlayer != null) {
-        elaborator.classEffects(component.type.rootClass).map { effect ->
-          val bound =
-              try {
-                elaborator.specializeEffect(
-                    component.type.rootClass.defaultType,
-                    component.type,
-                    effect,
-                    component.expression,
-                )
-              } catch (e: NarrowingException) {
-                throw ExpressionException(
-                    "invalid effect for component `${component.type.expressionFull}`: ${e.detail}",
-                    e,
-                    effect.sourceLocation,
-                )
-              }
-          try {
-            elaborator.classTable.checkAllTypes(bound)
-            bound
-          } catch (e: ExpressionException) {
-            throw ExpressionException(
-                "invalid effect for component `${component.type.expressionFull}`: `$bound`: ${e.detail}",
-                e,
-                effect.trigger.sourceLocation
-                    ?: effect.trigger.descendantsOfType<Expression>().firstOrNull()?.sourceLocation
-                    ?: effect.sourceLocation
-                    ?: e.sourceLocation,
-            )
-          }
-        }
-      } else {
-        elaborator.classEffects(component.type.rootClass).mapNotNull { effect ->
-          val contextualizer = thisBinding
-          val contextualScope = effect.typeVariables.transformedBy(contextualizer)
-          val variableBinding =
-              contextualScope.bind(
-                  component.type.variableBindingsFrom(
-                      component.type.rootClass.defaultType,
-                      effect.typeVariables.variables,
-                  ),
-                  elaborator.classTable,
+      return elaborator.classEffects(component.type.rootClass).map { effect ->
+        val bound =
+            try {
+              elaborator.specializeEffect(
+                  component.type.rootClass.defaultType,
+                  component.type,
+                  effect,
+                  component.expression,
               )
-          val uncheckedBinding =
-              chain(
-                  contextualizer,
-                  variableBinding,
+            } catch (e: NarrowingException) {
+              throw ExpressionException(
+                  "invalid effect for component `${component.type.expressionFull}`: ${e.detail}",
+                  e,
+                  effect.sourceLocation,
               )
-          val bound = uncheckedBinding.transformEffect(effect)
-          try {
-            elaborator.classTable.checkAllTypes(bound)
-            bound
-          } catch (e: ExpressionException) {
-            // An Owner-only component can inherit an effect whose output is Player-bound. The
-            // source effect is valid, but it does not apply to that Owner; for example, the
-            // starting tiles owned by SoloOpponent do not score VictoryPoint<Player> components.
-            val sourceEffect =
-                replaceThisExpressionsWith(component.type.rootClass.className.expression)
-                    .transformEffect(effect)
-            elaborator.classTable.checkAllTypes(sourceEffect)
-            null
-          }
+            }
+        try {
+          elaborator.classTable.checkAllTypes(bound)
+          bound
+        } catch (e: ExpressionException) {
+          throw ExpressionException(
+              "invalid effect for component `${component.type.expressionFull}`: `$bound`: ${e.detail}",
+              e,
+              effect.trigger.sourceLocation
+                  ?: effect.trigger.descendantsOfType<Expression>().firstOrNull()?.sourceLocation
+                  ?: effect.sourceLocation
+                  ?: e.sourceLocation,
+          )
         }
       }
     }

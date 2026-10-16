@@ -10,7 +10,7 @@ CLASS NomadsMarker : Owned<Player>, AreaPiece<@LandArea> {
 // Published promotional Global Events, appended to the generated cards.
 CLASS JovianColonyBoom : GePartyDistant<Scientists>, GePartyCurrent<Unity> {
   HAS Class<Colony>
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<JovianTaxRights>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<JovianTaxRights>>
 }
 
 CLASS JovianTaxRights : GlobalEffect {
@@ -19,7 +19,7 @@ CLASS JovianTaxRights : GlobalEffect {
 
 CLASS Diaspora : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
   HAS Class<Colony>
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<MicrogravityHealthProblems>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<MicrogravityHealthProblems>>
 }
 
 CLASS MicrogravityHealthProblems : GlobalEffect {
@@ -28,7 +28,7 @@ CLASS MicrogravityHealthProblems : GlobalEffect {
 
 CLASS MartianProtectionism : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
   HAS Class<VenusTag>
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<VenusInfrastructure>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<VenusInfrastructure>>
 }
 
 CLASS VenusInfrastructure : GlobalEffect {
@@ -37,7 +37,7 @@ CLASS VenusInfrastructure : GlobalEffect {
 
 CLASS TitanVenusAlliance : GePartyDistant<Unity>, GePartyCurrent<Reds> {
   HAS Class<VenusTag>, Class<Colony>
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<CloudSocieties>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<CloudSocieties>>
 }
 
 CLASS CloudSocieties : GlobalEffect {
@@ -47,7 +47,7 @@ CLASS CloudSocieties : GlobalEffect {
 
 CLASS ImmigrationToVenus : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
   HAS Class<VenusTag>, Class<Colony>
-  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<CorrosiveRain>>]
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<CorrosiveRain>>
 }
 
 CLASS CorrosiveRain : GlobalEffect {

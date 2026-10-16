@@ -101,14 +101,19 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
                 this@recordTypeVariableScopes,
                 markedDeclarations = markedDeclarations,
             )
-        requireSharedAcrossRegions(localScope, construct)
+        requireSharedAcrossRegions(localScope, construct, allowUnusedNamed = node is Effect)
         return node.withTypeVariables(node.typeVariables + localScope)
       }
 
-      private fun requireSharedAcrossRegions(scope: TypeVariableScope, construct: String) {
+      private fun requireSharedAcrossRegions(
+          scope: TypeVariableScope,
+          construct: String,
+          allowUnusedNamed: Boolean,
+      ) {
         scope.variables
             .firstOrNull { variable ->
-              variable.occurrences.map { it.region }.distinct().size < 2
+              !(allowUnusedNamed && variable.name != null) &&
+                  variable.occurrences.map { it.region }.distinct().size < 2
             }
             ?.let {
               throw ExpressionException(

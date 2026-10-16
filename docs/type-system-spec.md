@@ -1505,9 +1505,10 @@ supplies `Steel` for the inherited `@StandardResource`, so its inherited setup e
 and the instruction are one variable. A matching trigger occurrence supplies its complete
 structural expression. A requirement, metric or refinement may observe that variable but cannot
 supply it, and the observing occurrence may nevertheless come first in the source. The marker is
-anonymous or has a class-name-shaped local name (L1-7). At least one occurrence must be in the
-instruction, since repetitions confined to the trigger do not connect the trigger's matched value to
-the effect's result. Only a represented-class occurrence may apply dependency arguments (T13-1), and
+anonymous or has a class-name-shaped local name (L1-7). A named trigger binding may be unused in the
+instruction, as in `Pulse BY Acting@Player: Prize<Player1>`. An anonymous marker must also occur in
+the instruction; repetitions confined to the trigger do not establish that shared choice.
+Only a represented-class occurrence may apply dependency arguments (T13-1), and
 an occurrence that does not supply the variable may not add a refinement.
 
 Binding substitutes at every occurrence at once. Manutech's effect, lowered to

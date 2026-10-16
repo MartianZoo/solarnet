@@ -50,6 +50,26 @@ internal class ComponentEffectsValidationTest {
   }
 
   @Test
+  internal fun `passive ownership retains the valid alternative of a specialized effect`() {
+    val table =
+        testClassTable(
+            """
+            ABSTRACT CLASS Player : Owner, Actor
+            CLASS Passive : Owner
+            CLASS Prize
+            CLASS PlayerPrize : Owned<Player>
+            CLASS Holder : Owned { This: Prize OR PlayerPrize<Me@> }
+            """
+        )
+    val component = Component(table.resolve(te("Holder<Passive>")))
+
+    LiveEffect.compile(component, PetElaborator(table))
+        .map(LiveEffect::effect)
+        .map(Any::toString)
+        .shouldContainExactly("This: Prize! OR Die!")
+  }
+
+  @Test
   internal fun `invalid specialized component trigger fails validation`() {
     val component = Component(table.resolve(te("BrokenHolder<Bad>")))
 

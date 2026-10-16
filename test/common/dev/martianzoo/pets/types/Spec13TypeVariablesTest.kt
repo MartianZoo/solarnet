@@ -1096,8 +1096,10 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-7 an effect's regions are its trigger and its instruction`() {
     names(effect("R@StandardResource: R@StandardResource").typeVariables) shouldContainExactly
         listOf("R")
+    names(effect("R@StandardResource OR R@StandardResource: Ok").typeVariables) shouldContainExactly
+        listOf("R")
     shouldThrow<PetSyntaxException> {
-      effect("R@StandardResource OR R@StandardResource: Ok")
+      effect("@StandardResource OR @StandardResource: Ok")
     }
   }
 

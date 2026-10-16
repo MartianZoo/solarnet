@@ -20,13 +20,13 @@ ABSTRACT CLASS Award : Real {
   // HAS MAX 3 Award - actually it is only the FundAward standard action that can't fund a 4th award
   metric = Metric
 
-  OWN[End: MeasureAward<This>]
+  End: MeasureAward<This>
 }
 
 "Places one funded award's first and second place"
 CLASS MeasureAward<@Award> : Signal, System {
-  OWN[This:: EACH Me@Player(HAS =1 (RANK Me@Player { EVAL @Award.metric })) { FirstPlace<@Award> }]
-  OWN[This IF 3 Player:: EACH Me@Player(HAS =2 (RANK Me@Player { EVAL @Award.metric })) { SecondPlace<@Award> }]
+  This:: OWN[EACH Me@Player(HAS =1 (RANK Me@Player { EVAL @Award.metric })) { FirstPlace<@Award> }]
+  This IF 3 Player:: OWN[EACH Me@Player(HAS =2 (RANK Me@Player { EVAL @Award.metric })) { SecondPlace<@Award> }]
 }
 
 CLASS FirstPlace<Award> : Owned<Player>, Real { OWN[This: 5 VictoryPoint] }
