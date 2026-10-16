@@ -4,7 +4,8 @@ import dev.martianzoo.pets.api.SystemClasses.ICONIC
 import dev.martianzoo.state.GameEvent.ChangeEvent
 
 /**
- * Keeps changes with an Iconic type on at least one side. Callers choose the history's starting point.
+ * Keeps changes with an Iconic type on at least one side. Callers choose the history's starting
+ * point.
  */
 public fun Iterable<ChangeEvent>.iconicLogEvents(game: GameReader): List<ChangeEvent> {
   val iconic = game.resolve(ICONIC.expression)
