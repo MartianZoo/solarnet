@@ -1,0 +1,4 @@
+/Canon/*//*[
+  (@gainingClass = 'GreeneryTile' and @gainingArgumentCount = 0) or
+  (@gainingClass = 'CityTile' and @gainingArgumentsSpecified = 'false')
+]

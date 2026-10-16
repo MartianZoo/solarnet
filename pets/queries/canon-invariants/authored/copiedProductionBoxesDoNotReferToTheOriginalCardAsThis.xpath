@@ -1,0 +1,3 @@
+/Canon/Card[tags/Tag/@name = 'BuildingTag']/effects/Effect[@automatic = 'false'][trigger/WhenGain]
+/instruction//Transform[@transformKind = 'PROD'][(@kind = 'Instruction' or @kind = 'InstructionTree')]
+[.//*[@className = 'This' or @className = 'This']]

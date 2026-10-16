@@ -1,0 +1,2 @@
+/Canon/*//*[ @gainingClass = 'Delegate' or @removingClass = 'Delegate' or
+  (self::Spend and scaledEx/ScaledExpression/expression/Expression/@className = 'Delegate') ]

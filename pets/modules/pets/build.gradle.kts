@@ -11,6 +11,7 @@ val commonSourceDirectory =
 val commonTestDirectory = rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/pets")
 
 kotlin {
+  @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class) wasmJs { browser() }
   sourceSets {
     commonMain {
       kotlin.setSrcDirs(listOf(commonSourceDirectory))

@@ -1,0 +1,4 @@
+/Canon/Card[requirement//Count[id(@countedClass)/isA/Type/@name = 'GlobalParameter']][not(
+  count(requirement//Count[id(@countedClass)/isA/Type/@name = 'GlobalParameter']) = 1 and
+  requirement/*[self::Min or self::Max or self::Exact]/countedMetric/Count[id(@countedClass)/isA/Type/@name = 'GlobalParameter']
+)]

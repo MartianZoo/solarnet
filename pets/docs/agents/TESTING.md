@@ -36,7 +36,9 @@ Use the complete build when the change affects multiple modules or their contrac
 For every shared browser-compatible suite, temporarily uncomment `allBrowserTests` in this
 build's `build.gradle.kts` and run `./gradlew allBrowserTests --rerun-tasks`; restore the comment
 afterward. Routine browser runs use `BrowserPetsTest` and Almanac's English card-text test.
-Other generated browser tasks are disabled unless that full-browser target is requested.
+Search runs its shared suite on JVM, JS, and Wasm through `:search:test` (or the explicit
+`:search:jvmTest :search:jsBrowserTest :search:wasmJsBrowserTest` tasks). Other generated browser
+tasks are disabled unless the full-browser target is requested.
 Chrome or Chromium is required; `CHROME_BIN` can select the executable.
 
 When changing test runners, browser configuration, resources, or locked JavaScript dependencies,
