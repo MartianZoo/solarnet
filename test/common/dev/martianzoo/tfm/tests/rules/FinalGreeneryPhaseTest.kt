@@ -159,7 +159,7 @@ internal class FinalGreeneryPhaseTest {
     playCorporationWithoutStartingProjects(p2, MiningGuild)
 
     p1.turn {
-      stdAction("RequiredActionsSignal") {
+      stdAction("DoRequiredActions") {
         doTask("GreeneryTile<Elysium_4_5>")
         doTask("Plant")
       }

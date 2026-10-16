@@ -53,7 +53,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
               "MC",
               "-7 MC<Stan>",
           )
-          doTask("PlayedEvent<Class<Sabotage>> FROM Sabotage")
         }
         .expect("0 MC")
   }
@@ -75,7 +74,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
       // Resolve the optional attack: no unprotected plant target is available.
       selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
-      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
   }
 

@@ -26,7 +26,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
-      doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
     }
   }
 
@@ -57,7 +56,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
-      doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
     }
   }
 
@@ -78,7 +76,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
-      doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
     }
   }
 
@@ -103,7 +100,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           game.timeline.checkpoint() shouldBe checkpoint
           doTasks("OceanTile<Tharsis_1_2>", "TerraformRating", "2 Steel")
           doTasks("OceanTile<Tharsis_1_4>", "TerraformRating", "ProjectCard")
-          doTask("PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid")
         }
         .expect("2 OceanTile")
   }

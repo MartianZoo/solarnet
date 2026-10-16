@@ -706,7 +706,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )
-      doTask("PlayedEvent<Class<$DiversitySupport>> FROM $DiversitySupport")
     }
   }
 
@@ -827,7 +826,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       // Resolve the resource offer: no eligible card already holds a resource.
       selectTask("CardResource<CardFront(HAS CardResource)>*")
       choice()
-      doTask("PlayedEvent<Class<$CeosFavoriteProject>> FROM $CeosFavoriteProject")
     }
   }
 
@@ -928,7 +926,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           )
           // Select the resource offer before testing whether a required gain can be declined.
           selectTask("CardResource<CardFront(HAS CardResource)>*")
-          doTask("PlayedEvent<Class<$CeosFavoriteProject>> FROM $CeosFavoriteProject")
         }
         .expect("PlayedEvent<Class<$CeosFavoriteProject>>")
   }

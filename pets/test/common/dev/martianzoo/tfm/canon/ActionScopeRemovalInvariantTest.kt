@@ -139,7 +139,7 @@ internal class ActionScopeRemovalInvariantTest {
                 -Baton<This>: StandardAction<This> OR -Baton<This>
                 -ActionScope<This>: FINALLY { \
                   -ExtraAction<This> THEN TASK This { \
-                    StandardAction<This> OR RequiredActionsSignal<This> \
+                    StandardAction<This> OR DoRequiredActions<This> \
                   } \
                 }
                 """,
@@ -191,7 +191,7 @@ internal class ActionScopeRemovalInvariantTest {
         CLASS ExtraAction<Player>
         CLASS OfferAction<Player> : Signal
         CLASS StandardAction<Player> : Signal
-        CLASS RequiredActionsSignal<Player> : Signal
+        CLASS DoRequiredActions<Player> : Signal
         CLASS Pass<Player> { $passEffects }
         CLASS ActionPhase { $phaseEffects }
         CLASS ProductionPhase

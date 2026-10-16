@@ -44,8 +44,9 @@ internal class SolarProbeTest : TfmSandboxTest() {
           doTasks(
               "SolarProbe FROM ProjectCard",
           )
+          // The event must stay face up while its science-tag benefit is pending.
+          kim.assertCounts(1 to "$SolarProbe", 0 to "PlayedEvent<Class<$SolarProbe>>")
           doTask("ProjectCard")
-          doTask("PlayedEvent<Class<$SolarProbe>> FROM $SolarProbe")
         }
         .expect("0 ProjectCard")
 

@@ -65,7 +65,6 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
-              "PlayedEvent<Class<Recruitment>> FROM Recruitment",
           )
         }
         .expect(

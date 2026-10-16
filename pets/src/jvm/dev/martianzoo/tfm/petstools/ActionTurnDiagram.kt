@@ -36,7 +36,7 @@ internal object ActionTurnDiagram {
           Panel("Choose the first action or pass", setOf("+OfferAction")),
           Panel(
               "Accept an action",
-              setOf("+StandardAction", "+RequiredActionsSignal", "+PlayCard"),
+              setOf("+StandardAction", "+DoRequiredActions", "+PlayCard"),
           ),
           Panel("Keep the scope through its work", setOf("+ActionScope")),
           Panel("Finish an action", setOf("-ActionScope")),
@@ -45,7 +45,7 @@ internal object ActionTurnDiagram {
           Panel("Release the baton", setOf("-Baton")),
       )
   private val eventPanels = panels.flatMapIndexed { i, p -> p.events.map { it to i } }.toMap()
-  private val actionEntries = setOf("StandardAction", "RequiredActionsSignal", "PlayCard")
+  private val actionEntries = setOf("StandardAction", "DoRequiredActions", "PlayCard")
 
   @JvmStatic
   fun main(args: Array<String>) {

@@ -24,7 +24,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks("OceanTile<Tharsis_5_4>! THEN -4! MC<Rob>", "TerraformRating")
           doTask("-4 MC<Rob>")
           doTask("2 Plant")
-          doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("0 MC<Stan>, 0 MC<Maya>")
   }
@@ -39,7 +38,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "Flooding FROM ProjectCard",
           )
           doTasks("OceanTile<Tharsis_5_4>", "TerraformRating", "2 Plant")
-          doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("0 MC<Stan>, 0 MC<Rob>, 0 MC<Maya>")
   }
@@ -77,7 +75,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks("OceanTile<Tharsis_5_4>! THEN -2! MC<Stan>", "TerraformRating")
           doTask("-2 MC<Stan>")
           doTask("2 Plant")
-          doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("0 MC<Rob>")
   }
@@ -124,7 +121,6 @@ internal class FloodingTest : TfmSandboxTest() {
           "Flooding FROM ProjectCard",
       )
       doTasks("OceanTile<Tharsis_5_4>", "TerraformRating", "2 Plant")
-      doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
     }
     kim.setToExMachina(18, "MC")
     shouldThrow<TaskException> {
@@ -157,7 +153,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>", "TerraformRating")
           doTask("-4 MC<Stan>")
           doTask("2 Plant")
-          doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("0 MC<Rob>, 0 MC<Maya>")
   }
@@ -189,7 +184,6 @@ internal class FloodingTest : TfmSandboxTest() {
           )
           // The ordinary placement resolves to zero; the mandatory attack arm cannot finish.
           doTask("Ok")
-          doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("0 OceanTile, 0 TerraformRating, 0 MC<Stan>, 0 MC<Rob>, 0 MC<Maya>")
   }
@@ -211,7 +205,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>", "TerraformRating")
           doTask("-4 MC<Stan>")
           doTasks("2 Plant", "2 MC")
-          doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("0 MC<Maya>")
   }
@@ -389,7 +382,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "Flooding FROM ProjectCard",
           )
           doTasks("OceanTile<Tharsis_5_4>! THEN Ok", "TerraformRating", "2 Plant")
-          doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("0 MC<Stan>, 0 MC<Rob>, 0 MC<Maya>")
   }
@@ -405,7 +397,6 @@ internal class FloodingTest : TfmSandboxTest() {
           )
           doTasks("OceanTile<Tharsis_5_4>! THEN -2? MC<Stan>", "TerraformRating", "2 Plant")
           doTask("-2! MC<Stan>")
-          doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("0 MC<Rob>, 0 MC<Maya>")
   }
@@ -446,7 +437,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "TerraformRating",
               "2 Plant",
           )
-          doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("Hydroelectric, PROD[Energy], -16 MC")
   }

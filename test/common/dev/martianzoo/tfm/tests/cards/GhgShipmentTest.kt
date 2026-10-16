@@ -20,7 +20,6 @@ internal class GhgShipmentTest : TfmSandboxTest() {
           "PROD[Heat]",
       )
       doTask("3 Heat")
-      doTask("PlayedEvent<Class<GhgShipment>> FROM GhgShipment")
     }
   }
 }

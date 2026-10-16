@@ -47,7 +47,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "4 Plant",
           )
           doTask("Ok")
-          doTask("PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping")
         }
         .expect("-5 Heat, 4 Plant, 0 Floater<$StormcraftIncorporated>")
   }
@@ -65,7 +64,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "4 Plant",
           )
           doTasks("-2 Floater THEN 4 Heat", "4 Heat")
-          doTask("PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping")
         }
         .expect("-2 Floater<$StormcraftIncorporated>, -Heat, 4 Plant")
   }
@@ -84,7 +82,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "-5 Heat",
               "4 Plant",
           )
-          doTask("PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping")
         }
         .expect("-3 Floater<$StormcraftIncorporated>, 4 Plant")
   }

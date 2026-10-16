@@ -75,7 +75,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     yellow.turn {
       // "I use Valley Trust and I get Double Down, which I play... copy Martian Industries."
-      stdAction("RequiredActionsSignal") {
+      stdAction("DoRequiredActions") {
             playPrelude(DoubleDown) {
               doTask("CopyPrelude<$MartianIndustries>")
             }

@@ -194,7 +194,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     newTestGame(playerCount = 2, kimCorporation = Philares)
     kim.completeOperation {
           doTasks(
-              "RequiredActionsSignal",
+              "DoRequiredActions",
               "GreeneryTile<Tharsis_4_2>",
               "OxygenStep",
               "Plant",

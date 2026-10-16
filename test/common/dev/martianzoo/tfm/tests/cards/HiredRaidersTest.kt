@@ -22,7 +22,6 @@ internal class HiredRaidersTest : TfmSandboxTest() {
               "HiredRaiders FROM ProjectCard",
               "3 MC<Kim FROM Stan>",
           )
-          doTask("PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders")
         }
         .expect("0 Steel<Kim>")
   }
@@ -60,7 +59,6 @@ internal class HiredRaidersTest : TfmSandboxTest() {
               "HiredRaiders FROM ProjectCard",
               "Steel<Kim FROM Rob>",
           )
-          doTask("PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders")
         }
         .expect("0 Steel<Stan>")
   }

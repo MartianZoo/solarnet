@@ -671,7 +671,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("StandardAction") to
             ComponentDescriber(triggerFrame = Trigger.Named("take", "an action")),
-        klass("RequiredActionsSignal") to
+        klass("DoRequiredActions") to
             ComponentDescriber(triggerFrame = Trigger.Named("take", "an action")),
         klass("Owed") to
             ComponentDescriber(

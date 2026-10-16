@@ -19,7 +19,6 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
           "TerraformRating",
           "2 Steel",
       )
-      doTask("PlayedEvent<Class<ImportedHydrogen>> FROM ImportedHydrogen")
     }
 
     kim.inTurn {

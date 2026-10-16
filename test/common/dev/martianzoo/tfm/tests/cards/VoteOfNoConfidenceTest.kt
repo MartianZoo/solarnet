@@ -22,7 +22,6 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
           // Hand the chairmanship transfer to Admin, which updates the political state.
           selectTask("Chairman<Kim FROM Neutral>!")
           doTask("TerraformRating")
-          doTask("PlayedEvent<Class<VoteOfNoConfidence>> FROM VoteOfNoConfidence")
         }
         .expect("-LobbyDelegate")
   }

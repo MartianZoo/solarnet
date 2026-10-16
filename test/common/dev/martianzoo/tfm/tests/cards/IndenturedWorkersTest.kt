@@ -16,7 +16,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
           "IndenturedWorkers FROM ProjectCard",
       )
       doTask("IndenturedWorkers_NextCardEffect")
-      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "27 Pay<> FROM MC")
@@ -36,7 +35,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
           "IndenturedWorkers FROM ProjectCard",
       )
       doTask("IndenturedWorkers_NextCardEffect")
-      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
@@ -68,7 +66,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
           "IndenturedWorkers FROM ProjectCard",
       )
       doTask("IndenturedWorkers_NextCardEffect")
-      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "27 Pay<> FROM MC")
@@ -93,7 +90,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
           "IndenturedWorkers FROM ProjectCard",
       )
       doTask("IndenturedWorkers_NextCardEffect")
-      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     advanceUntilActionPhase()
     kim.setToExMachina(35, "MC")
@@ -118,7 +114,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
           "IndenturedWorkers FROM ProjectCard",
       )
       doTask("IndenturedWorkers_NextCardEffect")
-      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTask("UseCardAction<BoardOfDirectors, Action1>")

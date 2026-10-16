@@ -58,10 +58,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
 - actually plan out how exMachina should work
-- Keep gated System work with Admin when its condition becomes satisfied, removing unnecessary
-  player selections such as those in Head Start scenarios.
-- Make `PlayedEvent` and `Required` System types, and rename `RequiredActionsSignal` to
-  `DoRequiredActions`.
 - Audit remaining non-payment `::` effects; retain
   immediate execution only where a concrete gameplay need justifies it.
 

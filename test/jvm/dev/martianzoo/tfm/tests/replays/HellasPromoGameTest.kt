@@ -53,7 +53,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     p1.pass()
     p2.turn {
       playProject(SearchForLife, 3) {
-        doTask(
+        selectTask(
             "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating"
         ) // 3 TR<Player2>
       }

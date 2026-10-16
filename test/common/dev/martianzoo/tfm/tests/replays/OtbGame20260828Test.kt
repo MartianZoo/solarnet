@@ -211,8 +211,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     blue.turn {
       // "I had a plan; it's gone now." "Your first action should be to draw this stuff."
       // "There's one: Jet Stream Microscrappers. And Floater Technology. Very cool."
-      fillInTask("RequiredActionsSignal")
-          .chooseAlternative("RequiredActionsSignal")
+      fillInTask("DoRequiredActions")
+          .chooseAlternative("DoRequiredActions")
           .done()
           .expect("2 ProjectCard")
       // "Now I'm gonna play Local Shading. Pay four for it. And I guess that's my two actions."

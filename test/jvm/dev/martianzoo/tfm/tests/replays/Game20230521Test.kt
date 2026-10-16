@@ -299,7 +299,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
-          "PlayedEvent<Class<$InvestmentLoan>> FROM $InvestmentLoan",
       )
 
       doTasks(
@@ -372,7 +371,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
           "2 Titanium",
-          "PlayedEvent<Class<$AsteroidCard>> FROM $AsteroidCard",
       )
     }
 
@@ -427,7 +425,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PROD[Heat]",
           "7 Heat",
           "3 MC",
-          "PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg",
       )
     }
 
@@ -583,7 +580,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "ProjectCard",
           "3 MC",
           "3 Heat",
-          "PlayedEvent<Class<$SpinInducingAsteroid>> FROM $SpinInducingAsteroid",
       )
 
       doTasks("Pass")
@@ -637,7 +633,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TerraformRating",
           "PROD[Heat]",
           "4 Heat",
-          "PlayedEvent<Class<$SmallAsteroid>> FROM $SmallAsteroid",
       )
     }
 
@@ -783,7 +778,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_8_7>",
           "OxygenStep",
@@ -1033,7 +1027,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "ProjectCard<Hand FROM Selecting>",
           "-ProjectCard",
           "ProjectCard",
-          "PlayedEvent<Class<$InventionContest>> FROM $InventionContest",
       )
     }
 
@@ -1080,7 +1073,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseAction<$DevelopmentCenter, Action1>",
           "1 Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
-          "PlayedEvent<Class<$ProjectInspection>> FROM $ProjectInspection",
       )
     }
 
@@ -1308,7 +1300,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TerraformRating",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_8_6>",
           "OxygenStep",
@@ -1347,7 +1338,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TerraformRating",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_3_5>",
           "OxygenStep",
@@ -1439,7 +1429,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "3 Plant",
           "4 TerraformRating",
           "6 MC",
-          "PlayedEvent<Class<$DeimosDownPromo>> FROM $DeimosDownPromo",
       )
       doTasks(
           "UseCardAction<$AiCentral, Action1>",
@@ -1473,7 +1462,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "4 Plant",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_7>",
           "OxygenStep",
@@ -1541,7 +1529,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "$Harvest FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "12 MC",
-          "PlayedEvent<Class<$Harvest>> FROM $Harvest",
       )
     }
 
@@ -1623,7 +1610,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TerraformRating",
           "3 MC",
           "3 Heat",
-          "PlayedEvent<Class<$WaterToVenus>> FROM $WaterToVenus",
       )
     }
 
@@ -1736,7 +1722,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PlayProject<Class<$HiredRaiders>>",
           "$HiredRaiders FROM ProjectCard",
           "2 Steel FROM Steel<Player1>",
-          "PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders",
       )
       doTasks(
           "ConvertHeat",
@@ -1764,7 +1749,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_6>",
           "2 Steel",
@@ -1860,11 +1844,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "3 MC",
           "3 Heat",
           "4 Plant",
-          "PlayedEvent<Class<$NitrogenRichAsteroid>> FROM $NitrogenRichAsteroid",
       )
 
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_3_3>",
           "OxygenStep",
@@ -2047,7 +2029,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "4 Plant",
           "3 MC",
           "3 Heat",
-          "PlayedEvent<Class<$ImportedNitrogen>> FROM $ImportedNitrogen",
       )
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
@@ -2070,7 +2051,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_2_4>",
           "2 MC",
@@ -2100,7 +2080,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "2 Steel",
           "3 MC",
           "0 TemperatureStep", // temperature maxed
-          "PlayedEvent<Class<$MiningExpedition>> FROM $MiningExpedition",
       )
     }
 
@@ -2156,7 +2135,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PROD[MC]",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_8_4>",
           "2 Steel",
@@ -2182,7 +2160,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_5>",
           "Steel",
@@ -2232,7 +2209,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "OxygenStep",
           "2 TerraformRating",
           "5 MC",
-          "PlayedEvent<Class<$TowingAComet>> FROM $TowingAComet",
       )
     }
 
@@ -2274,7 +2250,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "2 ProjectCard",
           "3 MC",
           "3 Heat",
-          "PlayedEvent<Class<$LargeConvoy>> FROM $LargeConvoy",
       )
 
       doTasks(
@@ -2295,7 +2270,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
 
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_7_4>",
           "OxygenStep",
@@ -2331,7 +2305,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
 
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_8>",
           "2 MC",
@@ -2343,7 +2316,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks("FundAward<Class<Thermalist>>", "20 Pay<> FROM MC", "Thermalist")
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_4_4>",
           "Plant",
@@ -2411,7 +2383,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Final greenery placement
     p1.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-    p1.selectTask("MAX 0 Billing: PlaceGreeneryTile")
     p1.doTasks(
         "GreeneryTile<Tharsis_6_5>",
         "Plant",
@@ -2419,7 +2390,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
     p1.selectTask("-Baton") // no more greenery
     p2.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-    p2.selectTask("MAX 0 Billing: PlaceGreeneryTile")
     p2.doTasks(
         "GreeneryTile<Tharsis_8_8>",
         "2 MC",

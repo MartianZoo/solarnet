@@ -62,7 +62,7 @@ internal class StandardActionTest : TfmTest() {
 
     p1.beginOperation("OfferAction")
     shouldThrow<TaskException> { p1.doTask("PlayProject<Class<Mine>>") }
-    p1.doTasks("RequiredActionsSignal", "3 ProjectCard")
+    p1.doTasks("DoRequiredActions", "3 ProjectCard")
 
     p1.count("RequiredAction") shouldBe 0
     p1.beginOperation("OfferAction")
@@ -127,7 +127,6 @@ internal class StandardActionTest : TfmTest() {
 
     p1.beginOperation("OfferAction")
     p1.doTasks("ConvertPlants", "7 Pay<Class<Plant>> FROM Plant")
-    p1.selectTask("MAX 0 Billing: PlaceGreeneryTile")
     p1.doTasks(
         "GreeneryTile<Tharsis_1_3>",
         "OxygenStep",

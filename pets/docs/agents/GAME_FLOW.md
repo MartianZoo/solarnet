@@ -16,7 +16,7 @@ that published turn and declines an unused second opportunity.
 
 - The first action-phase offer is `StandardAction OR Pass`, or its required-action equivalent.
   Passing creates no scope and ends that player's participation for the generation.
-- Accepting `StandardAction`, `RequiredActionsSignal`, or `PlayCard` creates a scope only when
+- Accepting `StandardAction`, `DoRequiredActions`, or `PlayCard` creates a scope only when
   none exists. Generic `UseAction` does not create a scope: reactive abilities and nested card
   plays resolve within the current action.
 - The scope remains through payment, effects, placement bonuses, other players' responses, and

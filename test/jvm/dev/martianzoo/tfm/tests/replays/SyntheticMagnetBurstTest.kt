@@ -93,7 +93,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
 
     pink.turn {
       // Pink took the first action of Tharsis Republic corporation
-      stdAction("RequiredActionsSignal") {
+      stdAction("DoRequiredActions") {
             // Pink placed city tile at 61
             placeTile(9, 7)
             // Pink placed ocean tile at 34

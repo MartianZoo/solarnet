@@ -18,7 +18,6 @@ internal class SpecialPermitTest : TfmSandboxTest() {
               "SpecialPermit FROM ProjectCard",
               "4 Plant<Kim FROM Stan>",
           )
-          doTask("PlayedEvent<Class<SpecialPermit>> FROM SpecialPermit")
         }
         .expect("0 Plant<Rob>")
   }

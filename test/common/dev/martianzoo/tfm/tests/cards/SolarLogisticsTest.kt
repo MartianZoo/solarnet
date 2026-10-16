@@ -20,7 +20,6 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
               "3 Heat",
           )
           doTask("ProjectCard<Kim, Hand>")
-          doTask("PlayedEvent<Class<ImportedGhg>> FROM ImportedGhg")
         }
         .expect("0 ProjectCard")
   }
@@ -37,7 +36,6 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
           "2 ProjectCard",
       )
       kim.doTask("ProjectCard")
-      doTask("PlayedEvent<Class<$TechnologyDemonstration>> FROM $TechnologyDemonstration")
     }
   }
 }

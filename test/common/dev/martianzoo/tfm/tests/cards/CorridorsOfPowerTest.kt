@@ -19,7 +19,6 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
               "-PartyFollower<Scientists, Stan>",
               "ProjectCard",
-              "PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate",
           )
         }
         .expect("0 ProjectCard, PartyLeader<Scientists>, -PartyLeader<Scientists, Stan>")

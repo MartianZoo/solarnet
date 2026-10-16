@@ -10,7 +10,7 @@ internal class AridorTest : TfmSandboxTest() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", kimCorporation = Aridor)
 
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           // Hand colony selection to Admin so the unused tiles become available.
           selectTask("ColonyTileSelection!")
           // Hand the chosen tile to Admin to activate its colony track.
@@ -25,7 +25,7 @@ internal class AridorTest : TfmSandboxTest() {
     kim.exMachina("$TitanShuttles, Floater<$TitanShuttles>")
 
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           // Hand colony selection to Admin so the unused tiles become available.
           selectTask("ColonyTileSelection!")
           // Hand the chosen tile to Admin; Titan remains delayed until floaters are in play.
@@ -38,7 +38,7 @@ internal class AridorTest : TfmSandboxTest() {
   internal fun `New tag classes count for its owner even if another player already has them`() {
     newTestGame(kimCorporation = Aridor)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       // Hand colony selection to Admin so the unused tiles become available.
       selectTask("ColonyTileSelection!")
       // Hand the chosen tile to Admin to activate its colony track.
@@ -79,7 +79,7 @@ internal class AridorTest : TfmSandboxTest() {
   internal fun `A microbe tag lost when Pharmacy Union flips can be rewarded again`() {
     newTestGame(kimCorporation = Aridor)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       // Hand colony selection to Admin so the unused tiles become available.
       selectTask("ColonyTileSelection!")
       // Hand the chosen tile to Admin to activate its colony track.
@@ -94,7 +94,8 @@ internal class AridorTest : TfmSandboxTest() {
           "CryoSleep FROM ProjectCard",
           "PROD[MC]",
       )
-      doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
+      selectTask("PlayedEvent FROM PharmacyUnion")
+      doTask("3 TerraformRating")
     }
 
     kim.inTurn {
@@ -114,7 +115,7 @@ internal class AridorTest : TfmSandboxTest() {
   internal fun `A surviving microbe tag prevents a fresh reward after Pharmacy Union flips`() {
     newTestGame(kimCorporation = Aridor)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       // Hand colony selection to Admin so the unused tiles become available.
       selectTask("ColonyTileSelection!")
       // Hand the chosen tile to Admin to activate its colony track.
@@ -129,7 +130,8 @@ internal class AridorTest : TfmSandboxTest() {
           "CryoSleep FROM ProjectCard",
           "PROD[MC]",
       )
-      doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
+      selectTask("PlayedEvent FROM PharmacyUnion")
+      doTask("3 TerraformRating")
     }
 
     kim.inTurn {
@@ -148,7 +150,7 @@ internal class AridorTest : TfmSandboxTest() {
   internal fun `An event's printed tags do not reward production`() {
     newTestGame(kimCorporation = Aridor)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       // Hand colony selection to Admin so the unused tiles become available.
       selectTask("ColonyTileSelection!")
       // Hand the chosen tile to Admin to activate its colony track.
@@ -162,7 +164,6 @@ internal class AridorTest : TfmSandboxTest() {
               "BribedCommittee FROM ProjectCard",
               "2 TerraformRating",
           )
-          doTask("PlayedEvent<Class<BribedCommittee>> FROM BribedCommittee")
         }
         .expect("PROD[0 MC]")
   }
@@ -191,7 +192,7 @@ internal class AridorTest : TfmSandboxTest() {
   internal fun `A Venus tag can introduce a new tag class`() {
     newTestGame(kimCorporation = Aridor)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       // Hand colony selection to Admin so the unused tiles become available.
       selectTask("ColonyTileSelection!")
       // Hand the chosen tile to Admin to activate its colony track.

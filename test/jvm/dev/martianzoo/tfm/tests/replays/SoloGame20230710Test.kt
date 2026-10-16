@@ -46,7 +46,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       }
 
       playProject(AdvancedAlloys, 9) {
-        doTask("PlayedEvent FROM $PharmacyUnion THEN 3 TerraformRating")
+        selectTask("PlayedEvent FROM $PharmacyUnion THEN 3 TerraformRating")
       }
       playProject(IndustrialMicrobes, 12).expect("Steel, Energy, PROD[Steel, Energy]")
 
@@ -267,7 +267,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       // Head Start's two actions occur during Prelude; the source UI says 106.
       (sum.signalCount("InRound", "StandardAction<Me>") +
-          sum.signalCount("InRound", "RequiredActionsSignal<Me>")) shouldBe 92
+          sum.signalCount("InRound", "DoRequiredActions<Me>")) shouldBe 92
     }
   }
 }

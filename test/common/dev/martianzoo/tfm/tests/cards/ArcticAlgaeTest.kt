@@ -48,7 +48,6 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       doTasks("TerraformRating", "ProjectCard")
       stan.doTask("2 Plant")
       doTask("-6 Plant<Stan>")
-      doTask("PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid")
     }
   }
 
@@ -74,7 +73,6 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       doTasks("2 Steel", "OceanTile<Tharsis_1_4>", "TerraformRating")
       stan.doTask("2 Plant")
       doTask("ProjectCard<Kim, Hand>")
-      doTask("PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid")
     }
   }
 }

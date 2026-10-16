@@ -34,7 +34,7 @@ ABSTRACT CLASS Card : Owned<Player>, Real {
   }
 
   "A card in your played-events pile"
-  CLASS PlayedEvent<@Class<CardFront>> {
+  CLASS PlayedEvent<@Class<CardFront>> : System {
     End: ScoreEventVps<@Class>
   }
 }

@@ -211,7 +211,7 @@ public class TfmGameplay(
 
   private fun secondActionOffer(): Task? {
     val ordinary = parse<Instruction>("StandardAction OR -Baton")
-    val required = parse<Instruction>("RequiredActionsSignal OR -Baton")
+    val required = parse<Instruction>("DoRequiredActions OR -Baton")
     return tasks
         .extract { it }
         .singleOrNull {
@@ -222,7 +222,7 @@ public class TfmGameplay(
   /**
    * Selects [option] from the current turn offer, runs [payment], then completes its `body`. For
    * example, use `ClaimMilestone<Class<Builder>>` or `TradeAction<Action2>`. When a required action
-   * is pending, select `RequiredActionsSignal` instead.
+   * is pending, select `DoRequiredActions` instead.
    *
    * The default payment spends the bill's resource when it is the sole accepted resource. Supply
    * [payment] for mixed payments and `body` for remaining choices. Selection must narrow an offered

@@ -7,8 +7,10 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
@@ -38,10 +40,10 @@ import dev.martianzoo.state.Task.TaskId
  * * A concrete selected task is guaranteed to execute successfully
  * * Normalization retains task identity, current assignee, selection, and cause. Admission and
  *   contextual selection assign concrete System gains and removals to Admin, including changes
- *   scaled by `Per`. When that changes the assignee, a continuation dispatches back to the former
- *   assignee after Admin finishes the System change. Abstract changes remain for the current
- *   assignee to choose; explicit instruction-side `BY` remains authoritative. Selected tasks cannot
- *   be replaced by independent siblings
+ *   scaled by `Per` or waiting behind a gate. When that changes the assignee, a continuation
+ *   dispatches back to the former assignee after Admin finishes the System change. Abstract changes
+ *   remain for the current assignee to choose; explicit instruction-side `BY` remains
+ *   authoritative. Selected tasks cannot be replaced by independent siblings
  * * Once no ordinary task remains, every task with the earliest remaining [Task.deferral] becomes
  *   ordinary at once
  * * An ordinary task whose instruction is a dispatch is performed at once: `TASK R { b } >> c`
@@ -162,11 +164,12 @@ internal class TaskQueues(
   private fun assignSystemChangeToAdmin(task: Task): Task {
     if (task.assignee == ADMIN) return task
     if (task.instruction.isAbstract(gameWorld.reader)) return task
-    fun change(instruction: Instruction): Change? =
+    fun change(instruction: InstructionTree): Change? =
         when (instruction) {
           is Change -> instruction
           is By -> change(instruction.inner)
           is Per -> change(instruction.inner)
+          is Gated -> change(instruction.inner)
           else -> null
         }
     val change = change(task.instruction) ?: return task

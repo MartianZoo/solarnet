@@ -10,7 +10,7 @@ internal class PhilaresTest : TfmSandboxTest() {
   fun initializeGame() {
     newTestGame(kimCorporation = Philares)
     kim.inTurn {
-      doTasks("RequiredActionsSignal", "GreeneryTile<Tharsis_4_2>")
+      doTasks("DoRequiredActions", "GreeneryTile<Tharsis_4_2>")
       doTask("OxygenStep")
       doTasks("Plant", "TerraformRating")
     }

@@ -103,7 +103,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
       }
     }
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("3 ProjectCard")
     }
     kim.inTurn {

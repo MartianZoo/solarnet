@@ -22,7 +22,6 @@ internal class PublicPlansTest : TfmSandboxTest() {
       doTask("2 ProjectCard<Revealed FROM Hand>")
       doTask("2 ProjectCard FROM ProjectCard<Revealed>")
       doTask("2 MC")
-      doTask("PlayedEvent<Class<PublicPlans>> FROM PublicPlans")
     }
   }
 
@@ -39,7 +38,6 @@ internal class PublicPlansTest : TfmSandboxTest() {
       doTask("ProjectCard<Revealed FROM Hand>")
       doTask("ProjectCard FROM ProjectCard<Revealed>")
       doTask("MC")
-      doTask("PlayedEvent<Class<PublicPlans>> FROM PublicPlans")
     }
   }
 

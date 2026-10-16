@@ -91,7 +91,7 @@ private fun isScopeRemovalHandoff(
       when (tree) {
         is Instruction.Gated -> nextAction(tree.inner)
         is Instruction.Gain ->
-            target(tree.gaining, "StandardAction", "RequiredActionsSignal") && fixedAmount(tree)
+            target(tree.gaining, "StandardAction", "DoRequiredActions") && fixedAmount(tree)
         else -> false
       }
 
@@ -117,7 +117,7 @@ private fun isScopeRemovalHandoff(
                   "OfferAction",
                   "RoundOver",
                   "StandardAction",
-                  "RequiredActionsSignal",
+                  "DoRequiredActions",
               )
           is Instruction.Transmute ->
               actionPhase &&

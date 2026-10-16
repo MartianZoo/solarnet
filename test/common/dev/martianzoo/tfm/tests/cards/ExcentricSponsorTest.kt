@@ -29,7 +29,6 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
           doTask("TemperatureStep")
           doTask("PROD[Plant]")
           doTask("TerraformRating")
-          doTask("PlayedEvent<Class<NitrogenRichAsteroid>> FROM NitrogenRichAsteroid")
         }
         .expect("-6 MC, PROD[Plant], 3 TerraformRating")
   }
@@ -51,7 +50,6 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
       )
       doTask("VenusStep")
       doTasks("PROD[3 Heat]", "TerraformRating")
-      doTask("PlayedEvent<Class<GhgImportFromVenus>> FROM GhgImportFromVenus")
     }
   }
 

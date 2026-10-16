@@ -82,7 +82,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     // Splice Tactical Genomics' mandatory first action prevents Green from playing Lichen first.
     shouldThrow<NarrowingException> { green.playProject(Lichen, 7) }
 
-    green.stdAction("RequiredActionsSignal")
+    green.stdAction("DoRequiredActions")
     green.playProject(Lichen, 7)
 
     // (Purple already passed early)

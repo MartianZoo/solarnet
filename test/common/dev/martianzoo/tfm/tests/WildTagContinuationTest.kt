@@ -56,7 +56,6 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
           .expect("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>")
       kim.count("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>") shouldBe 1
       doTask("MC")
-      doTask("PlayedEvent<Class<ProjectInspection>> FROM ProjectInspection")
     }
     kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
@@ -70,7 +69,6 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
       kim.count("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>") shouldBe 1
       shouldThrow<TaskException> { doTask("PlayedEvent<Class<SolarProbe>> FROM SolarProbe") }
       doTask("ProjectCard")
-      doTask("PlayedEvent<Class<SolarProbe>> FROM SolarProbe")
     }
     kim.count("ScienceTag") shouldBe 1
   }

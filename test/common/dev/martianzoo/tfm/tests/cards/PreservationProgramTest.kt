@@ -89,7 +89,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     playPreludes(UnmiContractor, Donation)
 
     kim.completeOperation {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
           autoExecNow(EAGER)
         }
@@ -102,7 +102,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     playPreludes(PowerGeneration, Donation)
 
     kim.completeOperation {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
           autoExecNow(EAGER)
         }
@@ -365,7 +365,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     playPreludes()
 
     kim.completeOperation {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")
           doTask("CopyPrelude<PreservationProgram>")
           autoExecNow(EAGER)
@@ -571,7 +571,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
           doTasks("PlayProject<Class<$PhysicsComplex>>")
           doTask("Ok") // Keep the steel before paying the exact MC remainder.
           autoExecNow(EAGER)
-          doTask("PlayedEvent FROM $PharmacyUnion")
+          selectTask("PlayedEvent FROM $PharmacyUnion")
           autoExecNow(EAGER)
         }
         .expect("2 TerraformRating")

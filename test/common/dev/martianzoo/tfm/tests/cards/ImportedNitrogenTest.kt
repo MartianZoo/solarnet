@@ -26,7 +26,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
           )
           doTask("3* Microbe")
           doTask("2* Animal")
-          doTask("PlayedEvent<Class<ImportedNitrogen>> FROM ImportedNitrogen")
         }
         .expect(
             "TerraformRating, 4 Plant, 0 Microbe, 0 Animal, -23 MC, " +
@@ -51,7 +50,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
               "3 MC",
           )
           doTasks("2* Animal<Pets>", "4 MC")
-          doTask("PlayedEvent<Class<ImportedNitrogen>> FROM ImportedNitrogen")
         }
         .expect(
             "TerraformRating, 4 Plant, 3 Microbe<$Tardigrades>, 2 Animal<$Pets>, " +

@@ -118,7 +118,8 @@ A normalized concrete task that gains or removes a `System` type, including chan
 wrapped in instruction-side `BY`, begins assigned to Admin. Abstract targets, amounts, and optional
 gains or removals remain with the current Actor until narrowed; contextual selection reapplies the
 assignment rule. Transmutations use the gained type for this classification after any abstract
-source is selected. Gates must resolve before this rule applies. A concrete `BY` remains
+source is selected. Gated concrete System changes also belong to Admin; their gates still have to
+be satisfied before execution. A concrete `BY` remains
 authoritative: naming a non-Admin performer for a gain reaches the existing `System` creation guard
 and fails. Admin assignment does not determine whether the component is presented as `Real`.
 
@@ -142,11 +143,11 @@ dispatch work to a different recipient. This classification is
 independent of `Real`, which controls presentation, and `::`, which preserves an invariant within
 the initiating operation.
 
-Card-purchase, requirement, global-parameter-status, solo-countdown, and dominance bookkeeping use
-`System` for their concrete changes.
+Played-event cleanup, card-purchase, requirement, global-parameter-status, solo-countdown, and
+dominance bookkeeping use `System` for their concrete changes.
 
 `RequiredAction` is also `System`: Admin creates and removes the pending corporation-action
-marker. Its Player owner still chooses `RequiredActionsSignal` and performs the required action;
+marker. Its Player owner still chooses `DoRequiredActions` and performs the required action;
 neither that signal nor `UseAction` is `System`.
 
 ### Deferred System classifications
@@ -160,7 +161,7 @@ its operation. The full card-play sequence, payment, free plays, shared fixtures
 downstream choice appeared too late for the enclosing operation body. Settle that sequence before
 changing action callers and reactive offers.
 
-`RequiredActionsSignal` remains non-System. Its trial forced standard-action callers to scan for an
+`DoRequiredActions` remains non-System. Its trial forced standard-action callers to scan for an
 internal task and commit a form just to choose the required action. Revisit it only if that choice
 can remain a natural standard-action call.
 

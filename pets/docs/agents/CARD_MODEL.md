@@ -19,7 +19,9 @@ generic card backs by Player and location, never by printed identity:
   revealed from outside the World for Asteroid Deflection System and Search for Life;
 - a concrete `CardFront<Class<CardBack>>` is an exact face in play; and
 - `PlayedEvent<Class<CardFront>>` preserves the exact face of a completed Event because published
-  scoring and recovery rules query it.
+  scoring and recovery rules query it. It is also `System`: Admin performs ordinary event cleanup
+  after the event's other work finishes. Optional flips, such as Pharmacy Union's, and recipient
+  choices, such as Law Suit's, still require Player selection before Admin executes the transfer.
 
 Modeled reveal effects explicitly empty their temporary locations. Retained
 starting project cards rest in `Selecting` after setup until their Corporation-phase purchase is

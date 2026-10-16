@@ -102,7 +102,7 @@ ABSTRACT CLASS Player : Owner, Actor {
   ActionScope<This>: LATER Admin { EACH @CardBack<This, Selecting> { -@CardBack } }
   -ActionScope<This> IF ExtraAction<This>: FINALLY { \
     -ExtraAction<This> THEN TASK This { \
-      (MAX 0 RequiredAction<This>: StandardAction<This>) OR (RequiredAction<This>: RequiredActionsSignal<This>) \
+      (MAX 0 RequiredAction<This>: StandardAction<This>) OR (RequiredAction<This>: DoRequiredActions<This>) \
     } \
   }
   -Billing<This, Class<BuySelectedCards>, Action1>: \
@@ -242,11 +242,11 @@ CLASS InRound<ActionPhase> : RoundStatus, System {
   Baton IF 2 InRound<Player>:: SecondAction
 
   OfferAction IF MAX 0 RequiredAction: StandardAction OR Pass
-  OfferAction IF RequiredAction: RequiredActionsSignal OR Pass
+  OfferAction IF RequiredAction: DoRequiredActions OR Pass
   -ActionScope<Me@> IF Baton, MAX 0 ExtraAction, SecondAction: FINALLY { -SecondAction }
   -ActionScope<Me@> IF Baton, MAX 0 ExtraAction, MAX 0 SecondAction: FINALLY { -Baton }
   -SecondAction IF Baton, MAX 0 RequiredAction: StandardAction OR -Baton
-  -SecondAction IF Baton, RequiredAction: RequiredActionsSignal OR -Baton
+  -SecondAction IF Baton, RequiredAction: DoRequiredActions OR -Baton
 }
 
 "Instead of taking an action you can gain this, and be out for the rest of the generation"

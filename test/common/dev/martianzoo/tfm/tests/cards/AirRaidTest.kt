@@ -25,7 +25,6 @@ internal class AirRaidTest : TfmSandboxTest() {
           "-Floater<$AtmoCollectors>",
           "5 MC<Kim FROM Rob>",
       )
-      doTask("PlayedEvent<Class<$AirRaid>> FROM $AirRaid")
     }
   }
 

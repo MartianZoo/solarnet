@@ -44,7 +44,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     me.count("MC") shouldBe 32
 
     me.turn {
-      stdAction("RequiredActionsSignal")
+      stdAction("DoRequiredActions")
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
         playPrelude(DoubleDown) {

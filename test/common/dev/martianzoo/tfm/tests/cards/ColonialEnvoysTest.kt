@@ -21,7 +21,6 @@ internal class ColonialEnvoysTest : TfmSandboxTest() {
           selectOnlyTask()
           doTask("PartyLeader<Scientists>")
           doTask("PartyLeader<Greens>")
-          doTask("PlayedEvent<Class<ColonialEnvoys>> FROM ColonialEnvoys")
         }
         .expect("0 PartyDelegate<Stan>")
   }

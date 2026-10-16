@@ -13,7 +13,7 @@ internal class VitorTest : TfmSandboxTest() {
     newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
 
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("Landlord")
         }
         .expect("0 MC")
@@ -40,7 +40,7 @@ internal class VitorTest : TfmSandboxTest() {
   internal fun `Rebates Search for Life before it has earned any victory points`() {
     newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("Landlord")
     }
 
@@ -59,7 +59,7 @@ internal class VitorTest : TfmSandboxTest() {
   internal fun `Does not rebate a card without victory points`() {
     newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("Landlord")
     }
 
@@ -73,7 +73,7 @@ internal class VitorTest : TfmSandboxTest() {
   internal fun `Does not rebate a card with negative victory points`() {
     newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("Landlord")
     }
 
@@ -84,7 +84,6 @@ internal class VitorTest : TfmSandboxTest() {
           "BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
       )
-      doTask("PlayedEvent<Class<BribedCommittee>> FROM BribedCommittee")
     }
   }
 
@@ -126,7 +125,7 @@ internal class VitorTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("Thermalist")
         }
         .expect("0 MC")

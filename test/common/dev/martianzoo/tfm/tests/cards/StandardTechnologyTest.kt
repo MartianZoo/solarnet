@@ -37,7 +37,7 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
   internal fun `Receives a rebate when Spire pays with science after temperature is complete`() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("4 ProjectCard")
       doTask("-3 ProjectCard<Kim, Hand>")
     }

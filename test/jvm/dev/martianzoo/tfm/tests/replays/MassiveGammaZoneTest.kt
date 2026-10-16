@@ -69,7 +69,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("GreeneryTile<Tharsis_3_6>")
       }
 
-      stdAction("RequiredActionsSignal") {
+      stdAction("DoRequiredActions") {
         doTask("OceanTile<Tharsis_4_8>")
         doTask("GreeneryTile<Tharsis_4_7>")
       }

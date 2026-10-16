@@ -12,7 +12,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     newTestGame(addOptions = "ValleyTrust, prelude:cards", kimCorporation = ValleyTrust)
 
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("3 PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
           doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
@@ -27,7 +27,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("3 PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
           doTask("MartianIndustries<Kim> FROM PreludeCard<Kim, Selecting>!")
@@ -45,7 +45,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("3 PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<SpaceLanes>>")
           doTask("SpaceLanes FROM PreludeCard<Selecting>")
@@ -65,7 +65,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("RequiredActionsSignal")
+        doTask("DoRequiredActions")
         doTask("3 PreludeCard<Kim, Selecting>")
         doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
         doTask("IndustrialComplex FROM PreludeCard<Selecting>")
@@ -73,7 +73,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
       }
     }
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("3 PreludeCard<Kim, Selecting>")
           doTask("-PreludeCard<Selecting>")
           // Hand the fizzle audit to Admin before receiving compensation.

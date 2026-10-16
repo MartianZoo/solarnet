@@ -112,23 +112,41 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun gatesDelaySystemRoutingUntilTheyResolveToAnElementaryGain() {
+  internal fun gatedSystemGainBeginsAssignedToAdmin() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     p1.runOperation("Marker<Player1>")
 
     val taskId = p1.addTasks("Marker<Player1>: SystemToken").single()
-    p1.tasks.ids().shouldContainExactly(taskId)
-    admin.tasks.isEmpty() shouldBe true
-
-    p1.selectTask(taskId)
     p1.tasks.isEmpty() shouldBe true
     admin.tasks.ids().shouldContainExactly(taskId)
 
     admin.selectTask(taskId)
     p1.count("SystemToken") shouldBe 1
     game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun eagerAdminWaitsForTheGateThenReturnsThePlayersChoice() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
+    val taskId = p1.addTasks("Marker<Player1>: SystemToken THEN Reward<Player1>").single()
+
+    p1.addTasks("Marker<Player1>")
+    admin.tasks.ids().shouldContainExactly(taskId)
+    admin.autoExecNow(EAGER)
+    p1.count("SystemToken") shouldBe 0
+    game.tasks.getTaskData(taskId).selected shouldBe false
+
+    p1.doTask("Marker<Player1>")
+
+    p1.count("SystemToken") shouldBe 1
+    admin.tasks.isEmpty() shouldBe true
+    p1.doTask("RewardA")
+    p1.count("RewardA") shouldBe 1
+    game.isIdle() shouldBe true
   }
 
   @Test

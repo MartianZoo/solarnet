@@ -253,7 +253,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
       kim.count("PreludeCard") shouldBe 0
 
       kim.completeOperation {
-            doTask("RequiredActionsSignal")
+            doTask("DoRequiredActions")
             doTask("PlayCard<Class<PreludeCard>, Class<$NewPartner>>")
             autoExecNow(EAGER)
             doTask("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")

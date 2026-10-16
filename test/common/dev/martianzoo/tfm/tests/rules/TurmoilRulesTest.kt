@@ -181,7 +181,6 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<Scientists, Kim>")
-          doTask("PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate")
         }
         .expect("-Delegate<Kim>, 0 LobbyDelegate<Kim>")
     shouldThrow<LimitsException> {

@@ -48,7 +48,7 @@ internal class HeadStartTest : TfmSandboxTest() {
       )
       doTask("10 MC")
       shouldThrow<TaskException> { doTask("UseStandardProject<PowerPlantProject>") }
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("3 PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
       doTask("MartianIndustries FROM PreludeCard<Selecting>")

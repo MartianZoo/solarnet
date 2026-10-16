@@ -67,7 +67,7 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
     stan.autoExecNow(EAGER)
 
     kim.completeOperation {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
           autoExecNow(EAGER)
         }
