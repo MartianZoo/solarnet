@@ -27,7 +27,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.ClassName,
             ),
-        klass("OceanCredit") to
+        klass("HydrologistCredit") to
             ComponentDescriber(
                 metricCount =
                     ComponentDescriber.MetricCount(
@@ -46,7 +46,7 @@ internal object TerraformingMarsDescribers {
                         unqualifiedSuffix = "",
                     ),
             ),
-        klass("HasRaisedTr") to
+        klass("TrWasRaised") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
         klass("ActionPhase") to
             ComponentDescriber(presenceCondition = "the action phase is active"),
@@ -60,7 +60,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(presenceCondition = "the corporation phase is active"),
         klass("MultiplayerMode") to
             ComponentDescriber(presenceCondition = "this is a multiplayer game"),
-        klass("AdminOceanPlacement") to
+        klass("PlaceOceanForAdmin") to
             ComponentDescriber(
                 changeFrame =
                     Frame.Procedure(
@@ -465,7 +465,7 @@ internal object TerraformingMarsDescribers {
                     ),
                 requirement = ComponentDescriber.Requirement(minimum = count(greeneryTileNoun)),
             ),
-        klass("DefaultGreeneryTile") to
+        klass("PlaceGreeneryTile") to
             ComponentDescriber(changeFrame = Frame.Procedure("place", "a greenery tile")),
         klass("CityTile") to
             ComponentDescriber(

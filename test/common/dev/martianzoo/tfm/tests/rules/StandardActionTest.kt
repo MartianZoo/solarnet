@@ -127,7 +127,7 @@ internal class StandardActionTest : TfmTest() {
 
     p1.beginOperation("NewTurn")
     p1.doTasks("ConvertPlants", "7 Pay<Class<Plant>> FROM Plant")
-    p1.selectTask("MAX 0 Billing: DefaultGreeneryTile")
+    p1.selectTask("MAX 0 Billing: PlaceGreeneryTile")
     p1.doTasks(
         "GreeneryTile<Tharsis_1_3>",
         "OxygenStep",

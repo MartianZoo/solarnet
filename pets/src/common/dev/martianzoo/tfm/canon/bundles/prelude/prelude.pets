@@ -20,6 +20,6 @@ CLASS PreludePhase : Phase {
   NewTurn IF PreludeCard<Hand>: PlayPrelude
   // Each player plays all of their preludes on consecutive turns.
   TurnOver<@Player> IF PreludeCard<@Player, Hand>: TakeTurn<@Player>
-  TurnOver<@Player> IF MAX 0 PreludeCard<@Player, Hand>: NextPlayer<@Player>
+  TurnOver<@Player> IF MAX 0 PreludeCard<@Player, Hand>: AdvancePlayer<@Player>
   RoundOver: ActionPhase FROM This
 }

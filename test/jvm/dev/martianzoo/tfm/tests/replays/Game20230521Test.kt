@@ -783,7 +783,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_8_7>",
           "OxygenStep",
@@ -1308,7 +1308,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TerraformRating",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_8_6>",
           "OxygenStep",
@@ -1347,7 +1347,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TerraformRating",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_3_5>",
           "OxygenStep",
@@ -1473,7 +1473,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "4 Plant",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_7>",
           "OxygenStep",
@@ -1764,7 +1764,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_6>",
           "2 Steel",
@@ -1864,7 +1864,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
 
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_3_3>",
           "OxygenStep",
@@ -2070,7 +2070,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_2_4>",
           "2 MC",
@@ -2156,7 +2156,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PROD[MC]",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_8_4>",
           "2 Steel",
@@ -2182,7 +2182,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_5>",
           "Steel",
@@ -2295,7 +2295,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
 
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_7_4>",
           "OxygenStep",
@@ -2331,7 +2331,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
 
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_8>",
           "2 MC",
@@ -2343,7 +2343,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks("FundAward<Class<Thermalist>>", "20 Pay<> FROM MC", "Thermalist")
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_4_4>",
           "Plant",
@@ -2411,7 +2411,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Final greenery placement
     p1.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-    p1.selectTask("MAX 0 Billing: DefaultGreeneryTile")
+    p1.selectTask("MAX 0 Billing: PlaceGreeneryTile")
     p1.doTasks(
         "GreeneryTile<Tharsis_6_5>",
         "Plant",
@@ -2419,7 +2419,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
     p1.doTasks("Done") // no more greenery
     p2.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
+    p2.selectTask("MAX 0 Billing: PlaceGreeneryTile")
     p2.doTasks(
         "GreeneryTile<Tharsis_8_8>",
         "2 MC",

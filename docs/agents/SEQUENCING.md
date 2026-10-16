@@ -241,7 +241,7 @@ choice makes the turn impossible to finish, P1 must roll back the turn.
   Terraforming Mars-specific Kotlin such as `TfmWorkflow` was out of the question; it is deleted.
 - **Present components answer.** On 2026-10-13 the owner asked that active behavior come from
   components that are present rather than from conditions: an effect that relies on a player not
-  having passed belongs on `ImAwake`, so its presence says so. `TakeTurn` therefore has no rule of
+  having passed belongs on `InRound`, so its presence says so. `TakeTurn` therefore has no rule of
   its own.
 - **Game flow.** On 2026-10-12 the owner ruled that the Pets model must never be shaped by turning
   the flow on or off, that tests be either clear sandbox or clear gameplay scenarios, and that

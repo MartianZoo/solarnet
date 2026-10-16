@@ -32,7 +32,7 @@ internal class PromosEnglishTest {
   internal fun describesInteractionRecords() {
     english.describe(
         parseClasses(
-                "CLASS Rule<Me@Anyone> { MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: " +
+                "CLASS Rule<Me@Anyone> { ResourceWasAttacked<Anyone> OR ProductionWasAttacked<Anyone>: " +
                     "3* MC<Anyone FROM Me@> }"
             )
             .single()

@@ -185,7 +185,7 @@ CLASS UnitedNationsMarsInitiative : ActionCard<Class<CorporationCard>> {
   HAS Class<TrWatcher>, =1 EarthTag<This>
   cost = 0
   This: 40 MC
-  3 MC -> HasRaisedTr: TerraformRating
+  3 MC -> TrWasRaised: TerraformRating
 }
 ```
 
@@ -569,7 +569,7 @@ Class: `Pristar`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 53 M€. Decrease your TR 2 steps. 1 VP per preservation resource here. | Effect: During production phase, if you did not get TR so far this generation, add 1 preservation resource here and gain 6 M€. |
-| Generated text | Gain 53 M€. Lower your terraform rating 2 steps. 1 VP per preservation resource on this card. | Effect: \[ProductionPhase IF MAX 0 HasRaisedTr: Preservation&lt;This&gt;, 6 MC\]. |
+| Generated text | Gain 53 M€. Lower your terraform rating 2 steps. 1 VP per preservation resource on this card. | Effect: \[ProductionPhase IF MAX 0 TrWasRaised: Preservation&lt;This&gt;, 6 MC\]. |
 
 Pets declaration:
 
@@ -578,7 +578,7 @@ CLASS Pristar : ResourceCard<Class<Preservation>, Class<CorporationCard>> {
   HAS Class<TrWatcher>
   cost = 0
   This: 53 MC, -2 TerraformRating
-  ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC
+  ProductionPhase IF MAX 0 TrWasRaised: Preservation<This>, 6 MC
   End: VictoryPoint / Preservation<This>
 }
 ```
@@ -745,8 +745,8 @@ CLASS MonsInsurance : CardFront<Class<CorporationCard>> {
   HAS Class<AttackHistoryWatcher>
   cost = 0
   This: 48 MC, PROD[4 MC], EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@Player>] BY Other@Player }
-  MyResourceWasRemoved<Victim@Anyone(NOT Me@)>: 3* MC<Victim@Anyone FROM Me@>
-  MyProductionWasDecreased<Victim@Anyone(NOT Me@)>: 3* MC<Victim@Anyone FROM Me@>
+  ResourceWasAttacked<Victim@Anyone(NOT Me@)>: 3* MC<Victim@Anyone FROM Me@>
+  ProductionWasAttacked<Victim@Anyone(NOT Me@)>: 3* MC<Victim@Anyone FROM Me@>
 }
 ```
 

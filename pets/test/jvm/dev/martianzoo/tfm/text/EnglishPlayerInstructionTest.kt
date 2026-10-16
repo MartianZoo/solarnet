@@ -60,7 +60,7 @@ class EnglishPlayerInstructionTest {
   @Test
   fun preservesDistinctPlayerRolesAndExistingLexicalOwners() {
     english.describe(
-        parse<InstructionTree>("MyResourceWasRemoved<Green, Player>: Plant<Green>"),
+        parse<InstructionTree>("ResourceWasAttacked<Green, Player>: Plant<Green>"),
         cn("Green"),
     ) shouldBe "If a player removed your resources this generation, gain 1 plant."
     val scoped = parse<InstructionTree>("EACH Me@Player { Plant<Green>, Heat }")

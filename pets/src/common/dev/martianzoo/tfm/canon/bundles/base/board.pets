@@ -86,7 +86,7 @@ ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
 }
 
 "A signal to place a greenery tile according to the default rules"
-CLASS DefaultGreeneryTile : Owned, Signal, System {
+CLASS PlaceGreeneryTile : Owned, Signal, System {
   This: GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> OR \
     (MAX 0 Neighbor<OwnedTile, LandArea(HAS MAX 0 (Tile OR OwnedOccupant<Anyone(NOT Me@)>))>: \
       GreeneryTile<LandArea>)
@@ -135,7 +135,7 @@ CLASS StandardGpTrackRules : System {
   TemperatureStep IF =3 TemperatureStep: PROD[Heat]
   TemperatureStep IF =5 TemperatureStep: PROD[Heat]
   TemperatureStep BY Player IF =15 TemperatureStep: OceanTile<>
-  TemperatureStep BY Admin IF =15 TemperatureStep: EACH Starter@Player(HAS StartToken) { AdminOceanPlacement<Starter@> }
+  TemperatureStep BY Admin IF =15 TemperatureStep: EACH Starter@Player(HAS StartToken) { PlaceOceanForAdmin<Starter@> }
   TemperatureStep IF =19 TemperatureStep:: GpComplete<Class<TemperatureStep>>
 
   OxygenStep IF =8 OxygenStep: TemperatureStep
@@ -166,6 +166,6 @@ CLASS WorldGovernmentTerraforming : Owned<Player>, Signal, System {
 }
 
 "Asks its owning Player to place an Ocean attributed to Admin"
-CLASS AdminOceanPlacement : Owned<Player>, Signal, System {
+CLASS PlaceOceanForAdmin : Owned<Player>, Signal, System {
   This: OceanTile<> BY Admin
 }

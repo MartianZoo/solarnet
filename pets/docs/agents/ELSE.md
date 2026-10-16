@@ -11,7 +11,7 @@ instruction group, including inside an OR.
 
 | Case | Useful version | Benefit or restriction |
 | --- | --- | --- |
-| DefaultGreeneryTile | Shallow | **Bug fix:** adjacent placement ELSE unrestricted placement handles Mars Nomads' last-space blockage. Deep would wrongly escape Hellas's unaffordable 6 MC bill. See `MarsNomadsTest` and `CoreRulesTest`. |
+| PlaceGreeneryTile | Shallow | **Bug fix:** adjacent placement ELSE unrestricted placement handles Mars Nomads' last-space blockage. Deep would wrongly escape Hellas's unaffordable 6 MC bill. See `MarsNomadsTest` and `CoreRulesTest`. |
 | Pharmacy Union: pending disease after flipping | Shallow sufficient | **Cosmetic:** `Disease<This>! ELSE Ok` replaces the absence check; the separate money-loss task remains. |
 | Pharmacy Union: science tag | Shallow | **Cosmetic:** disease-for-TR ELSE optional flip. Deep could wrongly skip disease removal because its Reds bill is unaffordable. |
 | Suitable Infrastructure | Shallow sufficient | **Cosmetic:** `(-This THEN 2 MC) ELSE Ok` replaces presence/absence gates around claiming the bonus allowance. |

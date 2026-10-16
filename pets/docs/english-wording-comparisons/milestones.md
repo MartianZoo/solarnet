@@ -366,14 +366,14 @@ Class: `Hydrologist`
 | | Text |
 | --- | --- |
 | Printed text | Having placed 4 oceans. (Place owner markers on each ocean until claimed. This owner marker does not make the ocean tile yours, though.) |
-| Generated text | \[4 OceanCredit\]. |
+| Generated text | \[4 HydrologistCredit\]. |
 
 Pets declaration:
 
 ```pets
 CLASS Hydrologist : Milestone {
   HAS Class<HydrologistWatcher>
-  requirement = HAS "4 OceanCredit"
+  requirement = HAS "4 HydrologistCredit"
 }
 ```
 

@@ -154,7 +154,7 @@ numbering is not a rules-variant qualifier; the beginner corporations are the pr
 
 Spell a concept out when it stands alone; abbreviate it only where it is a *component* of a longer
 name. `GlobalParameter`, `TerraformRating`, and `VictoryPoint` are classes; `GpComplete`,
-`GpGameEndBarrier`, `Tr63SoloObjective`, `HasRaisedTr`, and `ScoreEventVps` are compounds. Do not mix
+`GpGameEndBarrier`, `Tr63SoloObjective`, `TrWasRaised`, and `ScoreEventVps` are compounds. Do not mix
 the two forms in one name.
 
 Bundle-specific abbreviations are not allowed as prefixes: write `CimmeriaPlacementBonus`, not
@@ -214,10 +214,14 @@ looking it up.
   its object, as in `GainsOf<Class<VictoryPoint>>`.
 - **Capabilities** (supertypes that say what a component can do) read as predicates or agent nouns:
   `HasActions`, `ResourceHolder`. Reserve the `Has` prefix for this use.
-- **Records** that something already happened use the passive voice when the actor does not matter
-  (`ActionUsedMarker`) and the `My` prefix when it does: `My` marks
-  that the *victim* is the owner while the actor rides along in a separate parameter, as in
-  `MyResourceWasRemoved<Class<Resource>, Player>`.
+- **Round participation** uses `InRound` for the state that supplies a player's turns and `Pass`
+  for the choice that ends that participation. Keep `StandardAction OR Pass` readable as a choice.
+  `NextPlayer<Previous, Next>` is the seat-order relation; `AdvancePlayer<Previous>` is the signal
+  that requests advancing play along it.
+- **Records** describe what already happened: `ActionUsedMarker`, `TrWasRaised`,
+  `ResourceWasAttacked`, and `ProductionWasAttacked`. Put participant roles in dependencies,
+  not `Me` or `My` in the class name. Attack records belong to the victim and carry the attacker
+  in a separate `Player` dependency.
 - **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
   `NomadsMarker`. `StartToken` keeps `Token` because the honest
   `StartPlayerMarker` is long and `StartMarker` reads wrong.

@@ -70,7 +70,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       // Hand the paid conversion to Admin to offer the legal greenery areas.
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTask("GreeneryTile<Tharsis_3_3>")
       doTask("OxygenStep")
       doTask("TerraformRating")
@@ -89,7 +89,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
         doTask("ConvertPlants")
         doTask("8 Pay<Class<Plant>> FROM Plant")
         // Hand the paid conversion to Admin to offer the legal greenery areas.
-        selectTask("DefaultGreeneryTile")
+        selectTask("PlaceGreeneryTile")
         doTask("GreeneryTile<Hellas_1_1>")
       }
     }
@@ -98,7 +98,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
         doTask("ConvertPlants")
         doTask("8 Pay<Class<Plant>> FROM Plant")
         // Hand the paid conversion to Admin to offer the legal greenery areas.
-        selectTask("DefaultGreeneryTile")
+        selectTask("PlaceGreeneryTile")
         doTask("GreeneryTile<Hellas_9_7>")
         doTask("OxygenStep")
         doTask("TerraformRating")
@@ -114,7 +114,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       // Hand the paid conversion to Admin to offer the legal greenery areas.
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTask("GreeneryTile<Hellas_9_7>")
       doTask("OxygenStep")
       doTasks("-6 MC", "TerraformRating", "OceanTile<Hellas_6_7>", "TerraformRating")
@@ -138,7 +138,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
           // Hand the paid conversion to Admin to offer the legal greenery areas.
-          selectTask("DefaultGreeneryTile")
+          selectTask("PlaceGreeneryTile")
           doTask("GreeneryTile<Tharsis_3_3>")
           doTask("OxygenStep")
         }
@@ -153,7 +153,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       // Hand the paid conversion to Admin to offer the legal greenery areas.
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTask("GreeneryTile<Tharsis_3_3>")
       doTask("OxygenStep")
       doTask("TerraformRating")
@@ -170,7 +170,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
           // Hand the paid conversion to Admin to offer the legal greenery areas.
-          selectTask("DefaultGreeneryTile")
+          selectTask("PlaceGreeneryTile")
           doTask("GreeneryTile<Tharsis_4_7>")
           doTask("OxygenStep")
           doTasks("Plant", "2 MC", "TerraformRating")

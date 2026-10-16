@@ -25,10 +25,10 @@ internal class StartTokenTest : TfmGameplayTest() {
     newTestGame(playerCount = 3)
 
     admin.assertCounts(
-        3 to "AfterMe",
-        1 to "AfterMe<Kim, Stan>",
-        1 to "AfterMe<Stan, Rob>",
-        1 to "AfterMe<Rob, Kim>",
+        3 to "NextPlayer",
+        1 to "NextPlayer<Kim, Stan>",
+        1 to "NextPlayer<Stan, Rob>",
+        1 to "NextPlayer<Rob, Kim>",
     )
     admin.assertCounts(1 to "StartToken<Kim>", 0 to "StartToken<Stan>")
 
@@ -49,7 +49,7 @@ internal class StartTokenTest : TfmGameplayTest() {
 
     finishGeneration(kim)
 
-    admin.assertCounts(1 to "StartToken<Kim>", 0 to "AfterMe")
+    admin.assertCounts(1 to "StartToken<Kim>", 0 to "NextPlayer")
   }
 
   /**
@@ -101,9 +101,9 @@ internal class StartTokenTest : TfmGameplayTest() {
     internal fun `Research passes the token according to the explicit seat order`() {
       game = setUpGame(players = 3)
       admin.sneak(
-          "AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>, " +
-              "AfterMe<Player3, Player2> FROM AfterMe<Player3, Player1>, " +
-              "AfterMe<Player2, Player1> FROM AfterMe<Player2, Player3>"
+          "NextPlayer<Player1, Player3> FROM NextPlayer<Player1, Player2>, " +
+              "NextPlayer<Player3, Player2> FROM NextPlayer<Player3, Player1>, " +
+              "NextPlayer<Player2, Player1> FROM NextPlayer<Player2, Player3>"
       )
       admin.beginOperation("ResearchPhase FROM SetupPhase")
       admin.assertCounts(0 to "StartToken<Player1>", 1 to "StartToken<Player3>")
@@ -113,8 +113,8 @@ internal class StartTokenTest : TfmGameplayTest() {
     internal fun `Seat order and start token reject invalid corrections`() {
       game = setUpGame(players = 3)
       shouldThrow<LimitsException> { admin.sneak("-StartToken<Player1>") }
-      shouldThrow<LimitsException> { admin.sneak("AfterMe<Player1, Player3>") }
-      shouldThrow<LimitsException> { admin.sneak("AfterMe<Player3, Player2>") }
+      shouldThrow<LimitsException> { admin.sneak("NextPlayer<Player1, Player3>") }
+      shouldThrow<LimitsException> { admin.sneak("NextPlayer<Player3, Player2>") }
     }
   }
 }

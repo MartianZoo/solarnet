@@ -119,15 +119,15 @@ flow on or off.
 - **Turn order.** `TakeTurn<P>` only invites `P` to take a turn; whatever governs that player's
   turns answers it. The corporation, Prelude, and final greenery phases give `NewTurn<P>` and
   dispatch `FINALLY { TurnOver<P> }`, and each says what follows `TurnOver`. In the action phase
-  the player's `RoundStatus` answers instead. `NextPlayer<P>` passes play to the next seat through
-  `AfterMe`. Outside the action phase, reaching the start player again is `RoundOver`; with one
-  player, `NextPlayer` is always `RoundOver`. These signals take a Player argument rather than an
+  the player's `RoundStatus` answers instead. `AdvancePlayer<P>` passes play to the next seat through
+  `NextPlayer`. Outside the action phase, reaching the start player again is `RoundOver`; with one
+  player, `AdvancePlayer` is always `RoundOver`. These signals take a Player argument rather than an
   owner, so their work stays with Admin, as it must for Players who do not autoexecute.
-- **Round status drives the action phase.** Each player has at most one `RoundStatus`: `ImAwake`
+- **Round status drives the action phase.** Each player has at most one `RoundStatus`: `InRound`
   while they may still act in the action phase, or `Pass` once they have passed. The action phase
-  wakes every player who has not passed. `ImAwake` gives its owner each turn and supplies the turn's
-  choices; when the turn ends it offers a second action and then `NextPlayer` while another player
-  is awake, and otherwise another turn. `Pass` replaces its owner's `ImAwake` and passes play on,
+  wakes every player who has not passed. `InRound` gives its owner each turn and supplies the turn's
+  choices; when the turn ends it offers a second action and then `AdvancePlayer` while another player
+  is awake, and otherwise another turn. `Pass` replaces its owner's `InRound` and passes play on,
   both when the passing turn ends and whenever that player's turn comes round again. Production
   begins at the first `TurnOver` with nobody awake. Play goes around the table without `RoundOver`.
 - **Modules own phase order.** The corporation phase ends in `RoundOver`. `NoPreludes`, selected in

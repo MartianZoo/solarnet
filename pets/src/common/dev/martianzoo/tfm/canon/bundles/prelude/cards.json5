@@ -103,7 +103,7 @@
         {
           "name": "ExperimentalForest",
           "tags": [ "PlantTag" ],
-          "direct": "DefaultGreeneryTile, 2 SearchForCard<TagFilter<Class<PlantTag>>>",
+          "direct": "PlaceGreeneryTile, 2 SearchForCard<TagFilter<Class<PlantTag>>>",
         },
         {
           "name": "GalileanMining",

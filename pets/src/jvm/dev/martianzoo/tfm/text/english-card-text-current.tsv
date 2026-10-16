@@ -491,7 +491,7 @@ Advertising	Advertising		Effect: When you play a card with a printed cost of 20 
 AsteroidDeflectionSystem	Asteroid Deflection System	Decrease your energy production 1 step. 1 VP per asteroid on this card.	Action: Reveal a card, then add 1 asteroid to this card if it has a space tag, then discard the revealed card. / Effect: Opponents may not remove your plants.
 AsteroidHollowing	Asteroid Hollowing	1 VP per 2 asteroids on this card.	Action: Spend 1 titanium to add 1 asteroid to this card and increase your M€ production 1 step.
 CometAiming	Comet Aiming		Action: Spend 1 titanium to add 1 asteroid to any card, or spend 1 asteroid from this card to place an ocean tile.
-CrashSiteCleanup	Crash Site Cleanup	[MyResourceWasRemoved<Anyone, Class<Plant>, Me@>]. Gain 1 titanium or 2 steel.
+CrashSiteCleanup	Crash Site Cleanup	[ResourceWasAttacked<Anyone, Class<Plant>, Me@>]. Gain 1 titanium or 2 steel.
 CuttingEdgeTechnology	Cutting Edge Technology		Effect: When you play a card with a requirement, you pay 2 M€ less for it.
 DirectedImpactors	Directed Impactors		Action: Spend 6 M€ (titanium may be used) to add 1 asteroid to any card, or spend 1 asteroid from this card to raise temperature 1 step.
 DiversitySupport	Diversity Support	Requires that you have 9 different types of resources. Raise your terraform rating 1 step.

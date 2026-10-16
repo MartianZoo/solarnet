@@ -47,7 +47,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
           stan.doTask("2 Plant")
           stan.doTask("PROD[MC]")
         }
-        .expect("PROD[MC<Stan>], 0 OceanCredit, 0 TerraformRating")
+        .expect("PROD[MC<Stan>], 0 HydrologistCredit, 0 TerraformRating")
   }
 
   @Test

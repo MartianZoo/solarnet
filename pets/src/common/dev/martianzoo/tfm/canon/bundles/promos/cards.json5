@@ -42,8 +42,8 @@
           "invariants": [ "Class<AttackHistoryWatcher>" ],
           "direct": "48 MC, PROD[4 MC], EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@>] BY Other@ }",
           "effects": [
-            "MyResourceWasRemoved<Victim@Anyone(NOT Me@)>: 3* MC<Victim@ FROM Me@>",
-            "MyProductionWasDecreased<Victim@Anyone(NOT Me@)>: 3* MC<Victim@ FROM Me@>",
+            "ResourceWasAttacked<Victim@Anyone(NOT Me@)>: 3* MC<Victim@ FROM Me@>",
+            "ProductionWasAttacked<Victim@Anyone(NOT Me@)>: 3* MC<Victim@ FROM Me@>",
           ],
         },
         {
@@ -66,7 +66,7 @@
         {
           "name": "Philares",
           "tags": [ "BuildingTag" ],
-          "direct": "47 MC, RequiredAction { -> DefaultGreeneryTile }",
+          "direct": "47 MC, RequiredAction { -> PlaceGreeneryTile }",
           "effects": [
             "Adjacency<OwnedTile, OwnedTile<Anyone(NOT Me@)>> BY Anyone: StandardResource",
           ],
@@ -264,7 +264,7 @@
         {
           "name": "CrashSiteCleanup",
           "invariants": [ "Class<AttackHistoryWatcher>" ],
-          "requirement": "MyResourceWasRemoved<Anyone, Class<Plant>, Me@>",
+          "requirement": "ResourceWasAttacked<Anyone, Class<Plant>, Me@>",
           "cost": 4,
           "tags": [ "EventTag" ],
           "direct": "Titanium OR 2 Steel",
@@ -428,7 +428,7 @@
           "invariants": [ "Class<AttackHistoryWatcher>" ],
           "cost": 2,
           "tags": [ "EarthTag", "EventTag" ],
-          "direct": "((MyResourceWasRemoved<Me@, Attacker@> OR MyProductionWasDecreased<Me@, Attacker@>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@, Class<This>> FROM This",
+          "direct": "((ResourceWasAttacked<Me@, Attacker@> OR ProductionWasAttacked<Me@, Attacker@>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@, Class<This>> FROM This",
           "effects": [ "End: -VictoryPoint" ],
         },
         {

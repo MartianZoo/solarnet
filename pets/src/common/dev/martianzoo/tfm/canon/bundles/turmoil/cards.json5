@@ -116,7 +116,7 @@
           "requirement": "Ruling<Greens> OR 2 PartyDelegate<Greens>",
           "cost": 15,
           "tags": [ "AnimalTag", "PlantTag", "BuildingTag" ],
-          "direct": "DefaultGreeneryTile",
+          "direct": "PlaceGreeneryTile",
         },
       ],
     },
@@ -142,16 +142,16 @@
           "name": "Pristar",
           "direct": "53 MC, -2 TerraformRating",
           "effects": [
-            "ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC",
+            "ProductionPhase IF MAX 0 TrWasRaised: Preservation<This>, 6 MC",
             "End: VictoryPoint / Preservation<This>"
           ],
           "invariants": [ "Class<TrWatcher>" ],
           "components": [
             "CLASS Preservation : CardResource",
             // Must be identical to UnitedNationsMarsInitiative's declarations in the base bundle.
-            "CLASS HasRaisedTr<GenerationScope> : Owned, System { HAS MAX 1 This }",
+            "CLASS TrWasRaised<GenerationScope> : Owned, System { HAS MAX 1 This }",
             // PP counts attempts automatically; only its second and later Action-phase gains qualify.
-            "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 ActionPhaseTrGain OR 2 ActionPhaseTrGain): HasRaisedTr* }"
+            "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 TrWasRaised, (MAX 0 ActionPhase OR MAX 0 ActionPhaseTrGain OR 2 ActionPhaseTrGain): TrWasRaised* }"
           ],
         },
         {
