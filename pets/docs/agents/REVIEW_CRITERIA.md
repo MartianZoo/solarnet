@@ -14,6 +14,9 @@ Repository instructions in [AGENTS.md](../../AGENTS.md) remain authoritative.
 - Do not report exposed dead ends, later failure, or caller rollback as a model defect without
   a separate game-rule failure. Protected Habitats may reject an attempted theft through its
   consequence; the client may prune that choice or expose it.
+- Reject Canon `ActionScope` removal or dependent expiry that creates choices for the completed
+  action. Review indirect effects too; fixed effects, cleanup, and offers for subsequent play
+  are allowed. See [scope removal](GAME_FLOW.md#scope-removal-must-not-require-choices).
 - Keep specifications, API contracts, and conformance evidence aligned. Apply
   [SPEC_FIDELITY.md](SPEC_FIDELITY.md); do not weaken intended semantics to match a known defect.
   Documentation work alone does not authorize behavior or visibility changes.

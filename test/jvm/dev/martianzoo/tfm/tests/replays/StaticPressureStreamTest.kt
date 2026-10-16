@@ -593,8 +593,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       inTurn {
         doWithAutoExecPolicy(CONCRETE) {
           playProject(InterplanetaryTrade, 24, titanium = 1) {
-            selectTask("EACH @WildTag { Tag<@WildTag>? }")
-            doTask("JovianTag<WildTag<ResearchCoordination>>")
+            selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+            doTask("JovianTag<WildTagElection<WildTag<ResearchCoordination>>>")
           }
         }
       }

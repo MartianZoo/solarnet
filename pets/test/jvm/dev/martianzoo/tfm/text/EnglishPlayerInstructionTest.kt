@@ -131,6 +131,8 @@ class EnglishPlayerInstructionTest {
     for ((source, expected) in
         listOf(
             "StandardAction<Green>! OR Pass<Green>!" to "Take an action or pass.",
+            "StandardAction<Green>! OR -Baton<Green>!" to "Take an action or end your turn.",
+            "-Baton<Green>!" to "End your turn.",
             "StandardAction<Green>?" to "You may take an action.",
             "UseCardAction<Psychrophiles<Green>, Action1>!" to "Use Action1 on Psychrophiles.",
             "UseStandardProject<Green, PowerPlantProject>!" to "Use PowerPlantProject.",

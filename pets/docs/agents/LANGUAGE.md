@@ -439,10 +439,11 @@ payments, and additional internal bookkeeping remain follow-ups in `TODO.md`. Re
 gains are omitted from instruction groups/sequences with the owner's approval; payment obligations,
 gates, and unknown System work are not suppressed.
 
-The once-per-action production reward recognizer accepts a fixed marker gain either as an
-automatic effect or as queued `System` work performed by Admin. Its unit limit, production trigger,
-and consume-on-reward structure still determine the rendered rule. Action resets come from the
-standard-action and required-action signals described in the vocabulary.
+The once-per-action production reward recognizer reads a marker gained when its owner's action
+scope begins. The vocabulary identifies the scope as an action; the marker must depend on that same
+scope. Its unit limit, production trigger, and consume-on-reward structure determine the rendered
+rule. Additional-action entitlements use ordinary countable-component vocabulary, including their
+sequential timing after the current action finishes.
 
 The card goals cover the same corpus as the card current and corrected files. That corpus follows
 the published wording evidence, including replay-only cards and the abstract Beginner Corporation.

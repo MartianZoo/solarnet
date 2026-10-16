@@ -36,6 +36,16 @@ internal class CanonInvariantsTest {
     )
   }
 
+  @Test
+  internal fun actionScopeExpiryOnlyPerformsReviewedHandoffs() {
+    val offenders = actionScopeRemovalViolations(table)
+    assertTrue(
+        offenders.isEmpty(),
+        "ActionScope expiry must not start choices for the completed action; review these removal effects:\n" +
+            offenders.joinToString("\n"),
+    )
+  }
+
   // GAME_HACKS 3: stored MC production includes the production-floor offset.
   @Test
   internal fun perMoneyProductionAccountsForItsOffset() {

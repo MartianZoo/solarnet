@@ -13,13 +13,11 @@ CLASS PreludeExpansion : Module {
 "A unit in the configured number of Prelude cards offered to each player"
 CLASS SelectablePreludeCount : System
 
-CLASS PreludePhase : Phase {
-  This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
-  TakeTurn<@Player>: NewTurn<@Player>, FINALLY { TurnOver<@Player> }
-
-  NewTurn IF PreludeCard<Hand>: PlayPrelude
-  // Each player plays all of their preludes on consecutive turns.
-  TurnOver<@Player> IF PreludeCard<@Player, Hand>: TakeTurn<@Player>
-  TurnOver<@Player> IF MAX 0 PreludeCard<@Player, Hand>: AdvancePlayer<@Player>
+CLASS PreludePhase : TurnBasedPhase {
+  OfferAction IF PreludeCard<Hand>: PlayPrelude
+  -PreludeCard<@Player> IF MAX 0 ActionScope:: ActionScope<@Player>
+  // Each Prelude has its own action scope; the player keeps the baton until all are played.
+  -ActionScope<@Player> IF Baton<@Player>, MAX 0 ExtraAction<@Player>, PreludeCard<@Player, Hand>: FINALLY { OfferAction<@Player> }
+  -ActionScope<@Player> IF Baton<@Player>, MAX 0 ExtraAction<@Player>, MAX 0 PreludeCard<@Player, Hand>: FINALLY { -Baton<@Player> }
   RoundOver: ActionPhase FROM This
 }

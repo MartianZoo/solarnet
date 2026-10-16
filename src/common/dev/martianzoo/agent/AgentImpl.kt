@@ -330,26 +330,6 @@ internal class AgentImpl(
           block = { autoExecLoop.run() },
       )
 
-  // TURNS
-
-  override fun startTurn() = atomic {
-    engine
-        .addTasks(parseInstructionGroup("NewTurn<$actor>!"))
-        .forEach(world.actorEngine(ADMIN)::doTask)
-  }
-
-  override fun inTurn(body: OperationBlock): TaskResult {
-    return if (tasks.isEmpty()) {
-      runOperation("NewTurn", body)
-    } else {
-      completeOperation(body)
-    }
-  }
-
-  // GAMES (methods that can't break game-integrity)
-  // This layer assumes a started game, whose own rules keep some player's queue nonempty until it
-  // ends
-
   override fun fillInTask(taskId: TaskId): TaskForm =
       TaskForm(taskId, tasks.getTaskData(taskId).instruction, this)
 

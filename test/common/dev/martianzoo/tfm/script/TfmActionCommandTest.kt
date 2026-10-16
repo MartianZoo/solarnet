@@ -149,7 +149,7 @@ internal class TfmActionCommandTest {
     repl.command("become Player1")
     repl.agent.runOperation(contents)
     repl.command("phase Action")
-    repl.agent.beginOperation("NewTurn")
+    repl.agent.beginOperation("OfferAction")
     return repl
   }
 }

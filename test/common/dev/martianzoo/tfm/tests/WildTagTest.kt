@@ -35,35 +35,35 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.count("Tag") shouldBe 0
     // Invoke the plays directly: this scenario tests card effects, not phase offers.
     kim.runOperation("PlayProject<Class<AdvancedEcosystems>>") {
-      kim.count("PlantTag<WildTag<AppliedScience>>") shouldBe 1
-      kim.count("MicrobeTag<WildTag<ResearchNetwork>>") shouldBe 1
-      kim.count("AnimalTag<WildTag<SeptemTribus>>") shouldBe 1
+      kim.count("PlantTag<WildTagElection<WildTag<AppliedScience>>>") shouldBe 1
+      kim.count("MicrobeTag<WildTagElection<WildTag<ResearchNetwork>>>") shouldBe 1
+      kim.count("AnimalTag<WildTagElection<WildTag<SeptemTribus>>>") shouldBe 1
       doTasks("11 Pay<> FROM MC", "AdvancedEcosystems FROM ProjectCard")
     }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
     kim.count("Tag<AdvancedEcosystems>") shouldBe 3
     kim.runOperation("PlayProject<Class<ResearchCoordination>>") {
       doTasks("4 Pay<> FROM MC", "ResearchCoordination FROM ProjectCard")
     }
-    // Start the extra Prelude play directly; obtaining that play is outside this sandbox scenario.
-    kim.runOperation("PlayCard<Class<PreludeCard>, Class<NobelPrize>, Hand>") {
+    kim.inTurn {
+      doTask("PlayCard<Class<PreludeCard>, Class<NobelPrize>, Hand>")
       doTasks("NobelPrize FROM PreludeCard", "5 MC", "2 SearchForCard<RequirementFilter>")
     }
     kim.count("WildTag") shouldBe 5
     kim.runOperation("ClaimMilestone<Class<Diversifier>>") {
-          selectTask("EACH @WildTag { Tag<@WildTag>? }")
+          selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
           doTasks(
-              "BuildingTag<WildTag<AppliedScience>>",
-              "SpaceTag<WildTag<NobelPrize>>",
-              "ScienceTag<WildTag<ResearchCoordination>>",
-              "EarthTag<WildTag<ResearchNetwork>>",
-              "JovianTag<WildTag<SeptemTribus>>",
+              "BuildingTag<WildTagElection<WildTag<AppliedScience>>>",
+              "SpaceTag<WildTagElection<WildTag<NobelPrize>>>",
+              "ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>",
+              "EarthTag<WildTagElection<WildTag<ResearchNetwork>>>",
+              "JovianTag<WildTagElection<WildTag<SeptemTribus>>>",
           )
           kim.count("Class<@Tag>(HAS @Tag)") shouldBe 8
           doTasks("8 Pay<> FROM MC", "Diversifier")
         }
-        .expect("Diversifier, 0 Tag<WildTag>, 0 WildTag")
-    kim.count("Tag<WildTag>") shouldBe 0
+        .expect("Diversifier, 0 Tag<WildTagElection<WildTag>>, 0 WildTag")
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
     kim.count("WildTag") shouldBe 5
   }
 
@@ -81,15 +81,15 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.exMachina(cards.joinToString())
     kim.inTurn {
       doTask("PlayProject<Class<MassConverter>>")
-      cards.forEach { kim.count("ScienceTag<WildTag<$it>>") shouldBe 1 }
+      cards.forEach { kim.count("ScienceTag<WildTagElection<WildTag<$it>>>") shouldBe 1 }
       doTasks("8 Pay<> FROM MC", "MassConverter FROM ProjectCard", "PROD[6 Energy]")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Cartel>>", "8 Pay<> FROM MC", "Cartel FROM ProjectCard")
-      cards.forEach { kim.count("EarthTag<WildTag<$it>>") shouldBe 1 }
+      cards.forEach { kim.count("EarthTag<WildTagElection<WildTag<$it>>>") shouldBe 1 }
       doTask("PROD[6 MC]")
     }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
     kim.count("WildTag") shouldBe 5
   }
 
@@ -101,13 +101,13 @@ internal class WildTagTest : TfmSandboxTest() {
     )
     kim.inTurn {
       kim.doTasks("PlayProject<Class<MassConverter>>")
-          .expect("ScienceTag<WildTag<ResearchCoordination>>")
-      kim.count("Tag<WildTag>") shouldBe 1
+          .expect("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>")
+      kim.count("Tag<WildTagElection<WildTag>>") shouldBe 1
       doTask("8 Pay<> FROM MC")
       doTask("MassConverter FROM ProjectCard")
       doTask("PROD[6 Energy]")
     }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
     kim.count("WildTag") shouldBe 2
   }
 
@@ -117,11 +117,13 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, ResearchNetwork, Ecoline")
     kim.inTurn {
       kim.doTasks("PlayProject<Class<AdvancedEcosystems>>")
-          .expect("MicrobeTag<WildTag<ResearchCoordination>>, AnimalTag<WildTag<ResearchNetwork>>")
-      kim.count("Tag<WildTag>") shouldBe 2
+          .expect(
+              "MicrobeTag<WildTagElection<WildTag<ResearchCoordination>>>, AnimalTag<WildTagElection<WildTag<ResearchNetwork>>>"
+          )
+      kim.count("Tag<WildTagElection<WildTag>>") shouldBe 2
       doTasks("11 Pay<> FROM MC", "AdvancedEcosystems FROM ProjectCard")
     }
-    stan.count("Tag<WildTag>") shouldBe 0
+    stan.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 
   @Test
@@ -131,7 +133,7 @@ internal class WildTagTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn { doTask("PlayProject<Class<AdvancedEcosystems>>") }
     }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 
   @Test
@@ -145,13 +147,17 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<Cartel>>", "8 Pay<> FROM MC")
       kim.doTasks("Cartel FROM ProjectCard")
-          .expect("EarthTag<WildTag<ResearchCoordination>>, EarthTag<WildTag<ResearchNetwork>>")
+          .expect(
+              "EarthTag<WildTagElection<WildTag<ResearchCoordination>>>, EarthTag<WildTagElection<WildTag<ResearchNetwork>>>"
+          )
       doTasks("ProjectCard", "PROD[4 MC]")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Satellites>>", "10 Pay<> FROM MC")
       kim.doTasks("Satellites FROM ProjectCard")
-          .expect("SpaceTag<WildTag<ResearchCoordination>>, SpaceTag<WildTag<ResearchNetwork>>")
+          .expect(
+              "SpaceTag<WildTagElection<WildTag<ResearchCoordination>>>, SpaceTag<WildTagElection<WildTag<ResearchNetwork>>>"
+          )
       doTask("PROD[4 MC]")
     }
   }
@@ -162,7 +168,8 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, PROD[2 Energy]")
     kim.inTurn {
       doTasks("PlayProject<Class<Gyropolis>>", "20 Pay<> FROM MC")
-      kim.doTasks("Gyropolis FROM ProjectCard").expect("EarthTag<WildTag<ResearchCoordination>>")
+      kim.doTasks("Gyropolis FROM ProjectCard")
+          .expect("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
       doTasks("PROD[-2 Energy]", "PROD[0 MC]", "PROD[1 MC]", "CityTile<Tharsis_1_1>", "2 Steel")
     }
   }
@@ -183,7 +190,7 @@ internal class WildTagTest : TfmSandboxTest() {
           "PROD[2 MC]",
       )
     }
-    stan.count("Tag<WildTag>") shouldBe 0
+    stan.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 
   @Test
@@ -212,7 +219,10 @@ internal class WildTagTest : TfmSandboxTest() {
           "11 Pay<> FROM MC",
           "CloudTourism FROM ProjectCard",
       )
-      doTasks("EarthTag<WildTag<ResearchCoordination>>", "VenusTag<WildTag<ResearchNetwork>>")
+      doTasks(
+          "EarthTag<WildTagElection<WildTag<ResearchCoordination>>>",
+          "VenusTag<WildTagElection<WildTag<ResearchNetwork>>>",
+      )
       doTask("PROD[2 MC]")
     }
   }
@@ -227,8 +237,8 @@ internal class WildTagTest : TfmSandboxTest() {
           "11 Pay<> FROM MC",
           "CloudTourism FROM ProjectCard",
       )
-      doTask("EarthTag<WildTag<ResearchCoordination>>")
-      kim.count("Tag<WildTag<ResearchNetwork>>") shouldBe 0
+      doTask("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
+      kim.count("Tag<WildTagElection<WildTag<ResearchNetwork>>>") shouldBe 0
       doTask("PROD[1 MC]")
     }
   }
@@ -243,8 +253,11 @@ internal class WildTagTest : TfmSandboxTest() {
           "27 Pay<> FROM MC",
           "InterplanetaryTrade FROM ProjectCard",
       )
-      selectTask("EACH @WildTag { Tag<@WildTag>? }")
-      doTasks("EventTag<WildTag<ResearchCoordination>>", "0 EarthTag<WildTag<ResearchNetwork>>")
+      selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+      doTasks(
+          "EventTag<WildTagElection<WildTag<ResearchCoordination>>>",
+          "0 EarthTag<WildTagElection<WildTag<ResearchNetwork>>>",
+      )
       doTask("PROD[3 MC]")
     }
   }
@@ -260,8 +273,8 @@ internal class WildTagTest : TfmSandboxTest() {
           "InterplanetaryTrade FROM ProjectCard",
       )
       doTask("PROD[1 MC]")
-      selectTask("EACH @WildTag { Tag<@WildTag>? }")
-      doTask("EventTag<WildTag<ResearchCoordination>>")
+      selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+      doTask("EventTag<WildTagElection<WildTag<ResearchCoordination>>>")
     }
   }
 
@@ -271,9 +284,9 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, ResearchNetwork, AdvancedEcosystems")
     kim.inTurn {
       doTasks("ClaimMilestone<Class<Ecologist>>", "8 Pay<> FROM MC")
-      kim.doTask("Ecologist").expect("PlantTag<WildTag<ResearchCoordination>>")
+      kim.doTask("Ecologist").expect("PlantTag<WildTagElection<WildTag<ResearchCoordination>>>")
     }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 
   @Test
@@ -285,9 +298,11 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("ClaimMilestone<Class<Planetologist>>", "8 Pay<> FROM MC")
       kim.doTask("Planetologist")
-          .expect("EarthTag<WildTag<ResearchCoordination>>, JovianTag<WildTag<ResearchNetwork>>")
+          .expect(
+              "EarthTag<WildTagElection<WildTag<ResearchCoordination>>>, JovianTag<WildTagElection<WildTag<ResearchNetwork>>>"
+          )
     }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 
   @Test
@@ -298,9 +313,9 @@ internal class WildTagTest : TfmSandboxTest() {
     )
     kim.inTurn {
       doTask("ClaimMilestone<Class<Diversifier>>")
-      selectTask("EACH @WildTag { Tag<@WildTag>? }")
-      doTask("EarthTag<WildTag<ResearchCoordination>>")
-      doTask("0 EventTag<WildTag<ResearchNetwork>>")
+      selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+      doTask("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
+      doTask("0 EventTag<WildTagElection<WildTag<ResearchNetwork>>>")
       doTasks("8 Pay<> FROM MC", "Diversifier")
     }
   }

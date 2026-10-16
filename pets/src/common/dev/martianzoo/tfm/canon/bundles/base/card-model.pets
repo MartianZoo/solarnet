@@ -86,6 +86,7 @@ CLASS ClaimCardReward<CardFilter, @ResourceCard<Class<@CardResource>, @Player>> 
 }
 
 CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal {
+  This IF MAX 0 ActionScope:: ActionScope<Me@>
   This:: AllocateRequiredWildTags<Class<@CardFront>>
   This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR \
     (GpRequirementShortfall<Class<@CardFront>, Class<GlobalParameter>>: \
@@ -127,13 +128,15 @@ ABSTRACT CLASS CardLocation : System {
 // TODO: can this be simplified??
 ABSTRACT CLASS TagHolder : Owned<Player>
 
-"A printed wild holds its chosen tag until the action's pending work is finished"
-CLASS WildTag<@CardFront<@Player>> : TagHolder<@Player>, Real {
+"The printed wild icon on a card"
+CLASS WildTag<@CardFront<@Player>> : Owned<@Player>, Real { HAS MAX 1 This }
+
+"A printed wild's chosen meaning during the current action"
+CLASS WildTagElection<@WildTag<@CardFront<@Player>>, ActionScope> : TagHolder<@Player>, System {
   HAS MAX 1 This, MAX 1 Tag<This>
-  Tag<This>: LATER Admin { -Tag<This>* }
-  LikesTag<Class<@Tag>> IF MAX 0 Tag<This>:: @Tag<WildTag<@CardFront>>
+  LikesTag<Class<@Tag>> IF MAX 0 Tag<This>:: @Tag<WildTagElection<@WildTag, ActionScope>>
   AllocateRequiredWildTags<Class<@Component>> IF MAX 0 Tag<This>:: \
-    EACH Class<@Tag> { @Tag<WildTag<@CardFront>> / RequiredWildTag<Class<@Component>, WildTag<@CardFront>, Class<@Tag>> }
+    EACH Class<@Tag> { @Tag<WildTagElection<@WildTag, ActionScope>> / RequiredWildTag<Class<@Component>, This, Class<@Tag>> }
 }
 
 "A card whose immediate benefit prefers a particular tag"
@@ -143,7 +146,7 @@ ABSTRACT CLASS LikesTag<Class<Tag>> : CardFront
 CLASS AllocateRequiredWildTags<Class<Component>> : Owned<Player>, Signal, System
 
 "Selects actual tag gains that cover the shortfalls in a printed requirement"
-CLASS RequiredWildTag<Class<Component>, WildTag, Class<Tag>> : CustomMetric
+CLASS RequiredWildTag<Class<Component>, WildTagElection, Class<Tag>> : CustomMetric
 
 ABSTRACT CLASS Tag<TagHolder<@Player>> : Owned<@Player>, Atomized, Real {
   DEFAULT Tag<CardFront>:

@@ -7,7 +7,7 @@ CLASS Diversifier : Milestone {
 }
 "Offers tag choices whenever Diversifier is in the milestone pool"
 CLASS DiversifierWatcher<Class<Diversifier>> : CardWatcher {
-  ClaimMilestone<Class<Diversifier>, @Player>: EACH @WildTag<@Player> { Tag<@WildTag>? }
+  ClaimMilestone<Class<Diversifier>, @Player>: EACH @WildTagElection<@Player> { Tag<@WildTagElection>? }
 }
 
 CLASS Tactician5 : Milestone {

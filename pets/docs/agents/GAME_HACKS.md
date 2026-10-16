@@ -40,6 +40,7 @@ audit now lives in test sources; structural Pets and per-game configuration vali
 | Authored declarations contain no same-class tile or colony transmutations | Entries 8–9. Such transfers would repeat gain-triggered placement/building rewards. This does not prove that a sequence of separate removal/gain instructions cannot do the same thing. |
 | Delegate changes name a state, rather than bare `Delegate` | `Delegate` is for counts; changes name `PartyDelegate`, `PartyLeader`, `PartyFollower`, `LobbyDelegate`, or `Chairman`. |
 | Delegate gains are individual placements, without scalar or per-unit multiplication | Role selection and its consequences resolve for each placement. Use separate instructions or `EACH`; use a shared party variable when the delegates must enter the same party. |
+| ActionScope expiry only invokes reviewed turn bookkeeping and next-play instructions | Includes consumed turn entitlements, possible indirect dependents, inherited self-removal effects, and broad subscriptions. New effects fail for review, including fixed rewards that might provoke a later choice; this is a conservative structural guard, not general effect reachability. See [scope removal](GAME_FLOW.md#scope-removal-must-not-require-choices). |
 | Tile gains specify placement | `GreeneryTile` gains name an area or use `PlaceGreeneryTile`. Empty `GreeneryTile<>` does not name an area. `CityTile<>` explicitly requests its placement default. |
 
 The card generator additionally rejects multiple inferred resource-storage kinds instead of silently

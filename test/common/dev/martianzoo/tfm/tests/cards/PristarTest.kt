@@ -44,7 +44,7 @@ internal class PristarTest : TfmGameplayTest() {
       doTasks("UseStandardProject<AsteroidProject>")
       autoExecNow(EAGER)
     }
-    kim.doTask("0 StandardAction") // Decline the second action.
+    kim.selectTask("-Baton") // Decline the second action.
     stan.doTask("Pass")
 
     kim.doTask("Pass")

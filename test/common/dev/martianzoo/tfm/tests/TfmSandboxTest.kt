@@ -53,6 +53,10 @@ internal abstract class TfmSandboxTest {
   protected val rob: Agent
     get() = checkNotNull(players.getOrNull(2)) { "Rob is sitting this game out" }
 
+  /** Requests a sandbox action when needed, using only the generic Agent operation API. */
+  protected fun Agent.inTurn(body: OperationBlock = {}): TaskResult =
+      if (tasks.isEmpty()) runOperation("OfferAction", body) else completeOperation(body)
+
   protected fun newTestGame(
       addOptions: String = "",
       playerCount: Int = 3,
@@ -139,6 +143,10 @@ internal abstract class TfmSandboxTest {
         .forEach { (id, assignee) ->
           agents[assignee].dropTask(id)
         }
+    // The sandbox leaves the baton behind with the game's turn order.
+    admin.list("Baton").elements.forEach { baton ->
+      admin.sneak("-${admin.count("$baton")} $baton")
+    }
   }
 
   protected fun Agent.setToExMachina(targetCount: Int, type: String) {

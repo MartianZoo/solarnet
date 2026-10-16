@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -35,17 +36,20 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
     stan.doTasks(
         "UseStandardProject<SellPatentsProject>",
         "MC FROM ProjectCard",
-        "0 StandardAction",
     )
+    stan.selectTask("-Baton")
 
     kim.doTasks(
         "PlayProject<Class<RedAppeasement>>",
         "RedAppeasement FROM ProjectCard",
         "PROD[2 MC]",
         "Pass",
-        "PlayedEvent<Class<RedAppeasement>> FROM RedAppeasement",
     )
     kim.count("Pass") shouldBe 1
+    admin.count("ActionScope<Kim>") shouldBe 1
+    shouldThrow<TaskException> { stan.doTask("Pass") }
+    kim.doTask("PlayedEvent<Class<RedAppeasement>> FROM RedAppeasement")
+    admin.count("ActionScope") shouldBe 0
     stan.doTask("Pass")
 
     admin.count("ProductionPhase") shouldBe 1
@@ -56,8 +60,8 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
     stan.doTasks(
         "UseStandardProject<SellPatentsProject>",
         "MC FROM ProjectCard",
-        "0 StandardAction",
     )
+    stan.selectTask("-Baton")
 
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.doTasks(
