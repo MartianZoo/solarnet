@@ -61,6 +61,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - actually plan out how exMachina should work
 - Keep gated System work with Admin when its condition becomes satisfied, removing unnecessary
   player selections such as those in Head Start scenarios.
+- Make `PlayedEvent` and `Required` System types, and rename `RequiredActionsSignal` to
+  `DoRequiredActions`.
 - Audit remaining non-payment `::` effects; retain
   immediate execution only where a concrete gameplay need justifies it.
 
@@ -82,6 +84,14 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   competition and failure handling before removing probes.
 - Investigate repeated ranking of the same field while testing each candidate. Scores must reflect
   the current state, including rollback; avoid a second persistent representation of game scores.
+
+- Verify remaining inferred Research counts, anonymous draws, action grouping, and earlier
+  adopted card identities in `Wsbg2025Test`. Jon's generation-six two-card Research keep now
+  reconciles his confirmed patent sale to afford Robinson and zero ending cash; the purchase
+  count itself is still inferred. All four final scores match, and no unexplained exMachina
+  remains. Charlie's recorded Miranda overpayment/refund is intentional and does not need
+  solving. Evidence and remaining uncertainties are in `_local/replays/Game20250919/sources.md`
+  and `derived/action-inventory.md`.
 
 ## Mars Playground
 

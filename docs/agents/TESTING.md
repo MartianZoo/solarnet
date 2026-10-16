@@ -676,14 +676,14 @@ characterization over a disproportionate workaround.
 
 ## Game replay tests
 
-`Game20230521Test` deliberately exercises the raw Agent task API. Its players use `NONE` during
-the replay, while Admin retains normal autoexecution and handles fixed payment
-bookkeeping and final scoring. `VictoryPoint` and `ScoreEventVps` are `System`; players do not submit
-scoring tasks. A pending negative score can wait for a positive score to supply the points.
+`Game20230521Test` and `Wsbg2025Test` deliberately exercise the raw Agent task API.
+Their players use `NONE` during the replay, while Admin retains normal autoexecution and handles
+fixed payment bookkeeping and final scoring. `VictoryPoint` and `ScoreEventVps` are `System`;
+players do not submit scoring tasks. A pending negative score can wait for a positive score to supply the points.
 Follow the game's flow through the last passes, production, final greenery, and scoring; do not
 manually supply turns or phase transitions. Omit copied game-log
 comments that only restate the submitted tasks.
-Use resolved, concrete instructions and `PROD[...]` in its `doTasks` calls, without AMAP dots or
+Use resolved, concrete instructions and `PROD[...]` in these `doTasks` calls, without AMAP dots or
 unevaluated metrics. Combine amounts when the matching tasks are already pending. A scalar total
 consumes all pending gains and removals of the same type and quantifier when their signed total
 matches, even if an individual task has that amount. Gains execute first; effects created while
