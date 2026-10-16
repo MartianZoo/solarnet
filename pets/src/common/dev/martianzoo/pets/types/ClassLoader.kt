@@ -327,6 +327,15 @@ private constructor(
 
   /** Loads [names] together, advancing their inclusion closure one complete frontier at a time. */
   private fun loadAll(names: Collection<ClassName>) {
+    val inspected = mutableSetOf(COMPONENT, CLASS)
+    val pending = mutableListOf<PendingSelection>()
+    val interpreter =
+        InhabitanceInterpreter(
+            classIsUninhabited = { name ->
+              if (masterSource == null) name !in includedClassNames else !isInhabited(name)
+            },
+            exactCount = { exactCount(it, this) },
+        )
     enqueue(names, requestedByClass = null)
     while (queue.isNotEmpty()) {
       while (queue.isNotEmpty()) {
@@ -334,7 +343,24 @@ private constructor(
         checkAvailability(next, requestedBy.getValue(next))
         loadRelated(next, include = true)
       }
-      enqueueReachableSelectionEdges()
+      // Include a whole frontier before evaluating its conditions, as in the closure definition.
+      (includedClassNames - inspected).forEach { name ->
+        inspected += name
+        enqueue(selectionEdges(knownDeclaration(name), pending) - THIS, name)
+      }
+      val iterator = pending.iterator()
+      while (iterator.hasNext()) {
+        val edge = iterator.next()
+        if (includedClassNames.containsAll(edge.names)) {
+          iterator.remove()
+        } else if (
+            interpreter.triggerIsReachable(edge.trigger) &&
+                edge.gates.none(interpreter::requirementIsFalse)
+        ) {
+          enqueue(edge.names, edge.requiredBy)
+          iterator.remove()
+        }
+      }
     }
   }
 
@@ -528,30 +554,19 @@ private constructor(
     }
   }
 
-  /**
-   * Rechecks every included declaration because including one Class can make a previously
-   * impossible Trigger or gate reachable. The closure is monotone: Classes only become included.
-   */
-  private fun enqueueReachableSelectionEdges() {
-    val includedNames = includedClassNames
-    (includedNames - COMPONENT - CLASS).forEach { name ->
-      enqueue(selectionEdges(knownDeclaration(name), includedNames) - THIS, name)
-    }
-  }
+  /** A constructive reference awaiting its complete trigger and enclosing instruction gates. */
+  private class PendingSelection(
+      val requiredBy: ClassName,
+      val names: Set<ClassName>,
+      val trigger: Trigger,
+      val gates: List<Requirement>,
+  )
 
-  /** Returns the structurally or constructively required Classes in one live declaration. */
+  /** Reads structural references once; constructive references remain pending until reachable. */
   private fun selectionEdges(
       declaration: ClassDeclaration,
-      includedNames: Set<ClassName>,
+      pending: MutableList<PendingSelection>,
   ): Set<ClassName> = buildSet {
-    val interpreter =
-        InhabitanceInterpreter(
-            classIsUninhabited = { name ->
-              if (masterSource == null) name !in includedNames else !isInhabited(name)
-            },
-            exactCount = { exactCount(it, this@ClassLoader) },
-        )
-
     fun collectStructural(expression: Expression) {
       add(expression.className)
       expression.arguments.forEach(::collectStructural)
@@ -570,14 +585,26 @@ private constructor(
       }
     }
 
-    fun collectInstruction(tree: InstructionTree) {
+    fun collectInstruction(tree: InstructionTree, trigger: Trigger, gates: List<Requirement>) {
       when (tree) {
-        is Gain -> collectStructural(tree.gaining)
-        is Transmute -> collectStructural(tree.gaining)
-        is Gated -> {
-          if (!interpreter.requirementIsFalse(tree.gate)) collectInstruction(tree.inner)
+        is Gain,
+        is Transmute -> {
+          val gaining = checkNotNull((tree as Change).gaining)
+          val names = linkedSetOf<ClassName>()
+          fun collect(expression: Expression) {
+            if (expression.className != THIS) names += expression.className
+            expression.arguments.forEach(::collect)
+          }
+          collect(gaining)
+          if (names.isNotEmpty()) {
+            pending += PendingSelection(declaration.className, names, trigger, gates)
+          }
         }
-        else -> tree.childNodes().filterIsInstance<InstructionTree>().forEach(::collectInstruction)
+        is Gated -> collectInstruction(tree.inner, trigger, gates + tree.gate)
+        else ->
+            tree.childNodes().filterIsInstance<InstructionTree>().forEach {
+              collectInstruction(it, trigger, gates)
+            }
       }
     }
 
@@ -588,9 +615,7 @@ private constructor(
         .forEach(::collectStructural)
     declaration.defaultsDeclaration.forClass?.let(::add)
     declaration.invariants.forEach(::collectRequiredInhabitants)
-    declaration.effects
-        .filter { interpreter.triggerIsReachable(it.trigger) }
-        .forEach { collectInstruction(it.instruction) }
+    declaration.effects.forEach { collectInstruction(it.instruction, it.trigger, emptyList()) }
     declaration.allNodes
         .flatMap { it.descendantsOfType<ClassName>() }
         .filter { it != THIS && it in knownClassNames && knownDeclaration(it).customMetric }

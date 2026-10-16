@@ -20,7 +20,12 @@ kotlin {
       }
     }
     commonTest {
-      kotlin.setSrcDirs(listOf(commonTestDirectory))
+      kotlin.setSrcDirs(
+          listOf(
+              commonTestDirectory,
+              rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
+          )
+      )
       dependencies { implementation(libs.kotest.assertions.core) }
     }
     jsMain {

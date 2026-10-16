@@ -15,6 +15,13 @@ Catalog's compiled master structure; separate Worlds from that premise share com
 but no mutable game state. See
 [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt).
 
+View construction reads each included declaration once. Structural references enter the next
+frontier directly; constructive references retain their trigger and enclosing instruction gates in
+a temporary worklist. A reference leaves that worklist when its target classes are already included
+or its conditions permit inclusion. Later frontiers reconsider only unresolved references, preserving
+the complete enclosing conditions. This worklist belongs to the current construction; no premise or
+selection result is cached across games.
+
 After its inclusion closure is complete, that game Class Table also derives immutable executable
 effects for its included Classes from the shared declarations. Using only settled premise facts
 before any World exists, it removes impossible `IF` effects and fixed-true trigger or instruction

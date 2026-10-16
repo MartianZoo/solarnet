@@ -383,6 +383,41 @@ internal class PremiseSelectionTest {
   }
 
   @Test
+  internal fun `later inclusion wakes pending triggers and nested gates without dropping conditions`() {
+    val catalog =
+        testCatalog(
+            """
+            CLASS Selected {
+              This: First
+              Target: Triggered
+              This:: (Class<First>: (First THEN (Class<Last>: Gated)))
+              This:: (Class<Missing>: (First THEN (Class<Last>: ForbiddenGate)))
+              Missing: (Class<Last>: ForbiddenTrigger)
+            }
+            CLASS First { This: Second }
+            CLASS Second { This: Last }
+            ABSTRACT CLASS Target
+            CLASS Last : Target
+            CLASS Missing
+            CLASS Triggered
+            CLASS Gated
+            CLASS ForbiddenGate
+            CLASS ForbiddenTrigger
+            """
+                .trimIndent()
+        )
+
+    val table = gameView(catalog, "Selected")
+
+    listOf("First", "Second", "Last", "Triggered", "Gated").forEach {
+      table.allClassNames.contains(cn(it)) shouldBe true
+    }
+    listOf("Missing", "ForbiddenGate", "ForbiddenTrigger").forEach {
+      table.allClassNames.contains(cn(it)) shouldBe false
+    }
+  }
+
+  @Test
   internal fun `included empty domains do not make triggers or gates reachable`() {
     val catalog =
         testCatalog(

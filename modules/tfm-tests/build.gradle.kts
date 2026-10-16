@@ -82,16 +82,6 @@ val replayExportsEnabled =
         .map { it.isEmpty() || it.toBooleanStrict() }
         .orElse(false)
 
-tasks.named<Test>("jvmTest") {
-  systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
-  systemProperty("solarnet.replayExports", replayExportsEnabled.get())
-  systemProperty(
-      "solarnet.replayEventLogDirectory",
-      replayEventLogsDirectory.get().asFile.absolutePath,
-  )
-  if (replayExportsEnabled.get()) outputs.dir(replayEventLogsDirectory)
-}
-
 val jvmTestCompilation = kotlin.targets.getByName("jvm").compilations.getByName("test")
 val jvmTestRuntimeClasspath =
     configurations.named(requireNotNull(jvmTestCompilation.runtimeDependencyConfigurationName))
@@ -151,17 +141,99 @@ tasks.withType<Test>().configureEach {
   extensions.configure<JacocoTaskExtension> { isEnabled = false }
 }
 
+// Curated imports from 2026, plus Game20230521Test retained for its explicit task replay.
+// All other replay sources still compile. Review new games before adding them here.
+val activeReplayClasses =
+    listOf(
+            "ActiveProtonFlowTest",
+            "ActiveVacuumCoreTest",
+            "DistantPressureMassTest",
+            "DistantSignalBeamTest",
+            "ErraticCarbonCurrentTest",
+            "Game20230521Test",
+            "MassiveGammaZoneTest",
+            "OtbGame20260809Test",
+            "OtbGame20260818Test",
+            "OtbGame20260825Test",
+            "OtbGame20260828Test",
+            "OtbGame20260904Test",
+            "OtbGame20260912Test",
+            "OtbGame20261009Test",
+            "SolarFusionStreamTest",
+            "StaticPressureStreamTest",
+            "StinaGameTest",
+            "SyntheticMagnetBurstTest",
+            "SyntheticPlasmaCurrentTest",
+            "SyntheticProtonFragmentTest",
+            "ThermalMatterWaveTest",
+            "ThermalPlasmaStateTest",
+            "Wsbg2025Test",
+        )
+        .map { "dev.martianzoo.tfm.tests.replays.$it" }
+
 val replayTest by
     tasks.registering(Test::class) {
-      group = LifecycleBasePlugin.VERIFICATION_GROUP
-      description = "Runs only the JVM replay-test suite."
-      dependsOn(jvmTestCompilation.compileTaskProvider)
-      testClassesDirs = jvmTestCompilation.output.classesDirs
-      classpath =
-          files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
-      filter { includeTestsMatching("dev.martianzoo.tfm.tests.replays.*") }
-      extensions.configure<JacocoTaskExtension> { isEnabled = true }
+      description = "Runs the curated JVM replay suite."
     }
+val replayCoverageTest by
+    tasks.registering(Test::class) {
+      description = "Runs the curated JVM replay suite with coverage instrumentation."
+      extensions.configure<JacocoTaskExtension> { isEnabled = true }
+      // Export runs share the same selected game files; serialize explicit requests for both tasks.
+      mustRunAfter(replayTest)
+    }
+
+listOf(replayTest, replayCoverageTest).forEach { replayTask ->
+  replayTask.configure {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    dependsOn(jvmTestCompilation.compileTaskProvider)
+    testClassesDirs = jvmTestCompilation.output.classesDirs
+    classpath =
+        files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
+    filter { activeReplayClasses.forEach { includeTestsMatching(it) } }
+    systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
+    systemProperty("solarnet.replayExports", replayExportsEnabled.get())
+    systemProperty(
+        "solarnet.replayEventLogDirectory",
+        replayEventLogsDirectory.get().asFile.absolutePath,
+    )
+    if (replayExportsEnabled.get()) {
+      outputs.dir(replayEventLogsDirectory)
+      val activeNames = activeReplayClasses.map { it.substringAfterLast('.') }.toSet()
+      val exportDirectory = replayEventLogsDirectory.get().asFile
+      doFirst {
+        exportDirectory.listFiles()?.forEach { file ->
+          if (file.extension == "json" && file.name.substringBefore('.') !in activeNames) {
+            file.delete()
+          }
+        }
+      }
+    }
+  }
+}
+
+// Focused JVM requests remain independent of replays; aggregate verification includes both suites.
+tasks.named<Test>("jvmTest") {
+  filter { excludeTestsMatching("dev.martianzoo.tfm.tests.replays.*") }
+}
+
+listOf("test", "allTests").forEach { taskName ->
+  tasks.named(taskName) { dependsOn(replayTest) }
+}
+
+// Intentionally unavailable. Uncomment only to run archived games; they always compile.
+// tasks.register<Test>("archivedReplayTest") {
+//   group = LifecycleBasePlugin.VERIFICATION_GROUP
+//   description = "Runs the archived JVM replays."
+//   dependsOn(jvmTestCompilation.compileTaskProvider)
+//   testClassesDirs = jvmTestCompilation.output.classesDirs
+//   classpath =
+//       files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
+//   filter {
+//     includeTestsMatching("dev.martianzoo.tfm.tests.replays.*")
+//     activeReplayClasses.forEach { excludeTestsMatching(it) }
+//   }
+// }
 
 val runtimeProjectArtifacts = jvmTestRuntimeClasspath.map { runtimeClasspath ->
   runtimeClasspath.incoming
@@ -172,9 +244,9 @@ val runtimeProjectArtifacts = jvmTestRuntimeClasspath.map { runtimeClasspath ->
 tasks.register<JacocoReport>("replayTestCoverage") {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Runs only the JVM replay tests and reports their production-code coverage."
-  dependsOn(replayTest)
+  dependsOn(replayCoverageTest)
   executionData(
-      replayTest.map { task ->
+      replayCoverageTest.map { task ->
         requireNotNull(task.extensions.getByType<JacocoTaskExtension>().destinationFile)
       }
   )

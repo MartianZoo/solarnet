@@ -72,12 +72,6 @@ private constructor(
    */
   public fun typeDependencies(): List<TypeDependency> = deps.filterIsInstance<TypeDependency>()
 
-  /** Enumerates every inhabited target admitted by every component-targeting dependency. */
-  internal fun concreteDependencyTargets(classTable: ClassTable): Sequence<GroundType> =
-      deps.asSequence().filterIsInstance<TypeDependency>().flatMap {
-        classTable.allConcreteSubtypes(it.boundType)
-      }
-
   /**
    * The dependency identities in declaration order ([rule
    * T3-10](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#3-dependencies)).
