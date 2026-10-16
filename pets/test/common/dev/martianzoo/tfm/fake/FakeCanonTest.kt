@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.fake
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.testsupport.validatedComponentLimits
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import kotlin.test.Test
@@ -18,5 +19,6 @@ internal class FakeCanonTest {
     val premise = TfmCatalog(Canon, FakeCanon).gamePremise(config)
 
     assertTrue(premise.classTable.isInhabited(cn("FakeHelion")))
+    validatedComponentLimits(premise.classTable)
   }
 }

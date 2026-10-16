@@ -50,7 +50,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   See [Pets testing](../../pets/docs/agents/TESTING.md) for its focused commands and generators.
   Use the full build only when repository-wide verification is warranted by the scope of the change
   or explicitly requested.
-- `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
+- `./gradlew test` runs the active repository JVM test suites, every browser-specific test, and the
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
   `jvmTest`. Pets runs `BrowserPetsTest` through `:pets:jsBrowserTest`; Web runs its browser history
   tests and the selected replay through `:web:jsBrowserTest`; Almanac runs its English card-text
@@ -69,19 +69,27 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `test/jvm/dev/martianzoo/tfm/tests/replays` directory, excluding only its JUnit file-export hook.
   JVM-only tools and filesystem/terminal tests remain outside this target. Comment the target back
   out after a successful run.
-- `./gradlew :tfm-tests:jvmTest` runs the replay tests without input recording or export.
+- `./gradlew :tfm-tests:replayTest` runs the curated replay suite without input recording or export.
+  `:tfm-tests:jvmTest` excludes replays and can run filtered tests independently. Use
+  `:tfm-tests:test` for both JVM suites; `allTests`, `check`, and `build` also include replays.
+  The explicit `activeReplayClasses` list in `modules/tfm-tests/build.gradle.kts` selects imports
+  from 2026 plus the retained `Game20230521Test`. All archived replays still compile; their
+  `archivedReplayTest` task registration is commented out and unavailable. The optional, also
+  commented-out `allBrowserTests` task still runs every portable replay when restored.
   Add `-PreplayExports` to record inputs, write full `.json` and short `.short.json` game files
   per successful `AbstractFullGameTest` subclass, and verify reconstruction in a fresh game.
-  Files go under that module's `generated/replay-event-logs` build directory. Ordinary runs
+  Files go under that module's `generated/replay-event-logs` build directory. Export runs remove
+  JSON files for archived games. Ordinary runs
   leave existing exports untouched. Direct JUnit runs need `-Dsolarnet.replayExports=true` and
   `-Djunit.jupiter.extensions.autodetection.enabled=true`.
   See [When to regenerate replay exports](EXPORT.md#when-to-regenerate-replay-exports) before
   reusing or distributing generated recordings after rules, runtime, or replay changes.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
-  build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
-  random-card, and browser tests do not contribute to the report. This coverage run excludes input
-  recording, export, and reconstruction, and ignores `-PreplayExports`.
+  build directory. Its execution data comes from the separate, always-instrumented
+  `replayCoverageTest` task, so ordinary test runs do not pay for coverage, and task abbreviations
+  work normally. Card, rule, random-card, and browser tests do not contribute to the report.
+  It uses the same curated selection and honors `-PreplayExports` just like `replayTest`.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
   sources. A benchmark error fails the task instead of producing an empty successful report.

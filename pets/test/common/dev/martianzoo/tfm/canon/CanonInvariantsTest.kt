@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
@@ -13,6 +14,7 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.Class
+import dev.martianzoo.testsupport.validatedComponentLimits
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -24,6 +26,25 @@ import kotlin.test.assertTrue
 internal class CanonInvariantsTest {
   private val table = Canon.classTable
   private val cards = Canon.cards
+
+  @Test
+  internal fun dependencyTargetsHaveUniqueComponentLimits() {
+    val options =
+        "VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilExpansion, prelude2:cards, promos:cards"
+    Canon.bundles
+        .filter { it.marsMapDefinitions.isNotEmpty() }
+        .forEach { bundle ->
+          val premise =
+              Canon.gamePremise(
+                  GameConfig(
+                      "${bundle.primaryModuleName}, $options, ${Canon.colonyTileClassNames.joinToString()}",
+                      "Player1",
+                      "Player2",
+                  )
+              )
+          validatedComponentLimits(premise.classTable)
+        }
+  }
 
   @Test
   internal fun signalsAreNotReal() {

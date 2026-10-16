@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.DependencySet.DependencyPath
+import dev.martianzoo.testsupport.validatedComponentLimits
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -416,12 +417,13 @@ internal class Spec03DependenciesTest {
   @Test
   internal fun `T3-9 a dependency may only target a type limited to one copy`() {
     val unlimited = loadTypes("CLASS Plant", "CLASS Holder<Plant>")
-    shouldThrow<InvalidPetDefinitionException> { unlimited.componentLimits }.message shouldContain
-        "`Holder` -> `Plant`"
+    shouldThrow<InvalidPetDefinitionException> { validatedComponentLimits(unlimited) }
+        .message shouldContain "`Holder` -> `Plant`"
 
     val limited = loadTypes("CLASS Plant { HAS MAX 1 This }", "CLASS Holder<Plant>")
-    limited.componentLimits.limitsFor(limited.resolve(te("Plant"))).map { it.range } shouldBe
-        listOf(0..1)
+    validatedComponentLimits(limited).limitsFor(limited.resolve(te("Plant"))).map {
+      it.range
+    } shouldBe listOf(0..1)
   }
 
   @Test
@@ -433,7 +435,8 @@ internal class Spec03DependenciesTest {
             "CLASS SecondHolder<Plant>",
         )
 
-    val message = shouldThrow<InvalidPetDefinitionException> { table.componentLimits }.message
+    val message =
+        shouldThrow<InvalidPetDefinitionException> { validatedComponentLimits(table) }.message
     message shouldContain "`FirstHolder` -> `Plant`"
     message shouldContain "`SecondHolder` -> `Plant`"
   }
@@ -446,8 +449,9 @@ internal class Spec03DependenciesTest {
             "CLASS ActionUsedMarker<CardFront>",
         )
 
-    table.componentLimits.limitsFor(table.resolve(te("CardFront"))).map { it.range } shouldBe
-        listOf(0..0)
+    validatedComponentLimits(table).limitsFor(table.resolve(te("CardFront"))).map {
+      it.range
+    } shouldBe listOf(0..0)
   }
 
   @Test
@@ -482,7 +486,7 @@ internal class Spec03DependenciesTest {
             "CLASS Dependent<ExactTarget, MaxTarget, AggregateTarget>",
         )
 
-    table.componentLimits
+    validatedComponentLimits(table)
   }
 
   @Test
@@ -495,7 +499,7 @@ internal class Spec03DependenciesTest {
             "ABSTRACT CLASS AbstractDependent<Target>",
             "CLASS ConcreteDependent : AbstractDependent<UniqueTarget>",
         )
-    valid.componentLimits
+    validatedComponentLimits(valid)
 
     val invalid =
         loadTypes(
@@ -505,8 +509,8 @@ internal class Spec03DependenciesTest {
             "ABSTRACT CLASS AbstractDependent<Target>",
             "CLASS ConcreteDependent<Target> : AbstractDependent<Target>",
         )
-    shouldThrow<InvalidPetDefinitionException> { invalid.componentLimits }.message shouldContain
-        "`ConcreteDependent` -> `RepeatableTarget`"
+    shouldThrow<InvalidPetDefinitionException> { validatedComponentLimits(invalid) }
+        .message shouldContain "`ConcreteDependent` -> `RepeatableTarget`"
   }
 
   @Test
@@ -519,7 +523,7 @@ internal class Spec03DependenciesTest {
             "CLASS Dependent<InvalidInvariant>",
         )
 
-    shouldThrow<InvalidPetDefinitionException> { table.componentLimits }
+    shouldThrow<InvalidPetDefinitionException> { validatedComponentLimits(table) }
 
     val calculated =
         loadTypes(
@@ -528,7 +532,7 @@ internal class Spec03DependenciesTest {
             "CLASS InvalidInvariant { HAS =1 (Foo - Bar) }",
             "CLASS Dependent<InvalidInvariant>",
         )
-    shouldThrow<InvalidPetDefinitionException> { calculated.componentLimits }
+    shouldThrow<InvalidPetDefinitionException> { validatedComponentLimits(calculated) }
   }
 
   // T3-10 Dependency maps and paths

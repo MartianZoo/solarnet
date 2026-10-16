@@ -93,3 +93,8 @@ Delete entries when they are done.
   remaining billing obligations before hiding any additional bookkeeping. The Solarnet-local input is
   `_local/replay-selected-task-instructions.txt`; the comparison is `_local/replay-task-english.txt`.
   Do not treat bracket-free counts as UI readiness.
+
+- If view construction remains expensive after the selection worklist change, measure the remaining
+  unresolved-condition passes before adding more machinery. They still reconsider every pending
+  constructive reference after each inclusion frontier; selectively waking only affected conditions
+  would require tracking subclass and dependency inhabitance, not just names written in a trigger.

@@ -26,6 +26,45 @@ internal class CardTrackingTest : TfmTest() {
   }
 
   @Test
+  internal fun trackedHandsFollowBackwardAndForwardSeeking() {
+    val (tracking, player) = newTrackedGame()
+    val agent = agents[player]
+    tracking.expectArrivals(player, cn("AcquiredCompany"), cn("AdaptedLichen"))
+    agent.runOperation("ProjectCard")
+    val first = game.timeline.checkpoint()
+    agent.runOperation("ProjectCard")
+    val second = game.timeline.checkpoint()
+    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"), cn("AdaptedLichen"))
+
+    game.timeline.seek(first)
+    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    game.timeline.seek(second)
+    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"), cn("AdaptedLichen"))
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun aDifferentChangeAtTheSameOrdinalDoesNotReuseDiscardedCardLocations() {
+    val (tracking, player) = newTrackedGame()
+    val agent = agents[player]
+    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    agent.runOperation("ProjectCard")
+    val beforeDiscard = game.timeline.checkpoint()
+    tracking.expectDepartures(player, cn("AcquiredCompany"))
+    agent.runOperation("-ProjectCard")
+    val discarded = game.timeline.checkpoint()
+    tracking.hand(player) shouldBe emptySet()
+
+    game.timeline.seek(beforeDiscard)
+    game.timeline.truncate()
+    agent.runOperation("MC")
+
+    game.timeline.checkpoint() shouldBe discarded
+    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    agent.count("MC") shouldBe 1
+  }
+
+  @Test
   internal fun unnamedHandGainFailsWithoutCommitting() {
     val (_, player) = newTrackedGame()
     val before = game.timeline.checkpoint()

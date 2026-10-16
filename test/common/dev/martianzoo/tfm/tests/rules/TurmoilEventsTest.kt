@@ -80,7 +80,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   }
 
   @Test
-  internal fun `Homeworld Support caps six Earth tags before adding influence`() {
+  internal fun `Homeworld Support caps Earth tags at five before adding influence`() {
     prepareEvent(
         "RedResistance",
         listOf(
@@ -97,10 +97,11 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     kim.doTasks("PlayProject<Class<$AcquiredCompany>>")
     kim.doTask("PlayProject<Class<$LunaGovernor>>")
     kim.doTasks("PlayProject<Class<$Cartel>>")
+    kim.count("EarthTag") shouldBe 6
     lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
-    // Five counted tags, plus two influence, at 2 MC each.
+    // Six Earth tags capped at five, plus two influence, at 2 MC each.
     expectChanges("14 MC<Kim>, 0 MC<Stan>") {
       stan.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }

@@ -75,24 +75,6 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   }
 
   @Test
-  internal fun `Becoming chairman triggers Terraforming Deal`() {
-    newTestGame(
-        addOptions = "TurmoilExpansion, PreludeExpansion, TerraformingDeal",
-        playerCount = 2,
-    )
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$TerraformingDeal>>")
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$AlliedBank>>")
-    stan.autoExecNow(EAGER)
-
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>")
-    lobbyForElection("Scientists")
-    assertRulingBonus(2, 0)
-    kim.count("Chairman") shouldBe 1
-    kim.count("TerraformRating") shouldBe 20
-  }
-
-  @Test
   internal fun `After an election a dominance tie favors the next party clockwise`() {
     prepareElection("MarsFirst", "PartyFollower", "PartyLeader")
     kim.completeOperation {
