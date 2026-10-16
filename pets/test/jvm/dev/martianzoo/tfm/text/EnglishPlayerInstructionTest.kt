@@ -23,6 +23,13 @@ class EnglishPlayerInstructionTest {
   private val english = English(catalog.classTable, TerraformingMarsDescribers.descriptions)
 
   @Test
+  fun publicRendererAddressesTheTaskAssignee() {
+    EnglishInstructionTextRenderer(catalog.classTable)
+        .render(parse<InstructionTree>("3! Plant<Green> OR Ok"), cn("Green")) shouldBe
+        "You may gain 3 plants."
+  }
+
+  @Test
   fun addressesTheSelectedPlayerAcrossChoicesAndProduction() {
     english.describe(parse<InstructionTree>("3! Plant<Green> OR Ok"), cn("Green")) shouldBe
         "You may gain 3 plants."

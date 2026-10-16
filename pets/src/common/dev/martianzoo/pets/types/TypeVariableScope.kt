@@ -524,12 +524,12 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           val usages = present.filterNot { it === declarationExpression }
           val extended =
               TypeVariable(
-                  variable.bound,
+                  lazy { variable.bound },
                   TypeVariable.Site(
                       declarationExpression,
                       origin.region,
                       origin.ordinal,
-                      interpretedGroundType = origin.groundType,
+                      interpretedGroundType = lazy { origin.groundType },
                       representedClass = variable.selectsClass,
                   ),
                   usages.mapIndexed { index, expression ->
@@ -625,12 +625,12 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                 val declarationGroundType = interpretedGroundType(declaration)
                 val variable =
                     TypeVariable(
-                        declarationGroundType,
+                        lazy { declarationGroundType },
                         Site(
                             expression,
                             declaration.region,
                             declaration.ordinal,
-                            interpretedGroundType = declarationGroundType,
+                            interpretedGroundType = lazy { declarationGroundType },
                             representedClass = declaration.representedClass,
                         ),
                         usages.map { usage ->
@@ -638,7 +638,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                               usage.expression,
                               usage.region,
                               usage.ordinal,
-                              interpretedGroundType = interpretedGroundType(usage),
+                              interpretedGroundType = lazy { interpretedGroundType(usage) },
                           )
                         },
                     )

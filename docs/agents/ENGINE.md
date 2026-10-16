@@ -198,6 +198,12 @@ authoritative. If committing an unchanged form selects a task that changes assig
 performs only that handoff. A form containing a choice instead fails, because the former assignee's
 draft cannot cross it.
 
+`TaskForm.options` lists all included concrete subclasses directly, then chooses remaining
+dependencies separately. It filters invalid narrowings, concrete unmet gates, and mandatory
+concrete changes without enough source quantity or required dependencies. It examines only the
+current stage: unresolved choices, automatic effects, and later `THEN` stages are not searched.
+Optional zero choices and AMAP no-ops remain valid. Known hand identities belong to the client.
+
 **Intended client API rule:** No game choice or task operation may require `TaskForm`. Clients may
 use it to query options and prepare a choice, but must also be able to make every known choice and
 complete every task through `Agent` commands. If a replay must construct a form or enumerate

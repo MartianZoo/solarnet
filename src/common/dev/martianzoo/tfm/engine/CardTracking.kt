@@ -11,8 +11,6 @@ import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.tfm.canon.cardBack
-import dev.martianzoo.tfm.canon.cardRequirement
-import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.state.tfmCatalog
 
 /**
@@ -111,17 +109,50 @@ private constructor(
     names.addAll(cards)
   }
 
-  /** Snapshot of the named cards currently in [player]'s hand, optionally limited to [back]. */
-  public fun hand(player: Player, back: ClassName? = null): Set<ClassName> {
+  /**
+   * Snapshot of the named cards currently in [player]'s hand, optionally limited to [back]. Pass a
+   * Selecting [location] to read that area instead; it requires Selecting tracking at [start].
+   */
+  public fun hand(
+      player: Player,
+      back: ClassName? = null,
+      location: ClassName = HAND,
+  ): Set<ClassName> {
     requirePlayer(player)
     if (back != null) requireBack(back)
+    requireLocation(location)
+    val area = if (location == HAND) Hand(player) else Selecting(player)
     return snapshot()
         .locations
         .filterValues {
-          it.location == Hand(player) && (back == null || it.back == back)
+          it.location == area && (back == null || it.back == back)
         }
         .keys
   }
+
+  /**
+   * An Agent command moved cards of [back] into ([arriving]) or out of [player]'s [location]
+   * without enough supplied names; [count] more are needed. [event] is the first such movement. The
+   * command rolled back, so supplying the names and repeating it can succeed.
+   */
+  public class NamesRequiredException
+  internal constructor(
+      public val player: Player,
+      public val back: ClassName,
+      public val location: ClassName,
+      public val count: Int,
+      public val arriving: Boolean,
+      public val event: ChangeEvent,
+      /**
+       * The names that could move, as tracked just before [event] and not yet supplied for it, or
+       * null when the cards arrive from outside the World and a dealer must name them. Empty when
+       * no tracked card can move.
+       */
+      public val candidates: Set<ClassName>?,
+      /** The `CardFilter` every arriving card must satisfy, or null when any card may arrive. */
+      public val filter: Expression?,
+      message: String,
+  ) : AgentInputRequiredException(message)
 
   /** Requires every supplied name to have been used; movement checks run per Agent request. */
   public fun requireComplete() {
@@ -159,24 +190,50 @@ private constructor(
         count: Int,
         event: ChangeEvent,
         direction: String,
+        source: Set<ClassName>?,
+        filter: Expression? = null,
     ): List<ClassName> {
       val key = Triple(player, back, location)
       val names = supplied[key].orEmpty()
       val start = offsets[key] ?: 0
       val end = start + count
       if (end > names.size) {
-        throw AgentInputRequiredException(
-            "$player must name $count $back $direction at event ${event.ordinal}"
+        val named = names.subList(start, names.size).toSet()
+        throw NamesRequiredException(
+            player,
+            back,
+            location,
+            count - (names.size - start),
+            arriving = supplied === arrivals,
+            event,
+            source?.filterTo(linkedSetOf()) {
+              it !in named && (filter == null || cardMatchesFilter(world.reader, it, filter))
+            },
+            filter,
+            "$player must name $count $back $direction at event ${event.ordinal}",
         )
       }
       offsets[key] = end
       return names.subList(start, end)
     }
 
+    fun held(back: ClassName, location: Location): Set<ClassName> =
+        locations.filterValues { it == CardState(back, location) }.keys.toSet()
+
     for (event in world.events.changesSinceSetup()) {
       val change = event.change
       val removing = change.removing
       val gaining = change.gaining
+      val arrivalFilter =
+          event.cause
+              ?.context
+              ?.takeIf { it.className in FILTERED_HAND_ARRIVALS }
+              ?.arguments
+              ?.single {
+                world.classTable
+                    .getClass(it.className)
+                    .isSubtypeOf(world.classTable.getClass(CARD_FILTER))
+              }
       val removingBack = removing.cardBackAt(HAND)
       val gainingBack = gaining.cardBackAt(HAND)
       val playedFace =
@@ -208,6 +265,7 @@ private constructor(
                   change.count,
                   event,
                   "departures",
+                  held(checkNotNull(removingBack), Hand(player)),
               )
             }
         check(removedNames.size == removedNames.distinct().size) {
@@ -257,6 +315,7 @@ private constructor(
                         change.count,
                         event,
                         "returns",
+                        revealed.toSet(),
                     )
               }
               else ->
@@ -269,6 +328,13 @@ private constructor(
                       change.count,
                       event,
                       "arrivals",
+                      when {
+                        removing == null -> null
+                        requireSelectingNames && removing.cardBackAt(SELECTING) == gainingBack ->
+                            held(checkNotNull(gainingBack), Selecting(player))
+                        else -> emptySet()
+                      },
+                      arrivalFilter.takeIf { gainingBack == PROJECT_CARD },
                   )
             }
         check(gainedNames.size == gainedNames.distinct().size) {
@@ -291,17 +357,10 @@ private constructor(
           }
           locations[name] = CardState(checkNotNull(gainingBack), Hand(player))
         }
-        val context = event.cause?.context
-        if (gainingBack == PROJECT_CARD && context?.className in FILTERED_HAND_ARRIVALS) {
-          val filter =
-              context!!.arguments.single {
-                world.classTable
-                    .getClass(it.className)
-                    .isSubtypeOf(world.classTable.getClass(CARD_FILTER))
-              }
+        if (gainingBack == PROJECT_CARD && arrivalFilter != null) {
           gainedNames.forEach { name ->
-            check(matchesFilter(name, filter)) {
-              "$name does not satisfy $filter at event ${event.ordinal}"
+            check(cardMatchesFilter(world.reader, name, arrivalFilter)) {
+              "$name does not satisfy $arrivalFilter at event ${event.ordinal}"
             }
           }
         }
@@ -329,6 +388,7 @@ private constructor(
                       change.count,
                       event,
                       "Selecting departures",
+                      held(back, Selecting(player)),
                   )
             }
         check(selectedRemovedNames.size == selectedRemovedNames.distinct().size) {
@@ -359,6 +419,7 @@ private constructor(
                     change.count,
                     event,
                     "Selecting arrivals",
+                    if (removing == null) null else emptySet(),
                 )
         check(selectedGainedNames.size == selectedGainedNames.distinct().size) {
           "the same card enters $player's Selecting twice in $event"
@@ -471,33 +532,6 @@ private constructor(
       event.notes = (lines + if (inserted) emptyList() else listOf(cardNote)).joinToString("\n")
     }
     return Snapshot(locations, arrivalOffsets, departureOffsets)
-  }
-
-  private fun matchesFilter(cardName: ClassName, filter: Expression): Boolean {
-    val catalog = world.reader.tfmCatalog
-    val card = catalog.card(cardName)
-    return when (filter.className) {
-      cn("TagFilter") -> {
-        val tag =
-            catalog.classTable.getClass(filter.arguments.single().arguments.single().className)
-        cardTags(card).elements.any { catalog.classTable.getClass(it).isSubtypeOf(tag) }
-      }
-      cn("NoTagsFilter") ->
-          cardTags(card).elements.none {
-            catalog.classTable.getClass(it).isSubtypeOf(catalog.classTable.getClass(cn("Tag")))
-          }
-      cn("RequirementFilter") -> cardRequirement(card) != null
-      cn("ReferenceFilter") -> {
-        val reference =
-            catalog.classTable.getClass(filter.arguments.single().arguments.single().className)
-        card.declaration.allNodes.any { node ->
-          node.descendantsOfType<ClassName>().any {
-            catalog.classTable.findClass(it)?.isSubtypeOf(reference) == true
-          }
-        }
-      }
-      else -> error("unrecognized card filter: $filter")
-    }
   }
 
   private fun requirePlayer(player: Player) {

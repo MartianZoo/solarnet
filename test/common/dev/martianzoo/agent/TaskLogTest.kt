@@ -25,6 +25,75 @@ internal class TaskLogTest {
   }
 
   @Test
+  internal fun selectionCheckpointsMarkTheStateBeforeAPlayerSelectsANewTask() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
+    val player = agents[PLAYER1]
+    player.autoExecPolicy = NONE
+    player.addTasks("Coin OR Marker")
+    agents.taskLog.start()
+    val beforeSelection = agents.world.timeline.checkpoint()
+
+    player.selectTask(player.tasks.ids().single())
+    player.narrowTask("Coin")
+
+    agents.taskLog.selectionCheckpoints() shouldBe listOf(beforeSelection)
+  }
+
+  @Test
+  internal fun selectionCheckpointsKeepTheChoiceThatAutomaticSelectionLeavesUnresolved() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
+    val player = agents[PLAYER1]
+    player.addTasks("Coin OR Marker")
+    agents.taskLog.start()
+    val beforeSelection = agents.world.timeline.checkpoint()
+
+    player.autoExecNow()
+    player.tasks.selectedTask() shouldBe player.tasks.ids().single()
+    player.doTask("Coin")
+
+    agents.taskLog.selectionCheckpoints() shouldBe listOf(beforeSelection)
+    player.count("Coin") shouldBe 1
+  }
+
+  @Test
+  internal fun selectionCheckpointsSkipPolicyExecutedPlayerTasks() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin")))
+    val player = agents[PLAYER1]
+    player.addTasks("Coin")
+    agents.taskLog.start()
+
+    player.autoExecNow()
+
+    agents.taskLog.selectionCheckpoints() shouldBe emptyList()
+    player.count("Coin") shouldBe 1
+  }
+
+  @Test
+  internal fun selectionCheckpointsSkipAutomaticHandoffsToAdmin() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin")))
+    val player = agents[PLAYER1]
+    player.addTasks("Coin BY Admin")
+    agents.taskLog.start()
+
+    player.autoExecNow()
+
+    agents[ADMIN].count("Coin") shouldBe 1
+    agents.world.tasks.isEmpty() shouldBe true
+    agents.taskLog.selectionCheckpoints() shouldBe emptyList()
+  }
+
+  @Test
+  internal fun selectionCheckpointsMarkTheStateBeforeACorrection() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin")))
+    agents.taskLog.start()
+    val beforeCorrection = agents.world.timeline.checkpoint()
+
+    agents.exMachina(PLAYER1, "Coin")
+
+    agents.taskLog.selectionCheckpoints() shouldBe listOf(beforeCorrection)
+  }
+
+  @Test
   internal fun decliningAFormKeepsTheSelectionThatIdentifiesItsTask() {
     val premise = testGamePremise("CLASS Coin\nCLASS Marker")
     fun newAgents(): Agents =

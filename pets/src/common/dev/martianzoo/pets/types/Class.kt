@@ -699,7 +699,15 @@ internal constructor(
         val matched = dependencySet.matchPartialInOrder(arguments, loader)
         expression.arguments.zip(matched).forEach { (argument, dependency) ->
           val path = DependencyPath(prefix + dependency.key)
-          if (eligible(argument)) add(HeaderOccurrence(argument, path, region, ordinal++))
+          // A class literal's operand ranges over Classes, not over the represented class's
+          // dependency bounds. Resolving the latter here can revisit this class's base type.
+          val eligibleArgument =
+              if (expression.className == CLASS) {
+                argument.className != THIS && dependency.abstract
+              } else {
+                eligible(argument)
+              }
+          if (eligibleArgument) add(HeaderOccurrence(argument, path, region, ordinal++))
           collectArguments(argument, path.keyList, region)
         }
       }
@@ -722,7 +730,7 @@ internal constructor(
 
   private val headerVariableBindings: Lazy<List<HeaderVariableBinding>> = lazy {
     data class Seed(
-        var type: GroundType,
+        var type: Lazy<GroundType>,
         var declaration: TypeVariable.Site,
         val usages: MutableList<TypeVariable.Site>,
         val aliases: MutableSet<TypeVariable>,
@@ -733,12 +741,12 @@ internal constructor(
 
     fun inheritedSeed(binding: HeaderVariableBinding) =
         Seed(
-            binding.variable.bound,
+            lazy { binding.variable.bound },
             TypeVariable.Site(
                 binding.variable.declaration.expression,
                 binding.variable.declaration.region,
                 binding.variable.declaration.ordinal,
-                interpretedGroundType = binding.variable.declaration.groundType,
+                interpretedGroundType = lazy { binding.variable.declaration.groundType },
                 representedClass = binding.variable.selectsClass,
             ),
             mutableListOf(),
@@ -813,7 +821,7 @@ internal constructor(
                   first.expression,
                   first.region,
                   first.ordinal,
-                  interpretedGroundType = loader.resolve(first.expression),
+                  interpretedGroundType = lazy { loader.resolve(first.expression) },
                   representedClass = first.path.keyList.last().declaringClass == CLASS,
               )
 
@@ -824,7 +832,7 @@ internal constructor(
               when {
                 overlapping.isEmpty() ->
                     Seed(
-                        loader.resolve(first.expression),
+                        lazy { loader.resolve(first.expression) },
                         localSite(),
                         mutableListOf(),
                         mutableSetOf(),
@@ -852,7 +860,7 @@ internal constructor(
                       occurrence.expression,
                       occurrence.region,
                       occurrence.ordinal,
-                      interpretedGroundType = loader.resolve(occurrence.expression),
+                      interpretedGroundType = lazy { loader.resolve(occurrence.expression) },
                   )
             }
             target.headerExpressions += occurrence.expression

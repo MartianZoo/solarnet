@@ -1418,6 +1418,8 @@ represented class, as `StandardResource` in `CLASS Production<Class<@StandardRes
 whole literal is marked instead, as in `CLASS Owed<@Class<StandardResource>>`, it is the literal
 itself. A class literal written anywhere else in a header, such as inside another dependency or in a
 supertype argument, is an ordinary eligible occurrence, and so is its operand.
+The operand's eligibility concerns the represented class: a fixed concrete class supplies no
+variable even when that class has unspecified component dependencies, such as an owner.
 
 A header variable needs a marker when the class's own body refers to it, or when two dependency
 positions must agree (T3-8):

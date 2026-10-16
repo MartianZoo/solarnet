@@ -135,13 +135,14 @@ internal constructor(
   }
 
   /**
-   * The next parts the caller can choose for [decision]. Partial candidates are not resolved to
-   * filter options: a later choice could make an option workable. Component dependencies of
-   * nonoptional changes are restricted to existing components, ignoring refinements for that check.
-   * Optional changes retain absent dependencies because a later zero choice can still be legal.
-   * Uninhabited Types and concrete-target amount bounds also remove options. Broad target options
-   * can include self-transmutations that selection rejects. `X` can have a large domain, so consume
-   * the sequence lazily. Re-query after the World changes.
+   * The next parts the caller can choose for [decision]. Class choices list every included concrete
+   * subclass, without intermediate abstract classes. Component dependencies of nonoptional changes
+   * are restricted to existing components, ignoring refinements for that check. Optional changes
+   * retain absent dependencies because a later zero choice can still be legal. Uninhabited Types,
+   * invalid narrowings, unmet concrete gates, and insufficient concrete source quantities also
+   * remove options. These checks examine only the current stage, without executing effects or
+   * searching unresolved choices. An offered option can still fail later. `X` can have a large
+   * domain, so consume the sequence lazily. Re-query after the World changes.
    */
   public fun options(decision: Decision): Sequence<String> =
       optionCandidates(decision).map { it.first }
@@ -199,8 +200,34 @@ internal constructor(
               }
           Decision.Kind.AMOUNT -> amountChoices(head as Change, current, ::inForm, requestedAmount)
         }
-    return candidates
+    return candidates.filter { (_, selected) ->
+      selected.narrows(current, agent.reader) && available(selected)
+    }
   }
+
+  private fun available(tree: InstructionTree): Boolean =
+      when (tree) {
+        is Then -> available(tree.first)
+        is By -> available(tree.inner)
+        is Gated ->
+            (tree.gate.descendantsOfType<Expression>().any { agent.reader.isAbstract(it) } ||
+                agent.reader.has(tree.gate)) && available(tree.inner)
+        is Per -> available(tree.inner * agent.reader.count(tree.metric))
+        is Change -> {
+          val targets = listOfNotNull(tree.gaining, tree.removing).map(agent.reader::resolve)
+          if (tree.quantifier != MANDATORY || targets.any { it.abstract }) true
+          else {
+            val minimum =
+                when (val count = tree.count) {
+                  is ActualScalar -> count.value
+                  is XScalar -> count.multiple
+                }
+            val limit = agent.changeLimit(tree)
+            limit != null && limit >= minimum
+          }
+        }
+        else -> true
+      }
 
   private fun choiceHead(tree: InstructionTree): InstructionTree =
       when (tree) {
@@ -240,16 +267,15 @@ internal constructor(
     val table = agent.reader.classTable
     if (type.rootClass.abstract) {
       val children =
-          table.directSubclasses(type.rootClass).mapNotNull { child ->
-            val narrowed = table.glb(type, child.baseType) ?: return@mapNotNull null
-            if (!table.isInhabited(narrowed)) return@mapNotNull null
-            if (existing && !hasExistingComponent(narrowed)) return@mapNotNull null
-            child to narrowed
-          }
-      val only = children.singleOrNull()
-      if (only != null && only.first.abstract) {
-        return typeChoices(only.second, filterDependencies, existing)
-      }
+          table
+              .allSubclasses(type.rootClass)
+              .filterNot { it.abstract }
+              .mapNotNull { child ->
+                val narrowed = table.glb(type, child.baseType) ?: return@mapNotNull null
+                if (!table.isInhabited(narrowed)) return@mapNotNull null
+                if (existing && !hasExistingComponent(narrowed)) return@mapNotNull null
+                child to narrowed
+              }
       return children.asSequence().map { (child, narrowed) ->
         val finished =
             if (!narrowed.rootClass.abstract && !narrowed.dependencies.abstract)

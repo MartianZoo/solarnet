@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
@@ -32,8 +33,11 @@ public class TaskLog internal constructor(private val world: World) {
       val instruction: String,
       val taskSelector: RecordedInput.TaskSelector?,
       val formTask: TaskId?,
+      val automatic: Boolean = false,
       var anchor: GameEvent? = null,
       var onlyNarrows: Boolean = false,
+      var selectsTask: Boolean = false,
+      var awaitsInput: Boolean = false,
   )
 
   private var recording = false
@@ -76,12 +80,26 @@ public class TaskLog internal constructor(private val world: World) {
     return surviving.filter { !it.onlyNarrows || lastFormCommit[it.formTask] === it }
   }
 
+  /**
+   * Positions before Player task selections and replay corrections. An automatic selection that
+   * leaves an abstract task awaiting input also exposes a choice; automatic execution does not.
+   */
+  public fun selectionCheckpoints(): List<Checkpoint> =
+      survivingSubmissions()
+          .filter {
+            it.kind == RecordedInput.Kind.EX_MACHINA ||
+                (it.actor is Player && it.selectsTask && (!it.automatic || it.awaitsInput))
+          }
+          .map { Checkpoint(checkNotNull(it.anchor).ordinal) }
+          .distinct()
+
   internal fun <T> capture(
       actor: Actor,
       instruction: String,
       formTask: TaskId? = null,
       kind: RecordedInput.Kind = RecordedInput.Kind.DO_TASKS,
       taskId: TaskId? = null,
+      automatic: Boolean = false,
       block: () -> T,
   ): T {
     if (!recording) return block()
@@ -93,12 +111,24 @@ public class TaskLog internal constructor(private val world: World) {
             instruction,
             taskId?.let { taskSelectorFor(actor, it) },
             formTask,
+            automatic = automatic,
         )
     submissions += submission
     return try {
       block().also {
         val events = world.events.entriesSince(checkpoint)
         submission.anchor = events.firstOrNull()
+        submission.selectsTask = events.any { event ->
+          when (event) {
+            is GameEvent.TaskEditedEvent -> !event.oldTask.selected && event.task.selected
+            is GameEvent.TaskRemovedEvent -> !event.task.selected && kind != RecordedInput.Kind.DROP
+            else -> false
+          }
+        }
+        submission.awaitsInput =
+            world.tasks.selectedTask()?.let {
+              world.tasks.getTaskData(it).instruction.isAbstract(world.reader)
+            } == true
         // A later full form instruction includes provisional instruction choices. Keep selection,
         // structural changes, continuations and Actor handoffs, which have independent effects.
         submission.onlyNarrows =

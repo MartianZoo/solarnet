@@ -10,15 +10,17 @@ import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration as Syntax
  */
 public class TypeVariable
 internal constructor(
-    /**
-     * The ground-type constraint, including any refinement, through which ordinary type operations
-     * interpret this variable ([rule
-     * T13-1](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#13-type-variables)).
-     */
-    public val bound: GroundType,
+    bound: Lazy<GroundType>,
     declarationSite: Site,
     usageSites: List<Site>,
 ) : Type {
+  /**
+   * The ground-type constraint, including any refinement, through which ordinary type operations
+   * interpret this variable ([rule
+   * T13-1](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#13-type-variables)).
+   */
+  public val bound: GroundType by bound
+
   /**
    * Returns [bound], the variable's resolved interpretation under
    * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#13-type-variables).
@@ -69,7 +71,7 @@ internal constructor(
       val expression: Expression,
       val region: Int,
       val ordinal: Int,
-      val interpretedGroundType: GroundType? = null,
+      val interpretedGroundType: Lazy<GroundType>? = null,
       val representedClass: Boolean = false,
   )
 
@@ -96,7 +98,7 @@ internal constructor(
      * [rule T13-10](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#13-type-variables).
      */
     final override val groundType: GroundType
-      get() = site.interpretedGroundType ?: typeVariable.bound
+      get() = site.interpretedGroundType?.value ?: typeVariable.bound
 
     /**
      * The exact authored expression recorded for this occurrence, as required for scoped binding by

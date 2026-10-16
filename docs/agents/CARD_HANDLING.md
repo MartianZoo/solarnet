@@ -30,6 +30,16 @@ rolls back; automatic execution can leave the affected card task pending for the
 Unused supplied names may be replaced after a failed operation without changing names used by
 surviving events.
 
+Missing names raise `CardTracking.NamesRequiredException`, an `AgentInputRequiredException` with
+the Player, back, location, direction, additional count, and attempted change event. Its detached
+`candidates` set describes the eligible source immediately before that movement, including earlier
+movements within the rolled-back command and excluding names already supplied for this movement.
+Null means a recognized fresh arrival requiring an external dealer; an empty set means no known
+source card is eligible. Unknown transfers must not be interpreted as draws. `filter` carries the
+arrival's `CardFilter` when present. The public `cardMatchesFilter` function shares the tracker's
+printed-card predicate with dealers. The attempted event is diagnostic evidence, not committed
+history.
+
 The tracker writes a `Cards:` note on every hand-change event, checks that a played card was in
 that Player's hand, and compares named holdings with modeled hand counts for every back type.
 `SearchForCard` and `TakeSelectedCard` gains are checked against their recorded Pets `CardFilter`
@@ -50,6 +60,11 @@ and direct plays carry the face in their type. Use `location = cn("Selecting")` 
 just before the matching operation or in exact event order; queued names always belong to the next
 matching event. Cards rejected from `Selecting` are named in the enabled mode. Cards only passed
 over during a deck search and deck flips remain outside it.
+
+`hand(player, back, location)` reads a detached set at the current timeline position; Hand is the
+default location, and Selecting requires the tracking option above. Seeking retains the supplied
+name sequences for the future. After truncating, clients clear unused sequences through the
+replacement methods. A live dealer also restores its own deck cursors; the tracker owns no decks.
 
 The four database-backed card-tracked replays and `StinaGameTest` now use this production mode;
 [CardTrackingTest](../../test/common/dev/martianzoo/tfm/tests/CardTrackingTest.kt)

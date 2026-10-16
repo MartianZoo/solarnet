@@ -128,6 +128,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
         task.instruction.toString(),
         kind = kind,
         taskId = taskId,
+        automatic = true,
         block = block,
     )
   }
