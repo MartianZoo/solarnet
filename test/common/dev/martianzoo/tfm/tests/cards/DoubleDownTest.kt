@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class DoubleDownTest : TfmSandboxTest() {
@@ -242,6 +243,29 @@ internal class DoubleDownTest : TfmSandboxTest() {
   }
 
   internal class Gameplay : TfmGameplayTest() {
+    @Test
+    internal fun `Copies a played New Partner without Prelude setup`() {
+      newTestGame(
+          addOptions = "ValleyTrust, prelude:cards",
+          kimCorporation = ValleyTrust,
+      )
+      admin.count("PreludeExpansion") shouldBe 0
+      kim.count("PreludeCard") shouldBe 0
+
+      kim.completeOperation {
+            doTask("RequiredActionsSignal")
+            doTask("PlayCard<Class<PreludeCard>, Class<$NewPartner>>")
+            autoExecNow(EAGER)
+            doTask("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")
+            doTask("CopyPrelude<$NewPartner>")
+            autoExecNow(EAGER)
+            doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+            autoExecNow(EAGER)
+          }
+          .expect("PROD[2 MC], 21 MC, $NewPartner, $DoubleDown, $Donation, -RequiredAction")
+      kim.count("PreludeCard") shouldBe 0
+    }
+
     @Test
     internal fun `Copying Preservation Program adds TR without another Action phase skip`() {
       newTestGame("PreludeExpansion, PreservationProgram", playerCount = 2)

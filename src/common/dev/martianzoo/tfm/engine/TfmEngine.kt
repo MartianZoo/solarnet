@@ -33,6 +33,7 @@ import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.CustomInstruction
@@ -222,12 +223,7 @@ public object TfmEngine {
           }
       require(successors.size == relations.size) { "AfterParty must have one successor per Party" }
 
-      var current = source
-      for (distance in 1..successors.size) {
-        current = requireNotNull(successors[current]) { "$current has no AfterParty successor" }
-        if (current == target) return distance
-      }
-      error("$target is not reachable from $source through AfterParty")
+      return circularDistance(source, target, successors, afterParty)
     }
   }
 
@@ -272,14 +268,23 @@ public object TfmEngine {
 
       if (target !in successors) return successors.size
       if (source !in successors) return 0
-      if (source == target) return 0
-      var current = source
-      for (distance in 1..successors.size) {
-        current = requireNotNull(successors[current]) { "$current has no NextPlayer successor" }
-        if (current == target) return distance
-      }
-      error("$target is not reachable from $source through NextPlayer")
+      return circularDistance(source, target, successors, nextPlayer)
     }
+  }
+
+  private fun circularDistance(
+      source: GroundType,
+      target: GroundType,
+      successors: Map<GroundType, GroundType>,
+      relation: ClassName,
+  ): Int {
+    if (source == target) return 0
+    var current = source
+    for (distance in 1..successors.size) {
+      current = requireNotNull(successors[current]) { "$current has no $relation successor" }
+      if (current == target) return distance
+    }
+    error("$target is not reachable from $source through $relation")
   }
 
   private object PriceAspectCount : CustomMetric() {

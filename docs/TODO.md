@@ -40,8 +40,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Head Start's two actions, and any other actual exceptions. Establish the complete list.
 - Share the Corporation, Prelude, and final greenery phases' turn procedure through an abstract
   phase class.
-- Share the circular-distance calculation in `PlayerDistance` and `PartyDistance`, preserving
-  their different handling of unseated owners.
 - Consider renaming automatic (`::`) effects to “immediate.”
 - Replace the archived *Life of an Effect* walkthrough with a current account of lexical `Me`
   and the transformation pipeline.
@@ -52,7 +50,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   while standard players discard and buy their choices.
 - Move Fake Self-Replicating Robots' paired defect scenarios from `SelfReplicatingRobotsTest`
   into `tfm-fake`, reusing existing test support.
-- Verify Double Down can copy an actually played Prelude without `PreludeExpansion` enabled.
 - Clarify Astra Mechanica's zero/one/two eligible-event behavior and reconcile its modeled return
   with printed and derived English.
 - Separate task selection from execution when automatic execution is disabled.
