@@ -25,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,16 +39,28 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.ClassTable
+import kotlin.math.hypot
 
 /** The recording's live Mars tiles over its configured map areas. */
 @Composable
 internal fun MarsTab() {
   val areas = LocalSpecimen.current.map
+  // Fit the actual hex footprint to the globe, including maps larger than the standard board.
+  val xs = areas.map { 107f * (it.column - it.row / 2f) }
+  val ys = areas.map { 93.5f * it.row }
+  val middleX = ((xs.minOrNull() ?: 0f) + (xs.maxOrNull() ?: 0f)) / 2
+  val middleY = ((ys.minOrNull() ?: 0f) + (ys.maxOrNull() ?: 0f)) / 2
+  val radius = areas.indices.maxOfOrNull { hypot(xs[it] - middleX, ys[it] - middleY) + 58f } ?: 475f
+  val mapScale = 475f / radius
+  fun centerX(area: Specimen.MapArea) =
+      500f + (107f * (area.column - area.row / 2f) - middleX) * mapScale
+  fun centerY(area: Specimen.MapArea) = 500f + (93.5f * area.row - middleY) * mapScale
+  val cubeSize = playerCubeSize * 0.75f
   BoxWithConstraints(Modifier.fillMaxSize().background(Color.Black)) {
     val side = if (maxWidth < maxHeight) maxWidth else maxHeight
     val left = (maxWidth - side) / 2
     val top = (maxHeight - side) / 2
-    rememberBundledImage("files/map/mars.png")?.let { mars ->
+    rememberGameImage("other/mars.png")?.let { mars ->
       Image(
           mars,
           "Mars",
@@ -62,16 +73,17 @@ internal fun MarsTab() {
       val dx = (size.width - unit * 1000f) / 2f
       val dy = (size.height - unit * 1000f) / 2f
       for (area in areas) {
-        val x = dx + (500f + 107f * (area.column - area.row / 2f - 2.5f)) * unit
-        val y = dy + (125f + 93.5f * (area.row - 1)) * unit
+        val x = dx + centerX(area) * unit
+        val y = dy + centerY(area) * unit
+        val hexUnit = unit * mapScale
         val hex =
             Path().apply {
-              moveTo(x, y - 58f * unit)
-              lineTo(x + 50.2f * unit, y - 29f * unit)
-              lineTo(x + 50.2f * unit, y + 29f * unit)
-              lineTo(x, y + 58f * unit)
-              lineTo(x - 50.2f * unit, y + 29f * unit)
-              lineTo(x - 50.2f * unit, y - 29f * unit)
+              moveTo(x, y - 58f * hexUnit)
+              lineTo(x + 50.2f * hexUnit, y - 29f * hexUnit)
+              lineTo(x + 50.2f * hexUnit, y + 29f * hexUnit)
+              lineTo(x, y + 58f * hexUnit)
+              lineTo(x - 50.2f * hexUnit, y + 29f * hexUnit)
+              lineTo(x - 50.2f * hexUnit, y - 29f * hexUnit)
               close()
             }
         val (ground, outline) =
@@ -95,11 +107,11 @@ internal fun MarsTab() {
         if (area.tile == null && area.kind == "VolcanicArea") {
           val volcano =
               Path().apply {
-                moveTo(x - 17.2f * unit, y + 29.6f * unit)
-                lineTo(x - 6.8f * unit, y + 8.8f * unit)
-                lineTo(x - 1.2f * unit, y + 16f * unit)
-                lineTo(x + 6.8f * unit, y + 5.6f * unit)
-                lineTo(x + 17.2f * unit, y + 29.6f * unit)
+                moveTo(x - 17.2f * hexUnit, y + 29.6f * hexUnit)
+                lineTo(x - 6.8f * hexUnit, y + 8.8f * hexUnit)
+                lineTo(x - 1.2f * hexUnit, y + 16f * hexUnit)
+                lineTo(x + 6.8f * hexUnit, y + 5.6f * hexUnit)
+                lineTo(x + 17.2f * hexUnit, y + 29.6f * hexUnit)
                 close()
               }
           drawPath(volcano, Color(0xD2191311))
@@ -107,8 +119,8 @@ internal fun MarsTab() {
       }
     }
     for (area in areas) {
-      val centerX = 500f + 107f * (area.column - area.row / 2f - 2.5f)
-      val centerY = 125f + 93.5f * (area.row - 1)
+      val centerX = centerX(area)
+      val centerY = centerY(area)
       val tile = area.tile
       if (tile == null) {
         if (area.kind == "NoctisArea") {
@@ -116,12 +128,12 @@ internal fun MarsTab() {
             Text(
                 line,
                 Modifier.offset(
-                        left + side * ((centerX - 35f) / 1000f),
-                        top + side * ((centerY + 5f + index * 17f) / 1000f),
+                        left + side * ((centerX - 35f * mapScale) / 1000f),
+                        top + side * ((centerY + (5f + index * 17f) * mapScale) / 1000f),
                     )
-                    .width(side * 0.07f),
+                    .width(side * 0.07f * mapScale),
                 color = Color(0xFF221D12),
-                fontSize = (side.value * 0.016f).sp,
+                fontSize = (side.value * 0.016f * mapScale).sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -129,29 +141,29 @@ internal fun MarsTab() {
           }
         }
         for ((index, bonus) in area.bonus.withIndex()) {
-          val iconSize = minOf(side * 0.025f, playerCubeSize)
+          val iconSize = minOf(side * 0.025f * mapScale, playerCubeSize)
           val position =
               Modifier.offset(
-                      left + side * ((centerX - 45.7f + index * 25f) / 1000f),
-                      top + side * ((centerY - 23f) / 1000f),
+                      left + side * ((centerX + (-45.7f + index * 25f) * mapScale) / 1000f),
+                      top + side * ((centerY - 23f * mapScale) / 1000f),
                   )
                   .size(iconSize)
-          val image = bonus.image?.let { rememberBundledImage("files/icons/$it.png") }
+          val image = bonus.image?.let { rememberGameImage("classes/30px/$it.png") }
           if (image != null) {
             Image(image, bonus.image, position, contentScale = ContentScale.Fit)
           } else if (bonus.label != null) {
             Box(position, contentAlignment = Alignment.Center) {
-              Text(bonus.label, color = Color.White, fontSize = (side.value * 0.014f).sp)
+              Text(bonus.label, color = Color.White, fontSize = (side.value * 0.014f * mapScale).sp)
             }
           }
         }
         continue
       }
       val image =
-          rememberBundledImage("files/cards/$tile.png")
-              ?: if ("City" in tile) rememberBundledImage("files/cards/CityTile.png") else null
-      val tileWidth = side * (if (tile == "GreeneryTile") 0.093f else 0.118f)
-      val tileHeight = side * (if (tile == "GreeneryTile") 0.107f else 0.118f)
+          rememberGameImage("classes/$tile.png")
+              ?: if ("City" in tile) rememberGameImage("classes/CityTile.png") else null
+      val tileWidth = side * (if (tile == "GreeneryTile") 0.093f else 0.118f) * mapScale
+      val tileHeight = side * (if (tile == "GreeneryTile") 0.107f else 0.118f) * mapScale
       if (image != null)
           Image(
               image,
@@ -166,10 +178,10 @@ internal fun MarsTab() {
       if (area.owner != null) {
         ActorSquare(
             area.owner,
-            playerCubeSize,
+            cubeSize,
             Modifier.offset(
-                x = left + side * (centerX / 1000f) - playerCubeSize / 2,
-                y = top + side * (centerY / 1000f) - playerCubeSize / 2,
+                x = left + side * (centerX / 1000f) - cubeSize / 2,
+                y = top + side * (centerY / 1000f) - cubeSize / 2,
             ),
         )
       }
@@ -432,9 +444,9 @@ internal fun TurmoilTab() {
   }
 }
 
-/** The game file's resolved GameConfig and GamePremise selections. */
+/** The game's resolved GameConfig and GamePremise selections, and a live game's shuffle seed. */
 @Composable
-internal fun ConfigTab(config: GameConfig?, premise: GamePremise?) {
+internal fun ConfigTab(config: GameConfig?, premise: GamePremise?, seed: Int?) {
   val palette = LocalPalette.current
   TabColumn {
     SectionLabel("FILE CONFIG · RESOLVED")
@@ -449,6 +461,7 @@ internal fun ConfigTab(config: GameConfig?, premise: GamePremise?) {
           style = palette.mono,
       )
     }
+    seed?.let { Text("Deck shuffle seed: $it", style = palette.mono) }
     Spacer(Modifier.height(palette.spacing))
     SectionLabel("GAME PREMISE")
     val table = premise.classTable
@@ -498,21 +511,20 @@ internal fun ConfigTab(config: GameConfig?, premise: GamePremise?) {
 
 /** The selected Pets class and the selected task, using the loaded recording's class table. */
 @Composable
-internal fun PetsInfoTab(selectedTask: Int?, selectedClass: String?, classTable: ClassTable?) {
+internal fun PetsInfoTab(selectedTask: Int?, selectedClass: String?, classTable: ClassTable) {
   val specimen = LocalSpecimen.current
   val palette = LocalPalette.current
   TabColumn {
     SectionLabel("SELECTED CLASS")
-    val klass = selectedClass?.let { classTable?.findClass(cn(it)) }
+    val klass = selectedClass?.let { classTable.findClass(cn(it)) }
     if (klass == null) {
       Text(
           "Select a class name anywhere in the workspace.",
           style = palette.body.copy(color = palette.dimText),
       )
     } else {
-      val tree = remember(specimen) { TypeTree(specimen) }
       val present =
-          specimen.components.filter { klass.className.toString() in tree.ancestors(it.className) }
+          specimen.components.filter { classTable.getClass(cn(it.className)).isSubtypeOf(klass) }
       RawField("name", klass.className.toString())
       klass.docstring?.takeIf(String::isNotBlank)?.let { RawField("docstring", it) }
       SectionLabel("PETS DECLARATION")
@@ -530,13 +542,15 @@ internal fun PetsInfoTab(selectedTask: Int?, selectedClass: String?, classTable:
         SectionLabel("INVARIANTS")
         klass.invariants.forEach { ClassLinkedText(it.toString(), Modifier.fillMaxWidth()) }
       }
-      classTable?.allSubclasses(klass)?.let { subclasses ->
-        val names =
-            subclasses.map { it.className.toString() }.filter { it != selectedClass }.sorted()
-        if (names.isNotEmpty()) {
-          SectionLabel("SUBCLASSES (${names.size})")
-          ClassLinkedText(names.take(40).joinToString(", "), Modifier.fillMaxWidth())
-        }
+      val subclasses =
+          classTable
+              .allSubclasses(klass)
+              .map { it.className.toString() }
+              .filter { it != selectedClass }
+              .sorted()
+      if (subclasses.isNotEmpty()) {
+        SectionLabel("SUBCLASSES (${subclasses.size})")
+        ClassLinkedText(subclasses.take(40).joinToString(", "), Modifier.fillMaxWidth())
       }
       RawField("presentTypes", "${present.size}")
       RawField("presentComponents", "${present.sumOf { it.count }}")
@@ -583,7 +597,7 @@ internal fun SectionLabel(text: String) {
 }
 
 @Composable
-private fun TabColumn(content: @Composable ColumnScope.() -> Unit) {
+internal fun TabColumn(content: @Composable ColumnScope.() -> Unit) {
   val palette = LocalPalette.current
   Column(
       Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(palette.spacing * 1.6f),

@@ -26,6 +26,7 @@ kotlin {
 
 dependencies {
   implementation(libs.kotlinx.coroutines.core)
+  implementation(libs.kotlinx.serialization.json)
   implementation(project(":agent"))
   implementation("dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}")
   implementation("dev.martianzoo.pets:tfm-canon:${providers.gradleProperty("petsVersion").get()}")
@@ -66,6 +67,18 @@ val replayExportsEnabled =
         .gradleProperty("replayExports")
         .map { it.isEmpty() || it.toBooleanStrict() }
         .orElse(false)
+
+tasks.register<JavaExec>("buildReplayIndex") {
+  group = "build"
+  description = "Extracts configurations and completed scores for the Playground game chooser."
+  if (replayExportsEnabled.get()) dependsOn(":tfm-tests:jvmTest")
+  classpath = sourceSets.main.get().runtimeClasspath
+  mainClass.set("dev.martianzoo.tfm.tools.BuildReplayIndexKt")
+  val output = layout.buildDirectory.file("generated/replay-index/index.json")
+  inputs.dir(replayEventLogsDirectory)
+  outputs.file(output)
+  args(replayEventLogsDirectory.get().asFile.absolutePath, output.get().asFile.absolutePath)
+}
 
 tasks.register<JavaExec>("dumpAllExpansionsEventLogs") {
   group = "reporting"

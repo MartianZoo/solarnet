@@ -93,14 +93,25 @@ the intended current Catalog; do not patch the exported hash or weaken the check
 
 - JVM replay tests emit full `.json` and short `.short.json` files and verify live reconstruction
   when run with `-PreplayExports`. Default replay runs skip input recording and this export workflow.
+  Exports also include `.config.txt` display files containing their original GameConfig and player
+  names for Playground's game picker; these are not reconstructed from the resolved premise.
+  `:tools:buildReplayIndex` opens the full exports at build time and combines completed scores with
+  those configuration files into the bundled chooser index. The browser reads that small index
+  without reconstructing the listed games. Packaging reuses existing exports unless
+  `-PreplayExports` is supplied to regenerate them through the JVM test suite.
   The former `GameRecordingJson`, standalone TaskLog text export, and standalone `EventLogJson`
   text codec were removed. `EventLogJson` remains an internal part of the full game-file codec.
 - `dumpEventlog` still produces a human TSV report from a full game file.
 - REPL `script`, command history, and `GameConfig` remain separate developer/setup facilities.
   No game exporter currently generates REPL scripts.
-- The deleted Viewer is not a consumer. Playground currently loads full game files through
-  `GameFileJson` for passive history playback. Its replay exporter retains positions before explicit
-  Player selections and corrections. Playground has no upload UI or Agent runtime yet.
+- The deleted Viewer is not a consumer. Playground lists the replay tests' bundled full game files,
+  opens their exact events through `GameFileJson` and animates saved positions before leaving the
+  viewer at the final position. Strict engine verification stays in the replay export tests.
+  Event-log balances are measured by applying the original events to a passive `GameWorld` and
+  reading each resulting component count. Its replay exporter retains positions before Player
+  selections and corrections, including automatic selections that leave an abstract task awaiting
+  input. Automatically completed tasks do not add decision positions. Playground has no upload UI;
+  its separate Play mode uses live Agents.
 - A public-database ingester and a friendlier mismatch workflow come after the lockstep format.
 
 ## Remaining decisions

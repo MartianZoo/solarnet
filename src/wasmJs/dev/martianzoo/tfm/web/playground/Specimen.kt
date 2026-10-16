@@ -17,7 +17,6 @@ internal data class Specimen(
     val tasks: List<PendingTask>,
     val events: List<LoggedChange>,
     val components: List<PresentComponent>,
-    val classes: List<ClassInfo>,
     val map: List<MapArea> = emptyList(),
     val colonies: List<ColonyState> = emptyList(),
 ) {
@@ -31,15 +30,32 @@ internal data class Specimen(
       val name: String,
       val terraformRating: Int,
       val handCards: Int,
+      val eventCards: Int,
       /** Stock and production for each standard resource. */
       val resources: Map<String, List<Int>>,
       val tags: Map<String, Int>,
-      /** Face-up cards in the order they entered play. */
-      val played: List<String>,
-      /** The subset of [played] with local card art. */
-      val playedWithArt: List<String>,
-      val usedActionCards: Set<String> = emptySet(),
+      /** Face-up non-event cards in first-play order. */
+      val played: List<PlayedCard>,
+      /** Named cards in hand, known only in a live game. */
+      val hand: List<String> = emptyList(),
+      /** Named cards in the Selecting area, known only in a live game. */
+      val selecting: List<String> = emptyList(),
   )
+
+  @Serializable
+  internal data class PlayedCard(
+      val name: String,
+      val kind: CardKind,
+      val resources: Int?,
+      val actionUsed: Boolean,
+  )
+
+  internal enum class CardKind {
+    Corporation,
+    Prelude,
+    Automated,
+    Active,
+  }
 
   @Serializable
   internal data class GlobalState(
@@ -99,6 +115,11 @@ internal data class Specimen(
       val signal: Boolean,
       val givenBy: String?,
       val because: Int?,
+      val notes: String? = null,
+      /**
+       * Count after the event: gained type if present, otherwise removed type; blank for signals.
+       */
+      val balance: Int? = null,
   )
 
   @Serializable
@@ -107,19 +128,6 @@ internal data class Specimen(
       val count: Int,
       val className: String,
       val nonReal: Boolean,
-      val system: Boolean,
-      /** Bound type of each dependency, keyed as `DeclaringClass_index`. */
-      val dependencies: Map<String, String>,
-  )
-
-  @Serializable
-  internal data class ClassInfo(
-      val name: String,
-      val abstract: Boolean,
-      val superclasses: List<String>,
-      /** The class with all of its dependencies at their declared bounds. */
-      val baseType: String,
-      val dependencyKeys: List<String>,
   )
 
   @Serializable

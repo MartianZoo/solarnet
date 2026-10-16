@@ -11,6 +11,14 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   The command-line check proves that an unpublished Pets edit reaches a Solarnet test;
   the interactive IDE acceptance check remains unverified.
 
+- Revisit the Playground Effects tab's temporary exclusions (Placement, UseAction, Billing,
+  End, and self triggers) after reviewing their usefulness; consider an opt-in view for hidden subscriptions.
+- Settle the Effects tab's Admin filter. Keep global effects visible for now: an unowned
+  effect can execute for a player depending on the triggering event.
+- Investigate leading class names disappearing intermittently in headless Chrome when toggling
+  icons/trays in Effects. Reproduce in a normal browser before changing the shared PetsText
+  renderer; recreating rows and splitting trigger/consequence text did not reliably fix it.
+
 - Wild tags are not yet supported when Robotic Workforce or Cyberia Systems copies production:
   Research Network cannot be selected through its wild, and copied Gyropolis does not allocate
   Earth tags for its production. Allocate only after the copy target is known; preserve Building
@@ -93,9 +101,40 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   solving. Evidence and remaining uncertainties are in `_local/replays/Game20250919/sources.md`
   and `derived/action-inventory.md`.
 
-## Mars Playground
+## Mars Playground display
 
-- Give player-action squares English choice summaries from the chosen action and its completed
-  event group, including quantities such as patents sold.
-- Add sandbox and gameplay operations after the passive history viewer is sound, using the same
-  world and task rules and keeping history positions limited to completed replay steps.
+- [ ] Consider amount-specific positive MC icons in task text (`1 MC` as `MC01`, `11 MC` as
+  `MC11`). Keep generic MC elsewhere and do not use negative amount icons.
+- [ ] Reproduce the navigation freeze reported on 2026-10-15. The recording and final input are
+  not yet known; navigation checks on the August 18 recording have not reproduced it.
+- [ ] Investigate missed automated Play clicks when the pointer stays over the first task row as
+  it changes (gain 14 TR, then draw two corporations). Headless clicks spaced 1.2 seconds apart
+  sometimes missed the draw; moving away between clicks completed draw, undo, redraw, naming,
+  cancellation, and discard without exceptions. Confirm in a normal browser and distinguish
+  delayed rendering from hover handling before changing tooltips. Moving two pixels within the
+  row did not help. Keying rows by task ID or choice label did not establish a reliable fix and
+  produced `RootNodeOwner is already disposed` during cancellation/retry; that experiment was
+  reverted. With the original row code, that exception appeared after reconnecting/resizing the
+  automated browser with a tooltip open, but not in fresh uninterrupted sessions.
+
+## Mars Playground solo play
+
+- [ ] Walk through Research Coordination wild-tag assignment and cleanup in Play, including
+  temporary dashboard tag counts and history navigation with the restored Canon wild tags.
+
+- [ ] Reduce the remaining first-open catalog and chosen-configuration validation pause. Menu
+  candidate checks are cached and yield between candidates; constructing the first catalog and
+  validating an individual premise still run synchronously in the browser.
+
+- [ ] Extend live-session walkthroughs to Prelude plays directly from Selecting and larger
+  expansion combinations. The initial review covered base-game setup, purchase/play, a complete
+  losing solo run, dealer searches/transfers/reveals, cancellation, and history recovery. A follow-up
+  verified neutral placement, opening draws/undo, and complete losing runs on all seven maps; this
+  does not establish every expansion's task-form interaction.
+
+## Card tracking
+
+- [ ] Decide whether to verify card identities and claim filters for deck flips outside tracked hands
+  and Selecting offers, such as Search for Life and Asteroid Deflection System. The playground
+  excludes both from live games until fresh reveals can be named. Reuse tracking for known-card
+  reveal/return rather than adding a second card-location model.

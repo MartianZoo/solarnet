@@ -38,7 +38,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var gamePremise: GamePremise
     private set
 
-  protected abstract val config: GameConfig
+  internal abstract val config: GameConfig
   protected open val requireExplicitPaymentChoices: Boolean = true
   internal var exportReplay: Boolean = false
 
@@ -192,7 +192,6 @@ internal abstract class AbstractFullGameTest : TfmTest() {
       admin.venusPercent() shouldBe venus
     }
   }
-
 }
 
 internal fun TfmGameplay.assertTags(

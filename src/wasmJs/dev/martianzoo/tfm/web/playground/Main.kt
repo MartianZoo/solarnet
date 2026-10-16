@@ -1,12 +1,21 @@
 package dev.martianzoo.tfm.web.playground
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
@@ -15,50 +24,49 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.fromKeyword
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeViewport
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.text.EnglishInstructionTextRenderer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.configureWebResources
 
 @OptIn(ExperimentalComposeUiApi::class)
 public fun main() {
+  configureWebResources {
+    resourcePathMapping { path ->
+      val imagePath = path.substringAfter("/files/images/", "")
+      if (imagePath.isEmpty()) "./$path" else "https://www.martianzoo.dev/images/$imagePath"
+    }
+  }
   ComposeViewport { MarsPlayground() }
 }
 
 /**
- * The mockup's layout and style, shared with the development server's layout file when there is
- * one. Writes happen only when an arrangement settles, never during a drag.
+ * The mockup's in-memory layout and style, initialized from code. Adjustments are written for
+ * review only when an arrangement settles, never read back from the snapshot.
  */
 @Stable
 internal class LayoutStore {
   var layout by mutableStateOf(MockupLayout())
     private set
 
-  /** Whether a development server is persisting the layout. */
-  private var persisting = false
-  private var lastWritten: String? = null
-
-  fun connect() {
-    loadLayoutText { text ->
-      if (text != null) {
-        persisting = true
-        adopt(text)
-        watchLayoutFile { loadLayoutText { changed -> changed?.let(::adopt) } }
-      }
-    }
-  }
-
-  private fun adopt(text: String) {
-    val read = runCatching { MockupLayout.fromJson(text) }.getOrNull() ?: return
-    lastWritten = read.toJson()
-    layout = read
-  }
+  private var lastWritten: String = layout.toJson()
 
   /** Shows [arranged] immediately without writing it. */
   fun arrange(arranged: MockupLayout) {
@@ -66,7 +74,6 @@ internal class LayoutStore {
   }
 
   fun save() {
-    if (!persisting) return
     val json = layout.toJson()
     if (json == lastWritten) return
     lastWritten = json
@@ -77,11 +84,19 @@ internal class LayoutStore {
 @Composable
 private fun MarsPlayground() {
   val recording = remember { RecordingStore() }
-  val store = remember { LayoutStore().also { it.connect() } }
+  val store = remember { LayoutStore() }
+  val scope = rememberCoroutineScope()
+  val loadGame: (String) -> Unit = { name -> scope.launch { recording.load(name) } }
+  val newGame = remember { NewGameDraft() }
+  var choosingGame by remember { mutableStateOf(false) }
+  var startupError by remember { mutableStateOf<String?>(null) }
   LaunchedEffect(Unit) { recording.discover() }
   LaunchedEffect(Unit) {
     watchHistoryKeys { key ->
+      if (recording.loading) return@watchHistoryKeys true
+      if (choosingGame) return@watchHistoryKeys false
       when (key) {
+        "Undo" -> recording.undo()
         "ArrowUp" -> recording.stepStop(-1)
         "ArrowDown" -> recording.stepStop(1)
         "ArrowLeft" -> recording.stepAction(-1)
@@ -97,26 +112,80 @@ private fun MarsPlayground() {
   }
   PlaygroundTheme(style) {
     val palette = LocalPalette.current
-    Column(
-        Modifier.fillMaxSize().background(palette.background).verticalScroll(rememberScrollState())
-    ) {
-      val loaded = recording.specimen
-      if (loaded != null) {
-        CompositionLocalProvider(LocalSpecimen provides loaded) { Playground(store, recording) }
-      } else {
-        Text(recording.error ?: "Loading replay…", Modifier.padding(24.dp), style = palette.body)
+    Box(Modifier.fillMaxSize().onPreviewKeyEvent { recording.loading }) {
+      Column(
+          Modifier.fillMaxSize()
+              .background(palette.background)
+              .verticalScroll(rememberScrollState())
+      ) {
+        val loaded = recording.specimen
+        if (loaded != null) {
+          CompositionLocalProvider(LocalSpecimen provides loaded) {
+            Playground(store, recording, loadGame) { choosingGame = true }
+          }
+          Box(Modifier.fillMaxWidth().height(palette.borderWidth).background(palette.line))
+          StyleControls(style) { store.arrange(store.layout.copy(style = it)) }
+        } else {
+          Row(
+              Modifier.fillMaxWidth().height(76.dp).padding(horizontal = 24.dp),
+              verticalAlignment = Alignment.CenterVertically,
+          ) {
+            Box(Modifier.weight(1f).fillMaxHeight()) { TitleBar() }
+            OutlinedAction("PLAY", palette.accent) { choosingGame = true }
+            Spacer(Modifier.width(palette.spacing))
+            LoadGameAction(recording, loadGame)
+          }
+          Text(
+              recording.error
+                  ?: recording.playbackMessage
+                  ?: "Choose PLAY for a solo game, or LOAD GAME to browse a recording.",
+              Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+              style = palette.body,
+          )
+        }
       }
-      Box(Modifier.fillMaxWidth().height(palette.borderWidth).background(palette.line))
-      StyleControls(style) { store.arrange(store.layout.copy(style = it)) }
+      if (recording.loading) {
+        Box(
+            Modifier.matchParentSize().pointerInput(Unit) {
+              awaitPointerEventScope {
+                while (true) awaitPointerEvent().changes.forEach { it.consume() }
+              }
+            }
+        )
+      }
+    }
+    if (choosingGame) {
+      NewGameDialog(newGame, { choosingGame = false }, startupError) { config, seed ->
+        if (recording.play(config, seed)) {
+          choosingGame = false
+          startupError = null
+        } else startupError = recording.error
+      }
     }
   }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun Playground(store: LayoutStore, recording: RecordingStore) {
+private fun Playground(
+    store: LayoutStore,
+    recording: RecordingStore,
+    onLoad: (String) -> Unit,
+    onPlay: () -> Unit,
+) {
   val specimen = LocalSpecimen.current
+  var shownTab by remember { mutableStateOf(GlobalTab.Explorer) }
+  var useIcons by remember { mutableStateOf(true) }
+  var useTrays by remember { mutableStateOf(false) }
+  var publishedCardText by remember { mutableStateOf(false) }
+  val handOrders = remember(recording.gameRevision) { mutableStateMapOf<String, List<String>>() }
+  val tabs = availableTabs(specimen, recording.playing)
+  val selectedTab = shownTab.takeIf { it in tabs } ?: GlobalTab.Explorer
+  LaunchedEffect(recording.gameRevision) {
+    shownTab = if (recording.playing) GlobalTab.Play else GlobalTab.Explorer
+  }
   val scope = rememberCoroutineScope()
-  val tabs = remember { GlobalTabs(pinned = GlobalTab.Mars, shown = GlobalTab.Explorer) }
+  val infoPane = remember { BringIntoViewRequester() }
   var selectedTask by remember { mutableStateOf(specimen.tasks.find { it.selected }?.id) }
   LaunchedEffect(specimen.source.event) {
     selectedTask = specimen.tasks.find { it.selected }?.id
@@ -124,77 +193,165 @@ private fun Playground(store: LayoutStore, recording: RecordingStore) {
   var selectedClass by remember { mutableStateOf<String?>(null) }
   val openClass: (String) -> Unit = { name ->
     selectedClass = name
-    tabs.show(GlobalTab.PetsInfo)
+    shownTab = GlobalTab.PetsInfo
+    scope.launch { infoPane.bringIntoView() }
   }
-  var referencedEvent by remember(specimen.source.replay) { mutableStateOf<Int?>(null) }
-  LaunchedEffect(recording.eventOrdinal) { referencedEvent = null }
-  val explorer = remember { ExplorerState() }
+  val explorer = remember(recording.classTable) { ExplorerState() }
   val viewed = remember(specimen.players.size) { ViewedPlayer(specimen.players.size) }
   val classNames =
-      remember(specimen.source.replay) { specimen.classes.mapTo(hashSetOf()) { it.name } }
+      remember(recording.classTable) {
+        requireNotNull(recording.classTable).allClasses().mapTo(hashSetOf()) {
+          it.className.toString()
+        }
+      }
+  val cardNames =
+      remember(recording.classTable) {
+        val table = requireNotNull(recording.classTable)
+        val cardFront = table.getClass(cn("CardFront"))
+        table
+            .allClasses()
+            .filter { !it.abstract && it.isSubtypeOf(cardFront) }
+            .mapTo(hashSetOf()) { it.className.toString() }
+      }
   val layout = store.layout
 
   @Composable
   fun TabContent(tab: GlobalTab) {
     when (tab) {
-      GlobalTab.Mars -> MarsTab()
+      GlobalTab.Play -> PlayTab(recording, useIcons)
       GlobalTab.Players -> PlayersTab()
       GlobalTab.Goals -> GoalsTab()
       GlobalTab.Colonies -> ColoniesTab()
       GlobalTab.Turmoil -> TurmoilTab()
-      GlobalTab.Explorer -> ExplorerTab(explorer, false, selectedClass)
-      GlobalTab.Config -> ConfigTab(recording.config, recording.premise)
-      GlobalTab.PetsInfo -> PetsInfoTab(selectedTask, selectedClass, recording.classTable)
+      GlobalTab.Effects ->
+          EffectsTab(
+              requireNotNull(recording.classTable),
+              recording.bootstrapEffects,
+              recording.includeImaginary,
+              useIcons,
+          )
+      GlobalTab.Explorer ->
+          ExplorerTab(explorer, requireNotNull(recording.classTable), selectedClass)
+      GlobalTab.Config -> ConfigTab(recording.config, recording.premise, recording.seed)
+      GlobalTab.PetsInfo ->
+          PetsInfoTab(selectedTask, selectedClass, requireNotNull(recording.classTable))
     }
   }
 
-  CompositionLocalProvider(LocalOpenClass provides openClass, LocalClassNames provides classNames) {
+  CompositionLocalProvider(
+      LocalOpenClass provides openClass,
+      LocalClassNames provides classNames,
+      LocalCardNames provides cardNames,
+      LocalUseTrays provides useTrays,
+      LocalInstructionEnglish provides
+          remember(recording.classTable) {
+            recording.classTable?.let { EnglishInstructionTextRenderer(it) }
+          },
+  ) {
     Workspace(layout, store::arrange, store::save) { region ->
       when (region) {
-        Region.Title -> TitleBar(Mode.HISTORY)
-        Region.OutOfGame ->
-            OutOfGame(recording.gameNames, recording::seekToStart) { name ->
-              scope.launch { recording.load(name) }
-            }
-        Region.LeftPane ->
-            GlobalPane(listOf(tabs.pinned), tabs.pinned, onSelect = {}, onPin = null) {
-              TabContent(tabs.pinned)
-            }
-        Region.RightPane ->
-            GlobalPane(tabs.unpinned, tabs.shown, tabs::show, tabs::pin) { TabContent(tabs.shown) }
-        Region.GlobalDashboard -> GlobalDashboard()
-        Region.MessageBar -> MessageBar(recording.gameName, recording.eventOrdinal, recording.error)
-        Region.TaskQueue ->
-            TaskQueue(
-                layout.columns(MockupLayout.TASK_TABLE),
-                { store.arrange(store.layout.withColumns(MockupLayout.TASK_TABLE, it)) },
-                store::save,
-                selectedTask,
-                recording::isVisibleEvent,
-                recording::hiddenEventDescription,
-                { referencedEvent = it },
+        Region.Title -> TitleBar(recording)
+        Region.OutOfGame -> OutOfGame(recording, onLoad, onPlay, recording::seekToStart)
+        Region.Mars -> Surface { MarsTab() }
+        Region.Details ->
+            GlobalPane(
+                tabs,
+                selectedTab,
+                { shownTab = it },
+                modifier = Modifier.bringIntoViewRequester(infoPane),
             ) {
-              selectedTask = it
+              TabContent(selectedTab)
             }
-        Region.EventLog ->
-            EventLog(
-                layout.columns(MockupLayout.EVENT_TABLE),
-                { store.arrange(store.layout.withColumns(MockupLayout.EVENT_TABLE, it)) },
-                store::save,
+        Region.GlobalDashboard -> GlobalDashboard()
+        Region.MessageBar ->
+            MessageBar(
+                recording.gameName,
                 recording.eventOrdinal,
-                recording.stopOrdinals,
-                recording.generationStarts,
-                recording.actionStops,
-                referencedEvent,
-                recording::isVisibleEvent,
-                recording::hiddenEventDescription,
-                { referencedEvent = it },
-                recording::seekToEvent,
-                recording::seekToStop,
+                recording.error ?: recording.problem,
+                recording.playbackMessage ?: recording.prompt?.heading,
             )
+        Region.History ->
+            Column(Modifier.fillMaxSize()) {
+              val fraction = layout.eventLogFraction.coerceIn(0.2f, 0.85f)
+              val density = LocalDensity.current.density
+              val palette = LocalPalette.current
+              Box(Modifier.weight(fraction).fillMaxWidth()) {
+                EventLog(
+                    recording.includeAdmin,
+                    { recording.includeAdmin = it },
+                    recording.includeImaginary,
+                    { recording.includeImaginary = it },
+                    useIcons,
+                    { useIcons = it },
+                    useTrays,
+                    { useTrays = it },
+                    layout.columns,
+                    { store.arrange(store.layout.copy(columns = it)) },
+                    store::save,
+                    recording.eventOrdinal,
+                    recording.visibleEvents,
+                    recording.visibleStops,
+                    recording.generationStarts,
+                    recording.actionStops,
+                    recording.focusedEvent,
+                    recording.navigationRevision,
+                    recording::eventInstruction,
+                    recording::seekToEvent,
+                    recording::seekToStop,
+                )
+              }
+              Box(
+                  Modifier.fillMaxWidth()
+                      .height(16.dp)
+                      .pointerHoverIcon(PointerIcon.fromKeyword("row-resize"))
+                      .draggable(
+                          state =
+                              rememberDraggableState { delta ->
+                                val current = store.layout
+                                val height =
+                                    (current[Region.History].height - 16f).coerceAtLeast(1f)
+                                store.arrange(
+                                    current.copy(
+                                        eventLogFraction =
+                                            (current.eventLogFraction + delta / density / height)
+                                                .coerceIn(0.2f, 0.85f)
+                                    )
+                                )
+                              },
+                          orientation = Orientation.Vertical,
+                          onDragStopped = { store.save() },
+                      ),
+                  contentAlignment = Alignment.Center,
+              ) {
+                Box(Modifier.fillMaxWidth().height(palette.borderWidth).background(palette.line))
+                Box(Modifier.width(40.dp).height(3.dp).background(palette.accent))
+              }
+              Box(Modifier.weight(1f - fraction).fillMaxWidth()) {
+                TaskQueue(
+                    useIcons,
+                    layout.columns,
+                    { store.arrange(store.layout.copy(columns = it)) },
+                    store::save,
+                    selectedTask,
+                    recording::eventInstruction,
+                    recording::seekToEvent,
+                ) {
+                  selectedTask = it
+                }
+              }
+            }
         Region.PreviousPlayer -> PlayerArrow("<") { viewed.step(-1) }
         Region.PlayerDashboard -> PlayerSwipe(viewed) { PlayerDashboard(it) }
-        Region.PlayedCards -> PlayerSwipe(viewed) { PlayedCards(it) }
+        Region.PlayedCards ->
+            PlayerSwipe(viewed) { player ->
+              PlayedCards(
+                  player,
+                  publishedCardText,
+                  { publishedCardText = it },
+                  handOrders[player.name].orEmpty(),
+                  { handOrders[player.name] = it },
+              )
+            }
         Region.NextPlayer -> PlayerArrow(">") { viewed.step(1) }
       }
     }

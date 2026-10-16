@@ -54,7 +54,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
   `jvmTest`. Pets runs `BrowserPetsTest` through `:pets:jsBrowserTest`; Web runs its browser history
   tests and the selected replay through `:web:jsBrowserTest`; Almanac runs its English card-text
-  browser test through `:almanac:jsBrowserTest`. Other generated browser tasks are
+  browser test through `:almanac:jsBrowserTest`. Other generated JavaScript browser tasks are
   inert outside the intentionally commented-out full-browser target in the root build.
 - `./gradlew :tfm-tests:gameplayTest` runs every `TfmGameplayTest` subclass, including gameplay
   classes nested inside sandbox suites, without sandbox, synthetic setup, or full-game replay tests.
@@ -63,6 +63,16 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   shared test-source declarations; the JVM-only JUnit `@Tag` cannot label shared JVM/JS tests.
   To measure a fresh run without recompiling everything, use
   `./gradlew :tfm-tests:cleanSandboxTest :tfm-tests:sandboxTest --profile`.
+- `./gradlew :playground:wasmJsBrowserTest` checks Play task previews in headless Chrome, including
+  evaluated labels, unavailable tasks, and restoration of state and history after each preview.
+  It also checks event balances across gains, removals, transfers, and history navigation.
+  Explorer coverage checks that hiding aspect categories preserves concrete components and counts.
+  `PlaySessionTest` checks repeatable opening cards and neutral tiles, cancellation of card naming,
+  and undo before an automatic deal, including explicit continuation with the same cards.
+  `RecordingStoreTest` opens the packaged three-player Turmoil recording, checks preview progress, blocked navigation,
+  final winner messaging and subsequent history navigation, and renders its task English;
+  `karma.config.d/resources.js` serves its Compose resources. Generate replay exports first when
+  absent or stale, using `:tfm-tests:jvmTest --tests '*replays.*' -PreplayExports`.
 - Temporarily uncomment `allBrowserTests` in the root build and run
   `./gradlew allBrowserTests --rerun-tasks` to exercise every shared and browser-specific suite,
   including all portable replay scenarios. The browser replay source set also reads the legacy

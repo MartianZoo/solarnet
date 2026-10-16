@@ -4,13 +4,16 @@ package dev.martianzoo.tfm.web.playground
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -30,6 +33,7 @@ import androidx.compose.ui.input.pointer.fromKeyword
 import androidx.compose.ui.input.pointer.isAltPressed
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -38,9 +42,10 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
- * Lays out every [Region] on a fixed-proportion canvas that scales uniformly to the available
- * width: one logical unit is one `dp` inside [content]. Narrowing the browser shrinks the whole
- * workspace; it never reflows it.
+ * Lays out every [Region] on a canvas that scales uniformly to the available width: one logical
+ * unit is one `dp` inside [content]. Narrowing the browser shrinks the whole workspace; it never
+ * reflows it. The card region's saved height is a minimum; taller card columns extend the canvas so
+ * the whole page can scroll to their bottom.
  *
  * Every region is also a mockup window. Near the region closest to the pointer a dashed outline
  * appears; dragging its edges or corners resizes it and dragging the strip just outside it moves
@@ -58,19 +63,29 @@ internal fun Workspace(
     val scaled = Density(constraints.maxWidth / layout.canvas.width, fontScale = 1f)
     CompositionLocalProvider(LocalDensity provides scaled) {
       val pointer = remember { WindowPointer() }
+      var cardHeight by remember { mutableFloatStateOf(0f) }
+      val pageHeight = max(layout.canvas.height, layout[Region.PlayedCards].y + cardHeight + 16f)
       Box(
-          Modifier.size(layout.canvas.width.dp, layout.canvas.height.dp)
+          Modifier.size(layout.canvas.width.dp, pageHeight.dp)
               .mockupWindows(pointer, layout, onArrange, onArranged)
+              .pointerHoverIcon(
+                  pointer.handle?.cursor ?: PointerIcon.Default,
+                  overrideDescendants = pointer.handle != null,
+              )
       ) {
         for (region in Region.entries) {
           val bounds = layout[region]
-          Box(Modifier.offset(bounds.x.dp, bounds.y.dp).size(bounds.width.dp, bounds.height.dp)) {
-            content(region)
-          }
+          val placement = Modifier.offset(bounds.x.dp, bounds.y.dp)
+          val sized =
+              if (region == Region.PlayedCards) {
+                placement
+                    .width(bounds.width.dp)
+                    .wrapContentHeight(unbounded = true)
+                    .heightIn(min = bounds.height.dp)
+                    .onSizeChanged { cardHeight = it.height / scaled.density }
+              } else placement.size(bounds.width.dp, bounds.height.dp)
+          Box(sized) { content(region) }
         }
-        // Over a handle, a topmost layer shows its cursor; children's own cursors would win
-        // otherwise.
-        pointer.handle?.let { Box(Modifier.fillMaxSize().pointerHoverIcon(it.cursor)) }
       }
     }
   }

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.web.playground
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Checkbox
@@ -23,22 +22,23 @@ import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 
 private val TASK_COLUMNS =
     listOf(
-        TableColumn("ID", end = true),
-        TableColumn("WHO"),
+        TableColumn("#", Alignment.Center),
+        TableColumn("WHO", Alignment.Center),
         TableColumn("INSTRUCTION"),
+        TableColumn(""),
         TableColumn("GIVEN BY"),
-        TableColumn("BECAUSE", end = true),
+        TableColumn("WHY", Alignment.Center),
     )
 
 /**
@@ -47,12 +47,12 @@ private val TASK_COLUMNS =
  */
 @Composable
 internal fun TaskQueue(
+    useIcons: Boolean,
     widths: List<Float>,
     onResize: (List<Float>) -> Unit,
     onResized: () -> Unit,
     selected: Int?,
-    isVisibleCause: (Int) -> Boolean,
-    hiddenCauseDescription: (Int) -> String,
+    causeInstruction: (Int) -> String,
     onShowCause: (Int) -> Unit,
     onSelect: (Int) -> Unit,
 ) {
@@ -63,25 +63,31 @@ internal fun TaskQueue(
       if (specimen.tasks.isEmpty()) {
         Text("No tasks pending at this position.", style = LocalPalette.current.label)
       }
-      RawTable(TASK_COLUMNS, widths, onResize, onResized, rememberLazyListState()) {
+      RawTable(TASK_COLUMNS, widths, onResize, onResized, rememberLazyListState(), gutter = 20.dp) {
         items(specimen.tasks, key = { it.id }) { task ->
-          TableRow(
-              widths,
-              TASK_COLUMNS,
-              height = 28.dp,
-              highlighted = task.id == selected,
-              onClick = { onSelect(task.id) },
-              cells =
-                  listOf(
-                      { NumberText(task.id) },
-                      { Tooltip("Controls the task") { ActorSquare(task.assignee) } },
-                      { PetsText(task.fullInstruction) },
-                      { task.givenBy?.let { PetsText(it) } },
-                      {
-                        CauseLink(task.because, isVisibleCause, hiddenCauseDescription, onShowCause)
-                      },
-                  ),
-          )
+          TaskTooltip(task.fullInstruction, task.assignee) {
+            Row {
+              Spacer(Modifier.width(20.dp))
+              TableRow(
+                  widths,
+                  TASK_COLUMNS,
+                  height = 28.dp,
+                  highlighted = task.id == selected,
+                  onClick = { onSelect(task.id) },
+                  cells =
+                      listOf(
+                          { NumberText(task.id) },
+                          { Tooltip("Controls the task") { ActorSquare(task.assignee) } },
+                          { PetsText(task.fullInstruction, icons = useIcons) },
+                          {},
+                          { task.givenBy?.let { PetsText(it, icons = useIcons) } },
+                          {
+                            CauseLink(task.because, causeInstruction, onShowCause)
+                          },
+                      ),
+              )
+            }
+          }
         }
       }
     }
@@ -90,41 +96,49 @@ internal fun TaskQueue(
 
 private val EVENT_COLUMNS =
     listOf(
-        TableColumn("#", end = true),
-        TableColumn("WHO"),
-        TableColumn("", end = true),
+        TableColumn("#", Alignment.Center),
+        TableColumn("WHO", Alignment.Center),
         TableColumn("COMPONENT"),
+        TableColumn("BAL", Alignment.CenterEnd),
         TableColumn("GIVEN BY"),
-        TableColumn("BECAUSE", end = true),
+        TableColumn("WHY", Alignment.Center),
     )
 
 /**
- * EVENT LOG (PAST): recorded changes in forward order. Thin dividers mark player-request positions;
- * event rows themselves do not move the timeline cursor.
+ * EVENT LOG (PAST): recorded changes in forward order. Ticks between rows on a left rail mark
+ * player decision positions; event rows themselves do not move the timeline cursor.
  */
 @Composable
 internal fun EventLog(
+    includeAdmin: Boolean,
+    onIncludeAdmin: (Boolean) -> Unit,
+    includeImaginary: Boolean,
+    onIncludeImaginary: (Boolean) -> Unit,
+    useIcons: Boolean,
+    onUseIcons: (Boolean) -> Unit,
+    useTrays: Boolean,
+    onUseTrays: (Boolean) -> Unit,
     widths: List<Float>,
     onResize: (List<Float>) -> Unit,
     onResized: () -> Unit,
     checkpointOrdinal: Int,
-    stopOrdinals: List<Int>,
+    shown: List<Specimen.LoggedChange>,
+    stops: Map<Int?, Int>,
     generationStarts: List<Int>,
     actionStops: List<RecordingStore.ActionStop>,
     referencedEvent: Int?,
-    isVisibleCause: (Int) -> Boolean,
-    hiddenCauseDescription: (Int) -> String,
-    onShowCause: (Int) -> Unit,
+    navigationRevision: Int,
+    causeInstruction: (Int) -> String,
     onSeek: (Int) -> Unit,
     onSeekStop: (Int) -> Unit,
 ) {
-  val specimen = LocalSpecimen.current
   val palette = LocalPalette.current
-  val selectedGeneration = generationStarts.count { it < checkpointOrdinal }
+  val navigationOrdinal = referencedEvent ?: (checkpointOrdinal - 1)
+  val selectedGeneration = generationStarts.count { it <= navigationOrdinal }
   val actionScroll = rememberScrollState()
-  val actionStep = with(LocalDensity.current) { 19.dp.roundToPx() }
+  val actionStep = with(LocalDensity.current) { 21.dp.roundToPx() }
   val actions = actionStops.filter { it.generation == selectedGeneration }
-  val activeAction = actions.indexOfLast { it.eventOrdinal < checkpointOrdinal }
+  val activeAction = actions.indexOfLast { it.eventOrdinal <= navigationOrdinal }
   LaunchedEffect(selectedGeneration, activeAction) {
     if (activeAction >= 0) {
       actionScroll.scrollTo(
@@ -132,26 +146,16 @@ internal fun EventLog(
       )
     }
   }
-  var excludeAdmin by remember { mutableStateOf(false) }
-  var excludeNonReal by remember { mutableStateOf(false) }
-  val shown =
-      specimen.events.filter { event ->
-        (!excludeAdmin || event.actor != "Admin") && (!excludeNonReal || event.real)
-      }
   val listState = rememberLazyListState()
   val activeIndex = shown.indexOfFirst { it.ordinal >= checkpointOrdinal }
-  LaunchedEffect(referencedEvent) {
-    if (referencedEvent != null) {
-      excludeAdmin = false
-      excludeNonReal = false
-    }
-  }
-  LaunchedEffect(checkpointOrdinal, excludeAdmin, excludeNonReal, referencedEvent, shown.size) {
+  val halfRow = with(LocalDensity.current) { 16.dp.roundToPx() }
+  LaunchedEffect(navigationRevision, includeAdmin, includeImaginary, referencedEvent, shown.size) {
     val referenceIndex = referencedEvent?.let { target ->
       shown.indexOfFirst { it.ordinal == target }
     }
     listState.scrollToItem(
-        referenceIndex?.takeIf { it >= 0 } ?: activeIndex.takeIf { it >= 0 } ?: shown.size
+        referenceIndex?.takeIf { it >= 0 } ?: activeIndex.takeIf { it >= 0 } ?: shown.size,
+        scrollOffset = if (referenceIndex != null && referenceIndex >= 0) 0 else -halfRow,
     )
   }
   Surface {
@@ -159,8 +163,8 @@ internal fun EventLog(
       Row(verticalAlignment = Alignment.CenterVertically) {
         TableTitle("EVENT LOG", "PAST", Modifier.weight(1f))
         Checkbox(
-            excludeAdmin,
-            { excludeAdmin = it },
+            includeAdmin,
+            onIncludeAdmin,
             Modifier.width(26.dp).height(26.dp),
             colors =
                 CheckboxDefaults.colors(
@@ -168,11 +172,11 @@ internal fun EventLog(
                     uncheckedColor = palette.dimText,
                 ),
         )
-        Text("Exclude Admin", style = palette.label)
+        Text("Include Admin", style = palette.label)
         Spacer(Modifier.width(8.dp))
         Checkbox(
-            excludeNonReal,
-            { excludeNonReal = it },
+            includeImaginary,
+            onIncludeImaginary,
             Modifier.width(26.dp).height(26.dp),
             colors =
                 CheckboxDefaults.colors(
@@ -180,7 +184,31 @@ internal fun EventLog(
                     uncheckedColor = palette.dimText,
                 ),
         )
-        Text("Exclude non-Real", style = palette.label)
+        Text("Include imaginary", style = palette.label)
+        Spacer(Modifier.width(8.dp))
+        Checkbox(
+            useIcons,
+            onUseIcons,
+            Modifier.width(26.dp).height(26.dp),
+            colors =
+                CheckboxDefaults.colors(
+                    checkedColor = palette.accent,
+                    uncheckedColor = palette.dimText,
+                ),
+        )
+        Text("Use icons", style = palette.label)
+        Spacer(Modifier.width(8.dp))
+        Checkbox(
+            useTrays,
+            onUseTrays,
+            Modifier.width(26.dp).height(26.dp),
+            colors =
+                CheckboxDefaults.colors(
+                    checkedColor = palette.accent,
+                    uncheckedColor = palette.dimText,
+                ),
+        )
+        Text("Use trays", style = palette.label)
       }
       if (generationStarts.isNotEmpty()) {
         Row(
@@ -210,48 +238,85 @@ internal fun EventLog(
             verticalAlignment = Alignment.CenterVertically,
         ) {
           actions.forEachIndexed { index, action ->
-            Tooltip("${action.player} action · event ${action.eventOrdinal}") {
-              Box(
-                  Modifier.width(16.dp)
-                      .height(16.dp)
-                      .border(1.dp, if (index == activeAction) palette.accent else palette.line)
-                      .clickable { onSeek(action.eventOrdinal) },
-                  contentAlignment = Alignment.Center,
+            Tooltip(action.summary) {
+              val color = actorColor(action.player)
+              Canvas(
+                  Modifier.width(18.dp).height(18.dp).clickable { onSeek(action.eventOrdinal) }
               ) {
-                ActorSquare(action.player, 10.dp)
+                val triangle =
+                    Path().apply {
+                      moveTo(3.dp.toPx(), 2.dp.toPx())
+                      lineTo(size.width - 2.dp.toPx(), size.height / 2)
+                      lineTo(3.dp.toPx(), size.height - 2.dp.toPx())
+                      close()
+                    }
+                drawPath(triangle, color)
+                if (index == activeAction)
+                    drawPath(triangle, palette.text, style = Stroke(1.5.dp.toPx()))
               }
             }
           }
         }
       }
-      RawTable(EVENT_COLUMNS, widths, onResize, onResized, listState) {
-        itemsIndexed(shown, key = { _, event -> event.ordinal }) { index, event ->
-          Column {
-            val preceding = shown.getOrNull(index - 1)?.ordinal ?: -1
-            stopOrdinals
-                .filter { it > preceding && it <= event.ordinal }
-                .forEach { stop ->
+      RawTable(
+          EVENT_COLUMNS,
+          widths,
+          onResize,
+          onResized,
+          listState,
+          modifier =
+              Modifier.drawBehind {
+                val x = 8.dp.toPx()
+                drawLine(
+                    palette.dimText.copy(alpha = 0.7f),
+                    Offset(x, 23.dp.toPx()),
+                    Offset(x, size.height),
+                    1.dp.toPx(),
+                )
+              },
+          centerRows = true,
+          gutter = 20.dp,
+      ) {
+        items(shown, key = { it.ordinal }) { event ->
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.width(20.dp).height(32.dp)) {
+              stops[event.ordinal]?.let { stop ->
+                Tooltip("Position $stop") {
                   SafeStop(stop == checkpointOrdinal) { onSeekStop(stop) }
                 }
+              }
+            }
             TableRow(
                 widths,
                 EVENT_COLUMNS,
-                height = 20.dp,
+                height = 32.dp,
                 highlighted = event.ordinal == referencedEvent,
                 dimmed = event.ordinal >= checkpointOrdinal,
+                cellTooltip = { column -> event.notes.takeIf { column < EVENT_COLUMNS.lastIndex } },
                 cells =
                     listOf(
                         { NumberText(event.ordinal) },
                         { ActorSquare(event.actor, 10.dp) },
-                        { Delta(event) },
-                        { ChangedComponent(event) },
-                        { event.givenBy?.let { PetsText(it) } },
+                        {
+                          Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.width(32.dp), contentAlignment = Alignment.CenterEnd) {
+                              Delta(event)
+                            }
+                            ChangedComponent(event, useIcons)
+                          }
+                        },
+                        { event.balance?.let { NumberText(it) } },
+                        {
+                          PetsText(
+                              event.givenBy?.takeUnless { it.isBlank() } ?: "EX MACHINA",
+                              icons = useIcons,
+                          )
+                        },
                         {
                           CauseLink(
                               event.because,
-                              isVisibleCause,
-                              hiddenCauseDescription,
-                              onShowCause,
+                              causeInstruction,
+                              onSeek,
                           )
                         },
                     ),
@@ -259,13 +324,10 @@ internal fun EventLog(
           }
         }
         item(key = "final-stops") {
-          Column {
-            val lastEvent = shown.lastOrNull()?.ordinal ?: -1
-            stopOrdinals
-                .filter { it > lastEvent }
-                .forEach { stop ->
-                  SafeStop(stop == checkpointOrdinal) { onSeekStop(stop) }
-                }
+          stops[null]?.let { stop ->
+            Tooltip("Position $stop") {
+              SafeStop(stop == checkpointOrdinal) { onSeekStop(stop) }
+            }
           }
         }
       }
@@ -277,16 +339,13 @@ internal fun EventLog(
 private fun SafeStop(selected: Boolean, onClick: () -> Unit) {
   val palette = LocalPalette.current
   Box(
-      Modifier.fillMaxWidth().height(4.dp).clickable(onClick = onClick),
-      contentAlignment = Alignment.Center,
+      Modifier.width(20.dp).height(32.dp).clickable(onClick = onClick).padding(start = 8.dp),
+      contentAlignment = Alignment.TopStart,
   ) {
     Box(
-        Modifier.fillMaxWidth()
-            .height(if (selected) 1.dp else 0.5.dp)
-            .background(
-                if (selected) palette.accent.copy(alpha = 0.45f)
-                else palette.line.copy(alpha = 0.24f)
-            )
+        Modifier.width(if (selected) 12.dp else 8.dp)
+            .height(if (selected) 2.dp else 1.dp)
+            .background(if (selected) palette.accent else palette.dimText.copy(alpha = 0.7f))
     )
   }
 }
@@ -294,21 +353,18 @@ private fun SafeStop(selected: Boolean, onClick: () -> Unit) {
 @Composable
 private fun CauseLink(
     ordinal: Int?,
-    isVisible: (Int) -> Boolean,
-    hiddenDescription: (Int) -> String,
+    instruction: (Int) -> String,
     onShow: (Int) -> Unit,
 ) {
   if (ordinal == null) return
   val palette = LocalPalette.current
-  if (isVisible(ordinal)) {
+  Tooltip(instruction(ordinal)) {
     Text(
         "$ordinal",
         Modifier.clickable { onShow(ordinal) },
         style = palette.mono,
-        color = palette.accent,
+        color = palette.text,
     )
-  } else {
-    Tooltip(hiddenDescription(ordinal)) { NumberText(ordinal) }
   }
 }
 
@@ -325,18 +381,17 @@ private fun Delta(event: Specimen.LoggedChange) {
 }
 
 @Composable
-private fun ChangedComponent(event: Specimen.LoggedChange) {
-  // Room after the delta column is wider than before it.
+private fun ChangedComponent(event: Specimen.LoggedChange, icons: Boolean) {
   Row(Modifier.padding(start = 6.dp), verticalAlignment = Alignment.CenterVertically) {
     val gaining = event.gaining
     val removing = event.removing
     when {
-      event.isSignal || removing == null -> PetsText(gaining ?: "")
-      gaining == null -> PetsText(removing)
+      event.isSignal || removing == null -> PetsText(gaining ?: "", icons = icons)
+      gaining == null -> PetsText(removing, icons = icons)
       else -> {
-        PetsText(removing)
-        PlainPets("→")
-        PetsText(gaining)
+        PetsText(gaining, icons = icons)
+        PlainPets("FROM")
+        PetsText(removing, icons = icons)
       }
     }
   }

@@ -28,9 +28,16 @@ internal class ReplayExportExtension : BeforeEachCallback, AfterTestExecutionCal
     Files.createDirectories(directory)
     val output = directory.resolve("${context.requiredTestClass.simpleName}.json")
     val shortOutput = directory.resolve("${context.requiredTestClass.simpleName}.short.json")
+    val configOutput = directory.resolve("${context.requiredTestClass.simpleName}.config.txt")
     val json = replay.completedGameFileJson() ?: return@runBlocking
     Files.writeString(output, json)
     Files.writeString(shortOutput, checkNotNull(replay.completedGameFileJson(short = true)))
+    Files.writeString(
+        configOutput,
+        listOf(replay.config.playerNames.joinToString(), replay.config.toString())
+            .filter(String::isNotBlank)
+            .joinToString(),
+    )
     replay.verifyGameFileRoundTrip()
     println("Game-file round-trip passed: ${context.requiredTestClass.simpleName}")
   }

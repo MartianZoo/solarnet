@@ -1,22 +1,30 @@
 package dev.martianzoo.tfm.web.playground
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
@@ -24,28 +32,40 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.PetNode
 
 internal val LocalOpenClass =
     staticCompositionLocalOf<(String) -> Unit> { error("No class navigator") }
 internal val LocalClassNames = staticCompositionLocalOf<Set<String>> { emptySet() }
 
+internal val LocalUseTrays = staticCompositionLocalOf { false }
+
 private val classWord = Regex("[A-Za-z][A-Za-z0-9_]*")
 
 @Composable
-private fun linkedPets(text: String): AnnotatedString {
+private fun linkedPets(
+    text: String,
+    icons: Set<String> = emptySet(),
+    linkClasses: Boolean = true,
+): AnnotatedString {
   val classNames = LocalClassNames.current
   val openClass = LocalOpenClass.current
-  val accent = LocalPalette.current.accent
+  val textColor = LocalPalette.current.text
   return buildAnnotatedString {
     var offset = 0
     for (match in classWord.findAll(text)) {
       append(text.substring(offset, match.range.first))
       val name = match.value
-      if (name in classNames) {
+      if (name in icons) {
+        appendInlineContent(name, name)
+      } else if (linkClasses && name in classNames) {
         withLink(
             LinkAnnotation.Clickable(
                 tag = name,
-                styles = TextLinkStyles(style = SpanStyle(color = accent)),
+                styles = TextLinkStyles(style = SpanStyle(color = textColor)),
                 linkInteractionListener = { openClass(name) },
             )
         ) {
@@ -74,124 +94,93 @@ internal fun ClassLinkedText(
       linkedPets(text),
       modifier,
       style = style ?: palette.mono,
-      color = color ?: palette.admin,
+      color = color ?: palette.text,
       maxLines = maxLines,
   )
 }
 
-/**
- * A run of Pets text drawn on one tray. When every player named as a dependency argument is the
- * same [player], those arguments are omitted from [text] and the tray carries that player's color.
- */
+/** A text segment; [player] is set only when this expression lost that player argument. */
 internal data class TrayRun(val text: String, val player: String?)
 
-/** Pets text split into tray runs and the plain keywords or arrows between them. */
-internal sealed interface PetsPiece {
-  data class Run(val run: TrayRun) : PetsPiece
+private val expressionWithArguments =
+    Regex("(?:[A-Za-z][A-Za-z0-9_]*@|@)?[A-Za-z][A-Za-z0-9_]*[<(]")
 
-  data class Joiner(val text: String) : PetsPiece
-}
-
-/** Splits [text] at top-level `THEN`, giving each side its own tray. */
-internal fun petsPieces(text: String, players: Collection<String>): List<PetsPiece> {
-  val parts = splitTopLevel(text, " THEN ")
-  return parts.flatMapIndexed { i, part ->
-    listOfNotNull(
-        PetsPiece.Joiner("THEN").takeIf { i > 0 },
-        PetsPiece.Run(shortenPlayers(part, players)),
-    )
+/** Each complete type expression gets a tray only if its player arguments were removed. */
+internal fun petsPieces(
+    text: String,
+    players: Collection<String>,
+    source: PetNode? = null,
+): List<TrayRun> {
+  if (players.isEmpty()) return listOf(TrayRun(text, null))
+  // Effect variables are scoped by the whole effect, not by an isolated expression. Keep the
+  // original nodes when available; parsing their displayed fragments can lose that scope.
+  val expressions = source?.descendantsOfType<Expression>()?.associateBy { it.toString() }.orEmpty()
+  return buildList {
+    var offset = 0
+    var scanned = 0
+    for (match in expressionWithArguments.findAll(text)) {
+      if (match.range.first < scanned) continue
+      var end = closingDelimiter(text, match.range.last) ?: continue
+      if (text.getOrNull(end) == '(') end = closingDelimiter(text, end) ?: continue
+      val spelling = text.substring(match.range.first, end)
+      val expression =
+          expressions[spelling]
+              ?: runCatching { Parsing.parse<Expression>(spelling) }.getOrNull()
+              ?: continue
+      scanned = end
+      val omitted = mutableSetOf<String>()
+      fun omitPlayers(expression: Expression): Expression {
+        val arguments =
+            expression.arguments
+                .filterNot {
+                  (it.simple && it.toString() in players).also { remove ->
+                    if (remove) omitted += it.toString()
+                  }
+                }
+                .map(::omitPlayers)
+        return expression.copy(
+            arguments = arguments,
+            argumentsSpecified =
+                if (expression.arguments.isEmpty()) expression.argumentsSpecified
+                else arguments.isNotEmpty(),
+        )
+      }
+      val shortened = omitPlayers(expression)
+      val player = omitted.singleOrNull() ?: continue
+      if (match.range.first > offset) add(TrayRun(text.substring(offset, match.range.first), null))
+      add(TrayRun(shortened.toString(), player))
+      offset = end
+    }
+    if (offset < text.length) add(TrayRun(text.substring(offset), null))
   }
 }
 
-private fun splitTopLevel(text: String, separator: String): List<String> {
-  val parts = mutableListOf<String>()
+/** Returns the position after a balanced argument list or refinement. */
+private fun closingDelimiter(text: String, start: Int): Int? {
+  val opening = text[start]
+  val closing = if (opening == '<') '>' else ')'
   var depth = 0
-  var start = 0
-  var i = 0
-  while (i < text.length) {
-    when (text[i]) {
-      '<',
-      '(',
-      '{' -> depth++
-      '>',
-      ')',
-      '}' -> depth--
-    }
-    if (depth == 0 && text.startsWith(separator, i)) {
-      parts += text.substring(start, i)
-      i += separator.length
-      start = i
-    } else {
-      i++
-    }
+  for (i in start until text.length) {
+    if (text[i] == opening) depth++
+    if (text[i] == closing && --depth == 0) return i + 1
   }
-  parts += text.substring(start)
-  return parts
+  return null
 }
 
-/**
- * Omits player-name dependency arguments from [expression] when they all name the same player:
- * `ProjectCard<Yellow, Hand>!` becomes `ProjectCard<Hand>!` on a Yellow tray. A bare player name
- * keeps its text and gets that player's tray. Mixed players leave the text unchanged.
- */
-internal fun shortenPlayers(expression: String, players: Collection<String>): TrayRun {
-  if (expression.trim() in players) return TrayRun(expression, expression.trim())
-  val arguments = mutableListOf<IntRange>()
-  var depth = 0
-  var i = 0
-  while (i < expression.length) {
-    val c = expression[i]
-    when {
-      c == '<' -> {
-        depth++
-        i++
-      }
-      c == '>' -> {
-        depth--
-        i++
-      }
-      c.isLetter() -> {
-        var end = i
-        while (
-            end < expression.length && (expression[end].isLetterOrDigit() || expression[end] == '_')
-        ) end++
-        val before = expression.substring(0, i).trimEnd().lastOrNull()
-        if (
-            depth > 0 && (before == '<' || before == ',') && expression.substring(i, end) in players
-        ) {
-          arguments += i until end
-        }
-        i = end
-      }
-      else -> i++
-    }
-  }
-  val named = arguments.map { expression.substring(it) }.toSet()
-  if (named.size != 1) return TrayRun(expression, null)
-  var shortened = expression
-  for (range in arguments.asReversed()) {
-    val after = shortened.substring(range.last + 1)
-    val before = shortened.substring(0, range.first)
-    shortened =
-        when {
-          after.startsWith(", ") -> before + after.removePrefix(", ")
-          before.endsWith(", ") -> before.removeSuffix(", ") + after
-          else -> before.removeSuffix("<") + after.removePrefix(">")
-        }
-  }
-  return TrayRun(shortened, named.single())
-}
-
-/** Draws [text] in the monospace face, shortened and on player trays as [shortenPlayers] says. */
+/** Draws [text] in the monospace face, optionally shortening player arguments onto trays. */
 @Composable
-internal fun PetsText(text: String, modifier: Modifier = Modifier, color: Color? = null) {
-  val players = LocalSpecimen.current.playerNames
-  Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-    for (piece in petsPieces(text, players)) {
-      when (piece) {
-        is PetsPiece.Joiner -> PlainPets(piece.text, color)
-        is PetsPiece.Run -> TrayText(piece.run, color)
-      }
+internal fun PetsText(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color? = null,
+    icons: Boolean = false,
+    linkClasses: Boolean = true,
+    source: PetNode? = null,
+) {
+  Row(modifier.padding(horizontal = 3.dp), verticalAlignment = Alignment.Bottom) {
+    val players = if (LocalUseTrays.current) LocalSpecimen.current.playerNames else emptyList()
+    for (piece in petsPieces(text, players, source)) {
+      TrayText(piece, color, icons, linkClasses)
     }
   }
 }
@@ -203,7 +192,7 @@ internal fun PlainPets(text: String, color: Color? = null) {
       text,
       Modifier.padding(horizontal = 3.dp),
       style = palette.mono,
-      color = color ?: palette.admin,
+      color = color ?: palette.text,
       maxLines = 1,
       softWrap = false,
   )
@@ -213,16 +202,79 @@ internal fun PlainPets(text: String, color: Color? = null) {
  * One tray run: text close above a thin underline in the player's color, ticked up at both ends.
  */
 @Composable
-internal fun TrayText(run: TrayRun, color: Color? = null) {
+internal fun TrayText(
+    run: TrayRun,
+    color: Color? = null,
+    icons: Boolean = false,
+    linkClasses: Boolean = true,
+) {
   val palette = LocalPalette.current
   var baseline by remember { mutableFloatStateOf(0f) }
   val trayColor = run.player?.let { actorColor(it) }
+  val classNames = LocalClassNames.current
+  val players = LocalSpecimen.current.playerNames
+  val openClass = LocalOpenClass.current
+  val inlineIcons = mutableMapOf<String, InlineTextContent>()
+  if (icons) {
+    val names =
+        classWord
+            .findAll(run.text)
+            .map { it.value }
+            .filter { it in classNames || it in players }
+            .distinct()
+            .toList()
+    for (name in names) {
+      key(name) {
+        if (name in players || name == "SoloOpponent") {
+          inlineIcons[name] =
+              InlineTextContent(Placeholder(1.32.em, 1.32.em, PlaceholderVerticalAlign.Center)) {
+                Tooltip(name) {
+                  ActorSquare(
+                      name,
+                      modifier =
+                          Modifier.fillMaxSize()
+                              .then(
+                                  if (linkClasses) Modifier.clickable { openClass(name) }
+                                  else Modifier
+                              ),
+                  )
+                }
+              }
+        } else {
+          val image = rememberClassIcon(name)
+          if (image != null) {
+            inlineIcons[name] =
+                InlineTextContent(
+                    Placeholder(
+                        (1.32f * image.width / image.height).em,
+                        1.32.em,
+                        PlaceholderVerticalAlign.Center,
+                    )
+                ) {
+                  Tooltip(name) {
+                    Image(
+                        image,
+                        name,
+                        Modifier.fillMaxSize()
+                            .then(
+                                if (linkClasses) Modifier.clickable { openClass(name) }
+                                else Modifier
+                            ),
+                    )
+                  }
+                }
+          }
+        }
+      }
+    }
+  }
   Text(
-      linkedPets(run.text),
-      Modifier.padding(horizontal = 3.dp).drawBehind {
-        if (trayColor == null || baseline == 0f) return@drawBehind
+      linkedPets(run.text, inlineIcons.keys, linkClasses),
+      Modifier.padding(horizontal = if (trayColor == null) 0.dp else 3.dp).drawWithContent {
+        drawContent()
+        if (trayColor == null || baseline == 0f) return@drawWithContent
         val reach = 2.5.dp.toPx()
-        val y = baseline + 2.5.dp.toPx()
+        val y = baseline + 4.5.dp.toPx()
         val tick = 2.5.dp.toPx()
         val stroke = 1.2.dp.toPx()
         drawLine(
@@ -242,10 +294,11 @@ internal fun TrayText(run: TrayRun, color: Color? = null) {
         )
       },
       style = palette.mono,
-      color = color ?: palette.admin,
+      color = color ?: palette.text,
       maxLines = 1,
       softWrap = false,
       overflow = TextOverflow.Clip,
+      inlineContent = inlineIcons,
       onTextLayout = { baseline = it.firstBaseline },
   )
 }

@@ -518,3 +518,7 @@ semantic invariant needs a focused check.
   `renderMetric.kt`, `renderRequirement.kt`, `renderGoal.kt` — family interpreters.
 - [`EnglishCardTextCurrentGenerator.kt`](../../test/jvm/dev/martianzoo/tfm/text/EnglishCardTextCurrentGenerator.kt)
   — generated snapshot and refusal report.
+
+The public `EnglishInstructionTextRenderer` exposes player-relative instruction rendering to the
+Playground task tooltips. Callers supply the loaded game class table and task assignee; Admin uses
+neutral wording. It delegates to the same English implementation tested by the task experiments.

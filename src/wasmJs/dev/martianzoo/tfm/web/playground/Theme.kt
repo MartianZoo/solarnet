@@ -24,6 +24,7 @@ import org.jetbrains.compose.resources.FontResource
 private val playerColors =
     mapOf(
         "Violet" to Color(0xFFD77AC5),
+        "Purple" to Color(0xFF9B6DE3),
         "Yellow" to Color(0xFFFFE342),
         "Black" to Color(0xFF6C6559),
         "Pink" to Color(0xFFFA9AA9),
@@ -103,11 +104,15 @@ internal val LocalPalette = staticCompositionLocalOf<Palette> { error("no palett
 /** Keeps recorded player identities distinct even when their names are not color words. */
 @Composable
 internal fun actorColor(name: String?): Color {
+  if (name == "SoloOpponent") return Color(0xFFE8E5DC)
   val palette = LocalPalette.current
   val names = LocalSpecimen.current.playerNames
   val seat = names.indexOf(name)
   return if (seat >= 0 && name !in playerColors) {
-    playerColors.values.elementAt(seat % playerColors.size)
+    val reserved = names.mapNotNull(playerColors::get).toSet()
+    val available = playerColors.values.filterNot { it in reserved }
+    val unnamedSeat = names.filterNot { it in playerColors }.indexOf(name)
+    available[unnamedSeat % available.size]
   } else {
     palette.actor(name)
   }

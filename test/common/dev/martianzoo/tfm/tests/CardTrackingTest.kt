@@ -8,6 +8,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.CardTracking
+import dev.martianzoo.tfm.engine.CardTracking.NamesRequiredException
 import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -504,6 +505,48 @@ internal class CardTrackingTest : TfmTest() {
             "Cards: AcquiredCompany",
         )
     tracking.requireComplete()
+  }
+
+  @Test
+  internal fun missingNamesReportTheMovementAndTheCardsThatCouldMove() {
+    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
+    val agent = agents[player]
+    val selecting = cn("Selecting")
+
+    val dealt =
+        shouldThrow<NamesRequiredException> { agent.runOperation("3 ProjectCard<Selecting>") }
+    dealt.arriving shouldBe true
+    dealt.location shouldBe selecting
+    dealt.count shouldBe 3
+    dealt.candidates shouldBe null
+
+    // The offered cards exist only inside the rolled-back attempt; they are still the candidates.
+    tracking.expectArrivals(
+        player,
+        cn("AcquiredCompany"),
+        cn("AdaptedLichen"),
+        cn("MicroMills"),
+        location = selecting,
+    )
+    tracking.expectDepartures(player, cn("AdaptedLichen"), location = selecting)
+    val rejected =
+        shouldThrow<NamesRequiredException> {
+          agent.sneak("3 ProjectCard<Selecting>, -2 ProjectCard<Selecting>")
+        }
+    rejected.arriving shouldBe false
+    rejected.count shouldBe 1
+    rejected.candidates shouldBe setOf(cn("AcquiredCompany"), cn("MicroMills"))
+
+    tracking.expectDepartures(player, cn("MicroMills"), location = selecting)
+    agent.sneak("3 ProjectCard<Selecting>, -2 ProjectCard<Selecting>")
+    tracking.hand(player, location = selecting) shouldBe setOf(cn("AcquiredCompany"))
+
+    val kept =
+        shouldThrow<NamesRequiredException> {
+          agent.runOperation("ProjectCard<Hand FROM Selecting>")
+        }
+    kept.arriving shouldBe true
+    kept.candidates shouldBe setOf(cn("AcquiredCompany"))
   }
 
   @Test

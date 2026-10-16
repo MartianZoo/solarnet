@@ -37,6 +37,7 @@ public class TaskLog internal constructor(private val world: World) {
       var anchor: GameEvent? = null,
       var onlyNarrows: Boolean = false,
       var selectsTask: Boolean = false,
+      var awaitsInput: Boolean = false,
   )
 
   private var recording = false
@@ -79,12 +80,15 @@ public class TaskLog internal constructor(private val world: World) {
     return surviving.filter { !it.onlyNarrows || lastFormCommit[it.formTask] === it }
   }
 
-  /** Positions before surviving explicit Player task selections and replay corrections. */
+  /**
+   * Positions before Player task selections and replay corrections. An automatic selection that
+   * leaves an abstract task awaiting input also exposes a choice; automatic execution does not.
+   */
   public fun selectionCheckpoints(): List<Checkpoint> =
       survivingSubmissions()
           .filter {
             it.kind == RecordedInput.Kind.EX_MACHINA ||
-                (it.actor is Player && !it.automatic && it.selectsTask)
+                (it.actor is Player && it.selectsTask && (!it.automatic || it.awaitsInput))
           }
           .map { Checkpoint(checkNotNull(it.anchor).ordinal) }
           .distinct()
@@ -121,6 +125,10 @@ public class TaskLog internal constructor(private val world: World) {
             else -> false
           }
         }
+        submission.awaitsInput =
+            world.tasks.selectedTask()?.let {
+              world.tasks.getTaskData(it).instruction.isAbstract(world.reader)
+            } == true
         // A later full form instruction includes provisional instruction choices. Keep selection,
         // structural changes, continuations and Actor handoffs, which have independent effects.
         submission.onlyNarrows =

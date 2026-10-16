@@ -1,0 +1,6 @@
+Prototype, copied from the same local Terraforming Mars renderer as the card images.
+Used only for resource counter numerals to match the artwork.
+
+Embedded font notices:
+Copyright 2001, free for personal use, freely distributed with Prototype.txt
+Prototype

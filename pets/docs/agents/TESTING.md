@@ -19,6 +19,8 @@ Use the complete build when the change affects multiple modules or their contrac
 - `./gradlew dokkaGenerateHtml` writes the API site under `build/dokka/html`.
 - `./gradlew :pets:test` runs Pets JVM tests and its browser-specific test. The routine browser
   run excludes the shared JVM/JS suites; use the temporary full-browser target below to run those.
+- `./gradlew :pets:wasmJsTest` runs the shared Pets tests in Chrome and Node. These Wasm tests
+  also run during `build`; generated parser round trips have a 60-second Mocha timeout in Chrome.
 - `./gradlew :pets:jvmTestCoverage` runs only the Pets module's JVM test suite and writes HTML and
   XML coverage reports for Pets production code under that module's
   `reports/jacoco/jvmTestCoverage` build directory.
@@ -36,7 +38,7 @@ Use the complete build when the change affects multiple modules or their contrac
 For every shared browser-compatible suite, temporarily uncomment `allBrowserTests` in this
 build's `build.gradle.kts` and run `./gradlew allBrowserTests --rerun-tasks`; restore the comment
 afterward. Routine browser runs use `BrowserPetsTest` and Almanac's English card-text test.
-Other generated browser tasks are disabled unless that full-browser target is requested.
+Other generated JavaScript browser tasks are disabled unless that full-browser target is requested.
 Chrome or Chromium is required; `CHROME_BIN` can select the executable.
 
 When changing test runners, browser configuration, resources, or locked JavaScript dependencies,

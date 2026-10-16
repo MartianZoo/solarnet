@@ -6,7 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -42,8 +45,11 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
-/** A column heading; [end] right-aligns the heading and its cells. */
-internal data class TableColumn(val heading: String, val end: Boolean = false)
+/** A column heading and the alignment shared by its heading and cells. */
+internal data class TableColumn(
+    val heading: String,
+    val alignment: Alignment = Alignment.CenterStart,
+)
 
 /**
  * A plain table of raw information in aligned columns. [widths] has one entry per column; the last
@@ -60,22 +66,39 @@ internal fun RawTable(
     onResized: () -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier,
+    centerRows: Boolean = false,
+    gutter: Dp = 0.dp,
     rows: LazyListScope.() -> Unit,
 ) {
   val palette = LocalPalette.current
   Box(modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize()) {
-      Row(Modifier.fillMaxWidth().height(22.dp), verticalAlignment = Alignment.CenterVertically) {
+      Row(
+          Modifier.fillMaxWidth().padding(start = gutter).height(22.dp),
+          verticalAlignment = Alignment.CenterVertically,
+      ) {
         columns.forEachIndexed { i, column ->
-          Cell(widths, i, column.end) {
+          Cell(widths, i, column.alignment) {
             Text(column.heading, style = palette.label, maxLines = 1, softWrap = false)
           }
         }
       }
       Box(Modifier.fillMaxWidth().height(palette.borderWidth).background(palette.line))
-      LazyColumn(Modifier.fillMaxSize().nestedScroll(StopAtEnds), state = listState, content = rows)
+      BoxWithConstraints(Modifier.fillMaxSize()) {
+        LazyColumn(
+            Modifier.fillMaxSize().nestedScroll(StopAtEnds),
+            state = listState,
+            contentPadding =
+                PaddingValues(
+                    vertical = if (centerRows) (maxHeight / 2 - 16.dp).coerceAtLeast(0.dp) else 0.dp
+                ),
+            content = rows,
+        )
+      }
     }
-    ColumnDividers(widths, onResize, onResized)
+    Box(Modifier.fillMaxSize().padding(start = gutter)) {
+      ColumnDividers(widths, onResize, onResized)
+    }
   }
 }
 
@@ -88,30 +111,41 @@ internal fun TableRow(
     highlighted: Boolean = false,
     dimmed: Boolean = false,
     onClick: (() -> Unit)? = null,
+    cellTooltip: (Int) -> String? = { null },
     cells: List<@Composable () -> Unit>,
 ) {
   val palette = LocalPalette.current
   Row(
       Modifier.fillMaxWidth()
           .height(height)
-          .alpha(if (dimmed) 0.45f else 1f)
+          .alpha(if (dimmed) 0.72f else 1f)
           .background(if (highlighted) palette.accent.copy(alpha = 0.16f) else Color.Transparent)
           .let { if (onClick != null) it.clickable(onClick = onClick) else it },
       verticalAlignment = Alignment.CenterVertically,
   ) {
-    cells.forEachIndexed { i, cell -> Cell(widths, i, columns[i].end) { cell() } }
+    cells.forEachIndexed { i, cell ->
+      Cell(widths, i, columns[i].alignment, cellTooltip(i)) { cell() }
+    }
   }
 }
 
 @Composable
-private fun Cell(widths: List<Float>, index: Int, end: Boolean, content: @Composable () -> Unit) {
+private fun Cell(
+    widths: List<Float>,
+    index: Int,
+    alignment: Alignment,
+    tooltip: String? = null,
+    content: @Composable () -> Unit,
+) {
   val sized =
       if (index == widths.lastIndex) Modifier.fillMaxWidth() else Modifier.width(widths[index].dp)
-  Box(
-      sized.fillMaxHeight().padding(horizontal = 5.dp),
-      contentAlignment = if (end) Alignment.CenterEnd else Alignment.CenterStart,
-  ) {
-    content()
+  Tooltip(tooltip, sized.fillMaxHeight()) {
+    Box(
+        Modifier.fillMaxSize().clipToBounds().padding(horizontal = 5.dp),
+        contentAlignment = alignment,
+    ) {
+      content()
+    }
   }
 }
 

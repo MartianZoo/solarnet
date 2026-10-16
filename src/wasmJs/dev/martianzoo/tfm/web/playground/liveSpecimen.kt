@@ -8,9 +8,11 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Component
+import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameEvent.ChangeEvent
-import dev.martianzoo.state.GameRecording
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
+import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.tfm.canon.TfmClasses.MC
 import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
 
@@ -29,23 +31,37 @@ private val tagNames =
         "AnimalTag",
         "CityTag",
         "WildTag",
-        "EventTag",
     )
 
-/** Reads the world at a completed recording position into the existing workspace's display data. */
+/**
+ * Reads a game at its current completed position into the workspace's display data. [changes] is
+ * the whole displayed log, including events after [ordinal]. [balances] contains counts measured
+ * from the game world after each event, independent of the displayed position or row filters.
+ */
 internal fun liveSpecimen(
     name: String,
-    recording: GameRecording.Playback,
+    reader: GameReader,
+    events: EventLog,
+    tasks: TaskQueue,
+    ordinal: Int,
     changes: List<ChangeEvent>,
+    balances: Map<Int, Int>,
 ): Specimen {
-  val game = recording.world
-  val reader = game.reader
   val queries = GameQueries(reader)
   val allClasses = reader.classTable.allClasses()
   val real = reader.resolve(REAL.expression)
-  val system = reader.resolve(cn("System").expression)
   val signal = reader.resolve(cn("Signal").expression)
   val componentEntries = reader.getComponents(cn("Component").expression).entries
+
+  fun hasSoloOpponentDependency(component: Component): Boolean =
+      component.dependencyComponents.any {
+        it.className == cn("SoloOpponent") || hasSoloOpponentDependency(it)
+      }
+
+  fun hasRealDependency(component: Component): Boolean =
+      component.dependencyComponents.any {
+        it.type.isSubtypeOf(real) || hasRealDependency(it)
+      }
 
   fun types(name: String): List<Type> = runCatching {
     reader.getComponents(cn(name).expression).elements.toList()
@@ -65,13 +81,12 @@ internal fun liveSpecimen(
       }
 
   val players =
-      game.actors.filterIsInstance<Player>().map { player ->
-        val playedCards = playedCards(game, player)
-        val played = playedCards.map { it.className.toString() }
+      reader.actors.filterIsInstance<Player>().map { player ->
         Specimen.PlayerState(
             name = player.className.toString(),
             terraformRating = playerCount(player, "TerraformRating"),
             handCards = playerCount(player, "ProjectCard"),
+            eventCards = playerCount(player, "PlayedEvent"),
             resources =
                 resourceNames.associateWith { resource ->
                   listOf(
@@ -80,19 +95,14 @@ internal fun liveSpecimen(
                   )
                 },
             tags = tagNames.associateWith { playerCount(player, it) },
-            played = played,
-            playedWithArt = played,
-            usedActionCards =
-                playedCards
-                    .filter { hasActionUsedMarker(reader, player, it) }
-                    .mapTo(mutableSetOf()) { it.className.toString() },
+            played = playedCards(reader, events, player),
         )
       }
 
   val phase = types("Phase").singleOrNull()?.className?.toString()?.removeSuffix("Phase")
   val onTurn =
       if (phase == "Action") {
-        game.events
+        events
             .changesSinceSetup()
             .asReversed()
             .firstOrNull {
@@ -161,17 +171,21 @@ internal fun liveSpecimen(
       }
 
   val tasks =
-      game.tasks.extract { task ->
-        Specimen.PendingTask(
-            id = task.id.ordinal,
-            instruction = task.instruction.toString(),
-            then = task.then?.toString(),
-            givenBy = task.cause?.context?.toString(),
-            because = task.cause?.triggerEvent,
-            assignee = task.assignee.toString(),
-            selected = task.selected,
-        )
-      }
+      tasks
+          .extract { task ->
+            if (task.deferred) null
+            else
+                Specimen.PendingTask(
+                    id = task.id.ordinal,
+                    instruction = task.instruction.toString(),
+                    then = task.then?.toString(),
+                    givenBy = task.cause?.context?.toString(),
+                    because = task.cause?.triggerEvent,
+                    assignee = task.assignee.toString(),
+                    selected = task.selected,
+                )
+          }
+          .filterNotNull()
   val events = changes.map { event ->
     val change = event.change
     Specimen.LoggedChange(
@@ -182,11 +196,13 @@ internal fun liveSpecimen(
         removing = change.removing?.toString(),
         real =
             listOfNotNull(change.gaining, change.removing).any {
-              it.type.isSubtypeOf(real)
+              it.type.isSubtypeOf(real) && (!hasSoloOpponentDependency(it) || hasRealDependency(it))
             },
         signal = change.gaining?.type?.isSubtypeOf(signal) == true,
         givenBy = event.cause?.context?.toString(),
         because = event.cause?.triggerEvent,
+        notes = event.notes,
+        balance = balances[event.ordinal],
     )
   }
 
@@ -196,20 +212,6 @@ internal fun liveSpecimen(
         count = amount,
         className = type.className.toString(),
         nonReal = !type.isSubtypeOf(real),
-        system = type.isSubtypeOf(system),
-        dependencies =
-            type.typeDependencies.associate { dep ->
-              "${dep.key.declaringClass}_${dep.key.index}" to dep.boundType.toString()
-            },
-    )
-  }
-  val classes = allClasses.map { candidate ->
-    Specimen.ClassInfo(
-        name = candidate.className.toString(),
-        abstract = candidate.abstract,
-        superclasses = candidate.directSuperclasses.map { it.className.toString() },
-        baseType = candidate.baseType.toString(),
-        dependencyKeys = candidate.dependencies.keys.map { "${it.declaringClass}_${it.index}" },
     )
   }
 
@@ -274,7 +276,7 @@ internal fun liveSpecimen(
       }
 
   return Specimen(
-      source = Specimen.Source(name, recording.positions[recording.positionIndex].ordinal),
+      source = Specimen.Source(name, ordinal),
       players = players,
       global = global,
       milestones = milestones,
@@ -283,7 +285,6 @@ internal fun liveSpecimen(
       tasks = tasks,
       events = events,
       components = components,
-      classes = classes,
       map = map,
       colonies = colonies,
   )

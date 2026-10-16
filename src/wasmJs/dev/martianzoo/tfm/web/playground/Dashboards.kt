@@ -7,33 +7,22 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -42,6 +31,7 @@ import androidx.compose.ui.unit.dp
 internal fun GlobalDashboard() {
   val global = LocalSpecimen.current.global
   val palette = LocalPalette.current
+  val openClass = LocalOpenClass.current
   Surface {
     Column(
         Modifier.fillMaxSize().padding(vertical = palette.spacing),
@@ -49,14 +39,30 @@ internal fun GlobalDashboard() {
         verticalArrangement = Arrangement.SpaceEvenly,
     ) {
       Stat("GEN") { BigValue("${global.generation}") }
-      Stat("PHASE") { Value(global.phase ?: "—") }
+      Stat("PHASE") {
+        val phase = global.phase
+        val name = phase?.let { "${it}Phase" }
+        val image = name?.let { rememberGameImage("classes/30px/$it.png") }
+        if (image == null) Value(phase ?: "—")
+        else {
+          Tooltip("$phase phase") {
+            Image(
+                image,
+                name,
+                Modifier.height(20.dp).width(20.dp * image.width / image.height).clickable {
+                  openClass(checkNotNull(name))
+                },
+            )
+          }
+        }
+      }
       Stat("TURN") {
         if (global.playerOnTurn == null) Value("—") else ActorSquare(global.playerOnTurn, 14.dp)
       }
       Stat("FIRST") { ActorSquare(global.startingPlayer, 14.dp) }
       Stat("TEMP") { Value("${-30 + 2 * global.temperatureSteps} °C") }
       Stat("OXYGEN") { Value("${global.oxygenSteps} %") }
-      Stat("OCEANS") { Value("${global.oceans} / 9") }
+      Stat("OCEANS") { Value("${global.oceans}") }
       Stat("VENUS") { Value("${2 * global.venusSteps} %") }
       Stat("RULING") { Value(global.ruling ?: "—") }
       Stat("CHAIR") { ActorSquare(global.chairman, 14.dp) }
@@ -135,7 +141,7 @@ internal fun PlayerArrow(symbol: String, onClick: () -> Unit) {
   Surface(Modifier.clickable(onClick = onClick), color = palette.raised) {
     Text(
         symbol,
-        Modifier.align(Alignment.Center),
+        Modifier.align(Alignment.TopCenter).padding(top = 24.dp),
         style = palette.body.copy(fontSize = palette.body.fontSize * 1.6f, color = palette.dimText),
     )
   }
@@ -157,6 +163,8 @@ internal fun PlayerDashboard(player: Specimen.PlayerState) {
       Counter("TerraformRating", player.terraformRating, "TR")
       Spacer(Modifier.width(palette.spacing * 1.5f))
       Counter("ProjectCard", player.handCards, "CARDS")
+      Spacer(Modifier.width(palette.spacing * 1.5f))
+      Counter("EventTag", player.eventCards, "EVENTS")
       Rule()
       for (resource in RESOURCES) {
         val (stock, production) = player.resources.getValue(resource)
@@ -201,44 +209,5 @@ private fun Counter(icon: String, value: Int, label: String) {
       Text("$value", style = palette.body.copy(fontSize = palette.body.fontSize * 1.35f))
     }
     Text(label, style = palette.label)
-  }
-}
-
-/** The played-card row: just the card images, close together, scrolling horizontally. */
-@Composable
-internal fun PlayedCards(player: Specimen.PlayerState) {
-  val palette = LocalPalette.current
-  Row(
-      Modifier.fillMaxSize().horizontalScroll(rememberScrollState()).padding(vertical = 4.dp),
-      horizontalArrangement = Arrangement.spacedBy(5.dp),
-      verticalAlignment = Alignment.CenterVertically,
-  ) {
-    for (card in player.playedWithArt) {
-      key(card) {
-        val image = rememberBundledImage("files/cards/$card.png")
-        if (image != null) {
-          Box(Modifier.fillMaxHeight()) {
-            Image(
-                image,
-                card,
-                Modifier.fillMaxHeight()
-                    .shadow(palette.shadow / 2, RoundedCornerShape(palette.cornerRadius))
-                    .clip(RoundedCornerShape(palette.cornerRadius)),
-                contentScale = ContentScale.FillHeight,
-            )
-            if (card in player.usedActionCards) {
-              BoxWithConstraints(Modifier.matchParentSize()) {
-                ActorSquare(
-                    player.name,
-                    playerCubeSize,
-                    Modifier.align(Alignment.TopCenter)
-                        .offset(y = maxHeight / 3 - playerCubeSize / 2),
-                )
-              }
-            }
-          }
-        }
-      }
-    }
   }
 }

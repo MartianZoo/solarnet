@@ -126,15 +126,17 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `broad options retain an OR arm rejected by current resolution`() {
+  internal fun `options omit an OR arm whose mandatory source is absent`() {
     val id = initiate("-Plant! OR Heat!").single()
     val form = writer.fillInTask(id)
 
     form.decisions().single().kind shouldBe ALTERNATIVE
-    form.options(form.decisions().single()).toList() shouldBe
-        listOf("-Plant<Player1>!", "Heat<Player1>!")
-    form.choose(form.decisions().single(), "-Plant<Player1>!")
-    form.instruction.toString() shouldBe "-Plant<Player1>!"
+    val before = game.timeline.checkpoint()
+    form.options(form.decisions().single()).toList() shouldBe listOf("Heat<Player1>!")
+    game.timeline.checkpoint() shouldBe before
+    form.choose(form.decisions().single(), "Heat<Player1>!")
+    form.commit()
+    writer.count("Heat") shouldBe 1
   }
 
   @Test
@@ -153,6 +155,30 @@ internal class TaskNarrowingTest {
     val amount = x.decisions().single()
     amount.kind shouldBe AMOUNT
     x.options(amount).toList() shouldBe listOf("1", "2")
+  }
+
+  @Test
+  internal fun `mandatory resource options require enough stock and are refreshed after changes`() {
+    writer.sneak("Plant, 2 Steel")
+    val form = writer.fillInTask(initiate("-2! StandardResource").single())
+    val decision = form.decisions().single()
+    form.options(decision).toList() shouldBe listOf("Steel")
+
+    writer.sneak("Plant")
+    form.options(decision).toSet() shouldBe setOf("Plant", "Steel")
+    form.choose(decision, "Plant")
+    form.commit()
+    writer.count("Plant") shouldBe 0
+    writer.count("Steel") shouldBe 2
+  }
+
+  @Test
+  internal fun `options check current gates without predicting a THEN continuation`() {
+    val form = writer.fillInTask(initiate("(Plant: Heat) OR (Steel THEN -Plant)").single())
+    val before = game.timeline.checkpoint()
+    form.options(form.decisions().single()).toList() shouldBe
+        listOf("Steel<Player1>! THEN -Plant<Player1>!")
+    game.timeline.checkpoint() shouldBe before
   }
 
   @Test
@@ -189,13 +215,8 @@ internal class TaskNarrowingTest {
     val root = form.decisions().single()
     root.kind shouldBe TARGET
     root.focus.toString() shouldBe "Choice"
-    form.options(root).toSet() shouldBe setOf("Plain", "Routed")
-    form.choose(root, "Routed")
-
-    val branch = form.decisions().single()
-    branch.focus.toString() shouldBe "Routed"
-    form.options(branch).toList() shouldBe listOf("Tagged")
-    form.choose(branch, "Tagged")
+    form.options(root).toSet() shouldBe setOf("Plain", "Tagged")
+    form.choose(root, "Tagged")
 
     val dependencyRoot = form.decisions().single()
     dependencyRoot.focus.toString() shouldBe "Site"
@@ -260,7 +281,8 @@ internal class TaskNarrowingTest {
     val representedClass = form.decisions().single()
     representedClass.kind shouldBe TARGET
     representedClass.focus.toString() shouldBe "StandardResource"
-    form.options(representedClass).toSet() shouldBe setOf("MC", "Metal", "Plant", "Energy", "Heat")
+    form.options(representedClass).toSet() shouldBe
+        setOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
     form.choose(representedClass, "Plant")
     form.decisions().shouldBeEmpty()
   }
@@ -273,12 +295,9 @@ internal class TaskNarrowingTest {
             initiate("StandardResource(NOT Source@StandardResource) FROM Source@StandardResource!")
                 .single()
         )
-    form.choose(form.decisions().single(), "Metal")
     form.choose(form.decisions().single(), "Steel")
     val destination = form.decisions().single()
-    form.options(destination).toList().contains("Metal") shouldBe true
-    form.choose(destination, "Metal")
-    form.options(form.decisions().single()).toList() shouldBe listOf("Titanium")
+    form.options(destination).toSet() shouldBe setOf("MC", "Titanium", "Plant", "Energy", "Heat")
     form.choose(form.decisions().single(), "Titanium")
     form.commit()
     writer.count("Steel") shouldBe 0
@@ -476,8 +495,6 @@ internal class TaskNarrowingTest {
     val id = initiate("Chosen@StandardResource THEN Chosen@StandardResource").single()
     val before = tasks.getTaskData(id).instruction
     val form = writer.fillInTask(id)
-    form.choose(form.decisions().single(), "Metal")
-    form.instruction.toString() shouldBe "Metal<Player1>! THEN Metal<Player1>!"
     form.choose(form.decisions().single(), "Steel")
     form.instruction.toString() shouldBe "Steel<Player1>! THEN Steel<Player1>!"
 
