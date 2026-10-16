@@ -119,7 +119,7 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier, System {
 
 "The current place of an anonymous unplayed card associated with a Player"
 ABSTRACT CLASS CardLocation : System {
-  CLASS Hand { HAS =1 This }
+  CLASS Hand : Real { HAS =1 This }
   CLASS Selecting { HAS =1 This }
   CLASS Revealed { HAS =1 This }
 }

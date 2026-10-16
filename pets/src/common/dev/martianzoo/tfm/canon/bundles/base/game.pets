@@ -235,7 +235,7 @@ CLASS InRound<ActionPhase> : RoundStatus, System {
 }
 
 "Instead of taking an action you can gain this, and be out for the rest of the generation"
-CLASS Pass<GenerationScope> : RoundStatus, Real {
+CLASS Pass<GenerationScope> : RoundStatus {
   This:: -InRound*
 
   TakeTurn<Me@> OR TurnOver<Me@> IF InRound<Player>: AdvancePlayer<Me@>
