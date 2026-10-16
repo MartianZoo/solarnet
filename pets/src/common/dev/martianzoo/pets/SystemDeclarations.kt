@@ -11,7 +11,7 @@ import dev.martianzoo.pets.util.toSetStrict
  * the universal `Audit` signal plus the classes this language and the type system depend on,
  * including `Component` and `Class`, the identity root `Anyone`, ownership vocabulary `Owner` and
  * `Owned`, the actor root `Actor`, the identity signal `Ok`, the impossible type `Die`, and
- * `Atomized`, `CustomMetric`, `CustomInstruction`, and `Real`. A catalog's own source is loaded
+ * `Atomized`, `CustomMetric`, `CustomInstruction`, and `Iconic`. A catalog's own source is loaded
  * alongside them.
  *
  * `GamePremise.classTable` always roots `Audit`; it decides which of the remaining declarations a
@@ -38,8 +38,8 @@ private val systemDeclarationsSource =
     "Extend this to have plural instructions automatically split into individual instructions"
     ABSTRACT CLASS Atomized
 
-    "Really it means tangible: something a human player 'cares about' directly."
-    ABSTRACT CLASS Real
+    "A player-facing component suitable for representation by an icon."
+    ABSTRACT CLASS Iconic
 
     "Admin bookkeeping; fully specified gains and removals normally execute as Admin"
     ABSTRACT CLASS System {

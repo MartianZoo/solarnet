@@ -13,7 +13,7 @@ CLASS ColoniesExpansion : Module {
 }
 
 "A colony tile, such as Pluto"
-ABSTRACT CLASS ColonyTile : Content, System, Real {
+ABSTRACT CLASS ColonyTile : Content, System, Iconic {
   HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 Trade<This>
 
   This:: ColonyProduction<This>
@@ -169,16 +169,16 @@ CLASS Triton : ColonyTile, ColonyTileSelection<Class<Triton>> {
 }
 
 "One of the up-to-three colonies players can own on a ColonyTile"
-CLASS Colony<@ColonyTile> : Owned<Player>, Real {
+CLASS Colony<@ColonyTile> : Owned<Player>, Iconic {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
   FinishTrade<Anyone, @ColonyTile> OR GainColonyBonuses: GainColonyBonus<@ColonyTile>
 }
 
 "A player's persistent capacity to conduct one Trade per generation"
-CLASS TradeFleet : Owned<Player>, Real
+CLASS TradeFleet : Owned<Player>, Iconic
 
 "A trade with one colony tile, retained until the next generation"
-CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player>, Real {
+CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player>, Iconic {
   This:: MAX 0 (Trade - TradeFleet): Ok
   This: LATER { FinishTrade<@ColonyTile> }
 }
@@ -224,7 +224,7 @@ CLASS SoloColoniesSetup : Owned<Player>, System {
 }
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
-CLASS ColonyProduction<ColonyTile> : System, Real {
+CLASS ColonyProduction<ColonyTile> : System, Iconic {
   HAS MAX 6 This
 }
 

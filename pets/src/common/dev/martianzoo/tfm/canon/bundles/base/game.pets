@@ -126,13 +126,13 @@ CLASS StandardOption : CorporationOption {
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
-CLASS TerraformRating : Owned<Player>, Real {
+CLASS TerraformRating : Owned<Player>, Iconic {
   ProductionPhase: 1 MC
   End: VictoryPoint
 }
 
 "Marks the player who takes the first turn"
-CLASS StartToken : Owned<Player>, Real {
+CLASS StartToken : Owned<Player>, Iconic {
   HAS =1 StartToken
   TurnBasedPhase: Baton
 }
@@ -148,7 +148,7 @@ CLASS NextPlayer<Previous@Owner, Next@Player> : System {
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal VictoryPhase"
-ABSTRACT CLASS Phase : System, Real {
+ABSTRACT CLASS Phase : System, Iconic {
   HAS =1 Phase
 
   CLASS BootstrapPhase
@@ -259,7 +259,7 @@ CLASS Pass<GenerationScope> : RoundStatus {
 }
 
 "Tells what generation we're in"
-CLASS Generation : System, Real {
+CLASS Generation : System, Iconic {
   This IF MAX 0 GenerationScope:: GenerationScope
 }
 
