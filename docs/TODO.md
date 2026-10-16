@@ -68,9 +68,7 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Determine which nested cross-Actor Agent calls should settle Admin work before returning;
   the Pluto scenario in `ColoniesRulesTest` currently uses separate top-level calls.
 
-- Share the `NonNegativeIconsOf` citation scan between gameplay and English; both currently walk
-  authored effects independently, so a later change to the icon rule could make their answers differ.
-  Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct
+- Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct
   `Lose 12 M€` effect. The marked-variable references now follow recorded occurrences, but the older
   interaction-trigger Anyone-to-Player normalization still supplies an implicit `that player`.
 - Investigate repeated selection probes followed by execution under `EAGER`; preserve manual-task

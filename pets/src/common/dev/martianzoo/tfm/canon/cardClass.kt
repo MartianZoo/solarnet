@@ -7,6 +7,8 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Transform as InstructionTransform
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.Metric.Count
@@ -82,6 +84,33 @@ public fun cardActions(card: Class): List<Action> = card.declaration.authoredAct
 public fun cardEffects(card: Class): List<Effect> =
     card.declaration.authoredEffects.filterNot { effect ->
       effect.trigger == WhenGain && !effect.automatic
+    }
+
+/**
+ * Counts exact [icon] class-name citations in [cardEffects], including triggers and conditions. For
+ * change instructions, only the gaining expression is scanned; removal expressions and quantities
+ * do not contribute. Thus `End: 3 VictoryPoint` contributes a single VP icon, while `End:
+ * -VictoryPoint` contributes none. This counts authored syntax, without evaluating points or
+ * elaborating effects; direct play effects and authored actions are excluded by [cardEffects].
+ */
+public fun cardNonNegativeIconCount(card: Class, icon: ClassName): Int =
+    cardEffects(card).sumOf { effect ->
+      var count = 0
+      effect.visitDescendants { node ->
+        when {
+          node is Instruction.Change -> {
+            count +=
+                node.gaining?.descendantsOfType<Expression>()?.count { it.className == icon } ?: 0
+            false
+          }
+          node is Expression && node.className == icon -> {
+            count++
+            true
+          }
+          else -> true
+        }
+      }
+      count
     }
 
 /** This card's printed play requirement, if any. */

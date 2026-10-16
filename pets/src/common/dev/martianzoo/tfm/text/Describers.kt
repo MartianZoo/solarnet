@@ -17,7 +17,7 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.recordTypeVariableScopes
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.cardDirectEffect
-import dev.martianzoo.tfm.canon.cardEffects
+import dev.martianzoo.tfm.canon.cardNonNegativeIconCount
 import dev.martianzoo.tfm.canon.cardTags
 
 /** Looks up the English description supplied for each component Class. */
@@ -455,28 +455,7 @@ private constructor(
   private fun matches(context: CardContext, requirement: Requirement): Boolean {
     val icon = cardCriterion(requirement) as? CardCriterion.NonNegativeIcon
     if (icon != null) {
-      var cited = false
-      cardEffects(context.card).forEach { effect ->
-        effect.visitDescendants { node ->
-          when {
-            node is Instruction.Change -> {
-              if (
-                  node.gaining?.descendantsOfType<Expression>()?.any {
-                    it.className == icon.className
-                  } == true
-              )
-                  cited = true
-              false
-            }
-            node is Expression && node.className == icon.className -> {
-              cited = true
-              true
-            }
-            else -> true
-          }
-        }
-      }
-      return cited
+      return cardNonNegativeIconCount(context.card, icon.className) > 0
     }
     val counting = requirement as? Requirement.Counting ?: return false
     val expression = (counting.metric as? Metric.Count)?.expression ?: return false
