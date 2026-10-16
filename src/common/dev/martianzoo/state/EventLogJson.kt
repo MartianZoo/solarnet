@@ -42,26 +42,10 @@ internal object EventLogJson {
 
   internal fun decodeEvents(source: JsonArray, premise: GamePremise): List<GameEvent> {
     val actorsByName = premise.actors.associateBy { it.className.toString() }
-    return decodeEvents(source, premise.classTable) { encoded ->
-      requireNotNull(actorsByName[encoded]) { "unknown Actor: $encoded" }
-    }
-  }
-
-  private fun decodeEvents(
-      source: JsonArray,
-      classTable: ClassTable,
-      decodeActor: (String) -> Actor,
-  ): List<GameEvent> {
-    val tasks = mutableMapOf<TaskId, Task>()
-    return source.mapIndexed { index, element ->
-      try {
-        decodeEvent(element.jsonObject, classTable, tasks, decodeActor).also { event ->
-          if (event is GameEvent.TaskEvent) applyTaskEvent(tasks, event)
+    return Decoder(premise.classTable) { encoded ->
+          requireNotNull(actorsByName[encoded]) { "unknown Actor: $encoded" }
         }
-      } catch (e: RuntimeException) {
-        throw IllegalArgumentException("invalid event at index $index", e)
-      }
-    }
+        .decodeEvents(source)
   }
 
   private fun encodeEvent(event: GameEvent): JsonObject = buildJsonObject {
@@ -90,44 +74,6 @@ internal object EventLogJson {
       }
     }
     put("notes", event.notes?.let(::JsonPrimitive) ?: JsonNull)
-  }
-
-  private fun decodeEvent(
-      source: JsonObject,
-      classTable: ClassTable,
-      tasks: Map<TaskId, Task>,
-      decodeActor: (String) -> Actor,
-  ): GameEvent {
-    val event =
-        when (requiredString(source, "event")) {
-          "change" -> {
-            ChangeEvent(
-                requiredInt(source, "ordinal"),
-                decodeActor(requiredString(source, "actor")),
-                decodeChange(requiredObject(source, "change"), classTable),
-                decodeCause(requiredElement(source, "cause")),
-            )
-          }
-          "task-added" -> {
-            TaskAddedEvent(
-                requiredInt(source, "ordinal"),
-                decodeTask(requiredObject(source, "task"), decodeActor),
-            )
-          }
-          "task-removed" -> {
-            TaskRemovedEvent(
-                requiredInt(source, "ordinal"),
-                tasks.getValue(TaskId(requiredInt(source, "taskId"))),
-            )
-          }
-          "task-edited" -> {
-            val task = decodeTask(requiredObject(source, "task"), decodeActor)
-            TaskEditedEvent(requiredInt(source, "ordinal"), tasks.getValue(task.id), task)
-          }
-          else -> throw IllegalArgumentException("unknown event kind")
-        }
-    event.notes = nullableString(source, "notes")
-    return event
   }
 
   private fun applyTaskEvent(tasks: MutableMap<TaskId, Task>, event: GameEvent.TaskEvent) {
@@ -162,33 +108,6 @@ internal object EventLogJson {
     }
   }
 
-  private fun decodeChange(source: JsonObject, classTable: ClassTable): ComponentChange =
-      when (requiredString(source, "kind")) {
-        "gain" -> {
-          ComponentChange.Gain(
-              requiredInt(source, "count"),
-              decodeComponent(requiredString(source, "component"), classTable),
-          )
-        }
-        "remove" -> {
-          ComponentChange.Remove(
-              requiredInt(source, "count"),
-              decodeComponent(requiredString(source, "component"), classTable),
-          )
-        }
-        "transmute" -> {
-          ComponentChange.Transmute(
-              requiredInt(source, "count"),
-              decodeComponent(requiredString(source, "gaining"), classTable),
-              decodeComponent(requiredString(source, "removing"), classTable),
-          )
-        }
-        else -> throw IllegalArgumentException("unknown component-change kind")
-      }
-
-  private fun decodeComponent(source: String, classTable: ClassTable): Component =
-      classTable.resolve(parse<Expression>(source)).toComponent()
-
   private fun encodeTask(task: Task): JsonObject = buildJsonObject {
     put("id", task.id.ordinal)
     put("assignee", task.assignee.className.toString())
@@ -204,26 +123,6 @@ internal object EventLogJson {
     put("deferral", task.deferral.name)
   }
 
-  private fun decodeTask(source: JsonObject, decodeActor: (String) -> Actor): Task {
-    val then =
-        when (val encoded = requiredElement(source, "then")) {
-          JsonNull -> null
-          else ->
-              InstructionGroup(
-                  encoded.jsonArray.map { parse<Instruction>(it.jsonPrimitive.content) }
-              )
-        }
-    return Task(
-        TaskId(requiredInt(source, "id")),
-        assignee = decodeActor(requiredString(source, "assignee")),
-        selected = requiredBoolean(source, "selected"),
-        instruction = parse(requiredString(source, "instruction")),
-        then = then,
-        cause = decodeCause(requiredElement(source, "cause")),
-        deferral = Deferral.valueOf(requiredString(source, "deferral")),
-    )
-  }
-
   private fun encodeCause(cause: Cause?): JsonElement =
       cause?.let {
         buildJsonObject {
@@ -232,13 +131,125 @@ internal object EventLogJson {
         }
       } ?: JsonNull
 
-  private fun decodeCause(source: JsonElement): Cause? {
-    if (source == JsonNull) return null
-    val cause = source.jsonObject
-    return Cause(
-        parse(requiredString(cause, "context")),
-        requiredInt(cause, "triggerEvent"),
-    )
+  // Keep parsed values within this import and its ClassTable; different files share no cache.
+  private class Decoder(
+      private val classTable: ClassTable,
+      private val decodeActor: (String) -> Actor,
+  ) {
+    private val components = mutableMapOf<String, Component>()
+    private val instructions = mutableMapOf<String, Instruction>()
+    private val expressions = mutableMapOf<String, Expression>()
+
+    fun decodeEvents(source: JsonArray): List<GameEvent> {
+      val tasks = mutableMapOf<TaskId, Task>()
+      return source.mapIndexed { index, element ->
+        try {
+          decodeEvent(element.jsonObject, tasks).also { event ->
+            if (event is GameEvent.TaskEvent) applyTaskEvent(tasks, event)
+          }
+        } catch (e: RuntimeException) {
+          throw IllegalArgumentException("invalid event at index $index", e)
+        }
+      }
+    }
+
+    private fun decodeEvent(
+        source: JsonObject,
+        tasks: Map<TaskId, Task>,
+    ): GameEvent {
+      val event =
+          when (requiredString(source, "event")) {
+            "change" -> {
+              ChangeEvent(
+                  requiredInt(source, "ordinal"),
+                  decodeActor(requiredString(source, "actor")),
+                  decodeChange(requiredObject(source, "change")),
+                  decodeCause(requiredElement(source, "cause")),
+              )
+            }
+            "task-added" -> {
+              TaskAddedEvent(
+                  requiredInt(source, "ordinal"),
+                  decodeTask(requiredObject(source, "task")),
+              )
+            }
+            "task-removed" -> {
+              TaskRemovedEvent(
+                  requiredInt(source, "ordinal"),
+                  tasks.getValue(TaskId(requiredInt(source, "taskId"))),
+              )
+            }
+            "task-edited" -> {
+              val task = decodeTask(requiredObject(source, "task"))
+              TaskEditedEvent(requiredInt(source, "ordinal"), tasks.getValue(task.id), task)
+            }
+            else -> throw IllegalArgumentException("unknown event kind")
+          }
+      event.notes = nullableString(source, "notes")
+      return event
+    }
+
+    private fun decodeChange(source: JsonObject): ComponentChange =
+        when (requiredString(source, "kind")) {
+          "gain" -> {
+            ComponentChange.Gain(
+                requiredInt(source, "count"),
+                decodeComponent(requiredString(source, "component")),
+            )
+          }
+          "remove" -> {
+            ComponentChange.Remove(
+                requiredInt(source, "count"),
+                decodeComponent(requiredString(source, "component")),
+            )
+          }
+          "transmute" -> {
+            ComponentChange.Transmute(
+                requiredInt(source, "count"),
+                decodeComponent(requiredString(source, "gaining")),
+                decodeComponent(requiredString(source, "removing")),
+            )
+          }
+          else -> throw IllegalArgumentException("unknown component-change kind")
+        }
+
+    private fun decodeComponent(source: String): Component =
+        components.getOrPut(source) { classTable.resolve(parse<Expression>(source)).toComponent() }
+
+    private fun decodeTask(source: JsonObject): Task {
+      val then =
+          when (val encoded = requiredElement(source, "then")) {
+            JsonNull -> null
+            else ->
+                InstructionGroup(
+                    encoded.jsonArray.map { decodeInstruction(it.jsonPrimitive.content) }
+                )
+          }
+      return Task(
+          TaskId(requiredInt(source, "id")),
+          assignee = decodeActor(requiredString(source, "assignee")),
+          selected = requiredBoolean(source, "selected"),
+          instruction = decodeInstruction(requiredString(source, "instruction")),
+          then = then,
+          cause = decodeCause(requiredElement(source, "cause")),
+          deferral = Deferral.valueOf(requiredString(source, "deferral")),
+      )
+    }
+
+    private fun decodeCause(source: JsonElement): Cause? {
+      if (source == JsonNull) return null
+      val cause = source.jsonObject
+      return Cause(
+          decodeExpression(requiredString(cause, "context")),
+          requiredInt(cause, "triggerEvent"),
+      )
+    }
+
+    private fun decodeInstruction(source: String): Instruction =
+        instructions.getOrPut(source) { parse<Instruction>(source) }
+
+    private fun decodeExpression(source: String): Expression =
+        expressions.getOrPut(source) { parse<Expression>(source) }
   }
 
   private fun requiredElement(source: JsonObject, name: String): JsonElement =

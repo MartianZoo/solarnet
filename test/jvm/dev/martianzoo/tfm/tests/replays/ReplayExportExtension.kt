@@ -31,7 +31,7 @@ internal class ReplayExportExtension : BeforeEachCallback, AfterTestExecutionCal
     val json = replay.completedGameFileJson() ?: return@runBlocking
     Files.writeString(output, json)
     Files.writeString(shortOutput, checkNotNull(replay.completedGameFileJson(short = true)))
-    replay.verifyGameFileRoundTrip()
+    replay.verifyGameFileRoundTrip(json)
     println("Game-file round-trip passed: ${context.requiredTestClass.simpleName}")
   }
 }

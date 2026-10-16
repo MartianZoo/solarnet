@@ -76,10 +76,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct
   `Lose 12 M€` effect. The marked-variable references now follow recorded occurrences, but the older
   interaction-trigger Anyone-to-Player normalization still supplies an implicit `that player`.
-- Replace recursive task-ancestry list concatenation with linear construction, and avoid rebuilding
-  the target's ancestry when comparing matching tasks. Preserve recorded task disambiguation.
-- Reduce repeated parsing during game-file decoding and reuse the full export already produced
-  for reconstruction instead of serializing it again.
 - Investigate repeated selection probes followed by execution under `EAGER`; preserve manual-task
   competition and failure handling before removing probes.
 - Investigate repeated ranking of the same field while testing each candidate. Scores must reflect

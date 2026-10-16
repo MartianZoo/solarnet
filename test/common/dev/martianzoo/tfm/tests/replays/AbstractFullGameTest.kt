@@ -42,8 +42,8 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   protected open val requireExplicitPaymentChoices: Boolean = true
   internal var exportReplay: Boolean = false
 
-  internal suspend fun verifyGameFileRoundTrip() {
-    val document = GameFileJson.parse(checkNotNull(completedGameFileJson()))
+  internal suspend fun verifyGameFileRoundTrip(json: String) {
+    val document = GameFileJson.parse(json)
     val importedAgents =
         GameFileImporter.replay(
             document,
