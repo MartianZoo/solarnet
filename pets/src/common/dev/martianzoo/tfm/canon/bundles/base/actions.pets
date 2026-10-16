@@ -30,7 +30,7 @@ ABSTRACT CLASS StandardAction : Owned<Player>, Signal {
   }
 }
 
-ABSTRACT CLASS StandardProject : HasActions, Real {
+ABSTRACT CLASS StandardProject : HasActions, Iconic {
   HAS =1 This
   cost = Number
 

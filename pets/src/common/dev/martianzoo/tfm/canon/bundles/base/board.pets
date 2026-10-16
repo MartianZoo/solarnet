@@ -1,15 +1,15 @@
-ABSTRACT CLASS MarsMap : Content, Module, Real {
+ABSTRACT CLASS MarsMap : Content, Module, Iconic {
   HAS =1 MarsMap
   This: EACH Class<@MarsArea> { @MarsArea }
 }
 
 "Any single hexagonal area where a tile can go"
-ABSTRACT CLASS Area : Real {
+ABSTRACT CLASS Area : Iconic {
   HAS =1 This
   HAS MAX 1 Occupant<This>
 
   "One of the (usually) 61 areas available on the planet's surface"
-  ABSTRACT CLASS MarsArea {
+  ABSTRACT CLASS MarsArea : Content {
     row = Number
     column = Number
 
@@ -31,7 +31,7 @@ ABSTRACT CLASS Area : Real {
   ABSTRACT CLASS RemoteArea
 }
 
-ABSTRACT CLASS AreaPiece<Area> : Real
+ABSTRACT CLASS AreaPiece<Area> : Iconic
 
 "A component that occupies an area exclusively"
 ABSTRACT CLASS Occupant : AreaPiece
@@ -104,7 +104,7 @@ CLASS PlacementBonus<Class<Resource>, MarsArea> : CustomMetric
 CLASS Neighbor<AreaPiece, MarsArea> : CustomMetric
 
 "A single step along a global parameter track"
-ABSTRACT CLASS GlobalParameter : Atomized, Real {
+ABSTRACT CLASS GlobalParameter : Atomized, Iconic {
   DEFAULT +GlobalParameter*
   DEFAULT -GlobalParameter*
 

@@ -444,13 +444,13 @@ internal class CanonQueryTest {
   }
 
   @Test
-  fun signalsAreNotReal() {
-    // A signal with the extra Real supertype.
+  fun signalsAreNotIconic() {
+    // A signal with the extra Iconic supertype.
     assertInvariant(
         "authored",
-        "signalsAreNotReal",
+        "signalsAreNotIconic",
         """
-        CLASS Decoy : Signal, Real {
+        CLASS Decoy : Signal, Iconic {
           HAS MAX 1 Decoy
         }
         """,

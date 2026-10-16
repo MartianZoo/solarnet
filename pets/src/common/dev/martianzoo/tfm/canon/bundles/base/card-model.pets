@@ -1,4 +1,4 @@
-ABSTRACT CLASS Card : Owned<Player>, Real {
+ABSTRACT CLASS Card : Owned<Player>, Iconic {
   "A generic unplayed card with unknown face"
   ABSTRACT CLASS CardBack<CardLocation> {
     DEFAULT CardBack<Hand>
@@ -120,7 +120,7 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier, System {
 
 "The current place of an anonymous unplayed card associated with a Player"
 ABSTRACT CLASS CardLocation : System {
-  CLASS Hand : Real { HAS =1 This }
+  CLASS Hand : Iconic { HAS =1 This }
   CLASS Selecting { HAS =1 This }
   CLASS Revealed { HAS =1 This }
 }
@@ -129,7 +129,7 @@ ABSTRACT CLASS CardLocation : System {
 ABSTRACT CLASS TagHolder : Owned<Player>
 
 "The printed wild icon on a card"
-CLASS WildTag<@CardFront<@Player>> : Owned<@Player>, Real { HAS MAX 1 This }
+CLASS WildTag<@CardFront<@Player>> : Owned<@Player>, Iconic { HAS MAX 1 This }
 
 "A printed wild's chosen meaning during the current action"
 CLASS WildTagElection<@WildTag<@CardFront<@Player>>, ActionScope> : TagHolder<@Player>, System {
@@ -148,7 +148,7 @@ CLASS AllocateRequiredWildTags<Class<Component>> : Owned<Player>, Signal, System
 "Selects actual tag gains that cover the shortfalls in a printed requirement"
 CLASS RequiredWildTag<Class<Component>, WildTagElection, Class<Tag>> : CustomMetric
 
-ABSTRACT CLASS Tag<TagHolder<@Player>> : Owned<@Player>, Atomized, Real {
+ABSTRACT CLASS Tag<TagHolder<@Player>> : Owned<@Player>, Atomized, Iconic {
   DEFAULT Tag<CardFront>:
   CLASS BuildingTag
   CLASS SpaceTag
@@ -175,7 +175,7 @@ ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned
 ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 
 "Marks an action card that has been used this generation"
-CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard>, System, Real { HAS MAX 1 This }
+CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard>, System, Iconic { HAS MAX 1 This }
 
 "A singleton listener needed by selected content"
 ABSTRACT CLASS CardWatcher : System { HAS MAX 1 This }
