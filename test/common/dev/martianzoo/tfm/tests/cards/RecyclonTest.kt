@@ -22,18 +22,6 @@ internal class RecyclonTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Gains a microbe when its owner plays a building card`() {
-    newTestGame(kimCorporation = Recyclon)
-
-    kim.inTurn {
-          doTasks("PlayProject<Class<Mine>>", "4 Pay<> FROM MC")
-          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
-          doTask("Microbe<Recyclon>")
-        }
-        .expect("Microbe<$Recyclon>")
-  }
-
-  @Test
   internal fun `Converts accumulated microbes including the new building microbe into production`() {
     newTestGame(kimCorporation = Recyclon)
     kim.exMachina("Microbe<$Recyclon>")

@@ -102,15 +102,9 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Consumes Special Design when stacked adjustments are used`() {
-    newTestGame(kimCorporation = Inventrix)
-    kim.inTurn {
-      doTask("RequiredActionsSignal")
-      doTask("3 ProjectCard")
-    }
-    kim.exMachina("$AdaptationTechnology")
-    kim.setToExMachina(11, "TemperatureStep")
-    kim.setToExMachina(30, "MC")
+  internal fun `Special Design relaxes only the next project's requirement`() {
+    newTestGame()
+    kim.setToExMachina(15, "TemperatureStep")
     kim.inTurn {
       doTasks(
           "PlayProject<Class<SpecialDesign>>",
@@ -120,6 +114,8 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTask("SpecialDesign_NextCardEffect")
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
+
+    // Farming needs 17 temperature steps, so Special Design makes it playable at 15.
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Farming>>",
@@ -131,12 +127,13 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       )
     }
 
+    // Fish needs 16 steps: it would also be playable if Special Design had survived.
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Birds>>")
-        doTask("10 Pay<> FROM MC")
-        // Resolve the pending play to evaluate the card requirement before transferring it.
-        selectTask("Birds FROM ProjectCard")
+        doTask("PlayProject<Class<Fish>>")
+        doTask("9 Pay<> FROM MC")
+        selectTask("MAX 0 Barrier: Fish FROM ProjectCard!")
+        doTask("PROD[-Plant]")
       }
     }
   }

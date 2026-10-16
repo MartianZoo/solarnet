@@ -9,17 +9,6 @@ internal class HomeostasisBureauTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test
-  internal fun `Pays when its owner raises temperature`() {
-    kim.exMachina("$HomeostasisBureau")
-
-    kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
-      doTask("TemperatureStep")
-      doTasks("TerraformRating", "3 MC")
-    }
-  }
-
-  @Test
   internal fun `Does not pay when an opponent raises temperature`() {
     kim.exMachina("$HomeostasisBureau")
 

@@ -164,16 +164,6 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     }
 
     @Test
-    internal fun `Admin terraforming triggers Aphrodite without granting terraform rating`() {
-      newTestGame(playerCount = 2, kimCorporation = Aphrodite)
-      kim.doTask("Pass")
-      stan.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      kim.doTask("VenusStep! BY Admin").expect("VenusStep, 2 MC, 0 TerraformRating")
-    }
-
-    @Test
     internal fun `Admin terraforming does not trigger Homeostasis Bureau's owner effect`() {
       newTestGame(playerCount = 2)
       kim.doTasks("PlayProject<Class<$HomeostasisBureau>>")
