@@ -2,6 +2,9 @@
 
 Delete entries when they are done. Static-language and English work lives in [Pets TODO](../pets/TODO.md).
 
+- Investigate the deferred nested-placement and partial-selection experiment in
+  [Make types types again](agents/MAKE_TYPES_TYPES_AGAIN.md) if that proposal is selected.
+
 - Investigate the local configuration-cache invalidation caused by the injected
   `kotlin.project.persistent.dir` property. Repeated `help` commands reproduce it on the
   pre-split baseline as well as the composite build; build separation preserves the existing

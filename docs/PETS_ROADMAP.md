@@ -54,6 +54,10 @@ extraction remains a separate library-design direction below, not a prerequisite
 
 ## Internal design and consumer API
 
+**Exploratory:** [Make types types again](agents/MAKE_TYPES_TYPES_AGAIN.md) assesses removing
+state-dependent `HAS` from Types while retaining expression syntax and gameplay meaning. The
+implementation experiment and the treatment of structural `NOT` remain undecided.
+
 1. **Make Pets pleasant to consume directly.** **Selected.** The model should expose a small,
    typed, unsurprising path from declarations to class tables, types, properties, and instructions.
    Separate the expression API's natural, compact-resolved, and full-resolved purposes. Remove
