@@ -14,7 +14,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
   @Test
   internal fun `Can return two differently typed played events`() {
-    kim.exMachina("PlayedEvent<Class<$MineralDeposit>>, PlayedEvent<Class<$InvestmentLoan>>")
+    kim.runOperation("PlayedEvent<Class<$MineralDeposit>>, PlayedEvent<Class<$InvestmentLoan>>")
 
     kim.inTurn {
           doTasks(
@@ -33,7 +33,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot recover an event that placed a special tile`() {
-    kim.exMachina(
+    kim.runOperation(
         "PlayedEvent<Class<$LavaFlows>>, PlayedEvent<Class<$MineralDeposit>>, " +
             "PlayedEvent<Class<$InvestmentLoan>>"
     )
@@ -53,7 +53,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot recover flipped Pharmacy Union`() {
-    kim.exMachina(
+    kim.runOperation(
         "PlayedEvent<Class<$PharmacyUnion>>, PlayedEvent<Class<$MineralDeposit>>, " +
             "PlayedEvent<Class<$InvestmentLoan>>"
     )
@@ -73,8 +73,8 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot recover another player's event`() {
-    stan.exMachina("PlayedEvent<Class<$MineralDeposit>>")
-    kim.exMachina("PlayedEvent<Class<$InvestmentLoan>>, PlayedEvent<Class<$BribedCommittee>>")
+    stan.runOperation("PlayedEvent<Class<$MineralDeposit>>")
+    kim.runOperation("PlayedEvent<Class<$InvestmentLoan>>, PlayedEvent<Class<$BribedCommittee>>")
 
     shouldThrow<TaskException> {
       kim.inTurn {
@@ -91,7 +91,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot play with only one eligible event`() {
-    kim.exMachina("PlayedEvent<Class<$Flooding>>")
+    kim.runOperation("PlayedEvent<Class<$Flooding>>")
 
     shouldThrow<LimitsException> {
       kim.inTurn {

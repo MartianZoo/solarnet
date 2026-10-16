@@ -1,0 +1,1 @@
+/Canon/Card[isA/Type/@name = 'ResourceCard'][tags/Tag/@name = 'AnimalTag'][not(@resource = 'Animal')]

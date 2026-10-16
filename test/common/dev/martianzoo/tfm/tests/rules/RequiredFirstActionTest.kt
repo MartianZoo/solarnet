@@ -14,14 +14,14 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
     passFirstGeneration()
 
-    kim.doTask("RequiredActionsSignal").expect("3 ProjectCard")
+    kim.doTask("DoRequiredActions").expect("3 ProjectCard")
   }
 
   @Test
   internal fun `Can play a project after resolving its mandatory card draw`() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
     passFirstGeneration()
-    kim.doTask("RequiredActionsSignal")
+    kim.doTask("DoRequiredActions")
 
     kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */).expect("PROD[Steel]")
   }

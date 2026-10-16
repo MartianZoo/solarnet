@@ -30,15 +30,13 @@ CLASS FakePolderTechDutch : CardFront<Class<CorporationCard>> {
   GreeneryTile: Plant
 }
 
-"Head Start with independently interleavable actions granted on entry"
+"Head Start variant: finish its resources, then take two mandatory actions in sequence"
 CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
   cost = 0
 
   HAS MAX 1 FakeHeadStart
   This:: Audit
-  This: 2 Steel, 2 MC / ProjectCard, \
-    (MAX 0 RequiredAction: StandardAction) OR (RequiredAction: RequiredActionsSignal), \
-    (MAX 0 RequiredAction: StandardAction) OR (RequiredAction: RequiredActionsSignal)
+  This: 2 Steel, 2 MC / ProjectCard, 2 ExtraAction
 }
 
 "One robot unit stored with a card that reduces its play cost by 1 MC"

@@ -27,10 +27,10 @@ import kotlin.reflect.KClass
  *
  * Operation methods run their block as an atomic world interaction: a failure rolls back the
  * changes from that call. [beginOperation] and [continueOperation] may return with tasks pending;
- * [inTurn], [runOperation], and [completeOperation] require their operation's work to finish. A
- * successful [TaskResult] reports changes and still-pending tasks created during that call, while
- * later work can change the world again. [autoExecPolicy] controls eligible automatic work during
- * settlement; it does not choose between unresolved player options.
+ * [runOperation] and [completeOperation] require their operation's work to finish. A successful
+ * [TaskResult] reports changes and still-pending tasks created during that call, while later work
+ * can change the world again. [autoExecPolicy] controls eligible automatic work during settlement;
+ * it does not choose between unresolved player options.
  */
 public interface Agent {
 
@@ -222,19 +222,6 @@ public interface Agent {
    * while automatic work may affect the shared world.
    */
   public var autoExecPolicy: AutoExecPolicy
-
-  /**
-   * Creates a `NewTurn` task for [actor] and routes its initial Admin work. The resulting player
-   * choices may remain pending.
-   */
-  public fun startTurn(): TaskResult
-
-  /**
-   * Runs `body` as a complete operation. If this actor has no pending task, first seeds a `NewTurn`
-   * operation; otherwise completes the already pending operation. A failure or unfinished work
-   * rolls back the call.
-   */
-  public fun inTurn(body: OperationBlock = {}): TaskResult
 
   /**
    * Seeds an operation with [initialInstructions] and requires it to complete after `body` and

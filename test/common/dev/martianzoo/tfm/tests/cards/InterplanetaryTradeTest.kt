@@ -19,13 +19,12 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
           "TerraformRating",
           "2 Steel",
       )
-      doTask("PlayedEvent<Class<ImportedHydrogen>> FROM ImportedHydrogen")
     }
 
     kim.inTurn {
       doTasks("PlayProject<Class<InterplanetaryTrade>>", "27 Pay<> FROM MC")
       doTasks("InterplanetaryTrade FROM ProjectCard")
-      selectTask("EACH @WildTag { Tag<@WildTag>? }")
+      selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
       doTask("PROD[4 MC]")
     }
   }

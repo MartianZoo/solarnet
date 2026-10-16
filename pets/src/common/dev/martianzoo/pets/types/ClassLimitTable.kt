@@ -1,15 +1,14 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
-import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import kotlin.Int.Companion.MAX_VALUE
 
 /**
- * Immutable component-count limits for one game class-table view. The type system uses these limits
- * to enforce that every dependency can identify a unique component, as specified by
+ * Immutable component-count limits for one game class-table view. Definition-admissibility tests
+ * use these limits to verify that every dependency can identify a unique component, as specified by
  * [rule T3-9](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#3-dependencies),
  * and the engine applies the same compiled limits to live component counts.
  */
@@ -41,27 +40,6 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   private val unscopedRequiredLimits: Set<Limit>
 
   init {
-    val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
-    val hasSingleTargetLimitByType = mutableMapOf<GroundType, Boolean>()
-    val invalidDependencies = inhabitedConcreteClasses.mapNotNull { dependent ->
-      dependent.dependencies
-          .concreteDependencyTargets(classTable)
-          .firstOrNull { target ->
-            !hasSingleTargetLimitByType.getOrPut(target) { hasSingleTargetLimit(target) }
-          }
-          ?.let { dependent to it }
-    }
-
-    if (invalidDependencies.isNotEmpty()) {
-      throw InvalidPetDefinitionException(
-          "dependencies must target types with maximum multiplicity 1; first violation per class:\n" +
-              invalidDependencies.joinToString("\n") { (dependent, target) ->
-                "  `${dependent.className}` -> `${target.expressionFull}`"
-              },
-          sourceLocation = invalidDependencies.first().first.className.sourceLocation,
-      )
-    }
-
     val (scoped, unscoped) =
         restrictionsByClass.values
             .flatten()
@@ -77,12 +55,6 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     }
     unscopedRequiredLimits = unscoped.flatMap { it.requiredLimits(emptySet()) }.toSet()
   }
-
-  private fun hasSingleTargetLimit(target: Type): Boolean =
-      restrictionsByClass[target.rootClass].orEmpty().any { restriction ->
-        restriction.range.last <= 1 &&
-            restriction.bindThisTo(target)?.let { target.isSubtypeOf(it.type) } == true
-      }
 
   /**
    * Returns every strongest component-count invariant applicable to [type], plus an unconstrained

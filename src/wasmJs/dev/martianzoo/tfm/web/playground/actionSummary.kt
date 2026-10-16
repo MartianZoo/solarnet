@@ -18,7 +18,7 @@ internal fun actionSummary(
     (event.cause?.triggerEvent in descendants).also { if (it) descendants += event.ordinal }
   }
   val component =
-      if (chosen.className == cn("RequiredActionsSignal")) {
+      if (chosen.className == cn("DoRequiredActions")) {
         consequences
             .firstOrNull { it.change.gaining?.className == cn("UseAction") }
             ?.change

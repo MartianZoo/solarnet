@@ -38,7 +38,9 @@ Use the complete build when the change affects multiple modules or their contrac
 For every shared browser-compatible suite, temporarily uncomment `allBrowserTests` in this
 build's `build.gradle.kts` and run `./gradlew allBrowserTests --rerun-tasks`; restore the comment
 afterward. Routine browser runs use `BrowserPetsTest` and Almanac's English card-text test.
-Other generated JavaScript browser tasks are disabled unless that full-browser target is requested.
+Search runs its shared suite on JVM, JS, and Wasm through `:search:test` (or the explicit
+`:search:jvmTest :search:jsBrowserTest :search:wasmJsBrowserTest` tasks). Other generated browser
+tasks are disabled unless the full-browser target is requested.
 Chrome or Chromium is required; `CHROME_BIN` can select the executable.
 
 When changing test runners, browser configuration, resources, or locked JavaScript dependencies,
@@ -70,7 +72,11 @@ Preserve these distinct purposes:
 - Pure language tests cover parsing, preprocessing, transformation, and rendering without Canon.
 - Pure type-system tests use small local declarations for loading, type relationships, metrics,
   requirements, and related semantics.
-- Canon admissibility tests check loading and representative configuration composition. Do not
+- Canon admissibility tests check loading and representative configuration composition.
+  `validatedComponentLimits` in shared test support checks dependency-target multiplicity for
+  Canon map/expansion configurations, FakeCanon, and the focused type-system examples. This
+  definition-only scan is not part of runtime `ClassLimitTable` construction; live count limits
+  are still compiled and enforced by the engine. Do not
   duplicate card lists, bundle totals, or exact authored trees merely to detect data changes.
 - English tests check derived text and visible refusals; see [LANGUAGE.md](LANGUAGE.md#evidence-and-verification).
 - Known-defect characterizations explicitly say that current behavior is wrong. Specifications

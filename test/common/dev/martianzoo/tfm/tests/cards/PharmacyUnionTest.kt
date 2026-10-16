@@ -111,8 +111,9 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "11 Pay<> FROM MC",
               "Research FROM ProjectCard",
               "TerraformRating FROM Disease<PharmacyUnion>",
-              "PlayedEvent FROM PharmacyUnion",
           )
+          selectTask("PlayedEvent FROM PharmacyUnion")
+
           doTask("2 ProjectCard<Kim, Hand>")
           doTask("3 TerraformRating")
         }
@@ -129,9 +130,9 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           "PlayProject<Class<Research>>",
           "11 Pay<> FROM MC",
           "Research FROM ProjectCard",
-          "PlayedEvent FROM PharmacyUnion",
-          "Ok",
       )
+      selectTask("PlayedEvent FROM PharmacyUnion")
+      doTask("Ok")
       doTask("2 ProjectCard<Kim, Hand>")
       doTask("3 TerraformRating")
     }
@@ -146,7 +147,8 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<PhysicsComplex>>", "12 Pay<> FROM MC")
       doTasks("PhysicsComplex FROM ProjectCard")
-      doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
+      selectTask("PlayedEvent FROM PharmacyUnion")
+      doTask("3 TerraformRating")
     }
   }
 
@@ -163,9 +165,9 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "PlayProject<Class<RegolithEaters>>",
               "13 Pay<> FROM MC",
               "RegolithEaters FROM ProjectCard",
-              "PlayedEvent FROM PharmacyUnion",
-              "Ok",
           )
+          selectTask("PlayedEvent FROM PharmacyUnion")
+          doTask("Ok")
           doTask("-4 MC")
           doTask("3 TerraformRating")
         }

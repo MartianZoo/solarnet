@@ -1,4 +1,6 @@
-CLASS AmazonisMap : MarsMap
+CLASS AmazonisMap : MarsMap {
+  This IF StandardSoloObjective: SoloGenerationsLeft
+}
 
 "Enforces the longer global-parameter tracks printed on Amazonis Planitia"
 CLASS ExtendedGlobalParametersRule : Module {

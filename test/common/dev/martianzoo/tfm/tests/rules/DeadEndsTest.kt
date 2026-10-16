@@ -54,8 +54,6 @@ internal class DeadEndsTest : TfmSandboxTest() {
       kim.inTurn {
         doTask("ConvertPlants")
         doTask("8 Pay<Class<Plant>> FROM Plant")
-        // Hand the paid conversion to Admin to offer the legal greenery areas.
-        selectTask("PlaceGreeneryTile")
         doTasks("GreeneryTile<Amazonis_05_03>", "Steel", "OxygenStep", "TerraformRating", "-3 MC")
       }
     }
@@ -66,8 +64,6 @@ internal class DeadEndsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      // Hand the paid conversion to Admin to offer the legal greenery areas.
-      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Amazonis_05_03>", "MC")
       doTask("OxygenStep")
       doTasks("TerraformRating", "-3 MC")
@@ -153,7 +149,6 @@ internal class DeadEndsTest : TfmSandboxTest() {
               "-3 MC",
               "0 MC<Stan FROM Kim>",
           )
-          doTask("PlayedEvent<Class<$SmallAsteroid>> FROM $SmallAsteroid")
         }
         .expect("0 MC<Stan>")
   }

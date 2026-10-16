@@ -21,7 +21,6 @@ internal class CometForVenusTest : TfmSandboxTest() {
       )
       doTask("VenusStep")
       doTasks("TerraformRating", "-4 MC<Stan>")
-      doTask("PlayedEvent<Class<CometForVenus>> FROM CometForVenus")
     }
   }
 }

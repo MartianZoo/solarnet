@@ -81,7 +81,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
       playPrelude(AquiferTurbines) { placeTile(4, 7) }.expect("PROD[2 Energy], Plant")
     }
 
-    JR.stdAction("RequiredActionsSignal") { placeTile(5, 6) }.expect("3 Plant, 3 MC, PROD[1 MC]")
+    JR.stdAction("DoRequiredActions") { placeTile(5, 6) }.expect("3 Plant, 3 MC, PROD[1 MC]")
     JR.playProject(MethaneFromTitan, 28)
     KB.playProject(ResearchOutpost, 18) { placeTile(5, 3) }.expect("PROD[1 MC<JR>]")
     KB.playProject(AcquiredCompany, 9)

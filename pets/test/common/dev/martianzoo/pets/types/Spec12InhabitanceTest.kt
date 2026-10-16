@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.testsupport.validatedComponentLimits
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -174,8 +175,8 @@ internal class Spec12InhabitanceTest {
             roots = setOf(cn("Holder"), cn("LocalTarget")),
         )
 
-    shouldThrow<InvalidPetDefinitionException> { view.componentLimits }.message shouldContain
-        "`Holder` -> `LocalTarget`"
+    shouldThrow<InvalidPetDefinitionException> { validatedComponentLimits(view) }
+        .message shouldContain "`Holder` -> `LocalTarget`"
   }
 
   @Test

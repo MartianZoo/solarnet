@@ -28,7 +28,7 @@ CLASS Terraformer26 : Milestone {
 }
 
 "A revealed Global Event card, discarded by ChangingTimes after its Current generation"
-ABSTRACT CLASS GlobalEvent : Real {
+ABSTRACT CLASS GlobalEvent : Content, Real {
   HAS MAX 1 This
   HAS MAX 1 GlobalEventPosition<This>
   This IF RevealComingEvent:: Coming<This>
@@ -46,7 +46,7 @@ ABSTRACT CLASS GePartyCurrent<CurrentParty@Party> : GlobalEvent {
 }
 
 "One printed board position, occupied by at most one Global Event card"
-ABSTRACT CLASS GlobalEventPosition<GlobalEvent> : Real {
+ABSTRACT CLASS GlobalEventPosition<GlobalEvent> {
   CLASS Current { HAS MAX 1 Current }
   CLASS Coming { HAS MAX 1 Coming }
   CLASS Distant { HAS MAX 1 Distant }
@@ -87,7 +87,7 @@ CLASS Neutral : Owner {
   HAS MAX 14 Delegate<This>
 }
 
-ABSTRACT CLASS Party : Real {
+ABSTRACT CLASS Party : Content, Real {
   HAS =1 This
   HAS MAX 1 AfterParty<This, Party>, MAX 1 AfterParty<Party, This>
   HAS MAX 1 PartyLeader<This, Anyone>
@@ -175,7 +175,7 @@ CLASS PartyDistance<Party, Party> : CustomMetric
 "The clockwise seat distance between owners, with unseated owners last"
 CLASS PlayerDistance<Owner, Owner> : CustomMetric
 
-ABSTRACT CLASS PartyStatus<Party> : Real {
+ABSTRACT CLASS PartyStatus<Party> {
   "The party with the greatest delegate count"
   CLASS Dominant {
     HAS MAX 1 Dominant

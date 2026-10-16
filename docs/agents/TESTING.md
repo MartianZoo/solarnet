@@ -50,7 +50,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   See [Pets testing](../../pets/docs/agents/TESTING.md) for its focused commands and generators.
   Use the full build only when repository-wide verification is warranted by the scope of the change
   or explicitly requested.
-- `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
+- `./gradlew test` runs the active repository JVM test suites, every browser-specific test, and the
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
   `jvmTest`. Pets runs `BrowserPetsTest` through `:pets:jsBrowserTest`; Web runs its browser history
   tests and the selected replay through `:web:jsBrowserTest`; Almanac runs its English card-text
@@ -72,26 +72,34 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `RecordingStoreTest` opens the packaged three-player Turmoil recording, checks preview progress, blocked navigation,
   final winner messaging and subsequent history navigation, and renders its task English;
   `karma.config.d/resources.js` serves its Compose resources. Generate replay exports first when
-  absent or stale, using `:tfm-tests:jvmTest --tests '*replays.*' -PreplayExports`.
+  absent or stale, using `:tfm-tests:replayTest -PreplayExports`.
 - Temporarily uncomment `allBrowserTests` in the root build and run
   `./gradlew allBrowserTests --rerun-tasks` to exercise every shared and browser-specific suite,
   including all portable replay scenarios. The browser replay source set also reads the legacy
   `test/jvm/dev/martianzoo/tfm/tests/replays` directory, excluding only its JUnit file-export hook.
   JVM-only tools and filesystem/terminal tests remain outside this target. Comment the target back
   out after a successful run.
-- `./gradlew :tfm-tests:jvmTest` runs the replay tests without input recording or export.
+- `./gradlew :tfm-tests:replayTest` runs the curated replay suite without input recording or export.
+  `:tfm-tests:jvmTest` excludes replays and can run filtered tests independently. Use
+  `:tfm-tests:test` for both JVM suites; `allTests`, `check`, and `build` also include replays.
+  The explicit `activeReplayClasses` list in `modules/tfm-tests/build.gradle.kts` selects imports
+  from 2026 plus the retained `Game20230521Test`. All archived replays still compile; their
+  `archivedReplayTest` task registration is commented out and unavailable. The optional, also
+  commented-out `allBrowserTests` task still runs every portable replay when restored.
   Add `-PreplayExports` to record inputs, write full `.json` and short `.short.json` game files
   per successful `AbstractFullGameTest` subclass, and verify reconstruction in a fresh game.
-  Files go under that module's `generated/replay-event-logs` build directory. Ordinary runs
+  Files go under that module's `generated/replay-event-logs` build directory. Export runs remove
+  JSON files for archived games. Ordinary runs
   leave existing exports untouched. Direct JUnit runs need `-Dsolarnet.replayExports=true` and
   `-Djunit.jupiter.extensions.autodetection.enabled=true`.
   See [When to regenerate replay exports](EXPORT.md#when-to-regenerate-replay-exports) before
   reusing or distributing generated recordings after rules, runtime, or replay changes.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
-  build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
-  random-card, and browser tests do not contribute to the report. This coverage run excludes input
-  recording, export, and reconstruction, and ignores `-PreplayExports`.
+  build directory. Its execution data comes from the separate, always-instrumented
+  `replayCoverageTest` task, so ordinary test runs do not pay for coverage, and task abbreviations
+  work normally. Card, rule, random-card, and browser tests do not contribute to the report.
+  It uses the same curated selection and honors `-PreplayExports` just like `replayTest`.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
   sources. A benchmark error fails the task instead of producing an empty successful report.
@@ -431,7 +439,7 @@ The standard game has three players. A scenario may instead pass `playerCount` f
 five; Maya and Nadia occupy the fourth and fifth seats. The protected `players` list exposes every
 seat in order. Accessing `stan` in solo or `rob` with fewer than three players fails immediately
 with a fixture error. Both styles resolve neutral solo placements through the setup tasks, using
-the same fixed positions on Tharsis, Hellas, and Elysium; other solo maps still need positions.
+`soloTileAreas` with fixed card costs 11, 10, 12, and 8 on the selected map.
 
 The sandbox prepares and caches up to eight recently used `World`s, keyed by option-set,
 player-count, Kim corporation, and entry-point combination, then gives every test an independent
@@ -456,7 +464,7 @@ duplicate this coverage for every expansion card.
 Before setup and after forking the prepared position, the sandbox sets every player's policy to
 `NONE`, following
 `OtbGame20261009Test`'s explicit task style. Card and rule scenarios retain the prepared position
-and visible `exMachina` corrections, then use generic
+and visible `exMachina` corrections, then use the fixture's
 `inTurn { doTasks(...) }` calls in place of Terraforming Mars gameplay helpers. Admin retains its
 default policy. `inTurn` supplies the sandbox turn and checks that the complete action leaves no
 pending tasks; payments, card transfers, player effects, and any player-assigned cleanup are explicit.
@@ -493,8 +501,10 @@ Write expected payment amounts explicitly, such as `6 Pay<> FROM MC`; never pay 
 in a sandbox scenario. Write `kim.inTurn { ... }` directly, without redundant `with(kim)` wrappers.
 Inside that block, helpers on its operation receiver do not repeat `kim.`; another actor remains explicit.
 `TfmGameplay.turn` groups the published game's turn, including declining an unused second action.
-`Agent.inTurn` provides a complete atomic operation and creates `NewTurn` when needed. Sandbox
-scenarios use the latter. Cross-player Agent calls can leave Admin work waiting within that block;
+`TfmSandboxTest` supplies its own `Agent.inTurn` member extension: it uses `runOperation("OfferAction")`
+when no task is pending, and otherwise `completeOperation`. This keeps the generic Agent free of
+Terraforming Mars rules while sandbox scenarios retain their explicit operation scripts. Cross-player
+Agent calls can leave Admin work waiting within that block;
 use a locally explained `autoExecNow()` only when it must settle before the next player choice.
 Use `doTasks` for consecutive concrete instructions. Preserve order when it matters to the scenario.
 Comment an ambiguous `Ok` to identify what is being declined.
@@ -779,7 +789,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   those actions instead of using `turn {}`, and preserve explicit passes or declined second
   actions when the source records them.
   Once every other player has passed, keep the remaining player's actions through `pass()` in one
-  turn block; the `NewTurn` tasks the game keeps offering let that block continue across the
+  turn block; the `OfferAction` tasks the game keeps offering let that block continue across the
   remaining nominal turns.
 - When an Event card's sibling tasks require explicit replay ordering, record only the gameplay
   consequences. The card's `LATER` dispatch defers its flip, and the owner performs the flip once

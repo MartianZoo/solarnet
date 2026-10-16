@@ -136,7 +136,7 @@ explicitly marked `*` or `?`, independently of the enclosing class's defaults. I
 `This` contributes a mandatory quantifier to the combination in L9-8; an explicit quantifier on the
 transmutation still takes precedence.
 
-> **Non-normative example — Inventrix's required action.** `RequiredActionsSignal: -This` removes
+> **Non-normative example — Inventrix's required action.** `DoRequiredActions: -This` removes
 > that pending `RequiredAction` component, rather than some other pending required action.
 
 **L1-6. `Anyone` is an ordinary class.** It is the common supertype of `Owner` and `Actor`, the

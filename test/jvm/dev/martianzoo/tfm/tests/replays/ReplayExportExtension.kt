@@ -38,7 +38,7 @@ internal class ReplayExportExtension : BeforeEachCallback, AfterTestExecutionCal
             .filter(String::isNotBlank)
             .joinToString(),
     )
-    replay.verifyGameFileRoundTrip()
+    replay.verifyGameFileRoundTrip(json)
     println("Game-file round-trip passed: ${context.requiredTestClass.simpleName}")
   }
 }

@@ -187,6 +187,7 @@ starting a game.
 | `text` | English derived from the declarations; still uses Mars vocabulary |
 | `almanac` | Browser for the catalog, types, and derived English |
 | `junkdrawer` | Static analyses and content generators |
+| `search` | Optional XPath 1.0 queries over authored or elaborated Canon (JVM, JS, Wasm) |
 | `codegen` | Experimental generation of typed Kotlin vocabulary |
 
 Sources share `src/common`, `src/jvm`, and `src/js`, with matching directories under `test/`.
@@ -233,3 +234,5 @@ For an isolated local publication, use an absolute path to an empty Maven reposi
 files, so consumers do not need access to its source or intermediate build directories.
 
 This is an independent fan project, not affiliated with or endorsed by FryxGames AB.
+
+See [Querying Canon with XPath](docs/agents/canon-xpath.md) for the authored/elaborated command-line query tool.

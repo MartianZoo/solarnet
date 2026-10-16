@@ -84,7 +84,7 @@ public open class BusyPreludePhaseBenchmark {
 
     // Jacob Fryxelius's ruling makes Valley Trust's required action the first action-phase action.
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
-    me.stdAction("RequiredActionsSignal") {
+    me.stdAction("DoRequiredActions") {
       me.playPrelude(cn("DoubleDown")) {
         doTask("CopyPrelude<$fakeHeadStart>")
         doTask("PlayProject<Class<LunaGovernor>>")

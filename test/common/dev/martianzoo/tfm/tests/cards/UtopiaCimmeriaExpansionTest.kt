@@ -80,7 +80,6 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
       // Resolve the optional attack: no unprotected plant target is available.
       selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
-      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
 
     kim.inTurn {

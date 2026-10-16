@@ -6,6 +6,7 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.Player
@@ -26,8 +27,8 @@ import dev.martianzoo.tfm.state.tfmCatalog
  * per-location event order.
  *
  * The current event history and supplied name sequences are the sources of truth. Validation
- * rebuilds the named locations from surviving events, so timeline rollback also restores tracking.
- * This tracks client-declared identities; it does not deal cards or verify a physical reshuffle.
+ * processes new changes incrementally, rebuilding from surviving events after rollback. This tracks
+ * client-declared identities; it does not deal cards or verify a physical reshuffle.
  */
 public class CardTracking
 private constructor(
@@ -38,6 +39,9 @@ private constructor(
       mutableMapOf<Triple<Player, ClassName, ClassName>, MutableList<ClassName>>()
   private val departures =
       mutableMapOf<Triple<Player, ClassName, ClassName>, MutableList<ClassName>>()
+
+  private var cachedSnapshot: Snapshot? = null
+  private var lastTrackedChange: ChangeEvent? = null
 
   /**
    * Supplies names in the order cards of [back] next enter [player]'s [location]. Omit [back] for
@@ -176,9 +180,23 @@ private constructor(
   }
 
   private fun snapshot(): Snapshot {
-    val locations = linkedMapOf<ClassName, CardState>()
-    val arrivalOffsets = mutableMapOf<Triple<Player, ClassName, ClassName>, Int>()
-    val departureOffsets = mutableMapOf<Triple<Player, ClassName, ClassName>, Int>()
+    val last = lastTrackedChange
+    // Ordinals can be reused after truncation. Only the same surviving event identifies our prefix.
+    val previous = cachedSnapshot.takeIf {
+      last == null ||
+          (last.ordinal < world.timeline.checkpoint().ordinal &&
+              world.events.changeAt(last.ordinal) === last)
+    }
+    val changes =
+        if (previous != null && last != null)
+            world.events.changesSince(Checkpoint(last.ordinal + 1))
+        else world.events.changesSinceSetup()
+    if (previous != null && changes.isEmpty()) return previous
+
+    // Keep the last successful snapshot intact if validation of a new change fails.
+    val locations = previous?.locations?.toMutableMap() ?: linkedMapOf<ClassName, CardState>()
+    val arrivalOffsets = previous?.arrivalOffsets?.toMutableMap() ?: mutableMapOf()
+    val departureOffsets = previous?.departureOffsets?.toMutableMap() ?: mutableMapOf()
     val notes = mutableMapOf<ChangeEvent, String>()
 
     fun takeNames(
@@ -220,7 +238,7 @@ private constructor(
     fun held(back: ClassName, location: Location): Set<ClassName> =
         locations.filterValues { it == CardState(back, location) }.keys.toSet()
 
-    for (event in world.events.changesSinceSetup()) {
+    for (event in changes) {
       val change = event.change
       val removing = change.removing
       val gaining = change.gaining
@@ -531,7 +549,10 @@ private constructor(
               .orEmpty()
       event.notes = (lines + if (inserted) emptyList() else listOf(cardNote)).joinToString("\n")
     }
-    return Snapshot(locations, arrivalOffsets, departureOffsets)
+    return Snapshot(locations, arrivalOffsets, departureOffsets).also {
+      cachedSnapshot = it
+      lastTrackedChange = changes.lastOrNull() ?: last.takeIf { previous != null }
+    }
   }
 
   private fun requirePlayer(player: Player) {

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SuitableInfrastructureTest : TfmGameplayTest() {
@@ -35,6 +36,22 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
   }
 
   @Test
+  internal fun `An unused bonus expires before the next action`() {
+    newTestGame("PreludeExpansion, SuitableInfrastructure", playerCount = 2)
+    kim.doTask("PlayCard<Class<PreludeCard>, Class<$SuitableInfrastructure>>")
+    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+    stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+    stan.autoExecNow(EAGER)
+    stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+    stan.autoExecNow(EAGER)
+
+    kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+        .expect("MC, -ProjectCard")
+    kim.count("SuitableInfrastructureBonus") shouldBe 0
+    kim.doTask("UseStandardProject<PowerPlantProject>").expect("PROD[Energy], -9 MC")
+  }
+
+  @Test
   internal fun `Pays for production inside Valley Trusts required action`() {
     newTestGame(
         "PreludeExpansion, SuitableInfrastructure, ValleyTrust",
@@ -50,7 +67,7 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
     stan.autoExecNow(EAGER)
 
     kim.completeOperation {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
           autoExecNow(EAGER)
         }

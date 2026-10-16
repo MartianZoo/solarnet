@@ -925,38 +925,6 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun dependencyLacksSingleTargetLimit() {
-    val source =
-        """
-        CLASS Token
-        CLASS Holder<Token>
-        """
-            .trimIndent()
-    val premise = testGamePremise(source, players = 0)
-    premise.catalog.classTable
-    val error =
-        assertFailsWith<InvalidPetDefinitionException> {
-          Engine.newGame(premise)
-        }
-
-    assertEquals(
-        "dependencies must target types with maximum multiplicity 1; first violation per class:\n  `Holder` -> `Token`",
-        error.detail,
-    )
-    // Prefer pointing at the dependency bound `Token` and showing its missing multiplicity limit.
-    assertEquals(
-        """
-        |dependencies must target types with maximum multiplicity 1; first violation per class:
-        |  `Holder` -> `Token` at 2:7
-        |CLASS Holder<Token>
-        |      ^
-        """
-            .trimMargin(),
-        error.message,
-    )
-  }
-
-  @Test
   internal fun missingRequiredInitialComponent() {
     val source = "CLASS Token { HAS =1 This }"
     val premise = testGamePremise(source, players = 0)

@@ -120,7 +120,7 @@ Worked cases:
 | Asteroid: card vs. resource vs. standard project | resource `Asteroid` | `AsteroidCard`, `AsteroidProject` |
 | Trade: game concept vs. standard action | concept `Trade` | `TradeAction` |
 | Play card: operation vs. standard action | operation `PlayCard` | `PlayProject` |
-| Required action: component vs. its signal | component `RequiredAction` | `RequiredActionsSignal` |
+| Required action: component vs. its signal | component `RequiredAction` | `DoRequiredActions` |
 | Reprinted goals | the newer, revised printing | the superseded one (see below) |
 
 ### Reprints and variants

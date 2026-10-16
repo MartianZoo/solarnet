@@ -70,3 +70,16 @@ tasks.register<JavaExec>("regenerateMapAreas") {
   inputs.files(canonSourceDirectory.asFileTree.matching { include("**/*.pets") })
   args(canonSourceDirectory.asFile.absolutePath)
 }
+
+// Pure source-derived report: no runtime game or hand-authored transition table.
+tasks.register<JavaExec>("actionTurnDiagram") {
+  group = "reporting"
+  description = "Generates an action-phase turn switchboard as Graphviz DOT from current Pets."
+  classpath = sourceSets.main.get().runtimeClasspath
+  mainClass.set("dev.martianzoo.tfm.petstools.ActionTurnDiagram")
+  val output =
+      providers
+          .gradleProperty("actionTurnDiagramOutput")
+          .orElse(layout.buildDirectory.dir("reports/action-turns").map { it.asFile.absolutePath })
+  args(canonSourceDirectory.asFile.absolutePath, output.get())
+}

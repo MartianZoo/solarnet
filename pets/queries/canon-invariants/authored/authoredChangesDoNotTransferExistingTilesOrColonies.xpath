@@ -1,0 +1,3 @@
+/Canon/*//Transmute[@gainingClass = @removingClass][
+  id(@gainingClass)/isA/Type[@name = 'Tile' or @name = 'Colony']
+]

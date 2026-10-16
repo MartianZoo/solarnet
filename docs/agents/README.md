@@ -62,6 +62,9 @@ Use the [Pets router](../../pets/docs/agents/README.md) for language/types, Cata
 ownership, Canon modeling, naming, English rendering, and static generators. The
 [Pets documentation index](../../pets/docs/README.md) also links introductory guides and comparisons.
 
+For the exploratory proposal to remove state-dependent `HAS` from Types while retaining it in
+Expressions, read [MAKE_TYPES_TYPES_AGAIN.md](MAKE_TYPES_TYPES_AGAIN.md).
+
 Kotlin visibility auditing across runtime modules remains in [VISIBILITY.md](VISIBILITY.md).
 
 ## Verification and reconstruction

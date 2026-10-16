@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+"""Regenerate the source-derived action-turn diagram; requires Java, Node and npm."""
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+
+root = Path(__file__).resolve().parent.parent
+output = root / "_local/diagrams/action-phase"
+subprocess.run([
+    str(root / "gradlew"), "-p", str(root / "pets"), ":junkdrawer:actionTurnDiagram",
+    f"-PactionTurnDiagramOutput={output}", "--console=plain",
+], cwd=root, check=True)
+# Pin layout and rasterization. Install only into temporary storage, never globally or in the repo.
+with tempfile.TemporaryDirectory(prefix="solarnet-diagram-", dir=os.environ["TMPDIR"]) as temporary:
+    subprocess.run([
+        "npm", "install", "--prefix", temporary, "--no-audit", "--no-fund", "--save-exact",
+        "@viz-js/viz@3.31.0", "@resvg/resvg-js@2.6.2",
+    ], check=True)
+    subprocess.run([
+        "node", str(root / "scripts/render-action-turn-diagram.mjs"), temporary, str(output),
+    ], check=True)
+print(f"Open {output / 'index.html'}")

@@ -26,7 +26,7 @@ internal class MergerTest : TfmSandboxTest() {
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("2 SearchForCard<ReferenceFilter<Class<Floater>>>")
           doTask("3 PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<SocietySupport>>")
@@ -136,7 +136,7 @@ internal class MergerTest : TfmSandboxTest() {
     internal fun `BUG - Defers Tharsis first action when acquired after Preludes`() {
       acquireTharsisThroughBoard().expect("0 CityTile")
       kim.completeOperation {
-            doTask("RequiredActionsSignal")
+            doTask("DoRequiredActions")
             doTask("CityTile<Tharsis_3_3>")
             autoExecNow(EAGER)
           }

@@ -11,8 +11,8 @@ import dev.martianzoo.state.toComponent
 /** Selects concrete assignments; ordinary Tag counts still decide whether a requirement holds. */
 internal object RequiredWildTag : CustomMetric() {
   override fun count(game: GameReader, type: Type): Int {
-    val (subject, wild, requestedTag) = type.typeDependencies.map { it.boundType }
-    val player = requireNotNull(wild.toComponent().owner).expression
+    val (subject, election, requestedTag) = type.typeDependencies.map { it.boundType }
+    val player = requireNotNull(election.toComponent().owner).expression
     val subjectType = game.resolve(requireNotNull(subject.representedClass).className.of(player))
     val requirement = subjectType.getRequirementPropertyValue("requirement") ?: return 0
     val tagClass = game.classTable.getClass(cn("Tag"))
@@ -31,12 +31,12 @@ internal object RequiredWildTag : CustomMetric() {
     }
     val unused =
         game
-            .getComponents(cn("WildTag").of(player))
+            .getComponents(cn("WildTagElection").of(player))
             .elements
             .filter { game.count(game.resolve(cn("Tag").of(it.expression))) == 0 }
             .sortedBy { it.expression.toString() }
     if (needed.size > unused.size) return 0
-    val index = unused.indexOf(wild)
+    val index = unused.indexOf(election)
     return if (index >= 0 && needed.getOrNull(index) == requestedTag.representedClass) 1 else 0
   }
 }

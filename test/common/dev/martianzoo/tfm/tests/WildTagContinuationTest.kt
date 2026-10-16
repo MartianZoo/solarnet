@@ -17,16 +17,16 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
               "CorroderSuits FROM ProjectCard",
               "PROD[2 MC]",
           )
-          kim.count("VenusTag<WildTag<AppliedScience>>") shouldBe 1
+          kim.count("VenusTag<WildTagElection<WildTag<AppliedScience>>>") shouldBe 1
           doTask("Science<AppliedScience>")
         }
-        .expect("Science<AppliedScience>, 0 Tag<WildTag>")
+        .expect("Science<AppliedScience>, 0 Tag<WildTagElection<WildTag>>")
     kim.inTurn {
           doTask("UseCardAction<MaxwellBase, Action1>")
-          kim.count("VenusTag<WildTag<AppliedScience>>") shouldBe 1
+          kim.count("VenusTag<WildTagElection<WildTag<AppliedScience>>>") shouldBe 1
           doTask("Science<AppliedScience>")
         }
-        .expect("Science<AppliedScience>, 0 Tag<WildTag>")
+        .expect("Science<AppliedScience>, 0 Tag<WildTagElection<WildTag>>")
   }
 
   @Test
@@ -35,7 +35,7 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, VenusShuttles")
     kim.inTurn {
       kim.doTasks("UseCardAction<VenusShuttles, Action1>")
-          .expect("VenusTag<WildTag<ResearchCoordination>>")
+          .expect("VenusTag<WildTagElection<WildTag<ResearchCoordination>>>")
       doTask("10 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
@@ -53,12 +53,11 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<ProjectInspection>>", "ProjectInspection FROM ProjectCard")
       kim.doTasks("UseAction<OrbitalCleanup, Action1>")
-          .expect("ScienceTag<WildTag<ResearchCoordination>>")
-      kim.count("ScienceTag<WildTag<ResearchCoordination>>") shouldBe 1
+          .expect("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>")
+      kim.count("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>") shouldBe 1
       doTask("MC")
-      doTask("PlayedEvent<Class<ProjectInspection>> FROM ProjectInspection")
     }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 
   @Test
@@ -67,10 +66,9 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, SearchForLife")
     kim.inTurn {
       doTasks("PlayProject<Class<SolarProbe>>", "9 Pay<> FROM MC", "SolarProbe FROM ProjectCard")
-      kim.count("ScienceTag<WildTag<ResearchCoordination>>") shouldBe 1
+      kim.count("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>") shouldBe 1
       shouldThrow<TaskException> { doTask("PlayedEvent<Class<SolarProbe>> FROM SolarProbe") }
       doTask("ProjectCard")
-      doTask("PlayedEvent<Class<SolarProbe>> FROM SolarProbe")
     }
     kim.count("ScienceTag") shouldBe 1
   }
@@ -79,14 +77,16 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
   internal fun `Orbital Cleanup allocates only when its action is used and keeps Science through payout`() {
     newTestGame("ResearchCoordination, ResearchNetwork")
     kim.exMachina("ResearchCoordination, ResearchNetwork, OrbitalCleanup, Research")
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
     kim.inTurn {
       kim.doTasks("UseCardAction<OrbitalCleanup, Action1>")
-          .expect("ScienceTag<WildTag<ResearchCoordination>>, ScienceTag<WildTag<ResearchNetwork>>")
-      kim.count("ScienceTag<WildTag<ResearchCoordination>>") shouldBe 1
+          .expect(
+              "ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>, ScienceTag<WildTagElection<WildTag<ResearchNetwork>>>"
+          )
+      kim.count("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>") shouldBe 1
       doTask("4 MC")
     }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 
   @Test
@@ -99,7 +99,7 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     }
     kim.inTurn {
       kim.doTasks("UseCardAction<KuiperCooperative, Action1>")
-          .expect("SpaceTag<WildTag<ResearchCoordination>>")
+          .expect("SpaceTag<WildTagElection<WildTag<ResearchCoordination>>>")
       doTask("4 Asteroid<KuiperCooperative>")
     }
   }

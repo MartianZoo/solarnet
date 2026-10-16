@@ -86,8 +86,8 @@ Documentation-only edits and presentation-only changes that do not alter Catalog
 execution do not require regeneration. Ordinary builds and replay tests leave existing exports
 untouched; they do not certify that those exports are current.
 
-Run `./gradlew :tfm-tests:jvmTest -PreplayExports --tests 'dev.martianzoo.tfm.tests.replays.*'`
-to refresh all replay exports, or replace the filter with the affected replay's fully qualified
+Run `./gradlew :tfm-tests:replayTest -PreplayExports --tests 'dev.martianzoo.tfm.tests.replays.*'`
+to refresh the active replay exports, or replace the filter with the affected replay's fully qualified
 test class when the change is confined to that replay. This writes full `.json` and short
 `.short.json` files under the `tfm-tests` module's `generated/replay-event-logs` build directory
 (relocated under `~/.gradle/solarnet-builds/` locally) and verifies live reconstruction. Require a

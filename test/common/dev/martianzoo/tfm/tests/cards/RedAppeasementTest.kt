@@ -35,17 +35,18 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
     stan.doTasks(
         "UseStandardProject<SellPatentsProject>",
         "MC FROM ProjectCard",
-        "0 StandardAction",
     )
+    stan.selectTask("-Baton")
 
     kim.doTasks(
         "PlayProject<Class<RedAppeasement>>",
         "RedAppeasement FROM ProjectCard",
         "PROD[2 MC]",
         "Pass",
-        "PlayedEvent<Class<RedAppeasement>> FROM RedAppeasement",
     )
     kim.count("Pass") shouldBe 1
+    kim.count("PlayedEvent<Class<RedAppeasement>>") shouldBe 1
+    admin.count("ActionScope") shouldBe 0
     stan.doTask("Pass")
 
     admin.count("ProductionPhase") shouldBe 1
@@ -56,8 +57,8 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
     stan.doTasks(
         "UseStandardProject<SellPatentsProject>",
         "MC FROM ProjectCard",
-        "0 StandardAction",
     )
+    stan.selectTask("-Baton")
 
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.doTasks(
@@ -65,7 +66,6 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
         "RedAppeasement FROM ProjectCard",
         "PROD[2 MC]",
         "Pass",
-        "PlayedEvent<Class<RedAppeasement>> FROM RedAppeasement",
     )
     kim.count("Pass") shouldBe 1
     stan.doTask("Pass")

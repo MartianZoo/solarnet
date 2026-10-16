@@ -1,0 +1,30 @@
+#!/bin/sh
+set -eu
+if [ "$#" -eq 1 ] && [ "$1" = "--help" ]; then
+  echo "Usage: query --form authored|elaborated [--xml] 'XPath expression'"
+  echo "       query --form authored|elaborated [--xml] --file PATH"
+  echo "See docs/agents/canon-xpath.md for the mapping and examples."
+  exit 0
+fi
+if [ "$#" -lt 3 ] || [ "$1" != "--form" ]; then
+  echo "Usage: query --form authored|elaborated [--xml] 'XPath expression' | --file PATH" >&2
+  exit 2
+fi
+form=$2
+shift 2
+case "$form" in authored|elaborated) ;; *) echo "Unknown form: $form" >&2; exit 2;; esac
+xml=false
+if [ "$1" = "--xml" ]; then xml=true; shift; fi
+if [ "$#" -eq 2 ] && [ "$1" = "--file" ]; then
+  query=$(cat -- "$2")
+elif [ "$#" -eq 1 ]; then
+  query=$1
+else
+  echo "Supply a single quoted XPath expression or --file PATH" >&2
+  exit 2
+fi
+query_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+if [ "$xml" = true ]; then
+  exec "$query_root/gradlew" -p "$query_root" -q --console=plain :search:queryCanon "-PqueryForm=$form" "-Pquery=$query" -PqueryXml=true
+fi
+exec "$query_root/gradlew" -p "$query_root" -q --console=plain :search:queryCanon "-PqueryForm=$form" "-Pquery=$query"

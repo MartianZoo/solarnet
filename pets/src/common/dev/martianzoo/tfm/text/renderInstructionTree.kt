@@ -166,6 +166,7 @@ private fun isTagAssignmentFanout(
   val selector = instruction.selector
   if (describers.fact(selector.className, ComponentDescriber::tagAssignmentHolder) != true)
       return false
+  if (!describers.isSubtypeOf(selector.className, cn("TagHolder"))) return false
   if (selector.arguments.isNotEmpty()) return false
   if (selector.refinement != null) {
     val absent =

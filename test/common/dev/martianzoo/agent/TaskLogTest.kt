@@ -25,6 +25,42 @@ internal class TaskLogTest {
   }
 
   @Test
+  internal fun repeatedInstructionsReplayTheirSelectedAncestryAndOccurrence() {
+    val premise =
+        testGamePremise(
+            """
+            CLASS Left : Signal { This: Middle }
+            CLASS Right : Signal { This: Middle }
+            CLASS Middle : Signal { This: Coin }
+            CLASS Coin
+            """
+        )
+    fun newAgents(): Agents =
+        Agents(Engine.newGame(premise)).also {
+          it[PLAYER1].autoExecPolicy = NONE
+          it[PLAYER1].addTasks("Left, Right, Right")
+        }
+
+    for (selected in 0..2) {
+      val source = newAgents()
+      start(source)
+      val player = source[PLAYER1]
+      player.doTasks("Left", "Right", "Right")
+      val middles = player.tasks.ids().toList()
+      middles.forEach { player.doTask(it) }
+      // The Coin tasks share their instruction; two also share the same rendered ancestry.
+      player.doTask(player.tasks.ids().toList()[selected])
+
+      val imported = newAgents()
+      replay(source, imported)
+
+      imported[PLAYER1].count("Coin") shouldBe 1
+      imported.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
+      imported.world.events.entriesSinceSetup() shouldBe source.world.events.entriesSinceSetup()
+    }
+  }
+
+  @Test
   internal fun selectionCheckpointsMarkTheStateBeforeAPlayerSelectsANewTask() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
     val player = agents[PLAYER1]

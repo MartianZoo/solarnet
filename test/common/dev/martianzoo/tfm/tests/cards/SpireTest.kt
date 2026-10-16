@@ -11,7 +11,7 @@ internal class SpireTest : TfmSandboxTest() {
   internal fun `Counts event tags toward its two-tag threshold`() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("4 ProjectCard")
           doTask("-3 ProjectCard<Kim, Hand>")
         }
@@ -26,7 +26,6 @@ internal class SpireTest : TfmSandboxTest() {
           doTask("4 ProjectCard<Kim, Selecting>")
           doTask("2 ProjectCard<Kim, Hand FROM Selecting>")
           doTask("Science<Spire>")
-          doTask("PlayedEvent<Class<BusinessContacts>> FROM BusinessContacts")
         }
         .expect("Science<$Spire>")
     kim.inTurn {
@@ -36,7 +35,6 @@ internal class SpireTest : TfmSandboxTest() {
               "MineralDeposit FROM ProjectCard",
               "5 Steel",
           )
-          doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
         }
         .expect("0 Science<$Spire>")
   }
@@ -45,7 +43,7 @@ internal class SpireTest : TfmSandboxTest() {
   internal fun `Repeated science tags earn a single resource`() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("4 ProjectCard")
           doTask("-3 ProjectCard<Kim, Hand>")
         }
@@ -67,7 +65,7 @@ internal class SpireTest : TfmSandboxTest() {
   internal fun `Science pays two MC toward a standard project`() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("4 ProjectCard")
           doTask("-3 ProjectCard<Kim, Hand>")
         }
@@ -87,7 +85,7 @@ internal class SpireTest : TfmSandboxTest() {
   internal fun `Science cannot pay for project cards`() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("4 ProjectCard")
           doTask("-3 ProjectCard<Kim, Hand>")
         }
@@ -104,7 +102,7 @@ internal class SpireTest : TfmSandboxTest() {
   internal fun `Selling patents does not offer science for the following project payment`() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
-          doTask("RequiredActionsSignal")
+          doTask("DoRequiredActions")
           doTask("4 ProjectCard")
           doTask("-3 ProjectCard<Kim, Hand>")
         }

@@ -112,8 +112,15 @@ private fun renderParticipant(
               ComponentDescriber.OwnershipPhrase.YOURS -> return null
             }
         resolved.sourceDependencies.isNotEmpty() -> return null
-        placement.determiner == Determiner.THIS ->
-            Determiner.THIS to ComponentDescriber.OwnershipPhrase.IMPLICIT
+        placement.determiner == Determiner.THIS -> {
+          if (
+              !describers.concrete(expression.className) ||
+                  !describers.currentCardGainsSingle(expression.className)
+          ) {
+            return null
+          }
+          Determiner.THIS to ComponentDescriber.OwnershipPhrase.IMPLICIT
+        }
         else ->
             when (placement.unqualifiedOwnership) {
               ComponentDescriber.OwnershipPhrase.YOURS ->

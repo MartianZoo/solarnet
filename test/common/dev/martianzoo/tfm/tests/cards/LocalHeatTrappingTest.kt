@@ -23,7 +23,6 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
           )
           // Decline gaining plants by choosing animals when no animal holder exists.
           doTask("Ok")
-          doTask("PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping")
         }
         .expect("0 Plant")
   }

@@ -12,8 +12,6 @@ internal class EcolineTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("ConvertPlants", "7 Pay<Class<Plant>> FROM Plant")
-      // Hand the paid conversion to Admin to offer the legal greenery areas.
-      selectTask("PlaceGreeneryTile")
       doTask("GreeneryTile<Tharsis_2_1>")
       doTask("OxygenStep")
       doTask("TerraformRating")

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Action
@@ -27,6 +28,19 @@ class EnglishPlayerInstructionTest {
     EnglishInstructionTextRenderer(catalog.classTable)
         .render(parse<InstructionTree>("3! Plant<Green> OR Ok"), cn("Green")) shouldBe
         "You may gain 3 plants."
+  }
+
+  @Test
+  fun publicRendererUsesPlayersAddedByTheGamePremise() {
+    val table = Canon.gamePremise(GameConfig("TharsisMap", "Purple", "Green")).classTable
+    val renderer = EnglishInstructionTextRenderer(table)
+    renderer.render(
+        parse<InstructionTree>("MAX 0 Billing<Purple>: PlaceGreeneryTile<Purple>!")
+    ) shouldContain "Purple"
+    renderer.render(
+        parse<InstructionTree>("StandardAction<Purple>! OR -Baton<Purple>!"),
+        cn("Purple"),
+    ) shouldBe "Take an action or end your turn."
   }
 
   @Test
@@ -131,6 +145,8 @@ class EnglishPlayerInstructionTest {
     for ((source, expected) in
         listOf(
             "StandardAction<Green>! OR Pass<Green>!" to "Take an action or pass.",
+            "StandardAction<Green>! OR -Baton<Green>!" to "Take an action or end your turn.",
+            "-Baton<Green>!" to "End your turn.",
             "StandardAction<Green>?" to "You may take an action.",
             "UseCardAction<Psychrophiles<Green>, Action1>!" to "Use Action1 on Psychrophiles.",
             "UseStandardProject<Green, PowerPlantProject>!" to "Use PowerPlantProject.",

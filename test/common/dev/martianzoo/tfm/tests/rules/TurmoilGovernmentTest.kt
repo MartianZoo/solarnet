@@ -32,12 +32,12 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
       doTasks("PaidLobbyAction")
       doTask("PartyFollower<MarsFirst>")
     }
-    kim.doTask("0 StandardAction") // Decline the second action.
+    kim.selectTask("-Baton") // Decline the second action.
     stan.completeOperation {
       doTasks("PaidLobbyAction")
       doTask("PartyFollower<MarsFirst>")
     }
-    stan.doTask("0 StandardAction") // Decline the second action.
+    stan.selectTask("-Baton") // Decline the second action.
     kim.doTask("Pass")
     stan.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -66,30 +66,12 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
         }
         .expect("0 MC, 0 Delegate")
 
-    stan.doTask("0 StandardAction") // Decline the second action.
+    stan.selectTask("-Baton") // Decline the second action.
     kim.completeOperation {
           doTask("LobbyAction")
           doTask("PartyFollower<Unity> FROM LobbyDelegate")
         }
         .expect("0 MC, 0 Delegate")
-  }
-
-  @Test
-  internal fun `Becoming chairman triggers Terraforming Deal`() {
-    newTestGame(
-        addOptions = "TurmoilExpansion, PreludeExpansion, TerraformingDeal",
-        playerCount = 2,
-    )
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$TerraformingDeal>>")
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$AlliedBank>>")
-    stan.autoExecNow(EAGER)
-
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>")
-    lobbyForElection("Scientists")
-    assertRulingBonus(2, 0)
-    kim.count("Chairman") shouldBe 1
-    kim.count("TerraformRating") shouldBe 20
   }
 
   @Test

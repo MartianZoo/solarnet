@@ -13,6 +13,7 @@ val modules =
         "text",
         "almanac",
         "junkdrawer",
+        "search",
         "codegen",
     )
 

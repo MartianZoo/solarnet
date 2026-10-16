@@ -134,7 +134,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     yellow.turn { playProject(SpaceMirrors, 3) }
     rainbow.turn {
       // 2:23:34 PM — Rainbow: "Okay. I draw cards until I get three Venus."
-      stdAction("RequiredActionsSignal")
+      stdAction("DoRequiredActions")
     }
     // 2:26:16 PM — Green: "you paid sixteen for that full price, you got two heat production."
     blue.turn { playProject(HomeostasisBureau, 16).expect("PROD[2 Heat]") }

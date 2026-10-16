@@ -28,7 +28,10 @@ internal class EventBalanceTest {
     agents[ADMIN].sneak("4 Heat<Red>")
     val laterGain = red.sneak("Heat").changes.single()
     val afterTransfer = red.sneak("Steel").changes.single()
-    val signal = red.sneak("ConvertPlants").changes.single()
+    val signal =
+        red.sneak("ConvertPlants").changes.single {
+          it.change.gaining?.className == cn("ConvertPlants")
+        }
     val changes = world.events.changesSince(Checkpoint(0))
     val measuredBalances = eventBalances(premise, world.events.entriesSince(Checkpoint(0)))
 

@@ -92,13 +92,13 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     // Database save 5: Allied Bank introduced Purple's first Earth tag.
 
     pink.turn {
-      stdAction("RequiredActionsSignal") {
+      stdAction("DoRequiredActions") {
         draw(VenusSoils, SulphurEatingBacteria, StratosphericExpedition)
       }
       playProject(TitanShuttles, 23)
     }
     purple.turn {
-      stdAction("RequiredActionsSignal") {
+      stdAction("DoRequiredActions") {
         selectTask("ColonyTileSelection")
         narrowTask("Luna")
       }

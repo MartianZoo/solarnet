@@ -27,7 +27,6 @@ internal class LavaFlowsTest : TfmSandboxTest() {
           "LavaFlows_SpecialTile<Tharsis_2_2>",
           "Steel",
       )
-      doTask("PlayedEvent<Class<$LavaFlows>> FROM $LavaFlows")
     }
   }
 
@@ -50,7 +49,6 @@ internal class LavaFlowsTest : TfmSandboxTest() {
           "LavaFlows_SpecialTile<Hellas_1_5>",
           "Plant",
       )
-      doTask("PlayedEvent<Class<$LavaFlows>> FROM $LavaFlows")
     }
   }
 

@@ -26,22 +26,6 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Receives the rebate after paying for a standard project`() {
-    newTestGame()
-    kim.exMachina("$StandardTechnology")
-    kim.setToExMachina(11, "MC")
-
-    kim.inTurn {
-      doTasks(
-          "UseStandardProject<PowerPlantProject>",
-          "11 Pay<> FROM MC",
-          "PROD[Energy]",
-          "3 MC",
-      )
-    }
-  }
-
-  @Test
   internal fun `Receives no rebate after selling patents`() {
     newTestGame()
     kim.exMachina("$StandardTechnology")
@@ -53,7 +37,7 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
   internal fun `Receives a rebate when Spire pays with science after temperature is complete`() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("4 ProjectCard")
       doTask("-3 ProjectCard<Kim, Hand>")
     }

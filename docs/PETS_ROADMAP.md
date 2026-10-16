@@ -54,6 +54,10 @@ extraction remains a separate library-design direction below, not a prerequisite
 
 ## Internal design and consumer API
 
+**Exploratory:** [Make types types again](agents/MAKE_TYPES_TYPES_AGAIN.md) assesses removing
+state-dependent `HAS` from Types while retaining expression syntax and gameplay meaning. The
+implementation experiment and the treatment of structural `NOT` remain undecided.
+
 1. **Make Pets pleasant to consume directly.** **Selected.** The model should expose a small,
    typed, unsurprising path from declarations to class tables, types, properties, and instructions.
    Separate the expression API's natural, compact-resolved, and full-resolved purposes. Remove
@@ -138,7 +142,7 @@ extraction remains a separate library-design direction below, not a prerequisite
    must not learn card or expansion identities.
 
 2. **Finish the content-selection model.** **Selected direction.** Distinguish source bundles,
-   ambient Modules, and individually selectable Content. Support selecting all applicable Content
+   ambient Modules, and nonabstract subclasses of `Content`. Support selecting all applicable Content
    from a bundle without treating that group as a gameplay Module. Complete individual Turmoil
    party and map selection, and give shared or replaced content clear provenance.
 

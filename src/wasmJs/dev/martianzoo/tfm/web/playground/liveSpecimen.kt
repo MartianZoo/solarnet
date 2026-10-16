@@ -102,15 +102,9 @@ internal fun liveSpecimen(
   val phase = types("Phase").singleOrNull()?.className?.toString()?.removeSuffix("Phase")
   val onTurn =
       if (phase == "Action") {
-        events
-            .changesSinceSetup()
-            .asReversed()
-            .firstOrNull {
-              it.change.gaining?.className?.toString() == "NewTurn"
-            }
-            ?.change
-            ?.gaining
-            ?.let { Component(it.type).owningPlayer?.className?.toString() }
+        types("Baton").singleOrNull()?.let {
+          Component(it).owningPlayer?.className?.toString()
+        }
       } else null
   val global =
       Specimen.GlobalState(

@@ -5,6 +5,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 public object TfmClasses {
 
+  internal val CONTENT = cn("Content")
+
   internal val END = cn("End")
 
   public val MARS_MAP: ClassName = cn("MarsMap")

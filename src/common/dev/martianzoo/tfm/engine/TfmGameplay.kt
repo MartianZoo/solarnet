@@ -57,6 +57,15 @@ public class TfmGameplay(
   public fun asPlayer(player: Player): TfmGameplay = asActor(player)
 
   /**
+   * Completes the current action's operation. If this actor has no pending task, requests an
+   * `OfferAction` first; the current phase or InRound supplies its choices. A failure or unfinished
+   * work rolls back the call. The request creates no baton and does not itself open an action
+   * scope.
+   */
+  public fun inTurn(body: OperationBlock = {}): TaskResult =
+      if (tasks.isEmpty()) runOperation("OfferAction", body) else completeOperation(body)
+
+  /**
    * Starts the game: SetupPhase replaces BootstrapPhase, and from then on the game's own rules
    * offer every turn and begin every phase. The setup choices remain pending for their players.
    */
@@ -188,21 +197,21 @@ public class TfmGameplay(
   }
 
   /**
-   * Declines this actor's sole pending Action-phase second-action offer with `Ok`. Fails when there
-   * is no unique such offer.
+   * Declines this actor's sole pending action-phase second-action offer by releasing the baton.
+   * Fails when there is no unique such offer.
    */
   public fun declineSecondAction(): TaskResult {
     return inTurn {
       val secondAction =
           secondActionOffer()
               ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
-      doTask("Ok", secondAction.id)
+      selectTask(secondAction.copy(instruction = parse<Instruction>("-Baton")))
     }
   }
 
   private fun secondActionOffer(): Task? {
-    val ordinary = parse<Instruction>("StandardAction?")
-    val required = parse<Instruction>("RequiredActionsSignal?")
+    val ordinary = parse<Instruction>("StandardAction OR -Baton")
+    val required = parse<Instruction>("DoRequiredActions OR -Baton")
     return tasks
         .extract { it }
         .singleOrNull {
@@ -213,7 +222,7 @@ public class TfmGameplay(
   /**
    * Selects [option] from the current turn offer, runs [payment], then completes its `body`. For
    * example, use `ClaimMilestone<Class<Builder>>` or `TradeAction<Action2>`. When a required action
-   * is pending, select `RequiredActionsSignal` instead.
+   * is pending, select `DoRequiredActions` instead.
    *
    * The default payment spends the bill's resource when it is the sole accepted resource. Supply
    * [payment] for mixed payments and `body` for remaining choices. Selection must narrow an offered

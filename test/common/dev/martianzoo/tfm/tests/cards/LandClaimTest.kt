@@ -21,7 +21,6 @@ internal class LandClaimTest : TfmSandboxTest() {
           "LandClaim FROM ProjectCard",
       )
       doTask("Community<Tharsis_1_1>")
-      doTask("PlayedEvent<Class<LandClaim>> FROM LandClaim")
     }
 
     shouldThrow<LimitsException> {

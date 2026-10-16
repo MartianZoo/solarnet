@@ -132,7 +132,7 @@ internal class FinalGreeneryPhaseTest {
     }
     p1.count("Plant") shouldBe 7
     p1.convertPlants { doTask("GreeneryTile<Elysium_5_5>") }
-    p1.doTask("Done")
+    p1.selectTask("-Baton")
 
     p1.count("GreeneryTile<Player1>") shouldBe 2
   }
@@ -159,7 +159,7 @@ internal class FinalGreeneryPhaseTest {
     playCorporationWithoutStartingProjects(p2, MiningGuild)
 
     p1.turn {
-      stdAction("RequiredActionsSignal") {
+      stdAction("DoRequiredActions") {
         doTask("GreeneryTile<Elysium_4_5>")
         doTask("Plant")
       }
@@ -178,7 +178,7 @@ internal class FinalGreeneryPhaseTest {
       doTask("GreeneryTile<Elysium_6_7>")
       repeat(2) { doTask("Plant") }
     }
-    p1.doTask("Done")
+    p1.selectTask("-Baton")
 
     p1.count("GreeneryTile<Player1>") shouldBe 3
   }

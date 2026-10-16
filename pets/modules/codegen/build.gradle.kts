@@ -19,6 +19,7 @@ kotlin {
 dependencies {
   implementation(project(":pets"))
   implementation(libs.kotlinpoet)
+  implementation(kotlin("reflect"))
 
   testImplementation(kotlin("test-junit5"))
   testImplementation(project(":tfm-canon"))
@@ -52,3 +53,14 @@ tasks.named<KotlinCompile>(generatedCanon.getCompileTaskName("kotlin")) {
 }
 
 tasks.named("test") { dependsOn(generatedCanon.classesTaskName) }
+
+// Search consumes plain common Kotlin; reflection is used only by this build-time generator.
+tasks.register<JavaExec>("generatePetsXml") {
+  group = "build"
+  description = "Generates the XML field visitor from Pets AST constructor properties."
+  classpath = sourceSets.main.get().runtimeClasspath
+  mainClass.set("dev.martianzoo.codegen.GeneratePetsXmlKt")
+  val outputDirectory = layout.buildDirectory.dir("generated/petsXml")
+  outputs.dir(outputDirectory)
+  args(outputDirectory.get().asFile.absolutePath)
+}

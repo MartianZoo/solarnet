@@ -23,9 +23,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         ),
     ) {
       kim.doTasks("PlayProject<Class<$AdaptedLichen>>")
-      kim.doTask("0 StandardAction") // Decline the second action.
+      kim.selectTask("-Baton") // Decline the second action.
       stan.doTasks("PlayProject<Class<$Archaebacteria>>")
-      stan.doTask("0 StandardAction") // Decline the second action.
+      stan.selectTask("-Baton") // Decline the second action.
     }
     admin.count("Current<ExperimentalLifeforms>") shouldBe 1
     admin.count("Coming<ExploreFirstDirective>") shouldBe 1
@@ -80,7 +80,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   }
 
   @Test
-  internal fun `Homeworld Support caps six Earth tags before adding influence`() {
+  internal fun `Homeworld Support caps Earth tags at five before adding influence`() {
     prepareEvent(
         "RedResistance",
         listOf(
@@ -97,10 +97,11 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     kim.doTasks("PlayProject<Class<$AcquiredCompany>>")
     kim.doTask("PlayProject<Class<$LunaGovernor>>")
     kim.doTasks("PlayProject<Class<$Cartel>>")
+    kim.count("EarthTag") shouldBe 6
     lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
-    // Five counted tags, plus two influence, at 2 MC each.
+    // Six Earth tags capped at five, plus two influence, at 2 MC each.
     expectChanges("14 MC<Kim>, 0 MC<Stan>") {
       stan.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
@@ -544,7 +545,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         doTasks("PlayProject<Class<$Research>>")
         autoExecNow(EAGER)
       }
-      kim.doTask("0 StandardAction") // Decline the second action.
+      kim.selectTask("-Baton") // Decline the second action.
       stan.doTasks("PlayProject<Class<$TitanShuttles>>")
       stan.completeOperation {
         doTask("UseCardAction<$TitanShuttles, Action1>")
@@ -653,9 +654,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         ),
     ) {
       kim.doTasks("PlayProject<Class<$EarthOffice>>")
-      kim.doTask("0 StandardAction") // Decline the second action.
+      kim.selectTask("-Baton") // Decline the second action.
       stan.doTasks("PlayProject<Class<$Sponsors>>")
-      stan.doTask("0 StandardAction") // Decline the second action.
+      stan.selectTask("-Baton") // Decline the second action.
     }
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -683,9 +684,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         doTasks("PlayProject<Class<$Research>>")
         autoExecNow(EAGER)
       }
-      kim.doTask("0 StandardAction") // Decline the second action.
+      kim.selectTask("-Baton") // Decline the second action.
       stan.doTasks("PlayProject<Class<$TitanShuttles>>")
-      stan.doTask("0 StandardAction") // Decline the second action.
+      stan.selectTask("-Baton") // Decline the second action.
     }
     kim.doTasks("PlayProject<Class<$FloatingHabs>>")
     kim.doTasks("PlayProject<Class<$AerialMappers>>")
@@ -1136,7 +1137,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
           doTasks("PaidLobbyAction")
           doTask("PartyFollower<Scientists>")
         }
-        player.doTask("0 StandardAction") // Decline the second action.
+        player.selectTask("-Baton") // Decline the second action.
       }
       first.doTask("Pass")
       other.doTask("Pass")

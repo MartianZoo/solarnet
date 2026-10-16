@@ -14,7 +14,7 @@ internal object AllocateCloudTourismWildTags : CustomInstruction() {
   override fun translate(game: GameReader, player: Type): InstructionTree {
     val unused =
         game
-            .getComponents(cn("WildTag").of(player.expression))
+            .getComponents(cn("WildTagElection").of(player.expression))
             .elements
             .filter { game.count(game.resolve(cn("Tag").of(it.expression))) == 0 }
             .sortedBy { it.expression.toString() }
@@ -24,6 +24,8 @@ internal object AllocateCloudTourismWildTags : CustomInstruction() {
     val tags =
         List((target - earth).coerceAtLeast(0)) { cn("EarthTag") } +
             List((target - venus).coerceAtLeast(0)) { cn("VenusTag") }
-    return InstructionGroup.of(tags.zip(unused) { tag, wild -> Gain.gain(tag.of(wild.expression)) })
+    return InstructionGroup.of(
+        tags.zip(unused) { tag, election -> Gain.gain(tag.of(election.expression)) }
+    )
   }
 }

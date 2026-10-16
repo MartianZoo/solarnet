@@ -8,10 +8,10 @@ import dev.martianzoo.pets.ast.ClassName
  *
  * A Bundle is provenance and loading structure, not a selectable option or live component. It may
  * provide both Modules and Content. A Module is an ambient-rule choice whose own declaration
- * closure is intrinsic; Content names authored game items intended for individual selection.
- * [Catalog.modules] associates a Module with applicable Content it selects by default. Neither role
- * requires another Pets supertype. Maps currently fill both roles, while parties do not yet support
- * individual selection.
+ * closure is intrinsic. Content classes are the nonabstract subclasses of `Content`: authored game
+ * items intended for individual selection. [Catalog.modules] associates a Module with applicable
+ * Content it selects by default. Maps inherit both `Content` and `Module`, while parties inherit
+ * `Content` but do not yet support individual selection.
  *
  * A bundle has a short lowercase source name independent of its Classes. Its primary Module, when
  * present, controls default selection of the bundle's cards, goals, and colony tiles, plus

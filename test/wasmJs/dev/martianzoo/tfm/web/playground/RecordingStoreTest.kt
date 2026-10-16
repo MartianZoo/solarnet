@@ -36,6 +36,7 @@ internal class RecordingStoreTest {
             if (assertNotNull(store.specimen).global.phase == "Action") break
           }
           val first = assertNotNull(store.specimen)
+          assertEquals("Green", first.global.playerOnTurn)
           assertTrue(first.tasks.any { "StandardAction" in it.instruction })
           assertFalse(first.tasks.any { "Accepting" in it.instruction })
           assertFalse(first.components.any { it.className == "Pets" })
@@ -50,7 +51,7 @@ internal class RecordingStoreTest {
             if (view.global.phase == "Action") {
               assertTrue(
                   view.tasks.any {
-                    "StandardAction" in it.instruction || "RequiredActionsSignal" in it.instruction
+                    "StandardAction" in it.instruction || "DoRequiredActions" in it.instruction
                   },
                   "Unexpected turn queue at ${store.eventOrdinal}: ${view.tasks}",
               )
@@ -96,6 +97,30 @@ internal class RecordingStoreTest {
           }
         }
       }
+
+  @Test
+  fun rendersTaskEnglishThroughoutFourPlayerRecording() = runTest {
+    withContext(Dispatchers.Default) {
+      val store = RecordingStore()
+      store.discover()
+      store.load("ActiveVacuumCoreTest")
+      assertNull(store.error)
+      val english = EnglishInstructionTextRenderer(assertNotNull(store.classTable))
+      for (ordinal in store.stopOrdinals) {
+        store.seekToStop(ordinal)
+        for (task in assertNotNull(store.specimen).tasks) {
+          try {
+            english.render(
+                parse<InstructionTree>(task.fullInstruction),
+                task.assignee.takeUnless { it == "Admin" }?.let(::cn),
+            )
+          } catch (failure: Exception) {
+            throw AssertionError("Task at $ordinal: ${task.fullInstruction}", failure)
+          }
+        }
+      }
+    }
+  }
 
   @Test
   fun opensThreePlayerTurmoilRecordingWithTaskEnglish() = runTest {

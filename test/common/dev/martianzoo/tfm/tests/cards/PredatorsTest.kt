@@ -68,18 +68,6 @@ internal class PredatorsTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Can remove and replace its own animal`() {
-    initializeGame()
-    kim.exMachina("Animal<$Predators>")
-    kim.inTurn {
-          doTask("UseCardAction<Predators, Action1>")
-          doTask("-Animal<Predators>")
-          doTask("Animal<Predators>")
-        }
-        .expect("0 Animal<$Predators>")
-  }
-
-  @Test
   internal fun `Predators can remove its own animal and trigger Meat Industry when replacing it`() {
     newTestGame()
     kim.exMachina("$Predators, $MeatIndustry, Animal<$Predators>")

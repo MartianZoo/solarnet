@@ -1,0 +1,2 @@
+/Canon/Card[isA/Type/@name = 'EventCard']/effects/Effect/trigger
+//*[self::OnGainOf or self::OnRemoveOf][not(self::OnGainOf[expression/Expression/@className = 'End'])]

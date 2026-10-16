@@ -63,7 +63,7 @@ internal object CardPetsGenerator {
       WantedTagTypes(classes).forBenefit(listOf(action.node.instruction))?.let { tag ->
         parseAuthored<Effect>(
             "UseAction<This, Action${index + 1}>:: " +
-                "EACH @WildTag(HAS MAX 0 Tag) { $tag<@WildTag> }"
+                "EACH @WildTagElection(HAS MAX 0 Tag) { $tag<@WildTagElection> }"
         )
       }
     }

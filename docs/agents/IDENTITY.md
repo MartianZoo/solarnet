@@ -5,9 +5,8 @@
 > **Read when:** changing on-turn identity, context specialization, event Actor attribution, task
 > assignment, `BY`, Admin, delegated narrowing, or Philares. Lexical ownership is in Pets.
 >
-> **Status:** current semantics plus the proposed on-turn fact and intended routing in their own
-> section. Currently a handoff lasts for the selected task, not its later payment or other queued
-> consequences.
+> **Status:** current semantics and active-player scope, with intended routing labeled separately.
+> Currently a handoff lasts for the selected task, not its later payment or other queued consequences.
 
 ## Source map
 
@@ -39,25 +38,22 @@ another Actor; `BY Actor` hands concrete execution to its named Actor.
 
 ## Who is on-turn, and who decides
 
-**Proposed representation and intended routing, not implemented.** The
-[turn lifecycle](../../pets/docs/agents/GAME_FLOW.md#turns-and-turn-offers) defines when a player is on-turn.
-The owner is open to recording the current player in the component graph with:
+**Current representation.** The
+[action lifecycle](../../pets/docs/agents/GAME_FLOW.md#turns-and-turn-offers) is recorded by the globally
+unique `ActionScope<Player> : Scope, System`. Its Player identifies the active player through the
+accepted action's payment, effects, delegated responses, and cleanup. Passing, declining an
+optional second action, and decisions outside an action do not create a scope. This replaces the
+proposed separate `OnTurn` fact; do not maintain another active-player representation. Offers
+remain addressed to their recipients while no scope exists. `Baton<Player>` records the longer
+table turn, including the interval between its two actions. It does not replace the scope's
+active-action identity or change task routing, and it is absent during setup and research.
 
-```pets
-CLASS OnTurn<Player> : System { HAS MAX 1 OnTurn }
-```
-
-This is a proposed game fact, not an implemented declaration. The maximum applies across players.
-It exists during an accepted turn, remains through that turn's resolution, and is absent when no
-turn is in progress, including while an ordinary turn offer is awaiting acceptance. An offer's
-recipient must therefore be identifiable without `OnTurn`. Avoid maintaining a second independent
-source of truth for the current player. Whether this fact also serves as the Pets lifetime anchor
-for turn-scoped components remains to be designed.
-
-During a turn, generated non-System/non-Admin tasks go first to the on-turn player for ordering.
-Selecting work can hand the actual decision to another player. This does not change who is
-on-turn, the effect's lexical owner, or the Actor who executes the resulting change. System/Admin
-work still retains the context needed to route its downstream player choices correctly.
+**Intended routing, not implemented.** During an action, generated non-System/non-Admin tasks would
+go first to the active player for ordering. Selecting work could hand the actual decision to
+another player. This would not change the active player, the effect's lexical owner, or the Actor
+who executes the resulting change. System/Admin work must retain the context needed to route its
+downstream player choices. Current routing still follows the assignment rules below; introducing
+`ActionScope` did not change them.
 
 Initial-research discards and Supercapacitors' production choice need no turn of their own. Icy
 Impactors, Philares, Neptunian Power Consultants, St. Joseph of Cupertino Mission, and the colony
@@ -122,7 +118,8 @@ A normalized concrete task that gains or removes a `System` type, including chan
 wrapped in instruction-side `BY`, begins assigned to Admin. Abstract targets, amounts, and optional
 gains or removals remain with the current Actor until narrowed; contextual selection reapplies the
 assignment rule. Transmutations use the gained type for this classification after any abstract
-source is selected. Gates must resolve before this rule applies. A concrete `BY` remains
+source is selected. Gated concrete System changes also belong to Admin; their gates still have to
+be satisfied before execution. A concrete `BY` remains
 authoritative: naming a non-Admin performer for a gain reaches the existing `System` creation guard
 and fails. Admin assignment does not determine whether the component is presented as `Real`.
 
@@ -146,11 +143,11 @@ dispatch work to a different recipient. This classification is
 independent of `Real`, which controls presentation, and `::`, which preserves an invariant within
 the initiating operation.
 
-Card-purchase, requirement, global-parameter-status, solo-countdown, and dominance bookkeeping use
-`System` for their concrete changes.
+Played-event cleanup, card-purchase, requirement, global-parameter-status, solo-countdown, and
+dominance bookkeeping use `System` for their concrete changes.
 
 `RequiredAction` is also `System`: Admin creates and removes the pending corporation-action
-marker. Its Player owner still chooses `RequiredActionsSignal` and performs the required action;
+marker. Its Player owner still chooses `DoRequiredActions` and performs the required action;
 neither that signal nor `UseAction` is `System`.
 
 ### Deferred System classifications
@@ -164,7 +161,7 @@ its operation. The full card-play sequence, payment, free plays, shared fixtures
 downstream choice appeared too late for the enclosing operation body. Settle that sequence before
 changing action callers and reactive offers.
 
-`RequiredActionsSignal` remains non-System. Its trial forced standard-action callers to scan for an
+`DoRequiredActions` remains non-System. Its trial forced standard-action callers to scan for an
 internal task and commit a form just to choose the required action. Revisit it only if that choice
 can remain a natural standard-action call.
 

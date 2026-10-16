@@ -21,7 +21,6 @@ internal class MarketManipulationTest : TfmSandboxTest() {
           )
           // Hand the transfer to Admin, which updates both colony tracks.
           selectTask("ColonyProduction<Luna FROM Triton>!")
-          doTask("PlayedEvent<Class<MarketManipulation>> FROM MarketManipulation")
         }
         .expect("ColonyProduction<Luna>, -ColonyProduction<Triton>")
   }

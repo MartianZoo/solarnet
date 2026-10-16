@@ -2,6 +2,24 @@
 
 Delete entries when they are done.
 
+- Investigate consolidating the repeated action-scope completion checks in Corporation, Prelude,
+  Action, and Final Greenery. Phase entry and initial offers are shared through `StartToken` and
+  `Baton`; continuation still depends on the phase, remaining Preludes, and `SecondAction`.
+  Prefer existing mechanisms before adding another completion signal.
+
+- Finish selection of concrete `Content` subclasses: support all applicable items from a bundle,
+  independent party selection, and map selection separate from its Module role. Supporting
+  declarations still use file membership and category-specific availability rules; `Content`
+  identifies game items, not which helpers belong to them. See `docs/agents/CATALOG.md`.
+
+- Extend Canon XPath queries with expression-level type matching and linked variable identity when
+  actual queries require them. Search exposes nominal superclass closure and variable
+  spelling; it does not prove that conditional paths are achievable or calculate combined gains.
+  Evaluate replacing the portable invariant implementations only after the query interface settles;
+  the XPath equivalents currently run alongside them in `:search:test`. The MC-offset query still
+  spells out its subtraction patterns; defer broader metric normalization until another real query
+  needs it rather than adding an invariant-specific pass/fail attribute.
+
 - Isolate the Kotlin incremental-compilation failure in the generated Canon check before trying
   to re-enable it. Merge builds reported duplicate helpers despite a single generated source file;
   clean compilation succeeded. The check now compiles the complete file when inputs change.
@@ -56,9 +74,6 @@ Delete entries when they are done.
   rendering. Entries touched by the delegate work are current; older entries still show previous
   invariant declarations and wording.
 
-- Finish Head Start's English setup wording: its gated action-choice signals still appear as
-  bracketed Pets after removing the exact-expression substitution.
-
 - Decide a useful static-analysis policy for the shared source layout. The previous Detekt
   tasks saw no source in these modules; the Pets build preserves compiler, formatting, JVM,
   and browser checks without importing that inert configuration.
@@ -67,10 +82,10 @@ Delete entries when they are done.
   especially Prelude 2 producer chains and generic-resource targets. Its retained scan predates
   the current content inventory; the documentation move did not rerun that analysis.
 
-- Investigate represented-tag binding before shortening `@Tag<WildTag<@CardFront>>` to
-  `@Tag<This>` or moving the assignment rule into an inherited `LikesTag` self-effect.
-  The short spelling fails while `recordTypeVariableScopes` resolves the represented-tag usage:
-  `This` has not yet been replaced with the declaring holder. Explicit holder spelling works.
+- Investigate represented-tag binding before shortening
+  `@Tag<WildTagElection<@WildTag, ActionScope>>` to `@Tag<This>`. The shorter spelling still fails in
+  `recordTypeVariableScopes` while `This` is lexical; the explicit election holder works. See
+  [represented-tag bindings](docs/agents/ELABORATION.md#represented-tag-bindings).
 
 - Continue the selected-task English experiment using `English.describe(instruction, player)`.
   Preserve named awards and card-play targets; support other-player resource changes, variable
@@ -79,6 +94,7 @@ Delete entries when they are done.
   `_local/replay-selected-task-instructions.txt`; the comparison is `_local/replay-task-english.txt`.
   Do not treat bracket-free counts as UI readiness.
 
-- Apply current-card identity checks to `CountedRelation.renderParticipant`: it can still call
-  an arbitrary `SpecialTile` "this tile" in adjacency metrics. Site-occupant filters now check
-  which concrete tile the current card places; no current Canon metric exposes the older gap.
+- If view construction remains expensive after the selection worklist change, measure the remaining
+  unresolved-condition passes before adding more machinery. They still reconsider every pending
+  constructive reference after each inclusion frontier; selectively waking only affected conditions
+  would require tracking subclass and dependency inhabitance, not just names written in a trigger.

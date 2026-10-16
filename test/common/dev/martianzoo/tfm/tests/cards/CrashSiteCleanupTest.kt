@@ -20,7 +20,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       )
       doTask("TemperatureStep")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
-      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
 
     kim.inTurn {
@@ -30,7 +29,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
           "CrashSiteCleanup FROM ProjectCard",
           "Titanium",
       )
-      doTask("PlayedEvent<Class<CrashSiteCleanup>> FROM CrashSiteCleanup")
     }
   }
 
@@ -44,7 +42,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       )
       doTask("TemperatureStep")
       doTasks("2 Titanium", "TerraformRating", "-Plant")
-      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
 
     shouldThrow<RequirementException> {
@@ -64,7 +61,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       )
       doTask("TemperatureStep")
       doTasks("2 Titanium", "TerraformRating", "-Plant")
-      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
 
     shouldThrow<RequirementException> {
@@ -84,7 +80,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       )
       doTask("TemperatureStep")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
-      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
     advanceUntilActionPhase()
 
@@ -105,7 +100,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       )
       doTask("TemperatureStep")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
-      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
 
     shouldThrow<RequirementException> {
@@ -126,7 +120,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
           doTask("TemperatureStep")
           doTasks("2 Titanium", "TerraformRating")
           doTask("-0 Plant<Anyone>")
-          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("0 Plant<Stan>")
 

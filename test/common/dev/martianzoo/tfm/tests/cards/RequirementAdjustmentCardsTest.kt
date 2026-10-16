@@ -11,7 +11,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Uses the printed requirement when no adjustment is needed`() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("3 ProjectCard")
     }
     kim.exMachina(
@@ -33,7 +33,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Inventrix relaxes minimum global requirements by two`() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("3 ProjectCard")
     }
     kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
@@ -53,7 +53,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Inventrix relaxes maximum global requirements by two`() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("3 ProjectCard")
     }
     kim.exMachina(
@@ -73,7 +73,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Stacks Inventrix Adaptation Technology and Special Design`() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("3 ProjectCard")
     }
     kim.exMachina("$AdaptationTechnology")
@@ -86,7 +86,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "SpecialDesign FROM ProjectCard",
       )
       doTask("SpecialDesign_NextCardEffect")
-      doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
 
     kim.inTurn {
@@ -102,15 +101,9 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Consumes Special Design when stacked adjustments are used`() {
-    newTestGame(kimCorporation = Inventrix)
-    kim.inTurn {
-      doTask("RequiredActionsSignal")
-      doTask("3 ProjectCard")
-    }
-    kim.exMachina("$AdaptationTechnology")
-    kim.setToExMachina(11, "TemperatureStep")
-    kim.setToExMachina(30, "MC")
+  internal fun `Special Design relaxes only the next project's requirement`() {
+    newTestGame()
+    kim.setToExMachina(15, "TemperatureStep")
     kim.inTurn {
       doTasks(
           "PlayProject<Class<SpecialDesign>>",
@@ -118,8 +111,9 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "SpecialDesign FROM ProjectCard",
       )
       doTask("SpecialDesign_NextCardEffect")
-      doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
+
+    // Farming needs 17 temperature steps, so Special Design makes it playable at 15.
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Farming>>",
@@ -131,12 +125,13 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       )
     }
 
+    // Fish needs 16 steps: it would also be playable if Special Design had survived.
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Birds>>")
-        doTask("10 Pay<> FROM MC")
-        // Resolve the pending play to evaluate the card requirement before transferring it.
-        selectTask("Birds FROM ProjectCard")
+        doTask("PlayProject<Class<Fish>>")
+        doTask("9 Pay<> FROM MC")
+        selectTask("MAX 0 Barrier: Fish FROM ProjectCard!")
+        doTask("PROD[-Plant]")
       }
     }
   }
@@ -145,7 +140,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Morning Star adjusts Venus requirements on cards without Venus tags`() {
     newTestGame(kimCorporation = MorningStarInc)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>")
     }
     kim.setToExMachina(9, "VenusStep")
@@ -160,7 +155,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Morning Star does not adjust ocean requirements`() {
     newTestGame(kimCorporation = MorningStarInc)
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>")
     }
     kim.setToExMachina(9, "VenusStep")
@@ -186,7 +181,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "SpecialDesign FROM ProjectCard",
       )
       doTask("SpecialDesign_NextCardEffect")
-      doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "4 Pay<> FROM MC")
@@ -214,7 +208,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "SpecialDesign FROM ProjectCard",
       )
       doTask("SpecialDesign_NextCardEffect")
-      doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
       doTasks(
@@ -249,7 +242,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "SpecialDesign FROM ProjectCard",
       )
       doTask("SpecialDesign_NextCardEffect")
-      doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
       doTask("UseCardAction<BoardOfDirectors, Action1>")

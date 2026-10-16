@@ -29,7 +29,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     advanceUntilActionPhase()
 
     kim.inTurn {
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTask("3 PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
@@ -66,7 +66,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
       doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTask("40 MC")
-      doTask("RequiredActionsSignal")
+      doTask("DoRequiredActions")
       doTasks("CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
     }
 
@@ -83,7 +83,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("RequiredActionsSignal")
+        doTask("DoRequiredActions")
 
         doTask("Colony<Luna>")
       }
@@ -111,7 +111,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("RequiredActionsSignal")
+        doTask("DoRequiredActions")
 
         doTask("Colony<Luna>")
       }
@@ -261,7 +261,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       )
     }
     shouldThrow<LimitsException> {
-      kim.inTurn { doTasks("RequiredActionsSignal", "Colony<Luna>") }
+      kim.inTurn { doTasks("DoRequiredActions", "Colony<Luna>") }
     }
     kim.count("Poseidon") shouldBe 1
     kim.count("Merger") shouldBe 1
@@ -304,7 +304,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
           "5 Pay<> FROM MC",
           "Conscription FROM ProjectCard",
           "Conscription_NextCardEffect",
-          "PlayedEvent<Class<Conscription>> FROM Conscription",
       )
     }
     kim.inTurn {
@@ -505,14 +504,14 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Celestic)
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("RequiredActionsSignal")
+        doTask("DoRequiredActions")
         doTask("SearchForCard<ReferenceFilter<Class<Floater>>>")
       }
     }
     kim.count("RequiredAction") shouldBe 1
     kim.count("ProjectCard") shouldBe 5
     kim.inTurn {
-          doTasks("RequiredActionsSignal", "2 SearchForCard<ReferenceFilter<Class<Floater>>>")
+          doTasks("DoRequiredActions", "2 SearchForCard<ReferenceFilter<Class<Floater>>>")
         }
         .expect("2 ProjectCard, -RequiredAction")
   }
@@ -524,14 +523,14 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = MorningStarInc)
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("RequiredActionsSignal")
+        doTask("DoRequiredActions")
         doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
       }
     }
     kim.count("RequiredAction") shouldBe 1
     kim.count("ProjectCard") shouldBe 5
     kim.inTurn {
-          doTasks("RequiredActionsSignal", "3 SearchForCard<TagFilter<Class<VenusTag>>>")
+          doTasks("DoRequiredActions", "3 SearchForCard<TagFilter<Class<VenusTag>>>")
         }
         .expect("3 ProjectCard, -RequiredAction")
   }

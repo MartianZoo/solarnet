@@ -71,7 +71,7 @@ val replayExportsEnabled =
 tasks.register<JavaExec>("buildReplayIndex") {
   group = "build"
   description = "Extracts configurations and completed scores for the Playground game chooser."
-  if (replayExportsEnabled.get()) dependsOn(":tfm-tests:jvmTest")
+  if (replayExportsEnabled.get()) dependsOn(":tfm-tests:replayTest")
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tfm.tools.BuildReplayIndexKt")
   val output = layout.buildDirectory.file("generated/replay-index/index.json")
@@ -92,7 +92,7 @@ tasks.register<JavaExec>("dumpOtbGame20260828EventLog") {
   group = "reporting"
   description = "Dumps the generated 2026-08-28 replay-test event log as TSV."
   val exportsEnabled = replayExportsEnabled.get()
-  if (exportsEnabled) dependsOn(":tfm-tests:jvmTest")
+  if (exportsEnabled) dependsOn(":tfm-tests:replayTest")
   doFirst { check(exportsEnabled) { "Pass -PreplayExports to generate replay files." } }
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tfm.tools.DumpEventlogKt")
@@ -108,7 +108,7 @@ tasks.register<JavaExec>("dumpOtbGame20260912EventLog") {
   group = "reporting"
   description = "Dumps the generated 2026-09-12 replay-test event log as TSV."
   val exportsEnabled = replayExportsEnabled.get()
-  if (exportsEnabled) dependsOn(":tfm-tests:jvmTest")
+  if (exportsEnabled) dependsOn(":tfm-tests:replayTest")
   doFirst { check(exportsEnabled) { "Pass -PreplayExports to generate replay files." } }
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tfm.tools.DumpEventlogKt")

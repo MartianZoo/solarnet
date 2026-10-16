@@ -89,8 +89,8 @@
           "name": "CorroderSuits",
           "cost": 8,
           "tags": [ "VenusTag" ],
-          "direct": "PROD[2 MC], CardResource<CardFront(HAS VenusTag OR WildTag(HAS VenusTag))>",
-          "effects": [ "This:: EACH @WildTag(HAS MAX 0 Tag) { VenusTag<@WildTag> }" ],
+          "direct": "PROD[2 MC], CardResource<CardFront(HAS VenusTag OR WildTag(HAS WildTagElection(HAS VenusTag)))>",
+          "effects": [ "This:: EACH @WildTagElection(HAS MAX 0 Tag) { VenusTag<@WildTagElection> }" ],
         },
         {
           "name": "DawnCity",
@@ -237,9 +237,9 @@
           "cost": 18,
           "tags": [ "VenusTag", "CityTag" ],
           "direct": "PROD[-Energy], CityTile<RemoteArea {}>",
-          "actions": [ "-> CardResource<CardFront(HAS VenusTag OR WildTag(HAS VenusTag))>" ],
+          "actions": [ "-> CardResource<CardFront(HAS VenusTag OR WildTag(HAS WildTagElection(HAS VenusTag)))>" ],
           "effects": [
-            "UseAction<This, Action1>:: EACH @WildTag(HAS MAX 0 Tag) { VenusTag<@WildTag> }",
+            "UseAction<This, Action1>:: EACH @WildTagElection(HAS MAX 0 Tag) { VenusTag<@WildTagElection> }",
             "End: 3 VictoryPoint",
           ],
         },

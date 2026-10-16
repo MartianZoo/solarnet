@@ -57,7 +57,10 @@ kotlin {
     }
     commonTest {
       kotlin.setSrcDirs(
-          listOf(rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/canon"))
+          listOf(
+              rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/canon"),
+              rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
+          )
       )
       dependencies { implementation(libs.kotest.assertions.core) }
     }

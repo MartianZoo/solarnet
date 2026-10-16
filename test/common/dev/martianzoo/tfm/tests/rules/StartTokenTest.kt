@@ -85,12 +85,15 @@ internal class StartTokenTest : TfmGameplayTest() {
       val p1 = game.testAgent(PLAYER1)
       val p2 = game.testAgent(PLAYER2)
 
+      admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
       admin.beginOperation("SetupPhase FROM BootstrapPhase")
+      admin.count("SetupPhase") shouldBe 1
+      admin.count("Baton") shouldBe 0
+      admin.count("ActionScope") shouldBe 0
       p1.doTask("-3 ProjectCard<Selecting>")
       p2.doTask("-5 ProjectCard<Selecting>")
-      p1.doTasks("PlayCard<Class<CorporationCard>, Class<InterplanetaryCinematics>>")
-      admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
       p2.doTasks("PlayCard<Class<CorporationCard>, Class<CrediCor>>")
+      p1.doTasks("PlayCard<Class<CorporationCard>, Class<InterplanetaryCinematics>>")
 
       admin.count("ActionPhase") shouldBe 1
       game.tasks.extract { it }.filterNot { it.deferred }.map { it.assignee } shouldContainExactly

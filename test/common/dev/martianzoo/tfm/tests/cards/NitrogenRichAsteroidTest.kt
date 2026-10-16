@@ -20,7 +20,6 @@ internal class NitrogenRichAsteroidTest : TfmSandboxTest() {
       )
       doTask("TemperatureStep")
       doTasks("TerraformRating", "PROD[Plant]")
-      doTask("PlayedEvent<Class<NitrogenRichAsteroid>> FROM NitrogenRichAsteroid")
     }
   }
 }

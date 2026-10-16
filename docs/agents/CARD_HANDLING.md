@@ -40,6 +40,11 @@ arrival's `CardFilter` when present. The public `cardMatchesFilter` function sha
 printed-card predicate with dealers. The attempted event is diagnostic evidence, not committed
 history.
 
+The tracker retains its last successfully validated snapshot and processes only subsequent change
+events. It reuses that snapshot only while its last event still survives by identity; rollback or
+a different branch at the same ordinal causes reconstruction from surviving history. Failed
+validation never replaces the saved snapshot. Queued names remain independent of that snapshot.
+
 The tracker writes a `Cards:` note on every hand-change event, checks that a played card was in
 that Player's hand, and compares named holdings with modeled hand counts for every back type.
 `SearchForCard` and `TakeSelectedCard` gains are checked against their recorded Pets `CardFilter`

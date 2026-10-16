@@ -1,0 +1,4 @@
+/Canon/Card[tags/Tag/@name = 'BuildingTag'][
+  count(effects/Effect[@automatic = 'false'][trigger/WhenGain]/instruction
+    //Transform[@transformKind = 'PROD'][(@kind = 'Instruction' or @kind = 'InstructionTree')]) > 1
+]

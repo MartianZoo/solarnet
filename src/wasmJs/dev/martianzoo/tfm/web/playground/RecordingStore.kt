@@ -309,7 +309,8 @@ internal class RecordingStore {
             val cause = task.cause?.triggerEvent?.let { entries[it] as? ChangeEvent }
             !task.deferred &&
                 task.assignee is Player &&
-                cause?.change?.gaining?.className in listOf(cn("NewTurn"), cn("TurnOver"))
+                (cause?.change?.gaining?.className == cn("OfferAction") ||
+                    cause?.change?.removing?.className == cn("SecondAction"))
           }
       )
           turns += ordinal
@@ -344,7 +345,7 @@ internal class RecordingStore {
       setupPlay ||
           (event.cause?.context?.className == cn("InRound") &&
               (gained?.type?.rootClass?.isSubtypeOf(standardAction) == true ||
-                  gained?.className == cn("RequiredActionsSignal")))
+                  gained?.className == cn("DoRequiredActions")))
     }
     actionStops = chosenActions.mapIndexed { index, event ->
       val end = chosenActions.getOrNull(index + 1)?.ordinal ?: Int.MAX_VALUE

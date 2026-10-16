@@ -22,7 +22,6 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
           "CeosFavoriteProject FROM ProjectCard",
           "Science<SearchForLife>",
       )
-      doTask("PlayedEvent<Class<CeosFavoriteProject>> FROM CeosFavoriteProject")
     }
   }
 
@@ -39,7 +38,6 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
           )
           // Resolve the resource offer: no eligible card already holds a resource.
           selectTask("CardResource<CardFront(HAS CardResource)>*")
-          doTask("PlayedEvent<Class<CeosFavoriteProject>> FROM CeosFavoriteProject")
         }
         .expect("0 Microbe<$Tardigrades>")
   }

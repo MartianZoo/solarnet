@@ -1,5 +1,6 @@
 "The action a player selects and performs during their turn"
 ABSTRACT CLASS StandardAction : Owned<Player>, Signal {
+  This IF MAX 0 ActionScope:: ActionScope<Me@>
   This:: MAX 0 RequiredAction: Ok
 
   CLASS PlayProject<Class<@CardFront>> {
@@ -81,7 +82,9 @@ CLASS UseAction<HasActions, ActionSlot> : Owned<Player>, Signal
 "A mandatory pending action the owner must perform as their next"
 ABSTRACT CLASS RequiredAction : Owned<Player>, HasActions, System {
   HAS MAX 1 This
-  RequiredActionsSignal:: UseAction<This, Action1> THEN -This
+  DoRequiredActions:: UseAction<This, Action1> THEN -This
 }
 
-CLASS RequiredActionsSignal : Owned<Player>, Signal
+CLASS DoRequiredActions : Owned<Player>, Signal {
+  This IF MAX 0 ActionScope:: ActionScope<Me@>
+}

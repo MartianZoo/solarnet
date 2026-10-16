@@ -1,0 +1,4 @@
+/Canon/*//*[@gainingClass][not(@count = 1)][id(@gainingClass)/isA/Type/@name = 'Delegate']
+| /Canon/*//Per[@kind = 'Instruction'][
+  .//*[@gainingClass][id(@gainingClass)/isA/Type/@name = 'Delegate']
+]

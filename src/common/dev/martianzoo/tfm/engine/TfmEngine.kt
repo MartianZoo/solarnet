@@ -17,7 +17,6 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
-import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
@@ -33,6 +32,7 @@ import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.CustomInstruction
@@ -43,6 +43,7 @@ import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.cardBack
 import dev.martianzoo.tfm.canon.cardDirectEffect
 import dev.martianzoo.tfm.canon.cardEffects
+import dev.martianzoo.tfm.canon.cardNonNegativeIconCount
 import dev.martianzoo.tfm.canon.cardProductionBoxes
 import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
@@ -201,9 +202,8 @@ public object TfmEngine {
   private object NonNegativeIconsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (cardType, targetClassType) = type.typeDependencies.map { it.boundType }
-      val effects = cardEffects(card(cardType, game))
       val target = requireNotNull(targetClassType.representedClass).className
-      return effects.sumOf { citationsOutsideRemoval(it, target) }
+      return cardNonNegativeIconCount(card(cardType, game), target)
     }
   }
 
@@ -222,12 +222,7 @@ public object TfmEngine {
           }
       require(successors.size == relations.size) { "AfterParty must have one successor per Party" }
 
-      var current = source
-      for (distance in 1..successors.size) {
-        current = requireNotNull(successors[current]) { "$current has no AfterParty successor" }
-        if (current == target) return distance
-      }
-      error("$target is not reachable from $source through AfterParty")
+      return circularDistance(source, target, successors, afterParty)
     }
   }
 
@@ -272,14 +267,23 @@ public object TfmEngine {
 
       if (target !in successors) return successors.size
       if (source !in successors) return 0
-      if (source == target) return 0
-      var current = source
-      for (distance in 1..successors.size) {
-        current = requireNotNull(successors[current]) { "$current has no NextPlayer successor" }
-        if (current == target) return distance
-      }
-      error("$target is not reachable from $source through NextPlayer")
+      return circularDistance(source, target, successors, nextPlayer)
     }
+  }
+
+  private fun circularDistance(
+      source: GroundType,
+      target: GroundType,
+      successors: Map<GroundType, GroundType>,
+      relation: ClassName,
+  ): Int {
+    if (source == target) return 0
+    var current = source
+    for (distance in 1..successors.size) {
+      current = requireNotNull(successors[current]) { "$current has no $relation successor" }
+      if (current == target) return distance
+    }
+    error("$target is not reachable from $source through $relation")
   }
 
   private object PriceAspectCount : CustomMetric() {
@@ -332,25 +336,6 @@ public object TfmEngine {
           }
       return areas.largestContiguousGroupSize(ownedAreas, { it.row }, { it.column })
     }
-  }
-
-  private fun citationsOutsideRemoval(effect: Effect, target: ClassName): Int {
-    var count = 0
-    effect.visitDescendants { node ->
-      when {
-        node is Instruction.Change -> {
-          count +=
-              node.gaining?.descendantsOfType<Expression>()?.count { it.className == target } ?: 0
-          false
-        }
-        node is Expression && node.className == target -> {
-          count++
-          true
-        }
-        else -> true
-      }
-    }
-    return count
   }
 
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): Class =

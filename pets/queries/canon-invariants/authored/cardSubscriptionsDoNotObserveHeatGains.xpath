@@ -1,0 +1,4 @@
+/Canon/Card/effects/Effect/trigger//OnGainOf[
+  not(ancestor::Transform[@kind = 'Trigger']) and
+  expression/Expression/@className = id('Heat')/isA/Type/@name
+]

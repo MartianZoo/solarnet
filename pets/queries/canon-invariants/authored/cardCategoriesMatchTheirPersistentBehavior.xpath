@@ -1,0 +1,4 @@
+/Canon/Card[@deck = 'ProjectCard'][not(isA/Type/@name = 'EventCard')][
+  (isA/Type/@name = 'ActiveCard') != (@hasPersistentBehavior = 'true') or
+  (isA/Type/@name = 'AutomatedCard') != (@hasPersistentBehavior = 'false')
+]

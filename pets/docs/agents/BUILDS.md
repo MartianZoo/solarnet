@@ -15,9 +15,14 @@ Run these commands from the Pets repository root (the `pets/` directory in a com
 ./gradlew :almanac:jsBrowserDevelopmentRun
 ```
 
-Sources share `src/{common,jvm,js}` and `test/{common,jvm,js}` across modules. Build files under
+Sources share `src/{common,jvm,js,wasmJs}` and corresponding `test/` directories across modules.
+Search and its model dependencies publish Wasm/JS variants as well as JVM and JS. Build files under
 `modules/` select their packages. Open this Gradle project alone for static-model work.
 See [TESTING.md](TESTING.md) for focused checks, browser coverage, and generators.
+
+Search source compilation runs `:codegen:generatePetsXml` to generate its common Kotlin AST field
+visitor from the compiled Pets declarations. The existing JVM `codegen` module owns the reflection
+dependency; Search has no runtime dependency on that tool. See [Canon XPath](canon-xpath.md).
 
 ## Publication
 

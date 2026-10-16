@@ -116,7 +116,6 @@ internal class MarsNomadsTest : TfmSandboxTest() {
               "LandClaim FROM ProjectCard",
           )
           doTask("Community<Tharsis_1_1>")
-          doTask("PlayedEvent<Class<LandClaim>> FROM LandClaim")
         }
         .expect("0 NomadsMarker<Kim>")
   }
@@ -175,7 +174,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
   internal fun `Does not trigger Philares when moving beside an opponent's tile`() {
     newTestGame(kimCorporation = Philares)
     kim.inTurn {
-      doTasks("RequiredActionsSignal", "GreeneryTile<Tharsis_2_2>")
+      doTasks("DoRequiredActions", "GreeneryTile<Tharsis_2_2>")
       doTask("OxygenStep")
       doTasks("Steel", "TerraformRating")
     }
@@ -278,15 +277,11 @@ internal class MarsNomadsTest : TfmSandboxTest() {
       kim.inTurn {
         doTask("ConvertPlants")
         doTask("8 Pay<Class<Plant>> FROM Plant")
-        // Hand the paid conversion to Admin to offer the legal greenery areas.
-        selectTask("PlaceGreeneryTile")
         doTask("GreeneryTile<Tharsis_2_2>")
       }
     }
     return kim.inTurn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      // Hand the paid conversion to Admin to offer the legal greenery areas.
-      selectTask("PlaceGreeneryTile")
       doTask("GreeneryTile<Tharsis_9_7>")
     }
   }

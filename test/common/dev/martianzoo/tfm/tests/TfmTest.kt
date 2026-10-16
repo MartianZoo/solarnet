@@ -97,15 +97,18 @@ internal abstract class TfmTest {
   }
 
   /**
-   * Declines this actor's offered task: with `Done` where the offer gives that choice, as final
-   * greenery does, and otherwise with `Ok`.
+   * Declines this actor's offered task by releasing the baton when offered, as final greenery does,
+   * and otherwise with `Ok`.
    */
   protected fun Agent.declineTask(): TaskResult {
-    val offersDone =
-        pendingTasks().any { task ->
-          task.instruction.descendantsOfType<Gain>().any { it.gaining.className == cn("Done") }
+    val batonRelease =
+        pendingTasks().firstNotNullOfOrNull { task ->
+          task.instruction
+              .descendantsOfType<Instruction.Remove>()
+              .firstOrNull { it.removing.className == cn("Baton") }
+              ?.let { task.copy(instruction = it) }
         }
-    return doTask(if (offersDone) "Done" else "Ok")
+    return if (batonRelease != null) selectTask(batonRelease) else doTask("Ok")
   }
 
   protected fun Agent.declineTask(instruction: String): TaskResult {

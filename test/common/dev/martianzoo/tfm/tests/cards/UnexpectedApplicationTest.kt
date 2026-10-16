@@ -40,7 +40,6 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
       doTask("VenusStep")
       doTask("TerraformRating")
       doTask("ProjectCard<Kim, Hand>")
-      doTask("PlayedEvent<Class<UnexpectedApplication>> FROM UnexpectedApplication")
     }
   }
 }

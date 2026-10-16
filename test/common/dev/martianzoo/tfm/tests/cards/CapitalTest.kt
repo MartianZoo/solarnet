@@ -46,7 +46,7 @@ internal class CapitalTest : TfmSandboxTest() {
   internal fun `Triggers Tharsis Republic's city production benefit`() {
     newTestGame(kimCorporation = TharsisRepublic)
     kim.inTurn {
-      doTasks("RequiredActionsSignal", "CityTile<Tharsis_1_1>", "PROD[MC]", "3 MC", "2 Steel")
+      doTasks("DoRequiredActions", "CityTile<Tharsis_1_1>", "PROD[MC]", "3 MC", "2 Steel")
     }
     stan.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>"

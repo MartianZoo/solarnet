@@ -161,7 +161,7 @@ public class TaskLog internal constructor(private val world: World) {
     // A unique instruction identifies its task without copying the game's causal history.
     if (matches.size == 1) return RecordedInput.TaskSelector(taskInstruction, emptyList(), 0)
     val cause = causeSteps(world, target)
-    val peers = matches.filter { causeSteps(world, it) == cause }
+    val peers = matches.filter { it.id == taskId || causeSteps(world, it) == cause }
     return RecordedInput.TaskSelector(taskInstruction, cause, peers.indexOf(target))
   }
 
@@ -261,14 +261,17 @@ public class TaskLog internal constructor(private val world: World) {
   }
 }
 
-private fun causeSteps(world: World, task: Task): List<RecordedInput.CauseStep> {
-  val cause = task.cause ?: return emptyList()
-  val trigger = checkNotNull(world.events.changeAt(cause.triggerEvent))
-  return listOf(
-      RecordedInput.CauseStep(
-          cause.context.toString(),
-          trigger.actor.className.toString(),
-          trigger.change.toString(),
-      )
-  ) + causeSteps(world, task.copy(cause = trigger.cause))
+private fun causeSteps(world: World, task: Task): List<RecordedInput.CauseStep> = buildList {
+  var cause = task.cause
+  while (cause != null) {
+    val trigger = checkNotNull(world.events.changeAt(cause.triggerEvent))
+    add(
+        RecordedInput.CauseStep(
+            cause.context.toString(),
+            trigger.actor.className.toString(),
+            trigger.change.toString(),
+        )
+    )
+    cause = trigger.cause
+  }
 }

@@ -373,6 +373,7 @@ internal object TerraformingMarsDescribers {
                 cardInvariantSentence =
                     "While performing a future action, the wild tag can become any tag of your choice.",
             ),
+        klass("WildTagElection") to ComponentDescriber(tagAssignmentHolder = true),
         klass("AllocateCloudTourismWildTags") to ComponentDescriber(implicitInstruction = true),
         klass("Resource") to
             ComponentDescriber(
@@ -646,18 +647,32 @@ internal object TerraformingMarsDescribers {
             ),
         klass("UseCardAction") to ComponentDescriber(triggerFrame = Trigger.UseAction),
         klass("UseStandardProject") to ComponentDescriber(triggerFrame = Trigger.UseAction),
+        klass("ActionScope") to
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(ComponentDescriber.ActionUse.Reference.AnyAction),
+            ),
+        klass("Baton") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.State(
+                        enter = Frame.Procedure("begin", "your turn"),
+                        leave = Frame.Procedure("end", "your turn"),
+                    ),
+            ),
+        klass("ExtraAction") to
+            ComponentDescriber(
+                noun =
+                    counted(
+                        "additional action to take after finishing the current action",
+                        "additional actions to take in sequence after finishing the current action",
+                    ),
+                changeFrame = Frame.Countable,
+            ),
         klass("StandardAction") to
-            ComponentDescriber(
-                triggerFrame = Trigger.Named("take", "an action"),
-                actionUse =
-                    ComponentDescriber.ActionUse(ComponentDescriber.ActionUse.Reference.AnyAction),
-            ),
-        klass("RequiredActionsSignal") to
-            ComponentDescriber(
-                triggerFrame = Trigger.Named("take", "an action"),
-                actionUse =
-                    ComponentDescriber.ActionUse(ComponentDescriber.ActionUse.Reference.AnyAction),
-            ),
+            ComponentDescriber(triggerFrame = Trigger.Named("take", "an action")),
+        klass("DoRequiredActions") to
+            ComponentDescriber(triggerFrame = Trigger.Named("take", "an action")),
         klass("Owed") to
             ComponentDescriber(
                 paymentRole = ComponentDescriber.PaymentRole.OWED,

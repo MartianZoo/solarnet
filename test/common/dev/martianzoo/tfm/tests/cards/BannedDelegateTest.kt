@@ -35,7 +35,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<Stan, MarsFirst>")
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
             "-Dominant<MarsFirst>, Dominant<Unity>, " +
@@ -58,7 +57,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<Stan, MarsFirst>")
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-Dominant<MarsFirst>, Dominant<Kelvinists>, 0 Dominant<Reds>")
   }
@@ -79,7 +77,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<Stan, Greens>")
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-Dominant<Greens>, Dominant<Unity>, 0 Dominant<Reds>")
   }
@@ -98,7 +95,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<Stan, Scientists>")
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
             "PartyLeader<Scientists, Kim>, -PartyLeader<Scientists, Stan>, " +
@@ -120,7 +116,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<Rob, Scientists>")
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
             "0 PartyLeader<Scientists, Kim>, 0 PartyLeader<Scientists, Stan>, " +
@@ -144,7 +139,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<Maya, Scientists>")
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
             "0 PartyLeader<Scientists, Kim>, PartyLeader<Scientists, Rob>, " +
@@ -164,7 +158,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "$BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<MarsFirst, Stan>")
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("0 PartyLeader<MarsFirst, Stan>")
   }
@@ -180,7 +173,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<Scientists>")
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-PartyFollower<Scientists>, 0 PartyLeader<Scientists>")
   }
@@ -196,7 +188,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<Neutral, Scientists>")
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-PartyFollower<Scientists, Neutral>, 0 PartyLeader<Scientists, Neutral>")
   }
@@ -211,7 +202,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
               "Ok",
           )
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("0 PartyDelegate<Anyone>")
   }
@@ -276,7 +266,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           doTask("-PartyFollower<Stan, MarsFirst>")
-          doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-PartyFollower<MarsFirst, Stan>, 0 PartyDelegate<Scientists, Stan>")
   }
@@ -292,7 +281,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
             "PlayProject<Class<BannedDelegate>>",
             "BannedDelegate FROM ProjectCard",
             "-PartyFollower<Greens, Stan>",
-            "PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate",
         )
       }
     }
@@ -311,7 +299,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
             "PlayProject<Class<BannedDelegate>>",
             "BannedDelegate FROM ProjectCard",
             "-PartyFollower<Scientists, Rob>",
-            "PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate",
         )
       }
     }

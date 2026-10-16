@@ -131,7 +131,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     assertSidebar(gen = 1, temp = -28, oxygen = 0, oceans = 2, venus = 0)
 
     p1.turn {
-      doTasks("RequiredActionsSignal", "Community<Vastitas_7_8>")
+      doTasks("DoRequiredActions", "Community<Vastitas_7_8>")
       doTasks(
           "PlayProject<Class<$NuclearPower>>",
           "5 Pay<Class<Steel>> FROM Steel",
@@ -161,7 +161,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "2 Plant",
           "-Plant<Aqua>",
           "PROD[Heat]",
-          "PlayedEvent<Class<$GiantIceAsteroid>> FROM $GiantIceAsteroid",
       )
       // Pink's logs show no heat production and +1 heat (entry 27), apparently confusing
       // the −24°C production bonus with a resource.
@@ -366,7 +365,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
-          "PlayedEvent<Class<$InventionContest>> FROM $InventionContest",
       )
     }
     p2.turn {
@@ -420,7 +418,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       )
       selectTask("ColonyProduction FROM ColonyProduction")
       narrowTask("ColonyProduction<Triton> FROM ColonyProduction<Miranda>")
-      doTask("PlayedEvent<Class<$MarketManipulation>> FROM $MarketManipulation")
+
       doTasks(
           "TradeAction<Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
@@ -475,7 +473,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       )
       doTask("ClaimMilestone<Class<Diversifier>>")
       // P2 has no wilds: finish this claim's empty allocation prompt.
-      selectTask("EACH @WildTag { Tag<@WildTag>? }")
+      selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
       doTasks("8 Pay<> FROM MC", "Diversifier")
     }
     p1.turn {
@@ -485,7 +483,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "2 Pay<> FROM MC",
           "$Conscription FROM ProjectCard",
           "Conscription_NextCardEffect",
-          "PlayedEvent<Class<$Conscription>> FROM $Conscription",
       )
     }
     p2.turn {
@@ -636,7 +633,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       )
       p1.doTasks("PROD[MC]")
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_4_4>",
           "Plant",
@@ -888,7 +884,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "PROD[Heat]",
           "3 Heat",
           "ProjectCard", // Solar Logistics sees the space event
-          "PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg",
       )
     }
     p1.turn {
@@ -934,7 +929,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "2 Heat",
           "-Plant<Aqua>",
           "ProjectCard", // Solar Logistics sees the space event
-          "PlayedEvent<Class<$GiantIceAsteroid>> FROM $GiantIceAsteroid",
       )
       doTasks(
           "PlayProject<Class<$LavaFlows>>",
@@ -948,7 +942,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "TerraformRating",
           "Plant",
           "2 MC",
-          "PlayedEvent<Class<$LavaFlows>> FROM $LavaFlows",
       )
     }
     p1.turn {
@@ -961,7 +954,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_4_6>",
           "ProjectCard",
@@ -1031,7 +1023,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "PROD[Heat]",
           "3 Heat",
           "ProjectCard", // Solar Logistics
-          "PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg",
       )
       doTasks("ConvertHeat", "8 Pay<Class<Heat>> FROM Heat", "TemperatureStep", "TerraformRating")
     }
@@ -1048,7 +1039,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "$SolarProbe FROM ProjectCard",
           "2 ProjectCard", // six science tags
           "ProjectCard", // Solar Logistics
-          "PlayedEvent<Class<$SolarProbe>> FROM $SolarProbe",
       )
     }
     p1.turn {
@@ -1153,7 +1143,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "PlayProject<Class<$HiredRaiders>>",
           "$HiredRaiders FROM ProjectCard",
           "3 MC FROM MC<Pink>",
-          "PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders",
       )
       doTasks(
           "PlayProject<Class<$Decomposers>>",
@@ -1421,7 +1410,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_6_4>",
           "4 MC",
@@ -1670,7 +1658,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_3_4>",
           "2 MC",
@@ -1703,7 +1690,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "3 MC", // Media Group
           "ProjectCard", // Solar Logistics
       )
-      doTask("PlayedEvent<Class<$HydrogenToVenus>> FROM $HydrogenToVenus")
     }
     p1.turn {
       doTasks(
@@ -1711,7 +1697,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "2 Pay<> FROM MC",
           "$MineralDeposit FROM ProjectCard",
           "5 Steel",
-          "PlayedEvent<Class<$MineralDeposit>> FROM $MineralDeposit",
       )
       doTasks("UseCardAction<$ArcadianCommunities, Action1>", "Community<Vastitas_3_6>")
     }
@@ -1810,7 +1795,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // "Then I'd better hurry up and pay 23 as well. That maxes out the oxygen."
     p1.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_9_8>",
           "Titanium",
@@ -1883,7 +1867,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       declineTask("Plant<Pink>! OR Ok")
       p1.doTasks("PROD[MC]")
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks("GreeneryTile<Vastitas_3_5>", "Plant")
       selectTask("OxygenStep") // oxygen is already maxed
     }
@@ -1924,7 +1907,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "4 Microbe<$VenusianInsects>",
           "3 MC", // Media Group
           "ProjectCard", // Solar Logistics
-          "PlayedEvent<Class<$ImportedNutrients>> FROM $ImportedNutrients",
       )
     }
     // "Whoo, this is what I'm reduced to." "You are reduced to produce."
@@ -2062,7 +2044,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "4 Animal<$Pets>",
           "3 MC", // Media Group
           "ProjectCard", // Solar Logistics
-          "PlayedEvent<Class<$LargeConvoy>> FROM $LargeConvoy",
       )
     }
     // "Probably not actually better but I'm just gonna do it anyway to be different."
@@ -2121,7 +2102,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_2_3>",
           "2 MC",
@@ -2149,13 +2129,12 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // The phone app advances its display to generation 12; Solarnet keeps the final played
     // generation.
     assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
-    p1.doTasks("Done") // only three plants; no final greenery
+    p1.selectTask("-Baton") // only three plants; no final greenery
     // "Do you replace, you don't." "I do actually." "You do." "Probably on two four."
     // The final photo shows Pink's last greenery here.
     p2.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-    p2.selectTask("MAX 0 Billing: PlaceGreeneryTile")
     p2.doTasks("GreeneryTile<Vastitas_2_4>")
-    p2.doTasks("Done") // no more plants to convert
+    p2.selectTask("-Baton") // no more plants to convert
     // board-16-47-03.jpg, after final greenery.
     p2.assertCounts(7 to "GreeneryTile", 3 to "CityTile", 56 to "TerraformRating")
     // "Almost completely shut me out, but not quite."

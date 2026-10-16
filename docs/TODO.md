@@ -2,6 +2,9 @@
 
 Delete entries when they are done. Static-language and English work lives in [Pets TODO](../pets/TODO.md).
 
+- Investigate the deferred nested-placement and partial-selection experiment in
+  [Make types types again](agents/MAKE_TYPES_TYPES_AGAIN.md) if that proposal is selected.
+
 - Investigate the local configuration-cache invalidation caused by the injected
   `kotlin.project.persistent.dir` property. Repeated `help` commands reproduce it on the
   pre-split baseline as well as the composite build; build separation preserves the existing
@@ -44,12 +47,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Revisit Stormcraft plus Helion payment composition if that combination is supported.
   `Accepting` now skips alternative standard-resource offers when the payer has none; it does not
   consider possible substitutes such as Stormcraft floaters for heat.
-- Verify as a Canon invariant which tasks can interleave with card play: gaining MC production,
-  Head Start's two actions, and any other actual exceptions. Establish the complete list.
-- Share the Corporation, Prelude, and final greenery phases' turn procedure through an abstract
-  phase class.
-- Share the circular-distance calculation in `PlayerDistance` and `PartyDistance`, preserving
-  their different handling of unseated owners.
+- Verify as a Canon invariant which tasks can interleave with card play, including gaining MC
+  production and other actual exceptions. Head Start's selected variant now resolves its initial
+  work before granting sequential actions; do not retain its former interleaving as a requirement.
 - Consider renaming automatic (`::`) effects to “immediate.”
 - Replace the archived *Life of an Effect* walkthrough with a current account of lexical `Me`
   and the transformation pipeline.
@@ -60,17 +60,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   while standard players discard and buy their choices.
 - Move Fake Self-Replicating Robots' paired defect scenarios from `SelfReplicatingRobotsTest`
   into `tfm-fake`, reusing existing test support.
-- Verify Double Down can copy an actually played Prelude without `PreludeExpansion` enabled.
 - Clarify Astra Mechanica's zero/one/two eligible-event behavior and reconcile its modeled return
   with printed and derived English.
 - Separate task selection from execution when automatic execution is disabled.
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
 - actually plan out how exMachina should work
-- Keep gated System work with Admin when its condition becomes satisfied, removing unnecessary
-  player selections such as those in Head Start scenarios.
-- Make `PlayedEvent` and `Required` System types, and rename `RequiredActionsSignal` to
-  `DoRequiredActions`.
 - Audit remaining non-payment `::` effects; retain
   immediate execution only where a concrete gameplay need justifies it.
 
@@ -79,15 +74,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Determine which nested cross-Actor Agent calls should settle Admin work before returning;
   the Pluto scenario in `ColoniesRulesTest` currently uses separate top-level calls.
 
-- Share the `NonNegativeIconsOf` citation scan between gameplay and English; both currently walk
-  authored effects independently, so a later change to the icon rule could make their answers differ.
-  Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct
+- Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct
   `Lose 12 M€` effect. The marked-variable references now follow recorded occurrences, but the older
   interaction-trigger Anyone-to-Player normalization still supplies an implicit `that player`.
-- Replace recursive task-ancestry list concatenation with linear construction, and avoid rebuilding
-  the target's ancestry when comparing matching tasks. Preserve recorded task disambiguation.
-- Reduce repeated parsing during game-file decoding and reuse the full export already produced
-  for reconstruction instead of serializing it again.
 - Investigate repeated selection probes followed by execution under `EAGER`; preserve manual-task
   competition and failure handling before removing probes.
 - Investigate repeated ranking of the same field while testing each candidate. Scores must reflect

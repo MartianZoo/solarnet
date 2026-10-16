@@ -91,7 +91,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "2 Steel<Stan FROM Rob>",
       )
       kim.doTask("3 MC<Rob FROM Kim>")
-      doTask("PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders")
     }
   }
 
@@ -117,7 +116,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks("2 Titanium", "TerraformRating")
           doTasks("-Plant<Stan>")
           doTask("3 MC<Stan FROM Kim>")
-          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("-Plant<Stan>, -3 MC<Kim>, 3 MC<Stan>")
   }
@@ -175,7 +173,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "2 Steel<Stan FROM Rob>",
       )
       kim.doTask("2 MC<Rob FROM Kim>")
-      doTask("PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders")
     }
   }
 
@@ -212,7 +209,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTask("TemperatureStep")
           doTasks("2 Titanium", "TerraformRating")
           doTask("-0 Plant<Anyone>")
-          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("0 Plant<Stan>, 0 MC<Stan>")
   }
@@ -234,7 +230,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTask("3 MC<SoloOpponent> FROM MC")
           // Hand the solo opponent's resource change to Admin.
           selectTask("-3 MC<SoloOpponent> BY Admin")
-          doTask("PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders")
         }
         .expect("-1 MC<Kim>")
   }
@@ -253,7 +248,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           )
           doTask("TemperatureStep")
           doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
-          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("0 MC<Kim>")
   }

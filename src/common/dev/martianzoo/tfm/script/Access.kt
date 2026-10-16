@@ -7,8 +7,6 @@ import dev.martianzoo.state.TaskResult
 internal sealed class Access private constructor() {
   internal abstract fun exec(instruction: String): TaskResult
 
-  internal abstract fun newTurn(): TaskResult
-
   internal abstract fun phase(phase: String): TaskResult
 
   /**
@@ -26,8 +24,6 @@ internal sealed class Access private constructor() {
   internal class PurpleMode : Access() {
     override fun phase(phase: String): TaskResult = error("not allowed in this mode")
 
-    override fun newTurn(): TaskResult = error("not allowed in this mode")
-
     override fun exec(instruction: String): TaskResult = error("not allowed in this mode")
   }
 
@@ -35,8 +31,6 @@ internal sealed class Access private constructor() {
   internal class BlueMode(private val agent: Agent) : Access() {
 
     override fun phase(phase: String): TaskResult = doPhase(agent, phase)
-
-    override fun newTurn() = agent.startTurn()
 
     override fun exec(instruction: String): TaskResult = error("not allowed in this mode")
   }
@@ -46,8 +40,6 @@ internal sealed class Access private constructor() {
 
     override fun phase(phase: String): TaskResult = doPhase(agent, phase)
 
-    override fun newTurn() = agent.startTurn()
-
     override fun exec(instruction: String) = agent.beginOperation(instruction)
   }
 
@@ -55,8 +47,6 @@ internal sealed class Access private constructor() {
   internal class YellowMode(private val agent: Agent) : Access() {
 
     override fun phase(phase: String): TaskResult = doPhase(agent, phase)
-
-    override fun newTurn() = agent.startTurn()
 
     override fun exec(instruction: String) = agent.beginOperation(instruction)
 
@@ -69,8 +59,6 @@ internal sealed class Access private constructor() {
   internal class RedMode(private val agent: Agent) : Access() {
 
     override fun phase(phase: String): TaskResult = doPhase(agent, phase)
-
-    override fun newTurn() = agent.startTurn()
 
     override fun exec(instruction: String) = agent.sneak(instruction)
 

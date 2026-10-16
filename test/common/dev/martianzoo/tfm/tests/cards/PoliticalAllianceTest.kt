@@ -53,7 +53,6 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
           "PoliticalAlliance FROM ProjectCard",
           "TerraformRating",
       )
-      doTask("PlayedEvent<Class<PoliticalAlliance>> FROM PoliticalAlliance")
     }
   }
 }

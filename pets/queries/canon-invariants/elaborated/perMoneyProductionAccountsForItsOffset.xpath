@@ -1,0 +1,12 @@
+/Canon/*//Per[@kind = 'Instruction' or @kind = 'Cost']/metric//Count[
+  id(@countedClass)/isA/Type/@name = 'Production' and (
+    not(expression/Expression/arguments/Expression[@className = 'Class']/arguments/Expression) or
+    expression/Expression/arguments/Expression[@className = 'Class']/arguments/Expression/@className = id('MC')/isA/Type/@name
+  )
+][
+  not(ancestor::Subtract[
+    minuend/Count/@countedShapeKey = subtrahend/Count[@countedClass = 'ProdOffset']/@countedShapeKey
+  ]) and not(parent::subtrahend/parent::Subtract[
+    subtrahend/Count/@countedShapeKey = minuend/Or/metrics/Count[@countedClass = 'ProdOffset']/@countedShapeKey
+  ])
+]

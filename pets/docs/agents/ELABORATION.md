@@ -34,8 +34,8 @@ Live resolution reads the mutable World after task selection; that step belongs 
 
 ## Represented-tag bindings
 
-The explicit `@Tag<WildTag<@CardFront>>` spelling remains necessary: the shorter `@Tag<This>` and
-an inherited `LikesTag` self-effect lost represented-tag bindings in the initial experiments.
-Retesting the short spelling after merging main fails in `recordTypeVariableScopes`: the represented
-tag's holder is resolved while `This` is still lexical, yielding `no class named This`. Do
-not add a second assignment representation to work around those elaboration limitations.
+`WildTagElection` uses the explicit `@Tag<WildTagElection<@WildTag, ActionScope>>` assignment.
+The shorter `@Tag<This>` still fails in `recordTypeVariableScopes`: the represented tag's holder
+is resolved while `This` is lexical, yielding `no class named This`. Changing the holder's lifetime
+did not fix that elaboration limitation. Keep the explicit spelling rather than adding another
+assignment representation to work around it.
