@@ -1,5 +1,5 @@
 "Marks the winner after final scoring"
-CLASS Victory : Owned<Player>, Real { HAS MAX 1 This }
+CLASS Victory : Owned<Player> { HAS MAX 1 This }
 
 CLASS VictoryPoint : Owned<Player>, System, Real
 
@@ -29,8 +29,8 @@ CLASS MeasureAward<@Award> : Signal, System {
   This IF 3 Player:: EACH Me@Player(HAS =2 (RANK Me@Player { EVAL @Award.metric })) { SecondPlace<@Award> }
 }
 
-CLASS FirstPlace<Award> : Owned<Player>, Real { This: 5 VictoryPoint }
-CLASS SecondPlace<Award> : Owned<Player>, Real { This: 2 VictoryPoint }
+CLASS FirstPlace<Award> : Owned<Player> { This: 5 VictoryPoint }
+CLASS SecondPlace<Award> : Owned<Player> { This: 2 VictoryPoint }
 
 "A scoring Signal whose instruction is computed from a played event's printed effects"
 CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, CustomInstruction, System

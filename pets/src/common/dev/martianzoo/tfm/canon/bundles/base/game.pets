@@ -247,7 +247,7 @@ CLASS InRound<ActionPhase> : RoundStatus, System {
 }
 
 "Instead of taking an action you can gain this, and be out for the rest of the generation"
-CLASS Pass<GenerationScope> : RoundStatus, Real {
+CLASS Pass<GenerationScope> : RoundStatus {
   This:: -InRound*
 
   This IF ActionPhase, Baton, MAX 0 ActionScope<Me@>, MAX 0 ExtraAction: FINALLY { -Baton }
