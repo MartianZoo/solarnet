@@ -83,10 +83,13 @@ support for source-backed bundles; that decision has not been made.
 
 ## 4. Finish content selection and provenance
 
-**Selected direction with open representation choices; `catalog` and `tfm-canon`.**
+**Selected direction with remaining selection and provenance choices; `catalog` and `tfm-canon`.**
+
+Content classes are now defined as nonabstract subclasses of `Content`. This identifies the items;
+it does not yet supply uniform selection policies or ownership of their supporting declarations.
 
 The [content-selection direction](PETS_ROADMAP.md#canon-and-game-rule-modeling) and
-[selection TODOs](TODO.md) include selecting all applicable Content from a bundle, individual
+[selection TODOs](../pets/TODO.md) include selecting all applicable Content from a bundle, individual
 Turmoil parties and maps, shared goals with distinct source provenance, replacement defaults,
 Aridor making unused colony definitions available, and eligibility based on surviving meaning.
 

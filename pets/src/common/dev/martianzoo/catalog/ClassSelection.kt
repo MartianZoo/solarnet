@@ -12,8 +12,8 @@ import dev.martianzoo.pets.types.PremiseClassTable
  *
  * Selections contributed by a Module may be conditional on the completed configuration. Resolved
  * premise selections are unconditional and express exact choices. Catalogs may use this generic
- * mechanism for individually overridable Content; Content itself is a premise-policy role rather
- * than a Pets supertype.
+ * mechanism for individually overridable game items. Terraforming Mars identifies these as concrete
+ * subclasses of its `Content` class; this generic selection mechanism accepts any Class.
  *
  * @property className selected class, whether included or excluded.
  * @property included true to include this class, false to exclude it.

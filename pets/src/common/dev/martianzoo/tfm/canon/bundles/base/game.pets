@@ -1,3 +1,6 @@
+"An authored game item; concrete subclasses are content classes"
+ABSTRACT CLASS Content
+
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"

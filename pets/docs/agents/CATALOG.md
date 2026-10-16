@@ -2,6 +2,24 @@
 
 > **Status:** current static-model contracts.
 
+## Content classification
+
+Terraforming Mars declares `ABSTRACT CLASS Content`. A content class is a nonabstract subclass
+of it, independent of whether its types are inhabited in a particular game. `CardFront`, `MarsMap`,
+`Milestone`, `Award`, `ColonyTile`, `GlobalEvent`, and `Party` inherit it. Abstract categories such
+as `ActiveCard` are not content classes; card backs, standard projects, map areas, and card-local
+resources do not inherit it. Maps also inherit `Module`; party selection is still intrinsic to
+Turmoil's setup rather than individually configurable.
+
+`TfmCatalog` uses this classification for independent item availability and for identifying
+non-card content roots in card resources. A reference from another item must not make content
+stop being a pool candidate. File membership still identifies the `name:cards` pool and supporting
+declarations; reference roots still select otherwise unreferenced support. Abstract goal vocabulary,
+map areas, and goal helpers retain their separate availability handling. `Content` does not imply
+that an item works without the rules of an expansion, nor does it select or create components.
+Card eligibility, exact goal pools, replacements, map areas, and colony setup keep their existing
+category-specific policies. Generic Catalog and Pets type processing need no Content-specific rule.
+
 ## From configuration to a class table
 
 `GameConfig` is unresolved intent. Catalog resolution produces an immutable `GamePremise`: a

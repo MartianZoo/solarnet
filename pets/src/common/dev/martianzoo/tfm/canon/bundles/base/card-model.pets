@@ -9,7 +9,7 @@ ABSTRACT CLASS Card : Owned<Player>, Real {
   }
 
   "A card in play, face-up on the table (consider rename to CardFace)"
-  ABSTRACT CLASS CardFront<Class<CardBack>> : TagHolder {
+  ABSTRACT CLASS CardFront<Class<CardBack>> : Content, TagHolder {
     cost = Number
     requirement = Requirement?
     autoSelectWhen = Requirement?

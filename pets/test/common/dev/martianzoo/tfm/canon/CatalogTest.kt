@@ -41,7 +41,8 @@ internal class CatalogTest {
               setOf(
                   parseOneLinerClass("ABSTRACT CLASS Module"),
                   parseOneLinerClass("ABSTRACT CLASS CardBack"),
-                  parseOneLinerClass("ABSTRACT CLASS CardFront<Class<CardBack>>"),
+                  parseOneLinerClass("ABSTRACT CLASS Content"),
+                  parseOneLinerClass("ABSTRACT CLASS CardFront<Class<CardBack>> : Content"),
                   parseOneLinerClass("CLASS ExampleModule : Module"),
                   card,
               )
@@ -71,6 +72,65 @@ internal class CatalogTest {
 
     source.classNamesInBundle("goals", cn("Goal")) shouldBe
         setOf(cn("DirectGoal"), cn("SpecializedGoal"))
+  }
+
+  @Test
+  internal fun contentClassificationAllowsIndividualItemsOutsideCardResources() {
+    val source =
+        TfmCatalog(
+            bundle("base", "ABSTRACT CLASS Module\nABSTRACT CLASS Content"),
+            bundle(
+                "items",
+                """
+                CLASS ItemExpansion : Module
+                CLASS IndependentItem : Content
+                ABSTRACT CLASS AbstractItem : Content
+                CLASS AmbientRule
+                """
+                    .trimIndent(),
+                primaryModuleName = cn("ItemExpansion"),
+            ),
+        )
+
+    source.classNamesInBundle("items", cn("Content")) shouldBe setOf(cn("IndependentItem"))
+    val table = source.gamePremise(GameConfig("IndependentItem")).classTable
+    (cn("IndependentItem") in table.allClassNames) shouldBe true
+    (cn("ItemExpansion") in table.allClassNames) shouldBe false
+    listOf("AbstractItem", "AmbientRule").forEach { name ->
+      shouldThrow<InvalidGameConfigException> { source.gamePremise(GameConfig(name)).classTable }
+    }
+  }
+
+  @Test
+  internal fun referencedContentRemainsInThePoolWhenItsReferrerIsExcluded() {
+    val source =
+        TfmCatalog(
+            bundle("base", "ABSTRACT CLASS Module\nABSTRACT CLASS Content"),
+            StandardFormBundle(
+                name = "items",
+                primaryModuleName = cn("ItemExpansion"),
+                resourceDirectory = "items",
+                resourceFilenames = setOf("items.pets", "cards.pets"),
+                resourceReader = { path ->
+                  when (path) {
+                    "items/items.pets" -> "CLASS ItemExpansion : Module"
+                    "items/cards.pets" ->
+                        """
+                        CLASS FirstItem : Content { HAS Class<SecondItem>, Class<PrivateSupport> }
+                        CLASS SecondItem : Content
+                        CLASS PrivateSupport
+                        """
+                            .trimIndent()
+                    else -> error("Unexpected resource $path")
+                  }
+                },
+            ),
+        )
+
+    val table = source.gamePremise(GameConfig("ItemExpansion, -FirstItem")).classTable
+    (cn("SecondItem") in table.allClassNames) shouldBe true
+    (cn("FirstItem") in table.allClassNames) shouldBe false
+    (cn("PrivateSupport") in table.allClassNames) shouldBe false
   }
 
   @Test
@@ -186,7 +246,8 @@ internal class CatalogTest {
                     """
                     ABSTRACT CLASS Module
                     ABSTRACT CLASS CardBack
-                    ABSTRACT CLASS CardFront<Class<CardBack>>
+                    ABSTRACT CLASS Content
+                    ABSTRACT CLASS CardFront<Class<CardBack>> : Content
                     CLASS CardPack : Module
                     """
                         .trimIndent()
@@ -216,7 +277,7 @@ internal class CatalogTest {
         TfmCatalog(
             bundle(
                 "base",
-                "ABSTRACT CLASS Module\nABSTRACT CLASS CardBack\nABSTRACT CLASS CardFront<Class<CardBack>>\nCLASS Base : Module",
+                "ABSTRACT CLASS Module\nABSTRACT CLASS CardBack\nABSTRACT CLASS Content\nABSTRACT CLASS CardFront<Class<CardBack>> : Content\nCLASS Base : Module",
             ),
             cardBundle("cards", "ExampleCard"),
         )
@@ -234,7 +295,8 @@ internal class CatalogTest {
             """
             ABSTRACT CLASS Module
             ABSTRACT CLASS CardBack
-            ABSTRACT CLASS CardFront<Class<CardBack>> {
+            ABSTRACT CLASS Content
+            ABSTRACT CLASS CardFront<Class<CardBack>> : Content {
               cost = Number
               requirement = Requirement?
             }

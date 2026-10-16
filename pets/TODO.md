@@ -7,6 +7,11 @@ Delete entries when they are done.
   `Baton`; continuation still depends on the phase, remaining Preludes, and `SecondAction`.
   Prefer existing mechanisms before adding another completion signal.
 
+- Finish selection of concrete `Content` subclasses: support all applicable items from a bundle,
+  independent party selection, and map selection separate from its Module role. Supporting
+  declarations still use file membership and category-specific availability rules; `Content`
+  identifies game items, not which helpers belong to them. See `docs/agents/CATALOG.md`.
+
 - Isolate the Kotlin incremental-compilation failure in the generated Canon check before trying
   to re-enable it. Merge builds reported duplicate helpers despite a single generated source file;
   clean compilation succeeded. The check now compiles the complete file when inputs change.
