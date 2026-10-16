@@ -28,7 +28,10 @@ internal class AmazonisSoloSetupTest : TfmSandboxTest() {
 
   @Test
   internal fun amazonisStandardSoloWithPreludeStartsWithTwelveGenerationsLeft() {
-    newTestGame(addOptions = "AmazonisMap, StandardSoloObjective, PreludeExpansion", playerCount = 1)
+    newTestGame(
+        addOptions = "AmazonisMap, StandardSoloObjective, PreludeExpansion",
+        playerCount = 1,
+    )
 
     admin.count("SoloGenerationsLeft") shouldBe 12
   }
