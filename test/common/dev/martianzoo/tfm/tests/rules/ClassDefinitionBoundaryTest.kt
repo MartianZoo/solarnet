@@ -100,11 +100,11 @@ internal class ClassDefinitionBoundaryTest {
 
     standardGame.shouldNotContain(cn("BeginnerCorporation1"))
     standardGame.shouldNotContain(cn("BeginnerCard"))
-    standardGame.shouldNotContain(cn("BeginnerMode"))
-    standardGame.shouldContain(cn("NonBeginnerMode"))
+    standardGame.shouldNotContain(cn("BeginnerOption"))
+    standardGame.shouldContain(cn("StandardOption"))
     beginnerGame.shouldContain(cn("BeginnerCorporation1"))
     beginnerGame.shouldContain(cn("BeginnerCard"))
-    beginnerGame.shouldContain(cn("BeginnerMode"))
+    beginnerGame.shouldContain(cn("BeginnerOption"))
   }
 
   @Test

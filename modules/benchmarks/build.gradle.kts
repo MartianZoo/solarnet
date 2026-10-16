@@ -16,11 +16,11 @@ kotlin {
 
 dependencies {
   implementation(project(":agent"))
-  implementation(project(":catalog"))
-  implementation(project(":tfm-canon"))
-  implementation(project(":tfm-fake"))
+  implementation("dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}")
+  implementation("dev.martianzoo.pets:tfm-canon:${providers.gradleProperty("petsVersion").get()}")
+  implementation("dev.martianzoo.pets:tfm-fake:${providers.gradleProperty("petsVersion").get()}")
   implementation(project(":engine"))
-  implementation(project(":pets"))
+  implementation("dev.martianzoo.pets:pets:${providers.gradleProperty("petsVersion").get()}")
   implementation(project(":state"))
   implementation(project(":tfm-engine"))
 }

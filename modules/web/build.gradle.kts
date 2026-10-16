@@ -18,12 +18,16 @@ kotlin {
     jsMain {
       kotlin.setSrcDirs(listOf(webReplSourceDirectory))
       dependencies {
-        implementation(project(":catalog"))
+        implementation(
+            "dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}"
+        )
         implementation(project(":engine"))
-        implementation(project(":pets"))
+        implementation("dev.martianzoo.pets:pets:${providers.gradleProperty("petsVersion").get()}")
         implementation(project(":state"))
         implementation(project(":script"))
-        implementation(project(":tfm-canon"))
+        implementation(
+            "dev.martianzoo.pets:tfm-canon:${providers.gradleProperty("petsVersion").get()}"
+        )
         implementation(npm("jquery", "3.7.1"))
         implementation(npm("jquery.terminal", "2.46.2"))
         implementation(devNpm("tslib", "2.8.1"))
@@ -46,7 +50,9 @@ kotlin {
         implementation(project(":agent"))
         implementation(project(":state"))
         implementation(project(":tfm-engine"))
-        implementation(project(":tfm-fake"))
+        implementation(
+            "dev.martianzoo.pets:tfm-fake:${providers.gradleProperty("petsVersion").get()}"
+        )
         implementation(project(":tfm-state"))
       }
     }
@@ -77,10 +83,24 @@ tasks.named<ProcessResources>("jsProcessResources") {
   from(sharedSourceDirectory) { into("assets") }
 }
 
-// The Web development server also serves the Almanac.
-tasks.named("jsBrowserDevelopmentRun") {
-  dependsOn(
-      ":almanac:jsDevelopmentExecutableCompileSync",
-      ":almanac:jsProcessResources",
+val almanacDistribution by configurations.creating {
+  isCanBeResolved = true
+  isCanBeConsumed = false
+  attributes { attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME)) }
+}
+
+dependencies {
+  almanacDistribution(
+      "dev.martianzoo.pets:almanac:${providers.gradleProperty("petsVersion").get()}@zip"
   )
+}
+
+tasks.named<ProcessResources>("jsProcessResources") {
+  dependsOn(almanacDistribution)
+  from(almanacDistribution.map { zipTree(it) }) { into("almanac") }
+  // Local art remains a consumer asset; published Almanac does not require it.
+  from(rootProject.layout.projectDirectory.dir("_local/images")) {
+    include("*.png", "MC/*.png")
+    into("almanac/images")
+  }
 }

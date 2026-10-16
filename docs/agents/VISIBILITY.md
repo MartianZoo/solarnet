@@ -44,10 +44,8 @@ member currently has no repository caller.
 - Test classes and test-runner methods remain at least `internal`; the runner must discover them.
 - Values in the test `cardnames` package deliberately remain public.
 - Application `main` functions and JMH-discovered classes and methods remain public.
-- Pets AST node types, their structural and construction surface, corresponding `PetTransformer`
-  entrypoints, and string-to-AST entrypoints are a deliberate public API. Parsers must be able to
-  construct nodes, attach source locations, and resolve lexical scope from another module. Helpers
-  that do not belong to that contract can still be internal or private.
+- The [Pets public-surface contract](../../pets/docs/agents/SPEC_FIDELITY.md#deliberate-public-surface)
+  governs AST construction, transformations, and parser entrypoints.
 - `TfmTest.World.testAgent` must remain protected. Calls in subclasses resolve to that member
   extension. Making it private leaves the source compilable but silently rebinds those calls to an
   imported extension with different behavior.

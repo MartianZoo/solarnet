@@ -22,7 +22,6 @@ internal class MergerTest : TfmSandboxTest() {
       doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
       doTask("Celestic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("42 MC", "-42 MC")
-      doTask("Celestic_RequiredAction")
     }
     advanceUntilActionPhase()
 
@@ -55,7 +54,6 @@ internal class MergerTest : TfmSandboxTest() {
           doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
           doTask("Celestic<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTask("42 MC")
-          doTask("Celestic_RequiredAction")
         }
         .expect("$Merger, $Celestic, 0 CorporationCard<Selecting>, 0 PreludeCard<Selecting>")
   }

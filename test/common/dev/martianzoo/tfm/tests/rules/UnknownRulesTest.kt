@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -24,7 +25,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
       doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("40 MC", "-42 MC")
-      doTask("TharsisRepublic_RequiredAction!")
     }
     advanceUntilActionPhase()
 
@@ -66,7 +66,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
       doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTask("40 MC")
-      doTask("TharsisRepublic_RequiredAction!")
       doTask("RequiredActionsSignal")
       doTasks("CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
     }
@@ -105,7 +104,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTask("PlayCard<Class<CorporationCard>, Class<Poseidon>>")
       doTask("Poseidon FROM CorporationCard<Selecting>")
       doTask("45 MC")
-      doTask("Poseidon_RequiredAction")
     }
     kim.setToExMachina(20, "MC")
     fillSelectedColonySlots()
@@ -260,7 +258,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
           "Poseidon FROM CorporationCard<Selecting>",
           "45 MC",
           "-42 MC",
-          "Poseidon_RequiredAction",
       )
     }
     shouldThrow<LimitsException> {
@@ -484,7 +481,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "AmazonisMap, Unsafe")
     // Prepare the disputed position: the wild placement bonus was taken as a plant.
     kim.exMachina("$card, ${card}_SpecialTile<Amazonis_05_03>, Plant")
-    shouldThrow<RequirementException> {
+    shouldThrow<DependencyException> {
       kim.inTurn {
         doTasks(
             "PlayProject<Class<RoboticWorkforce>>",
@@ -492,7 +489,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
             "RoboticWorkforce FROM ProjectCard",
         )
         doTask("CopyProductionBox<$card>")
-        // Resolve the metal-choice requirements; neither recognizes the wild placement bonus.
+        // Resolve the metal filter, which does not recognize the wild placement bonus.
         selectOnlyTask()
       }
     }

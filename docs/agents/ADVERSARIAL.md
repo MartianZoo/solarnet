@@ -42,7 +42,7 @@ in progress is committed to Git. “Type 3 export” refers to the combined reco
 export design: a premise recipe, an Actor decision stream, and an exact event stream. The decisions
 explain the result; the events record what happened. The historical export note described these as
 the third of three views, and the
-[current roadmap](../../SOLARNET_ROADMAP.md#game-records-and-reconstruction) retains that direction.
+[current roadmap](../SOLARNET_ROADMAP.md#game-records-and-reconstruction) retains that direction.
 The combined format remains unspecified and unimplemented. A state digest alone would not replace
 the exact events needed for its independent passive playback.
 
@@ -96,7 +96,7 @@ Acceptance checks the legality of that prefix without pretending that outstandin
 mandatory tasks have been completed.
 
 Icy Impactors is a concrete example already represented in
-[the card definition](../../src/common/dev/martianzoo/tfm/canon/bundles/promos/cards.json5) and
+[the card definition](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/promos/cards.json5) and
 [its scenario test](../../test/common/dev/martianzoo/tfm/tests/cards/IcyImpactorsTest.kt):
 the Start Token holder chooses the ocean location, while placement is attributed to the card owner.
 The owner must be able to commit the work leading to that choice, receive the other player's
@@ -249,7 +249,7 @@ and does not establish complete tracking of every offer or deck movement.
 playback. The same file can carry Actor inputs for independent replay and change comparison, but
 does not establish shared-player authorization, an appendable live log, or resumption of arbitrary
 unfinished operations. The
-[existing export direction](../../SOLARNET_ROADMAP.md#game-records-and-reconstruction)
+[existing export direction](../SOLARNET_ROADMAP.md#game-records-and-reconstruction)
 already distinguishes decision reconstruction from exact event playback and records unfinished work.
 
 The next useful design work is to settle the acceptance and information-release agreement, then

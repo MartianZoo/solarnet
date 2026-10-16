@@ -15,9 +15,11 @@ kotlin {
           listOf(rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/agent"))
       )
       dependencies {
-        implementation(project(":catalog"))
+        implementation(
+            "dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}"
+        )
         implementation(project(":engine"))
-        implementation(project(":pets"))
+        implementation("dev.martianzoo.pets:pets:${providers.gradleProperty("petsVersion").get()}")
         implementation(project(":state"))
       }
     }
@@ -31,7 +33,9 @@ kotlin {
       dependencies {
         implementation(libs.kotest.assertions.core)
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":catalog"))
+        implementation(
+            "dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}"
+        )
       }
     }
   }

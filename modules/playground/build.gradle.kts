@@ -28,11 +28,17 @@ kotlin {
       // Adds rather than replaces: Compose generates resource accessors into this source set.
       kotlin.srcDir(sourceDirectory)
       dependencies {
-        implementation(project(":catalog"))
-        implementation(project(":pets"))
+        implementation(
+            "dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}"
+        )
+        implementation("dev.martianzoo.pets:pets:${providers.gradleProperty("petsVersion").get()}")
         implementation(project(":state"))
-        implementation(project(":tfm-canon"))
-        implementation(project(":tfm-fake"))
+        implementation(
+            "dev.martianzoo.pets:tfm-canon:${providers.gradleProperty("petsVersion").get()}"
+        )
+        implementation(
+            "dev.martianzoo.pets:tfm-fake:${providers.gradleProperty("petsVersion").get()}"
+        )
         implementation(project(":tfm-state"))
         val compose = libs.versions.compose.multiplatform.get()
         implementation("org.jetbrains.compose.runtime:runtime:$compose")

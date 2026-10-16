@@ -48,16 +48,23 @@ internal class KotlinFileComplexityAnalyzerTest {
                   .trimIndent(),
           ),
       )
-      assertNull(
-          analyzer.analyze(
+      for (testPath in
+          listOf(
               "test/ExampleTest.kt",
-              """
-              import kotlin.test.Test
-              class ExampleTest { @Test fun example() = Unit }
-              """
-                  .trimIndent(),
-          )
-      )
+              "pets/test/common/ExampleTest.kt",
+              "pets/test/jvm/ExampleTest.kt",
+          )) {
+        assertNull(
+            analyzer.analyze(
+                testPath,
+                """
+                import kotlin.test.Test
+                class ExampleTest { @Test fun example() = Unit }
+                """
+                    .trimIndent(),
+            )
+        )
+      }
     }
   }
 

@@ -12,13 +12,11 @@ if (process.env.WEBPACK_SERVE) {
     {
       route: "almanac",
       title: "Pets Almanac",
-      entry: path.resolve(__dirname, "../solarnet-almanac/kotlin/solarnet-almanac.js"),
-      bundle: "almanac.js",
-      resources: path.resolve(__dirname, "../solarnet-almanac/kotlin"),
+      resources: path.resolve(__dirname, "kotlin/almanac"),
     },
   ];
 
-  config.entry = Object.fromEntries(apps.map((app) => [app.route, app.entry]));
+  config.entry = Object.fromEntries(apps.filter((app) => app.entry).map((app) => [app.route, app.entry]));
   config.output.filename = ({ chunk }) => {
     const app = apps.find(({ route }) => route === chunk.name);
     return app ? `${app.route}/${app.bundle}` : "[name].js";

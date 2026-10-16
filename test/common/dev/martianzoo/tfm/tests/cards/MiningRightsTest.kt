@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
@@ -20,7 +21,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
 
   @Test
   internal fun `BUG - Cannot use a wild placement bonus`() {
-    shouldThrow<RequirementException> { playOnWildBonus() }
+    shouldThrow<DependencyException> { playOnWildBonus() }
     kim.assertCounts(42 to "MC", 10 to "ProjectCard", 0 to "MiningRights_SpecialTile")
   }
 
@@ -70,7 +71,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot select an area without a metal placement bonus`() {
     newTestGame()
-    shouldThrow<RequirementException> {
+    shouldThrow<DependencyException> {
       kim.inTurn {
         doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
         doTask("MiningRights FROM ProjectCard")
@@ -79,6 +80,27 @@ internal class MiningRightsTest : TfmSandboxTest() {
         selectOnlyTask()
       }
     }
+    kim.assertCounts(42 to "MC", 0 to "MiningRights_SpecialTile")
+  }
+
+  @Test
+  internal fun `A steel area cannot grant titanium production from another player's mining tile`() {
+    newTestGame()
+    stan.exMachina("MiningRights_SpecialTile<Tharsis_8_9>")
+
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTasks(
+            "PlayProject<Class<MiningRights>>",
+            "9 Pay<> FROM MC",
+            "MiningRights FROM ProjectCard",
+            "MiningRights_SpecialTile<Tharsis_1_1>",
+            "2 Steel",
+        )
+        doTask("PROD[Titanium]")
+      }
+    }
+    kim.assertCounts(42 to "MC", 0 to "MiningRights_SpecialTile", 1 to "PROD[Titanium]")
   }
 
   @Test

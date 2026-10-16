@@ -110,7 +110,7 @@ internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
         "exit" -> return end()
         "rebuild" -> {
           end()
-          exitProcess(5) // see /rego
+          exitProcess(5) // see /scripts/rego
         }
         else -> handler(entireLine).forEach(::println)
       }

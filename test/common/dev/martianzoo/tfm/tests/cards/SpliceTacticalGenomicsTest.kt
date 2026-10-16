@@ -17,7 +17,6 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
-      doTask("SpliceTacticalGenomics_RequiredAction!")
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
       doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
@@ -33,7 +32,6 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
-      doTask("SpliceTacticalGenomics_RequiredAction!")
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
       doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
@@ -67,7 +65,6 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
-      doTask("SpliceTacticalGenomics_RequiredAction!")
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
       doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
@@ -101,7 +98,6 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
-      doTask("SpliceTacticalGenomics_RequiredAction!")
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
       doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
@@ -136,7 +132,6 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
-      doTask("SpliceTacticalGenomics_RequiredAction!")
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
       doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")

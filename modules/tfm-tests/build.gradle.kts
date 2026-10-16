@@ -33,13 +33,19 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":agent"))
-        implementation(project(":catalog"))
+        implementation(
+            "dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}"
+        )
         implementation(project(":engine"))
-        implementation(project(":pets"))
+        implementation("dev.martianzoo.pets:pets:${providers.gradleProperty("petsVersion").get()}")
         implementation(project(":script"))
         implementation(project(":state"))
-        implementation(project(":tfm-canon"))
-        implementation(project(":tfm-fake"))
+        implementation(
+            "dev.martianzoo.pets:tfm-canon:${providers.gradleProperty("petsVersion").get()}"
+        )
+        implementation(
+            "dev.martianzoo.pets:tfm-fake:${providers.gradleProperty("petsVersion").get()}"
+        )
         implementation(project(":tfm-engine"))
         implementation(project(":tfm-state"))
       }

@@ -1,0 +1,25 @@
+"The published Prelude 1 rules"
+CLASS PreludeExpansion : Module {
+  HAS Class<PreludePhase>
+  X SoloGenerationsLeft: -2 SoloGenerationsLeft
+  This:: 4 SelectablePreludeCount
+
+  CorporationOption: PreludeCard / SelectablePreludeCount, \
+    -PreludeCard / (SelectablePreludeCount - 2)
+
+  RoundOver IF CorporationPhase: PreludePhase FROM CorporationPhase
+}
+
+"A unit in the configured number of Prelude cards offered to each player"
+CLASS SelectablePreludeCount : System
+
+CLASS PreludePhase : Phase {
+  This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
+  TakeTurn<@Player>: NewTurn<@Player>, FINALLY { TurnOver<@Player> }
+
+  NewTurn IF PreludeCard<Hand>: PlayPrelude
+  // Each player plays all of their preludes on consecutive turns.
+  TurnOver<@Player> IF PreludeCard<@Player, Hand>: TakeTurn<@Player>
+  TurnOver<@Player> IF MAX 0 PreludeCard<@Player, Hand>: NextPlayer<@Player>
+  RoundOver: ActionPhase FROM This
+}

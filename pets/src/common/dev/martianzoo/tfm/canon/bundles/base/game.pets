@@ -1,0 +1,259 @@
+"The base Terraforming Mars rules"
+CLASS TerraformingMars : Module {
+  autoSelectWhen = HAS "MAX 0 TerraformingMars"
+
+  This:: 2 SelectableCorporationCount
+  New@Player IF MultiplayerMode:: AfterMe<Player, New@>*
+  premiseRequirement = HAS "(Unsafe OR MAX 0 Class<EcologyExperts> OR (MAX 0 Class<ViralEnhancers>, MAX 0 Class<EcologicalZone>, MAX 0 Class<Decomposers>, MAX 0 Class<GmoContract>)), (Unsafe OR MAX 0 Class<AmazonisMap> OR (MAX 0 Class<MiningGuild>, MAX 0 Class<MiningRights>, MAX 0 Class<MiningArea>)), (Unsafe OR MAX 0 Class<PreservationProgram> OR (MAX 0 Class<TerraformingDeal>, MAX 0 Class<TurmoilExpansion>)), (Unsafe OR MAX 0 Class<Merger> OR MAX 0 Class<SagittaFrontierServices>), (Unsafe OR MAX 0 Class<FocusedOrganization> OR MAX 0 Class<StormcraftIncorporated>)"
+
+  HAS =1 GameMode, =1 MarsMap
+  HAS Class<Production>, Class<NormalCityTile>
+  HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>
+  HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>
+  HAS Class<End>, Class<VictoryPhase>
+  HAS Class<UseAction>, Class<NewTurn>
+
+  This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
+  HAS Class<PlayProject>, Class<UseStandardProject>, Class<UseCardAction>, Class<ConvertPlants>, Class<ConvertHeat>
+
+  This: Hand, Selecting, Revealed
+  This: NoTagsFilter, RequirementFilter
+  This: EACH Class<@Tag> { TagFilter<Class<@Tag>> }
+  This: EACH @Class<GlobalParameter> { GpIncomplete<@Class> }
+  This: EACH Class<@RemoteArea> { @RemoteArea }
+  This: EACH Class<@ActionSlot> { @ActionSlot }
+
+  ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
+
+  PayingFor<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
+  PayingFor<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
+}
+
+"Allows known incompatible content to coexist"
+CLASS Unsafe : Module
+
+"Begins the first action phase right after the corporation phase, in a game without Prelude"
+CLASS NoPreludes : Module {
+  autoSelectWhen = HAS "TerraformingMars, MAX 0 PreludeExpansion"
+  premiseRequirement = HAS "MAX 0 PreludeExpansion"
+
+  RoundOver IF CorporationPhase: ActionPhase FROM CorporationPhase
+}
+
+"Variant rule: each player begins with 1 of each production"
+CLASS QuickStartVariant : Module {
+  autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
+
+  SetupPhase: EACH Me@Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }
+}
+
+"A singleton immutable provider of rule content based on game options"
+ABSTRACT CLASS Module : System {
+  autoSelectWhen = Requirement?
+  premiseRequirement = Requirement?
+
+  HAS =1 This
+}
+
+"Signals that the complete selected Module layer is live"
+// TODO.md: replace with BootstrapPhase entry after premise construction
+CLASS ModulesReady : Signal, System {
+  This IF MultiplayerMode:: AfterMe<Player, Player>
+}
+
+"Exactly one player-count Module active in a playable game"
+ABSTRACT CLASS GameMode : Module {
+  HAS =1 GameMode
+
+  "Multiplayer rules, including the end condition that deliberately excludes Venus"
+  CLASS MultiplayerMode {
+    HAS 2 Player
+    autoSelectWhen = HAS "2 Player"
+
+    HAS Class<ClaimMilestone>, Class<FundAward>
+    This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
+
+    VictoryPhase: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
+    CheckGameEnd: FinalGreeneryPhase FROM ProductionPhase
+  }
+}
+
+"One of the actual people or bots playing Terraforming Mars"
+ABSTRACT CLASS Player : Owner, Actor {
+  HAS =1 This
+  HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
+  HAS MAX 0 AfterMe<This, This>
+  HAS MAX 1 CorporationOption<This>
+  HAS MAX 1 RoundStatus<This>
+
+  This:: StartToken<This>*
+
+  // Queued `This` work gives every Player its production floor and payment values only after the
+  // complete seat layer exists.
+  This: 5 ProdOffset<This, Class<MC>> BY Admin
+  This: 2 BaseResourceValue<This, Class<Steel>>, 3 BaseResourceValue<This, Class<Titanium>>
+
+  SetupPhase IF MAX 0 BeginnerVariant: StandardOption<This>
+  SetupPhase IF BeginnerVariant: BeginnerOption<This> OR StandardOption<This>
+  ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4? ProjectCard<This, Selecting> THEN BuySelectedCards<This>
+  NewTurn<This>: LATER Admin { EACH @CardBack<This, Selecting> { -@CardBack } }
+  -Billing<This, Class<BuySelectedCards>, Action1>: \
+    ProjectCard<This, Hand> FROM ProjectCard<This, Selecting> / ProjectCard<This, Selecting>
+}
+
+"A player's persistent choice of starting procedure"
+ABSTRACT CLASS CorporationOption : Owned<Player>, System {
+  This IF MultiplayerMode: 20 TerraformRating
+  This IF SoloMode: 14 TerraformRating
+}
+
+"A unit in the configured number of corporation cards offered to each player"
+CLASS SelectableCorporationCount : System
+
+"Records that this player chose the standard starting-card procedure"
+CLASS StandardOption : CorporationOption {
+  This: CorporationCard / SelectableCorporationCount, \
+    -CorporationCard / (SelectableCorporationCount - 1), \
+    10 ProjectCard<Selecting>, -10? ProjectCard<Selecting>
+}
+
+"One step on the terraform rating track; you generally start with 20 of them"
+CLASS TerraformRating : Owned<Player>, Real {
+  ProductionPhase: 1 MC
+  End: VictoryPoint
+}
+
+"Marks the player who takes the first turn"
+CLASS StartToken : Owned<Player>, Real { HAS =1 StartToken }
+
+"Identifies the Player immediately after another Player in seat order"
+CLASS AfterMe<Previous@Owner, Next@Player> : System {
+  HAS MAX 1 This
+  ResearchPhase IF MultiplayerMode, StartToken<Previous@>: StartToken<Next@ FROM Previous@>*
+
+  // Continue cyclically during the action phase; otherwise stop at the start player.
+  NextPlayer<Previous@> IF ActionPhase OR MAX 0 StartToken<Next@>: TakeTurn<Next@>
+  NextPlayer<Previous@> IF MAX 0 ActionPhase, StartToken<Next@>: RoundOver
+}
+
+"The current game phase; exactly one exists from bootstrap through the terminal VictoryPhase"
+ABSTRACT CLASS Phase : System, Real {
+  HAS =1 Phase
+
+  CLASS BootstrapPhase
+  CLASS SetupPhase {
+    This:: Generation
+    This: FINALLY { CorporationPhase FROM This }
+  }
+  CLASS CorporationPhase {
+    This: Photosynthesis
+    This: EACH Class<@CardWatcher> { @CardWatcher }
+    This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
+    TakeTurn<@Player>: NewTurn<@Player>, FINALLY { TurnOver<@Player> }
+
+    NewTurn IF CorporationCard<Hand>: \
+      PlayCard<Class<CorporationCard>, Class<CardFront>, Hand>
+    NewTurn IF BeginnerCard<Hand>: \
+      PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand>
+    TurnOver<@Player>: NextPlayer<@Player>
+    CardFront<Class<CorporationCard>>: BuySelectedCards
+    CardFront<Class<BeginnerCard>>: BuySelectedCards
+  }
+  CLASS ResearchPhase {
+    This:: Generation
+    This: LATER Admin { EACH @ProjectCard<Anyone, Selecting> { -@ProjectCard } }
+    This: FINALLY { ActionPhase FROM This }
+  }
+  CLASS ActionPhase {
+    // A player who has already passed this generation stays out.
+    This:: EACH Me@Player { ImAwake* }
+    This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
+
+    // Production starts once everyone has passed.
+    TurnOver IF MAX 0 ImAwake: ProductionPhase FROM This
+  }
+  CLASS ProductionPhase {
+    // The game goes on while anything prevents it from ending.
+    This IF GameEndBarrier: FINALLY { SolarPhase FROM This }
+    This IF MAX 0 GameEndBarrier: FINALLY { CheckGameEnd }
+  }
+  "Expansions add their solar-phase work as triggers on this phase"
+  CLASS SolarPhase {
+    This: FINALLY { ResearchPhase FROM This }
+  }
+  CLASS FinalGreeneryPhase {
+    This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
+    TakeTurn<@Player>: NewTurn<@Player>, FINALLY { TurnOver<@Player> }
+
+    NewTurn: ConvertPlants OR Done<This>
+    // Each greenery is its own turn, until the player is done.
+    TurnOver<@Player> IF MAX 0 Done<@Player>: TakeTurn<@Player>
+    TurnOver<@Player> IF Done<@Player>: NextPlayer<@Player>
+    RoundOver: End FROM This
+  }
+
+  "Final scoring"
+  CLASS End {
+    This: FINALLY { VictoryPhase FROM This }
+  }
+
+  "The terminal game phase, which names the winner after final scoring has finished"
+  CLASS VictoryPhase
+}
+
+"Offers a player a turn; ImAwake or the current phase supplies its choices"
+CLASS NewTurn : Owned<Player>, Signal, System
+
+"Invites a player to take a turn; the phase answers, or the player's RoundStatus in the action phase"
+CLASS TakeTurn<Taker@Player> : Signal, System
+
+"Completes a player's turn in seat order after its work has finished"
+CLASS TurnOver<Player> : Signal, System
+
+"Passes play to the next player in seat order"
+CLASS NextPlayer<Player> : Signal, System
+
+"Play has gone once around the table, starting from the start player"
+CLASS RoundOver : Signal, System
+
+"A player has finished with the current phase, as when declining another final greenery"
+CLASS Done<Phase> : Owned<Player> { HAS MAX 1 This }
+
+"Whether a player is still taking action-phase turns or has passed"
+ABSTRACT CLASS RoundStatus : Owned<Player>
+
+"Lets a player take action-phase turns until they pass"
+CLASS ImAwake<ActionPhase> : RoundStatus, System {
+  TakeTurn<Me@>: NewTurn, FINALLY { TurnOver<Me@> }
+
+  NewTurn IF MAX 0 RequiredAction: StandardAction OR Pass
+  NewTurn IF RequiredAction: RequiredActionsSignal OR Pass
+  TurnOver<Me@> IF 2 ImAwake<Player>, MAX 0 RequiredAction: StandardAction?
+  TurnOver<Me@> IF 2 ImAwake<Player>, RequiredAction: RequiredActionsSignal?
+  TurnOver<Me@> IF 2 ImAwake<Player>: FINALLY { NextPlayer<Me@> }
+  TurnOver<Me@> IF =1 ImAwake<Player>: TakeTurn<Me@>
+}
+
+"Instead of taking an action you can gain this, and be out for the rest of the generation"
+CLASS Pass<GenerationScope> : RoundStatus, Real {
+  This:: -ImAwake*
+
+  TakeTurn<Me@> OR TurnOver<Me@> IF ImAwake<Player>: NextPlayer<Me@>
+}
+
+"Tells what generation we're in"
+CLASS Generation : System, Real {
+  This IF MAX 0 GenerationScope:: GenerationScope
+}
+
+"The lifetime anchor for components that exist only during the current generation"
+CLASS GenerationScope : Scope, System {
+  HAS MAX 1 This
+  Generation:: -This THEN This
+}
+
+"Anything that prevents the game from ending"
+ABSTRACT CLASS GameEndBarrier
+
+"Signals the post-production check after the final GameEndBarrier is removed"
+CLASS CheckGameEnd : Signal, System

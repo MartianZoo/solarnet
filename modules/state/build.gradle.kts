@@ -17,8 +17,10 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.serialization.json)
-        implementation(project(":catalog"))
-        implementation(project(":pets"))
+        implementation(
+            "dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}"
+        )
+        implementation("dev.martianzoo.pets:pets:${providers.gradleProperty("petsVersion").get()}")
       }
     }
     commonTest {

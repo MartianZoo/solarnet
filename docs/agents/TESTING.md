@@ -46,7 +46,8 @@ Start with the smallest test or build task that verifies the changed behavior. E
 only when the change crosses a wider scope or the narrower result leaves a material risk.
 
 - `./gradlew build` checks the repository, including the English JVM tests, plus all production
-  JavaScript compilation and packaging. Run `./gradlew :tfm-text:test` for the English suite alone.
+  JavaScript compilation and packaging. Run `./gradlew -p pets :text:test` for the English suite alone.
+  See [Pets testing](../../pets/docs/agents/TESTING.md) for its focused commands and generators.
   Use the full build only when repository-wide verification is warranted by the scope of the change
   or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
@@ -62,8 +63,6 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   shared test-source declarations; the JVM-only JUnit `@Tag` cannot label shared JVM/JS tests.
   To measure a fresh run without recompiling everything, use
   `./gradlew :tfm-tests:cleanSandboxTest :tfm-tests:sandboxTest --profile`.
-- `./gradlew :pets:test` runs Pets JVM tests and its browser-specific test. The routine browser
-  run excludes the shared JVM/JS suites; use the temporary full-browser target below to run those.
 - Temporarily uncomment `allBrowserTests` in the root build and run
   `./gradlew allBrowserTests --rerun-tasks` to exercise every shared and browser-specific suite,
   including all portable replay scenarios. The browser replay source set also reads the legacy
@@ -76,24 +75,13 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   Files go under that module's `generated/replay-event-logs` build directory. Ordinary runs
   leave existing exports untouched. Direct JUnit runs need `-Dsolarnet.replayExports=true` and
   `-Djunit.jupiter.extensions.autodetection.enabled=true`.
+  See [When to regenerate replay exports](EXPORT.md#when-to-regenerate-replay-exports) before
+  reusing or distributing generated recordings after rules, runtime, or replay changes.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
   build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
   random-card, and browser tests do not contribute to the report. This coverage run excludes input
   recording, export, and reconstruction, and ignores `-PreplayExports`.
-- `./gradlew :pets:jvmTestCoverage` runs only the Pets module's JVM test suite and writes HTML and
-  XML coverage reports for Pets production code under that module's
-  `reports/jacoco/jvmTestCoverage` build directory.
-- `./gradlew :pets-tools:sampleRandomCards` prints randomly generated project cards as raw Pets.
-  Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
-  `-PrandomCardOutput=PATH` to write it to a text file. The task has no dependency on the language
-  module. Its weights favor nested selectors, refinements, sequences, gates, and per-unit metrics so
-  the raw Pets can exercise downstream consumers structurally.
-- `./gradlew :tfm-text:writeRandomCardEnglishText -PrandomCardInput=PATH
-  -PrandomCardEnglishOutput=PATH` renders top and bottom English for one saved random-card report.
-  Add `-PrandomCardEnglishComparisonOutput=PATH` for a compact report pairing one bracket-free card
-  region with only its contributing Pets. This separate consumer keeps the random-card generator
-  independent of the language module.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
   sources. A benchmark error fails the task instead of producing an empty successful report.
@@ -101,8 +89,8 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   also reports formatting violations.
 - `./gradlew :tools:kotlinFileComplexity` writes a TSV of Detekt cyclomatic complexity for each
   production Kotlin file and each test-support file without test-case methods to
-  `reports/kotlin-file-complexity.tsv` under the root build directory. The report is manual rather
-  than part of `check`, and Gradle reanalyzes only added or changed files after its first run. The
+  `reports/kotlin-file-complexity.tsv` under the root build directory. The report covers source physically present in this checkout, including `pets/src/` and `pets/test/`.
+  It is manual rather than part of `check`, and Gradle reanalyzes only added or changed files after its first run. The
   current scope excludes benchmarks, standalone tools, and `dev.martianzoo.tfm.text`.
 - `./gradlew :tools:dumpAllExpansionsEventLogs` creates three-player and solo games with every
   supported expansion plus the `fakes:cards` pool, completes Player 1's corporation-phase turn with
@@ -148,7 +136,7 @@ models per worker. Do not use worker recycling or a larger build-daemon heap to 
 retention.
 
 Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
-For local builds, generated project state is isolated by account and worktree under
+For local Solarnet builds, generated project state is isolated by account and worktree under
 `~/.gradle/solarnet-builds/`. Each invocation acquires an OS-locked storage slot there: sequential
 builds reuse slot zero and its caches, while overlapping invocations use distinct slots and cannot
 delete each other's test results or other task outputs. A slot includes Gradle's project cache,
@@ -161,7 +149,8 @@ the checked-in script in every current and future Solarnet worktree. Gradle open
 any init script runs, so also install `gradle/user-isolation.post-checkout` as the shared Git
 repository's `hooks/post-checkout`; it creates an ignored `.gradle` symlink into the same
 per-worktree home storage for every tracked Gradle build whenever Git creates or checks out a
-worktree.
+worktree. Standalone Pets uses ordinary project-local outputs and does not carry these isolation
+scripts.
 Yarn's incompatible `serialize-javascript` resolution warning and “Ignored scripts due to flag”
 warning are expected: the former comes from the deliberate 7.x security pin while Mocha requests
 6.x, and the latter preserves Kotlin/JS's policy of not running package lifecycle scripts.
@@ -174,12 +163,15 @@ Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repo
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
 shared `kotlin.test`, declares the same JUnit BOM, Kotlin/JUnit 5 adapter, and platform launcher
 for `jvmTest` as the JVM convention, and exposes each module's `jvmTest` as `test`.
+Pets uses `pets.kotlin-base`, `pets.jvm`, and `pets.kmp-jvm-js` for the same compiler and test
+policy, without the previously inert Detekt setup (see [BUILDS.md](BUILDS.md)).
 The Pets module also attaches its filtered browser test to `test`; its complete shared browser
 suite remains available through the temporary full-browser target.
-Module build scripts under `modules/` keep only module-specific configuration and select their
-non-overlapping package roots from the repository-wide `src/` and `test/` trees; JavaScript-only
-applications configure their targets. Repository-wide formatting, the Node.js version, and
-Yarn policy remain in the root build.
+Runtime module build scripts under `modules/` select non-overlapping package roots from the
+root `src/` and `test/` trees. Static modules select package roots from shared `pets/src/` and
+`pets/test/` trees in the independent Pets build. Each build owns its formatting, Node.js version, Yarn policy,
+and convention plugins; combined lifecycle commands explicitly include Pets verification.
+See [BUILDS.md](BUILDS.md) for source selection, publication, and isolated verification.
 Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
 better-parse fork commit `8e01263` (full SHA `8e01263e2887a46341cbdd81232310a865d56997`).
@@ -187,7 +179,7 @@ Pets and the common library modules `agent`, `catalog`, `engine`, `script`, `sta
 `tfm-card-data`, `tfm-engine`, `tfm-fake`, `tfm-state`, and `tfm-text` declare WASM/JS targets.
 `tfm-tests` also declares a WASM/JS target for shared replay tests.
 
-`./rego` asks `:repl:shadowJarPath` to build the fat jar and report its relocated path before each
+`./scripts/rego` asks `:repl:shadowJarPath` to build the fat jar and report its relocated path before each
 launch, including after the `rebuild` command. A Gradle failure stops the launcher. CI also executes
 the packaged jar from an empty temporary directory, creates a Canon game, checks its player count,
 and exits before uploading the artifact.
@@ -238,10 +230,8 @@ Do not replace manual phase calls with helpers that recreate the game flow in Ko
 These are the repository's protected test categories. Test placement may evolve, but preserving
 clear coverage of these contracts matters more than preserving every current test class:
 
-1. **Pure Pets language tests.** Parser, preprocessing, transformation, and rendering behavior,
-   exercised without Terraforming Mars content.
-2. **Pure Pets type-system tests.** Class loading, type relationships, metrics, requirements, and
-   related semantics, using small declarations owned by the test rather than Canon.
+1. **Pure Pets language tests.** Owned by [Pets testing](../../pets/docs/agents/TESTING.md#test-design).
+2. **Pure Pets type-system tests.** Owned by the same static-model testing guide.
 3. **Game World and engine-coordination tests.** Pure `:state` scenarios verify that exact
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine

@@ -1,0 +1,145 @@
+# Terraforming Mars component classes
+
+Here's an overview of the component classes that (currently) make up the core of the game. Refer to
+the Terraforming Mars [`.pets` sources](https://github.com/MartianZoo/solarnet/tree/main/src/common/dev/martianzoo/tfm/canon/bundles/base)
+as you read.
+
+## Communal / non-player-owned
+
+First, `Component` is the root of the Class hierarchy; *every* instance of anything in a Game World is always a `Component`.
+
+### Global parameters
+
+The abstract class `GlobalParameter` has three concrete subclasses in the base game: `TemperatureStep`, `OxygenStep`, and `OceanTile` (which is *also* a subclass of `Tile`). Venus Next adds `VenusStep`. These count "steps", so for example when there are six occurrences of `TemperatureStep` in the game that means the temperature is -18 C.
+
+The `StandardGpTrackRules` component contains the limits, terminal steps, and track bonuses. For
+example, it says `OxygenStep IF =8 OxygenStep: TemperatureStep`. When
+`ExtendedGlobalParametersRule` is active, it replaces the standard component and owns the longer
+limits and bonuses without changing the global-parameter classes.
+
+Completion removes the matching `GpIncomplete` marker, and the resulting `GpComplete` component
+rejects any attempted removal after completion.
+
+The definition of the `GlobalParameter` Class includes the line `DEFAULT +GlobalParameter*`. Any gain/remove Instruction in PETS can carry a Quantifier: either `!` meaning "mandatory", `?` meaning "optional", or `*` meaning "to the extent possible". The `Component` Class sets a default gain Quantifier of `!`, because most things in the game are mandatory. This line in `GlobalParameter` says that all gains of `GlobalParameter` instances default to "if possible". At the selected track's limit, the Instruction remains executable and simply does nothing. As you might guess if you know the TfM rules well, `CardResource` also has the same default.
+
+### Maps
+
+One `MarsMap` instance will exist, such as `HellasMap`. Creating it creates every active Area by fanning out over the structural Class representatives, and every area is its own component instance.
+
+The created areas have names like `Hellas_1_1`, `Hellas_1_2`, etc. The coordinate system is easy to understand if you try the `map` command in the command-line REPL tool (`./scripts/rego`).
+
+Each area has a supertype that is one of `RemoteArea`, `WaterArea`, `LandArea`, `VolcanicArea`, or `NoctisArea`. `VolcanicArea` itself has `LandArea` as a supertype, so volcanic areas count as land areas. `NoctisArea` is *not* a `LandArea` because it doesn't function like one.
+
+All areas except for `RemoteArea`s have the supertype `MarsArea`, so that cards like `Martian Rails` can work, and so that tiles except `CityTile`s can be restricted to those areas.
+
+Areas don't get created for maps you aren't using in that game. So for example if the board is Hellas then the requirement `MAX 0 VolcanicArea` evalutes to true. That's handy for Lava Tube Settlement: `CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)`.
+
+### Tiles
+
+`Tile` is declared as `ABSTRACT CLASS Tile<Area>` which gives it a dependency onto `Area`. This means no tile can ever exist without having a specific `Area` that it relates to. Of course, tiles that aren't on the board yet are treated as simply not existing.
+
+Area, by the way, was declared with `HAS MAX 1 Occupant<This>`. That's our first example of an
+*invariant*: a completed operation may leave at most one occupant (a tile or a claim) on each Area.
+The engine checks the initiating change together with all its recursive automatic consequences;
+effects can still observe intermediate counts. See
+[invariants and operation completion](type-system.md#invariants-and-operation-completion).
+
+As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the player-specific section below.
+
+### Actions
+
+Any component that makes actions available for possible selection extends the supertype `HasActions`; these include the abstract classes `StandardProject` and `ActionCard`.
+
+The Module that contributes a standard project creates it directly. The player selects
+`UseStandardProject<AquiferProject>`, a `StandardAction` signal carrying the chosen project.
+It forwards to `UseAction<AquiferProject, Action1>`, which bills the player 18 money and puts an
+`OceanTile` instruction on the player's task queue.
+
+### Phases
+
+After Admin creates `BootstrapPhase`, the Phase invariant requires exactly one instance at each
+operation's completion. It becomes `SetupPhase` when effectful setup starts and continues through
+`CorporationPhase`, `ResearchPhase`, `ProductionPhase`, and the other ordinary phases. A signal
+called `End` triggers victory point payouts (it has such a short name because it has to be written
+on MANY cards!).
+
+## Player stuff
+
+Concrete classes called Player1, Player2, etc. will exist. The player owning the unique `StartToken` is the start player.
+
+The abstract class these all subclass is `Player`, which is both an `Owner` and an `Actor`. Both roles extend `Anyone`. A solo opponent can be an `Owner` without being a `Player`.
+
+### Owned
+
+The `Owned` abstract type is extremely important. It has a dependency onto `Owner` (which `Player1` etc. all extend), meaning that every concrete instance of any `Owned` subclass must always know which owner it belongs to. Many, many component types have `Owned` as a direct or indirect supertype.
+
+A simple example of an owned component type is `VictoryPoint`.
+
+`TerraformRating` is a very simple class to understand; it looks like this:
+
+```
+CLASS TerraformRating {
+    ProductionPhase: 1 MC
+    End: VictoryPoint
+}
+```
+
+When the `ProductionPhase` signal goes out, each occurence of `TerraformRating` generates 1 MC for its owner. Likewise when the `End` signal gets posted, each occurrence of `TR` generates a victory point. And that's all there is to terraform rating.
+
+The `Owned-Owner` dependency is a regular component dependency just like any other in the game.
+
+### OwnedTile
+
+An abstract class `OwnedTile` extends both `Tile` and `Owned`. Every owned tile kind extends it,
+giving rules such as Landlord one nominal class to count. A Canon-wide hierarchy test checks that
+every class extending both `Tile` and `Owned` also extends `OwnedTile`. Pets cannot spell that
+intersection structurally, which is why the nominal class exists.
+
+The three kinds of tiles are `GreeneryTile`, `CityTile`, and `SpecialTile` (the last is abstract as each specific kind of tile extends it).
+
+The most interesting thing about these component types is that they use *defaults*.
+
+```
+CLASS CityTile {
+    DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+    ...
+}
+```
+
+Any card, class declaration, etc. that writes the simple type expression `CityTile` without specifying a kind of `Area` will get this default type instead. But simply write, say, `CityTile<VolcanicArea>` or ` CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` (as `UrbanizedArea` does), and the default is ignored.
+
+### Resources
+
+Resources are divided into `StandardResource` and `CardResource`. The latter has a dependency on a `CardFront`; the resource can't exist unless the card it goes on does first.
+
+The standard resources are mostly boring except Energy has this:
+
+```
+CLASS Energy { ProductionPhase:: Heat FROM This }
+```
+
+We discussed the `Phase` types above. As much as possible, these types do nothing by themselves; they exist only to trigger instructions like this one. Every single Energy instance in the game will respond to that trigger by transmuting itself into Heat. The double colon ensures that it happens first before regular production.
+
+### Cards
+
+It took a while to realize that `CardBack` and `CardFront` should actually be completely different, unrelated types -- just like `CityTile` and `GreeneryTile` are, despite the fact that they also are two sides of the same physical component. `CardBack` is very uninteresting; the base game has `ProjectCard` and `CorporationCard`, the beginner variant adds its distinct `BeginnerCard`, and Prelude adds `PreludeCard`. That's about it. (Remember these things have no attributes either.)
+
+The most important thing to understand about cards is that the engine supports only "follow mode". A client supplies the concrete history to process, including draws, reveals, discards, and plays, and the engine calculates the resulting state. It neither owns hidden information nor tries to authenticate that history against a separate physical or online game. Thus, if the client says that `EarthCatapult` was played, the engine applies that play and subtracts one generic `ProjectCard` from the hand. Ordinary card-location procedures execute as authored. Source-level `CARDS` transforms remain only where printed-face knowledge must be neutralized to a follow-mode outcome supplied by the client.
+
+Even with this simplification, the whole play-a-card process is a bit complex to go into here and now.
+
+Cards can have several types of things "on" them. `Tag`s depend on a `TagHolder`: normally a `CardFront`, or a `WildTag` holding a temporary assignment for the current action. The wild tag itself depends on its printed card. `CardResource`s and `ActionUsedMarker`s share the more specific `Cardbound` superclass. For every card-attached component, the `CardFront` must exist before it can, and if the `CardFront` ever went away the attached component would have to as well. This is, of course, just how dependencies work in PETS.
+
+`Cardbound` is an interesting case in that it is both `Owned`, and depends on a type (`CardFront`) which is also `Owned`. Its declaration repeats the marked `Owner` bound in both places, making the two owners always the same. Thus `Animal<Player2, Predators>` and `Animal<Predators<Player2>>` mean the same concrete type, while specifying different owners is invalid.
+
+### Payments
+
+The top-level `Owed`, `Billing`, and `Accepting` classes model ordinary resource payments;
+`AcceptingFromCard` enables payment from a particular card. Explicit `Pay` and `PayFromCard`
+exchanges consume resources and credit debt; ordinary resource losses do not pay a bill.
+See the [payment model](agents/PAYMENTS.md) and the action and effect strings in each bundle's
+`cards.json5` file.
+
+## TODO
+
+* Once the aspirational premise model exists, explain how premise choices become immutable Module components.
