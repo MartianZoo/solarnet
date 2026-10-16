@@ -30,7 +30,7 @@ internal class ResearchWildTagTest : TfmTest() {
     game = setUpGame(canonicalPremise(PreludeExpansion))
     kim.runOperation("PreludeCard")
     admin.phase("Prelude")
-    kim.startTurn()
+    kim.beginOperation("OfferAction")
 
     kim.playPrelude(ResearchNetwork).expect("PROD[1 MC], 3 ProjectCard, WildTag")
 
@@ -45,14 +45,20 @@ internal class ResearchWildTagTest : TfmTest() {
     admin.phase("Action")
     kim.playProject(ResearchCoordination, 4)
     with(kim) {
-      runOperation("EventTag<WildTag<$ResearchCoordination>>, NewTurn") {
-            kim.count("EventTag") shouldBe 1
-            playProject(MediaArchives, 8)
-          }
+      playProject(
+              MediaArchives,
+              payment = {
+                val assignment = "EventTag<WildTagElection<WildTag<$ResearchCoordination>>>"
+                kim.addTasks(assignment)
+                doTask(assignment)
+                kim.count("EventTag") shouldBe 1
+                pay(8)
+              },
+          )
           .expect("-8 MC")
     }
     kim.count("PlayedEvent") shouldBe 0
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 
   @Test
@@ -75,12 +81,12 @@ internal class ResearchWildTagTest : TfmTest() {
 
     kim.playPrelude(ResearchNetwork)
     with(kim) {
-      runOperation("NewTurn") {
+      runOperation("OfferAction") {
             playPrelude(ExcentricSponsor) { playProject(FloatingHabs, 0) }
           }
           .expect("$FloatingHabs, 0 MC")
     }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 
   @Test
@@ -115,15 +121,21 @@ internal class ResearchWildTagTest : TfmTest() {
 
     // Six supporting card faces cover the nine ordinary types; Trade supplies Space itself.
     with(kim) {
-      runOperation("EventTag<WildTag<$ResearchNetwork>>, NewTurn") {
-            playProject(InterplanetaryTrade, 27) {
-              // The wild already means Event for this action; decline another assignment.
-              doTask("0 EventTag<WildTag<ResearchNetwork>>")
-            }
+      playProject(
+              InterplanetaryTrade,
+              payment = {
+                val assignment = "EventTag<WildTagElection<WildTag<$ResearchNetwork>>>"
+                kim.addTasks(assignment)
+                doTask(assignment)
+                pay(27)
+              },
+          ) {
+            // The wild already means Event for this action; decline another assignment.
+            doTask("0 EventTag<WildTagElection<WildTag<ResearchNetwork>>>")
           }
           .expect("PROD[${if (venus) 12 else 11} MC]")
     }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 
   // https://boardgamegeek.com/thread/2030851/article/29611733#29611733
@@ -139,11 +151,11 @@ internal class ResearchWildTagTest : TfmTest() {
     kim.playProject(ResearchCoordination, 4)
     val result =
         with(kim) {
-          runOperation("NewTurn") {
+          runOperation("OfferAction") {
             playProject(Cartel, 8)
           }
         }
-    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
     return result
   }
 }

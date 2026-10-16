@@ -313,7 +313,7 @@ The [Pets card model](../../pets/docs/agents/CARD_MODEL.md#wild-tags) describes 
 wild, assignment holders, authored benefits, and player choices.
 
 Requirement allocation is separate from benefit inference. `PlayCard` and `Milestone` first emit
-`AllocateRequiredWildTags`, then run their existing requirement checks. Each unused wild asks
+`AllocateRequiredWildTags`, then run their existing requirement checks. Each unused wild election asks
 `RequiredWildTag` which concrete tag to gain. That metric selects actual assignments rather than
 inflating a tag count. It covers the current direct tag minima and conjunctions, sorting available
 holders by expression and filling the printed requirements in source order. It recalculates the
@@ -331,7 +331,8 @@ forces the beneficial task order.
 See `WildTagHolderTest`, `WildTagTest`, and `WildTagContinuationTest` for allocation, ownership,
 cleanup, and reuse scenarios. Replays use Canon cards and actual allocation choices without
 wild-tag corrections. `CONCRETE` lets replays allocate before a competing payout; `EAGER` may
-choose the payout first. Admin performs wild cleanup even when the player uses `NONE`.
+choose the payout first. Admin removes the action scope even when the player uses `NONE`;
+dependency cleanup removes its elections and assigned tags.
 
 Represented-tag binding limitations are documented under
 [Pets elaboration](../../pets/docs/agents/ELABORATION.md#represented-tag-bindings).

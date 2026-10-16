@@ -255,7 +255,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       inTurn {
         doWithAutoExecPolicy(CONCRETE) {
           useStdAction("ClaimMilestone<Class<Diversifier>>") {
-            doTask("EarthTag<WildTag<AppliedScience>>")
+            doTask("EarthTag<WildTagElection<WildTag<AppliedScience>>>")
           }
         }
       }

@@ -10,7 +10,8 @@ CLASS SoloMode : GameMode {
   Generation: -SoloGenerationsLeft
 
   // With one player, every turn completes a round.
-  NextPlayer: RoundOver
+  -Baton<@Player> IF ActionPhase, InRound<Player>: FINALLY { Baton<@Player> }
+  -Baton IF MAX 0 ActionPhase: FINALLY { RoundOver }
   // Only a won solo game has final greenery and scoring.
   Victory IF ProductionPhase: FinalGreeneryPhase FROM ProductionPhase BY Admin
 }

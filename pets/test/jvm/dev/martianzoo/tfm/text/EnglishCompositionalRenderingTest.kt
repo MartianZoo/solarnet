@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
@@ -14,6 +15,31 @@ import kotlin.test.Test
 
 internal class EnglishCompositionalRenderingTest {
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
+
+  @Test
+  fun productionRewardRecognizesExplicitAndCapturedActionScopes() {
+    val describers =
+        Describers(Canon.classTable, TerraformingMarsDescribers.descriptions)
+            .forCard(Canon.classTable.getClass(cn("SuitableInfrastructure")), null)
+    for (effect in
+        listOf(
+            "ActionScope<Me@>:: SuitableInfrastructureBonus<This, ActionScope<Me@>>",
+            "Scope@ActionScope<Me@>:: SuitableInfrastructureBonus<This, Scope@>",
+            "Current@ActionScope<Me@>:: SuitableInfrastructureBonus<This, Current@>",
+        )) {
+      val declaration =
+          parseClasses(
+                  """
+          CLASS Probe<Me@Owner> {
+            $effect
+          }
+          """
+              )
+              .single()
+      renderEffects(declaration.authoredEffects, describers).linearize() shouldBe
+          "Once per action you take, gain 2 M€ if you increase any production."
+    }
+  }
 
   @Test
   fun trackAvailabilityIsImplicitOnlyForASingleIncreaseOfThatTrack() {
@@ -190,7 +216,9 @@ internal class EnglishCompositionalRenderingTest {
   @Test
   fun cardResourceTargetsIncludeTagsHeldByAnAssignmentHolder() {
     english.describe(
-        parse<InstructionTree>("CardResource<CardFront(HAS VenusTag OR WildTag(HAS VenusTag))>")
+        parse<InstructionTree>(
+            "CardResource<CardFront(HAS VenusTag OR WildTag(HAS WildTagElection(HAS VenusTag)))>"
+        )
     ) shouldBe "Add 1 resource to a Venus card."
   }
 

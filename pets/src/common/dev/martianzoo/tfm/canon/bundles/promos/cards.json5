@@ -407,7 +407,7 @@
           "name": "InterplanetaryTrade",
           "cost": 27,
           "tags": [ "SpaceTag" ],
-          "direct": "EACH @WildTag { Tag<@WildTag>? }, PROD[1 MC / Class<@Tag>(HAS @Tag)]",
+          "direct": "EACH @WildTagElection { Tag<@WildTagElection>? }, PROD[1 MC / Class<@Tag>(HAS @Tag)]",
           "effects": [ "End: VictoryPoint" ],
         },
         {

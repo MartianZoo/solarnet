@@ -24,11 +24,11 @@ generic card backs by Player and location, never by printed identity:
 Modeled reveal effects explicitly empty their temporary locations. Retained
 starting project cards rest in `Selecting` after setup until their Corporation-phase purchase is
 paid and transferred. Project cards selected for a purchase also stay there while payment or the
-transfer task is outstanding. Each `NewTurn` schedules Admin cleanup under `LATER`: after that turn's
-ordinary work, Admin discards remaining card backs in that Player's `Selecting` before `TurnOver`.
-Research schedules the same cleanup for project backs after every
-Player's purchase work and before its phase handoff. Setup selections still wait for the corporation
-phase. These rules do not run for isolated sandbox operations that bypass turn and phase flow.
+transfer task is outstanding. Each `ActionScope` schedules Admin cleanup under `LATER`: after the
+action's ordinary work, Admin discards remaining card backs in that Player's `Selecting` before
+scope removal. Research schedules the same cleanup for project backs after every Player's purchase
+work and before its phase handoff. Setup selections still wait for the corporation phase. An
+isolated sandbox action receives scope cleanup even when it has no seat-order continuation.
 
 Fixed-size project-card purchase offers enter `Selecting` first. Searches intentionally have no
 selection pool: the matching card enters the hand, and skipped cards have no relevant
@@ -122,11 +122,12 @@ including Event, still disqualify a card from that search.
 ## Wild tags
 
 **Canon integration.** Research Coordination, Research Network, Applied Science, Nobel Prize,
-and Septem Tribus create a
-`WildTag` that is itself a `TagHolder`. Assigning `EarthTag<WildTag<ResearchCoordination>>` changes
-real state; ordinary tag metrics include it. `MAX 1 Tag<This>` keeps that meaning fixed, and the
-wild's `Tag<This>: LATER Admin { -Tag<This>* }` removes the assignment when ordinary work is finished.
-The printed wild survives. There is no additional task-scheduling mechanism.
+and Septem Tribus create an inert printed `WildTag`. While an `ActionScope` exists, `WildTagElection<WildTag, ActionScope>`
+holds that wild's assignment. Assigning `EarthTag<WildTagElection<WildTag<ResearchCoordination>>>`
+changes real state; ordinary tag metrics include it. `MAX 1 Tag<This>` keeps that meaning fixed.
+Removing the action scope removes its elections and their assigned tags through ordinary dependency
+cleanup; the printed wild survives. The active scope creates elections for existing and newly
+played wilds, so the printed icon itself carries no behavior.
 
 Canon's `Tag` now declares `DEFAULT Tag<CardFront>:`. Printed-tag listeners explicitly accept
 that default with `EarthTag<>:` or name a holder themselves. This affects gain/removal triggers,
@@ -134,7 +135,7 @@ not metrics or gains. Point Luna therefore reacts to Cartel's printed Earth tag,
 assigned to a wild. `cardTags` also reports the printed wild icon as card metadata.
 
 Generated `LikesTag<Class<FooTag>>` roles describe positive immediate per-tag benefits and tag
-gates. The rule on each unused wild assigns that preferred tag before queued benefits. Requirements
+gates. The rule on each unused election assigns that preferred tag before queued benefits. Requirements
 are excluded from this analysis. Equivalent sibling benefits choose a stable representative:
 Gyropolis uses Earth, as directed by the owner. The same analysis emits `UseAction` allocation
 for action benefits (Orbital Cleanup and Kuiper Cooperative). Venus Shuttles declares its allocation
@@ -148,7 +149,7 @@ owner's stocked cards, as directed by the owner.
 
 Authored player choices:
 
-- Interplanetary Trade offers `EACH @WildTag { Tag<@WildTag>? }` alongside its benefit.
+- Interplanetary Trade offers `EACH @WildTagElection { Tag<@WildTagElection>? }` alongside its benefit.
 - Diversifier's `CardWatcher` offers the same optional choices when claiming it, including when
   Diversifier is selected on another map. Its ordinary requirement still checks that eight distinct
   types actually exist. Planetologist uses the shared minimum allocator.

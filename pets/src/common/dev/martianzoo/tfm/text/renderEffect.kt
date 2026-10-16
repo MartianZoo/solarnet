@@ -374,13 +374,26 @@ private fun renderOncePerActionProductionReward(
     effects: List<Effect>,
     describers: Describers,
 ): Pair<EnglishText, Int>? {
-  val actionEnable = effects.getOrNull(0)?.let(describers::prepareForRendering) ?: return null
-  val phaseEnable = effects.getOrNull(1)?.let(describers::prepareForRendering) ?: return null
-
-  val rewardMarker = enabledLatchMarker(actionEnable, describers) ?: return null
-  if (!resetsAfterAction(actionEnable.trigger, describers)) return null
-  if (enabledLatchMarker(phaseEnable, describers) != rewardMarker) return null
-  if (!resetsForPreludeAction(phaseEnable.trigger)) return null
+  val enable = effects.firstOrNull()?.let(describers::prepareForRendering) ?: return null
+  val scope = (enable.trigger as? OnGainOf)?.expression ?: return null
+  if (
+      !describers.isSubtypeOf(scope.className, cn("Scope")) ||
+          describers.fact(scope.className, ComponentDescriber::actionUse)?.reference !=
+              ComponentDescriber.ActionUse.Reference.AnyAction ||
+          scope.refinement != null ||
+          scope.arguments.singleOrNull()?.let(describers.expressions::isOwner) != true
+  )
+      return null
+  val gain = enable.instruction as? Gain ?: return null
+  val rewardMarker = gain.gaining
+  if (
+      (!enable.automatic && !describers.isSubtypeOf(rewardMarker.className, SYSTEM)) ||
+          gain.quantifier.modality() != Modality.REQUIRED ||
+          gain.count.fixedQuantity() != 1 ||
+          rewardMarker.refinement != null ||
+          rewardMarker.arguments.none { it == scope || sameNamedTypeVariable(it, scope) }
+  )
+      return null
 
   val declaration = describers.declaration(rewardMarker.className)
   if (!hasUnitLatchInvariant(declaration.invariants, describers.thisExpression)) return null
@@ -422,35 +435,7 @@ private fun renderOncePerActionProductionReward(
               conditionalReward,
           )
       )
-      .asText() to 2
-}
-
-private fun enabledLatchMarker(effect: Effect, describers: Describers): Expression? {
-  val gain = effect.instruction as? Gain ?: return null
-  if (
-      (!effect.automatic && !describers.isSubtypeOf(gain.gaining.className, SYSTEM)) ||
-          gain.quantifier.modality() != Modality.BEST_EFFORT ||
-          gain.count.fixedQuantity() != 1 ||
-          gain.gaining.refinement != null
-  ) {
-    return null
-  }
-  return gain.gaining
-}
-
-private fun resetsAfterAction(trigger: Trigger, describers: Describers): Boolean {
-  if (trigger is Trigger.Or) return trigger.triggers.all { resetsAfterAction(it, describers) }
-  val action = (trigger as? OnGainOf)?.expression?.takeIf { it.simple } ?: return false
-  if (describers.triggerFrame(action.className) !is TriggerFrame.Named) return false
-  return describers.fact(action.className, ComponentDescriber::actionUse)?.reference ==
-      ComponentDescriber.ActionUse.Reference.AnyAction
-}
-
-private fun resetsForPreludeAction(trigger: Trigger): Boolean {
-  val conditioned = trigger as? Trigger.IfTrigger ?: return false
-  val turn = (conditioned.inner as? OnGainOf)?.expression ?: return false
-  if (!turn.simple || turn.className != cn("NewTurn")) return false
-  return countedPresence(conditioned.condition)?.className == cn("PreludePhase")
+      .asText() to 1
 }
 
 private fun countedPresence(requirement: Requirement): Expression? {

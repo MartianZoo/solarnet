@@ -15,6 +15,6 @@ internal class NobelPrizeTest : TfmSandboxTest() {
               "2 SearchForCard<RequirementFilter>",
           )
         }
-        .expect("2 ProjectCard, WildTag<NobelPrize>, 0 Tag<WildTag<NobelPrize>>")
+        .expect("2 ProjectCard, WildTag<NobelPrize>, 0 Tag<WildTagElection<WildTag<NobelPrize>>>")
   }
 }

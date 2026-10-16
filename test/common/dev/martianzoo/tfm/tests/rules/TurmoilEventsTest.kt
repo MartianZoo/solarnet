@@ -23,9 +23,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         ),
     ) {
       kim.doTasks("PlayProject<Class<$AdaptedLichen>>")
-      kim.doTask("0 StandardAction") // Decline the second action.
+      kim.selectTask("-Baton") // Decline the second action.
       stan.doTasks("PlayProject<Class<$Archaebacteria>>")
-      stan.doTask("0 StandardAction") // Decline the second action.
+      stan.selectTask("-Baton") // Decline the second action.
     }
     admin.count("Current<ExperimentalLifeforms>") shouldBe 1
     admin.count("Coming<ExploreFirstDirective>") shouldBe 1
@@ -544,7 +544,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         doTasks("PlayProject<Class<$Research>>")
         autoExecNow(EAGER)
       }
-      kim.doTask("0 StandardAction") // Decline the second action.
+      kim.selectTask("-Baton") // Decline the second action.
       stan.doTasks("PlayProject<Class<$TitanShuttles>>")
       stan.completeOperation {
         doTask("UseCardAction<$TitanShuttles, Action1>")
@@ -653,9 +653,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         ),
     ) {
       kim.doTasks("PlayProject<Class<$EarthOffice>>")
-      kim.doTask("0 StandardAction") // Decline the second action.
+      kim.selectTask("-Baton") // Decline the second action.
       stan.doTasks("PlayProject<Class<$Sponsors>>")
-      stan.doTask("0 StandardAction") // Decline the second action.
+      stan.selectTask("-Baton") // Decline the second action.
     }
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -683,9 +683,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         doTasks("PlayProject<Class<$Research>>")
         autoExecNow(EAGER)
       }
-      kim.doTask("0 StandardAction") // Decline the second action.
+      kim.selectTask("-Baton") // Decline the second action.
       stan.doTasks("PlayProject<Class<$TitanShuttles>>")
-      stan.doTask("0 StandardAction") // Decline the second action.
+      stan.selectTask("-Baton") // Decline the second action.
     }
     kim.doTasks("PlayProject<Class<$FloatingHabs>>")
     kim.doTasks("PlayProject<Class<$AerialMappers>>")
@@ -1136,7 +1136,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
           doTasks("PaidLobbyAction")
           doTask("PartyFollower<Scientists>")
         }
-        player.doTask("0 StandardAction") // Decline the second action.
+        player.selectTask("-Baton") // Decline the second action.
       }
       first.doTask("Pass")
       other.doTask("Pass")

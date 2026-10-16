@@ -16,25 +16,33 @@ internal class EnglishInstructionRenderingTest {
   @Test
   internal fun omitsWildTagAllocationInstructions() {
     english.describe(
-        parse<InstructionTree>("EACH Choice@WildTag { Tag<Choice@WildTag>? }")
+        parse<InstructionTree>("EACH Choice@WildTagElection { Tag<Choice@WildTagElection>? }")
     ) shouldBe ""
     english.describe(
-        parse<InstructionTree>("EACH @WildTag(HAS MAX 0 Tag) { ScienceTag<@WildTag> }")
+        parse<InstructionTree>(
+            "EACH @WildTagElection(HAS MAX 0 Tag) { ScienceTag<@WildTagElection> }"
+        )
     ) shouldBe ""
     english.describe(
-        parse<InstructionTree>("EACH @WildTag { Tag<@WildTag>? }, PROD[MC / Class<@Tag>(HAS @Tag)]")
+        parse<InstructionTree>(
+            "EACH @WildTagElection { Tag<@WildTagElection>? }, PROD[MC / Class<@Tag>(HAS @Tag)]"
+        )
     ) shouldBe "Increase your M€ production 1 step per different tag you have."
     english.describe(
         parse<Effect>(
-            "UseAction<OrbitalCleanup, Action1>:: EACH @WildTag(HAS MAX 0 Tag) { ScienceTag<@WildTag> }"
+            "UseAction<OrbitalCleanup, Action1>:: EACH @WildTagElection(HAS MAX 0 Tag) { ScienceTag<@WildTagElection> }"
         )
     ) shouldBe ""
     english.describe(parse<InstructionTree>("AllocateCloudTourismWildTags")) shouldBe ""
     english.describe(
-        parse<InstructionTree>("EACH @WildTag(HAS MAX 0 Tag) { 2 ScienceTag<@WildTag> }")
+        parse<InstructionTree>(
+            "EACH @WildTagElection(HAS MAX 0 Tag) { 2 ScienceTag<@WildTagElection> }"
+        )
     ) shouldContain "["
     english.describe(
-        parse<InstructionTree>("EACH @WildTag<Anyone>(HAS MAX 0 Tag) { Tag<@WildTag>? }")
+        parse<InstructionTree>(
+            "EACH @WildTagElection<Anyone>(HAS MAX 0 Tag) { Tag<@WildTagElection>? }"
+        )
     ) shouldContain "["
   }
 

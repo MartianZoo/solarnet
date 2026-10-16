@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
@@ -33,6 +34,15 @@ internal class DeferredWorkTest {
               CLASS Reaction : Owned<Player>
               CLASS Second : Owned<Player>
               CLASS Done : Owned<Player>
+              CLASS Flow : System {
+                -WorkScope<Player1>: FINALLY Player2 { Done }
+              }
+              CLASS WorkScope<Player> : Scope, System {
+                HAS MAX 1 This, =1 Allocation<This>
+                This: TASK Player2 { Choice }, FINALLY { -This }
+                -This: TASK Player1 { Cleanup, LATER { Second } }
+              }
+              CLASS Allocation<WorkScope> : System
               """,
               players = 2,
           )
@@ -166,6 +176,29 @@ internal class DeferredWorkTest {
     shouldThrow<TaskException> { p1.doTask("Cleanup") }
     p1.doTask("Second")
     p1.doTask("Cleanup")
+  }
+
+  @Test
+  internal fun `fixed scope cleanup finishes before its final continuation`() {
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    admin.runOperation("Flow")
+    admin.beginOperation("WorkScope<Player1>")
+    admin.count("Allocation") shouldBe 1
+    shouldThrow<TaskException> { admin.doTask("-WorkScope<Player1>") }
+
+    p2.doTask("ChoiceA")
+    admin.doTask("-WorkScope<Player1>")
+    admin.count("WorkScope") shouldBe 0
+    admin.count("Allocation") shouldBe 0
+    shouldThrow<TaskException> { p2.doTask("Done") }
+
+    p1.doTask("Cleanup")
+    shouldThrow<TaskException> { p2.doTask("Done") }
+    p1.doTask("Second")
+    p2.doTask("Done")
+    p1.count("Cleanup") shouldBe 1
+    p1.count("Second") shouldBe 1
+    p2.count("Done") shouldBe 1
   }
 
   @Test

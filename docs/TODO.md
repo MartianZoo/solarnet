@@ -36,10 +36,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Revisit Stormcraft plus Helion payment composition if that combination is supported.
   `Accepting` now skips alternative standard-resource offers when the payer has none; it does not
   consider possible substitutes such as Stormcraft floaters for heat.
-- Verify as a Canon invariant which tasks can interleave with card play: gaining MC production,
-  Head Start's two actions, and any other actual exceptions. Establish the complete list.
-- Share the Corporation, Prelude, and final greenery phases' turn procedure through an abstract
-  phase class.
+- Verify as a Canon invariant which tasks can interleave with card play, including gaining MC
+  production and other actual exceptions. Head Start's selected variant now resolves its initial
+  work before granting sequential actions; do not retain its former interleaving as a requirement.
 - Share the circular-distance calculation in `PlayerDistance` and `PartyDistance`, preserving
   their different handling of unseated owners.
 - Consider renaming automatic (`::`) effects to “immediate.”

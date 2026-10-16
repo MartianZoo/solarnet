@@ -171,11 +171,10 @@
           "tags": [ "BuildingTag" ],
           "direct": "5 Steel",
           "effects": [
-            "StandardAction OR RequiredActionsSignal: SuitableInfrastructureBonus<This>*",
-            "NewTurn IF PreludePhase: SuitableInfrastructureBonus<This>*",
+            "Scope@ActionScope<Me@>:: SuitableInfrastructureBonus<This, Scope@>",
           ],
           "components": [
-            "CLASS SuitableInfrastructureBonus : Cardbound<SuitableInfrastructure<Player>>, System, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>: (This: -This THEN 2 MC) OR (MAX 0 This: Ok) }",
+            "CLASS SuitableInfrastructureBonus<ActionScope> : Cardbound<SuitableInfrastructure<Player>>, System, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>: (This: -This THEN 2 MC) OR (MAX 0 This: Ok) }",
           ],
         },
         {
@@ -300,7 +299,7 @@
         },
         {
           "name": "VenusShuttles",
-          "effects": [ "UseAction<This, Action1>:: EACH @WildTag(HAS MAX 0 Tag) { VenusTag<@WildTag> }" ],
+          "effects": [ "UseAction<This, Action1>:: EACH @WildTagElection(HAS MAX 0 Tag) { VenusTag<@WildTagElection> }" ],
           "cost": 9,
           "tags": [ "VenusTag" ],
           "direct": "2 Floater<CardFront(HAS VenusTag)>",

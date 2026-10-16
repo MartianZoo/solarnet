@@ -266,8 +266,8 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       assertCounts(82 to "MC")
 
       // Head Start's two actions occur during Prelude; the source UI says 106.
-      (sum.signalCount("ImAwake", "StandardAction<Me>") +
-          sum.signalCount("ImAwake", "RequiredActionsSignal<Me>")) shouldBe 92
+      (sum.signalCount("InRound", "StandardAction<Me>") +
+          sum.signalCount("InRound", "RequiredActionsSignal<Me>")) shouldBe 92
     }
   }
 }

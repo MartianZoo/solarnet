@@ -475,7 +475,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       )
       doTask("ClaimMilestone<Class<Diversifier>>")
       // P2 has no wilds: finish this claim's empty allocation prompt.
-      selectTask("EACH @WildTag { Tag<@WildTag>? }")
+      selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
       doTasks("8 Pay<> FROM MC", "Diversifier")
     }
     p1.turn {
@@ -2149,13 +2149,13 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // The phone app advances its display to generation 12; Solarnet keeps the final played
     // generation.
     assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
-    p1.doTasks("Done") // only three plants; no final greenery
+    p1.selectTask("-Baton") // only three plants; no final greenery
     // "Do you replace, you don't." "I do actually." "You do." "Probably on two four."
     // The final photo shows Pink's last greenery here.
     p2.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
     p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks("GreeneryTile<Vastitas_2_4>")
-    p2.doTasks("Done") // no more plants to convert
+    p2.selectTask("-Baton") // no more plants to convert
     // board-16-47-03.jpg, after final greenery.
     p2.assertCounts(7 to "GreeneryTile", 3 to "CityTile", 56 to "TerraformRating")
     // "Almost completely shut me out, but not quite."

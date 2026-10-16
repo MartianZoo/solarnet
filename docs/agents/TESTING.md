@@ -443,7 +443,7 @@ duplicate this coverage for every expansion card.
 Before setup and after forking the prepared position, the sandbox sets every player's policy to
 `NONE`, following
 `OtbGame20261009Test`'s explicit task style. Card and rule scenarios retain the prepared position
-and visible `exMachina` corrections, then use generic
+and visible `exMachina` corrections, then use the fixture's
 `inTurn { doTasks(...) }` calls in place of Terraforming Mars gameplay helpers. Admin retains its
 default policy. `inTurn` supplies the sandbox turn and checks that the complete action leaves no
 pending tasks; payments, card transfers, player effects, and any player-assigned cleanup are explicit.
@@ -480,8 +480,10 @@ Write expected payment amounts explicitly, such as `6 Pay<> FROM MC`; never pay 
 in a sandbox scenario. Write `kim.inTurn { ... }` directly, without redundant `with(kim)` wrappers.
 Inside that block, helpers on its operation receiver do not repeat `kim.`; another actor remains explicit.
 `TfmGameplay.turn` groups the published game's turn, including declining an unused second action.
-`Agent.inTurn` provides a complete atomic operation and creates `NewTurn` when needed. Sandbox
-scenarios use the latter. Cross-player Agent calls can leave Admin work waiting within that block;
+`TfmSandboxTest` supplies its own `Agent.inTurn` member extension: it uses `runOperation("OfferAction")`
+when no task is pending, and otherwise `completeOperation`. This keeps the generic Agent free of
+Terraforming Mars rules while sandbox scenarios retain their explicit operation scripts. Cross-player
+Agent calls can leave Admin work waiting within that block;
 use a locally explained `autoExecNow()` only when it must settle before the next player choice.
 Use `doTasks` for consecutive concrete instructions. Preserve order when it matters to the scenario.
 Comment an ambiguous `Ok` to identify what is being declined.
@@ -766,7 +768,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   those actions instead of using `turn {}`, and preserve explicit passes or declined second
   actions when the source records them.
   Once every other player has passed, keep the remaining player's actions through `pass()` in one
-  turn block; the `NewTurn` tasks the game keeps offering let that block continue across the
+  turn block; the `OfferAction` tasks the game keeps offering let that block continue across the
   remaining nominal turns.
 - When an Event card's sibling tasks require explicit replay ordering, record only the gameplay
   consequences. The card's `LATER` dispatch defers its flip, and the owner performs the flip once

@@ -1,188 +1,217 @@
 # Canon turns and game flow
 
-> **Status:** current authored flow and separately labeled intended turn semantics.
+> **Status:** current authored flow, action lifetimes, and the agreed restriction on scope-removal
+> effects. Remaining design questions are labeled separately.
 > [Solarnet sequencing](../../../docs/agents/SEQUENCING.md) owns task dispatch, execution,
 > and completion checks.
 
 ## Turns and turn offers
 
-**Selected terminology and intended semantics, not implemented.** Use **turn** for the complete
-envelope of a player's accepted opportunity and its resolution. Consecutive turns may belong to
-the same player. Do not call this an action scope, move, or turn segment. This deliberately differs
-from the published game's terminology: its action-phase turn of up to two actions becomes up to
-two consecutive turns here. Preserve when play advances to the next player; the terminology change
-does not grant additional opportunities. Tests accept the difference: `TfmGameplay.turn { }`
-groups a published turn of one or two actions, which can be two turns in this sense.
+`ActionScope<Player>` records an accepted action and its resolution. It is globally unique and
+identifies the active player. A published action-phase turn of up to two actions contains up to
+two consecutive scopes, even when both belong to the same player. `TfmGameplay.turn { }` groups
+that published turn and declines an unused second opportunity.
 
-### Offering, taking, and finishing a turn
+### Offering, taking, and finishing an action
 
-- In the action phase, first offer the player a turn. Declining that first offer is passing for
-  the generation: the player never took a turn and receives no turn scope.
-- Accepting the offer starts the turn. Finish its work and consequences before offering the second
-  turn. Declining the second offer creates no turn and has no penalty or pass status; play simply
-  advances. Keep this distinction even if both offers use shared machinery.
-- A turn lasts through payment, effects, placement bonuses, other players' responses, and resulting
-  work and cleanup. Completion of the initiating task alone does not finish the turn.
-- This first/second offer rule describes ordinary action-phase rotation. It does not make
-  corporation plays, Prelude plays, or Head Start's mandatory grants optional. Keep offering the
-  last unpassed player a fresh first offer after each turn, without inventing additional turn
-  groupings.
+- The first action-phase offer is `StandardAction OR Pass`, or its required-action equivalent.
+  Passing creates no scope and ends that player's participation for the generation.
+- Accepting `StandardAction`, `RequiredActionsSignal`, or `PlayCard` creates a scope only when
+  none exists. Generic `UseAction` does not create a scope: reactive abilities and nested card
+  plays resolve within the current action.
+- The scope remains through payment, effects, placement bonuses, other players' responses, and
+  `LATER` cleanup. Its own `FINALLY { -This }` ends that lifetime. Scope-removal reactions schedule
+  further `FINALLY` work to offer another action or release the baton, after fixed removal
+  consequences finish.
+- The optional second offer lets the player accept another action or release `Baton`. Declining
+  creates neither a scope nor `Pass`. The last unpassed player receives a fresh first offer after
+  each action, including in solo play.
 
-The intended units are:
-
-| Activity | Turn scope |
+| Activity | ActionScope lifetime |
 | --- | --- |
-| Initial corporation play and its resolution | A turn |
-| Each Prelude played during the Prelude phase | A separate turn |
-| Each accepted action-phase opportunity | A separate turn, including the optional second |
-| Each final greenery placement and its resolution | A separate turn |
-| Head Start under the variant below | Its Prelude turn, followed by two additional turns |
+| Initial corporation play | Includes starting project-card payment and transfer |
+| Each Prelude played during the Prelude phase | Includes its effects and nested plays |
+| Each accepted action-phase opportunity | A fresh scope, including the optional second action |
+| Each final greenery placement | Includes placement effects; releasing the baton creates no scope |
+| Head Start variant | Its initial resolution, then each granted action in a fresh scope |
 
-A card played or an ability invoked while resolving an existing turn does not itself start another
-turn. For example, Merger's corporation play remains inside the turn that played Merger. An
-explicit grant of a further turn is different from a consequence that requires another decision.
+An unplayable Prelude's removal also starts a scope when none exists, covering its compensation.
+Merger's corporation and New Partner's further Prelude remain inside the scope already in progress.
+Research, production, and solar-phase decisions do not acquire scopes merely because a player
+receives work. [Identity](../../../docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides) separates
+this active-player fact from task assignment and the still-proposed routing changes.
 
-The proposed `OnTurn` fact, task routing, and decisions outside turns are described in
-[Identity: who is on-turn, and who decides](../../../docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides).
+### Scope removal must not require choices
+
+Removing `ActionScope`, or any component that expires with it, must not directly or indirectly
+create player choices belonging to the completed action. Finish those choices while the scope
+exists, including choices made by another player. Wild-tag elections and Suitable
+Infrastructure bonuses have already disappeared when removal effects run.
+
+Removal may perform fixed effects, clean up, and advance game flow. Offering the next action or
+phase is allowed: those decisions belong to subsequent play. Accepting the next action creates its fresh
+scope before that action's consequences begin.
+
+This is a Canon authoring rule, not a restriction on the generic `Scope` mechanism.
+`CanonInvariantsTest.actionScopeExpiryOnlyPerformsReviewedHandoffs` scans removal listeners for
+the scope, baton and extra-action removals, and their possible indirect dependents, including
+`SecondAction`. It accepts fixed turn bookkeeping and next-play instructions regardless of the
+listener's class name; optional bookkeeping (including defaults), arbitrary helper gains,
+and new listener forms fail for review. This deliberately rejects new fixed rewards too, since
+their reactions could require a choice. It checks instruction structure, not snapshots of Canon
+declarations, and is not a general analysis of all downstream effects after a flow handoff.
+
+Check indirect effects as well as direct removal listeners; an Agent automatically selecting a
+choice does not make the declaration comply. Do not extend the old action past scope removal to
+accommodate a new choice. See [operation completion](../../../docs/agents/SEQUENCING.md#operation-completion)
+for the engine's separate operation check.
+
+### Baton, action offers, and rotation
+
+`Baton<Player>` records whose table turn is in progress. It stays with the player across both
+ordinary actions, across all their Preludes, or across repeated final greeneries. `ActionScope`
+records the shorter lifetime of an accepted action. There is no baton during setup, research,
+production, or solar work. Baton needs no phase dependency: the current phase supplies the rules,
+and its final baton is released before the phase changes.
+
+`StartToken` responds to entry into any `TurnBasedPhase` by giving its owner the baton.
+Corporation, Prelude, Action, and Final Greenery are the phases in that family. The baton itself
+requests an `OfferAction` when gained; the phase or `InRound` supplies the choices. During the
+action phase, a passed player has no `InRound`, so that request offers no action and `Pass`
+releases the baton. When another player is still in the round, `InRound` grants a baton-dependent
+`SecondAction` allowance. Completing the first action consumes that allowance and offers
+`StandardAction OR -Baton`, or its required-action equivalent. Completing the second action releases the baton. A player already carrying `Pass`
+just releases a received baton; no action scope is opened. When only a single player remains,
+there is no second-action allowance: after each action, the baton cycles back with another first
+offer, which includes passing.
+
+`AfterMe` responds to baton removal by deferring the next seat's baton until release consequences
+finish. Outside the action phase, reaching the start player instead emits `RoundOver`; solo rules
+provide the corresponding return or round completion. The action phase starts production when
+the final baton is released and nobody remains in the round. `TakeTurn`, `NextPlayer`, `TurnOver`,
+and the ordinary-action counter are no longer needed.
+
+Red Appeasement's pass removes `InRound` immediately, but releases the baton only after the current
+action and any mandatory extra actions finish. Its event flip and rewards therefore finish before
+the next player receives an offer. A pass during Prelude resolution does not interrupt that
+player's remaining Preludes, and generation-scoped `Pass` does not skip final greenery.
+
+`OfferAction` is a request for the phase's next activity, not another record of the turn holder.
+The phase or `InRound` supplies the choice. A request submitted without a baton still opens an
+accepted action's scope and cleanup, but finishing it does not rotate seats. Sandbox scenarios
+and manual REPL modes use this distinction without changing the game's rules. The script's `turn`
+command calls `beginOperation("OfferAction")` directly outside purple mode. `TfmGameplay.inTurn`
+requests an offer only when its actor has no pending task; generic Agent APIs know only operations.
+This signal was previously called `NewTurn`; the new name distinguishes a single offer from the full
+baton turn.
+
+The two remaining flow signals have separate purposes: `OfferAction` requests a choice, while
+`RoundOver` lets the selected module decide what follows a completed circuit. Combining them,
+or moving phase-specific choices into Kotlin callers, would obscure those responsibilities.
 
 ### Uses of the scope
 
-Wild-tag allocations should belong to the accepted turn and expire when it finishes. A consecutive
-turn gets fresh allocations, even for the same player; another player's response does not get a
-new allocation scope. The current [wild-tag model](CARD_MODEL.md#wild-tags) implements assignments
-and deferred cleanup; the accepted-turn scope described here remains a proposed redesign.
+The printed `WildTag` is inert and persists with its card. `WildTagElection<WildTag, ActionScope>`
+holds its chosen `Tag` during the action; removing the scope removes both election and assignment.
+The next action starts with fresh elections. A newly played wild also receives an election during
+an existing scope, preserving current same-action availability. Another player's response does
+not create elections for that player. See [wild tags](CARD_MODEL.md#wild-tags).
 
-Suitable Infrastructure is a likely consumer of the same scope, but its exact eligibility and
-reset rules remain to be confirmed. Existing `SuitableInfrastructureTest` scenarios show separate
-rewards for the two action-phase actions and a single reward for a Prelude raising multiple
-production tracks. `HeadStartTest` also expects separate rewards for Head Start's two granted
-actions. These examples support the direction without establishing every interaction, especially
-out-of-turn production changes.
+`SuitableInfrastructureBonus` depends on its card and its owner's scope. The card grants the
+helper at scope creation; a production gain consumes it for the bonus, and unused helpers expire
+with the scope. This gives separate rewards for consecutive actions and a single reward when a
+Prelude raises several production tracks. It does not establish a disputed ruling for every
+out-of-turn production interaction; those eligibility questions remain separate from the selected
+lifetime model.
 
-### Head Start: acceptable variant to pursue
+### Head Start: selected sequential variant
 
-The owner is willing to change Head Start's timing to avoid requiring nested turns:
+`FakeHeadStart` implements the owner's deliberate timing variant, not exact published timing:
 
-1. Resolve its basic instructions, including steel, money, and their consequences, in its Prelude
-   turn. Finish that turn with two additional turns owed to its owner.
-2. Grant and completely resolve each owed turn sequentially. Each is mandatory and grants a single
-   action-phase action, not the normal first/optional-second pair or an option to pass.
-3. Resume the normal Prelude sequence from where it stopped.
+1. Resolve its steel, money, and their consequences, and record `2 ExtraAction`.
+2. After its scope ends, consume an `ExtraAction` and offer a mandatory standard or required action.
+   Finish that new scope before consuming the next entitlement.
+3. After all additional actions finish, resume the baton holder's ordinary sequence: offer the
+   optional second action, play the next Prelude, or release the baton as appropriate. A standalone
+   sandbox play has no baton to advance.
 
-Two tokens could record the owed turns. Their names and implementation are undecided; express the
-entitlement and its consumption through ordinary rules, without teaching Kotlin about Head Start.
-This is explicit permission to explore those entitlement components, not a general return to
-components used only to schedule arbitrary continuations.
-
-This is a deliberate variant, not a claim of exact published timing. Money and steel, and all
-consequences of the basic instructions, must resolve before either extra turn. In particular, the
-extra turns cannot sell cards before Head Start calculates its money from cards in hand. The
-current fake card allows that ordering and also allows its two actions to interleave; see
-[`HeadStartTest`](../../../test/common/dev/martianzoo/tfm/tests/cards/HeadStartTest.kt).
-
-The working direction is sequential turns, with no suspended parent turn or allocations to
-restore. Head Start should not justify nested scopes by itself. This does not settle which work
-may interleave with another player's response or payment within a turn.
+Money is calculated before either additional action can sell cards. There is no suspended scope
+or assignment to restore. `ExtraAction` records an action owed to its owner; it is not a generic
+continuation component. The same authored rules handle a further grant made during a granted
+action. Existing scenario coverage lives in `HeadStartTest`.
 
 ### Remaining design work
 
-- Turn completion is authored now (`TurnOver`, under [Game flow](#game-flow)), but `NewTurn` is
-  still a signal, not a lasting turn scope. Define acceptance and a turn scope through authored
-  rules and settlement.
-- Keep turn identity separate from generic ability invocation: `UseAction` currently represents
-  both normal actions and reactive offers. It must not automatically create a turn.
-- Reduce overloaded action names when changing the relevant APIs. `ActionSlot` / `Action1` /
-  `Action2` select declared capabilities, not the first and second turns. `Activate`, `Activatable`,
-  and `AbilitySlot` were candidate replacements, not selected names; no blanket rename is agreed.
-- Verify wild-tag allocation timing, Suitable Infrastructure, extra-turn ordering, and completion
-  through cross-player responses before treating the model as implemented. Do not add nesting or
-  a second scope representation without a concrete case that requires it.
+- `ActionSlot` / `Action1` / `Action2` select declared capabilities, not first and second action
+  opportunities. `Activate`, `Activatable`, and `AbilitySlot` remain unselected naming ideas.
+- The active scope does not implement the proposed on-turn-first task routing in
+  [Identity](../../../docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides).
+
+`ActionScopeTest`, `SuitableInfrastructureTest`, `WildTagTest`, `WildTagContinuationTest`, and
+`HeadStartTest` cover the relevant gameplay scenarios. Compilation or isolated scope examples do
+not replace those interactions and full replay reconstruction when changing this model.
+
+## Generated action-phase diagram
+
+Run `./scripts/action-turn-diagram` from the Solarnet root to rebuild the teaching walkthrough and
+poster in `_local/diagrams/action-phase/`. The command requires Java, Node, and npm; pinned Graphviz
+Wasm and SVG rendering packages are installed only in a temporary directory. It produces HTML with
+a clickable overview and detailed event destinations, SVG, PNG, combined and per-panel DOT, and a
+source evidence listing. Overview arrows are possible authored paths; their guards and choices are
+shown in the linked panels.
+
+`ActionTurnDiagram` in the Pets junkdrawer parses the current working-tree `.pets` files. Panel
+order and titles are editorial; guards, instruction trees, rule owners, source lines, and destination
+links come from the AST. Event matching follows declared supertypes, so a listener on
+`TurnBasedPhase` appears when `ActionPhase` begins. Its documented slice covers action-phase control
+rules, without expanding card/payment work or runtime dispatch. `rules.md` records the slice and input SHA-256 hashes.
+For DOT alone, run `./gradlew -p pets :junkdrawer:actionTurnDiagram` with
+`-PactionTurnDiagramOutput=<output-directory>`.
 
 ## Game flow
 
-The game's own rules carry play from `SetupPhase` to `VictoryPhase`. A client only starts the game
-(`TfmGameplay.startGame`, which performs `SetupPhase FROM BootstrapPhase`). Nothing turns the
-flow on or off.
+The game's own rules carry play from `SetupPhase` to `VictoryPhase`. A client starts the game with
+`TfmGameplay.startGame`, which performs `SetupPhase FROM BootstrapPhase`.
 
-- **Phases without turns hand off when their work is done.** `SetupPhase`, `ProductionPhase`,
-  `SolarPhase`, `ResearchPhase`, and `End` each dispatch `FINALLY { Next FROM This }` as they begin.
-  Production hands off to `SolarPhase` while a `GameEndBarrier` exists, and otherwise signals
-  `CheckGameEnd`.
-- **Phases with turns hand off from their last turn.** A turn lasts through its `LATER` cleanup, so
-  its end is `FINALLY` work, and all pending `FINALLY` work becomes ordinary together. A handoff
-  dispatched as the Corporation, Prelude, Action, or final greenery phase began would therefore run
-  after its first turn; these phases instead say what follows each turn.
-- **Selection cleanup.** Each `NewTurn` schedules Admin's `LATER` removal of any card backs still in
-  that Player's `Selecting`. It runs after the turn's choices, including purchase payment and
-  transfer, and before `TurnOver`. ResearchPhase schedules analogous
-  project-card cleanup for all Players before its `FINALLY` handoff.
-- **Turn order.** `TakeTurn<P>` only invites `P` to take a turn; whatever governs that player's
-  turns answers it. The corporation, Prelude, and final greenery phases give `NewTurn<P>` and
-  dispatch `FINALLY { TurnOver<P> }`, and each says what follows `TurnOver`. In the action phase
-  the player's `RoundStatus` answers instead. `NextPlayer<P>` passes play to the next seat through
-  `AfterMe`. Outside the action phase, reaching the start player again is `RoundOver`; with one
-  player, `NextPlayer` is always `RoundOver`. These signals take a Player argument rather than an
-  owner, so their work stays with Admin, as it must for Players who do not autoexecute.
-- **Round status drives the action phase.** Each player has at most one `RoundStatus`: `ImAwake`
-  while they may still act in the action phase, or `Pass` once they have passed. The action phase
-  wakes every player who has not passed. `ImAwake` gives its owner each turn and supplies the turn's
-  choices; when the turn ends it offers a second action and then `NextPlayer` while another player
-  is awake, and otherwise another turn. `Pass` replaces its owner's `ImAwake` and passes play on,
-  both when the passing turn ends and whenever that player's turn comes round again. Production
-  begins at the first `TurnOver` with nobody awake. Play goes around the table without `RoundOver`.
-- **Modules own phase order.** The corporation phase ends in `RoundOver`. `NoPreludes`, selected in
-  every game without Prelude, then begins the first `ActionPhase`; `PreludeExpansion` begins
-  `PreludePhase` instead, whose own `RoundOver` begins the action phase. Expansions add their solar
-  work as triggers on the one `SolarPhase`, and Turmoil's waits under `LATER` for the rest.
-- **A turn given outside turn order has no continuation.** `NewTurn` alone is just a turn; only
-  `TakeTurn` attaches what follows. Sandbox scenarios and the REPL's manual modes take turns this
-  way. They leave the flow by dropping its pending tasks once, and then place phases ex machina
-  (`TfmGameplay.phase`). Placing a phase runs its automatic effects but not its queued rules, so a
-  placed action phase wakes every player without giving anyone a turn.
-- **Declining another final greenery is `Done<Phase>`.** A signal would vanish at once, before
-  `TurnOver` could read it, so `Done` instead lasts until its phase ends.
-
+- **Phases without turns** dispatch their `FINALLY` handoff as they begin. Production proceeds to
+  `SolarPhase` while a `GameEndBarrier` exists and otherwise signals `CheckGameEnd`.
+- **Phases with turns** advance by releasing the baton after accepted scopes finish, or
+  through the offered pass/decline path. A phase-wide final handoff would run after its first
+  action, so it cannot replace those rules.
+- **Selection cleanup** begins with `ActionScope`: Admin removes remaining card backs in that
+  player's `Selecting` under `LATER`, after purchase payment and transfer and before scope removal.
+  Research schedules analogous project-card cleanup for all players before its phase handoff.
+- **Seat order** follows baton removal through `AfterMe`, with the solo equivalent on `SoloMode`.
+  Its `FINALLY` handoff waits for fixed release consequences before offering the next seat work.
+- **Modules own phase order.** Corporation `RoundOver` enters `ActionPhase` through `NoPreludes`,
+  or `PreludePhase` through `PreludeExpansion`. Prelude `RoundOver` enters the action phase.
+  Expansions add solar work to `SolarPhase`; Turmoil uses `LATER` to follow the other solar work.
+- **Final greenery** offers another placement after each completed scope. Declining releases the
+  baton directly; no separate `Done` marker is needed. The authored `-Baton*` also lets a standalone
+  offer finish when no baton exists.
 
 ## Cleanup
 
 | Class | Current meaning |
 | --- | --- |
-| `MustCleanUp` | State forbidden by operations that declare themselves complete. |
-| `Barrier` | `MustCleanUp` state removed by its owning game rule. |
-| `Signal` | An unscoped point event that removes itself automatically. |
+| `MustCleanUp` | State forbidden by operations that declare themselves complete |
+| `Barrier` | `MustCleanUp` state removed by its owning game rule |
+| `Signal` | An unscoped point event that removes itself automatically |
+| `Scope` | A lifetime anchor whose removal also removes dependent components |
 
-Nothing is removed merely because the World is idle. A component whose end is future work
-schedules that work as a deferred task: an event card's move to `PlayedEvent`, `L1GiftWatcher`'s
-removal, and removal of the tag assigned to a `WildTag` after ordinary action work finishes.
-Wild assignments use `LATER Admin`, so Admin performs their cleanup even when players use `NONE`.
-Other deferred work remains with the actor named by its rule.
-
+Nothing disappears merely because the World is idle. Event-card flips, trade completion, and gift
+watcher removal remain authored deferred tasks. `ActionScope` similarly schedules its own removal
+under `FINALLY`; dependency removal then clears its wild elections and Suitable Infrastructure
+helpers. `ActionScope` is not `MustCleanUp`: the current completion check runs before its removal.
 
 ## Facts in components, future work in tasks
 
-The component graph records what is, or what is happening. Work that should happen later belongs in
-a task. A component that exists so that its removal can start later work is a scheduling device, not
-a game fact; do not add new ones. The `workflow` branch's `Continuation` class makes that device
-generic.
+Components record what exists or is happening. `ActionScope` records the current accepted action;
+`Baton` records the current table turn, `SecondAction` its remaining second-action allowance,
+and `ExtraAction` mandatory actions still owed. Deferred tasks determine when those facts change. Do not add a component whose only meaning is an arbitrary
+continuation waiting to run.
 
-The owner's proposed Head Start entitlement tokens are a specific design direction recorded in
-the [turn design](GAME_FLOW.md#head-start-acceptable-variant-to-pursue). They describe
-turns owed to a player; evaluate them with that game meaning rather than rejecting them solely
-because turn order will consume them. Their implementation remains open.
-
-Devices replaced by deferral:
-
-| Former device | Deferred work now |
-| --- | --- |
-| `EventCard` as `Temporary` | `This: LATER { PlayedEvent<Class<This>> FROM This* }`, performed by the owner |
-| `TradeBarrier` | `Trade`'s `This: LATER { FinishTrade<@ColonyTile> }` |
-| `TurmoilSolarOperation` | `SolarPhase: LATER { TurmoilPhase }`; `TurmoilPhase: ResolveGlobalEvent, LATER { FormGovernment THEN ChangingTimes }` |
-| `L1GiftWatcher` as `Temporary` | `LATER { -This }` beside the gift fanout |
-| Temporary wild-tag use | The printed `WildTag` holds the assignment: `Tag<This>: LATER Admin { -Tag<This>* }` |
-
-`FinalScoringPending` and the `Temporary` `MeasureAward` were replaced by a phase instead: `End`
-scores, and the terminal `VictoryPhase` names the winner after that work has finished. With these
-conversions `Temporary`, `TemporaryScope`, and the engine's idle cleanup were deleted.
-
-Where the component also records a real fact, keep it and change only the timing. A played
-`EventCard` is in play, and its tags count, until it is flipped; only the flip is deferred work.
+Event cards remain in play until their `LATER` flip; `Trade` uses deferred `FinishTrade`, Turmoil
+uses deferred phase work, and `L1GiftWatcher` defers its removal. These do not require the deleted
+`Temporary`, `TemporaryScope`, or engine idle cleanup. `End` performs final scoring, then hands off
+to the terminal `VictoryPhase`.

@@ -219,16 +219,23 @@ work defers. It exists for turn and phase handoffs.
 
 ### Operation completion
 
-An operation's work is over when no new task remains, or when the World's `FINALLY` work has begun
-since the operation's last decision. `FINALLY` work begins only once no ordinary or `LATER` work
-remains (L2-19), so by then everything the operation started, including the cleanup it deferred,
-is finished. The turn handoffs and phase changes that follow, and the offers they create, belong to
-whatever comes next. `ActorEngine.requireComplete` judges cleanup components at that same point,
-from the event log; the Agents record when each operation begins and decides, and automatic
-execution is not a decision. That gives [the missing
-rule](#the-missing-rule-when-an-operation-is-over) a whole-World answer. It does not exclude
-intervening work: P1 may resolve Flooding's loss while P2's Neptunian payment remains. If that
-choice makes the turn impossible to finish, P1 must roll back the turn.
+`ActorEngine.requireComplete` currently accepts an operation when no new task remains, or when
+World `FINALLY` work has begun since the operation's last decision. The first final promotion
+occurs after all preceding ordinary and `LATER` work, and the cleanup-component check uses that
+same point in the event log. Agents record each operation's beginning and decisions; automatic
+execution is not a decision.
+
+This check precedes `ActionScope` removal, which runs as final work. Canon's
+[scope-removal rule](../../pets/docs/agents/GAME_FLOW.md#scope-removal-must-not-require-choices)
+requires every choice belonging to the action to finish while its scope exists. Removal and
+dependent expiry may perform fixed effects and cleanup and advance to subsequent play;
+they must not generate further choices for the completed action. This is an authoring restriction,
+not a new engine completion rule. Do not mark the finally-removed scope `MustCleanUp`, since that
+check runs before removal.
+
+Completion still does not exclude intervening work: P1 may resolve Flooding's loss while P2's
+Neptunian payment remains. If that choice makes the turn impossible to finish, P1 must roll back
+the turn. See [the interaction discussion](#the-missing-rule-when-an-operation-is-over).
 
 ### Decisions and open questions
 
@@ -241,8 +248,8 @@ choice makes the turn impossible to finish, P1 must roll back the turn.
   Terraforming Mars-specific Kotlin such as `TfmWorkflow` was out of the question; it is deleted.
 - **Present components answer.** On 2026-10-13 the owner asked that active behavior come from
   components that are present rather than from conditions: an effect that relies on a player not
-  having passed belongs on `ImAwake`, so its presence says so. `TakeTurn` therefore has no rule of
-  its own.
+  having passed belongs on `InRound`, so its presence says so. The baton itself does not decide
+  which action to offer: `InRound` or the phase answers, while `Pass` releases it.
 - **Game flow.** On 2026-10-12 the owner ruled that the Pets model must never be shaped by turning
   the flow on or off, that tests be either clear sandbox or clear gameplay scenarios, and that
   modules contribute phase order without a central orchestrator. He proposed `NoPreludes` so that

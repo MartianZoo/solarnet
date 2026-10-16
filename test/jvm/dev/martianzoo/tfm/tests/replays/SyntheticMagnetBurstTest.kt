@@ -338,7 +338,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       inTurn {
         doWithAutoExecPolicy(CONCRETE) {
           useStdAction("ClaimMilestone<Class<Diversifier>>") {
-            doTask("MicrobeTag<WildTag<NobelPrize>>")
+            doTask("MicrobeTag<WildTagElection<WildTag<NobelPrize>>>")
           }
         }
       }
