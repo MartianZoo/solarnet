@@ -95,7 +95,6 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           doTask("PlayCard<Class<CorporationCard>, Class<Inventrix>>")
           doTask("Inventrix<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTasks("45 MC", "-42 MC")
-          doTask("Inventrix_RequiredAction")
         }
         .expect("$Inventrix")
     shouldThrow<TaskException> {

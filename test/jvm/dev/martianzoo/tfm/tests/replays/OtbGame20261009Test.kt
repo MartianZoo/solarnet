@@ -58,7 +58,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "$ArcadianCommunities FROM CorporationCard",
         "40 MC",
         "10 Steel",
-        "ArcadianCommunities_RequiredAction",
         "15 Pay<> FROM MC",
         "5 ProjectCard<Hand FROM Selecting>",
     )

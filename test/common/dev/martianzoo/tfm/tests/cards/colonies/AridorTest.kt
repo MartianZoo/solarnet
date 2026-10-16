@@ -69,7 +69,6 @@ internal class AridorTest : TfmSandboxTest() {
           doTask("PlayCard<Class<CorporationCard>, Class<Aridor>>")
           doTask("Aridor<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTask("40 MC")
-          doTask("Aridor_RequiredAction!")
         }
         .expect("PROD[0 MC]")
   }
