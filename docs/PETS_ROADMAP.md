@@ -138,7 +138,7 @@ extraction remains a separate library-design direction below, not a prerequisite
    must not learn card or expansion identities.
 
 2. **Finish the content-selection model.** **Selected direction.** Distinguish source bundles,
-   ambient Modules, and individually selectable Content. Support selecting all applicable Content
+   ambient Modules, and nonabstract subclasses of `Content`. Support selecting all applicable Content
    from a bundle without treating that group as a gameplay Module. Complete individual Turmoil
    party and map selection, and give shared or replaced content clear provenance.
 

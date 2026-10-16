@@ -146,10 +146,12 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
                       .flatMap(ClassDeclaration::allNodes)
                       .flatMapTo(linkedSetOf()) { node -> node.descendantsOfType<ClassName>() }
                       .filterTo(linkedSetOf()) { it in supportClassNames }
-              val contentClassNames = buildSet {
+              // Support is selectable with its item but is not itself Content. Abstract goal
+              // vocabulary also remains available independently of the bundle's Module.
+              val independentlyAvailable = buildSet {
+                addAll(contentClassNames)
                 addAll(bundle.cardResourceClassNames)
                 bundle.marsMapDefinitions.forEach { map ->
-                  add(map.className)
                   map.areas.mapTo(this) { area -> area.className }
                 }
                 goalDeclarations.mapTo(this, ClassDeclaration::className)
@@ -158,7 +160,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
               val ambientClassNames =
                   bundle.explicitClassDeclarations
                       .map(ClassDeclaration::className)
-                      .filterNot(contentClassNames::contains)
+                      .filterNot(independentlyAvailable::contains)
               ambientClassNames
                   .filterNot { isSubtypeOf(it, MODULE_CLASS) }
                   .forEach { className ->
@@ -396,11 +398,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
    * catalog has no `ColonyTile` class.
    */
   public val colonyTileClassNames: Set<ClassName> by lazy {
-    val colonyTile = universe.findClass(COLONY_TILE) ?: return@lazy emptySet()
-    universe
-        .allSubclasses(colonyTile)
-        .filterNot { it.abstract }
-        .mapTo(linkedSetOf()) { it.className }
+    concreteClassNames(COLONY_TILE)
   }
 
   override fun withDeclarations(declarations: Set<ClassDeclaration>): TfmCatalog =
@@ -519,9 +517,13 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
                 referencedName != sourceName && referencedName in resourceClassNames
               }
         }
-    (resourceClassNames - cardClassNames - referencedNames).mapTo(this) { className ->
-      ClassSelection(className, requirement = contentCompatibilityRequirement(className))
-    }
+    // Content remains a pool candidate even when another item references it. Only support
+    // declarations use reference roots to avoid selecting helpers of excluded items.
+    (resourceClassNames - cardClassNames)
+        .filter { it in contentClassNames || it !in referencedNames }
+        .mapTo(this) { className ->
+          ClassSelection(className, requirement = contentCompatibilityRequirement(className))
+        }
   }
 
   private fun automaticSelectionRequirement(card: PetClass): Requirement? {
@@ -587,7 +589,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   }
 
   private val cardAuxiliaryClassNames: Set<ClassName> by lazy {
-    bundles.flatMapTo(linkedSetOf()) { bundle -> bundle.cardResourceClassNames } - cardClassNames
+    bundles.flatMapTo(linkedSetOf()) { bundle -> bundle.cardResourceClassNames } - contentClassNames
   }
 
   private fun contentCompatibilityRequirement(className: ClassName): Requirement? =
@@ -640,14 +642,20 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   public fun card(name: ClassName): PetClass =
       cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
 
+  private val contentClassNames: Set<ClassName> by lazy {
+    concreteClassNames(TfmClasses.CONTENT)
+  }
+
+  private fun concreteClassNames(superclass: ClassName): Set<ClassName> {
+    val parent = universe.findClass(superclass) ?: return emptySet()
+    return universe
+        .allSubclasses(parent)
+        .filterNot(PetClass::abstract)
+        .mapTo(linkedSetOf(), PetClass::className)
+  }
+
   private val cardClassNames: Set<ClassName> by lazy {
-    if (TfmClasses.CARD_FRONT !in allClassNames) return@lazy emptySet()
-    explicitClassDeclarations
-        .asSequence()
-        .filterNot(ClassDeclaration::abstract)
-        .map(ClassDeclaration::className)
-        .filter { className -> isSubtypeOf(className, TfmClasses.CARD_FRONT) }
-        .toCollection(linkedSetOf())
+    concreteClassNames(TfmClasses.CARD_FRONT)
   }
 
   /** Every concrete card face in this Catalog's loaded class universe. */

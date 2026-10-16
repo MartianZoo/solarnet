@@ -1,4 +1,4 @@
-ABSTRACT CLASS MarsMap : Module, Real {
+ABSTRACT CLASS MarsMap : Content, Module, Real {
   HAS =1 MarsMap
   This: EACH Class<@MarsArea> { @MarsArea }
 }

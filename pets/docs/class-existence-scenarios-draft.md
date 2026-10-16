@@ -2,6 +2,9 @@
 
 This is a guide to **tested class-selection boundaries**, not an inventory of the catalog. A class *exists* here when it is included in a configured game's class table. That does not mean a card has been drawn or a component has been created. A class may be known to the catalog while absent from a particular game.
 
+`Content` identifies authored game items: its nonabstract subclasses are content classes.
+Abstract categories such as `ActiveCard` and supporting classes such as `Camp` are not content
+classes. Selection still uses category-specific policies, as the examples below illustrate.
 The current Content selection and expansion-eligibility direction is summarized in the
 [Pets roadmap](../../docs/PETS_ROADMAP.md#canon-and-game-rule-modeling).
 

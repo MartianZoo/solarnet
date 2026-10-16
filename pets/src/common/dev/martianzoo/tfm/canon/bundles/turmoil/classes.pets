@@ -28,7 +28,7 @@ CLASS Terraformer26 : Milestone {
 }
 
 "A revealed Global Event card, discarded by ChangingTimes after its Current generation"
-ABSTRACT CLASS GlobalEvent : Real {
+ABSTRACT CLASS GlobalEvent : Content, Real {
   HAS MAX 1 This
   HAS MAX 1 GlobalEventPosition<This>
   This IF RevealComingEvent:: Coming<This>
@@ -87,7 +87,7 @@ CLASS Neutral : Owner {
   HAS MAX 14 Delegate<This>
 }
 
-ABSTRACT CLASS Party : Real {
+ABSTRACT CLASS Party : Content, Real {
   HAS =1 This
   HAS MAX 1 AfterParty<This, Party>, MAX 1 AfterParty<Party, This>
   HAS MAX 1 PartyLeader<This, Anyone>

@@ -13,7 +13,7 @@ CLASS ColoniesExpansion : Module {
 }
 
 "A colony tile, such as Pluto"
-ABSTRACT CLASS ColonyTile : System, Real {
+ABSTRACT CLASS ColonyTile : Content, System, Real {
   HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 Trade<This>
 
   This:: ColonyProduction<This>
