@@ -295,7 +295,7 @@ internal class CanonInvariantsTest {
         }
     assertTrue(
         offenders.isEmpty(),
-        "GreeneryTile gains need an area (or use DefaultGreeneryTile); CityTile gains need explicit arguments or <>:\n${offenders.joinToString("\n")}",
+        "GreeneryTile gains need an area (or use PlaceGreeneryTile); CityTile gains need explicit arguments or <>:\n${offenders.joinToString("\n")}",
     )
   }
 

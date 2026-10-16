@@ -419,7 +419,8 @@ Standalone `English.describe(instruction, player)` optionally addresses a concre
 ownership only when the remaining arguments keep their dependency roles. Compact transfers are
 expanded to preserve both endpoints; `BY` retains its actor and can say `performed by you`.
 Instructions already containing a lexical `Me` are left unchanged to avoid capturing a fanout's
-owner. This is an internal experimental entry point, not a public gameplay-UI API.
+owner. The public `EnglishInstructionTextRenderer` exposes this rendering with the loaded class
+table and task assignee; callers use null for neutral wording such as Admin instructions.
 Concrete card selectors, placement sites, named card-resource holders, and card action providers
 retain their names; explicit action slots remain visible. For named content targets (cards, goals, colony tiles, parties, and similar selected items),
 use literal Class Names directly. The owner explicitly authorized this policy; do not add per-item

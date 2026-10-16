@@ -482,7 +482,7 @@ comparing autoexecution policies are omitted.
 Use `selectTask` and `selectOnlyTask` only for an unresolved choice, structural expansion, or
 handoff, never to carry out concrete player work. Every retained selection must have a local
 comment explaining why it is necessary. Prefer a short named selection, such as
-`selectTask("DefaultGreeneryTile")`, to an anonymous selection. String selection also narrows the
+`selectTask("PlaceGreeneryTile")`, to an anonymous selection. String selection also narrows the
 task; it is not a name-only lookup. Keep `selectOnlyTask` when a short instruction cannot identify
 an `EACH` group or would discard part of a linked choice, as in Flooding's placement and attack.
 Use `doTask` for the Actor's explicit work, naming a short, meaningful instruction.

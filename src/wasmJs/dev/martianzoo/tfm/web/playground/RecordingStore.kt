@@ -342,7 +342,7 @@ internal class RecordingStore {
                 } == true
               }
       setupPlay ||
-          (event.cause?.context?.className == cn("ImAwake") &&
+          (event.cause?.context?.className == cn("InRound") &&
               (gained?.type?.rootClass?.isSubtypeOf(standardAction) == true ||
                   gained?.className == cn("RequiredActionsSignal")))
     }

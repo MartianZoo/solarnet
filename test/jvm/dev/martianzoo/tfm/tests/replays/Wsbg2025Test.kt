@@ -356,7 +356,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     black.turn {
       // Greenery timing inferred between 00:38:30 and 00:43:30.
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_4_3>", "OxygenStep", "TerraformRating", "Plant", "4 MC")
       assertCounts(6 to "MC", 24 to "TerraformRating") // visual confirmation
       doTasks("Pass")
@@ -489,7 +489,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
     red.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Elysium_5_5>",
           "OxygenStep",
@@ -510,7 +510,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     black.turn { doTasks("Pass") }
     blue.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Elysium_2_6>",
           "OxygenStep",
@@ -692,7 +692,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PlayedEvent<Class<$GiantIceAsteroid>> FROM $GiantIceAsteroid",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_1_5>", "OxygenStep", "TerraformRating", "ProjectCard", "4 MC")
     }
     blue.assertCounts(31 to "TerraformRating") // 01:01:50 track
@@ -706,7 +706,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "Microbe<$Decomposers>",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_4_5>", "OxygenStep", "TerraformRating", "Plant", "4 MC")
     }
     black.turn {
@@ -954,7 +954,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     red.turn {
       // Southern greenery placement order is provisional.
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_6_6>", "OxygenStep", "TerraformRating", "Plant")
       doTasks(
           "UseStandardProject<GreeneryProject>",
@@ -976,7 +976,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[-Plant<Blue>]",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Elysium_9_9>",
           "OxygenStep",
@@ -1045,7 +1045,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 Plant",
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_3_3>", "OxygenStep", "TerraformRating", "ProjectCard", "2 MC")
     }
     red.turn {
@@ -1263,7 +1263,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     black.turn {
       // 01:40:05 shows a greenery, despite commentary calling it a city spot.
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_6_4>", "OxygenStep", "TerraformRating", "Plant", "2 MC")
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
@@ -1335,7 +1335,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     red.turn {
       // Small Animals timing inferred.
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_8_4>", "OxygenStep", "TerraformRating", "2 Steel")
       doTasks("UseCardAction<$SmallAnimals, Action1>", "Animal<$SmallAnimals>")
     }
@@ -1545,13 +1545,13 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "Ok", // provisionally decline the Mars University exchange
       )
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_5_2>", "2 Plant", "OxygenStep", "TerraformRating")
     }
     blue.turn {
       // Catapult timing/payment inferred.
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_7_6>", "0 OxygenStep")
       doTasks("UseCardAction<$ElectroCatapult, Action1>", "Pay<Class<Plant>> FROM Plant", "7 MC")
     }
@@ -1671,7 +1671,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
     red.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_5_7>", "2 Plant", "2 MC", "0 OxygenStep")
     }
     green.turn { doTasks("Pass") }
@@ -1760,7 +1760,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTasks("PlayedEvent<Class<$ImportedNitrogen>> FROM $ImportedNitrogen")
       assertCounts(7 to "MC") // visual confirmation
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Elysium_7_5>", "0 OxygenStep")
     }
     red.turn { doTasks("Pass") }
@@ -1817,14 +1817,14 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
         "6 Heat",
     )
     black.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-    black.selectTask("DefaultGreeneryTile")
+    black.selectTask("PlaceGreeneryTile")
     black.doTasks("GreeneryTile<Elysium_4_2>", "Plant", "Done")
     blue.doTasks("Done")
     red.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-    red.selectTask("DefaultGreeneryTile")
+    red.selectTask("PlaceGreeneryTile")
     red.doTasks("GreeneryTile<Elysium_6_3>", "Plant")
     red.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-    red.selectTask("DefaultGreeneryTile")
+    red.selectTask("PlaceGreeneryTile")
     red.doTasks("GreeneryTile<Elysium_8_5>", "Done")
     green.doTasks("Done")
 

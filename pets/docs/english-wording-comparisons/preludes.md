@@ -247,7 +247,7 @@ Pets declaration:
 CLASS ExperimentalForest : CardFront<Class<PreludeCard>> {
   HAS =1 PlantTag<This>
   cost = 0
-  This: DefaultGreeneryTile, 2 SearchForCard<TagFilter<Class<PlantTag>>>
+  This: PlaceGreeneryTile, 2 SearchForCard<TagFilter<Class<PlantTag>>>
 }
 ```
 
@@ -1087,7 +1087,7 @@ Pets declaration:
 CLASS ProjectEden : CardFront<Class<PreludeCard>> {
   HAS =1 CityTag<This>, =1 PlantTag<This>
   cost = 0
-  This: OceanTile<>, CityTile<>, DefaultGreeneryTile, -3 ProjectCard
+  This: OceanTile<>, CityTile<>, PlaceGreeneryTile, -3 ProjectCard
 }
 ```
 

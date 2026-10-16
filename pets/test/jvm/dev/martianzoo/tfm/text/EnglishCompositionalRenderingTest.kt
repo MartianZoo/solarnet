@@ -201,7 +201,7 @@ internal class EnglishCompositionalRenderingTest {
     english.describe(parse<InstructionTree>("PlayedEvent<Class<Ants>> FROM This")) shouldContain "["
     english.describe(
         parse<InstructionTree>(
-            "(MyResourceWasRemoved<Chosen@Player>: MC<Chosen@Player>) THEN PlayedEvent<Chosen@Player, Class<This>> FROM This"
+            "(ResourceWasAttacked<Chosen@Player>: MC<Chosen@Player>) THEN PlayedEvent<Chosen@Player, Class<This>> FROM This"
         )
     ) shouldContain "move this card to that player's event pile"
   }

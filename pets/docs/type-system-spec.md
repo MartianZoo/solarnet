@@ -370,7 +370,7 @@ With the excerpt's declarations, `GreeneryTile` has keys `[Owned_0, AreaPiece_0]
 `GreeneryTile<Owner, MarsArea>`. Its first supertype is its enclosing `OwnedTile` (T2-2), which has
 `Owned_0` before `AreaPiece_0` because it names `OwnedOccupant` first, and `OwnedOccupant` names
 `Owned` first. `Tile<MarsArea>` then narrows the area edge; nothing copies or renames it.
-`CLASS OceanCredit : Owned<Player>` has only the inherited key `[Owned_0]`.
+`CLASS HydrologistCredit : Owned<Player>` has only the inherited key `[Owned_0]`.
 
 **T3-3. Several supertypes, one key.** When more than one supertype constrains the same key, the
 bounds are intersected (`⊓`, T7-1). Bounds with no common narrowing are an error.
@@ -420,10 +420,10 @@ Order *is* meaningful when two bounds overlap. In `Adjacency<Tile<Area>, Tile<Ar
 open.
 
 > **Non-normative example — Law Suit.** The removal record its trigger matches is written
-> `MyResourceWasRemoved<Anyone, Attacker@Player>`. The record's dependencies are the victim
+> `ResourceWasAttacked<Anyone, Attacker@Player>`. The record's dependencies are the victim
 > (`Owned_0`, bound `Owner`), the resource class, the attacker (bound `Player`) and the generation.
 > `Anyone` takes the victim position. The attacker skips the resource-class position, which cannot
-> hold a player, and takes the attacker position. Written `MyResourceWasRemoved<Attacker@Player,
+> hold a player, and takes the attacker position. Written `ResourceWasAttacked<Attacker@Player,
 > Anyone>`, the attacker would take the victim position, which accepts any owner, and the two parties
 > would swap.
 
@@ -1418,6 +1418,8 @@ represented class, as `StandardResource` in `CLASS Production<Class<@StandardRes
 whole literal is marked instead, as in `CLASS Owed<@Class<StandardResource>>`, it is the literal
 itself. A class literal written anywhere else in a header, such as inside another dependency or in a
 supertype argument, is an ordinary eligible occurrence, and so is its operand.
+The operand's eligibility concerns the represented class: a fixed concrete class supplies no
+variable even when that class has unspecified component dependencies, such as an owner.
 
 A header variable needs a marker when the class's own body refers to it, or when two dependency
 positions must agree (T3-8):
@@ -1430,7 +1432,7 @@ ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 action-used marker belongs to the player whose card it marks.
 
 > **Non-normative example — separate parties.** Law Suit's removal record is
-> `CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned`. Its owner
+> `CLASS ResourceWasAttacked<Class<Resource>, Player, GenerationScope> : Owned`. Its owner
 > is the victim and its `Player` dependency the attacker. They are separate variables, as they must
 > be: the record exists precisely because two different players are involved.
 
@@ -1604,7 +1606,7 @@ after the actor is bound. The canonical resource-removal watcher is:
 
 ```text
 -X @Resource<Victim@Owner(NOT Attacker@Player)> BY Attacker@Player::
-    MyResourceWasRemoved<Victim@Owner, Class<@Resource>, Attacker@Player>.
+    ResourceWasAttacked<Victim@Owner, Class<@Resource>, Attacker@Player>.
 ```
 
 When Player1 removes a resource, `Attacker@Player` is bound to `Player1`, giving
@@ -1613,7 +1615,7 @@ other player whose resource it was. This keeps "anyone but the actor" distinct f
 other player this event was about".
 
 > **Non-normative examples — Hydrologist and Aphrodite.** The Hydrologist milestone's watcher says
-> `OceanTile BY @Player: OceanCredit<@Player>`. When Player 2 places an ocean,
+> `OceanTile BY @Player: HydrologistCredit<@Player>`. When Player 2 places an ocean,
 > `@Player` is bound to `Player2`, so the credit belongs to the placer. Aphrodite says
 > `VenusStep BY Anyone: 2 MC`. The broad actor constraint removes the usual actor restriction, and
 > the money goes to Aphrodite's owner through its inherited `Me`.

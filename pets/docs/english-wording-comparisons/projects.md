@@ -2028,7 +2028,7 @@ CLASS Plantation : AutomatedCard {
   HAS =1 PlantTag<This>
   cost = 15
   requirement = HAS "2 ScienceTag"
-  This: DefaultGreeneryTile
+  This: PlaceGreeneryTile
 }
 ```
 
@@ -6821,7 +6821,7 @@ Class: `CrashSiteCleanup`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | REQUIRES THAT A PLAYER REMOVED ANOTHER PLAYER'S PLANTS THIS GENERATION. Gain 1 titanium or 2 steel. | — |
-| Generated text | \[MyResourceWasRemoved&lt;Anyone, Class&lt;Plant&gt;, Me@&gt;\]. Gain 1 titanium or 2 steel. | — |
+| Generated text | \[ResourceWasAttacked&lt;Anyone, Class&lt;Plant&gt;, Me@&gt;\]. Gain 1 titanium or 2 steel. | — |
 
 Pets declaration:
 
@@ -6829,7 +6829,7 @@ Pets declaration:
 CLASS CrashSiteCleanup : EventCard {
   HAS =1 EventTag<This>, Class<AttackHistoryWatcher>
   cost = 4
-  requirement = HAS "MyResourceWasRemoved<Anyone, Class<Plant>, Me@>"
+  requirement = HAS "ResourceWasAttacked<Anyone, Class<Plant>, Me@>"
   This: Titanium OR 2 Steel
   End: VictoryPoint
 }
@@ -7238,7 +7238,7 @@ Class: `LawSuit`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Steal 3 M€ from a player that REMOVED YOUR RESOURCES OR DECREASED YOUR PRODUCTION this generation. Place this card face down in THAT PLAYER'S EVENT PILE. | — |
-| Generated text | \[(MyResourceWasRemoved&lt;Me@Owner, Attacker@Player&gt; OR MyProductionWasDecreased&lt;Me@Owner, Attacker@Player&gt;): 3 MC FROM MC&lt;Attacker@Player&gt;\], then \[PlayedEvent&lt;Attacker@Player, Class&lt;This&gt;&gt; FROM This\]. | — |
+| Generated text | \[(ResourceWasAttacked&lt;Me@Owner, Attacker@Player&gt; OR ProductionWasAttacked&lt;Me@Owner, Attacker@Player&gt;): 3 MC FROM MC&lt;Attacker@Player&gt;\], then \[PlayedEvent&lt;Attacker@Player, Class&lt;This&gt;&gt; FROM This\]. | — |
 
 Pets declaration:
 
@@ -7246,7 +7246,7 @@ Pets declaration:
 CLASS LawSuit : EventCard {
   HAS =1 EarthTag<This>, =1 EventTag<This>, Class<AttackHistoryWatcher>
   cost = 2
-  This: (MyResourceWasRemoved<Me@, Attacker@Player> OR MyProductionWasDecreased<Me@, Attacker@Player>): 3 MC FROM MC<Attacker@Player> THEN PlayedEvent<Attacker@Player, Class<This>> FROM This
+  This: (ResourceWasAttacked<Me@, Attacker@Player> OR ProductionWasAttacked<Me@, Attacker@Player>): 3 MC FROM MC<Attacker@Player> THEN PlayedEvent<Attacker@Player, Class<This>> FROM This
   End: -VictoryPoint
 }
 ```

@@ -25,6 +25,9 @@ internal class RecordingStoreTest {
           store.discover()
           store.load("OtbGame20260818Test")
           assertNull(store.error)
+          assertTrue(
+              store.actionStops.any { it.generation == 1 && it.summary == "Green plays Pets" }
+          )
           store.seekToEvent(store.generationStarts.first())
           // The first action is Green playing Pets. Navigation must arrive before that choice,
           // with Pets still unplayed and the action offer in the queue, rather than its payment.

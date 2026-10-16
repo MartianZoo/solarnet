@@ -225,7 +225,7 @@ identify these removals or representation changes:
   Actor-value reuse machinery.
 - `ModulesReady`, replaced by correctly timed `BootstrapPhase` entry. This also changes the
   construction-order promise currently documented on `GamePremise.bootstrapClassName`.
-- `AdminOceanPlacement`, replaced by a rule separating chooser and attribution.
+- `PlaceOceanForAdmin`, replaced by a rule separating chooser and attribution.
 - `PartyLeader`'s name or representation, and possibly `ApplyRulingBonus` ownership.
 - Named helpers `CimmeriaPlacementBonus`, `PlaceNeutralTiles`, and `StageForReplicatedProject`.
 - `ProdOffset`, whose inline TODO proposes `ProductionBasement`. This also reaches the public

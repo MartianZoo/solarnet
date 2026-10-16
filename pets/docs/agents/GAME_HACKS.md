@@ -40,7 +40,7 @@ audit now lives in test sources; structural Pets and per-game configuration vali
 | Authored declarations contain no same-class tile or colony transmutations | Entries 8–9. Such transfers would repeat gain-triggered placement/building rewards. This does not prove that a sequence of separate removal/gain instructions cannot do the same thing. |
 | Delegate changes name a state, rather than bare `Delegate` | `Delegate` is for counts; changes name `PartyDelegate`, `PartyLeader`, `PartyFollower`, `LobbyDelegate`, or `Chairman`. |
 | Delegate gains are individual placements, without scalar or per-unit multiplication | Role selection and its consequences resolve for each placement. Use separate instructions or `EACH`; use a shared party variable when the delegates must enter the same party. |
-| Tile gains specify placement | `GreeneryTile` gains name an area or use `DefaultGreeneryTile`. Empty `GreeneryTile<>` does not name an area. `CityTile<>` explicitly requests its placement default. |
+| Tile gains specify placement | `GreeneryTile` gains name an area or use `PlaceGreeneryTile`. Empty `GreeneryTile<>` does not name an area. `CityTile<>` explicitly requests its placement default. |
 
 The card generator additionally rejects multiple inferred resource-storage kinds instead of silently
 dropping the ResourceCard role. `GenerateCardPetsTest` supplies a deliberately ambiguous card to
@@ -83,7 +83,7 @@ See [TfmEngine.kt](../../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt),
 
 The owner's decided rule interpretation is that global events do not remove earned milestone
 credit. Thawer and Hydrologist use cumulative counters, independent of the current temperature
-level or surviving ocean tiles. In particular, Hydrologist's `OceanCredit` must not depend on an
+level or surviving ocean tiles. In particular, Hydrologist's `HydrologistCredit` must not depend on an
 `OceanTile`. The current declarations in `bundles/goals/goals.pets` already use independent counters;
 do not reopen this as an unresolved marker-identity question.
 

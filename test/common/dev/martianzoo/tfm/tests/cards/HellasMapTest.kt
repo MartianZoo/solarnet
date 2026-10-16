@@ -19,7 +19,7 @@ internal class HellasMapTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
         // Hand the paid conversion to Admin to offer the legal greenery areas.
-        selectTask("DefaultGreeneryTile")
+        selectTask("PlaceGreeneryTile")
         doTask("GreeneryTile<Hellas_1_5>")
       }
     }
@@ -35,7 +35,7 @@ internal class HellasMapTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
           // Hand the paid conversion to Admin to offer the legal greenery areas.
-          selectTask("DefaultGreeneryTile")
+          selectTask("PlaceGreeneryTile")
           doTask("GreeneryTile<Hellas_9_7>")
           doTask("OxygenStep")
           doTask("0 MC")

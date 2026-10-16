@@ -108,7 +108,7 @@ when `X` has no candidates. The normal arm stays the normal rule, with no specia
 its type.
 
 - **Lava Flows:** [`LavaFlows_SpecialTile<VolcanicArea> OR (MAX 0 VolcanicArea: LavaFlows_SpecialTile<>)`](../src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5) uses a volcanic area if the map has one and the normal special-tile placement default otherwise.
-- **Default greenery:** [`CLASS DefaultGreeneryTile`](../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets) offers `GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>` and opens the wider `GreeneryTile<LandArea>` choice only when no empty adjacent area exists.
+- **Default greenery:** [`CLASS PlaceGreeneryTile`](../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets) offers `GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>` and opens the wider `GreeneryTile<LandArea>` choice only when no empty adjacent area exists.
 
 `OR` is a player choice if both arms survive. The zero test matters: an ungated fallback would offer
 an extra placement even when the normal placement is available.

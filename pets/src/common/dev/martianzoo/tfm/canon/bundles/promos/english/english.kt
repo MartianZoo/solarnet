@@ -10,11 +10,11 @@ import dev.martianzoo.tfm.text.Determiner
 
 internal val promoEnglishDeclarations: List<Pair<ClassName, ComponentDescriber>> =
     listOf(
-        cn("MyResourceWasRemoved") to
+        cn("ResourceWasAttacked") to
             ComponentDescriber(
                 requirementCondition =
                     ComponentDescriber.RequirementCondition.ArgumentState(
-                        Key(cn("MyResourceWasRemoved"), 1),
+                        Key(cn("ResourceWasAttacked"), 1),
                         "removed your resources this generation",
                     ),
                 triggerFrame =
@@ -24,11 +24,11 @@ internal val promoEnglishDeclarations: List<Pair<ClassName, ComponentDescriber>>
                         passive = true,
                     ),
             ),
-        cn("MyProductionWasDecreased") to
+        cn("ProductionWasAttacked") to
             ComponentDescriber(
                 requirementCondition =
                     ComponentDescriber.RequirementCondition.ArgumentState(
-                        Key(cn("MyProductionWasDecreased"), 1),
+                        Key(cn("ProductionWasAttacked"), 1),
                         "decreased your production this generation",
                     ),
                 triggerFrame =

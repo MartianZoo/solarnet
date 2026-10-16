@@ -13,7 +13,7 @@ ABSTRACT CLASS StandardAction : Owned<Player>, Signal {
   }
   CLASS ConvertPlants {
     This: 8 Owed<Class<Plant>> THEN Billing<Class<ConvertPlants>, Class<Plant>> \
-      THEN MAX 0 Billing: DefaultGreeneryTile
+      THEN MAX 0 Billing: PlaceGreeneryTile
   }
   CLASS ConvertHeat {
     This: 8 Owed<Class<Heat>> THEN Billing<Class<ConvertHeat>, Class<Heat>> \
@@ -56,7 +56,7 @@ ABSTRACT CLASS StandardProject : HasActions, Real {
 
   CLASS GreeneryProject {
     cost = 23
-    1 MC / cost -> DefaultGreeneryTile
+    1 MC / cost -> PlaceGreeneryTile
   }
 
   CLASS CityProject {

@@ -95,7 +95,7 @@ internal class GoalsTest : TfmSandboxTest() {
           "18 Pay<> FROM MC",
           "OceanTile<$area>",
           "TerraformRating",
-          "OceanCredit",
+          "HydrologistCredit",
           bonus,
       )
     }

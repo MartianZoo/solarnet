@@ -55,7 +55,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
         doTask("ConvertPlants")
         doTask("8 Pay<Class<Plant>> FROM Plant")
         // Hand the paid conversion to Admin to offer the legal greenery areas.
-        selectTask("DefaultGreeneryTile")
+        selectTask("PlaceGreeneryTile")
         doTasks("GreeneryTile<Amazonis_05_03>", "Steel", "OxygenStep", "TerraformRating", "-3 MC")
       }
     }
@@ -67,7 +67,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       // Hand the paid conversion to Admin to offer the legal greenery areas.
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTasks("GreeneryTile<Amazonis_05_03>", "MC")
       doTask("OxygenStep")
       doTasks("TerraformRating", "-3 MC")

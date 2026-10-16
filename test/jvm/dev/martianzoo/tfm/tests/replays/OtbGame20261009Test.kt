@@ -636,7 +636,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       )
       p1.doTasks("PROD[MC]")
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_4_4>",
           "Plant",
@@ -961,7 +961,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_4_6>",
           "ProjectCard",
@@ -1421,7 +1421,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_6_4>",
           "4 MC",
@@ -1670,7 +1670,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_3_4>",
           "2 MC",
@@ -1810,7 +1810,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // "Then I'd better hurry up and pay 23 as well. That maxes out the oxygen."
     p1.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_9_8>",
           "Titanium",
@@ -1883,7 +1883,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       declineTask("Plant<Pink>! OR Ok")
       p1.doTasks("PROD[MC]")
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks("GreeneryTile<Vastitas_3_5>", "Plant")
       selectTask("OxygenStep") // oxygen is already maxed
     }
@@ -2121,7 +2121,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
     p2.turn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      selectTask("MAX 0 Billing: PlaceGreeneryTile")
       doTasks(
           "GreeneryTile<Vastitas_2_3>",
           "2 MC",
@@ -2153,7 +2153,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // "Do you replace, you don't." "I do actually." "You do." "Probably on two four."
     // The final photo shows Pink's last greenery here.
     p2.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
+    p2.selectTask("MAX 0 Billing: PlaceGreeneryTile")
     p2.doTasks("GreeneryTile<Vastitas_2_4>")
     p2.doTasks("Done") // no more plants to convert
     // board-16-47-03.jpg, after final greenery.

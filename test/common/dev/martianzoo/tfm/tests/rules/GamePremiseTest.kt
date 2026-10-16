@@ -217,9 +217,9 @@ internal class GamePremiseTest {
     val admin = game.testAgent(ADMIN)
 
     admin.count("SelectedColonyTile") shouldBe 3
-    admin.count("CallistoSelected") shouldBe 1
-    admin.count("LunaSelected") shouldBe 1
-    admin.count("EnceladusSelected") shouldBe 1
+    admin.count("SelectedCallisto") shouldBe 1
+    admin.count("SelectedLuna") shouldBe 1
+    admin.count("SelectedEnceladus") shouldBe 1
     admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
 
     game.testTfm(ADMIN).startGame()

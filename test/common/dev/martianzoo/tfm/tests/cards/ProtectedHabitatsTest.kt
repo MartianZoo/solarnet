@@ -18,7 +18,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       // Hand the paid conversion to Admin to offer the legal greenery areas.
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTask("GreeneryTile<Tharsis_1_1>")
       doTask("OxygenStep")
       doTasks("2 Steel", "TerraformRating")

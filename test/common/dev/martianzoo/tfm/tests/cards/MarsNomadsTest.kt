@@ -279,14 +279,14 @@ internal class MarsNomadsTest : TfmSandboxTest() {
         doTask("ConvertPlants")
         doTask("8 Pay<Class<Plant>> FROM Plant")
         // Hand the paid conversion to Admin to offer the legal greenery areas.
-        selectTask("DefaultGreeneryTile")
+        selectTask("PlaceGreeneryTile")
         doTask("GreeneryTile<Tharsis_2_2>")
       }
     }
     return kim.inTurn {
       doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       // Hand the paid conversion to Admin to offer the legal greenery areas.
-      selectTask("DefaultGreeneryTile")
+      selectTask("PlaceGreeneryTile")
       doTask("GreeneryTile<Tharsis_9_7>")
     }
   }

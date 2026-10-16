@@ -13,16 +13,16 @@ CLASS Builder : Milestone {
 CLASS Hydrologist : Milestone {
   HAS MAX 1 Hydrologist
   HAS Class<HydrologistWatcher>
-  requirement = HAS "4 OceanCredit"
+  requirement = HAS "4 HydrologistCredit"
 }
 
 "Tracks ocean placements only while Hydrologist is in the milestone pool"
 CLASS HydrologistWatcher<Class<Hydrologist>> : CardWatcher {
-  OceanTile BY @Player: OceanCredit<@Player>
+  OceanTile BY @Player: HydrologistCredit<@Player>
 }
 
 "A player's credit for placing an ocean"
-CLASS OceanCredit : Owned<Player>
+CLASS HydrologistCredit : Owned<Player>
 
 CLASS Legend : Milestone {
   HAS MAX 1 Legend

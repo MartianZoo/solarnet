@@ -184,7 +184,7 @@ internal class CardTrackingTest : TfmTest() {
     val tracking = CardTracking.start(game)
     admin.runOperation("Generation")
     agents[attacker].runOperation("3 MC")
-    agents[holder].runOperation("MyProductionWasDecreased<$holder, Class<Energy>, $attacker>")
+    agents[holder].runOperation("ProductionWasAttacked<$holder, Class<Energy>, $attacker>")
     tracking.expectArrivals(holder, cn("LawSuit"))
     agents[holder].runOperation("ProjectCard")
     val before = game.timeline.checkpoint()

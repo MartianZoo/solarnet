@@ -77,7 +77,7 @@ internal class ClassTableSelectionTest {
           view,
           setOf(
               cn("Hydrologist"),
-              cn("OceanCredit"),
+              cn("HydrologistCredit"),
               cn("HydrologistWatcher"),
               cn("Diversifier"),
               cn("DiversifierWatcher"),

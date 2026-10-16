@@ -16,7 +16,7 @@ internal class TilePlacingTest {
     val game = setUpGame()
     val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
 
-    p1.runOperation("DefaultGreeneryTile") { doTask("GreeneryTile<Tharsis_3_3>") }
+    p1.runOperation("PlaceGreeneryTile") { doTask("GreeneryTile<Tharsis_3_3>") }
 
     assertEquals(1, p1.count("GreeneryTile<Tharsis_3_3>"))
   }
@@ -79,7 +79,7 @@ internal class TilePlacingTest {
 
     // Player1 is 2 money short of what they need to place on the south pole
     assertFailsWith<LimitsException> { // do we care which step fails?
-      p1.runOperation("DefaultGreeneryTile") {
+      p1.runOperation("PlaceGreeneryTile") {
         doTask("GreeneryTile<Hellas_9_7>")
         doTask("OceanTile<Hellas_4_6>")
       }
@@ -88,13 +88,13 @@ internal class TilePlacingTest {
 
     // But too bad, they don't get permission to place elsewhere!
     assertFailsWith<NarrowingException> {
-      p1.runOperation("DefaultGreeneryTile") { doTask("GreeneryTile<Hellas_7_5>") }
+      p1.runOperation("PlaceGreeneryTile") { doTask("GreeneryTile<Hellas_7_5>") }
     }
 
     // That concludes our test. But for funsies,
     // Suppose there had already been an ocean to place next to - now it works
     p2.runOperation("OceanTile<Hellas_5_6>")
-    p1.runOperation("DefaultGreeneryTile") {
+    p1.runOperation("PlaceGreeneryTile") {
       doTask("GreeneryTile<Hellas_9_7>")
       doTask("OceanTile<Hellas_4_6>")
     }

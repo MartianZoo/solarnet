@@ -258,27 +258,27 @@ public object TfmEngine {
   }
 
   private object PlayerDistance : CustomMetric() {
-    private val afterMe = cn("AfterMe")
+    private val nextPlayer = cn("NextPlayer")
 
     override fun count(game: GameReader, type: Type): Int {
       val (source, target) = type.typeDependencies.map { it.boundType }
-      val relations = game.getComponents(game.resolve(afterMe.expression))
+      val relations = game.getComponents(game.resolve(nextPlayer.expression))
       val successors =
           relations.elements.associate { relation ->
             val (before, after) = relation.typeDependencies.map { it.boundType }
             before to after
           }
-      require(successors.size == relations.size) { "AfterMe must have one successor per Player" }
+      require(successors.size == relations.size) { "NextPlayer must have one successor per Player" }
 
       if (target !in successors) return successors.size
       if (source !in successors) return 0
       if (source == target) return 0
       var current = source
       for (distance in 1..successors.size) {
-        current = requireNotNull(successors[current]) { "$current has no AfterMe successor" }
+        current = requireNotNull(successors[current]) { "$current has no NextPlayer successor" }
         if (current == target) return distance
       }
-      error("$target is not reachable from $source through AfterMe")
+      error("$target is not reachable from $source through NextPlayer")
     }
   }
 

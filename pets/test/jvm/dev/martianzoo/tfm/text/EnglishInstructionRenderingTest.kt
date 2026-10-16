@@ -105,7 +105,7 @@ internal class EnglishInstructionRenderingTest {
   internal fun preservesUnsupportedConditionsInsideRenderedEffects() {
     english.describe(parse<Effect>("ProductionPhase IF MAX 0 Audit: 8 MC")) shouldBe
         "When the production phase begins, if [MAX 0 Audit], gain 8 M€."
-    english.describe(parse<Effect>("ProductionPhase IF MAX 0 HasRaisedTr: 8 MC")) shouldBe
+    english.describe(parse<Effect>("ProductionPhase IF MAX 0 TrWasRaised: 8 MC")) shouldBe
         "When the production phase begins, if it is not the case that your terraform rating has been raised this generation, gain 8 M€."
     english.describe(parse<Effect>("ProductionPhase IF MAX 0 ActionPhase: 8 MC")) shouldBe
         "When the production phase begins, if it is not the case that the action phase is active, gain 8 M€."
