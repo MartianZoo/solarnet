@@ -101,6 +101,49 @@ internal class EnglishCompositionalRenderingTest {
   }
 
   @Test
+  fun adjacencyCallsTheCurrentCardsConcreteTileThisTile() {
+    val describers =
+        Describers(Canon.classTable, TerraformingMarsDescribers.descriptions)
+            .forCard(Canon.classTable.getClass(cn("MiningArea")), null)
+    renderInstructionTree(
+            parse<InstructionTree>("MC / Adjacency<MiningArea_SpecialTile, OceanTile>"),
+            describers,
+        )
+        .linearize() shouldBe "Gain 1 M€ per ocean tile next to this tile."
+  }
+
+  @Test
+  fun adjacencyDoesNotCallAnotherCardsTileThisTile() {
+    val describers =
+        Describers(Canon.classTable, TerraformingMarsDescribers.descriptions)
+            .forCard(Canon.classTable.getClass(cn("MiningArea")), null)
+    renderInstructionTree(
+            parse<InstructionTree>("MC / Adjacency<MiningRights_SpecialTile, OceanTile>"),
+            describers,
+        )
+        .linearize() shouldContain "["
+  }
+
+  @Test
+  fun adjacencyDoesNotCallAnAbstractSpecialTileThisTile() {
+    val describers =
+        Describers(Canon.classTable, TerraformingMarsDescribers.descriptions)
+            .forCard(Canon.classTable.getClass(cn("MiningArea")), null)
+    renderInstructionTree(
+            parse<InstructionTree>("MC / Adjacency<SpecialTile, OceanTile>"),
+            describers,
+        )
+        .linearize() shouldContain "["
+  }
+
+  @Test
+  fun adjacencyNeedsCardContextToIdentifyThisTile() {
+    english.describe(
+        parse<InstructionTree>("MC / Adjacency<MiningArea_SpecialTile, OceanTile>")
+    ) shouldContain "["
+  }
+
+  @Test
   fun siteOccupantFiltersPreserveOwnership() {
     english.describe(parse<InstructionTree>("OceanTile<LandArea(HAS CityTile)>!")) shouldBe
         "Place an ocean tile on a land area with a city tile of your own."

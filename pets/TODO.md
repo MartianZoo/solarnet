@@ -78,7 +78,3 @@ Delete entries when they are done.
   remaining billing obligations before hiding any additional bookkeeping. The Solarnet-local input is
   `_local/replay-selected-task-instructions.txt`; the comparison is `_local/replay-task-english.txt`.
   Do not treat bracket-free counts as UI readiness.
-
-- Apply current-card identity checks to `CountedRelation.renderParticipant`: it can still call
-  an arbitrary `SpecialTile` "this tile" in adjacency metrics. Site-occupant filters now check
-  which concrete tile the current card places; no current Canon metric exposes the older gap.
