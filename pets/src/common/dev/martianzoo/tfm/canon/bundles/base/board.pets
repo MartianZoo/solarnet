@@ -44,11 +44,13 @@ CLASS Placement<MarsArea> : Owned<Player>, Signal, System
 
 "A player cube placed on an area by LandClaim or ArcadianCommunities"
 CLASS Community : OwnedOccupant<@LandArea> {
+  // The new tile and this cube cannot both occupy the area after the placement.
   Tile<@LandArea> BY Me@:: -This
 }
 
 "A hexagonal tile in play"
 ABSTRACT CLASS Tile : Occupant {
+  // Capture the neighbors at placement time; later tiles must not enter this snapshot.
   This:: EACH @Tile<MarsArea(HAS Neighbor<This>)> { \
     ForwardAdjacency<@Tile, This>, \
     BackwardAdjacency<This, @Tile> \
@@ -157,7 +159,7 @@ CLASS GpComplete<Class<@GlobalParameter>> : System {
 "An obstacle to the game ending"
 CLASS GpGameEndBarrier<@Class<GlobalParameter>> : GameEndBarrier, System {
   HAS MAX 1 This
-  GpComplete<@Class>:: -This
+  GpComplete<@Class>: -This
 }
 
 "Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"

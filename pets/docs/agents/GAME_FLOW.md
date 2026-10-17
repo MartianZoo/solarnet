@@ -19,6 +19,9 @@ that published turn and declines an unused second opportunity.
 - Accepting `StandardAction`, `DoRequiredActions`, or `PlayCard` creates a scope only when
   none exists. Generic `UseAction` does not create a scope: reactive abilities and nested card
   plays resolve within the current action.
+- `PlayCard` and `UseAction` are System signals. The player supplies any unresolved card or
+  action choice; Admin executes the fully specified dispatch. Standard-action forwarding uses
+  ordinary queued effects, so it does not require another player decision.
 - The scope remains through payment, effects, placement bonuses, other players' responses, and
   `LATER` cleanup. Its own `FINALLY { -This }` ends that lifetime. Scope-removal reactions schedule
   further `FINALLY` work to offer another action or release the baton, after fixed removal

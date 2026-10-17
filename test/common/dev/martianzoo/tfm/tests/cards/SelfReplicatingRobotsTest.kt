@@ -33,7 +33,12 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("UseCardAction<FakeSelfReplicatingRobots, Action1>")
+        doTasks(
+            "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+            "StageForReplicatedProject<Class<TitaniumMine>>",
+            "-ProjectCard<Kim, Hand>",
+            "2 RobotUnit<Class<TitaniumMine>>",
+        )
       }
     }
 

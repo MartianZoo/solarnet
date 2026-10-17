@@ -5,6 +5,7 @@ ABSTRACT CLASS Content
 CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
+  // Premise adjustments, including negative counts, run immediately after module creation.
   This:: 2 SelectableCorporationCount
   New@Player IF MultiplayerMode:: NextPlayer<Player, New@>*
   premiseRequirement = HAS "(Unsafe OR MAX 0 Class<EcologyExperts> OR (MAX 0 Class<ViralEnhancers>, MAX 0 Class<EcologicalZone>, MAX 0 Class<Decomposers>, MAX 0 Class<GmoContract>)), (Unsafe OR MAX 0 Class<AmazonisMap> OR (MAX 0 Class<MiningGuild>, MAX 0 Class<MiningRights>, MAX 0 Class<MiningArea>)), (Unsafe OR MAX 0 Class<PreservationProgram> OR (MAX 0 Class<TerraformingDeal>, MAX 0 Class<TurmoilExpansion>)), (Unsafe OR MAX 0 Class<Merger> OR MAX 0 Class<SagittaFrontierServices>), (Unsafe OR MAX 0 Class<FocusedOrganization> OR MAX 0 Class<StormcraftIncorporated>)"
@@ -153,7 +154,7 @@ ABSTRACT CLASS Phase : System, Iconic {
 
   CLASS BootstrapPhase
   CLASS SetupPhase {
-    This:: Generation
+    This: Generation
     This: FINALLY { CorporationPhase FROM This }
   }
   CLASS CorporationPhase : TurnBasedPhase {
@@ -169,7 +170,7 @@ ABSTRACT CLASS Phase : System, Iconic {
     CardFront<Class<BeginnerCard>>: BuySelectedCards
   }
   CLASS ResearchPhase {
-    This:: Generation
+    This: Generation
     This: LATER Admin { EACH @ProjectCard<Anyone, Selecting> { -@ProjectCard } }
     This: FINALLY { ActionPhase FROM This }
   }
@@ -239,7 +240,7 @@ ABSTRACT CLASS RoundStatus : Owned<Player>
 
 "Lets a player take action-phase turns until they pass"
 CLASS InRound<ActionPhase> : RoundStatus, System {
-  Baton IF 2 InRound<Player>:: SecondAction
+  Baton IF 2 InRound<Player>: SecondAction
 
   OfferAction IF MAX 0 RequiredAction: StandardAction OR Pass
   OfferAction IF RequiredAction: DoRequiredActions OR Pass

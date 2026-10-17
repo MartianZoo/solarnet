@@ -47,6 +47,11 @@ selection, inspect the current source and tests for implemented behavior. Use th
 roadmap to locate the owning design note and understand its priority and status. Keep detailed
 decisions in that note rather than duplicating them in the roadmap.
 
+The [automatic-effect audit](automatic-effects-audit.tsv) inventories the 2026-10-16 source uses
+of `::`, including fake cards. Paths are repository-relative. `assessment` and `source_excerpt`
+record the audit finding; `current_status` distinguishes retained effects from later queued
+conversions. The inventory is evidence for follow-up, not proof that a proposed conversion works.
+
 For game export/import design, read [`EXPORT.md`](EXPORT.md), then inspect current recording,
 decision-log, premise, and replay code for implemented behavior.
 

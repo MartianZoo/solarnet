@@ -263,6 +263,7 @@ internal class AgentImpl(
                   combineScalars = true,
               )
             }
+            finishTaskHandoff()
           }
         }
         autoExecLoop.run()
@@ -402,6 +403,7 @@ internal class AgentImpl(
           parsed.submittedAsGroup,
       )
     }
+    finishTaskHandoff()
   }
 
   override fun doTask(narrowing: String, contextClass: ClassName) = decide {
@@ -414,6 +416,7 @@ internal class AgentImpl(
           contextClass = contextClass,
       )
     }
+    finishTaskHandoff()
   }
 
   override fun doTask(narrowing: String, taskId: TaskId) = decide {
@@ -426,6 +429,7 @@ internal class AgentImpl(
           taskId,
       )
     }
+    finishTaskHandoff()
   }
 
   override fun doTask(taskId: TaskId) = decide {
@@ -437,6 +441,7 @@ internal class AgentImpl(
     ) {
       engine.doTask(taskId)
     }
+    finishTaskHandoff()
   }
 
   override fun tryTask(narrowing: String) = decide {
@@ -477,6 +482,14 @@ internal class AgentImpl(
   private fun decide(block: () -> Unit): TaskResult = atomic {
     markDecision()
     block()
+  }
+
+  private fun finishTaskHandoff() {
+    val pending = world.tasks.selectedTask() ?: return
+    autoExecLoop.run()
+    if (pending in world.tasks) {
+      throw TaskException("task $pending did not finish after its Actor handoff")
+    }
   }
 
   private fun markDecision() {

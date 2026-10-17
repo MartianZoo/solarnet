@@ -1151,7 +1151,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 3:30:14 PM — Green: "Yep on one two, but that's still it's two one which still gets me a TR
       // Oceans are at nine [Blue] you have your option"
       cardAction2(IcyImpactors) {
-        rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
+        rainbow.selectTask("OceanTile<Amazonis_02_01> BY Green")
         green.doTask("OceanTile<Amazonis_02_01>")
         green.doTask("TerraformRating")
         blue.selectTask("UseAction<NeptunianOption>?")

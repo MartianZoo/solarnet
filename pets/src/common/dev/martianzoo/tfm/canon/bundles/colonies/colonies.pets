@@ -16,8 +16,8 @@ CLASS ColoniesExpansion : Module {
 ABSTRACT CLASS ColonyTile : Content, System, Iconic {
   HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 Trade<This>
 
-  This:: ColonyProduction<This>
-  Colony<This>:: ColonyProduction<This> / Colony<This, Anyone> - ColonyProduction<This>
+  This: ColonyProduction<This>
+  Colony<This>: ColonyProduction<This> / Colony<This, Anyone> - ColonyProduction<This>
   ResetColonyProduction<This>: -ColonyProduction<This>* / ColonyProduction<This> - Colony<This, Anyone>
   AdvanceColonyTracks: ColonyProduction<This>*
   FinishTrade<This>: ResetColonyProduction<This>

@@ -58,8 +58,15 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
 - actually plan out how exMachina should work
-- Audit remaining non-payment `::` effects; retain
-  immediate execution only where a concrete gameplay need justifies it.
+- Replace ordering-only `::` protocols in pricing/acceptance, wild-tag preparation, and
+  Turmoil/Politician influence measurement. Decompose government formation before judging its
+  individual invariant repairs; `THEN` on a signal does not wait for its triggered work.
+- Remove bootstrap/client-shape reasons for `::`: default offer counts before signed adjustments,
+  inferred construction order, and bundled card-search/reward/Audit work. Preserve meaningful
+  correction relationships and avoid adding client steps.
+- Revisit queued requirement adjustments without adding a player step: `Required` is System, but
+  `-2 Required<Class<GlobalParameter>>` remains abstract until selection. Inventrix, Adaptation
+  Technology, and Special Design therefore still use immediate live narrowing.
 
 - Revisit ownership of `Selecting`, `Hand`, and played events together, including per-player
   cleanup of shared `Selecting` while other players' starting offers remain there.
