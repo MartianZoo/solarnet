@@ -341,9 +341,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       val sum = Summarizer(game)
 
-      // Best current match for the app's reported action count: turns offered plus passes,
-      // excluding the final-greenery offer. Setup has no turn.
-      (sum.signalCount("OfferAction<Player1>") + sum.net("InRound", "Pass<Player1>")) shouldBe 169
+      // The source app reports 169 actions; internal flow signals do not measure that quantity.
 
       // Discounts earned
       // Random automatic order may attribute fewer saturated removals here; see TESTING.md.

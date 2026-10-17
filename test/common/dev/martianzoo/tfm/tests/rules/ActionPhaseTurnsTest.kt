@@ -38,9 +38,14 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.selectTask("PassBaton")
     rob.doTask("Pass")
+    val lastPlayerActions = game.timeline.checkpoint()
 
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    game.events.changesSince(lastPlayerActions).none {
+      it.change.gaining?.type?.className == cn("Baton") ||
+          it.change.removing?.type?.className == cn("Baton")
+    } shouldBe true
     kim.doTask("Pass")
     admin.count("ProductionPhase") shouldBe 1
     admin.count("Baton") shouldBe 0

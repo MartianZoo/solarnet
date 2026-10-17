@@ -6,11 +6,6 @@ Delete entries when they are done.
   `premiseRequirement` out of Pets properties. Pairwise implementation incompatibilities already
   live in card JSON and are checked as catalog metadata; broader policy changes are deferred.
 
-- Investigate consolidating the repeated action-scope completion checks in Corporation, Prelude,
-  Action, and Final Greenery. Phase entry and initial offers are shared through `StartToken` and
-  `Baton`; continuation still depends on the phase, remaining Preludes, and `SecondAction`.
-  Prefer existing mechanisms before adding another completion signal.
-
 - Finish selection of concrete `Content` subclasses: support all applicable items from a bundle,
   independent party selection, and map selection separate from its Module role. Supporting
   declarations still use file membership and category-specific availability rules; `Content`
@@ -109,3 +104,14 @@ Delete entries when they are done.
   share the enclosing scope, so Suitable Infrastructure pays only once and wild-tag elections
   persist. Keep these limitations explicit; revisit only if existing mechanisms can model its
   timing without special turn-flow machinery. See [game flow](docs/agents/GAME_FLOW.md#head-start-restored-approximation).
+
+- Revisit initial `Baton: OfferAction` forwarding only if it reduces the whole turn model.
+  Final greenery uses it. A bounded alternative passed the turn/scope tests but needed a deferred
+  initial offer, an exception in Baton's shared completion rule, and a separate first-action
+  completion listener in `InRound`; it was reverted rather than exchanging repetition for exceptions.
+  Consolidate corporation/beginner offers only if the result is clearer.
+  A guarded starting-Preludes-in-`Selecting` experiment did not provide the hoped-for generic hand
+  check: corporation cleanup discarded them, excluding Preludes from cleanup retained New Partner's
+  unused offer, and purchased project cards kept `CardBack<Hand>` nonempty after corporation play.
+  The experiment was reverted; any follow-up must distinguish retained cards from temporary offers
+  without adding disproportionate machinery.

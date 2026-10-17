@@ -9,9 +9,7 @@ CLASS SoloMode : GameMode {
   This: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft
 
-  // Solo play keeps the baton until the phase ends.
-  PassBaton<@Player> IF Baton<@Player>, ActionPhase, InRound<Player>: FINALLY { OfferAction<@Player> }
-  PassBaton<@Player> IF Baton<@Player>, (MAX 0 ActionPhase OR MAX 0 InRound<Player>): FINALLY { -Baton<@Player> }
+  PassBaton<@Player> IF Baton<@Player>: FINALLY { -Baton<@Player> }
   // Only a won solo game has final greenery and scoring.
   Victory IF ProductionPhase: FinalGreeneryPhase FROM ProductionPhase BY Admin
 }

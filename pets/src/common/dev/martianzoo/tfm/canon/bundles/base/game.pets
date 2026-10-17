@@ -138,8 +138,8 @@ CLASS NextPlayer<Previous@Owner, Next@Player> : System {
   ResearchPhase IF MultiplayerMode, StartToken<Previous@>: StartToken<Next@ FROM Previous@>*
 
   // Continue cyclically during the action phase; otherwise stop at the start player.
-  PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, InRound<Player>) OR (MAX 0 ActionPhase, MAX 0 StartToken<Next@>)): FINALLY { Baton<Next@ FROM Previous@> }
-  PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, MAX 0 InRound<Player>) OR (MAX 0 ActionPhase, StartToken<Next@>)): FINALLY { -Baton<Previous@> }
+  PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, InRound<Anyone>) OR (MAX 0 ActionPhase, MAX 0 StartToken<Next@>)): FINALLY { Baton<Next@ FROM Previous@> }
+  PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, MAX 0 InRound<Anyone>) OR (MAX 0 ActionPhase, StartToken<Next@>)): FINALLY { -Baton<Previous@> }
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal VictoryPhase"
@@ -155,11 +155,11 @@ ABSTRACT CLASS Phase : System, Iconic {
     This: Photosynthesis
     This: EACH Class<@CardWatcher> { @CardWatcher }
 
-    OfferAction IF CorporationCard<Hand>: \
-      PlayCard<Class<CorporationCard>, Class<CardFront>, Hand>
-    OfferAction IF BeginnerCard<Hand>: \
-      PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand>
-    -ActionScope<@Player> IF Baton<@Player>: FINALLY { PassBaton<@Player> }
+    Baton<Me@Player> OR OfferAction<Me@Player> IF CorporationCard<Hand>: \
+      PlayCard<Me@Player, Class<CorporationCard>, Class<CardFront>, Hand>
+    Baton<Me@Player> OR OfferAction<Me@Player> IF BeginnerCard<Hand>: \
+      PlayCard<Me@Player, Class<BeginnerCard>, Class<CardFront>, Hand>
+    OfferAction IF MAX 0 CorporationCard<Hand>, MAX 0 BeginnerCard<Hand>: PassBaton
     CardFront<Class<CorporationCard>>: BuySelectedCards
     CardFront<Class<BeginnerCard>>: BuySelectedCards
   }
@@ -185,9 +185,8 @@ ABSTRACT CLASS Phase : System, Iconic {
     This: FINALLY { ResearchPhase FROM This }
   }
   CLASS FinalGreeneryPhase : TurnBasedPhase {
+    Baton: OfferAction
     OfferAction: ConvertPlants OR PassBaton
-    // Each greenery has its own action scope; the player keeps the baton until declining.
-    -ActionScope<@Player> IF Baton<@Player>: FINALLY { OfferAction<@Player> }
     -Baton IF MAX 0 Baton: FINALLY { End FROM This }
   }
 
@@ -209,7 +208,7 @@ CLASS OfferAction : Owned<Player>, Signal, System
 "Held during a table turn; transferred to the next player or removed when the phase ends"
 CLASS Baton : Owned<Player>, System {
   HAS MAX 1 Baton
-  This: OfferAction
+  -ActionScope<Me@>: FINALLY { OfferAction }
 }
 
 "An accepted action and all of its consequences, including responses by other players"
@@ -231,12 +230,12 @@ ABSTRACT CLASS RoundStatus : Owned<Player>
 
 "Lets a player take action-phase turns until they pass"
 CLASS InRound<ActionPhase> : RoundStatus, System {
-  Baton IF 2 InRound<Player>: SecondAction
+  Baton IF 2 InRound<Anyone>: SecondAction
 
-  OfferAction IF MAX 0 RequiredAction: StandardAction OR Pass
-  OfferAction IF RequiredAction: DoRequiredActions OR Pass
-  -ActionScope<Me@> IF Baton, SecondAction: FINALLY { -SecondAction }
-  -ActionScope<Me@> IF Baton, MAX 0 SecondAction: FINALLY { PassBaton }
+  Baton OR (OfferAction IF MAX 0 Baton OR MAX 1 InRound<Anyone>) IF MAX 0 RequiredAction: StandardAction OR Pass
+  Baton OR (OfferAction IF MAX 0 Baton OR MAX 1 InRound<Anyone>) IF RequiredAction: DoRequiredActions OR Pass
+  OfferAction IF Baton, SecondAction: -SecondAction
+  OfferAction IF Baton, 2 InRound<Anyone>, MAX 0 SecondAction: PassBaton
   -SecondAction IF Baton, MAX 0 RequiredAction: StandardAction OR PassBaton
   -SecondAction IF Baton, RequiredAction: DoRequiredActions OR PassBaton
 }
@@ -246,8 +245,7 @@ CLASS Pass<GenerationScope> : RoundStatus {
   This:: -InRound*
 
   This IF ActionPhase, Baton, MAX 0 ActionScope<Me@>: FINALLY { PassBaton }
-  Baton IF ActionPhase: PassBaton
-  -ActionScope<Me@> IF ActionPhase, Baton: FINALLY { PassBaton }
+  Baton OR OfferAction IF ActionPhase: PassBaton
 }
 
 "Tells what generation we're in"
