@@ -32,6 +32,7 @@ client has not implemented pruning.
 | Canon invariants and historical composition hazards | [GAME_HACKS.md](GAME_HACKS.md) |
 | Class names and localized display names | [NAMING.md](NAMING.md) |
 | English rendering, vocabulary, wording, or card layout | [LANGUAGE.md](LANGUAGE.md); [NLG_REVIEW.md](NLG_REVIEW.md) is a review snapshot |
+| Almanac columns, navigation, and images | [ALMANAC.md](ALMANAC.md) |
 | Generated Kotlin vocabulary | [PETS_TYPE_GENERATOR.md](PETS_TYPE_GENERATOR.md) |
 | Generated map areas | [MAP_PETS_GENERATION.md](MAP_PETS_GENERATION.md) |
 | Canon XPath queries, authored/elaborated views, or CLI | [Canon XPath](canon-xpath.md); multiplatform module `search`, source and tests under `dev/martianzoo/search` |
