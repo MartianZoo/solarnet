@@ -33,7 +33,7 @@ internal object ActionTurnDiagram {
       listOf(
           Panel("Start the action phase", setOf("+ActionPhase")),
           Panel("Receive the baton", setOf("+Baton")),
-          Panel("Choose the first action or pass", setOf("+OfferAction")),
+          Panel("Resume after an action", setOf("+OfferAction")),
           Panel(
               "Accept an action",
               setOf("+StandardAction", "+DoRequiredActions", "+PlayCard"),
@@ -381,7 +381,7 @@ internal object ActionTurnDiagram {
     appendLine("## Reading routes")
     appendLine()
     appendLine(
-        "Normal play starts at 1; follow the numbered destinations. At each return to panel 6, read the current SecondAction condition. Passing enters panel 8. Panel 2 explains why a player carrying Pass immediately forwards the Baton. Panel 9 covers rotation, solo play, and the final release into production."
+        "Normal play starts at 1; follow the numbered destinations. Panel 6 schedules the next offer after an action finishes; panel 3 uses SecondAction to decide whether to offer another action or pass the baton. Passing enters panel 8. Panel 2 explains why a player carrying Pass immediately forwards the Baton. Panel 9 covers rotation, solo play, and the final release into production."
     )
     appendLine()
     appendLine("## Scope of this view")

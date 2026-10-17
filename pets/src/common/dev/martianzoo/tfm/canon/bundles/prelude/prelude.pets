@@ -15,10 +15,8 @@ CLASS PreludeExpansion : Module {
 CLASS SelectablePreludeCount : System
 
 CLASS PreludePhase : TurnBasedPhase {
-  OfferAction IF PreludeCard<Hand>: PlayPrelude
+  Baton<Me@Player> OR OfferAction<Me@Player> IF PreludeCard<Hand>: PlayPrelude<Me@Player>
   -PreludeCard<@Player> IF MAX 0 ActionScope:: ActionScope<@Player>
-  // Each Prelude has its own action scope; the player keeps the baton until all are played.
-  -ActionScope<@Player> IF Baton<@Player>, PreludeCard<@Player, Hand>: FINALLY { OfferAction<@Player> }
-  -ActionScope<@Player> IF Baton<@Player>, MAX 0 PreludeCard<@Player, Hand>: FINALLY { PassBaton<@Player> }
+  OfferAction IF MAX 0 PreludeCard<Hand>: PassBaton
   -Baton IF MAX 0 Baton: FINALLY { ActionPhase FROM This }
 }
