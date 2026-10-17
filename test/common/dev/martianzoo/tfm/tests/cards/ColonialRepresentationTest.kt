@@ -29,7 +29,7 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
     internal fun `Its influence improves a Global Event payout even without colonies`() {
       newTestGame("ColonialRepresentation, TurmoilExpansion", playerCount = 2)
       kim.doTasks("PlayProject<Class<$ColonialRepresentation>>")
-      kim.selectTask("-Baton") // Decline the second action.
+      kim.selectTask("PassBaton") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }

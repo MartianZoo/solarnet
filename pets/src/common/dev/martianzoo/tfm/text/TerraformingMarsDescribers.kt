@@ -660,15 +660,6 @@ internal object TerraformingMarsDescribers {
                         leave = Frame.Procedure("end", "your turn"),
                     ),
             ),
-        klass("ExtraAction") to
-            ComponentDescriber(
-                noun =
-                    counted(
-                        "additional action to take after finishing the current action",
-                        "additional actions to take in sequence after finishing the current action",
-                    ),
-                changeFrame = Frame.Countable,
-            ),
         klass("StandardAction") to
             ComponentDescriber(triggerFrame = Trigger.Named("take", "an action")),
         klass("DoRequiredActions") to

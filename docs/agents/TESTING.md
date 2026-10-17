@@ -359,7 +359,7 @@ Choose the fixture by what the scenario proves, not the kind of card:
 Gameplay tests submit the turns the game offers through plain `Agent`s. Use `doTask`/`doTasks`
 for explicit choices, or `completeOperation { ... }` when the whole operation must finish before
 returning. Do not use `inTurn`: it can create an out-of-turn offer when the actor has no pending
-work. Decline an offered second action explicitly with `0 StandardAction`; do not insert that
+work. Decline an offered second action explicitly with `selectTask("PassBaton")`; do not insert that
 choice after both actions, after a Prelude, or when all opponents have already passed.
 
 `TfmGameplayTest` describes authentic game flow, not the `TfmGameplay` convenience class. The

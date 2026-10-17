@@ -1789,14 +1789,14 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     )
     black.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
     black.doTasks("GreeneryTile<Elysium_4_2>", "Plant")
-    black.selectTask("-Baton")
-    blue.selectTask("-Baton")
+    black.selectTask("PassBaton")
+    blue.selectTask("PassBaton")
     red.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
     red.doTasks("GreeneryTile<Elysium_6_3>", "Plant")
     red.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
     red.doTasks("GreeneryTile<Elysium_8_5>")
-    red.selectTask("-Baton")
-    green.selectTask("-Baton")
+    red.selectTask("PassBaton")
+    green.selectTask("PassBaton")
 
     // 02:12:25 final map.
     assertEquals(

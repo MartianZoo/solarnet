@@ -54,7 +54,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
         .expect("PROD[Energy], -11 MC")
     admin.count("ActionScope") shouldBe 0
 
-    kim.selectTask("-Baton")
+    kim.selectTask("PassBaton")
     admin.count("ActionScope") shouldBe 0
     kim.count("Pass") shouldBe 0
     stan.doTask("Pass")
@@ -202,7 +202,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
           )
         }
         .expect("GreeneryTile, OxygenStep, Plant, TerraformRating")
-    kim.selectTask("-Baton")
+    kim.selectTask("PassBaton")
 
     stan.doTasks(
         "UseStandardProject<GreeneryProject>",

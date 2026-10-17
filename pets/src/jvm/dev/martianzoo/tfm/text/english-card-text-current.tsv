@@ -86,7 +86,7 @@ NewPartner	New Partner	Increase your M€ production 1 step. Look at 2 Prelude c
 Merger	Merger	Look at 4 corporation cards. Play a corporation card from the selection. Lose 42 M€.
 CorporateArchives	Corporate Archives	Gain 13 M€. Look at 7 cards. Keep 2 cards from the selection.
 DoubleDown	Double Down	Copy your other Prelude's direct effect.
-FakeHeadStart	Head Start	Gain 2 steel. Gain 2 M€ per card in hand. Gain 2 additional actions to take in sequence after finishing the current action.
+FakeHeadStart	Head Start	Gain 2 steel. Gain 2 M€ per card in hand. [MAX 0 RequiredAction: StandardAction] or [RequiredAction: DoRequiredActions]. [MAX 0 RequiredAction: StandardAction] or [RequiredAction: DoRequiredActions].
 AppliedScience	Applied Science	Add 6 science resources to this card. While performing a future action, the wild tag can become any tag of your choice.	Action: Spend 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain 1 standard resource.
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, oxygen 2 steps, or Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board of Directors	Add 4 director resources to this card.	Action: Draw 1 Prelude card. Discard 1 Prelude card or (spend 12 M€ and remove 1 director resource from this card to either play the selected Prelude card or discard it for 15 M€ if it cannot be played).

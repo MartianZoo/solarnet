@@ -19,7 +19,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
         }
         .expect("-19 MC, GreeneryTile, TerraformRating")
 
-    kim.selectTask("-Baton") // Decline the second action.
+    kim.selectTask("PassBaton") // Decline the second action.
     stan.doTask("Pass")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -61,10 +61,10 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
           autoExecNow(EAGER)
         }
         .expect("Titanium, -7 MC")
-    stan.selectTask("-Baton") // Decline the second action.
+    stan.selectTask("PassBaton") // Decline the second action.
     kim.doTasks("PlayProject<Class<$VestaShipyard>>", "1 Pay<Class<Titanium>> FROM Titanium")
         .expect("-Titanium, -11 MC")
-    kim.selectTask("-Baton") // Decline the second action.
+    kim.selectTask("PassBaton") // Decline the second action.
     stan.doTask("Pass")
     kim.doTask("Pass")
 

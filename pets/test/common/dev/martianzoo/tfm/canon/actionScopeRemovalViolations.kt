@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 
 /**
@@ -17,8 +18,8 @@ import dev.martianzoo.pets.types.ClassTable
  */
 internal fun actionScopeRemovalViolations(table: ClassTable): List<String> {
   val classes = table.allClasses()
-  // Releasing the baton or consuming extra actions can follow scope removal.
-  val roots = listOf("ActionScope", "Baton", "ExtraAction").map { table.getClass(cn(it)) }
+  // Passing the baton can follow scope removal.
+  val roots = listOf("ActionScope", "Baton", "PassBaton").map { table.getClass(cn(it)) }
   val expiring = classes.filter { klass -> roots.any(klass::isSubtypeOf) }.toMutableSet()
   do {
     // Include possible indirect dependents, including Tag<TagHolder> through WildTagElection.
@@ -41,6 +42,11 @@ internal fun actionScopeRemovalViolations(table: ClassTable): List<String> {
               effect.trigger.descendantsOfType<Trigger>().any { trigger ->
                 when (trigger) {
                   Trigger.WhenRemove -> expiring.any { it.isSubtypeOf(owner) }
+                  Trigger.WhenGain -> owner.className == cn("PassBaton")
+                  is Trigger.OnGainOf ->
+                      table
+                          .getClass(cn("PassBaton"))
+                          .isSubtypeOf(table.getClass(trigger.expression.className))
                   is Trigger.OnRemoveOf ->
                       expiring.any { it.isSubtypeOf(table.getClass(trigger.expression.className)) }
                   else -> false
@@ -50,7 +56,7 @@ internal fun actionScopeRemovalViolations(table: ClassTable): List<String> {
               !isScopeRemovalHandoff(
                   effect.instruction,
                   table,
-                  owner.className == cn("ActionPhase"),
+                  owner,
               )
         }
         .map { "${owner.className}: $it" }
@@ -60,7 +66,7 @@ internal fun actionScopeRemovalViolations(table: ClassTable): List<String> {
 private fun isScopeRemovalHandoff(
     tree: InstructionTree,
     table: ClassTable,
-    actionPhase: Boolean,
+    owner: Class,
 ): Boolean {
   fun fixedReference(expression: Expression): Boolean =
       expression == THIS.expression ||
@@ -84,8 +90,17 @@ private fun isScopeRemovalHandoff(
     return !change.count.abstract && quantifier?.abstract != true
   }
 
+  fun phase(expression: Expression): Boolean {
+    val klass = if (expression == THIS.expression) owner else table.getClass(expression.className)
+    return !klass.abstract &&
+        klass.isSubtypeOf(table.getClass(cn("Phase"))) &&
+        expression.arguments.isEmpty() &&
+        expression.refinement == null &&
+        expression.typeVariableName == null
+  }
+
   fun decline(tree: InstructionTree): Boolean =
-      tree is Instruction.Remove && target(tree.removing, "Baton") && fixedAmount(tree)
+      tree is Instruction.Gain && target(tree.gaining, "PassBaton") && fixedAmount(tree)
 
   fun nextAction(tree: InstructionTree): Boolean =
       when (tree) {
@@ -96,33 +111,32 @@ private fun isScopeRemovalHandoff(
       }
 
   return when (tree) {
-    is InstructionGroup -> tree.instructions.all { isScopeRemovalHandoff(it, table, actionPhase) }
-    is Instruction.Then -> tree.instructions.all { isScopeRemovalHandoff(it, table, actionPhase) }
+    is InstructionGroup -> tree.instructions.all { isScopeRemovalHandoff(it, table, owner) }
+    is Instruction.Then -> tree.instructions.all { isScopeRemovalHandoff(it, table, owner) }
     is Instruction.Dispatch ->
         (tree.actor == null || tree.actor == THIS.expression) &&
-            isScopeRemovalHandoff(tree.body, table, actionPhase)
-    is Instruction.Gated -> isScopeRemovalHandoff(tree.inner, table, actionPhase)
-    is Instruction.Per -> isScopeRemovalHandoff(tree.inner, table, actionPhase)
+            isScopeRemovalHandoff(tree.body, table, owner)
+    is Instruction.Gated -> isScopeRemovalHandoff(tree.inner, table, owner)
+    is Instruction.Per -> isScopeRemovalHandoff(tree.inner, table, owner)
     // Choosing the next action is allowed; choosing whether/how to clean up the old action is not.
     is Instruction.Or ->
         tree.instructions.any(::nextAction) &&
             tree.instructions.all { nextAction(it) || decline(it) }
     is Instruction.Change ->
         when (tree) {
-          is Instruction.Remove -> target(tree.removing, "Baton", "SecondAction", "ExtraAction")
+          is Instruction.Remove -> target(tree.removing, "Baton", "SecondAction")
           is Instruction.Gain ->
               target(
                   tree.gaining,
                   "Baton",
                   "OfferAction",
-                  "RoundOver",
+                  "PassBaton",
                   "StandardAction",
                   "DoRequiredActions",
               )
           is Instruction.Transmute ->
-              actionPhase &&
-                  tree.removing == THIS.expression &&
-                  target(tree.gaining, "ProductionPhase")
+              (target(tree.removing, "Baton") && target(tree.gaining, "Baton")) ||
+                  (phase(tree.removing) && phase(tree.gaining))
         } && fixedAmount(tree)
     else -> false
   }

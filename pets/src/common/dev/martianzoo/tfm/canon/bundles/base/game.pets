@@ -39,7 +39,7 @@ CLASS NoPreludes : Module {
   autoSelectWhen = HAS "TerraformingMars, MAX 0 PreludeExpansion"
   premiseRequirement = HAS "MAX 0 PreludeExpansion"
 
-  RoundOver IF CorporationPhase: ActionPhase FROM CorporationPhase
+  -Baton IF MAX 0 Baton, CorporationPhase: FINALLY { ActionPhase FROM CorporationPhase }
 }
 
 "Variant rule: each player begins with 1 of each production"
@@ -99,11 +99,6 @@ ABSTRACT CLASS Player : Owner, Actor {
   SetupPhase IF BeginnerVariant: BeginnerOption<This> OR StandardOption<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4? ProjectCard<This, Selecting> THEN BuySelectedCards<This>
   ActionScope<This>: LATER Admin { EACH @CardBack<This, Selecting> { -@CardBack } }
-  -ActionScope<This> IF ExtraAction<This>: FINALLY { \
-    -ExtraAction<This> THEN TASK This { \
-      (MAX 0 RequiredAction<This>: StandardAction<This>) OR (RequiredAction<This>: DoRequiredActions<This>) \
-    } \
-  }
   -Billing<This, Class<BuySelectedCards>, Action1>: \
     ProjectCard<This, Hand> FROM ProjectCard<This, Selecting> / ProjectCard<This, Selecting>
 }
@@ -142,8 +137,8 @@ CLASS NextPlayer<Previous@Owner, Next@Player> : System {
   ResearchPhase IF MultiplayerMode, StartToken<Previous@>: StartToken<Next@ FROM Previous@>*
 
   // Continue cyclically during the action phase; otherwise stop at the start player.
-  -Baton<Previous@> IF (ActionPhase, InRound<Player>) OR (MAX 0 ActionPhase, MAX 0 StartToken<Next@>): FINALLY { Baton<Next@> }
-  -Baton<Previous@> IF MAX 0 ActionPhase, StartToken<Next@>: FINALLY { RoundOver }
+  PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, InRound<Player>) OR (MAX 0 ActionPhase, MAX 0 StartToken<Next@>)): FINALLY { Baton<Next@ FROM Previous@> }
+  PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, MAX 0 InRound<Player>) OR (MAX 0 ActionPhase, StartToken<Next@>)): FINALLY { -Baton<Previous@> }
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal VictoryPhase"
@@ -163,7 +158,7 @@ ABSTRACT CLASS Phase : System, Iconic {
       PlayCard<Class<CorporationCard>, Class<CardFront>, Hand>
     OfferAction IF BeginnerCard<Hand>: \
       PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand>
-    -ActionScope<@Player> IF Baton<@Player>, MAX 0 ExtraAction<@Player>: FINALLY { -Baton<@Player> }
+    -ActionScope<@Player> IF Baton<@Player>: FINALLY { PassBaton<@Player> }
     CardFront<Class<CorporationCard>>: BuySelectedCards
     CardFront<Class<BeginnerCard>>: BuySelectedCards
   }
@@ -177,7 +172,7 @@ ABSTRACT CLASS Phase : System, Iconic {
     This:: EACH Me@Player { InRound* }
 
     // The last baton is put down only after the last action has finished.
-    -Baton IF MAX 0 InRound<Player>: FINALLY { ProductionPhase FROM This }
+    -Baton IF MAX 0 Baton: FINALLY { ProductionPhase FROM This }
   }
   CLASS ProductionPhase {
     // The game goes on while anything prevents it from ending.
@@ -189,10 +184,10 @@ ABSTRACT CLASS Phase : System, Iconic {
     This: FINALLY { ResearchPhase FROM This }
   }
   CLASS FinalGreeneryPhase : TurnBasedPhase {
-    OfferAction: ConvertPlants OR -Baton*
+    OfferAction: ConvertPlants OR PassBaton
     // Each greenery has its own action scope; the player keeps the baton until declining.
-    -ActionScope<@Player> IF Baton<@Player>, MAX 0 ExtraAction<@Player>: FINALLY { OfferAction<@Player> }
-    RoundOver: End FROM This
+    -ActionScope<@Player> IF Baton<@Player>: FINALLY { OfferAction<@Player> }
+    -Baton IF MAX 0 Baton: FINALLY { End FROM This }
   }
 
   "Final scoring"
@@ -210,7 +205,7 @@ ABSTRACT CLASS TurnBasedPhase : Phase
 "Requests an action offer; InRound or the current phase supplies its choices"
 CLASS OfferAction : Owned<Player>, Signal, System
 
-"Held by the player whose turn is in progress; removing it passes play to the next seat"
+"Held during a table turn; transferred to the next player or removed when the phase ends"
 CLASS Baton : Owned<Player>, System {
   HAS MAX 1 Baton
   This: OfferAction
@@ -227,11 +222,8 @@ CLASS ActionScope<Player> : Scope, System {
 "The option of a second ordinary action while this player holds the baton"
 CLASS SecondAction<Baton<@Player>> : Owned<@Player>, System { HAS MAX 1 This }
 
-"An additional mandatory action owed after the current action finishes"
-CLASS ExtraAction : Owned<Player>, System
-
-"Play has gone once around the table, starting from the start player"
-CLASS RoundOver : Signal, System
+"Requests that the current holder hand over the baton or finish the turn-based phase"
+CLASS PassBaton : Owned<Player>, Signal, System
 
 "Whether a player is still taking action-phase turns or has passed"
 ABSTRACT CLASS RoundStatus : Owned<Player>
@@ -242,19 +234,19 @@ CLASS InRound<ActionPhase> : RoundStatus, System {
 
   OfferAction IF MAX 0 RequiredAction: StandardAction OR Pass
   OfferAction IF RequiredAction: DoRequiredActions OR Pass
-  -ActionScope<Me@> IF Baton, MAX 0 ExtraAction, SecondAction: FINALLY { -SecondAction }
-  -ActionScope<Me@> IF Baton, MAX 0 ExtraAction, MAX 0 SecondAction: FINALLY { -Baton }
-  -SecondAction IF Baton, MAX 0 RequiredAction: StandardAction OR -Baton
-  -SecondAction IF Baton, RequiredAction: DoRequiredActions OR -Baton
+  -ActionScope<Me@> IF Baton, SecondAction: FINALLY { -SecondAction }
+  -ActionScope<Me@> IF Baton, MAX 0 SecondAction: FINALLY { PassBaton }
+  -SecondAction IF Baton, MAX 0 RequiredAction: StandardAction OR PassBaton
+  -SecondAction IF Baton, RequiredAction: DoRequiredActions OR PassBaton
 }
 
 "Instead of taking an action you can gain this, and be out for the rest of the generation"
 CLASS Pass<GenerationScope> : RoundStatus {
   This:: -InRound*
 
-  This IF ActionPhase, Baton, MAX 0 ActionScope<Me@>, MAX 0 ExtraAction: FINALLY { -Baton }
-  Baton IF ActionPhase: -Baton
-  -ActionScope<Me@> IF ActionPhase, Baton, MAX 0 ExtraAction: FINALLY { -Baton }
+  This IF ActionPhase, Baton, MAX 0 ActionScope<Me@>: FINALLY { PassBaton }
+  Baton IF ActionPhase: PassBaton
+  -ActionScope<Me@> IF ActionPhase, Baton: FINALLY { PassBaton }
 }
 
 "Tells what generation we're in"
