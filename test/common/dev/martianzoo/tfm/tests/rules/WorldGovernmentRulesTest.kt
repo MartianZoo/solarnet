@@ -167,7 +167,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     internal fun `Admin terraforming does not trigger Homeostasis Bureau's owner effect`() {
       newTestGame(playerCount = 2)
       kim.doTasks("PlayProject<Class<$HomeostasisBureau>>")
-      kim.selectTask("-Baton") // Decline the second action.
+      kim.selectTask("PassBaton") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }

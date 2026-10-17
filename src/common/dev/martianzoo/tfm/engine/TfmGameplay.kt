@@ -197,21 +197,21 @@ public class TfmGameplay(
   }
 
   /**
-   * Declines this actor's sole pending action-phase second-action offer by releasing the baton.
-   * Fails when there is no unique such offer.
+   * Declines this actor's sole pending action-phase second-action offer by passing the baton. Fails
+   * when there is no unique such offer.
    */
   public fun declineSecondAction(): TaskResult {
     return inTurn {
       val secondAction =
           secondActionOffer()
               ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
-      selectTask(secondAction.copy(instruction = parse<Instruction>("-Baton")))
+      selectTask(secondAction.copy(instruction = parse<Instruction>("PassBaton")))
     }
   }
 
   private fun secondActionOffer(): Task? {
-    val ordinary = parse<Instruction>("StandardAction OR -Baton")
-    val required = parse<Instruction>("DoRequiredActions OR -Baton")
+    val ordinary = parse<Instruction>("StandardAction OR PassBaton")
+    val required = parse<Instruction>("DoRequiredActions OR PassBaton")
     return tasks
         .extract { it }
         .singleOrNull {

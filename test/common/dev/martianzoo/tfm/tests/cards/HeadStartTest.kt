@@ -233,7 +233,7 @@ internal class HeadStartTest : TfmSandboxTest() {
 
       // Both mandatory actions finished; Kim may now decline the ordinary second action.
       shouldThrow<NarrowingException> { kim.doTask("Pass") }
-      kim.selectTask("-Baton")
+      kim.selectTask("PassBaton")
       stan.doTask("Pass")
     }
 

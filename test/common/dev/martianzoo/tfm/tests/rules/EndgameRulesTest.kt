@@ -18,7 +18,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     }
     admin.count("ActionScope") shouldBe 0
     kim.count("Pass") shouldBe 1
-    stan.selectTask("-Baton") // Decline Stan's final greenery.
+    stan.selectTask("PassBaton") // Decline Stan's final greenery.
     admin.count("ActionScope") shouldBe 0
     kim.completeOperation {
           doTasks("ConvertPlants")
@@ -28,7 +28,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
         .expect("-8 Plant, GreeneryTile, 0 OxygenStep, 0 TerraformRating")
     admin.count("ActionScope") shouldBe 0
     kim.count("Pass") shouldBe 1
-    kim.selectTask("-Baton") // Decline another final greenery.
+    kim.selectTask("PassBaton") // Decline another final greenery.
     admin.count("ActionScope") shouldBe 0
     kim.count("VictoryPoint") shouldBe 21
     stan.count("VictoryPoint") shouldBe 20
@@ -42,8 +42,8 @@ internal class EndgameRulesTest : TfmGameplayTest() {
         .expect("MC, -ProjectCard")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
-    stan.selectTask("-Baton") // No final greenery.
-    kim.selectTask("-Baton") // No final greenery.
+    stan.selectTask("PassBaton") // No final greenery.
+    kim.selectTask("PassBaton") // No final greenery.
     kim.count("VictoryPoint") shouldBe 20
     stan.count("VictoryPoint") shouldBe 20
     kim.count("MC") shouldBe stan.count("MC") + 1
@@ -60,8 +60,8 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     kim.doTask("Pass")
     stan.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
-    kim.selectTask("-Baton") // No final greenery.
-    stan.selectTask("-Baton") // No final greenery.
+    kim.selectTask("PassBaton") // No final greenery.
+    stan.selectTask("PassBaton") // No final greenery.
     admin.count("VictoryPhase") shouldBe 1
   }
 
@@ -124,7 +124,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     prepareSoloEconomy("-VenusNextExpansion")
     playSoloTerraforming(completeVenus = false)
     kim.count("Victory") shouldBe 1
-    kim.selectTask("-Baton") // Decline final greenery.
+    kim.selectTask("PassBaton") // Decline final greenery.
     admin.count("VictoryPhase") shouldBe 1
   }
 
@@ -145,7 +145,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     prepareSoloEconomy("")
     playSoloTerraforming(completeVenus = true)
     kim.count("Victory") shouldBe 1
-    kim.selectTask("-Baton") // Decline final greenery.
+    kim.selectTask("PassBaton") // Decline final greenery.
   }
 
   @Test
@@ -160,7 +160,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
           doTask("GreeneryTile<Tharsis_3_3>")
         }
         .expect("GreeneryTile, -8 Plant, 0 OxygenStep, 0 TerraformRating")
-    kim.selectTask("-Baton") // Decline further final greeneries.
+    kim.selectTask("PassBaton") // Decline further final greeneries.
     kim.count("TerraformRating") shouldBe 63
     // Miranda Resort supplies one printed VP in addition to the final greenery.
     kim.count("VictoryPoint") shouldBe 65

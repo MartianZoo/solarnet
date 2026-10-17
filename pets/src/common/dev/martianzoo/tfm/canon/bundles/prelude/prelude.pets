@@ -7,7 +7,7 @@ CLASS PreludeExpansion : Module {
   CorporationOption: PreludeCard / SelectablePreludeCount, \
     -PreludeCard / (SelectablePreludeCount - 2)
 
-  RoundOver IF CorporationPhase: PreludePhase FROM CorporationPhase
+  -Baton IF MAX 0 Baton, CorporationPhase: FINALLY { PreludePhase FROM CorporationPhase }
 }
 
 "A unit in the configured number of Prelude cards offered to each player"
@@ -18,6 +18,6 @@ CLASS PreludePhase : TurnBasedPhase {
   -PreludeCard<@Player> IF MAX 0 ActionScope:: ActionScope<@Player>
   // Each Prelude has its own action scope; the player keeps the baton until all are played.
   -ActionScope<@Player> IF Baton<@Player>, MAX 0 ExtraAction<@Player>, PreludeCard<@Player, Hand>: FINALLY { OfferAction<@Player> }
-  -ActionScope<@Player> IF Baton<@Player>, MAX 0 ExtraAction<@Player>, MAX 0 PreludeCard<@Player, Hand>: FINALLY { -Baton<@Player> }
-  RoundOver: ActionPhase FROM This
+  -ActionScope<@Player> IF Baton<@Player>, MAX 0 ExtraAction<@Player>, MAX 0 PreludeCard<@Player, Hand>: FINALLY { PassBaton<@Player> }
+  -Baton IF MAX 0 Baton: FINALLY { ActionPhase FROM This }
 }

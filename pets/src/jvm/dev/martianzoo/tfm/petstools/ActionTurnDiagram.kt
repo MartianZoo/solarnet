@@ -42,7 +42,7 @@ internal object ActionTurnDiagram {
           Panel("Finish an action", setOf("-ActionScope")),
           Panel("Choose the optional second action", setOf("-SecondAction")),
           Panel("Pass for the generation", setOf("+Pass")),
-          Panel("Release the baton", setOf("-Baton")),
+          Panel("Pass the baton", setOf("+PassBaton", "-Baton")),
       )
   private val eventPanels = panels.flatMapIndexed { i, p -> p.events.map { it to i } }.toMap()
   private val actionEntries = setOf("StandardAction", "DoRequiredActions", "PlayCard")

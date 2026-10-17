@@ -21,9 +21,9 @@ that published turn and declines an unused second opportunity.
   plays resolve within the current action.
 - The scope remains through payment, effects, placement bonuses, other players' responses, and
   `LATER` cleanup. Its own `FINALLY { -This }` ends that lifetime. Scope-removal reactions schedule
-  further `FINALLY` work to offer another action or release the baton, after fixed removal
+  further `FINALLY` work to offer another action or pass the baton, after fixed removal
   consequences finish.
-- The optional second offer lets the player accept another action or release `Baton`. Declining
+- The optional second offer lets the player accept another action or request `PassBaton`. Declining
   creates neither a scope nor `Pass`. The last unpassed player receives a fresh first offer after
   each action, including in solo play.
 
@@ -32,7 +32,7 @@ that published turn and declines an unused second opportunity.
 | Initial corporation play | Includes starting project-card payment and transfer |
 | Each Prelude played during the Prelude phase | Includes its effects and nested plays |
 | Each accepted action-phase opportunity | A fresh scope, including the optional second action |
-| Each final greenery placement | Includes placement effects; releasing the baton creates no scope |
+| Each final greenery placement | Includes placement effects; passing the baton creates no scope |
 | Head Start variant | Its initial resolution, then each granted action in a fresh scope |
 
 An unplayable Prelude's removal also starts a scope when none exists, covering its compensation.
@@ -54,9 +54,9 @@ scope before that action's consequences begin.
 
 This is a Canon authoring rule, not a restriction on the generic `Scope` mechanism.
 `CanonInvariantsTest.actionScopeExpiryOnlyPerformsReviewedHandoffs` scans removal listeners for
-the scope, baton and extra-action removals, and their possible indirect dependents, including
-`SecondAction`. It accepts fixed turn bookkeeping and next-play instructions regardless of the
-listener's class name; optional bookkeeping (including defaults), arbitrary helper gains,
+the scope, baton and extra-action removals, their possible indirect dependents including
+`SecondAction`, and `PassBaton` listeners. It accepts fixed turn bookkeeping and next-play
+instructions regardless of the listener's class name; optional bookkeeping (including defaults), arbitrary helper gains,
 and new listener forms fail for review. This deliberately rejects new fixed rewards too, since
 their reactions could require a choice. It checks instruction structure, not snapshots of Canon
 declarations, and is not a general analysis of all downstream effects after a flow handoff.
@@ -72,26 +72,29 @@ for the engine's separate operation check.
 ordinary actions, across all their Preludes, or across repeated final greeneries. `ActionScope`
 records the shorter lifetime of an accepted action. There is no baton during setup, research,
 production, or solar work. Baton needs no phase dependency: the current phase supplies the rules,
-and its final baton is released before the phase changes.
+and its final baton is removed before the phase changes.
 
 `StartToken` responds to entry into any `TurnBasedPhase` by giving its owner the baton.
 Corporation, Prelude, Action, and Final Greenery are the phases in that family. The baton itself
 requests an `OfferAction` when gained; the phase or `InRound` supplies the choices. During the
 action phase, a passed player has no `InRound`, so that request offers no action and `Pass`
-releases the baton. When another player is still in the round, `InRound` grants a baton-dependent
+requests `PassBaton`. When another player is still in the round, `InRound` grants a baton-dependent
 `SecondAction` allowance. Completing the first action consumes that allowance and offers
-`StandardAction OR -Baton`, or its required-action equivalent. Completing the second action releases the baton. A player already carrying `Pass`
-just releases a received baton; no action scope is opened. When only a single player remains,
-there is no second-action allowance: after each action, the baton cycles back with another first
-offer, which includes passing.
+`StandardAction OR PassBaton`, or its required-action equivalent. Completing the second action
+requests `PassBaton`. A player already carrying `Pass` passes a received baton onward; no action
+scope is opened. When only a single player remains, there is no second-action allowance: after
+each action, the baton cycles back with another first offer, which includes passing. Solo play
+keeps the baton and requests another `OfferAction` instead of removing and regaining it.
 
-`NextPlayer` responds to baton removal by deferring the next seat's baton until release consequences
-finish. Outside the action phase, reaching the start player instead emits `RoundOver`; solo rules
-provide the corresponding return or round completion. The action phase starts production when
-the final baton is released and nobody remains in the round. `TakeTurn`, `AdvancePlayer`, `TurnOver`,
-and the ordinary-action counter are no longer needed.
+`NextPlayer` responds to `PassBaton` with a deferred `Baton<Next@ FROM Previous@>` transmutation.
+It removes the baton instead when nobody remains in the action round, or when the next seat is
+the start player outside the action phase. Solo rules likewise remove the baton when its phase
+finishes. Phase-ending listeners use `-Baton IF MAX 0 Baton`: a transfer leaves a baton in play,
+whereas the final removal leaves none. These rules have no lexical `Me`, and their phase-changing
+instructions need no player recipient, so bare `Baton` counts every player's baton. `RoundOver`
+is no longer needed.
 
-Red Appeasement's pass removes `InRound` immediately, but releases the baton only after the current
+Red Appeasement's pass removes `InRound` immediately, but passes the baton only after the current
 action and any mandatory extra actions finish. Its event flip and rewards therefore finish before
 the next player receives an offer. A pass during Prelude resolution does not interrupt that
 player's remaining Preludes, and generation-scoped `Pass` does not skip final greenery.
@@ -106,8 +109,8 @@ This signal was previously called `NewTurn`; the new name distinguishes a single
 baton turn.
 
 The two remaining flow signals have separate purposes: `OfferAction` requests a choice, while
-`RoundOver` lets the selected module decide what follows a completed circuit. Combining them,
-or moving phase-specific choices into Kotlin callers, would obscure those responsibilities.
+`PassBaton` requests a handoff or the final removal. Modules select the next phase when no baton
+remains. This replaces `RoundOver` without increasing the number of flow signals.
 
 ### Uses of the scope
 
@@ -132,7 +135,7 @@ lifetime model.
 2. After its scope ends, consume an `ExtraAction` and offer a mandatory standard or required action.
    Finish that new scope before consuming the next entitlement.
 3. After all additional actions finish, resume the baton holder's ordinary sequence: offer the
-   optional second action, play the next Prelude, or release the baton as appropriate. A standalone
+   optional second action, play the next Prelude, or pass the baton as appropriate. A standalone
    sandbox play has no baton to advance.
 
 Money is calculated before either additional action can sell cards. There is no suspended scope
@@ -175,20 +178,21 @@ The game's own rules carry play from `SetupPhase` to `VictoryPhase`. A client st
 
 - **Phases without turns** dispatch their `FINALLY` handoff as they begin. Production proceeds to
   `SolarPhase` while a `GameEndBarrier` exists and otherwise signals `CheckGameEnd`.
-- **Phases with turns** advance by releasing the baton after accepted scopes finish, or
+- **Phases with turns** advance by passing the baton after accepted scopes finish, or
   through the offered pass/decline path. A phase-wide final handoff would run after its first
   action, so it cannot replace those rules.
 - **Selection cleanup** begins with `ActionScope`: Admin removes remaining card backs in that
   player's `Selecting` under `LATER`, after purchase payment and transfer and before scope removal.
   Research schedules analogous project-card cleanup for all players before its phase handoff.
-- **Seat order** follows baton removal through `NextPlayer`, with the solo equivalent on `SoloMode`.
-  Its `FINALLY` handoff waits for fixed release consequences before offering the next seat work.
-- **Modules own phase order.** Corporation `RoundOver` enters `ActionPhase` through `NoPreludes`,
-  or `PreludePhase` through `PreludeExpansion`. Prelude `RoundOver` enters the action phase.
+- **Seat order** follows `PassBaton` through `NextPlayer`, with the solo equivalent on `SoloMode`.
+  Its `FINALLY` handoff transfers the baton or removes it at phase end.
+- **Modules own phase order.** Final corporation baton removal enters `ActionPhase` through
+  `NoPreludes`, or `PreludePhase` through `PreludeExpansion`. Final Prelude baton removal enters
+  the action phase.
   Expansions add solar work to `SolarPhase`; Turmoil uses `LATER` to follow the other solar work.
-- **Final greenery** offers another placement after each completed scope. Declining releases the
-  baton directly; no separate `Done` marker is needed. The authored `-Baton*` also lets a standalone
-  offer finish when no baton exists.
+- **Final greenery** offers another placement after each completed scope. Declining requests
+  `PassBaton`; no separate `Done` marker is needed. With no baton, the request has no effect,
+  so a standalone offer can also finish.
 
 ## Cleanup
 

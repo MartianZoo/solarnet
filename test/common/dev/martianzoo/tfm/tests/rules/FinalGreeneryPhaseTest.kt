@@ -132,7 +132,7 @@ internal class FinalGreeneryPhaseTest {
     }
     p1.count("Plant") shouldBe 7
     p1.convertPlants { doTask("GreeneryTile<Elysium_5_5>") }
-    p1.selectTask("-Baton")
+    p1.selectTask("PassBaton")
 
     p1.count("GreeneryTile<Player1>") shouldBe 2
   }
@@ -178,7 +178,7 @@ internal class FinalGreeneryPhaseTest {
       doTask("GreeneryTile<Elysium_6_7>")
       repeat(2) { doTask("Plant") }
     }
-    p1.selectTask("-Baton")
+    p1.selectTask("PassBaton")
 
     p1.count("GreeneryTile<Player1>") shouldBe 3
   }

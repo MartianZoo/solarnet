@@ -212,7 +212,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
           doTasks("LobbyAction", "PartyLeader<Greens> FROM LobbyDelegate")
         }
         .expect("0 MC, 0 Delegate")
-    stan.selectTask("-Baton") // Decline the second action.
+    stan.selectTask("PassBaton") // Decline the second action.
     kim.doTask("Pass")
     stan.doTask("Pass")
     settlePlayers()
@@ -235,13 +235,13 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
           doTasks("LobbyAction", "PartyFollower<MarsFirst> FROM LobbyDelegate")
         }
         .expect("0 MC, 0 Delegate")
-    kim.selectTask("-Baton") // Decline the second action.
+    kim.selectTask("PassBaton") // Decline the second action.
     stan
         .completeOperation {
           doTasks("LobbyAction", "PartyLeader<Kelvinists> FROM LobbyDelegate")
         }
         .expect("0 MC, 0 Delegate")
-    stan.selectTask("-Baton") // Decline the second action.
+    stan.selectTask("PassBaton") // Decline the second action.
     kim.doTask("Pass")
     stan.doTask("Pass")
     settlePlayers()
@@ -270,7 +270,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
   internal fun `New neutral delegates do not change which party pays this election's bonus`() {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     kim.doTasks("PlayProject<Class<$Mine>>").expect("PROD[Steel]")
-    kim.selectTask("-Baton") // Decline the second action.
+    kim.selectTask("PassBaton") // Decline the second action.
     stan.doTask("Pass")
     kim.doTask("Pass")
     settlePlayers()
@@ -409,7 +409,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     stan.completeOperation {
       doTasks("PaidLobbyAction", "PartyFollower<Reds>")
     }
-    stan.selectTask("-Baton") // Decline the second action.
+    stan.selectTask("PassBaton") // Decline the second action.
     kim.completeOperation {
       doTasks("PaidLobbyAction", "PartyFollower<Greens>")
     }

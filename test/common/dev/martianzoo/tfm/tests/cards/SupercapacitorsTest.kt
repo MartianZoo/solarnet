@@ -14,7 +14,7 @@ internal class SupercapacitorsTest : TfmGameplayTest() {
   fun initializeGame() {
     newTestGame(addOptions = "-VenusNextExpansion", playerCount = 2)
     kim.doTasks("PlayProject<Class<$Supercapacitors>>")
-    kim.selectTask("-Baton") // Decline the second action.
+    kim.selectTask("PassBaton") // Decline the second action.
     stan.doTask("Pass")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
