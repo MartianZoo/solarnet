@@ -474,16 +474,41 @@ internal fun distinctOwnedKinds(
   val resolvedClass = describers.resolveExpression(expression) ?: return null
   val kind = resolvedClass.sourceDependency(classKey) ?: return null
   if (!resolvedClass.hasOnlySourceDependency(classKey, kind) || !kind.simple) return null
-  val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
-  val minimum = refinement.requirement as? Requirement.Min ?: return null
+  val refinements =
+      when (val refinement = expression.refinement) {
+        is Expression.Refinement.Has -> listOf(refinement)
+        is Expression.Refinement.And -> refinement.refinements
+        else -> return null
+      }
+  val presence =
+      refinements.filterIsInstance<Expression.Refinement.Has>().singleOrNull() ?: return null
+  val implicitExclusions =
+      describers.fact(kind.className, ComponentDescriber::implicitKindExclusions).orEmpty()
+  for (refinement in refinements) {
+    if (refinement === presence) continue
+    val excluded = (refinement as? Expression.Refinement.Not)?.excluded ?: return null
+    val excludedKind = excluded.arguments.singleOrNull() ?: return null
+    if (
+        excluded.className != CLASS ||
+            excluded.refinement != null ||
+            !excludedKind.simple ||
+            excludedKind.className !in implicitExclusions
+    )
+        return null
+  }
+  val minimum = presence.requirement as? Requirement.Min ?: return null
   if (minimum.target != 1) return null
   val member = (minimum.metric as? Metric.Count)?.expression ?: return null
   val resolvedMember = describers.resolveExpression(member) ?: return null
   val ownerKey = Key(OWNED, 0)
+  val onCardFront =
+      describers.isCardResource(member.className) &&
+          describers.cardResourceHasHolder(resolvedMember, cn("CardFront").expression)
   if (
       member.className != kind.className ||
           !(resolvedMember.sourceDependencies.isEmpty() ||
-              resolvedMember.hasOnlySourceDependency(ownerKey, describers.ownerExpression)) ||
+              resolvedMember.hasOnlySourceDependency(ownerKey, describers.ownerExpression) ||
+              onCardFront) ||
           member.refinement != null
   ) {
     return null
@@ -546,6 +571,9 @@ private fun Describers.renderComponentCount(
   val suffix =
       when {
         resolved.sourceDependencies.isEmpty() -> description.unqualifiedSuffix
+        isCardResource(expression.className) &&
+            cardResourceHasHolder(resolved, cn("CardFront").expression) ->
+            description.unqualifiedSuffix
         resolved.hasOnlySourceDependency(ownerKey, anyoneExpression) -> description.anyoneSuffix
         category != null -> description.unqualifiedSuffix
         else -> return null

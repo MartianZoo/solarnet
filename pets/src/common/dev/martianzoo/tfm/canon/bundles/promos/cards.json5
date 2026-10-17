@@ -309,7 +309,7 @@
         },
         {
           "name": "DiversitySupport",
-          "requirement": "9 Class<@Resource>(HAS @Resource)",
+          "requirement": "9 Class<@Resource>(HAS @Resource, NOT Class<RobotUnit>)",
           "cost": 1,
           "tags": [ "EventTag" ],
           "direct": "TerraformRating",

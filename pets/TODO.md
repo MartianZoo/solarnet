@@ -71,7 +71,9 @@ Delete entries when they are done.
 
 - Improve the bracketed English fragments exposed by removing the exact-expression phrase table,
   using ordinary composition only where it stays small. Marker effects, distinct-type filters,
-  and L1 Trade Terminal’s gift watcher remain partly unsupported. Philantropist's class-token requirement now
+  and L1 Trade Terminal’s gift watcher remain partly unsupported. The shared Venus resource addition
+  also retains bracketed Pets.
+  Philantropist's class-token requirement now
   names cards in play but retains bracketed `GainsOf`. A card instance cannot fill that metric's
   `Class<CardFront>` dependency; Astra Mechanica also evaluates event classes after those cards leave play.
 - Refresh the remaining `docs/english-wording-comparisons/` entries against current Canon and

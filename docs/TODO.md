@@ -50,8 +50,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Decide whether Agent submissions must use concrete amounts instead of arithmetic over `Owed`.
 - Give beginner and standard players the same ten-card `Selecting` offer; beginners keep it free,
   while standard players discard and buy their choices.
-- Move Fake Self-Replicating Robots' paired defect scenarios from `SelfReplicatingRobotsTest`
-  into `tfm-fake`, reusing existing test support.
 - Clarify Astra Mechanica's zero/one/two eligible-event behavior and reconcile its modeled return
   with printed and derived English.
 - Separate task selection from execution when automatic execution is disabled.

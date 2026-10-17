@@ -29,6 +29,8 @@ internal data class ComponentDescriber(
     internal val requirementKind: String? = null,
     internal val capitalizeTagName: Boolean? = null,
     internal val distinctKinds: Noun.Counted? = null,
+    /** Excluded kinds already understood in the vocabulary's distinct-kind noun. */
+    internal val implicitKindExclusions: Set<ClassName>? = null,
     internal val countNoun: Noun.Counted? = null,
     internal val metricCount: MetricCount? = null,
     internal val nonNegativeIconCount: Boolean? = null,

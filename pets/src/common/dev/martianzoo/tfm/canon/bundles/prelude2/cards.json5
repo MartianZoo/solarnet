@@ -53,7 +53,7 @@
           "name": "AppliedScience",
           "tags": [ "WildTag" ],
           "direct": "6 Science<This>",
-          "actions": [ "Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource" ],
+          "actions": [ "Science<This> -> CardResource<ResourceHolder(HAS CardResource)> OR StandardResource" ],
         },
         {
           "name": "AtmosphericEnhancers",
@@ -249,7 +249,7 @@
             "End: 2 VictoryPoint",
           ],
           "components": [
-            "CLASS L1GiftWatcher : Owned<Player>, System { This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3); This: EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }, LATER { -This }; CardResource:: -L1Gift }",
+            "CLASS L1GiftWatcher : Owned<Player>, System { This:: L1Gift / (ResourceHolder(HAS CardResource) MAX 3); This: EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }, LATER { -This }; CardResource:: -L1Gift }",
             "CLASS L1Gift : Owned<Player>, MustCleanUp",
           ],
         },

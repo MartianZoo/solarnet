@@ -2980,9 +2980,9 @@ Pets declaration:
 
 ```pets
 CLASS CeosFavoriteProject : EventCard {
-  HAS =1 EventTag<This>
+  HAS MAX 1 CeosFavoriteProject, =1 EventTag<This>
   cost = 1
-  This: CardResource<CardFront(HAS CardResource)>
+  This: CardResource<ResourceHolder(HAS CardResource)>
 }
 ```
 
@@ -4257,15 +4257,16 @@ Class: `CorroderSuits`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Increase your M€ production 2 steps. Add 1 resource to ANY VENUS CARD. | — |
-| Generated text | Increase your M€ production 2 steps. Add 1 resource to a Venus card. | — |
+| Generated text | Increase your M€ production 2 steps. \[AddResourceToVenusCard\]. | — |
 
 Pets declaration:
 
 ```pets
 CLASS CorroderSuits : AutomatedCard {
-  HAS =1 VenusTag<This>
+  HAS MAX 1 CorroderSuits, =1 VenusTag<This>
   cost = 8
-  This: PROD[2 MC], CardResource<CardFront(HAS VenusTag)>
+  This:: EACH @WildTagElection(HAS MAX 0 Tag) { VenusTag<@WildTagElection> }
+  This: PROD[2 MC], AddResourceToVenusCard
 }
 ```
 
@@ -4637,18 +4638,19 @@ Class: `MaxwellBase`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires Venus 12%. Decrease your energy production 1 step. Place a city tile ON THE RESERVED AREA. | Action: Add 1 resource to ANOTHER VENUS CARD. |
-| Generated text | Requires Venus 12%. Decrease your energy production 1 step. Place a city tile on the reserved area outside Mars. | Action: Add 1 resource to a Venus card. |
+| Generated text | Requires Venus 12%. Decrease your energy production 1 step. Place a city tile on MaxwellBase\_RemoteArea. | Action: \[AddResourceToVenusCard\]. |
 
 Pets declaration:
 
 ```pets
 CLASS MaxwellBase : ActiveCard, ActionCard {
-  HAS =1 VenusTag<This>, =1 CityTag<This>
+  HAS MAX 1 MaxwellBase, =1 VenusTag<This>, =1 CityTag<This>
   cost = 18
   requirement = HAS "6 VenusStep"
   This: PROD[-Energy], CityTile<MaxwellBase_RemoteArea>
+  UseAction<This, Action1>:: EACH @WildTagElection(HAS MAX 0 Tag) { VenusTag<@WildTagElection> }
   End: 3 VictoryPoint
-  -> CardResource<CardFront(HAS VenusTag)>
+  -> AddResourceToVenusCard
 }
 ```
 
@@ -6944,9 +6946,9 @@ Pets declaration:
 
 ```pets
 CLASS DiversitySupport : EventCard {
-  HAS =1 EventTag<This>
+  HAS MAX 1 DiversitySupport, =1 EventTag<This>
   cost = 1
-  requirement = HAS "9 Class<@Resource>(HAS @Resource)"
+  requirement = HAS "9 Class<@Resource>(HAS @Resource, NOT Class<RobotUnit>)"
   This: TerraformRating
 }
 ```
@@ -8029,6 +8031,27 @@ CLASS PoliticalAlliance : EventCard {
 }
 ```
 
+### Self-Replicating Robots
+
+Class: `SelfReplicatingRobots`
+
+| | Bottom | Top |
+| --- | --- | --- |
+| Printed text | Requires 2 science tags. | Action: Reveal and place a SPACE OR BUILDING card here from hand, and place 2 resources on it, OR double the resourses on a card here. Effect: Cards here may be played as if from hand with its cost reduced by the number of resources on it. |
+| Generated text | Requires 2 science tags. | Action: \[StageForReplicatedProject&lt;Class&lt;CardFront&gt;&gt;\], or \[ReplicateForStagedProject&lt;Class&lt;@CardFront&gt;(HAS StagedProject&lt;Class&lt;@CardFront&gt;&gt;)&gt;\]. |
+
+Pets declaration:
+
+```pets
+CLASS SelfReplicatingRobots : ActionCard, ActiveCard {
+  HAS MAX 1 SelfReplicatingRobots
+  cost = 7
+  requirement = HAS "2 ScienceTag"
+  -> StageForReplicatedProject<Class<CardFront>>
+  -> ReplicateForStagedProject<Class<@CardFront>(HAS StagedProject<Class<@CardFront>>)>
+}
+```
+
 ## Prelude 2 Card Pack
 
 ### Ceres Tech Market
@@ -8121,15 +8144,15 @@ Class: `L1TradeTerminal`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Add a resource to 3 different cards that already have resources. | Effect: When you trade, you may first increase that colony track 2 steps. |
-| Generated text | \[L1GiftWatcher\], then \[EACH @ResourceCard(HAS CardResource) { CardResource&lt;@ResourceCard&gt;? }\]. | Effect: When you trade, you may raise that colony tile track 2 steps. |
+| Generated text | \[L1GiftWatcher\]. | Effect: When you trade, you may increase that production track 2 steps. |
 
 Pets declaration:
 
 ```pets
 CLASS L1TradeTerminal : ActiveCard {
-  HAS =1 SpaceTag<This>
+  HAS MAX 1 L1TradeTerminal, =1 SpaceTag<This>
   cost = 25
-  This: L1GiftWatcher THEN EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }
+  This: L1GiftWatcher
   Trade<@ColonyTile>: 2 ColonyProduction<@ColonyTile> OR Ok
   End: 2 VictoryPoint
 }
@@ -8510,29 +8533,5 @@ CLASS WgProject : AutomatedCard {
   cost = 9
   requirement = HAS "Chairman"
   This: 3 PreludeCard<Selecting> THEN -2 PreludeCard<Selecting> THEN PlayPrelude<Selecting>
-}
-```
-
-## Replay-only models
-
-### Self-Replicating Robots
-
-Class: `FakeSelfReplicatingRobots`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Requires 2 science tags. | Action: Reveal and place a SPACE OR BUILDING card here from hand, and place 2 resources on it, OR double the resourses on a card here. Effect: Cards here may be played as if from hand with its cost reduced by the number of resources on it. |
-| Generated text | Requires 2 science tags. | Action: \[StageForReplicatedProject&lt;Class&lt;CardFront&gt;&gt;\], or \[ReplicateForStagedProject&lt;Class&lt;CardFront&gt;(HAS RobotUnit)&gt;\]. / Effect: \[PlayCard&lt;Class&lt;CardBack&gt;, Class&lt;@CardFront&gt;(HAS RobotUnit&lt;Class&lt;@CardFront&gt;&gt;)&gt;: ProjectCard\]. |
-
-Pets declaration:
-
-```pets
-"Self-Replicating Robots with printed-tag selection delegated in follow mode"
-CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
-  cost = 7
-  requirement = HAS "2 ScienceTag"
-  PlayCard<Class<CardBack>, Class<@CardFront>(HAS RobotUnit<Class<@CardFront>>)>: ProjectCard
-  -> StageForReplicatedProject<Class<CardFront>>
-  -> ReplicateForStagedProject<Class<CardFront>(HAS RobotUnit)>
 }
 ```

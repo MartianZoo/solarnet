@@ -221,7 +221,7 @@ CLASS ScienceSummit : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
 }
 
 CLASS SponsoredProjects : GlobalEffect {
-  This IF StartToken: EACH Card@ResourceCard<Anyone>(HAS CardResource) { CardResource<Card@> BY Admin }
+  This IF StartToken: EACH Card@ResourceHolder<Player>(HAS CardResource) { CardResource<Card@> BY Admin }
   This: ProjectCard / Influence
 }
 

@@ -284,6 +284,12 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   preface, including any narrow unresolved fragments.
 - Count production categories by their concrete members, just as for refined production selections:
   `6 PROD[Metal]` means steel and titanium production combined, not a choice between the two.
+- Card-resource counts restricted to an unrefined `CardFront` retain the ordinary card-resource
+  noun, including distinct-kind counts. Specific holders, holder filters, and other-player ownership
+  remain explicit or visibly unsupported. Vocabulary may name `implicitKindExclusions` already
+  understood in its distinct-kind noun: the Terraforming Mars resource vocabulary supplies
+  `RobotUnit`, preserving the established Collector and Diversity Support wording. Other exclusions
+  and additional presence requirements are not silently discarded.
 - Normally describe variable amounts as `1 or more`, followed by `that amount`, `the same number`,
   `twice that amount`, or `triple that amount`, as appropriate. Use X notation when a multiplied
   cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. A card count linked to

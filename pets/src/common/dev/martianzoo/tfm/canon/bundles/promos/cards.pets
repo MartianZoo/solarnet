@@ -53,3 +53,32 @@ CLASS ImmigrationToVenus : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
 CLASS CorrosiveRain : GlobalEffect {
   This: (-2! Floater OR -10* MC) THEN ProjectCard / Influence
 }
+
+"The discount resources held by projects stored on Self-Replicating Robots"
+CLASS RobotUnit : CardResource
+
+"A project stored outside play, holding robot resources instead of its printed resource type"
+CLASS StagedProject<Class<@CardFront>> : ResourceHolder<Class<RobotUnit>>, Owned<Player> {
+  HAS MAX 1 This
+  This: 2 RobotUnit<This>
+  ReplicateForStagedProject<Class<@CardFront>>: RobotUnit<This> / RobotUnit<This>
+  PlayCard<Class<ProjectCard>, Class<@CardFront>, Hand>:: ProjectCard
+  PayingFor<Class<@CardFront>>:: -Owed / RobotUnit<This> THEN -This
+}
+
+CLASS SelfReplicatingRobots : ActionCard, ActiveCard {
+  cost = 7
+  requirement = HAS "2 ScienceTag"
+
+  HAS MAX 1 SelfReplicatingRobots
+
+  -> StageForReplicatedProject<Class<CardFront>>
+  -> ReplicateForStagedProject<Class<@CardFront>(HAS StagedProject<Class<@CardFront>>)>
+}
+
+CLASS StageForReplicatedProject<Class<@CardFront>> : Owned<Player>, Signal {
+  This: (PriceAspectCount<Class<@CardFront>, Class<BuildingTag>> OR \
+      PriceAspectCount<Class<@CardFront>, Class<SpaceTag>>): -ProjectCard THEN StagedProject<Class<@CardFront>>
+}
+
+CLASS ReplicateForStagedProject<Class<CardFront>> : Owned<Player>, Signal

@@ -478,6 +478,30 @@ internal class ModuleSelectionTest {
   }
 
   @Test
+  internal fun `Robots belongs to the normal promo pool`() {
+    classTable("promos:cards").isInhabited(cn("SelfReplicatingRobots")) shouldBe true
+  }
+
+  @Test
+  internal fun `Robots coexists with all six resource additions without Unsafe`() {
+    val compatible =
+        classTable(
+            "SelfReplicatingRobots, CeosFavoriteProject, CorroderSuits, MaxwellBase, " +
+                "AppliedScience, L1TradeTerminal, TurmoilExpansion, VenusNextExpansion, ColoniesExpansion, Callisto"
+        )
+    listOf(
+            "SelfReplicatingRobots",
+            "CeosFavoriteProject",
+            "CorroderSuits",
+            "MaxwellBase",
+            "AppliedScience",
+            "L1TradeTerminal",
+            "ScienceSummit",
+        )
+        .forEach { compatible.isInhabited(cn(it)) shouldBe true }
+  }
+
+  @Test
   internal fun `Unsafe does not override map exclusivity`() {
     rejects("Unsafe, HellasMap, ElysiumMap")
   }

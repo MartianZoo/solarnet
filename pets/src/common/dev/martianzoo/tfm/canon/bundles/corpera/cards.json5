@@ -108,7 +108,7 @@
           "name": "CeosFavoriteProject",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "direct": "CardResource<CardFront(HAS CardResource)>",
+          "direct": "CardResource<ResourceHolder(HAS CardResource)>",
         },
         {
           "name": "CommercialDistrict",

@@ -158,7 +158,7 @@ Pets declaration:
 
 ```pets
 CLASS Excentric : Award {
-  metric = COUNT "CardResource"
+  metric = COUNT "CardResource<CardFront>"
 }
 ```
 
@@ -372,7 +372,7 @@ Pets declaration:
 
 ```pets
 CLASS Collector : Award {
-  metric = COUNT "Class<@Resource>(HAS @Resource)"
+  metric = COUNT "Class<@Resource>(HAS @Resource, NOT Class<RobotUnit>)"
 }
 ```
 

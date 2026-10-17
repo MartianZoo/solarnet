@@ -1,0 +1,7 @@
+"Adds a resource when a played or stored Venus card can hold it"
+CLASS AddResourceToVenusCard : Owned<Player>, Signal, System {
+  This IF ResourceCard(HAS VenusTag OR WildTag(HAS WildTagElection(HAS VenusTag))) OR \
+      StagedProject<Class<CardFront>(HAS PriceAspectCount<Class<VenusTag>>)>: \
+    CardResource<CardFront(HAS VenusTag OR WildTag(HAS WildTagElection(HAS VenusTag)))>! OR \
+    CardResource<StagedProject<Class<CardFront>(HAS PriceAspectCount<Class<VenusTag>>)>>!
+}

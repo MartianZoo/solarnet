@@ -10,7 +10,7 @@ CLASS Pioneer3 : Milestone {
 }
 CLASS Trader : Milestone {
   HAS MAX 1 Trader
-  requirement = HAS "3 Class<@CardResource>(HAS @CardResource)"
+  requirement = HAS "3 Class<@CardResource>(HAS @CardResource<CardFront>)"
 }
 CLASS Metallurgist : Milestone {
   HAS MAX 1 Metallurgist

@@ -182,6 +182,7 @@ private constructor(
             ComponentDescriber::requirementKind,
             ComponentDescriber::capitalizeTagName,
             ComponentDescriber::distinctKinds,
+            ComponentDescriber::implicitKindExclusions,
             ComponentDescriber::countNoun,
             ComponentDescriber::metricCount,
             ComponentDescriber::nonNegativeIconCount,

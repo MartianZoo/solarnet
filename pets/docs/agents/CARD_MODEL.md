@@ -45,6 +45,31 @@ actually held that face, who may learn a draw, and whether reported discards are
 outside the engine as described in [ADVERSARIAL.md](../../../docs/agents/ADVERSARIAL.md). Counts, locations, and the
 consequences of the declared face remain game rules for Solarnet to calculate.
 
+## Cards stored on Self-Replicating Robots
+
+`StagedProject<Class<CardFront>>` records a named stored project outside play and is a
+`ResourceHolder<Class<RobotUnit>>`. Its `RobotUnit` resources are ordinary `CardResource`s; the
+holder is not a `CardFront`. Storing removes an anonymous hand card and requires a printed Building
+or Space tag; `PriceAspectCount` exposes those printed project-card tags without gaining the card.
+The stored project contributes no live tags, actions, play effects, or printed resource capacity.
+It starts with two robot resources and its holder owns the doubling and payment rules.
+
+Playing the named stored card restores its anonymous hand back automatically. During that card's
+`PayingFor` event, the holder reduces `Owed` by its robot count, then removes itself and its dependent
+resources before billing. Ordinary play requirements and payment choices remain in force. In
+optional `CardTracking` mode, the caller names the storage departure and the same card's temporary
+arrival before play. Other stored projects keep their holders and resources.
+
+CEO's Favorite Project, Applied Science, and L1 Trade Terminal select stocked `ResourceHolder`s.
+Sponsored Projects does likewise across `Player` owners, excluding the neutral solo reserves.
+Corroder Suits and Maxwell Base share `AddResourceToVenusCard`, which additionally accepts stored
+projects whose class has a printed Venus tag; this does not create a live tag. The signal offers
+mandatory additions only when an eligible destination exists, so an empty alternative cannot
+make an available addition optional. Excentric counts resources held by `CardFront`s. Trader counts
+distinct resource types on card fronts. Collector and Diversity Support count both standard and card
+resource types, with an explicit `NOT Class<RobotUnit>` exclusion to keep those queries compact.
+`SelfReplicatingRobotsTest` covers storage, resource additions, doubling, Viron, payment, and scoring.
+
 ## External offer procedures
 
 Prelude plays use `PlayPrelude`: play the chosen face, or discard its anonymous back, record an

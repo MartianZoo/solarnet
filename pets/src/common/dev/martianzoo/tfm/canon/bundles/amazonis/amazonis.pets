@@ -46,7 +46,7 @@ CLASS Lobbyist : Milestone {
   requirement = HAS "7 Delegate(NOT LobbyDelegate)"
 }
 
-CLASS Collector : Award { metric = COUNT "Class<@Resource>(HAS @Resource)" }
+CLASS Collector : Award { metric = COUNT "Class<@Resource>(HAS @Resource, NOT Class<RobotUnit>)" }
 CLASS Innovator : Award { metric = COUNT "CardFront OR PlayedEvent" }
 CLASS Constructor : Award { metric = COUNT "Colony OR CityTile" }
 CLASS Manufacturer : Award { metric = COUNT "PROD[Steel OR Heat]" }
