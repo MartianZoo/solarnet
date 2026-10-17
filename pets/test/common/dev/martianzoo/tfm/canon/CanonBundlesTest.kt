@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.catalog.Catalog
+import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
@@ -7,9 +9,63 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.ClassTable
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class CanonBundlesTest {
+  @Test
+  internal fun incompatibleCardsAreRejectedWithoutStartingAWorld() {
+    listOf(
+            "Merger, SagittaFrontierServices",
+            "SagittaFrontierServices, Merger",
+            "promos:cards, SagittaFrontierServices",
+        )
+        .forEach {
+          val failure =
+              shouldThrow<InvalidGameConfigException> {
+                Canon.gamePremise(GameConfig("prelude2:cards, $it", "Player1", "Player2"))
+                    .classTable
+              }
+          failure.message.orEmpty() shouldContain "Merger"
+          failure.message.orEmpty() shouldContain "SagittaFrontierServices"
+        }
+  }
+
+  @Test
+  internal fun eitherIncompatibleCardCanBeSelectedAloneAndUnsafeAllowsBoth() {
+    listOf("Merger", "SagittaFrontierServices").forEach { card ->
+      val table =
+          Canon.gamePremise(GameConfig("prelude2:cards, $card", "Player1", "Player2")).classTable
+      table.isInhabited(cn(card)) shouldBe true
+    }
+    val unsafe =
+        Canon.gamePremise(
+                GameConfig(
+                    "prelude2:cards, Merger, SagittaFrontierServices, Unsafe",
+                    "Player1",
+                    "Player2",
+                )
+            )
+            .classTable
+    unsafe.isInhabited(cn("Merger")) shouldBe true
+    unsafe.isInhabited(cn("SagittaFrontierServices")) shouldBe true
+  }
+
+  @Test
+  internal fun copiedPremisesAndComposedCatalogsRetainIncompatibilityChecks() {
+    val ordinary = Canon.gamePremise(GameConfig("prelude2:cards", "Player1", "Player2"))
+    val altered =
+        ordinary.copy(
+            catalog = Catalog(Canon),
+            classSelections =
+                ordinary.classSelections
+                    .filterNot { it.className == cn("PreservationProgram") }
+                    .toSet() + ClassSelection(cn("PreservationProgram")),
+        )
+    shouldThrow<InvalidGameConfigException> { altered.classTable }.message.orEmpty() shouldContain
+        "PreservationProgram"
+  }
+
   @Test
   internal fun manifestListsEveryCanonBundleDirectory() {
     val resourceBundleNames =
