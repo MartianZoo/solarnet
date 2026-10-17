@@ -35,8 +35,9 @@ local Maven repository:
 
 The publications use group `dev.martianzoo.pets`. Almanac publishes a ZIP of built web files, with a
 runtime outgoing variant for composite consumers. Consumers need neither source nor intermediate
-build directories to use these artifacts. Standalone Almanac accepts optional artwork through
-`-PlocalImagesDir=/absolute/path` or its own `_local/images`.
+build directories to use these artifacts. Almanac loads artwork directly from Martian Zoo:
+`images/classes-pubtext` for cards, with `images/classes` as the fallback and the source for
+non-card images.
 
 Hosted releases and version policy remain future work. Solarnet's
 [build integration](../../../docs/agents/BUILDS.md) documents source selection, version pinning,
