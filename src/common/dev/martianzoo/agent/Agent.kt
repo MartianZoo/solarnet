@@ -160,12 +160,11 @@ public interface Agent {
    * metric evaluates to zero. An unrelated `Ok` alternative does not identify a matching task.
    * Executing a zero count emits no component changes.
    *
-   * If selecting the task without the submitted narrowing would hand it to another Actor, this
-   * command fails. Use [selectTask] for that selection-only handoff; the receiving Actor can then
-   * narrow or execute the selected task.
-   *
-   * This command also fails if the submitted narrowing makes a `System` change concrete for Admin.
-   * Commit that choice with [narrowTask] or [fillInTask] instead.
+   * Selection or narrowing may hand the task to another Actor, including Admin for a concrete
+   * `System` change. Runs configured autoexecution and succeeds only if that task finishes; a
+   * pending handoff fails and rolls back this call. Use [selectTask], [narrowTask], or [fillInTask]
+   * when the receiving Actor must finish it later. Consequences may remain as ordinary pending
+   * work.
    *
    * @throws [NotFullySpecifiedException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved
@@ -186,7 +185,10 @@ public interface Agent {
   /** Carries out [narrowing] against the task identified by [taskId]. */
   public fun doTask(narrowing: String, taskId: TaskId): TaskResult
 
-  /** Selects and attempts [taskId], leaving it pending after a handoff or needed choice. */
+  /**
+   * Selects and finishes [taskId], including configured autoexecution after an Actor handoff. Fails
+   * and rolls back this call if the selected task remains incomplete.
+   */
   public fun doTask(taskId: TaskId): TaskResult
 
   /**

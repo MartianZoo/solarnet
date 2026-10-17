@@ -2,6 +2,7 @@
 CLASS PreludeExpansion : Module {
   HAS Class<PreludePhase>
   SetupPhase IF SoloMode: -2 SoloGenerationsLeft
+  // Premise adjustments, including negative counts, run immediately after module creation.
   This:: 4 SelectablePreludeCount
 
   CorporationOption: PreludeCard / SelectablePreludeCount, \

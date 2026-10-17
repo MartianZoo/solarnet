@@ -16,10 +16,12 @@ import dev.martianzoo.state.Task.TaskId
  *
  * Captures task submissions, selections, form commits, successful tries, drops, [exMachina], and
  * policy-executed tasks for every Actor. [RecordedInput.Command.kind] preserves distinct Agent
- * operations, including task selection, single-task execution, and corrections. Failed, no-op, and
- * rolled-back submissions are omitted. Later form commits replace earlier form narrowings of that
- * task when those earlier steps only edited its instruction. Selection steps remain because later
- * narrowing may require the selected Actor. Intermediate event history is not preserved.
+ * operations, including task selection, single-task execution, and corrections. A task completed
+ * through a handoff records the originating choice separately from the receiving Actor's execution.
+ * Failed, no-op, and rolled-back submissions are omitted. Later form commits replace earlier form
+ * narrowings of that task when those earlier steps only edited its instruction. Selection steps
+ * remain because later narrowing may require the selected Actor. Intermediate event history is not
+ * preserved.
  *
  * Reconstruction uses the same premise and implementation, with every Actor's autoexecution
  * disabled. Game start is recorded explicitly. Task selectors retain causal context instead of
@@ -29,7 +31,7 @@ import dev.martianzoo.state.Task.TaskId
 public class TaskLog internal constructor(private val world: World) {
   private class Submission(
       val actor: Actor,
-      val kind: RecordedInput.Kind,
+      var kind: RecordedInput.Kind,
       val instruction: String,
       val taskSelector: RecordedInput.TaskSelector?,
       val formTask: TaskId?,
@@ -118,6 +120,20 @@ public class TaskLog internal constructor(private val world: World) {
       block().also {
         val events = world.events.entriesSince(checkpoint)
         submission.anchor = events.firstOrNull()
+        // Record the choice separately from the receiving Actor's policy execution. Import runs
+        // with autoexecution disabled, so replaying a completion-demanding doTask would fail here.
+        if (
+            kind in
+                setOf(
+                    RecordedInput.Kind.DO_TASK,
+                    RecordedInput.Kind.DO_TASKS,
+                    RecordedInput.Kind.DO_TASK_ID,
+                ) &&
+                world.tasks.selectedTask()?.let { world.tasks.getTaskData(it).assignee != actor } ==
+                    true
+        ) {
+          submission.kind = RecordedInput.Kind.CHOOSE
+        }
         submission.selectsTask = events.any { event ->
           when (event) {
             is GameEvent.TaskEditedEvent -> !event.oldTask.selected && event.task.selected

@@ -66,7 +66,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
             val instruction =
                 if (grantedOperation) "UseAction<$cardName, $whichAction>"
                 else "UseCardAction<$cardName, $whichAction>"
-            TaskCommand(repl).withArgs(instruction)
+            repl.agent.doTask(instruction)
             if (payment.isNotEmpty()) {
               if (pauseForWrittenCost) payWrittenActionCost(payment, taskIdsBeforeAction)
               else TfmPayCommand(repl).withArgs(payment)

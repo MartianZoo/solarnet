@@ -105,10 +105,35 @@ precede their owners' reactions, and construction events' automatic work precede
 For each change, the engine materializes the matching `::` batch, executes it recursively, then
 evaluates queued `:` effects. An automatic reaction never asks an Actor to select it.
 
-Use `::` for determined consequences whose delay would expose incoherent state. If automatic
-listeners depend on each other, express the dependency through resulting events instead of batch
-order or retries. Use trigger-side `IF` for a condition decided by the triggering event; put a gate
-in queued work when intervening changes should decide availability.
+Require a semantic reason for the consequence to belong to the initiating change. Strong cases
+include repairing a declared count invariant before validation (Land Claim's cube replacement),
+maintaining an inseparable stored relationship through corrections, and preserving actual event
+history (the directed adjacency of a newly placed tile). First check whether required-part
+construction, trigger-side conditions, or existing event context can express the relationship.
+See [correction semantics](EX_MACHINA.md#contract): queued effects are suppressed there, but an
+effect's current execution during corrections does not itself justify preserving it.
+
+`A:: B` alongside `A: C` is not an acceptable way to express only "B before C". Nor does calling B
+an event-time snapshot establish a stronger reason when the actual requirement is simply to
+measure before a later authored step. Reds' bonus before chairman TR, influence before Politician
+scoring, wild-tag allocation before requirements, and price/acceptance adjustments before Billing
+are current sequencing dependencies to refactor, not certified reasons for `::`.
+
+Choose scope by the actual dependency: a pricing or government-formation sequence can contain
+individually valid invariant repairs without justifying an immediate wrapper around the whole
+procedure. `THEN` waits for its current task, not the reactions that task triggers, so replacing an
+immediate preparation signal with `Preparation THEN Consumer` does not by itself establish that
+preparation has completed.
+
+Fixed bookkeeping can use concrete System tasks without another player choice. Initial offer
+counts preceding signed premise adjustments, generic requirement removals needing live narrowing,
+and card-claim effects retained for their client task shape are implementation limitations, not
+semantic justifications. Earlier failure of an invalid choice is also insufficient; judge completed
+legal outcomes and preserve eligibility at the relevant event.
+
+If automatic listeners depend on each other, express the dependency through resulting events
+instead of batch order or retries. Use trigger-side `IF` for a condition decided by the triggering
+event; put a gate in queued work when intervening changes should decide availability.
 
 An automatic `Die` can reject a forbidden component change and roll it back. It cannot generally
 police task selection because selecting or narrowing an abstract task can change task state without

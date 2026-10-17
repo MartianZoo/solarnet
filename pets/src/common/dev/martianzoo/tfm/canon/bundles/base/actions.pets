@@ -4,13 +4,13 @@ ABSTRACT CLASS StandardAction : Owned<Player>, Signal {
   This:: MAX 0 RequiredAction: Ok
 
   CLASS PlayProject<Class<@CardFront>> {
-    This:: PlayCard<Class<ProjectCard>, Class<@CardFront>, Hand>
+    This: PlayCard<Class<ProjectCard>, Class<@CardFront>, Hand>
   }
   CLASS UseStandardProject<@StandardProject> {
-    This:: UseAction<@StandardProject, Action1>
+    This: UseAction<@StandardProject, Action1>
   }
   CLASS UseCardAction<@ActionCard<@Player>, @ActionSlot> : StandardAction<@Player> {
-    This:: UseAction<@ActionCard, @ActionSlot> THEN ActionUsedMarker<@ActionCard>
+    This: UseAction<@ActionCard, @ActionSlot> THEN ActionUsedMarker<@ActionCard>
   }
   CLASS ConvertPlants {
     This: 8 Owed<Class<Plant>> THEN Billing<Class<ConvertPlants>, Class<Plant>> \
@@ -77,12 +77,12 @@ ABSTRACT CLASS ActionSlot : System {
   CLASS Action3
 }
 
-CLASS UseAction<HasActions, ActionSlot> : Owned<Player>, Signal
+CLASS UseAction<HasActions, ActionSlot> : Owned<Player>, Signal, System
 
 "A mandatory pending action the owner must perform as their next"
 ABSTRACT CLASS RequiredAction : Owned<Player>, HasActions, System {
   HAS MAX 1 This
-  DoRequiredActions:: UseAction<This, Action1> THEN -This
+  DoRequiredActions: UseAction<This, Action1> THEN -This
 }
 
 CLASS DoRequiredActions : Owned<Player>, Signal {

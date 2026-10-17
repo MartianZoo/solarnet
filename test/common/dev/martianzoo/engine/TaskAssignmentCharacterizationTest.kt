@@ -169,11 +169,10 @@ internal class TaskAssignmentCharacterizationTest {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     game.testAgent(ADMIN)
-    val taskId = p1.addTasks("X SystemToken").single()
+    p1.addTasks("X SystemToken")
     val before = game.timeline.checkpoint()
 
-    shouldThrow<TaskException> { p1.doTask("3 SystemToken") }
-    p1.fillInTask(taskId).apply { narrow("3 SystemToken") }.commit()
+    p1.doTask("3 SystemToken")
 
     p1.count("SystemToken") shouldBe 3
     game.events.changesSince(before).single().actor shouldBe ADMIN
@@ -208,13 +207,12 @@ internal class TaskAssignmentCharacterizationTest {
     p1.doTasks()
     p1.count("SystemChoice") shouldBe 2
     p1.doTasks("Ok")
-    val taskId = p1.addTasks("-SystemChoice!").single()
+    p1.addTasks("-SystemChoice!")
 
     p1.doTasks()
     p1.count("SystemChoice") shouldBe 2
     val before = game.timeline.checkpoint()
-    shouldThrow<TaskException> { p1.doTask("-SystemChoiceA") }
-    p1.fillInTask(taskId).apply { narrow("-SystemChoiceA") }.commit()
+    p1.doTask("-SystemChoiceA")
 
     p1.count("SystemChoiceA") shouldBe 0
     p1.count("SystemChoiceB") shouldBe 1
@@ -332,8 +330,7 @@ internal class TaskAssignmentCharacterizationTest {
       val accepted = p1.addTasks(offer).single()
       p1.tasks.ids().shouldContainExactly(accepted)
       val checkpoint = game.timeline.checkpoint()
-      shouldThrow<TaskException> { p1.doTask("SystemToken") }
-      p1.fillInTask(accepted).apply { narrow("SystemToken") }.commit()
+      p1.doTask("SystemToken")
       p1.count("SystemToken") shouldBe index + 1
       game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
     }
@@ -349,8 +346,7 @@ internal class TaskAssignmentCharacterizationTest {
     val taskId = p1.addTasks("SystemChoice(NOT Source@) FROM Source@SystemChoice").single()
     p1.tasks.ids().shouldContainExactly(taskId)
     val checkpoint = game.timeline.checkpoint()
-    shouldThrow<TaskException> { p1.doTask("SystemChoiceB FROM SystemChoiceA") }
-    p1.fillInTask(taskId).apply { narrow("SystemChoiceB FROM SystemChoiceA") }.commit()
+    p1.doTask("SystemChoiceB FROM SystemChoiceA")
 
     p1.count("SystemChoiceA") shouldBe 0
     p1.count("SystemChoiceB") shouldBe 1

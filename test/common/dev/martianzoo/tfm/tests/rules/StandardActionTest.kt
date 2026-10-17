@@ -86,7 +86,13 @@ internal class StandardActionTest : TfmTest() {
     )
     p1.count("ActionUsedMarker<DevelopmentCenter>") shouldBe 1
     p1.beginOperation("OfferAction")
-    shouldThrow<LimitsException> { p1.doTask("UseCardAction<DevelopmentCenter, Action1>") }
+    shouldThrow<LimitsException> {
+      p1.doTasks(
+          "UseCardAction<DevelopmentCenter, Action1>",
+          "Pay<Class<Energy>> FROM Energy",
+          "ProjectCard",
+      )
+    }
     p1.doTask("Pass")
 
     p1.count("Energy") shouldBe 1
