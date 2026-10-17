@@ -149,7 +149,7 @@ The Pets roadmap separately calls for truthful point events and independent life
 visibility. These changes reach
 [`systemClassDeclarations`](../pets/src/common/dev/martianzoo/pets/SystemDeclarations.kt),
 [`SystemClasses`](../pets/src/common/dev/martianzoo/pets/api/SystemClasses.kt), and their exported
-inheritance contracts: for example, `Signal` currently inherits `MustCleanUp` and has no `Real` classification.
+inheritance contracts: for example, `Signal` currently inherits `MustCleanUp` and has no `Iconic` classification.
 Removing or changing those facts affects custom declarations as well as Kotlin callers.
 
 Delegated control, payment simplification, and Player/Admin attribution remain related sources of

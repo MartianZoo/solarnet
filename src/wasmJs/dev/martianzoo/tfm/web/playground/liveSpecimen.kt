@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.web.playground
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.SystemClasses.REAL
+import dev.martianzoo.pets.api.SystemClasses.ICONIC
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -49,7 +49,7 @@ internal fun liveSpecimen(
 ): Specimen {
   val queries = GameQueries(reader)
   val allClasses = reader.classTable.allClasses()
-  val real = reader.resolve(REAL.expression)
+  val iconic = reader.resolve(ICONIC.expression)
   val signal = reader.resolve(cn("Signal").expression)
   val componentEntries = reader.getComponents(cn("Component").expression).entries
 
@@ -58,9 +58,9 @@ internal fun liveSpecimen(
         it.className == cn("SoloOpponent") || hasSoloOpponentDependency(it)
       }
 
-  fun hasRealDependency(component: Component): Boolean =
+  fun hasIconicDependency(component: Component): Boolean =
       component.dependencyComponents.any {
-        it.type.isSubtypeOf(real) || hasRealDependency(it)
+        it.type.isSubtypeOf(iconic) || hasIconicDependency(it)
       }
 
   fun types(name: String): List<Type> = runCatching {
@@ -188,9 +188,10 @@ internal fun liveSpecimen(
         count = change.count,
         gaining = change.gaining?.toString(),
         removing = change.removing?.toString(),
-        real =
+        iconic =
             listOfNotNull(change.gaining, change.removing).any {
-              it.type.isSubtypeOf(real) && (!hasSoloOpponentDependency(it) || hasRealDependency(it))
+              it.type.isSubtypeOf(iconic) &&
+                  (!hasSoloOpponentDependency(it) || hasIconicDependency(it))
             },
         signal = change.gaining?.type?.isSubtypeOf(signal) == true,
         givenBy = event.cause?.context?.toString(),
@@ -205,7 +206,7 @@ internal fun liveSpecimen(
         type = type.toString(),
         count = amount,
         className = type.className.toString(),
-        nonReal = !type.isSubtypeOf(real),
+        nonIconic = !type.isSubtypeOf(iconic),
     )
   }
 

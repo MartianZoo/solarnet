@@ -16,21 +16,21 @@ import kotlin.test.assertTrue
 
 internal class ActiveEffectTest {
   @Test
-  fun realEffectsInspectWatchedAndChangedRootsOnly() {
+  fun iconicEffectsInspectWatchedAndChangedRootsOnly() {
     val table = Canon.gamePremise(GameConfig("TharsisMap", "Red")).classTable
-    fun real(text: String) = effectIsReal(Parsing.parse<Effect>(text), table)
+    fun iconic(text: String) = effectIsIconic(Parsing.parse<Effect>(text), table)
 
-    assertTrue(real("MC: Ok"))
-    assertTrue(real("-MC: Ok"))
-    assertTrue(real("ProductionPhase: Ok"))
-    assertTrue(real("PayingFor<Class<MC>> OR MC: Ok"))
-    assertTrue(real("PayingFor<Class<MC>>: ProdOffset<Class<MC>>, MC"))
-    assertTrue(real("PayingFor<Class<MC>>: -MC"))
-    assertTrue(real("PayingFor<Class<MC>>: ProdOffset<Class<MC>> FROM MC"))
-    assertFalse(real("PayingFor<Class<MC>>: Ok"))
-    assertFalse(real("PayingFor<Class<MC>>: ProdOffset<Class<MC>>"))
-    assertFalse(real("PayingFor<Class<MC>> IF MC: ProdOffset<Class<MC>>"))
-    assertFalse(real("PayingFor<Class<MC>>: ProdOffset<Class<MC>> / MC"))
+    assertTrue(iconic("MC: Ok"))
+    assertTrue(iconic("-MC: Ok"))
+    assertTrue(iconic("ProductionPhase: Ok"))
+    assertTrue(iconic("PayingFor<Class<MC>> OR MC: Ok"))
+    assertTrue(iconic("PayingFor<Class<MC>>: ProdOffset<Class<MC>>, MC"))
+    assertTrue(iconic("PayingFor<Class<MC>>: -MC"))
+    assertTrue(iconic("PayingFor<Class<MC>>: ProdOffset<Class<MC>> FROM MC"))
+    assertFalse(iconic("PayingFor<Class<MC>>: Ok"))
+    assertFalse(iconic("PayingFor<Class<MC>>: ProdOffset<Class<MC>>"))
+    assertFalse(iconic("PayingFor<Class<MC>> IF MC: ProdOffset<Class<MC>>"))
+    assertFalse(iconic("PayingFor<Class<MC>>: ProdOffset<Class<MC>> / MC"))
   }
 
   @Test

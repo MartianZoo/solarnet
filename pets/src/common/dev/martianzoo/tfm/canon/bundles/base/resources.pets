@@ -1,5 +1,5 @@
 // Anything represented by a copper cube IRL
-ABSTRACT CLASS Resource : Owned, Real {
+ABSTRACT CLASS Resource : Owned, Iconic {
   "A resource that doesn't need a card to live on"
   ABSTRACT CLASS StandardResource {
     CLASS MC
@@ -26,7 +26,7 @@ ABSTRACT CLASS Resource : Owned, Real {
 }
 
 "Each instance of this creates an instance of a standard resource during ProductionPhase"
-CLASS Production<Class<@StandardResource>> : Owned, Real {
+CLASS Production<Class<@StandardResource>> : Owned, Iconic {
   ProductionPhase: @StandardResource
 }
 

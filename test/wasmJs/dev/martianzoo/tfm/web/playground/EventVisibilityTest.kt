@@ -48,11 +48,11 @@ internal class EventVisibilityTest {
             .associateBy { it.ordinal }
 
     for (event in listOf(opponent, reserve, heat, animal, removal)) {
-      assertFalse(displayed.getValue(event.ordinal).real, event.change.toString())
+      assertFalse(displayed.getValue(event.ordinal).iconic, event.change.toString())
     }
-    assertTrue(displayed.getValue(transfer.ordinal).real)
-    assertTrue(displayed.getValue(playerHeat.ordinal).real)
-    assertTrue(displayed.getValue(city.ordinal).real)
-    assertTrue(displayed.getValue(greenery.ordinal).real)
+    assertTrue(displayed.getValue(transfer.ordinal).iconic)
+    assertTrue(displayed.getValue(playerHeat.ordinal).iconic)
+    assertTrue(displayed.getValue(city.ordinal).iconic)
+    assertTrue(displayed.getValue(greenery.ordinal).iconic)
   }
 }

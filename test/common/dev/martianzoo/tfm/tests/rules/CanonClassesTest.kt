@@ -91,7 +91,7 @@ internal class CanonClassesTest {
           }
         }
 
-    val aspects = listOf("Owned", "Real", "System", "HasActions", "ColonyTileSelection")
+    val aspects = listOf("Owned", "Iconic", "System", "HasActions", "ColonyTileSelection")
     aspects.forEach { name ->
       withClue("$name adds an aspect") {
         table.isProbableAspect(table.getClass(cn(name))) shouldBe true

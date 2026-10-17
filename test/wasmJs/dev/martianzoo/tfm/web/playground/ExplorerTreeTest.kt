@@ -31,14 +31,14 @@ internal class ExplorerTreeTest {
     val table = world.classTable
     assertTrue(table.isProbableAspect(table.getClass(cn("Atomized"))))
 
-    for (includeNonReal in listOf(false, true)) {
-      val tree = ExplorerTree(table, specimen, includeNonReal)
+    for (includeNonIconic in listOf(false, true)) {
+      val tree = ExplorerTree(table, specimen, includeNonIconic)
       val lines = tree.lines { emptyList() }
       val groups = lines.filterIsInstance<ExplorerTree.Line.Group>()
       assertFalse(groups.any { table.isProbableAspect(it.type.rootClass) })
       val expected =
           specimen.components
-              .filter { includeNonReal || !it.nonReal }
+              .filter { includeNonIconic || !it.nonIconic }
               .associate { it.type to it.count }
       val actual =
           lines.filterIsInstance<ExplorerTree.Line.Exact>().associate {

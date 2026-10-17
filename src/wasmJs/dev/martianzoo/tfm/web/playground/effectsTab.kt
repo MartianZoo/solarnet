@@ -31,7 +31,7 @@ internal fun EffectsTab(
       remember(effects, bootstrapEffects, includeImaginary) {
         effects
             .filterNot { it.effect in bootstrapEffects }
-            .filter { includeImaginary || effectIsReal(it.effect, table) }
+            .filter { includeImaginary || effectIsIconic(it.effect, table) }
             .groupBy { it.context.owner?.toString() }
       }
   val owners = (specimen.playerNames + byOwner.keys).distinct().filter { it in byOwner }

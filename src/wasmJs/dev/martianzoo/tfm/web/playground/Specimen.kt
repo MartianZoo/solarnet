@@ -111,7 +111,7 @@ internal data class Specimen(
       val count: Int,
       val gaining: String?,
       val removing: String?,
-      val real: Boolean,
+      val iconic: Boolean,
       val signal: Boolean,
       val givenBy: String?,
       val because: Int?,
@@ -127,7 +127,7 @@ internal data class Specimen(
       val type: String,
       val count: Int,
       val className: String,
-      val nonReal: Boolean,
+      val nonIconic: Boolean,
   )
 
   @Serializable

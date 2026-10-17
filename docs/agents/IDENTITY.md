@@ -121,7 +121,7 @@ assignment rule. Transmutations use the gained type for this classification afte
 source is selected. Gated concrete System changes also belong to Admin; their gates still have to
 be satisfied before execution. A concrete `BY` remains
 authoritative: naming a non-Admin performer for a gain reaches the existing `System` creation guard
-and fails. Admin assignment does not determine whether the component is presented as `Real`.
+and fails. Admin assignment does not determine whether the component is presented as `Iconic`.
 
 When this assignment changes a task's assignee and it has a `THEN` continuation, the engine encodes
 the former assignee in an internal `TASK Actor { ... }` continuation. Admin completes the System
@@ -140,7 +140,7 @@ Use `System` for neutral table bookkeeping rather than a Player's game action. F
 concrete removals must themselves be safe for eager Admin execution. A following `THEN` choice
 returns to the prior assignee without an authored `TASK`. An authored `TASK Actor { ... }` can
 dispatch work to a different recipient. This classification is
-independent of `Real`, which controls presentation, and `::`, which preserves an invariant within
+independent of `Iconic`, which controls presentation, and `::`, which preserves an invariant within
 the initiating operation.
 
 Played-event cleanup, card-purchase, requirement, global-parameter-status, solo-countdown, and

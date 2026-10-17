@@ -154,7 +154,7 @@ internal class RecordingStore {
     get() =
         specimen?.events.orEmpty().filter { event ->
           event.ordinal == focusedEvent ||
-              ((includeAdmin || event.actor != "Admin") && (includeImaginary || event.real))
+              ((includeAdmin || event.actor != "Admin") && (includeImaginary || event.iconic))
         }
 
   /** First decision in each gap between visible rows; null denotes the gap after the last row. */

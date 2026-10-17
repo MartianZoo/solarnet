@@ -16,9 +16,9 @@ import dev.martianzoo.pets.types.GroundType
 internal class ExplorerTree(
     private val table: ClassTable,
     specimen: Specimen,
-    includeNonReal: Boolean,
+    includeNonIconic: Boolean,
 ) {
-  internal data class Entry(val type: GroundType, val count: Int, val nonReal: Boolean)
+  internal data class Entry(val type: GroundType, val count: Int, val nonIconic: Boolean)
 
   internal sealed interface Line {
     val depth: Int
@@ -39,9 +39,9 @@ internal class ExplorerTree(
   private val entries =
       specimen.components
           .asSequence()
-          .filter { it.count > 0 && (includeNonReal || !it.nonReal) }
+          .filter { it.count > 0 && (includeNonIconic || !it.nonIconic) }
           .map {
-            Entry(table.resolve(Parsing.parse<Expression>(it.type)), it.count, it.nonReal)
+            Entry(table.resolve(Parsing.parse<Expression>(it.type)), it.count, it.nonIconic)
           }
           .toList()
 

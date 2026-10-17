@@ -43,7 +43,7 @@ internal class ExplorerState {
   }
 
   private val expansions = mutableStateMapOf<List<GroundType>, Expansion>()
-  var includeNonReal by mutableStateOf(false)
+  var includeNonIconic by mutableStateOf(false)
 
   internal fun pivotFor(id: List<GroundType>): List<Int>? =
       when (val expansion = expansions[id]) {
@@ -71,16 +71,16 @@ internal fun ExplorerTab(
   val specimen = LocalSpecimen.current
   val palette = LocalPalette.current
   val tree =
-      remember(specimen, table, state.includeNonReal) {
-        ExplorerTree(table, specimen, state.includeNonReal)
+      remember(specimen, table, state.includeNonIconic) {
+        ExplorerTree(table, specimen, state.includeNonIconic)
       }
   val lines = tree.lines(state::pivotFor)
 
   Column(Modifier.fillMaxSize().padding(palette.spacing)) {
     Row(verticalAlignment = Alignment.CenterVertically) {
       Checkbox(
-          state.includeNonReal,
-          { state.includeNonReal = it },
+          state.includeNonIconic,
+          { state.includeNonIconic = it },
           Modifier.size(28.dp),
           colors =
               CheckboxDefaults.colors(
@@ -88,7 +88,7 @@ internal fun ExplorerTab(
                   uncheckedColor = palette.dimText,
               ),
       )
-      Text("Include non-Real components", style = palette.body.copy(color = palette.dimText))
+      Text("Include non-Iconic components", style = palette.body.copy(color = palette.dimText))
     }
     LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
       items(lines) { line ->
@@ -161,7 +161,7 @@ private fun ExactLine(line: ExplorerTree.Line.Exact) {
         line.entry.type.expressionFull.toString(),
         Modifier.padding(start = 14.dp),
         style =
-            palette.mono.copy(color = if (line.entry.nonReal) palette.dimText else palette.text),
+            palette.mono.copy(color = if (line.entry.nonIconic) palette.dimText else palette.text),
     )
   }
 }

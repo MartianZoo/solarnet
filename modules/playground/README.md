@@ -84,7 +84,7 @@ source owner and exact trigger, showing a single unwrapped `trigger: consequence
 line with horizontal scrolling and 4 dp between effect rows. Source components are omitted, and copy counts scale their
 consequences. Effects shares the event log's imaginary, icon, and tray settings. Icons and trays use the same
 text renderer; excluding imaginary effects keeps subscriptions whose watched root class or any
-changed RHS root class is Real. Include Admin does not yet filter Effects; global effects remain
+changed RHS root class is Iconic. Include Admin does not yet filter Effects; global effects remain
 visible while that rule is unresolved.
 Placement, UseAction, Billing, End (scoring), and self triggers are temporarily hidden.
 Effects also hides exact specialized trigger/instruction pairs present immediately before
@@ -159,15 +159,15 @@ same hosted artwork in inline text and the sidebar, where hovering shows the pha
 clicking opens its class inspector. The hosted collection includes Disease, Science, Fighter, Graphene, and
 Hydroelectric resource artwork.
 The log includes component changes from the beginning of the recording, including initialization,
-non-Real, and System changes.
+non-Iconic, and System changes.
 Hovering an event row with attached notes shows those notes, including over otherwise empty cells.
 The **WHY** cell keeps its own cause tooltip and does not show the row note.
 
 **Include Admin** starts checked; **Include imaginary** starts unchecked.
-Admin events are visible by default, while non-Real changes stay hidden. `SoloOpponent` is already
-non-Real. Its dependent components also count as imaginary unless they have a Real dependency,
+Admin events are visible by default, while non-Iconic changes stay hidden. `SoloOpponent` is already
+non-Iconic. Its dependent components also count as imaginary unless they have an Iconic dependency,
 directly or through other components: neutral board tiles stay visible because their areas are
-Real, while the solo resource stock stays hidden. A transfer still appears if either component
+Iconic, while the solo resource stock stays hidden. A transfer still appears if either component
 passes this filter. A navigation target remains visible even if filtered.
 Reaching either end of the log must not pass wheel scrolling to the page. The log does not need forward/back/rollback controls.
 
@@ -212,7 +212,7 @@ Game images are fetched from `https://www.martianzoo.dev/images/`: generated car
 and tiles use `classes/`, published-text card fronts use `classes-pubtext/`, icons use `classes/30px/`,
 and the Mars background uses `other/mars.png`. Fonts and replay recordings remain bundled.
 
-The **Explorer** tab counts present Real components by default. Counts sit to the left of their
+The **Explorer** tab counts present Iconic components by default. Counts sit to the left of their
 types. Each category uses Pets full-form spelling, omitting class-fixed dependencies while keeping
 chosen values such as `Player2` visible. Clicking its root class or any nested dependency type
 rebuilds that row's children by the clicked class's nearest visible subclasses, preserving the other bounds
@@ -221,7 +221,7 @@ tile class or by area while retaining `Player2`. Classes identified by `ClassTab
 such as `Atomized`, are omitted as categories. Their concrete descendants remain reachable beneath
 their nearest visible superclasses, with component counts unchanged.
 Multiple inheritance can put the same component below two sibling categories; each count is the
-count for its displayed type, and sibling counts need not add to their parent. **Include non-Real
+count for its displayed type, and sibling counts need not add to their parent. **Include non-Iconic
 components** starts off. Zero-count branches stay hidden. Sandbox count editing remains deferred.
 The PETS info tab can display raw type and task information.
 

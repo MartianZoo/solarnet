@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tools
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.api.SystemClasses.REAL
+import dev.martianzoo.pets.api.SystemClasses.ICONIC
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -60,10 +60,10 @@ private fun createGame(playerCount: Int): World {
   }
 }
 
-private fun isReal(reader: GameReader, event: ChangeEvent): Boolean {
-  val real = reader.classTable.getClass(REAL)
+private fun isIconic(reader: GameReader, event: ChangeEvent): Boolean {
+  val iconic = reader.classTable.getClass(ICONIC)
   return listOfNotNull(event.change.gaining, event.change.removing).any {
-    it.type.rootClass.isSubtypeOf(real)
+    it.type.rootClass.isSubtypeOf(iconic)
   }
 }
 
@@ -78,7 +78,7 @@ private fun toTsv(reader: GameReader, event: ChangeEvent): String =
             tsv(event.change.removing),
             tsv(event.cause?.context),
             event.cause?.triggerEvent ?: "",
-            isReal(reader, event),
+            isIconic(reader, event),
         )
         .joinToString("\t")
 
@@ -87,7 +87,7 @@ private fun dump(reader: GameReader, events: EventLog, output: Path) {
   Files.createDirectories(output.parent)
   Files.newBufferedWriter(output).use { writer ->
     writer.appendLine(
-        "ordinal\tactor\tcount\tgaining\tremoving\tcause_context\tcause_trigger\tReal?"
+        "ordinal\tactor\tcount\tgaining\tremoving\tcause_context\tcause_trigger\tIconic?"
     )
     changes.forEach { writer.appendLine(toTsv(reader, it)) }
   }

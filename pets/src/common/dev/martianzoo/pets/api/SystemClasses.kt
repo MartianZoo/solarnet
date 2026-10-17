@@ -26,7 +26,7 @@ public object SystemClasses {
   public val CUSTOM_INSTRUCTION: ClassName = cn("CustomInstruction")
   public val COMPONENT: ClassName = cn("Component")
   public val DIE: ClassName = cn("Die")
-  public val REAL: ClassName = cn("Real")
+  public val ICONIC: ClassName = cn("Iconic")
   public val OK: ClassName = cn("Ok")
   public val SIGNAL: ClassName = cn("Signal")
   public val SYSTEM: ClassName = cn("System")
