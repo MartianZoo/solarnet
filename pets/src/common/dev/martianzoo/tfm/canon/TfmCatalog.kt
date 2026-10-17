@@ -63,6 +63,11 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
                             bundle.replacements.entries
                                 .sortedBy { it.key.toString() }
                                 .joinToString { "${it.key}=${it.value}" },
+                            bundle.incompatible.entries
+                                .sortedBy { it.key.toString() }
+                                .joinToString { (name, conflicts) ->
+                                  "$name=${conflicts.map { it.toString() }.sorted().joinToString()}"
+                                },
                         )
                         .joinToString("\u0000"),
                 )
@@ -282,6 +287,21 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
             .flatMap { modules.getValue(it) }
             .filter { it.included && it.appliesTo(included, configurationTable) }
             .mapTo(hashSetOf(), ClassSelection::className)
+    if (cn("Unsafe") !in moduleNames) {
+      val candidates = (included + selectedByModules) - builder.excluded
+      bundles.forEach { bundle ->
+        bundle.incompatible.forEach { (card, preferred) ->
+          if (
+              card in candidates &&
+                  card !in explicitlyIncluded &&
+                  preferred.any { it in candidates }
+          ) {
+            included.remove(card)
+            builder.excluded.add(card)
+          }
+        }
+      }
+    }
     if (individualNames.intersect(colonyTileClassNames).any { it !in selectedByModules }) {
       throw InvalidGameConfigException("selected ColonyTiles must be provided by a selected Module")
     }
@@ -331,11 +351,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
             .filter { it.appliesTo(configuredNames, builder.configurationTable) }
             .mapTo(linkedSetOf(), ClassSelection::className)
     val replacedNames =
-        replacedBy(
-            selectedNames + builder.explicitlyIncluded,
-            configuredNames + selectedNames,
-            builder.configurationTable,
-        ) - builder.explicitlyIncluded
+        replacedBy(selectedNames + builder.explicitlyIncluded) - builder.explicitlyIncluded
     builder.included.addAll(selectedNames - replacedNames)
     builder.excluded.addAll(replacedNames)
     return selectedNames - replacedNames
@@ -368,30 +384,11 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
             .filter { selection -> selection.appliesTo(configuredClassNames, configurationTable) }
             .mapTo(linkedSetOf(), ClassSelection::className)
             .minus(explicitlyExcluded)
-    return selected - replacedBy(selected, configuredClassNames + selected, configurationTable)
+    return selected - replacedBy(selected)
   }
 
-  private fun replacedBy(
-      selected: Set<ClassName>,
-      configured: Set<ClassName>,
-      configurationTable: PremiseClassTable,
-  ): Set<ClassName> =
-      selected.mapNotNullTo(linkedSetOf()) { replacement ->
-        val replaced = replacements[replacement] ?: return@mapNotNullTo null
-        val condition =
-            (classDeclaration(replacement).properties[AUTO_SELECT_WHEN] as? RequirementValue)?.value
-        // A card's condition can allow coexistence only when it names the displaced card.
-        // Consider that card even when a Module will select it after card-pool replacements.
-        if (
-            replacement in cardClassNames &&
-                condition != null &&
-                replaced in condition.descendantsOfType<ClassName>() &&
-                ClassSelection(replacement, requirement = condition)
-                    .appliesTo(configured + replaced, configurationTable)
-        )
-            null
-        else replaced
-      }
+  private fun replacedBy(selected: Set<ClassName>): Set<ClassName> =
+      selected.mapNotNullTo(linkedSetOf(), replacements::get)
 
   /**
    * Names of nonabstract `ColonyTile` subclasses in this catalog's class table. Empty when the

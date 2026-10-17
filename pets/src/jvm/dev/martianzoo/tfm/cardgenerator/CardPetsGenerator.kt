@@ -87,8 +87,6 @@ internal object CardPetsGenerator {
     private val componentClasses = data.components.map(::parseOneLinerClass)
     private val requirement: Requirement? =
         data.requirement?.let { parseAuthored<Requirement>(it).node }
-    private val autoSelectWhen: Requirement? =
-        data.autoSelectWhen?.let { parseAuthored<Requirement>(it).node }
     private val resourceType =
         deriveResourceTypeCandidates()
             .also { candidates ->
@@ -147,7 +145,6 @@ internal object CardPetsGenerator {
               buildMap {
                 put(COST_PROPERTY, NumberValue(data.cost))
                 requirement?.let { put(REQUIREMENT_PROPERTY, RequirementValue(it)) }
-                autoSelectWhen?.let { put(AUTO_SELECT_WHEN_PROPERTY, RequirementValue(it)) }
               },
       )
     }
@@ -255,6 +252,5 @@ internal object CardPetsGenerator {
   private val ACCEPTING_FROM_CARD = cn("AcceptingFromCard")
   private val COST_PROPERTY = PropertyName("cost")
   private val REQUIREMENT_PROPERTY = PropertyName("requirement")
-  private val AUTO_SELECT_WHEN_PROPERTY = PropertyName("autoSelectWhen")
   private const val GENERATED_HEADER = "// Generated from Terraforming Mars card data. Do not edit."
 }

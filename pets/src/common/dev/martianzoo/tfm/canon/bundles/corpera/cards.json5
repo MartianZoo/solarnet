@@ -312,10 +312,10 @@
         },
         {
           "name": "MiningArea",
-          "autoSelectWhen": "Unsafe OR MAX 0 AmazonisMap",
           "cost": 4,
           "tags": [ "BuildingTag" ],
           "direct": "SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}, PROD[Metal(HAS PlacementBonus<LandArea(HAS MiningArea_SpecialTile)>)]",
+          "incompatible": [ "AmazonisMap" ],
         },
         {
           "name": "MirandaResort",

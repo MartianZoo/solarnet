@@ -28,7 +28,6 @@
         },
         {
           "name": "MiningGuild",
-          "autoSelectWhen": "Unsafe OR MAX 0 AmazonisMap",
           "tags": [ "BuildingTag", "BuildingTag" ],
           "direct": "30 MC, 5 Steel, PROD[Steel]",
           "effects": [
@@ -36,6 +35,7 @@
             // Subtract printed resource bonuses to leave only the wild StandardResource icon.
             "Tile<MarsArea(HAS 1 (PlacementBonus<Class<StandardResource>> - PlacementBonus<Class<MC>> - PlacementBonus<Class<Metal>> - PlacementBonus<Class<Plant>> - PlacementBonus<Class<Energy>> - PlacementBonus<Class<Heat>>), HAS MAX 0 PlacementBonus<Class<Metal>>)>: PROD[Steel], Audit",
           ],
+          "incompatible": [ "AmazonisMap" ],
         },
         {
           "name": "PhoboLog",
@@ -667,10 +667,10 @@
         },
         {
           "name": "MiningRights",
-          "autoSelectWhen": "Unsafe OR MAX 0 AmazonisMap",
           "cost": 9,
           "tags": [ "BuildingTag" ],
           "direct": "SpecialTile<> {}, PROD[Metal(HAS PlacementBonus<LandArea(HAS MiningRights_SpecialTile)>)]",
+          "incompatible": [ "AmazonisMap" ],
         },
         {
           "name": "MoholeArea",

@@ -1,7 +1,10 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.catalog.Catalog
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.types.ClassTable
 
 /**
  * An internal organizational provider of declarations, data, metadata, and custom code.
@@ -37,7 +40,29 @@ public abstract class Bundle(
   /** Cards omitted from this bundle's default pool while remaining individually selectable. */
   internal open val excludedDefaultCards: Set<ClassName> = emptySet()
 
+  /** Pairwise configuration conflicts; each key yields to its listed Classes in default pools. */
+  internal open val incompatible: Map<ClassName, Set<ClassName>> = emptyMap()
+
   final override val bundles: List<Bundle> = listOf(this)
+
+  final override fun validateSelectedContent(classTable: ClassTable, modules: Set<ClassName>) {
+    super.validateSelectedContent(classTable, modules)
+    if (cn("Unsafe") in modules) return
+    incompatible.forEach { (card, conflicts) ->
+      if (classTable.findClass(card)?.let(classTable::isInhabited) == true) {
+        conflicts
+            .firstOrNull {
+              classTable.findClass(it)?.let(classTable::isInhabited) == true
+            }
+            ?.let { conflict ->
+              throw InvalidGameConfigException(
+                  "incompatible game content: `$card` and `$conflict`; exclude `$conflict` " +
+                      "or select Unsafe"
+              )
+            }
+      }
+    }
+  }
 
   private companion object {
     private val BUNDLE_NAME = Regex("[a-z][a-z0-9]*")

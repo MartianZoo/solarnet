@@ -2,6 +2,10 @@
 
 Delete entries when they are done.
 
+- Consider moving the remaining configuration policies in `autoSelectWhen` and
+  `premiseRequirement` out of Pets properties. Pairwise implementation incompatibilities already
+  live in card JSON and are checked as catalog metadata; broader policy changes are deferred.
+
 - Investigate consolidating the repeated action-scope completion checks in Corporation, Prelude,
   Action, and Final Greenery. Phase entry and initial offers are shared through `StartToken` and
   `Baton`; continuation still depends on the phase, remaining Preludes, and `SecondAction`.

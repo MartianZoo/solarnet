@@ -44,6 +44,7 @@
             // selected floaters during its resolution has the same net resource result.
             "LocalHeatTrapping: (-Floater<This> THEN 2 Heat) OR (-2 Floater<This> THEN 4 Heat) OR (-3 Floater<This> THEN 5 Heat) OR Ok"
           ],
+          "incompatible": [ "FocusedOrganization" ],
         },
       ],
     },

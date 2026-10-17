@@ -224,6 +224,18 @@ public open class Catalog(private vararg val catalogs: Catalog) {
   protected open fun configurePremise(builder: GamePremiseBuilder) {}
 
   /**
+   * Checks catalog policy against a completed game's [classTable] and selected [modules]. Called by
+   * [GamePremise] before exposing its table, including for directly constructed or copied premises.
+   * Partial tables used to resolve defaults are not checked here. Composition checks every
+   * contributing catalog; overrides should retain those checks through `super`.
+   *
+   * @throws InvalidGameConfigException if the completed selection violates catalog policy.
+   */
+  public open fun validateSelectedContent(classTable: ClassTable, modules: Set<ClassName>) {
+    catalogs.forEach { it.validateSelectedContent(classTable, modules) }
+  }
+
+  /**
    * Resolves [config] with concrete player classes supplied by [playerDeclarations], in seat order.
    * The declarations are local to the premise. A nonempty list cannot be combined with player names
    * already in [config]; an empty list delegates to [gamePremise] unchanged.

@@ -32,6 +32,7 @@
             "CardFront(HAS =0 Tag): 4 MC",
             "CardFront(HAS =1 Tag): 1 MC",
           ],
+          "incompatible": [ "Merger" ],
         },
         {
           "name": "Spire",
@@ -89,8 +90,6 @@
         },
         {
           "name": "FocusedOrganization",
-          "replaces": "StormcraftIncorporated",
-          "autoSelectWhen": "Unsafe OR MAX 0 StormcraftIncorporated",
           "direct": "ProjectCard, StandardResource",
           "actions": [
             "-> -ProjectCard THEN -StandardResource THEN ProjectCard THEN StandardResource",
@@ -131,8 +130,6 @@
         },
         {
           "name": "PreservationProgram",
-          // Terraforming Deal defaults with this pack; keep PP individually selectable.
-          "autoSelectWhen": "Unsafe",
           "direct": "5 TerraformRating",
           "invariants": [ "Class<PreservationTrWatcher>" ],
           "effects": [
@@ -142,6 +139,7 @@
             "CLASS PreservationTrWatcher : CardWatcher { TerraformRating IF ActionPhase:: ActionPhaseTrGain }",
             "CLASS ActionPhaseTrGain<GenerationScope> : Owned",
           ],
+          "incompatible": [ "TerraformingDeal", "TurmoilExpansion" ],
         },
         {
           "name": "ProjectEden",

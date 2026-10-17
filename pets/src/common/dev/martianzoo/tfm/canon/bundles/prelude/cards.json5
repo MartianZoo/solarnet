@@ -95,6 +95,7 @@
           "name": "EcologyExperts",
           "tags": [ "PlantTag", "MicrobeTag" ],
           "direct": "PROD[Plant], PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -Required / Required",
+          "incompatible": [ "ViralEnhancers", "EcologicalZone", "Decomposers", "GmoContract" ],
         },
         {
           "name": "ExcentricSponsor",
