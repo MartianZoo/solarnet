@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
@@ -40,7 +38,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeViewport
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.text.EnglishInstructionTextRenderer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -184,17 +181,9 @@ private fun Playground(
   LaunchedEffect(recording.gameRevision) {
     shownTab = if (recording.playing) GlobalTab.Play else GlobalTab.Explorer
   }
-  val scope = rememberCoroutineScope()
-  val infoPane = remember { BringIntoViewRequester() }
   var selectedTask by remember { mutableStateOf(specimen.tasks.find { it.selected }?.id) }
   LaunchedEffect(specimen.source.event) {
     selectedTask = specimen.tasks.find { it.selected }?.id
-  }
-  var selectedClass by remember { mutableStateOf<String?>(null) }
-  val openClass: (String) -> Unit = { name ->
-    selectedClass = name
-    shownTab = GlobalTab.PetsInfo
-    scope.launch { infoPane.bringIntoView() }
   }
   val explorer = remember(recording.classTable) { ExplorerState() }
   val viewed = remember(specimen.players.size) { ViewedPlayer(specimen.players.size) }
@@ -203,15 +192,6 @@ private fun Playground(
         requireNotNull(recording.classTable).allClasses().mapTo(hashSetOf()) {
           it.className.toString()
         }
-      }
-  val cardNames =
-      remember(recording.classTable) {
-        val table = requireNotNull(recording.classTable)
-        val cardFront = table.getClass(cn("CardFront"))
-        table
-            .allClasses()
-            .filter { !it.abstract && it.isSubtypeOf(cardFront) }
-            .mapTo(hashSetOf()) { it.className.toString() }
       }
   val layout = store.layout
 
@@ -230,18 +210,14 @@ private fun Playground(
               recording.includeImaginary,
               useIcons,
           )
-      GlobalTab.Explorer ->
-          ExplorerTab(explorer, requireNotNull(recording.classTable), selectedClass)
+      GlobalTab.Explorer -> ExplorerTab(explorer, requireNotNull(recording.classTable))
       GlobalTab.Config -> ConfigTab(recording.config, recording.premise, recording.seed)
-      GlobalTab.PetsInfo ->
-          PetsInfoTab(selectedTask, selectedClass, requireNotNull(recording.classTable))
     }
   }
 
   CompositionLocalProvider(
-      LocalOpenClass provides openClass,
+      LocalOpenClass provides ::openAlmanacClass,
       LocalClassNames provides classNames,
-      LocalCardNames provides cardNames,
       LocalUseTrays provides useTrays,
       LocalInstructionEnglish provides
           remember(recording.classTable) {
@@ -258,7 +234,6 @@ private fun Playground(
                 tabs,
                 selectedTab,
                 { shownTab = it },
-                modifier = Modifier.bringIntoViewRequester(infoPane),
             ) {
               TabContent(selectedTab)
             }

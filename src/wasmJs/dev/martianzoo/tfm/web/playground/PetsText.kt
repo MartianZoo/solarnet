@@ -80,7 +80,7 @@ private fun linkedPets(
   }
 }
 
-/** Class names in raw Pets text open the in-workspace class inspector. */
+/** Class names in raw Pets text open their Almanac entries. */
 @Composable
 internal fun ClassLinkedText(
     text: String,

@@ -66,7 +66,6 @@ internal class ExplorerState {
 internal fun ExplorerTab(
     state: ExplorerState,
     table: ClassTable,
-    selectedClass: String?,
 ) {
   val specimen = LocalSpecimen.current
   val palette = LocalPalette.current
@@ -96,7 +95,6 @@ internal fun ExplorerTab(
           is ExplorerTree.Line.Group ->
               GroupLine(
                   line,
-                  selected = line.type.className.toString() == selectedClass,
                   onToggle = { state.toggle(line.id) },
                   onPivot = { state.pivot(line.id, it) },
               )
@@ -110,12 +108,11 @@ internal fun ExplorerTab(
 @Composable
 private fun GroupLine(
     line: ExplorerTree.Line.Group,
-    selected: Boolean,
     onToggle: () -> Unit,
     onPivot: (List<Int>) -> Unit,
 ) {
   val palette = LocalPalette.current
-  ExplorerRow(line.depth, line.count, selected) {
+  ExplorerRow(line.depth, line.count) {
     Text(
         if (line.pivot == null) "▸" else "▾",
         Modifier.width(14.dp).clickable(onClick = onToggle),
@@ -136,12 +133,16 @@ private fun TypeLabel(
   val palette = LocalPalette.current
   val clicked =
       if (expression.className == CLASS && expression.arguments.size == 1) path + 0 else path
-  val color = if (clicked == pivot) palette.accent else palette.text
-  Text(
-      expression.className.toString(),
-      Modifier.clickable { onPivot(clicked) },
-      style = palette.mono.copy(color = color),
-  )
+  val name = expression.className.toString()
+  ClassLinkedText(name, style = palette.mono)
+  Tooltip("Group by $name") {
+    Text(
+        if (clicked == pivot) "●" else "○",
+        Modifier.clickable { onPivot(clicked) },
+        style =
+            palette.mono.copy(color = if (clicked == pivot) palette.accent else palette.dimText),
+    )
+  }
   if (expression.arguments.isNotEmpty()) {
     Text("<", style = palette.mono)
     expression.arguments.forEachIndexed { index, argument ->
@@ -156,12 +157,12 @@ private fun TypeLabel(
 @Composable
 private fun ExactLine(line: ExplorerTree.Line.Exact) {
   val palette = LocalPalette.current
-  ExplorerRow(line.depth, line.entry.count, selected = false) {
-    Text(
+  ExplorerRow(line.depth, line.entry.count) {
+    ClassLinkedText(
         line.entry.type.expressionFull.toString(),
         Modifier.padding(start = 14.dp),
-        style =
-            palette.mono.copy(color = if (line.entry.nonIconic) palette.dimText else palette.text),
+        color = if (line.entry.nonIconic) palette.dimText else palette.text,
+        style = palette.mono,
     )
   }
 }
@@ -170,14 +171,13 @@ private fun ExactLine(line: ExplorerTree.Line.Exact) {
 private fun ExplorerRow(
     depth: Int,
     count: Int,
-    selected: Boolean,
     label: @Composable () -> Unit,
 ) {
   val palette = LocalPalette.current
   Row(
       Modifier.fillMaxWidth()
           .height(22.dp)
-          .background(if (selected) palette.accent.copy(alpha = 0.12f) else palette.surface)
+          .background(palette.surface)
           .padding(start = (depth * 16).dp, end = 4.dp),
       verticalAlignment = Alignment.CenterVertically,
   ) {

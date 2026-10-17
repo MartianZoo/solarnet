@@ -77,7 +77,7 @@ and placement bonuses with it. Player cubes on Mars are 75% of the normal cube s
 
 Mars stays in the upper-left panel, at 80% of its former width and height. The tabbed panel
 sits below Mars and contains **Players** (including player comparison), **Goals** (including
-milestones and awards), **Colonies**, **Turmoil**, **Effects**, **Explorer**, **Config**, and **PETS info**.
+milestones and awards), **Colonies**, **Turmoil**, **Effects**, **Explorer**, and **Config**.
 Colonies and Turmoil appear only when their expansion Class components are present; Goals appears
 when milestone or award Class components are present. Effects groups current subscriptions by
 source owner and exact trigger, showing a single unwrapped `trigger: consequence, consequence`
@@ -139,11 +139,14 @@ earliest decision in the gap. The selected stop has a longer, thicker teal tick.
 The **#**, **WHO**, and **WHY** columns center their headings and contents.
 The **Use icons** checkbox starts checked; it replaces class names with available
 icons in event expressions and GIVEN BY, task instructions and GIVEN BY, and Play tab options.
-Event and task icons keep names as hover labels and class-inspector links; clicking any part of a
+Event and task icons keep names as hover labels and Almanac links; clicking any part of a
 Play option, including its icons, selects that option.
-Icons are 1.32 times the text height and retain their original proportions. If a small icon is
-absent, the full-size class image is scaled to that height. Specific card classes remain text;
-individual card artwork is never used as an inline icon. `Production` also stays text.
+Icons are 1.32 times the text height and retain their original proportions. Player-color cubes
+take precedence. Otherwise, a class name uses exactly `images/classes/30px/<ClassName>.png` when
+available and remains text when absent; there are no card or standard-project exclusions and no
+full-size image fallback. Dashboard icons also fall back to their full class names. The `30px`
+asset directory specifies image height, preserving aspect ratio. Class icons in player dashboards
+and comparison rows also open their Almanac entries.
 The generic CardFront, ActiveCard, AutomatedCard, ActionCard, and EventCard symbols
 are hosted at `https://www.martianzoo.dev/images/classes/` with transparent exteriors and trimmed
 margins. All game images load from martianzoo.dev; none are bundled locally.
@@ -156,7 +159,7 @@ action arrow, leaving space before the arrowhead. Shared image loads continue wh
 preview rows disappear, so advancing through a recording does not cancel phase artwork. Player
 markers show a large front face with narrow top and right faces and sharp edges. Phase icons use the
 same hosted artwork in inline text and the sidebar, where hovering shows the phase name and
-clicking opens its class inspector. The hosted collection includes Disease, Science, Fighter, Graphene, and
+clicking opens its Almanac entry in a new browser tab. The hosted collection includes Disease, Science, Fighter, Graphene, and
 Hydroelectric resource artwork.
 The log includes component changes from the beginning of the recording, including initialization,
 non-Iconic, and System changes.
@@ -214,8 +217,8 @@ and the Mars background uses `other/mars.png`. Fonts and replay recordings remai
 
 The **Explorer** tab counts present Iconic components by default. Counts sit to the left of their
 types. Each category uses Pets full-form spelling, omitting class-fixed dependencies while keeping
-chosen values such as `Player2` visible. Clicking its root class or any nested dependency type
-rebuilds that row's children by the clicked class's nearest visible subclasses, preserving the other bounds
+chosen values such as `Player2` visible. Clicking a class name opens its Almanac entry in a new browser tab.
+The circle beside a root class or nested dependency type rebuilds that row's children by the chosen class's nearest visible subclasses, preserving the other bounds
 as far as the type rules allow. A node such as `OwnedTile<Player2, Area>` can therefore expand by
 tile class or by area while retaining `Player2`. Classes identified by `ClassTable.isProbableAspect`,
 such as `Atomized`, are omitted as categories. Their concrete descendants remain reachable beneath
@@ -223,7 +226,6 @@ their nearest visible superclasses, with component counts unchanged.
 Multiple inheritance can put the same component below two sibling categories; each count is the
 count for its displayed type, and sibling counts need not add to their parent. **Include non-Iconic
 components** starts off. Zero-count branches stay hidden. Sandbox count editing remains deferred.
-The PETS info tab can display raw type and task information.
 
 ## How the current history viewer works
 
@@ -252,12 +254,11 @@ Passes and unused action slots have no triangle.
 The Mars panel uses the old viewer's planet image and hex layout, including empty-area bonuses,
 Noctis and volcano marks, tile images, and centered owner cubes. The same cube marks used actions
 on played cards, centered two-thirds of the way up each marked card.
-PETS class names outside the Explorer open PETS info below Mars and bring that pane into view.
-The inspector shows the loaded class declaration, docstring, type relationships,
-invariants, and live counts. The Config tab shows the game file's resolved configuration as a
+PETS class names and icons open `https://martianzoo.dev/pets/almanac/#ClassName` in a new browser tab,
+using the clicked class's name in place of `ClassName`. The Config tab shows the game file's resolved configuration as a
 comma-separated line,
 then groups the resolved GamePremise's players, included class selections, and setup adjustments.
-Class names in the premise list open the same inspector.
+Class names in the premise list open the corresponding Almanac entries.
 
 `resources/files/specimen.json` retains the former static design capture for reference; it is not
 packaged or read by the app. The event log's leading `#` column shows each event's ordinal, which

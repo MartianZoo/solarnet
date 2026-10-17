@@ -2,6 +2,12 @@
 
 package dev.martianzoo.tfm.web.playground
 
+/** Opens the named Pets class in the Almanac without replacing the Playground. */
+internal fun openAlmanacClass(name: String): Unit =
+    js(
+        "window.open('https://martianzoo.dev/pets/almanac/#' + encodeURIComponent(name), '_blank', 'noopener')"
+    )
+
 // Writes a review snapshot to the development server; the app never reads layout JSON.
 
 internal fun saveLayoutText(text: String): Unit =

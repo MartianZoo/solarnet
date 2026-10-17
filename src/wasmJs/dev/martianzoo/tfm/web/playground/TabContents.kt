@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.types.ClassTable
 import kotlin.math.hypot
 
 /** The recording's live Mars tiles over its configured map areas. */
@@ -506,77 +505,6 @@ internal fun ConfigTab(config: GameConfig?, premise: GamePremise?, seed: Int?) {
       }
       Spacer(Modifier.height(palette.spacing))
     }
-  }
-}
-
-/** The selected Pets class and the selected task, using the loaded recording's class table. */
-@Composable
-internal fun PetsInfoTab(selectedTask: Int?, selectedClass: String?, classTable: ClassTable) {
-  val specimen = LocalSpecimen.current
-  val palette = LocalPalette.current
-  TabColumn {
-    SectionLabel("SELECTED CLASS")
-    val klass = selectedClass?.let { classTable.findClass(cn(it)) }
-    if (klass == null) {
-      Text(
-          "Select a class name anywhere in the workspace.",
-          style = palette.body.copy(color = palette.dimText),
-      )
-    } else {
-      val present =
-          specimen.components.filter { classTable.getClass(cn(it.className)).isSubtypeOf(klass) }
-      RawField("name", klass.className.toString())
-      klass.docstring?.takeIf(String::isNotBlank)?.let { RawField("docstring", it) }
-      SectionLabel("PETS DECLARATION")
-      ClassLinkedText(klass.declaration.copy(docstring = null).toString(), Modifier.fillMaxWidth())
-      Spacer(Modifier.height(palette.spacing))
-      RawField("baseType", klass.baseType.toString())
-      RawField("supertypes", klass.allSuperclasses().joinToString(", ") { it.className.toString() })
-      RawField(
-          "dependencies",
-          klass.dependencies.keys.joinToString(", ") { key ->
-            "$key: ${klass.dependencies.get(key).expressionFull}"
-          },
-      )
-      if (klass.invariants.isNotEmpty()) {
-        SectionLabel("INVARIANTS")
-        klass.invariants.forEach { ClassLinkedText(it.toString(), Modifier.fillMaxWidth()) }
-      }
-      val subclasses =
-          classTable
-              .allSubclasses(klass)
-              .map { it.className.toString() }
-              .filter { it != selectedClass }
-              .sorted()
-      if (subclasses.isNotEmpty()) {
-        SectionLabel("SUBCLASSES (${subclasses.size})")
-        ClassLinkedText(subclasses.take(40).joinToString(", "), Modifier.fillMaxWidth())
-      }
-      RawField("presentTypes", "${present.size}")
-      RawField("presentComponents", "${present.sumOf { it.count }}")
-    }
-    Spacer(Modifier.height(palette.spacing * 2))
-    val task = specimen.tasks.find { it.id == selectedTask }
-    SectionLabel("SELECTED TASK")
-    if (task == null) {
-      Text("Select a task in the task queue.", style = palette.body.copy(color = palette.dimText))
-    } else {
-      RawField("id", "${task.id}")
-      RawField("instruction", task.instruction)
-      RawField("then", task.then ?: "")
-      RawField("assignee", task.assignee)
-      RawField("selected", "${task.selected}")
-      RawField("cause", "VIA ${task.givenBy} BECAUSE ${task.because}")
-    }
-  }
-}
-
-@Composable
-private fun RawField(name: String, value: String) {
-  val palette = LocalPalette.current
-  Row(Modifier.padding(vertical = 2.dp)) {
-    Text(name, Modifier.width(174.dp), style = palette.mono.copy(color = palette.dimText))
-    ClassLinkedText(value, Modifier.weight(1f))
   }
 }
 

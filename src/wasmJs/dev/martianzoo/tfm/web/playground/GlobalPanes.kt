@@ -49,7 +49,6 @@ internal enum class GlobalTab(val label: String) {
   Effects("Effects"),
   Explorer("Explorer"),
   Config("Config"),
-  PetsInfo("PETS info"),
 }
 
 private val TAB_HEIGHT = 32.dp

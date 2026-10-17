@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -22,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -53,8 +53,6 @@ import kotlinx.coroutines.async
 import org.jetbrains.compose.resources.decodeToImageBitmap
 
 internal val LocalSpecimen = compositionLocalOf<Specimen> { error("no specimen") }
-
-internal val LocalCardNames = compositionLocalOf<Set<String>> { emptySet() }
 
 internal val playerCubeSize = 21.dp
 
@@ -164,33 +162,21 @@ internal fun rememberGameImage(vararg paths: String): ImageBitmap? {
   return image
 }
 
-/** Prefer small icon artwork, falling back to the full-size class image when absent. */
+/** Only dedicated 30px icons substitute for class names. */
 @Composable
 internal fun rememberClassIcon(name: String): ImageBitmap? =
-    when {
-      name == "Production" || name in LocalCardNames.current -> null
-      name == "MC" -> rememberGameImage("classes/MC.png")
-      else -> rememberGameImage("classes/30px/$name.png", "classes/$name.png")
-    }
+    rememberGameImage("classes/30px/$name.png")
 
-/** A small game icon from the hosted icon set, with a lettered stand-in when it has none. */
+/** A dedicated class icon, or the full class name when no icon is available. */
 @Composable
 internal fun GameIcon(name: String, size: Dp, modifier: Modifier = Modifier) {
   val image = rememberClassIcon(name)
+  val openClass = LocalOpenClass.current
+  val link = modifier.clickable { openClass(name) }
   if (image != null) {
-    Image(image, name, modifier.size(size), contentScale = ContentScale.Fit)
+    Image(image, name, link.size(size), contentScale = ContentScale.Fit)
   } else {
-    val palette = LocalPalette.current
-    Box(
-        modifier.size(size).clip(RoundedCornerShape(size / 5)).background(Color(0xFFD9B44A)),
-        contentAlignment = Alignment.Center,
-    ) {
-      Text(
-          if (name == "MC") "M€" else name.take(2),
-          style =
-              palette.body.copy(fontSize = palette.body.fontSize * 0.7f, color = Color(0xFF2A2310)),
-      )
-    }
+    Text(name, link, style = LocalPalette.current.body)
   }
 }
 
