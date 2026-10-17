@@ -98,3 +98,8 @@ Delete entries when they are done.
   unresolved-condition passes before adding more machinery. They still reconsider every pending
   constructive reference after each inclusion frontier; selectively waking only affected conditions
   would require tracking subclass and dependency inhabitance, not just names written in a trigger.
+
+- Head Start remains an approximation: its resources and two granted actions can interleave and
+  share the enclosing scope, so Suitable Infrastructure pays only once and wild-tag elections
+  persist. Keep these limitations explicit; revisit only if existing mechanisms can model its
+  timing without special turn-flow machinery. See [game flow](docs/agents/GAME_FLOW.md#head-start-restored-approximation).

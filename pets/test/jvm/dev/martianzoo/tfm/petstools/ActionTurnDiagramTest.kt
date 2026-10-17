@@ -80,12 +80,12 @@ internal class ActionTurnDiagramTest {
   @Test
   fun aChangedRuleChangesItsGuardAndDestinationWithoutEditingTheGenerator() {
     val original = "CLASS InRound { -ActionScope IF Baton: FINALLY { -Baton } }"
-    val changed = "CLASS InRound { -ActionScope IF ExtraAction: FINALLY { OfferAction } }"
+    val changed = "CLASS InRound { -ActionScope IF SecondAction: FINALLY { OfferAction } }"
     val before = ActionTurnDiagram.render(mapOf("probe.pets" to original))
     val after = ActionTurnDiagram.render(mapOf("probe.pets" to changed))
     assertTrue(before.contains("IF&#160;Baton"))
     assertTrue(before.contains("HREF=\"#panel-9\""))
-    assertTrue(after.contains("IF&#160;ExtraAction"))
+    assertTrue(after.contains("IF&#160;SecondAction"))
     assertTrue(after.contains("HREF=\"#panel-3\""))
     assertFalse(after.contains("HREF=\"#panel-9\""))
     assertNotEquals(before, after)
@@ -112,7 +112,7 @@ internal class ActionTurnDiagramTest {
     val source =
         """
         CLASS InRound {
-          -ActionScope: FINALLY { -ExtraAction THEN (StandardAction OR -Baton) }
+          -ActionScope: FINALLY { -SecondAction THEN (StandardAction OR -Baton) }
         }
         """
             .trimIndent()

@@ -2,5 +2,6 @@ count	reason	examples
 8	UNKNOWN_CHANGE_FRAME	FakeHelion: BaseResourceValue<Class<Heat>> | L1TradeTerminal: L1GiftWatcher
 4	UNKNOWN_REQUIREMENT_FRAME	SpliceTacticalGenomics: Splicer<This> | CrashSiteCleanup: ResourceWasAttacked<Anyone, Class<Plant>, Me@>
 4	UNSUPPORTED_EFFECT_TRIGGER	FakeHelion: Billing<Class<Component>, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>> | MiningGuild: Tile<MarsArea(HAS 1 (PlacementBonus<Class<StandardResource>> - PlacementBonus<Class<MC>> - PlacementBonus<Class<Metal>> - PlacementBonus<Class<Plant>> - PlacementBonus<Class<Energy>> - PlacementBonus<Class<Heat>>), HAS MAX 0 PlacementBonus<Class<Metal>>)>: PROD[Steel], Audit
+4	UNSUPPORTED_GATE	FakeHeadStart: MAX 0 RequiredAction: StandardAction | FakeHeadStart: RequiredAction: DoRequiredActions
 2	UNSUPPORTED_FANOUT	Aridor: EACH @Class<Tag> { AridorTagWatcher<@Class, This> } | IcyImpactors: EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player, Me@Owner> }
 1	UNSUPPORTED_METRIC	SeptemTribus: PartyDelegate

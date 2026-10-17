@@ -29,9 +29,7 @@ internal class ActionScopeRemovalInvariantTest {
 
   @Test
   internal fun consumingAnEntitlementCannotProvokeARewardChoice() {
-    for (entitlement in listOf("Baton", "ExtraAction")) {
-      assertViolation("Watcher", table("CLASS Watcher { -$entitlement: MC OR Steel }"))
-    }
+    assertViolation("Watcher", table("CLASS Watcher { -Baton: MC OR Steel }"))
   }
 
   @Test
@@ -138,7 +136,7 @@ internal class ActionScopeRemovalInvariantTest {
                 -ActionScope<This>: FINALLY { -Baton<This> }
                 -Baton<This>: StandardAction<This> OR PassBaton<This>
                 -ActionScope<This>: FINALLY { \
-                  -ExtraAction<This> THEN TASK This { \
+                  TASK This { \
                     StandardAction<This> OR DoRequiredActions<This> \
                   } \
                 }
@@ -206,7 +204,6 @@ internal class ActionScopeRemovalInvariantTest {
         CLASS ScienceTag : Tag
         CLASS Baton<Player> { $batonBody }
         CLASS SecondAction<Baton>
-        CLASS ExtraAction<Player>
         CLASS OfferAction<Player> : Signal
         CLASS PassBaton<Player> : Signal
         CLASS StandardAction<Player> : Signal

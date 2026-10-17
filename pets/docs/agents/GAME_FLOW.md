@@ -33,7 +33,7 @@ that published turn and declines an unused second opportunity.
 | Each Prelude played during the Prelude phase | Includes its effects and nested plays |
 | Each accepted action-phase opportunity | A fresh scope, including the optional second action |
 | Each final greenery placement | Includes placement effects; passing the baton creates no scope |
-| Head Start variant | Its initial resolution, then each granted action in a fresh scope |
+| Fake Head Start | Its resources and both granted actions share the enclosing scope |
 
 An unplayable Prelude's removal also starts a scope when none exists, covering its compensation.
 Merger's corporation and New Partner's further Prelude remain inside the scope already in progress.
@@ -54,7 +54,7 @@ scope before that action's consequences begin.
 
 This is a Canon authoring rule, not a restriction on the generic `Scope` mechanism.
 `CanonInvariantsTest.actionScopeExpiryOnlyPerformsReviewedHandoffs` scans removal listeners for
-the scope, baton and extra-action removals, their possible indirect dependents including
+scope and baton removals, their possible indirect dependents including
 `SecondAction`, and `PassBaton` listeners. It accepts fixed turn bookkeeping and next-play
 instructions regardless of the listener's class name; optional bookkeeping (including defaults), arbitrary helper gains,
 and new listener forms fail for review. This deliberately rejects new fixed rewards too, since
@@ -95,7 +95,7 @@ instructions need no player recipient, so bare `Baton` counts every player's bat
 is no longer needed.
 
 Red Appeasement's pass removes `InRound` immediately, but passes the baton only after the current
-action and any mandatory extra actions finish. Its event flip and rewards therefore finish before
+action finishes. Its event flip and rewards therefore finish before
 the next player receives an offer. A pass during Prelude resolution does not interrupt that
 player's remaining Preludes, and generation-scoped `Pass` does not skip final greenery.
 
@@ -127,21 +127,18 @@ Prelude raises several production tracks. It does not establish a disputed rulin
 out-of-turn production interaction; those eligibility questions remain separate from the selected
 lifetime model.
 
-### Head Start: selected sequential variant
+### Head Start: restored approximation
 
-`FakeHeadStart` implements the owner's deliberate timing variant, not exact published timing:
+`FakeHeadStart` directly grants its steel, money, and two mandatory action choices on entry.
+Each choice allows a standard action when no required action remains, or requires
+`DoRequiredActions` otherwise. These tasks finish within the enclosing action scope before
+ordinary turn flow resumes; there is no extra-action counter or special completion handler.
 
-1. Resolve its steel, money, and their consequences, and record `2 ExtraAction`.
-2. After its scope ends, consume an `ExtraAction` and offer a mandatory standard or required action.
-   Finish that new scope before consuming the next entitlement.
-3. After all additional actions finish, resume the baton holder's ordinary sequence: offer the
-   optional second action, play the next Prelude, or pass the baton as appropriate. A standalone
-   sandbox play has no baton to advance.
-
-Money is calculated before either additional action can sell cards. There is no suspended scope
-or assignment to restore. `ExtraAction` records an action owed to its owner; it is not a generic
-continuation component. The same authored rules handle a further grant made during a granted
-action. Existing scenario coverage lives in `HeadStartTest`.
+This deliberately restores the simpler approximation rather than exact published timing.
+Resources and both actions may interleave, and the money calculation can occur after selling
+cards. The granted actions share the enclosing scope, so Suitable Infrastructure's bonus is
+available only once and wild-tag elections persist across them. `HeadStartTest` records the
+known limitations and verifies that both mandatory actions finish before ordinary play resumes.
 
 ### Remaining design work
 
@@ -211,9 +208,9 @@ helpers. `ActionScope` is not `MustCleanUp`: the current completion check runs b
 ## Facts in components, future work in tasks
 
 Components record what exists or is happening. `ActionScope` records the current accepted action;
-`Baton` records the current table turn, `SecondAction` its remaining second-action allowance,
-and `ExtraAction` mandatory actions still owed. Deferred tasks determine when those facts change. Do not add a component whose only meaning is an arbitrary
-continuation waiting to run.
+`Baton` records the current table turn and `SecondAction` its remaining second-action allowance.
+Deferred tasks determine when those facts change. Do not add a component whose only meaning is
+an arbitrary continuation waiting to run.
 
 Event cards remain in play until their `LATER` flip; `Trade` uses deferred `FinishTrade`, Turmoil
 uses deferred phase work, and `L1GiftWatcher` defers its removal. These do not require the deleted

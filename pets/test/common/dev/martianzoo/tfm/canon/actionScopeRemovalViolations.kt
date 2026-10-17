@@ -18,9 +18,8 @@ import dev.martianzoo.pets.types.ClassTable
  */
 internal fun actionScopeRemovalViolations(table: ClassTable): List<String> {
   val classes = table.allClasses()
-  // Passing the baton or consuming extra actions can follow scope removal.
-  val roots =
-      listOf("ActionScope", "Baton", "ExtraAction", "PassBaton").map { table.getClass(cn(it)) }
+  // Passing the baton can follow scope removal.
+  val roots = listOf("ActionScope", "Baton", "PassBaton").map { table.getClass(cn(it)) }
   val expiring = classes.filter { klass -> roots.any(klass::isSubtypeOf) }.toMutableSet()
   do {
     // Include possible indirect dependents, including Tag<TagHolder> through WildTagElection.
@@ -125,7 +124,7 @@ private fun isScopeRemovalHandoff(
             tree.instructions.all { nextAction(it) || decline(it) }
     is Instruction.Change ->
         when (tree) {
-          is Instruction.Remove -> target(tree.removing, "Baton", "SecondAction", "ExtraAction")
+          is Instruction.Remove -> target(tree.removing, "Baton", "SecondAction")
           is Instruction.Gain ->
               target(
                   tree.gaining,

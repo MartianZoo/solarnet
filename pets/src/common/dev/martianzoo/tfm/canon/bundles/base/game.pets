@@ -100,11 +100,6 @@ ABSTRACT CLASS Player : Owner, Actor {
   SetupPhase IF BeginnerVariant: BeginnerOption<This> OR StandardOption<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4? ProjectCard<This, Selecting> THEN BuySelectedCards<This>
   ActionScope<This>: LATER Admin { EACH @CardBack<This, Selecting> { -@CardBack } }
-  -ActionScope<This> IF ExtraAction<This>: FINALLY { \
-    -ExtraAction<This> THEN TASK This { \
-      (MAX 0 RequiredAction<This>: StandardAction<This>) OR (RequiredAction<This>: DoRequiredActions<This>) \
-    } \
-  }
   -Billing<This, Class<BuySelectedCards>, Action1>: \
     ProjectCard<This, Hand> FROM ProjectCard<This, Selecting> / ProjectCard<This, Selecting>
 }
@@ -164,7 +159,7 @@ ABSTRACT CLASS Phase : System, Iconic {
       PlayCard<Class<CorporationCard>, Class<CardFront>, Hand>
     OfferAction IF BeginnerCard<Hand>: \
       PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand>
-    -ActionScope<@Player> IF Baton<@Player>, MAX 0 ExtraAction<@Player>: FINALLY { PassBaton<@Player> }
+    -ActionScope<@Player> IF Baton<@Player>: FINALLY { PassBaton<@Player> }
     CardFront<Class<CorporationCard>>: BuySelectedCards
     CardFront<Class<BeginnerCard>>: BuySelectedCards
   }
@@ -192,7 +187,7 @@ ABSTRACT CLASS Phase : System, Iconic {
   CLASS FinalGreeneryPhase : TurnBasedPhase {
     OfferAction: ConvertPlants OR PassBaton
     // Each greenery has its own action scope; the player keeps the baton until declining.
-    -ActionScope<@Player> IF Baton<@Player>, MAX 0 ExtraAction<@Player>: FINALLY { OfferAction<@Player> }
+    -ActionScope<@Player> IF Baton<@Player>: FINALLY { OfferAction<@Player> }
     -Baton IF MAX 0 Baton: FINALLY { End FROM This }
   }
 
@@ -228,9 +223,6 @@ CLASS ActionScope<Player> : Scope, System {
 "The option of a second ordinary action while this player holds the baton"
 CLASS SecondAction<Baton<@Player>> : Owned<@Player>, System { HAS MAX 1 This }
 
-"An additional mandatory action owed after the current action finishes"
-CLASS ExtraAction : Owned<Player>, System
-
 "Requests that the current holder hand over the baton or finish the turn-based phase"
 CLASS PassBaton : Owned<Player>, Signal, System
 
@@ -243,8 +235,8 @@ CLASS InRound<ActionPhase> : RoundStatus, System {
 
   OfferAction IF MAX 0 RequiredAction: StandardAction OR Pass
   OfferAction IF RequiredAction: DoRequiredActions OR Pass
-  -ActionScope<Me@> IF Baton, MAX 0 ExtraAction, SecondAction: FINALLY { -SecondAction }
-  -ActionScope<Me@> IF Baton, MAX 0 ExtraAction, MAX 0 SecondAction: FINALLY { PassBaton }
+  -ActionScope<Me@> IF Baton, SecondAction: FINALLY { -SecondAction }
+  -ActionScope<Me@> IF Baton, MAX 0 SecondAction: FINALLY { PassBaton }
   -SecondAction IF Baton, MAX 0 RequiredAction: StandardAction OR PassBaton
   -SecondAction IF Baton, RequiredAction: DoRequiredActions OR PassBaton
 }
@@ -253,9 +245,9 @@ CLASS InRound<ActionPhase> : RoundStatus, System {
 CLASS Pass<GenerationScope> : RoundStatus {
   This:: -InRound*
 
-  This IF ActionPhase, Baton, MAX 0 ActionScope<Me@>, MAX 0 ExtraAction: FINALLY { PassBaton }
+  This IF ActionPhase, Baton, MAX 0 ActionScope<Me@>: FINALLY { PassBaton }
   Baton IF ActionPhase: PassBaton
-  -ActionScope<Me@> IF ActionPhase, Baton, MAX 0 ExtraAction: FINALLY { PassBaton }
+  -ActionScope<Me@> IF ActionPhase, Baton: FINALLY { PassBaton }
 }
 
 "Tells what generation we're in"

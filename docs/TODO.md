@@ -40,8 +40,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   `Accepting` now skips alternative standard-resource offers when the payer has none; it does not
   consider possible substitutes such as Stormcraft floaters for heat.
 - Verify as a Canon invariant which tasks can interleave with card play, including gaining MC
-  production and other actual exceptions. Head Start's selected variant now resolves its initial
-  work before granting sequential actions; do not retain its former interleaving as a requirement.
+  production and other actual exceptions. Fake Head Start currently allows interleaving as a
+  known approximation, not a requirement.
 - Consider renaming automatic (`::`) effects to “immediate.”
 - Replace the archived *Life of an Effect* walkthrough with a current account of lexical `Me`
   and the transformation pipeline.
