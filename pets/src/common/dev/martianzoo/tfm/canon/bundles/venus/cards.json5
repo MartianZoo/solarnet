@@ -115,7 +115,7 @@
           "tags": [ "VenusTag" ],
           "actions": [ "-> Floater" ],
           "effects": [
-            "PayingFor<Class<VenusTag>>:: AcceptingFromCard<This>",
+            "PayingFor<Class<VenusTag>, @PaymentScope>:: AcceptingFromCard<This, @PaymentScope>",
             "PayFromCard<This>:: -3 Owed"
           ],
         },
@@ -279,7 +279,7 @@
             "6 MC -> Asteroid<This>",
             "Asteroid<This> -> VenusStep"
           ],
-          "effects": [ "UseAction<This, Action1>:: Accepting<Class<Titanium>>" ],
+          "effects": [ "@PaymentScope<Class<RotatorImpacts>, Class<MC>, Class<Action1>>:: Accepting<Class<Titanium>, @PaymentScope>" ],
         },
         {
           "name": "SisterPlanetSupport",

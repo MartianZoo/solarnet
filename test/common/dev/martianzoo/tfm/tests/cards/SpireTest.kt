@@ -99,7 +99,7 @@ internal class SpireTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Selling patents does not offer science for the following project payment`() {
+  internal fun `Selling patents gains MC without spending science or enabling it for project cards`() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("DoRequiredActions")
@@ -107,9 +107,11 @@ internal class SpireTest : TfmSandboxTest() {
           doTask("-3 ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
+    kim.setToExMachina(1, "Science<$Spire>")
     kim.inTurn {
-      doTasks("UseStandardProject<SellPatentsProject>", "1! MC FROM ProjectCard")
-    }
+          doTasks("UseStandardProject<SellPatentsProject>", "1! MC FROM ProjectCard")
+        }
+        .expect("MC, -ProjectCard, 0 Science<$Spire>")
 
     shouldThrow<TaskException> {
       kim.inTurn {

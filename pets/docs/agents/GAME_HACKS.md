@@ -114,7 +114,7 @@ fan card's relevant effect is a gain, removal, transfer, condition, or reaction 
 Some entries
 instead require a missing observation, or expose an assumption about how a truthful card is written.
 Pets fragments are implementation sketches, not compilation claims. Related repair work remains
-in [TODO.md](../../../docs/TODO.md) and the owning design documents; this inventory does not authorize fixes.
+in [TODO.md](../../../TODO.md) and the owning design documents; this inventory does not authorize fixes.
 
 ## Resource bookkeeping and narrow watchers
 

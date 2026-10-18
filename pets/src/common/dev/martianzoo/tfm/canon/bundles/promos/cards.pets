@@ -63,7 +63,7 @@ CLASS StagedProject<Class<@CardFront>> : ResourceHolder<Class<RobotUnit>>, Owned
   This: 2 RobotUnit<This>
   ReplicateForStagedProject<Class<@CardFront>>: RobotUnit<This> / RobotUnit<This>
   PlayCard<Class<ProjectCard>, Class<@CardFront>, Hand>:: ProjectCard
-  PayingFor<Class<@CardFront>>:: -Owed / RobotUnit<This> THEN -This
+  PayingFor<Class<@CardFront>, PaymentScope>:: -Owed / RobotUnit<This> THEN -This
 }
 
 CLASS SelfReplicatingRobots : ActionCard, ActiveCard {

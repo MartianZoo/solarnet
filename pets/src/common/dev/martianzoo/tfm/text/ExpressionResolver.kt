@@ -48,6 +48,8 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
             when {
               argument == thisExpression && contextualThisType != null ->
                   contextualThisType.expression
+              argument == Expression(CLASS, listOf(thisExpression)) &&
+                  contextualThisType?.rootClass?.className == CLASS -> contextualThisType.expression
               playerOwned &&
                   (isOwner(argument) || argument == anyoneExpression || isNotOwner(argument)) ->
                   playerExpression
@@ -193,7 +195,7 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
 
   internal fun isEndTrigger(className: ClassName): Boolean = isSubtypeOf(className, END)
 
-  internal fun isBilling(className: ClassName): Boolean = isSubtypeOf(className, BILLING)
+  internal fun isPaymentScope(className: ClassName): Boolean = isSubtypeOf(className, PAYMENT_SCOPE)
 
   internal fun concreteSubclassesOf(className: ClassName): List<ClassName> =
       classesByName.values
@@ -215,7 +217,7 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
   internal val thisExpression = cn("This").expression
 
   private companion object {
-    val BILLING = cn("Billing")
+    val PAYMENT_SCOPE = cn("PaymentScope")
     val ANYONE = cn("Anyone")
     val CARD_RESOURCE = cn("CardResource")
     val CLASS = cn("Class")

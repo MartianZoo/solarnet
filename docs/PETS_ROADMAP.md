@@ -201,6 +201,6 @@ implementation experiment and the treatment of structural `NOT` remain undecided
   player product remain conditional rather than active programs.
 
 This roadmap synthesizes the current priorities in
-[`VALUES.md`](agents/VALUES.md), [`TODO.md`](TODO.md), the
+[`VALUES.md`](agents/VALUES.md), [`TODO.md`](../TODO.md), the
 [Pets introduction](../pets/README.md), recent mainline
 work, the active `english` branch, and the exploratory `codegen` module.
