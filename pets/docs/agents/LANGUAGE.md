@@ -505,6 +505,9 @@ semantic invariant needs a focused check.
 
 - [`English.kt`](../../src/common/dev/martianzoo/tfm/text/English.kt) — internal facade and card-region
   assembly; `EnglishCardTextRenderer.kt` is the public card-text entry point.
+- [`EnglishInstructionTextRenderer.kt`](../../src/common/dev/martianzoo/tfm/text/EnglishInstructionTextRenderer.kt)
+  — public instruction rendering with the loaded game's class table, including player classes
+  added by its premise.
 - `Clause.kt`, `Predicate.kt`, `Verb.kt`, `NounPhrase.kt`, `Determiner.kt`, `Modifier.kt`,
   `Coordination.kt`, `Sentence.kt` — sentence-level English syntax.
 - [`EnglishText.kt`](../../src/common/dev/martianzoo/tfm/text/EnglishText.kt) — document composition and
