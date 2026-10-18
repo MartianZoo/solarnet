@@ -280,7 +280,8 @@
         {
           "name": "CyberiaSystems",
           "cost": 16,
-          "direct": "PROD[Steel], (BuildingTag<First@>: CopyProductionBox<First@CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@)>",
+          "direct": "PROD[Steel], (BuildingTag<First@> OR WildTag<First@>(HAS WildTagElection(HAS BuildingTag))): CopyProductionBox<First@CardFront> THEN CopyProductionBox<CardFront(HAS BuildingTag OR WildTag(HAS WildTagElection(HAS BuildingTag)), NOT First@)>",
+          "effects": [ "This IF WildTagElection(HAS MAX 0 Tag): EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }" ],
           // Copies the single production box in a chosen card's direct effect.
           // Must be identical to RoboticWorkforce's declaration in the corpera bundle.
           "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],

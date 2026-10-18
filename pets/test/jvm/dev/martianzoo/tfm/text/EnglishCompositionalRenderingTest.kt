@@ -257,6 +257,21 @@ internal class EnglishCompositionalRenderingTest {
   }
 
   @Test
+  fun assignedWildTagsCanQualifyCardSelectionsByAnotherTag() {
+    english.describe(
+        parse<InstructionTree>(
+            "CopyProductionBox<CardFront(HAS BuildingTag OR WildTag(HAS WildTagElection(HAS BuildingTag)))>"
+        )
+    ) shouldBe "Copy the production box in the direct effect of a building card."
+    english.describe(
+        parse<InstructionTree>(
+            "(BuildingTag<First@CardFront> OR WildTag<First@CardFront>(HAS WildTagElection(HAS BuildingTag))): CopyProductionBox<First@CardFront> THEN CopyProductionBox<CardFront(HAS BuildingTag OR WildTag(HAS WildTagElection(HAS BuildingTag)), NOT First@CardFront)>"
+        )
+    ) shouldBe
+        "Copy the production box in the direct effect of a building card, then copy the production box in the direct effect of a building card that is not that card."
+  }
+
+  @Test
   fun cardResourceTargetsIncludeTagsHeldByAnAssignmentHolder() {
     english.describe(
         parse<InstructionTree>(

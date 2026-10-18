@@ -611,8 +611,28 @@ private fun renderGated(
     references: TypeVariableReferences,
 ): Clause? {
   // A tag gate can select the same card passed to a card-targeted procedure.
-  val gate = instruction.gate as? Requirement.Min
-  val tag = gate?.takeIf { it.minimum == 1 }?.let(::countedExpression)
+  val alternatives =
+      when (val gate = instruction.gate) {
+        is Requirement.Or -> gate.requirements.toList()
+        is Requirement.Min ->
+            (gate.metric as? Metric.Or)?.metrics?.map { Requirement.Min(gate.minimum, it) }
+                ?: listOf(gate)
+        else -> emptyList()
+      }
+  val counted = alternatives.mapNotNull {
+    (it as? Requirement.Min)?.takeIf { min -> min.minimum == 1 }?.let(::countedExpression)
+  }
+  val tag = counted.singleOrNull { describers.isTag(it.className) }
+  val wild = counted.singleOrNull {
+    describers.fact(it.className, ComponentDescriber::tagAssignmentHolder) == true
+  }
+  // The card criterion reads the assignment; variable matching below checks its holder.
+  val assignedWildMatchesTag =
+      tag != null &&
+          wild != null &&
+          describers.cardCriterion(
+              Requirement.Min(1, Metric.Count(wild.copy(arguments = emptyList())))
+          ) == CardCriterion.Tag(tag.className)
   val tagKey = Key(cn("Tag"), 0)
   val resolvedTag = tag?.let(describers::resolveExpression)
   val holder = resolvedTag?.sourceDependency(tagKey)
@@ -624,6 +644,11 @@ private fun renderGated(
           target != null &&
           describers.isTag(tag.className) &&
           tag.refinement == null &&
+          (alternatives.size == 1 ||
+              (alternatives.size == 2 &&
+                  assignedWildMatchesTag &&
+                  wild?.arguments?.singleOrNull()?.let { references.sameVariable(it, holder) } ==
+                      true)) &&
           holder.refinement == null &&
           resolvedTag.hasOnlySourceDependency(tagKey, holder) &&
           references.sameVariable(target, holder) &&

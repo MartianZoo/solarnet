@@ -5,14 +5,10 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class RoboticWorkforceTest : TfmSandboxTest() {
 
-  // Copying does not yet allocate wilds for the selected card or its production counts.
-  @Ignore
   @Test
   internal fun `Copies Research Network using its wild Building tag`() {
     newTestGame("ResearchNetwork")
@@ -20,23 +16,52 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     copyResearchNetwork().expect("PROD[MC]")
   }
 
-  @Test
-  internal fun `BUG - Cannot copy Research Network using its wild Building tag`() {
-    newTestGame("ResearchNetwork")
-    kim.exMachina("ResearchNetwork, Mine")
-    val before = game.timeline.checkpoint()
-    shouldThrow<NarrowingException> { copyResearchNetwork() }
-    game.timeline.checkpoint() shouldBe before
-  }
-
   private fun copyResearchNetwork() = kim.inTurn {
     doTasks(
         "PlayProject<Class<RoboticWorkforce>>",
         "9 Pay<> FROM MC",
         "RoboticWorkforce FROM ProjectCard",
-        "CopyProductionBox<ResearchNetwork>",
-        "PROD[MC]",
     )
+    selectTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
+    doTask("BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
+    doTasks("CopyProductionBox<ResearchNetwork>", "PROD[MC]")
+  }
+
+  @Test
+  internal fun `Copied Gyropolis counts an Earth assignment made before copying it`() {
+    newTestGame("ResearchCoordination, Gyropolis")
+    kim.exMachina("ResearchCoordination, Gyropolis")
+    kim.setToExMachina(2, "PROD[Energy]")
+
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<RoboticWorkforce>>",
+              "9 Pay<> FROM MC",
+              "RoboticWorkforce FROM ProjectCard",
+          )
+          selectTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
+          doTask("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
+          doTasks("CopyProductionBox<Gyropolis>", "PROD[-2 Energy]", "PROD[0 MC]", "PROD[1 MC]")
+        }
+        .expect("PROD[-2 Energy, 1 MC]")
+  }
+
+  @Test
+  internal fun `Copied Medical Lab counts a Building assignment made before copying it`() {
+    newTestGame("ResearchCoordination")
+    kim.exMachina("ResearchCoordination, MedicalLab")
+
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<RoboticWorkforce>>",
+              "9 Pay<> FROM MC",
+              "RoboticWorkforce FROM ProjectCard",
+          )
+          selectTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
+          doTask("BuildingTag<WildTagElection<WildTag<ResearchCoordination>>>")
+          doTasks("CopyProductionBox<MedicalLab>", "PROD[1 MC]")
+        }
+        .expect("PROD[1 MC]")
   }
 
   @Test

@@ -14,11 +14,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   The command-line check proves that an unpublished Pets edit reaches a Solarnet test;
   the interactive IDE acceptance check remains unverified.
 
-- Wild tags are not yet supported when Robotic Workforce or Cyberia Systems copies production:
-  Research Network cannot be selected through its wild, and copied Gyropolis does not allocate
-  Earth tags for its production. Allocate only after the copy target is known; preserve Building
-  counting for Medical Lab and keep each assignment for the whole action. Bug-test pairs cover
-  the rejected Research Network copies.
+- Simplify wild-tag composition for Robotic Workforce and Cyberia Systems. Their current Pets
+  declarations repeat an optional assignment effect and nested assigned-wild selectors. Find a
+  smaller model that still allows Research Network to qualify as Building, lets copied Gyropolis
+  and Medical Lab count assigned tags, and keeps assignments for the whole action. Explore choosing
+  the copy target before assigning wilds while keeping `CopyProductionBox` limited to extracting
+  the authored production box.
 
 - Finish faithful coverage of the 2026-10-14 unanswered-rules scenarios where current content or
   inputs cannot express the situation. `UnknownRulesTest` covers rejecting partial Celestic and
