@@ -984,10 +984,10 @@ domain (T6-2) and satisfies every one of B's clauses. The clauses are decided as
 - A `NOT` clause is satisfied by an identical clause in A, or by the structural test of T8-4.
 
 > **Non-normative example — Cyberia Systems.** It copies the production boxes of two different
-> building cards: `(BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN
-> CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)>`. The second choice must pass
-> both clauses: the world confirms its building tag, and the structural test keeps it from being the
-> first card again.
+> building cards: `(BuildingTag<First@CardFront> OR WildTag<First@CardFront>(HAS WildTagElection(HAS BuildingTag))): CopyProductionBox<First@CardFront> THEN
+> CopyProductionBox<CardFront(HAS BuildingTag OR WildTag(HAS WildTagElection(HAS BuildingTag)), NOT First@CardFront)>`.
+> The second choice must pass both clauses: the world confirms a printed Building tag or a wild
+> assigned Building, and the structural test keeps it from being the first card again.
 
 **T8-9. Meets of refinements.** A refinement that one operand has and the other lacks is kept.
 Refinement clauses form a set: duplicates collapse, and clause order does not affect type
@@ -996,10 +996,11 @@ equality. A rendering lists distinct clauses in the order they were first met. S
 `Area(NOT Tharsis_2_2) ⊓ Area(NOT WaterArea)` is `Area(NOT Tharsis_2_2, NOT WaterArea)`.
 
 > **Non-normative example — Cyberia Systems.** Its second copy names
-> `CardFront(HAS BuildingTag, NOT First@CardFront)`. Meeting that expression with `CopyProductionBox`'s
-> unrefined card dependency keeps both clauses: the selected card must have a building tag and differ
-> from the first. This demonstrates retaining an operand's conjunction; it does not establish a need
-> to merge two separately refined operands.
+> `CardFront(HAS BuildingTag OR WildTag(HAS WildTagElection(HAS BuildingTag)), NOT First@CardFront)`.
+> Meeting that expression with `CopyProductionBox`'s unrefined card dependency keeps both clauses:
+> the selected card must have a printed Building tag or a wild assigned Building, and differ from
+> the first. This demonstrates retaining an operand's conjunction; it does not establish a need to
+> merge two separately refined operands.
 
 **T8-10. Refined class literals.** A refinement on `Class<X>` tests the class the candidate
 represents (T4-4). To refer to that represented class inside the refinement, mark both the operand
@@ -1583,9 +1584,10 @@ The three observing rows are the first property in T13-1: an occurrence that onl
 introduces a variable, but may use one supplied anywhere in its enclosing construct's scope.
 Source order is not availability: the value must be selected before the observing stage is carried
 out (L3-8), even when the supplying change will occur later. An earlier stage that does not use the
-variable need not await that selection. That is why the gate in Cyberia Systems'
-`(BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN ...` speaks about the same
-card its stage chooses, rather than ranging over cards of its own.
+variable need not await that selection. Cyberia Systems' gate
+`(BuildingTag<First@CardFront> OR WildTag<First@CardFront>(HAS WildTagElection(HAS BuildingTag)))` observes the card selected by
+`CopyProductionBox<First@CardFront>`; its second copy excludes that card through
+`NOT First@CardFront`.
 
 > **Non-normative examples — Sponsor and `EACH`.** The Sponsor milestone's requirement must count
 > three independently matching expensive cards, not capture the first `CardFront(HAS 20 cost)` and

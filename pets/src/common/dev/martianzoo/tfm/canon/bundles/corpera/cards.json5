@@ -391,7 +391,8 @@
           "name": "RoboticWorkforce",
           "cost": 9,
           "tags": [ "ScienceTag" ],
-          "direct": "CopyProductionBox<CardFront(HAS BuildingTag)>",
+          "direct": "CopyProductionBox<CardFront(HAS BuildingTag OR WildTag(HAS WildTagElection(HAS BuildingTag)))>",
+          "effects": [ "This IF WildTagElection(HAS MAX 0 Tag): EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }" ],
           // Copies the single production box in a chosen card's direct effect.
           // Must be identical to CyberiaSystems' declaration in the promos bundle.
           "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],

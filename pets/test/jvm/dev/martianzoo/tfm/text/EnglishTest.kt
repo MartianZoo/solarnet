@@ -400,6 +400,10 @@ internal class EnglishTest {
     english.describe(
         parse<InstructionTree>("CopyProductionBox<CardFront(HAS BuildingTag)>")
     ) shouldBe "Copy the production box in the direct effect of a building card."
+    english.bottomText(requireNotNull(cardsByClassName[cn("RoboticWorkforce")])) shouldBe
+        "Copy the production box in the direct effect of a building card."
+    english.bottomText(requireNotNull(cardsByClassName[cn("CyberiaSystems")])) shouldBe
+        "Increase your steel production 1 step. Copy the production box in the direct effect of a building card, then copy the production box in the direct effect of a building card that is not that card."
   }
 
   @Test
