@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.SIGNAL
 import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
@@ -25,6 +26,8 @@ public class ComponentGraph
 internal constructor(
     private val classTable: ClassTable,
     copyFrom: ComponentGraph? = null,
+    private val backing: ComponentGraph? = null,
+    private val requireValid: () -> Unit = {},
 ) {
   /** A removable listener registered with [listenToCount]. */
   public fun interface CountSubscription {
@@ -40,20 +43,38 @@ internal constructor(
               queryShardsFor = { queryShardClasses(it.rootClass) },
           )
           .apply {
-            if (copyFrom == null) {
+            if (copyFrom == null && backing == null) {
               classTable.allInhabitedConcreteClasses().forEach { represented ->
                 add(classTable.resolve(CLASS.of(represented.className)).toComponent(), 1)
               }
-            } else {
+            } else if (copyFrom != null) {
               require(copyFrom.classTable === classTable)
-              copyFrom.components.entries.forEach { (component, count) -> add(component, count) }
+              copyFrom.getAll(classTable.componentClass.baseType, NoGameState).entries.forEach {
+                  (component, count) ->
+                add(component, count)
+              }
             }
           }
 
+  /** Exact count changes relative to the backing graph; absent keys have zero change. */
+  private val componentDeltas = mutableMapOf<Component, Int>()
+  private var totalDelta = 0
+
   private val dependentsByDependency: MutableMap<Component, MutableSet<Component>> =
-      copyFrom?.dependentsByDependency?.mapValuesTo(mutableMapOf()) { (_, dependents) ->
-        dependents.toMutableSet()
-      } ?: mutableMapOf()
+      copyFrom
+          ?.takeIf { it.backing == null }
+          ?.dependentsByDependency
+          ?.mapValuesTo(mutableMapOf()) { (_, dependents) -> dependents.toMutableSet() }
+          ?: mutableMapOf()
+
+  init {
+    // An overlay's local reverse index omits dependencies inherited from its source. Rebuild
+    // those links when materializing a full copy.
+    if (copyFrom?.backing != null)
+        components.entries.forEach { (component, _) ->
+          registerDependencies(component)
+        }
+  }
 
   private data class CountListener(
       val type: Type,
@@ -65,6 +86,19 @@ internal constructor(
   private val countListeners = mutableListOf<CountListener>()
 
   internal fun fork(): ComponentGraph = ComponentGraph(classTable, copyFrom = this)
+
+  internal fun overlay(requireValid: () -> Unit): ComponentGraph =
+      ComponentGraph(classTable, backing = this, requireValid = requireValid)
+
+  internal fun resetOverlayState() {
+    check(backing != null)
+    requireValid()
+    componentDeltas.clear()
+    totalDelta = 0
+    dependentsByDependency.clear()
+  }
+
+  internal fun notifyResetListeners() = notifyCountListeners()
 
   /**
    * Immediately reports, then observes, the count of [type]. [info] supplies live state for
@@ -91,13 +125,15 @@ internal constructor(
    */
   public operator fun contains(component: Component): Boolean {
     requireOwnClassTable(component.type)
-    return component in components
+    return countComponent(component) > 0
   }
 
   /** How many instances of the exact component [component] currently exist? */
   public fun countComponent(component: Component): Int {
     requireOwnClassTable(component.type)
-    return components.count(component)
+    if (backing != null) requireValid()
+    return backing?.countComponent(component)?.plus(componentDeltas[component] ?: 0)
+        ?: components.count(component)
   }
 
   /**
@@ -106,15 +142,23 @@ internal constructor(
    */
   public fun count(parentType: Type, info: TypeInfo): Int {
     requireOwnClassTable(parentType)
+    if (backing != null) requireValid()
     return if (!classTable.isInhabited(parentType)) {
       0
     } else if (parentType.className == COMPONENT && parentType.refinement == null) {
-      components.size
+      (backing?.count(parentType, info) ?: components.size) + totalDelta
     } else if (parentType.abstract) {
-      components
-          .queryEntries(parentType)
-          .filter { (component, _) -> component.hasType(parentType, info) }
-          .sumOf { (_, count) -> count }
+      if (backing == null) {
+        components
+            .queryEntries(parentType)
+            .filter { (component, _) -> component.hasType(parentType, info) }
+            .sumOf { (_, count) -> count }
+      } else {
+        backing.count(parentType, info) +
+            componentDeltas.entries
+                .filter { (component, _) -> component.hasType(parentType, info) }
+                .sumOf { (_, delta) -> delta }
+      }
     } else {
       countComponent(parentType.toComponent())
     }
@@ -126,6 +170,7 @@ internal constructor(
    */
   public fun containsAny(parentType: Type, info: TypeInfo): Boolean {
     requireOwnClassTable(parentType)
+    if (backing != null) return count(parentType, info) > 0
     return if (!classTable.isInhabited(parentType)) {
       false
     } else if (parentType.abstract) {
@@ -145,15 +190,29 @@ internal constructor(
     requireOwnClassTable(dependentType)
     val visited = mutableSetOf<Component>()
     fun hasMatchingDependent(dependency: Component): Boolean =
-        dependentsByDependency[dependency]?.any {
+        dependentsOf(dependency).any {
           visited.add(it) && (it.hasType(dependentType, info) || hasMatchingDependent(it))
-        } == true
+        }
     return hasMatchingDependent(dependencyType.toComponent())
   }
 
   /** Distinct concrete component Types currently matching [parentType]. */
   public fun matchingTypes(parentType: Type, info: TypeInfo): Sequence<Type> {
     requireOwnClassTable(parentType)
+    if (backing != null) requireValid()
+    if (backing != null) {
+      if (!classTable.isInhabited(parentType)) return emptySequence()
+      if (!parentType.abstract) {
+        return if (countComponent(parentType.toComponent()) > 0) sequenceOf(parentType)
+        else emptySequence()
+      }
+      return (backing.matchingTypes(parentType, info) +
+              componentDeltas.keys.asSequence().map { it.type })
+          .distinct()
+          .filter {
+            countComponent(it.toComponent()) > 0 && it.toComponent().hasType(parentType, info)
+          }
+    }
     return if (!classTable.isInhabited(parentType)) {
       emptySequence()
     } else if (parentType.abstract) {
@@ -173,9 +232,23 @@ internal constructor(
    */
   public fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
     requireOwnClassTable(parentType)
-    return if (!classTable.isInhabited(parentType)) {
-      HashMultiset()
-    } else if (parentType.className == COMPONENT && parentType.refinement == null) {
+    if (backing != null) requireValid()
+    if (!classTable.isInhabited(parentType)) return HashMultiset()
+    if (backing != null) {
+      val result = HashMultiset<Component>()
+      result.addAll(backing.getAll(parentType, info))
+      componentDeltas.forEach { (component, delta) ->
+        val matches =
+            parentType.className == COMPONENT && parentType.refinement == null ||
+                if (parentType.abstract) component.hasType(parentType, info)
+                else component.type == parentType
+        if (matches) {
+          if (delta > 0) result.add(component, delta) else result.mustRemove(component, -delta)
+        }
+      }
+      return result
+    }
+    return if (parentType.className == COMPONENT && parentType.refinement == null) {
       components.copy()
     } else if (parentType.abstract) {
       components.filter(parentType) { it.hasType(parentType, info) }
@@ -218,11 +291,11 @@ internal constructor(
     if (gaining == removing) return
     removing?.let {
       checkDependents(count, it)
-      val remaining = components.mustRemove(it, count)
+      val remaining = changeCount(it, -count)
       if (remaining == 0) unregisterDependencies(it)
     }
     gaining?.let {
-      val newCount = components.add(it, count)
+      val newCount = changeCount(it, count)
       if (newCount == count && count > 0) registerDependencies(it)
     }
     notifyCountListeners()
@@ -244,6 +317,20 @@ internal constructor(
     } catch (_: Throwable) {
       // Observation must not make an already-applied state change fail.
     }
+  }
+
+  private fun changeCount(component: Component, delta: Int): Int {
+    if (backing == null) {
+      return if (delta > 0) components.add(component, delta)
+      else components.mustRemove(component, -delta)
+    }
+    requireValid()
+    val newCount = countComponent(component) + delta
+    require(newCount >= 0) { "tried to set count of $component to $newCount" }
+    val newDelta = (componentDeltas[component] ?: 0) + delta
+    if (newDelta == 0) componentDeltas.remove(component) else componentDeltas[component] = newDelta
+    totalDelta += delta
+    return newCount
   }
 
   private fun requireOwnClassTable(type: Type) {
@@ -283,7 +370,16 @@ internal constructor(
    * reflect later graph changes; copy it if a stable snapshot is needed.
    */
   public fun dependentsOf(component: Component): Set<Component> =
-      dependentsByDependency[component].orEmpty()
+      if (backing == null) {
+        dependentsByDependency[component].orEmpty()
+      } else {
+        requireValid()
+        (backing.dependentsOf(component) + dependentsByDependency[component].orEmpty()).filterTo(
+            linkedSetOf()
+        ) {
+          countComponent(it) > 0
+        }
+      }
 
   private fun registerDependencies(dependent: Component) {
     dependent.type.typeDependencies.forEach { dependency ->

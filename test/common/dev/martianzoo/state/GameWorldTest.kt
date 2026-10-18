@@ -212,6 +212,46 @@ internal class GameWorldTest {
     subscription.cancel()
   }
 
+  @Test
+  internal fun overlayKeepsDependencyLinksAndMaterializesThemOnCopy() {
+    val source = GameWorld(premise)
+    source.apply(changeEvent(source, ComponentChange.Gain(component = token)))
+    val imagined = source.overlay()
+    imagined.apply(changeEvent(imagined, ComponentChange.Gain(component = holder)))
+
+    imagined.components.dependentsOf(token) shouldBe setOf(holder)
+    source.components.dependentsOf(token) shouldBe emptySet()
+    shouldThrow<ExistingDependentsException> {
+      imagined.apply(changeEvent(imagined, ComponentChange.Remove(component = token)))
+    }
+
+    val copied = imagined.fork()
+    copied.components.dependentsOf(token) shouldBe setOf(holder)
+    shouldThrow<ExistingDependentsException> {
+      copied.apply(changeEvent(copied, ComponentChange.Remove(component = token)))
+    }
+    copied.apply(changeEvent(copied, ComponentChange.Remove(component = holder)))
+    copied.apply(changeEvent(copied, ComponentChange.Remove(component = token)))
+    copied.components.countComponent(token) shouldBe 0
+    source.components.countComponent(token) shouldBe 1
+  }
+
+  @Test
+  internal fun overlayQueriesEvaluateRefinementsAgainstOverlayState() {
+    val source = GameWorld(testGamePremise("CLASS Place\nCLASS Occupant<Place>", players = 0))
+    val place = source.reader.resolve(parse("Place")).toComponent()
+    val occupant = source.reader.resolve(parse("Occupant")).toComponent()
+    val occupiedPlace = source.reader.resolve(parse<Expression>("Place(HAS Occupant)"))
+    source.apply(changeEvent(source, ComponentChange.Gain(component = place)))
+
+    val imagined = source.overlay()
+    imagined.apply(changeEvent(imagined, ComponentChange.Gain(component = occupant)))
+
+    imagined.reader.count(occupiedPlace) shouldBe 1
+    source.reader.count(occupiedPlace) shouldBe 0
+    imagined.fork().reader.count(occupiedPlace) shouldBe 1
+  }
+
   private fun changeEvent(world: GameWorld, change: ComponentChange): ChangeEvent =
       ChangeEvent(world.nextOrdinal, ADMIN, change, cause = null)
 }

@@ -30,6 +30,11 @@ rolls back; automatic execution can leave the affected card task pending for the
 Unused supplied names may be replaced after a failed operation without changing names used by
 surviving events.
 
+World copies do not copy card tracking, so new card movements remain anonymous. A copy made before
+any hand movement can opt into tracking explicitly. Speculative Worlds refuse guard installation;
+card movements in an overlay remain anonymous. The source World's tracker remains attached only to
+its own history.
+
 Missing names raise `CardTracking.NamesRequiredException`, an `AgentInputRequiredException` with
 the Player, back, location, direction, additional count, and attempted change event. Its detached
 `candidates` set describes the eligible source immediately before that movement, including earlier

@@ -87,14 +87,16 @@ public interface Agent {
   /**
    * Probes whether [selectTask] would complete normally for [taskId] now. A missing or unselectable
    * task yields false. The probe rolls back its attempted selection and any resulting effects.
-   * Resource-limit failures propagate to the caller.
+   * Tentative events can invalidate overlays based on this World. Resource-limit failures propagate
+   * to the caller.
    */
   public fun canSelectTask(taskId: TaskId): Boolean
 
   /**
    * Probes whether this actor can select and finish [taskId] now without another choice or handoff.
-   * A missing or unfinished task yields false. The probe leaves the world unchanged. Resource-limit
-   * failures propagate to the caller.
+   * A missing or unfinished task yields false. The probe restores gameplay state, but tentative
+   * events can invalidate overlays based on this World. Resource-limit failures propagate to the
+   * caller.
    */
   public fun canExecuteTask(taskId: TaskId): Boolean
 

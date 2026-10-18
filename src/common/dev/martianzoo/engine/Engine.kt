@@ -24,7 +24,7 @@ import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.actors
 import dev.martianzoo.state.validateCustomClasses
 
-/** Constructs live [World] instances from resolved [GamePremise]s. */
+/** Constructs live and speculative [World] instances from resolved [GamePremise]s. */
 public object Engine {
 
   /**
@@ -45,12 +45,35 @@ public object Engine {
   /**
    * Creates an independently mutable live World at the end of [source]'s completed gameplay
    * history. Immutable premise data is shared, while state and every engine service are rebuilt.
-   * Application callbacks, component listeners, Agents, and provisional forms are not copied.
+   * Agent transaction guards, application callbacks, component listeners, Agents, and provisional
+   * forms are not copied.
    *
    * @throws IllegalArgumentException if [source] was not created by this Engine
    * @throws IllegalStateException if [source] is not at the end of its completed history
    */
   public fun fork(source: World): World {
+    val (wholeWorld, positions) = forkSource(source)
+    val gameWorld = wholeWorld.gameWorld.fork()
+    return Wiring(gameWorld.premise, gameWorld).createFork(positions, wholeWorld.effector)
+  }
+
+  /**
+   * Creates a disposable World whose events and state changes remain local. The source must stay
+   * unchanged while this World is used; a source gameplay-state mutation invalidates its retained
+   * read views and Agent commands. To fork from a sought position, truncate the source's retained
+   * future first. Use [SpeculativeWorld.reset] to try another branch without reversing the local
+   * events, or [fork] on the result to obtain an independent, fully materialized World. Agent
+   * transaction guards are absent from overlays, so card movements can remain anonymous. Agent
+   * selection and execution probes on the source can also invalidate an overlay: they may apply
+   * tentative events before rolling them back.
+   */
+  public fun overlay(source: World): SpeculativeWorld {
+    val (wholeWorld, positions) = forkSource(source)
+    val gameWorld = wholeWorld.gameWorld.overlay()
+    return Wiring(gameWorld.premise, gameWorld, overlaySource = wholeWorld).createOverlay(positions)
+  }
+
+  private fun forkSource(source: World): Pair<WholeWorld, List<Checkpoint>> {
     val wholeWorld =
         source as? WholeWorld
             ?: throw IllegalArgumentException("Unknown World implementation: ${source::class}")
@@ -59,21 +82,22 @@ public object Engine {
     check(positions.lastOrNull() == current) {
       "cannot fork a World away from the end of completed gameplay history"
     }
-    val gameWorld = wholeWorld.gameWorld.fork()
-    return Wiring(gameWorld.premise, gameWorld).createFork(positions, wholeWorld.effector)
+    return wholeWorld to positions
   }
 
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
   private class Wiring(
       private val premise: GamePremise,
       private val gameWorld: GameWorld,
+      private val overlaySource: WholeWorld? = null,
   ) {
     private val classTable = premise.classTable.also(::validatePremise)
     private val elaborator: PetElaborator = PetElaborator(classTable)
     private val customClasses = CustomInstructionRuntime(gameWorld, elaborator)
 
     // Effect compilation needs the reader, but no effect is read until state begins changing.
-    private val effector: Effector = Effector(elaborator, customClasses) { reader }
+    private val effector: Effector =
+        Effector(elaborator, customClasses, overlaySource?.effector) { reader }
     private val taskQueues: TaskQueues = TaskQueues(gameWorld) { timeline.requireAtEnd() }
     private val reader: GameReader = gameWorld.reader
     private val changer: Changer = Changer(reader, gameWorld, effector) { timeline.requireAtEnd() }
@@ -98,14 +122,11 @@ public object Engine {
             actorEngines::getValue,
         )
     private val world: WholeWorld =
-        WholeWorld(
-            gameWorld,
-            timeline,
-            reader,
-            classTable,
-            actorEngines,
-            effector,
-        )
+        if (overlaySource == null) {
+          WholeWorld(gameWorld, timeline, reader, classTable, actorEngines, effector)
+        } else {
+          OverlayWorld(gameWorld, timeline, reader, classTable, actorEngines, effector)
+        }
 
     internal fun createWorld(): WholeWorld {
       try {
@@ -136,6 +157,13 @@ public object Engine {
       limiter.checkRequiredCounts = true
       requireSignedSelectionsMatchClassComponents()
       return world
+    }
+
+    internal fun createOverlay(positions: List<Checkpoint>): SpeculativeWorld {
+      timeline.restoreCompletedPositions(positions)
+      timeline.commit()
+      limiter.checkRequiredCounts = true
+      return world as OverlayWorld
     }
 
     /** Every signed premise selection must agree with the live Class representatives. */

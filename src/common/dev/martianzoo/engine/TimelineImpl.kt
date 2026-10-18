@@ -101,6 +101,16 @@ internal class TimelineImpl(
     completedPositions.removeAll { it.ordinal > gameWorld.nextOrdinal }
   }
 
+  /** Returns a speculative World to its source point without reversing its local event trail. */
+  internal fun resetOverlay() {
+    check(atomicStarts.isEmpty()) { "cannot reset during an atomic interaction" }
+    changer.resetOverlay {
+      floor = checkpoint()
+      completedPositions.removeAll { it.ordinal > floor.ordinal }
+      future.clear()
+    }
+  }
+
   private fun rollBackStateTo(ordinal: Int) {
     changer.rollBackTo(ordinal)
     future.clear()

@@ -9,7 +9,7 @@ import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.TaskQueue
 
 /** The live, complete implementation of a [World]. */
-internal class WholeWorld
+internal open class WholeWorld
 internal constructor(
     internal val gameWorld: GameWorld,
     override val timeline: Timeline,
@@ -29,7 +29,7 @@ internal constructor(
 
   override fun actorEngine(actor: Actor): ActorEngine = actorEngines.getValue(actor)
 
-  override var agentTransactionGuard: AgentTransactionGuard? = null
+  final override var agentTransactionGuard: AgentTransactionGuard? = null
     private set
 
   override fun installAgentTransactionGuard(guard: AgentTransactionGuard) {
@@ -37,5 +37,5 @@ internal constructor(
     agentTransactionGuard = guard
   }
 
-  override var onTransactionComplete: () -> Unit = {}
+  final override var onTransactionComplete: () -> Unit = {}
 }
