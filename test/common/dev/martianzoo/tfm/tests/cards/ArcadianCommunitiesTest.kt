@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -20,6 +21,31 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
       shouldThrow<LimitsException> { doTask("Community<Tharsis_1_3>") }
       doTask("Community<Tharsis_9_7>")
     }
+  }
+
+  @Test
+  internal fun `Initial community can share a Nomads area`() {
+    // Jacob Fryxelius: https://boardgamegeek.com/thread/3154812/article/42964868#42964868
+    newTestGame(kimCorporation = ArcadianCommunities)
+    stan.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
+
+    kim.inTurn { doTasks("DoRequiredActions", "Community<Tharsis_1_1>") }
+        .expect("Community<Tharsis_1_1>, 0 NomadsMarker<Stan>")
+    stan.assertCounts(1 to "NomadsMarker<Tharsis_1_1>")
+  }
+
+  @Test
+  internal fun `Action can place a community on a Nomads area`() {
+    // Jacob Fryxelius: https://boardgamegeek.com/thread/3154812/article/42964868#42964868
+    newTestGame(kimCorporation = ArcadianCommunities)
+    kim.inTurn { doTasks("DoRequiredActions", "Community<Tharsis_1_1>") }
+    stan.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>")
+
+    kim.inTurn {
+          doTasks("UseCardAction<ArcadianCommunities, Action1>", "Community<Tharsis_2_1>")
+        }
+        .expect("Community<Tharsis_2_1>, 0 NomadsMarker<Stan>")
+    stan.assertCounts(1 to "NomadsMarker<Tharsis_2_1>")
   }
 
   @Test
