@@ -7,12 +7,27 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.FakeCards
 import dev.martianzoo.tfm.tests.TestOption.Prelude2Cards
+import dev.martianzoo.tfm.tests.cards.cardnames.AquiferPumping
 import dev.martianzoo.tfm.tests.cards.cardnames.Mine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class TfmPaymentHelpersTest : TfmTest() {
+  @Test
+  internal fun `Card action leaves the metal payment choice for its callback`() {
+    game = setUpGame()
+    agents.exMachina(PLAYER1, "AquiferPumping, Steel, 8 MC")
+    val kim = game.testTfm(PLAYER1)
+    kim.addTasks("StandardAction")
+
+    kim.cardAction1(AquiferPumping) {
+          kim.pay(6, steel = 1)
+          kim.placeTile(1, 2)
+        }
+        .expect("-6 MC, Steel, OceanTile, TerraformRating")
+  }
+
   @Test
   internal fun `Default milestone payment acknowledges Nirgal's free bill only once`() {
     game = setUpGame(Prelude2Cards)

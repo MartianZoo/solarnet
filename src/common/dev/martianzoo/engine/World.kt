@@ -47,7 +47,10 @@ public interface World {
   /** The optional check shared by every Agent attached to this World. */
   public val agentTransactionGuard: AgentTransactionGuard?
 
-  /** Installs a guard once, before its first Agent command; it cannot be removed or replaced. */
+  /**
+   * Installs a guard once, before its first Agent command; it cannot be removed or replaced.
+   * [SpeculativeWorld] refuses guards.
+   */
   public fun installAgentTransactionGuard(guard: AgentTransactionGuard)
 
   /**

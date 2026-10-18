@@ -8,7 +8,7 @@ import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskEvent
 
 /**
- * The replayable state of one game.
+ * The replayable state of a game or a speculative event suffix over another game.
  *
  * A GameWorld accepts only already-decided, fully concrete events. It keeps event history,
  * components, and pending tasks synchronized, but does not interpret instructions or calculate
@@ -24,6 +24,7 @@ private constructor(
     initialEvents: List<GameEvent>,
     customClasses: Set<CustomClass>,
     copyFrom: GameWorld?,
+    private val backing: GameWorld?,
 ) {
   /**
    * Creates an independently mutable world from [premise]. [initialEvents] must be a complete,
@@ -34,7 +35,24 @@ private constructor(
       premise: GamePremise,
       initialEvents: List<GameEvent> = emptyList(),
       customClasses: Set<CustomClass> = emptySet(),
-  ) : this(premise, initialEvents, customClasses, copyFrom = null)
+  ) : this(premise, initialEvents, customClasses, copyFrom = null, backing = null)
+
+  private val backingRevision = backing?.revision
+  private var localRevision = 0L
+  private var resettingOverlay = false
+
+  /** Changes even when an event is subsequently rolled back to its old ordinal. */
+  internal val revision: Long
+    get() {
+      requireValid()
+      return localRevision
+    }
+
+  private fun requireValid() {
+    check(backing == null || backing.revision == backingRevision) {
+      "source Game World changed after speculative fork creation"
+    }
+  }
 
   /** Premise-selected class universe shared with worlds forked from this world. */
   public val classTable: ClassTable = premise.classTable
@@ -44,12 +62,27 @@ private constructor(
       this.customClasses.groupBy(CustomClass::className)
 
   /** Live component counts, updated by [apply] and [rollBackTo]. */
-  public val components: ComponentGraph = copyFrom?.components?.fork() ?: ComponentGraph(classTable)
+  public val components: ComponentGraph =
+      when {
+        copyFrom != null -> copyFrom.components.fork()
+        backing != null -> backing.components.overlay(::requireValid)
+        else -> ComponentGraph(classTable)
+      }
 
   /** Live event prefix; rollback removes its suffix. */
-  public val events: EventLog = copyFrom?.events?.fork() ?: EventLog()
+  public val events: EventLog =
+      when {
+        copyFrom != null -> copyFrom.events.fork()
+        backing != null -> backing.events.overlay(::requireValid)
+        else -> EventLog()
+      }
 
-  private val taskStore: TaskStore = copyFrom?.taskStore?.fork() ?: TaskStore()
+  private val taskStore: TaskStore =
+      when {
+        copyFrom != null -> copyFrom.taskStore.fork()
+        backing != null -> backing.taskStore.overlay(::requireValid)
+        else -> TaskStore()
+      }
 
   /** Live view of every pending task, without an actor filter. */
   public val tasks: TaskQueue = taskStore.all()
@@ -62,8 +95,10 @@ private constructor(
 
   init {
     require(copyFrom == null || copyFrom.premise === premise)
-    require(copyFrom == null || initialEvents.isEmpty())
-    initialEvents.forEach { apply(it) }
+    require(backing == null || backing.premise === premise)
+    require(copyFrom == null || backing == null)
+    require((copyFrom == null && backing == null) || initialEvents.isEmpty())
+    initialEvents.forEach(::apply)
   }
 
   /**
@@ -72,7 +107,51 @@ private constructor(
    * component listeners are not.
    */
   public fun fork(): GameWorld =
-      GameWorld(premise, initialEvents = emptyList(), customClasses, copyFrom = this)
+      GameWorld(
+          premise,
+          initialEvents = emptyList(),
+          customClasses,
+          copyFrom = this,
+          backing = null,
+      )
+
+  /**
+   * Creates a disposable event-suffix World without changing this World. Applying or rolling back
+   * source events invalidates the overlay and its retained read views. Editing event commentary
+   * does not change gameplay state. Tentative source events that are later rolled back still
+   * invalidate it. [fork] on the overlay materializes its complete history and current state into
+   * an independent World.
+   */
+  public fun overlay(): GameWorld =
+      GameWorld(
+          premise,
+          initialEvents = emptyList(),
+          customClasses,
+          copyFrom = null,
+          backing = this,
+      )
+
+  /**
+   * Discards only this overlay's events and local projections, retaining its source and read views.
+   * [afterClear] runs after state is cleared but before count listeners are notified. Gameplay
+   * mutations are refused until the reset and its listener notifications finish.
+   */
+  public fun resetOverlay(afterClear: () -> Unit = {}) {
+    check(backing != null) { "Only a speculative Game World can be reset" }
+    check(!resettingOverlay) { "Game World reset is already in progress" }
+    requireValid()
+    resettingOverlay = true
+    try {
+      components.resetOverlayState()
+      taskStore.resetOverlay()
+      events.resetOverlay()
+      localRevision++
+      afterClear()
+      components.notifyResetListeners()
+    } finally {
+      resettingOverlay = false
+    }
+  }
 
   /** Returns the executable implementation bound to [className] in this World, if supplied. */
   public fun customClassOrNull(className: ClassName): CustomClass? {
@@ -96,6 +175,8 @@ private constructor(
    * No instruction is interpreted and no consequence is calculated.
    */
   public fun <E : GameEvent> apply(event: E): E {
+    check(!resettingOverlay) { "cannot apply an event during Game World reset" }
+    requireValid()
     events.requireNext(event)
     when (event) {
       is ChangeEvent ->
@@ -105,15 +186,19 @@ private constructor(
       is TaskEvent -> taskStore.apply(event)
     }
     events.append(event)
+    localRevision++
     return event
   }
 
   /**
    * Restores the event prefix ending before [ordinal]. Returned component changes are the exact
-   * reversals an engine-side derived index must observe, in application order.
+   * reversals an engine-side derived index must observe, in application order. An overlay cannot
+   * roll back before its source point.
    */
   public fun rollBackTo(ordinal: Int): List<ComponentChange> {
-    require(ordinal in 0..nextOrdinal)
+    check(!resettingOverlay) { "cannot roll back during Game World reset" }
+    requireValid()
+    require(ordinal in (backing?.nextOrdinal ?: 0)..nextOrdinal)
     val reversedChanges = mutableListOf<ComponentChange>()
     while (nextOrdinal > ordinal) {
       when (val event = events.last()) {
@@ -127,6 +212,7 @@ private constructor(
         is TaskEvent -> taskStore.reverse(event)
       }
       events.removeLast()
+      localRevision++
     }
     return reversedChanges
   }
@@ -142,7 +228,9 @@ private constructor(
    * [EventLog.entriesSinceSetup]. Defaults to the current event position.
    */
   public fun markSetupStart(checkpoint: Checkpoint = Checkpoint(nextOrdinal)) {
+    check(!resettingOverlay) { "cannot change setup during Game World reset" }
     events.markSetupStart(checkpoint)
+    localRevision++
   }
 
   /** Throws [TaskException] if any task remains pending anywhere in this world. */

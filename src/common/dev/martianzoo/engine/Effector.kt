@@ -16,6 +16,7 @@ import dev.martianzoo.state.toComponent
 internal class Effector(
     private val elaborator: PetElaborator,
     private val customInstructions: CustomInstructionRuntime,
+    private val backing: Effector? = null,
     readerProvider: () -> GameReader,
 ) {
   private val reader: Lazy<GameReader> = lazy(readerProvider)
@@ -26,14 +27,37 @@ internal class Effector(
 
   /** Copies the derived subscription index while preserving independent-listener order. */
   internal fun copyIndexFrom(source: Effector) {
-    check(registry.isEmpty() && effects.isEmpty())
-    effects.putAll(source.effects)
-    source.registry.forEach { (key, bucket) ->
+    check(backing == null && registry.isEmpty() && effects.isEmpty())
+    source.cachedEffects().forEach { (component, compiled) -> effects[component] = compiled }
+    source.registryKeys().forEach { key ->
+      val bucket = source.bucket(key) ?: return@forEach
       registry[key] =
           HashMultiset<LiveEffect>().also { copy ->
             bucket.entries.forEach { (effect, count) -> copy.add(effect, count) }
           }
     }
+  }
+
+  private fun cachedEffects(): Map<Component, List<LiveEffect>> =
+      backing?.cachedEffects().orEmpty() + effects
+
+  private fun registryKeys(): Set<LiveEffect.RegistryKey> =
+      backing?.registryKeys().orEmpty() + registry.keys
+
+  private fun bucket(key: LiveEffect.RegistryKey): HashMultiset<LiveEffect>? =
+      registry[key] ?: backing?.bucket(key)
+
+  private fun mutableBucket(key: LiveEffect.RegistryKey): HashMultiset<LiveEffect> =
+      registry.getOrPut(key) {
+        HashMultiset<LiveEffect>().also { copy ->
+          backing?.bucket(key)?.entries?.forEach { (effect, count) -> copy.add(effect, count) }
+        }
+      }
+
+  /** Drops local subscriptions; immutable compiled effects can be reused by the next trial. */
+  internal fun resetOverlay() {
+    check(backing != null)
+    registry.clear()
   }
 
   /**
@@ -54,7 +78,7 @@ internal class Effector(
       liveEffects(component).forEach { effect ->
         if (delta == 0) return@forEach
         if (!effect.listensToOtherComponents) return@forEach
-        val bucket = registry.getOrPut(effect.registryKey, ::HashMultiset)
+        val bucket = mutableBucket(effect.registryKey)
         bucket.add(effect, delta)
       }
 
@@ -63,13 +87,19 @@ internal class Effector(
         if (delta == 0) return@forEach
         if (!effect.listensToOtherComponents) return@forEach
         val key = effect.registryKey
-        val bucket = checkNotNull(registry[key])
-        bucket.mustRemove(effect, delta)
-        if (bucket.isEmpty()) registry.remove(key)
+        val bucket = checkNotNull(bucket(key))
+        val mutable = if (backing == null) bucket else mutableBucket(key)
+        mutable.mustRemove(effect, delta)
+        if (mutable.isEmpty() && backing == null) registry.remove(key)
       }
 
   private fun liveEffects(component: Component): List<LiveEffect> =
-      effects.getOrPut(component) { LiveEffect.compile(component, elaborator) }
+      effects[component]
+          ?: backing?.cachedEffect(component)
+          ?: LiveEffect.compile(component, elaborator).also { effects[component] = it }
+
+  private fun cachedEffect(component: Component): List<LiveEffect>? =
+      effects[component] ?: backing?.cachedEffect(component)
 
   /**
    * Returns every matching effect of the requested kind for [triggerEvent].
@@ -161,9 +191,9 @@ internal class Effector(
     // subscription matcher is still authoritative for every selected candidate.
     val candidates = HashMultiset<LiveEffect>()
     automaticValues.forEach { mode ->
-      registry[LiveEffect.RegistryKey(mode, null)]?.let(candidates::addAll)
+      bucket(LiveEffect.RegistryKey(mode, null))?.let(candidates::addAll)
       changedClasses.forEach { changedClass ->
-        registry[LiveEffect.RegistryKey(mode, changedClass)]?.let(candidates::addAll)
+        bucket(LiveEffect.RegistryKey(mode, changedClass))?.let(candidates::addAll)
       }
     }
     return candidates.entries.map { (effect, count) -> effect to count }

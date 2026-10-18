@@ -90,7 +90,7 @@ ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
 "A signal to place a greenery tile according to the default rules"
 CLASS PlaceGreeneryTile : Owned, Signal, System {
   This: GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> OR \
-    (MAX 0 Neighbor<OwnedTile, LandArea(HAS MAX 0 (Tile OR OwnedOccupant<Anyone(NOT Me@)>))>: \
+    (MAX 0 Neighbor<OwnedTile, LandArea(HAS MAX 0 AreaPiece(NOT Community<Me@>))>: \
       GreeneryTile<LandArea>)
 }
 

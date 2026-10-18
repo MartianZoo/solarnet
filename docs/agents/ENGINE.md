@@ -86,6 +86,28 @@ independent and retains source registration order. The fork point is the new tim
 so the fork cannot roll back into source history. Application callbacks, component listeners,
 transactions, and Agents remain fresh.
 
+`Engine.overlay` accepts the same completed-tip position and builds ordinary engine services over
+an event-suffix `GameWorld`. Exact component counts are source counts plus local deltas; pending
+Tasks read the source until the first local Task event; event history reads the source prefix and
+the local suffix. Live-effect subscriptions copy individual buckets only when changed. The source
+World is never changed by overlay play. Applying or rolling back a source event invalidates the
+overlay, including its retained component, task, and event views; seeking backward requires
+truncating the retained future before overlay creation. Source Agent selection and execution probes
+can also invalidate the overlay because they apply tentative events and roll them back. Run such
+probes before creating the overlay or on the overlay's own Agents. `SpeculativeWorld.reset` clears local
+projections and events directly, keeping the World and its retained views ready for another trial.
+`SpeculativeAgents.reset` also clears its local input recording while keeping its Agents and policy
+settings. `Engine.fork` on an overlay materializes the combined history, projections, and completed
+positions into an independent World. `Agents.overlay` and `Agents.fork` create the corresponding
+fresh Agents with each Actor's current autoexecution policy. Agent transaction guards are not
+copied by either operation, so new card movements can remain anonymous. Overlays refuse guard
+installation; a full copy of an overlay keeps its anonymous event history. Completion callbacks
+and task recording begin fresh.
+
+Engine-internal selection probes still use short atomic attempts and rollback on the active World.
+The overlay work does not change that path; its cost and suitability for frequent probes need a
+separate measurement.
+
 The generated premise is executable output of configuration resolution. Live initialization does
 not reconsider Module defaults or assemble a second representation of the premise. Required state
 should arise from its earliest honest owner: premise construction supplies exact configuration,

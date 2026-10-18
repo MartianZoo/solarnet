@@ -22,11 +22,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   icons/trays in Effects. Reproduce in a normal browser before changing the shared PetsText
   renderer; recreating rows and splitting trigger/consequence text did not reliably fix it.
 
-- Wild tags are not yet supported when Robotic Workforce or Cyberia Systems copies production:
-  Research Network cannot be selected through its wild, and copied Gyropolis does not allocate
-  Earth tags for its production. Allocate only after the copy target is known; preserve Building
-  counting for Medical Lab and keep each assignment for the whole action. Bug-test pairs cover
-  the rejected Research Network copies.
+- Simplify wild-tag composition for Robotic Workforce and Cyberia Systems. Their current Pets
+  declarations repeat an optional assignment effect and nested assigned-wild selectors. Find a
+  smaller model that still allows Research Network to qualify as Building, lets copied Gyropolis
+  and Medical Lab count assigned tags, and keeps assignments for the whole action. Explore choosing
+  the copy target before assigning wilds while keeping `CopyProductionBox` limited to extracting
+  the authored production box.
 
 - Finish faithful coverage of the 2026-10-14 unanswered-rules scenarios where current content or
   inputs cannot express the situation. `UnknownRulesTest` covers rejecting partial Celestic and
@@ -84,6 +85,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   interaction-trigger Anyone-to-Player normalization still supplies an implicit `that player`.
 - Investigate repeated selection probes followed by execution under `EAGER`; preserve manual-task
   competition and failure handling before removing probes.
+- Measure whether disposable overlays can replace the engine's frequent selection and execution
+  probes without slowing replay. The public overlay serves longer client forecasts; internal probes
+  still use atomic rollback and may need a cheaper construction path. Probes on a source World
+  currently invalidate its overlays even though the source history returns to the same point.
 - Investigate repeated ranking of the same field while testing each candidate. Scores must reflect
   the current state, including rollback; avoid a second persistent representation of game scores.
 

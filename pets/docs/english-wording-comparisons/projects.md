@@ -3791,7 +3791,8 @@ Pets declaration:
 CLASS RoboticWorkforce : AutomatedCard {
   HAS =1 ScienceTag<This>
   cost = 9
-  This: CopyProductionBox<CardFront(HAS BuildingTag)>
+  This: CopyProductionBox<CardFront(HAS BuildingTag OR WildTag(HAS WildTagElection(HAS BuildingTag)))>
+  This IF WildTagElection(HAS MAX 0 Tag): EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }
 }
 ```
 
@@ -6864,14 +6865,15 @@ Class: `CyberiaSystems`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Increase your steel production 1 step. Copy the PRODUCTION BOXES of 2 of your cards with building tags. | — |
-| Generated text | Increase your steel production 1 step. \[BuildingTag&lt;First@CardFront&gt;: CopyProductionBox&lt;First@CardFront&gt;\], then \[CopyProductionBox&lt;CardFront(HAS BuildingTag, NOT First@CardFront)&gt;\]. | — |
+| Generated text | Increase your steel production 1 step. Copy the production box in the direct effect of a building card, then copy the production box in the direct effect of a building card that is not that card. | — |
 
 Pets declaration:
 
 ```pets
 CLASS CyberiaSystems : AutomatedCard {
   cost = 16
-  This: PROD[Steel], BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront> THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)>
+  This: PROD[Steel], (BuildingTag<First@CardFront> OR WildTag<First@CardFront>(HAS WildTagElection(HAS BuildingTag))): CopyProductionBox<First@CardFront> THEN CopyProductionBox<CardFront(HAS BuildingTag OR WildTag(HAS WildTagElection(HAS BuildingTag)), NOT First@CardFront)>
+  This IF WildTagElection(HAS MAX 0 Tag): EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }
 }
 ```
 

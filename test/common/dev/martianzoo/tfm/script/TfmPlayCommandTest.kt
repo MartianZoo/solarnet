@@ -6,6 +6,25 @@ import kotlin.test.assertTrue
 
 internal class TfmPlayCommandTest {
   @Test
+  internal fun `tfm play completes a card action that was already selected`() {
+    val repl = ScriptSession()
+    repl.command("newgame BRP 2")
+    repl.keepStartingProjects(0, 0)
+    repl.command("auto safe")
+    repl.command("become Player1")
+    repl.agent.runOperation("ProjectCard, 4 MC")
+    repl.command("phase Action")
+    repl.command("turn")
+    repl.agent.doTask("PlayProject<Class<Mine>>")
+
+    val result = repl.command("tfm_play Mine, 4 MC")
+
+    assertEquals(1, repl.agent.count("Mine<Player1>"), result.joinToString("\n"))
+    assertEquals(0, repl.agent.count("ProjectCard<Hand>"))
+    assertEquals(0, repl.agent.count("Owed"))
+  }
+
+  @Test
   internal fun `tfm play uses the authorized source within an automatic solo game`() {
     val repl = ScriptSession()
     repl.command(

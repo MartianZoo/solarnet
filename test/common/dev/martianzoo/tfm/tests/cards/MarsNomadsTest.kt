@@ -4,15 +4,16 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
-import kotlin.test.Ignore
 import kotlin.test.Test
 
+// Printed Mars Nomads text: no tiles on its area; move only to adjacent, non-reserved, empty areas.
+// Jacob Fryxelius: https://boardgamegeek.com/thread/3154812/article/42964868#42964868
+// Jacob Fryxelius on claims blocking movement:
+// https://boardgamegeek.com/thread/3154812/article/42966383#42966383
 internal class MarsNomadsTest : TfmSandboxTest() {
   @Test
   internal fun `Places its initial marker without collecting a placement bonus`() {
@@ -71,6 +72,20 @@ internal class MarsNomadsTest : TfmSandboxTest() {
   }
 
   @Test
+  internal fun `Cannot move onto its owner's community`() {
+    newTestGame()
+    kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>, Community<Tharsis_2_2>")
+
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTask("UseCardAction<MarsNomads, Action1>")
+        doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
+      }
+    }
+    kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 1 to "Community<Tharsis_2_2>")
+  }
+
+  @Test
   internal fun `Prevents its owner from building a city on the marker's area`() {
     newTestGame()
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
@@ -104,7 +119,59 @@ internal class MarsNomadsTest : TfmSandboxTest() {
   }
 
   @Test
+  internal fun `Prevents a special tile on the marker's area`() {
+    newTestGame()
+    kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
+
+    shouldThrow<DeadEndException> {
+      stan.inTurn {
+        doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
+        doTask("MiningRights FROM ProjectCard")
+        doTask("MiningRights_SpecialTile<Tharsis_1_1>")
+      }
+    }
+    kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>")
+    stan.assertCounts(0 to "MiningRights_SpecialTile")
+  }
+
+  @Test
+  internal fun `Prevents an ocean tile placed on land from entering the marker's area`() {
+    newTestGame()
+    kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_3>")
+    stan.setToExMachina(12, "TemperatureStep")
+
+    shouldThrow<DeadEndException> {
+      stan.inTurn {
+        doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
+        doTask("ArtificialLake FROM ProjectCard")
+        doTask("OceanTile<Tharsis_1_3>")
+      }
+    }
+    kim.assertCounts(1 to "NomadsMarker<Tharsis_1_3>")
+    stan.assertCounts(0 to "OceanTile<Tharsis_1_3>")
+  }
+
+  @Test
+  internal fun `Prevents greenery on the marker even when its owner claims the area`() {
+    newTestGame()
+    kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>, Community<Tharsis_1_1>")
+
+    shouldThrow<DeadEndException> {
+      kim.inTurn {
+        doTasks("UseStandardProject<GreeneryProject>", "23 Pay<> FROM MC")
+        doTask("GreeneryTile<Tharsis_1_1>")
+      }
+    }
+    kim.assertCounts(
+        1 to "NomadsMarker<Tharsis_1_1>",
+        1 to "Community<Tharsis_1_1>",
+        0 to "GreeneryTile<Tharsis_1_1>",
+    )
+  }
+
+  @Test
   internal fun `Allows an opponent to claim the marker's area`() {
+    // Land Claim permits non-reserved areas; Jacob says the Nomads area is not reserved.
     newTestGame()
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
 
@@ -118,6 +185,44 @@ internal class MarsNomadsTest : TfmSandboxTest() {
           doTask("Community<Tharsis_1_1>")
         }
         .expect("0 NomadsMarker<Kim>")
+    kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>")
+    stan.assertCounts(1 to "Community<Tharsis_1_1>")
+  }
+
+  @Test
+  internal fun `Allows its owner to claim the marker's area`() {
+    // Land Claim permits non-reserved areas; Jacob says the Nomads area is not reserved.
+    newTestGame()
+    kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
+
+    kim.inTurn {
+          doTasks("PlayProject<Class<LandClaim>>", "1 Pay<> FROM MC")
+          doTasks("LandClaim FROM ProjectCard", "Community<Tharsis_1_1>")
+        }
+        .expect("0 NomadsMarker<Kim>")
+    kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 1 to "Community<Tharsis_1_1>")
+  }
+
+  @Test
+  internal fun `Moving away leaves a claim for its owner to build on`() {
+    newTestGame()
+    kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>")
+    stan.exMachina("Community<Tharsis_2_1>")
+
+    kim.inTurn {
+          doTask("UseCardAction<MarsNomads, Action1>")
+          doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
+        }
+        .expect("0 Community<Stan>")
+    stan.assertCounts(1 to "Community<Tharsis_2_1>")
+
+    stan
+        .inTurn {
+          doTasks("UseStandardProject<GreeneryProject>", "23 Pay<> FROM MC")
+          doTask("GreeneryTile<Tharsis_2_1>")
+          doTasks("OxygenStep", "TerraformRating")
+        }
+        .expect("-Community, GreeneryTile<Tharsis_2_1>")
   }
 
   @Test
@@ -256,20 +361,9 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     )
   }
 
-  @Ignore // The greenery fallback still treats the marker area as available.
   @Test
   internal fun `Allows greenery elsewhere when its marker blocks the last adjacent area`() {
-    plantBeyondNomads().expect("GreeneryTile<Tharsis_9_7>, OxygenStep, TerraformRating")
-  }
-
-  @Test
-  internal fun `BUG - Blocks greenery elsewhere when its marker blocks the last adjacent area`() {
-    shouldThrow<NarrowingException> { plantBeyondNomads() }
-    kim.assertCounts(8 to "Plant", 1 to "GreeneryTile", 0 to "GreeneryTile<Tharsis_9_7>")
-    stan.count("NomadsMarker<Tharsis_2_2>") shouldBe 1
-  }
-
-  private fun plantBeyondNomads(): TaskResult {
+    // Official rule: https://fryxgames.se/wp-content/uploads/2023/04/TMRULESFINAL.pdf
     newTestGame()
     kim.exMachina("GreeneryTile<Tharsis_1_1>, 8 Plant")
     stan.exMachina("NormalCityTile<Tharsis_2_1>, $MarsNomads, NomadsMarker<Tharsis_2_2>")
@@ -280,9 +374,74 @@ internal class MarsNomadsTest : TfmSandboxTest() {
         doTask("GreeneryTile<Tharsis_2_2>")
       }
     }
-    return kim.inTurn {
-      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
-      doTask("GreeneryTile<Tharsis_9_7>")
+    kim.inTurn {
+          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTask("GreeneryTile<Tharsis_9_7>")
+          doTasks("OxygenStep", "TerraformRating")
+        }
+        .expect("GreeneryTile<Tharsis_9_7>, OxygenStep, TerraformRating")
+  }
+
+  @Test
+  internal fun `Allows greenery elsewhere when its own marker blocks the last adjacent area`() {
+    newTestGame()
+    kim.exMachina("GreeneryTile<Tharsis_1_1>, $MarsNomads, NomadsMarker<Tharsis_2_2>, 8 Plant")
+    stan.exMachina("NormalCityTile<Tharsis_2_1>")
+
+    kim.inTurn {
+          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTask("GreeneryTile<Tharsis_9_7>")
+          doTasks("OxygenStep", "TerraformRating")
+        }
+        .expect("GreeneryTile<Tharsis_9_7>, OxygenStep, TerraformRating")
+  }
+
+  @Test
+  internal fun `Nomads does not open distant greenery while another adjacent area is available`() {
+    newTestGame()
+    kim.exMachina("GreeneryTile<Tharsis_1_1>, 8 Plant")
+    stan.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_2>")
+
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+        doTask("GreeneryTile<Tharsis_9_7>")
+      }
     }
+    kim.inTurn {
+          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTask("GreeneryTile<Tharsis_2_1>")
+          doTasks("OxygenStep", "TerraformRating")
+        }
+        .expect("GreeneryTile<Tharsis_2_1>, OxygenStep, TerraformRating")
+  }
+
+  @Test
+  internal fun `Allows greenery elsewhere when a Nomads marker shares the last adjacent area with an own claim`() {
+    newTestGame()
+    kim.exMachina("GreeneryTile<Tharsis_1_1>, Community<Tharsis_2_2>, 8 Plant")
+    stan.exMachina("NormalCityTile<Tharsis_2_1>, $MarsNomads, NomadsMarker<Tharsis_2_2>")
+
+    kim.inTurn {
+          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTask("GreeneryTile<Tharsis_9_7>")
+          doTasks("OxygenStep", "TerraformRating")
+        }
+        .expect("GreeneryTile<Tharsis_9_7>, OxygenStep, TerraformRating")
+    kim.assertCounts(1 to "Community<Tharsis_2_2>")
+    stan.assertCounts(1 to "NomadsMarker<Tharsis_2_2>")
+  }
+
+  @Test
+  internal fun `Its marker does not count as an owned tile for greenery adjacency`() {
+    newTestGame()
+    kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>, 8 Plant")
+
+    kim.inTurn {
+          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTask("GreeneryTile<Tharsis_9_7>")
+          doTasks("OxygenStep", "TerraformRating")
+        }
+        .expect("GreeneryTile<Tharsis_9_7>, OxygenStep, TerraformRating")
   }
 }
