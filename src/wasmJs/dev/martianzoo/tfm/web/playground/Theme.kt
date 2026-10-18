@@ -23,16 +23,16 @@ import org.jetbrains.compose.resources.FontResource
 
 private val playerColors =
     mapOf(
-        "Violet" to Color(0xFFD77AC5),
-        "Purple" to Color(0xFF9B6DE3),
-        "Yellow" to Color(0xFFFFE342),
-        "Black" to Color(0xFF6C6559),
-        "Pink" to Color(0xFFFA9AA9),
-        "Blue" to Color(0xFF2988CA),
-        "Orange" to Color(0xFFFFA31A),
-        "Red" to Color(0xFFF54A35),
-        "Green" to Color(0xFF31B77C),
-        "Aqua" to Color(0xFF70DDD7),
+        "Violet" to Color(0xFF9A69E7),
+        "Purple" to Color(0xFF9A69E7),
+        "Yellow" to Color(0xFFFFE02F),
+        "Black" to Color(0xFF565047),
+        "Pink" to Color(0xFFFD97A7),
+        "Blue" to Color(0xFF2389D0),
+        "Orange" to Color(0xFFFFA10E),
+        "Red" to Color(0xFFFA4630),
+        "Green" to Color(0xFF29BF47),
+        "Aqua" to Color(0xFF6CE1DB),
     )
 
 /**
@@ -110,7 +110,7 @@ internal fun actorColor(name: String?): Color {
   val seat = names.indexOf(name)
   return if (seat >= 0 && name !in playerColors) {
     val reserved = names.mapNotNull(playerColors::get).toSet()
-    val available = playerColors.values.filterNot { it in reserved }
+    val available = playerColors.values.distinct().filterNot { it in reserved }
     val unnamedSeat = names.filterNot { it in playerColors }.indexOf(name)
     available[unnamedSeat % available.size]
   } else {
