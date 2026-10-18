@@ -402,7 +402,10 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       playProject(StaticHarvesting, 5)
     }
     vin.turn {
-      playProject(RoboticWorkforce, 9) { doTask("CopyProductionBox<$CheungShingMars>") }
+      playProject(RoboticWorkforce, 9) {
+        doTask("0 BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
+        doTask("CopyProductionBox<$CheungShingMars>")
+      }
       claimMilestone(cn("Fundraiser"))
     }
     nor.turn { playProject(AerialMappers, 11) }

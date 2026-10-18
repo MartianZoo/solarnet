@@ -1346,6 +1346,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       sellPatents(1).expect("1 MC, -ProjectCard")
       playProject(RoboticWorkforce, 9) {
             doTask("-ProjectCard")
+            doTask("0 BuildingTag<WildTagElection<WildTag<ResearchCoordination>>>")
             doTask("CopyProductionBox<$IndustrialMicrobes>")
           }
           .expect("-9 MC, -ProjectCard, PROD[Steel, Energy]")
@@ -1668,17 +1669,16 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     if (exportReplay) {
       runTest {
         val originalEvents = game.events.entriesSince(Checkpoint(0))
-        val reconstructed =
-            GameFileJson.parse(checkNotNull(completedGameFileJson()))
-                .decode(gamePremise)
-                .open()
-                .world
+        val file = checkNotNull(completedGameFileJson())
+        val decoded = GameFileJson.parse(file).decode(gamePremise)
+        val reconstructed = decoded.open().world
         val decodedEvents = reconstructed.events.entriesSince(Checkpoint(0))
         val allComponents = game.classTable.componentClass.baseType
 
-        decodedEvents shouldBe originalEvents
+        // The file stores Pets text, which can expand implicit type-variable arguments on parse.
+        GameFileJson.encode(decoded, agents.taskLog.inputs()) shouldBe file
+        decodedEvents.map { it.toString() } shouldBe originalEvents.map { it.toString() }
         decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
-        reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
         reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
         reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
             game.components.getAll(allComponents, NoGameState).entries
