@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.web.almanac
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.search.CanonQuery
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import kotlin.test.Test
@@ -55,32 +56,42 @@ internal class UsageIndexBrowserTest {
                           .trimIndent()
                   )
         }
-    val index by lazy { buildUsageIndex(catalog.classTable) }
+    val index by lazy {
+      buildUsageIndex(catalog.classTable, CanonQuery(CanonQuery.Form.ELABORATED, catalog))
+    }
   }
 
   @Test
   fun declaredContentsAreGainsButLimitsAndUnattachedCountsAreNot() {
-    assertEquals(setOf("Gains"), roles("BuildingTag", "PositiveContents"))
-    assertEquals(setOf("Gains"), roles("BuildingTag", "MinimumContents"))
+    assertTrue("Gains" in roles("BuildingTag", "PositiveContents"))
+    assertTrue("Gains" in roles("BuildingTag", "MinimumContents"))
     for (name in listOf("LimitedContents", "AbsentContents", "GlobalCount")) {
-      assertEquals(setOf("Invariants"), roles("BuildingTag", name), name)
+      assertFalse("Gains" in roles("BuildingTag", name), name)
+      assertTrue("Requirements" in roles("BuildingTag", name), name)
+      assertFalse("Counted in" in roles("BuildingTag", name), name)
     }
     assertTrue("Gains" in roles("BuildingTag", "PowerPlant"))
-    assertFalse("Requirements" in roles("BuildingTag", "PowerPlant"))
+    assertTrue("Requirements" in roles("BuildingTag", "PowerPlant"))
+    assertFalse("Counted in" in roles("BuildingTag", "PowerPlant"))
+    assertFalse("Counted in" in roles("CityTag", "BoomTown"))
+    assertTrue("Counted in" in roles("CityTag", "Architect"))
   }
 
   @Test
   fun targetsArgumentsCountsAndConditionsKeepTheirOwnRoles() {
     assertEquals(setOf("Gains"), roles("Microbe", "Roles"))
     assertEquals(setOf("Other references"), roles("Ants", "Roles"))
-    assertEquals(setOf("Other Metrics"), roles("BuildingTag", "Roles"))
+    assertTrue("Counted in" in roles("BuildingTag", "Roles"))
     assertEquals(setOf("Triggers"), roles("Plant", "Roles"))
-    assertEquals(setOf("Gates"), roles("OxygenStep", "Roles"))
-    assertEquals(setOf("Gates"), roles("TemperatureStep", "Roles"))
+    assertTrue("Conditions" in roles("OxygenStep", "Roles"))
+    assertTrue("Counted in" in roles("OxygenStep", "Roles"))
+    assertTrue("Conditions" in roles("TemperatureStep", "Roles"))
     assertEquals(setOf("Gains"), roles("Steel", "Roles"))
     assertEquals(setOf("Gains"), roles("CardFront", "RefinedGain"))
-    assertEquals(setOf("Gates"), roles("BuildingTag", "RefinedGain"))
-    assertEquals(setOf("Requirements"), roles("BuildingTag", "ConditionalCard"))
+    assertTrue("Conditions" in roles("BuildingTag", "RefinedGain"))
+    assertTrue("Counted in" in roles("BuildingTag", "RefinedGain"))
+    assertTrue("Requirements" in roles("BuildingTag", "ConditionalCard"))
+    assertTrue("Triggers" in roles("OxygenStep", "OxygenStep"))
   }
 
   @Test
