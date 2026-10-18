@@ -46,6 +46,10 @@ public class TaskLog internal constructor(private val world: World) {
   private var gameStartRecorded = false
   private val submissions = mutableListOf<Submission>()
 
+  internal fun resetAfterOverlayReset() {
+    submissions.clear()
+  }
+
   /** Starts retaining subsequent submissions. Call before starting the recorded gameplay. */
   public fun start() {
     check(!recording) { "task recording has already started" }

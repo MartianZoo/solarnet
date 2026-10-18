@@ -76,6 +76,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   interaction-trigger Anyone-to-Player normalization still supplies an implicit `that player`.
 - Investigate repeated selection probes followed by execution under `EAGER`; preserve manual-task
   competition and failure handling before removing probes.
+- Measure whether disposable overlays can replace the engine's frequent selection and execution
+  probes without slowing replay. The public overlay serves longer client forecasts; internal probes
+  still use atomic rollback and may need a cheaper construction path. Probes on a source World
+  currently invalidate its overlays even though the source history returns to the same point.
 - Investigate repeated ranking of the same field while testing each candidate. Scores must reflect
   the current state, including rollback; avoid a second persistent representation of game scores.
 

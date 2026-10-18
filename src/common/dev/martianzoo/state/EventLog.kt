@@ -10,22 +10,51 @@ import dev.martianzoo.state.Task.TaskId
  * copies of the event sequence in ordinal order; event ordinals begin at zero. Events in those
  * lists still carry mutable [GameEvent.notes] commentary.
  */
-public class EventLog internal constructor() {
+public class EventLog
+internal constructor(
+    private val backing: EventLog? = null,
+    private val requireValid: () -> Unit = {},
+) {
+  private val prefixSize: Int = backing?.nextOrdinal ?: 0
   private val events: MutableList<GameEvent> = mutableListOf()
+  private val prefixSnapshots = mutableMapOf<Int, GameEvent>()
 
   private val size: Int
-    get() = events.size
+    get() {
+      if (backing != null) requireValid()
+      return prefixSize + events.size
+    }
 
   internal val nextOrdinal: Int
     get() = size
 
-  private var setupStart: Checkpoint? = null
+  private var setupStart: Checkpoint? = backing?.setupStart
 
   internal fun fork(): EventLog =
       EventLog().also { copy ->
-        events.mapTo(copy.events, GameEvent::snapshot)
+        entriesSince(Checkpoint(0)).mapTo(copy.events, GameEvent::snapshot)
         copy.setupStart = setupStart
       }
+
+  internal fun overlay(requireValid: () -> Unit): EventLog = EventLog(this, requireValid)
+
+  internal fun resetOverlay() {
+    check(backing != null)
+    requireValid()
+    events.clear()
+    prefixSnapshots.clear()
+    setupStart = backing.setupStart
+  }
+
+  private fun prefixEvent(ordinal: Int): GameEvent =
+      prefixSnapshots.getOrPut(ordinal) {
+        backing!!.entryAt(ordinal).snapshot()
+      }
+
+  private fun entryAt(ordinal: Int): GameEvent {
+    require(ordinal in 0 until size)
+    return if (ordinal < prefixSize) prefixEvent(ordinal) else events[ordinal - prefixSize]
+  }
 
   internal fun requireNext(entry: GameEvent) {
     require(entry.ordinal == nextOrdinal) {
@@ -38,9 +67,13 @@ public class EventLog internal constructor() {
     events += entry
   }
 
-  internal fun last(): GameEvent = events.last()
+  internal fun last(): GameEvent {
+    if (backing != null) requireValid()
+    return events.last()
+  }
 
   internal fun removeLast() {
+    if (backing != null) requireValid()
     events.removeLast()
   }
 
@@ -58,8 +91,7 @@ public class EventLog internal constructor() {
    * Returns the component change at [ordinal], or null when that ordinal belongs to a task event.
    */
   public fun changeAt(ordinal: Int): ChangeEvent? {
-    require(ordinal in events.indices)
-    return events[ordinal] as? ChangeEvent
+    return entryAt(ordinal) as? ChangeEvent
   }
 
   /** Returns all change events at or after [checkpoint]. */
@@ -73,8 +105,10 @@ public class EventLog internal constructor() {
    */
   public fun entriesSince(checkpoint: Checkpoint): List<GameEvent> {
     val ordinal = checkpoint.ordinal
-    require(ordinal in 0..events.size)
-    return events.subList(ordinal, events.size).toList()
+    require(ordinal in 0..size)
+    if (ordinal >= prefixSize) return events.subList(ordinal - prefixSize, events.size).toList()
+    val prefix = (ordinal until prefixSize).map(::prefixEvent)
+    return prefix + events
   }
 
   internal fun activitySince(checkpoint: Checkpoint): TaskResult {

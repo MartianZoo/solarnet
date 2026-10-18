@@ -71,6 +71,58 @@ internal class CardTrackingTest : TfmTest() {
   }
 
   @Test
+  internal fun speculativeAgentsDrawAnonymousCardsWithoutChangingTrackedSource() {
+    val (sourceTracking, player) = newTrackedGame()
+    val firstCard = cn("AcquiredCompany")
+    sourceTracking.expectArrivals(player, firstCard)
+    agents[player].runOperation("ProjectCard")
+
+    val imagined = agents.overlay()
+    imagined.world.agentTransactionGuard shouldBe null
+    imagined[player].runOperation("ProjectCard")
+
+    val copied = imagined.fork()
+    copied.world.agentTransactionGuard shouldBe null
+    copied[player].count("ProjectCard<Hand>") shouldBe 2
+    sourceTracking.requireComplete()
+
+    imagined.reset()
+    sourceTracking.hand(player) shouldBe setOf(firstCard)
+    imagined[player].count("ProjectCard<Hand>") shouldBe 1
+    imagined[player].runOperation("ProjectCard")
+    imagined[player].count("ProjectCard<Hand>") shouldBe 2
+  }
+
+  @Test
+  internal fun fullCopyOfTrackedWorldCanDrawAnonymousCards() {
+    val (sourceTracking, player) = newTrackedGame()
+    val firstCard = cn("AcquiredCompany")
+    sourceTracking.expectArrivals(player, firstCard)
+    agents[player].runOperation("ProjectCard")
+
+    val copied = agents.fork()
+    copied.world.agentTransactionGuard shouldBe null
+    copied[player].runOperation("ProjectCard")
+
+    sourceTracking.requireComplete()
+    sourceTracking.hand(player) shouldBe setOf(firstCard)
+    copied[player].count("ProjectCard<Hand>") shouldBe 2
+  }
+
+  @Test
+  internal fun cardTrackingCannotBeStartedOnAnOverlay() {
+    val config = GameConfig("PreludeExpansion", "Player1")
+    game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
+    val player = game.actors.filterIsInstance<Player>().single()
+    val imagined = agents.overlay()
+
+    shouldThrow<IllegalStateException> { CardTracking.start(imagined.world) }
+    imagined[player].runOperation("ProjectCard")
+    imagined[player].count("ProjectCard<Hand>") shouldBe 1
+    agents[player].count("ProjectCard<Hand>") shouldBe 0
+  }
+
+  @Test
   internal fun aDifferentChangeAtTheSameOrdinalDoesNotReuseDiscardedCardLocations() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]

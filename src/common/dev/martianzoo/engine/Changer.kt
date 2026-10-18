@@ -55,6 +55,12 @@ internal class Changer(
     gameWorld.rollBackTo(ordinal).forEach(effector::applied)
   }
 
+  /** Drops a speculative branch's derived index before its passive state notifies observers. */
+  internal fun resetOverlay(afterClear: () -> Unit) {
+    effector.resetOverlay()
+    gameWorld.resetOverlay(afterClear)
+  }
+
   private fun applyEvent(event: ChangeEvent): ChangeEvent {
     effector.prepare(event.change)
     gameWorld.apply(event)
