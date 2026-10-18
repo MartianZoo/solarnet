@@ -3,11 +3,71 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.SpaceElevator
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class PaymentOffersTest : TfmSandboxTest() {
+  @Test
+  internal fun `Water Import from Europa can pay its entire action cost in titanium`() {
+    newTestGame()
+    kim.exMachina("$WaterImportFromEuropa, 4 Titanium")
+    kim.setToExMachina(0, "MC")
+
+    kim.inTurn {
+          doTasks(
+              "UseCardAction<WaterImportFromEuropa, Action1>",
+              "4 Pay<Class<Titanium>> FROM Titanium",
+              "Ok", // Nothing remains to pay in MC.
+              "OceanTile<Tharsis_1_2>",
+              "TerraformRating",
+              "2 Steel",
+          )
+        }
+        .expect("0 MC")
+  }
+
+  @Test
+  internal fun `Aquifer Pumping can combine steel with the exact cash remainder`() {
+    newTestGame()
+    kim.exMachina("$AquiferPumping, $EarthCatapult, 3 Steel")
+    kim.setToExMachina(2, "MC")
+
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<AquiferPumping, Action1>",
+          "3 Pay<Class<Steel>> FROM Steel",
+          "2 Pay<> FROM MC",
+          "OceanTile<Tharsis_1_2>",
+          "TerraformRating",
+          "2 Steel",
+      )
+    }
+  }
+
+  @Test
+  internal fun `A card made free by an earlier tag needs no titanium or graphene decision`() {
+    newTestGame(kimCorporation = ThorGate)
+    kim.exMachina("$CarbonNanosystems, Graphene<$CarbonNanosystems>, Titanium")
+
+    kim.inTurn {
+          // Thorgate makes the card free even with several alternative payment sources.
+          doTasks("PlayProject<Class<SpaceMirrors>>", "SpaceMirrors FROM ProjectCard")
+        }
+        .expect("0 MC, 0 Titanium, 0 Graphene")
+  }
+
+  @Test
+  internal fun `A fully discounted building needs no steel or heat decision`() {
+    newTestGame(addOptions = "fakes:cards")
+    kim.exMachina("$FakeHelion, $EarthCatapult, $AntiGravityTechnology, Steel, Heat")
+
+    kim.inTurn {
+          doTasks("PlayProject<Class<Mine>>", "Mine FROM ProjectCard", "PROD[Steel]")
+        }
+        .expect("0 MC, 0 Steel, 0 Heat")
+  }
+
   @Test
   internal fun `Mixed-metal payment currently accepts seven steel and five titanium for Space Elevator`() {
     newTestGame()
