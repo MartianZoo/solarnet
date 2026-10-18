@@ -32,6 +32,7 @@
             "CardFront(HAS =0 Tag): 4 MC",
             "CardFront(HAS =1 Tag): 1 MC",
           ],
+          "incompatible": [ "Merger" ],
         },
         {
           "name": "Spire",
@@ -52,7 +53,7 @@
           "name": "AppliedScience",
           "tags": [ "WildTag" ],
           "direct": "6 Science<This>",
-          "actions": [ "Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource" ],
+          "actions": [ "Science<This> -> CardResource<ResourceHolder(HAS CardResource)> OR StandardResource" ],
         },
         {
           "name": "AtmosphericEnhancers",
@@ -89,8 +90,6 @@
         },
         {
           "name": "FocusedOrganization",
-          "replaces": "StormcraftIncorporated",
-          "autoSelectWhen": "Unsafe OR MAX 0 StormcraftIncorporated",
           "direct": "ProjectCard, StandardResource",
           "actions": [
             "-> -ProjectCard THEN -StandardResource THEN ProjectCard THEN StandardResource",
@@ -131,8 +130,6 @@
         },
         {
           "name": "PreservationProgram",
-          // Terraforming Deal defaults with this pack; keep PP individually selectable.
-          "autoSelectWhen": "Unsafe",
           "direct": "5 TerraformRating",
           "invariants": [ "Class<PreservationTrWatcher>" ],
           "effects": [
@@ -142,6 +139,7 @@
             "CLASS PreservationTrWatcher : CardWatcher { TerraformRating IF ActionPhase:: ActionPhaseTrGain }",
             "CLASS ActionPhaseTrGain<GenerationScope> : Owned",
           ],
+          "incompatible": [ "TerraformingDeal", "TurmoilExpansion" ],
         },
         {
           "name": "ProjectEden",
@@ -251,7 +249,7 @@
             "End: 2 VictoryPoint",
           ],
           "components": [
-            "CLASS L1GiftWatcher : Owned<Player>, System { This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3); This: EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }, LATER { -This }; CardResource:: -L1Gift }",
+            "CLASS L1GiftWatcher : Owned<Player>, System { This:: L1Gift / (ResourceHolder(HAS CardResource) MAX 3); This: EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }, LATER { -This }; CardResource:: -L1Gift }",
             "CLASS L1Gift : Owned<Player>, MustCleanUp",
           ],
         },

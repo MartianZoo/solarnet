@@ -22,6 +22,18 @@ category-specific policies. Generic Catalog and Pets type processing need no Con
 
 ## From configuration to a class table
 
+Pairwise implementation incompatibilities are authored as `incompatible` lists, placed last in each
+card's JSON entry. The declaring card yields to the listed Classes during automatic selection.
+Explicitly requesting the declaring card does not reverse that preference: if listed content is
+present, the request produces a conflict error. Exclude the listed content or select `Unsafe` to
+use the declaring card. The incompatibilities remain catalog metadata: each `Bundle` checks its own
+declarations against the completed table through `Catalog.validateSelectedContent`. Catalog
+composition delegates these checks to its children, including for copied premises. Selecting
+`Unsafe` bypasses these pair checks. No Pets
+property or requirement is generated from them. `replaces` describes an older version superseded by
+a newer item; it does not express preference between incompatible cards. The pair check rejects
+conflicts remaining after selection.
+
 `GameConfig` is unresolved intent. Catalog resolution produces an immutable `GamePremise`: a
 single set of signed Class selections, seated Player Classes, additive setup-component adjustments,
 and premise-local declarations. Modules are derived from the selected Classes; they are not stored

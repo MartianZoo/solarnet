@@ -359,6 +359,8 @@ internal object TerraformingMarsDescribers {
         klass("Asteroid") to ComponentDescriber(noun = counted("asteroid", "asteroids")),
         klass("Floater") to ComponentDescriber(noun = counted("floater", "floaters")),
         klass("Microbe") to ComponentDescriber(noun = counted("microbe", "microbes")),
+        klass("RobotUnit") to
+            ComponentDescriber(noun = counted("robot resource", "robot resources")),
         klass("Science") to
             ComponentDescriber(noun = counted("science resource", "science resources")),
         klass("Tag") to
@@ -377,11 +379,12 @@ internal object TerraformingMarsDescribers {
         klass("AllocateCloudTourismWildTags") to ComponentDescriber(implicitInstruction = true),
         klass("Resource") to
             ComponentDescriber(
+                implicitKindExclusions = setOf(klass("RobotUnit")),
                 distinctKinds =
                     ComponentDescriber.Noun.Counted(
                         "different type of resource",
                         "different types of resources",
-                    )
+                    ),
             ),
         klass("BioTag") to
             ComponentDescriber(triggerFrame = Trigger.PlayTag(counted("bio tag", "bio tags"))),
@@ -659,15 +662,6 @@ internal object TerraformingMarsDescribers {
                         enter = Frame.Procedure("begin", "your turn"),
                         leave = Frame.Procedure("end", "your turn"),
                     ),
-            ),
-        klass("ExtraAction") to
-            ComponentDescriber(
-                noun =
-                    counted(
-                        "additional action to take after finishing the current action",
-                        "additional actions to take in sequence after finishing the current action",
-                    ),
-                changeFrame = Frame.Countable,
             ),
         klass("StandardAction") to
             ComponentDescriber(triggerFrame = Trigger.Named("take", "an action")),

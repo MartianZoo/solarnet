@@ -1,15 +1,15 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  UseTurmoilPolicyAction<Action1>:: UseAction<ScientistsPolicy, Action1>
-  UseTurmoilPolicyAction<Action2>:: UseAction<KelvinistsPolicy, Action1>
+  UseTurmoilPolicyAction<Action1>: UseAction<ScientistsPolicy, Action1>
+  UseTurmoilPolicyAction<Action2>: UseAction<KelvinistsPolicy, Action1>
   This: Neutral, ReferenceFilter<Class<Ruling>>
   HAS Class<LobbyAction>, Class<PaidLobbyAction>, Class<UseTurmoilPolicyAction>, Class<PartyLeader>, Class<PartyFollower>
 
   // Party derives each successor edge from this committee-order creation sequence.
   This: MarsFirst THEN Kelvinists THEN Reds THEN Greens THEN Unity THEN Scientists
 
-  SetupPhase:: EACH Me@Player { LobbyDelegate }
-  SetupPhase:: Chairman<Neutral>, Ruling<Greens>
+  SetupPhase: EACH Me@Player { LobbyDelegate }
+  SetupPhase: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
   // Deferred so that other solar-phase work, like World Government Terraforming, finishes first.
   SolarPhase: LATER { TurmoilPhase }
@@ -103,7 +103,7 @@ ABSTRACT CLASS Party : Content, Iconic {
     })) { Dominant<Next@> }, RefillLobby
 }
 CLASS MarsFirst : Party {
-  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BuildingTag }
+  ApplyRulingBonus<This>: EACH Me@Player { 1 MC / BuildingTag }
   ActionPhase IF Ruling<This>:: MarsFirstPolicy
 }
 CLASS MarsFirstPolicy : Policy<Ruling<MarsFirst>> {
@@ -112,7 +112,7 @@ CLASS MarsFirstPolicy : Policy<Ruling<MarsFirst>> {
 
 CLASS Scientists : Party {
   HAS =1 AfterParty<This, MarsFirst>
-  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / ScienceTag }
+  ApplyRulingBonus<This>: EACH Me@Player { 1 MC / ScienceTag }
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
 CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, HasActions {
@@ -123,7 +123,7 @@ CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player>, System, Iconic {
 }
 
 CLASS Unity : Party {
-  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PlanetaryTag }
+  ApplyRulingBonus<This>: EACH Me@Player { 1 MC / PlanetaryTag }
   ActionPhase IF Ruling<This>:: UnityPolicy
 }
 CLASS UnityPolicy : Policy<Ruling<Unity>> {
@@ -134,7 +134,7 @@ CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
 }
 
 CLASS Greens : Party {
-  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BioTag }
+  ApplyRulingBonus<This>: EACH Me@Player { 1 MC / BioTag }
   ActionPhase IF Ruling<This>:: GreensPolicy
 }
 CLASS GreensPolicy : Policy<Ruling<Greens>> {
@@ -142,6 +142,7 @@ CLASS GreensPolicy : Policy<Ruling<Greens>> {
 }
 
 CLASS Reds : Party {
+  // Resolve this bonus before FormGovernment awards the new chairman TR.
   // Ranking is highest-first, so rank each player by everyone else's rating to find the lowest.
   ApplyRulingBonus<This> IF MAX 0 SoloMode:: EACH Lowest@Player(HAS =1 (RANK Ranked@Player { TerraformRating<Anyone(NOT Ranked@)> })) { \
     TerraformRating<Lowest@> }
@@ -153,7 +154,7 @@ CLASS RedsPolicy : Policy<Ruling<Reds>> {
 }
 
 CLASS Kelvinists : Party {
-  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PROD[Heat] }
+  ApplyRulingBonus<This>: EACH Me@Player { 1 MC / PROD[Heat] }
   ActionPhase IF Ruling<This>:: KelvinistsPolicy
 }
 CLASS KelvinistsPolicy : Policy<Ruling<Kelvinists>>, HasActions {
@@ -253,7 +254,7 @@ CLASS PaidLobbyAction : StandardAction {
 
 "Restores free lobbying for each player who has an available delegate"
 CLASS RefillLobby : Signal, System {
-  This:: EACH Me@Player { LobbyDelegate* }
+  This: EACH Me@Player { LobbyDelegate* }
 }
 
 "Requests the current political influence snapshot for one player"

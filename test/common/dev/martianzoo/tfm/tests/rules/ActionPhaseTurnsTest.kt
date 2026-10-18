@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -15,18 +17,35 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     shouldThrow<TaskException> { stan.doTask("Pass") }
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     shouldThrow<TaskException> { kim.doTask("Pass") }
-    kim.selectTask("-Baton")
+    val handoff = kim.selectTask("PassBaton")
+    handoff.expect("-Baton<Kim>, Baton<Stan>")
+    val batonChanges =
+        handoff.changes
+            .map { it.change }
+            .filter {
+              it.gaining?.type?.className == cn("Baton") ||
+                  it.removing?.type?.className == cn("Baton")
+            }
+    val transfer = batonChanges.single() as ComponentChange.Transmute
+    transfer.removing.type shouldBe kim.resolve("Baton<Kim>")
+    transfer.gaining.type shouldBe kim.resolve("Baton<Stan>")
+    admin.count("ActionPhase") shouldBe 1
     stan.doTask("Pass")
     rob.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
-    rob.selectTask("-Baton")
+    rob.selectTask("PassBaton")
 
     // Declining the second action did not pass Kim; Stan is skipped on the next circuit.
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
-    kim.selectTask("-Baton")
+    kim.selectTask("PassBaton")
     rob.doTask("Pass")
+    val lastPlayerActions = game.timeline.checkpoint()
 
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    game.events.changesSince(lastPlayerActions).none {
+      it.change.gaining?.type?.className == cn("Baton") ||
+          it.change.removing?.type?.className == cn("Baton")
+    } shouldBe true
     kim.doTask("Pass")
     admin.count("ProductionPhase") shouldBe 1
     admin.count("Baton") shouldBe 0
@@ -51,10 +70,15 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
   @Test
   internal fun `Solo keeps offering actions until the player passes`() {
     newTestGame(playerCount = 1)
+    val beforeActions = game.timeline.checkpoint()
 
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    game.events.changesSince(beforeActions).none {
+      it.change.gaining?.type?.className == cn("Baton") ||
+          it.change.removing?.type?.className == cn("Baton")
+    } shouldBe true
     kim.doTask("Pass")
     admin.count("ProductionPhase") shouldBe 1
     admin.count("Baton") shouldBe 0

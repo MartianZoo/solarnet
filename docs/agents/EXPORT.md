@@ -43,9 +43,11 @@ in the exact passive recording because compacted task revisions need not have li
 
 `TaskLog` captures successful Actor submissions, including Player and Admin policy actions. It
 records selections, single-task and batch execution, tries, drops, and `exMachina` as distinct
-operations. Its causal task selector helps replay target repeated tasks without storing source
-ordinals. Game start is mandatory and recorded by `TfmGameplay.startGame()`; import starts the
-game through that same method, and the game's own rules drive play from there.
+operations. A `doTask` completed through an Actor handoff records the originating selection and
+the receiving Actor's execution separately. Its causal task selector helps replay target repeated
+tasks without storing source ordinals. Game start is mandatory and recorded by
+`TfmGameplay.startGame()`; import starts the game through that same method, and the game's own rules
+drive play from there.
 Unique task instructions omit ancestry from their selectors. Full import compares complete causal
 ancestry through shared internal signatures, so authored phase flow does not require copying the
 entire preceding game for each change.

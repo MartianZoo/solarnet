@@ -158,7 +158,10 @@ public data class GamePremise(
           "structural selection conflicts with excluded classes: ${includedExclusions.joinToString { "`$it`" }}"
       )
     }
-    if (validateViability) PremiseViability.validate(table, roots)
+    if (validateViability) {
+      PremiseViability.validate(table, roots)
+      catalog.validateSelectedContent(table, modules)
+    }
     return table
   }
 

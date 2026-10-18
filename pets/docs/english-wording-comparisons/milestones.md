@@ -768,13 +768,14 @@ Class: `Trader`
 | | Text |
 | --- | --- |
 | Printed text | 3 different types of resources on cards. |
-| Generated text | Requires that you have 3 different types of card resources. |
+| Generated text | Requires 3 different types of card resources. |
 
 Pets declaration:
 
 ```pets
 CLASS Trader : Milestone {
-  requirement = HAS "3 Class<@CardResource>(HAS @CardResource)"
+  HAS MAX 1 Trader
+  requirement = HAS "3 Class<@CardResource>(HAS @CardResource<CardFront>)"
 }
 ```
 

@@ -83,6 +83,12 @@ data. A new component using existing mechanics should normally render without re
   normalizing disproportionate complexity.
 - Use precise domain language. An API that reads unlike the real game is not finished.
 
+### TfmGameplay is for deletion
+
+`TfmGameplay` is completely fucked. The only thing we care about that class is deleting it.
+Do not treat improving, refactoring, or preserving it as a goal. Its current helpers and contracts
+must not drive engine or model design; work involving it should serve its removal.
+
 ### Try the simpler approach first
 
 Optimize for the smallest coherent design, not the first implementation that passes tests.

@@ -472,7 +472,7 @@ VenusShuttles	Venus Shuttles	Add 2 floaters to ANY VENUS CARD.	Action: Spend 12 
 VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags.	Effect: When you trade, gain 3 M€.
 WgProject	WG Project	Requires that you are chairman. DRAW 3 PRELUDE CARDS AND PLAY 1 OF THEM. Discard the other 2.	
 SmallAsteroid	Small Asteroid	Increase temperature 1 step. Remove up to 2 plants from any player.	
-FakeSelfReplicatingRobots	Self-Replicating Robots	Requires 2 science tags.	Action: Reveal and place a SPACE OR BUILDING card here from hand, and place 2 resources on it, OR double the resourses on a card here. Effect: Cards here may be played as if from hand with its cost reduced by the number of resources on it.
+SelfReplicatingRobots	Self-Replicating Robots	Requires 2 science tags.	Action: Reveal and place a SPACE OR BUILDING card here from hand, and place 2 resources on it, OR double the resourses on a card here. Effect: Cards here may be played as if from hand with its cost reduced by the number of resources on it.
 SnowAlgae	Snow Algae	Requires 2 oceans. Increase your plant production and your heat production 1 step each.	
 Penguins	Penguins	Requires 8 ocean. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
 DuskLaserMining	Dusk Laser Mining	Requires 2 science tags. Decrease your energy production 1 step, and increase your titanium production 1 step. Gain 4 titanium.	

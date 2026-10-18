@@ -17,8 +17,6 @@ import kotlinx.serialization.Serializable
  *   `CardBack`.
  * @property requirement Optional nonempty Pets play requirement for a project card.
  * @property cost Nonnegative printed MC cost of a project card; zero when absent or not a project.
- * @property autoSelectWhen Optional nonempty Pets requirement stored as the card's automatic
- *   selection condition.
  * @property tags Authored tag names; `EventTag` occurs at most once and only on a project card.
  * @property direct Optional Pets instruction performed when the card enters play; null supplies no
  *   direct effect.
@@ -34,8 +32,9 @@ public data class CardDefinition(
     val deck: String? = null,
     val requirement: String? = null,
     val cost: Int = 0,
-    val autoSelectWhen: String? = null,
-    /** Card whose automatic selection yields to this card; explicit selection remains possible. */
+    /**
+     * Older version superseded by this card; explicit selection of the older card remains possible.
+     */
     val replaces: String? = null,
     val tags: List<String> = emptyList(),
     val direct: String? = null,
@@ -43,6 +42,14 @@ public data class CardDefinition(
     val effects: List<String> = emptyList(),
     val invariants: Set<String> = emptySet(),
     val components: Set<String> = emptySet(),
+    /**
+     * Classes that cannot coexist with this card in a safe game configuration. During automatic
+     * selection this card yields to the listed Classes. Explicitly requesting this card while a
+     * listed Class is selected produces a conflict error; exclude the conflicting content or select
+     * `Unsafe` to permit coexistence. This is catalog metadata and is omitted from generated Pets
+     * declarations.
+     */
+    val incompatible: Set<String> = emptySet(),
 ) {
   /**
    * Printed project-card category. Null for other decks; `EventCard` when tagged `EventTag`;
@@ -73,8 +80,10 @@ public data class CardDefinition(
     }
     require(invariants.none(String::isEmpty))
     require(requirement?.isNotEmpty() != false)
-    require(autoSelectWhen?.isNotEmpty() != false)
     require(replaces == null || CARD_NAME.matches(replaces)) { "Invalid replaced card: $replaces" }
+    require(incompatible.all { CARD_NAME.matches(it) && it != name }) {
+      "Invalid incompatible class for $name: $incompatible"
+    }
     require(cost >= 0)
     if (deck != PROJECT_DECK) {
       require(EVENT_TAG !in tags) { "Non-project card has $EVENT_TAG: $name" }

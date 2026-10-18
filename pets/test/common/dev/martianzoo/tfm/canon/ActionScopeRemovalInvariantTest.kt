@@ -29,9 +29,7 @@ internal class ActionScopeRemovalInvariantTest {
 
   @Test
   internal fun consumingAnEntitlementCannotProvokeARewardChoice() {
-    for (entitlement in listOf("Baton", "ExtraAction")) {
-      assertViolation("Watcher", table("CLASS Watcher { -$entitlement: MC OR Steel }"))
-    }
+    assertViolation("Watcher", table("CLASS Watcher { -Baton: MC OR Steel }"))
   }
 
   @Test
@@ -136,15 +134,33 @@ internal class ActionScopeRemovalInvariantTest {
             playerEffects =
                 """
                 -ActionScope<This>: FINALLY { -Baton<This> }
-                -Baton<This>: StandardAction<This> OR -Baton<This>
+                -Baton<This>: StandardAction<This> OR PassBaton<This>
                 -ActionScope<This>: FINALLY { \
-                  -ExtraAction<This> THEN TASK This { \
+                  TASK This { \
                     StandardAction<This> OR DoRequiredActions<This> \
                   } \
                 }
                 """,
             passEffects = "-ActionScope<@Player>: FINALLY { OfferAction<@Player> }",
             phaseEffects = "-ActionScope: FINALLY { ProductionPhase FROM This }",
+        )
+    )
+  }
+
+  @Test
+  internal fun aBatonHandoffCannotHideARewardChoice() {
+    assertViolation("Watcher", table("CLASS Watcher { PassBaton: MC OR Steel }"))
+  }
+
+  @Test
+  internal fun aBatonHandoffMayTransferTheBatonDirectly() {
+    assertValid(
+        table(
+            """
+            CLASS NextPlayer<Previous@Player, Next@Player> {
+              PassBaton<Previous@>: FINALLY { Baton<Next@ FROM Previous@> }
+            }
+            """
         )
     )
   }
@@ -188,13 +204,14 @@ internal class ActionScopeRemovalInvariantTest {
         CLASS ScienceTag : Tag
         CLASS Baton<Player> { $batonBody }
         CLASS SecondAction<Baton>
-        CLASS ExtraAction<Player>
         CLASS OfferAction<Player> : Signal
+        CLASS PassBaton<Player> : Signal
         CLASS StandardAction<Player> : Signal
         CLASS DoRequiredActions<Player> : Signal
         CLASS Pass<Player> { $passEffects }
-        CLASS ActionPhase { $phaseEffects }
-        CLASS ProductionPhase
+        ABSTRACT CLASS Phase
+        CLASS ActionPhase : Phase { $phaseEffects }
+        CLASS ProductionPhase : Phase
         CLASS MC
         CLASS Steel
         $additions

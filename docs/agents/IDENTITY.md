@@ -128,13 +128,12 @@ the former assignee in an internal `TASK Actor { ... }` continuation. Admin comp
 change and dispatches the remaining work back to that Actor. Each later concrete System step
 follows the same rule.
 
-Player `doTask` rejects a narrowing that makes a `System` change concrete for Admin. Use `selectTask`
-or `narrowTask` to submit the choice; eager Admin policy then executes the resulting concrete task.
-`TaskForm` may assist with that choice but must remain optional, as specified in
-[ENGINE.md](ENGINE.md#tasks-are-choices-not-a-program-counter).
-The broader intended `doTask` contract is that the submitted change must actually be performed by
-this Actor; apply that rule to all handoffs when the general task-command API is ready, rather than
-adding further type-specific checks here.
+`Agent.doTask` demands completion of the submitted task, including when selection or narrowing
+hands it to Admin or another Actor. It runs configured autoexecution and rolls back if the selected
+task remains pending. The receiving Actor's policy still controls execution. Use `selectTask`,
+`narrowTask`, or an optional `TaskForm` when handing off work for later completion.
+Task recordings retain the originating choice and the receiving Actor's execution separately, so
+imports need no autoexecution policy.
 
 Use `System` for neutral table bookkeeping rather than a Player's game action. Fixed gains and
 concrete removals must themselves be safe for eager Admin execution. A following `THEN` choice
@@ -147,19 +146,11 @@ Played-event cleanup, card-purchase, requirement, global-parameter-status, solo-
 dominance bookkeeping use `System` for their concrete changes.
 
 `RequiredAction` is also `System`: Admin creates and removes the pending corporation-action
-marker. Its Player owner still chooses `DoRequiredActions` and performs the required action;
-neither that signal nor `UseAction` is `System`.
+marker. Its Player owner still chooses `DoRequiredActions`, which remains non-System.
+`PlayCard` and `UseAction` are System signals: the Player supplies unresolved choices, and Admin
+executes the concrete dispatch. `doTask` accepts this handoff when configured policy finishes it.
 
 ### Deferred System classifications
-
-`PlayCard` remains open. An isolated `System` trial passed corporation selection and New Partner's
-nested free Prelude when the caller committed a task form and ran automatic work before continuing
-its operation. The full card-play sequence, payment, free plays, shared fixtures, replays, and
-`tfm_play` still need migration and verification.
-
-`UseAction` remains separate. An isolated trial exposed Viron's nested action timing: its
-downstream choice appeared too late for the enclosing operation body. Settle that sequence before
-changing action callers and reactive offers.
 
 `DoRequiredActions` remains non-System. Its trial forced standard-action callers to scan for an
 internal task and commit a form just to choose the required action. Revisit it only if that choice

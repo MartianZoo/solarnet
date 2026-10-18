@@ -38,7 +38,7 @@ internal class AiCentralTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("UseCardAction<AiCentral, Action1>")
+        doTasks("UseCardAction<AiCentral, Action1>", "2 ProjectCard")
       }
     }
   }
@@ -53,7 +53,9 @@ internal class AiCentralTest : TfmSandboxTest() {
   @Test
   internal fun `BUG - A nonexistent second action uses AI Central without drawing cards`() {
     useSecondAction().expect("0 ProjectCard")
-    shouldThrow<LimitsException> { kim.inTurn { doTask("UseCardAction<AiCentral, Action1>") } }
+    shouldThrow<LimitsException> {
+      kim.inTurn { doTasks("UseCardAction<AiCentral, Action1>", "2 ProjectCard") }
+    }
   }
 
   private fun useSecondAction(): TaskResult {

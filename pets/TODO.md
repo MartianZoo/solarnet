@@ -2,10 +2,9 @@
 
 Delete entries when they are done.
 
-- Investigate consolidating the repeated action-scope completion checks in Corporation, Prelude,
-  Action, and Final Greenery. Phase entry and initial offers are shared through `StartToken` and
-  `Baton`; continuation still depends on the phase, remaining Preludes, and `SecondAction`.
-  Prefer existing mechanisms before adding another completion signal.
+- Consider moving the remaining configuration policies in `autoSelectWhen` and
+  `premiseRequirement` out of Pets properties. Pairwise implementation incompatibilities already
+  live in card JSON and are checked as catalog metadata; broader policy changes are deferred.
 
 - Finish selection of concrete `Content` subclasses: support all applicable items from a bundle,
   independent party selection, and map selection separate from its Module role. Supporting
@@ -67,7 +66,9 @@ Delete entries when they are done.
 
 - Improve the bracketed English fragments exposed by removing the exact-expression phrase table,
   using ordinary composition only where it stays small. Marker effects, distinct-type filters,
-  and L1 Trade Terminal’s gift watcher remain partly unsupported. Philantropist's class-token requirement now
+  and L1 Trade Terminal’s gift watcher remain partly unsupported. The shared Venus resource addition
+  also retains bracketed Pets.
+  Philantropist's class-token requirement now
   names cards in play but retains bracketed `GainsOf`. A card instance cannot fill that metric's
   `Class<CardFront>` dependency; Astra Mechanica also evaluates event classes after those cards leave play.
 - Refresh the remaining `docs/english-wording-comparisons/` entries against current Canon and
@@ -98,3 +99,19 @@ Delete entries when they are done.
   unresolved-condition passes before adding more machinery. They still reconsider every pending
   constructive reference after each inclusion frontier; selectively waking only affected conditions
   would require tracking subclass and dependency inhabitance, not just names written in a trigger.
+
+- Head Start remains an approximation: its resources and two granted actions can interleave and
+  share the enclosing scope, so Suitable Infrastructure pays only once and wild-tag elections
+  persist. Keep these limitations explicit; revisit only if existing mechanisms can model its
+  timing without special turn-flow machinery. See [game flow](docs/agents/GAME_FLOW.md#head-start-restored-approximation).
+
+- Revisit initial `Baton: OfferAction` forwarding only if it reduces the whole turn model.
+  Final greenery uses it. A bounded alternative passed the turn/scope tests but needed a deferred
+  initial offer, an exception in Baton's shared completion rule, and a separate first-action
+  completion listener in `InRound`; it was reverted rather than exchanging repetition for exceptions.
+  Consolidate corporation/beginner offers only if the result is clearer.
+  A guarded starting-Preludes-in-`Selecting` experiment did not provide the hoped-for generic hand
+  check: corporation cleanup discarded them, excluding Preludes from cleanup retained New Partner's
+  unused offer, and purchased project cards kept `CardBack<Hand>` nonempty after corporation play.
+  The experiment was reverted; any follow-up must distinguish retained cards from temporary offers
+  without adding disproportionate machinery.

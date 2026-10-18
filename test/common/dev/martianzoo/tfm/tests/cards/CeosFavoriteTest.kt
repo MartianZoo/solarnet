@@ -37,7 +37,7 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
               "CeosFavoriteProject FROM ProjectCard",
           )
           // Resolve the resource offer: no eligible card already holds a resource.
-          selectTask("CardResource<CardFront(HAS CardResource)>*")
+          selectTask("CardResource<ResourceHolder(HAS CardResource)>*")
         }
         .expect("0 Microbe<$Tardigrades>")
   }
@@ -51,7 +51,7 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
         doTask("PlayProject<Class<CeosFavoriteProject>>")
         doTasks("1 Pay<> FROM MC", "CeosFavoriteProject FROM ProjectCard")
         // Select the resource offer before testing whether a required gain can be declined.
-        selectTask("CardResource<CardFront(HAS CardResource)>*")
+        selectTask("CardResource<ResourceHolder(HAS CardResource)>*")
         doTask("Ok")
       }
     }

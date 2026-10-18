@@ -3,10 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light">
+    <meta name="color-scheme" content="light dark">
     <meta http-equiv="Cache-Control" content="no-store">
     <title>Pets Almanac</title>
-    <link rel="stylesheet" href="almanac.css?v=20260919-1">
+    <script>
+      try { document.documentElement.dataset.theme = localStorage.getItem('almanac-theme') || 'light'; } catch (_) {}
+    </script>
+    <link rel="stylesheet" href="almanac.css?v=20261016-5">
   </head>
   <body>
     <header class="toolbar">
@@ -18,18 +21,30 @@
                spellcheck="false" placeholder="Type a class name">
         <div id="class-suggestions" class="suggestions" role="listbox" hidden></div>
       </div>
-      <span id="class-count" class="class-count"></span>
+      <form id="query-form" class="query-editor">
+        <div><label for="query-input">Queries</label> (<button id="query-examples" type="button" class="text-button">see examples</button>)</div>
+        <textarea id="query-input" rows="3" spellcheck="false" placeholder="Choose an example or enter XPath"></textarea>
+        <div class="query-controls">
+          <label for="query-tree">Tree</label>
+          <select id="query-tree">
+            <option value="AUTHORED">Authored</option>
+            <option value="ELABORATED">Elaborated</option>
+          </select>
+          <button type="submit">Run query</button>
+          <span id="query-status" role="status"></span>
+        </div>
+      </form>
+      <div class="display-options">
+        <label><input id="dark-theme" type="checkbox"> Dark theme</label>
+        <label><input id="use-icons" type="checkbox" checked> Use icons</label>
+        <span id="class-count" class="class-count"></span>
+      </div>
     </header>
 
-    <main id="class-columns" class="columns"></main>
+    <main id="class-columns" class="columns" tabindex="0" aria-label="Almanac columns"></main>
     <footer class="credits">
-      Thanks to the
-      <a href="https://github.com/hadronikle/Complete-Terraforming-Mars-Card-Database"
-         target="_blank" rel="noopener">Complete Terraforming Mars Card Database</a>
-      for card scans; icon images swiped from
-      <a href="https://github.com/terraforming-mars/terraforming-mars"
-         target="_blank" rel="noopener">terraforming-mars/terraforming-mars</a>.
+      Images from <a href="https://www.martianzoo.dev" target="_blank" rel="noopener">Martian Zoo</a>.
     </footer>
-    <script src="almanac.js"></script>
+    <script src="almanac.js?v=20261016-5"></script>
   </body>
 </html>

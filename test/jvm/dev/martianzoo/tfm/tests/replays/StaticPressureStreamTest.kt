@@ -57,7 +57,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
 
   // Source save 0 and the final Research drafts in saves 17, 46, 74, 116, 159, 200, 245,
   // 292, 356, and 416 identify every modeled ProjectCard Selecting offer in this replay.
-  // The source's Self-replicating Robots is represented by FakeSelfReplicatingRobots.
   override val selectingArrivalOrder =
       mapOf(
           cn("ProjectCard") to
@@ -113,7 +112,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
                           // Generation 9
                           IndenturedWorkers,
                           GiantSolarShade,
-                          FakeSelfReplicatingRobots,
+                          SelfReplicatingRobots,
                           DomedCrater,
                           // Generation 10
                           FakeFloydContinuum,
@@ -227,7 +226,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
                           MoholeArea,
                           IceCapMelting,
                           // Generation 9
-                          FakeSelfReplicatingRobots,
+                          SelfReplicatingRobots,
                           DomedCrater,
                           // Generation 11
                           FloatingHabs,

@@ -26,7 +26,7 @@
           "name": "MorningStarInc",
           "tags": [ "VenusTag" ],
           "direct": "50 MC, RequiredAction { -> 3 SearchForCard<TagFilter<Class<VenusTag>>> }",
-          "effects": [ "CheckRequirement:: -2 Required<Class<VenusStep>>" ],
+          "effects": [ "CheckRequirement: -2 Required<Class<VenusStep>>" ],
         },
         {
           "name": "Viron",
@@ -89,7 +89,7 @@
           "name": "CorroderSuits",
           "cost": 8,
           "tags": [ "VenusTag" ],
-          "direct": "PROD[2 MC], CardResource<CardFront(HAS VenusTag OR WildTag(HAS WildTagElection(HAS VenusTag)))>",
+          "direct": "PROD[2 MC], AddResourceToVenusCard",
           "effects": [ "This:: EACH @WildTagElection(HAS MAX 0 Tag) { VenusTag<@WildTagElection> }" ],
         },
         {
@@ -237,7 +237,7 @@
           "cost": 18,
           "tags": [ "VenusTag", "CityTag" ],
           "direct": "PROD[-Energy], CityTile<RemoteArea {}>",
-          "actions": [ "-> CardResource<CardFront(HAS VenusTag OR WildTag(HAS WildTagElection(HAS VenusTag)))>" ],
+          "actions": [ "-> AddResourceToVenusCard" ],
           "effects": [
             "UseAction<This, Action1>:: EACH @WildTagElection(HAS MAX 0 Tag) { VenusTag<@WildTagElection> }",
             "End: 3 VictoryPoint",

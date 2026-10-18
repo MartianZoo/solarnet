@@ -141,8 +141,6 @@
         },
         {
           "name": "Merger",
-          "replaces": "SagittaFrontierServices",
-          "autoSelectWhen": "Unsafe OR MAX 0 SagittaFrontierServices",
           "direct": "4 CorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>, Selecting>, -42 MC",
         },
         {
@@ -311,7 +309,7 @@
         },
         {
           "name": "DiversitySupport",
-          "requirement": "9 Class<@Resource>(HAS @Resource)",
+          "requirement": "9 Class<@Resource>(HAS @Resource, NOT Class<RobotUnit>)",
           "cost": 1,
           "tags": [ "EventTag" ],
           "direct": "TerraformRating",

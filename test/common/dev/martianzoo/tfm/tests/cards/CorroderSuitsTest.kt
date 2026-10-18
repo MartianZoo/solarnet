@@ -19,8 +19,7 @@ internal class CorroderSuitsTest : TfmSandboxTest() {
               "CorroderSuits FROM ProjectCard",
               "PROD[2 MC]",
           )
-          // Resolve the resource offer: no eligible Venus card can hold it.
-          selectTask("CardResource")
+          // No resource task is created when neither kind of destination exists.
         }
         .expect("0 CardResource")
   }
@@ -29,7 +28,7 @@ internal class CorroderSuitsTest : TfmSandboxTest() {
   internal fun `Cannot decline when an eligible Venus resource exists`() {
     kim.exMachina("$VenusianAnimals")
 
-    // Unlike Venusian Plants, this one resource instruction has no unavailable arm to choose.
+    // An empty stored-card alternative must not make the available addition optional.
     shouldThrow<TaskException> {
       kim.inTurn {
         doTask("PlayProject<Class<CorroderSuits>>")

@@ -19,6 +19,7 @@ kotlin {
       dependencies {
         implementation(project(":catalog"))
         implementation(project(":pets"))
+        implementation(project(":search"))
         implementation(project(":tfm-canon"))
         implementation(project(":text"))
         implementation(devNpm("tslib", "2.8.1"))
@@ -41,15 +42,6 @@ tasks.register("test") {
 
 tasks.named<ProcessResources>("jsProcessResources") {
   from(sourceDirectory) { include("*.html", "*.css") }
-  val localImages =
-      providers
-          .gradleProperty("localImagesDir")
-          .map(rootProject::file)
-          .orElse(rootProject.layout.projectDirectory.dir("_local/images").asFile)
-  from(localImages) {
-    include("*.png", "MC/*.png")
-    into("images")
-  }
 }
 
 val webZip by

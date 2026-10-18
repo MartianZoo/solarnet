@@ -26,6 +26,33 @@ internal class CardTrackingTest : TfmTest() {
   }
 
   @Test
+  internal fun aStoredCardCanLeaveAndReturnToTheTrackedHandForPlay() {
+    val (tracking, player) = newTrackedGame("SelfReplicatingRobots")
+    val agent = agents[player]
+    admin.runOperation("Generation")
+    agent.runOperation("SelfReplicatingRobots, 2 MC")
+    tracking.expectArrivals(player, cn("Mine"))
+    agent.runOperation("ProjectCard")
+
+    tracking.expectDepartures(player, cn("Mine"))
+    agent.runOperation("UseCardAction<SelfReplicatingRobots, Action1>") {
+      doTask("StageForReplicatedProject<Class<Mine>>")
+      autoExecNow(EAGER)
+    }
+    tracking.hand(player) shouldBe emptySet()
+    agent.count("RobotUnit<StagedProject<Class<Mine>>>") shouldBe 2
+
+    // The anonymous back temporarily returns when the stored card is played.
+    tracking.expectArrivals(player, cn("Mine"))
+    agent.runOperation("PlayProject<Class<Mine>>") { autoExecNow(EAGER) }
+    tracking.hand(player) shouldBe emptySet()
+    agent.count("Mine") shouldBe 1
+    agent.count("RobotUnit") shouldBe 0
+    agent.count("MC") shouldBe 0
+    tracking.requireComplete()
+  }
+
+  @Test
   internal fun trackedHandsFollowBackwardAndForwardSeeking() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]

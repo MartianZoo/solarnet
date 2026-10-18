@@ -230,10 +230,9 @@ Resolution may leave a genuine Player choice abstract. The task's current assign
 it. If resolution exposes independent instructions, the selected structural Task completes and
 admits ordinary unselected children without transferring its selection to a child.
 
-The combined `doTask` and `tryTask` commands reject an unselected task when selection alone changes
-assignee, including through a concrete `BY`. Such a call would only select and hand off while
-silently discarding its submitted instruction. The caller must use `selectTask`; the receiving
-assignee can then narrow or execute the selected task.
+Engine task execution leaves a handed-off task selected for its receiving Actor. `Agent.doTask`
+runs configured autoexecution and requires that selected task to finish; otherwise it rolls back
+the call. `selectTask` and `narrowTask` can instead leave work pending for the receiving Actor.
 `doTask` can identify a gated task by its body, and a `/` task by its calculated action, without
 repeating the gate or metric in the submitted instruction. The task still checks those conditions.
 When matching a task by its body, a failed gate does not compete with available matches. If no

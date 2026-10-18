@@ -49,7 +49,7 @@ CLASS PlayPrelude<@CardLocation> : Owned<Player>, Signal, System {
 
 "Bills every project card left in this Player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal, System {
-  This IF ProjectCard<Selecting>:: \
+  This IF ProjectCard<Selecting>: \
     3 Owed<> / ProjectCard<Selecting> THEN \
     PayingFor<Class<ProjectCard>> / ProjectCard<Selecting> THEN \
     Billing<Class<This>, Action1>
@@ -85,7 +85,7 @@ CLASS ClaimCardReward<CardFilter, @ResourceCard<Class<@CardResource>, @Player>> 
   This:: @CardResource<@ResourceCard> / ProjectCard<Revealed>, Audit / ProjectCard<Revealed>
 }
 
-CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal {
+CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal, System {
   This IF MAX 0 ActionScope:: ActionScope<Me@>
   This:: AllocateRequiredWildTags<Class<@CardFront>>
   This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR \
@@ -106,6 +106,7 @@ CLASS GpRequirementShortfall<Class<CardFront>, Class<GlobalParameter>> : CustomM
 
 "Emits payment-adjustment events for a project card and each of its printed tags"
 CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal, System {
+  // Finish price adjustments and acceptance before the following Billing sees the debt.
   This:: EACH @Class<Tag> { PayingFor<@Class> / PriceAspectCount<Class<@CardFront>, @Class> }
   This:: PayingFor<Class<@CardFront>> / PriceAspectCount<Class<@CardFront>, Class<@CardFront>>
 }

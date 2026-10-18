@@ -2,21 +2,12 @@
 
 package dev.martianzoo.tfm.web.almanac
 
-import dev.martianzoo.catalog.displayName
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.Remove
-import dev.martianzoo.pets.ast.Instruction.Transmute
-import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.search.CanonQuery
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.text.EnglishCardTextRenderer
-import kotlin.js.JSON
 import kotlin.js.json
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -24,27 +15,16 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLImageElement
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLSelectElement
+import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.events.KeyboardEvent
 
 private const val MAX_SUGGESTIONS = 12
 private const val MAX_EXAMPLES = 10
-private const val CARD_DATABASE_INDEX =
-    "https://raw.githubusercontent.com/hadronikle/" +
-        "Complete-Terraforming-Mars-Card-Database/main/index.html"
-private const val CARD_DATA_PREFIX = "const CARDS = "
+internal const val IMAGE_ROOT = "https://www.martianzoo.dev/images"
+private const val SUBCLASSES = "Subclasses"
 
-private const val GAINS = "Gains"
-private const val REMOVES = "Removes"
-private const val GATES = "Gates"
-private const val REQUIREMENTS = "Requirements"
-private const val OTHER_METRICS = "Other Metrics"
-private const val TRIGGERS = "Triggers"
-private const val OTHER = "Other references"
-private val usageCategories =
-    listOf(GAINS, REMOVES, GATES, REQUIREMENTS, OTHER_METRICS, TRIGGERS, OTHER)
 private val classWord = Regex("[A-Za-z][A-Za-z0-9_]*")
-
-private data class CardImage(val thumbnail: String, val full: String)
 
 private typealias UsageIndex = Map<ClassName, Map<String, Set<ClassName>>>
 
@@ -53,16 +33,58 @@ public fun main() {
   val classes = fullClassTable.allClasses().sortedBy { it.className.toString().lowercase() }
   val classesByName = classes.associateBy { it.className.toString() }
   val classesByLowerName = classes.associateBy { it.className.toString().lowercase() }
-  val usageIndex = buildUsageIndex(classes)
+  val usageIndex = buildUsageIndex(fullClassTable)
   val cardClassNames = Canon.cards.mapTo(hashSetOf(), Class::className)
   val cardTextRenderer = EnglishCardTextRenderer(fullClassTable)
   val input = element("class-search") as HTMLInputElement
+  val queryInput = element("query-input") as HTMLTextAreaElement
+  val queryForm = element("query-tree") as HTMLSelectElement
+  val queries = mutableMapOf<CanonQuery.Form, CanonQuery>()
   val suggestions = element("class-suggestions")
   val columns = element("class-columns") as HTMLElement
-  var cardImages = emptyMap<String, CardImage>()
+  val darkTheme = element("dark-theme") as HTMLInputElement
+  val root = document.documentElement!!
+  darkTheme.checked = root.getAttribute("data-theme") == "dark"
+  darkTheme.addEventListener(
+      "change",
+      {
+        val theme = if (darkTheme.checked) "dark" else "light"
+        root.setAttribute("data-theme", theme)
+        runCatching { window.localStorage.setItem("almanac-theme", theme) }
+      },
+  )
+  val useIcons = element("use-icons") as HTMLInputElement
+  fun updateIcons() {
+    columns.classList.toggle("use-icons", useIcons.checked)
+  }
+  useIcons.addEventListener("change", { updateIcons() })
+  updateIcons()
   var highlightedSuggestion = -1
   var visibleSuggestions = emptyList<Class>()
-  val selectedClasses = mutableListOf(classesByName["TerraformingMars"] ?: classes.first())
+  val selectedColumns =
+      mutableListOf<AlmanacColumn>(
+          AlmanacColumn.Details(
+              classesByName.getValue(
+                  listOf(
+                          "AiCentral",
+                          "ArcticAlgae",
+                          "OptimalAerobraking",
+                          "EnergyMarket",
+                          "EarthOffice",
+                          "RegolithEaters",
+                          "ViralEnhancers",
+                          "Predators",
+                          "ProjectInspection",
+                          "Insulation",
+                          "CommunityServices",
+                          "TharsisRepublic",
+                          "Manutech",
+                      )
+                      .random()
+              )
+          )
+      )
+  val renderedColumns = mutableListOf<AlmanacColumn>()
 
   fun hideSuggestions() {
     suggestions.setAttribute("hidden", "")
@@ -73,67 +95,165 @@ public fun main() {
   }
 
   fun updateHash() {
-    val value = selectedClasses.joinToString(",") { it.className.toString() }
+    val value =
+        selectedColumns.joinToString(",") {
+          when (it) {
+            is AlmanacColumn.Details -> it.klass.className.toString()
+            is AlmanacColumn.Results -> "${it.klass.className}:${it.group.replace(' ', '_')}"
+            AlmanacColumn.Examples -> "examples"
+            is AlmanacColumn.Query -> "query:${it.form.name}:${encodeURIComponent(it.xpath)}"
+          }
+        }
     if (window.location.hash.removePrefix("#") != value) window.location.hash = value
   }
 
-  fun renderColumns(advance: Boolean = false) {
-    input.value = selectedClasses.lastOrNull()?.className?.toString().orEmpty()
-
-    fun appendColumn(index: Int, klass: Class) {
+  fun renderColumns(scrollToLast: Boolean = false) {
+    when (val last = selectedColumns.lastOrNull()) {
+      is AlmanacColumn.Details -> input.value = last.klass.className.toString()
+      is AlmanacColumn.Results -> input.value = last.klass.className.toString()
+      else -> Unit
+    }
+    // Keep the shared prefix, including its scroll positions and sampled examples.
+    val shared = renderedColumns.zip(selectedColumns).takeWhile { (a, b) -> a == b }.size
+    while (renderedColumns.size > shared) {
+      columns.removeChild(columns.lastChild!!)
+      renderedColumns.removeAt(renderedColumns.lastIndex)
+    }
+    selectedColumns.drop(shared).forEachIndexed { offset, selection ->
+      val index = shared + offset
       val column = document.createElement("article") as HTMLElement
       column.className = "class-column"
-      renderColumn(
-          column,
-          klass,
-          fullClassTable,
-          classesByName,
-          usageIndex,
-          cardClassNames,
-          cardImages,
-          cardTextRenderer,
-          openClass = { target ->
-            val replacesLaterColumns = index < selectedClasses.lastIndex
-            if (replacesLaterColumns) {
-              selectedClasses.subList(index + 1, selectedClasses.size).clear()
+      fun open(target: AlmanacColumn) {
+        selectedColumns.subList(index + 1, selectedColumns.size).clear()
+        selectedColumns.add(target)
+        renderColumns(scrollToLast = true)
+        updateHash()
+      }
+      val openClass: (Class) -> Unit = { open(AlmanacColumn.Details(it)) }
+      when (selection) {
+        is AlmanacColumn.Details ->
+            renderColumn(
+                column,
+                selection.klass,
+                fullClassTable,
+                classesByName,
+                usageIndex,
+                cardClassNames,
+                cardTextRenderer,
+                openClass,
+                openResults = { group -> open(AlmanacColumn.Results(selection.klass, group)) },
+            )
+        AlmanacColumn.Examples ->
+            renderQueryExamples(column) { example ->
+              selectedColumns.subList(index + 1, selectedColumns.size).clear()
+              renderColumns()
+              updateHash()
+              queryInput.value = example.xpath
+              queryForm.value = example.form.name
+              queryInput.focus()
             }
-            selectedClasses.add(target)
-            renderColumns(advance = !replacesLaterColumns)
-            if (replacesLaterColumns) {
-              window.requestAnimationFrame {
-                columns
-                    .asDynamic()
-                    .scrollTo(json("left" to columns.scrollWidth, "behavior" to "smooth"))
-              }
-            }
-            updateHash()
-          },
-          dismiss = {
-            selectedClasses.removeAt(index)
+        is AlmanacColumn.Query -> {
+          val query = queries.getOrPut(selection.form) { CanonQuery(selection.form) }
+          renderQueryResults(column, selection, query) { target, text ->
+            renderLinkedText(target, text, classesByName, openClass)
+          }
+        }
+        is AlmanacColumn.Results -> {
+          val names =
+              usageGroups(selection.klass, fullClassTable, usageIndex).getValue(selection.group)
+          column.innerHTML =
+              """
+              <header class="class-heading"><h2></h2></header>
+              <section class="panel"><div class="class-list"></div></section>
+              """
+                  .trimIndent()
+          renderLinkedText(
+              column.querySelector("h2")!!,
+              "${selection.klass.className} — ${selection.group} (${names.size})",
+              classesByName,
+              openClass,
+              icons = false,
+          )
+          renderLinkedText(
+              column.querySelector(".class-list")!!,
+              names.sorted().joinToString("\n") {
+                classLine(classesByName.getValue(it.toString()))
+              },
+              classesByName,
+              openClass,
+          )
+        }
+      }
+      val dismiss = document.createElement("button")
+      dismiss.className = "dismiss-column"
+      dismiss.setAttribute("type", "button")
+      dismiss.setAttribute(
+          "aria-label",
+          "Dismiss ${column.querySelector("h2")?.textContent.orEmpty()}",
+      )
+      dismiss.textContent = "×"
+      dismiss.addEventListener(
+          "click",
+          {
+            selectedColumns.removeAt(index)
             renderColumns()
             updateHash()
           },
       )
+      column.appendChild(dismiss)
       columns.appendChild(column)
+      renderedColumns.add(selection)
     }
-
-    if (advance) {
-      appendColumn(selectedClasses.lastIndex, selectedClasses.last())
-      window.requestAnimationFrame {
-        columns.asDynamic().scrollTo(json("left" to columns.scrollWidth, "behavior" to "smooth"))
-      }
-      return
-    }
-
-    val previousScrollLeft = columns.scrollLeft
-    columns.innerHTML = ""
-    selectedClasses.forEachIndexed(::appendColumn)
-    columns.scrollLeft = previousScrollLeft
+    if (scrollToLast)
+        window.requestAnimationFrame {
+          val behavior =
+              if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) "auto"
+              else "smooth"
+          columns.asDynamic().scrollTo(json("left" to columns.scrollWidth, "behavior" to behavior))
+          window.asDynamic().scrollTo(json("top" to 0, "behavior" to behavior))
+        }
   }
 
+  fun appendColumn(selection: AlmanacColumn) {
+    selectedColumns.add(selection)
+    hideSuggestions()
+    renderColumns(scrollToLast = true)
+    updateHash()
+  }
+
+  element("query-examples")
+      .addEventListener(
+          "click",
+          {
+            appendColumn(AlmanacColumn.Examples)
+          },
+      )
+  element("query-form")
+      .addEventListener(
+          "submit",
+          { event ->
+            event.preventDefault()
+            val xpath = queryInput.value.trim()
+            if (xpath.isNotEmpty()) {
+              val selection = AlmanacColumn.Query(xpath, CanonQuery.Form.valueOf(queryForm.value))
+              val status = element("query-status")
+              status.textContent = "Running…"
+              window.setTimeout(
+                  {
+                    appendColumn(selection)
+                    status.textContent = ""
+                  },
+                  0,
+              )
+            } else {
+              queryInput.focus()
+            }
+          },
+      )
+
   fun chooseFromSearch(klass: Class) {
-    selectedClasses.clear()
-    selectedClasses.add(klass)
+    selectedColumns.clear()
+    selectedColumns.add(AlmanacColumn.Details(klass))
     hideSuggestions()
     renderColumns()
     updateHash()
@@ -234,23 +354,42 @@ public fun main() {
 
   fun selectFromHash() {
     val names = window.location.hash.removePrefix("#").split(',').filter(String::isNotEmpty)
-    val nextClasses = names.mapNotNull(classesByName::get)
-    if (nextClasses.isNotEmpty() && nextClasses != selectedClasses) {
-      selectedClasses.clear()
-      selectedClasses.addAll(nextClasses)
+    val nextColumns = names.mapNotNull { name ->
+      if (name == "examples") return@mapNotNull AlmanacColumn.Examples
+      if (name.startsWith("query:")) {
+        val parts = name.split(':', limit = 3)
+        return@mapNotNull try {
+          AlmanacColumn.Query(decodeURIComponent(parts[2]), CanonQuery.Form.valueOf(parts[1]))
+        } catch (_: Throwable) {
+          null
+        }
+      }
+      val parts = name.split(':', limit = 2)
+      val klass = classesByName[parts.first()] ?: return@mapNotNull null
+      val group = parts.getOrNull(1)?.replace('_', ' ')
+      when {
+        group == null -> AlmanacColumn.Details(klass)
+        group == SUBCLASSES || group in usageCategories.map { "Usages: $it" } ->
+            AlmanacColumn.Results(klass, group)
+        else -> null
+      }
+    }
+    if (nextColumns != selectedColumns) {
+      selectedColumns.clear()
+      selectedColumns.addAll(nextColumns)
+      nextColumns.filterIsInstance<AlmanacColumn.Query>().lastOrNull()?.let {
+        queryInput.value = it.xpath
+        queryForm.value = it.form.name
+      }
       renderColumns()
     }
   }
   window.addEventListener("hashchange", { selectFromHash() })
 
   element("class-count").textContent = "${classes.size} classes"
-  selectFromHash()
+  if (window.location.hash.isNotEmpty()) selectFromHash()
   renderColumns()
   updateHash()
-  loadCardImages { loaded ->
-    cardImages = loaded
-    renderColumns()
-  }
 }
 
 private fun renderColumn(
@@ -260,20 +399,18 @@ private fun renderColumn(
     classesByName: Map<String, Class>,
     usageIndex: UsageIndex,
     cardClassNames: Set<ClassName>,
-    cardImages: Map<String, CardImage>,
     cardTextRenderer: EnglishCardTextRenderer,
     openClass: (Class) -> Unit,
-    dismiss: () -> Unit,
+    openResults: (String) -> Unit,
 ) {
   column.innerHTML =
       """
-      <button class="dismiss-column" type="button" aria-label="Dismiss ${klass.className}">×</button>
-      <div class="image-box" data-field="image-box">
-        <img data-field="image" hidden>
-      </div>
       <header class="class-heading">
         <h2 data-field="name"></h2>
       </header>
+      <div class="image-box" data-field="image-box" hidden>
+        <img data-field="image" hidden>
+      </div>
       <section class="panel english-text-panel" data-field="top-text-panel" hidden>
         <h3>Top text</h3>
         <div data-field="top-text"></div>
@@ -306,9 +443,14 @@ private fun renderColumn(
       """
           .trimIndent()
 
-  column.querySelector(".dismiss-column")?.addEventListener("click", { dismiss() })
   fun linked(field: String, value: String) {
-    renderLinkedText(column.field(field), value, classesByName, openClass)
+    renderLinkedText(
+        column.field(field),
+        value,
+        classesByName,
+        openClass,
+        icons = field != "name" && field != "docstring",
+    )
   }
 
   linked("name", klass.className.toString())
@@ -321,10 +463,12 @@ private fun renderColumn(
   }
   linked("source", klass.declaration.copy(docstring = null).toString())
   val supertypes =
-      klass.allSuperclasses().map {
-        it.withAllDependencies(klass.defaultType.dependencies).expressionFull
-      }
-  column.field("supertypes-heading").textContent = "Supertypes (${supertypes.size})"
+      listOfNotNull(
+          principalSuperclass(klass)
+              ?.withAllDependencies(klass.defaultType.dependencies)
+              ?.expressionFull
+      )
+  column.field("supertypes-heading").textContent = "Supertype"
   renderOptionalList(
       column,
       "supertypes",
@@ -359,8 +503,9 @@ private fun renderColumn(
       usageIndex,
       classesByName,
       openClass,
+      openResults,
   )
-  renderImage(column, klass, cardClassNames, cardImages)
+  renderImage(column, klass, cardClassNames)
 }
 
 internal fun renderCardText(
@@ -371,8 +516,25 @@ internal fun renderCardText(
   val cardText = renderer.render(card)
   column.field("top-text").textContent = cardText.top
   column.field("bottom-text").textContent = cardText.bottom
-  column.field("top-text-panel").removeAttribute("hidden")
-  column.field("bottom-text-panel").removeAttribute("hidden")
+  (column.field("top-text-panel") as HTMLElement).hidden = cardText.top.isBlank()
+  (column.field("bottom-text-panel") as HTMLElement).hidden = cardText.bottom.isBlank()
+}
+
+private fun usageGroups(
+    klass: Class,
+    classTable: ClassTable,
+    usageIndex: UsageIndex,
+): Map<String, Set<ClassName>> {
+  val subclasses =
+      classTable
+          .allSubclasses(klass)
+          .sortedWith(compareBy({ -classTable.allSubclasses(it).size }, { it.className }))
+          .mapTo(linkedSetOf(), Class::className) - klass.className
+  return (listOf(SUBCLASSES to subclasses) +
+          usageCategories.map { category ->
+            "Usages: $category" to usageIndex[klass.className]?.get(category).orEmpty()
+          })
+      .toMap()
 }
 
 private fun renderUsages(
@@ -382,19 +544,10 @@ private fun renderUsages(
     usageIndex: UsageIndex,
     classesByName: Map<String, Class>,
     openClass: (Class) -> Unit,
+    openResults: (String) -> Unit,
 ) {
   container.innerHTML = ""
-  val subclasses =
-      classTable
-          .allSubclasses(klass)
-          .sortedWith(compareBy({ -classTable.allSubclasses(it).size }, { it.className }))
-          .mapTo(linkedSetOf(), Class::className) - klass.className
-  val groups =
-      listOf("Subclasses" to subclasses) +
-          usageCategories.map { category ->
-            "Usages: $category" to usageIndex[klass.className]?.get(category).orEmpty()
-          }
-  groups.forEach { (label, names) ->
+  usageGroups(klass, classTable, usageIndex).forEach { (label, names) ->
     if (names.isEmpty()) return@forEach
     val panel = document.createElement("section")
     panel.className = "panel usage-panel"
@@ -413,7 +566,13 @@ private fun renderUsages(
     if (remaining > 0) {
       val more = document.createElement("div")
       more.className = "more-count"
-      more.textContent = "($remaining more)"
+      more.appendChild(document.createTextNode("$remaining more "))
+      val seeAll = document.createElement("button")
+      seeAll.className = "class-link see-all"
+      seeAll.setAttribute("type", "button")
+      seeAll.textContent = "(see all)"
+      seeAll.addEventListener("click", { openResults(label) })
+      more.appendChild(seeAll)
       contents.appendChild(more)
     }
     panel.appendChild(heading)
@@ -426,26 +585,16 @@ private fun renderImage(
     column: Element,
     klass: Class,
     cardClassNames: Set<ClassName>,
-    cardImages: Map<String, CardImage>,
 ) {
   val image = column.field("image") as HTMLImageElement
-  val cardImage =
-      if (klass.className in cardClassNames) {
-        cardImages[normalizeName(displayName(Canon, klass.className))]
-      } else {
-        null
-      }
   val sources = buildList {
-    cardImage?.let {
-      add(it.full)
-      add(it.thumbnail)
-    }
-    add("/almanac/images/${klass.className}.png")
+    if (klass.className in cardClassNames) add("$IMAGE_ROOT/classes-pubtext/${klass.className}.png")
+    add("$IMAGE_ROOT/classes/${klass.className}.png")
     klass.className
         .toString()
         .takeIf { it.endsWith("Map") }
         ?.removeSuffix("Map")
-        ?.let { add("/almanac/images/$it.png") }
+        ?.let { add("$IMAGE_ROOT/classes/$it.png") }
   }
   var sourceIndex = 0
 
@@ -454,6 +603,7 @@ private fun renderImage(
       "load",
       {
         image.removeAttribute("hidden")
+        column.field("image-box").removeAttribute("hidden")
       },
   )
   image.addEventListener(
@@ -475,6 +625,7 @@ private fun renderLinkedText(
     value: String,
     classesByName: Map<String, Class>,
     openClass: (Class) -> Unit,
+    icons: Boolean = true,
 ) {
   container.innerHTML = ""
   var offset = 0
@@ -490,6 +641,7 @@ private fun renderLinkedText(
       button.className = "class-link"
       button.setAttribute("type", "button")
       button.textContent = match.value
+      if (icons) appendClassIcon(button, klass)
       button.addEventListener("click", { openClass(klass) })
       container.appendChild(button)
     }
@@ -498,97 +650,12 @@ private fun renderLinkedText(
   if (offset < value.length) container.appendChild(document.createTextNode(value.substring(offset)))
 }
 
-private fun buildUsageIndex(classes: List<Class>): UsageIndex {
-  val index = mutableMapOf<ClassName, MutableMap<String, MutableSet<ClassName>>>()
-  classes.forEach { user ->
-    val declaration = user.declaration
-    val roots = declaration.allNodes - declaration.className - declaration.supertypes
-    roots.forEach { root ->
-      collectUsages(root, emptySet()) { target, category ->
-        index.getOrPut(target, ::linkedMapOf).getOrPut(category, ::linkedSetOf).add(user.className)
-      }
-    }
-  }
-  return index.mapValues { (_, categories) ->
-    categories.mapValues { (_, users) -> users.toSet() }
-  }
-}
-
-private fun collectUsages(
-    node: PetNode,
-    inheritedCategories: Set<String>,
-    record: (ClassName, String) -> Unit,
-) {
-  when (node) {
-    is Gated -> {
-      collectUsages(node.gate, inheritedCategories + GATES, record)
-      collectUsages(node.inner, inheritedCategories, record)
-      return
-    }
-    is Transmute -> {
-      collectUsages(node.gaining, inheritedCategories + GAINS, record)
-      collectUsages(node.removing, inheritedCategories + REMOVES, record)
-      return
-    }
-    is Requirement -> {
-      node.childNodes().forEach { child ->
-        collectUsages(child, inheritedCategories + REQUIREMENTS, record)
-      }
-      return
-    }
-    else -> Unit
-  }
-  val category =
-      when (node) {
-        is Gain -> GAINS
-        is Remove -> REMOVES
-        is Metric -> if (REQUIREMENTS in inheritedCategories) null else OTHER_METRICS
-        is Effect.Trigger -> TRIGGERS
-        else -> null
-      }
-  val categories = if (category == null) inheritedCategories else inheritedCategories + category
-  if (node is ClassName) {
-    (categories.ifEmpty { setOf(OTHER) }).forEach { record(node, it) }
-  }
-  node.childNodes().forEach { child -> collectUsages(child, categories, record) }
-}
-
-private fun loadCardImages(onLoaded: (Map<String, CardImage>) -> Unit) {
-  window
-      .fetch(CARD_DATABASE_INDEX)
-      .then { response ->
-        if (!response.ok) error("HTTP ${response.status}")
-        response.text()
-      }
-      .then { source ->
-        val json = source.substringAfter(CARD_DATA_PREFIX).substringBefore("];", "") + "]"
-        check(json.length > 2) { "card database did not contain its card catalog" }
-        val records = JSON.parse<Array<dynamic>>(json)
-        onLoaded(
-            buildMap {
-              records.forEach { record ->
-                val name = normalizeName(record.name as String)
-                if (name !in this) {
-                  put(name, CardImage(record.thumb as String, record.img as String))
-                }
-              }
-            }
-        )
-      }
-      .catch { onLoaded(emptyMap()) }
-}
-
-private fun normalizeName(value: String): String = value.lowercase().filter(Char::isLetterOrDigit)
-
 private fun randomExamples(names: Set<ClassName>): List<ClassName> =
     if (names.size <= MAX_EXAMPLES) names.sorted() else names.shuffled().take(MAX_EXAMPLES).sorted()
 
 private fun classLine(klass: Class): String {
-  val superclasses = klass.declaration.supertypes.map { it.className }.sorted()
-  return buildString {
-    append(klass.className)
-    if (superclasses.isNotEmpty()) superclasses.joinTo(this, ", ", " (", ")")
-  }
+  val superclass = principalSuperclass(klass)
+  return "${klass.className}" + if (superclass == null) "" else " (${superclass.className})"
 }
 
 private fun renderOptionalList(
@@ -611,3 +678,7 @@ private fun Element.field(name: String): Element =
     checkNotNull(querySelector("[data-field='$name']"))
 
 private fun element(id: String): Element = checkNotNull(document.getElementById(id))
+
+private external fun encodeURIComponent(value: String): String
+
+private external fun decodeURIComponent(value: String): String

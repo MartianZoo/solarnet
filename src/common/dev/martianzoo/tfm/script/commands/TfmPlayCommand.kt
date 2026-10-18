@@ -41,7 +41,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
           val previousPolicy = repl.agent.autoExecPolicy
           try {
             if (payment.isNotEmpty()) repl.agent.autoExecPolicy = NONE
-            TaskCommand(repl).withArgs(instruction)
+            repl.agent.doTask(instruction)
             if (payment.isNotEmpty()) TfmPayCommand(repl).withArgs(payment)
           } finally {
             repl.agent.autoExecPolicy = previousPolicy

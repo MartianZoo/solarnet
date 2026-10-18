@@ -48,8 +48,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   `Accepting` now skips alternative standard-resource offers when the payer has none; it does not
   consider possible substitutes such as Stormcraft floaters for heat.
 - Verify as a Canon invariant which tasks can interleave with card play, including gaining MC
-  production and other actual exceptions. Head Start's selected variant now resolves its initial
-  work before granting sequential actions; do not retain its former interleaving as a requirement.
+  production and other actual exceptions. Fake Head Start currently allows interleaving as a
+  known approximation, not a requirement.
 - Consider renaming automatic (`::`) effects to “immediate.”
 - Replace the archived *Life of an Effect* walkthrough with a current account of lexical `Me`
   and the transformation pipeline.
@@ -58,16 +58,21 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Decide whether Agent submissions must use concrete amounts instead of arithmetic over `Owed`.
 - Give beginner and standard players the same ten-card `Selecting` offer; beginners keep it free,
   while standard players discard and buy their choices.
-- Move Fake Self-Replicating Robots' paired defect scenarios from `SelfReplicatingRobotsTest`
-  into `tfm-fake`, reusing existing test support.
 - Clarify Astra Mechanica's zero/one/two eligible-event behavior and reconcile its modeled return
   with printed and derived English.
 - Separate task selection from execution when automatic execution is disabled.
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
 - actually plan out how exMachina should work
-- Audit remaining non-payment `::` effects; retain
-  immediate execution only where a concrete gameplay need justifies it.
+- Replace ordering-only `::` protocols in pricing/acceptance, wild-tag preparation, and
+  Turmoil/Politician influence measurement. Decompose government formation before judging its
+  individual invariant repairs; `THEN` on a signal does not wait for its triggered work.
+- Remove bootstrap/client-shape reasons for `::`: default offer counts before signed adjustments,
+  inferred construction order, and bundled card-search/reward/Audit work. Preserve meaningful
+  correction relationships and avoid adding client steps.
+- Revisit queued requirement adjustments without adding a player step: `Required` is System, but
+  `-2 Required<Class<GlobalParameter>>` remains abstract until selection. Inventrix, Adaptation
+  Technology, and Special Design therefore still use immediate live narrowing.
 
 - Revisit ownership of `Selecting`, `Hand`, and played events together, including per-player
   cleanup of shared `Selecting` while other players' starting offers remain there.

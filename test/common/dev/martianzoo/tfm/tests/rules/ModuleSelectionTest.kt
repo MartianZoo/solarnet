@@ -343,9 +343,13 @@ internal class ModuleSelectionTest {
     safe.isInhabited(cn("PreservationProgram")) shouldBe false
 
     rejects("prelude2:cards, PreservationProgram")
+    val explicitPreservation = classTable("prelude2:cards, PreservationProgram, -TerraformingDeal")
+    explicitPreservation.isInhabited(cn("PreservationProgram")) shouldBe true
+    explicitPreservation.isInhabited(cn("TerraformingDeal")) shouldBe false
+    rejects("prelude2:cards, PreservationProgram, TerraformingDeal")
     rejects("TurmoilExpansion, PreservationProgram")
-    classTable("prelude2:cards, PreservationProgram, -TerraformingDeal")
-        .isInhabited(cn("PreservationProgram")) shouldBe true
+    classTable("prelude2:cards, -TerraformingDeal").isInhabited(cn("PreservationProgram")) shouldBe
+        true
     classTable("prelude2:cards, TurmoilExpansion, Unsafe")
         .isInhabited(cn("PreservationProgram")) shouldBe true
   }
@@ -356,7 +360,9 @@ internal class ModuleSelectionTest {
     normal.isInhabited(cn("Merger")) shouldBe true
     normal.isInhabited(cn("SagittaFrontierServices")) shouldBe false
 
-    val explicitSagitta = classTable("promos:cards, prelude2:cards, SagittaFrontierServices")
+    rejects("promos:cards, prelude2:cards, SagittaFrontierServices")
+    val explicitSagitta =
+        classTable("promos:cards, prelude2:cards, SagittaFrontierServices, -Merger")
     explicitSagitta.isInhabited(cn("SagittaFrontierServices")) shouldBe true
     explicitSagitta.isInhabited(cn("Merger")) shouldBe false
 
@@ -380,8 +386,11 @@ internal class ModuleSelectionTest {
     normal.isInhabited(cn("FocusedOrganization")) shouldBe true
     normal.isInhabited(cn("StormcraftIncorporated")) shouldBe false
 
+    rejects("ColoniesExpansion, Callisto, prelude2:cards, StormcraftIncorporated")
     val explicitStormcraft =
-        classTable("ColoniesExpansion, Callisto, prelude2:cards, StormcraftIncorporated")
+        classTable(
+            "ColoniesExpansion, Callisto, prelude2:cards, StormcraftIncorporated, -FocusedOrganization"
+        )
     explicitStormcraft.isInhabited(cn("StormcraftIncorporated")) shouldBe true
     explicitStormcraft.isInhabited(cn("FocusedOrganization")) shouldBe false
 
@@ -430,12 +439,21 @@ internal class ModuleSelectionTest {
   }
 
   @Test
-  internal fun `Ecology Experts is usable when all four listeners are absent`() {
-    classTable(
+  internal fun `explicit Ecology Experts conflicts with automatic listeners`() {
+    rejects("prelude:cards, TurmoilExpansion, EcologyExperts")
+  }
+
+  @Test
+  internal fun `Ecology Experts is usable when all four listeners are excluded`() {
+    val table =
+        classTable(
             "prelude:cards, TurmoilExpansion, EcologyExperts, -ViralEnhancers, -EcologicalZone, " +
                 "-Decomposers, -GmoContract"
         )
-        .isInhabited(cn("EcologyExperts")) shouldBe true
+    table.isInhabited(cn("EcologyExperts")) shouldBe true
+    listOf("ViralEnhancers", "EcologicalZone", "Decomposers", "GmoContract").forEach {
+      table.isInhabited(cn(it)) shouldBe false
+    }
   }
 
   @Test
@@ -450,10 +468,37 @@ internal class ModuleSelectionTest {
     val ordinary = premise("prelude2:cards", players = 2)
     val altered =
         ordinary.copy(
-            classSelections = ordinary.classSelections + ClassSelection(cn("PreservationProgram"))
+            classSelections =
+                ordinary.classSelections
+                    .filterNot { it.className == cn("PreservationProgram") }
+                    .toSet() + ClassSelection(cn("PreservationProgram"))
         )
 
     shouldThrow<InvalidGameConfigException> { TfmEngine.newGame(altered) }
+  }
+
+  @Test
+  internal fun `Robots belongs to the normal promo pool`() {
+    classTable("promos:cards").isInhabited(cn("SelfReplicatingRobots")) shouldBe true
+  }
+
+  @Test
+  internal fun `Robots coexists with all six resource additions without Unsafe`() {
+    val compatible =
+        classTable(
+            "SelfReplicatingRobots, CeosFavoriteProject, CorroderSuits, MaxwellBase, " +
+                "AppliedScience, L1TradeTerminal, TurmoilExpansion, VenusNextExpansion, ColoniesExpansion, Callisto"
+        )
+    listOf(
+            "SelfReplicatingRobots",
+            "CeosFavoriteProject",
+            "CorroderSuits",
+            "MaxwellBase",
+            "AppliedScience",
+            "L1TradeTerminal",
+            "ScienceSummit",
+        )
+        .forEach { compatible.isInhabited(cn(it)) shouldBe true }
   }
 
   @Test

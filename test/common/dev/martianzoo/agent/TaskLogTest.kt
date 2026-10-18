@@ -6,6 +6,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
@@ -298,6 +299,36 @@ internal class TaskLogTest {
   }
 
   @Test
+  internal fun completedHandoffsReplayAsChoicesFollowedByTheirAdminExecution() {
+    val premise = testGamePremise("CLASS Token : System\nCLASS Coin")
+    fun newAgents(): Agents =
+        Agents(Engine.newGame(premise)).also {
+          it[PLAYER1].autoExecPolicy = NONE
+          it[PLAYER1].addTasks("X Token, Token?, Coin BY Admin")
+        }
+    val source = newAgents()
+    start(source)
+    val player = source[PLAYER1]
+    player.doTask("3 Token")
+    player.doTasks("Token")
+    player.doTask(player.tasks.ids().single())
+
+    val imported = newAgents()
+    replay(source, imported)
+
+    imported[PLAYER1].count("Token") shouldBe 4
+    imported[PLAYER1].count("Coin") shouldBe 1
+    imported[ADMIN].autoExecPolicy shouldBe NONE
+    imported.world.tasks.isEmpty() shouldBe true
+    imported.world.events.entriesSinceSetup().filterIsInstance<ChangeEvent>().map {
+      it.change to it.actor
+    } shouldBe
+        source.world.events.entriesSinceSetup().filterIsInstance<ChangeEvent>().map {
+          it.change to it.actor
+        }
+  }
+
+  @Test
   internal fun adminWaitsForTheNextRecordedPlayerTask() {
     val premise = testGamePremise("CLASS Coin\nCLASS Token\nCLASS Reward : System")
     fun newAgents(): Agents =
@@ -379,7 +410,7 @@ internal class TaskLogTest {
   }
 
   @Test
-  internal fun idOnlyTaskCommandCanHandWorkToAnotherActor() {
+  internal fun idOnlyTaskCommandRollsBackAnUnfinishedHandoff() {
     val premise = testGamePremise("CLASS Coin")
     fun newAgents(): Agents =
         Agents(Engine.newGame(premise)).also {
@@ -389,13 +420,16 @@ internal class TaskLogTest {
         }
     val source = newAgents()
     start(source)
-    source[PLAYER1].doTask(source[PLAYER1].tasks.ids().single())
+    shouldThrow<TaskException> {
+      source[PLAYER1].doTask(source[PLAYER1].tasks.ids().single())
+    }
+    source.world.tasks.selectedTask() shouldBe null
+    source[PLAYER1].count("Coin") shouldBe 0
 
     val imported = newAgents()
     replay(source, imported)
 
-    source.taskLog.inputs().last().let { it as RecordedInput.Command }.kind shouldBe
-        RecordedInput.Kind.DO_TASK_ID
+    source.taskLog.inputs() shouldBe listOf(RecordedInput.StartGame)
     imported.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
   }
 

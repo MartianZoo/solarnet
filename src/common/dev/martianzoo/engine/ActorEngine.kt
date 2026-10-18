@@ -11,7 +11,6 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
-import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Deferral.FINALLY
@@ -598,10 +597,11 @@ internal constructor(
   /**
    * With [combineScalars], a submitted scalar total executes all pending concrete gains and
    * removals of its type when their signed sum matches. Newly caused tasks do not join the total.
-   * Gains precede removals. Otherwise, executes a single matching task. A Player's submitted
-   * narrowing cannot perform a `System` change assigned to Admin; use [narrowTask] for that choice.
-   * A submitted action may omit an enclosing gate or `/` metric; the matched task still checks its
-   * gate and calculated amount against the live World.
+   * Gains precede removals. Otherwise, executes a single matching task. If selection or narrowing
+   * hands the task to another Actor, leaves it selected for that Actor. The Agent layer settles
+   * configured policy and checks that a submitted task actually finishes. A submitted action may
+   * omit an enclosing gate or `/` metric; the matched task still checks its gate and calculated
+   * amount against the live World.
    */
   public fun doTask(
       narrowing: InstructionTree,
@@ -627,11 +627,6 @@ internal constructor(
     }
     val tasksBefore = tasks.ids()
     val task = tasks.getTaskData(id)
-    if (!task.selected && selectionHandsOff(tasks, task)) {
-      throw TaskException(
-          "`$actor` cannot do task $id because selection hands it to another Actor; use selectTask"
-      )
-    }
     val intersection = intersectTask(evaluated, task.instruction, quantifierOmitted)
     if (intersection != null) {
       enforceSelectLock(id)
@@ -645,20 +640,6 @@ internal constructor(
           intersectTask(evaluated, instruction, quantifierOmitted) ?: evaluated,
           quantifierOmitted,
       )
-    }
-    if (id in allTasks) {
-      val narrowedTask = allTasks.getTaskData(id)
-      val change = narrowedTask.instruction as? Change
-      val affected = change?.gaining ?: change?.removing
-      if (
-          narrowedTask.assignee != actor &&
-              affected != null &&
-              reader.resolve(affected).rootClass.isSubtypeOf(reader.classTable.getClass(SYSTEM))
-      ) {
-        throw TaskException(
-            "`$actor` cannot do System task $id; commit the choice with narrowTask instead"
-        )
-      }
     }
     if (id !in tasks) {
       if (executeSubmittedGroup) {

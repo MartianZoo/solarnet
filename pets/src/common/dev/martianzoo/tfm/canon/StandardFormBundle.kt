@@ -13,10 +13,11 @@ import dev.martianzoo.tfm.carddata.CardData
  * Every `.pets` resource supplies declarations. Generated `cards.pets` and handwritten
  * `*.cards.pets` fragments additionally identify the bundle's card declarations, while bundle
  * language files and compact map diagrams supply category-specific metadata. Card replacement
- * metadata comes from the corresponding authored card JSON. A bundle identity is raw source
- * provenance, not a Pets class, so no declaration is required or synthesized for it. Canon supplies
- * [primaryModuleName] from its bundle manifest. Callers whose resources are not in Canon's
- * generated registry can provide [resourceFilenames] and [resourceReader] directly.
+ * metadata and pairwise configuration incompatibilities come from the corresponding authored card
+ * JSON. Incompatibilities remain catalog data and are not generated into Pets. A bundle identity is
+ * raw source provenance, not a Pets class, so no declaration is required or synthesized for it.
+ * Canon supplies [primaryModuleName] from its bundle manifest. Callers whose resources are not in
+ * Canon's generated registry can provide [resourceFilenames] and [resourceReader] directly.
  *
  * @param name bundle identity and the default resource-directory suffix.
  * @param primaryModuleName Module governing this bundle's default Content and support availability.
@@ -84,6 +85,13 @@ public constructor(
           .flatMapTo(linkedSetOf()) { resourceSet ->
             JsonReader.readExcludedDefaultCards(read(resourceSet, DEFAULT_EXCLUSIONS_FILENAME))
           }
+
+  override val incompatible: Map<ClassName, Set<ClassName>> =
+      if (name in CardData.bundleNames) {
+        CardData.definitions(name)
+            .filter { it.incompatible.isNotEmpty() }
+            .associate { card -> cn(card.name) to card.incompatible.mapTo(linkedSetOf(), ::cn) }
+      } else emptyMap()
 
   override val explicitClassDeclarations: Set<ClassDeclaration> =
       petDeclarationsByResource.values

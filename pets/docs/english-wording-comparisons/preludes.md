@@ -1322,7 +1322,7 @@ CLASS AppliedScience : ResourceCard<Class<Science>, Class<PreludeCard>>, ActionC
   HAS MAX 1 AppliedScience, =1 WildTag<This>
   cost = 0
   This: 6 Science<This>
-  Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
+  Science<This> -> CardResource<ResourceHolder(HAS CardResource)> OR StandardResource
 }
 ```
 
