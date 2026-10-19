@@ -42,16 +42,18 @@ internal fun GlobalDashboard() {
       Stat("PHASE") {
         val phase = global.phase
         val name = phase?.let { "${it}Phase" }
-        val image = name?.let { rememberGameImage("classes/30px/$it.png") }
+        val image = name?.let { rememberClassIcon(it) }
         if (image == null) Value(phase ?: "—")
         else {
           Tooltip("$phase phase") {
             Image(
                 image,
                 name,
-                Modifier.height(20.dp).width(20.dp * image.width / image.height).clickable {
-                  openClass(checkNotNull(name))
-                },
+                Modifier.height(20.dp)
+                    .width(20.dp * image.intrinsicSize.width / image.intrinsicSize.height)
+                    .clickable {
+                      openClass(checkNotNull(name))
+                    },
             )
           }
         }
@@ -60,10 +62,10 @@ internal fun GlobalDashboard() {
         if (global.playerOnTurn == null) Value("—") else ActorSquare(global.playerOnTurn, 14.dp)
       }
       Stat("FIRST") { ActorSquare(global.startingPlayer, 14.dp) }
-      Stat("TEMP") { Value("${-30 + 2 * global.temperatureSteps} °C") }
-      Stat("OXYGEN") { Value("${global.oxygenSteps} %") }
-      Stat("OCEANS") { Value("${global.oceans}") }
-      Stat("VENUS") { Value("${2 * global.venusSteps} %") }
+      Stat("TEMP", "TemperatureStep") { Value("${-30 + 2 * global.temperatureSteps} °C") }
+      Stat("OXYGEN", "OxygenStep") { Value("${global.oxygenSteps} %") }
+      Stat("OCEANS", "OceanTile") { Value("${global.oceans}") }
+      Stat("VENUS", "VenusStep") { Value("${2 * global.venusSteps} %") }
       Stat("RULING") { Value(global.ruling ?: "—") }
       Stat("CHAIR") { ActorSquare(global.chairman, 14.dp) }
     }
@@ -71,9 +73,12 @@ internal fun GlobalDashboard() {
 }
 
 @Composable
-private fun Stat(label: String, value: @Composable () -> Unit) {
+private fun Stat(label: String, choice: String? = null, value: @Composable () -> Unit) {
   val palette = LocalPalette.current
-  Column(horizontalAlignment = Alignment.CenterHorizontally) {
+  Column(
+      choice?.let { choiceModifier(listOf(it, "Class<$it>")) } ?: Modifier,
+      horizontalAlignment = Alignment.CenterHorizontally,
+  ) {
     Text(label, style = palette.label)
     Spacer(Modifier.height(3.dp))
     value()
@@ -153,6 +158,7 @@ private val RESOURCES = listOf("MC", "Steel", "Titanium", "Plant", "Energy", "He
 @Composable
 internal fun PlayerDashboard(player: Specimen.PlayerState) {
   val palette = LocalPalette.current
+  val openClass = LocalOpenClass.current
   Surface {
     Row(
         Modifier.fillMaxSize().padding(horizontal = palette.spacing * 1.4f),
@@ -172,13 +178,18 @@ internal fun PlayerDashboard(player: Specimen.PlayerState) {
             Modifier.padding(horizontal = palette.spacing * 0.8f),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-          Row(verticalAlignment = Alignment.CenterVertically) {
-            GameIcon(resource, 26.dp)
+          Row(
+              choiceModifier(listOf(resource, "Class<$resource>", "$resource<${player.name}>")) {
+                openClass(resource)
+              },
+              verticalAlignment = Alignment.CenterVertically,
+          ) {
+            GameIcon(resource, 26.dp, interactive = false)
             Spacer(Modifier.width(6.dp))
             Text("$stock", style = palette.body.copy(fontSize = palette.body.fontSize * 1.35f))
           }
           Spacer(Modifier.height(4.dp))
-          ProductionBadge(production)
+          ProductionBadge(production, resource, player.name)
         }
       }
       Rule()

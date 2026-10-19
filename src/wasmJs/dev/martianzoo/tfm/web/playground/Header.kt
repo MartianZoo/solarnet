@@ -57,6 +57,12 @@ internal fun TitleBar(recording: RecordingStore? = null) {
     Spacer(Modifier.width(palette.spacing * 2.4f))
     val live = recording?.playing == true
     ModeBadge(if (live && !recording.historyMode) "PLAY" else "HISTORY")
+    if (live) {
+      recording.seed?.let { seed ->
+        Spacer(Modifier.width(palette.spacing * 1.2f))
+        Text("seed ${formatPlaySeed(seed)}", style = palette.mono.copy(color = palette.dimText))
+      }
+    }
     if (live && recording.historyMode) {
       Spacer(Modifier.width(palette.spacing * 2.4f))
       OutlinedAction("RESUME PLAY", palette.accent, recording::resumePlay)

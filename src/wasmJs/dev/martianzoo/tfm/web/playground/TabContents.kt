@@ -147,7 +147,7 @@ internal fun MarsTab() {
                       top + side * ((centerY - 23f * mapScale) / 1000f),
                   )
                   .size(iconSize)
-          val image = bonus.image?.let { rememberGameImage("classes/30px/$it.png") }
+          val image = bonus.image?.let { rememberClassIcon(it) }
           if (image != null) {
             Image(image, bonus.image, position, contentScale = ContentScale.Fit)
           } else if (bonus.label != null) {
@@ -185,6 +185,24 @@ internal fun MarsTab() {
         )
       }
     }
+    for (area in areas) {
+      val size = side * (0.105f * mapScale)
+      Box(
+          choiceModifier(
+              listOfNotNull(
+                  area.name.takeIf(String::isNotEmpty),
+                  "Class<${area.name}>".takeIf { area.name.isNotEmpty() },
+                  area.kind,
+                  area.tile,
+              ),
+              Modifier.offset(
+                      left + side * (centerX(area) / 1000f) - size / 2,
+                      top + side * (centerY(area) / 1000f) - size / 2,
+                  )
+                  .size(size),
+          )
+      )
+    }
   }
 }
 
@@ -211,7 +229,7 @@ internal fun PlayersTab() {
       ComparisonRow(resource, resource) {
         for (p in specimen.players) {
           val (stock, production) = p.resources.getValue(resource)
-          ComparisonValue(stock, production)
+          ComparisonValue(stock, production, resource, p.name)
         }
       }
     }
@@ -252,28 +270,50 @@ private fun ComparisonRow(
 }
 
 @Composable
-private fun RowScope.ComparisonValue(value: Int, production: Int? = null) {
+private fun RowScope.ComparisonValue(
+    value: Int,
+    production: Int? = null,
+    resource: String? = null,
+    player: String? = null,
+) {
   val palette = LocalPalette.current
   Row(
       Modifier.weight(1f),
       horizontalArrangement = Arrangement.Center,
       verticalAlignment = Alignment.CenterVertically,
   ) {
-    Text("$value", style = palette.body)
+    Text(
+        "$value",
+        if (resource != null && player != null)
+            choiceModifier(listOf(resource, "Class<$resource>", "$resource<$player>"))
+        else Modifier,
+        style = palette.body,
+    )
     if (production != null) {
       Spacer(Modifier.width(6.dp))
-      ProductionBadge(production)
+      ProductionBadge(production, resource, player)
     }
   }
 }
 
 /** Production as the board shows it: a small boxed, signed number. */
 @Composable
-internal fun ProductionBadge(production: Int) {
+internal fun ProductionBadge(production: Int, resource: String? = null, player: String? = null) {
   val palette = LocalPalette.current
+  val choices =
+      if (resource == null) emptyList()
+      else
+          listOfNotNull(
+              resource,
+              "Class<$resource>",
+              player?.let { "Production<$it, $resource>" },
+              player?.let { "Production<$it, Class<$resource>>" },
+              "Production<$resource>",
+          )
   Text(
       if (production < 0) "−${-production}" else "+$production",
-      Modifier.border(
+      choiceModifier(choices, Modifier)
+          .border(
               palette.borderWidth,
               palette.mars.copy(alpha = 0.7f),
               RoundedCornerShape(3.dp),
@@ -322,16 +362,28 @@ internal fun GoalsTab() {
 private fun RowScope.GoalTile(name: String, marker: @Composable () -> Unit) {
   val palette = LocalPalette.current
   Column(
-      Modifier.weight(1f)
-          .height(96.dp)
-          .clip(RoundedCornerShape(palette.cornerRadius))
-          .background(palette.raised)
-          .border(palette.borderWidth, palette.line, RoundedCornerShape(palette.cornerRadius))
+      choiceModifier(
+              listOf(name, "Class<$name>"),
+              Modifier.weight(1f)
+                  .height(96.dp)
+                  .clip(RoundedCornerShape(palette.cornerRadius))
+                  .background(palette.raised)
+                  .border(
+                      palette.borderWidth,
+                      palette.line,
+                      RoundedCornerShape(palette.cornerRadius),
+                  ),
+          )
           .padding(8.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.SpaceBetween,
   ) {
-    ClassLinkedText(name, style = palette.body, maxLines = 1)
+    ClassLinkedText(
+        name,
+        style = palette.body,
+        maxLines = 1,
+        linkClasses = LocalPlayChoices.current?.find(listOf(name, "Class<$name>")) == null,
+    )
     marker()
   }
 }
@@ -354,14 +406,24 @@ internal fun ColoniesTab() {
     }
     for (colony in colonies) {
       Row(
-          Modifier.fillMaxWidth()
-              .padding(vertical = palette.spacing / 2)
-              .clip(RoundedCornerShape(palette.cornerRadius))
-              .background(palette.raised)
+          choiceModifier(
+                  listOf(colony.name, "Class<${colony.name}>"),
+                  Modifier.fillMaxWidth()
+                      .padding(vertical = palette.spacing / 2)
+                      .clip(RoundedCornerShape(palette.cornerRadius))
+                      .background(palette.raised),
+              )
               .padding(10.dp),
           verticalAlignment = Alignment.CenterVertically,
       ) {
-        ClassLinkedText(colony.name, Modifier.width(110.dp), style = palette.body)
+        ClassLinkedText(
+            colony.name,
+            Modifier.width(110.dp),
+            style = palette.body,
+            linkClasses =
+                LocalPlayChoices.current?.find(listOf(colony.name, "Class<${colony.name}>")) ==
+                    null,
+        )
         for (step in 0..6) {
           Box(
               Modifier.padding(end = 8.dp)
@@ -396,19 +458,29 @@ internal fun TurmoilTab() {
       val ruling = party == global.ruling
       val dominant = party == global.dominant
       Row(
-          Modifier.fillMaxWidth()
-              .padding(vertical = 3.dp)
-              .clip(RoundedCornerShape(palette.cornerRadius))
-              .background(if (ruling) palette.accent.copy(alpha = 0.14f) else palette.raised)
-              .border(
-                  palette.borderWidth,
-                  if (dominant) palette.mars else palette.line,
-                  RoundedCornerShape(palette.cornerRadius),
+          choiceModifier(
+                  listOf(party, "Class<$party>"),
+                  Modifier.fillMaxWidth()
+                      .padding(vertical = 3.dp)
+                      .clip(RoundedCornerShape(palette.cornerRadius))
+                      .background(
+                          if (ruling) palette.accent.copy(alpha = 0.14f) else palette.raised
+                      )
+                      .border(
+                          palette.borderWidth,
+                          if (dominant) palette.mars else palette.line,
+                          RoundedCornerShape(palette.cornerRadius),
+                      ),
               )
               .padding(horizontal = 10.dp, vertical = 7.dp),
           verticalAlignment = Alignment.CenterVertically,
       ) {
-        ClassLinkedText(party, Modifier.width(130.dp), style = palette.body)
+        ClassLinkedText(
+            party,
+            Modifier.width(130.dp),
+            style = palette.body,
+            linkClasses = LocalPlayChoices.current?.find(listOf(party, "Class<$party>")) == null,
+        )
         val leader = specimen.turmoil.leaders[party]
         val seats =
             specimen.turmoil.delegates
@@ -460,7 +532,7 @@ internal fun ConfigTab(config: GameConfig?, premise: GamePremise?, seed: Int?) {
           style = palette.mono,
       )
     }
-    seed?.let { Text("Deck shuffle seed: $it", style = palette.mono) }
+    seed?.let { Text("Deck shuffle seed: ${formatPlaySeed(it)}", style = palette.mono) }
     Spacer(Modifier.height(palette.spacing))
     SectionLabel("GAME PREMISE")
     val table = premise.classTable

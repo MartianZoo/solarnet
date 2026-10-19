@@ -105,6 +105,9 @@ dd { margin: 3px 0 0; }
 pre, .class-list { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .non-iconic-result { color: var(--muted); }
 pre, .query-input { font: 12px/1.55 Menlo, Consolas, monospace; }
+.panel .implementation-heading { text-transform: none; letter-spacing: normal; }
+.implementation-note { margin: 0 0 9px; }
+.implementation-source { font-size: 10px; line-height: 1.45; }
 .usage-panels { display: block; }
 .more-count { margin-top: 8px; color: var(--muted); }
 

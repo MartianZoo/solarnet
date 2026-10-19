@@ -31,6 +31,7 @@ internal fun playedCards(
       .map { it.rootClass }
       .distinctBy { it.className }
       .map { card ->
+        val resourceType = cardResourceType(card)
         val kind =
             when {
               cardBack(card)?.isSubtypeOf(table.getClass(cn("CorporationCard"))) == true ->
@@ -44,9 +45,8 @@ internal fun playedCards(
             name = card.className.toString(),
             kind = kind,
             resources =
-                cardResourceType(card)?.let {
-                  queries.count(player, "CardResource<${card.className}>")
-                },
+                resourceType?.let { queries.count(player, "CardResource<${card.className}>") },
+            resourceType = resourceType?.toString(),
             actionUsed =
                 card.isSubtypeOf(table.getClass(cn("ActionCard"))) &&
                     queries.count(player, "ActionUsedMarker<${card.className}>") > 0,

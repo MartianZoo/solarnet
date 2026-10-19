@@ -65,28 +65,34 @@ internal fun TaskQueue(
       }
       RawTable(TASK_COLUMNS, widths, onResize, onResized, rememberLazyListState(), gutter = 20.dp) {
         items(specimen.tasks, key = { it.id }) { task ->
-          TaskTooltip(task.fullInstruction, task.assignee) {
-            Row {
-              Spacer(Modifier.width(20.dp))
-              TableRow(
-                  widths,
-                  TASK_COLUMNS,
-                  height = 28.dp,
-                  highlighted = task.id == selected,
-                  onClick = { onSelect(task.id) },
-                  cells =
-                      listOf(
-                          { NumberText(task.id) },
-                          { Tooltip("Controls the task") { ActorSquare(task.assignee) } },
-                          { PetsText(task.fullInstruction, icons = useIcons) },
-                          {},
-                          { task.givenBy?.let { PetsText(it, icons = useIcons) } },
-                          {
-                            CauseLink(task.because, causeInstruction, onShowCause)
-                          },
-                      ),
-              )
-            }
+          Row {
+            Spacer(Modifier.width(20.dp))
+            TableRow(
+                widths,
+                TASK_COLUMNS,
+                height = 28.dp,
+                highlighted = task.id == selected,
+                onClick = { onSelect(task.id) },
+                cells =
+                    listOf(
+                        { NumberText(task.id) },
+                        { Tooltip("Controls the task") { ActorSquare(task.assignee) } },
+                        {
+                          TaskTooltip(task.fullInstruction, task.assignee) {
+                            PetsText(task.fullInstruction, icons = useIcons, linkClasses = false)
+                          }
+                        },
+                        {},
+                        {
+                          task.givenBy?.let {
+                            PetsText(it, icons = useIcons, linkClasses = false)
+                          }
+                        },
+                        {
+                          CauseLink(task.because, causeInstruction, onShowCause)
+                        },
+                    ),
+            )
           }
         }
       }

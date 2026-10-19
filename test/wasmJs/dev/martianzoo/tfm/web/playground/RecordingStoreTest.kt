@@ -57,7 +57,9 @@ internal class RecordingStoreTest {
               )
               assertFalse(view.tasks.any { "Accepting" in it.instruction })
               if (
-                  view.tasks.any { "StandardAction" in it.instruction && "Pass" !in it.instruction }
+                  view.tasks.any {
+                    "StandardAction" in it.instruction && "PassBaton" in it.instruction
+                  }
               ) {
                 secondActions++
               }
@@ -132,6 +134,7 @@ internal class RecordingStoreTest {
       // Resource loading is asynchronous in the browser; wait until the workspace is available.
       while (store.specimen == null && store.error == null) delay(50)
       assertTrue(store.loading)
+      assertTrue(store.previewing)
       val start = store.eventOrdinal
       store.seekToStart()
       delay(1000)
@@ -140,8 +143,10 @@ internal class RecordingStoreTest {
       val during = store.eventOrdinal
       store.seekToStart()
       assertEquals(during, store.eventOrdinal)
+      store.skipPreview()
       preview.join()
       assertFalse(store.loading)
+      assertFalse(store.previewing)
       assertEquals(store.stopOrdinals.last(), store.eventOrdinal)
       assertTrue(assertNotNull(store.playbackMessage).contains("wins. Click \"Gen 1\""))
       store.seekToEvent(store.generationStarts.first())

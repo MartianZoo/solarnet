@@ -225,6 +225,7 @@ internal fun liveSpecimen(
             row = area.row,
             column = area.column,
             kind = area.kind.toString(),
+            name = area.className.toString(),
             tile = tile?.className?.toString(),
             owner = tile?.let { Component(it).owningPlayer?.className?.toString() },
             bonus =

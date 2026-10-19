@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -162,17 +161,19 @@ internal fun rememberGameImage(vararg paths: String): ImageBitmap? {
   return image
 }
 
-/** Only dedicated 30px icons substitute for class names. */
-@Composable
-internal fun rememberClassIcon(name: String): ImageBitmap? =
-    rememberGameImage("classes/30px/$name.png")
-
 /** A dedicated class icon, or the full class name when no icon is available. */
 @Composable
-internal fun GameIcon(name: String, size: Dp, modifier: Modifier = Modifier) {
+internal fun GameIcon(
+    name: String,
+    size: Dp,
+    modifier: Modifier = Modifier,
+    interactive: Boolean = true,
+) {
   val image = rememberClassIcon(name)
   val openClass = LocalOpenClass.current
-  val link = modifier.clickable { openClass(name) }
+  val link =
+      if (interactive) choiceModifier(listOf(name, "Class<$name>"), modifier) { openClass(name) }
+      else modifier
   if (image != null) {
     Image(image, name, link.size(size), contentScale = ContentScale.Fit)
   } else {
@@ -186,6 +187,7 @@ internal fun Tooltip(
     text: String?,
     modifier: Modifier = Modifier,
     maxLines: Int = 6,
+    rightOfContent: Boolean = false,
     content: @Composable () -> Unit,
 ) {
   if (text.isNullOrBlank()) {
@@ -200,7 +202,7 @@ internal fun Tooltip(
     if (hovered) {
       Popup(
           popupPositionProvider =
-              remember {
+              remember(rightOfContent) {
                 object : PopupPositionProvider {
                   override fun calculatePosition(
                       anchorBounds: IntRect,
@@ -208,15 +210,26 @@ internal fun Tooltip(
                       layoutDirection: LayoutDirection,
                       popupContentSize: IntSize,
                   ): IntOffset {
+                    val right = anchorBounds.right + 8
+                    val beside =
+                        if (right + popupContentSize.width <= windowSize.width) right
+                        else (anchorBounds.left - popupContentSize.width - 8).coerceAtLeast(0)
                     val below = anchorBounds.bottom + 8
                     val y =
-                        if (below + popupContentSize.height <= windowSize.height) below
+                        if (rightOfContent) {
+                          anchorBounds.top.coerceIn(
+                              0,
+                              (windowSize.height - popupContentSize.height).coerceAtLeast(0),
+                          )
+                        } else if (below + popupContentSize.height <= windowSize.height) below
                         else anchorBounds.top - popupContentSize.height - 8
                     return IntOffset(
-                        anchorBounds.left.coerceIn(
-                            0,
-                            (windowSize.width - popupContentSize.width).coerceAtLeast(0),
-                        ),
+                        if (rightOfContent) beside
+                        else
+                            anchorBounds.left.coerceIn(
+                                0,
+                                (windowSize.width - popupContentSize.width).coerceAtLeast(0),
+                            ),
                         y,
                     )
                   }
@@ -228,7 +241,7 @@ internal fun Tooltip(
             Modifier.shadow(4.dp, RoundedCornerShape(4.dp))
                 .background(palette.raised, RoundedCornerShape(4.dp))
                 .border(palette.borderWidth, palette.line, RoundedCornerShape(4.dp))
-                .widthIn(max = 380.dp)
+                .widthIn(max = if (rightOfContent) 280.dp else 380.dp)
                 .padding(horizontal = 7.dp, vertical = 4.dp),
             style = palette.body.copy(fontSize = palette.body.fontSize * 0.86f),
             maxLines = maxLines,

@@ -48,6 +48,7 @@ internal data class Specimen(
       val kind: CardKind,
       val resources: Int?,
       val actionUsed: Boolean,
+      val resourceType: String? = null,
   )
 
   internal enum class CardKind {
@@ -138,6 +139,7 @@ internal data class Specimen(
       val tile: String?,
       val owner: String?,
       val bonus: List<MapBonus> = emptyList(),
+      val name: String = "",
   )
 
   @Serializable internal data class MapBonus(val image: String? = null, val label: String? = null)

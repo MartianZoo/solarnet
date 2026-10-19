@@ -147,6 +147,8 @@ internal class RecordingStore {
 
   var includeAdmin by mutableStateOf(true)
   var includeImaginary by mutableStateOf(false)
+  var safeAutoexec by mutableStateOf(true)
+    private set
 
   private var turnStops = emptySet<Int>()
 
@@ -218,6 +220,11 @@ internal class RecordingStore {
   var loading by mutableStateOf(false)
     private set
 
+  var previewing by mutableStateOf(false)
+    private set
+
+  private var skipRequested = false
+
   var playbackMessage by mutableStateOf<String?>(null)
     private set
 
@@ -225,6 +232,7 @@ internal class RecordingStore {
   suspend fun load(name: String) {
     if (loading) return
     loading = true
+    skipRequested = false
     playbackMessage = "Loading recording…"
     try {
       val (loadedConfig, active) = readGame(name)
@@ -235,13 +243,14 @@ internal class RecordingStore {
       redraw()
       gameRevision++
       playbackMessage = "Playing recorded history…"
+      previewing = true
       val last = recorded.positions.lastIndex
       val started = TimeSource.Monotonic.markNow()
       // Use elapsed time so expensive frames skip ahead instead of lengthening the preview.
       do {
         delay(50)
         val fraction = (started.elapsedNow().inWholeMilliseconds / 5000.0).coerceAtMost(1.0)
-        recorded.seek((last * fraction).toInt())
+        recorded.seek(if (skipRequested) last else (last * fraction).toInt())
         navigationRevision++
         redraw()
       } while (recorded.positionIndex < last)
@@ -264,16 +273,21 @@ internal class RecordingStore {
       playbackMessage = null
       error = "Could not load $name: ${failure.message}"
     } finally {
+      previewing = false
       loading = false
     }
   }
 
+  fun skipPreview() {
+    if (previewing) skipRequested = true
+  }
+
   /** Starts a live solo game; a failure leaves the shown game in place and reports why. */
-  fun play(gameConfig: GameConfig, seed: Int? = null): Boolean {
+  fun play(gameConfig: GameConfig, premise: GamePremise, seed: Int? = null): Boolean {
     if (loading) return false
     playbackMessage = null
     try {
-      val session = PlaySession(Canon.gamePremise(gameConfig), seed ?: Random.nextInt())
+      val session = PlaySession(premise, seed ?: Random.nextInt(), safeAutoexec)
       config = gameConfig
       open("Solo game", Live(session))
       gameRevision++
@@ -309,7 +323,7 @@ internal class RecordingStore {
             val cause = task.cause?.triggerEvent?.let { entries[it] as? ChangeEvent }
             !task.deferred &&
                 task.assignee is Player &&
-                (cause?.change?.gaining?.className == cn("OfferAction") ||
+                (cause?.change?.gaining?.className in setOf(cn("Baton"), cn("OfferAction")) ||
                     cause?.change?.removing?.className == cn("SecondAction"))
           }
       )
@@ -459,6 +473,14 @@ internal class RecordingStore {
 
   /** Acts on [option] of the live game's prompt. */
   fun choose(option: Prompt.Option) = live { choose(option) }
+
+  fun chooseTaskArm(option: Prompt.Option, arm: String) = live { chooseTaskArm(option, arm) }
+
+  fun setSafeAutoexec(enabled: Boolean) {
+    if (historyMode || safeAutoexec == enabled) return
+    safeAutoexec = enabled
+    live { setSafeAutoexec(enabled) }
+  }
 
   /** Lists more options of the live game's current decision. */
   fun showMore() = live(changed = false) { showMore() }

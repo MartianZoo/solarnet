@@ -8,7 +8,9 @@ through the Play tab. Sandbox editing and physical card/map input remain design 
 ## Solo play
 
 **PLAY** opens the solo configuration dialog. **GO** starts a live engine session with named,
-shuffled decks. The optional integer seed reproduces the shuffle and appears in Config. The
+shuffled decks. The optional seed accepts signed decimal or `0x` hexadecimal input and appears
+as eight lowercase hex digits in the title bar and Config. Each card is ranked from the seed and
+its class name, so adding a card preserves the relative order of cards already in a deck. The
 dialog requires SoloMode and a single seated player. Search for Life and Asteroid Deflection
 System are excluded because fresh-card reveals are unsupported. Decks never reshuffle: exhausting
 a deck, including finding too few matches in a search, ends that session. Searches consume every
@@ -19,15 +21,20 @@ are available: Tharsis, Hellas, Elysium, Utopia, Cimmeria, Amazonis, and Vastita
 
 New games default to Green on Tharsis with Corporate Era, Prelude, Venus Next, and `promos:cards`.
 Milestone and award entries are disabled for a single player. Colony tile entry is disabled until
-ColoniesExpansion is included.
+ColoniesExpansion is included. RANDOM beside the colony tile field replaces the selection with
+four random tiles for solo play. Matching milestone and award buttons choose five each when those
+fields are enabled; both buttons remain disabled in solo play.
 
 The **Play** tab lists only the player's pending tasks, then the engine's next narrowing choices or
 card-name choices. At **Choose a task**, each live task is selected hypothetically and rolled back.
 Selectable rows show the evaluated instruction, including current `PER` amounts; unavailable rows
 remain visible in darker gray and cannot be clicked. Selecting a row uses its original task ID.
 These previews do not deal cards or invoke application completion callbacks. The task log and
-history display retain their original task text. Players execute their tasks manually; Admin retains
-EAGER autoexecution and receives missing card names through the dealer. After undo or truncation,
+history display retain their original task text. **Safe autoexec** is checked by default in the
+Play task window. It uses the agent's CONCRETE policy: a player's task runs automatically only
+when it is the sole selectable task for that player and can finish without another choice.
+Uncheck it to choose every player task manually. Admin retains EAGER autoexecution and receives
+missing card names through the dealer. After undo or truncation,
 executable Admin work appears as a continuation row in Play; selecting it resumes automatic work
 through the same dealer. Unsupported Admin choices appear as a waiting status when they block play. Hand and
 Selecting cards appear above played cards. Card-playing choices are filtered to known cards at the
@@ -44,9 +51,10 @@ returns to completed setup startup, with initialization events still in the log.
 cancels a naming attempt or resets draft choices first; otherwise it steps back and truncates.
 The shortcut leaves text-field editing alone. Live sessions are not saved across page reloads.
 Development builds do not refresh an open page automatically; refresh manually when ready to use a
-new build. The new-game dialog caches candidate validation for the current draft and checks choices
-between browser turns; changing the draft or player invalidates those results. The chosen
-configuration is fully validated before GO is enabled.
+new build. The new-game dialog offers configuration choices immediately. Some choices need another
+selection before they form a valid game: ColoniesExpansion, for example, needs a colony tile. The
+dialog shows the current configuration error and enables GO only after full validation. GO reuses
+the resolved premise.
 
 ## What we know about the app itself
 
@@ -60,8 +68,9 @@ The title badge shows **PLAY** at a live game's latest position and **HISTORY** 
 **LOAD GAME** opens a large scrollable chooser of replay recordings, showing each name, its full
 comma-separated original GameConfig (including players), and final scores for games that reached
 VictoryPhase. Loading opens the saved history and previews it over roughly five seconds, with the
-workspace visible and interaction disabled. It finishes at the last recorded position and names the recorded winner, or says that the recording ended when no
-victory was recorded. Clicking a generation or navigating history clears that message. Strict engine
+workspace visible and interaction disabled except for **SKIP PREVIEW**, which jumps to the end.
+It finishes at the last recorded position and names the recorded winner, or says that the
+recording ended when no victory was recorded. Clicking a generation or navigating history clears that message. Strict engine
 reconstruction remains in the replay export tests. The viewer retains the original event order and
 notes. **TO START** seeks to the first completed position. Sandbox editing
 remains a future mode.
@@ -71,6 +80,12 @@ piles, and places where they normally live. Choosing a card should happen at its
 separate card-choice dialog. Distinct screen regions can be arranged independently, but should not
 look like a stack of uniformly headed cards. The task table is a deliberate exception to the
 physical metaphor: it exposes raw Pets instructions and direct controls for narrowing them.
+When the live Play list offers a physical object, its matching visible widget glows and accepts the
+same click: cards in hand or play, card resources, map areas and tiles, resource stock and production,
+global parameter tracks, goals, colonies, and parties. History remains read-only. Executable Play
+Pets text glows on hover without a row outline. A pending OR remains on a single line; hovering
+and clicking an available arm selects the task and that arm together. The English tooltip appears
+beside the Pets instruction.
 
 The hex overlay fits the loaded map’s actual coordinate extent to the Mars image, scaling tiles
 and placement bonuses with it. Player cubes on Mars are 75% of the normal cube size.
@@ -139,17 +154,19 @@ earliest decision in the gap. The selected stop has a longer, thicker teal tick.
 The **#**, **WHO**, and **WHY** columns center their headings and contents.
 The **Use icons** checkbox starts checked; it replaces class names with available
 icons in event expressions and GIVEN BY, task instructions and GIVEN BY, and Play tab options.
-Event and task icons keep names as hover labels and Almanac links; clicking any part of a
-Play option, including its icons, selects that option.
+Event icons keep names as hover labels and Almanac links. Clicking actionable text or icons in a
+Play option selects it; for a pending OR task, clicking an arm selects that arm as well.
 Icons are 1.32 times the text height and retain their original proportions. Player-color cubes
-take precedence. Otherwise, a class name uses exactly `images/classes/30px/<ClassName>.png` when
+take precedence. Otherwise, a class name uses its `images/classes/30px/<ClassName>.png` icon when
 available and remains text when absent; there are no card or standard-project exclusions and no
 full-size image fallback. Dashboard icons also fall back to their full class names. The `30px`
 asset directory specifies image height, preserving aspect ratio. Class icons in player dashboards
 and comparison rows also open their Almanac entries.
+The Playground bundles these icons in a sprite sheet and index, generated from the site PNGs with
+`java scripts/BuildPlaygroundIconAtlas.java /path/to/site/images/classes/30px`.
 The generic CardFront, ActiveCard, AutomatedCard, ActionCard, and EventCard symbols
 are hosted at `https://www.martianzoo.dev/images/classes/` with transparent exteriors and trimmed
-margins. All game images load from martianzoo.dev; none are bundled locally.
+margins. Card art, tiles, and other game images still load from martianzoo.dev.
 ActiveCard, AutomatedCard, and EventCard use
 the darker base colors of the printed-card banners, excluding highlights: teal-blue with a shallow
 downward-curved bottom, green with a very slightly upward-curved bottom, and orange with a straight
@@ -212,13 +229,13 @@ collection. The choice persists when changing the viewed player. Missing images 
 keep the named rectangle; they do not silently use the other text version.
 
 Game images are fetched from `https://www.martianzoo.dev/images/`: generated card fronts
-and tiles use `classes/`, published-text card fronts use `classes-pubtext/`, icons use `classes/30px/`,
-and the Mars background uses `other/mars.png`. Fonts and replay recordings remain bundled.
+and tiles use `classes/`, published-text card fronts use `classes-pubtext/`, and the Mars
+background uses `other/mars.png`. The 30px icon atlas, fonts, and replay recordings are bundled.
 
 The **Explorer** tab counts present Iconic components by default. Counts sit to the left of their
 types. Each category uses Pets full-form spelling, omitting class-fixed dependencies while keeping
-chosen values such as `Player2` visible. Clicking a class name opens its Almanac entry in a new browser tab.
-The circle beside a root class or nested dependency type rebuilds that row's children by the chosen class's nearest visible subclasses, preserving the other bounds
+chosen values such as `Player2` visible. Clicking a root class or nested dependency type
+rebuilds that row's children by the chosen class's nearest visible subclasses, preserving the other bounds
 as far as the type rules allow. A node such as `OwnedTile<Player2, Area>` can therefore expand by
 tile class or by area while retaining `Player2`. Classes identified by `ClassTable.isProbableAspect`,
 such as `Atomized`, are omitted as categories. Their concrete descendants remain reachable beneath
@@ -254,8 +271,9 @@ Passes and unused action slots have no triangle.
 The Mars panel uses the old viewer's planet image and hex layout, including empty-area bonuses,
 Noctis and volcano marks, tile images, and centered owner cubes. The same cube marks used actions
 on played cards, centered two-thirds of the way up each marked card.
-PETS class names and icons open `https://martianzoo.dev/pets/almanac/#ClassName` in a new browser tab,
-using the clicked class's name in place of `ClassName`. The Config tab shows the game file's resolved configuration as a
+Outside Explorer, PETS class names and icons without another click action open
+`https://martianzoo.dev/pets/almanac/#ClassName` in a new browser tab, using the clicked class's
+name in place of `ClassName`. The Config tab shows the game file's resolved configuration as a
 comma-separated line,
 then groups the resolved GamePremise's players, included class selections, and setup adjustments.
 Class names in the premise list open the corresponding Almanac entries.
@@ -322,5 +340,5 @@ holds display values, and `PetsText.kt` renders linked Pets text and optional in
 The static distribution is published at `https://www.martianzoo.dev/playground/` in the
 `MartianZoo/site` repository. Copy the contents of `dist/wasmJs/productionExecutable` from this
 module's Gradle build directory into that repository's `playground/` directory. The deployed app
-uses images from `https://www.martianzoo.dev/images/`, makes no layout-save requests, and includes
+uses full-size images from `https://www.martianzoo.dev/images/`, makes no layout-save requests, and includes
 a `noindex, nofollow` robots tag. Test the distribution at `/playground/` before publishing.

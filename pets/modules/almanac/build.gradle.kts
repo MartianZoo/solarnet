@@ -41,7 +41,7 @@ tasks.register("test") {
 }
 
 tasks.named<ProcessResources>("jsProcessResources") {
-  from(sourceDirectory) { include("*.html", "*.css", "favicon.png") }
+  from(sourceDirectory) { include("*.html", "*.css", "*.js", "favicon.png") }
 }
 
 val webZip by

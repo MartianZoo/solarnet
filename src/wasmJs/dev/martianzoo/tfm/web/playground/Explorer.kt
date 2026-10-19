@@ -133,16 +133,11 @@ private fun TypeLabel(
   val palette = LocalPalette.current
   val clicked =
       if (expression.className == CLASS && expression.arguments.size == 1) path + 0 else path
-  val name = expression.className.toString()
-  ClassLinkedText(name, style = palette.mono)
-  Tooltip("Group by $name") {
-    Text(
-        if (clicked == pivot) "●" else "○",
-        Modifier.clickable { onPivot(clicked) },
-        style =
-            palette.mono.copy(color = if (clicked == pivot) palette.accent else palette.dimText),
-    )
-  }
+  Text(
+      expression.className.toString(),
+      Modifier.clickable { onPivot(clicked) },
+      style = palette.mono.copy(color = if (clicked == pivot) palette.accent else palette.text),
+  )
   if (expression.arguments.isNotEmpty()) {
     Text("<", style = palette.mono)
     expression.arguments.forEachIndexed { index, argument ->
@@ -158,11 +153,11 @@ private fun TypeLabel(
 private fun ExactLine(line: ExplorerTree.Line.Exact) {
   val palette = LocalPalette.current
   ExplorerRow(line.depth, line.entry.count) {
-    ClassLinkedText(
+    Text(
         line.entry.type.expressionFull.toString(),
         Modifier.padding(start = 14.dp),
-        color = if (line.entry.nonIconic) palette.dimText else palette.text,
-        style = palette.mono,
+        style =
+            palette.mono.copy(color = if (line.entry.nonIconic) palette.dimText else palette.text),
     )
   }
 }

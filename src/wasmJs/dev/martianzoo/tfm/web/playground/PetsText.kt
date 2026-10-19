@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Text
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
@@ -88,10 +90,11 @@ internal fun ClassLinkedText(
     color: Color? = null,
     style: TextStyle? = null,
     maxLines: Int = Int.MAX_VALUE,
+    linkClasses: Boolean = true,
 ) {
   val palette = LocalPalette.current
   Text(
-      linkedPets(text),
+      linkedPets(text, linkClasses = linkClasses),
       modifier,
       style = style ?: palette.mono,
       color = color ?: palette.text,
@@ -176,11 +179,12 @@ internal fun PetsText(
     icons: Boolean = false,
     linkClasses: Boolean = true,
     source: PetNode? = null,
+    glow: Boolean = false,
 ) {
   Row(modifier.padding(horizontal = 3.dp), verticalAlignment = Alignment.Bottom) {
     val players = if (LocalUseTrays.current) LocalSpecimen.current.playerNames else emptyList()
     for (piece in petsPieces(text, players, source)) {
-      TrayText(piece, color, icons, linkClasses)
+      TrayText(piece, color, icons, linkClasses, glow)
     }
   }
 }
@@ -207,9 +211,10 @@ internal fun TrayText(
     color: Color? = null,
     icons: Boolean = false,
     linkClasses: Boolean = true,
+    glow: Boolean = false,
 ) {
   val palette = LocalPalette.current
-  var baseline by remember { mutableFloatStateOf(0f) }
+  var baseline by remember(run.text) { mutableFloatStateOf(0f) }
   val trayColor = run.player?.let { actorColor(it) }
   val classNames = LocalClassNames.current
   val players = LocalSpecimen.current.playerNames
@@ -246,7 +251,7 @@ internal fun TrayText(
             inlineIcons[name] =
                 InlineTextContent(
                     Placeholder(
-                        (1.32f * image.width / image.height).em,
+                        (1.32f * image.intrinsicSize.width / image.intrinsicSize.height).em,
                         1.32.em,
                         PlaceholderVerticalAlign.Center,
                     )
@@ -268,37 +273,65 @@ internal fun TrayText(
       }
     }
   }
-  Text(
-      linkedPets(run.text, inlineIcons.keys, linkClasses),
-      Modifier.padding(horizontal = if (trayColor == null) 0.dp else 3.dp).drawWithContent {
-        drawContent()
-        if (trayColor == null || baseline == 0f) return@drawWithContent
-        val reach = 2.5.dp.toPx()
-        val y = baseline + 4.5.dp.toPx()
-        val tick = 2.5.dp.toPx()
-        val stroke = 1.2.dp.toPx()
-        drawLine(
-            trayColor,
-            Offset(-reach, y),
-            Offset(size.width + reach, y),
-            stroke,
-            StrokeCap.Round,
-        )
-        drawLine(trayColor, Offset(-reach, y), Offset(-reach, y - tick), stroke, StrokeCap.Round)
-        drawLine(
-            trayColor,
-            Offset(size.width + reach, y),
-            Offset(size.width + reach, y - tick),
-            stroke,
-            StrokeCap.Round,
-        )
-      },
-      style = palette.mono,
-      color = color ?: palette.text,
-      maxLines = 1,
-      softWrap = false,
-      overflow = TextOverflow.Clip,
-      inlineContent = inlineIcons,
-      onTextLayout = { baseline = it.firstBaseline },
-  )
+  // Compose's link hit testing misses text after inline content in the same Text. Give each
+  // stretch between icons its own Text so a class argument after an icon remains clickable.
+  val segments = buildList {
+    var offset = 0
+    for (match in classWord.findAll(run.text)) {
+      if (match.value !in inlineIcons) continue
+      if (match.range.first > offset) add(run.text.substring(offset, match.range.first))
+      add(match.value)
+      offset = match.range.last + 1
+    }
+    if (offset < run.text.length) add(run.text.substring(offset))
+  }
+  Row(
+      Modifier.wrapContentWidth()
+          .padding(horizontal = if (trayColor == null) 0.dp else 3.dp)
+          .drawWithContent {
+            drawContent()
+            if (trayColor == null || baseline == 0f) return@drawWithContent
+            val reach = 2.5.dp.toPx()
+            val y = baseline + 4.5.dp.toPx()
+            val tick = 2.5.dp.toPx()
+            val stroke = 1.2.dp.toPx()
+            drawLine(
+                trayColor,
+                Offset(-reach, y),
+                Offset(size.width + reach, y),
+                stroke,
+                StrokeCap.Round,
+            )
+            drawLine(
+                trayColor,
+                Offset(-reach, y),
+                Offset(-reach, y - tick),
+                stroke,
+                StrokeCap.Round,
+            )
+            drawLine(
+                trayColor,
+                Offset(size.width + reach, y),
+                Offset(size.width + reach, y - tick),
+                stroke,
+                StrokeCap.Round,
+            )
+          },
+  ) {
+    for (segment in segments) {
+      Text(
+          linkedPets(segment, inlineIcons.keys, linkClasses),
+          Modifier.alignByBaseline(),
+          style =
+              if (glow) palette.mono.copy(shadow = Shadow(palette.accent, Offset.Zero, 12f))
+              else palette.mono,
+          color = color ?: palette.text,
+          maxLines = 1,
+          softWrap = false,
+          overflow = TextOverflow.Clip,
+          inlineContent = inlineIcons,
+          onTextLayout = { baseline = maxOf(baseline, it.firstBaseline) },
+      )
+    }
+  }
 }

@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
@@ -50,7 +51,7 @@ internal fun NewGameDialog(
     draft: NewGameDraft,
     onClose: () -> Unit,
     startupError: String?,
-    onGo: (GameConfig, Int?) -> Unit,
+    onGo: (GameConfig, GamePremise, Int?) -> Unit,
 ) {
   val palette = LocalPalette.current
   val entries = draft.entries.toList()
@@ -62,15 +63,16 @@ internal fun NewGameDialog(
   LaunchedEffect(entries, playerName) {
     delay(150)
     resolved = runCatching {
-      val config = draft.config()
-      config to Canon.gamePremise(config).also { it.classTable }
+      draft.resolve()
     }
   }
   val premise = resolved?.getOrNull()?.second
   val seed = draft.seedText.trim()
+  val parsedSeed = parsePlaySeed(seed)
   val problem =
       resolved?.exceptionOrNull()?.message
-          ?: if (seed.isNotEmpty() && seed.toIntOrNull() == null) "Seed must be a 32-bit integer."
+          ?: if (seed.isNotEmpty() && parsedSeed == null)
+              "Seed must be a 32-bit decimal or 0x hexadecimal number."
           else null
   Dialog(
       onDismissRequest = onClose,
@@ -117,7 +119,7 @@ internal fun NewGameDialog(
               OutlinedTextField(
                   value = draft.seedText,
                   onValueChange = { draft.seedText = it },
-                  label = { Text("Shuffle seed (blank for random)") },
+                  label = { Text("Shuffle seed (decimal or 0x hex; blank for random)") },
                   singleLine = true,
                   modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                   textStyle = palette.body,
@@ -200,7 +202,11 @@ internal fun NewGameDialog(
               )
               Spacer(Modifier.height(12.dp))
               Button(
-                  onClick = { resolved?.getOrNull()?.first?.let { onGo(it, seed.toIntOrNull()) } },
+                  onClick = {
+                    resolved?.getOrNull()?.let { (config, premise) ->
+                      onGo(config, premise, parsedSeed)
+                    }
+                  },
                   enabled = premise != null && problem == null,
                   modifier = Modifier.fillMaxWidth(),
               ) {
@@ -244,51 +250,25 @@ private fun SelectionEditors(draft: NewGameDraft, premise: GamePremise?) {
   val awards = remember { concreteNamesBelow("Award") }
   val cards = remember { Canon.cards.map { it.className.toString() }.sorted() }
   val colonyTiles = remember { Canon.colonyTileClassNames.map { it.toString() }.sorted() }
-  val accepts: suspend (List<String>) -> Boolean = {
-    delay(1)
-    draft.accepts(it)
-  }
-
   Text("CONFIGURATION", style = palette.label.copy(color = palette.accent))
   Spacer(Modifier.height(8.dp))
   ChoiceMenu(
       "Map · ${entries.firstOrNull { it in maps } ?: "none"}",
-      choiceKey,
-      {
-        maps.filter { name ->
-          name in entries || accepts(entries.filterNot { it in maps } + name)
-        }
-      },
+      maps,
   ) {
     draft.chooseMap(it)
   }
   Spacer(Modifier.height(8.dp))
   ChoiceMenu(
       "Add an option",
-      choiceKey,
-      {
-        modules.filter { module ->
-          module !in entries &&
-              module !in maps &&
-              (accepts(entries + module) ||
-                  (module == "ColoniesExpansion" &&
-                      colonyTiles.any { accepts(entries + module + it) }))
-        }
-      },
+      modules.filter { it !in entries && "-$it" !in entries && it !in maps },
   ) {
     draft.add(it)
   }
   Spacer(Modifier.height(8.dp))
   ChoiceMenu(
       "Exclude an option",
-      choiceKey,
-      {
-        modules
-            .map { "-$it" }
-            .filter {
-              it !in entries && it.drop(1) !in entries && accepts(entries + it)
-            }
-      },
+      modules.map { "-$it" }.filter { it !in entries && it.drop(1) !in entries },
   ) {
     draft.add(it)
   }
@@ -297,8 +277,12 @@ private fun SelectionEditors(draft: NewGameDraft, premise: GamePremise?) {
       "Choose milestones",
       milestones,
       choiceKey,
-      { it !in entries && accepts(entries + it) },
+      { it !in entries && "-$it" !in entries },
       enabled = (premise?.playerNames?.size ?: 1) > 1,
+      onRandom = {
+        draft.entries.removeAll(milestones.toSet())
+        draft.entries.addAll(milestones.shuffled().take(5))
+      },
   ) {
     draft.add(it)
   }
@@ -306,28 +290,35 @@ private fun SelectionEditors(draft: NewGameDraft, premise: GamePremise?) {
       "Choose awards",
       awards,
       choiceKey,
-      { it !in entries && accepts(entries + it) },
+      { it !in entries && "-$it" !in entries },
       enabled = (premise?.playerNames?.size ?: 1) > 1,
+      onRandom = {
+        draft.entries.removeAll(awards.toSet())
+        draft.entries.addAll(awards.shuffled().take(5))
+      },
   ) {
     draft.add(it)
   }
   AutocompleteChoice(
-      "Choose colony tiles",
+      "Choose colony tiles (${entries.count { it in colonyTiles }} selected)",
       colonyTiles,
       choiceKey,
-      { it !in entries && accepts(entries + it) },
+      { it !in entries && "-$it" !in entries },
       // Colonies may need a tile selection before the draft can resolve successfully.
       enabled =
           "ColoniesExpansion" in entries ||
               premise?.modules?.contains(cn("ColoniesExpansion")) == true,
+      onRandom = {
+        draft.entries.removeAll(colonyTiles.toSet())
+        draft.entries.addAll(colonyTiles.shuffled().take(4))
+      },
   ) {
     draft.add(it)
   }
   Spacer(Modifier.height(8.dp))
   ChoiceMenu(
       "Add card packs",
-      choiceKey,
-      { packs.filter { it !in entries && accepts(entries + it) } },
+      packs.filter { it !in entries && "-$it" !in entries },
   ) {
     draft.add(it)
   }
@@ -336,7 +327,7 @@ private fun SelectionEditors(draft: NewGameDraft, premise: GamePremise?) {
       "Add individual cards",
       cards,
       choiceKey,
-      { it !in entries && accepts(entries + it) },
+      { it !in entries && "-$it" !in entries },
   ) {
     draft.add(it)
   }
@@ -344,9 +335,7 @@ private fun SelectionEditors(draft: NewGameDraft, premise: GamePremise?) {
       "Exclude individual cards",
       cards,
       choiceKey,
-      { name ->
-        "-$name" !in entries && accepts(entries + "-$name")
-      },
+      { "-$it" !in entries && it !in entries },
   ) {
     draft.add("-$it")
   }
@@ -364,17 +353,12 @@ private fun concreteNamesBelow(superclass: String): List<String> {
 @Composable
 private fun ChoiceMenu(
     label: String,
-    choiceKey: Any,
-    choices: suspend () -> List<String>,
+    choices: List<String>,
     modifier: Modifier = Modifier.fillMaxWidth(),
     onChoose: (String) -> Unit,
 ) {
   val palette = LocalPalette.current
   var open by remember { mutableStateOf(false) }
-  var available by remember(open, choiceKey) { mutableStateOf<List<String>?>(null) }
-  LaunchedEffect(open, choiceKey) {
-    if (open) available = choices()
-  }
   Box(modifier) {
     Text(
         "$label  ▾",
@@ -389,13 +373,12 @@ private fun ChoiceMenu(
         onDismissRequest = { open = false },
         modifier = Modifier.heightIn(max = 330.dp).background(palette.raised),
     ) {
-      val shown = available
-      if (shown.isNullOrEmpty()) {
+      if (choices.isEmpty()) {
         DropdownMenuItem(onClick = { open = false }) {
-          Text(if (shown == null) "Checking choices…" else "No legal choices", style = palette.body)
+          Text("No more choices", style = palette.body)
         }
       } else
-          shown.forEach { choice ->
+          choices.forEach { choice ->
             DropdownMenuItem(
                 onClick = {
                   open = false
@@ -414,51 +397,56 @@ private fun AutocompleteChoice(
     label: String,
     names: List<String>,
     choiceKey: Any,
-    isLegal: suspend (String) -> Boolean,
+    isAvailable: (String) -> Boolean,
     enabled: Boolean = true,
+    onRandom: (() -> Unit)? = null,
     onChoose: (String) -> Unit,
 ) {
   val palette = LocalPalette.current
   var query by remember { mutableStateOf("") }
-  var matching by remember(query, choiceKey, enabled) { mutableStateOf(emptyList<String>()) }
-  LaunchedEffect(query, names, choiceKey, enabled) {
-    if (!enabled || query.isBlank()) return@LaunchedEffect
-    delay(150)
-    val found = mutableListOf<String>()
-    for (name in names) {
-      if (name.contains(query.trim(), ignoreCase = true) && isLegal(name)) {
-        found += name
-        if (found.size == 30) break
+  val matching =
+      remember(query, names, choiceKey, enabled) {
+        if (!enabled || query.isBlank()) emptyList()
+        else
+            names
+                .filter { it.contains(query.trim(), ignoreCase = true) && isAvailable(it) }
+                .take(30)
       }
-    }
-    matching = found
-  }
-  Box(Modifier.fillMaxWidth().padding(vertical = 4.dp).alpha(if (enabled) 1f else 0.45f)) {
-    OutlinedTextField(
-        value = query,
-        enabled = enabled,
-        onValueChange = { query = it },
-        label = { Text(label) },
-        singleLine = true,
-        modifier = Modifier.fillMaxWidth(),
-        textStyle = palette.body,
-    )
-    DropdownMenu(
-        expanded = enabled && matching.isNotEmpty(),
-        properties = PopupProperties(focusable = false),
-        onDismissRequest = { query = "" },
-        modifier = Modifier.heightIn(max = 300.dp).background(palette.raised),
-    ) {
-      matching.forEach { name ->
-        DropdownMenuItem(
-            onClick = {
-              onChoose(name)
-              query = ""
-            }
-        ) {
-          Text(name, style = palette.body)
+  Row(
+      Modifier.fillMaxWidth().padding(vertical = 4.dp).alpha(if (enabled) 1f else 0.45f),
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+      verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Box(Modifier.weight(1f)) {
+      OutlinedTextField(
+          value = query,
+          enabled = enabled,
+          onValueChange = { query = it },
+          label = { Text(label) },
+          singleLine = true,
+          modifier = Modifier.fillMaxWidth(),
+          textStyle = palette.body,
+      )
+      DropdownMenu(
+          expanded = enabled && matching.isNotEmpty(),
+          properties = PopupProperties(focusable = false),
+          onDismissRequest = { query = "" },
+          modifier = Modifier.heightIn(max = 300.dp).background(palette.raised),
+      ) {
+        matching.forEach { name ->
+          DropdownMenuItem(
+              onClick = {
+                onChoose(name)
+                query = ""
+              }
+          ) {
+            Text(name, style = palette.body)
+          }
         }
       }
+    }
+    if (onRandom != null) {
+      Button(onClick = onRandom, enabled = enabled) { Text("RANDOM") }
     }
   }
 }

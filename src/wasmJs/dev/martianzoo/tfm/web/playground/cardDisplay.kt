@@ -277,7 +277,16 @@ private fun CardImage(
     player: String,
     width: Dp,
     modifier: Modifier = Modifier,
-) = CardImage(card.name, card.resources, card.actionUsed, player, width, modifier)
+) =
+    CardImage(
+        card.name,
+        card.resources,
+        card.actionUsed,
+        player,
+        width,
+        modifier,
+        card.resourceType,
+    )
 
 @Composable
 private fun CardImage(
@@ -287,6 +296,7 @@ private fun CardImage(
     player: String,
     width: Dp,
     modifier: Modifier = Modifier,
+    resourceType: String? = null,
 ) {
   val alternateName = if (name.startsWith("Fake")) name.removePrefix("Fake") else "Fake$name"
   val directory = LocalCardImageDirectory.current
@@ -294,7 +304,7 @@ private fun CardImage(
       rememberGameImage("$directory/$name.png")
           ?: rememberGameImage("$directory/$alternateName.png")
   val height = if (image != null) width * image.height / image.width else width * (672f / 552f)
-  Box(modifier.width(width).height(height)) {
+  Box(choiceModifier(listOf(name, "Class<$name>"), modifier.width(width).height(height))) {
     if (image != null) {
       Image(image, name, Modifier.fillMaxSize())
     } else {
@@ -344,6 +354,22 @@ private fun CardImage(
                 ),
         )
       }
+    }
+    if (resourceType != null) {
+      Box(
+          choiceModifier(
+              listOf(
+                  resourceType,
+                  "Class<$resourceType>",
+                  "$resourceType<$name>",
+                  "CardResource<$name>",
+              ),
+              Modifier.align(Alignment.BottomStart)
+                  .offset(x = width * (36f / 552f), y = -(width * (41f / 552f)))
+                  .width(width * (70f / 552f))
+                  .height(width * (48f / 552f)),
+          )
+      )
     }
   }
 }

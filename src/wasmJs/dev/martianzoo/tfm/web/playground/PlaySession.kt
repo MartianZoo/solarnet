@@ -22,14 +22,17 @@ import dev.martianzoo.tfm.engine.CardTracking.NamesRequiredException
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.cardMatchesFilter
 import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
-import kotlin.random.Random
 
 /**
  * A live solo game: its World and Agents, the named-card tracker, and the shuffled decks this
  * playground deals from. Every gameplay command is one attempt: when card tracking lacks names, a
  * deck or the player supplies them, and the same Agent command runs again from the same state.
  */
-internal class PlaySession(val premise: GamePremise, val seed: Int) {
+internal class PlaySession(
+    val premise: GamePremise,
+    val seed: Int,
+    safeAutoexec: Boolean = true,
+) {
   val agents = Agents(TfmEngine.newGame(premise))
   val world: World
     get() = agents.world
@@ -37,7 +40,7 @@ internal class PlaySession(val premise: GamePremise, val seed: Int) {
   private val tracker = CardTracking.start(world, requireSelectingNames = true)
   val player: Player = world.actors.filterIsInstance<Player>().single()
 
-  /** Each back's shuffled order; a deck is this order and how much of it has been dealt. */
+  /** Each back's seeded order; a deck is this order and how much of it has been dealt. */
   private val decks: Map<ClassName, List<ClassName>>
 
   /** Dealt counts per deck, recorded at each completed position where they changed. */
@@ -70,14 +73,13 @@ internal class PlaySession(val premise: GamePremise, val seed: Int) {
   init {
     require(cn("SoloMode") in premise.modules) { "Play requires SoloMode." }
     agents.taskLog.start()
-    val random = Random(seed)
     val front = world.classTable.getClass(cn("CardFront"))
     decks =
         world.classTable
             .allClasses()
             .filter { !it.abstract && it.isSubtypeOf(front) && world.classTable.isInhabited(it) }
             .groupBy { requireNotNull(cardBack(it)).className }
-            .mapValues { (_, cards) -> cards.map { it.className }.shuffled(random) }
+            .mapValues { (_, cards) -> orderedDeck(cards.map { it.className }, seed) }
     agents[player].autoExecPolicy = AutoExecPolicy.NONE
     val placementCards = decks.getValue(PROJECT_CARD).take(4)
     val areas =
@@ -94,6 +96,22 @@ internal class PlaySession(val premise: GamePremise, val seed: Int) {
       problem?.let { throw IllegalStateException("neutral tile placement failed: $it") }
     }
     start = world.timeline.checkpoint()
+    if (safeAutoexec) setSafeAutoexec(true)
+  }
+
+  /** CONCRETE settles only a task that is the player's sole available choice. */
+  fun setSafeAutoexec(enabled: Boolean) {
+    val policy = if (enabled) AutoExecPolicy.CONCRETE else AutoExecPolicy.NONE
+    if (agents[player].autoExecPolicy == policy) return
+    if (enabled) {
+      attempt {
+        agents[player].autoExecPolicy = policy
+        // Retrying after a card-name request must still settle under the new policy.
+        agents[player].autoExecNow()
+      }
+    } else {
+      agents[player].autoExecPolicy = policy
+    }
   }
 
   /** Completed positions a player can visit, oldest first. */
@@ -163,7 +181,18 @@ internal class PlaySession(val premise: GamePremise, val seed: Int) {
     }
     return Prompt(
         "Choose a task",
-        options = pending.map { taskOption(world, it) },
+        options =
+            pending.map { task ->
+              taskOption(world, task) { selected ->
+                val form = agents[selected.assignee].fillInTask(selected.id)
+                form
+                    .decisions()
+                    .singleOrNull()
+                    ?.takeIf { it.kind == Decision.Kind.ALTERNATIVE }
+                    ?.let { form.options(it).toList() }
+                    .orEmpty()
+              }
+            },
     )
   }
 
@@ -328,6 +357,15 @@ internal class PlaySession(val premise: GamePremise, val seed: Int) {
     if (finished) {
       this.form = null
       attempt { form.commit() }
+    }
+  }
+
+  /** Selects a pending OR task and chooses the clicked arm from its resulting form. */
+  fun chooseTaskArm(option: Prompt.Option, arm: String) {
+    require(arm in option.arms)
+    choose(option)
+    if (problem == null) {
+      prompt().options.firstOrNull { it.label == arm }?.let(::choose)
     }
   }
 

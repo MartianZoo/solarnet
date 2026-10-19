@@ -30,5 +30,11 @@ internal fun TaskTooltip(
           )
         }
       }
-  Tooltip(english, modifier, maxLines = Int.MAX_VALUE, content = content)
+  Tooltip(
+      english,
+      modifier,
+      maxLines = Int.MAX_VALUE,
+      rightOfContent = true,
+      content = content,
+  )
 }

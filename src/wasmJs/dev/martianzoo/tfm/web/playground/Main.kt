@@ -150,10 +150,18 @@ private fun MarsPlayground() {
             }
         )
       }
+      if (recording.previewing) {
+        Box(
+            Modifier.matchParentSize().padding(24.dp),
+            contentAlignment = Alignment.BottomEnd,
+        ) {
+          OutlinedAction("SKIP PREVIEW", palette.accent, recording::skipPreview)
+        }
+      }
     }
     if (choosingGame) {
-      NewGameDialog(newGame, { choosingGame = false }, startupError) { config, seed ->
-        if (recording.play(config, seed)) {
+      NewGameDialog(newGame, { choosingGame = false }, startupError) { config, premise, seed ->
+        if (recording.play(config, premise, seed)) {
           choosingGame = false
           startupError = null
         } else startupError = recording.error
@@ -218,6 +226,7 @@ private fun Playground(
   CompositionLocalProvider(
       LocalOpenClass provides ::openAlmanacClass,
       LocalClassNames provides classNames,
+      LocalPlayChoices provides recording.prompt?.let { PlayChoices(it, recording::choose) },
       LocalUseTrays provides useTrays,
       LocalInstructionEnglish provides
           remember(recording.classTable) {

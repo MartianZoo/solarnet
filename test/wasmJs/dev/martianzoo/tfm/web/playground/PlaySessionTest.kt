@@ -11,6 +11,53 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 internal class PlaySessionTest {
+  @Test
+  fun displayedHexSeedRoundTripsAll32Bits() {
+    assertEquals("0x00000000", formatPlaySeed(0))
+    assertEquals("0xffffffff", formatPlaySeed(-1))
+    assertEquals(-1, parsePlaySeed("0xffffffff"))
+    assertEquals(Int.MIN_VALUE, parsePlaySeed("0x80000000"))
+    assertEquals(42, parsePlaySeed("42"))
+    assertNull(parsePlaySeed("0x100000000"))
+    assertNull(parsePlaySeed("0xnothex"))
+  }
+
+  @Test
+  fun addingACardKeepsExistingCardsInTheSameRelativeOrder() {
+    val cards =
+        listOf(
+                "AiCentral",
+                "EarthOffice",
+                "NoctisCity",
+                "IndustrialComplex",
+                "Donation",
+                "AcquiredSpaceAgency",
+                "AppliedScience",
+                "SpaceLanes",
+            )
+            .map(::cn)
+    val seed = 0x1a2b3c4d
+    val original = orderedDeck(cards, seed)
+    val added = cn("NewCard")
+
+    assertEquals(
+        listOf(
+                "Donation",
+                "SpaceLanes",
+                "AiCentral",
+                "AcquiredSpaceAgency",
+                "EarthOffice",
+                "AppliedScience",
+                "IndustrialComplex",
+                "NoctisCity",
+            )
+            .map(::cn),
+        original,
+    )
+    assertEquals(original, orderedDeck(cards + added, seed).filterNot { it == added })
+    assertEquals(original, orderedDeck(cards.reversed(), seed))
+  }
+
   private fun session(): PlaySession {
     val session =
         PlaySession(
@@ -67,6 +114,20 @@ internal class PlaySessionTest {
     session.choose(session.prompt().options.first())
     assertNull(session.problem)
     assertEquals(cards.drop(1), session.held(cn("Selecting")))
+  }
+
+  @Test
+  fun clickingAnOrArmSelectsAndNarrowsTheTask() {
+    val session = session()
+    val task = session.agents[session.player].addTasks("Heat OR Plant").single()
+    val option = session.prompt().options.single { it.taskId == task }
+
+    assertEquals(listOf("Heat<Green>!", "Plant<Green>!"), option.arms)
+    session.chooseTaskArm(option, option.arms.last())
+
+    assertNull(session.problem)
+    assertEquals(1, session.agents[session.player].count("Plant"))
+    assertEquals(0, session.agents[session.player].count("Heat"))
   }
 
   @Test

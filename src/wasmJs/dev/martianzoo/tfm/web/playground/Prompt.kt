@@ -21,5 +21,7 @@ internal data class Prompt(
       val enabled: Boolean = true,
       /** The original task, even when [label] shows its evaluated instruction. */
       val taskId: TaskId? = null,
+      /** Available OR arms of a task, shown as separate click targets. */
+      val arms: List<String> = emptyList(),
   )
 }

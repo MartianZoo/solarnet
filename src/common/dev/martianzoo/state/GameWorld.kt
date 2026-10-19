@@ -98,7 +98,7 @@ private constructor(
     require(backing == null || backing.premise === premise)
     require(copyFrom == null || backing == null)
     require((copyFrom == null && backing == null) || initialEvents.isEmpty())
-    initialEvents.forEach(::apply)
+    initialEvents.forEach { apply(it) }
   }
 
   /**
