@@ -241,7 +241,7 @@
           "tags": [ "MicrobeTag" ],
           "actions": [ "-> Microbe<This>" ],
           "effects": [
-            "PayingFor<Class<PlantTag>>:: AcceptingFromCard<This>",
+            "PayingFor<Class<PlantTag>, @PaymentScope>:: AcceptingFromCard<This, @PaymentScope>",
             "PayFromCard<This>:: -2 Owed"
           ],
         },

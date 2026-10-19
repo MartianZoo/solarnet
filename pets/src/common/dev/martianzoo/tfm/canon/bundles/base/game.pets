@@ -28,8 +28,11 @@ CLASS TerraformingMars : Module {
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
 
-  PayingFor<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
-  PayingFor<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
+  @PaymentScope<Class<@CardFront>, Class<MC>, Class<PlayCard>>:: PayingFor<Class<@CardFront>, @PaymentScope>
+  @PaymentScope<Class<BuySelectedCards>>:: PayingFor<Class<ProjectCard>, @PaymentScope> / ProjectCard<Selecting>
+  PayingFor<Class<@CardFront>, @PaymentScope>:: EACH @Class<Tag> { PayingFor<@Class, @PaymentScope> / PriceAspectCount<Class<@CardFront>, @Class> }
+  PayingFor<Class<BuildingTag>, @PaymentScope>:: Accepting<Class<Steel>, @PaymentScope>
+  PayingFor<Class<SpaceTag>, @PaymentScope>:: Accepting<Class<Titanium>, @PaymentScope>
 }
 
 "Allows known incompatible content to coexist"
@@ -100,8 +103,6 @@ ABSTRACT CLASS Player : Owner, Actor {
   SetupPhase IF BeginnerVariant: BeginnerOption<This> OR StandardOption<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4? ProjectCard<This, Selecting> THEN BuySelectedCards<This>
   ActionScope<This>: LATER Admin { EACH @CardBack<This, Selecting> { -@CardBack } }
-  -Billing<This, Class<BuySelectedCards>, Action1>: \
-    ProjectCard<This, Hand> FROM ProjectCard<This, Selecting> / ProjectCard<This, Selecting>
 }
 
 "A player's persistent choice of starting procedure"

@@ -133,6 +133,7 @@ internal class English(
               acceptedFirstActionPaymentResource(
                       effect,
                       singleAction = cardActions.size == 1,
+                      cardClassName = card.className,
                       cardDescribers,
                   )
                   ?.let { index to it }

@@ -1,6 +1,6 @@
 # Authored payment model
 
-> **Status:** current Canon billing and acceptance protocol.
+> **Status:** current Canon payment-scope and acceptance protocol.
 > Client payment helpers, allocation checks, and rollback evidence belong to
 > [Solarnet payment integration](../../../docs/agents/PAYMENTS.md).
 
@@ -22,58 +22,59 @@ is open. Payment signals are player-owned and are not `System`: choosing a payme
 work, and `NONE` does not execute it automatically. The offered exchange fixes the payment resource
 or card holder; clients cannot turn a different resource removal into payment credit.
 
-Acceptance begins during pricing. `Owed` installs its denomination, and `PayingFor` or `UseAction`
-can install alternatives before `Billing`. Removing the bill removes acceptance before the
-purchased card or action results run.
+`Owed` records the debt but does not install acceptance. A `PaymentScope` starts after debt is
+created; its creation announces card and printed-tag pricing and installs available alternative
+resources. Removing the scope ends acceptance before the purchased result runs.
 
-`Owed` is the amount still due, including during price adjustment. `Billing` marks settlement and
-carries a reason as a `Class<Component>` dependency, an action slot, and the denomination.
-Cards, printed actions, conversions, milestones, and awards use this same type. For example,
-`Billing<Class<Builder>>` retains the selected milestone through payment, while
-`Billing<Class<Steelworks>, Action1, Class<Energy>>` identifies the printed action and its currency.
-The slot defaults to `Action1` and the currency to M€. Currency-only listeners must leave the
-reason broad, as in `Billing<Class<Component>, Class<Heat>>`.
+`Owed` is the amount still due, including during price adjustment. `PaymentScope` marks settlement
+and carries a subject, denomination, and operation. Cards, printed actions, conversions,
+milestones, and awards use this same type. For example,
+`PaymentScope<Class<Builder>>` retains the selected milestone through payment, while
+`PaymentScope<Class<Steelworks>, Class<Energy>, Class<Action1>>` identifies a printed action and
+its currency. The operation defaults to `Action1` and the currency to M€. Currency-only listeners
+leave the subject broad, as in `PaymentScope<Class<Component>, Class<Heat>>`.
 
-`Owed`, `PayingFor`, `Billing`, `Accepting`, and `AcceptingFromCard` are `System` bookkeeping.
+`Owed`, `PayingFor`, `PaymentScope`, `Accepting`, and `AcceptingFromCard` are `System` bookkeeping.
 Fixed, concrete gains run as Admin, including scaled debt and gains inside automatic effects.
 An abstract type or variable amount such as `X Owed` stays with the Player until narrowed; Admin
 then performs the concrete gain. Acceptance opens explicit payment exchanges, which remain
 assigned to the Player.
-`Accepting` offers `X Pay<Class<Resource>> FROM Resource OR Ok` only for a resource other than
-the bill's denomination, and only if the payer holds that resource when `Billing` fires. The player
+`Accepting` offers `X Pay<Class<Resource>> FROM Resource OR Ok` only for an alternative resource,
+and only if the payer holds that resource when `PaymentScope` begins. The player
 chooses whether to spend, then chooses an exact positive amount. Card-held offers use
 `X PayFromCard<Holder> FROM Resource<Holder> OR Ok` only when that holder has resources.
 There is no optional quantifier on `X`:
 choosing an amount must not leave another choice to spend less than that amount.
 Empty alternatives, including card-held resources, are removed by Admin without an explicit decline.
+Acceptance also removes itself when no debt remains.
 Spending or declining an alternative finishes its acceptance through `THEN -This`; card-held
 payment offers do the same.
 
-`Billing` offers its own denomination as an exact mandatory remainder, gated until all alternative
+`PaymentScope` offers its own denomination as an exact mandatory remainder, gated until all alternative
 acceptance is gone. For M€ this is `1! Pay<Class<MC>> FROM MC / Owed<Class<MC>>`, with neither
 `X` nor `?`. The metric is evaluated when the gated task is selected, after alternatives have reduced
 the debt. Full coverage by alternatives leaves `Ok`; positive debt cannot be partially paid or declined. Finishing
-that task removes the bill, so purchased results wait for the final payment or acknowledgement.
-A bill already at zero when created closes immediately. The same rule lets Stormcraft's floaters
-precede an exact Heat remainder. Starting-card billing can precede the corporation's starting cash;
+that task removes the scope, so purchased results wait for the final payment or acknowledgement.
+A scope created with zero debt closes immediately. The same rule lets Stormcraft's floaters
+precede an exact Heat remainder. Starting-card payment can precede the corporation's starting cash;
 the exact payment remains pending until affordable. Alternative acceptance does not search for
 substitutes or reopen if stock arrives later.
 
 With player autoexecution set to `NONE`, the zero-balance acknowledgement also remains explicit.
 Skipping such work may be a future autoexecution policy; it must not override `NONE`.
-Both fixed and variable standard-resource action costs use billing so acceptance and price
+Both fixed and variable standard-resource action costs use the payment scope so acceptance and price
 adjustments can apply. A variable cost keeps its shared `X` in the sequence from `Owed` through
-`Billing` to the action's result. Choosing `X = 4` for `X Energy -> X MC` opens a bill for 4 Energy;
+`PaymentScope` to the action's result. Choosing `X = 4` for `X Energy -> X MC` opens a scope for 4 Energy;
 only after settlement does the sequence offer 4 M€. Energy Market's `2X MC -> X Energy` can
-therefore accept Heat through FakeHelion's ordinary billing listener instead of forcing an M€ loss.
+therefore accept Heat through FakeHelion's ordinary payment-scope listener instead of forcing an M€ loss.
 
 ## Current pieces
 
 | Piece | Responsibility |
 | --- | --- |
 | `Owed<Class<Resource>>` | Remaining amount, discounts, surcharges, and non-M€ costs. |
-| `PayingFor` and `PriceCard` | Concrete purchase context needed by modifiers before play. |
-| `Billing` | Carries the reason Class, action slot, and currency; opens spending choices and marks settlement. |
+| `PayingFor` | Scope-linked card and printed-tag announcements needed by modifiers before play. |
+| `PaymentScope` | Carries the subject, denomination, and operation; opens spending choices and marks settlement. |
 | `Accepting` | Restricts ordinary resources by payment context. |
 | `AcceptingFromCard` | Restricts spending to the correct card holder. |
 | `ResourceValue` | Supplies dynamic standard-resource values. |
@@ -81,7 +82,7 @@ therefore accept Heat through FakeHelion's ordinary billing listener instead of 
 
 Alternative payment offers must finish before the exact denomination payment. No unused payment
 offers remain after normal settlement. Removing an effect owner still does not retract its queued
-work; payment completion follows the authored acceptance lifecycle rather than task deletion.
+work; payment completion follows the scope's lifecycle rather than task deletion.
 
 ## Source map
 

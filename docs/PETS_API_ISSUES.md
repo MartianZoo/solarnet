@@ -28,7 +28,7 @@ signatures. Neither should automatically be described as compatible.
 
 **Explicit API redesign; `pets`.**
 
-The [expression TODO](TODO.md) calls for separate APIs for an object's naturally available
+The [expression TODO](../TODO.md) calls for separate APIs for an object's naturally available
 expression, a resolved Type's compact expression, and its full expression. Resolving arbitrary
 syntax into either resolved form must explicitly take a `ClassTable`.
 
@@ -165,7 +165,7 @@ instruction-valued printed facts, and richer cardinality. Instruction values wou
 reshape the public sealed [`PropertyValue`](../pets/src/common/dev/martianzoo/pets/ast/PropertyValue.kt)
 hierarchy and property-query methods on `Type` and `Class`.
 
-The [TODOs](TODO.md) also ask how narrower dependency defaults retain compatible refinements and
+The [TODOs](../TODO.md) also ask how narrower dependency defaults retain compatible refinements and
 what happens when an inherited default is disjoint from a subclass's bound. These affect
 `ClassDeclaration.DefaultsDeclaration`, `Defaults`, and type-construction semantics; signature
 changes are possible but not established. Applying the chosen rules may require changes in Canon.
@@ -174,7 +174,7 @@ changes are possible but not established. Applying the chosen rules may require 
 
 **Mixed selected and exploratory work; API changes conditional on representation.**
 
-The [nested-fanout direction](PETS_ROADMAP.md#language-and-modeling) and [TODOs](TODO.md) cover:
+The [nested-fanout direction](PETS_ROADMAP.md#language-and-modeling) and [TODOs](../TODO.md) cover:
 
 - Nested `EACH`, using Quick Start as the proving case: possible effects on `Instruction.Each`
   and its binding contract.
@@ -193,7 +193,7 @@ navigation itself belongs to the nonmoving Agent module.
 
 **Selected improvements; potential public payload and construction changes.**
 
-The [diagnostic TODOs](TODO.md) ask for original filenames through parsing and generated inputs,
+The [diagnostic TODOs](../TODO.md) ask for original filenames through parsing and generated inputs,
 preserved provenance through synthesized trees, better span targets, and retained intersection
 failure reasons.
 
@@ -206,7 +206,7 @@ surfaces. Better messages or provenance propagation alone need not change signat
 
 **Some explicit TODOs, some decisions still open; input compatibility risk.**
 
-The [authoring TODOs](TODO.md) include rejecting new type-variable declarations in `OR` triggers,
+The [authoring TODOs](../TODO.md) include rejecting new type-variable declarations in `OR` triggers,
 considering owner-local class declarations only in gains, considering rejection of `@` on concrete
 types, and resolving identical concrete arguments in nested self-transmutations. These may cause
 existing parser/elaborator calls to reject input they currently accept.
@@ -221,7 +221,7 @@ implementation and a changed intended contract explicit during the specification
 
 **Concrete candidates; primarily declaration/configuration compatibility.**
 
-The [Canon roadmap](PETS_ROADMAP.md#canon-and-game-rule-modeling), [TODOs](TODO.md), and inline TODOs
+The [Canon roadmap](PETS_ROADMAP.md#canon-and-game-rule-modeling), [TODOs](../TODO.md), and inline TODOs
 identify these removals or representation changes:
 
 - Mons Insurance, Crash Site Cleanup, and Law Suit, if removal permits deleting attack-history and

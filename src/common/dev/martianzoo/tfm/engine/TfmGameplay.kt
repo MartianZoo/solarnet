@@ -256,27 +256,28 @@ public class TfmGameplay(
   public fun claimMilestone(milestone: ClassName): TaskResult =
       stdAction("ClaimMilestone<Class<$milestone>>")
 
-  /** Funds the offered [award] and pays [amountPaid] through the current billing task. */
+  /** Funds the offered [award] and pays [amountPaid] through the current payment task. */
   public fun fundAward(award: ClassName, amountPaid: Int): TaskResult =
       stdAction("FundAward<Class<$award>>", payment = { pay(amountPaid) })
 
   private fun OperationScope.payInvoiceFromItsResourceIfOffered() {
-    val billingCause = openPendingBilling()
-    val resource = acceptedResources().singleOrNull()
-    if (resource != null && this@TfmGameplay.count("Owed<Class<$resource>>") > 0) {
-      declineUnusedPaymentOffers(fromCards = true)
+    val paymentCause = openPendingPayment()
+    if (this@TfmGameplay.count("Accepting") > 0) return
+    declineUnusedPaymentOffers(fromCards = true)
+    val resource =
+        reader
+            .getComponents(resolve("Owed<$actor>"))
+            .elements
+            .singleOrNull()
+            ?.typeDependencies
+            ?.firstNotNullOfOrNull { dependency ->
+              dependency.boundType.representedClass?.className
+            }
+    if (resource != null) {
       doTask("Pay<Class<$resource>> FROM $resource / Owed<Class<$resource>>")
     }
-    if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
+    if (this@TfmGameplay.count("Owed") == 0) finishPayment(paymentCause)
   }
-
-  /** The standard resources this Actor's live billing accepts. */
-  private fun acceptedResources(): List<ClassName> =
-      reader.getComponents(resolve("Accepting<$actor>")).elements.mapNotNull {
-        it.typeDependencies.firstNotNullOfOrNull { dependency ->
-          dependency.boundType.representedClass?.className
-        }
-      }
 
   /**
    * Uses the offered conversion to settle an eight-Plant bill and gain a greenery tile. The
@@ -299,7 +300,7 @@ public class TfmGameplay(
   /**
    * Uses an offered standard project named [stdProject]. The default [payment] settles its bill
    * entirely in MC; `body` makes subsequent choices. A custom payment block must settle or leave
-   * the resulting billing tasks for the caller to handle.
+   * the resulting payment tasks for the caller to handle.
    */
   public fun stdProject(
       stdProject: String,
@@ -418,7 +419,7 @@ public class TfmGameplay(
     doWithAutoExecPolicy(NONE) {
       doTask(instruction)
       payment()
-      if (this@TfmGameplay.count("Owed") == 0) finishBilling(null)
+      if (this@TfmGameplay.count("Owed") == 0) finishPayment(null)
     }
     autoExecNow()
     body()
@@ -446,13 +447,13 @@ public class TfmGameplay(
   ): TaskResult {
     val nondefaultPaymentAllowed = allowNondefaultPayment
     allowNondefaultPayment = false
-    // Billing effects are queued; safely advance them until the payment choices are available.
+    // Payment effects are queued; safely advance them until the choices are available.
     val previousAutoExecPolicy = autoExecPolicy
     autoExecPolicy = NONE
 
     return try {
       continueOperation {
-        val billingCause = openPendingBilling()
+        val paymentCause = openPendingPayment()
         val tender =
             linkedMapOf(
                 "Plant" to plants,
@@ -473,7 +474,7 @@ public class TfmGameplay(
             doTask("$units Pay<Class<$currency>> FROM $currency")
           }
         }
-        if (count("Owed") == 0) finishBilling(billingCause)
+        if (count("Owed") == 0) finishPayment(paymentCause)
       }
     } finally {
       autoExecPolicy = previousAutoExecPolicy
@@ -527,8 +528,8 @@ public class TfmGameplay(
     }
   }
 
-  private fun OperationScope.openPendingBilling(): Cause? {
-    val billing =
+  private fun OperationScope.openPendingPayment(): Cause? {
+    val payment =
         game.tasks
             .extract { it }
             .filter { task ->
@@ -539,23 +540,23 @@ public class TfmGameplay(
                   }
             }
             .singleOrNull() ?: return null
-    selectTaskForActor(billing)
-    advanceSingleConcreteTask(billing.cause)
-    return billing.cause
+    selectTaskForActor(payment)
+    advanceSingleConcreteTask(payment.cause)
+    return payment.cause
   }
 
   private fun OperationScope.payAllMc() {
-    val billingCause = openPendingBilling()
+    val paymentCause = openPendingPayment()
     declineUnusedPaymentOffers(fromCards = true)
     val owed = this@TfmGameplay.count("Owed")
     if (owed > 0) doTask("$owed Pay<Class<MC>> FROM MC")
-    if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
+    if (this@TfmGameplay.count("Owed") == 0) finishPayment(paymentCause)
   }
 
-  private fun OperationScope.finishBilling(billingCause: Cause?) {
+  private fun OperationScope.finishPayment(paymentCause: Cause?) {
     declineUnusedPaymentOffers(fromCards = true)
     autoExecNow()
-    advanceSingleConcreteTask(billingCause)
+    advanceSingleConcreteTask(paymentCause)
   }
 
   /** Declines unused alternatives and acknowledges a zero remainder. */
@@ -563,7 +564,7 @@ public class TfmGameplay(
     while (true) {
       val offer =
           pendingPaymentOffers(fromCards = fromCards).minByOrNull {
-            it.cause?.context?.className == cn("Billing")
+            it.cause?.context?.className == cn("PaymentScope")
           } ?: return
       selectTaskForActor(offer)
       if (offer.id in game.tasks) narrowTask("Ok")
@@ -613,7 +614,7 @@ public class TfmGameplay(
                             it.arguments.singleOrNull()?.className == cn(currency)
                           }
                   cn("AcceptingFromCard") -> fromCards && currency == null
-                  cn("Billing") -> currency == null && count("Owed") == 0
+                  cn("PaymentScope") -> currency == null && count("Owed") == 0
                   else -> false
                 }
           }

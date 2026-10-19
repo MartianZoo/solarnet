@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.OperationBlock
+import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -21,6 +22,47 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   private val robotsOptions = "SelfReplicatingRobots"
 
   @Test
+  internal fun `A staged project stays stored through payment and is played from that location`() {
+    initialize(1)
+    kim.setToExMachina(2, "MC")
+    stage("Mine")
+    kim.assertCounts(0 to "ProjectCard<Hand>", 1 to "ProjectCard<StagedProject<Class<Mine>>>")
+
+    kim.inTurn {
+      doTask("PlayStagedProject<Class<Mine>>")
+      kim.assertCounts(
+          0 to "ProjectCard<Hand>",
+          1 to "ProjectCard<StagedProject<Class<Mine>>>",
+          1 to "StagedProject<Class<Mine>>",
+          2 to "RobotUnit",
+          2 to "Owed",
+      )
+      doTask("2 Pay<> FROM MC")
+      kim.count("ProjectCard<StagedProject<Class<Mine>>>") shouldBe 1
+      doTasks("Mine FROM ProjectCard<StagedProject<Class<Mine>>>", "PROD[Steel]")
+    }
+
+    kim.assertCounts(1 to "Mine", 0 to "ProjectCard<Hand>", 0 to "StagedProject", 0 to "RobotUnit")
+  }
+
+  @Test
+  internal fun `A staged Mine cannot be played as Titanium Mine`() {
+    initialize(1)
+    stage("Mine")
+    shouldThrow<DependencyException> {
+      kim.inTurn {
+        doTask("PlayStagedProject<Class<TitaniumMine>>")
+      }
+    }
+    kim.assertCounts(
+        1 to "ProjectCard<StagedProject<Class<Mine>>>",
+        2 to "RobotUnit",
+        0 to "TitaniumMine",
+        0 to "Owed",
+    )
+  }
+
+  @Test
   internal fun `Action can be used only once per generation`() {
     initialize(2)
 
@@ -29,8 +71,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     shouldThrow<LimitsException> {
@@ -38,8 +79,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
         doTasks(
             "UseCardAction<SelfReplicatingRobots, Action1>",
             "StageForReplicatedProject<Class<TitaniumMine>>",
-            "-ProjectCard<Kim, Hand>",
-            "StagedProject<Class<TitaniumMine>>",
+            "ProjectCard<StagedProject<Class<TitaniumMine>> FROM Hand>",
             "2 RobotUnit<StagedProject<Class<TitaniumMine>>>",
         )
       }
@@ -51,8 +91,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<TitaniumMine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<TitaniumMine>>")
+      doTask("ProjectCard<StagedProject<Class<TitaniumMine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<TitaniumMine>>>")
     }
   }
@@ -66,8 +105,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     kim.assertCounts(2 to "RobotUnit<StagedProject<Class<$Mine>>>")
@@ -114,8 +152,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     advanceUntilActionPhase()
@@ -124,8 +161,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<TitaniumMine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<TitaniumMine>>")
+      doTask("ProjectCard<StagedProject<Class<TitaniumMine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<TitaniumMine>>>")
     }
     advanceUntilActionPhase()
@@ -172,8 +208,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
 
@@ -198,8 +233,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
 
@@ -218,8 +252,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
 
@@ -243,8 +276,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
 
@@ -263,14 +295,13 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<BeamFromAThoriumAsteroid>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<BeamFromAThoriumAsteroid>>")
+      doTask("ProjectCard<StagedProject<Class<BeamFromAThoriumAsteroid>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<BeamFromAThoriumAsteroid>>>")
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayProject<Class<BeamFromAThoriumAsteroid>>")
+        doTask("PlayStagedProject<Class<BeamFromAThoriumAsteroid>>")
       }
     }
 
@@ -290,8 +321,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<ImmigrantCity>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<ImmigrantCity>>")
+      doTask("ProjectCard<StagedProject<Class<ImmigrantCity>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<ImmigrantCity>>>")
     }
     advanceUntilActionPhase()
@@ -305,8 +335,12 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.count("CityTile") shouldBe 0
 
     kim.inTurn {
-      doTask("PlayProject<Class<ImmigrantCity>>")
-      doTasks("ImmigrantCity FROM ProjectCard", "PROD[-Energy]", "PROD[-2 MC]")
+      doTask("PlayStagedProject<Class<ImmigrantCity>>")
+      doTasks(
+          "ImmigrantCity FROM ProjectCard<StagedProject<Class<ImmigrantCity>>>",
+          "PROD[-Energy]",
+          "PROD[-2 MC]",
+      )
       doTasks("CityTile<Tharsis_7_4>", "PROD[MC]")
     }
 
@@ -323,15 +357,14 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
 
     kim.inTurn {
-      doTask("PlayProject<Class<Mine>>")
+      doTask("PlayStagedProject<Class<Mine>>")
       doTask("2 Pay<> FROM MC")
-      doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+      doTasks("Mine FROM ProjectCard<StagedProject<Class<Mine>>>", "PROD[Steel]")
     }
 
     kim.assertCounts(0 to "ProjectCard", 1 to "$Mine")
@@ -345,8 +378,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     advanceUntilActionPhase()
@@ -363,8 +395,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTask("PlayProject<Class<Mine>>")
-          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+          doTask("PlayStagedProject<Class<Mine>>")
+          doTasks("Mine FROM ProjectCard<StagedProject<Class<Mine>>>", "PROD[Steel]")
         }
         .expect("0 MC")
 
@@ -382,8 +414,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     advanceUntilActionPhase()
@@ -392,8 +423,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<TitaniumMine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<TitaniumMine>>")
+      doTask("ProjectCard<StagedProject<Class<TitaniumMine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<TitaniumMine>>>")
     }
     advanceUntilActionPhase()
@@ -406,8 +436,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTask("PlayProject<Class<Mine>>")
-          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+          doTask("PlayStagedProject<Class<Mine>>")
+          doTasks("Mine FROM ProjectCard<StagedProject<Class<Mine>>>", "PROD[Steel]")
         }
         .expect("0 MC")
 
@@ -428,8 +458,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
 
@@ -439,8 +468,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<TitaniumMine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<TitaniumMine>>")
+      doTask("ProjectCard<StagedProject<Class<TitaniumMine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<TitaniumMine>>>")
     }
 
@@ -460,8 +488,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
 
@@ -483,8 +510,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     advanceUntilActionPhase()
@@ -512,8 +538,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     advanceUntilActionPhase()
@@ -522,8 +547,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<TitaniumMine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<TitaniumMine>>")
+      doTask("ProjectCard<StagedProject<Class<TitaniumMine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<TitaniumMine>>>")
     }
     advanceUntilActionPhase()
@@ -577,10 +601,10 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.setToExMachina(1, "MC")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<TitaniumMine>>",
+          "PlayStagedProject<Class<TitaniumMine>>",
           "2 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "TitaniumMine FROM ProjectCard",
+          "TitaniumMine FROM ProjectCard<StagedProject<Class<TitaniumMine>>>",
           "PROD[Titanium]",
       )
     }
@@ -597,10 +621,10 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<SpaceStation>>",
+          "PlayStagedProject<Class<SpaceStation>>",
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC",
-          "SpaceStation FROM ProjectCard",
+          "SpaceStation FROM ProjectCard<StagedProject<Class<SpaceStation>>>",
       )
     }
     kim.assertCounts(0 to "MC", 0 to "Titanium", 0 to "ProjectCard", 0 to "RobotUnit")
@@ -613,9 +637,9 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.setToExMachina(12, "MC")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<AsteroidCard>>",
+          "PlayStagedProject<Class<AsteroidCard>>",
           "12 Pay<> FROM MC",
-          "AsteroidCard FROM ProjectCard",
+          "AsteroidCard FROM ProjectCard<StagedProject<Class<AsteroidCard>>>",
           "TemperatureStep",
           "2 Titanium",
           "-0 Plant<Anyone>",
@@ -658,8 +682,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks(
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<$card>>",
-          "-ProjectCard",
-          "StagedProject<Class<$card>>",
+          "ProjectCard<StagedProject<Class<$card>> FROM Hand>",
           "2 RobotUnit<StagedProject<Class<$card>>>",
       )
     }
@@ -683,8 +706,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     kim.count("ProjectCard") shouldBe 1
@@ -713,8 +735,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     advanceUntilActionPhase()
@@ -723,15 +744,14 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<ResearchOutpost>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<ResearchOutpost>>")
+      doTask("ProjectCard<StagedProject<Class<ResearchOutpost>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<ResearchOutpost>>>")
     }
 
     kim.inTurn {
-          doTask("PlayProject<Class<ResearchOutpost>>")
+          doTask("PlayStagedProject<Class<ResearchOutpost>>")
           doTask("16 Pay<> FROM MC")
-          doTasks("ResearchOutpost FROM ProjectCard")
+          doTasks("ResearchOutpost FROM ProjectCard<StagedProject<Class<ResearchOutpost>>>")
           // Resolve the exchange offer: the empty hand leaves no card to discard.
           selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
           doTasks("CityTile<Tharsis_4_2>", "Plant")
@@ -754,8 +774,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<VenusWaystation>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<VenusWaystation>>")
+      doTask("ProjectCard<StagedProject<Class<VenusWaystation>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<VenusWaystation>>>")
     }
     return kim.inTurn {
@@ -788,8 +807,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<VenusWaystation>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<VenusWaystation>>")
+      doTask("ProjectCard<StagedProject<Class<VenusWaystation>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<VenusWaystation>>>")
     }
     kim.setToExMachina(10, "MC")
@@ -855,8 +873,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<VenusWaystation>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<VenusWaystation>>")
+      doTask("ProjectCard<StagedProject<Class<VenusWaystation>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<VenusWaystation>>>")
     }
     kim.exMachina("$MaxwellBase")
@@ -881,8 +898,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     return kim.inTurn {
@@ -911,8 +927,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     return kim.inTurn {
@@ -939,8 +954,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<Mine>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<Mine>>")
+      doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<Mine>>>")
     }
     return kim.inTurn {
@@ -1054,9 +1068,9 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     stage("Mine")
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Mine>>",
+              "PlayStagedProject<Class<Mine>>",
               "2 Pay<> FROM MC",
-              "Mine FROM ProjectCard",
+              "Mine FROM ProjectCard<StagedProject<Class<Mine>>>",
               "PROD[Steel]",
           )
         }
@@ -1080,8 +1094,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "UseCardAction<SelfReplicatingRobots, Action1>",
           "StageForReplicatedProject<Class<MicroMills>>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("StagedProject<Class<MicroMills>>")
+      doTask("ProjectCard<StagedProject<Class<MicroMills>> FROM Hand>")
       doTask("2 RobotUnit<StagedProject<Class<MicroMills>>>")
     }
   }
@@ -1106,6 +1119,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       kim.completeOperation {
         doTask("UseCardAction<$SelfReplicatingRobots, Action1>")
         doTask("StageForReplicatedProject<Class<$Mine>>")
+        doTask("ProjectCard<StagedProject<Class<Mine>> FROM Hand>")
       }
       kim.doTasks("PlayProject<Class<$Pets>>")
       stan.doTask("Pass")

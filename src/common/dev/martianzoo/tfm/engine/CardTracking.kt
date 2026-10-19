@@ -16,15 +16,16 @@ import dev.martianzoo.tfm.state.tfmCatalog
 
 /**
  * Opt-in, game-wide record of named cards. Call [start] before the first hand movement, then supply
- * names before the Agent operation that needs them. Every successful Agent operation names all
- * CardBack movements into or out of Hand; missing names fail atomically. When [start] enables
- * Selecting tracking, every Selecting movement must also be named. A discarded card may enter the
- * game again. A card cannot occupy a tracked Hand, Selecting area, or played location twice. Direct
- * plays from Selecting are not checked against previously seen cards when Selecting tracking is
- * disabled. Supplied names must be concrete catalog CardFront classes with the matching CardBack.
- * Each named change gets a `Cards:` event note; wrong names or missing required names roll back the
- * Agent request. Names queued for a later change are consumed in that Player's per-back,
- * per-location event order.
+ * names before the Agent operation that needs them. Every successful Agent operation identifies all
+ * CardBack movements into or out of Hand; missing required names fail atomically. When [start]
+ * enables Selecting tracking, every Selecting movement must also be named. A discarded card may
+ * enter the game again. A card cannot occupy a tracked Hand, Selecting area, or played location
+ * twice. Direct plays from Selecting are not checked against previously seen cards when Selecting
+ * tracking is disabled. A staged card's destination names it when it leaves Hand; playing it from
+ * staging needs no supplied name. Supplied names must be concrete catalog CardFront classes with
+ * the matching CardBack. Each named change gets a `Cards:` event note; wrong names or missing
+ * required names roll back the Agent request. Names queued for a later change are consumed in that
+ * Player's per-back, per-location event order.
  *
  * The current event history and supplied name sequences are the sources of truth. Validation
  * processes new changes incrementally, rebuilding from surviving events after rollback. This tracks
@@ -269,10 +270,24 @@ private constructor(
 
       if (handRemoval) {
         val player = checkNotNull(removing?.owningPlayer)
+        val destinationFace =
+            gaining
+                ?.takeIf { it.className == removingBack }
+                ?.expressionFull
+                ?.descendantsOfType<ClassName>()
+                ?.firstOrNull { name ->
+                  world.classTable.getClass(name).isSubtypeOf(world.classTable.getClass(CARD_FRONT))
+                }
         removedNames =
             if (playedFace != null) {
               check(change.count == 1) { "one played face cannot consume ${change.count} cards" }
               listOf(playedFace)
+            } else if (destinationFace != null) {
+              check(change.count == 1) {
+                "one named destination cannot consume ${change.count} cards"
+              }
+              requireCards(arrayOf(destinationFace), checkNotNull(removingBack))
+              listOf(destinationFace)
             } else {
               takeNames(
                   departures,
@@ -496,6 +511,11 @@ private constructor(
               }
               locations[name] = current.copy(location = Outside)
             }
+      }
+      // A played face identifies its back even when it came from a location outside Hand.
+      if (playedFace != null && !handRemoval && selectingRemovalBack == null) {
+        val back = checkNotNull(cardBack(world.classTable.getClass(playedFace))).className
+        locations[playedFace] = CardState(back, Played(checkNotNull(gaining.owningPlayer)))
       }
     }
 

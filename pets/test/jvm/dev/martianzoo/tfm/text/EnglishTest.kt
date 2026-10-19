@@ -121,7 +121,7 @@ internal class EnglishTest {
     ) shouldBe "Pay 3 M€ to any player (to the extent possible)."
     english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe "Requires 6% oxygen or less."
     english.describe(
-        parse<Effect>("Billing<Class<ConvertPlants>, Action1>:: -Owed<Class<Plant>>")
+        parse<Effect>("PaymentScope<Class<ConvertPlants>, Class<Plant>>:: -Owed<Class<Plant>>")
     ) shouldBe "When you convert plants to greenery, you pay 1 plant less."
     english.describe(parse<Effect>("PayingFor<Class<CardFront>>:: -2 Owed<>")) shouldBe
         "When you play a card, you pay 2 M€ less for it."
@@ -131,7 +131,9 @@ internal class EnglishTest {
     english.describe(parse<Effect>("PayingFor<Class<ProjectCard>>:: 2 Owed<>")) shouldBe
         "When you buy a card, pay 2 M€ extra."
     english.describe(
-        parse<Effect>("UseAction<This, Action1>:: Accepting<Class<Titanium>>")
+        parse<Effect>(
+            "PaymentScope<Class<This>, Class<MC>, Class<Action1>>:: Accepting<Class<Titanium>>"
+        )
     ) shouldBe "When you pay for this action, titanium may be used."
     english.describe(parse<Effect>("PayingFor<Class<PlanetaryTag>>:: -2 Owed<>")) shouldBe
         "When you play a planetary tag, you pay 2 M€ less for it."
@@ -261,13 +263,13 @@ internal class EnglishTest {
   }
 
   @Test
-  internal fun billingCostConditionsReferToTheSelectedProject() {
+  internal fun paymentCostConditionsReferToTheSelectedProject() {
     english.describe(
-        parse<Effect>("-Billing<Class<@StandardProject>(HAS @StandardProject.cost)>: 3 MC")
+        parse<Effect>("-PaymentScope<Class<@StandardProject>(HAS @StandardProject.cost)>: 3 MC")
     ) shouldBe "When you pay for a standard project with a positive printed cost, gain 3 M€."
     english.describe(
-        parse<Effect>("-Billing<Class<StandardProject>(HAS PowerPlantProject.cost)>: 3 MC")
-    ) shouldBe "[-Billing<Class<StandardProject>(HAS PowerPlantProject.cost)>: 3 MC]."
+        parse<Effect>("-PaymentScope<Class<StandardProject>(HAS PowerPlantProject.cost)>: 3 MC")
+    ) shouldBe "[-PaymentScope<Class<StandardProject>(HAS PowerPlantProject.cost)>: 3 MC]."
   }
 
   @Test
@@ -277,7 +279,7 @@ internal class EnglishTest {
             """
             CLASS HeatPayingScience : ActiveCard, ResourceCard<Class<Science>> {
               cost = 0
-              Billing<Class<Component>, Class<Heat>>:: AcceptingFromCard<This>
+              @PaymentScope<Class<Component>, Class<Heat>>:: AcceptingFromCard<This, @PaymentScope>
               PayFromCard<This>:: -3 Owed<Class<Heat>>
             }
             """
@@ -535,14 +537,14 @@ internal class EnglishTest {
             """
             CLASS TitaniumAction : ActionCard, ActiveCard, ResourceCard<Class<Asteroid>> {
               cost = 0
-              UseAction<This, Action1>:: Accepting<Class<Titanium>>
+              @PaymentScope<Class<TitaniumAction>, Class<MC>, Class<Action1>>:: Accepting<Class<Titanium>, @PaymentScope>
               12 MC -> OceanTile
               Asteroid<This> -> VenusStep
             }
             """
         )
 
-    english.topText(card) shouldBe
+    English(card.classTable, TerraformingMarsDescribers.descriptions).topText(card) shouldBe
         "Action: Spend 12 M€ (titanium may be used) to place an ocean tile, or spend 1 asteroid from this card to raise Venus 1 step."
   }
 
@@ -664,16 +666,16 @@ internal class EnglishTest {
 
   @Test
   internal fun retainsUnsupportedPetsAlongsideRenderedInstructions() {
-    english.describe(parse<InstructionTree>("2 Steel, 3 Billing")) shouldBe
-        "Gain 2 steel. [3 Billing]."
+    english.describe(parse<InstructionTree>("2 Steel, 3 PaymentScope")) shouldBe
+        "Gain 2 steel. [3 PaymentScope]."
 
     val rendering =
         renderInstructionTree(
-            parse("2 Steel, 3 Billing"),
+            parse("2 Steel, 3 PaymentScope"),
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
     rendering.unresolved().map { it.node.toString() to it.reason } shouldBe
-        listOf("3 Billing" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+        listOf("3 PaymentScope" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
 
   @Test
@@ -684,16 +686,16 @@ internal class EnglishTest {
 
   @Test
   internal fun retainsUnsupportedPetsWithinPaymentResults() {
-    val instruction = parse<InstructionTree>("-2 Steel THEN 3 Billing")
+    val instruction = parse<InstructionTree>("-2 Steel THEN 3 PaymentScope")
     val rendering =
         renderInstructionTree(
             instruction,
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
 
-    rendering.linearize() shouldBe "Spend 2 steel to [3 Billing]."
+    rendering.linearize() shouldBe "Spend 2 steel to [3 PaymentScope]."
     rendering.unresolved().map { it.node.toString() to it.reason } shouldBe
-        listOf("3 Billing" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+        listOf("3 PaymentScope" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
 
   @Test
@@ -763,7 +765,7 @@ internal class EnglishTest {
                 CLASS FaniumConverter : ActiveCard {
                   cost = 0
                   HAS =1 GrantedResourceValue<Class<Fanium>, This>, =1 ScienceTag<This>
-                  PayingFor<Class<BuildingTag>>:: Accepting<Class<Fanium>>
+                  PayingFor<Class<BuildingTag>, @PaymentScope>:: Accepting<Class<Fanium>, @PaymentScope>
                 }
                 """
                     .trimIndent()

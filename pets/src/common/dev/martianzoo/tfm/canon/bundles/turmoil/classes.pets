@@ -249,7 +249,7 @@ CLASS LobbyAction : StandardAction {
 
 "Places a delegate from the reserve for 5 M€"
 CLASS PaidLobbyAction : StandardAction {
-  This: 5 Owed<> THEN Billing<Class<PaidLobbyAction>> THEN (MAX 0 Billing, MAX 6 Delegate): PartyDelegate
+  This: 5 Owed<> THEN PaymentScope<Class<PaidLobbyAction>> THEN (MAX 0 PaymentScope, MAX 6 Delegate): PartyDelegate
 }
 
 "Restores free lobbying for each player who has an available delegate"

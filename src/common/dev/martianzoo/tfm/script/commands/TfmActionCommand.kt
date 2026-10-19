@@ -99,7 +99,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
           }
       repl.agent.selectTask("${supplied.scaledEx.scalar} ${owed.gaining}")
     }
-    if (repl.agent.count("Billing") > 0) {
+    if (repl.agent.count("PaymentScope") > 0) {
       TfmPayCommand(repl).withArgs(payment)
       return
     }

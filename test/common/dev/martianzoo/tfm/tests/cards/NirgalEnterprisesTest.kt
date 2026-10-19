@@ -12,7 +12,6 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("ClaimMilestone<Class<Planner>>")
-          doTask("Ok") // Nirgal waives the usual fee.
           doTask("Planner")
         }
         .expect("0 MC")
@@ -24,7 +23,6 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("FundAward<Class<Landlord>>")
-          doTask("Ok") // Nirgal waives the usual fee.
           doTask("Landlord")
         }
         .expect("0 MC")
@@ -37,7 +35,6 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTask("ClaimMilestone<Class<Briber>>")
-      doTask("Ok") // Nirgal waives the usual fee.
       doTask("Briber")
       doTask("-12 MC")
     }

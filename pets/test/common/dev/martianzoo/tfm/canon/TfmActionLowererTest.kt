@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 internal class TfmActionLowererTest {
   @Test
-  internal fun `standard-resource actions use Terraforming Mars billing`() {
+  internal fun `standard-resource actions use Terraforming Mars payment scopes`() {
     val declaration =
         parseClasses(
                 """
@@ -26,18 +26,18 @@ internal class TfmActionLowererTest {
         .effects
         .shouldContainExactly(
             parse<Effect>(
-                "UseAction<This, Action1>: 2 Owed<Class<MC>> THEN Billing<Class<This>, Action1>"
+                "UseAction<This, Action1>: 2 Owed<Class<MC>> THEN PaymentScope<Class<This>, Class<MC>, Class<Action1>>"
             ),
-            parse<Effect>("-Billing<Class<This>, Action1>: Foo"),
+            parse<Effect>("-PaymentScope<Class<This>, Class<MC>, Class<Action1>>: Foo"),
             parse<Effect>(
                 "UseAction<This, Action2>: Owed<Class<Steel>> THEN " +
-                    "Billing<Class<This>, Action2, Class<Steel>>"
+                    "PaymentScope<Class<This>, Class<Steel>, Class<Action2>>"
             ),
-            parse<Effect>("-Billing<Class<This>, Action2>: Bar"),
+            parse<Effect>("-PaymentScope<Class<This>, Class<Steel>, Class<Action2>>: Bar"),
             parse<Effect>(
                 "UseAction<This, Action3>: X Owed<Class<Plant>> THEN " +
-                    "Billing<Class<This>, Action3, Class<Plant>> THEN " +
-                    "MAX 0 Billing: (X Heat)"
+                    "PaymentScope<Class<This>, Class<Plant>, Class<Action3>> THEN " +
+                    "MAX 0 PaymentScope: (X Heat)"
             ),
         )
   }

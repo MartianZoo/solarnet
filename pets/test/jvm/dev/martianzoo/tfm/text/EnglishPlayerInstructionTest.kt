@@ -181,9 +181,9 @@ class EnglishPlayerInstructionTest {
         cn("Green"),
     ) shouldBe "Lose 2 steel."
     english.describe(
-        parse<InstructionTree>("3! Owed<Green, Class<Plant>> THEN Billing<Green>!"),
+        parse<InstructionTree>("3! Owed<Green, Class<Plant>> THEN PaymentScope<Green>!"),
         cn("Green"),
-    ) shouldContain "Billing"
+    ) shouldContain "PaymentScope"
   }
 
   @Test
