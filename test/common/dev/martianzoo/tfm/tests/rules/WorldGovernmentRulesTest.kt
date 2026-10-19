@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -144,13 +146,37 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
           // Resolve the world-government handoff even though all tracks are complete.
-          selectTask("GlobalParameter* BY Admin")
+          selectTask("GlobalParameter(NOT OceanTile<LandArea>)* BY Admin")
         }
         .expect("0 TerraformRating, 0 VenusStep, 0 TemperatureStep, 0 OxygenStep, 0 OceanTile")
     kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
   }
 
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
+    @Test
+    internal fun `Solar World Government cannot place its ocean on the Noctis area`() {
+      newTestGame(playerCount = 2)
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+
+      shouldThrow<DeadEndException> { kim.doTask("OceanTile<Tharsis_5_3>! BY Admin") }
+      admin.count("OceanTile") shouldBe 0
+      kim.doTask("OceanTile<Tharsis_1_2>! BY Admin").expect("OceanTile, 0 TerraformRating")
+    }
+
+    @Test
+    internal fun `Solar World Government cannot place its ocean on land`() {
+      newTestGame(playerCount = 2)
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+
+      shouldThrow<NarrowingException> { kim.doTask("OceanTile<Tharsis_3_3>! BY Admin") }
+      admin.count("OceanTile") shouldBe 0
+      kim.doTask("OceanTile<Tharsis_1_2>! BY Admin").expect("OceanTile, 0 TerraformRating")
+    }
+
     @Test
     internal fun `Solar World Government cannot choose a completed parameter`() {
       newTestGame(playerCount = 2)

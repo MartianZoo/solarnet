@@ -195,7 +195,7 @@
           "name": "WorldGovernmentAdvisor",
           "tags": [ "EarthTag" ],
           "direct": "2 TerraformRating, ProjectCard",
-          "actions": [ "-> GlobalParameter BY Admin" ],
+          "actions": [ "-> GlobalParameter(NOT OceanTile<LandArea>) BY Admin" ],
         },
       ],
     },

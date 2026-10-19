@@ -1,10 +1,25 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
+  @Test
+  internal fun `Its action cannot place an ocean on land`() {
+    newTestGame("WorldGovernmentAdvisor")
+    kim.exMachina("$WorldGovernmentAdvisor")
+
+    kim.inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          shouldThrow<TaskException> { doTask("OceanTile<Tharsis_3_3> BY Admin") }
+          doTask("OceanTile<Tharsis_1_2> BY Admin")
+        }
+        .expect("OceanTile, 0 TerraformRating")
+  }
+
   @Test
   internal fun `Its owner chooses even when another player holds the start token`() {
     newTestGame("WorldGovernmentAdvisor")

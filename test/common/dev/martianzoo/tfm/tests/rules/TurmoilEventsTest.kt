@@ -10,6 +10,30 @@ import kotlin.test.Test
 
 internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
+  internal fun `Democratic Reform cannot place its ocean on land`() {
+    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    kim.doTask("Pass")
+    stan.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.autoExecNow(EAGER) }
+    admin.doTask("PartyLeader<Greens, Neutral>")
+    admin.doTasks("ExperimentalLifeforms", "PartyFollower<Greens, Neutral>")
+    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
+
+    val first = players.single { it.count("StartToken") == 1 }
+    first.doTask("Pass")
+    players.single { it != first }.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
+    first.doTask("VenusStep! BY Admin")
+    players.forEach { it.autoExecNow(EAGER) }
+
+    shouldThrow<NarrowingException> { first.doTask("OceanTile<Tharsis_3_3> BY Admin") }
+    admin.count("OceanTile") shouldBe 0
+    first.doTask("OceanTile<Tharsis_1_2> BY Admin").expect("OceanTile, 0 TerraformRating")
+  }
+
+  @Test
   internal fun `An event stays dormant until Current and is discarded after resolving`() {
     prepareEvent(
         "ExperimentalLifeforms",
@@ -967,6 +991,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       first.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
+      shouldThrow<NarrowingException> { first.doTask("OceanTile<Tharsis_3_3> BY Admin") }
       first.doTask("OceanTile<Tharsis_1_4> BY Admin").expect("OceanTile")
       players.forEach { it.autoExecNow(EAGER) }
 
