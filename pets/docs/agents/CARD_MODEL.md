@@ -47,18 +47,18 @@ consequences of the declared face remain game rules for Solarnet to calculate.
 
 ## Cards stored on Self-Replicating Robots
 
-`StagedProject<Class<CardFront>>` records a named stored project outside play and is a
-`ResourceHolder<Class<RobotUnit>>`. Its `RobotUnit` resources are ordinary `CardResource`s; the
-holder is not a `CardFront`. Storing removes an anonymous hand card and requires a printed Building
-or Space tag; `PriceAspectCount` exposes those printed project-card tags without gaining the card.
-The stored project contributes no live tags, actions, play effects, or printed resource capacity.
-It starts with two robot resources and its holder owns the doubling and payment rules.
+`StagedProject<Class<CardFront>>` is both a `CardLocation` outside play and a
+`ResourceHolder<Class<RobotUnit>>`. Storing moves a project back from Hand into that location and
+adds two `RobotUnit` resources. It requires a printed Building or Space tag; `PriceAspectCount`
+checks those printed tags without gaining the card's face. The stored project contributes no live
+tags, actions, play effects, or printed resource capacity.
 
-Playing the named stored card restores its anonymous hand back automatically. During that card's
-`PayingFor` event, the holder reduces `Owed` by its robot count, then removes itself and its dependent
-resources before billing. Ordinary play requirements and payment choices remain in force. In
-optional `CardTracking` mode, the caller names the storage departure and the same card's temporary
-arrival before play. Other stored projects keep their holders and resources.
+`PlayProject` uses Hand; `PlayStagedProject` uses the matching staged location. The stored back stays
+there through payment, while the holder's robot count reduces `Owed` during `PayingFor`. Playing the
+face consumes the back from its staged location; removing that back removes the holder and its
+resources. Ordinary play requirements and payment choices remain in force. In optional
+`CardTracking` mode, the staging transfer names the departure from Hand; playing from the staged
+location needs no temporary Hand arrival. Other stored projects stay in place.
 
 CEO's Favorite Project, Applied Science, and L1 Trade Terminal select stocked `ResourceHolder`s.
 Sponsored Projects does likewise across `Player` owners, excluding the neutral solo reserves.
@@ -90,8 +90,9 @@ Corporation phase plays the retained corporation or beginner card from `Hand`. G
 when Admin starts the purchase. Completing the earlier `PlayCard` signal is not sufficient.
 Gameplay callers choose the card face without repeating its location. `PlayCard` has no location
 default: `doTask` intersects the caller's choice with the pending task, which supplies the authorized
-source (`Hand` for ordinary plays, `Selecting` for plays from an offer). An explicit conflicting
-source is rejected even when that location contains another card.
+source (`Hand` for ordinary plays, `Selecting` for plays from an offer). The optional Robots bundle
+offers `PlayStagedProject` for the matching staged location. An explicit conflicting source is
+rejected even when that location contains another card.
 
 An ordinary draw adds `ProjectCard<Hand>`. Fixed-size project-card offers, including buys,
 gain the full offer as `ProjectCard<Selecting>`. Look-and-keep effects move only retained backs to
