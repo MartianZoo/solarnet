@@ -8,6 +8,33 @@ import kotlin.test.Test
 
 internal class TfmActionLowererTest {
   @Test
+  internal fun `payment lowering preserves absent action failures`() {
+    val declaration = parseClasses("CLASS Provider { 2 MC -> Foo }").single()
+    TfmActionLowerer.lower(declaration)
+        .effects
+        .shouldContainExactly(
+            parse<Effect>(
+                "UseAction<This, Action1>: 2 Owed<Class<MC>> THEN PaymentScope<Class<This>, Class<MC>, Class<Action1>>"
+            ),
+            parse<Effect>("-PaymentScope<Class<This>, Class<MC>, Class<Action1>>: Foo"),
+            parse<Effect>("UseAction<This, Action2>: Die"),
+            parse<Effect>("UseAction<This, Action3>: Die"),
+        )
+  }
+
+  @Test
+  internal fun `two authored actions leave only the third slot absent`() {
+    val declaration = parseClasses("CLASS Provider { -> Foo; -> Bar }").single()
+    TfmActionLowerer.lower(declaration)
+        .effects
+        .shouldContainExactly(
+            parse<Effect>("UseAction<This, Action1>: Foo"),
+            parse<Effect>("UseAction<This, Action2>: Bar"),
+            parse<Effect>("UseAction<This, Action3>: Die"),
+        )
+  }
+
+  @Test
   internal fun `standard-resource actions use Terraforming Mars payment scopes`() {
     val declaration =
         parseClasses(

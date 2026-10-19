@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Transform as InstructionTransform
@@ -156,6 +157,19 @@ internal class CanonInvariantsTest {
     checkCards("ActionCard must agree with authored actions", cards) {
       it.isSubtypeOf(table.getClass(cn("ActionCard"))) == cardActions(it).isNotEmpty()
     }
+  }
+
+  @Test
+  internal fun everyConcreteHasActionsClassHandlesAllActionSlots() {
+    val hasActions = table.getClass(cn("HasActions"))
+    val slots = (1..3).associateWith { parse<Effect>("UseAction<This, Action$it>: Die").trigger }
+    val concrete = table.allClasses().filter { !it.abstract && it.isSubtypeOf(hasActions) }
+    assertTrue(concrete.isNotEmpty(), "No concrete HasActions classes examined")
+    val missing = concrete.flatMap { klass ->
+      val triggers = klass.allSuperclasses().flatMap { it.declaration.effects }.map { it.trigger }
+      slots.filterValues { it !in triggers }.keys.map { "${klass.className}: Action$it" }
+    }
+    assertTrue(missing.isEmpty(), "Missing UseAction reactions:\n${missing.joinToString("\n")}")
   }
 
   @Test

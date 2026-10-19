@@ -5,23 +5,22 @@
 > **Read when:** changing authored actions, action selection, `UseAction`, `UseCardAction`, or
 > action-specific payment identity.
 >
-> **Status:** verified defect and required behavior; the replacement representation is still a
-> proposal. The [Solarnet roadmap](../../../docs/SOLARNET_ROADMAP.md#internal-design-and-game-execution)
+> **Status:** absent action slots are rejected by lowered `Die` effects; the replacement
+> representation is still a proposal. The [Solarnet roadmap](../../../docs/SOLARNET_ROADMAP.md#internal-design-and-game-execution)
 > indexes the broader action lifecycle work.
 
-## Current behavior and urgent defect
+## Current behavior
 
 Pets lowers the nth authored action to an effect triggered by `UseAction<This, ActionN>`.
-Terraforming Mars defines `Action1` through `Action3` as global slots, and `UseCardAction` forwards
-the selected slot to `UseAction` before creating the card's `ActionUsedMarker`. The slot exists even
-when a particular card has no action at that position.
+Terraforming Mars defines `Action1` through `Action3` as global slots, and its action lowerer fills
+unused slots with `Die` effects. Every concrete Canon `HasActions` class has an authored action,
+so lowering makes each react to all three slots without repeating the missing slots in source.
+`UseCardAction` forwards the selected slot to `UseAction` before creating the card's
+`ActionUsedMarker`.
 
-[`AiCentralTest`](../../../test/common/dev/martianzoo/tfm/tests/cards/AiCentralTest.kt) demonstrates the
-consequence: AI Central has only one authored action, but selecting action 2 succeeds, draws no
-cards, and consumes its use for the generation. Its intended rejection test is disabled beside the
-passing defect characterization. This is a correctness bug in action selection, not merely an
-inaccurate list of available choices. Fix it as part of action identity work; do not let a missing
-action reach the marker-producing path.
+[`AiCentralTest`](../../../test/common/dev/martianzoo/tfm/tests/cards/AiCentralTest.kt) checks that
+selecting AI Central's absent second action fails and leaves its real action available.
+`CanonInvariantsTest` checks all concrete `HasActions` classes for all three triggers.
 
 ## Required behavior
 
