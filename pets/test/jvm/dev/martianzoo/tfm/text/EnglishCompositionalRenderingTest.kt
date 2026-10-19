@@ -366,6 +366,9 @@ internal class EnglishCompositionalRenderingTest {
         "Requires that you have 10 project cards in play."
     english.describe(parse<InstructionTree>("GlobalParameter BY Admin")) shouldBe
         "Raise any global parameter (performed by Admin)."
+    english.describe(
+        parse<InstructionTree>("GlobalParameter(NOT OceanTile<LandArea>) BY Admin")
+    ) shouldBe "Raise any global parameter (performed by Admin)."
     english.describe(parse<InstructionTree>("MC BY Admin")) shouldBe
         "Gain 1 M€ (performed by Admin)."
   }

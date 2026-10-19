@@ -9,10 +9,11 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.types.Dependency.Key
 
-/** The payment operation identified by a Billing-family event. */
-internal data class BillingEvent(
+/** The subject, denomination, and operation identified by a payment scope. */
+internal data class PaymentContext(
     val provider: Expression?,
     val resource: Expression?,
+    val operation: Expression?,
     val phase: Phase,
 ) {
   enum class Phase {
@@ -21,7 +22,7 @@ internal data class BillingEvent(
   }
 }
 
-internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
+internal fun Describers.paymentContext(trigger: Trigger): PaymentContext? {
   val expression =
       when (trigger) {
         is OnGainOf -> trigger.expression
@@ -29,12 +30,13 @@ internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
         else -> return null
       }
   if (expression.refinement != null) return null
-  if (!expressions.isBilling(expression.className)) return null
-  val resolved = resolveExpression(expression) ?: return null
+  if (!expressions.isPaymentScope(expression.className)) return null
+  val resolved = resolveExpression(expression, PROVIDER) ?: return null
   val provider =
       resolved.dependency(PROVIDER)?.let {
         val sourceExpression = resolved.sourceDependency(PROVIDER)
         val source = sourceExpression?.let(::resolveExpression)
+        if (sourceExpression == Expression(CLASS, listOf(thisExpression))) return@let thisExpression
         it.representedClass
             ?.className
             ?.expression
@@ -50,11 +52,16 @@ internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
       resolved.sourceDependency(RESOURCE)?.let {
         resolved.dependency(RESOURCE)?.representedClass?.className?.expression
       }
+  val operation =
+      resolved.sourceDependency(OPERATION)?.let {
+        resolved.dependency(OPERATION)?.representedClass?.className?.expression
+      }
   val phase =
-      if (trigger is OnRemoveOf) BillingEvent.Phase.COMPLETED else BillingEvent.Phase.STARTED
-  return BillingEvent(provider, resource, phase)
+      if (trigger is OnRemoveOf) PaymentContext.Phase.COMPLETED else PaymentContext.Phase.STARTED
+  return PaymentContext(provider, resource, operation, phase)
 }
 
-private val BILLING = cn("Billing")
-private val PROVIDER = Key(BILLING, 0)
-private val RESOURCE = Key(BILLING, 2)
+private val PAYMENT_SCOPE = cn("PaymentScope")
+private val PROVIDER = Key(PAYMENT_SCOPE, 0)
+private val OPERATION = Key(PAYMENT_SCOPE, 2)
+private val RESOURCE = Key(PAYMENT_SCOPE, 1)

@@ -386,7 +386,7 @@ private fun renderProcedure(
           ?: Clause.Simple(Predicate(Verb(frame.verb)))
   val targetRelation = frame.targetRelation
   if (targetRelation == null) {
-    if (!gain.gaining.simple) return null
+    if (gain.gaining.arguments.isNotEmpty()) return null
     return result
   }
   if (gain.gaining.simple) return result.takeIf { frame.objectPhrase == null }

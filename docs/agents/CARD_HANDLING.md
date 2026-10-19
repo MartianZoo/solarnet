@@ -50,8 +50,8 @@ events. It reuses that snapshot only while its last event still survives by iden
 a different branch at the same ordinal causes reconstruction from surviving history. Failed
 validation never replaces the saved snapshot. Queued names remain independent of that snapshot.
 
-The tracker writes a `Cards:` note on every hand-change event, checks that a played card was in
-that Player's hand, and compares named holdings with modeled hand counts for every back type.
+The tracker writes a `Cards:` note on every hand-change event, checks that a card played from Hand
+was in that Player's hand, and compares named holdings with modeled hand counts for every back type.
 `SearchForCard` and `TakeSelectedCard` gains are checked against their recorded Pets `CardFilter`
 using printed tags or the card declaration. `Hand`–`Revealed`–`Hand` movements retain identity
 when unambiguous; a partial return needs supplied names. A card outside a hand may enter again
@@ -59,6 +59,9 @@ after a discard or reshuffle. A hand arrival cannot reuse a card still held or p
 `PlayedEvent` already carries its card's exact name, so moving a played face into that type needs no
 supplied name or `Cards:` note. With Selecting tracking off, a direct play from `Selecting` is not
 checked against previously seen cards.
+Staging a card carries the face in the destination's type, so its departure from Hand needs no
+supplied name. Playing it from the staged location also carries that face and needs no temporary
+Hand arrival or extra supplied name.
 
 `CardTracking.start(world, requireSelectingNames = true)` additionally requires every `Selecting`
 movement to be named. The option applies to the whole game; it cannot mix known and unknown offers.

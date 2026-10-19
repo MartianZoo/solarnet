@@ -1,9 +1,9 @@
 # TODO
 
-Delete entries when they are done. Static-language and English work lives in [Pets TODO](../pets/TODO.md).
+Delete entries when they are done. Static-language and English work lives in [Pets TODO](pets/TODO.md).
 
 - Investigate the deferred nested-placement and partial-selection experiment in
-  [Make types types again](agents/MAKE_TYPES_TYPES_AGAIN.md) if that proposal is selected.
+  [Make types types again](docs/agents/MAKE_TYPES_TYPES_AGAIN.md) if that proposal is selected.
 
 - Investigate the local configuration-cache invalidation caused by the injected
   `kotlin.project.persistent.dir` property. Repeated `help` commands reproduce it on the
@@ -42,8 +42,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations
   instead of its hardcoded resource list, without adding a loading stage.
 - Decide whether to add shallow/deep ELSE or instruction-level `(A)*`; candidate uses and
-  restrictions are in [ELSE.md](../pets/docs/agents/ELSE.md).
-- Add Canon invariant tests for incompatibilities: self-heat removal outside Billing, except
+  restrictions are in [ELSE.md](pets/docs/agents/ELSE.md).
+- Add Canon invariant tests for incompatibilities: self-heat removal outside PaymentScope, except
   Local Heat Trapping, must be declared incompatible with Stormcraft. Include abstract resource choices.
 - Revisit Stormcraft plus Helion payment composition if that combination is supported.
   `Accepting` now skips alternative standard-resource offers when the payer has none; it does not
@@ -99,6 +99,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   remains. Charlie's recorded Miranda overpayment/refund is intentional and does not need
   solving. Evidence and remaining uncertainties are in `_local/replays/Game20250919/sources.md`
   and `derived/action-inventory.md`.
+
+- Investigate exact AST preservation when a replay contains a Robotic Workforce
+  wild-tag choice. Original and reconstructed task text matches, but parsing
+  `Tag<@WildTagElection>?` marks the type reference's empty arguments as
+  explicitly specified. `OtbGame20260818Test` now verifies serialized event
+  text, notes, and file round trips; the internal AST marker still differs.
 
 ## Mars Playground display
 

@@ -214,7 +214,10 @@ internal object CardPetsGenerator {
           effects
               .map(Parsed<Effect>::node)
               .flatMap { it.instruction.descendantsOfType<Gain>() }
-              .any { it.gaining.className == ACCEPTING_FROM_CARD && isHeldByCard(it.gaining) }
+              .any {
+                it.gaining.className == ACCEPTING_FROM_CARD &&
+                    it.gaining.arguments.firstOrNull() == THIS.expression
+              }
       if (acceptsFromThis) {
         val stocked =
             (actions.map(Parsed<Action>::node).flatMap {

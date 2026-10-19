@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -15,6 +16,19 @@ import kotlin.test.Test
 // Jacob Fryxelius on claims blocking movement:
 // https://boardgamegeek.com/thread/3154812/article/42966383#42966383
 internal class MarsNomadsTest : TfmSandboxTest() {
+  @Test
+  internal fun `Cannot place its initial marker on the Noctis area`() {
+    newTestGame()
+
+    kim.inTurn {
+      doTasks("PlayProject<Class<MarsNomads>>", "13 Pay<> FROM MC")
+      doTask("MarsNomads FROM ProjectCard")
+      shouldThrow<ExpressionException> { doTask("NomadsMarker<Tharsis_5_3>") }
+      doTask("NomadsMarker<Tharsis_1_1>")
+    }
+    kim.assertCounts(1 to "NomadsMarker", 1 to "NomadsMarker<Tharsis_1_1>")
+  }
+
   @Test
   internal fun `Places its initial marker without collecting a placement bonus`() {
     newTestGame()

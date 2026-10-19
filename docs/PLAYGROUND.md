@@ -62,7 +62,7 @@ Game-to-UI observation should be routine and reusable. For example, a counter wa
 `Plant<Kevin>` and receives its new count through `ComponentGraph.listenToCount`. A small Compose
 binding should manage initial display, subscription lifetime, and cancellation so each counter
 does not repeat that machinery. The UI should not poll. Selective notification inside Game World
-is still an improvement tracked in [TODO.md](TODO.md); the current implementation rechecks all
+is still an improvement tracked in [TODO.md](../TODO.md); the current implementation rechecks all
 subscribed counts after each component change and calls only listeners whose counts changed.
 
 Examples of the desired change boundaries:

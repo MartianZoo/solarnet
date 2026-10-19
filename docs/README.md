@@ -6,7 +6,7 @@ Terraforming Mars declarations, English generation, and static tools.
 
 - [FAQ](faq.md), [REPL quick reference](cheat-sheet.md), and [example usage](example-usage.md)
 - [Runtime glossary](glossary.md) and [package index](packages.md)
-- [Solarnet roadmap](SOLARNET_ROADMAP.md), [Pets roadmap](PETS_ROADMAP.md), and [TODO](TODO.md)
+- [Solarnet roadmap](SOLARNET_ROADMAP.md), [Pets roadmap](PETS_ROADMAP.md), and [TODO](../TODO.md)
 - [Pets API issues](PETS_API_ISSUES.md) and [Playground](PLAYGROUND.md)
 - [Agent documentation router](agents/README.md)
 - [Build integration](agents/BUILDS.md) and [testing and replay procedures](agents/TESTING.md)

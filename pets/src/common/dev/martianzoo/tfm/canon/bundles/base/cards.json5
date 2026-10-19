@@ -12,7 +12,7 @@
           "name": "Ecoline",
           "tags": [ "PlantTag" ],
           "direct": "36 MC, 3 Plant, PROD[2 Plant]",
-          "effects": [ "Billing<Class<ConvertPlants>>:: -1 Owed<Class<Plant>>" ],
+          "effects": [ "PaymentScope<Class<ConvertPlants>>:: -1 Owed<Class<Plant>>" ],
         },
         {
           "name": "InterplanetaryCinematics",
@@ -59,7 +59,7 @@
           "name": "ThorGate",
           "tags": [ "PowerTag" ],
           "direct": "48 MC, PROD[Energy]",
-          "effects": [ "PayingFor<Class<PowerTag>> OR Billing<Class<PowerPlantProject>>:: -3 Owed" ],
+          "effects": [ "PayingFor<Class<PowerTag>> OR PaymentScope<Class<PowerPlantProject>>:: -3 Owed" ],
         },
         {
           "name": "UnitedNationsMarsInitiative",
@@ -129,7 +129,7 @@
           "actions": [
             "8 MC -> OceanTile<>"
           ],
-          "effects": [ "UseAction<This>:: Accepting<Class<Steel>>" ],
+          "effects": [ "@PaymentScope<Class<AquiferPumping>, Class<MC>, Class<Action1>>:: Accepting<Class<Steel>, @PaymentScope>" ],
         },
         {
           "name": "Archaebacteria",
@@ -1011,7 +1011,7 @@
           "tags": [ "JovianTag", "SpaceTag" ],
           "actions": [ "12 MC -> OceanTile<>" ],
           "effects": [
-              "UseAction<This>:: Accepting<Class<Titanium>>",
+              "@PaymentScope<Class<WaterImportFromEuropa>, Class<MC>, Class<Action1>>:: Accepting<Class<Titanium>, @PaymentScope>",
               "End: VictoryPoint / JovianTag"
           ],
         },

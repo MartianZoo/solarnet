@@ -57,13 +57,18 @@ CLASS CorrosiveRain : GlobalEffect {
 "The discount resources held by projects stored on Self-Replicating Robots"
 CLASS RobotUnit : CardResource
 
-"A project stored outside play, holding robot resources instead of its printed resource type"
-CLASS StagedProject<Class<@CardFront>> : ResourceHolder<Class<RobotUnit>>, Owned<Player> {
+"A project location outside play that holds robot resources instead of the card's printed resource type"
+CLASS StagedProject<Class<@CardFront>> : CardLocation, ResourceHolder<Class<RobotUnit>>, Owned<Player> {
   HAS MAX 1 This
-  This: 2 RobotUnit<This>
+  This: ProjectCard<This> FROM ProjectCard<Hand>, 2 RobotUnit<This>
   ReplicateForStagedProject<Class<@CardFront>>: RobotUnit<This> / RobotUnit<This>
-  PlayCard<Class<ProjectCard>, Class<@CardFront>, Hand>:: ProjectCard
-  PayingFor<Class<@CardFront>>:: -Owed / RobotUnit<This> THEN -This
+  PayingFor<Class<@CardFront>, PaymentScope>:: -Owed / RobotUnit<This>
+  -ProjectCard<This>:: -This
+}
+
+"Plays a project stored on Self-Replicating Robots"
+CLASS PlayStagedProject<Class<@CardFront>> : StandardAction {
+  This: PlayCard<Class<ProjectCard>, Class<@CardFront>, StagedProject<Class<@CardFront>>>
 }
 
 CLASS SelfReplicatingRobots : ActionCard, ActiveCard {
@@ -71,6 +76,7 @@ CLASS SelfReplicatingRobots : ActionCard, ActiveCard {
   requirement = HAS "2 ScienceTag"
 
   HAS MAX 1 SelfReplicatingRobots
+  HAS Class<PlayStagedProject>
 
   -> StageForReplicatedProject<Class<CardFront>>
   -> ReplicateForStagedProject<Class<@CardFront>(HAS StagedProject<Class<@CardFront>>)>
@@ -78,7 +84,7 @@ CLASS SelfReplicatingRobots : ActionCard, ActiveCard {
 
 CLASS StageForReplicatedProject<Class<@CardFront>> : Owned<Player>, Signal {
   This: (PriceAspectCount<Class<@CardFront>, Class<BuildingTag>> OR \
-      PriceAspectCount<Class<@CardFront>, Class<SpaceTag>>): -ProjectCard THEN StagedProject<Class<@CardFront>>
+      PriceAspectCount<Class<@CardFront>, Class<SpaceTag>>): StagedProject<Class<@CardFront>>
 }
 
 CLASS ReplicateForStagedProject<Class<CardFront>> : Owned<Player>, Signal
