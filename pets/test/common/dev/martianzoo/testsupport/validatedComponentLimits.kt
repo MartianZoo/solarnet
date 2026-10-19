@@ -14,7 +14,11 @@ internal fun validatedComponentLimits(table: ClassTable): ClassLimitTable {
         dependent.dependencies
             .typeDependencies()
             .asSequence()
-            .flatMap { table.allConcreteSubtypes(it.boundType) }
+            .flatMap { dependency ->
+              val target = dependency.boundType
+              if (limits.limitsFor(target).any { it.range.last <= 1 }) emptySequence()
+              else table.allConcreteSubtypes(target)
+            }
             .firstOrNull { target ->
               !uniqueTargets.getOrPut(target) {
                 limits.limitsFor(target).any { it.range.last <= 1 }

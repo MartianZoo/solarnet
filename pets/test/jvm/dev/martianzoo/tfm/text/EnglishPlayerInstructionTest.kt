@@ -35,7 +35,7 @@ class EnglishPlayerInstructionTest {
     val table = Canon.gamePremise(GameConfig("TharsisMap", "Purple", "Green")).classTable
     val renderer = EnglishInstructionTextRenderer(table)
     renderer.render(
-        parse<InstructionTree>("MAX 0 Billing<Purple>: PlaceGreeneryTile<Purple>!")
+        parse<InstructionTree>("MAX 0 Owed<Purple, Class<MC>>: PlaceGreeneryTile<Purple>!")
     ) shouldContain "Purple"
     renderer.render(
         parse<InstructionTree>("StandardAction<Purple>! OR -Baton<Purple>!"),
