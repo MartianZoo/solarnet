@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Action
@@ -27,6 +28,19 @@ class EnglishPlayerInstructionTest {
     EnglishInstructionTextRenderer(catalog.classTable)
         .render(parse<InstructionTree>("3! Plant<Green> OR Ok"), cn("Green")) shouldBe
         "You may gain 3 plants."
+  }
+
+  @Test
+  fun publicRendererUsesPlayersAddedByTheGamePremise() {
+    val table = Canon.gamePremise(GameConfig("TharsisMap", "Purple", "Green")).classTable
+    val renderer = EnglishInstructionTextRenderer(table)
+    renderer.render(
+        parse<InstructionTree>("MAX 0 Billing<Purple>: PlaceGreeneryTile<Purple>!")
+    ) shouldContain "Purple"
+    renderer.render(
+        parse<InstructionTree>("StandardAction<Purple>! OR -Baton<Purple>!"),
+        cn("Purple"),
+    ) shouldBe "Take an action or end your turn."
   }
 
   @Test
@@ -167,9 +181,9 @@ class EnglishPlayerInstructionTest {
         cn("Green"),
     ) shouldBe "Lose 2 steel."
     english.describe(
-        parse<InstructionTree>("3! Owed<Green, Class<Plant>> THEN Billing<Green>!"),
+        parse<InstructionTree>("3! Owed<Green, Class<Plant>> THEN PaymentScope<Green>!"),
         cn("Green"),
-    ) shouldContain "Billing"
+    ) shouldContain "PaymentScope"
   }
 
   @Test

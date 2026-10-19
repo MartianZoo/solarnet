@@ -24,7 +24,7 @@ remains optional for discovering open choices. This still selects the pending co
 
 ## Ordinary resource losses
 
-Pharmacy Union's disease losses and Flooding's self-inflicted loss leave an open bill unchanged.
+Pharmacy Union's disease losses and Flooding's self-inflicted loss leave an open payment unchanged.
 Their sandbox tests resolve those losses before the explicit payment and verify the full cost.
 Pharmacy Union's starting 54 MC is queued behind a zero-disease gate; its microbe reaction places
 disease before offering the capped 4 MC loss. Choosing disease before starting cash can leave setup

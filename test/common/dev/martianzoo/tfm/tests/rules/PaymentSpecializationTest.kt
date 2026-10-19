@@ -36,7 +36,7 @@ internal class PaymentSpecializationTest {
     p1.count("MC") shouldBe 8
     p1.count("ProjectCard<Hand>") shouldBe 4
     p1.count("Owed") shouldBe 0
-    p1.count("Billing") shouldBe 0
+    p1.count("PaymentScope") shouldBe 0
     p1.autoExecPolicy shouldBe NONE
   }
 
@@ -50,13 +50,13 @@ internal class PaymentSpecializationTest {
   }
 
   @Test
-  internal fun `Accepting pays only with its specialized resource`() {
+  internal fun `The payment remainder uses only its own resource`() {
     val p1 = setUpGame().testTfm(PLAYER1)
     p1.autoExecPolicy = NONE
     p1.runOperation("Steel, Titanium")
 
     p1.beginOperation(
-        "Owed<Class<Steel>> THEN Billing<Class<SellPatentsProject>, Action1, Class<Steel>>"
+        "Owed<Class<Steel>> THEN PaymentScope<Class<SellPatentsProject>, Class<Steel>>"
     ) {
       shouldThrow<TaskException> { doTask("Pay<Class<Titanium>> FROM Titanium") }
       doTask("Pay<Class<Steel>> FROM Steel")

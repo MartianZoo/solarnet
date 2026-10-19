@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -11,6 +12,17 @@ import kotlin.test.Test
 
 internal class LandClaimTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
+
+  @Test
+  internal fun `Cannot claim the Noctis area`() {
+    kim.inTurn {
+      doTasks("PlayProject<Class<LandClaim>>", "1 Pay<> FROM MC")
+      doTask("LandClaim FROM ProjectCard")
+      shouldThrow<ExpressionException> { doTask("Community<Tharsis_5_3>") }
+      doTask("Community<Tharsis_1_1>")
+    }
+    kim.assertCounts(1 to "Community", 1 to "Community<Tharsis_1_1>")
+  }
 
   @Test
   internal fun `Prevents an opponent from building on the claimed area`() {

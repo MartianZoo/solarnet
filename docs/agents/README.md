@@ -9,7 +9,7 @@ Read only the route needed for the task. Capture design decisions in the individ
 The human-facing
 [`SOLARNET_ROADMAP.md`](../SOLARNET_ROADMAP.md) and
 [`PETS_ROADMAP.md`](../PETS_ROADMAP.md) index those notes and summarize priorities and status;
-they should not own detailed design decisions. Bounded loose work lives in [`TODO.md`](../TODO.md).
+they should not own detailed design decisions. Bounded loose work lives in [`TODO.md`](../../TODO.md).
 
 ## Behavior and architecture
 

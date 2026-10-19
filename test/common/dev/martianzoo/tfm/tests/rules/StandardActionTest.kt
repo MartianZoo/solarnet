@@ -159,9 +159,9 @@ internal class StandardActionTest : TfmTest() {
     val startingMoney = p1.count("MC")
 
     p1.beginOperation("OfferAction")
-    p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "Ok", "Terraformer35")
+    p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "Terraformer35")
     p1.beginOperation("OfferAction")
-    p1.doTasks("FundAward<Class<Banker>>", "Ok", "Banker")
+    p1.doTasks("FundAward<Class<Banker>>", "Banker")
 
     p1.count("MC") shouldBe startingMoney
     game.isIdle() shouldBe true

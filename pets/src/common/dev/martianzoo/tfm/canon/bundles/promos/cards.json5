@@ -33,7 +33,8 @@
           "direct": "33 MC, PROD[Titanium]",
           "actions": [ "-> Asteroid<This> / SpaceTag" ],
           "effects": [
-            "UseAction<AsteroidProject> OR UseAction<AquiferProject>:: AcceptingFromCard<This>",
+            "@PaymentScope<Class<AsteroidProject>>:: AcceptingFromCard<This, @PaymentScope>",
+            "@PaymentScope<Class<AquiferProject>>:: AcceptingFromCard<This, @PaymentScope>",
             "PayFromCard<This>:: -1 Owed"
           ],
         },
@@ -229,7 +230,8 @@
           "tags": [ "ScienceTag", "BuildingTag" ],
           "effects": [
             "ScienceTag<>: Graphene<This>",
-            "PayingFor<Class<SpaceTag>> OR PayingFor<Class<CityTag>>:: AcceptingFromCard<This>",
+            "PayingFor<Class<SpaceTag>, @PaymentScope>:: AcceptingFromCard<This, @PaymentScope>",
+            "PayingFor<Class<CityTag>, @PaymentScope>:: AcceptingFromCard<This, @PaymentScope>",
             "PayFromCard<This>:: -4 Owed",
             "End: VictoryPoint"
           ],
@@ -306,7 +308,7 @@
             "6 MC -> Asteroid",
             "Asteroid<This> -> TemperatureStep"
           ],
-          "effects": [ "UseAction<This, Action1>:: Accepting<Class<Titanium>>" ],
+          "effects": [ "@PaymentScope<Class<DirectedImpactors>, Class<MC>, Class<Action1>>:: Accepting<Class<Titanium>, @PaymentScope>" ],
         },
         {
           "name": "DiversitySupport",
@@ -392,7 +394,7 @@
             "10 MC -> 2 Asteroid<This>",
             "Asteroid<This> -> EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@, Me@> }"
           ],
-          "effects": [ "UseAction<This, Action1>:: Accepting<Class<Titanium>>" ],
+          "effects": [ "@PaymentScope<Class<IcyImpactors>, Class<MC>, Class<Action1>>:: Accepting<Class<Titanium>, @PaymentScope>" ],
           // Chooses an ocean area while preserving the Player who places it.
           "components": [ "CLASS ChooseOceanArea<Placer@Player> : Owned<Player>, Signal, System { This: OceanTile<> BY Placer@ }" ],
         },
@@ -460,7 +462,7 @@
           "invariants": [ "=3 GrantedResourceValue<Class<Plant>, This>" ],
           "effects": [
             "This: PROD[Plant]",
-            "PayingFor<Class<BuildingTag>>:: Accepting<Class<Plant>>"
+            "PayingFor<Class<BuildingTag>, @PaymentScope>:: Accepting<Class<Plant>, @PaymentScope>"
           ],
         },
         {
@@ -501,7 +503,7 @@
           ],
           "components": [
             "CLASS Hydroelectric : CardResource",
-            "CLASS NeptunianOption : Cardbound, HasActions { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accepting<Class<Steel>> }"
+            "CLASS NeptunianOption : Cardbound, HasActions { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; @PaymentScope<Class<NeptunianOption>, Class<MC>, Class<Action1>>:: Accepting<Class<Steel>, @PaymentScope> }"
           ],
         },
         {
@@ -661,7 +663,7 @@
           "invariants": [ "=1 CathedralOption<This>" ],
           "actions": [ "5 MC -> Cathedral<CityTile<Anyone>>" ],
           "effects": [
-            "UseAction<This>:: Accepting<Class<Steel>>",
+            "@PaymentScope<Class<StJosephOfCupertinoMission>, Class<MC>, Class<Action1>>:: Accepting<Class<Steel>, @PaymentScope>",
             "End: VictoryPoint / Cathedral"
           ],
           "components": [

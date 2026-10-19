@@ -22,7 +22,7 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
       }
     }
 
-    kim.assertCounts(8 to "MC", 1 to "PROD[Energy]", 0 to "Owed", 0 to "Billing")
+    kim.assertCounts(8 to "MC", 1 to "PROD[Energy]", 0 to "Owed", 0 to "PaymentScope")
   }
 
   @Test

@@ -1125,12 +1125,14 @@ internal constructor(
    * Replays specialization and returns the dependency key matched by each authored argument, in the
    * authored order required by
    * [rule T3-6](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#3-dependencies).
+   * Resolves arguments in [classTable], which defaults to this class's declaring table. Supply the
+   * game's table when arguments name classes added by its premise, such as its players. Invalid
+   * arguments fail as in specialization.
    */
-  public fun matchDependencyKeys(specs: List<Expression>): List<Key> =
-      matchDependencyKeys(specs, loader)
-
-  internal fun matchDependencyKeys(specs: List<Expression>, classTable: ClassTable): List<Key> =
-      argumentDependencies.matchPartialInOrder(specs, classTable).map(Dependency::key)
+  public fun matchDependencyKeys(
+      specs: List<Expression>,
+      classTable: ClassTable = this.classTable,
+  ): List<Key> = argumentDependencies.matchPartialInOrder(specs, classTable).map(Dependency::key)
 
   /**
    * Returns the special *class type* for this class; for example, for the class `Resource` returns

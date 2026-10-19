@@ -28,10 +28,10 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     kim.doTask("Pass")
     stan.doTask("Pass")
     settlePlayers()
-    expectChanges("0 OceanTile<Tharsis_3_6>") {
-      kim.doTask("OceanTile<Tharsis_3_6>! BY Admin")
+    expectChanges("0 OceanTile<Tharsis_1_5>") {
+      kim.doTask("OceanTile<Tharsis_1_5>! BY Admin")
       settlePlayers()
-      kim.doTask("-OceanTile<Tharsis_3_6>")
+      kim.doTask("-OceanTile<Tharsis_1_5>")
       settlePlayers()
     }
     admin.count("OceanTile<Tharsis_1_2>") shouldBe 1
@@ -471,7 +471,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
   @Test
   internal fun `WGT's ocean cannot be financed with the upcoming Unity ruling bonus`() {
     prepareCashPoorElection("Unity")
-    kim.doTask("OceanTile<Tharsis_3_6>! BY Admin")
+    kim.doTask("OceanTile<Tharsis_1_5>! BY Admin")
     shouldThrow<LimitsException> {
       kim.completeOperation {
         doTasks("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>", "5 Pay<> FROM MC")
@@ -488,7 +488,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
   @Test
   internal fun `WGT's ocean cannot be financed with the upcoming chairman's Terraforming Deal reward`() {
     prepareCashPoorElection("Scientists")
-    kim.doTask("OceanTile<Tharsis_3_6>! BY Admin")
+    kim.doTask("OceanTile<Tharsis_1_5>! BY Admin")
     shouldThrow<LimitsException> {
       kim.completeOperation {
         doTasks("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>", "5 Pay<> FROM MC")

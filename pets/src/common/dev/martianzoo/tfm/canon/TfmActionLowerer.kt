@@ -11,7 +11,7 @@ import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.data.ClassDeclaration
 
-/** Rewrites Terraforming Mars standard-resource action costs into its billing protocol. */
+/** Rewrites Terraforming Mars standard-resource action costs into its payment scope. */
 internal object TfmActionLowerer {
   fun lower(source: ClassDeclaration): ClassDeclaration {
     if (source.authoredActions.isEmpty()) return source
@@ -51,25 +51,21 @@ internal object TfmActionLowerer {
     val owed =
         "${spend.scaledEx.scalar} Owed<Class<${spend.scaledEx.expression}>>" +
             if (metric == null) "" else " / $metricText"
-    val billingResource =
-        if (spend.scaledEx.expression.className == MC) ""
-        else ", Class<${spend.scaledEx.expression}>"
+    val paymentScope =
+        "PaymentScope<Class<This>, Class<${spend.scaledEx.expression}>, Class<$selector>>"
     if (spend.scaledEx.scalar is XScalar) {
       return listOf(
           parse(
               "UseAction<This, $selector>: $owed THEN " +
-                  "Billing<Class<This>, $selector$billingResource> THEN " +
-                  "MAX 0 Billing: (${action.instruction})"
+                  "$paymentScope THEN " +
+                  "MAX 0 PaymentScope: (${action.instruction})"
           )
       )
     }
 
     return listOf(
-        parse(
-            "UseAction<This, $selector>: $owed THEN " +
-                "Billing<Class<This>, $selector$billingResource>"
-        ),
-        parse("-Billing<Class<This>, $selector>: " + action.instruction),
+        parse("UseAction<This, $selector>: $owed THEN " + paymentScope),
+        parse("-$paymentScope: " + action.instruction),
     )
   }
 

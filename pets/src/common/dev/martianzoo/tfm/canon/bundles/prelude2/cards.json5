@@ -14,8 +14,8 @@
           "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
           "direct": "30 MC, PROD[Energy, Plant, Steel]",
           "effects": [
-            "Billing<Class<Milestone>>:: -Owed / Owed",
-            "Billing<Class<Award>>:: -Owed / Owed",
+            "PaymentScope<Class<Milestone>>:: -Owed / Owed",
+            "PaymentScope<Class<Award>>:: -Owed / Owed",
           ],
         },
         {
@@ -40,7 +40,7 @@
           "direct": "50 MC, RequiredAction { -> 4 ProjectCard THEN -3 ProjectCard }",
           "effects": [
             "CardFront(HAS 2 Tag): Science<This>",
-            "UseAction<StandardProject(HAS cost)>:: AcceptingFromCard<This>",
+            "@PaymentScope<Class<StandardProject>>:: AcceptingFromCard<This, @PaymentScope>",
             "PayFromCard<This>:: -2 Owed",
           ],
         },
@@ -195,7 +195,7 @@
           "name": "WorldGovernmentAdvisor",
           "tags": [ "EarthTag" ],
           "direct": "2 TerraformRating, ProjectCard",
-          "actions": [ "-> GlobalParameter BY Admin" ],
+          "actions": [ "-> GlobalParameter(NOT OceanTile<LandArea>) BY Admin" ],
         },
       ],
     },

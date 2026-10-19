@@ -47,12 +47,11 @@ CLASS PlayPrelude<@CardLocation> : Owned<Player>, Signal, System {
   This: PlayCard<Class<PreludeCard>, @CardLocation> OR (-PreludeCard<@CardLocation> THEN Audit THEN 15 MC)
 }
 
-"Bills every project card left in this Player's selection"
+"Buys every project card left in this Player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal, System {
   This IF ProjectCard<Selecting>: \
-    3 Owed<> / ProjectCard<Selecting> THEN \
-    PayingFor<Class<ProjectCard>> / ProjectCard<Selecting> THEN \
-    Billing<Class<This>, Action1>
+    3 Owed<> / ProjectCard<Selecting> THEN PaymentScope<Class<BuySelectedCards>> THEN \
+    MAX 0 PaymentScope: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
 }
 
 "An externally specified search criterion; the selected card is not tracked before it reaches a hand"
@@ -95,7 +94,7 @@ CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Playe
           THEN CheckRequirement<Class<@CardFront>> / \
             (GpRequirementShortfall<Class<@CardFront>, @Class> MAX 1) \
       })
-  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN Billing<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
+  This: Owed<> / @CardFront.cost THEN PaymentScope<Class<@CardFront>, Class<MC>, Class<PlayCard>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
@@ -103,13 +102,6 @@ CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal, System
 
 "How far one printed global-parameter requirement is from the current track value"
 CLASS GpRequirementShortfall<Class<CardFront>, Class<GlobalParameter>> : CustomMetric
-
-"Emits payment-adjustment events for a project card and each of its printed tags"
-CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal, System {
-  // Finish price adjustments and acceptance before the following Billing sees the debt.
-  This:: EACH @Class<Tag> { PayingFor<@Class> / PriceAspectCount<Class<@CardFront>, @Class> }
-  This:: PayingFor<Class<@CardFront>> / PriceAspectCount<Class<@CardFront>, Class<@CardFront>>
-}
 
 "Number of payment-adjustment events for one aspect of a project card"
 CLASS PriceAspectCount<Class<CardFront>, Class<Component>> : CustomMetric

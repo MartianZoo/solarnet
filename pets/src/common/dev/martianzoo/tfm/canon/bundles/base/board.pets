@@ -24,7 +24,9 @@ ABSTRACT CLASS Area : Iconic {
     ABSTRACT CLASS WaterArea
 
     "An area reserved for Noctis City"
-    ABSTRACT CLASS NoctisArea
+    ABSTRACT CLASS NoctisArea {
+      AreaPiece<This> IF MAX 0 NoctisCity: Die
+    }
   }
 
   "An area not on Mars"
@@ -164,7 +166,7 @@ CLASS GpGameEndBarrier<@Class<GlobalParameter>> : GameEndBarrier, System {
 
 "Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"
 CLASS WorldGovernmentTerraforming : Owned<Player>, Signal, System {
-  This IF GpIncomplete: GlobalParameter! BY Admin
+  This IF GpIncomplete: GlobalParameter(NOT OceanTile<LandArea>)! BY Admin
 }
 
 "Asks its owning Player to place an Ocean attributed to Admin"

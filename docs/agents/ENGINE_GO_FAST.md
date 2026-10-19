@@ -19,7 +19,7 @@ deltas and leaves its source graph unchanged. Its current abstract count path co
 count and scans overlay deltas. A search agent may reset an overlay repeatedly. This shifts the
 likely tradeoff toward doing more work on committed source writes, but no current trace measures
 that tradeoff. Source Agent probes can still mutate and roll back the source, invalidating overlays;
-see [ENGINE.md](ENGINE.md) and the existing overlay measurement item in [TODO.md](../TODO.md).
+see [ENGINE.md](ENGINE.md) and the existing overlay measurement item in [TODO.md](../../TODO.md).
 
 ## Evidence we have
 
