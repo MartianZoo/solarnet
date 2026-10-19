@@ -105,6 +105,8 @@ after review. **Selected** means the direction is chosen while some design remai
    type construction, limiting, and queries before redesigning them. Integrate measured branch work
    only when it remains coherent after current architectural changes. Small percentage gains,
    speculative caches, and micro-benchmarks do not earn roadmap priority.
+   Current measurements and data-structure hypotheses live in
+   [ENGINE_GO_FAST.md](agents/ENGINE_GO_FAST.md).
 
 ## Game records and reconstruction
 
