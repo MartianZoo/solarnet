@@ -26,6 +26,7 @@ explanation; the autoexecution note owns optional pruning policy.
 | Subject | Read |
 | --- | --- |
 | Live World construction, components, tasks, effects, transactions, rollback, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
+| Component graph performance, overlays under search traffic, or Canon-specific indexing research | [`ENGINE_GO_FAST.md`](ENGINE_GO_FAST.md) |
 | Actor attribution, on-turn identity, Admin, assignment, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md); lexical ownership is in [Pets](../../pets/docs/agents/OWNERSHIP.md) |
 | Game flow, turns and offers, Head Start timing, task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
 | Payment choices, accepted resources, billing, or settlement | [`PAYMENTS.md`](PAYMENTS.md) |
