@@ -4,9 +4,12 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.types.loadTypes
+import dev.martianzoo.pets.types.recordTypeVariableScopes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -41,6 +44,41 @@ internal class TransformHandlerTest {
 
     dispatcher.transformInstructionTree(parse("Outside THEN MARK[Ignored]")).toString() shouldBe
         "Outside THEN Inside THEN AlsoInside"
+  }
+
+  @Test
+  internal fun transformedSequenceBeforeAnotherStageIsSplicedInOrder() {
+    val dispatcher =
+        TransformHandler.dispatcher(
+            mapOf("MARK" to TransformHandler { parse<InstructionTree>("Inside THEN AlsoInside") })
+        )
+
+    dispatcher.transformInstructionTree(parse("MARK[Ignored] THEN Outside")).toString() shouldBe
+        "Inside THEN AlsoInside THEN Outside"
+  }
+
+  @Test
+  internal fun transformedNonFinalSequenceKeepsItsTypeVariableScope() {
+    val table = loadTypes("CLASS Plant\nCLASS Ignored\nCLASS Outside")
+    val scoped =
+        table.recordTypeVariableScopes().transformInstructionTree(parse("@Plant THEN @Plant"))
+    val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { scoped }))
+
+    val result = dispatcher.transformInstructionTree(parse("MARK[Ignored] THEN Outside")) as Then
+    result.typeVariables.variables.size shouldBe 1
+    result.toString() shouldBe "@Plant THEN @Plant THEN Outside"
+  }
+
+  @Test
+  internal fun transformedGroupStillCannotPrecedeAnotherStage() {
+    val dispatcher =
+        TransformHandler.dispatcher(
+            mapOf("MARK" to TransformHandler { parse<InstructionTree>("Inside, AlsoInside") })
+        )
+
+    shouldThrow<dev.martianzoo.pets.api.Exceptions.PetSyntaxException> {
+      dispatcher.transformInstructionTree(parse("MARK[Ignored] THEN Outside"))
+    }
   }
 
   @Test

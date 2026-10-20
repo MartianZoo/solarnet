@@ -27,6 +27,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   have no deck or discard supply. Question 16 (Helion retaining 2 MC while paying partial Mons
   Insurance with heat) needs real Helion; only `FakeHelion`, explicitly lacking correct payment
   allocation, exists. Do not treat that stand-in as evidence for the Canon interaction.
+  `FakeHelionTest` preserves eight unsupported intended scenarios beside passing `BUG -` tests:
+  five self-payment cases, Stormcraft floaters, and two Mons Insurance payouts. Revisit them with
+  real Helion rather than treating the stand-in's observed behavior as a ruling.
   Source: `/Users/dev/martianzoo/player-resources/_local/unanswered-rules-questions-2026-10-14.md`.
   Links: https://boardgamegeek.com/thread/1705209/article/37732543#37732543 and
   https://boardgamegeek.com/thread/3752654/article/48054640#48054640.
