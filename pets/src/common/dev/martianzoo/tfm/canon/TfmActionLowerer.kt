@@ -11,7 +11,7 @@ import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.data.ClassDeclaration
 
-/** Rewrites Terraforming Mars standard-resource action costs into its payment scope. */
+/** Rewrites Terraforming Mars action costs and rejects its absent action slots. */
 internal object TfmActionLowerer {
   fun lower(source: ClassDeclaration): ClassDeclaration {
     if (source.authoredActions.isEmpty()) return source
@@ -21,7 +21,11 @@ internal object TfmActionLowerer {
         source.authoredActions.withIndex().flatMap { (index0Ref, action) ->
           actionToEffects(action, selectors[index0Ref], ordinaryEffects[index0Ref])
         }
-    val executableEffects = source.authoredEffects + loweredActions
+    val absentActions =
+        (source.authoredActions.size + 1..3).map {
+          parse<Effect>("UseAction<This, Action$it>: Die")
+        }
+    val executableEffects = source.authoredEffects + loweredActions + absentActions
     return source.copy(
         executableEffects =
             executableEffects.takeUnless { it == source.authoredEffectsWithActions },
