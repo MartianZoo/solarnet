@@ -5,7 +5,6 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.data.ClassDeclaration
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -88,67 +87,6 @@ internal class CardClassTest {
 
     cardTags(source.card(cn("InheritedTags")))
         .shouldContainExactlyInAnyOrder(cn("ScienceTag"), cn("ScienceTag"), cn("EarthTag"))
-  }
-
-  @Test
-  internal fun nonEventCardsCannotCarryTheEventTag() {
-    val invalid =
-        catalogWith(
-            """
-            CLASS Mistagged : AutomatedCard {
-              cost = 0
-              HAS =1 EventTag<This>
-            }
-            """
-        )
-
-    shouldThrow<IllegalArgumentException> { validateCardClassification(invalid) }
-  }
-
-  @Test
-  internal fun activeAndAutomatedRolesMustMatchPersistentBehavior() {
-    val invalid =
-        catalogWith(
-            """
-            CLASS Misclassified : AutomatedCard {
-              cost = 0
-              Generation: MC
-            }
-            """
-        )
-
-    shouldThrow<IllegalArgumentException> { validateCardClassification(invalid) }
-  }
-
-  @Test
-  internal fun sourceOwnedPersistentComponentsMakeProjectCardsActive() {
-    val valid =
-        catalogWith(
-            """
-            ABSTRACT CLASS PersistentCapability<CardFront<@Player>> : Owned<@Player> {
-              Generation: MC
-            }
-
-            CLASS ConcreteCapability : PersistentCapability
-
-            CLASS ComponentBacked : ActiveCard {
-              cost = 0
-              HAS =1 ConcreteCapability<This>
-            }
-
-            CLASS EffectBacked : ActiveCard {
-              cost = 0
-              This:: ConcreteCapability<This>
-            }
-
-            CLASS OneTimeAutomatic : AutomatedCard {
-              cost = 0
-              This:: 2 MC
-            }
-            """
-        )
-
-    validateCardClassification(valid)
   }
 
   @Test

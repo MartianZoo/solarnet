@@ -20,7 +20,7 @@ so lowering makes each react to all three slots without repeating the missing sl
 
 [`AiCentralTest`](../../../test/common/dev/martianzoo/tfm/tests/cards/AiCentralTest.kt) checks that
 selecting AI Central's absent second action fails and leaves its real action available.
-`CanonInvariantsTest` checks all concrete `HasActions` classes for all three triggers.
+`CanonStructuralInvariantsTest` checks all concrete `HasActions` classes for all three triggers.
 
 ## Required behavior
 

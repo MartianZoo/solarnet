@@ -56,7 +56,7 @@ phase is allowed: those decisions belong to subsequent play. Accepting the next 
 scope before that action's consequences begin.
 
 This is a Canon authoring rule, not a restriction on the generic `Scope` mechanism.
-`CanonInvariantsTest.actionScopeExpiryOnlyPerformsReviewedHandoffs` scans removal listeners for
+`CanonStructuralInvariantsTest.actionScopeExpiryOnlyPerformsReviewedHandoffs` scans removal listeners for
 scope and baton removals, their possible indirect dependents including
 `SecondAction`, and `PassBaton` listeners. It accepts fixed turn bookkeeping and next-play
 instructions regardless of the listener's class name; optional bookkeeping (including defaults), arbitrary helper gains,

@@ -194,15 +194,15 @@ For example, find self-gain effects even when their triggers have conditions or 
 
 ## Canon invariants
 
-`queries/canon-invariants/authored/` and `elaborated/` contain executable counterparts of the
-23 checks in `CanonInvariantsTest`, expressed as 24 queries: event tags and green/blue behavior
-classification are checked separately. Each expression returns offenders; an empty result means that
-check passed. Each query test adds a small, deliberately invalid Pets class to the full Canon
-catalog and requires exactly a single result belonging to that decoy. For example, the city-gain
-decoy omits `<>`, and the class-limit decoy permits two copies instead of a single copy. These
-exercise the parser, catalog, XML projection, and XPath evaluator together. Additional tests cover
-MC-offset arithmetic and other query edge cases. The original Canon checks are retained while
-the search interface is established.
+`queries/canon-invariants/authored/` and `elaborated/` contain the 24 XPath checks for Canon
+syntax and card classification. Event tags and green/blue behavior are checked separately.
+`search/CanonInvariantsTest` runs every query against Canon; an empty result means the check
+passed. `CanonQueryTest` adds deliberately invalid Pets classes to the full Canon catalog and
+requires each query to identify its decoy. For example, the city-gain decoy omits `<>`, and the
+class-limit decoy permits two copies instead of a single copy. These exercise the parser,
+catalog, XML projection, and XPath evaluator together. Additional tests cover MC-offset arithmetic
+and other query edge cases. Checks that need a resolved game or analysis beyond this XML projection
+remain in `tfm-canon/CanonStructuralInvariantsTest`.
 
 The production-box checks deliberately use authored form: lowering removes the box grouping.
 The MC-offset query compares structural expression keys, including resource and owner; it
