@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
@@ -529,6 +530,11 @@ private fun renderColumn(
         <h3>Pets source</h3>
         <pre data-field="source"></pre>
       </section>
+      <section class="panel" data-field="implementation-panel" hidden>
+        <h3 class="implementation-heading">This is a custom class</h3>
+        <p class="implementation-note">here is a recent snapshot of the custom Kotlin implementation behind it.</p>
+        <pre class="implementation-source" data-field="implementation"></pre>
+      </section>
       """
           .trimIndent()
 
@@ -607,8 +613,8 @@ private fun renderColumn(
       column,
       "properties",
       "properties-panel",
-      inheritedLines { source ->
-        source.declaration.properties.map { (name, value) -> "$name = $value" }
+      klass.properties.map { (name, value) ->
+        "$name = ${if (value === AbsentRequirementValue) "(NONE)" else value}"
       },
       classesByName,
       openClass,
@@ -643,6 +649,14 @@ private fun renderColumn(
       openResults,
   )
   linked("source", klass.declaration.toString())
+  if (klass.declaration.customMetric || klass.declaration.customInstruction) {
+    val sources = js("globalThis.almanacCustomSources || {}")
+    val implementation = sources[klass.className.toString()] as? String
+    if (implementation != null) {
+      column.field("implementation").textContent = implementation
+      column.field("implementation-panel").removeAttribute("hidden")
+    }
+  }
   renderImage(column, klass, cardClassNames)
 }
 
