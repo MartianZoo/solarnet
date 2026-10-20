@@ -34,7 +34,12 @@ The browser app lives in `src/js/dev/martianzoo/tfm/web/almanac`.
   Text panel. A class's own docstring appears after generated text when present. Details then list
   direct supertypes and dependencies, followed by
   invariants, properties, actions, effects, usages, and the complete parseable Pets class source.
-  The four declaration sections include ancestor declarations labeled `(from ClassName)`.
+  Invariants, actions, and effects include ancestor declarations labeled `(from ClassName)`.
+  Properties show each class's effective values once; omitted optional requirements show `(NONE)`.
+  Custom metrics and instructions show a generated snapshot of their Kotlin implementation below
+  the Pets source. Run `python3 scripts/build_almanac_custom_sources.py` from the combined Solarnet
+  checkout after changing a custom implementation. In that checkout, Almanac resource processing
+  runs `--check` and fails if the snapshot is stale. Standalone Pets builds use the checked-in snapshot.
   Inherited invariants appear only when they refer to `This`; a static limit such as
   `HAS MAX 3 Milestone` remains on its declaring class, while an Area's
   `HAS MAX 1 Occupant<This>` appears on its subclasses.
