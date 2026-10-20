@@ -123,7 +123,11 @@ be satisfied before execution. A concrete `BY` remains
 authoritative: naming a non-Admin performer for a gain reaches the existing `System` creation guard
 and fails. Admin assignment does not determine whether the component is presented as `Iconic`.
 
-When this assignment changes a task's assignee and it has a `THEN` continuation, the engine encodes
+A concrete non-System gain explicitly `BY Admin` also begins assigned to Admin. This moves the
+assignment earlier; `BY` is still removed when Admin selects the task, and any continuation keeps
+the usual `BY` scope. Abstract gains remain with the current Actor until narrowed.
+
+When System assignment changes a task's assignee and it has a `THEN` continuation, the engine encodes
 the former assignee in an internal `TASK Actor { ... }` continuation. Admin completes the System
 change and dispatches the remaining work back to that Actor. Each later concrete System step
 follows the same rule.

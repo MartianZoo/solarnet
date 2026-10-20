@@ -54,6 +54,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Clarify Astra Mechanica's zero/one/two eligible-event behavior and reconcile its modeled return
   with printed and derived English.
 - Separate task selection from execution when automatic execution is disabled.
+- Lock Admin to greedy `EAGER` execution, as selected in
+  [SMART_AUTOEXEC.md](docs/agents/SMART_AUTOEXEC.md); current Agents still let callers set Admin's
+  policy to `NONE` and several engine tests use that setting to inspect pending work.
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
 - actually plan out how exMachina should work
