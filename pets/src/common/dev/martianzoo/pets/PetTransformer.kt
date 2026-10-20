@@ -294,13 +294,16 @@ public abstract class PetTransformer protected constructor() {
                     transformInstructionTree(node.inner),
                 )
             is Instruction.Then -> {
-              val continuation = transformInstructionTree(node.continuation)
-              val nestedScope = (continuation as? Instruction.Then)?.typeVariables
+              val transformed = node.instructions.map(::transformInstructionTree)
+              val nestedScopes = transformed.filterIsInstance<Instruction.Then>()
+              val stages = transformed.flatMap { stage ->
+                if (stage is Instruction.Then) stage.instructions else listOf(stage)
+              }
               node
-                  .withInstructions(node.stages.map(::transformInstruction) + continuation)
+                  .withInstructions(stages)
                   .withTypeVariables(
-                      node.typeVariables.transformedBy(this).let { outerScope ->
-                        if (nestedScope == null) outerScope else outerScope + nestedScope
+                      nestedScopes.fold(node.typeVariables.transformedBy(this)) { scope, sequence ->
+                        scope + sequence.typeVariables
                       }
                   )
             }
