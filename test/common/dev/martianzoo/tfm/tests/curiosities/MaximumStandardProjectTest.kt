@@ -213,12 +213,12 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     me.stdProject(
             "GreeneryProject",
             payment = {
-              doTask("4 MC", CrediCor)
               doTask("12 PayFromCard<Spire> FROM Science<Spire>")
               // Twelve science are worth 24 MC; acknowledge the zero MC remainder.
               declineTask()
             },
         ) {
+          doTask("4 MC", CrediCor)
           doTask("3 MC", StandardTechnology)
           doTask("GreeneryTile<Hellas_3_6>")
           doTask("4 MC", cn("GreensPolicy"))

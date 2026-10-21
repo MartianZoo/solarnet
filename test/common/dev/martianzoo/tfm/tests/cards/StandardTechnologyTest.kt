@@ -10,6 +10,22 @@ import kotlin.test.Test
 
 internal class StandardTechnologyTest : TfmSandboxTest() {
   @Test
+  internal fun `Cannot collect its City rebate before paying for the project`() {
+    newTestGame()
+    kim.exMachina("$StandardTechnology")
+    kim.setToExMachina(22, "MC")
+
+    kim.inTurn {
+      doTask("UseStandardProject<CityProject>")
+      shouldThrow<TaskException> { doTask("3 MC") }
+      shouldThrow<TaskException> { doTask("25 Pay<> FROM MC") }
+      abort()
+    }
+
+    kim.assertCounts(22 to "MC", 0 to "CityTile", 0 to "Owed", 0 to "PaymentScope")
+  }
+
+  @Test
   internal fun `Cannot fund a standard project with its own rebate`() {
     newTestGame()
     kim.exMachina("$StandardTechnology")

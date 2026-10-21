@@ -14,7 +14,7 @@ Class: `CrediCor`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 57 M€. | Effect: After you pay for a card or standard project with a basic cost of 20 M€ or more, you gain 4 M€. |
-| Generated text | Gain 57 M€. | Effect: When you play a card with a printed cost of 20 M€ or more, or use a standard project with a printed cost of 20 M€ or more, gain 4 M€. |
+| Generated text | Gain 57 M€. | Effect: When you play a card with a printed cost of 20 M€ or more, or pay for a standard project with a printed cost of 20 M€ or more, gain 4 M€. |
 
 Pets declaration:
 
@@ -22,7 +22,7 @@ Pets declaration:
 CLASS CrediCor : CardFront<Class<CorporationCard>> {
   cost = 0
   This: 57 MC
-  CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4 MC
+  CardFront(HAS 20 cost) OR -PaymentScope<Class<@StandardProject>(HAS 20 @StandardProject.cost)>: 4 MC
 }
 ```
 
