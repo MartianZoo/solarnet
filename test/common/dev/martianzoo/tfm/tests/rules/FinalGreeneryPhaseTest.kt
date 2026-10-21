@@ -79,10 +79,12 @@ internal class FinalGreeneryPhaseTest {
     admin.count("FinalGreeneryPhase") shouldBe 0
     admin.count("End") shouldBe 0
     admin.count("Victory<Player1>") shouldBe 0
+    admin.count("GameScope") shouldBe 0
     admin.count("TemperatureStep") shouldBe 0
     admin.count("OxygenStep") shouldBe 0
     admin.count("OceanTile") shouldBe 0
     game.tasks.isEmpty() shouldBe true
+    game.events.changesSinceSetup().last().change.removing?.type?.className shouldBe cn("GameScope")
   }
 
   @Test

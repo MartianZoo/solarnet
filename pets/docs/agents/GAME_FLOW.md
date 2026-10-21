@@ -189,8 +189,10 @@ For DOT alone, run `./gradlew -p pets :junkdrawer:actionTurnDiagram` with
 
 ## Game flow
 
-The game's own rules carry play from `SetupPhase` to `VictoryPhase`. A client starts the game with
-`TfmGameplay.startGame`, which performs `SetupPhase FROM BootstrapPhase`.
+The game's own rules carry play from `SetupPhase` until `GameScope` is removed. Winning games enter
+the terminal `End` phase for final scoring; a solo loss ends in `ProductionPhase`. A client starts
+the game with `TfmGameplay.startGame`, which performs `SetupPhase FROM BootstrapPhase`. Entering
+`BootstrapPhase` automatically creates the singleton `GameScope`.
 
 - **Phases without turns** dispatch their `FINALLY` handoff as they begin. Production proceeds to
   `SolarPhase` while a `GameEndBarrier` exists and otherwise signals `CheckGameEnd`.
@@ -233,5 +235,7 @@ an arbitrary continuation waiting to run.
 
 Event cards remain in play until their `LATER` flip; `Trade` uses deferred `FinishTrade`, Turmoil
 uses deferred phase work, and `L1GiftWatcher` defers its removal. These do not require the deleted
-`Temporary`, `TemporaryScope`, or engine idle cleanup. `End` performs final scoring, then hands off
-to the terminal `VictoryPhase`.
+`Temporary`, `TemporaryScope`, or engine idle cleanup. `End` performs final scoring, then removes
+`GameScope` under `FINALLY`. `MultiplayerMode` names the winners in response to that removal. Solo
+objectives create `Victory` at `CheckGameEnd` so that a win opens final greenery; a loss removes
+`GameScope` there instead. A winning solo game removes it after final greenery and scoring.

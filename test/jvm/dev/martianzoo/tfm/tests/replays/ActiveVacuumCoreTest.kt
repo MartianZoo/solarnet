@@ -1066,7 +1066,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     purple.assertTags(but = 6, spt = 2, sct = 2, pot = 7, vet = 1, plt = 1)
     purple.assertDashRight(events = 7, tagless = 1, cities = 2)
     assertSidebar(gen = 8, temp = 8, oxygen = 14, oceans = 9, venus = 24)
-    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
+    admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
 
     val score = Summarizer(game)
     score.net("Milestone", "VictoryPoint<Purple>") shouldBe 0

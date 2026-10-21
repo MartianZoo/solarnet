@@ -13,7 +13,7 @@ CLASS TerraformingMars : Module {
   HAS Class<Production>, Class<NormalCityTile>
   HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>
   HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>
-  HAS Class<End>, Class<VictoryPhase>
+  HAS Class<End>, Class<GameScope>
   HAS Class<UseAction>, Class<OfferAction>
 
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
@@ -79,7 +79,7 @@ ABSTRACT CLASS GameMode : Module {
     HAS Class<ClaimMilestone>, Class<FundAward>
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
 
-    VictoryPhase: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
+    -GameScope: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
     CheckGameEnd: FinalGreeneryPhase FROM ProductionPhase
   }
 }
@@ -143,11 +143,11 @@ CLASS NextPlayer<Previous@Owner, Next@Player> : System {
   PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, MAX 0 InRound<Anyone>) OR (MAX 0 ActionPhase, StartToken<Next@>)): FINALLY { -Baton<Previous@> }
 }
 
-"The current game phase; exactly one exists from bootstrap through the terminal VictoryPhase"
+"The current game phase; exactly one exists from bootstrap onward"
 ABSTRACT CLASS Phase : System, Iconic {
   HAS =1 Phase
 
-  CLASS BootstrapPhase
+  CLASS BootstrapPhase { This:: GameScope }
   CLASS SetupPhase {
     This: Generation
     This: FINALLY { CorporationPhase FROM This }
@@ -193,12 +193,12 @@ ABSTRACT CLASS Phase : System, Iconic {
 
   "Final scoring"
   CLASS End {
-    This: FINALLY { VictoryPhase FROM This }
+    This: FINALLY { -GameScope }
   }
-
-  "The terminal game phase, which names the winner after final scoring has finished"
-  CLASS VictoryPhase
 }
+
+"The lifetime of the game, removed after final scoring or a solo loss"
+CLASS GameScope : Scope, System { HAS MAX 1 This }
 
 "A phase in which players take turns holding the baton"
 ABSTRACT CLASS TurnBasedPhase : Phase

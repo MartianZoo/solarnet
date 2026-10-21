@@ -23,6 +23,7 @@ ABSTRACT CLASS SoloObjective : Module {
     autoSelectWhen = HAS "SoloMode, MAX 0 SoloObjective"
 
     CheckGameEnd IF MAX 0 GpIncomplete: Victory<Player>
+    CheckGameEnd IF GpIncomplete: -GameScope
   }
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
@@ -30,6 +31,7 @@ ABSTRACT CLASS SoloObjective : Module {
     This: BufferGasProject
 
     CheckGameEnd IF 63 TerraformRating: EACH Me@Player { Victory }
+    CheckGameEnd IF MAX 62 TerraformRating: -GameScope
   }
 }
 

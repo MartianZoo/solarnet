@@ -986,7 +986,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     nor.cardsHand shouldBe emptySet()
     vin.cardsHand shouldBe emptySet()
-    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
+    admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
 
     nor.assertResources(m = 88, s = 0, t = 2, p = 5, e = 1, h = 5)
     nor.assertProduction(m = 22, s = 0, t = 2, p = 8, e = 1, h = 0)
