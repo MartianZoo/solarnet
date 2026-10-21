@@ -1147,8 +1147,9 @@ may be rewritten at different stages, but each mark must have a rule that eventu
 category of PETS: an instruction for an instruction, a metric for a metric, and so on.
 It need not be the same *kind* of node — a gain may come back a group, a requirement may come back a
 conjunction — and a block that expands into several independent instructions splices into the
-surrounding group (L2-9). A block that expands into a sequence at the final stage of another
-sequence likewise splices into that surrounding sequence (L2-10).
+surrounding group (L2-9). A block that expands into a sequence at any stage of another
+sequence likewise splices into that surrounding sequence (L2-10). The resulting non-final
+stages must still each be a single instruction; a group cannot be placed before `THEN`.
 
 > **Non-normative example — Noctis City.** `PROD[-Energy, 3 MC]` expands into two independent
 > production-track changes. Splicing the returned group preserves the card's surrounding gains;

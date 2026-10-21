@@ -40,8 +40,18 @@ tasks.register("test") {
   dependsOn("jsBrowserTest")
 }
 
+val sourceCheck =
+    rootProject.layout.projectDirectory.file("../scripts/build_almanac_custom_sources.py")
+val checkCustomSources =
+    if (sourceCheck.asFile.exists()) {
+      tasks.register<Exec>("checkCustomSources") {
+        commandLine("python3", sourceCheck.asFile, "--check")
+      }
+    } else null
+
 tasks.named<ProcessResources>("jsProcessResources") {
   from(sourceDirectory) { include("*.html", "*.css", "*.js", "favicon.png") }
+  if (checkCustomSources != null) dependsOn(checkCustomSources)
 }
 
 val webZip by

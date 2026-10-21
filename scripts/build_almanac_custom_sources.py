@@ -2,6 +2,7 @@
 
 import json
 import re
+import sys
 from pathlib import Path
 
 
@@ -36,10 +37,18 @@ if set(sources) != expected:
     raise ValueError(f"Custom source mismatch: missing={expected - set(sources)}, extra={set(sources) - expected}")
 
 output = root / "pets/src/js/dev/martianzoo/tfm/web/almanac/custom-sources.js"
-output.write_text(
+generated = (
     "// Generated from Solarnet's Kotlin implementations; do not edit.\n"
     "globalThis.almanacCustomSources = "
     + json.dumps(sources, ensure_ascii=False, sort_keys=True, indent=2)
     + ";\n"
 )
-print(f"Copied {len(sources)} custom implementations to {output.relative_to(root)}")
+if sys.argv[1:] == ["--check"]:
+    if not output.exists() or output.read_text() != generated:
+        raise SystemExit(f"Stale custom sources: run python3 {Path(__file__).relative_to(root)}")
+    print(f"Checked {len(sources)} custom implementations")
+elif not sys.argv[1:]:
+    output.write_text(generated)
+    print(f"Copied {len(sources)} custom implementations to {output.relative_to(root)}")
+else:
+    raise SystemExit("Usage: build_almanac_custom_sources.py [--check]")

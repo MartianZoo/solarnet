@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -62,7 +63,8 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
     kim.selectTask("PassBaton") // No final greenery.
     stan.selectTask("PassBaton") // No final greenery.
-    admin.count("VictoryPhase") shouldBe 1
+    admin.count("End") shouldBe 1
+    admin.count("GameScope") shouldBe 0
   }
 
   @Test
@@ -78,6 +80,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     admin.count("Generation") shouldBe 14
     kim.count("Victory") shouldBe 0
     admin.count("FinalGreeneryPhase") shouldBe 0
+    admin.count("GameScope") shouldBe 0
   }
 
   @Test
@@ -96,6 +99,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
     admin.count("Generation") shouldBe 12
     kim.count("Victory") shouldBe 0
+    admin.count("GameScope") shouldBe 0
   }
 
   @Test
@@ -117,6 +121,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
     admin.count("Generation") shouldBe 12
     kim.count("Victory") shouldBe 0
+    admin.count("GameScope") shouldBe 0
   }
 
   @Test
@@ -124,8 +129,11 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     prepareSoloEconomy("-VenusNextExpansion")
     playSoloTerraforming(completeVenus = false)
     kim.count("Victory") shouldBe 1
+    admin.count("GameScope") shouldBe 1
     kim.selectTask("PassBaton") // Decline final greenery.
-    admin.count("VictoryPhase") shouldBe 1
+    admin.count("End") shouldBe 1
+    admin.count("GameScope") shouldBe 0
+    game.events.changesSinceSetup().last().change.removing?.type?.className shouldBe cn("GameScope")
   }
 
   @Test

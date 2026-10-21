@@ -35,9 +35,10 @@ internal class BootstrapLifecycleTest {
     admin.count("StandardGpTrackRules") shouldBe 1
     admin.count("Phase") shouldBe 1
     admin.count("BootstrapPhase") shouldBe 1
+    admin.count("GameScope") shouldBe 1
     admin.count("Generation") shouldBe 0
     admin.count("GenerationScope") shouldBe 0
-    admin.count("Scope") shouldBe 0
+    admin.count("Scope") shouldBe 1
     admin.count("TerraformRating") shouldBe 0
     admin.count("Player") shouldBe 2
     admin.count("ProdOffset<Player1, Class<MC>>") shouldBe 5

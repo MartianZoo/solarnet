@@ -23,8 +23,7 @@ The browser app lives in `src/js/dev/martianzoo/tfm/web/almanac`.
   enlarged by one point,
   and monospace source/XPath text. `Dark theme` switches palettes without rebuilding columns and persists in local storage.
   The saved palette is applied before stylesheet paint. Focus indicators and responsive controls
-  work in both themes; navigation respects the browser's reduced-motion preference. The tab
-  favicon uses a complete 16-pixel white-dog sprite frame.
+  work in both themes; navigation respects the browser's reduced-motion preference.
 - Detail panels show direct subclasses and all descendants in separate sections; neither includes
   the class itself. Each section samples at most ten classes. Truncated panels offer `(see all)`.
   Class result lists put descendants of Iconic first, then other classes in muted text, with names
@@ -35,11 +34,12 @@ The browser app lives in `src/js/dev/martianzoo/tfm/web/almanac`.
   Text panel. A class's own docstring appears after generated text when present. Details then list
   direct supertypes and dependencies, followed by
   invariants, properties, actions, effects, usages, and the complete parseable Pets class source.
-  Custom metrics and instructions also show their original Kotlin implementation in smaller type
-  below the Pets source. Run `python3 scripts/build_almanac_custom_sources.py` from the combined
-  Solarnet checkout to regenerate the bundled source lookup after an implementation changes.
   Invariants, actions, and effects include ancestor declarations labeled `(from ClassName)`.
   Properties show each class's effective values once; omitted optional requirements show `(NONE)`.
+  Custom metrics and instructions show a generated snapshot of their Kotlin implementation below
+  the Pets source. Run `python3 scripts/build_almanac_custom_sources.py` from the combined Solarnet
+  checkout after changing a custom implementation. In that checkout, Almanac resource processing
+  runs `--check` and fails if the snapshot is stale. Standalone Pets builds use the checked-in snapshot.
   Inherited invariants appear only when they refer to `This`; a static limit such as
   `HAS MAX 3 Milestone` remains on its declaring class, while an Area's
   `HAS MAX 1 Occupant<This>` appears on its subclasses.

@@ -18,19 +18,21 @@ even where they describe current supported content rather than universal game ru
 request to review the invariant and its consumers, not permission to rewrite the card until the
 check passes.
 
-[`CanonInvariantsTest`](../../test/common/dev/martianzoo/tfm/canon/CanonInvariantsTest.kt) scans the
-assembled Canon, including generated cards and handwritten Pets. It runs in `:tfm-canon:jvmTest`
-and therefore in the normal repository `test` and `build` checks. The former runtime card-category
-audit now lives in test sources; structural Pets and per-game configuration validation remain live.
+[`CanonInvariantsTest`](../../test/common/dev/martianzoo/search/CanonInvariantsTest.kt) scans the
+assembled Canon, including generated cards and handwritten Pets. Its XPath queries run in
+`:search:test` and therefore in the normal repository `test` and `build` checks. Three checks that
+need a resolved game or deeper analysis remain in `CanonStructuralInvariantsTest` under
+`:tfm-canon:jvmTest`. The former runtime card-category audit now lives in Search test sources;
+structural Pets and per-game configuration validation remain live.
 
 | Canon invariant | Scope and reason |
 | --- | --- |
-| Tags and Active/Automated classification agree with persistent behavior | The former catalog-construction audit; malformed examples remain in `CardClassTest`. |
+| Tags and Active/Automated classification agree with persistent behavior | The former catalog-construction audit; malformed examples live in `CanonQueryTest`. |
 | Animal holders have Animal tags; Animal-tagged resource cards hold Animals | Both directions hold for current Canon. This concerns storage, not a card granting Animals elsewhere. |
 | Microbe holders have Microbe tags | The reverse is false: Pharmacy Union holds Disease and Vermin holds Animals. |
 | Resource cards identify a concrete resource; resource-holding projects are Active | Protects the resource-holder model and the generator's inferred role. |
 | ActionCard agrees with authored actions; events have no actions or resource storage | Detects roles whose behavior would be lost or misrepresented. |
-| Building-card direct effects contain at most a single PROD box, without outer conditions, choices, scaling, actor changes or EACH bindings | Entry 12. Both the check and CopyProductionBox use `cardProductionBoxes`: only instruction-position PROD blocks count. `Plant / PROD[Energy]` has no copyable box; its PROD is a metric. |
+| Building-card direct effects contain at most a single PROD box, without outer conditions, choices, scaling, actor changes or EACH bindings | Entry 12. The XPath checks and `cardProductionBoxes` both examine instruction-position PROD blocks. `Plant / PROD[Energy]` has no copyable box; its PROD is a metric. |
 | Instruction and action-cost multipliers that count production capable of including MC account for its offset | Entry 3. After lowering PROD, each count must subtract its matching ProdOffset, or subtract stored production from an offset-adjusted target as Industrial Complex does. Resource and owner arguments must match; merely mentioning an offset is insufficient. New arithmetic forms fail for review. |
 | Copied PROD boxes do not use This for the original card | Entry 12. The copier returns the subtree without rebinding This to its source card. |
 | Prelude self-gain effects have bare This triggers and do not hide gains in automatic effects | Entry 13. Boom Town's automatic removal installs a persistent penalty that Double Down deliberately does not repeat; its gameplay test covers that distinction. |

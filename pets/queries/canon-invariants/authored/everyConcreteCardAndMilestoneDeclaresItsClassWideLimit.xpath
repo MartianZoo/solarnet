@@ -1,4 +1,6 @@
 /Canon/*[@abstract = 'false'][isA/Type/@name = 'CardFront' or isA/Type/@name = 'Milestone'][
-  not(invariants/*[not(self::And)][@pets = concat('MAX 1 ', ../../@name)] or
-      invariants/And/requirements/*[@pets = concat('MAX 1 ', ../../../../@name)])
+  not(invariants//Max[
+    @pets = concat('MAX 1 ', ancestor::*[self::Card or self::Class]/@name) and
+    not(ancestor::*[ancestor::invariants and not(self::And or self::requirements)])
+  ])
 ]

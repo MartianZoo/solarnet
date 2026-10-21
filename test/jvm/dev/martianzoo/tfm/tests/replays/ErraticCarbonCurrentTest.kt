@@ -531,7 +531,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     blue.cardsHand shouldBe emptySet()
     pink.cardsHand shouldBe emptySet()
-    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
+    admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
 
     blue.assertCounts(45 to "TerraformRating", 102 to "VictoryPoint", 1 to "Victory")
     pink.assertCounts(41 to "TerraformRating", 85 to "VictoryPoint", 0 to "Victory")

@@ -89,8 +89,6 @@ internal class PredatorsTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("UseCardAction<Predators, Action1>")
           doTask("-Animal<SoloCardResourceReserve<Class<Animal>>>")
-          // Hand replenishment of the solo reserve to Admin after removing its animal.
-          selectTask("Animal<SoloCardResourceReserve<Class<Animal>>>* BY Admin")
           doTask("Animal<Predators>")
         }
         .expect("Animal<$Predators>")

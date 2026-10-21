@@ -225,8 +225,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
               "HiredRaiders FROM ProjectCard",
               "3 MC<Kim FROM SoloOpponent>",
           )
-          // Hand the solo opponent's resource change to Admin.
-          selectTask("3! MC<SoloOpponent> BY Admin")
           doTask("3 MC<SoloOpponent> FROM MC")
           // Hand the solo opponent's resource change to Admin.
           selectTask("-3 MC<SoloOpponent> BY Admin")

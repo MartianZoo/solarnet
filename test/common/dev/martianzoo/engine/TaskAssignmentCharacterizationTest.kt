@@ -461,23 +461,18 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun concreteByWorkIsHandedToItsPerformingActor() {
+  internal fun concreteGainByAdminBeginsAssignedToAdmin() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     val checkpoint = game.timeline.checkpoint()
 
     val task = p1.addTasks("Token<Player1> BY Admin").single()
-    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER1)
-
-    shouldThrow<TaskException> { p1.doTask("Token<Player1> BY Admin") }
-    game.tasks.getTaskData(task).selected shouldBe false
-    p1.selectTask(task)
-
+    p1.tasks.isEmpty() shouldBe true
     game.tasks.getTaskData(task).let {
       it.assignee shouldBe ADMIN
-      it.selected shouldBe true
-      it.instruction shouldBe parse<Instruction>("Token<Player1>!")
+      it.selected shouldBe false
+      it.instruction shouldBe parse<Instruction>("Token<Player1>! BY Admin")
     }
     p1.count("Token") shouldBe 0
 
@@ -520,7 +515,6 @@ internal class TaskAssignmentCharacterizationTest {
     val token = p1.addTasks("(Token<Player1> THEN Marker<Player1>) BY Admin").single()
     game.tasks.extract { it.then != null }.shouldContainExactly(true)
 
-    p1.selectTask(token)
     admin.selectTask(token)
 
     p1.count("Token") shouldBe 1

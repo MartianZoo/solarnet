@@ -35,6 +35,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   have no deck or discard supply. Question 16 (Helion retaining 2 MC while paying partial Mons
   Insurance with heat) needs real Helion; only `FakeHelion`, explicitly lacking correct payment
   allocation, exists. Do not treat that stand-in as evidence for the Canon interaction.
+  `FakeHelionTest` preserves eight unsupported intended scenarios beside passing `BUG -` tests:
+  five self-payment cases, Stormcraft floaters, and two Mons Insurance payouts. Revisit them with
+  real Helion rather than treating the stand-in's observed behavior as a ruling.
   Source: `/Users/dev/martianzoo/player-resources/_local/unanswered-rules-questions-2026-10-14.md`.
   Links: https://boardgamegeek.com/thread/1705209/article/37732543#37732543 and
   https://boardgamegeek.com/thread/3752654/article/48054640#48054640.
@@ -62,6 +65,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Clarify Astra Mechanica's zero/one/two eligible-event behavior and reconcile its modeled return
   with printed and derived English.
 - Separate task selection from execution when automatic execution is disabled.
+- Investigate permanently locking Admin to greedy `EAGER` execution, as selected in
+  [SMART_AUTOEXEC.md](docs/agents/SMART_AUTOEXEC.md). Trace replay/import and tests that currently
+  disable Admin autoexecution before changing the Agent policy API.
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
 - actually plan out how exMachina should work
@@ -85,10 +91,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   interaction-trigger Anyone-to-Player normalization still supplies an implicit `that player`.
 - Investigate repeated selection probes followed by execution under `EAGER`; preserve manual-task
   competition and failure handling before removing probes.
-- Measure whether disposable overlays can replace the engine's frequent selection and execution
-  probes without slowing replay. The public overlay serves longer client forecasts; internal probes
-  still use atomic rollback and may need a cheaper construction path. Probes on a source World
-  currently invalidate its overlays even though the source history returns to the same point.
+- Start using `Agents.overlay` for an actual client or agent forecast, then measure its cost and
+  compare it with the existing fork path. Internal selection and execution probes still use atomic
+  rollback and may need a cheaper construction path. Probes on a source World currently invalidate
+  its overlays even when the source history returns to the same point.
 - Investigate repeated ranking of the same field while testing each candidate. Scores must reflect
   the current state, including rollback; avoid a second persistent representation of game scores.
 

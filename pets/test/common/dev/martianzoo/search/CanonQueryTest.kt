@@ -491,6 +491,22 @@ internal class CanonQueryTest {
     )
   }
 
+  @Test
+  fun actionCostsAlsoAccountForMoneyProductionOffsets() {
+    assertInvariant(
+        "elaborated",
+        "perMoneyProductionAccountsForItsOffset",
+        """
+        CLASS Decoy : ActiveCard, ActionCard {
+          cost = 0
+          HAS MAX 1 Decoy
+
+          1 MC / PROD[MC] -> Plant
+        }
+        """,
+    )
+  }
+
   private fun queryWith(form: CanonQuery.Form, source: String): CanonQuery =
       CanonQuery(
           form,
@@ -619,6 +635,10 @@ internal class CanonQueryTest {
                 "<And><requirements><Max pets='MAX 1 Conjunction'/></requirements></And>",
             ) +
             card(
+                "NestedConjunction",
+                "<And><requirements><And><requirements><Max pets='MAX 1 NestedConjunction'/></requirements></And></requirements></And>",
+            ) +
+            card(
                 "Alternative",
                 "<Or><requirements><Max pets='MAX 1 Alternative'/></requirements></Or>",
             ) +
@@ -627,6 +647,22 @@ internal class CanonQueryTest {
         "everyConcreteCardAndMilestoneDeclaresItsClassWideLimit",
         xml,
         listOf("Alternative", "WrongClass"),
+    )
+  }
+
+  @Test
+  fun delegateStateCheckExaminesChangesRatherThanActionCosts() {
+    assertOffenders(
+        "delegateChangesSpecifyTheirState",
+        """
+      <Class id='Example' name='Example'>
+        <actions><Action><cost><Spend><scaledEx><ScaledExpression><expression>
+          <Expression className='Delegate'/>
+        </expression></ScaledExpression></scaledEx></Spend></cost></Action></actions>
+        <effects><Effect><instruction><Gain gainingClass='Delegate'/></instruction></Effect></effects>
+      </Class>
+        """,
+        listOf("Example"),
     )
   }
 
@@ -723,7 +759,7 @@ internal class CanonQueryTest {
 
   private fun assertOffenders(name: String, xml: String, expected: List<String>) {
     val actual = XPathDocument("<Canon>$xml</Canon>").evaluate(invariant("authored", name))
-    assertEquals(expected, actual.map { it.name }, name)
+    assertEquals(expected, actual.map { it.name ?: it.owner }, name)
   }
 
   private fun invariant(form: String, name: String): String =

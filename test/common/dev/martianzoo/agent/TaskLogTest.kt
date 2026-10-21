@@ -311,7 +311,6 @@ internal class TaskLogTest {
     val player = source[PLAYER1]
     player.doTask("3 Token")
     player.doTasks("Token")
-    player.doTask(player.tasks.ids().single())
 
     val imported = newAgents()
     replay(source, imported)
@@ -416,7 +415,9 @@ internal class TaskLogTest {
         Agents(Engine.newGame(premise)).also {
           it[PLAYER1].autoExecPolicy = NONE
           it[ADMIN].autoExecPolicy = NONE
-          it[PLAYER1].addTasks("Coin BY Admin")
+          it[PLAYER1].addTasks("Coin")
+          it[PLAYER1].doTask("Coin")
+          it[PLAYER1].addTasks("-Coin BY Admin")
         }
     val source = newAgents()
     start(source)
@@ -424,7 +425,7 @@ internal class TaskLogTest {
       source[PLAYER1].doTask(source[PLAYER1].tasks.ids().single())
     }
     source.world.tasks.selectedTask() shouldBe null
-    source[PLAYER1].count("Coin") shouldBe 0
+    source[PLAYER1].count("Coin") shouldBe 1
 
     val imported = newAgents()
     replay(source, imported)

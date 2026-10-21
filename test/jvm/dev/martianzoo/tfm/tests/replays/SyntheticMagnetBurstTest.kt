@@ -1211,7 +1211,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     green.assertCounts(0 to "ProjectCard")
 
     // This game id was ga5237bd2fb08
-    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
+    admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
 
     pink.assertCounts(
         41 to "TerraformRating",

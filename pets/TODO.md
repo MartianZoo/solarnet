@@ -14,10 +14,8 @@ Delete entries when they are done.
 - Extend Canon XPath queries with expression-level type matching and linked variable identity when
   actual queries require them. Search exposes nominal superclass closure and variable
   spelling; it does not prove that conditional paths are achievable or calculate combined gains.
-  Evaluate replacing the portable invariant implementations only after the query interface settles;
-  the XPath equivalents currently run alongside them in `:search:test`. The MC-offset query still
-  spells out its subtraction patterns; defer broader metric normalization until another real query
-  needs it rather than adding an invariant-specific pass/fail attribute.
+  The MC-offset query still spells out its subtraction patterns; defer broader metric normalization
+  until another real query needs it rather than adding an invariant-specific pass/fail attribute.
 
 - Isolate the Kotlin incremental-compilation failure in the generated Canon check before trying
   to re-enable it. Merge builds reported duplicate helpers despite a single generated source file;

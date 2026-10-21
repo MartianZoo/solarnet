@@ -2,13 +2,12 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -25,8 +24,12 @@ internal class VictoryTest {
 
     p1.count("Victory<Player1>") shouldBe 1
     p2.count("Victory<Player2>") shouldBe 1
-    admin.count("VictoryPhase") shouldBe 1
-    shouldThrow<LimitsException> { admin.runOperation("-VictoryPhase") }
+    admin.count("End") shouldBe 1
+    admin.count("GameScope") shouldBe 0
+    val finalChanges = game.events.changesSinceSetup().takeLast(3)
+    finalChanges.first().change.removing?.type?.className shouldBe cn("GameScope")
+    finalChanges.drop(1).map { it.change.gaining?.type?.className } shouldBe
+        listOf(cn("Victory"), cn("Victory"))
   }
 
   @Test
