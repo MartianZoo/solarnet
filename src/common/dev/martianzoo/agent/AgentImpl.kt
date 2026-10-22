@@ -28,7 +28,7 @@ import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
 import kotlin.reflect.KClass
 
-/** Implements Actor-contextual parsing, atomic operation coordination, and autoexecution. */
+/** Interprets an Actor's input and coordinates the call's engine calls and task handling. */
 internal class AgentImpl(
     private val world: World,
     private val engine: ActorEngine,
@@ -61,6 +61,8 @@ internal class AgentImpl(
   private val allTasks: TaskQueue
     get() = world.tasks
 
+  // TODO(ENGINE_CONTRACT): proposed Admin handling is mandatory. Admin's own configured or
+  // overridden policy can currently disable it, and Player policies can hide its failure.
   override var autoExecPolicy: AutoExecPolicy = initialPolicy
     set(newPolicy) {
       if (newPolicy != field) {
@@ -107,6 +109,8 @@ internal class AgentImpl(
 
   // CHANGES
 
+  // TODO(ENGINE_CONTRACT): decide whether correction calls may deliberately omit required Admin
+  // handling. This path currently returns without checking for eligible Admin tasks.
   override fun sneak(changes: String, fakeCause: Cause?): TaskResult =
       world.timeline
           .atomic {
@@ -148,9 +152,7 @@ internal class AgentImpl(
         block = {
           allowedPendingTasks = allTasks.ids()
           allTasks.selectedTask()?.let {
-            throw TaskException(
-                "cannot start a manual operation while task $it holds the select-lock"
-            )
+            throw TaskException("cannot start a manual operation while task $it is selected")
           }
           markDecision()
           addInitialTasks(parseInstructionGroup(initialInstructions))
@@ -192,7 +194,7 @@ internal class AgentImpl(
 
   private fun addInitialTasks(initialInstructions: InstructionGroup) {
     engine.addTasks(initialInstructions).forEach { taskId ->
-      // Initial routing may assign the task to another Actor before settlement begins, and a
+      // Initial routing may assign the task to another Actor before task handling begins, and a
       // dispatch admits work that may wait.
       if (taskId !in tasks || tasks.getTaskData(taskId).deferred) return@forEach
       try {
@@ -327,7 +329,7 @@ internal class AgentImpl(
 
   private fun autoExecAtomically(): TaskResult =
       engine.transact(
-          settle = { world.agentTransactionGuard?.validate() },
+          afterChanges = { world.agentTransactionGuard?.validate() },
           block = { autoExecLoop.run() },
       )
 
@@ -478,7 +480,7 @@ internal class AgentImpl(
     }
   }
 
-  /** Runs a decision atomically; the current operation's work must drain after it. */
+  /** Runs a submitted decision and task handling within the enclosing call. */
   private fun decide(block: () -> Unit): TaskResult = atomic {
     markDecision()
     block()
@@ -499,8 +501,10 @@ internal class AgentImpl(
   private fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) =
       engine.requireComplete(allowedPendingTasks, autoExecLoop.lastDecision)
 
-  // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
-  // by every Actor in the world so only the true outermost operation drains and reports completion.
+  // Agent calls can re-enter this site. Shared depth currently makes the outermost call handle
+  // tasks and report completion, even when several Actor engine calls happen inside it.
+  // TODO(ENGINE_CONTRACT): run mandatory Admin work to quiescence regardless of Player policy.
+  // The returned TaskResult must include all retained changes through the end of the call.
   private fun atomic(
       validateCompletion: () -> Unit = {},
       block: () -> Unit,
@@ -509,7 +513,7 @@ internal class AgentImpl(
           .transact(
               block = block,
               validateCompletion = validateCompletion,
-              settle = {
+              afterChanges = {
                 autoExecLoop.run()
                 world.agentTransactionGuard?.validate()
               },
@@ -518,11 +522,14 @@ internal class AgentImpl(
             if (delegatingFromOperationScope == 0) recordPlayerReturn()
           }
 
-  // Manual task edits preserve their legacy behavior of not invoking autoexecution.
+  // TODO(ENGINE_CONTRACT): task additions and removals are changes too. Handle eligible Admin work
+  // before these calls return; the current path deliberately skips all task handling.
   private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
-      engine.transact(settle = { world.agentTransactionGuard?.validate() }, block = block).also {
-        if (delegatingFromOperationScope == 0) recordPlayerReturn()
-      }
+      engine
+          .transact(afterChanges = { world.agentTransactionGuard?.validate() }, block = block)
+          .also {
+            if (delegatingFromOperationScope == 0) recordPlayerReturn()
+          }
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,

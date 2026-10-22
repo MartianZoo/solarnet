@@ -16,23 +16,17 @@ they should not own detailed design decisions. Bounded loose work lives in [`TOD
 Read [`VALUES.md`](VALUES.md) before designing, implementing, or reviewing a behavior or
 architecture change. Then choose the narrowest relevant note:
 
-Always apply the [decision-tree principle](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client):
-assume the player's agent or client presents only choices known not to dead-end the turn, or accept
-that dead ends are exposed.
-Do not treat missing pruning as an engine or Pets modeling issue. Protected Habitats rejecting an
-attempted theft through a later dead end and rollback is valid. The engine note owns the detailed
-explanation; the autoexecution note owns optional pruning policy.
-
 | Subject | Read |
 | --- | --- |
-| Live World construction, components, tasks, effects, transactions, rollback, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
-| Component graph performance, overlays under search traffic, or Canon-specific indexing research | [`ENGINE_GO_FAST.md`](ENGINE_GO_FAST.md) |
+| Live World construction, components, tasks, effects, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
 | Actor attribution, on-turn identity, Admin, assignment, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md); lexical ownership is in [Pets](../../pets/docs/agents/OWNERSHIP.md) |
 | Game flow, turns and offers, Head Start timing, task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
-| Payment choices, accepted resources, billing, or settlement | [`PAYMENTS.md`](PAYMENTS.md) |
-| Autoexecution policy, pruning, Admin's greedy settling, or whether an automatic command preserves player outcomes and choices | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) |
+| Payment choices, accepted resources, billing, or payment completion | [`PAYMENTS.md`](PAYMENTS.md) |
+| Client interaction, transactions, task priorities, or mandatory Admin handling | [`ENGINE_CONTRACT.md`](ENGINE_CONTRACT.md) |
+| Transaction grouping, execution motivation, event ordinals, or transaction-based checkpoints | [`ORDINAL_REWORK.md`](ORDINAL_REWORK.md) — proposed preparation plan |
+| Inventory of automatic task revisions, admission, resolution, execution, and their timing | [`TASK_HANDLING.md`](TASK_HANDLING.md) — source-based draft of current behavior |
+| Single-action decision graphs, agent pruning, or speculative card choices | [`DECISION_GRAPH.md`](DECISION_GRAPH.md) — raw discussion notes only |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |
-| Proposed ELSE or instruction-level `(A)*` fallbacks and their Canon uses | [`ELSE.md`](../../pets/docs/agents/ELSE.md) |
 | Correction, `exMachina`, `sneak`, effect suppression, or correction invariants | [`EX_MACHINA.md`](EX_MACHINA.md) |
 | Card backs, draws, purchases, reveals, or replay card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) |
 | Authored actions, action identity, invocation, or missing action slots | [`ACTIONS.md`](../../pets/docs/agents/ACTIONS.md) |
@@ -43,7 +37,7 @@ authenticate the person or program using that Agent. Before treating caller auth
 custody, or agreement on a live game as an engine gap, use the adversarial-play route above: those
 responsibilities belong to the surrounding application, whose implementation remains open.
 
-For public client APIs, automatic policy, export, runtime layering, diagnostics, or content
+For public client APIs, export, runtime layering, diagnostics, or content
 selection, inspect the current source and tests for implemented behavior. Use the matching
 roadmap to locate the owning design note and understand its priority and status. Keep detailed
 decisions in that note rather than duplicating them in the roadmap.
@@ -85,8 +79,14 @@ Kotlin visibility auditing across runtime modules remains in [VISIBILITY.md](VIS
   sections of `TESTING.md`.
 - For a physical game record, read [`_local/OTB_GAME_RECORDS.md`](../../_local/OTB_GAME_RECORDS.md),
   plus the replay sections of `TESTING.md`.
-- Read [`OPTIMAL_SOLO.md`](OPTIMAL_SOLO.md) only for the retained TR63 monotonicity research; its static
-  report and Catalog analysis live in [Pets](../../pets/docs/agents/MONOTONICITY.md).
+
+## Historical material
+
+[obsolete/README.md](obsolete/README.md) indexes material retained for archaeology only.
+It supplies no current requirements. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the
+interaction terms and distinguishes selected direction from remaining proposals; keep those terms
+there until explicitly approved for the glossary. [DECISION_GRAPH.md](DECISION_GRAPH.md) holds
+unfinished agent exploration notes separately.
 
 ## Maintain this collection
 

@@ -24,15 +24,31 @@ import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.actors
 import dev.martianzoo.state.validateCustomClasses
 
-/** Constructs live and speculative [World] instances from resolved [GamePremise]s. */
+/**
+ * Constructs live game state from a resolved [GamePremise]. A returned [World] contains the
+ * configured components, shared rule definitions, and the Actor-scoped engines that interpret
+ * subsequent commands. Construction does not create clients or obtain Player choices.
+ *
+ * The [proposed interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md) remains under
+ * human review. In particular, existing copy APIs below are not a decision to retain speculative
+ * execution in that design.
+ */
 public object Engine {
 
   /**
-   * Creates a game at its committed initialization state. [customClasses] must supply the runtime
-   * implementations required by the premise's custom declarations, with no conflicting identities.
-   * Setup creates the Admin, selected class representatives, and starting components before the
-   * world is returned; it may leave tasks pending. Invalid configuration or setup fails without
-   * returning a partial world.
+   * Creates a World after its configured bootstrap has finished. The returned World has Admin, the
+   * selected class representatives, and the required premise components, with no pending bootstrap
+   * tasks. Its initial position is recorded and is the earliest navigable position. Game setup that
+   * requires Player choices must be started afterward through ordinary commands.
+   *
+   * [customClasses] supplies implementations for every custom declaration in the premise's catalog,
+   * including declarations excluded from this game. The empty default is valid only when that
+   * catalog requires no such implementation. Missing, mismatched, or duplicate implementations fail
+   * validation. The World retains the supplied implementations; it does not copy their Kotlin
+   * objects.
+   *
+   * Configuration, unresolved bootstrap choices, or invalid resulting counts cause construction to
+   * fail without returning a partial World. No guard or completion callback is installed.
    */
   public fun newGame(
       premise: GamePremise,
@@ -43,13 +59,22 @@ public object Engine {
   }
 
   /**
-   * Creates an independently mutable live World at the end of [source]'s completed gameplay
-   * history. Immutable premise data is shared, while state and every engine service are rebuilt.
-   * Agent transaction guards, application callbacks, component listeners, Agents, and provisional
-   * forms are not copied.
+   * Copies [source]'s current components, tasks, event history, and recorded positions into an
+   * independently mutable World. The source must be at the end of its recorded history. The copy
+   * cannot seek before its creation position, even though its earlier events remain readable.
+   *
+   * Premise data and custom-class implementation objects are shared. Mutable engine collections and
+   * event commentary are copied; guards, completion callbacks, component listeners, and client
+   * objects are not. Copying a [SpeculativeWorld] materializes its inherited and local history.
+   * Subsequent gameplay in either World leaves the other's game state unchanged.
    *
    * @throws IllegalArgumentException if [source] was not created by this Engine
-   * @throws IllegalStateException if [source] is not at the end of its completed history
+   * @throws IllegalStateException if [source] is not at the end of its recorded history or its
+   *   underlying source has invalidated it
+   *
+   * TODO(ENGINE_CONTRACT): Investigate whether independent copying belongs in the public engine API
+   *   after the client contract is reviewed; existing test-fixture use does not select a gameplay
+   *   contract.
    */
   public fun fork(source: World): World {
     val (wholeWorld, positions) = forkSource(source)
@@ -58,14 +83,21 @@ public object Engine {
   }
 
   /**
-   * Creates a disposable World whose events and state changes remain local. The source must stay
-   * unchanged while this World is used; a source gameplay-state mutation invalidates its retained
-   * read views and Agent commands. To fork from a sought position, truncate the source's retained
-   * future first. Use [SpeculativeWorld.reset] to try another branch without reversing the local
-   * events, or [fork] on the result to obtain an independent, fully materialized World. Agent
-   * transaction guards are absent from overlays, so card movements can remain anonymous. Agent
-   * selection and execution probes on the source can also invalidate an overlay: they may apply
-   * tentative events before rolling them back.
+   * Creates the existing [SpeculativeWorld] implementation without changing [source]. Local changes
+   * affect only the returned World. Source game-state changes invalidate it and its retained read
+   * views, even if those source changes are subsequently undone. Event commentary alone does not
+   * invalidate it. Source commands that temporarily apply events have the same invalidating effect.
+   *
+   * [source] must satisfy [fork]'s requirements. A source positioned in its recorded past must
+   * discard its retained future before this call. [SpeculativeWorld.reset] restores the creation
+   * state; [fork] produces an independent copy. Guards cannot be installed on this result, so
+   * application checks such as card-identity tracking are absent.
+   *
+   * This documents an existing capability pending the removal review on [SpeculativeWorld];
+   * speculative execution is not selected by the proposed client contract.
+   *
+   * @throws IllegalArgumentException if [source] was not created by this Engine
+   * @throws IllegalStateException if [source] is not at the end of valid recorded history
    */
   public fun overlay(source: World): SpeculativeWorld {
     val (wholeWorld, positions) = forkSource(source)
@@ -145,14 +177,14 @@ public object Engine {
             e.sourceLocation,
         )
       }
-      timeline.recordCompletedPosition()
+      timeline.recordPosition()
       requireSignedSelectionsMatchClassComponents()
       return world
     }
 
     internal fun createFork(positions: List<Checkpoint>, sourceEffector: Effector): WholeWorld {
       effector.copyIndexFrom(sourceEffector)
-      timeline.restoreCompletedPositions(positions)
+      timeline.restorePositions(positions)
       timeline.commit()
       limiter.checkRequiredCounts = true
       requireSignedSelectionsMatchClassComponents()
@@ -160,7 +192,7 @@ public object Engine {
     }
 
     internal fun createOverlay(positions: List<Checkpoint>): SpeculativeWorld {
-      timeline.restoreCompletedPositions(positions)
+      timeline.restorePositions(positions)
       timeline.commit()
       limiter.checkRequiredCounts = true
       return world as OverlayWorld

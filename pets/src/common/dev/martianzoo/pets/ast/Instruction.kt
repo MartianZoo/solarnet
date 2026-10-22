@@ -831,7 +831,7 @@ public sealed class Instruction : InstructionTree() {
               )
               .withTypeVariables(fullySpecialized.typeVariables.retaining(live))
       if (selected.mustRemainOneTask(info::isAbstract)) {
-        throw NarrowingException("first stage still uses an unsettled shared choice")
+        throw NarrowingException("first stage still uses an abstract shared choice")
       }
       return selected
     }

@@ -741,7 +741,7 @@ superclass's keys and forgets the rest. The projection of `GreeneryTile<Player1,
 
 Pets uses two related judgments. **Subtyping** is context-free: `A <: B` says, from the two types
 alone, that every A is a B. **Narrowing** is contextual. It asks whether A is an acceptable way to
-settle B in one state, including whether A satisfies B's `HAS` refinement there.
+narrow B in a given state, including whether A satisfies B's `HAS` refinement there.
 
 **T6-1. The two judgments.** Every subtype pair is a narrowing in every state, but a narrowing that
 depends on the state is not thereby a subtype. Subtyping is partial. When deciding it would take
@@ -1183,7 +1183,7 @@ omitted owners are inserted during elaboration by L9-3.
 ## 11. Enumeration and automatic narrowing
 
 Because a universe is closed, the concrete possibilities below an abstract type can be listed. That
-is the operation behind "which area do you want?", and behind settling a choice automatically when
+is the operation behind "which area do you want?", and behind making a choice automatically when
 only one possibility exists.
 
 Both operations are relative to a universe and, in a game universe, to the game's selected closure
@@ -1521,7 +1521,7 @@ Binding substitutes at every occurrence at once. Manutech's effect, lowered to
 > resource is another. The anonymous marker makes both regions choose the same resource, so an
 > increase in titanium production rewards titanium.
 
-Other abstract expressions in the effect remain ordinary types, settled in their own positions. By
+Other abstract expressions in the effect remain ordinary types, narrowed in their own positions. By
 the time the instruction leaves the effect's lexical scope, its references have been expanded to the
 chosen structural type.
 
@@ -1531,9 +1531,9 @@ choosing or matching occurrence supplies the value, and that occurrence need not
 source. An unmarked type belongs only to the region where it is written. A represented-class
 variable may apply dependency arguments (T13-1).
 
-Selector scopes bind before symmetric inner constructs settle their remaining markers. An `EACH` or
+Selector scopes bind before symmetric inner constructs bind their remaining markers. An `EACH` or
 `RANK` marker therefore stays visible through a nested full transmutation or `THEN`, and the inner
-construct declares only matching markers that are still unbound. Symmetric scopes settle inside out,
+construct declares only matching markers that are still unbound. Symmetric scopes bind inside out,
 so a full transmutation outranks an enclosing sequence. A selector's refinement takes part in
 filtering candidates, but the value exposed to its body or metrics is the selected concrete type,
 without that refinement.
@@ -1546,11 +1546,11 @@ without that refinement.
 | `EACH` | the marked selector | the body |
 | `RANK` | the marked selector | the comparison metrics |
 
-The first two are **settlement sites**: parts of one rule that are settled separately, across which
-"the same one" is worth saying. An action's two regions are the two stages its arrow lowers to
-(L7-3), and `X` is shared across exactly the same regions (L2-11).
+The first two contain regions handled separately, so a shared choice must explicitly link those
+regions. An action's two regions are the two stages its arrow lowers to (L7-3), and `X` is shared
+across exactly the same regions (L2-11).
 
-A full transmutation is different: its sides are settled together as one atomic pair. Matching
+A full transmutation is different: its sides execute together as an atomic pair. Matching
 markers on its gained and removed sides share one choice. A non-observing marker on either side can
 supply that choice, so the destination may use the selected source in a refinement just as the
 source may use the selected destination. Compact `FROM` has its own instruction syntax and declares
@@ -1572,7 +1572,7 @@ but cannot introduce one.
 
 | Occurrence | Variable rule |
 | --- | --- |
-| An ordinary unmarked expression in a local construct | it is settled in its own position |
+| An ordinary unmarked expression in a local construct | it is narrowed in its own position |
 | A requirement | it observes candidates rather than choosing one |
 | A metric | it ranges over a domain rather than picking one member |
 | A refinement | it tests a candidate chosen or matched outside it |
@@ -1645,7 +1645,7 @@ For a represented-class variable, binding `@CardResource` to the class `Microbe`
 matches, the two constraints intersect as usual, and a conflict is an error. Application produces an
 ordinary type expression. It does not create the invalid class literal `Class<Microbe<This>>`, and
 `Class<@CardResource>` written separately still denotes the literal for `Microbe`. A represented-class
-choice is settled once its root Class is concrete (T4-2), even when that Class's component dependencies
+choice is concrete once its root Class is concrete (T4-2), even when that Class's component dependencies
 remain open. Occurrence-specific arguments do not become part of the shared class value. A class-literal
 use of an ordinary type variable likewise projects its selected type to its root Class.
 

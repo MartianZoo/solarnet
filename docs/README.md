@@ -10,6 +10,5 @@ Terraforming Mars declarations, English generation, and static tools.
 - [Pets API issues](PETS_API_ISSUES.md) and [Playground](PLAYGROUND.md)
 - [Agent documentation router](agents/README.md)
 - [Build integration](agents/BUILDS.md) and [testing and replay procedures](agents/TESTING.md)
-- [Historical effect walkthrough: live effects through execution](archive/life-of-an-effect.md)
 
 `herokuapp_settings.json` and `herokuapp_settings_solo.json` remain here as external-game settings.

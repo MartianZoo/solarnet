@@ -1,13 +1,22 @@
+> **Archaeology only.** This document preserves a mix of how things were and how we wanted
+> them to be around **October 22, 2026**. It is not current guidance, an implementation
+> contract, or a list of work to resume. Earlier status labels and instructions below are
+> historical quotations, not present requirements.
+
+Original source: `pets/docs/agents/MONOTONICITY.md` at `ccfd949f82cb64f291c34f8d47dffbd4b15a0054`.
+
+Full historical document.
+
 # Static resource monotonicity analysis
 
 > **Status:** research and a conservative Catalog report; no optimizer is implemented.
-> The [Solarnet search problem](../../../docs/agents/OPTIMAL_SOLO.md#adopted-problem)
+> The [Solarnet search problem](../OPTIMAL_SOLO.md#adopted-problem)
 > supplies the TR63 objective and the meaning of continuation states used below.
 
 ## Source map
 
-- [StandardResourceMonotonicityReport.kt](../../src/jvm/dev/martianzoo/tfm/petstools/StandardResourceMonotonicityReport.kt)
-- [Canonical card data](../../src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5)
+- [StandardResourceMonotonicityReport.kt](../../../../pets/src/jvm/dev/martianzoo/tfm/petstools/StandardResourceMonotonicityReport.kt)
+- [Canonical card data](../../../../pets/src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5)
 
 ## Three claims that must not be confused
 
@@ -131,10 +140,10 @@ of Energy too.
 ### The proposed later-entry chain
 
 This reachability discussion came from an earlier catalog snapshot, before Prelude 2 support.
-The [support inventory](../what-is-supported.md) now includes Prelude 2; Applied Science remains
+The [support inventory](../../../../pets/docs/what-is-supported.md) now includes Prelude 2; Applied Science remains
 listed among incomplete wild-tag cards. The full Board of Directors / Merger / Double Down chain
 has not been reverified by this documentation move. Treat it as a research hypothesis, not an
-executable proof. Refreshing the catalog scan is tracked in [TODO.md](../../TODO.md).
+executable proof. Refreshing the catalog scan is tracked in [TODO.md](../../../../pets/TODO.md).
 
 The existing definitions do establish the important shape of the problem: Merger can select and
 play a corporation; Valley Trust can select and play a Prelude; and Double Down can copy a Prelude's

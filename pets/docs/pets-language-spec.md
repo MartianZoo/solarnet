@@ -268,17 +268,18 @@ scalar is `1`.
 Quantifier ::= "!" | "*" | "?"
 ```
 
-The three differ in *who* settles the amount, which is why later rules treat them so differently:
+The three differ in *who or what* determines the amount, which is why later rules treat them so
+differently:
 
-| Quantifier | The amount is | Settled by |
+| Quantifier | The amount is | Determined by |
 | --- | --- | --- |
 | `!` | already fixed | nobody; the change happens in full or not at all |
-| `?` | an open choice | whoever settles the instruction, who may choose none (L3-1) |
+| `?` | an open choice | whoever narrows the instruction, who may choose none (L3-1) |
 | `*` | fixed, but not yet known | the state the change is carried out against |
 
 So `!` is concrete, `?` is abstract, and `*` is neither: it leaves no choice, but its amount is
-read off a state rather than written down. Narrowing can settle a choice (L3); only
-resolution against a state can settle a `*`.
+read off a state rather than written down. Narrowing can fix a choice (L3); only
+resolution against a state can determine the amount of a `*`.
 
 A transmutation must change its concrete Type. Equal concrete Types (T5-1) on both sides are
 invalid regardless of spelling, source count, or quantifier. A shared variable such as
@@ -394,7 +395,7 @@ InstructionSequence ::= GatedInstruction ( "THEN" GatedInstruction )*
 
 > **Non-normative example — solo neutral tiles.** Each placement pairs a city with a subsequent
 > greenery adjacent to a city. `THEN` ensures the new city exists before the greenery's legal-area
-> query is settled; a comma would let the second choice be evaluated against the old board.
+> query is evaluated; a comma would let the second choice be evaluated against the old board.
 
 **L2-11. `X` is one open amount per instruction, and may span a sequence.** The stages of a `THEN`
 share one `X`, and must then agree about its value (L3-7); so do an action's cost and result (L7-3),
@@ -424,7 +425,7 @@ belong only to the stage where they are written.
 **L2-13. A full transmutation marks any Type choice shared by its two sides explicitly.** Matching
 marked occurrences on the gained and removed sides use one choice. A non-observing
 marker on either side may supply that choice; the other side may use it in an observing refinement.
-The pair is settled atomically. Other expressions belong only to the side where they are written. A
+The pair is executed atomically. Other expressions belong only to the side where they are written. A
 marker already supplied by an enclosing `EACH` or `RANK` scope remains a reference to that value;
 the full transmutation claims only otherwise-unbound matching markers. A marker occurring on only
 one side may instead belong to an enclosing `THEN` sequence when that sequence also marks it.
@@ -534,7 +535,7 @@ waits for all pending work also waits for it. A `LATER` nested in another is per
 work containing it becomes ordinary: it defers its body again, behind the ordinary work pending
 then.
 
-Deferral settles nothing early. Admitted work is resolved when it is carried out, like any task, so
+Deferral resolves nothing early. Admitted work is resolved when it is carried out, like any task, so
 `LATER { Done / Flag }` counts the flags present then.
 
 > **Non-normative example — played events.** `EventCard`'s
@@ -566,9 +567,9 @@ could have brought about, and every choice P still leaves open retains Q's const
 relationships. The rules below define that relation; discharging a `HAS` condition also consults
 the world in which the choice is made.
 
-**Narrowing is not resolution.** Settling `3* Plant` against a state with room for two yields
+**Narrowing is not resolution.** Resolving `3* Plant` against a state with room for two yields
 `2! Plant`, and that is not a narrowing: nothing in the two instructions says so, and in another
-state the same `*` settles differently. Narrowing restricts an open choice; resolution determines
+state the same `*` resolves differently. Narrowing restricts an open choice; resolution determines
 the change permitted by a state. Every narrowing rule here is state-independent, except where a
 `HAS` refinement asks a world about a candidate (T8-8).
 
@@ -583,7 +584,7 @@ whose arms are all zero-count changes or `Ok` likewise requires no decision.
 
 > **Non-normative example — Virus.** Its `-2? Animal<Anyone> OR -5? Plant<Anyone>` remains open even
 > after one arm is selected: the target player and how much optional loss actually occurs still need
-> settlement. Calling the authored card concrete would skip choices printed on it.
+> to be chosen. Calling the authored card concrete would skip choices printed on it.
 
 **L3-2. A proposal must have the same shape.** A narrowing preserves the kind of node, the number of
 `THEN` stages and the size of a group. Two exceptions, and only two: any instruction may narrow an
@@ -611,7 +612,7 @@ a later choice would otherwise be free to select an unmarked place.
 Only `?` leaves a choice, so only `?` narrows: it may become `!`, `*` or a smaller count. `!` and
 `*` leave no choice at all, so neither narrows to the other (L2-3). In particular a proposal may not
 turn `3* Plant` into `3! Plant`: as much as possible is not the same claim as all of it, and which
-amount `*` means is for resolution, not for the settler, to decide.
+amount `*` means is for resolution, not for the player, to decide.
 
 > **Non-normative example — Comet.** Its optional loss of up to three plants may narrow to one, two,
 > three, or none, but its mandatory temperature and ocean gains may not shrink. The quantifier—not
@@ -901,7 +902,7 @@ no value of its own, and asking for one is a programming error.
 > selected milestone's other printed requirement; `EVAL` itself has no universal truth value.
 
 **L5-9. A requirement observes; it never chooses.** Nothing inside a requirement is an open choice
-for a player to settle. Abstract expressions there describe the observed domain rather than
+for a player to make. Abstract expressions there describe the observed domain rather than
 declaring Type variables (T13-8).
 
 > **Non-normative example — Sponsor.** `HAS "3 CardFront(HAS 20 cost)"` counts any three qualifying

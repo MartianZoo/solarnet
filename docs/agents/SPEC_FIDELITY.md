@@ -18,11 +18,10 @@ not imply that their documentation or conformance audits are complete.
 | Module | Contracts to explain |
 | --- | --- |
 | `state` | World observations, components, actors, tasks, events, recordings, and the lifetime and mutability of returned views. |
-| `engine` | World construction, execution, transactions, effects, rollback, checkpoints, and forks. |
-| `agent` | Actor-scoped queries and mutations, task selection and narrowing, completion, delegated control, forms, and automatic execution policy. |
+| `engine` | World construction, execution, tasks, effects, and invariant checks. |
+| `agent` | Actor-scoped queries and mutations, task selection and narrowing, completion, delegated control, and forms. |
 | `tfm-state` | Read-only Terraforming Mars queries, including resource names, printed production, and map lookup. |
 | `tfm-engine` | Terraforming Mars game construction, gameplay calls, payments, and caller responsibilities for phase progression. |
-
 
 ## Shared documentation standard
 

@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.engine.TfmEngine
 /**
  * Scenarios reached through play, with the game's own rules offering every turn and beginning every
  * phase. Players submit offered tasks through plain Agents with a fixed policy. Explicit
- * autoExecNow calls settle competing consequences when their order is not the subject.
+ * autoExecNow calls handle competing consequences when their order is not the subject.
  */
 internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy = CONCRETE) {
   protected lateinit var game: World

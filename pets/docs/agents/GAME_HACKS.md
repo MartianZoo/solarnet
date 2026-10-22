@@ -92,16 +92,8 @@ do not reopen this as an unresolved marker-identity question.
 
 ## Inclusion rule
 
-**An exposed dead end is not a hack or defect.** Apply the
-[decision-tree principle](../../AGENTS.md):
-the player's agent or client handles pruning, or we accept unsuccessful paths. Do not add an entry
-merely because a choice fails later or requires rollback, even if no pruner exists. Protected
-Habitats is valid as modeled; it needs no precheck to prevent an attempted plant theft.
-
 A **truthful** implementation makes the game changes its rules actually call for. Another card
-can observe them without needing special knowledge of its implementation. Rejecting an illegal
-operation by rolling back its changes, consequences, and history counts as truthful: Protected
-Habitats does not leave a successful history containing the prohibited theft.
+can observe them without needing special knowledge of its implementation.
 
 Compensating changes are different. Gaining something and later removing it leaves two real events
 in a successful history. Observers can distinguish that from never gaining it.
@@ -202,7 +194,7 @@ and [TharsisRepublicTest](../../../test/common/dev/martianzoo/tfm/tests/cards/Th
 
 **Fan card — Microbial Symbiosis:** “Whenever you gain a microbe, gain an animal.” **Literal:**
 `Microbe: Animal`. With suitable holders, adding a Terminal microbe also adds an animal. The bonus
-animal consumes another Terminal allowance. A valid three-card distribution can then dead-end,
+animal consumes another Terminal allowance. A valid three-card distribution can then become impossible,
 or the player can satisfy the counter with fewer Terminal gifts than the card requires.
 
 **Source:** `L1TradeTerminal` and its `L1GiftWatcher` component in
@@ -262,7 +254,6 @@ and `Mine` in [Corporate Era cards](../../src/common/dev/martianzoo/tfm/canon/bu
 
 **Hack:** `UseAction` starts the cost and result, rather than recording successful payment of the
 cost. Another listener can provide the very resources needed to make the attempted action legal.
-Rollback does not help when those resources turn the whole operation into a successful one.
 
 **Fan card — Microbial Recovery:** “After you use an action on a microbe card, add one microbe to
 that card.” Its reward is a **literal resource gain**, but the available `UseAction` hook is early.
@@ -427,7 +418,7 @@ and `FundAward` in [actions.pets](../../src/common/dev/martianzoo/tfm/canon/bund
 
 **Hack:** `Owed<Class<MC>>` and `Accepting` belong to the player, not a particular bill. Distinct
 billing components can coexist, but their debts accumulate in the same balance, and the same
-accepted resources can settle it. This assumes payment cannot open another differently restricted
+accepted resources can pay it. This assumes payment cannot open another differently restricted
 payment before the first finishes.
 
 **Fan card — Smelter Gardens:** “Whenever you pay with any amount of steel, you may pay 1 M€ to

@@ -82,12 +82,11 @@ Preserve these distinct purposes:
 
 Keep language/type conformance tests aligned with numbered specification rules. Use minimal
 examples that demonstrate information preservation without reproducing engine execution.
-Actual card outcomes, live-world rollback, and full games are tested by Solarnet.
+Actual card outcomes and full games are tested by Solarnet.
 Share a test fixture only when it belongs to both consumers; do not depend on Solarnet test support.
 Give distinct scenario variants named tests so a failure identifies the case.
 
 ## Multiplatform tests
-
 
 - Shared `kotlin.test` test classes and methods may not be private; even though JVM test runs may
   work with them, JS test runs may not.

@@ -1,7 +1,16 @@
+> **Archaeology only.** This document preserves a mix of how things were and how we wanted
+> them to be around **October 22, 2026**. It is not current guidance, an implementation
+> contract, or a list of work to resume. Earlier status labels and instructions below are
+> historical quotations, not present requirements.
+
+Original source: `pets/docs/archive/life-of-an-effect.md` at `ccfd949f82cb64f291c34f8d47dffbd4b15a0054`.
+
+Full historical document.
+
 # Life of an Effect (archived historical walkthrough)
 
 > This walkthrough predates lexical `Me` ownership. Its `Owner` substitution stages describe the
-> previous engine; see the [language specification](../pets-language-spec.md) for current semantics.
+> previous engine; see the [language specification](../../../../pets/docs/pets-language-spec.md) for current semantics.
 
 This document follows one Effect in an authored canonical card declaration until its Instructions
 produce recorded State Changes. The example is Recyclon because it passes through most of the
@@ -21,7 +30,7 @@ At every stage, the important question is not merely “what code ran?” but �
 assume about the Pets tree?” Those postconditions are called out explicitly.
 
 Stages 1–6 cover declaration loading and specialization. Continue with
-[stages 7–11 in Solarnet](../../../docs/archive/life-of-an-effect.md#7-the-component-effect-becomes-a-live-effect)
+[stages 7–11 in Solarnet](../life-of-an-effect.md#7-the-component-effect-becomes-a-live-effect)
 for live effects, tasks, and execution. This is historical material, not a current API guide.
 
 ## 1. The structured card data

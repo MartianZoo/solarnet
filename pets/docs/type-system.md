@@ -53,7 +53,7 @@ Once premise construction leaves a trigger Class uninhabited, this last rule let
 mention optional concepts without importing them into every game. An instruction guarded by "if a
 Jackalope ever appears" is perfectly safe: execution can never reach its body. Conversely, an
 instruction that actually tries to create an uninhabited Jackalope cannot succeed. Optional and
-AMAP changes to uninhabited Types become zero no-ops; mandatory changes are dead ends.
+AMAP changes to uninhabited Types become zero no-ops; mandatory changes cannot execute.
 
 This is not limited to excluded concrete Classes. An abstract Type with no concrete narrowing, a
 Type with an uninhabited dependency, and a structural difference that excludes every candidate are
@@ -137,7 +137,7 @@ check, an operation includes one initiating component change and all its recursi
 consequences. Intermediate counts may be outside the declared bounds. For example, a mandatory gain
 can add a new member of a maximum-one family whose automatic effect removes the old member. The
 engine validates the resulting counts before completing the operation; if they still violate an
-invariant, it rolls back the transaction, including its changes, tasks, and events.
+invariant, validation fails.
 
 A positive exact-count invariant constructs missing concrete parts directly dependent on a newly
 gained component, recursively and in dependency order before any of their gain reactions. Parts'
@@ -155,11 +155,6 @@ quantities still use the current invariant bounds, with negative headroom or foo
 zero. Effects can observe intermediate states. Automatic listeners in each trigger batch match
 against the same post-change snapshot. See the
 [quantifier contract](../../docs/agents/QUANTIFIERS.md#invariants-at-operation-completion) for resolution details.
-
-An available choice is not a promise that the operation will succeed. The engine can offer a
-mandatory change that will fail its count invariants at completion; the failed attempt rolls back.
-Resolution does not execute consequences to predict that result or use count bounds to remove
-mandatory alternatives. Clients and agents may explore and prune these dead ends for the player.
 
 ### Singleton types
 

@@ -14,13 +14,15 @@ import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.state.toComponent
 
 /**
- * Read-only description of [type] in [classTable] for inspection clients. It combines the root
- * class's authored facts with effects elaborated for the selected premise and, for a concrete
- * inhabited type, effects compiled for a component of that exact type. These values describe the
- * supplied class table; they are not live counts of components in a world.
+ * Read-only description of [type] for inspection clients. It combines declaration-level facts,
+ * effects elaborated for [classTable], and effects specialized for a component of this exact type.
+ * These are static descriptions, not live component counts or promises that a task will execute.
+ * Returned collections describe the supplied class-table view and do not follow a World's changes.
  *
  * @param classTable Class universe and premise view used for subtype and effect elaboration.
- * @param type Type to inspect; it must belong to [classTable].
+ * @param type Type understood by [classTable], including a compatible type from its source catalog.
+ * @constructor Computes the description without reading or changing a live World. Invalid or
+ *   unrelated types and effect-elaboration failures are reported during construction.
  */
 public class TypeDescription
 public constructor(
@@ -47,20 +49,28 @@ public constructor(
   public val subclassNames: Set<ClassName> =
       descendingBySubclassCount(classTable.allSubclasses(rootClass))
 
-  /** Effects on the root class declaration before premise elaboration. */
+  /**
+   * Root declaration's executable effects before premise elaboration or component specialization.
+   * Catalog lowering may already have replaced the authored list, so these are not necessarily the
+   * original source effects.
+   */
   public val rawClassEffects: List<Effect> = rootClass.declaration.effects
   /** Root class effects elaborated for this premise, or empty when [type] is uninhabited. */
   public val classEffects: List<Effect> =
       if (inhabited) elaborator.classEffects(rootClass) else emptyList()
 
-  /** Requirements inherited by the root class. */
+  /** Inherited invariants for a concrete root class; empty when the root class is abstract. */
   public val classInvariants: Set<Requirement> = rootClass.invariants
 
   /** Default base type of the root class. */
   public val baseType: Type
     get() = rootClass.baseType
 
-  /** Number of concrete specializations of [baseType], capped at 100. */
+  /**
+   * Number of concrete dependency specializations with this root class, capped at 100. Excludes
+   * subclasses and is zero for an abstract root class. A result of 100 means at least 100, not an
+   * exact total. This counts static types, not components currently present in a World.
+   */
   public val concreteTypesForThisClassCount: Int =
       classTable.concreteSubtypesSameClass(baseType).take(100).count()
 
@@ -72,7 +82,11 @@ public constructor(
   public val variableBindings: Map<TypeVariable, GroundType> =
       type.variableBindingsFrom(type.rootClass.defaultType, type.rootClass.typeVariables)
 
-  /** Number of concrete subtypes of [type], capped at 100. */
+  /**
+   * Number of concrete subtypes in [type]'s static enumeration, including subclasses, capped at
+   * 100. A result of 100 means at least 100. Live requirements and component availability are not
+   *      evaluated, so this is neither a component count nor a count of legal task choices.
+   */
   public val componentTypesCount: Int = classTable.allConcreteSubtypes(type).take(100).count()
 
   /** Effects of a component of this exact type, or empty for an abstract or uninhabited [type]. */

@@ -194,7 +194,7 @@ public abstract class ClassTable {
   /**
    * Returns [klass]'s executable effects for every World built from this table. A Catalog table
    * returns the reusable declaration effects. A game table returns an included Class's immutable
-   * premise-specialized form: conditions settled by its structural `Class<T>` representatives or
+   * premise-specialized form: conditions determined by its structural `Class<T>` representatives or
    * selected Modules are removed, while state-dependent conditions remain. This derivation never
    * changes [klass] or its declaration. Read `klass.declaration.effects` explicitly when the
    * unspecialized backing form is required.

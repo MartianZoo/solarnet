@@ -12,7 +12,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
  * A yes-or-no query over one game state, for example, `MAX 4 OxygenStep`, as defined by
  * [section 5](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#5-requirements).
  *
- * A requirement only observes; nothing inside one is an open choice for a player to settle ([rule
+ * A requirement only observes; nothing inside one is an open choice for a player to make ([rule
  * L5-9](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#5-requirements)).
  */
 public sealed class Requirement : PetElement() {

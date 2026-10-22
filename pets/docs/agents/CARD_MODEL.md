@@ -98,7 +98,7 @@ An ordinary draw adds `ProjectCard<Hand>`. Fixed-size project-card offers, inclu
 gain the full offer as `ProjectCard<Selecting>`. Look-and-keep effects move only retained backs to
 `Hand` and remove the remainder. For a buy, the Player removes unwanted backs, then
 `BuySelectedCards` is `System` and bills 3 M€ for each remaining selected back, applying card
-purchase discounts through `PayingFor<Class<ProjectCard>>`. Settling the bill offers the Player
+purchase discounts through `PayingFor<Class<ProjectCard>>`. Completing payment offers the Player
 `N ProjectCard<Hand FROM Selecting>` as an explicit transfer task. The selected backs stay in
 `Selecting` until the Player performs it. Zero buys leave no selected backs. Neither the World nor
 the replay ledger names rejected cards. Searches create only the matching hand card;

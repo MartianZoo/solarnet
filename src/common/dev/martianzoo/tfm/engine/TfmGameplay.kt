@@ -280,16 +280,16 @@ public class TfmGameplay(
   }
 
   /**
-   * Uses the offered conversion to settle an eight-Plant bill and gain a greenery tile. The
-   * caller's `body` chooses any placement still open after payment; without an offered action or a
-   * legal payment, the operation fails and rolls back.
+   * Uses the offered conversion to pay an eight-Plant bill and gain a greenery tile. The caller's
+   * `body` chooses any placement still open after payment; without an offered action or a legal
+   * payment, the operation fails and rolls back.
    */
   public fun convertPlants(body: OperationBlock = {}): TaskResult {
     return stdAction("ConvertPlants", body = body)
   }
 
   /**
-   * Uses the offered conversion to settle an eight-Heat bill and raise temperature by one step. The
+   * Uses the offered conversion to pay an eight-Heat bill and raise temperature by one step. The
    * caller's `body` handles any remaining choice; an unavailable action or payment fails and rolls
    * back.
    */
@@ -298,9 +298,9 @@ public class TfmGameplay(
   }
 
   /**
-   * Uses an offered standard project named [stdProject]. The default [payment] settles its bill
-   * entirely in MC; `body` makes subsequent choices. A custom payment block must settle or leave
-   * the resulting payment tasks for the caller to handle.
+   * Uses an offered standard project named [stdProject]. The default [payment] pays its bill
+   * entirely in MC; `body` makes subsequent choices. A custom payment block must pay or leave the
+   * resulting payment tasks for the caller to handle.
    */
   public fun stdProject(
       stdProject: String,
@@ -520,7 +520,7 @@ public class TfmGameplay(
         }
       } else if (value == 1 && units > 0 && count(MC.toString()) >= remainingDebt) {
         throw IllegalArgumentException(
-            "$actor paid $units $currency while $remainingDebt M€ could settle the bill; " +
+            "$actor paid $units $currency while $remainingDebt M€ could cover the bill; " +
                 "call intentionalUnderpay() immediately before paying if this is sourced"
         )
       }
@@ -640,7 +640,7 @@ public class TfmGameplay(
    * Requires subsequent [pay] calls to use the default resource allocation unless preceded by
    * [intentionalUnderpay]. For each accepted non-MC resource valued above one MC, the allocation
    * must use as many full-value units as the remaining bill and available stock permit before using
-   * later currencies. At value one, MC is preferred when it can settle the remaining bill. This
+   * later currencies. At value one, MC is preferred when it can cover the remaining bill. This
    * setting stays on this wrapper and is copied by [asPlayer]. Returns this wrapper for chaining.
    */
   public fun requireExplicitPaymentChoices(): TfmGameplay = apply {
@@ -656,8 +656,8 @@ public class TfmGameplay(
   }
 
   /**
-   * How much of the open billing component one unit of [currency] settles: one when its
-   * denomination is [currency], plus one per `ResourceValue` the payer owns for it.
+   * How much of the open billing component one unit of [currency] pays: one when its denomination
+   * is [currency], plus one per `ResourceValue` the payer owns for it.
    */
   private fun paymentValue(currency: String): Int =
       count("ResourceValue<Class<$currency>>") + if (count("Owed<Class<$currency>>") > 0) 1 else 0

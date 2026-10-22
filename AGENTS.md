@@ -28,24 +28,9 @@ generated recording.
 
 ## Always apply these principles
 
-### Decision-tree pruning belongs to the player's agent or client
-
-**Universal design assumption:** When modeling Pets or making engine decisions, assume either
-(a) the player's agent or client diligently prunes the decision tree and presents only choices
-known not to dead-end the turn, or (b) we do not care about exposing dead ends. Neither the engine
-nor the model is responsible for making every offered choice lead to a successful turn. This
-principle applies even when no such pruner has been implemented.
-
-**Protected Habitats is a valid model:** an opponent can attempt to take a protected plant; the
-card's consequence dead-ends that path, requiring rollback. There is nothing wrong with this.
-The model need not prevent the initial choice or reject the removal before its consequences run.
-
-Do not report a defect, add a TODO, or introduce engine/model machinery merely because a choice
-can fail later, requires lookahead, or makes the caller roll back. A defect claim needs a separate
-rule failure, such as allowing the prohibited theft to survive a successfully completed turn or
-excluding a required legal outcome. Enforcing game rules remains the engine/model's job; deciding
-which unsuccessful paths to hide belongs to the agent or client.
-See [ENGINE.md](docs/agents/ENGINE.md#queries-invariants-and-dead-ends).
+The proposed engine interaction contract, still requiring human review, is in
+[ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md). Material under
+`docs/agents/obsolete/` is historical evidence, not current guidance.
 
 ### Interpret the request before acting
 

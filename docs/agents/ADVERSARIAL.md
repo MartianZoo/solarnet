@@ -21,10 +21,9 @@ authentication, acceptance of moves, custody of hidden information, and recognit
 are outside the engine. The proposal below describes such an arrangement without assigning those
 jobs to Solarnet or selecting new engine APIs.
 
-**Every player's local engine is theirs to use freely.** A player can explore alternative moves,
-make hypothetical decisions for opponents, run Admin work, try assumed hands, change resources,
-and rewind repeatedly. All of that is fair local calculation. Exploring a possible opponent hand
-does not entitle the player to learn the actual hand.
+**Every player's local engine is theirs to use freely.** Calling an Actor's Agent or applying a
+local correction does not establish that other participants accept the resulting game history.
+The engine does not grant access to actual undisclosed card identities.
 
 The engine still checks game rules: an ordinary action that requires 10 M€ must have its cost
 handled correctly. That mathematical check does not establish who is operating the computer or
@@ -75,7 +74,7 @@ earlier lines. Similarly, an event log that can be played back is not proof that
 from legal decisions. The combined export's decision and event streams must reconstruct the game
 independently and agree, rather than use asserted consequences to repair missing decisions.
 
-An accepted prefix must also have a settled meaning. A later append cannot retrospectively change
+An accepted prefix must also have a fixed meaning. A later append cannot retrospectively change
 which choice an earlier line represented or who was waiting to act. This is stronger than keeping
 the earlier text unchanged. It does not require verbose task identifiers, but the importer must
 establish the accepted position, including pending work, without relying on future decisions.
@@ -102,24 +101,11 @@ the Start Token holder chooses the ocean location, while placement is attributed
 The owner must be able to commit the work leading to that choice, receive the other player's
 decision, and continue the same operation.
 
-There is an unresolved difficulty here: an accepted partial operation might later have no legal
-completion. Local transaction rollback cannot retract another player's accepted decision or make
-somebody forget a revealed card. The current
-[sequencing discussion](SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
-already distinguishes an individual transaction from completion across delegated work. The
-surrounding agreement must address this case without assuming those are the same thing.
-
-Finding a possible successful continuation would not by itself settle the problem. That
-continuation might depend on another player's choice or an unknown draw. Requiring every proposal
-to prove future completion would also be a substantial new verification requirement. No such
-search requirement, automatic takeback, or forfeiture rule is selected here.
-
 `Admin` is an Actor in the model, not necessarily a separate person, machine, branch, or committer.
 Any player's submission may include appropriate Admin work performed by their local engine. Public
-rule consequences remain independently checkable. If Admin work includes an actual discretionary
-choice, the players must agree who supplies it; calling it Admin does not give the submitting
-player permission to decide it unilaterally. Whoever keeps the deck secret has a separate job from
-the engine's Admin Actor.
+rule consequences remain independently checkable. Admin's permitted handling of assigned tasks is
+defined in [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md). Whoever keeps the deck secret has a separate
+job from the engine's Admin Actor.
 
 A determined result is not necessarily work that may be performed immediately: choosing when to
 execute it can affect other available choices. For acceptance as shared play, batching another
@@ -277,13 +263,7 @@ achievement remain responsibilities of the surrounding arrangement.
    approval establish the result, or should previously agreed verification rules establish it
    despite their refusal? This separates consent to participate from consent to lose.
 
-4. **What should a result tell somebody who wasn't there?** Your unrestricted, mutually agreed
-   undo remains intact. But should a solo victory distinguish “succeeded on the first attempt”
-   from “succeeded after seeing future draws and returning to an earlier position”? Both can be
-   valid achievements; the final surviving branch alone may not communicate which achievement
-   occurred.
-
-5. **What exactly must be simultaneous: acceptance, or commitment before seeing others' choices?**
+4. **What exactly must be simultaneous: acceptance, or commitment before seeing others' choices?**
    If Bob's proposal is readable before Alice submits hers, accepting both through a merge still
    lets Alice respond to Bob. Must submissions therefore remain secret until everybody's choice
    is fixed? And if somebody then refuses to finish, do the remaining players get to learn the

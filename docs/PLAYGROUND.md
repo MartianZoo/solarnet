@@ -101,8 +101,9 @@ history navigation still needs design; do not assume Compose provides that mappi
   remain unidentified. Earlier declaration is optional and low priority.
 - Gameplay mode applies normal game rules and exposes the Solarnet task queue. Selecting a task shows
   the available ways to narrow it.
-- Task execution is manual, including concrete tasks; avoid autoexecution so the user can follow
-  resolution step by step. Effects accumulate in a log viewer panel.
+- Player task execution is manual, including concrete tasks, so the user can follow resolution
+  step by step. Admin handling follows [ENGINE_CONTRACT.md](agents/ENGINE_CONTRACT.md).
+  Effects accumulate in a log viewer panel.
 - Separate explanations of why a rule applies are not required. Watching the task queue resolve
   is the intended way to understand the result.
 
@@ -110,9 +111,7 @@ history navigation still needs design; do not assume Compose provides that mappi
 
 - In gameplay mode, freely browse backward and forward through history at appropriate boundaries,
   never stopping inside indivisible work such as double-colon effects.
-- Browsing does not change the live game. Explicitly roll back to the viewed point to discard the
-  subsequent history and try another move.
-- Return to sandbox by rolling all the way back, or reset to start over.
+- Reset to return to sandbox and start over.
 - Saving and reloading scenarios is desirable later, but not required initially.
 
 ## Open questions

@@ -270,7 +270,7 @@ negative assertions when they prove a non-obvious state constraint that was temp
 - a second action could not legally have been performed first for a non-obvious reason.
 
 Use the precise domain exception (`RequirementException`, `NarrowingException`, `LimitsException`,
-`DeadEndException`, or another specific result). Put a choice-level failure inside the action lambda
+or another specific result). Put a choice-level failure inside the action lambda
 beside the successful choice. Skip obvious cases that only require the card or resources gained by the
 preceding action, and do not turn the whole-game test into a substitute for focused rule tests.
 

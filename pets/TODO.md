@@ -77,10 +77,6 @@ Delete entries when they are done.
   tasks saw no source in these modules; the Pets build preserves compiler, formatting, JVM,
   and browser checks without importing that inert configuration.
 
-- Refresh the historical catalog claims in [monotonicity analysis](docs/agents/MONOTONICITY.md),
-  especially Prelude 2 producer chains and generic-resource targets. Its retained scan predates
-  the current content inventory; the documentation move did not rerun that analysis.
-
 - Investigate represented-tag binding before shortening
   `@Tag<WildTagElection<@WildTag, ActionScope>>` to `@Tag<This>`. The shorter spelling still fails in
   `recordTypeVariableScopes` while `This` is lexical; the explicit election holder works. See

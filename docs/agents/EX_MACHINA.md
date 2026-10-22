@@ -27,7 +27,7 @@ adjustment or assertion; it is not proof of player consent or an external custod
 - Queued (`:`) effects are suppressed throughout the correction and its derived changes.
 - Every applicable declared count invariant is checked against the completed World. Validation
   rejects an invalid result; it does not repair it.
-- Corrections do not settle pending tasks or call the gameplay completion callback.
+- Corrections do not handle pending tasks or call the gameplay completion callback.
 - A correction need not enforce game history that is not represented as an invariant. For
   example, arbitrary delegate edits need not reconstruct political leadership, and a corrected
   tile does not grant placement rewards.
@@ -49,7 +49,7 @@ any result that leaves additional `MustCleanUp` state, so a correction cannot be
 ordinary completion effects were suppressed.
 
 When a task is selected, `exMachina` restores its unresolved form, applies the correction, and
-resumes selection under the existing policy. The whole sequence remains failure-atomic.
+resumes selection. The whole sequence remains failure-atomic.
 Pre-existing gameplay may then proceed normally; queued effects of the correction remain
 suppressed.
 

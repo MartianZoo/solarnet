@@ -26,7 +26,7 @@ internal class WorldTransactionTest {
   }
 
   @Test
-  internal fun outerTransactionSettlesEveryAgentsPolicyAfterNestedCalls() {
+  internal fun outerCallHandlesEveryAgentsPolicyAfterNestedCalls() {
     val game = Engine.newGame(testGamePremise(players = 2))
     val player1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val player2 = game.testAgent(PLAYER2)
@@ -38,7 +38,7 @@ internal class WorldTransactionTest {
   }
 
   @Test
-  internal fun manualTaskEditsReportAtomicCompletion() {
+  internal fun manualTaskEditsReportCompletion() {
     val game = Engine.newGame(testGamePremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.sneak("Token")

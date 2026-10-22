@@ -28,7 +28,7 @@ internal class TaskResolutionTest {
   private val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = AutoExecPolicy.NONE }
 
   @Test
-  internal fun `selecting resolves an abstract task and takes the select-lock`() {
+  internal fun `selecting resolves an abstract task and records the selection`() {
     initiate("2? Plant")
     agent.selectTask("2? Plant")
 
@@ -88,7 +88,7 @@ internal class TaskResolutionTest {
   }
 
   @Test
-  internal fun `the select-lock rejects a second selection`() {
+  internal fun `a selected task excludes a second selection`() {
     val plant = initiate("Plant?").single()
     val heat = initiate("Heat?").single()
 

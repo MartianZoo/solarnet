@@ -70,26 +70,7 @@ full transmutation changes classes, or a `THEN` continuation must use the earlie
 Matching names without markers do not themselves make one shared choice. A marker must be in the
 scope established by its instruction, effect or `EACH` selector.
 
-## 6. Let an illegal event happen, then make the operation dead-end
-
-A `Die` consequence can reject a path *after* its triggering change. An automatic `:: Die`
-fails within the triggering operation; a queued `: Die` can expose the dead end later. Failure
-rolls back its encompassing transaction; if earlier commands already succeeded, the caller must
-roll back farther to abandon the unsuccessful path, potentially the turn.
-
-This is valid modeling. The engine and model enforce the rule without prechecking every path
-that could violate it. Universally assume either that the player's agent or client presents only
-choices known not to dead-end the turn, or that exposing dead ends is acceptable. Missing pruning
-does not make this a defect or require a different card model. The prohibited result must not
-survive successful turn completion.
-
-- **Protected Habitats:** [`-Plant OR -Animal OR -Microbe BY Player(NOT Me@): Die`](../src/common/dev/martianzoo/tfm/canon/bundles/corpera/cards.json5) queues a consequence of an opponent's attack regardless of which action caused the removal. An opponent may attempt to take a plant, but that path dead-ends and requires rollback. There is nothing wrong with exposing that choice.
-- **Global parameter completion:** [`-@GlobalParameter:: Die`](../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets) rejects any later attempt to lower a completed track, no matter which card or event requested it.
-
-The same rollback pattern protects the Mars Nomads marker through its ordinary `: Die` effect.
-It depends on transaction rollback, not on `Die` somehow preventing the triggering event from starting.
-
-## 7. Use a zero-or-one metric as an `if` without a branch
+## 6. Use a zero-or-one metric as an `if` without a branch
 
 `I / M` performs `I` as many times as the metric says. A metric that is zero or one makes the
 whole change either `Ok` or one copy of `I`. It can replace the longer shape
@@ -101,7 +82,7 @@ whole change either `Ok` or one copy of `I`. It can replace the longer shape
 The first is the canon's clearest literal `/ SomeSingleton` example. If the metric can exceed one,
 the expression repeats the change; it is no longer a boolean gate.
 
-## 8. Make a fallback arm available only when its exception applies
+## 7. Make a fallback arm available only when its exception applies
 
 `OR` chooses among feasible arms. A `MAX 0 X: ...` gate makes an exceptional arm available only
 when `X` has no candidates. The normal arm stays the normal rule, with no special case baked into
@@ -113,7 +94,7 @@ its type.
 `OR` is a player choice if both arms survive. The zero test matters: an ungated fallback would offer
 an extra placement even when the normal placement is available.
 
-## 9. Use `<>` to opt in to a gain's hidden placement rule
+## 8. Use `<>` to opt in to a gain's hidden placement rule
 
 An empty argument list does not change the type, but on a gain it explicitly accepts that class's
 gain-only dependency default. A bare gain that would silently take such a default is rejected.
@@ -125,7 +106,7 @@ This lets the short notation stay short while still flagging a consequential boa
 `<>` is not a universal “use defaults” decoration. It is invalid where that use has no dependency
 default to accept. A bare removal can also deliberately decline its removal-only default.
 
-## 10. Put an amount policy on the class, then omit it everywhere else
+## 9. Put an amount policy on the class, then omit it everywhere else
 
 Classes can declare gain and removal quantifiers. Bare `I` then inherits a policy: mandatory `!`,
 as-much-as-possible `*`, or optional `?`. A single class declaration governs many cards and
@@ -137,7 +118,7 @@ effects. In particular, `GlobalParameter` and `CardResource` gains both use `*`.
 An explicit quantifier should mean a real exception. When an abstract AMAP target has no useful
 concrete narrowing, it becomes `Ok`; a mandatory target does not.
 
-## 11. Make a refinement's candidate fill an unspoken dependency
+## 10. Make a refinement's candidate fill an unspoken dependency
 
 Inside `Foo(HAS Bar)`, the `Bar` query can use the `Foo` candidate as its missing dependency. It
 is a compact join: ask each candidate whether the matching dependent component exists. This is
@@ -150,7 +131,7 @@ Writing `StartToken<Anyone>` suppresses lexical ownership insertion, but T8-3 st
 resolved owner bound to the candidate. The bare dependent expression states the intended join
 directly.
 
-## 12. Use `EACH` to turn a type query into a family of effects
+## 11. Use `EACH` to turn a type query into a family of effects
 
 An `EACH` selector binds a marked component or class once per match; the body is then repeated with
 that choice. It can replace a long manually enumerated list while keeping each choice local.
@@ -161,7 +142,7 @@ that choice. It can replace a long manually enumerated list while keeping each c
 `EACH Me@Player { ... }` binds lexical `Me` inside its body to each selected player;
 `EACH Player { ... }` instead preserves the enclosing binding.
 
-## 13. Let an inherited `This` rule cover every subclass
+## 12. Let an inherited `This` rule cover every subclass
 
 `This` in a class rule is rebound when the effect is specialized for a subclass or component. A
 single generic rule can therefore make subclass-specific records and consequences without one
@@ -173,7 +154,7 @@ effect per card, resource, or global parameter.
 The contextual actor still matters: an Admin-driven step is not a player's TR gain. Inherited
 `This` removes duplicated declarations; it does not erase attribution.
 
-## 14. Bind a count once with `X`
+## 13. Bind a count once with `X`
 
 One `X` within an instruction or action is one open positive amount. Repeating it fixes an exchange
 rate without writing a separate action for every possible quantity.
@@ -183,7 +164,7 @@ rate without writing a separate action for every possible quantity.
 
 `X` never means zero; use `?` or an `Ok` arm when declining the change is part of the rule.
 
-## 15. Count distinct kinds by counting `Class` components
+## 14. Count distinct kinds by counting `Class` components
 
 `Class<@Tag>(HAS @Tag<Me@Owner>)` counts tag *classes* for which the player has a tag, rather than
 counting every tag component. One expression turns a pile of duplicate icons into a distinct-kind
@@ -196,7 +177,7 @@ The `Class<...>` candidates are the things being counted. Matching `@` markers m
 `HAS` check that candidate class for the player; repeating an unmarked class name would be an
 independent query.
 
-## 16. Repeat a header variable to force two dependencies to agree
+## 15. Repeat a header variable to force two dependencies to agree
 
 A `@` variable repeated in a class header ties dependency paths together. Supplying either side
 constrains the other, so the game cannot create a resource or tag owned by one player on a card
@@ -208,7 +189,7 @@ owned by someone else.
 Without the repeated marker, the two owner positions would be independent even though they have
 the same spelling and bound.
 
-## 17. Replace a one-change `OR Ok` with `?`
+## 16. Replace a one-change `OR Ok` with `?`
 
 An optional quantifier already allows zero. When the choice is an elementary change or no
 change, `?` states it without an `OR` arm. With a count of 1, it cannot introduce a partial result.

@@ -131,8 +131,6 @@ implementation experiment and the treatment of structural `NOT` remain undecided
    defaults, instruction-valued printed facts, and richer cardinality remain promising but
    unsettled. Adopt them only after inheritance, querying, binding, and materialization have a
    coherent systemic rule and the result removes existing bridges.
-   [ELSE and instruction-level `(A)*`](../pets/docs/agents/ELSE.md) are exploratory fallback candidates
-   with concrete Canon uses and distinct shallow/deep semantics.
 
 ## Canon and game-rule modeling
 

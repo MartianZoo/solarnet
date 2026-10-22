@@ -96,7 +96,7 @@ internal class InstructionIntersectionTest {
   }
 
   @Test
-  fun `intersection retains both refinements on an unsettled dependency`() {
+  fun `intersection retains both refinements on an abstract dependency`() {
     intersection(
         "Token<Player(HAS Plant)>",
         "RedToken<Player(HAS Heat)>",

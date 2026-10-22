@@ -51,7 +51,7 @@ ABSTRACT CLASS NextCardEffect<GenerationScope> : Owned<Player> {
 
 "A component that makes a standard resource worth one M€ when paid"
 ABSTRACT CLASS ResourceValue<Class<@StandardResource>> : Owned<Player> {
-  // The resource being spent can be Steel or Titanium, but it settles the default M€ debt.
+  // The resource being spent can be Steel or Titanium, but it pays the default M€ debt.
   Pay<Class<@StandardResource>>:: -Owed<Class<MC>>
 
   "One M€ of a standard resource's ordinary payment value"

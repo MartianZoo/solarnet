@@ -5,8 +5,7 @@ Source, specifications, and meaningful tests establish behavior. Read only the r
 task; [AGENTS.md](../../AGENTS.md) supplies repository instructions.
 
 Before behavior or architecture changes, read [VALUES.md](VALUES.md). Keep bounded unfinished work
-in [TODO.md](../../TODO.md). Never turn an exposed dead end into a model defect merely because a
-client has not implemented pruning.
+in [TODO.md](../../TODO.md).
 
 ## Language, types, and Catalogs
 
@@ -28,7 +27,6 @@ client has not implemented pruning.
 | Turn offers, Head Start, phases, and authored game flow | [GAME_FLOW.md](GAME_FLOW.md) |
 | Card backs, locations, offers, and searches | [CARD_MODEL.md](CARD_MODEL.md) |
 | Payment signals, pricing, billing, acceptance, or action-cost lowering | [PAYMENTS.md](PAYMENTS.md) |
-| Proposed fallback instructions | [ELSE.md](ELSE.md) |
 | Canon invariants and historical composition hazards | [GAME_HACKS.md](GAME_HACKS.md) |
 | Class names and localized display names | [NAMING.md](NAMING.md) |
 | English rendering, vocabulary, wording, or card layout | [LANGUAGE.md](LANGUAGE.md); [NLG_REVIEW.md](NLG_REVIEW.md) is a review snapshot |
@@ -36,7 +34,6 @@ client has not implemented pruning.
 | Generated Kotlin vocabulary | [PETS_TYPE_GENERATOR.md](PETS_TYPE_GENERATOR.md) |
 | Generated map areas | [MAP_PETS_GENERATION.md](MAP_PETS_GENERATION.md) |
 | Canon XPath queries, authored/elaborated views, or CLI | [Canon XPath](canon-xpath.md); multiplatform module `search`, source and tests under `dev/martianzoo/search` |
-| Static resource monotonicity report | [MONOTONICITY.md](MONOTONICITY.md) |
 
 ## Verification and maintenance
 
@@ -48,6 +45,6 @@ Keep each design decision in its owning note, link to source and meaningful test
 intended behavior from verified implementation. Prefer stable source names and search strings to
 line numbers. Register new subject notes here; do not create competing explanations of shared rules.
 
-Runtime tasks, Actor assignment, consequence calculation, automatic policy, rollback, and replays
+Runtime tasks, Actor assignment, consequence calculation, and replays
 belong to the [Solarnet router](../../../docs/agents/README.md). Gameplay evidence can live there
 without becoming a dependency of the static build.

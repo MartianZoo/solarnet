@@ -172,7 +172,7 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
-  internal fun adminDrivenEndReturnsOnlyAfterAllVictoryPointsSettle() {
+  internal fun adminDrivenEndReturnsOnlyAfterAllVictoryPointsAreCounted() {
     game = TfmEngine.newGame(canonicalPremise())
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)

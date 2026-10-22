@@ -51,7 +51,7 @@ internal class TfmPlayCommandTest {
   }
 
   @Test
-  internal fun `tfm play settles alternatives first and rolls back an incorrect remainder`() {
+  internal fun `tfm play pays with alternatives first and rolls back an incorrect remainder`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.keepStartingProjects(0, 0)

@@ -21,6 +21,8 @@ import dev.martianzoo.state.Task.TaskId
  * selected task resolved against stale state. Explicit System and MustCleanUp targets are
  * forbidden; required parts may still change them, but must not leave new unfinished work.
  */
+// TODO(ENGINE_CONTRACT): decide whether an explicit correction is allowed while a task is selected.
+// This restores and reselects it around a mutation that the proposed ordinary-client rules exclude.
 public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
   val agent = this[adjustingActor]
   val restricted = listOf(SYSTEM, MUST_CLEAN_UP).map(world.classTable::getClass)

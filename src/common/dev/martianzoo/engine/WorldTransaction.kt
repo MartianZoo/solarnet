@@ -3,12 +3,15 @@ package dev.martianzoo.engine
 import dev.martianzoo.state.TaskResult
 
 /**
- * Coordinates nested game mutations as one failure-atomic interaction.
+ * Groups nested commands and subsequent task handling inside a rollback scope.
  *
- * The outermost gameplay call and a reentry from its completion callback settle configured policy
- * and validate the caller's completion rule. The outermost call reports completion and settles work
- * started by its callback. The caller-facing Agent records a position when its method returns.
- * Corrections use [correct] without advancing gameplay.
+ * The name predates the proposed transaction definition: this block can include several Actor
+ * transactions. The outermost call handles pending work and checks completion, then invokes its
+ * completion callback and handles work added there. Corrections use [correct] without those steps.
+ *
+ * TODO(ENGINE_CONTRACT): Review how this coordinator and the outside Admin driver run the engine to
+ *   quiescence. The synchronous call must include subsequent work in its result; it does not
+ *   require a separate interaction concept.
  */
 internal class WorldTransaction(
     private val timeline: TimelineImpl,
@@ -20,7 +23,7 @@ internal class WorldTransaction(
   internal fun run(
       block: () -> Unit,
       validateCompletion: () -> Unit = {},
-      settle: () -> Unit,
+      afterChanges: () -> Unit,
   ): TaskResult {
     val outermost = depth == 0
     val completionFollowUp = reportingCompletion && depth == 1
@@ -30,10 +33,13 @@ internal class WorldTransaction(
           .atomic {
             block()
             if (outermost || completionFollowUp) {
-              settle()
+              afterChanges()
               validateCompletion()
             }
           }
+          // TODO(ENGINE_CONTRACT): Include callback changes and subsequent task handling in the
+          // returned TaskResult. It currently describes only the initial restoring block.
+          // Separately review failure restoration: a failing callback leaves earlier work in place.
           .also {
             if (outermost) {
               reportingCompletion = true
@@ -42,7 +48,7 @@ internal class WorldTransaction(
               } finally {
                 reportingCompletion = false
               }
-              if (timeline.atEnd) timeline.atomic { settle() }
+              if (timeline.atEnd) timeline.atomic { afterChanges() }
             }
           }
     } finally {

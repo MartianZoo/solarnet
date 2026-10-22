@@ -1550,7 +1550,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-10 selecting a represented class settles its choice with component dependencies open`() {
+  internal fun `T13-10 selecting a represented class makes its choice concrete with component dependencies open`() {
     val scoped = effect("Production<Class<R@StandardResource>>: R@StandardResource<Player1>")
     val variable = scoped.typeVariables.variables.single()
     val plant = resources.resolve(te("Plant"))
@@ -2066,7 +2066,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun nestedSelectorReferencesSurviveOrdinarySettlementExpansion() {
+  internal fun nestedSelectorReferencesSurviveConstructLocalExpansion() {
     val each =
         parse<InstructionTree>("EACH P@Person { A@Wrapper<Base<P@Person>> FROM A@Wrapper }")
             as Instruction.Each

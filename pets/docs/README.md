@@ -24,7 +24,6 @@ define the intended semantics.
 - [Build and publication](agents/BUILDS.md), [testing](agents/TESTING.md), and [package index](packages.md)
 - [English wording comparisons](english-wording-comparisons/README.md)
 - [Repository introduction and card gallery](../README.md)
-- [Historical effect walkthrough: declarations and specialization](archive/life-of-an-effect.md)
 
 [Solarnet documentation](../../docs/README.md) covers live game state, execution, agents, and replays.
 Links into Solarnet identify integration or gameplay evidence; Pets itself builds independently.

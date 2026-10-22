@@ -5,10 +5,10 @@ import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.api.SystemClasses
 import dev.martianzoo.pets.ast.Expression
 
-/** An identity that can initiate or continue game operations. */
+/** A Player or Admin identity whose client can initiate an engine transaction. */
 public sealed interface Actor : HasClassName, HasExpression {
   public companion object {
-    /** System actor used for game setup and other Admin-assigned work. */
+    /** Actor that handles required machinery and neutral game work before ordinary Player tasks. */
     public val ADMIN: Actor = AdminActor
   }
 

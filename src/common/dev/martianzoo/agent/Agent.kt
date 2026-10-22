@@ -25,12 +25,21 @@ import kotlin.reflect.KClass
  * and [tasks] exposes that actor's current pending work. Holding an Agent grants the ability to
  * submit that actor's choices; the engine does not authenticate the human or program holding it.
  *
- * Operation methods run their block as an atomic world interaction: a failure rolls back the
- * changes from that call. [beginOperation] and [continueOperation] may return with tasks pending;
- * [runOperation] and [completeOperation] require their operation's work to finish. A successful
- * [TaskResult] reports changes and still-pending tasks created during that call, while later work
- * can change the world again. [autoExecPolicy] controls eligible automatic work during settlement;
- * it does not choose between unresolved player options.
+ * A gameplay call may make several engine calls and handle resulting Admin work before returning.
+ * The proposed contract, still under human review, requires all eligible Admin work to finish
+ * before a Player receives the result. The call runs to quiescence, which can leave Player tasks
+ * such as Philares's resource choice pending. Its [TaskResult] should cover every retained change
+ * made during the call, including subsequent Admin handling.
+ *
+ * Current task handling is controlled by [autoExecPolicy], including Admin, so calls can return
+ * before required Admin work finishes. [sneak], [addTasks], and [dropTask] skip task handling. Call
+ * failures normally restore changes made during the call. Completion callbacks run after that
+ * restoring block, with separate failure handling; the returned [TaskResult] is captured before the
+ * callback and omits changes from it and subsequent finishing work.
+ *
+ * The operation API groups work across calls: [beginOperation] and [continueOperation] allow tasks
+ * to remain, while [runOperation] and [completeOperation] check whether that operation has
+ * finished. An operation in those APIs is not the proposed engine transaction.
  */
 public interface Agent {
 
@@ -65,7 +74,7 @@ public interface Agent {
   /** Parses [expression] and resolves it to a type in this actor's current world. */
   public fun resolve(expression: String): Type
 
-  // Purple mode (and below)
+  // TASK CHOICES
 
   /** Creates an independent, caller-held form for one of this Actor's tasks. */
   public fun fillInTask(taskId: TaskId): TaskForm
@@ -90,6 +99,8 @@ public interface Agent {
    * Tentative events can invalidate overlays based on this World. Resource-limit failures propagate
    * to the caller.
    */
+  // TODO(ENGINE_CONTRACT): investigate removing speculative probes from this API. A successful
+  // selection can remain abstract and must not be called a legal fully concrete narrowing.
   public fun canSelectTask(taskId: TaskId): Boolean
 
   /**
@@ -98,13 +109,15 @@ public interface Agent {
    * events can invalidate overlays based on this World. Resource-limit failures propagate to the
    * caller.
    */
+  // TODO(ENGINE_CONTRACT): investigate whether callers need this execution probe. If retained,
+  // define its answer using this instruction's whole transaction, without checking spawned tasks.
   public fun canExecuteTask(taskId: TaskId): Boolean
 
   /**
    * Selects one pending task and resolves its instruction against the current World. An abstract
-   * result remains selected for later [narrowTask] calls. Concrete instruction-side `BY` may assign
-   * it to another Actor; this call stops at that handoff. Otherwise a concrete result executes
-   * before it returns.
+   * result remains selected for later [narrowTask] calls. Concrete `BY` or System routing may
+   * assign it to another Actor. The call's task handling then runs, so that Actor's policy decides
+   * whether the task finishes before this call returns.
    *
    * If resolution produces independent instructions, selecting the structural task completes it and
    * admits those instructions as ordinary pending siblings.
@@ -113,6 +126,8 @@ public interface Agent {
    *   selected
    * @throws [NotNowException] if the selected task cannot execute in the current World
    */
+  // TODO(ENGINE_CONTRACT): enforce ordinary Admin priority before Player selection. Investigate
+  // submitting a concrete instruction with selection instead of persisting unfinished choices.
   public fun selectTask(taskId: TaskId): TaskResult
 
   /**
@@ -194,8 +209,12 @@ public interface Agent {
   public fun doTask(taskId: TaskId): TaskResult
 
   /**
-   * Attempts [narrowing], leaving its task pending when the play is incomplete or unavailable.
-   * Invalid task selection, invalid narrowing, and dead ends still throw.
+   * Attempts [narrowing], then runs configured task handling. Missing choices or unavailable
+   * execution restore the engine attempt. A task left selected, including a handoff to another
+   * Actor, also restores the attempt. Subsequent task handling can still execute that task or
+   * reject the call. Invalid selection, invalid narrowing, and other failures propagate, including
+   * `Die` and failures encountered while handling Admin work. Currently unavailable work discovered
+   * during preliminary `/` metric evaluation also propagates its error.
    */
   public fun tryTask(narrowing: String): TaskResult
 
@@ -203,8 +222,10 @@ public interface Agent {
   public fun tryTask(narrowing: String, taskId: TaskId): TaskResult
 
   /**
-   * Tries to select and execute [taskId], leaving it pending when the play is incomplete or
-   * unavailable. Invalid task selection and dead ends still throw.
+   * Attempts to select and execute [taskId], then runs configured task handling. Missing choices,
+   * unavailable execution, or an unfinished handoff restore the engine attempt; subsequent task
+   * handling can still execute that task or reject the call. Invalid selection and other failures
+   * propagate, including `Die` and failures encountered while handling Admin work.
    */
   public fun tryTask(taskId: TaskId): TaskResult
 
@@ -221,18 +242,25 @@ public interface Agent {
   public fun autoExecNow(policy: AutoExecPolicy): TaskResult
 
   /**
-   * Policy used when this Agent settles tasks. Changing it immediately runs autoexecution under the
-   * new policy; setting it to its current value does nothing. The policy belongs to this Agent,
-   * while automatic work may affect the shared world.
+   * Policy used for this Agent's task handling. Changing it to a different policy other than NONE
+   * immediately runs task handling. Assigning NONE or the current value runs nothing. The policy
+   * belongs to this Agent, while task handling can affect the shared world.
    */
   public var autoExecPolicy: AutoExecPolicy
 
   /**
    * Seeds an operation with [initialInstructions] and requires it to complete after `body` and
-   * automatic settlement. Other already-pending tasks may remain, but a selected task prevents the
-   * new operation from starting. Any failure or remaining work created by this operation rolls back
-   * the whole call.
+   * configured task handling. Other already-pending tasks may remain, but a selected task prevents
+   * the new operation from starting. Any failure or remaining work created by this operation rolls
+   * back the whole call.
+   *
+   * Current limitation: an ordinary nested call checks completion inside its body, but the shared
+   * coordinator skips its separate validator after subsequent task handling. The outer call
+   * controls that later work and validation.
    */
+  // TODO(ENGINE_CONTRACT): investigate removing this operation lifecycle and its completion
+  // requirements. Running to quiescence does not establish that a whole operation is complete;
+  // these methods additionally infer completion from pending cleanup work across multiple calls.
   public fun runOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
 
   /**
@@ -251,11 +279,15 @@ public interface Agent {
 
   /**
    * Runs `body` atomically and requires the world's operation work to be complete afterward. An
-   * incomplete or failed operation rolls back this call.
+   * incomplete or failed operation rolls back this call. Nested calls have the same limitation on
+   * final completion validation described by [runOperation].
    */
   public fun completeOperation(body: OperationBlock = {}): TaskResult
 
-  /** Adds a manual task for the given [instruction], but does not select or execute it. */
+  /**
+   * Adds manual work for [instruction] without selecting or executing it. [firstCause] attributes
+   * the initial tasks; effects triggered later record their own causes.
+   */
   public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
 
   /**
@@ -266,15 +298,15 @@ public interface Agent {
 
   /**
    * Atomically applies concrete corrections, constructs required parts, and removes dependents.
-   * Runs automatic effects and checks every applicable count invariant. Queued effects, task
-   * settlement, and idle cleanup are omitted.
+   * Runs `::` effects and checks every applicable count invariant. Queued effects, task handling,
+   * and idle cleanup are omitted.
    */
   public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
 
   /**
    * Commands available inside an [OperationBlock]. They act on the enclosing Agent and contribute
-   * to its atomic result; a failure rolls back the enclosing operation. The scope's task and reader
-   * views reflect changes made earlier in the same block.
+   * to the enclosing call's result. A command failure restores that call's earlier changes. The
+   * scope's task and reader views reflect changes made earlier in the same block.
    */
   public interface OperationScope {
     /** This actor's current pending-task view. */
@@ -313,15 +345,17 @@ public interface Agent {
     public fun doTask(narrowing: String, taskId: TaskId)
 
     /**
-     * Submits each instruction in order, including all atomic changes when a chosen amount expands
-     * into a group. A concrete scalar change consumes all pending gains and removals of its type
-     * when at least two have the same quantifier and their signed counts equal the submitted
+     * Submits each instruction in order, including all component changes when a chosen amount
+     * expands into a group. A concrete scalar change consumes all pending gains and removals of its
+     * type when at least two have the same quantifier and their signed counts equal the submitted
      * amount, including zero when gains and removals cancel. This also applies when an individual
      * task has that amount. Gains execute before removals. Each original task executes separately,
      * preserving its effects, cause, and continuation; newly created tasks are not included in the
      * total. Otherwise, normal single-task matching applies. Failure rolls back the enclosing
      * operation.
      */
+    // TODO(ENGINE_CONTRACT): investigate removing implicit scalar matching and gain-before-removal
+    // ordering. Explicit client choices should identify which pending instructions to perform.
     public fun doTasks(vararg narrowings: String)
 
     /** Tries [narrowing], leaving incomplete or unavailable work pending. */
@@ -341,13 +375,15 @@ public interface Agent {
     /**
      * Runs automatic work before, between, and after [body]'s commands under [policy]. The
      * configured [Agent.autoExecPolicy] is never changed, including while [body] runs. The scope
-     * shares its enclosing operation's atomic transaction and completion requirement.
+     * shares its enclosing call's rollback scope and operation-completion requirement.
      */
     public fun doWithAutoExecPolicy(policy: AutoExecPolicy, body: OperationBlock)
 
     /**
-     * Aborts the enclosing atomic operation, rolling back its changes while the operation call
-     * itself completes normally with no changes.
+     * Throws [AbortTransactionException] to cancel the innermost active restoring block. That block
+     * restores its changes and returns normally; an enclosing block can continue. Cancelling an
+     * outermost call still permits its completion callback and subsequent finishing work to run, so
+     * this does not promise that the whole call leaves the World unchanged.
      */
     public fun abort(): Nothing = throw AbortTransactionException()
   }

@@ -1286,7 +1286,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `A normalized partial proposal can retain an unsettled observer`() {
+  internal fun `A normalized partial proposal can retain an observer of a pending choice`() {
     writer.runOperation("Heat")
     val id =
         initiate("MC<Player(HAS Selected@StandardResource)>? THEN Selected@StandardResource")

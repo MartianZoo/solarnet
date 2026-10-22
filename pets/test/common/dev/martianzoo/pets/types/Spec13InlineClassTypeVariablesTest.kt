@@ -38,7 +38,7 @@ internal class Spec13InlineClassTypeVariablesTest {
   }
 
   @Test
-  internal fun settlementArgumentVariableDoesNotDeclareAGeneratedHeaderMarker() {
+  internal fun constructLocalArgumentVariableDoesNotDeclareAGeneratedHeaderMarker() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Widget { CLASS Item }",
@@ -254,7 +254,7 @@ internal class Spec13InlineClassTypeVariablesTest {
   }
 
   @Test
-  internal fun aGeneratedHeaderParameterTakesPrecedenceOverSettlementScope() {
+  internal fun aGeneratedHeaderParameterTakesPrecedenceOverConstructLocalScope() {
     listOf(
             "This: P@Person FROM P@Person",
             "This: Coin<P@Person> THEN Receipt<P@Person>",

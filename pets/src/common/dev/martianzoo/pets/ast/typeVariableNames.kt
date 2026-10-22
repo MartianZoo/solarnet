@@ -173,7 +173,7 @@ internal fun <P : PetNode> resolveTypeVariableNames(
 }
 
 /**
- * Resolves one lexical scope. Local settlement variables expand a reference to their declared
+ * Resolves one lexical scope. Construct-local variables expand a reference to their declared
  * structure. A Class header expands neither part because binding supplies the value later; a
  * selector expands only dependency arguments so elaboration retains its constraints while runtime
  * binding supplies the selected value without the selector refinement.

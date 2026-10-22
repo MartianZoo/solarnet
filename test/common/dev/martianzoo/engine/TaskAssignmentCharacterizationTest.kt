@@ -381,7 +381,7 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun eagerAdminSettlesTriggeredWorkBetweenExplicitPlayerSteps() {
+  internal fun eagerAdminHandlesTriggeredWorkBetweenExplicitPlayerSteps() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     game.testAgent(ADMIN)

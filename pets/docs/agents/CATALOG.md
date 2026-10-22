@@ -53,7 +53,7 @@ the complete enclosing conditions. This worklist belongs to the current construc
 selection result is cached across games.
 
 After its inclusion closure is complete, that game Class Table also derives immutable executable
-effects for its included Classes from the shared declarations. Using only settled premise facts
+effects for its included Classes from the shared declarations. Using only fixed premise facts
 before any World exists, it removes impossible `IF` effects and fixed-true trigger or instruction
 gates. Its facts are structural `Class<T>` representatives plus selected Module counts supplied by
 `GamePremise`; arbitrary `HAS =N` invariants and configured Player counts do not qualify. Module

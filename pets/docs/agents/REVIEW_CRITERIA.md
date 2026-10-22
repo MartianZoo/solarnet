@@ -11,9 +11,6 @@ Repository instructions in [AGENTS.md](../../AGENTS.md) remain authoritative.
   evidence without making it a build dependency.
 - Keep rules with their owning component and retain a single semantic source. English realization
   is game-neutral; component identities and expansion-specific facts belong in supplied vocabulary.
-- Do not report exposed dead ends, later failure, or caller rollback as a model defect without
-  a separate game-rule failure. Protected Habitats may reject an attempted theft through its
-  consequence; the client may prune that choice or expose it.
 - Reject Canon `ActionScope` removal or dependent expiry that creates choices for the completed
   action. Review indirect effects too; fixed effects, cleanup, and offers for subsequent play
   are allowed. See [scope removal](GAME_FLOW.md#scope-removal-must-not-require-choices).

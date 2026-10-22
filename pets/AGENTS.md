@@ -10,8 +10,6 @@ replays belong to Solarnet. Do not add those dependencies to solve a local model
   Check the relevant language/type specification and its corresponding tests before repairs.
 - Tests should demonstrate meaning. Identify known incorrect behavior explicitly, and track
   unresolved work in TODO.md.
-- The client may prune choices that later fail, or expose those choices. That alone is not a
-  language or model defect.
 - English realization stays game-neutral. Component-specific vocabulary belongs in supplied data.
 - Keep at most one top-level class-like Kotlin declaration per file. Files without classes use
   lowerCamelCase names. Do not add extension functions without a specific reason.

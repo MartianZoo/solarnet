@@ -1,9 +1,12 @@
 package dev.martianzoo.agent
 
 /**
- * Per-actor rule used by [Agent] when it settles pending tasks. The shared loop considers current
- * tasks repeatedly until no eligible task can complete. Admin tasks are considered first; task
- * iteration order is stable for a given queue but has no gameplay meaning.
+ * Existing configurable rule for handling tasks without an explicit client choice. The current
+ * implementation applies it to every Actor and tries Admin tasks first.
+ *
+ * TODO(ENGINE_CONTRACT): investigate removing these Player policies from the core Agent API. Player
+ *   choices are explicit in the proposed contract; mandatory Admin handling must not use a
+ *   configurable policy. In particular, NONE must never disable Admin work.
  */
 public enum class AutoExecPolicy {
   /** This actor's tasks remain pending until selected explicitly. */

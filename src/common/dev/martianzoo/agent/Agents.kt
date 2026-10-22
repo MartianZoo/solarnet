@@ -6,9 +6,9 @@ import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.state.Actor
 
 /**
- * A [World] together with the Agents that act on it: exactly one stable [Agent] per Actor, sharing
- * one autoexecution loop. Clients hold this rather than a World and a separate collection of
- * Agents, so an Agent can never be paired with a World it does not act on.
+ * A [World] together with a stable [Agent] for each Actor. Clients hold this rather than a World
+ * and a separate collection of Agents, so an Agent is always paired with the World it acts on.
+ * Calls through these Agents coordinate their changes and subsequent task handling.
  *
  * [initialPolicy] supplies each Actor's initial automatic-execution policy, defaulting to
  * [AutoExecPolicy.EAGER]. It is evaluated once per Actor. Construction does not execute pending
@@ -16,6 +16,8 @@ import dev.martianzoo.state.Actor
  */
 public open class Agents(
     public val world: World,
+    // TODO(ENGINE_CONTRACT): use explicit Player choices by default and mandatory Admin handling.
+    // The existing per-Actor callback can enable automatic Player work and disable Admin work.
     initialPolicy: (Actor) -> AutoExecPolicy = { AutoExecPolicy.EAGER },
 ) {
   /** Opt-in task recording, including Player autoexecution; see [TaskLog] for supported scope. */
@@ -41,17 +43,20 @@ public open class Agents(
 
   /**
    * A speculative session with fresh Agents and the same current per-Actor policies. The source
-   * World stays unchanged; mutating it later invalidates the speculative World. Agent transaction
-   * guards are absent, so card movements can remain anonymous. Recording and completion callbacks
-   * begin fresh. The returned session can be reset and reused without rebuilding its Agents.
+   * World stays unchanged; mutating it later invalidates the speculative World. Application guards
+   * are absent, so card movements can remain anonymous. Recording and completion callbacks begin
+   * fresh. The returned session can be reset and reused without rebuilding its Agents.
    */
+  // TODO(ENGINE_CONTRACT): investigate removing speculative sessions and their reset protocol.
+  // The proposed contract does not select this capability; establish a required use before keeping
+  // it.
   public fun overlay(): SpeculativeAgents =
       SpeculativeAgents(Engine.overlay(world)) { actor -> get(actor).autoExecPolicy }
 
   /**
    * A fully independent copy, including this World's complete event history. This also materializes
-   * a speculative World's event suffix into the new World's ordinary history. Agent transaction
-   * guards are not copied, so card movements in the copy can remain anonymous.
+   * a speculative World's event suffix into the new World's ordinary history. Application guards
+   * are not copied, so card movements in the copy can remain anonymous.
    */
   public fun fork(): Agents = withWorld(Engine.fork(world))
 

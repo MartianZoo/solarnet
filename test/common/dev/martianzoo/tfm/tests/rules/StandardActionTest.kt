@@ -101,7 +101,7 @@ internal class StandardActionTest : TfmTest() {
   }
 
   @Test
-  internal fun `an unqualified milestone claim cannot settle`() {
+  internal fun `an unqualified milestone claim cannot complete`() {
     game = setUpGame(canonicalPremise())
     val p1 = game.testTfm(PLAYER1)
     p1.runOperation("8 MC")

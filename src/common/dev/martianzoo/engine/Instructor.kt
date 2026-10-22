@@ -57,10 +57,10 @@ import kotlin.math.min
  *
  * A gained component's exact concrete required parts are constructed in dependency order before
  * reactions to any of their gains. Parts' automatic reactions run before their owners'. Each
- * recorded change executes matching automatic effects recursively before evaluating and admitting
- * its queued effects. Automatic execution may itself produce queued work, but it never enters the
- * task pool. [Effector.fire] owns selection of each effect batch; this class owns construction and
- * the automatic-before-queued execution boundary.
+ * recorded change executes matching double-colon (`::`) effects recursively before evaluating and
+ * admitting its queued effects. A `::` instruction can produce queued work, but that immediate
+ * instruction itself never enters the task pool. [Effector.fire] chooses each effect batch; this
+ * class constructs required parts and runs immediate effects before admitting queued work.
  */
 internal class Instructor
 internal constructor(
@@ -81,7 +81,10 @@ internal constructor(
       val ancestors: List<PendingTask>,
   )
 
-  /** Applies a complete correction with required parts but without queued effects. */
+  /**
+   * Applies a correction with required parts and :: effects, but no queued effects. Unlike ordinary
+   * execution, this checks all invariants after the complete group of correction changes.
+   */
   internal fun sneak(changes: InstructionGroup, cause: Cause?, actor: Actor) {
     changes.instructions.forEach {
       if (it.isAbstract(reader)) {
@@ -226,6 +229,11 @@ internal constructor(
       constructPartsAndFire(result, spawned, queuedEffects)
       if (done) break
     }
+    // TODO(ENGINE_CONTRACT): review invariant timing for client calls containing several changes.
+    // Ordinary execution checks each resolved elementary change and its complete :: chain. A
+    // later change in the same client call cannot repair a violation found here. Land Claim's
+    // immediate cube removal is included. Corrections skip this check and validate their whole
+    // group in sneak; ordinary transaction-wide suspension remains a proposal to evaluate.
     if (queuedEffects && automaticEffectStack.isEmpty()) {
       try {
         limiter.checkInvariantsSince(checkpoint)
@@ -522,8 +530,8 @@ internal constructor(
     val count = (change.count as? ActualScalar)?.value ?: return change
     if (count == 0) return change
     if (change is Transmute) {
-      // An exclusion containing an open co-reference becomes meaningful only when an atomic
-      // proposal binds that explicitly named variable.
+      // An exclusion containing an open co-reference becomes meaningful only when the submitted
+      // instruction binds that explicitly named variable.
       val variables =
           change.typeVariables.takeUnless { it.isEmpty }
               ?: classTable.recordTypeVariableScopes().transformInstruction(change).typeVariables
@@ -658,7 +666,8 @@ internal constructor(
             !Change.change(gaining?.expression, removing?.expression, count, quantifier)
                 .narrows(change, reader)
     ) {
-      // Independent auto-narrowing must not choose conflicting values for one atomic variable.
+      // Independently narrowing both sides must not choose conflicting values for a shared
+      // variable.
       return null
     }
     return narrowed
@@ -769,7 +778,11 @@ internal constructor(
     throw NotNowException("no alternative is possible: $why", sourceLocation = location)
   }
 
-  // Still spending 25% of solo game time in this method
+  // Historical profiling lead, unverified: an earlier comment reported 25% of solo-game time
+  // here. No workload or trace was recorded with it; remeasure before using it to guide changes.
+  // TODO(ENGINE_CONTRACT): distinguish these type/count deductions from legal Admin narrowings.
+  // They do not execute effects or final transaction checks. Also review which inferred Player
+  // choices should instead be supplied explicitly by that Player's client.
   private fun autoNarrowTypes(
       gaining: Expression?,
       removing: Expression?,
