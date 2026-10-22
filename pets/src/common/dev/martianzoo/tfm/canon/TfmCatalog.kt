@@ -423,7 +423,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   // CLASS DECLARATIONS
 
   override val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-    val explicit = explicitClassDeclarations.map(TfmActionLowerer::lower)
+    val explicit = TfmActionLowerer.lower(explicitClassDeclarations)
     val explicitNames = explicit.mapTo(hashSetOf(), ClassDeclaration::className)
     val requiredNames = buildSet {
       marsMapDefinitions.forEach { map ->
