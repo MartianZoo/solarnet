@@ -34,8 +34,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Links: https://boardgamegeek.com/thread/1705209/article/37732543#37732543 and
   https://boardgamegeek.com/thread/3752654/article/48054640#48054640.
 
-- Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations
-  instead of its hardcoded resource list, without adding a loading stage.
 - Explore making each `StandardProject` a signal emitted only after its cost is paid.
   `UseStandardProject` would select the class and open the bill; the resulting project signal
   would trigger its tile/production effect and CrediCor/Standard Technology rebates. This

@@ -8,9 +8,38 @@ import kotlin.test.Test
 
 internal class TfmActionLowererTest {
   @Test
+  internal fun `payment classification follows declared inheritance rather than resource names`() {
+    val declarations =
+        parseClasses(
+            """
+            CLASS Provider { Alloy -> Foo; Metal -> Bar; MC -> Baz }
+            CLASS Alloy : Metal
+            ABSTRACT CLASS StandardResource { ABSTRACT CLASS Metal }
+            CLASS MC
+            """
+                .trimIndent()
+        )
+    TfmActionLowerer.lower(declarations)
+        .first()
+        .effects
+        .shouldContainExactly(
+            parse<Effect>(
+                "UseAction<This, Action1>: Owed<Class<Alloy>> THEN PaymentScope<Class<This>, Class<Alloy>, Class<Action1>>"
+            ),
+            parse<Effect>("-PaymentScope<Class<This>, Class<Alloy>, Class<Action1>>: Foo"),
+            parse<Effect>(
+                "UseAction<This, Action2>: Owed<Class<Metal>> THEN PaymentScope<Class<This>, Class<Metal>, Class<Action2>>"
+            ),
+            parse<Effect>("-PaymentScope<Class<This>, Class<Metal>, Class<Action2>>: Bar"),
+            parse<Effect>("UseAction<This, Action3>: -MC! THEN Baz"),
+        )
+  }
+
+  @Test
   internal fun `payment lowering preserves absent action failures`() {
     val declaration = parseClasses("CLASS Provider { 2 MC -> Foo }").single()
-    TfmActionLowerer.lower(declaration)
+    TfmActionLowerer.lower(Canon.explicitClassDeclarations + declaration)
+        .single { it.className == declaration.className }
         .effects
         .shouldContainExactly(
             parse<Effect>(
@@ -25,7 +54,8 @@ internal class TfmActionLowererTest {
   @Test
   internal fun `two authored actions leave only the third slot absent`() {
     val declaration = parseClasses("CLASS Provider { -> Foo; -> Bar }").single()
-    TfmActionLowerer.lower(declaration)
+    TfmActionLowerer.lower(Canon.explicitClassDeclarations + declaration)
+        .single { it.className == declaration.className }
         .effects
         .shouldContainExactly(
             parse<Effect>("UseAction<This, Action1>: Foo"),
@@ -49,7 +79,8 @@ internal class TfmActionLowererTest {
             )
             .single()
 
-    TfmActionLowerer.lower(declaration)
+    TfmActionLowerer.lower(Canon.explicitClassDeclarations + declaration)
+        .single { it.className == declaration.className }
         .effects
         .shouldContainExactly(
             parse<Effect>(

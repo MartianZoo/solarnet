@@ -60,7 +60,11 @@ precede an exact Heat remainder. Starting-card payment can precede the corporati
 the exact payment remains pending until affordable. Alternative acceptance does not search for
 substitutes or reopen if stock arrives later.
 
-The client explicitly acknowledges a zero balance.
+With player autoexecution set to `NONE`, the client explicitly acknowledges a zero balance.
+Skipping such work may be a future autoexecution policy; it must not override `NONE`.
+Action-cost classification follows declared inheritance from `StandardResource`, including abstract
+resource categories, in the assembled catalog before executable lowering. It does not load an extra
+class table or maintain a list of resource names.
 Both fixed and variable standard-resource action costs use the payment scope so acceptance and price
 adjustments can apply. A variable cost keeps its shared `X` in the sequence from `Owed` through
 `PaymentScope` to the action's result. Choosing `X = 4` for `X Energy -> X MC` opens a scope for 4 Energy;
