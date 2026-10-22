@@ -612,7 +612,7 @@
           "name": "LocalHeatTrapping",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "direct": "-5 Heat, 4 Plant OR 2 Animal",
+          "direct": "-5 Heat THEN (4 Plant OR 2 Animal)",
         },
         {
           "name": "LunarBeam",
