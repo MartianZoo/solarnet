@@ -440,7 +440,6 @@ internal class PetsCardTutorialTest {
             "AtmoCollectors",
             "BioPrintingFacility",
             "DirectedHeatUsage",
-            "LocalHeatTrapping",
             "LunarExports",
         ),
         sieve.removeLastPredicateAndFindNewMatches(),
