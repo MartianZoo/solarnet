@@ -10,7 +10,7 @@ internal class PreludeRulesTest : TfmGameplayTest() {
   @Test
   internal fun `A declared fizzle consumes a Prelude and allows the remaining Prelude to be played`() {
     newTestGame("PreludeExpansion", playerCount = 2)
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     // Follow mode accepts the player's declaration that their physical Prelude was unplayable.
     kim.completeOperation { doTask("-PreludeCard") }.expect("15 MC, -PreludeCard")

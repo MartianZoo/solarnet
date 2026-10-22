@@ -13,7 +13,7 @@ internal class AuditTest : TfmTest() {
   internal fun `one generic search records different tag criteria only in audited history`() {
     game = setUpGame(canonicalPremise(PreludeCards))
     val p1 = game.testTfm(PLAYER1)
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     p1.runOperation("SearchForCard<TagFilter<Class<SpaceTag>>>").expect("ProjectCard")
     p1.runOperation("SearchForCard<TagFilter<Class<PlantTag>>>").expect("ProjectCard")

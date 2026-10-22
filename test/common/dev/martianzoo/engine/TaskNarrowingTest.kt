@@ -35,7 +35,7 @@ internal class TaskNarrowingTest {
   private val tasks: TaskQueue = game.tasks
   private val events = game.events
   private val writer = game.testAgent(PLAYER1)
-  private val start = game.timeline.checkpoint()
+  private val start = game.events.nextOrdinal
 
   init {
     writer.autoExecPolicy = NONE
@@ -47,7 +47,7 @@ internal class TaskNarrowingTest {
 
     tasks.isEmpty() shouldBe true
     history().shouldBeEmpty()
-    game.timeline.checkpoint() shouldBe start
+    game.events.nextOrdinal shouldBe start
   }
 
   @Test
@@ -57,7 +57,7 @@ internal class TaskNarrowingTest {
 
     tasks.isEmpty() shouldBe true
     history().shouldBeEmpty()
-    game.timeline.checkpoint() shouldBe start
+    game.events.nextOrdinal shouldBe start
   }
 
   @Test
@@ -72,7 +72,7 @@ internal class TaskNarrowingTest {
   internal fun `narrowing an instruction to itself adds no history after selection`() {
     initiate("2? Plant")
     writer.selectTask("2? Plant")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     writer.narrowTask("2? Plant")
     tasksAsText().shouldContainExactlyInAnyOrder("2? Plant<Player1>")
@@ -91,7 +91,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `an unselected task can be filled in progressively without changing the World`() {
     val id = initiate("3? StandardResource").single()
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     val form = writer.fillInTask(id)
 
     form.narrow("2? StandardResource")
@@ -111,7 +111,7 @@ internal class TaskNarrowingTest {
   internal fun `a form chooses an OR arm before its optional amount`() {
     val id = initiate("Plant? OR Heat?").single()
     val form = writer.fillInTask(id)
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     val arm = form.decisions().single()
     arm.kind shouldBe ALTERNATIVE
@@ -131,9 +131,9 @@ internal class TaskNarrowingTest {
     val form = writer.fillInTask(id)
 
     form.decisions().single().kind shouldBe ALTERNATIVE
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     form.options(form.decisions().single()).toList() shouldBe listOf("Heat<Player1>!")
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     form.choose(form.decisions().single(), "Heat<Player1>!")
     form.commit()
     writer.count("Heat") shouldBe 1
@@ -175,10 +175,10 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `options check current gates without predicting a THEN continuation`() {
     val form = writer.fillInTask(initiate("(Plant: Heat) OR (Steel THEN -Plant)").single())
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     form.options(form.decisions().single()).toList() shouldBe
         listOf("Steel<Player1>! THEN -Plant<Player1>!")
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
   }
 
   @Test
@@ -253,11 +253,11 @@ internal class TaskNarrowingTest {
     val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.sneak("Available<Player1>, OtherPlayers<Player2>")
     val form = agent.fillInTask(agent.addTasks("Token<Holder<Player1>>*").single())
-    val before = fixture.timeline.checkpoint()
+    val before = fixture.events.nextOrdinal
     val holder = form.decisions().single()
     holder.focus.toString() shouldBe "Holder"
     form.options(holder).toList() shouldBe listOf("Available")
-    fixture.timeline.checkpoint() shouldBe before
+    fixture.events.nextOrdinal shouldBe before
     form.choose(holder, "Available")
     form.decisions().shouldBeEmpty()
     form.commit()
@@ -479,7 +479,7 @@ internal class TaskNarrowingTest {
   internal fun `a selected task can keep a form private until it is committed`() {
     val id = initiate("StandardResource?").single()
     writer.selectTask(id)
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     val form = writer.fillInTask(id)
 
     form.narrow("Steel!")

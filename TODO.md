@@ -108,8 +108,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   choices solely in client-held forms. Examine a choice between System and non-System instructions,
   reassignment after narrowing, and admission rewrites; identify any concrete case that needs an
   intermediate World mutation. This is an investigation, not approval to remove the API.
-- Ensure returned `TaskResult` values cover the whole synchronous call, including callback changes
-  and subsequent Admin handling through quiescence. Current results omit that later work.
+- Returned `TaskResult` values now cover a call's whole retained interval, including completion
+  callback changes. Coverage of Admin handling through quiescence still waits on mandatory Admin
+  handling: `addTasks` and `dropTask` deliberately skip task handling today.
 - Review whether the block-based transaction coordinator, application guards and completion
   callbacks belong in the engine API, along with unnecessary history controls, copying and
   speculative APIs.

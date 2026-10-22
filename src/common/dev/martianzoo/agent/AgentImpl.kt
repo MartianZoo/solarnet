@@ -495,7 +495,7 @@ internal class AgentImpl(
   }
 
   private fun markDecision() {
-    autoExecLoop.lastDecision = world.timeline.checkpoint()
+    autoExecLoop.lastDecision = world.events.nextOrdinal
   }
 
   private fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) =

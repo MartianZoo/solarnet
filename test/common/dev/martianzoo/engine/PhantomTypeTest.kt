@@ -107,9 +107,9 @@ internal class PhantomTypeTest {
 
     agent.runOperation("Empty! OR Live!")
     agent.runOperation("ZeroCapacity! OR Live!") {
-      val before = game.timeline.checkpoint()
+      val before = game.events.nextOrdinal
       shouldThrow<LimitsException> { doTask("ZeroCapacity!") }
-      game.timeline.checkpoint() shouldBe before
+      game.events.nextOrdinal shouldBe before
       doTask("Live!")
     }
     agent.runOperation("Empty?")
@@ -132,7 +132,7 @@ internal class PhantomTypeTest {
             )
         )
     val agent = game.testAgent(ADMIN)
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     agent.runOperation("Source")
 

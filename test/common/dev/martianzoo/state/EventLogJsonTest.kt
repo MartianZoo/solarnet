@@ -65,8 +65,8 @@ internal class EventLogJsonTest {
     decoded shouldBe events
     decoded.map { it.notes } shouldBe events.map { it.notes }
     EventLogJson.encodeEvents(decoded) shouldBe encoded
-    reconstructed.events.entriesSince(Checkpoint(0)) shouldBe
-        original.events.entriesSince(Checkpoint(0))
+    reconstructed.events.entriesSince(0) shouldBe
+        original.events.entriesSince(0)
     reconstructed.tasks.extract { it } shouldBe original.tasks.extract { it }
     reconstructed.components.getAll(table.componentClass.baseType, NoGameState).entries shouldBe
         original.components.getAll(table.componentClass.baseType, NoGameState).entries

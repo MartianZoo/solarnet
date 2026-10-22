@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.iconicLogEvents
 import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptCompletion
@@ -26,7 +25,7 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
 
   override fun withArgs(args: String): List<String> {
     if (args == "full") {
-      return repl.game.events.entriesSince(Checkpoint(0)).map { it.toString() }
+      return repl.game.events.entriesSince(0).map { it.toString() }
     } else {
       throw UsageException()
     }

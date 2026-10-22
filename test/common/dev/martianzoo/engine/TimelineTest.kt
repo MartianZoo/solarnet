@@ -57,7 +57,7 @@ internal class TimelineTest {
     val listener = game.timeline.checkpoint()
     agent.runOperation("Ping") { doTask("Pong") }
     val end = game.timeline.checkpoint()
-    val completeEvents = game.events.entriesSince(start)
+    val completeEvents = game.events.entriesSince(start.ordinal)
 
     game.timeline.positions shouldBe listOf(start, listener, end)
     shouldThrow<IllegalArgumentException> {
@@ -82,7 +82,7 @@ internal class TimelineTest {
     game.timeline.stepForward() shouldBe true
     game.timeline.checkpoint() shouldBe end
     agent.count("Pong") shouldBe 1
-    game.events.entriesSince(start) shouldBe completeEvents
+    game.events.entriesSince(start.ordinal) shouldBe completeEvents
 
     game.timeline.seek(listener)
     game.timeline.truncate()
@@ -176,54 +176,6 @@ internal class TimelineTest {
     game.timeline.positions.last() shouldBe before
     agent.count("ChoiceA") shouldBe 0
     agent.count("ChoiceC") shouldBe 0
-  }
-
-  @Test
-  internal fun completionCallbackCanSeekAfterANestedPlayerCallReturns() {
-    val game = Engine.newGame(testGamePremise("CLASS ChoiceA\nCLASS ChoiceB"))
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val start = game.timeline.checkpoint()
-    var inCallback = false
-    game.onTransactionComplete = {
-      if (!inCallback) {
-        inCallback = true
-        shouldThrow<IllegalStateException> { game.timeline.seek(start) }
-        shouldThrow<IllegalStateException> { game.timeline.truncate() }
-        agent.runOperation("ChoiceB")
-        val afterNestedCall = game.timeline.checkpoint()
-        (afterNestedCall in game.timeline.positions) shouldBe true
-        game.timeline.seek(start)
-        game.timeline.truncate()
-      }
-    }
-
-    agent.runOperation("ChoiceA")
-    agent.count("ChoiceA") shouldBe 0
-    agent.count("ChoiceB") shouldBe 0
-    game.timeline.positions shouldBe listOf(start)
-  }
-
-  @Test
-  internal fun completionCallbackMayLeaveTheWorldAtARecordedPastPosition() {
-    val game = Engine.newGame(testGamePremise("CLASS ChoiceA\nCLASS ChoiceB"))
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val start = game.timeline.checkpoint()
-    var callbackStarted = false
-    game.onTransactionComplete = {
-      if (!callbackStarted) {
-        callbackStarted = true
-        agent.runOperation("ChoiceB")
-        game.timeline.seek(start)
-      }
-    }
-
-    agent.runOperation("ChoiceA")
-
-    game.timeline.checkpoint() shouldBe start
-    shouldThrow<IllegalStateException> { agent.runOperation("ChoiceA") }
-    game.timeline.stepForward() shouldBe true
-    agent.count("ChoiceA") shouldBe 1
-    agent.count("ChoiceB") shouldBe 1
   }
 
   @Test

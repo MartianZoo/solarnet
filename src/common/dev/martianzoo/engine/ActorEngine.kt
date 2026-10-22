@@ -32,7 +32,6 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.state.Actor
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
@@ -110,14 +109,12 @@ internal constructor(
    * alone.
    *
    * After the outermost restoring block returns normally, including cancellation through
-   * [AbortTransactionException], invokes [World.onTransactionComplete]. If the World is still at
-   * the end of its history afterward, runs [afterChanges] again. This wrapper does not assign an
-   * Actor to changes; the commands called inside it do that.
+   * [AbortTransactionException], invokes [World.onTransactionComplete] and then runs [afterChanges]
+   * again. This wrapper does not assign an Actor to changes; the commands called inside it do that.
    *
-   * Current limitation: the result contains only component changes and surviving new tasks from
-   * [block] and the first finishing steps. It omits callback changes and subsequent task handling,
-   * contrary to the intended result coverage. Failure in that later work does not restore the
-   * initial work.
+   * The returned result covers the retained events of this whole call, so an outermost call
+   * includes its callback's changes and the task handling that follows them. Failure in that later
+   * work still does not restore the initial work.
    *
    * The proposed contract requires eligible Admin work to finish before return and recommends
    * restoring the whole call on failure wherever practical, subject to human review.
@@ -222,7 +219,7 @@ internal constructor(
   // TODO(ENGINE_CONTRACT): Review this operation completion check and its public placement.
   public fun requireComplete(
       allowedPendingTasks: Set<TaskId> = emptySet(),
-      lastDecision: Checkpoint? = null,
+      lastDecision: Int? = null,
   ) {
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
     val workOver = lastDecision?.let(::finalWorkBegan)
@@ -243,22 +240,22 @@ internal constructor(
     }
   }
 
-  /** Where the World's `FINALLY` work first began since [checkpoint], if it has. */
-  private fun finalWorkBegan(checkpoint: Checkpoint): Checkpoint? =
+  /** The event ordinal at which the World's `FINALLY` work first began since [eventCursor]. */
+  private fun finalWorkBegan(eventCursor: Int): Int? =
       gameWorld.events
-          .entriesSince(checkpoint)
+          .entriesSince(eventCursor)
           .firstOrNull {
             it is TaskEditedEvent && it.oldTask.deferral == FINALLY && it.task.deferral == NONE
           }
-          ?.let { Checkpoint(it.ordinal) }
+          ?.ordinal
 
-  /** How many cleanup components existed at [checkpoint]: those present now, less later change. */
-  private fun cleanupComponentsAt(checkpoint: Checkpoint): Int {
+  /** How many cleanup components existed at [eventCursor]: those present now, less later change. */
+  private fun cleanupComponentsAt(eventCursor: Int): Int {
     val mustCleanUp = reader.classTable.getClass(MUST_CLEAN_UP)
     fun cleanup(component: Component?) =
         component?.type?.rootClass?.isSubtypeOf(mustCleanUp) == true
     val changeSince =
-        gameWorld.events.changesSince(checkpoint).sumOf {
+        gameWorld.events.changesSince(eventCursor).sumOf {
           (if (cleanup(it.change.gaining)) it.change.count else 0) -
               (if (cleanup(it.change.removing)) it.change.count else 0)
         }

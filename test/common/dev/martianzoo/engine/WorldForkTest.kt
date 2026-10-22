@@ -61,7 +61,7 @@ internal class WorldForkTest {
     val sourceAgent = source.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     sourceAgent.runOperation("Listener")
     val pendingChoice = sourceAgent.addTasks("Choice?").single()
-    source.events.entriesSince(Checkpoint(0)).first().notes = "captured"
+    source.events.entriesSince(0).first().notes = "captured"
     val sourceChoiceCounts = mutableListOf<Int>()
     val sourceChoiceSubscription =
         source.components.listenToCount(
@@ -76,13 +76,13 @@ internal class WorldForkTest {
     val forkAgent = fork.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     (fork.classTable === source.classTable) shouldBe true
-    fork.events.entriesSince(Checkpoint(0)) shouldBe source.events.entriesSince(Checkpoint(0))
+    fork.events.entriesSince(0) shouldBe source.events.entriesSince(0)
     fork.tasks.getTaskData(pendingChoice) shouldBe source.tasks.getTaskData(pendingChoice)
     fork.recording().positions shouldBe source.recording().positions
-    fork.events.entriesSince(Checkpoint(0)).first().notes shouldBe "captured"
+    fork.events.entriesSince(0).first().notes shouldBe "captured"
 
-    source.events.entriesSince(Checkpoint(0)).first().notes = "source only"
-    fork.events.entriesSince(Checkpoint(0)).first().notes shouldBe "captured"
+    source.events.entriesSince(0).first().notes = "source only"
+    fork.events.entriesSince(0).first().notes shouldBe "captured"
 
     forkAgent.doTask("Choice")
     forkAgent.runOperation("Ping") { doTask("Pong") }
@@ -98,7 +98,7 @@ internal class WorldForkTest {
     sourceAgent.doTask("Choice")
     sourceAgent.runOperation("Ping") { doTask("Pong") }
 
-    fork.events.entriesSince(Checkpoint(0)) shouldBe source.events.entriesSince(Checkpoint(0))
+    fork.events.entriesSince(0) shouldBe source.events.entriesSince(0)
     sourceChoiceCounts shouldBe listOf(0, 1)
 
     forkAgent.runOperation("ForkOnly")
@@ -157,7 +157,7 @@ internal class WorldForkTest {
       doTask("Second")
     }
 
-    fork.events.entriesSince(Checkpoint(0)) shouldBe source.events.entriesSince(Checkpoint(0))
+    fork.events.entriesSince(0) shouldBe source.events.entriesSince(0)
   }
 
   @Test

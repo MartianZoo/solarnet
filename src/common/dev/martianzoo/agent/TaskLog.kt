@@ -78,7 +78,7 @@ public class TaskLog internal constructor(private val world: World) {
   }
 
   private fun survivingSubmissions(): List<Submission> {
-    val events = world.events.entriesSince(Checkpoint(0))
+    val events = world.events.entriesSince(0)
     val surviving = submissions.filter { item ->
       item.anchor?.let { events.getOrNull(it.ordinal) === it } == true
     }
@@ -109,7 +109,7 @@ public class TaskLog internal constructor(private val world: World) {
       block: () -> T,
   ): T {
     if (!recording) return block()
-    val checkpoint = world.timeline.checkpoint()
+    val eventCursor = world.events.nextOrdinal
     val submission =
         Submission(
             actor,
@@ -122,7 +122,7 @@ public class TaskLog internal constructor(private val world: World) {
     submissions += submission
     return try {
       block().also {
-        val events = world.events.entriesSince(checkpoint)
+        val events = world.events.entriesSince(eventCursor)
         submission.anchor = events.firstOrNull()
         // Record the choice separately from the receiving Actor's policy execution. Import runs
         // with autoexecution disabled, so replaying a completion-demanding doTask would fail here.

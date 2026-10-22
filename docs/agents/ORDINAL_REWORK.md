@@ -86,53 +86,90 @@ by clients. Do not add branch identities or generation counters without a demons
 
 ## Implementation order
 
-### 1. Identify the actual transaction entry points
+### 1. Transaction entry points (inventory)
 
-Inspect [ActorEngine](../../src/common/dev/martianzoo/engine/ActorEngine.kt),
-[WorldTransaction](../../src/common/dev/martianzoo/engine/WorldTransaction.kt), and
-[AgentImpl](../../src/common/dev/martianzoo/agent/AgentImpl.kt) together. Today's `transact` and
-`WorldTransaction` can enclose several Actor mutations plus Admin work; their names do not identify
-the new transaction units.
+This inventory records current behavior in this checkout. It is evidence for the recording work
+below, not approval of any entry point's contract.
 
-For each public mutation, identify its outermost engine entry, immediate effects, final checks, and
-return. Internal helper calls belong to that same transaction. Admin work queued during it waits
-until it finishes. An Agent batch calling the engine repeatedly contains multiple transactions;
-a compound instruction executed within an engine mutation need not be split into separate records.
-Do not invent an at-most-single-task-per-call restriction to simplify recording.
+Three different mechanisms already bracket work today, and none of them identifies a transaction:
 
-Inspect grouped/scalar execution conveniences specifically: some consume several existing tasks
-inside an engine call. Record the behavior and assess it against selected-task exclusion; result
-aggregation alone neither justifies nor prohibits it. Any recommendation to remove such behavior
-needs its own explanation, rather than silently changing it as part of this migration.
+- `TimelineImpl.atomic` is a plain rollback scope. Probes, corrections, `tryTask`, and each
+  automatic-handling iteration use it, and it nests. A block that restores everything it did is not
+  a transaction, so `atomic` cannot define the unit.
+- `WorldTransaction.run` (reached as `ActorEngine.transact`) brackets an Agent call. Its outermost
+  invocation also runs task handling, completion validation, and the completion callback, so it
+  spans several transactions by the proposed definition.
+- `AutoExecLoop.actOnce` wraps each individual automatic task in its own `atomic` block. This is
+  the one place whose existing granularity already matches a transaction.
 
-Include queue edits, corrections, handoffs, initialization, and probes in the inventory. Distinguish
-engine initialization from ordinary Actor-driven setup. Apply priority checks to competing external
-calls, not to the current transaction's own task additions or other consequences.
+The transaction unit must therefore be marked explicitly where a mutation enters the engine. It
+cannot be inferred from the rollback scopes.
 
-### 2. Separate event cursors and fix whole-call results
+| Engine entry | Retains events? | Own restoration | Notes |
+| --- | --- | --- | --- |
+| `sneak` | yes | `worldTransaction.correct` | Runs `::` effects and final checks; no queued `:` effects, task handling, or completion callback |
+| `addTasks` | yes | none | Queue edit; can promote deferred work before the enclosing call finishes creating its own work |
+| `dropTask` | yes | none | Queue edit; can also promote deferred work |
+| `restoreTask` | yes | none | Task replacement without ordinary selection checks |
+| `selectTask` (either overload) | yes | none | May resolve, reassign, and execute when concrete |
+| `narrowTask` | yes | none | May execute when the narrowing becomes concrete |
+| `doTask(taskId)` | yes | none | |
+| `doTask(narrowing, …)` | yes | none | `executeSubmittedGroup` also attempts newly added tasks, and `combineScalars` consumes several existing tasks, inside this one call |
+| `tryTask` (either overload) | on success only | `atomic` + abort | An unfinished or unavailable attempt returns having retained nothing |
+| `trySelectedTask` | yes | none | |
+| `canSelectTask`, `canExecuteTask` | never | `atomic`, always rolled back | Probes; they retain no events and so earn no record |
+| `requireComplete`, `prepareTaskNarrowing`, `changeLimit` | no | n/a | Read-only; not entry points |
 
-Replace uses of `Checkpoint` that really mean an arbitrary event offset with explicitly named
-`Int` event cursors. Important consumers include invariant checks, cleanup scans, internal rollback,
-[CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt), and TaskLog anchors.
-Keep `GameEvent.ordinal`, `Cause.triggerEvent`, and `TaskId` event-based.
+Consequences for recording:
 
-This is not entirely private cleanup: `EventLog.entriesSince`/`changesSince`,
-`GameWorld.activitySince`, and `ActorEngine.requireComplete` have cross-module callers. Update their
-signatures and callers deliberately; preserve no compatibility layer just for this migration.
+1. One engine mutation is one transaction, including the compound conveniences. `doTask` with
+   `executeSubmittedGroup`, and `executeScalarSum`, each remain a single record. Their existing
+   multi-task behavior is recorded here, not changed; removing either needs its own justification
+   and its own change.
+2. A task edit with no component change still retains events, so `addTasks`, `dropTask`, and
+   `restoreTask` each produce a record.
+3. Probes and failed attempts retain no events and advance no serial.
+4. `AgentImpl.addInitialTasks` performs `engine.addTasks` and then one `engine.doTask` per admitted
+   task, so one Agent operation contains several engine mutations in sequence. These are the real
+   gaps between successive mutations that the priority rule must close; the outermost coordinator
+   is not the only place to inspect.
+5. Each `AutoExecLoop.actOnce` success is its own transaction, which already matches the proposed
+   Admin rule.
+6. Engine initialization is distinct. `Initializer.executeSeed` and `executeAdminTask` each use
+   `atomic`, while `drainBootstrapTasks` selects tasks in a bare loop with no per-task scope and no
+   regard for assignee priority, and `initialize` ends with `markSetupStart` plus `commit`. Its
+   events form a prefix that precedes the first client transaction.
 
-Compute returned results over the retained events from call entry through its final Admin handling.
-Nested and batch calls each report their own entire execution interval. Preserve existing field
-meanings: `changes` includes retained component changes in order, and `tasksSpawned` includes newly
-added tasks still pending at return. This does not promise restoration of all completed transactions
-if a later transaction fails; the enclosing recovery policy remains separate.
+### 2. Event cursors and whole-call results (landed)
 
-Remove callback-driven history navigation before relying on that simple interval calculation.
-The current `TimelineTest` methods `completionCallbackCanSeekAfterANestedPlayerCallReturns` and
-`completionCallbackMayLeaveTheWorldAtARecordedPastPosition` exercise real engine calls, but use
-synthetic ChoiceA/ChoiceB classes and establish no Canon gameplay need. No production assignment to
-`onTransactionComplete` was found in this checkout. Remove the unsupported behavior and those tests;
-do not preserve it just because it has tests. Review the callback API itself before adding any new
-machinery for it. Internal restoration of failed work remains available.
+`Checkpoint` no longer appears where an arbitrary event offset was meant. `EventLog.entriesSince`,
+`EventLog.changesSince`, `EventLog.markSetupStart`, `GameWorld.activitySince`,
+`GameWorld.markSetupStart`, `Limiter.checkInvariantsSince`, and `ActorEngine.requireComplete`'s
+`lastDecision` all take plain `Int` event ordinals, and `EventLog.nextOrdinal` is the public
+accessor that supplies one. `GameEvent.ordinal`, `Cause.triggerEvent`, and `TaskId` stay
+event-based. No compatibility layer was kept.
+
+Code that still holds a navigation `Checkpoint` and wants that position's events extracts
+`.ordinal` explicitly. Those sites are where step 5 must resolve a transaction position to an
+event offset instead.
+
+`WorldTransaction.run` now reports the retained events of its own whole interval, captured at call
+entry and computed after its finishing steps. An outermost call therefore includes its completion
+callback's changes and the task handling that follows the callback; nested and batch calls each
+report their own interval. This is reporting coverage only: a failing callback still leaves the
+initial work in place.
+
+Unsupported callback navigation is gone. `TimelineImpl` refuses `seek` and `truncate` while the
+completion callback runs, including from gameplay calls the callback starts, so the World is always
+at the end of its history when the callback returns and the final handling no longer needs an
+`atEnd` test. `TimelineTest.completionCallbackCanSeekAfterANestedPlayerCallReturns` and
+`completionCallbackMayLeaveTheWorldAtARecordedPastPosition` were removed with it. Ordinary client
+navigation after a call returns, and navigation from inside an operation body, both remain.
+Internal restoration of failed work is unaffected.
+
+Admin handling through quiescence is not yet part of every call's coverage: `addTasks` and
+`dropTask` still route through a path that deliberately skips task handling. That is step 4's work,
+not a reporting gap.
 
 ### 3. Establish complete transactions, then record them
 

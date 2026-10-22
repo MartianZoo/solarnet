@@ -219,9 +219,10 @@ These are observations to address during review, not reasons to preserve the beh
 - Some public engine mutations still need an enclosing `Timeline.atomic` block to restore a
   failed transaction. That differs from the selected failure-atomic guarantee.
 - [WorldTransaction](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) ordinarily restores
-  the initiating command and its Admin handling together on failure. Completion callbacks and
-  their follow-up work run afterward and are absent from the returned `TaskResult`, contrary to
-  the general result rule above. A failing callback leaves the initial work in place.
+  the initiating command and its Admin handling together on failure. Its returned `TaskResult` now
+  satisfies the general result rule for a call's own interval, including completion-callback work
+  and the handling that follows it, but a failing callback still leaves the initial work in place.
+  Queue edits remain outside that coverage because they skip task handling entirely.
 - Queue edits and corrections can change the world while another task is selected, bypassing
   the proposed exclusion of competing client mutations.
 - Player selection does not enforce the P1 gate. Selection can also return with an unfinished choice,

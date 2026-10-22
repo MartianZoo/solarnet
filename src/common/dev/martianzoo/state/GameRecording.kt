@@ -52,7 +52,7 @@ public class GameRecording(
       private set
 
     init {
-      world.markSetupStart(positions.first())
+      world.markSetupStart(positions.first().ordinal)
     }
 
     /**

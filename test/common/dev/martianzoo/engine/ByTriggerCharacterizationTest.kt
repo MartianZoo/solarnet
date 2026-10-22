@@ -158,7 +158,7 @@ internal class ByTriggerCharacterizationTest {
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
     p1.sneak("RepeatedHolderProbe<Player2>!")
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     p1.runOperation("ActorTriggerSignal!")
     game.tasks.isEmpty() shouldBe true

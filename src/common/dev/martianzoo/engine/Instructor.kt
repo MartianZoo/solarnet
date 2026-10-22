@@ -70,7 +70,7 @@ internal constructor(
     private val effector: Effector,
     private val classTable: ClassTable,
     private val elaborator: PetElaborator,
-    private val timeline: Timeline,
+    private val timeline: TimelineImpl,
 ) {
   private var automaticEffectStack: List<PendingTask> = emptyList()
   private val systemClass = classTable.getClass(SYSTEM)
@@ -215,7 +215,7 @@ internal constructor(
     val gaining = instruction.gaining?.toComponent(reader)
     val removing = instruction.removing?.toComponent(reader)
 
-    val checkpoint = timeline.checkpoint()
+    val eventCursor = timeline.nextEventOrdinal
     while (true) {
       val (result, done) =
           changer.change(
@@ -236,7 +236,7 @@ internal constructor(
     // group in sneak; ordinary transaction-wide suspension remains a proposal to evaluate.
     if (queuedEffects && automaticEffectStack.isEmpty()) {
       try {
-        limiter.checkInvariantsSince(checkpoint)
+        limiter.checkInvariantsSince(eventCursor)
       } catch (e: LimitsException) {
         e.sourceLocation =
             instruction.sourceLocation

@@ -12,7 +12,6 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
@@ -39,8 +38,8 @@ internal abstract class TfmSandboxTest {
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
-  protected fun Agent.auditGainsSince(checkpoint: Checkpoint): Int =
-      game.events.changesSince(checkpoint).count { it.change.gaining?.type == resolve("Audit") }
+  protected fun Agent.auditGainsSince(eventCursor: Int): Int =
+      game.events.changesSince(eventCursor).count { it.change.gaining?.type == resolve("Audit") }
 
   protected lateinit var players: List<Agent>
     private set

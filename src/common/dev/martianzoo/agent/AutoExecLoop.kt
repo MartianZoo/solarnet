@@ -10,7 +10,6 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
@@ -29,12 +28,12 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
   private val policies = mutableMapOf<Actor, () -> AutoExecPolicy>()
 
   /**
-   * Where the current operation, through any of these Agents, last began or made a decision. Its
-   * work is over once the World's `FINALLY` work has begun since then.
+   * The event ordinal at which the current operation, through any of these Agents, last began or
+   * made a decision. Its work is over once the World's `FINALLY` work has begun since then.
    */
   // TODO(ENGINE_CONTRACT): investigate removing this operation-completion convention. Reaching
   // FINALLY does not define either a transaction or the call the Player awaits.
-  internal var lastDecision: Checkpoint? = null
+  internal var lastDecision: Int? = null
 
   internal fun register(actor: Actor, policy: () -> AutoExecPolicy) {
     check(policies.put(actor, policy) == null) { "Agent already registered for $actor" }

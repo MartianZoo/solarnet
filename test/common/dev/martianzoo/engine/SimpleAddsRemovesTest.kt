@@ -63,7 +63,7 @@ internal class SimpleAddsRemovesTest {
         )
     val p1 = game.testAgent(PLAYER1)
     p1.runOperation("Card<Player1>")
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     p1.runOperation("Holder<Player1, Card<Player1>>")
 
@@ -128,7 +128,7 @@ internal class SimpleAddsRemovesTest {
   internal fun basicByApi() {
     val game = TfmEngine.newGame(canonicalPremise())
 
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     val admin = game.testAgent(ADMIN)
     admin.count("Heat") shouldBe 0

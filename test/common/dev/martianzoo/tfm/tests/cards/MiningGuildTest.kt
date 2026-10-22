@@ -12,7 +12,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
   internal fun `A two-steel placement bonus raises production by a single step without an Audit`() {
     newTestGame(kimCorporation = MiningGuild)
     kim.setToExMachina(25, "MC")
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     kim.inTurn {
       doTasks(
@@ -31,7 +31,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
   internal fun `A titanium placement bonus raises steel production without an Audit`() {
     newTestGame(kimCorporation = MiningGuild)
     kim.setToExMachina(25, "MC")
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     kim.inTurn {
       doTasks(
@@ -69,7 +69,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
   internal fun `A wild bonus grants steel production with an Audit when metal is chosen`() {
     newTestGame(addOptions = "AmazonisMap, Unsafe", kimCorporation = MiningGuild)
     kim.setToExMachina(23, "MC")
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     kim.inTurn {
       doTasks(

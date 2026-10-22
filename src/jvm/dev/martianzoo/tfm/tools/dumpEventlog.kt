@@ -7,7 +7,6 @@ import dev.martianzoo.pets.api.SystemClasses.ICONIC
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameFileJson
@@ -83,7 +82,7 @@ private fun toTsv(reader: GameReader, event: ChangeEvent): String =
         .joinToString("\t")
 
 private fun dump(reader: GameReader, events: EventLog, output: Path) {
-  val changes = events.changesSince(Checkpoint(0))
+  val changes = events.changesSince(0)
   Files.createDirectories(output.parent)
   Files.newBufferedWriter(output).use { writer ->
     writer.appendLine(

@@ -35,9 +35,9 @@ internal class WorldOverlayTest {
 
     val imagined = sourceAgents.overlay()
     val imaginedAgent = imagined[PLAYER1]
-    val originalNote = source.events.entriesSince(Checkpoint(0)).first().notes
-    imagined.world.events.entriesSince(Checkpoint(0)).first().notes = "overlay only"
-    source.events.entriesSince(Checkpoint(0)).first().notes shouldBe originalNote
+    val originalNote = source.events.entriesSince(0).first().notes
+    imagined.world.events.entriesSince(0).first().notes = "overlay only"
+    source.events.entriesSince(0).first().notes shouldBe originalNote
     imaginedAgent.autoExecPolicy shouldBe NONE
     imagined.world.tasks.getTaskData(pending) shouldBe source.tasks.getTaskData(pending)
     imaginedAgent.runOperation("Ping") { doTask("Pong") }
@@ -50,9 +50,9 @@ internal class WorldOverlayTest {
     source.timeline.checkpoint() shouldBe sourceCheckpoint
 
     val copied = imagined.fork()
-    copied.world.events.entriesSince(Checkpoint(0)) shouldBe
-        imagined.world.events.entriesSince(Checkpoint(0))
-    copied.world.events.entriesSince(Checkpoint(0)).first().notes shouldBe "overlay only"
+    copied.world.events.entriesSince(0) shouldBe
+        imagined.world.events.entriesSince(0)
+    copied.world.events.entriesSince(0).first().notes shouldBe "overlay only"
     copied.world.timeline.positions shouldBe imagined.world.timeline.positions
     copied[PLAYER1].count("Pong") shouldBe 1
     copied[PLAYER1].runOperation("CopyOnly")
@@ -62,7 +62,7 @@ internal class WorldOverlayTest {
     imagined.reset()
     imagined.world.timeline.checkpoint() shouldBe sourceCheckpoint
     imagined.world.tasks.getTaskData(pending) shouldBe source.tasks.getTaskData(pending)
-    imagined.world.events.entriesSince(Checkpoint(0)).first().notes shouldBe originalNote
+    imagined.world.events.entriesSince(0).first().notes shouldBe originalNote
     imaginedAgent.count("Pong") shouldBe 0
     imaginedAgent.count("Choice") shouldBe 0
     copied[PLAYER1].count("Pong") shouldBe 1
@@ -92,7 +92,7 @@ internal class WorldOverlayTest {
     imaginedAgent.runOperation("Ping") { doTask("Pong") }
     imagined.reset()
     imagined.world.timeline.checkpoint() shouldBe start
-    retainedEvents.entriesSince(start) shouldBe emptyList()
+    retainedEvents.entriesSince(start.ordinal) shouldBe emptyList()
     imaginedAgent.runOperation("Other")
     imagined.world.timeline.commit()
     imagined.reset()
@@ -181,7 +181,7 @@ internal class WorldOverlayTest {
 
     val token = source.reader.resolve(parse<Expression>("Token")).toComponent()
     shouldThrow<IllegalStateException> { retainedComponents.countComponent(token) }
-    shouldThrow<IllegalStateException> { retainedEvents.entriesSince(Checkpoint(0)) }
+    shouldThrow<IllegalStateException> { retainedEvents.entriesSince(0) }
     shouldThrow<IllegalStateException> { retainedTasks.isEmpty() }
     shouldThrow<IllegalStateException> { Engine.fork(imagined) }
     shouldThrow<IllegalStateException> { imagined.reset() }

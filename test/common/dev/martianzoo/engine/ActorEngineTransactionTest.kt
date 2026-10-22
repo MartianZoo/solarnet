@@ -47,7 +47,7 @@ internal class ActorEngineTransactionTest {
     val attack =
         player.addTasks(InstructionGroup.of(parse<Instruction>("-Plant<Player2>!"))).single()
     val pending = world.tasks.extract { it }
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<DeadEndException> {
       world.timeline.atomic { player.doTask(attack) }
@@ -56,7 +56,7 @@ internal class ActorEngineTransactionTest {
     world.reader.count(parse<Metric>("Plant<Player2>")) shouldBe 1
     world.tasks.extract { it } shouldBe pending
     world.events.entriesSince(before).shouldBeEmpty()
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
   }
 
   @Test
@@ -75,7 +75,7 @@ internal class ActorEngineTransactionTest {
     val attack =
         player.addTasks(InstructionGroup.of(parse<Instruction>("-Plant<Player2>!"))).single()
     val pending = world.tasks.extract { it }
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<DeadEndException> {
       player.transact(afterChanges = {}) {
@@ -92,6 +92,6 @@ internal class ActorEngineTransactionTest {
     world.reader.count(parse<Metric>("Plant<Player2>")) shouldBe 1
     world.tasks.extract { it } shouldBe pending
     world.events.entriesSince(before).shouldBeEmpty()
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
   }
 }

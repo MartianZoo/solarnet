@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameRecording
 
 /**
@@ -21,7 +20,7 @@ public fun World.recording(): GameRecording {
   check(timeline.checkpoint() in timeline.positions) {
     "Cannot export a World at an unrecorded position"
   }
-  val entries = events.entriesSince(Checkpoint(0))
+  val entries = events.entriesSince(0)
   val positions = timeline.positions.filter { it.ordinal <= entries.size }
   return GameRecording(wholeWorld.gameWorld.premise, entries, positions)
 }

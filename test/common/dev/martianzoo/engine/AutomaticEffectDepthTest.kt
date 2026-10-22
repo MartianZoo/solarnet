@@ -21,7 +21,7 @@ internal class AutomaticEffectDepthTest {
   internal fun `automatic effect cycle fails atomically at the depth limit`() {
     val world = TfmEngine.newGame(premise) as WholeWorld
     val admin = world.testAgent(ADMIN)
-    val checkpoint = world.timeline.checkpoint()
+    val checkpoint = world.events.nextOrdinal
 
     val failure = shouldThrow<ResourceLimitException> { admin.runOperation("ChainA") }
 
@@ -38,11 +38,11 @@ internal class AutomaticEffectDepthTest {
     val world = TfmEngine.newGame(premise) as WholeWorld
     val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     val task = admin.addTasks("ChainA").single()
-    val checkpoint = world.timeline.checkpoint()
+    val checkpoint = world.events.nextOrdinal
 
     shouldThrow<ResourceLimitException> { admin.canSelectTask(task) }
 
-    world.timeline.checkpoint() shouldBe checkpoint
+    world.events.nextOrdinal shouldBe checkpoint
     admin.tasks.ids() shouldBe setOf(task)
     admin.count("ChainA") shouldBe 0
     admin.count("ChainB") shouldBe 0
@@ -54,11 +54,11 @@ internal class AutomaticEffectDepthTest {
     val world = TfmEngine.newGame(premise) as WholeWorld
     val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     val task = admin.addTasks("ChainA").single()
-    val checkpoint = world.timeline.checkpoint()
+    val checkpoint = world.events.nextOrdinal
 
     shouldThrow<ResourceLimitException> { admin.canExecuteTask(task) }
 
-    world.timeline.checkpoint() shouldBe checkpoint
+    world.events.nextOrdinal shouldBe checkpoint
     admin.tasks.ids() shouldBe setOf(task)
     admin.count("ChainA") shouldBe 0
     admin.count("ChainB") shouldBe 0

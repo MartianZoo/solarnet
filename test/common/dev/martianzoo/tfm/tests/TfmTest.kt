@@ -16,7 +16,6 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
@@ -60,8 +59,8 @@ internal abstract class TfmTest {
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
-  protected fun Agent.auditGainsSince(checkpoint: Checkpoint): Int =
-      game.events.changesSince(checkpoint).count { it.change.gaining?.type == resolve("Audit") }
+  protected fun Agent.auditGainsSince(eventCursor: Int): Int =
+      game.events.changesSince(eventCursor).count { it.change.gaining?.type == resolve("Audit") }
 
   protected fun <T> OperationScope.doWithoutAutoExec(
       agent: Agent,

@@ -83,8 +83,11 @@ public interface World {
    * normally, whether called directly or through an Agent. A cancellation caught by that block also
    * counts as normal completion and invokes the hook. Defaults to doing nothing. Corrections do not
    * invoke it. Synchronous commands started here can change the World before the originating call
-   * returns. Currently those changes and subsequent task handling are omitted from its returned
-   * result; they must be included under the proposed TaskResult rule.
+   * returns, and the originating call's result includes those changes and the task handling that
+   * follows them.
+   *
+   * History navigation is refused while this hook runs, including from gameplay calls it starts,
+   * so it cannot leave the World away from the end of its history.
    *
    * Proposed contract, pending human review: completion must not expose a Player-facing state with
    * eligible Admin work pending. Current placement does not establish that guarantee: the hook runs
@@ -94,7 +97,7 @@ public interface World {
    *
    * TODO(ENGINE_CONTRACT): Investigate whether this callback belongs in the public engine API. Its
    *   name must not imply notification after every individual Actor transaction. Review its timing
-   *   while preserving quiescence before return and complete result reporting.
+   *   while preserving quiescence before return.
    */
   public var onTransactionComplete: () -> Unit
 }

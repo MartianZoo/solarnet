@@ -9,6 +9,7 @@ import dev.martianzoo.state.TaskResult
 /**
  * Keeps recorded positions and the retained future of a live World. The [atomic] helper restores
  * recorded game changes after a failed block; it does not define or complete an engine transaction.
+ * History navigation is refused while the completion callback runs.
  */
 internal class TimelineImpl(
     private val gameWorld: GameWorld,
@@ -17,12 +18,39 @@ internal class TimelineImpl(
 
   override fun checkpoint() = Checkpoint(gameWorld.nextOrdinal)
 
+  /** The current event count, for internal scans over the events a block produced. */
+  internal val nextEventOrdinal: Int
+    get() = gameWorld.nextOrdinal
+
+  /** The changes and surviving new tasks recorded since event [ordinal]. */
+  internal fun activitySince(ordinal: Int): TaskResult = gameWorld.activitySince(ordinal)
+
+  private var inCompletionCallback = false
+
+  /**
+   * Runs [block] as the completion callback, during which history navigation is refused. Nested
+   * gameplay calls are still permitted; they may not seek or truncate either.
+   */
+  internal fun <T> duringCompletionCallback(block: () -> T): T {
+    check(!inCompletionCallback) { "already reporting completion" }
+    inCompletionCallback = true
+    return try {
+      block()
+    } finally {
+      inCompletionCallback = false
+    }
+  }
+
+  private fun requireNotReportingCompletion() {
+    check(!inCompletionCallback) { "Cannot navigate history while reporting completion" }
+  }
+
   override var floor = Checkpoint(0)
     private set
 
   private val recordedPositions = mutableListOf<Checkpoint>()
   private val future = mutableListOf<GameEvent>()
-  private val atomicStarts = mutableListOf<Checkpoint>()
+  private val atomicStarts = mutableListOf<Int>()
 
   override val positions: List<Checkpoint>
     get() = recordedPositions.toList()
@@ -55,7 +83,8 @@ internal class TimelineImpl(
   }
 
   override fun seek(checkpoint: Checkpoint) {
-    check(atomicStarts.lastOrNull()?.let { checkpoint.ordinal >= it.ordinal } != false) {
+    requireNotReportingCompletion()
+    check(atomicStarts.lastOrNull()?.let { checkpoint.ordinal >= it } != false) {
       "Cannot seek before the current atomic call began"
     }
     check(checkpoint() in recordedPositions) { "Cannot seek from an unrecorded position" }
@@ -67,7 +96,7 @@ internal class TimelineImpl(
     val current = gameWorld.nextOrdinal
     when {
       ordinal < current -> {
-        val removed = gameWorld.events.entriesSince(checkpoint)
+        val removed = gameWorld.events.entriesSince(ordinal)
         changer.rollBackTo(ordinal)
         future.addAll(0, removed)
       }
@@ -80,7 +109,7 @@ internal class TimelineImpl(
   }
 
   override fun stepBack(): Boolean {
-    val minimum = maxOf(floor.ordinal, atomicStarts.lastOrNull()?.ordinal ?: floor.ordinal)
+    val minimum = maxOf(floor.ordinal, atomicStarts.lastOrNull() ?: floor.ordinal)
     val previous =
         recordedPositions.lastOrNull {
           it.ordinal < gameWorld.nextOrdinal && it.ordinal >= minimum
@@ -96,6 +125,7 @@ internal class TimelineImpl(
   }
 
   override fun truncate() {
+    requireNotReportingCompletion()
     check(checkpoint() in recordedPositions) { "Cannot truncate at an unrecorded position" }
     future.clear()
     recordedPositions.removeAll { it.ordinal > gameWorld.nextOrdinal }
@@ -122,23 +152,23 @@ internal class TimelineImpl(
   @Suppress("TooGenericExceptionCaught", "InstanceOfCheckForException")
   override fun atomic(block: () -> Unit): TaskResult {
     requireAtEnd()
-    val checkpoint = checkpoint()
+    val start = nextEventOrdinal
     // TODO(ENGINE_CONTRACT): review the scope of failure-atomicity. Only the event position is
     // captured; existing event commentary and arbitrary caller settings are not restored.
-    atomicStarts += checkpoint
+    atomicStarts += start
     try {
       block()
     } catch (_: AbortTransactionException) {
-      rollBackStateTo(checkpoint.ordinal)
+      rollBackStateTo(start)
     } catch (e: Exception) {
       // TODO(ENGINE_CONTRACT): decide which failure types require restoration. Errors and other
       // non-Exception Throwables currently escape without restoring the block's game changes.
-      rollBackStateTo(checkpoint.ordinal)
+      rollBackStateTo(start)
       throw e
     } finally {
       atomicStarts.removeLast()
     }
-    return gameWorld.activitySince(checkpoint)
+    return gameWorld.activitySince(start)
   }
 
   internal fun initializationFinished() = gameWorld.markSetupStart()

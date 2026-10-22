@@ -46,14 +46,14 @@ internal class BugsTest {
     val next = player.tasks.ids().single()
     world.actorEngine(ADMIN).tasks.extract { it }.single().deferred shouldBe false
     val pending = world.tasks.extract { it }
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<TaskException> { player.selectTask(next) }
 
     world.reader.count(parse<Metric>("Plant<Player1>")) shouldBe 0
     world.tasks.extract { it } shouldBe pending
     world.events.entriesSince(before).shouldBeEmpty()
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
   }
 
   private fun pendingPlacementBonusWorld(): World {

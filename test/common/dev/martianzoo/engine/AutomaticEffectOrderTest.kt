@@ -62,7 +62,7 @@ internal class AutomaticEffectOrderTest {
   }
 
   private fun removalContext(world: WholeWorld, admin: Agent): String {
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
     admin.runOperation("Trigger")
     val removal =
         world.events.changesSince(before).single { it.change.removing.toString() == "Token" }

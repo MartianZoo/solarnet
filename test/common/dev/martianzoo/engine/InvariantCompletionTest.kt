@@ -46,13 +46,13 @@ internal class InvariantCompletionTest {
         )
     val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     val task = admin.addTasks("-Token!").single()
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     admin.canSelectTask(task) shouldBe false
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     shouldThrow<LimitsException> { admin.doTask("-Token!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Token") shouldBe 1
     admin.count("Unrelated") shouldBe 1
   }
@@ -70,11 +70,11 @@ internal class InvariantCompletionTest {
             "Second",
         )
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Second FROM First!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("First") shouldBe 1
     admin.count("Second") shouldBe 1
   }
@@ -96,11 +96,11 @@ internal class InvariantCompletionTest {
   internal fun familyMaximumRejectsRepeatedValueWithoutAPerTypeMaximum() {
     val world = replacementWorld()
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Ready!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Ready") shouldBe 1
   }
 
@@ -139,11 +139,11 @@ internal class InvariantCompletionTest {
   internal fun failedRepairRestoresComponentsTasksHistoryAndEffects() {
     val world = statusWorld("This:: Notice!", "This: -Ready!")
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Passed!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     world.tasks.isEmpty() shouldBe true
     admin.count("Ready") shouldBe 1
     admin.count("Passed") shouldBe 0
@@ -207,11 +207,11 @@ internal class InvariantCompletionTest {
     val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     val task = admin.addTasks("Status!").single()
     val pending = admin.tasks.getTaskData(task)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     admin.tryTask("Passed!")
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.tasks.getTaskData(task) shouldBe pending
     world.tasks.selectedTask() shouldBe null
     admin.count("Ready") shouldBe 1
@@ -257,9 +257,9 @@ internal class InvariantCompletionTest {
     val admin = world.testAgent(ADMIN)
 
     admin.runOperation("Passed! OR Reward!") {
-      val before = world.timeline.checkpoint()
+      val before = world.events.nextOrdinal
       shouldThrow<LimitsException> { doTask("Passed!") }
-      world.timeline.checkpoint() shouldBe before
+      world.events.nextOrdinal shouldBe before
       admin.count("Notice") shouldBe 0
       admin.count("Passed") shouldBe 0
       doTask("Reward!")
@@ -297,11 +297,11 @@ internal class InvariantCompletionTest {
   internal fun sourceAvailabilityCannotBeRepairedAfterRemoval() {
     val world = world("CLASS Token { -This:: Token! }")
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("-Token!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Token") shouldBe 0
   }
 
@@ -315,11 +315,11 @@ internal class InvariantCompletionTest {
             """
         )
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<DependencyException> { admin.runOperation("Attached!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Anchor") shouldBe 0
     admin.count("Attached") shouldBe 0
   }
@@ -342,11 +342,11 @@ internal class InvariantCompletionTest {
         )
     val admin = world.testAgent(ADMIN)
     admin.runOperation("FirstAnchor!")
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("-Attached!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Attached") shouldBe 1
     admin.runOperation("-FirstAnchor!")
     admin.count("Bridge") shouldBe 0
@@ -409,11 +409,11 @@ internal class InvariantCompletionTest {
             """
         )
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Assembly!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Assembly") shouldBe 0
     admin.count("Choice") shouldBe 0
   }
@@ -429,11 +429,11 @@ internal class InvariantCompletionTest {
             """
         )
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Assembly!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Assembly") shouldBe 0
     admin.count("Marker") shouldBe 0
   }
@@ -451,10 +451,10 @@ internal class InvariantCompletionTest {
             """
         )
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<DependencyException> { admin.runOperation("Assembly!") }
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Other") shouldBe 0
 
     admin.runOperation("Other! THEN Assembly!")
@@ -576,12 +576,12 @@ internal class InvariantCompletionTest {
   internal fun recursiveConstructionSharesTheEnclosingAutomaticEffectDepthLimit() {
     val world = constructionChainWorld(parts = 8)
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     val failure = shouldThrow<ResourceLimitException> { admin.runOperation("Seed!") }
 
     failure.detail shouldStartWith "automatic effect chain exceeded depth 8: Assembly! -> "
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     world.tasks.isEmpty() shouldBe true
     admin.count("Seed") shouldBe 0
     admin.count("Assembly") shouldBe 0
@@ -752,11 +752,11 @@ internal class InvariantCompletionTest {
             """
         )
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<DependencyException> { admin.runOperation("Assembly!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     world.tasks.isEmpty() shouldBe true
     admin.count("Assembly") shouldBe 0
     admin.count("Notifier") shouldBe 0
@@ -795,11 +795,11 @@ internal class InvariantCompletionTest {
   internal fun separateInitiatingChangesCannotRepairEachOther() {
     val world = statusWorld("")
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Passed! THEN -Ready!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Ready") shouldBe 1
     admin.count("Passed") shouldBe 0
   }
@@ -880,9 +880,9 @@ internal class InvariantCompletionTest {
 
     admin.runOperation("Status!") {
       admin.count("Passed") shouldBe 0
-      val before = world.timeline.checkpoint()
+      val before = world.events.nextOrdinal
       shouldThrow<LimitsException> { doTask("Broken!") }
-      world.timeline.checkpoint() shouldBe before
+      world.events.nextOrdinal shouldBe before
       doTask("Passed!")
     }
 
@@ -927,11 +927,11 @@ internal class InvariantCompletionTest {
             "Token",
         )
     val admin = world.testAgent(ADMIN)
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
 
     shouldThrow<NotFullySpecifiedException> { admin.runOperation("Start!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Start") shouldBe 0
     admin.count("Token") shouldBe 1
     admin.count("Other") shouldBe 0
@@ -970,12 +970,12 @@ internal class InvariantCompletionTest {
   @Test
   internal fun theWrongPerformerDoesNotTriggerTheRepair() {
     val world = performerDependentWorld()
-    val before = world.timeline.checkpoint()
+    val before = world.events.nextOrdinal
     val admin = world.testAgent(ADMIN)
 
     shouldThrow<LimitsException> { admin.runOperation("Passed! OR Die!") }
 
-    world.timeline.checkpoint() shouldBe before
+    world.events.nextOrdinal shouldBe before
     admin.count("Ready") shouldBe 1
     admin.count("Passed") shouldBe 0
   }
