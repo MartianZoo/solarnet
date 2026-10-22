@@ -1486,7 +1486,7 @@ Class: `LocalHeatTrapping`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Spend 5 heat to either gain 4 plants, or to add 2 animals to ANOTHER card. | — |
-| Generated text | Remove 5 heat. Gain 4 plants or add 2 animals to another card. | — |
+| Generated text | Spend 5 heat to gain 4 plants or add 2 animals to another card. | — |
 
 Pets declaration:
 
@@ -1494,7 +1494,7 @@ Pets declaration:
 CLASS LocalHeatTrapping : EventCard {
   HAS =1 EventTag<This>
   cost = 1
-  This: -5 Heat, 4 Plant OR 2 Animal
+  This: -5 Heat THEN (4 Plant OR 2 Animal)
 }
 ```
 

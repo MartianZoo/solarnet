@@ -6,7 +6,7 @@
         {
           "name": "CrediCor",
           "direct": "57 MC",
-          "effects": [ "CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4 MC" ],
+          "effects": [ "CardFront(HAS 20 cost) OR -PaymentScope<Class<@StandardProject>(HAS 20 @StandardProject.cost)>: 4 MC" ],
         },
         {
           "name": "Ecoline",
@@ -612,7 +612,7 @@
           "name": "LocalHeatTrapping",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "direct": "-5 Heat, 4 Plant OR 2 Animal",
+          "direct": "-5 Heat THEN (4 Plant OR 2 Animal)",
         },
         {
           "name": "LunarBeam",

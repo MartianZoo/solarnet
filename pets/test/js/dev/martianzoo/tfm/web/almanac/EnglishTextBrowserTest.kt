@@ -24,8 +24,8 @@ internal class EnglishTextBrowserTest {
     renderCardText(column, card, EnglishTextRenderer(Canon.classTable))
 
     assertEquals(
-        "Effect: When you play a card with a printed cost of 20 M€ or more, or use a " +
-            "standard project with a printed cost of 20 M€ or more, gain 4 M€.",
+        "Effect: When you play a card with a printed cost of 20 M€ or more, or " +
+            "pay for a standard project with a printed cost of 20 M€ or more, gain 4 M€.",
         column.querySelector("[data-field='top-text']")?.textContent,
     )
     assertEquals(

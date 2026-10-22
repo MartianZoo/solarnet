@@ -44,6 +44,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations
   instead of its hardcoded resource list, without adding a loading stage.
+- Explore making each `StandardProject` a signal emitted only after its cost is paid.
+  `UseStandardProject` would select the class and open the bill; the resulting project signal
+  would trigger its tile/production effect and CrediCor/Standard Technology rebates. This
+  would replace the persistent `HasActions` standard-project components and their `UseAction`
+  path. Account for Established Methods' direct `UseAction` grants and other standard-project
+  payment listeners when evaluating the replacement.
 - Decide whether to add shallow/deep ELSE or instruction-level `(A)*`; candidate uses and
   restrictions are in [ELSE.md](pets/docs/agents/ELSE.md).
 - Add Canon invariant tests for incompatibilities: self-heat removal outside PaymentScope, except

@@ -1,6 +1,6 @@
 class_name	english_name	bottom_text	top_text
 BeginnerCorporation	Beginner Corporation	Gain 42 M€. Draw 10 cards.
-CrediCor	CrediCor	Gain 57 M€.	Effect: When you play a card with a printed cost of 20 M€ or more, or use a standard project with a printed cost of 20 M€ or more, gain 4 M€.
+CrediCor	CrediCor	Gain 57 M€.	Effect: When you play a card with a printed cost of 20 M€ or more, or pay for a standard project with a printed cost of 20 M€ or more, gain 4 M€.
 Ecoline	Ecoline	Gain 36 M€ and 3 plants. Increase your plant production 2 steps.	Effect: When you convert plants to greenery, you pay 1 plant less.
 FakeHelion	Helion	[BaseResourceValue<Class<Heat>>]. Gain 42 M€. Increase your heat production 3 steps.	Effect: [@PaymentScope<Class<Component>, Class<MC>>:: Accepting<Class<Heat>, @PaymentScope>].
 InterplanetaryCinematics	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Effect: When you play an event card, gain 2 M€.
@@ -246,7 +246,7 @@ Livestock	Livestock	Requires 9% oxygen. Decrease your plant production 1 step an
 AquiferPumping	Aquifer Pumping		Action: Spend 8 M€ (steel may be used) to place an ocean tile.
 Flooding	Flooding	Place an ocean tile or (place an ocean tile on an area reserved for ocean next to a tile a player owns, then you may remove up to 4 M€ from that player).
 EnergySaving	Energy Saving	Increase your energy production 1 step per city tile in play.
-LocalHeatTrapping	Local Heat Trapping	Lose 5 heat. Gain 4 plants or add 2 animals to another card.
+LocalHeatTrapping	Local Heat Trapping	Spend 5 heat to gain 4 plants or add 2 animals to another card.
 PermafrostExtraction	Permafrost Extraction	Requires -8°C or warmer. Place an ocean tile.
 Plantation	Plantation	Requires 2 science tags. Place a greenery tile.
 ImmigrationShuttles	Immigration Shuttles	Increase your M€ production 5 steps. 1 VP per 3 city tiles in play.
