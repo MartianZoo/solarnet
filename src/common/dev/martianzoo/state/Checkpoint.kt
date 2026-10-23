@@ -1,10 +1,13 @@
 package dev.martianzoo.state
 
-/** One event-prefix position in a game world. */
-public data class Checkpoint(public val ordinal: Int) {
+/**
+ * The position before transaction [serial], or the end before the next transaction. Serials address
+ * retained history; clients discard checkpoints into a truncated future.
+ */
+public data class Checkpoint(public val serial: Int) {
   init {
-    require(ordinal >= 0)
+    require(serial >= 0)
   }
 
-  override fun toString(): String = "$ordinal"
+  override fun toString(): String = "$serial"
 }

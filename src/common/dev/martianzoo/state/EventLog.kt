@@ -153,6 +153,14 @@ internal constructor(
       }
     }
 
+  /** Resolves a transaction checkpoint to its first event, or the event count at the end. */
+  public fun eventOrdinal(checkpoint: Checkpoint): Int {
+    val nextSerial = (lastTransaction?.serial ?: -1) + 1
+    require(checkpoint.serial <= nextSerial) { "No transaction position $checkpoint" }
+    return if (checkpoint.serial == nextSerial) size
+    else checkNotNull(transactionRange(checkpoint.serial)).first
+  }
+
   private companion object {
     /** Stands for the absent transaction of an initialization-prefix event. */
     const val PREFIX_SERIAL = -1

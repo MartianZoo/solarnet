@@ -8,6 +8,8 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Motivation
@@ -15,13 +17,7 @@ import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
-/**
- * Current shared task handling for Admin and configurable Player policies.
- *
- * TODO(ENGINE_CONTRACT): separate mandatory Admin handling from optional Player policies. The
- *   proposed contract requires ordinary Admin work to finish before a Player command starts or
- *   returns.
- */
+/** Mandatory Admin handling followed by optional Player-policy execution. */
 internal class AutoExecLoop(private val world: World, private val taskLog: TaskLog) {
   private val allTasks: TaskQueue
     get() = world.tasks
@@ -41,7 +37,9 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
   }
 
   internal fun run() {
-    while (actOnce()) {}
+    do {
+      runAdmin()
+    } while (actOnce())
   }
 
   private fun actOnce(): Boolean {
@@ -56,15 +54,11 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     // Keep manual tasks among the candidates: they still compete with automatic work.
     // A sole task has no competing choice. Selection still validates its execution,
     // and the enclosing Agent call rolls back any failure.
-    // TODO(ENGINE_CONTRACT): this filter drops failed Admin probes without preserving their
-    // reasons.
-    // A surviving Player candidate that cannot finish can then hide the Admin failure: a NONE
-    // policy returns below (AiCentralTest), and a non-NONE policy can leave an abstract task
-    // selected.
     val candidates =
         if (selected != null || pending.size == 1) pending else pending.filter(::canSelectTask)
     val candidateCounts = candidates.groupingBy { allTasks.getTaskData(it).assignee }.eachCount()
-    val policyOptions = candidates.filter { taskId ->
+    val options = candidates.filter { taskId ->
+      if (isAdmin(taskId)) return@filter false
       val actor = allTasks.getTaskData(taskId).assignee
       when (policy(taskId)) {
         NONE -> false
@@ -72,16 +66,11 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
         else -> true
       }
     }
-    val (adminOptions, otherOptions) =
-        policyOptions.partition { taskId -> allTasks.getTaskData(taskId).assignee == ADMIN }
-    val options = adminOptions + otherOptions
-
     when (options.size) {
       0 -> {
-        if (attemptAdminWork()) return true
         val taskId =
             allTasks.ids().firstOrNull { taskId ->
-              policy(taskId) != NONE && !isDeferred(taskId)
+              !isAdmin(taskId) && policy(taskId) != NONE && !isDeferred(taskId)
             } ?: return false
         if (selected != null || candidates.isNotEmpty()) return false
         val engine = engineFor(taskId)
@@ -118,10 +107,6 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
           }
     }
 
-    // TODO(ENGINE_CONTRACT): proposed FIFO retries move a blocked Admin task to the end, rather
-    // than restarting from the oldest task after every success.
-    // Recommended failure classification is also under review: DeadEndException currently escapes
-    // this loop immediately, while a concrete NotNowException loses its reason in the catch below.
     var recoverable = false
     for (taskId in options) {
       try {
@@ -143,10 +128,6 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
         }
       }
     }
-    // TODO(ENGINE_CONTRACT): the proposed unsuccessful-full-pass rule must also reject abstract
-    // Admin work left pending here. Returning false currently lets a Player act in that state.
-    // Collecting rejection reasons and separating rule failures from implementation errors are
-    // additional recommendations awaiting review.
     if (!recoverable) throw DeadEndException("")
     return false
   }
@@ -158,26 +139,69 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
   private fun isAdmin(taskId: TaskId): Boolean = allTasks.getTaskData(taskId).assignee == ADMIN
 
   /**
-   * Attempts Admin's oldest eligible task when no automatic option remains, returning whether it
-   * progressed. Admin's handling is not optional, so a pending Player task must not keep its work
-   * from being tried: work held by an unmet gate or an unmade choice stays pending and returns
-   * false, while a rejection that can never succeed propagates to the caller.
+   * Attempts Admin work in FIFO order, retrying waiting tasks after each success. A selected Player
+   * task retains priority. Unresolved choices and explicit gates waiting on Player work can remain;
+   * a retained rejection is thrown after a pass with no progress.
+   *
+   * Complete enumeration of legal narrowings remains outside this implementation.
    */
-  private fun attemptAdminWork(): Boolean {
-    if (allTasks.selectedTask() != null) return false
-    val taskId = allTasks.ids().firstOrNull { isAdmin(it) && !isDeferred(it) } ?: return false
-    return try {
-      world.timeline.atomic {
-        command(taskId, Kind.DO_TASK_ID) { engineFor(taskId).doTask(taskId) }
-        world.agentTransactionGuard?.validate()
+  internal fun runAdmin() {
+    val waiting = mutableListOf<TaskId>()
+    while (true) {
+      val selected = allTasks.selectedTask()
+      if (selected != null && !isAdmin(selected)) return
+      val pending =
+          (selected?.let(::listOf) ?: allTasks.ids().toList()).filter {
+            isAdmin(it) && !isDeferred(it)
+          }
+      waiting.retainAll(pending.toSet())
+      waiting.addAll(pending.filterNot { it in waiting })
+      if (waiting.isEmpty()) return
+      var rejection: Exception? = null
+      var progressed = false
+      repeat(waiting.size) {
+        if (!progressed) {
+          val taskId = waiting.removeAt(0)
+          try {
+            world.timeline.atomic {
+              val engine = engineFor(taskId)
+              engine.transaction(Motivation.ADMIN_EAGER_POLICY) {
+                command(taskId, Kind.DO_TASK_ID) { engine.doTask(taskId) }
+              }
+              world.agentTransactionGuard?.validate()
+            }
+            progressed = true
+          } catch (_: AgentInputRequiredException) {
+            waiting += taskId
+          } catch (e: NotFullySpecifiedException) {
+            waiting += taskId
+            if (!allTasks.getTaskData(taskId).instruction.isAbstract(world.reader)) rejection = e
+          } catch (e: RequirementException) {
+            waiting += taskId
+            val instruction = allTasks.getTaskData(taskId).instruction
+            if (
+                instruction !is Gated ||
+                    world.reader.has(instruction.gate) ||
+                    allTasks.ids().none { !isAdmin(it) && !isDeferred(it) }
+            )
+                rejection = e
+          } catch (e: NotNowException) {
+            waiting += taskId
+            if (
+                !allTasks.getTaskData(taskId).instruction.isAbstract(world.reader) &&
+                    allTasks.ids().none { !isAdmin(it) && !isDeferred(it) }
+            )
+                rejection = e
+          } catch (e: DeadEndException) {
+            waiting += taskId
+            rejection = e
+          }
+        }
       }
-      true
-    } catch (_: AgentInputRequiredException) {
-      false
-    } catch (_: NotFullySpecifiedException) {
-      false
-    } catch (_: NotNowException) {
-      false
+      if (!progressed) {
+        rejection?.let { throw it }
+        return
+      }
     }
   }
 

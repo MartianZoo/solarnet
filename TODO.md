@@ -88,24 +88,20 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Cover AMAP target selection leaving the task open until its amount is evaluated, and
   evaluation followed by further narrowing. This TODO records the migration, not its completion.
 - Review the remaining proposals in [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md).
-  Align public engine mutations with the selected failure-atomic transaction guarantee, retaining
-  client-controlled rollback for larger scopes. Complete transaction checks for legal narrowings,
-  then align the Player/Admin priority gate, Admin FIFO retries and stalled-pass exception,
-  mandatory eager Admin handling, and deferred promotion after completed transactions.
-- Admin's handling is now an engine invariant and its work is always attempted. What remains is
-  ordered under step 4 of [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md), which also records
-  the measured evidence. The first item blocks the rest: decide how Admin eligibility tells work
-  held by an unmet gate, which a Player's action unblocks, from work that can never run. Both the
-  stalled-pass exception and the P0/P1/P2 gate wait on it. Consider instead whether
-  `ActorEngine.requireComplete`, already called at operation completion, is the right home for
-  that rule. Independently, a custom instruction that draws the next `GlobalEvent` would remove
-  210 of the 318 abstract Admin tasks.
-- Continue [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md) at step 4: the P0/P1/P2 gate,
-  mandatory Admin handling with FIFO retries and the stalled-pass exception, deferred promotion at
-  the end of the transaction that makes it eligible, and eager Admin during replay. Step 5 then
-  switches `Checkpoint` to a transaction position and removes `recordedPositions`. Steps 1 to 3
-  have landed; determining Admin's complete legal candidate set is still open and deliberately
-  outside that sequence.
+  [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md)'s five preparation steps are implemented.
+  Complete legal-candidate enumeration and the full Admin uniqueness/stalled-pass rule remain
+  deliberately outside that pass. Current handling distinguishes explicit payment gates and retries
+  later tasks, but abstract Admin work and missing external input can still remain pending. Establish
+  the intended model for Turmoil event draws and solo neutral placements before changing it.
+- Migrate Players away from the EAGER default, which can close legitimate gameplay choices.
+  The user deliberately deferred the migration cleanup for now, hoping to move to a suitable smart
+  policy rather than first migrating to NONE or CONCRETE. Leave the current default unchanged in
+  this pass; the ordinal rework's Canon scenarios use explicit Player choices.
+- Resolve order-dependent Advanced Alloys discount attribution: the randomized-effect diagnostic
+  reproduced the known `ThermalMatterWaveTest` (-96 versus -92) and `Game20230521Test`
+  (-33 versus -31) reporting mismatches. Game-state assertions before those checks passed.
+  See [TESTING.md](docs/agents/TESTING.md#standard-verification); this reporting issue is separate
+  from transaction checkpoints and remains deferred.
 - Investigate a diagnostic test mode that varies Admin task execution order, alongside the existing
   randomized independent `::` listeners. Use it to expose accidental ordering dependencies; retain
   FIFO in ordinary execution. See [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md).
@@ -120,9 +116,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   choices solely in client-held forms. Examine a choice between System and non-System instructions,
   reassignment after narrowing, and admission rewrites; identify any concrete case that needs an
   intermediate World mutation. This is an investigation, not approval to remove the API.
-- Returned `TaskResult` values now cover a call's whole retained interval, including completion
-  callback changes. Coverage of Admin handling through quiescence still waits on mandatory Admin
-  handling: `addTasks` and `dropTask` deliberately skip task handling today.
 - Review whether the block-based transaction coordinator, application guards and completion
   callbacks belong in the engine API, along with unnecessary history controls, copying and
   speculative APIs.

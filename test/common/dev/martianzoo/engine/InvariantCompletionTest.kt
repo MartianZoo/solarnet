@@ -1,12 +1,14 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
@@ -44,8 +46,12 @@ internal class InvariantCompletionTest {
             "Token",
             "Unrelated",
         )
-    val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
-    val task = admin.addTasks("-Token!").single()
+    val admin = world.testAgent(ADMIN)
+    val task =
+        world
+            .actorEngine(ADMIN)
+            .addTasks(InstructionGroup.of(parse<Instruction>("-Token!")))
+            .single()
     val before = world.events.nextOrdinal
 
     admin.canSelectTask(task) shouldBe false
@@ -204,7 +210,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun failedTryWithNarrowingRestoresThePendingTaskAndCascade() {
     val world = statusWorld("This:: Notice!")
-    val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = world.testAgent(ADMIN)
     val task = admin.addTasks("Status!").single()
     val pending = admin.tasks.getTaskData(task)
     val before = world.events.nextOrdinal
@@ -231,7 +237,6 @@ internal class InvariantCompletionTest {
                 """
             )
             .testAgent(ADMIN)
-            .also { it.autoExecPolicy = NONE }
     val task = admin.addTasks("Guarded! OR Other!").single()
 
     admin.selectTask(task)

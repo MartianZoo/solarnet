@@ -47,21 +47,6 @@ internal class AiCentralTest : TfmSandboxTest() {
     kim.inTurn { doTasks("UseCardAction<AiCentral, Action1>", "2 ProjectCard") }
   }
 
-  @Test
-  internal fun `Cannot use an absent action while another Player task remains`() {
-    offerSecondActionWithOtherWork()
-
-    shouldThrow<DeadEndException> { kim.doTask("UseCardAction<AiCentral, Action2>") }
-
-    kim.doTasks("UseCardAction<AiCentral, Action1>", "2 ProjectCard")
-  }
-
-  private fun offerSecondActionWithOtherWork() {
-    kim.exMachina("$AiCentral")
-    kim.beginOperation("OfferAction")
-    kim.addTasks("Plant!")
-  }
-
   private fun useSecondAction() {
     kim.exMachina("$AiCentral")
     kim.inTurn { doTask("UseCardAction<AiCentral, Action2>") }

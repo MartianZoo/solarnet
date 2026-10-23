@@ -284,7 +284,13 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, ResearchNetwork, AdvancedEcosystems")
     kim.inTurn {
       doTasks("ClaimMilestone<Class<Ecologist>>", "8 Pay<> FROM MC")
-      kim.doTask("Ecologist").expect("PlantTag<WildTagElection<WildTag<ResearchCoordination>>>")
+      val result = kim.doTask("Ecologist")
+      result.expect("0 Tag<WildTagElection<WildTag>>")
+      val assigned = kim.resolve("PlantTag<WildTagElection<WildTag<ResearchCoordination>>>")
+      kotlin.test.assertTrue(
+          result.changes.any { it.change.gaining?.type?.isSubtypeOf(assigned) == true },
+          result.changes.joinToString("\n"),
+      )
     }
     kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
@@ -297,10 +303,19 @@ internal class WildTagTest : TfmSandboxTest() {
     )
     kim.inTurn {
       doTasks("ClaimMilestone<Class<Planetologist>>", "8 Pay<> FROM MC")
-      kim.doTask("Planetologist")
-          .expect(
-              "EarthTag<WildTagElection<WildTag<ResearchCoordination>>>, JovianTag<WildTagElection<WildTag<ResearchNetwork>>>"
-          )
+      val result = kim.doTask("Planetologist")
+      result.expect("0 Tag<WildTagElection<WildTag>>")
+      for (tag in
+          listOf(
+              "EarthTag<WildTagElection<WildTag<ResearchCoordination>>>",
+              "JovianTag<WildTagElection<WildTag<ResearchNetwork>>>",
+          )) {
+        val assigned = kim.resolve(tag)
+        kotlin.test.assertTrue(
+            result.changes.any { it.change.gaining?.type?.isSubtypeOf(assigned) == true },
+            result.changes.joinToString("\n"),
+        )
+      }
     }
     kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }

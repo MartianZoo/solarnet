@@ -96,7 +96,6 @@ internal abstract class TfmSandboxTest {
             playStartingCorporations(kimCorporation)
             setPhase(if (admin.count("PreludeExpansion") > 0) "Prelude" else "Action")
           }
-          game.timeline.recordPosition()
           game
         }
     // Move the prepared world to the newest position before evicting the oldest.
@@ -191,14 +190,12 @@ internal abstract class TfmSandboxTest {
    */
   protected fun victoryPoints(body: OperationBlock = {}): List<Int> {
     check(game.tasks.isEmpty()) { "Finish pending choices before querying victory points" }
-    game.timeline.recordPosition()
     val checkpoint = game.timeline.checkpoint()
     try {
       admin.runOperation("End FROM Phase", body)
       check(game.tasks.isEmpty()) { "Final scoring has unresolved choices" }
       return players.map { it.count("VictoryPoint") }
     } finally {
-      game.timeline.recordPosition()
       game.timeline.seek(checkpoint)
       game.timeline.truncate()
     }

@@ -10,7 +10,6 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
@@ -208,7 +207,7 @@ internal class TaskNarrowingTest {
                 players = 0,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(ADMIN)
     agent.runOperation("One, Two, Red, Blue")
     val form = agent.fillInTask(agent.addTasks("Choice*").single())
 
@@ -314,10 +313,10 @@ internal class TaskNarrowingTest {
                 CLASS Mark<Spot> { HAS MAX 1 This }
                 """
                     .trimIndent(),
-                players = 0,
+                players = 1,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val form = agent.fillInTask(agent.addTasks("Spot(HAS MAX 0 Mark)*").single())
 
     form.decisions().shouldBeEmpty()
@@ -426,7 +425,7 @@ internal class TaskNarrowingTest {
                 players = 0,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(ADMIN)
     agent.runOperation("Full")
     val id = agent.addTasks("Choice*").single()
     val form = agent.fillInTask(id)
@@ -1247,7 +1246,7 @@ internal class TaskNarrowingTest {
                 players = 0,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(ADMIN)
     agent.runOperation("First, Second, Marker<First>")
     val id = agent.addTasks("Tile<Place(HAS Marker)>").single()
     agent.selectTask(id)
@@ -1276,7 +1275,7 @@ internal class TaskNarrowingTest {
                 players = 0,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(ADMIN)
     agent.runOperation("First, Second, Watcher")
     agent.runOperation("Pair<First, Second>")
     agent.count("Notice") shouldBe 0
@@ -1337,17 +1336,17 @@ internal class TaskNarrowingTest {
                 CLASS Notice<Kind>
                 """
                     .trimIndent(),
-                players = 0,
+                players = 2,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.runOperation("Other")
     agent.addTasks("Chosen@Shape THEN Notice<Chosen@Shape>")
     agent.doTask("Shape")
 
     agent.count("Only") shouldBe 1
-    // Admin performs the captured continuation itself, so the capture shows in what it produced
-    // rather than in a narrowing it would reject.
+    shouldThrow<TaskException> { agent.doTask("Notice<Other>") }
+    agent.doTask("Notice<Only>")
     agent.count("Notice<Only>") shouldBe 1
     agent.count("Notice<Other>") shouldBe 0
   }
@@ -1376,8 +1375,6 @@ internal class TaskNarrowingTest {
     writer.selectTask(current)
     writer.narrowTask(narrowing)
   }
-
-  private operator fun Checkpoint.plus(increment: Int) = Checkpoint(ordinal + increment)
 
   private fun history(): List<GameEvent> = events.entriesSince(start)
 

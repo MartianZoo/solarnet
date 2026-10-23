@@ -67,7 +67,7 @@ internal abstract class TfmTest {
       body: OperationScope.() -> T,
   ): T {
     val previousAutoExecPolicy = agent.autoExecPolicy
-    agent.autoExecPolicy = NONE
+    if (agent.actor != ADMIN) agent.autoExecPolicy = NONE
     return try {
       body()
     } finally {

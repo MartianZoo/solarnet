@@ -18,7 +18,7 @@ import kotlinx.coroutines.test.runTest
 
 internal class GameFileImporterTest {
   @Test
-  internal fun exMachinaRecordsOnlyItsFinishedCorrection() {
+  internal fun exMachinaRetainsItsTransactionsAndRestoresTheSelectedTask() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
     val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val task = player.addTasks("Coin OR Marker").single()
@@ -27,7 +27,8 @@ internal class GameFileImporterTest {
 
     agents.exMachina(PLAYER1, "Coin")
 
-    agents.world.timeline.positions shouldBe before + agents.world.timeline.checkpoint()
+    agents.world.timeline.positions.take(before.size) shouldBe before
+    agents.world.timeline.positions.last() shouldBe agents.world.timeline.checkpoint()
     player.tasks.selectedTask() shouldBe task
     player.count("Coin") shouldBe 1
   }
@@ -72,7 +73,6 @@ internal class GameFileImporterTest {
                   coins.last().copy(cause = coins.first().cause)
               else event
             },
-            recording.positions,
         )
 
     shouldThrow<IllegalStateException> { replay(changedAncestry) }

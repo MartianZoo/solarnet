@@ -12,7 +12,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameFileJson
-import dev.martianzoo.state.GameRecording
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
@@ -61,14 +60,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   internal suspend fun completedGameFileJson(short: Boolean = false): String? {
     if (game.events.entriesSinceSetup().isEmpty()) return null
     val completed = game.recording()
-    val positions =
-        (listOf(completed.positions.first()) +
-                agents.taskLog.selectionCheckpoints() +
-                completed.positions.last())
-            .distinct()
-            .sortedBy { it.ordinal }
-    val recording = GameRecording(completed.premise, completed.events, positions)
-    return GameFileJson.encode(recording, agents.taskLog.inputs(), short)
+    return GameFileJson.encode(completed, agents.taskLog.inputs(), short)
   }
 
   @BeforeTest

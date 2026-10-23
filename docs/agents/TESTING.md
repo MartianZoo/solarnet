@@ -698,7 +698,8 @@ ordinary task submissions instead of injecting operations. Partial games may sto
 pending.
 The hook reports each successful round-trip in test output.
 
-Structured inputs retain submitted syntax and record policy-executed Player and Admin work, so
+Structured inputs retain submitted syntax and record policy-executed Player work. Admin work is
+performed automatically during reconstruction rather than serialized as input, so
 import does not reproduce the source's policies. Batch and single-task operations retain their
 distinct semantics. `CHOOSE` preserves selections and committed form instructions,
 including partial choices that leave work pending. Later full form instructions replace earlier

@@ -41,7 +41,7 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun adminPerformedPlacementDoesNotGiveTheChangedComponentHolderTheAreaBonus() {
     val game = TfmEngine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     game.testAgent(PLAYER1).autoExecPolicy = NONE
     admin.runOperation("Photosynthesis")
     val checkpoint = game.events.nextOrdinal
@@ -78,7 +78,7 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun ownedEffectDoesNotTreatAdminAsAnOwner() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     val terraformRatingBefore = admin.count("TerraformRating")
 
     admin.runOperation("OxygenStep!")

@@ -38,7 +38,6 @@ public object GameFileImporter {
         agents,
         startGame = {
           startGame(agents)
-          agents.world.timeline.recordPosition()
         },
         supplyCardInputs = { command ->
           requireNotNull(supplyCardInputs) { "card identities have no input supplier" }(
@@ -47,7 +46,6 @@ public object GameFileImporter {
           )
         },
     )
-    agents.world.timeline.recordPosition()
     expected?.let { source ->
       val actual = agents.world.recording()
       val sourceChanges = source.events.filterIsInstance<GameEvent.ChangeEvent>()

@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -161,7 +160,7 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = game.testAgent(ADMIN)
     val before = game.events.nextOrdinal
 
     agent.beginOperation("Source") {}

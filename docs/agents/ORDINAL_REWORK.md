@@ -1,9 +1,9 @@
 # Transaction records and checkpoints
 
-> **Partly implemented — October 22, 2026.** Steps 1 through 3 have landed and their sections
-> describe current behavior; steps 4 and 5 are still proposed. **Selected** identifies the human
-> decisions recorded below. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the transaction,
-> priority, and result rules; this document plans the history changes needed to support them.
+> **Implemented within the selected scope — October 22, 2026.** Steps 1 through 5 are implemented.
+> Complete legal-candidate enumeration for Admin remains explicitly outside this pass; the existing
+> selection probe remains an approximation. **Selected** identifies human decisions.
+> [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns scheduling and result rules and their remaining gaps.
 
 ## What this change should accomplish
 
@@ -61,14 +61,14 @@ For example, suppose a Player places greenery on a hex whose bonus grants steel:
 | Transaction | Events it owns | Why it executed now |
 | --- | --- | --- |
 | 12 | Tile placement, immediate effects, task edits, and enqueueing the bonus | Client request |
-| 13 | Admin executes the bonus and removes its task | Admin eager policy |
+| 13 | Admin executes the placement signal, offering the Player the steel reward | Admin eager policy |
 
 The result of the Player's synchronous call includes both transactions, which it now does.
-`Checkpoint(13)` will mean
-before the bonus transaction: the tile is present and its bonus is pending. `Checkpoint(14)` is
+`Checkpoint(13)` means before the Admin transaction: the tile is present and its placement signal
+is pending. `Checkpoint(14)` is
 the current end, before a possible next transaction. That last position exists without fabricating
 an empty transaction record, since `EventLog.transactionStarts` ends with the current event count.
-Those checkpoint meanings are step 5; numbers here are illustrative.
+Numbers here are illustrative. The Player subsequently takes the steel reward in another transaction.
 
 Execution motivation stays separate from `Cause`: the placement rule authorizes the bonus, while
 Admin's eager policy explains why its task executed now. Drivers supply the motivation at the
@@ -93,8 +93,8 @@ No branch identities or generation counters were added.
 
 ### 1. Transaction entry points (inventory)
 
-This inventory records current behavior in this checkout. It is evidence for the recording work
-below, not approval of any entry point's contract.
+This inventory records behavior at the start of this work. The later steps supersede its notes
+about failure restoration, Admin handling, and navigation; it remains the entry-point audit.
 
 Three different mechanisms already bracket work today, and none of them identifies a transaction:
 
@@ -154,9 +154,8 @@ Consequences for recording:
 accessor that supplies one. `GameEvent.ordinal`, `Cause.triggerEvent`, and `TaskId` stay
 event-based. No compatibility layer was kept.
 
-Code that still holds a navigation `Checkpoint` and wants that position's events extracts
-`.ordinal` explicitly. Those sites are where step 5 must resolve a transaction position to an
-event offset instead.
+Code holding a navigation `Checkpoint` resolves it with `EventLog.eventOrdinal` before scanning
+individual events. A checkpoint exposes a transaction serial, not an event ordinal.
 
 `WorldTransaction.run` now reports the retained events of its own whole interval, captured at call
 entry and computed after its finishing steps. An outermost call therefore includes its completion
@@ -172,9 +171,8 @@ at the end of its history when the callback returns and the final handling no lo
 navigation after a call returns, and navigation from inside an operation body, both remain.
 Internal restoration of failed work is unaffected.
 
-Admin handling through quiescence is not yet part of every call's coverage: `addTasks` and
-`dropTask` still route through a path that deliberately skips task handling. That is step 4's work,
-not a reporting gap.
+Step 4 extends mandatory Admin handling to nested decisions and queue edits as well as outer calls.
+Correction calls deliberately omit queued work.
 
 ### 3. Transaction records (landed as event grouping)
 
@@ -194,8 +192,8 @@ decrease along ordinals, so:
    each of its events" requires.
 4. A serial's event range comes from `EventLog.transactionRange`, a binary search bounded below by
    the serial itself, since transaction *n* cannot begin before ordinal *n*. Interpolation search or
-   a derived serial-to-ordinal index would both be faster, and neither is warranted: step 5 caches
-   a checkpoint's event offset, so navigation resolves once and the remaining callers scan anyway.
+   a derived serial-to-ordinal index would both be faster, and neither is warranted: passive playback caches
+   the derived transaction offsets; live navigation resolves the requested serial from the events.
 
 There is no submitted-task field. The events a transaction owns already record which tasks and
 components the submission touched, so storing it again was a second representation of the same
@@ -217,98 +215,67 @@ transaction, and an event continuing a transaction carries that transaction's ow
 
 `EventLogJson` stores a transaction on the first event that carries it and lets the following
 events inherit it, so a file is no larger per event; the game-file format is now
-`solarnet-game-2`. Reconstruction from recorded inputs reproduces event content and grouping
-boundaries but not motivation, because a Player's recorded choice replays as a submission even when
-the original game performed it through that Player's own policy. That is the doc's provenance rule,
-and `TaskLogTest` compares such histories through a test-support helper that drops the grouping.
-
-Not done here: deriving navigation stops from `EventLog.transactionStarts` and stepping a passive
-playback between transactions are step 5; moving deferred promotion into the transaction that makes
-it eligible is step 4.
+`solarnet-game-3`. Exact passive import preserves transaction grouping and motivation. Compact
+input replay compares causal component changes and final state rather than exact grouping: a
+Player's policy choice is replayed as an explicit submission, and compacted intermediate commands
+need not recreate identical transaction ranges.
 
 ### 4. Make intermediate states safe to resume
 
-**Landed: Admin's full automation as an engine invariant (Selected, October 22, 2026).**
-`AutoExecLoop` treats Admin as `EAGER` whatever policy is registered, so no configured or
-overridden `AutoExecPolicy` can disable Admin's handling — which is what
-[AutoExecPolicy](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) already said it must
-mean. With it, **Admin's work is always attempted**: a selection probe that rejects an Admin task
-no longer keeps it from being tried, so a pending Player task can no longer hide Admin's rejection.
-That alone fixed AI Central: `AiCentralTest.Cannot use an absent action while another Player task
-remains` is no longer `@Ignore`d, and the `BUG -` characterization that described the old behavior
-is gone.
+Admin always uses mandatory eager handling; configuring or overriding another policy is an error.
+The driver attempts ordinary Admin work in FIFO order, moves waiting tasks to the end, and retries
+following progress. It respects selected-task priority and lets an already-started transaction
+finish before handling newly queued work. This includes compound resource commands.
 
-Replay adapted with it. `TaskLog.replay` disables Player policies only, and `TaskLog.inputs()`
-leaves Admin's automatic handling out of the recorded stream, because reconstruction performs it
-again on its own and a recorded Admin command would not find its task.
+An explicit unmet gate can remain pending while ordinary Player work remains. In Canon's greenery
+conversion this allows payment of eight plants before the placement signal proceeds. Shared
+research payment capacity may likewise wait for another Player's payment. Rule rejection is retained
+and thrown after a full pass without progress. Abstract Admin work and missing external inputs still
+wait; full uniqueness and unconditional stalled-pass rejection are not claimed. The precise current
+rules and remaining gaps are in [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#current-implementation-differences).
 
-**Still open, in the order they unblock each other:**
+Agent decisions and queue edits handle Admin before and after mutation, including nested calls.
+Initial instruction batches and bootstrap also respect executable Admin priority. The raw engine
+rejects a new Player selection if its existing probe finds an executable ordinary Admin task. That
+probe remains an approximation, not complete enumeration of all legal instructions.
 
-1. **Admin eligibility: an unmet gate is not a stall.** This blocks both the stalled-pass exception
-   and the P0/P1/P2 gate, and nothing else here moves until it is settled. A trial exception that
-   threw whenever a call would return with Admin's eligible work undone failed 316 tests; the
-   distribution of the Admin tasks it reported is the evidence:
+Public engine mutations restore their own failed transaction through the existing event-restoration
+mechanism. Deferred promotion belongs to the completed transaction that made it eligible. Results
+cover the entire returned call, including nested Admin work and retained completion-callback changes.
 
-   | Kind | Instances | Example |
-   | --- | --- | --- |
-   | Gated work a Player unblocks | ~35 | `MAX 0 PaymentScope<Kim>: PlaceGreeneryTile<Kim>!` — Canon, converting plants; the placement waits for the player's payment scope to close |
-   | Abstract work needing a choice | 318 | `GlobalEvent! (THEN RevealDistantEvent FROM RevealComingEvent!)` (210, Turmoil) and `CityTile<SoloOpponent, LandArea(…)>! THEN GreeneryTile<…>` (108, solo neutral tiles) |
-   | Genuinely impossible | 1 | `UseAction<Kim, AiCentral<Kim>, Action2>!`, the case this contract cites |
-
-   For the first kind, throwing is wrong: returning to the Player is what satisfies the gate. The
-   P0/P1/P2 gate has the same defect in reverse — it would block the very Player whose action
-   unblocks Admin. The third kind is already handled by the attempt guarantee above.
-
-2. **Accumulation is checked at operation completion, not at quiescence.** `runOperation` and
-   `completeOperation` capture the tasks that existed beforehand and call
-   `ActorEngine.requireComplete`, which rejects any task created during the operation that is still
-   pending, and any surviving `MustCleanUp`. Gates are usually `Barrier`/`Signal`, both
-   `MustCleanUp`, so a gate cannot be left behind either. **Recommendation:** before adding a new
-   exception, evaluate whether the contract's stalled-Admin rule belongs at that existing boundary
-   rather than at quiescence, where it cannot tell a gate from a dead end. `beginOperation`,
-   `continueOperation`, and `doTasks` do not call it, which is the real hole.
-
-3. **Reduce the abstract Admin work rather than excusing it.** 210 of the 318 are one case: which
-   `GlobalEvent` is revealed. `GlobalEvent` is an `ABSTRACT CLASS` with one concrete subtype per
-   event, so this is a choice only because nothing makes it. A `CustomInstruction` that takes the
-   next event off the deck would make the instruction concrete and leave Admin nothing to decide;
-   the machinery already exists (`ScoreEventVps` in `scoring.pets`). The 108 solo neutral tile
-   placements may be reducible the same way by fixing the locations in the game premise — check the
-   solo rules first, since `BootstrapLifecycleTest.soloNeutralCitiesCannotBePlacedNextToEachOther`
-   reads like a constraint on a real choice.
-
-4. **Make Admin's policy an error, not merely ignored.** Admin's `autoExecPolicy` is still settable
-   and silently disregarded, which is a lie in the API. Rejecting a non-`EAGER` policy for Admin
-   surfaces the 13 test files that set one on purpose; `MassiveGammaZoneTest`'s toggles are already
-   known to be no-ops, since every replay passes with them ignored.
-
-5. **FIFO retries**, **the gaps between successive engine mutations** (`AgentImpl.addInitialTasks`
-   and `Initializer`'s bootstrap loop), and **step 5's live navigation** all remain. Step 5's
-   passive half does not depend on the gate and could proceed on its own.
-
-**On this document's shape:** steps 1 through 3 are about ordinals and checkpoints and are done.
-This step is ENGINE_CONTRACT's scheduling model — priorities, mandatory Admin, FIFO, replay
-semantics — which arrived here only because a checkpoint cannot be exposed as a *live* position
-unless resuming there is safe. It would sit more honestly in
-[ENGINE_CONTRACT.md](ENGINE_CONTRACT.md), leaving this document steps 1 through 3 and 5.
+Replay disables only Player policies. It omits Admin execution commands and repeats their effects
+through mandatory handling, retaining Admin assertions. The two coverage losses from Claude's
+handoff migration are repaired: unfinished Player-to-Player handoff restores its input and state,
+and the first-stage alias scenario again rejects an incompatible narrowing.
 
 ### 5. Switch client checkpoints and remove redundant positions
 
-Have `Checkpoint` identify the pre-transaction position, optionally caching its event offset.
-Derive navigation stops from transaction starts plus the current end. Remove `recordedPositions`,
-manual `recordPosition` bookkeeping, and recording fields that duplicate that list. Adapt Timeline,
-recording playback, TaskLog selection positions, script rollback commands, and other consumers.
+`Checkpoint(serial)` identifies the state immediately before a transaction. Position zero is after
+initialization; the end is the next transaction serial. Live and passive navigation expose every
+such position, including intermediate Admin work. Checkpoints and exports are refused during an
+open transaction. Event ordinals remain internal restoration and scan coordinates.
 
-A live seek restores the recorded state; it need not immediately execute pending Admin tasks.
-The next gameplay progression must handle those tasks before allowing Player work. A passive
-viewer may inspect these positions freely. Forks must copy only the selected retained history,
-including matching transaction records; inspect today's end-only fork restriction before promising
-that a caller can fork a seeked position without first truncating its future.
+`recordedPositions`, `recordPosition`, and serialized position lists are removed. Timeline positions
+come from retained transaction metadata; immutable recordings cache only their derived event offsets.
+Playback applies recorded events without executing effects. A live seek leaves pending work intact;
+after truncating the retained future, the next Agent command handles Admin before Player work.
+Forks remain end-only, so callers truncate a seeked future before forking.
 
-Update the game-file format and regenerate affected exports. Exact files need transaction records;
-short replay files must reflect mandatory Admin execution. If these changes ship separately, each
-incompatible format change needs its own version change. Do not infer missing transaction ranges
-from old `positions` or silently reinterpret old event ordinals as transaction serials.
+The incompatible file format is `solarnet-game-3`. Full files retain events and transaction metadata;
+short files retain replay inputs. Existing files must be regenerated, not interpreted as if old event
+ordinals were transaction serials. Active replay exports and strict reconstruction are verified by
+`./gradlew build -PreplayExports`.
+
+### Acceptance checks
+
+- Player choices are explicit in the Canon scenarios; no EAGER assumption justifies the change.
+- Greenery payment remains possible while the Admin placement signal waits.
+- Admin attempts later tasks after an earlier task waits and retries following progress.
+- Completed transactions remain separate in history while returned results cover the whole call.
+- Protected Habitats rejection restores the raw mutation without a caller rollback wrapper.
+- Passive playback does not run effects; live resumption gives executable Admin work priority.
+- Failed attempts and no-ops retain no transaction; task-only edits remain navigable.
+- Export/import, truncation, forks, and overlays use derived transaction positions.
 
 ## Why current narrowing is not enough
 
@@ -337,16 +304,17 @@ separately from passive transaction grouping, but remains required for the compl
 Use functional scenarios to verify observable behavior, with small synthetic cases only where
 needed to isolate history mechanics:
 
-- Greenery placement and its Admin steel bonus produce separate transaction groups, while the
-  enclosing result includes both. Restore between them: the bonus is pending, Player execution is
-  rejected, and Admin can complete it. Passive stepping fires no effects again.
+- Greenery placement and its Admin placement signal produce separate transaction groups. Restore
+  between them: Player execution is rejected until Admin offers the reward. The Player then takes
+  the steel and oxygen choices. Passive stepping fires no effects again.
 - Removing a plant protected by Protected Habitats leaves neither partial changes nor a completed
   record on failure. Restoring an enclosing scope also removes earlier completed records in it.
 - A no-op and a restored probe leave the serial unchanged; a retained task-only edit creates a
   record. An ordinary multi-call Agent batch returns all retained changes without merging its
   transactions in history.
-- AI Central's nonexistent action cannot be hidden by unrelated pending Player work. Initialization
-  and initial task batches still work when early tasks enqueue Admin consequences.
+- AI Central's nonexistent action is rejected. Do not manufacture an unrelated pending resource
+  choice to claim a reachable gameplay defect. Initialization and initial task batches still work
+  when early tasks enqueue Admin consequences.
 - Export/import, replay, rollback, truncation, and fork preserve matching event ranges and metadata.
   A transaction can be found from each of its events; no client checkpoint exposes a partial change.
   Motivation text is provenance, not a new requirement that live replay choose the same policy label.
@@ -370,5 +338,9 @@ retry order, and the complete Admin narrowing check is **explicitly out of scope
 the existing selection probe stays as its approximation, and the gap stays recorded as a known
 difference. The entry-point audit is done and recorded in step 1.
 
-Steps 1 through 3 have landed. Determining Admin's complete legal candidate set remains the open
-design task, and public intermediate live navigation still waits for the step 4 priority work.
+All five preparation steps are implemented within the selected scope. Complete Admin legal-candidate
+analysis, abstract Admin input modeling, and the randomized Admin-order diagnostic remain follow-ups.
+The full active build and replay export/reconstruction passed. The randomized-effect diagnostic
+reproduced the two documented Advanced Alloys attribution mismatches in ThermalMatterWaveTest and
+Game20230521Test; their preceding game-state assertions passed. These reporting failures are tracked
+in TODO.md and do not establish a transaction-order defect.

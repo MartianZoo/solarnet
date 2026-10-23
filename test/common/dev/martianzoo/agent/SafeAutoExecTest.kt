@@ -15,6 +15,16 @@ import kotlin.test.Test
 
 internal class SafeAutoExecTest {
   @Test
+  internal fun adminHandlingCannotBeDisabledByPolicyOrScopedOverride() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Token"))) { NONE }
+    val admin = agents[ADMIN]
+    shouldThrow<IllegalArgumentException> { admin.autoExecPolicy = NONE }
+    shouldThrow<IllegalArgumentException> { admin.autoExecNow(NONE) }
+    admin.addTasks("Token")
+    admin.count("Token") shouldBe 1
+  }
+
+  @Test
   internal fun constructionSetsActorPoliciesWithoutExecutingPendingWork() {
     val game =
         Engine.newGame(testGamePremise("CLASS Token<Owner>\nCLASS Notice : System", players = 2))
@@ -93,8 +103,8 @@ internal class SafeAutoExecTest {
   internal fun adminRetriesANegativeSystemAmountAfterTheLaterGain() {
     val game = Engine.newGame(testGamePremise("CLASS Point : System"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
-    player.addTasks("-2! Point, 5! Point")
     val before = game.events.nextOrdinal
+    player.addTasks("-2! Point, 5! Point")
 
     player.doTasks()
 

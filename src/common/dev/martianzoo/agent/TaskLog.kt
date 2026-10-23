@@ -106,7 +106,7 @@ public class TaskLog internal constructor(private val world: World) {
             it.kind == RecordedInput.Kind.EX_MACHINA ||
                 (it.actor is Player && it.selectsTask && (!it.automatic || it.awaitsInput))
           }
-          .map { Checkpoint(checkNotNull(it.anchor).ordinal) }
+          .map { Checkpoint(checkNotNull(checkNotNull(it.anchor).transaction).serial) }
           .distinct()
 
   internal fun <T> capture(

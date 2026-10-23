@@ -24,19 +24,19 @@ import kotlinx.serialization.json.put
 
 /**
  * A version-locked game file. Every file has the resolved premise recipe and an ordered input
- * sequence beginning with the game's start. Full files also contain exact events and completed
- * positions, which [Document.open] can replay without an engine. Short files omit those facts and
- * require an Agent-based importer to execute the inputs. No recorded event is used to repair an
- * Agent replay. Encoding and hash-checked imports suspend while the browser computes SHA-256 with
- * Web Crypto, which requires a secure context.
+ * sequence beginning with the game's start. Full files also contain exact events with transaction
+ * metadata, from which [Document.open] derives playback positions without an engine. Short files
+ * omit events and require an Agent-based importer to execute the inputs. No recorded event is used
+ * to repair an Agent replay. Encoding and hash-checked imports suspend while the browser computes
+ * SHA-256 with Web Crypto, which requires a secure context.
  */
 public object GameFileJson {
-  private const val FORMAT = "solarnet-game-2"
+  private const val FORMAT = "solarnet-game-3"
   private val json = Json
 
   /**
-   * Encodes [recording] and [inputs]. With [short] true, omits events and positions while retaining
-   * the same premise and input fields. [inputs] must start the game exactly once, first.
+   * Encodes [recording] and [inputs]. With [short] true, omits events while retaining the same
+   * premise and input fields. [inputs] must start the game exactly once, first.
    */
   public suspend fun encode(
       recording: GameRecording,
@@ -95,10 +95,6 @@ public object GameFileJson {
       )
       put("inputs", buildJsonArray { inputs.forEach { add(encodeInput(it)) } })
       if (!short) {
-        put(
-            "positions",
-            buildJsonArray { recording.positions.forEach { add(JsonPrimitive(it.ordinal)) } },
-        )
         put("events", EventLogJson.encodeEvents(recording.events))
       }
     }
@@ -112,9 +108,7 @@ public object GameFileJson {
   public class Document internal constructor(private val source: JsonObject) {
     init {
       require(requiredString(source, "format") == FORMAT) { "unsupported game-file format" }
-      require(source.containsKey("events") == source.containsKey("positions")) {
-        "events and positions must be present together"
-      }
+
       val inputs = requiredArray(source, "inputs")
       require(inputs.firstOrNull()?.jsonObject?.get("kind")?.jsonPrimitive?.content == "start") {
         "a game file must start its game"
@@ -165,8 +159,7 @@ public object GameFileJson {
       verifyPremise(premise)
       require(hasEvents) { "short game file has no exact events for state import" }
       val events = EventLogJson.decodeEvents(requiredArray(source, "events"), premise)
-      val positions = requiredArray(source, "positions").map { Checkpoint(it.jsonPrimitive.int) }
-      return GameRecording(premise, events, positions)
+      return GameRecording(premise, events)
     }
 
     /** Opens a full recording without interpreting its instructions or running effects. */

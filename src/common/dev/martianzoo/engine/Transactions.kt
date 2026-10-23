@@ -19,11 +19,19 @@ import dev.martianzoo.state.Transaction
  */
 internal class Transactions(
     private val gameWorld: GameWorld,
+    private val restore: (Int) -> Unit,
     private val promoteDeferredWork: () -> Unit,
 ) {
   private var open: Transaction? = null
   private var depth = 0
   private var initializing = true
+
+  internal val isOpen: Boolean
+    get() = depth != 0
+
+  /** Whether the current transaction has already retained work that must finish before P1. */
+  internal val hasRetainedEvents: Boolean
+    get() = open != null && gameWorld.events.lastTransaction == open
 
   /** Stops treating subsequent events as part of the initialization prefix. */
   internal fun initializationFinished() {
@@ -47,15 +55,18 @@ internal class Transactions(
    *
    * Deferred work is promoted once this transaction is complete, so its task edits belong to the
    * transaction that made the work eligible rather than to a moment when the queue happened to be
-   * empty. A failed [block] promotes nothing, leaves no transaction open, and keeps the serial it
-   * would have used available, because an enclosing restoration removes the events that would have
-   * claimed it.
+   * empty. An [Exception] restores the transaction's events and leaves its serial available for
+   * reuse. Nested calls join the outer transaction and share its restoration scope.
    */
   internal fun <T> perform(actor: Actor, motivation: Motivation, block: () -> T): T {
     if (depth == 0 && !initializing) open = Transaction(nextSerial(), actor, motivation)
+    val start = gameWorld.events.nextOrdinal
     depth++
     return try {
       block().also { if (depth == 1) promoteDeferredWork() }
+    } catch (e: Exception) {
+      if (depth == 1 && gameWorld.events.nextOrdinal > start) restore(start)
+      throw e
     } finally {
       depth--
       if (depth == 0) open = null

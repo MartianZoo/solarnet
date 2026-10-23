@@ -120,7 +120,7 @@ internal class WorldForkTest {
     val forkAgent = fork.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     shouldThrow<IllegalArgumentException> {
-      fork.timeline.seek(Checkpoint(forkPoint.ordinal - 1))
+      fork.timeline.seek(Checkpoint(forkPoint.serial - 1))
     }
     forkAgent.doTask("Choice")
     fork.timeline.seek(forkPoint)
@@ -196,9 +196,10 @@ internal class WorldForkTest {
   internal fun forkRejectsAnIncompleteGameplayPosition() {
     val source = Engine.newGame(testGamePremise("CLASS Token"))
     source.testAgent(PLAYER1).runOperation("Token")
-    source.actorEngine(PLAYER1).addTasks(InstructionGroup.of(parse<Instruction>("Token")))
-
-    shouldThrow<IllegalStateException> { Engine.fork(source) }
-    shouldThrow<IllegalStateException> { source.recording() }
+    source.actorEngine(PLAYER1).transaction(dev.martianzoo.state.Motivation.CLIENT_REQUEST) {
+      source.actorEngine(PLAYER1).addTasks(InstructionGroup.of(parse<Instruction>("Token")))
+      shouldThrow<IllegalStateException> { Engine.fork(source) }
+      shouldThrow<IllegalStateException> { source.recording() }
+    }
   }
 }

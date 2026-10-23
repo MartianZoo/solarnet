@@ -20,7 +20,7 @@ internal class GameFileJsonTest {
     val token = premise.classTable.resolve(parse<Expression>("Token")).toComponent()
     val event = ChangeEvent(0, ADMIN, ComponentChange.Gain(2, token), cause = null)
     event.notes = "observed correction"
-    val recording = GameRecording(premise, listOf(event), listOf(Checkpoint(0), Checkpoint(1)))
+    val recording = GameRecording(premise, listOf(event))
     val inputs =
         listOf(
             RecordedInput.StartGame,
@@ -39,7 +39,7 @@ internal class GameFileJsonTest {
   internal fun shortFileRetainsInputsButCannotBeOpenedByState() = runTest {
     val catalog = testCatalog("CLASS Token : System")
     val premise = catalog.gamePremise(GameConfig("Token"))
-    val recording = GameRecording(premise, emptyList(), listOf(Checkpoint(0)))
+    val recording = GameRecording(premise, emptyList())
     val inputs = listOf(RecordedInput.StartGame)
 
     val file = GameFileJson.parse(GameFileJson.encode(recording, inputs, short = true))
@@ -52,7 +52,7 @@ internal class GameFileJsonTest {
   internal fun rejectsDifferentCatalogEvenWhenPremiseSelectsSameClasses() = runTest {
     val catalog = testCatalog("CLASS Token : System")
     val premise = catalog.gamePremise(GameConfig("Token"))
-    val recording = GameRecording(premise, emptyList(), listOf(Checkpoint(0)))
+    val recording = GameRecording(premise, emptyList())
     val file = GameFileJson.parse(GameFileJson.encode(recording, listOf(RecordedInput.StartGame)))
     val enlargedCatalog = testCatalog("CLASS Token : System\nCLASS Spare : System")
 
@@ -66,7 +66,7 @@ internal class GameFileJsonTest {
     val file =
         GameFileJson.parse(
             GameFileJson.encode(
-                GameRecording(premise, emptyList(), listOf(Checkpoint(0))),
+                GameRecording(premise, emptyList()),
                 listOf(RecordedInput.StartGame),
             )
         )
@@ -97,7 +97,7 @@ internal class GameFileJsonTest {
     val file =
         GameFileJson.parse(
             GameFileJson.encode(
-                GameRecording(premise, emptyList(), listOf(Checkpoint(0))),
+                GameRecording(premise, emptyList()),
                 listOf(RecordedInput.StartGame, input),
                 short = true,
             )

@@ -90,7 +90,7 @@ internal class WorldOverlayTest {
     imaginedAgent.runOperation("Ping") { doTask("Pong") }
     imagined.reset()
     imagined.world.timeline.checkpoint() shouldBe start
-    retainedEvents.entriesSince(start.ordinal) shouldBe emptyList()
+    retainedEvents.entriesSince(retainedEvents.eventOrdinal(start)) shouldBe emptyList()
     imaginedAgent.runOperation("Other")
     imagined.world.timeline.commit()
     imagined.reset()

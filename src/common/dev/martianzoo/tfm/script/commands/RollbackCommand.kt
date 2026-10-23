@@ -7,19 +7,19 @@ import dev.martianzoo.tfm.script.ScriptCompletionContext
 import dev.martianzoo.tfm.script.ScriptSession
 
 internal class RollbackCommand(private val repl: ScriptSession) : ScriptCommand("rollback") {
-  override val usage = "rollback <logid>"
+  override val usage = "rollback <transaction>"
   override val help =
       """
-        Returns to a completed game position and discards everything after it. Use the log or
-        completion suggestions to find a valid position id. This cannot be undone.
+        Returns to a completed game position and discards everything after it. Use
+        completion suggestions to find a transaction position. This cannot be undone.
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.checkpointIds()
 
   override fun withArgs(args: String): List<String> {
-    val rollbackOrdinal = args.toInt()
-    repl.game.timeline.seek(Checkpoint(rollbackOrdinal))
+    val transactionSerial = args.toInt()
+    repl.game.timeline.seek(Checkpoint(transactionSerial))
     repl.game.timeline.truncate()
     return listOf("Rollback done")
   }

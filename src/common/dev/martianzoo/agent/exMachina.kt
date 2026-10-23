@@ -62,7 +62,6 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
       }
     }
   }
-  world.timeline.recordPosition()
 }
 
 private fun World.taskBeforeSelection(selectedId: TaskId): Task {

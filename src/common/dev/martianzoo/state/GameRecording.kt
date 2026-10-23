@@ -4,15 +4,14 @@ import dev.martianzoo.catalog.GamePremise
 
 /**
  * Immutable snapshot of [premise], an exact event history, and the positions exposed for playback.
- * Positions may include the state immediately before a recorded player request. Events must have
- * consecutive ordinals starting at zero. [positions] must be nonempty, strictly increasing, and end
- * at the event count. The constructor copies event values and positions; [events] returns fresh
- * event snapshots so callers cannot edit the saved history through mutable commentary.
+ * Each position is immediately before a transaction, including the end before the next transaction.
+ * Events have consecutive ordinals starting at zero. Positions are derived from their transaction
+ * metadata. The constructor copies event values; [events] returns fresh event snapshots so callers
+ * cannot edit the saved history through mutable commentary.
  */
 public class GameRecording(
     public val premise: GamePremise,
     events: List<GameEvent>,
-    positions: List<Checkpoint>,
 ) {
   private val recordedEvents: List<GameEvent> = events.map(GameEvent::snapshot)
 
@@ -20,14 +19,13 @@ public class GameRecording(
   public val events: List<GameEvent>
     get() = recordedEvents.map(GameEvent::snapshot)
 
-  /** Playback positions in ascending event order; the last is the end of the recording. */
-  public val positions: List<Checkpoint> = positions.toList()
+  private val offsets =
+      EventLog().also { log -> recordedEvents.forEach(log::append) }.transactionStarts
+
+  /** Transaction positions in ascending order; the last is the end of the recording. */
+  public val positions: List<Checkpoint> = offsets.indices.map(::Checkpoint)
 
   init {
-    require(this.positions.isNotEmpty())
-    require(this.positions == this.positions.sortedBy(Checkpoint::ordinal))
-    require(this.positions.distinct() == this.positions)
-    require(this.positions.last().ordinal == recordedEvents.size)
     recordedEvents.forEachIndexed { ordinal, event ->
       require(event.ordinal == ordinal) {
         "expected event ordinal $ordinal, got ${event.ordinal}"
@@ -52,17 +50,16 @@ public class GameRecording(
       private set
 
     init {
-      world.markSetupStart(positions.first().ordinal)
+      world.markSetupStart(recording.offsets.first())
     }
 
     /**
-     * Moves this view to the recorded position at [index]. For example, if [positions] have
-     * ordinals 0, 4, and 9, `seek(1)` materializes the world after the first four events and sets
-     * [positionIndex] to 1. An invalid index throws without changing this view.
+     * Moves this view immediately before transaction [index], without executing instructions. The
+     * final index selects the end of the history. Invalid indices leave the view unchanged.
      */
     public fun seek(index: Int) {
       require(index in positions.indices) { "recording position $index does not exist" }
-      val target = positions[index].ordinal
+      val target = recording.offsets[index]
       if (world.nextOrdinal > target) {
         world.rollBackTo(target)
       } else {

@@ -57,12 +57,13 @@ import dev.martianzoo.state.TaskResult
  * For example, placing greenery on a Land Claim cube removes the cube through `::` before
  * returning; the placement bonus remains queued for Admin.
  *
- * Methods may rely on client-controlled rollback instead of restoring their own failures. Unless a
- * method promises failure-atomicity, the client must arrange restoration before continuing
- * gameplay; [Timeline.atomic] supplies a restoring block for ordinary game-rule failures.
+ * Each public mutation restores its transaction on an [Exception]. [Timeline.atomic] can also
+ * restore an enclosing batch of completed transactions. Kotlin side effects and observer callbacks
+ * are not undone.
  *
- * The proposed contract excludes Player selection while ordinary Admin work remains. That check is
- * currently missing. Persistent partial selection also remains under review.
+ * Player selection is refused while an ordinary Admin task can complete under the existing
+ * selection probe. A selected task retains priority. Complete enumeration of legal Admin choices
+ * and persistent partial selection remain under review.
  *
  * [transact] groups commands and caller-supplied task handling in a rollback scope. That block may
  * include several transactions under the proposed contract; its current behavior is described
@@ -181,9 +182,8 @@ internal constructor(
    * the ids of tasks actually added in creation order. Normalization can discard no-ops, split
    * groups, perform dispatches, and assign concrete System changes to Admin.
    *
-   * Adding work does not execute its ordinary task bodies. Creating tasks can promote deferred work
-   * before the caller's transaction finishes. A later failure can leave earlier additions behind
-   * unless an enclosing [Timeline.atomic] block, such as [transact]'s, restores them.
+   * Adding work does not execute its ordinary task bodies. Eligible deferred work is promoted at
+   * transaction completion. A failed transaction restores its additions.
    */
   // TODO(ENGINE_CONTRACT): Review whether direct queue editing belongs in the public API.
   public fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
@@ -303,6 +303,22 @@ internal constructor(
       val instr = allTasks.getTaskData(already).instruction
       throw TaskException("task $already ($instr) is selected and must finish first")
     }
+    // Once the transaction has begun changing state, finish it before handling new Admin work.
+    if (
+        already == null &&
+            !transactions.hasRetainedEvents &&
+            allTasks.getTaskData(taskId).assignee != Actor.ADMIN
+    ) {
+      val admin =
+          allTasks.ids().firstOrNull {
+            val task = allTasks.getTaskData(it)
+            task.assignee == Actor.ADMIN &&
+                !task.deferred &&
+                canSelectTask(it, queueForAnyTask(it), requireConcrete = true)
+          }
+      if (admin != null)
+          throw TaskException("Admin task $admin must finish before Player selection")
+    }
   }
 
   // TASK COMMANDS
@@ -313,9 +329,8 @@ internal constructor(
    * when concrete, or leaves it assigned to the Actor that must handle it next, as [selectTask]
    * does.
    *
-   * Rejects a missing selection or incompatible narrowing. A rejected call can leave changes unless
-   * an enclosing [Timeline.atomic] block restores them. It can also store a partial choice; keeping
-   * such choices in the client is a proposal awaiting review.
+   * Rejects a missing selection or incompatible narrowing and restores a failed transaction. It can
+   * store a partial choice; keeping such choices in the client is a proposal awaiting review.
    */
   public fun narrowTask(narrowing: InstructionTree, quantifierOmitted: Boolean = false) {
     val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
@@ -390,8 +405,8 @@ internal constructor(
    *
    * Rejects a competing selection, deferred work, an incompatible narrowing, or narrowing that
    * belongs to a different Actor after selection. A structural task may split into independent
-   * child tasks. Failure restoration needs an enclosing [Timeline.atomic] block. Persistent partial
-   * choices remain under review.
+   * child tasks. A failed transaction restores its changes. Persistent partial choices remain under
+   * review.
    */
   public fun narrowTask(
       taskId: TaskId,
@@ -478,16 +493,24 @@ internal constructor(
    */
   // TODO(ENGINE_CONTRACT): Investigate removing this public probe; do not hide implementation
   // faults.
+  public fun canSelectTask(taskId: TaskId): Boolean = canSelectTask(taskId, tasks)
+
   @Suppress("TooGenericExceptionCaught")
-  public fun canSelectTask(taskId: TaskId): Boolean {
+  private fun canSelectTask(
+      taskId: TaskId,
+      queue: TaskQueue,
+      requireConcrete: Boolean = false,
+  ): Boolean {
     timeline.requireAtEnd()
     return try {
       timeline.atomic {
         transactions.perform(actor, CLIENT_REQUEST) {
-          val selected = selectTask(tasks, tasks.getTaskData(taskId))
+          val selected = selectTask(queue, queue.getTaskData(taskId))
           if (selected != null) {
             val selectedQueue = queueForAnyTask(selected)
             val selectedTask = selectedQueue.getTaskData(selected)
+            if (requireConcrete && selectedTask.instruction.isAbstract(reader))
+                throw AbortTransactionException()
             if (!selectedTask.instruction.isAbstract(reader)) {
               executeSelectedTask(selectedQueue, selected, selectedTask.assignee)
             }
@@ -548,9 +571,8 @@ internal constructor(
    * rejects the selection, and live observers can see the attempted changes. This examines work
    * that the proposal would assign to the receiving Actor's subsequent transaction.
    *
-   * Rejects deferred work and a different selected task. The proposed contract also excludes Player
-   * selection while ordinary Admin work remains; that check is currently missing. Failure
-   * restoration currently needs an enclosing [Timeline.atomic] block.
+   * Rejects deferred work, a different selected task, and Player selection while the existing probe
+   * finds an executable ordinary Admin task. A failed transaction restores its changes.
    */
   public fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
@@ -568,9 +590,8 @@ internal constructor(
    * Distinct matching tasks are rejected as ambiguous; identical tasks differing only in identity
    * and cause currently use the first match.
    *
-   * Resolves and executes concrete work as [selectTask] does. Failure restoration needs an
-   * enclosing [Timeline.atomic] block. Current differences from the proposal: partial selection can
-   * persist, and ordinary Admin work does not block Player selection.
+   * Resolves and executes concrete work as [selectTask] does, with the same priority and failure
+   * restoration. Partial selection can still persist.
    */
   public fun selectTask(
       narrowing: InstructionTree,
@@ -633,7 +654,6 @@ internal constructor(
   }
 
   private fun selectTask(queue: TaskQueue, task: Task): TaskId? {
-    // TODO(ENGINE_CONTRACT): Reject Player selection while ordinary Admin work remains.
     requireNoOtherSelectedTask(task.id)
     if (task.deferred) {
       throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
@@ -703,9 +723,8 @@ internal constructor(
    * invariants. Resulting ordinary tasks remain queued. A change assigned to another Actor remains
    * selected for that Actor after the temporary execution attempt described by [selectTask].
    *
-   * An instruction still requiring a choice throws. This method does not restore its own failures;
-   * the client can supply an enclosing [Timeline.atomic] block. For example, rejecting removal of
-   * an opponent's protected plant can leave the plant gone until the caller restores the attempt.
+   * An instruction still requiring a choice throws. A failed transaction restores its changes; for
+   * example, rejecting removal of an opponent's protected plant leaves that plant intact.
    */
   public fun doTask(taskId: TaskId) {
     transactions.perform(actor, CLIENT_REQUEST) { doTask(tasks, taskId) }
@@ -767,8 +786,8 @@ internal constructor(
    * conveniences and their public parameters still need justification.
    *
    * A change assigned to another Actor stays selected after the attempt described by [selectTask].
-   * Without [executeSubmittedGroup], later queued tasks remain pending. A later failure can leave
-   * earlier changes unless an enclosing [Timeline.atomic] block restores them.
+   * Without [executeSubmittedGroup], later queued tasks remain pending. A failed transaction
+   * restores all changes made by this command.
    */
   public fun doTask(
       narrowing: InstructionTree,
@@ -1157,8 +1176,8 @@ internal constructor(
    * unavailable-work errors are reported as [DeadEndException].
    *
    * Returns false when another Actor owns the selection. Current limitations: a missing selection
-   * produces an implementation exception. Rejected execution needs an enclosing [Timeline.atomic]
-   * block for restoration. Its need as public API requires review.
+   * produces an implementation exception. Rejected execution restores its transaction. Its need as
+   * public API requires review.
    */
   // TODO(ENGINE_CONTRACT): Investigate removing this public selected-task retry helper.
   public fun trySelectedTask(): Boolean {

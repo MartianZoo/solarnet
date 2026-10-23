@@ -1,12 +1,14 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GamePremise
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
@@ -36,8 +38,12 @@ internal class AutomaticEffectDepthTest {
   @Test
   internal fun canSelectTaskPropagatesResourceLimitsAndRollsBack() {
     val world = TfmEngine.newGame(premise) as WholeWorld
-    val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
-    val task = admin.addTasks("ChainA").single()
+    val admin = world.testAgent(ADMIN)
+    val task =
+        world
+            .actorEngine(ADMIN)
+            .addTasks(InstructionGroup.of(parse<Instruction>("ChainA!")))
+            .single()
     val checkpoint = world.events.nextOrdinal
 
     shouldThrow<ResourceLimitException> { admin.canSelectTask(task) }
@@ -52,8 +58,12 @@ internal class AutomaticEffectDepthTest {
   @Test
   internal fun canExecuteTaskPropagatesResourceLimitsAndRollsBack() {
     val world = TfmEngine.newGame(premise) as WholeWorld
-    val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
-    val task = admin.addTasks("ChainA").single()
+    val admin = world.testAgent(ADMIN)
+    val task =
+        world
+            .actorEngine(ADMIN)
+            .addTasks(InstructionGroup.of(parse<Instruction>("ChainA!")))
+            .single()
     val checkpoint = world.events.nextOrdinal
 
     shouldThrow<ResourceLimitException> { admin.canExecuteTask(task) }

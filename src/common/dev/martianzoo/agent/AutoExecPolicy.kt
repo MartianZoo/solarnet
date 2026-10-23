@@ -1,8 +1,8 @@
 package dev.martianzoo.agent
 
 /**
- * Existing configurable rule for handling tasks without an explicit client choice. The current
- * implementation applies it to every Actor and tries Admin tasks first.
+ * Configurable Player task handling without an explicit client choice. Admin always uses EAGER
+ * handling independently of these settings; attempting to configure it otherwise fails.
  *
  * TODO(ENGINE_CONTRACT): investigate removing these Player policies from the core Agent API. Player
  *   choices are explicit in the proposed contract; mandatory Admin handling must not use a

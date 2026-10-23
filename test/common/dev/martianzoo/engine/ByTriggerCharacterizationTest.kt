@@ -55,7 +55,7 @@ internal class ByTriggerCharacterizationTest {
 
   private fun assertByActor(actor: Actor) {
     val game = newGame()
-    val agent = game.testAgent(actor).also { it.autoExecPolicy = NONE }
+    val agent = game.testAgent(actor).also { if (actor != ADMIN) it.autoExecPolicy = NONE }
     agent.sneak("ActorTriggerProbe!")
     val before = game.events.nextOrdinal
 
@@ -131,7 +131,7 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerRejectsAdmin() {
     val game = newGame()
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     admin.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
 
     admin.beginOperation("-ActorTriggerSignal!")
@@ -222,7 +222,7 @@ internal class ByTriggerCharacterizationTest {
   internal fun systemMakesAnOwnedComponentsSubscriptionTableWide() {
     val game = newGame()
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     owner.sneak("SystemTriggerProbe<Player1>!")
 
     admin.beginOperation("SystemTriggerSignal!")
@@ -236,7 +236,7 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val other = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     owner.sneak("OpponentByProbe<Player1>!")
 
     owner.runOperation("ActorTriggerSignal!")

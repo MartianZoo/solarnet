@@ -17,7 +17,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
@@ -77,9 +76,9 @@ public object Engine {
    *   contract.
    */
   public fun fork(source: World): World {
-    val (wholeWorld, positions) = forkSource(source)
+    val wholeWorld = forkSource(source)
     val gameWorld = wholeWorld.gameWorld.fork()
-    return Wiring(gameWorld.premise, gameWorld).createFork(positions, wholeWorld.effector)
+    return Wiring(gameWorld.premise, gameWorld).createFork(wholeWorld.effector)
   }
 
   /**
@@ -100,12 +99,12 @@ public object Engine {
    * @throws IllegalStateException if [source] is not at the end of valid recorded history
    */
   public fun overlay(source: World): SpeculativeWorld {
-    val (wholeWorld, positions) = forkSource(source)
+    val wholeWorld = forkSource(source)
     val gameWorld = wholeWorld.gameWorld.overlay()
-    return Wiring(gameWorld.premise, gameWorld, overlaySource = wholeWorld).createOverlay(positions)
+    return Wiring(gameWorld.premise, gameWorld, overlaySource = wholeWorld).createOverlay()
   }
 
-  private fun forkSource(source: World): Pair<WholeWorld, List<Checkpoint>> {
+  private fun forkSource(source: World): WholeWorld {
     val wholeWorld =
         source as? WholeWorld
             ?: throw IllegalArgumentException("Unknown World implementation: ${source::class}")
@@ -114,7 +113,7 @@ public object Engine {
     check(positions.lastOrNull() == current) {
       "cannot fork a World away from the end of completed gameplay history"
     }
-    return wholeWorld to positions
+    return wholeWorld
   }
 
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
@@ -130,13 +129,16 @@ public object Engine {
     // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector =
         Effector(elaborator, customClasses, overlaySource?.effector) { reader }
-    private val transactions = Transactions(gameWorld) { taskQueues.promoteDeferredWork() }
+    private val transactions =
+        Transactions(gameWorld, { timeline.rollBackStateTo(it) }) {
+          taskQueues.promoteDeferredWork()
+        }
     private val taskQueues: TaskQueues =
         TaskQueues(gameWorld, transactions::forEvent) { timeline.requireAtEnd() }
     private val reader: GameReader = gameWorld.reader
     private val changer: Changer =
         Changer(reader, gameWorld, effector, transactions::forEvent) { timeline.requireAtEnd() }
-    private val timeline: TimelineImpl = TimelineImpl(gameWorld, changer)
+    private val timeline: TimelineImpl = TimelineImpl(gameWorld, changer, transactions)
     private val limiter = Limiter(classTable, gameWorld)
     private val worldTransaction: WorldTransaction =
         WorldTransaction(timeline) { world.onTransactionComplete() }
@@ -181,24 +183,21 @@ public object Engine {
             e.sourceLocation,
         )
       }
-      timeline.recordPosition()
       requireSignedSelectionsMatchClassComponents()
       return world
     }
 
-    internal fun createFork(positions: List<Checkpoint>, sourceEffector: Effector): WholeWorld {
+    internal fun createFork(sourceEffector: Effector): WholeWorld {
       transactions.initializationFinished()
       effector.copyIndexFrom(sourceEffector)
-      timeline.restorePositions(positions)
       timeline.commit()
       limiter.checkRequiredCounts = true
       requireSignedSelectionsMatchClassComponents()
       return world
     }
 
-    internal fun createOverlay(positions: List<Checkpoint>): SpeculativeWorld {
+    internal fun createOverlay(): SpeculativeWorld {
       transactions.initializationFinished()
-      timeline.restorePositions(positions)
       timeline.commit()
       limiter.checkRequiredCounts = true
       return world as OverlayWorld

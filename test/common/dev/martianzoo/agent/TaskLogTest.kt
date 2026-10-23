@@ -9,6 +9,7 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.testsupport.eventContent
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -401,13 +402,37 @@ internal class TaskLogTest {
   internal fun disablingPoliciesBeforeStartDoesNotExecuteExistingTasks() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
     agents[PLAYER1].addTasks("Coin")
-    agents[ADMIN].addTasks("Marker")
+    agents.world
+        .actorEngine(ADMIN)
+        .addTasks(
+            dev.martianzoo.pets.ast.InstructionGroup.of(
+                dev.martianzoo.pets.Parsing.parse<dev.martianzoo.pets.ast.Instruction>("Marker")
+            )
+        )
 
     TaskLog.replay(listOf(RecordedInput.StartGame), agents, startGame = {})
 
     agents[PLAYER1].count("Coin") shouldBe 0
     agents[ADMIN].count("Marker") shouldBe 0
     agents.world.tasks.extract { it }.size shouldBe 2
+  }
+
+  @Test
+  internal fun idOnlyTaskCommandRestoresAnUnfinishedPlayerHandoff() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin", players = 2)))
+    agents[PLAYER1].autoExecPolicy = NONE
+    agents[PLAYER2].autoExecPolicy = NONE
+    agents[PLAYER1].runOperation("Coin")
+    val task = agents[PLAYER1].addTasks("-Coin BY Player2").single()
+    start(agents)
+    val before = agents.world.events.nextOrdinal
+
+    shouldThrow<TaskException> { agents[PLAYER1].doTask(task) }
+
+    agents[PLAYER1].count("Coin") shouldBe 1
+    agents.world.tasks.selectedTask() shouldBe null
+    agents.world.events.nextOrdinal shouldBe before
+    agents.taskLog.inputs() shouldBe listOf(RecordedInput.StartGame)
   }
 
   @Test
