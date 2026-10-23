@@ -92,6 +92,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   client-controlled rollback for larger scopes. Complete transaction checks for legal narrowings,
   then align the Player/Admin priority gate, Admin FIFO retries and stalled-pass exception,
   mandatory eager Admin handling, and deferred promotion after completed transactions.
+- Decide whether Admin's full automation is an engine invariant or a driver property, before
+  implementing mandatory Admin handling. A trial run measured the cost: see the obstacle recorded
+  under step 4 of [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md).
 - Continue [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md) at step 4: the P0/P1/P2 gate,
   mandatory Admin handling with FIFO retries and the stalled-pass exception, deferred promotion at
   the end of the transaction that makes it eligible, and eager Admin during replay. Step 5 then

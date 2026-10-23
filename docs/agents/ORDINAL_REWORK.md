@@ -234,6 +234,24 @@ Land these related changes together before opening every transaction position to
   Admin work remains, including immediately after restoring or forking an intermediate position.
 - Make Admin handling mandatory, with FIFO retries and an exception after a full unsuccessful pass.
   Player policies remain separate. Do not mistake another pending Player task for Admin progress.
+
+  **Measured obstacle, needs a human decision.** A trial implementation — Admin's configured policy
+  ignored, plus an exception when a call would return with Admin's eligible work undone — failed 16
+  tests in `engine` and `agent` alone, before the run reached `tfm-tests` or any replay. The
+  obstacle is not the count. 45 test files drive synthetic scenarios **as Admin**, using it as a
+  convenient manually driven Actor, and 13 of those control its policy on purpose. Several of the
+  failures are tests whose whole subject is the model this rule replaces:
+  `SafeAutoExecTest.adminDoesNotLockAnAbstractTaskWhileAManualPlayerCanAct`,
+  `TaskAssignmentCharacterizationTest.sharedLoopRespectsEveryAssigneesPolicy` and
+  `eagerAdminWaitsForTheGateThenReturnsThePlayersChoice`, and
+  `TaskLogTest.completedHandoffsReplayAsChoicesFollowedByTheirAdminExecution`.
+
+  Rewriting them to drive as a Player is not mechanical: System work is assigned to Admin, so the
+  same scenario driven by a Player observes different assignment — which is exactly what those
+  characterization tests exist to pin down. The decision is whether Admin's full automation is an
+  engine invariant, which costs that test idiom, or a property of the driver a synthetic premise may
+  replace. The contract currently selects the former and forbids a switch, so this needs review
+  before implementation rather than a test sweep chosen by an agent.
 - Close actual gaps between successive engine mutations. Inspect `AgentImpl.addInitialTasks` and
   nested selection loops, not just the outermost coordinator. Adapt
   [Initializer](../../src/common/dev/martianzoo/engine/Initializer.kt), whose current bootstrap loop
