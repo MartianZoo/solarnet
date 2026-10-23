@@ -10,7 +10,7 @@ repository root unless stated otherwise.
 - [Type-system explanation](type-system.md) and [glossary](glossary.md)
 - [Terraforming Mars component classes](component-types.md)
 - [Authoring tricks and idioms](pets-tricks-hacks-cheats.md)
-- [Class-selection examples](class-existence-scenarios-draft.md)
+- [Class-selection examples](class-selection.md)
 - [Content support and incompatibilities](what-is-supported.md)
 - [FAQ](faq.md) and [observations about the game model](game-insights.md)
 

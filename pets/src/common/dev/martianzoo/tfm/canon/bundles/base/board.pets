@@ -9,7 +9,7 @@ ABSTRACT CLASS Area : Iconic {
   HAS MAX 1 Occupant<This>
 
   "One of the (usually) 61 areas available on the planet's surface"
-  ABSTRACT CLASS MarsArea : Content {
+  ABSTRACT CLASS MarsArea {
     row = Number
     column = Number
 

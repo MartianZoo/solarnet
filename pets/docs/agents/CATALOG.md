@@ -9,7 +9,9 @@ of it, independent of whether its types are inhabited in a particular game. `Car
 `Milestone`, `Award`, `ColonyTile`, `GlobalEvent`, and `Party` inherit it. Abstract categories such
 as `ActiveCard` are not content classes; card backs, standard projects, map areas, and card-local
 resources do not inherit it. Maps also inherit `Module`; party selection is still intrinsic to
-Turmoil's setup rather than individually configurable.
+Turmoil's setup rather than individually configurable. Each map's area definitions are selected
+with that map through its existing Module selections; areas need no separate Content category.
+An explicitly named area remains independently selectable through the existing availability policy.
 
 `TfmCatalog` uses this classification for independent item availability and for identifying
 non-card content roots in card resources. A reference from another item must not make content
@@ -62,6 +64,6 @@ already been gained during bootstrap. Other components remain dynamic. Effect-ex
 read `ClassTable.effects`; a client deliberately inspecting the reusable unspecialized form reads
 `Class.declaration.effects`.
 
-See [class-selection examples](../class-existence-scenarios-draft.md) and the
+See [class-selection examples](../class-selection.md) and the
 [Catalog API](../../src/common/dev/martianzoo/catalog/Catalog.kt).
 Runtime construction from this premise belongs to [Solarnet](../../../docs/agents/ENGINE.md#from-a-premise-to-a-ready-world).

@@ -51,8 +51,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Consider renaming automatic (`::`) effects to “immediate.”
 - Replace the archived *Life of an Effect* walkthrough with a current account of lexical `Me`
   and the transformation pipeline.
-- Review `pets/docs/class-existence-scenarios-draft.md` and consolidate repeated cases in
-  `ClassDefinitionBoundaryTest` and `ClassTableSelectionTest`.
 - Decide whether Agent submissions must use concrete amounts instead of arithmetic over `Owed`.
 - Give beginner and standard players the same ten-card `Selecting` offer; beginners keep it free,
   while standard players discard and buy their choices.
