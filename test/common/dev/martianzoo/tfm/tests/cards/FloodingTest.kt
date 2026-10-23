@@ -491,7 +491,7 @@ internal class FloodingTest : TfmSandboxTest() {
       // Select the optional bonus before accepting it while the other player's attack is pending.
       stan.selectTask("UseAction<NeptunianOption>?")
       stan.doTask("UseAction<NeptunianOption, Action1>")
-      // Settle Admin's bill after Stan's cross-player action, before choosing payment.
+      // Handle Admin's bill after Stan's cross-player action, before choosing payment.
       autoExecNow()
       // Stan selects his payment choice after Admin opens the bill.
       stan.selectTask("X Pay<Stan, Class<Steel>> FROM Steel<Stan>")

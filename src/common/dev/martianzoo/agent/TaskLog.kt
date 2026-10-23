@@ -199,6 +199,9 @@ public class TaskLog internal constructor(private val world: World) {
     ) {
       require(inputs.firstOrNull() == RecordedInput.StartGame) { "game inputs must start the game" }
       require(inputs.drop(1).none { it == RecordedInput.StartGame })
+      // TODO(ENGINE_CONTRACT): replay must retain mandatory Admin handling. The current format
+      // records Admin commands explicitly and disables Admin along with Player policies.
+      // Reconcile those recorded commands with required Admin consequences before changing this.
       agents.world.actors.forEach { agents[it].autoExecPolicy = NONE }
       startGame()
       inputs.drop(1).forEachIndexed { index, input ->

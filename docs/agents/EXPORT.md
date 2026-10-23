@@ -31,8 +31,8 @@ have identical behavior. Strict replay compares the behavior, and the format ide
 advanced when the interpretation of the file changes.
 
 `GameFileImporter` in `agent` checks hashes before constructing a live game. The caller supplies
-the game-specific runtime constructor and the game's start. It disables autoexecution for **all**
-Actors, including Admin, then submits every recorded command through the corresponding Agent.
+the game-specific runtime constructor and the game's start. Recorded commands are submitted
+through the corresponding Agent.
 A full import compares the multiset of component changes with Actor and causal ancestry, final
 components, and pending tasks with their causal ancestry. Raw event ordinals, task IDs, component
 change order among independent effects, and intermediate task revisions may differ. The importer
@@ -40,7 +40,7 @@ copies source change notes to corresponding live changes after checking any note
 new execution. A mismatch throws; there is no repair or discrepancy UI yet. Task-event notes stay
 in the exact passive recording because compacted task revisions need not have live counterparts.
 
-`TaskLog` captures successful Actor submissions, including Player and Admin policy actions. It
+`TaskLog` captures successful Actor submissions through the task API. It
 records selections, single-task and batch execution, tries, drops, and `exMachina` as distinct
 operations. A `doTask` completed through an Actor handoff records the originating selection and
 the receiving Actor's execution separately. Its causal task selector helps replay target repeated
@@ -52,12 +52,6 @@ ancestry through shared internal signatures, so authored phase flow does not req
 entire preceding game for each change.
 Commands produced by game effects are consequences rather than Actor submissions. Intermediate
 form edits that only narrow an instruction may be omitted; selections and stateful operations stay.
-
-`TaskLog.selectionCheckpoints()` returns positions before surviving Player task selections and
-replay corrections. Automatic selections that leave an abstract task awaiting input are included;
-automatically completed tasks are not. Replay exports retain these positions plus the start and
-end, so passive playback can stop before each recorded decision without stepping through every
-automatic command. This does not change the live Timeline's completed positions.
 
 `RecordedInput.CardInput` records a Player, card back, hand or Selecting movement, and ordered
 names, attached to the command that will need them. The importer passes these to a callback

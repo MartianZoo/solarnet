@@ -65,8 +65,8 @@ the appropriate recipients rather than inventing an on-turn player.
 ## Admin and engine
 
 `Admin` is the non-Player Actor and Component that performs neutral table activity. Admin may
-control, receive, select, and narrow tasks. No identity rule requires Admin's decisions to be
-deterministic.
+control, receive, select, and narrow tasks. Its scheduling and requirement for a unique concrete
+instruction are defined in [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
 
 Kotlin `Engine` is different: it validates an Actor mutation and calculates the resulting state
 transition. It is not an Actor, Component, assignee, narrower, or event performer.
@@ -132,13 +132,6 @@ the former assignee in an internal `TASK Actor { ... }` continuation. Admin comp
 change and dispatches the remaining work back to that Actor. Each later concrete System step
 follows the same rule.
 
-`Agent.doTask` demands completion of the submitted task, including when selection or narrowing
-hands it to Admin or another Actor. It runs configured autoexecution and rolls back if the selected
-task remains pending. The receiving Actor's policy still controls execution. Use `selectTask`,
-`narrowTask`, or an optional `TaskForm` when handing off work for later completion.
-Task recordings retain the originating choice and the receiving Actor's execution separately, so
-imports need no autoexecution policy.
-
 Use `System` for neutral table bookkeeping rather than a Player's game action. Fixed gains and
 concrete removals must themselves be safe for eager Admin execution. A following `THEN` choice
 returns to the prior assignee without an authored `TASK`. An authored `TASK Actor { ... }` can
@@ -152,7 +145,7 @@ dominance bookkeeping use `System` for their concrete changes.
 `RequiredAction` is also `System`: Admin creates and removes the pending corporation-action
 marker. Its Player owner still chooses `DoRequiredActions`, which remains non-System.
 `PlayCard` and `UseAction` are System signals: the Player supplies unresolved choices, and Admin
-executes the concrete dispatch. `doTask` accepts this handoff when configured policy finishes it.
+executes the concrete dispatch.
 
 ### Deferred System classifications
 

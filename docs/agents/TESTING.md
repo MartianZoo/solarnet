@@ -118,6 +118,8 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   while choosing a random execution order for each batch of independent automatic-effect listeners.
   A component's own automatic Effects retain declaration order. This is a diagnostic mode for
   finding undeclared ordering dependencies; ordinary runs retain a stable diagnostic order.
+  Run this mode periodically, especially around effect and scheduling changes. It does not vary
+  Admin task execution order; that diagnostic follow-up is tracked in [TODO.md](../../TODO.md).
   Game-state assertions pass, but the exact Advanced Alloys attribution totals in
   `Game20230521Test` and `ThermalMatterWaveTest` may fail because saturating payment reductions do
   not yet record every effect's gross contribution.
@@ -240,8 +242,9 @@ clear coverage of these contracts matters more than preserving every current tes
 3. **Game World and engine-coordination tests.** Pure `:state` scenarios verify that exact
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
-   scenarios cover consequence calculation and failure atomicity: a failed operation must restore
-   present components, pending work, and recorded history together.
+   scenarios cover consequence calculation and recovery: test promised failure-atomic methods
+   and client-controlled rollback by checking components, pending work, and history together.
+   A raw call that documents partial failure need not restore itself.
 4. **Player-level card and game-rule tests.** Scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
@@ -269,8 +272,6 @@ the behavior under test through gameplay. For sandbox tests, establish incidenta
 preconditions through the standardized fixture and corrections by default. Use authentic
 gameplay instead when the way a precondition is reached can affect, or provide useful evidence for,
 the behavior under test.
-Sandbox players always use `NONE`. Gameplay players default to `CONCRETE`; suites that must
-control intermediate steps request `TfmGameplayTest(NONE)`, as described below.
 
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
 in a test just to detect that the list changed. Test observable behavior through the normal
@@ -288,8 +289,8 @@ assignment fields, or raw Event Log inspection.
 For delegated payment, final resource totals alone do not establish correct task routing or order.
 A helper may legitimately call several Actors' Agents; this is not an authorization bypass.
 Exercise separate Agent commands when needed to expose the selections and choices each requires,
-and test intervening work against the intended game outcome with autoexecution disabled where
-necessary. Do not require the engine to identify who operates an Agent or reject a program merely
+and test intervening work against the intended game outcome. Do not require the engine to identify
+who operates an Agent or reject a program merely
 because it calls another Player's Agent. [ADVERSARIAL.md](ADVERSARIAL.md) assigns that submission
 check to the external game arrangement. [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
 records the remaining operation-level questions. Do not preserve former routing fields merely to
@@ -368,17 +369,10 @@ Scenario payments state concrete amounts, including research purchases; do not u
 payment helpers. Shared corporation setup alone reads the bill for its five starting projects,
 so corporations such as TerraLabs use their actual purchase price.
 
-Gameplay constructs players with `CONCRETE`; suites that exercise intermediate steps request
-`TfmGameplayTest(NONE)`. Admin uses `EAGER`. These policies stay fixed: neither the fixture nor its
-scenarios assign `autoExecPolicy`. Use explicit `autoExecNow(EAGER)` calls to settle competing
-routine effects, production, and phase cleanup. Put them inside the observed operation or
-`expectChanges` block when their effects belong to the assertion. An automatically selected order
-is not evidence of a required order; scripts testing that order must state the steps explicitly.
-Fixed payments can now complete under `CONCRETE` or `EAGER`; do not submit an already completed
-payment again. Custom helper allocations belong in the payment callback, before the result body.
-Finish or decline alternative payment offers before the exact remainder, and explain each `Ok`.
-Short repeated action sequences are written out; loops remain appropriate for seat-order traversal
-and long generation/endgame progressions.
+State the steps explicitly when testing their order. Finish or decline alternative payment
+offers before the exact remainder, and explain each `Ok`. Short repeated action sequences
+are written out; loops remain appropriate for seat-order traversal and long generation/endgame
+progressions.
 
 Synthetic engine checks that only need setup use `setUpGame`, which starts the game and drops setup's
 pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCorporationPhaseOutOfTurn`
@@ -392,7 +386,7 @@ through inherited helpers. Gameplay also owns its fixture directly; neither exte
 changes the game configuration; use `addOptions` to include cards outside the default bundles.
 Each owns its setup; there is no intermediate shared base. Neither is restricted to project cards.
 Their setup defaults remain aligned; differences follow from prepared positions versus authentic
-play and the explicit autoexecution policies described here.
+play.
 Shared rules get representative coverage using base-game content where possible: for example,
 `rules/RequiredFirstActionTest` uses Inventrix rather than repeating the same rule for each
 corporation with a required first action.
@@ -405,8 +399,6 @@ appear in Kim's offer. Do not add extra arguments for corporation offers or proj
 Select `kimCorporation` to give Kim the normal corporation path; other seats use the beginner path.
 Both fixtures discard five of Kim's ten offered projects before corporation play. Normal setup
 then purchases the remaining five; explicit corporation-play tests make that purchase themselves.
-The sandbox settles normal corporation setup with `autoExecNow(EAGER)`, including the exact
-starting-card payment offered by billing.
 The default game has:
 
 - Tharsis, Venus Next, Colonies, and Promos;
@@ -428,10 +420,8 @@ seat in order. Accessing `stan` in solo or `rob` with fewer than three players f
 with a fixture error. Both styles resolve neutral solo placements through the setup tasks, using
 `soloTileAreas` with fixed card costs 11, 10, 12, and 8 on the selected map.
 
-The sandbox prepares and caches up to eight recently used `World`s, keyed by option-set,
-player-count, Kim corporation, and entry-point combination, then gives every test an independent
-`Engine.fork` of that prepared position. A cached World is never exposed or mutated after
-preparation. The base class does not create a game automatically. Gameplay creates a fresh World and
+Every sandbox test receives an independent prepared World. The base class does not create a game
+automatically. Gameplay creates a fresh World and
 starts the game for every call. Use `@BeforeTest` when every method needs the same setup.
 When some methods need a different setup, call the common setup explicitly from the methods that
 need it and initialize the exceptions directly. Never prepare a game only to replace it at the
@@ -439,7 +429,7 @@ start of a test. Keep scenario-specific corrections visible in the test. Pass na
 as `addOptions = "CimmeriaMap"` or `playerCount = 4` where needed. Pass `kimCorporation` only when its
 live effect is part of the scenario; Kim then plays that corporation normally and resolves its setup
 effects, while every
-other player keeps a beginner corporation. Do not share or roll back a live World between tests.
+other player keeps a beginner corporation. Do not share a live World between tests.
 
 Prefer selecting an individual card in `addOptions` when the scenario does not need its expansion's
 other rules. Negative selections such as `addOptions = "-ColoniesExpansion, TitanShuttles"`
@@ -448,18 +438,15 @@ include focused scenarios with and without that expansion. Keep assertions cente
 behavior; configuration checks normally belong to the existing configuration tests. Do not
 duplicate this coverage for every expansion card.
 
-Before setup and after forking the prepared position, the sandbox sets every player's policy to
-`NONE`, following
-`OtbGame20261009Test`'s explicit task style. Card and rule scenarios retain the prepared position
+Use `OtbGame20261009Test`'s explicit task style. Card and rule scenarios retain the prepared position
 and visible `exMachina` corrections, then use the fixture's
-`inTurn { doTasks(...) }` calls in place of Terraforming Mars gameplay helpers. Admin retains its
-default policy. `inTurn` supplies the sandbox turn and checks that the complete action leaves no
+`inTurn { doTasks(...) }` calls in place of Terraforming Mars gameplay helpers.
+Admin handling follows [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md). `inTurn` supplies the sandbox turn
+and checks that the complete action leaves no
 pending tasks; payments, card transfers, player effects, and any player-assigned cleanup are explicit.
 The sandbox exposes its players as plain `Agent`s. For corporation scenarios that exercise the
 initial play, use `newTestGameBeforeCorporationPlay` and submit the printed effects and starting-card
-purchase in the test. For ordinary named-corporation setup, the fixture submits the corporation
-play as an Agent task and runs `autoExecNow(EAGER)` to settle its effects and exact starting-card
-payment. Kim's configured policy remains `NONE` throughout. Scenario payments finish or decline
+purchase in the test. Scenario payments finish or decline
 alternative resources before submitting the exact remainder in the bill's denomination. If those
 alternatives or a pending discount cover the full cost, submit `Ok` before the purchased result.
 Pharmacy Union's initial-play scenarios explicitly take the gated 54 MC, place each disease and
@@ -470,10 +457,9 @@ for automatic consequences, excluded outcomes, and state after rejected actions.
 `setToExMachina` for desired absolute counts rather than calculating relative fixture adjustments.
 Prefer compact `FROM` expressions, such as `Steel<Kim FROM Rob>` and
 `ProjectCard<Hand FROM Selecting>`, whenever the transmutation shares the same Class.
-Do not retain Terraforming Mars gameplay helpers in sandbox scenarios, including tests of helper
-policies. Preserve payment and card rules through explicit tasks; helper-only policy checks are
-outside this suite. Nested `TfmGameplayTest` suites follow the real game flow. Tests solely
-comparing autoexecution policies are omitted.
+Do not retain Terraforming Mars gameplay helpers in sandbox scenarios, including indirect calls
+through helpers. Preserve payment and card rules through explicit tasks.
+Nested `TfmGameplayTest` suites follow the real game flow.
 Use `selectTask` and `selectOnlyTask` only for an unresolved choice, structural expansion, or
 handoff, never to carry out concrete player work. Every retained selection must have a local
 comment explaining why it is necessary. Prefer a short named selection, such as
@@ -490,9 +476,7 @@ Inside that block, helpers on its operation receiver do not repeat `kim.`; anoth
 `TfmGameplay.turn` groups the published game's turn, including declining an unused second action.
 `TfmSandboxTest` supplies its own `Agent.inTurn` member extension: it uses `runOperation("OfferAction")`
 when no task is pending, and otherwise `completeOperation`. This keeps the generic Agent free of
-Terraforming Mars rules while sandbox scenarios retain their explicit operation scripts. Cross-player
-Agent calls can leave Admin work waiting within that block;
-use a locally explained `autoExecNow()` only when it must settle before the next player choice.
+Terraforming Mars rules while sandbox scenarios retain their explicit operation scripts.
 Use `doTasks` for consecutive concrete instructions. Preserve order when it matters to the scenario.
 Comment an ambiguous `Ok` to identify what is being declined.
 Write scenario actions in sequence rather than loops. Small private scenario helpers may factor
@@ -501,14 +485,11 @@ Call the base fixture's `advanceUntilActionPhase()` to reach the next Action pha
 it advances a generation; the sandbox currently expires generation-scoped state without running
 production or research. The base fixture owns that degree of simulation. From Corporation or
 Prelude, it skips remaining setup plays and enters Action phase.
-For rejection-and-rollback scenarios, put `shouldThrow` outside the operation. Do not catch the
-failure inside the operation and call `abort()` before checking the restored state.
-The shared fixture's own preparation still uses its existing helpers and autoexecution.
 When Turmoil is selected, it uses the existing test setup's initial global-event reveals
 (`DemocraticReform` and `MinimalImpactPolicy`) before entering Corporation phase.
 
 Treat every pre-migration test as a fallible historical artifact, not as a specification of its
-setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,
+setup. Existing options, cards, resource grants, card plays, phase changes,
 and operation order may be incidental, copied from another scenario, obsolete, or compensating for
 old behavior. Begin with the behavior named by the scenario and its meaningful observable coverage.
 Challenge every setup step: if removing it does not change the behavior under test, remove it. For
@@ -570,12 +551,6 @@ In sandbox tests, conditions beyond that initial state should normally be visibl
 - `advanceUntilActionPhase()` expires generation-scoped state without production or research.
   A scenario that needs real phase effects or their ordering belongs in gameplay; do not broaden
   the sandbox shortcut into another game driver.
-- Use `victoryPoints()` to query final VP totals in player-seat order for the current position.
-  Finish pending choices before querying. It executes the existing final-scoring phase and rolls
-  back in `finally`, including on failure. It does not advance through production or final greenery;
-  arrange the position to be scored explicitly. The query preserves the live game's state and
-  history for subsequent gameplay. Supply `victoryPoints { ... }` when scoring offers player
-  choices, such as Vermin's per-player deductions.
 
 Corrections intentionally suppress ordinary queued effects while retaining the structural work
 documented in [EX_MACHINA.md](EX_MACHINA.md). Therefore, never treat the correction itself as proof
@@ -641,7 +616,7 @@ A `TaskResult` includes its operation's changes, but subsequent completion callb
 production or continue a Solar phase after that result was recorded. Gameplay tests use
 `expectChanges("...") { ... }` when the observation must include that follow-up work or several
 choices in the same phase. This assertion reads change events across the block without changing
-transaction or autoexecution behavior. Place it immediately around the relevant choices, and use
+the commands' behavior. Place it immediately around the relevant choices, and use
 explicit player holders for cross-player effects. For example, a global-event payout may occur
 before its ocean choice, so observe both World Government and that placement together. Do not
 save pre-action counts and assert arithmetic against them. Retain literal absolute assertions for
@@ -659,7 +634,9 @@ Neither replaces a suitable relative expectation.
 
 Assert the actual exception type with `shouldThrow<ExpectedException>`; do not use `shouldThrowAny`
 or a catch-all superclass. An unrelated failure must not satisfy a rejection test. Also check the
-relevant unchanged state and, when useful, the diagnostic identifying the problem.
+relevant unchanged state when the API promises restoration or the client supplies a restoring
+block. For raw engine calls that can leave partial changes, test the client's rollback path instead
+of requiring the call alone to restore state. Check the diagnostic when it helps identify the failure.
 
 ### Known-defect tests
 
@@ -684,8 +661,8 @@ characterization over a disproportionate workaround.
 ## Game replay tests
 
 `Game20230521Test` and `Wsbg2025Test` deliberately exercise the raw Agent task API.
-Their players use `NONE` during the replay, while Admin retains normal autoexecution and handles
-fixed payment bookkeeping and final scoring. `VictoryPoint` and `ScoreEventVps` are `System`;
+Players submit their tasks explicitly. Admin handles fixed payment bookkeeping and final scoring.
+`VictoryPoint` and `ScoreEventVps` are `System`;
 players do not submit scoring tasks. A pending negative score can wait for a positive score to supply the points.
 Follow the game's flow through the last passes, production, final greenery, and scoring; do not
 manually supply turns or phase transitions. Omit copied game-log
@@ -713,8 +690,7 @@ Replay input recording and export are disabled by default, including in browser 
 With `-PreplayExports`, `ReplayExportExtension` enables recording before test setup, so
 `AbstractFullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
 replay, the extension writes full and short game files and reexecutes the full file in a
-fresh game using its checked premise and recorded inputs. Every imported Actor, including Admin,
-uses `NONE`. The check compares the component changes with their Actors and causal ancestry,
+fresh game using its checked premise and recorded inputs. The check compares the component changes with their Actors and causal ancestry,
 the final components, and pending tasks. Incidental ids, event ordinals, and the order of independent
 changes may differ.
 A round-trip failure fails the test. Replays must follow the game's normal flow and use
@@ -780,8 +756,8 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   remaining nominal turns.
 - When an Event card's sibling tasks require explicit replay ordering, record only the gameplay
   consequences. The card's `LATER` dispatch defers its flip, and the owner performs the flip once
-  no ordinary work remains. The engine performs the dispatch itself; a replay whose Players do not
-  autoexecute records only the explicit `PlayedEvent<Class<X>> FROM X` step.
+  no ordinary work remains. The engine performs the dispatch itself; the replay records the explicit
+  `PlayedEvent<Class<X>> FROM X` step.
 - Use the same turn block for a player's two Prelude plays. This also supports Prelude effects that
   immediately play another Prelude or project inside one of those plays.
 - Keep the supplied machine log as a separate source artifact rather than copying its lines into the
@@ -800,7 +776,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 - Source-backed full-game replays enforce that assumption for resources worth more than one M€.
   Leaving an accepted full-value unit unused fails unless the player calls `intentionalUnderpay()`
   immediately before that payment. The same one-shot audit exemption covers spending an accepted
-  1:1 resource while enough M€ could settle the billing. It does not waive payment legality: an
+  1:1 resource while enough M€ could cover the bill. It does not waive payment legality: an
   allocation containing a unit that could be returned is rejected, while unavoidable rounding
   excess needs no marker. Explain the sourced later payment or checkpoint that requires an unusual
   allocation, and prefer correcting an unsupported allocation over declaring intent.
@@ -825,10 +801,6 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   timeline as the sourced assertions allow, with a comment saying which later step requires it. Add
   source-backed `.expect()` assertions for the mistake-prone types to preceding actions wherever
   practical so the remaining unexplained gap is bounded as narrowly as possible.
-  If auto-exec has already selected the next task, the helper rolls that selection back and repeats
-  it after the adjustment so state-dependent instructions are resolved again.
-  Both replay bases delegate that lifecycle to the shared `World.exMachina` implementation; do not
-  fork its task-history traversal.
   Keep unexplained state reconciliations as standalone timeline statements.
   Never place a manual or other raw adjustment inside an unrelated action body to evade a selected-task or
   operation-scope restriction; use an explicit test mechanism or fix the helper/API instead.

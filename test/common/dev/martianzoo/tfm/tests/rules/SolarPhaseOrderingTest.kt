@@ -27,12 +27,12 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
     kim.doTask("Pass")
     stan.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     expectChanges("0 OceanTile<Tharsis_1_5>") {
       kim.doTask("OceanTile<Tharsis_1_5>! BY Admin")
-      settlePlayers()
+      autoExecutePlayers()
       kim.doTask("-OceanTile<Tharsis_1_5>")
-      settlePlayers()
+      autoExecutePlayers()
     }
     admin.count("OceanTile<Tharsis_1_2>") shouldBe 1
   }
@@ -64,12 +64,12 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
         .expect("TerraformRating")
     kim.count("TerraformRating") shouldBe 20
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
 
     // At TR 19 Red Influence costs 3 MC; at TR 20 it would cost 6 MC.
     expectChanges("-3 MC<Kim>, -TerraformRating<Kim>") {
       stan.doTask("VenusStep! BY Admin")
-      settlePlayers()
+      autoExecutePlayers()
     }
   }
 
@@ -99,12 +99,12 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
       doTasks("PaidLobbyAction", "PartyFollower<Kelvinists>")
     }
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
 
     // PartyLeader plus supporting delegates give 2 influence. Heat production rises from 1 to 3.
     expectChanges("PROD[2 Heat<Kim>], 3 MC<Kim>") {
       stan.doTask("VenusStep! BY Admin")
-      settlePlayers()
+      autoExecutePlayers()
     }
   }
 
@@ -131,14 +131,14 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
       doTasks("PaidLobbyAction", "PartyFollower<Reds>")
     }
     stan.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
 
     expectChanges("Plant<Kim>, Steel<Kim>, 2 Plant<Stan>, 2 Steel<Stan>") {
       stan.doTask("VenusStep! BY Admin")
-      settlePlayers()
+      autoExecutePlayers()
       // Stan is still first player when Democratic Reform asks for its ocean.
       stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
-      settlePlayers()
+      autoExecutePlayers()
     }
     stan.count("Chairman") shouldBe 1
   }
@@ -181,9 +181,9 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     }
     kim.count("Delegate") shouldBe 7
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     finishResearch(
         "FreeAcademiaTreaty",
         "PartyLeader<Greens, Neutral>",
@@ -215,9 +215,9 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     stan.selectTask("PassBaton") // Decline the second action.
     kim.doTask("Pass")
     stan.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
 
     // Clearing Mars First leaves Reds and Greens at 1 each. Democratic Reform adds to Greens;
     // Red Resistance then adds to Reds. Both finish at 2, but Greens keeps dominance.
@@ -244,9 +244,9 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     stan.selectTask("PassBaton") // Decline the second action.
     kim.doTask("Pass")
     stan.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     finishResearch(
         "FreeAcademiaTreaty",
         "PartyLeader<Greens, Neutral>",
@@ -257,12 +257,12 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     // The later neutral additions only tie it. Stan's leadership must therefore earn influence.
     stan.doTask("Pass")
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     expectChanges("Plant<Stan>, Steel<Stan>") {
       stan.doTask("VenusStep! BY Admin")
-      settlePlayers()
+      autoExecutePlayers()
       stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
-      settlePlayers()
+      autoExecutePlayers()
     }
   }
 
@@ -273,13 +273,13 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     kim.selectTask("PassBaton") // Decline the second action.
     stan.doTask("Pass")
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
 
     // Mars First is tied with Reds, but incumbent. Red Resistance will make Reds larger;
     // this election still pays Mars First's building-tag bonus, not the Reds' tied-lowest TR.
     expectChanges("MC<Kim>, -TerraformRating<Kim>, -TerraformRating<Stan>") {
       kim.doTask("VenusStep! BY Admin")
-      settlePlayers()
+      autoExecutePlayers()
       admin.doTasks("PartyLeader<Greens, Neutral>", "RedResistance", "PartyFollower<Reds, Neutral>")
     }
   }
@@ -309,11 +309,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
         }
         .expect("PROD[Steel]")
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     expectChanges("TerraformRating<Kim>") {
       // Revision costs 1; Kim's building tag wins Election's 2 TR. Kim holds no delegates.
       stan.doTask("VenusStep! BY Admin")
-      settlePlayers()
+      autoExecutePlayers()
     }
     finishResearch(
         "ExploreFirstDirective",
@@ -378,7 +378,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
     expectChanges("Preservation<Pristar<Kim>>") {
       kim.doTask("Pass")
-      settlePlayers()
+      autoExecutePlayers()
     }
   }
 
@@ -425,11 +425,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     }
     kim.count("Delegate") shouldBe 7
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     stan.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     finishResearch("RedResistance", "PartyFollower<Unity, Neutral>", "PartyLeader<Reds, Neutral>")
 
     // None of Kim's six party delegates belonged to the elected Reds.
@@ -444,9 +444,9 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
   internal fun `Solo Reds rewards TR twenty reached by this solar phase's revision`() {
     newTestGame(addOptions = "TurmoilExpansion, PreludeExpansion", playerCount = 1)
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$HugeAsteroid>>")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$SmeltingPlant>>")
-    settlePlayers()
+    autoExecutePlayers()
     kim.completeOperation {
           doTasks("LobbyAction", "PartyFollower<Reds> FROM LobbyDelegate")
         }
@@ -460,11 +460,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     kim.doTasks("PlayProject<Class<$BribedCommittee>>").expect("2 TerraformRating")
     kim.count("TerraformRating") shouldBe 21
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
 
     expectChanges("TerraformRating<Kim>") {
       kim.doTask("VenusStep! BY Admin")
-      settlePlayers()
+      autoExecutePlayers()
     }
   }
 
@@ -481,7 +481,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     kim.count("Hydroelectric") shouldBe 0
     expectChanges("5 MC<Kim>, 0 Hydroelectric<Kim>") {
       kim.doTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
-      settlePlayers()
+      autoExecutePlayers()
     }
   }
 
@@ -499,7 +499,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     // The Scientists' 1 MC alone would not finance it; chairman TR supplies another 2 MC.
     expectChanges("3 MC<Kim>, 0 Hydroelectric<Kim>") {
       kim.doTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
-      settlePlayers()
+      autoExecutePlayers()
     }
   }
 
@@ -513,11 +513,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     )
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$TerraformingDeal>>")
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$SocietySupport>>")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     finishResearch(
         "SeparatistMovement",
         "PartyLeader<Greens, Neutral>",
@@ -526,13 +526,13 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
     kim.doTasks("PlayProject<Class<$NeptunianPowerConsultants>>")
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("OceanTile<Tharsis_1_2> BY Admin")
     // Save the cash instead of buying a hydroelectric resource from Democratic Reform's ocean.
     kim.doTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
-    settlePlayers()
+    autoExecutePlayers()
     finishResearch(
         "HeatFirstPolicy",
         "PartyLeader<Unity, Neutral>",
@@ -541,9 +541,9 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
     kim.doTasks("PlayProject<Class<$OrbitalCleanup>>")
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     finishResearch(
         "FreeAcademiaTreaty",
         "PartyFollower<Kelvinists, Neutral>",
@@ -551,9 +551,9 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     )
 
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     admin.doTasks(
         "PartyLeader<Greens, Neutral>",
         "ExploreFirstDirective",
@@ -579,12 +579,12 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     }
     kim.count("MC") shouldBe 0
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.count("MC") shouldBe 3
     kim.count("Steel") shouldBe 0
   }
 
-  private fun settlePlayers() {
+  private fun autoExecutePlayers() {
     players.forEach { it.autoExecNow(EAGER) }
   }
 
@@ -604,9 +604,9 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
   ) {
     kim.doTask("Pass")
     stan.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     finishResearch(distantEvent, currentPlacement, distantPlacement)
   }
 
@@ -617,11 +617,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
   ) {
     stan.doTask("Pass")
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     stan.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
     finishResearch(distantEvent, currentPlacement, distantPlacement)
   }
 
@@ -631,10 +631,10 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     finishSecondGeneration("FreeAcademiaTreaty", neutralPlacements[2], neutralPlacements[3])
     kim.doTask("Pass")
     stan.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
     // Dry Deserts removes the sole ocean without a location choice.
-    settlePlayers()
+    autoExecutePlayers()
     finishResearch("MoralMovement", neutralPlacements[4], neutralPlacements[5])
   }
 
@@ -651,8 +651,8 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
       doTasks("PaidLobbyAction", "PartyFollower<$party>")
     }
     kim.doTask("Pass")
-    settlePlayers()
+    autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
-    settlePlayers()
+    autoExecutePlayers()
   }
 }

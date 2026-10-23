@@ -47,7 +47,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
           kim.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
           doTask("2 Steel")
           kim.doTask("5 Pay<> FROM MC")
-          // Settle Admin's bill closure after Kim's cross-player payment.
+          // Handle Admin's bill closure after Kim's cross-player payment.
           autoExecNow()
           kim.doTask("PROD[Energy]")
           kim.doTask("Hydroelectric<NeptunianPowerConsultants>")

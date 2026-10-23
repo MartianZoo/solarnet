@@ -45,24 +45,41 @@ import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
 
 /**
- * Policy-free task and state mutation mechanics attributed to [actor].
+ * Executes task and correction commands attributed to [actor] in a shared game world.
  *
- * Concrete changes that gain or remove a `System` component are assigned to Admin. Player choices
- * remain with the Player until narrowing makes the change concrete. Selection reapplies this rule
- * after resolving enclosing instructions, while explicit instruction-side `BY` remains
- * authoritative.
+ * A task command applies its requested change, dependent removals, recursive `::` effects, and
+ * invariant checks. Resulting tasks remain queued for their assigned Actors. Concrete System
+ * changes are assigned to Admin; Player choices remain with the Player until the change is
+ * concrete. At selection, a concrete instruction with explicit `BY` goes to the named Actor. The
+ * engine calculates consequences; the clients decide which tasks to submit.
  *
- * This is a low-level mutation surface. Task methods can change the live world immediately; callers
- * that need a failure-atomic interaction enclose the sequence in [transact]. Automatic task policy
- * belongs to the Agent layer, not this engine.
+ * For example, placing greenery on a Land Claim cube removes the cube through `::` before
+ * returning; the placement bonus remains queued for Admin.
+ *
+ * Methods may rely on client-controlled rollback instead of restoring their own failures. Unless a
+ * method promises failure-atomicity, the client must arrange restoration before continuing
+ * gameplay; [Timeline.atomic] supplies a restoring block for ordinary game-rule failures.
+ *
+ * The proposed contract excludes Player selection while ordinary Admin work remains. That check is
+ * currently missing. Persistent partial selection also remains under review.
+ *
+ * [transact] groups commands and caller-supplied task handling in a rollback scope. That block may
+ * include several transactions under the proposed contract; its current behavior is described
+ * below.
  */
 public class ActorEngine
 internal constructor(
-    /** Tasks currently assigned to [actor]. */
+    /**
+     * Live filtered view of tasks assigned to [actor]; another Actor's selection is not in this
+     * view.
+     */
     public val tasks: TaskQueue,
     private val gameWorld: GameWorld,
     private val taskQueues: TaskQueues,
-    /** The live game state read by this engine. */
+    /**
+     * Live state and type queries for the same world as this engine, including other Actors'
+     * components.
+     */
     public val reader: GameReader,
     private val timeline: TimelineImpl,
     /** The Actor to which ordinary mutations through this engine are attributed. */
@@ -84,17 +101,34 @@ internal constructor(
   private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
 
   /**
-   * Runs [block] atomically, then calls [settle] to advance eligible work and [validateCompletion]
-   * to reject an unfinished result. Settlement can run again if idle cleanup creates more work. A
-   * failure in these stages rolls back the interaction; a successful result reports its changes and
-   * newly created tasks still pending. For an outermost transaction, the world's completion
-   * callback runs after the first commit.
+   * Runs [block] and subsequent task handling, returning their combined [TaskResult]. The intended
+   * synchronous behavior is to run to quiescence and report all changes made before return.
+   *
+   * Currently runs [afterChanges] and [validateCompletion] for the outermost call. Ordinary nested
+   * calls skip their own finishing steps; a call made directly by the completion callback runs its
+   * own finishing steps. Agent supplies task handling and application validation, or validation
+   * alone.
+   *
+   * After the outermost restoring block returns normally, including cancellation through
+   * [AbortTransactionException], invokes [World.onTransactionComplete]. If the World is still at
+   * the end of its history afterward, runs [afterChanges] again. This wrapper does not assign an
+   * Actor to changes; the commands called inside it do that.
+   *
+   * Current limitation: the result contains only component changes and surviving new tasks from
+   * [block] and the first finishing steps. It omits callback changes and subsequent task handling,
+   * contrary to the intended result coverage. Failure in that later work does not restore the
+   * initial work.
+   *
+   * The proposed contract requires eligible Admin work to finish before return and recommends
+   * restoring the whole call on failure wherever practical, subject to human review.
    */
+  // TODO(ENGINE_CONTRACT): Review whether this block-based coordinator belongs in the public API.
+  // Preserve synchronous execution through quiescence and complete TaskResult reporting.
   public fun transact(
-      settle: () -> Unit,
+      afterChanges: () -> Unit,
       validateCompletion: () -> Unit = {},
       block: () -> Unit,
-  ): TaskResult = worldTransaction.run(block, validateCompletion, settle)
+  ): TaskResult = worldTransaction.run(block, validateCompletion, afterChanges)
 
   private fun narrowingFacts(requirementsHold: Boolean): TypeInfo =
       object : TypeInfo by reader {
@@ -114,10 +148,13 @@ internal constructor(
   // CHANGES LAYER
 
   /**
-   * Applies and validates [changes] as a correction attributed to [actor], with automatic effects
-   * but no queued effects, task settlement, or idle cleanup. Failure rolls back the correction; the
-   * caller-facing Agent records a position when its method returns. The world's completion callback
-   * is not called.
+   * Applies [changes] as a failure-atomic correction attributed to [actor], optionally using
+   * [cause] for attribution. Recursive `::` effects and final invariant checks still run; queued
+   * `:` effects and client task handling do not. Returns the correction's component changes and
+   * surviving new tasks.
+   *
+   * This bypasses ordinary task selection and does not call the world's completion callback. The
+   * proposed treatment of corrections while a task is selected or Admin work remains needs review.
    */
   public fun sneak(changes: InstructionGroup, cause: Cause? = null): TaskResult =
       worldTransaction.correct {
@@ -127,22 +164,42 @@ internal constructor(
   // TASKS LAYER
 
   /**
-   * Adds [instructions] as pending tasks controlled by [actor] and returns their ids in creation
-   * order. [firstCause], when supplied, identifies the source of the initial task.
+   * Adds [instructions] as work initially assigned to [actor], recording [firstCause] when
+   * supplied. This attributes the initial work; triggered effects record their own causes. Returns
+   * the ids of tasks actually added in creation order. Normalization can discard no-ops, split
+   * groups, perform dispatches, and assign concrete System changes to Admin.
+   *
+   * Adding work does not execute its ordinary task bodies. Creating tasks can promote deferred work
+   * before the caller's transaction finishes. A later failure can leave earlier additions behind
+   * unless an enclosing [Timeline.atomic] block, such as [transact]'s, restores them.
    */
+  // TODO(ENGINE_CONTRACT): Review whether direct queue editing belongs in the public API.
   public fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
       taskQueues.addTasks(instructions, actor, firstCause).map { it.task.id }
 
   /**
-   * Removes [taskId] from this actor's queue and returns its removal event. Fails if the task is
-   * absent or belongs to another actor. No task instruction is executed.
+   * Removes an existing task assigned to [actor] and returns its removal event. Does not execute
+   * the removed task's instruction. Rejects a missing task or a task belonging to another Actor.
+   *
+   * Current limitation: removing work may promote deferred tasks and perform their dispatches. It
+   * does not enforce selected-task exclusion or handle newly eligible Admin work by itself.
    */
+  // TODO(ENGINE_CONTRACT): Review removing direct task deletion from the engine's public API.
   public fun dropTask(taskId: TaskId): TaskRemovedEvent {
     val task = tasks.getTaskData(taskId)
     return taskQueues.removeTask(task)
   }
 
-  /** Restores prior task data while applying an evidenced replay correction. */
+  /**
+   * Replaces the stored data of an existing task during an evidenced correction. [task]'s id must
+   * already exist and its current assignee must be [actor]; this does not recreate a removed task.
+   *
+   * Normalization applies to the replacement. Current limitation: replacement can change
+   * instruction, selection, and assignment without ordinary selection checks. Its place in the
+   * public API needs review.
+   */
+  // TODO(ENGINE_CONTRACT): Investigate limiting this arbitrary task replacement to correction
+  // clients.
   public fun restoreTask(task: Task) {
     val current = allTasks.getTaskData(task.id)
     if (actor != current.assignee) {
@@ -152,11 +209,17 @@ internal constructor(
   }
 
   /**
-   * Requires that the operation's work is over and left no cleanup component. Its work is over when
-   * no new pending task remains, or when the World's `FINALLY` work has begun since [lastDecision]:
-   * that happens only once no ordinary or `LATER` work remains (L2-19), and work admitted from then
-   * on belongs to whatever comes next. Cleanup is judged at that same point.
+   * Checks completion of the operation's work without executing any pending task.
+   *
+   * Throws if a pending task outside [allowedPendingTasks], or a `MustCleanUp` component, remains.
+   * If tasks remain but `FINALLY` work has been promoted since [lastDecision], those tasks are
+   * accepted and cleanup is counted as of just before that promotion. With no relevant pending
+   * tasks, cleanup is checked in the current state.
+   *
+   * This is an operation-level check, not a transaction's final invariant check. Using `FINALLY` as
+   * proof of completion is retained behavior whose role needs review.
    */
+  // TODO(ENGINE_CONTRACT): Review this operation completion check and its public placement.
   public fun requireComplete(
       allowedPendingTasks: Set<TaskId> = emptySet(),
       lastDecision: Checkpoint? = null,
@@ -218,29 +281,44 @@ internal constructor(
     taskQueues.removeTask(stored)
   }
 
-  private fun enforceSelectLock(taskId: TaskId) {
-    // Selection is a global game-state lock; a scoped queue could miss the selected task in
-    // another player's queue and allow a caller to cut in front of it.
+  private fun requireNoOtherSelectedTask(taskId: TaskId) {
+    // Check the whole task pool: another Actor's selection also excludes this task command.
+    // TODO(ENGINE_CONTRACT): Queue edits and corrections currently bypass this exclusion.
     val already = allTasks.selectedTask()
     if (already != null && already != taskId) {
       val instr = allTasks.getTaskData(already).instruction
-      throw TaskException("task $already ($instr) holds the select-lock and must finish first")
+      throw TaskException("task $already ($instr) is selected and must finish first")
     }
   }
 
   // TASK COMMANDS
 
   /**
-   * Narrows this actor's currently selected task with [narrowing]. An omitted quantifier can be
-   * retained from the pending task when [quantifierOmitted] is true. A concrete result may execute
-   * or be assigned to another actor; incompatible narrowing fails.
+   * Supplies [narrowing] for this Actor's selected task. When [quantifierOmitted] is true, retains
+   * the pending task's quantifier where needed. Resolves the resulting instruction and executes it
+   * when concrete, or leaves it assigned to the Actor that must handle it next, as [selectTask]
+   * does.
+   *
+   * Rejects a missing selection or incompatible narrowing. A rejected call can leave changes unless
+   * an enclosing [Timeline.atomic] block restores them. It can also store a partial choice; keeping
+   * such choices in the client is a proposal awaiting review.
    */
   public fun narrowTask(narrowing: InstructionTree, quantifierOmitted: Boolean = false) {
     val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
     narrowSelectedTask(taskId, narrowing, quantifierOmitted)
   }
 
-  /** Validates a proposed narrowing without changing the task or selecting it. */
+  /**
+   * Returns the instruction that submitting [narrowing] for [taskId] would use, without selecting
+   * or changing the task. [quantifierOmitted] allows the pending quantifier to fill an omitted
+   * amount rule. The task must belong to [actor]; an incompatible narrowing throws.
+   *
+   * This checks instruction compatibility, including a chosen first `THEN` stage. It does not
+   * execute effects or final invariant checks and therefore does not establish legal narrowing
+   * under the proposed whole-transaction definition.
+   */
+  // TODO(ENGINE_CONTRACT): Investigate making this partial-choice preparation an internal client
+  // detail.
   public fun prepareTaskNarrowing(
       taskId: TaskId,
       narrowing: InstructionTree,
@@ -250,7 +328,16 @@ internal constructor(
         it.selectedThen ?: it.effective
       }
 
-  /** Current executable capacity for a concrete change; null means a missing destination. */
+  /**
+   * Returns the immediate quantity bound for a change with concrete gain/removal targets, or null
+   * if a required destination dependency is absent. The change's quantifier determines whether
+   * count invariants contribute to the bound; mandatory changes do not use them to hide failing
+   * choices.
+   *
+   * This reads current state without executing the change. Its result does not establish that the
+   * change's `::` consequences and final checks can complete successfully.
+   */
+  // TODO(ENGINE_CONTRACT): Review exposing this incomplete capacity check outside the engine.
   public fun changeLimit(change: Change): Int? = instructor.changeLimit(change)
 
   private data class PreparedNarrowing(
@@ -280,13 +367,22 @@ internal constructor(
     return PreparedNarrowing(effective, null)
   }
 
-  /** Commits a narrowing of this Actor's task, selecting it if necessary. */
+  /**
+   * Selects this Actor's [taskId] as [selectTask] does and supplies [narrowing], retaining an
+   * omitted quantifier when [quantifierOmitted] is true. Resolves and executes a concrete result,
+   * or leaves the task pending for its current assignee.
+   *
+   * Rejects a competing selection, deferred work, an incompatible narrowing, or narrowing that
+   * belongs to a different Actor after selection. A structural task may split into independent
+   * child tasks. Failure restoration needs an enclosing [Timeline.atomic] block. Persistent partial
+   * choices remain under review.
+   */
   public fun narrowTask(
       taskId: TaskId,
       narrowing: InstructionTree,
       quantifierOmitted: Boolean = false,
   ) {
-    enforceSelectLock(taskId)
+    requireNoOtherSelectedTask(taskId)
     val task = tasks.getTaskData(taskId)
     var effectiveNarrowing = narrowing
     if (!task.selected) {
@@ -328,6 +424,8 @@ internal constructor(
     narrowSelectedTask(taskId, effectiveNarrowing, quantifierOmitted)
   }
 
+  // TODO(ENGINE_CONTRACT): Review storing partial choices instead of keeping unfinished forms in
+  // clients.
   private fun narrowSelectedTask(
       taskId: TaskId,
       narrowing: InstructionTree,
@@ -352,12 +450,18 @@ internal constructor(
     if (taskId in allTasks) executeSelectedIfConcrete(taskId)
   }
 
-  @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
   /**
-   * Whether selecting [taskId] could complete normally in the current world. The probe rolls back
-   * its own changes and returns false on failures other than [ResourceLimitException], which
-   * propagates.
+   * Checks whether this task can be selected against the current world, restoring attempted changes
+   * before returning. A concrete selection also attempts execution; an abstract selection can
+   * return true while still requiring choices. This does not handle later queued tasks.
+   *
+   * This is not a count of legal concrete narrowings. Current limitations: the attempt can notify
+   * live observers, and most exceptions become false, including unexpected implementation errors.
+   * [ResourceLimitException] propagates.
    */
+  // TODO(ENGINE_CONTRACT): Investigate removing this public probe; do not hide implementation
+  // faults.
+  @Suppress("TooGenericExceptionCaught")
   public fun canSelectTask(taskId: TaskId): Boolean {
     timeline.requireAtEnd()
     return try {
@@ -382,12 +486,18 @@ internal constructor(
     }
   }
 
-  @Suppress("TooGenericExceptionCaught") // Keep this probe aligned with canSelectTask for now.
   /**
-   * Whether [taskId] could be selected and finished now without a remaining task or handoff. The
-   * probe rolls back its own changes and returns false on failures other than
-   * [ResourceLimitException], which propagates.
+   * Checks whether this Actor can select and finish [taskId] now, restoring attempted changes
+   * before returning. Returns false if further narrowing or a different Actor is needed. Newly
+   * queued work is outside this check.
+   *
+   * Current limitations: live observers can see attempted changes, and most exceptions become
+   * false, including unexpected implementation errors. [ResourceLimitException] propagates. This
+   * API's role in determining proposed transaction-level legality needs review.
    */
+  // TODO(ENGINE_CONTRACT): Review this probe against complete-transaction legality and observer
+  // effects.
+  @Suppress("TooGenericExceptionCaught")
   public fun canExecuteTask(taskId: TaskId): Boolean {
     timeline.requireAtEnd()
     return try {
@@ -407,8 +517,19 @@ internal constructor(
   }
 
   /**
-   * Selects [taskId] from this actor's queue, resolving and executing it if concrete. An abstract
-   * or reassigned task remains pending for its current assignee.
+   * Selects this Actor's [taskId], resolves its instruction against current state, and executes it
+   * if concrete and still assigned to this Actor. Otherwise the selected task remains pending for
+   * its current assignee; independent structural children are admitted without inheriting
+   * selection.
+   *
+   * Current limitation: when resolution makes the task concrete and reassigns it, this call
+   * executes the receiving Actor's instruction temporarily and restores that attempt. Failure
+   * rejects the selection, and live observers can see the attempted changes. This examines work
+   * that the proposal would assign to the receiving Actor's subsequent transaction.
+   *
+   * Rejects deferred work and a different selected task. The proposed contract also excludes Player
+   * selection while ordinary Admin work remains; that check is currently missing. Failure
+   * restoration currently needs an enclosing [Timeline.atomic] block.
    */
   public fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
@@ -419,10 +540,14 @@ internal constructor(
   }
 
   /**
-   * Finds a task compatible with [narrowing] (or [taskId] when given), selects it, and submits the
-   * narrowing. [quantifierOmitted] preserves a stronger pending quantifier when appropriate.
-   * Ambiguous distinct matches or a handoff that prevents narrowing fail; equivalent matches that
-   * differ only by id are interchangeable.
+   * Selects a task compatible with [narrowing], restricted to [taskId] when supplied, and applies
+   * the narrowing. [quantifierOmitted] lets an omitted quantifier come from the pending task.
+   * Distinct matching tasks are rejected as ambiguous; identical tasks differing only in identity
+   * and cause currently use the first match.
+   *
+   * Resolves and executes concrete work as [selectTask] does. Failure restoration needs an
+   * enclosing [Timeline.atomic] block. Current differences from the proposal: partial selection can
+   * persist, and ordinary Admin work does not block Player selection.
    */
   public fun selectTask(
       narrowing: InstructionTree,
@@ -482,7 +607,8 @@ internal constructor(
   }
 
   private fun selectTask(queue: TaskQueue, task: Task): TaskId? {
-    enforceSelectLock(task.id)
+    // TODO(ENGINE_CONTRACT): Reject Player selection while ordinary Admin work remains.
+    requireNoOtherSelectedTask(task.id)
     if (task.deferred) {
       throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
     }
@@ -547,8 +673,13 @@ internal constructor(
   }
 
   /**
-   * Selects and attempts to finish [taskId]. A handoff leaves it pending for the receiving actor;
-   * an abstract instruction requires further narrowing.
+   * Selects and executes [taskId] for this Actor, applying immediate effects and checking
+   * invariants. Resulting ordinary tasks remain queued. A change assigned to another Actor remains
+   * selected for that Actor after the temporary execution attempt described by [selectTask].
+   *
+   * An instruction still requiring a choice throws. This method does not restore its own failures;
+   * the client can supply an enclosing [Timeline.atomic] block. For example, rejecting removal of
+   * an opponent's protected plant can leave the plant gone until the caller restores the attempt.
    */
   public fun doTask(taskId: TaskId) {
     doTask(tasks, taskId)
@@ -582,6 +713,8 @@ internal constructor(
     handleTask(queue, selectedTask)
   }
 
+  // TODO(ENGINE_CONTRACT): Review this attempt to execute the receiving Actor's later work inside
+  // the current call. Proposed legality checks only the submitted instruction's own transaction.
   private fun validateConcreteHandoff(taskId: TaskId) {
     try {
       timeline.atomic {
@@ -590,18 +723,26 @@ internal constructor(
         throw ConcreteHandoffValidated
       }
     } catch (_: ConcreteHandoffValidated) {
-      // The target Actor can execute it; the nested transaction restored the handed-off task.
+      // The target Actor can execute it; the nested attempt restored the handed-off task.
     }
   }
 
   /**
-   * With [combineScalars], a submitted scalar total executes all pending concrete gains and
-   * removals of its type when their signed sum matches. Newly caused tasks do not join the total.
-   * Gains precede removals. Otherwise, executes a single matching task. If selection or narrowing
-   * hands the task to another Actor, leaves it selected for that Actor. The Agent layer settles
-   * configured policy and checks that a submitted task actually finishes. A submitted action may
-   * omit an enclosing gate or `/` metric; the matched task still checks its gate and calculated
-   * amount against the live World.
+   * Finds the task described by [narrowing], supplies that instruction, and executes it for this
+   * Actor. [taskId] selects an exact pending task; [contextClass] restricts matching to tasks
+   * caused by that context class. [quantifierOmitted] preserves the pending quantifier when
+   * appropriate. An enclosing gate or `/` metric may be omitted, but the task still checks it
+   * against current state.
+   *
+   * With [executeSubmittedGroup], also attempts newly added tasks in this Actor's queue, including
+   * triggered consequences and THEN continuations, until a task remains selected. With
+   * [combineScalars], accepts a signed total matching several concrete changes to the same target,
+   * executing gains before removals; newly caused work does not join that total. These command
+   * conveniences and their public parameters still need justification.
+   *
+   * A change assigned to another Actor stays selected after the attempt described by [selectTask].
+   * Without [executeSubmittedGroup], later queued tasks remain pending. A later failure can leave
+   * earlier changes unless an enclosing [Timeline.atomic] block restores them.
    */
   public fun doTask(
       narrowing: InstructionTree,
@@ -629,7 +770,7 @@ internal constructor(
     val task = tasks.getTaskData(id)
     val intersection = intersectTask(evaluated, task.instruction, quantifierOmitted)
     if (intersection != null) {
-      enforceSelectLock(id)
+      requireNoOtherSelectedTask(id)
       narrowSelectedTask(id, intersection, quantifierOmitted)
     } else {
       val selected = selectTask(tasks, task) ?: return
@@ -657,6 +798,8 @@ internal constructor(
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =
       if (instruction is Per) instructor.resolve(instruction) else instruction
 
+  // TODO(ENGINE_CONTRACT): Review this multi-task shortcut; the proposed clients submit explicit
+  // tasks.
   private fun executeScalarSum(
       narrowing: InstructionTree,
       quantifierOmitted: Boolean,
@@ -848,7 +991,7 @@ internal constructor(
     return choices
         .mapNotNull { choice ->
           // Inheritance repairs a quantifier mismatch, not incompatible Types or counts. In
-          // particular, do not turn an unrelated mandatory request into an optional Ok match.
+          // particular, do not turn an unrelated mandatory call into an optional Ok match.
           if (intersect && narrowing.quantifier!!.narrows(choice.quantifier!!, info)) {
             return@mapNotNull null
           }
@@ -925,7 +1068,14 @@ internal constructor(
     )
   }
 
-  /** Tries [id], leaving it pending when it needs a choice or is unavailable. */
+  /**
+   * Attempts [id] as a failure-atomic task command. If it needs a choice, is currently unavailable,
+   * or must be completed by another Actor, restores the attempt and returns normally with the task
+   * pending. Other failures restore the attempt and propagate.
+   *
+   * A successful attempt retains the task's immediate effects and queues resulting work. It does
+   * not handle other pending tasks or promise that the rest of the game action can finish.
+   */
   public fun tryTask(id: TaskId) {
     try {
       timeline.atomic {
@@ -940,10 +1090,15 @@ internal constructor(
   }
 
   /**
-   * Tries [narrowing] against [taskId], or a compatible task when no id is supplied. Incomplete or
-   * currently unavailable work leaves the task and event history unchanged. Invalid selection or
-   * narrowing still fails. [executeSubmittedGroup] treats an explicitly supplied group as a single
-   * bundled command.
+   * Attempts the task described by [narrowing], or the exact [taskId] when supplied, with failure
+   * restoration. [quantifierOmitted] and [executeSubmittedGroup] have the meanings described by
+   * [doTask].
+   *
+   * Missing choices or currently unavailable work during execution restore the attempt and return
+   * normally. Current limitation: preliminary `/` metric evaluation happens before that handling,
+   * so an unavailable instruction there propagates its error. An outstanding selected task also
+   * restores it. Invalid selection, invalid narrowing, and other execution failures restore the
+   * attempt and propagate. Newly queued ordinary work can remain.
    */
   public fun tryTask(
       narrowing: InstructionTree,
@@ -964,12 +1119,17 @@ internal constructor(
     }
   }
 
-  // Similar to tryTask, but a NotNowException is unrecoverable once selection holds the lock.
+  // Unlike tryTask, reports unavailable selected work as a failed task.
   /**
-   * Attempts the world's currently selected task. Returns true if it finishes, false if it still
-   * needs a choice; an unavailable selected task is a dead end and throws. Requires a selected
-   * task.
+   * Attempts this Actor's selected task. Returns true if that task finishes, or false if further
+   * choices remain. Throws when no progress is possible for another reason; current
+   * unavailable-work errors are reported as [DeadEndException].
+   *
+   * Returns false when another Actor owns the selection. Current limitations: a missing selection
+   * produces an implementation exception. Rejected execution needs an enclosing [Timeline.atomic]
+   * block for restoration. Its need as public API requires review.
    */
+  // TODO(ENGINE_CONTRACT): Investigate removing this public selected-task retry helper.
   public fun trySelectedTask(): Boolean {
     val taskId = allTasks.selectedTask()!!
     return try {

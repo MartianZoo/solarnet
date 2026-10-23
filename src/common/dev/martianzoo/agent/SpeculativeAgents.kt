@@ -3,7 +3,12 @@ package dev.martianzoo.agent
 import dev.martianzoo.engine.SpeculativeWorld
 import dev.martianzoo.state.Actor
 
-/** Agents for a reusable speculative World. */
+/**
+ * Agents for a reusable speculative World.
+ *
+ * TODO(ENGINE_CONTRACT): investigate removing this API with Agents.overlay; reusable speculative
+ *   execution is outside the proposed client contract.
+ */
 public class SpeculativeAgents
 internal constructor(
     private val speculativeWorld: SpeculativeWorld,

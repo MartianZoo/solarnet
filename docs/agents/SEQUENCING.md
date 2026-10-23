@@ -13,7 +13,7 @@
 
 There is a global task pool; Actor queues are filtered views. A comma-separated group becomes
 independent tasks. Stable iteration order supports reproducibility and display but carries no game
-meaning.
+meaning for Player choices. Admin handling follows [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
 
 - Effects arise after their triggering component change.
 - A selected task excludes competing ordinary gameplay until that task finishes.
@@ -23,9 +23,10 @@ meaning.
 - `TASK R { B }` dispatches B as R's work; `LATER { B }` and `FINALLY { B }` dispatch B as work
   that waits until no ordinary work, or no ordinary and `LATER` work, remains in the World.
 
-Deferral is the only task priority, and there is no exclusive interaction spanning several tasks.
+The proposed task priorities are owned by [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
+Current task data has no exclusive interaction spanning several tasks.
 The turn order and every phase change are authored rules; see [Game flow](../../pets/docs/agents/GAME_FLOW.md#game-flow).
-An Agent may choose among its available tasks; policy cannot supply a missing game rule.
+A Player client chooses among its available tasks.
 [Deferred work](#deferred-work) owns the rules.
 
 ## Turns and turn offers
@@ -48,8 +49,9 @@ See [Canon turns and game flow](../../pets/docs/agents/GAME_FLOW.md#game-flow).
   consequences.
 - **Trigger snapshot:** `Effector.fire` materializes an automatic listener batch against the same
   post-change World before executing it.
-- **Failure atomicity:** failure restores components, tasks, history, and derived indexes to the
-  enclosing transaction checkpoint.
+- **Failure recovery:** an engine method may restore its own failure, or the client may supply
+  a restoring scope. Before gameplay continues, restore components, tasks, history, and derived
+  indexes to the start of the failed transaction.
 - **Selection integrity:** at most a single task is selected across the World. Authored Pets cannot
   edit, cancel, or reprioritize another task.
 
@@ -64,15 +66,10 @@ Agent is not itself an invalid engine operation: attribution through the assigne
 Authentication and acceptance of that caller's submission belong to
 [ADVERSARIAL.md](ADVERSARIAL.md), not to task locks or a new delegated-session mechanism.
 
-A choice that fails within the same transaction can often be rejected through ordinary Pets and
-rollback. That does not cover an interaction spread across committed commands: rejecting a later
-payment step does not undo earlier partial payment.
-
 Distinguish precedence, synchronous consequences, exclusive control, completion, and atomicity.
 
 | Mechanism | Meaning |
 | --- | --- |
-| No extra ordering | Availability and rollback already express the rule. |
 | `A: B` | A creates ordinary selectable B work. |
 | `A:: B` | B restores coherence before queued player work can proceed. |
 | `A THEN B` | A's task must finish before B is admitted. |
@@ -81,9 +78,8 @@ Distinguish precedence, synchronous consequences, exclusive control, completion,
 | Committed precursor | A modifier needs an event before the final result exists. |
 | Specific latch | Known prerequisites must finish before later work becomes legal. |
 
-A fixed outcome does not imply automatic execution or Admin ownership. Conversely, implementation
-housekeeping should not become a Player choice merely because it currently occupies a task. Do not
-repair ordering through `TfmGameplay`, policy settings, rendered-task matching, or pool order.
+A fixed outcome does not imply Admin ownership. Do not repair ordering through
+`TfmGameplay`, rendered-task matching, or incidental pool order.
 
 ## What `THEN` does
 
@@ -135,7 +131,7 @@ If automatic listeners depend on each other, express the dependency through resu
 instead of batch order or retries. Use trigger-side `IF` for a condition decided by the triggering
 event; put a gate in queued work when intervening changes should decide availability.
 
-An automatic `Die` can reject a forbidden component change and roll it back. It cannot generally
+An automatic `Die` can reject a forbidden component change. It cannot generally
 police task selection because selecting or narrowing an abstract task can change task state without
 producing a component event. Trigger-side `BY` matches the event Actor; instruction-side `BY`
 reassigns concrete queued work.
@@ -144,7 +140,7 @@ reassigns concrete queued work.
 
 `PayingFor<Class<Component>>` lets modifiers react before a purchase or card play produces its
 final component. A precursor represents commitment to that result, carries required context, and
-precedes settlement. Ordinary reactions still belong on the final event.
+precedes payment completion. Ordinary reactions still belong on the final event.
 
 ## The missing rule: when an operation is over
 
@@ -161,13 +157,6 @@ The engine has no general completion rule for an interaction that spans queued w
 These are not the same completion point. `Barrier` and `MustCleanUp` are checks, not locks against
 intervening selection.
 
-Neptunian Power Consultants allows P1 to hand an optional decision to P2, then resume other work
-while P2's payment remains unfinished. On 2026-10-14 the owner confirmed that Flooding making that
-purchase unaffordable is an allowed dead end: P1 voluntarily made their own turn impossible to
-finish and must roll it back. This is not evidence that delegated work needs exclusion or a join.
-`FloodingTest` covers these orders and rollback;
-[`PAYMENTS.md`](PAYMENTS.md#interleaving-and-rollback) describes the payment-specific evidence.
-
 Separate the questions before selecting a replacement. The engine must attribute each selection,
 narrowing, and execution to its current assignee and calculate the consequences of the supplied
 order. Any additional restriction on intervening work needs a game-rule reason, not a requirement
@@ -176,8 +165,10 @@ their success alone does not establish that the task routing or calculated outco
 
 Completion and cleanup still need coherent game semantics. A smaller model should remove client
 searches and overlapping lifecycle machinery rather than assume exclusive control across an entire
-operation is required. Local failure restores the enclosing transaction; agreement to retract
-already shared decisions or proceed after a disclosure belongs to [ADVERSARIAL.md](ADVERSARIAL.md).
+operation is required. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#failure-and-recovery) selects
+failure-atomic engine transactions; larger rollback scopes remain a separate question. Agreement
+to retract already shared decisions or proceed after a disclosure belongs to
+[ADVERSARIAL.md](ADVERSARIAL.md).
 The external arrangement handles that agreement without making incorrect payment or cleanup
 calculations acceptable. The [turn design](../../pets/docs/agents/GAME_FLOW.md#turns-and-turn-offers) records the intended enclosing
 lifecycle; [operation completion](#operation-completion) states the whole-World rule that ends an
@@ -212,10 +203,9 @@ The language rules state what deferral means. A task's deferral records which di
   of a dispatch alone. A dispatch in deferred work is performed when that work is promoted, before
   any later deferral could be. Only promotion changes a task's deferral afterward; authored Pets
   cannot defer or promote another task.
-- Deferral restricts selection only. It applies equally to explicit commands and autoexecution, and
-  it does not order tasks with the same deferral: legal sibling orders stay available.
-- Promotion edits the task's deferral. It rolls back with its transaction and is reproduced from
-  the event history.
+- Deferral restricts selection only. It does not order Player tasks with the same deferral:
+  legal sibling orders stay available.
+- Promotion edits the task's deferral and is reproduced from the event history.
 
 Playing Solar Probe creates its effects as ordinary work and its flip as `LATER` work. Its own
 science tag therefore counts for every consequence of its effects, and it reaches the played-event
@@ -247,8 +237,7 @@ work defers. It exists for turn and phase handoffs.
 `ActorEngine.requireComplete` currently accepts an operation when no new task remains, or when
 World `FINALLY` work has begun since the operation's last decision. The first final promotion
 occurs after all preceding ordinary and `LATER` work, and the cleanup-component check uses that
-same point in the event log. Agents record each operation's beginning and decisions; automatic
-execution is not a decision.
+same point in the event log. Agents record each operation's beginning and decisions.
 
 This check precedes `ActionScope` removal, which runs as final work. Canon's
 [scope-removal rule](../../pets/docs/agents/GAME_FLOW.md#scope-removal-must-not-require-choices)
@@ -258,9 +247,10 @@ they must not generate further choices for the completed action. This is an auth
 not a new engine completion rule. Do not mark the finally-removed scope `MustCleanUp`, since that
 check runs before removal.
 
-Completion still does not exclude intervening work: P1 may resolve Flooding's loss while P2's
-Neptunian payment remains. If that choice makes the turn impossible to finish, P1 must roll back
-the turn. See [the interaction discussion](#the-missing-rule-when-an-operation-is-over).
+The proposed [action-completion endpoint](DECISION_GRAPH.md#proposed-endpoint-action-completion) includes
+scope removal and its consequences. The current check above is therefore insufficient for that
+agent exploration endpoint. Those rough notes leave recognition of the endpoint, and reconciliation
+with the older restriction on cleanup choices, open; they add no engine completion requirement.
 
 ### Decisions and open questions
 
@@ -280,8 +270,7 @@ the turn. See [the interaction discussion](#the-missing-rule-when-an-operation-i
   modules contribute phase order without a central orchestrator. He proposed `NoPreludes` so that
   exactly one module owns each handoff out of the corporation phase.
 - **Exclusion is not deferral.** Deferral orders work; it cannot keep other work out while an
-  interaction is under way. The Flooding–Neptunian dead ends above are allowed and do not require
-  exclusion or a join.
+  interaction is under way.
 - **Scope.** Deferral is global (L2-18). The August `Idle<Player>` design was per Player, so that
   one Player's empty queue could not flip another Player's event card. Narrow the scope only for a
   Terraforming Mars case that needs it.
@@ -289,7 +278,7 @@ the turn. See [the interaction discussion](#the-missing-rule-when-an-operation-i
 ### Evidence
 
 - `DeferredWorkTest`: selection, promotion batches, every Actor's work, late evaluation of metrics
-  and fanouts, groups, nesting, final work, and rollback.
+  and fanouts, groups, nesting, and final work.
 - `Lang02InstructionsTest`: L2-18 and L2-19 syntax; `TaskDispatchTest`: dispatch recipients.
 - `SolarProbeTest`, `TradeEnvoysTest`, `L1TradeTerminalTest`, `SolarPhaseOrderingTest`,
   `AwardsTest`, `VictoryTest`, `WildTagTest`, and `WildTagContinuationTest`: the converted devices.
@@ -308,8 +297,8 @@ the turn. See [the interaction discussion](#the-missing-rule-when-an-operation-i
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) and
   [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt): automatic and queued effects.
 - [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) and
-  [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): settlement.
+  [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): transactions and automatic task handling.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt): admission and
   promotion of deferred work.
 - `TaskDispatchTest`, `PhilaresTest`, `DeferredWorkTest`, and the Neptunian cases in
-  `FloodingTest`: current observable contracts, including allowed dead ends and rollback.
+  `FloodingTest`: payment and task ordering.

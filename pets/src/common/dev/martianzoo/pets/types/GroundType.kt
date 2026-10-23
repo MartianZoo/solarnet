@@ -310,7 +310,7 @@ internal constructor(
       if (narrow.rootClass.abstract || narrow.dependencies.abstract) {
         wide.refinement?.conjuncts()?.filterIsInstance<Has>()?.forEach { predicate ->
           if (!narrow.alreadyGuarantees(predicate)) {
-            throw NarrowingException("unsettled choice `$narrow` must retain `$predicate`")
+            throw NarrowingException("abstract choice `$narrow` must retain `$predicate`")
           }
         }
       }

@@ -59,21 +59,13 @@ Instructions normally resolve against the World in which their task is selected,
 which an effect originally created the task. The resolved instruction must execute next against that
 same World. Quantifiers do not preserve trigger-time target existence.
 
-Resolution checks execution prerequisites and calculates quantities; it does not predict whether
-the completed operation will satisfy count invariants. Mandatory choices can lead to recoverable
-dead ends. Exploring and pruning those branches belongs to the player's agent or client, not
-engine resolution. Under the [universal design assumption](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client),
-either the caller presents only choices known not to dead-end the turn or exposing dead ends is
-acceptable; a missing pruner does not justify changing quantifier semantics.
-
 ## Invariants at operation completion
 
 Declared component-count invariants must hold when a full operation completes. For this check, an
 operation consists of one initiating component change and its entire recursive `::` cascade,
 including `THEN` stages within that automatic work. Mandatory changes may cross count bounds in
 intermediate states. Before completing the operation, the engine validates affected bounds,
-including positive minimums activated by newly gained components. Failure rolls the transaction
-back, including components, tasks, events, and derived effects. Bootstrap audits all required counts
+including positive minimums activated by newly gained components. Bootstrap audits all required counts
 after constructing its initial world.
 
 Creation also establishes positive exact-count concrete parts directly dependent on the newly
@@ -92,8 +84,7 @@ Authors must express causal dependencies through the events that actually cause 
 
 Queued tasks, `THEN` stages outside the initiating automatic cascade, and separate initiating changes
 each belong to separate operations for this check. They cannot repair an earlier operation. A game
-action or client transaction can contain several such operations; its wider rollback boundary does
-not postpone their invariant checks.
+action can contain several such operations; its completion does not postpone their invariant checks.
 
 A family can own replacement with `This:: -Family(NOT This).` and a family-wide maximum of one.
 The initiating gain must be mandatory to cross that maximum. Repeating the same concrete value
@@ -107,7 +98,7 @@ would see the occupied leader seat and gain zero before demotion could make room
 Turmoil's player supply check is a queued `Delegate` gain effect, after automatic consequences.
 A placement can temporarily make eight delegates when the unused lobby delegate is still present;
 `LobbyDelegate` automatically removes itself before the queued supply check. With no lobby delegate,
-the eighth delegate instead dead-ends the turn. `PartyDelegate` is not `Atomized`: Canon authors
+the eighth delegate violates the supply rule. `PartyDelegate` is not `Atomized`: Canon authors
 individual placements explicitly, using a shared party variable when required, and Canon invariants
 reject bulk delegate gains.
 
@@ -219,7 +210,7 @@ AMAP zero.
 ## Uninhabited and computed-zero changes
 
 An uninhabited Type has a provably empty domain in the current premise. A change touching an
-uninhabited target is `Ok` when optional or AMAP and a `DeadEndException` when mandatory. It does
+uninhabited target is `Ok` when optional or AMAP and fails when mandatory. It does
 not auto-narrow, fire triggers, or participate in abstract feasibility.
 
 When a `PER` metric or other scalar calculation makes the requested count zero, resolution retains
@@ -244,7 +235,7 @@ means a typed zero cannot identify those resolved outcomes. They still require `
 - `A OR B`: each arm resolves independently against the same current World. Failed gates, missing
   physical sources or dependencies, and mandatory uninhabited changes can eliminate arms. Declared
   count bounds do not eliminate mandatory arms, even when no automatic consequence will repair
-  them. A surviving arm can fail at execution; the transaction then rolls back. `Ok` is a real
+  them. A surviving arm still has to satisfy the execution checks. `Ok` is a real
   surviving arm, and equal surviving arms are deduplicated. An alternative containing only zero
   changes and `Ok` requires no decision, while retaining its Types for matching. If no arm survives,
   the `OR` reports the strongest applicable failure rather than becoming `Ok`. An automatic effect

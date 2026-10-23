@@ -1,3 +1,12 @@
+> **Archaeology only.** This document preserves a mix of how things were and how we wanted
+> them to be around **October 22, 2026**. It is not current guidance, an implementation
+> contract, or a list of work to resume. Earlier status labels and instructions below are
+> historical quotations, not present requirements.
+
+Original source: `pets/docs/agents/ELSE.md` at `ccfd949f82cb64f291c34f8d47dffbd4b15a0054`.
+
+Full historical document.
+
 # ELSE candidates
 
 > **Status:** exploratory, not implemented. Read when considering fallback instructions.
@@ -25,7 +34,7 @@ semantics, not permission to decline a possible A. This differs from count-based
 Greenery's last-space case is expressed by the `PlaceGreeneryTile` area-piece query, without `ELSE`.
 Prelude compensation needs a real B.
 
-Sources: [board](../../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets),
-[card play](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
-[promos](../../src/common/dev/martianzoo/tfm/canon/bundles/promos/cards.json5),
-[Prelude 2](../../src/common/dev/martianzoo/tfm/canon/bundles/prelude2/cards.json5).
+Sources: [board](../../../../pets/src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets),
+[card play](../../../../pets/src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
+[promos](../../../../pets/src/common/dev/martianzoo/tfm/canon/bundles/promos/cards.json5),
+[Prelude 2](../../../../pets/src/common/dev/martianzoo/tfm/canon/bundles/prelude2/cards.json5).

@@ -30,14 +30,16 @@ import dev.martianzoo.state.Task.TaskId
  * * `Ok >> b` is removed
  * * Mandatory `Die >> b` or `a >> Die` produces [DeadEndException]; nonmandatory `Die` is `Ok`
  * * `a, b >> null` is split into `a >> null` and `b >> null`
- * * `a, b >> c` produces some exception (which?)
+ * * A Task cannot store a group as its instruction. If resolution exposes independent children,
+ *   ActorEngine admits those children and the original continuation as ordinary pending work
  * * `a THEN b >> null` where `a THEN b` is separable is rewritten to `a >> b`
- * * `a THEN b >> c` retains both boundaries rather than merging their independent variable scopes
+ * * `a THEN b >> c` keeps the two independent variable scopes separate
  * * `a, Ok` becomes `a`
  * * `a, Die!` becomes `Die!`
  * * `a OR Die!` becomes `a`; if every option is mandatory `Die`, the task produces
  *   [DeadEndException]
- * * A concrete selected task is guaranteed to execute successfully
+ * * A concrete selected task has no remaining choices, but its effects or invariant checks can
+ *   still fail. Normalization does not establish transaction legality
  * * Normalization retains task identity, current assignee, selection, and cause. Admission and
  *   contextual selection assign concrete System gains and removals to Admin, including changes
  *   scaled by `Per` or waiting behind a gate. Concrete gains explicitly `BY Admin` also begin with
@@ -122,8 +124,11 @@ internal class TaskQueues(
    * L2-19](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#2-instructions)).
    * Work deferred while that batch runs waits for the whole batch. A promoted dispatch is performed
    * at once, before it is removed, so its body joins the batch's work. Promotion is an ordinary
-   * task edit, so rollback and replay restore it with its transaction.
+   * task edit, so recorded-event restoration also restores the previous deferral.
    */
+  // TODO(ENGINE_CONTRACT): review the recommendation to promote only after a complete transaction.
+  // Currently addTasks/removeTask can promote a batch while the queue is temporarily empty within
+  // a larger call, before that call has finished creating its ordinary work.
   private fun promoteDeferredWork() {
     while (true) {
       val pending = gameWorld.tasks.extract { it }
@@ -183,6 +188,9 @@ internal class TaskQueues(
             is Gated -> explicitlyByAdmin(instruction.inner)
             else -> false
           }
+      // TODO(ENGINE_CONTRACT): review concrete BY Admin routing for removals, transmutations, and
+      // wrappers too. Admission currently recognizes only pure non-System gains through BY/Gated;
+      // other explicit Admin work can stay assigned to the Player until selection.
       if (change.removing == null && explicitlyByAdmin(task.instruction)) {
         return task.copy(assignee = ADMIN)
       }

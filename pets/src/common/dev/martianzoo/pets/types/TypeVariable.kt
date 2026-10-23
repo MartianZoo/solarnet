@@ -60,7 +60,7 @@ internal constructor(
 
   /**
    * [declaration] followed by [usages]. The usages preserve their authored order; an observing use
-   * may precede the declaration within the same settlement region under
+   * may precede the declaration within the same construct-local scope under
    * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#13-type-variables).
    */
   public val occurrences: List<Occurrence> = listOf(declaration) + usages

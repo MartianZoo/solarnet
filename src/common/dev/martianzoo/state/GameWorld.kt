@@ -122,6 +122,9 @@ private constructor(
    * invalidate it. [fork] on the overlay materializes its complete history and current state into
    * an independent World.
    */
+  // TODO(ENGINE_CONTRACT): investigate removing reusable speculative state and resetOverlay.
+  // The proposed contract does not select this capability; establish a required use before keeping
+  // it.
   public fun overlay(): GameWorld =
       GameWorld(
           premise,

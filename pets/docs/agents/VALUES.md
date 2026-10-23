@@ -5,13 +5,6 @@
 
 ## Model the game honestly
 
-**Assume client-side pruning, or accept dead ends.** Every Pets and engine design must follow
-the [decision-tree principle in AGENTS.md](../../AGENTS.md).
-The player's agent or client either presents only choices known to permit turn completion, or
-exposing unsuccessful paths is acceptable. Missing pruning does not create a model requirement.
-Protected Habitats may let an opponent attempt a plant removal and then dead-end the turn,
-requiring rollback. That is valid rule enforcement, not a modeling defect or a fidelity compromise.
-
 Completeness is not a project goal. Design cleanup matters more than forcing every official rule
 into the model.
 

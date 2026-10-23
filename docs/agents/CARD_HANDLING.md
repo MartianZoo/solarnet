@@ -26,19 +26,14 @@ Prelude, and beginner cards, before it can complete. The client supplies names i
 per-back hand-entry order and names for otherwise anonymous departures. Supplied names must resolve
 to concrete `CardFront` classes with the matching back in the catalog. A source card can be named
 even when that card is excluded from this game's playable pool. An operation with missing names
-rolls back; automatic execution can leave the affected card task pending for the client.
+fails validation.
 Unused supplied names may be replaced after a failed operation without changing names used by
 surviving events.
-
-World copies do not copy card tracking, so new card movements remain anonymous. A copy made before
-any hand movement can opt into tracking explicitly. Speculative Worlds refuse guard installation;
-card movements in an overlay remain anonymous. The source World's tracker remains attached only to
-its own history.
 
 Missing names raise `CardTracking.NamesRequiredException`, an `AgentInputRequiredException` with
 the Player, back, location, direction, additional count, and attempted change event. Its detached
 `candidates` set describes the eligible source immediately before that movement, including earlier
-movements within the rolled-back command and excluding names already supplied for this movement.
+movements within the failed command and excluding names already supplied for this movement.
 Null means a recognized fresh arrival requiring an external dealer; an empty set means no known
 source card is eligible. Unknown transfers must not be interpreted as draws. `filter` carries the
 arrival's `CardFilter` when present. The public `cardMatchesFilter` function shares the tracker's
@@ -46,9 +41,8 @@ printed-card predicate with dealers. The attempted event is diagnostic evidence,
 history.
 
 The tracker retains its last successfully validated snapshot and processes only subsequent change
-events. It reuses that snapshot only while its last event still survives by identity; rollback or
-a different branch at the same ordinal causes reconstruction from surviving history. Failed
-validation never replaces the saved snapshot. Queued names remain independent of that snapshot.
+events. It reuses that snapshot only while its last event still survives by identity; otherwise it
+reconstructs from surviving history. Failed validation never replaces the saved snapshot. Queued names remain independent of that snapshot.
 
 The tracker writes a `Cards:` note on every hand-change event, checks that a card played from Hand
 was in that Player's hand, and compares named holdings with modeled hand counts for every back type.

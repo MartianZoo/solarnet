@@ -1,3 +1,12 @@
+> **Archaeology only.** This document preserves a mix of how things were and how we wanted
+> them to be around **October 22, 2026**. It is not current guidance, an implementation
+> contract, or a list of work to resume. Earlier status labels and instructions below are
+> historical quotations, not present requirements.
+
+Original source: `docs/agents/SMART_AUTOEXEC.md` at `ccfd949f82cb64f291c34f8d47dffbd4b15a0054`.
+
+Full historical document.
+
 # Autoexecution and pruning
 
 > **Agent information:** This is an agent-maintained information-tracking document, written by
@@ -8,8 +17,8 @@
 > changing how Admin settles its work.
 >
 > **Status:** The current model is the three-value
-> [`AutoExecPolicy`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) and the shared
-> [`AutoExecLoop`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt). The owner set a new
+> [`AutoExecPolicy`](../../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) and the shared
+> [`AutoExecLoop`](../../../src/common/dev/martianzoo/agent/AutoExecLoop.kt). The owner set a new
 > direction on 2026-10-14 (D1–D6); none of it is implemented. This version replaces a note that
 > treated the subject as proving individual commands safe. The parts of that analysis that still
 > hold are folded in below.
@@ -17,7 +26,7 @@
 ## The idea in brief
 
 **Pruning belongs here, in agent/client policy, not in the engine or Pets model.** Under the
-[universal design assumption](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client),
+[universal design assumption](RETIRED_PASSAGES.md#source-agents-md--decision-tree-pruning-belongs-to-the-players-agent-or-client),
 the player's agent or client either presents only choices known not to dead-end the turn, or
 exposing dead ends is acceptable. The engine and model do not wait for this proposed policy work
 to be implemented. Protected Habitats requiring rollback after an attempted theft is valid today.
@@ -61,7 +70,7 @@ These definitions give the rules below precise terms.
   choose one option of the current `TaskForm` decision (an `OR` alternative, a target, or an
   amount). A `doTask` call is a path of such edges.
 - **G2. Completion.** A path is complete at operation completion as
-  [SEQUENCING.md](SEQUENCING.md#operation-completion) defines it. This horizon is provisional
+  [SEQUENCING.md](../SEQUENCING.md#operation-completion) defines it. This horizon is provisional
   (Q1).
 - **G3. Live and dead.** An edge is *live* when some complete path continues through it, and *dead*
   when none does. Showing an edge live takes one witness path. Showing it dead takes an exhaustive
@@ -101,7 +110,7 @@ workable after a later choice. No new representation is needed to name an edge.
 
 - **R3. Information order.** A walk must not move a decision from after a reveal to before it. A
   reveal is any fact supplied from outside the calculation, such as a drawn card or a revealed
-  global event ([CARD_HANDLING.md](CARD_HANDLING.md), [ADVERSARIAL.md](ADVERSARIAL.md)). Two orders
+  global event ([CARD_HANDLING.md](../CARD_HANDLING.md), [ADVERSARIAL.md](../ADVERSARIAL.md)). Two orders
   can reach equal outcome sets while one makes the Player decide with less information. R1 alone
   does not exclude that.
 
@@ -114,8 +123,8 @@ workable after a later choice. No new representation is needed to name an edge.
 - **R6. Legal commands only.** A policy chooses among engine-legal commands. It cannot supply a
   missing ordering, exclusion, or completion rule, and it cannot make a forbidden intervention
   safe. Delegated payment must be correct under `NONE` before any policy can claim to preserve it.
-  See [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over) and roadmap item 5
-  in [SOLARNET_ROADMAP.md](../SOLARNET_ROADMAP.md).
+  See [SEQUENCING.md](../SEQUENCING.md#the-missing-rule-when-an-operation-is-over) and roadmap item 5
+  in [SOLARNET_ROADMAP.md](../../SOLARNET_ROADMAP.md).
 
 - **R7. Analysis leaves the live World unchanged.** Exploration uses rolled-back transactions
   (`Timeline.atomic` with an abort, as `ActorEngine.canSelectTask` does) or `Engine.fork`.
@@ -195,7 +204,7 @@ change in behavior:
 Pruning has a second client besides autoexecution. A UI can grey out dead edges and merge
 equivalent ones even when several live classes remain. That argues for exposing pruning as an Agent
 query, with autoexecution as one caller of it.
-[ENGINE.md](ENGINE.md#queries-invariants-and-dead-ends) already assigns client-facing exploration
+[ENGINE.md](RETIRED_PASSAGES.md#source-docs-agents-engine-md--queries-invariants-and-dead-ends) already assigns client-facing exploration
 and pruning to Agents.
 
 ## Admin
@@ -204,14 +213,14 @@ and pruning to Agents.
 
 - `Agents` gives every Actor, Admin included, `EAGER` by default, and any caller can change it.
 - Import and `TaskLog.replay` set Admin to `NONE` and submit its recorded commands
-  ([EXPORT.md](EXPORT.md)).
-- [`MassiveGammaZoneTest`](../../test/jvm/dev/martianzoo/tfm/tests/replays/MassiveGammaZoneTest.kt)
+  ([EXPORT.md](../EXPORT.md)).
+- [`MassiveGammaZoneTest`](../../../test/jvm/dev/martianzoo/tfm/tests/replays/MassiveGammaZoneTest.kt)
   switches Admin to `CONCRETE` or `NONE` three times, each around Turmoil global-event work.
 - `EffectAtomizationTest` and `PerAtomizationTest` set Admin to `NONE`.
 
 In the loop, Admin's options come first, in queue order. When every Admin option needs input or
 is temporarily unavailable, the loop falls through to Player options.
-[IDENTITY.md](IDENTITY.md#admin-and-engine) says Admin "may control, receive, select, and narrow
+[IDENTITY.md](../IDENTITY.md#admin-and-engine) says Admin "may control, receive, select, and narrow
 tasks" and that "no identity rule requires Admin's decisions to be deterministic." D1 contradicts
 that sentence. Settle it before implementing D1.
 
@@ -224,7 +233,7 @@ Today Admin holds work of three kinds:
    choice should go to the Actor the rule names, using existing assignment (`TASK`, `BY`, effect
    context), leaving Admin only the concrete change.
 3. **A supplied fact**: for example, which global event is revealed. It is a reveal. The dealer
-   arrangement in [ADVERSARIAL.md](ADVERSARIAL.md) supplies it, as it supplies card identities.
+   arrangement in [ADVERSARIAL.md](../ADVERSARIAL.md) supplies it, as it supplies card identities.
 
 D1 is consistent once Admin holds only the first kind. The consequences to verify:
 
@@ -270,7 +279,7 @@ Whether any other Admin work needs the current fall-through is exactly what the 
   - `TfmActionCommand` (to `NONE` while paying a written cost)
   - `TfmPayCommand` (to `NONE`)
 - **Tests settling routine work.** Tests contain 430 `autoExecNow(EAGER)` calls in 31 files.
-  [TESTING.md](TESTING.md) tells authors to settle competing routine effects that way, and states
+  [TESTING.md](../TESTING.md) tells authors to settle competing routine effects that way, and states
   that an automatically chosen order is not evidence of a required order. Each call marks a point
   where `CONCRETE` stops and a test author judged the remaining order unimportant. That makes them
   the largest available seed for the census.
@@ -380,7 +389,7 @@ An earlier attempt built a corpus from inserted task pairs, then from pairs of o
 card plays. Both encoded the wrong premise. Pairing an Energy gain with Factorum's action assumed
 that a reachable play puts both in one queue. Pairing a Player's removal with an Admin production
 phase ignored the fact that the game's flow starts the next phase only as `FINALLY` work, after
-everything else drains ([SEQUENCING.md](../../pets/docs/agents/GAME_FLOW.md#game-flow)). Those tests were removed and
+everything else drains ([SEQUENCING.md](../../../pets/docs/agents/GAME_FLOW.md#game-flow)). Those tests were removed and
 nothing from them was kept.
 
 The test subject is a **pending concrete task at a real decision point**:
@@ -436,20 +445,20 @@ imaginary cards now.
 
 ## Source map
 
-- [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) and
-  [`AutoExecLoop.kt`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt): the current enum and
+- [`AutoExecPolicy.kt`](../../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) and
+  [`AutoExecLoop.kt`](../../../src/common/dev/martianzoo/agent/AutoExecLoop.kt): the current enum and
   loop. `actOnce` makes choices; it does not prove safety.
-- [`Agents.kt`](../../src/common/dev/martianzoo/agent/Agents.kt) and
-  [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt): initial policies, the
+- [`Agents.kt`](../../../src/common/dev/martianzoo/agent/Agents.kt) and
+  [`AgentImpl.kt`](../../../src/common/dev/martianzoo/agent/AgentImpl.kt): initial policies, the
   override stack, and the operation completion check (`requireComplete` with `lastDecision`).
-- [`TaskForm.kt`](../../src/common/dev/martianzoo/agent/TaskForm.kt): narrowing edges
+- [`TaskForm.kt`](../../../src/common/dev/martianzoo/agent/TaskForm.kt): narrowing edges
   (`decisions`, `options`).
-- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt): `canSelectTask` and
+- [`ActorEngine.kt`](../../../src/common/dev/martianzoo/engine/ActorEngine.kt): `canSelectTask` and
   `canExecuteTask` probes, `prepareTaskNarrowing`, `enforceSelectLock`, `requireComplete`.
-- [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): `Engine.fork`.
-- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt): `resolve` and
+- [`Engine.kt`](../../../src/common/dev/martianzoo/engine/Engine.kt): `Engine.fork`.
+- [`Instructor.kt`](../../../src/common/dev/martianzoo/engine/Instructor.kt): `resolve` and
   `executeResolved` separate current-state simplification from execution.
-- [`SafeAutoExecTest.kt`](../../test/common/dev/martianzoo/agent/SafeAutoExecTest.kt): current
+- [`SafeAutoExecTest.kt`](../../../test/common/dev/martianzoo/agent/SafeAutoExecTest.kt): current
   policy scenarios. Its name does not establish safety for arbitrary compositions.
-- [`AutoCommand.kt`](../../src/common/dev/martianzoo/tfm/script/commands/AutoCommand.kt): the REPL's
+- [`AutoCommand.kt`](../../../src/common/dev/martianzoo/tfm/script/commands/AutoCommand.kt): the REPL's
   policy switch and its help text.

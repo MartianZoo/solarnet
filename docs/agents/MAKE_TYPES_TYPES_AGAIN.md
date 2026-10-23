@@ -147,7 +147,7 @@ Acceptance should include:
   applicable broader checks. Synthetic tests characterize mechanics; unsupported synthetic
   combinations are not by themselves reasons to retain machinery.
 - The final design removes the old state-dependent type model rather than preserving it under a
-  different name. No additional dead-end prevention or player-choice pruning is introduced.
+  different name.
 
 ## Difficulty and recommendation
 

@@ -11,7 +11,7 @@
 ## Current contract
 
 The [authored payment model](../../pets/docs/agents/PAYMENTS.md#current-contract) owns debt,
-acceptance, payment signals, and settlement. The runtime executes those declarations.
+acceptance, payment signals, and payment completion. The runtime executes those declarations.
 
 The linked `X` choice still appears after `UseCardAction` fires, so `ActionUsedMarker` may exist
 while the choice is open. The intended later design would let a client set `X` on the printed
@@ -27,21 +27,7 @@ remains optional for discovering open choices. This still selects the pending co
 Pharmacy Union's disease losses and Flooding's self-inflicted loss leave an open payment unchanged.
 Their sandbox tests resolve those losses before the explicit payment and verify the full cost.
 Pharmacy Union's starting 54 MC is queued behind a zero-disease gate; its microbe reaction places
-disease before offering the capped 4 MC loss. Choosing disease before starting cash can leave setup
-unable to finish, requiring undo. This is allowed; the model need not make every available choice
-lead to completion. No special starting-resource phase or autoexecution exception is used.
-
-## Interleaving and rollback
-
-Accepting Neptunian's offer does not prevent the player playing Flooding from resolving its loss
-while the purchase remains unpaid. This ordering is allowed. On 2026-10-14 the owner explicitly
-confirmed that making the purchase unaffordable this way is a voluntarily dead-ended turn, not a
-bug: the player playing Flooding must roll back.
-
-`FloodingTest` covers losses both before payment and after a separate Steel payment. The loss
-never credits the bill. A failed cash payment leaves the earlier Steel payment intact; rolling
-back the enclosing turn restores both players' resources and removes the debt. These scenarios do
-not require a lock around the purchase or automatic rollback of earlier payment commands.
+disease before offering the capped 4 MC loss.
 
 Payment offers are routed by their effect owner, changed component owner, or triggering Actor.
 The `pay` helper selects through each task's current assignee. Calling those Agents is legitimate
@@ -49,16 +35,12 @@ calculator use, independently of who operates the external caller.
 
 ## Current pieces
 
-Kotlin payment helpers submit explicit exchanges, decline unused alternatives, and settle
+Kotlin payment helpers submit explicit exchanges, decline unused alternatives, and pay
 the exact remainder. The [model pieces](../../pets/docs/agents/PAYMENTS.md#current-pieces)
 own pricing and acceptance.
 
-The sandbox suite exercises this ordering with explicit submissions. Gameplay helpers suspend
-player autoexecution while submitting a specified payment allocation. Under `CONCRETE` or `EAGER`,
-a cash-only bill may otherwise finish automatically; callers must not submit that payment again.
-Custom allocations belong in the helper's payment callback, before the purchased result.
-The script `tfm_pay` command uses the same allocation helper; `tfm_play` and `tfm_action` pause
-player autoexecution while submitting a written payment, then restore the configured policy.
+The sandbox suite exercises payment ordering with explicit submissions. Custom allocations belong
+in the helper's payment callback, before the purchased result.
 
 ## Allocation validation
 
@@ -91,6 +73,6 @@ Start with:
   `KuiperCooperativeTest`, `StormcraftIncorporatedTest`, `BoomTownTest`, and
   `StandardTechnologyTest`
 
-Preserve observable card/action outcomes, discounts, values, source restrictions, rollback, and
-settlement before consequences. Do not create mirrored allocation state or card-specific client
+Preserve observable card/action outcomes, discounts, values, source restrictions, and
+payment completion before consequences. Do not create mirrored allocation state or card-specific client
 orchestration to address a local symptom.

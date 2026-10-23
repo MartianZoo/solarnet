@@ -374,8 +374,10 @@ public object Parsing {
       generated: Boolean = false,
   ): ClassDeclaration {
     val selected = transformDeclaration(declaration, selectorNormalizer)
-    // Explicit selectors shadow class parameters; settlement scopes do not. Keep parameters used
-    // outside a selector before settlement binding can temporarily give those uses another scope.
+    // Explicit selectors shadow class parameters; construct-local scopes do not. Keep parameters
+    // used
+    // outside a selector before construct-local binding can temporarily give those uses another
+    // scope.
     val signature = if (generated) pruneUnusedGeneratedMarkers(selected) else selected
     val normalized = transformDeclaration(signature, localScopeNormalizer)
     return resolveClassTypeVariableNames(normalized).also(::rejectUnsupportedSyntax)

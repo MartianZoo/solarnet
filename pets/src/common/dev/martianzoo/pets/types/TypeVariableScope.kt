@@ -229,7 +229,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     }
   }
 
-  /** Unsettled choices keep their aliases and predicates in a proposal that remains pending. */
+  /** Abstract choices keep their aliases and predicates in a proposal that remains pending. */
   internal fun ensureChoicesRetained(
       wide: PetNode,
       narrow: PetNode,
@@ -239,7 +239,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
   ) {
     fun check(w: Expression, n: Expression) {
       if (variableAt(w) in liveVariables && w.typeVariableName?.key != n.typeVariableName?.key) {
-        throw NarrowingException("unsettled type-variable occurrence `$w` must retain its marker")
+        throw NarrowingException("pending type-variable occurrence `$w` must retain its marker")
       }
       val wideType = classTable.resolve(w)
       val narrowType = classTable.resolve(n)
@@ -253,7 +253,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           it.withoutChoiceNames() == clause.withoutChoiceNames()
         }
         if (observesChoice && retained == null) {
-          throw NarrowingException("unsettled choice `$n` must retain `$clause`")
+          throw NarrowingException("choice with pending references `$n` must retain `$clause`")
         }
         if (observesChoice) {
           retained?.let {
@@ -353,7 +353,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     val selectedBindings = bindings.mapValues { (variable, value) ->
       if (variable.selectsClass) value.rootClass.baseType else value
     }
-    fun settled(variable: TypeVariable, value: GroundType): Boolean =
+    fun isConcreteBinding(variable: TypeVariable, value: GroundType): Boolean =
         if (variable.selectsClass) !value.rootClass.abstract else !value.abstract
 
     fun capturedType(entry: Entry): GroundType =
@@ -396,7 +396,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         val target =
             occurrence.expressionFor(occurrenceBinding, source, classTable).let { applied ->
               val marker = source.typeVariableName
-              if (!settled(entry.variable, replacement) && marker != null) {
+              if (!isConcreteBinding(entry.variable, replacement) && marker != null) {
                 applied.copy(
                     typeVariableName =
                         ExpandedReference(marker.name, marker.boundClassName, marker.resolution)
@@ -418,7 +418,9 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     }
     val transformer =
         BindingTransformer(
-            selectedBindings.filter { (variable, value) -> settled(variable, value) }.keys,
+            selectedBindings
+                .filter { (variable, value) -> isConcreteBinding(variable, value) }
+                .keys,
             replacements,
             classTable,
         )

@@ -9,9 +9,10 @@ import kotlin.jvm.JvmInline
 
 /**
  * Current or recorded form of a pending instruction. [id] survives edits. [assignee] controls the
- * task. [selected] holds the world's exclusive selection lock until the task is narrowed, executed,
- * or removed. [instruction] may still require choices or dispatch separate work through `TASK` or
- * `LATER`. A [deferred] task waits until no earlier-deferred work remains.
+ * task. [selected] marks the instruction currently being handled and excludes selection of other
+ * tasks. Partial narrowing can currently leave it selected across calls. [instruction] may still
+ * require choices or dispatch separate work through `TASK` or `LATER`. A [deferred] task waits for
+ * ordinary tasks and any earlier deferral to finish.
  */
 public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
@@ -20,7 +21,12 @@ public data class Task(
     /** Who currently has exclusive authority to advance this task. */
     val assignee: Actor,
 
-    /** Whether this task has been selected and therefore holds the global select-lock. */
+    /**
+     * Whether this is the selected task. In the proposed priorities it is P0, before ordinary Admin
+     * and Player work.
+     */
+    // TODO(ENGINE_CONTRACT): investigate keeping unfinished choices in the client; a selected task
+    // currently can survive a successful call without its instruction being fully concrete.
     val selected: Boolean = false,
 
     /** What to do. Can be abstract and is stored exactly as supplied by the engine. */
@@ -42,6 +48,9 @@ public data class Task(
      * No task may be selected while a task with an earlier [Deferral] remains. When no ordinary
      * task remains, every task with the earliest remaining deferral becomes ordinary at once.
      */
+    // TODO(ENGINE_CONTRACT): deferral alone omits the proposed P1 Admin / P2 Player distinction.
+    // Whole-batch promotion is proposed; checking only after a transaction is a further timing
+    // recommendation. Both remain subject to human review.
     val deferral: Deferral = Deferral.NONE,
 ) {
   init {

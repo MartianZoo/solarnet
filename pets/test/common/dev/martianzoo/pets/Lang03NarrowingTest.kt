@@ -207,7 +207,7 @@ internal class Lang03NarrowingTest {
   }
 
   @Test
-  internal fun `L3-7 one X around a group settles every member of it`() {
+  internal fun `L3-7 one X around a group binds every member of it`() {
     narrows("-X! Heat THEN (X! Steel, X! Plant)", "-3! Heat THEN (3! Steel, 3! Plant)") shouldBe
         true
     refuses("-X! Heat THEN (X! Steel, X! Plant)", "-3! Heat THEN (3! Steel, 2! Plant)")

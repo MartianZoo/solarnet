@@ -1,8 +1,17 @@
+> **Archaeology only.** This document preserves a mix of how things were and how we wanted
+> them to be around **October 22, 2026**. It is not current guidance, an implementation
+> contract, or a list of work to resume. Earlier status labels and instructions below are
+> historical quotations, not present requirements.
+
+Original source: `docs/agents/ENGINE_GO_FAST.md` at `ccfd949f82cb64f291c34f8d47dffbd4b15a0054`.
+
+Full historical document.
+
 # Engine performance research
 
 > **Agent information:** Research note through 2026-10-18. Measurements below describe their
 > stated workloads; proposed structures are hypotheses, not selected architecture. Read
-> [ENGINE.md](ENGINE.md) for current behavior and [TESTING.md](TESTING.md) before running benchmarks.
+> [ENGINE.md](../ENGINE.md) for current behavior and [TESTING.md](../TESTING.md) before running benchmarks.
 
 ## The question
 
@@ -19,7 +28,7 @@ deltas and leaves its source graph unchanged. Its current abstract count path co
 count and scans overlay deltas. A search agent may reset an overlay repeatedly. This shifts the
 likely tradeoff toward doing more work on committed source writes, but no current trace measures
 that tradeoff. Source Agent probes can still mutate and roll back the source, invalidating overlays;
-see [ENGINE.md](ENGINE.md) and the existing overlay measurement item in [TODO.md](../../TODO.md).
+see [ENGINE.md](../ENGINE.md) and the existing overlay measurement item in [TODO.md](../../../TODO.md).
 
 ## Evidence we have
 

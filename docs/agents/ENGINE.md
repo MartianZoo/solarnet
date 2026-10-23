@@ -4,10 +4,11 @@
 > agents for agents. It can record human decisions, but it is not human-authored documentation.
 >
 > **Read when:** changing construction of a live `World`, component mutation, events, transactions,
-> tasks, effect execution, rollback, or the engine-facing part of `Agent`.
+> tasks, effect execution, or the engine-facing part of `Agent`.
 >
 > **Status:** current-model map. It explains the engine's responsibilities and causal path, not
-> every Pets operator or Terraforming Mars rule.
+> every Pets operator or Terraforming Mars rule. The proposed client interaction requirements
+> remain subject to human review in [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
 
 ## The model to keep in mind
 
@@ -17,11 +18,11 @@ A live game has three layers with deliberately different responsibilities:
 | --- | --- |
 | `:state` | Replayable facts: concrete components, exact pending Tasks, and the event sequence |
 | `:engine` | Interpretation: task resolution, limits, effects, attribution, and transactions |
-| `:agent` | The normal Actor-scoped client API and optional autoexecution policy |
+| `:agent` | The normal Actor-scoped client API |
 
 `GameWorld` is the passive center. It can apply or reverse already-decided events, but it cannot
 interpret an Instruction or calculate a consequence. Engine services surround one `GameWorld` and
-derive the events to apply. One stable `ActorEngine` per Actor supplies the policy-free mutation
+derive the events to apply. One stable `ActorEngine` per Actor supplies the Actor-scoped mutation
 boundary. `Agent` is the ordinary application-facing wrapper around that boundary.
 
 This separation makes a recording replayable without running the engine again: playback reapplies
@@ -39,7 +40,7 @@ Narrower notes own adjacent subjects:
 - [type-system-spec.md](../../pets/docs/type-system-spec.md) and
   [pets-language-spec.md](../../pets/docs/pets-language-spec.md) own static Types and authored Pets semantics.
 
-For proposed changes to runtime layering, public APIs, policy, or game flow, use the Solarnet roadmap
+For proposed changes to runtime layering, public APIs, or game flow, use the Solarnet roadmap
 for direction and inspect current source and tests for the implemented contract.
 
 ## From a premise to a ready World
@@ -65,7 +66,7 @@ Bootstrap drains choice-free Tasks through their assigned Actor Engines. An abst
 acceptable only when normal resolution leaves exactly one legal concrete result; initialization
 must not silently choose among alternatives. Successful initialization requires no pending Tasks,
 all exact premise components, and all applicable positive lower bounds, then commits the timeline.
-Before a ready World or fork is returned, the engine also verifies every positive signed premise
+Before a ready World is returned, the engine also verifies every positive signed premise
 selection representing an inhabited concrete Class has a live `Class<T>` component, and every
 negative selection lacks one.
 
@@ -77,36 +78,6 @@ ordinary setup; bootstrap does not make it on the Player's behalf.
 An automatic effect narrows an abstract gain when live component limits eliminate every candidate
 except one. If several legal concrete targets remain, the gain stays abstract. User-selected tasks
 do not use capacity as an implicit choice.
-
-`Engine.fork` constructs an independently mutable live World only at a completed gameplay
-position. It shares the immutable premise and Class Table, copies the passive component,
-dependency, task, event, completed-position, and live-effect-index collections, and builds fresh
-engine services around them. Immutable compiled live effects are shared, while index storage is
-independent and retains source registration order. The fork point is the new timeline commit floor,
-so the fork cannot roll back into source history. Application callbacks, component listeners,
-transactions, and Agents remain fresh.
-
-`Engine.overlay` accepts the same completed-tip position and builds ordinary engine services over
-an event-suffix `GameWorld`. Exact component counts are source counts plus local deltas; pending
-Tasks read the source until the first local Task event; event history reads the source prefix and
-the local suffix. Live-effect subscriptions copy individual buckets only when changed. The source
-World is never changed by overlay play. Applying or rolling back a source event invalidates the
-overlay, including its retained component, task, and event views; seeking backward requires
-truncating the retained future before overlay creation. Source Agent selection and execution probes
-can also invalidate the overlay because they apply tentative events and roll them back. Run such
-probes before creating the overlay or on the overlay's own Agents. `SpeculativeWorld.reset` clears local
-projections and events directly, keeping the World and its retained views ready for another trial.
-`SpeculativeAgents.reset` also clears its local input recording while keeping its Agents and policy
-settings. `Engine.fork` on an overlay materializes the combined history, projections, and completed
-positions into an independent World. `Agents.overlay` and `Agents.fork` create the corresponding
-fresh Agents with each Actor's current autoexecution policy. Agent transaction guards are not
-copied by either operation, so new card movements can remain anonymous. Overlays refuse guard
-installation; a full copy of an overlay keeps its anonymous event history. Completion callbacks
-and task recording begin fresh.
-
-Engine-internal selection probes still use short atomic attempts and rollback on the active World.
-The overlay work does not change that path; its cost and suitability for frequent probes need a
-separate measurement.
 
 The generated premise is executable output of configuration resolution. Live initialization does
 not reconsider Module defaults or assemble a second representation of the premise. Required state
@@ -135,40 +106,18 @@ The event log contains:
 - `TaskRemovedEvent`; and
 - `TaskEditedEvent`.
 
-`GameWorld.apply` is the sole forward event/projection boundary. `GameWorld.rollBackTo` reverses the
-same projections while removing their events. Engine-side derived indexes, notably live effects,
-must observe both directions rather than owning another copy of game state.
+`GameWorld.apply` applies events to the state projections. Engine-side derived indexes,
+notably live effects, follow those events rather than owning another copy of game state.
 
 Ordinary game mechanics react to the current World and the event being processed, not by querying
 arbitrary event history. Event ordinals and Task ids are causal and diagnostic identities, not game
 resources or presentation order.
 
-`Timeline` owns the positions between caller-facing Player Agent methods, its retained future when
-seeking backward, failure-atomic blocks, and a commit floor. Public seeking accepts only completed
-positions at or after that floor; stepping moves between the same positions. Seeking preserves later
-events and restores components, Tasks, and derived indexes in either direction. Gameplay cannot
-mutate the World while a future is retained; `truncate()` deliberately discards it before new play.
-A Player Agent method records a position after its work finishes, including an `OperationScope`
-method inside an enclosing client block. Admin calls do not automatically create positions. The
-enclosing block remains failure-atomic; it does not hide positions between its nested Player calls.
-Seeking inside an atomic call cannot cross that call's start. An atomic failure instead discards
-that interaction's events and restores its starting state.
-`Exceptions.AbortTransactionException` requests that restoration without surfacing as a caller
-failure. The commit floor prevents navigation across initialization or a fork point. Gameplay
-commits nothing, so seeking may cross turn and phase changes.
-
-These commits are local timeline mechanics, not acceptance of a shared game's Git history. They
-do not grant or deny a takeback between players. [ADVERSARIAL.md](ADVERSARIAL.md) places that
-agreement outside the engine; reconstructing an agreed earlier position is a separate operation
-from rolling back an individual local transaction.
-
-Transaction atomicity is not a game rule saying intermediate changes are invisible. Effects can
-observe the individual changes that compose a successful operation.
-
 ## Tasks are choices, not a program counter
 
 There is one semantic Task pool. Actor-specific queues are filtered views. Iteration is stable for
-reproducibility, but its order carries no rule meaning.
+reproducibility; Player clients choose among their available tasks. Admin handling follows
+[ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
 
 A Task retains:
 
@@ -237,7 +186,7 @@ remaining choice or the first stage is executable. It handles metrics and gates,
 arms whose execution prerequisites fail, narrows an abstract gain when present dependencies
 identify one target, resolves quantities, and translates concrete custom instructions. Mandatory
 resolution checks physical availability and dependencies; AMAP and optional quantities also use
-current count bounds. This may settle a location as well as a class, or an existing dependency
+current count bounds. This may determine a location as well as a class, or an existing dependency
 whose declared maximum is one. The same World-based gain narrowing applies when a selected Task
 receives an explicit narrowing. `ActorEngine` separately executes a selected Task once its
 instruction is concrete.
@@ -251,9 +200,9 @@ Resolution may leave a genuine Player choice abstract. The task's current assign
 it. If resolution exposes independent instructions, the selected structural Task completes and
 admits ordinary unselected children without transferring its selection to a child.
 
-Engine task execution leaves a handed-off task selected for its receiving Actor. `Agent.doTask`
-runs configured autoexecution and requires that selected task to finish; otherwise it rolls back
-the call. `selectTask` and `narrowTask` can instead leave work pending for the receiving Actor.
+Engine task execution leaves a handed-off task selected for its receiving Actor.
+`selectTask` and `narrowTask` can leave work pending for that Actor.
+
 `doTask` can identify a gated task by its body, and a `/` task by its calculated action, without
 repeating the gate or metric in the submitted instruction. The task still checks those conditions.
 When matching a task by its body, a failed gate does not compete with available matches. If no
@@ -272,13 +221,12 @@ state for changing assignee midway through such a Task, and Canon has no use req
 The finishing task's assignee receives structural children and continuations. A System handoff
 encodes the former assignee in its continuation, so Admin executes the System step and returns later
 work to that Actor. Authored `TASK` dispatch can also give work to another Actor. Queued reactions
-use ownership and event attribution as described in [IDENTITY.md](IDENTITY.md). Deferral by `LATER`
-and `FINALLY` is the only task priority ([SEQUENCING.md](SEQUENCING.md#deferred-work)), and there
-is no persistent delegated
-operation in current task data. The remaining routing and completion questions are in
-[SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over). Any game-rule restriction
-on which task may execute must apply equally to explicit commands and autoexecution. Protecting a
-player from somebody else calling their Agent is instead an external submission concern covered
+use ownership and event attribution as described in [IDENTITY.md](IDENTITY.md). Deferral by `LATER` and `FINALLY` is described in
+[SEQUENCING.md](SEQUENCING.md#deferred-work). The proposed priority model is owned by
+[ENGINE_CONTRACT.md](ENGINE_CONTRACT.md). There is no persistent delegated operation in current
+task data. The remaining routing and completion questions are in
+[SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over). Game-rule restrictions
+determine which task commands are legal. Protecting a player from somebody else calling their Agent is instead an external submission concern covered
 by [ADVERSARIAL.md](ADVERSARIAL.md).
 
 An owned context supplies lexical `Me` to a bare nested `CityTile`; a Player-submitted narrowing
@@ -328,9 +276,8 @@ attribution.
 
 Queued `:` effects produce pending Tasks. Automatic `::` effects execute recursively before queued
 effects from the same change are admitted. The recursion limit is eight nested automatic effects;
-exceeding it raises the shared Pets `ResourceLimitException` and rolls back the enclosing operation.
-Parser and class-loading resource limits use the same exception. Task selection and execution
-probes propagate it rather than reporting an unavailable choice. Because automatic effects create
+exceeding it raises the shared Pets `ResourceLimitException`.
+Parser and class-loading resource limits use the same exception. Because automatic effects create
 no Task, their instructions cannot use instruction-side `BY`. Read [SEQUENCING.md](SEQUENCING.md)
 before using `:` versus `::` to force an order.
 
@@ -357,29 +304,13 @@ forces the beneficial task order.
 
 See `WildTagHolderTest`, `WildTagTest`, and `WildTagContinuationTest` for allocation, ownership,
 cleanup, and reuse scenarios. Replays use Canon cards and actual allocation choices without
-wild-tag corrections. `CONCRETE` lets replays allocate before a competing payout; `EAGER` may
-choose the payout first. Admin removes the action scope even when the player uses `NONE`;
+wild-tag corrections. Admin removes the action scope;
 dependency cleanup removes its elections and assigned tags.
 
 Represented-tag binding limitations are documented under
 [Pets elaboration](../../pets/docs/agents/ELABORATION.md#represented-tag-bindings).
 
-## Queries, invariants, and dead ends
-
-**Owner direction (2026-10-14): decision-tree pruning is the player's agent or client's
-responsibility, never an engine or model obligation.** Universally assume either that the caller
-diligently presents only choices known not to dead-end the turn, or that exposing dead ends does
-not matter. This assumption does not depend on a pruner existing today. Task availability,
-selection, narrowing, and successful intermediate commands do not promise a successful turn.
-
-Protected Habitats is the concrete example. Its
-[`-Plant OR -Animal OR -Microbe BY Player(NOT Me@): Die`](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/corpera/cards.json5)
-queues a consequence of an opponent's removal. The attempted removal may happen before that
-consequence prevents completion; the caller must roll back the unsuccessful path, potentially
-the turn. The engine need not anticipate that consequence or hide the protected target. This is
-valid modeling, not an issue to fix. The existing
-[ProtectedHabitatsTest](../../test/common/dev/martianzoo/tfm/tests/cards/ProtectedHabitatsTest.kt)
-expects failed attacks and retained protected resources.
+## Queries and invariants
 
 `GameReader` evaluates component counts, requirements, refinements, and custom metrics against the
 current graph. A metric union is a multiset union: for each concrete Type it retains the greatest
@@ -406,7 +337,6 @@ matching queued effects in their original event order. Both automatic and queued
 can therefore see their parts' automatic consequences. Existing parts count toward the requirement,
 including parts supplied by overlapping requirements. Construction retains each gain's automatic
 ancestry to share the existing recursion guard; waiting for a dependency does not reset that budget.
-Failures roll back the whole operation.
 `ClassLimitTable.requiredParts` supplies these construction requirements from the same compiled
 invariant templates used for validation.
 
@@ -421,9 +351,8 @@ owner does not itself require dependent state.
 
 For component-count validation, a full operation is one initiating change and all its recursive
 automatic effects. Intermediate counts may cross declared bounds; the completed operation must
-satisfy them. Source availability and dependency integrity are checked at execution. Resolution never
-executes consequences to predict a choice's outcome; failure at completion uses the existing
-transaction rollback path. [QUANTIFIERS.md](QUANTIFIERS.md#invariants-at-operation-completion) owns
+satisfy them. Source availability and dependency integrity are checked at execution.
+[QUANTIFIERS.md](QUANTIFIERS.md#invariants-at-operation-completion) owns
 the bounds and choice-resolution contract.
 Initialization still audits all applicable positive minimums after constructing the initial world.
 Ordinary gameplay selects global minimum checks through the changed components' existing per-Class
@@ -439,28 +368,6 @@ state that may legitimately remain absent between operations still needs maximum
 exact one. Completion spanning queued work remains a separate
 [sequencing discussion](SEQUENCING.md#the-missing-rule-when-an-operation-is-over).
 
-A locally legal choice can discover later that its remaining work cannot complete. This is a
-recoverable dead end: `DeadEndException` rolls the encompassing transaction back so another branch
-can be tried. A broad choice is not a correctness bug merely because a branch fails late; it is a
-bug if a prohibited result survives successful turn completion. An offered choice need not contain a successful branch; a client
-can roll back farther when the whole choice leads to dead ends.
-
-Failure atomicity covers the encompassing transaction; it does not promise that a later failed
-command automatically undoes every earlier successful command in the turn. A caller exploring
-across commands must roll back far enough to abandon the unsuccessful path. Neither that need
-nor the absence of lookahead is an engine/model defect. Report a separate rule failure, such as
-a prohibited result surviving successful turn completion or a required legal outcome being lost.
-
-Whether that local calculation can be accepted as shared play, and what players do when already
-accepted work cannot finish, are external questions in [ADVERSARIAL.md](ADVERSARIAL.md). The engine
-does not need to prove every future continuation succeeds before exposing a task, or conceal
-local rollback to make a result count as an achievement.
-
-The engine can leave a mandatory choice available even when its count invariants will fail.
-Client-facing exploration and pruning belong to the player's agent or client. Engine resolution
-uses current source and dependency prerequisites, authored gates, and AMAP/optional capacity,
-without predicting repairs or pruning mandatory choices by count bounds.
-
 ### The metric operators are intentional
 
 `Metric.Max`, saturating `Metric.Subtract`, and non-double-counting `Metric.Or` have few authored
@@ -470,7 +377,7 @@ the metric algebra is still sparse, not as a reason to collapse these operators.
 likewise replaces game-specific ranking instructions with reusable comparison semantics.
 Ranking scores the candidate once, skips comparing it with itself, and evaluates each peer's
 later tiebreakers only while earlier scores remain tied. Scores are local to that rank query;
-they are not retained across state changes or rollback.
+they are not retained across state changes.
 
 ### Content must not compensate for an engine gap
 
@@ -485,43 +392,14 @@ replace that shape with an `AttackKind` hierarchy and per-resource watchers.
 
 ## Actor Engines and Agents
 
-Each World retains one policy-free `ActorEngine` per Actor. It owns attributed task and state
+Each World retains one `ActorEngine` per Actor. It owns attributed task and state
 commands but shares the World's changer, instructor, timeline, and Task services. `Agents(world)`
 constructs the corresponding normal client objects and prevents pairing an Agent with an unrelated
-World. Its optional `initialPolicy` function supplies each Actor's policy at construction without
-executing pending work; callers need not assign the policy afterward.
+World.
 
 For Actor attribution, receiving the request through that Actor's Agent is sufficient. The engine
 checks the task's current assignee and legal mutation, not the identity or consent of the person
 or program making the call. A client may use all of the World's Agents, including Admin.
-
-All ordinary Agent mutations use the shared outer transaction-completion path. `runOperation`
-admits new work, lets the body finish it, runs configured autoexecution, preserves unrelated
-pre-existing unselected Tasks, and rejects newly unfinished Tasks or `MustCleanUp` state. It cannot
-start while a pre-existing selected Task holds the World lock. `sneak` applies a fully concrete
-correction group, constructs exact required parts, removes dependents, and audits every applicable
-count invariant. The entire group rolls back on failure. It runs automatic effects and suppresses queued effects recursively
-while bypassing settlement and completion callbacks. `exMachina` rejects explicit
-System and MustCleanUp targets and any correction that leaves new MustCleanUp state.
-It additionally restores and resumes an existing selection within one atomic lifecycle. See
-[EX_MACHINA.md](EX_MACHINA.md) for the contract and the remaining canon consistency gaps.
-
-A World may install one `AgentTransactionGuard` before Agent commands begin. Every Agent mutation
-then validates the guard before its transaction can commit. An automatic candidate that needs
-unsupplied client information rolls back locally and stays pending; an explicit Agent request fails.
-The Terraforming Mars hand-tracking use is described in [CARD_HANDLING.md](CARD_HANDLING.md#card-hand-tracking).
-
-Current autoexecution lives in `:agent`, not in the core engine. Policy selects legal Task commands;
-it does not alter their semantics. Before probing tasks, the loop checks whether any pending
-candidate has an effective policy other than `NONE`. If none does, it returns without probes or
-execution, even when an Actor with no pending work has autoexecution enabled. When automatic work
-is available, manual tasks still compete with it. The shared policy loop tries eligible Admin work
-before Player work, including between explicit Player steps, but continues to an executable Player option when
-Admin work is abstract or temporarily unavailable. It cannot interrupt an authored `::` chain or
-supply a missing scheduling rule. Engine primitives remain available to any caller for local
-exploration, replay correction, tests, and cheats. Restricting access to those primitives
-is not an engine responsibility. [ADVERSARIAL.md](ADVERSARIAL.md) describes how external participants
-or software decide which proposed results and supplied facts to accept as shared play.
 
 ## Where to inspect
 

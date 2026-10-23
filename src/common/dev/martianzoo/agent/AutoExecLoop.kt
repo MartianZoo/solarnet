@@ -15,7 +15,13 @@ import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
-/** Shared Agent-policy queue drain above the policy-free engine. */
+/**
+ * Current shared task handling for Admin and configurable Player policies.
+ *
+ * TODO(ENGINE_CONTRACT): separate mandatory Admin handling from optional Player policies. The
+ *   proposed contract requires ordinary Admin work to finish before a Player command starts or
+ *   returns.
+ */
 internal class AutoExecLoop(private val world: World, private val taskLog: TaskLog) {
   private val allTasks: TaskQueue
     get() = world.tasks
@@ -26,6 +32,8 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
    * Where the current operation, through any of these Agents, last began or made a decision. Its
    * work is over once the World's `FINALLY` work has begun since then.
    */
+  // TODO(ENGINE_CONTRACT): investigate removing this operation-completion convention. Reaching
+  // FINALLY does not define either a transaction or the call the Player awaits.
   internal var lastDecision: Checkpoint? = null
 
   internal fun register(actor: Actor, policy: () -> AutoExecPolicy) {
@@ -40,11 +48,19 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     if (allTasks.isEmpty()) return false
     val selected = allTasks.selectedTask()
     val pending = selected?.let(::listOf) ?: allTasks.ids().filterNot(::isDeferred)
+    // TODO(ENGINE_CONTRACT): proposed Admin handling requires exactly one fully concrete narrowing
+    // whose transaction succeeds. A selection probe can leave choices unresolved and proves less.
+
     // Selection probes can execute and roll back tasks. Only probe when automatic work is possible.
     if (pending.none { policy(it) != NONE }) return false
     // Keep manual tasks among the candidates: they still compete with automatic work.
     // A sole task has no competing choice. Selection still validates its execution,
-    // and the enclosing Agent transaction rolls back any failure.
+    // and the enclosing Agent call rolls back any failure.
+    // TODO(ENGINE_CONTRACT): this filter drops failed Admin probes without preserving their
+    // reasons.
+    // A surviving Player candidate that cannot finish can then hide the Admin failure: a NONE
+    // policy returns below (AiCentralTest), and a non-NONE policy can leave an abstract task
+    // selected.
     val candidates =
         if (selected != null || pending.size == 1) pending else pending.filter(::canSelectTask)
     val candidateCounts = candidates.groupingBy { allTasks.getTaskData(it).assignee }.eachCount()
@@ -71,7 +87,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
         error("that should've completed")
       }
       // A manual Actor's available task still competes with this option. Do not acquire an
-      // abstract select-lock merely because the other Actor has autoexecution disabled.
+      // abstract task selection merely because the other Actor has autoexecution disabled.
       1 ->
           if (candidates.size == 1) {
             val taskId = options.single()
@@ -90,11 +106,16 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
             } catch (_: AgentInputRequiredException) {
               return false
             } catch (e: DeadEndException) {
+              // Current explicit rejection stops handling immediately, without retrying other work.
               throw e.cause ?: e
             }
           }
     }
 
+    // TODO(ENGINE_CONTRACT): proposed FIFO retries move a blocked Admin task to the end, rather
+    // than restarting from the oldest task after every success.
+    // Recommended failure classification is also under review: DeadEndException currently escapes
+    // this loop immediately, while a concrete NotNowException loses its reason in the catch below.
     var recoverable = false
     for (taskId in options) {
       try {
@@ -113,6 +134,10 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
         }
       }
     }
+    // TODO(ENGINE_CONTRACT): the proposed unsuccessful-full-pass rule must also reject abstract
+    // Admin work left pending here. Returning false currently lets a Player act in that state.
+    // Collecting rejection reasons and separating rule failures from implementation errors are
+    // additional recommendations awaiting review.
     if (!recoverable) throw DeadEndException("")
     return false
   }

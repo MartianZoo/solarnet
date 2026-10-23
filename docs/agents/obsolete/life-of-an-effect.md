@@ -1,7 +1,16 @@
+> **Archaeology only.** This document preserves a mix of how things were and how we wanted
+> them to be around **October 22, 2026**. It is not current guidance, an implementation
+> contract, or a list of work to resume. Earlier status labels and instructions below are
+> historical quotations, not present requirements.
+
+Original source: `docs/archive/life-of-an-effect.md` at `ccfd949f82cb64f291c34f8d47dffbd4b15a0054`.
+
+Full historical document.
+
 # Life of an Effect (archived historical walkthrough)
 
 > This walkthrough predates lexical `Me` ownership. Its `Owner` substitution stages describe the
-> previous engine; see the [language specification](../../pets/docs/pets-language-spec.md) for current semantics.
+> previous engine; see the [language specification](../../../pets/docs/pets-language-spec.md) for current semantics.
 
 This document follows one Effect in an authored canonical card declaration until its Instructions
 produce recorded State Changes. The example is Recyclon because it passes through most of the
@@ -52,7 +61,7 @@ postconditions remain the semantic contract.
 | Selected Task | The client has chosen the next Task, and current Game World facts have been applied. |
 | State Change | An exact gain or removal has happened and a Change Event records it. |
 
-Declaration stages 1–6 are now in the [Pets half of this archived walkthrough](../../pets/docs/archive/life-of-an-effect.md).
+Declaration stages 1–6 are now in the [Pets half of this archived walkthrough](pets/life-of-an-effect.md).
 
 ## 7. The Component Effect becomes a Live Effect
 

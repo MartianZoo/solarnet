@@ -1,7 +1,7 @@
 # Authored payment model
 
 > **Status:** current Canon payment-scope and acceptance protocol.
-> Client payment helpers, allocation checks, and rollback evidence belong to
+> Client payment helpers and allocation checks belong to
 > [Solarnet payment integration](../../../docs/agents/PAYMENTS.md).
 
 ## Current contract
@@ -19,15 +19,15 @@ the payment signal credits the debt in the same transaction:
 
 Ordinary resource losses never credit a bill, even when performed by the payer while acceptance
 is open. Payment signals are player-owned and are not `System`: choosing a payment remains player
-work, and `NONE` does not execute it automatically. The offered exchange fixes the payment resource
+work that the client explicitly submits. The offered exchange fixes the payment resource
 or card holder; clients cannot turn a different resource removal into payment credit.
 
 `Owed` records the debt but does not install acceptance. A `PaymentScope` starts after debt is
 created; its creation announces card and printed-tag pricing and installs available alternative
 resources. Removing the scope ends acceptance before the purchased result runs.
 
-`Owed` is the amount still due, including during price adjustment. `PaymentScope` marks settlement
-and carries a subject, denomination, and operation. Cards, printed actions, conversions,
+`Owed` is the amount still due, including during price adjustment. `PaymentScope` tracks payment
+through completion and carries a subject, denomination, and operation. Cards, printed actions, conversions,
 milestones, and awards use this same type. For example,
 `PaymentScope<Class<Builder>>` retains the selected milestone through payment, while
 `PaymentScope<Class<Steelworks>, Class<Energy>, Class<Action1>>` identifies a printed action and
@@ -60,7 +60,7 @@ precede an exact Heat remainder. Starting-card payment can precede the corporati
 the exact payment remains pending until affordable. Alternative acceptance does not search for
 substitutes or reopen if stock arrives later.
 
-With player autoexecution set to `NONE`, the zero-balance acknowledgement also remains explicit.
+With player autoexecution set to `NONE`, the client explicitly acknowledges a zero balance.
 Skipping such work may be a future autoexecution policy; it must not override `NONE`.
 Action-cost classification follows declared inheritance from `StandardResource`, including abstract
 resource categories, in the assembled catalog before executable lowering. It does not load an extra
@@ -68,7 +68,7 @@ class table or maintain a list of resource names.
 Both fixed and variable standard-resource action costs use the payment scope so acceptance and price
 adjustments can apply. A variable cost keeps its shared `X` in the sequence from `Owed` through
 `PaymentScope` to the action's result. Choosing `X = 4` for `X Energy -> X MC` opens a scope for 4 Energy;
-only after settlement does the sequence offer 4 M€. Energy Market's `2X MC -> X Energy` can
+only after payment completes does the sequence offer 4 M€. Energy Market's `2X MC -> X Energy` can
 therefore accept Heat through FakeHelion's ordinary payment-scope listener instead of forcing an M€ loss.
 
 ## Current pieces
@@ -77,14 +77,14 @@ therefore accept Heat through FakeHelion's ordinary payment-scope listener inste
 | --- | --- |
 | `Owed<Class<Resource>>` | Remaining amount, discounts, surcharges, and non-M€ costs. |
 | `PayingFor` | Scope-linked card and printed-tag announcements needed by modifiers before play. |
-| `PaymentScope` | Carries the subject, denomination, and operation; opens spending choices and marks settlement. |
+| `PaymentScope` | Carries the subject, denomination, and operation; opens spending choices and tracks payment through completion. |
 | `Accepting` | Restricts ordinary resources by payment context. |
 | `AcceptingFromCard` | Restricts spending to the correct card holder. |
 | `ResourceValue` | Supplies dynamic standard-resource values. |
 | `Pay` and `PayFromCard` | Identify explicit spending so only payments credit debt. |
 
 Alternative payment offers must finish before the exact denomination payment. No unused payment
-offers remain after normal settlement. Removing an effect owner still does not retract its queued
+offers remain after normal payment completion. Removing an effect owner still does not retract its queued
 work; payment completion follows the scope's lifecycle rather than task deletion.
 
 ## Source map

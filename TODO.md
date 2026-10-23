@@ -40,8 +40,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   would replace the persistent `HasActions` standard-project components and their `UseAction`
   path. Account for Established Methods' direct `UseAction` grants and other standard-project
   payment listeners when evaluating the replacement.
-- Decide whether to add shallow/deep ELSE or instruction-level `(A)*`; candidate uses and
-  restrictions are in [ELSE.md](pets/docs/agents/ELSE.md).
 - Add Canon invariant tests for incompatibilities: self-heat removal outside PaymentScope, except
   Local Heat Trapping, must be declared incompatible with Stormcraft. Include abstract resource choices.
 - Revisit Stormcraft plus Helion payment composition if that combination is supported.
@@ -58,10 +56,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   while standard players discard and buy their choices.
 - Clarify Astra Mechanica's zero/one/two eligible-event behavior and reconcile its modeled return
   with printed and derived English.
-- Separate task selection from execution when automatic execution is disabled.
-- Investigate permanently locking Admin to greedy `EAGER` execution, as selected in
-  [SMART_AUTOEXEC.md](docs/agents/SMART_AUTOEXEC.md). Trace replay/import and tests that currently
-  disable Admin autoexecution before changing the Agent policy API.
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
 - actually plan out how exMachina should work
@@ -70,27 +64,62 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   individual invariant repairs; `THEN` on a signal does not wait for its triggered work.
 - Remove bootstrap/client-shape reasons for `::`: default offer counts before signed adjustments,
   inferred construction order, and bundled card-search/reward/Audit work. Preserve meaningful
-  correction relationships and avoid adding client steps.
-- Revisit queued requirement adjustments without adding a player step: `Required` is System, but
-  `-2 Required<Class<GlobalParameter>>` remains abstract until selection. Inventrix, Adaptation
-  Technology, and Special Design therefore still use immediate live narrowing.
+  correction relationships.
 
 - Revisit ownership of `Selecting`, `Hand`, and played events together, including per-player
   cleanup of shared `Selecting` while other players' starting offers remain there.
-- Determine which nested cross-Actor Agent calls should settle Admin work before returning;
-  the Pluto scenario in `ColoniesRulesTest` currently uses separate top-level calls.
+- Fully migrate task/instruction preparation terminology across Pets and Solarnet APIs,
+  implementation names, diagnostics, tests, specifications, glossary, and agent documentation.
+  Use the abandoned `codex/pets-open-closed-lexicon` branch (terminology commit `3c89d711c`)
+  as a scope reference, adapting it to this agreement rather than restoring it wholesale.
+  **Open** means narrowing or evaluation remains before the immediate instruction is fully
+  determined; **closed** means neither remains. Narrowing supplies a permitted choice;
+  evaluation interprets against the current World (gates, metrics, amounts, forced deductions)
+  without executing, and can leave the task open. Multiple narrowings and evaluations may
+  interleave before closure. **Execution** performs the instruction and its consequences;
+  closed does not mean executed or guaranteed to succeed. Use this preparation terminology
+  consistently, including in ENGINE_CONTRACT.md. Preserve **abstract/concrete for classes**, including their declarations and classification APIs, for now. Both evaluation
+  results and the validity of narrowings involving refinements can depend on the World;
+  distinguish a fully specified instruction becoming invalid from an unresolved choice.
+  Cover AMAP target selection leaving the task open until its amount is evaluated, and
+  evaluation followed by further narrowing. This TODO records the migration, not its completion.
+- Review the remaining proposals in [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md).
+  Align public engine mutations with the selected failure-atomic transaction guarantee, retaining
+  client-controlled rollback for larger scopes. Complete transaction checks for legal narrowings,
+  then align the Player/Admin priority gate, Admin FIFO retries and stalled-pass exception,
+  mandatory eager Admin handling, and deferred promotion after completed transactions.
+- Follow the preparation plan in [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md),
+  resolving its remaining review choices before exposing intermediate live navigation.
+- Investigate a diagnostic test mode that varies Admin task execution order, alongside the existing
+  randomized independent `::` listeners. Use it to expose accidental ordering dependencies; retain
+  FIFO in ordinary execution. See [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md).
+- Evolve `TaskForm` and the other agent choice surfaces to the ordered decision kinds
+  **TASK, OR, TYPE, NUMBER, CARD**. TASK chooses pending work; OR chooses an alternative;
+  TYPE narrows classes and dependencies; NUMBER supplies `?` amounts or `X`; CARD supplies
+  card identities. Current form kinds are ALTERNATIVE, TARGET, and AMOUNT; task selection
+  and card-movement naming are separate. Preserve class-before-dependency ordering within TYPE,
+  including dependencies revealed by a narrower class. Distinguish guided prompts from
+  unrestricted draft narrowing. This records the requested evolution, not an implementation.
+- Investigate whether engine-level partial narrowing is needed at all, versus retaining unfinished
+  choices solely in client-held forms. Examine a choice between System and non-System instructions,
+  reassignment after narrowing, and admission rewrites; identify any concrete case that needs an
+  intermediate World mutation. This is an investigation, not approval to remove the API.
+- Ensure returned `TaskResult` values cover the whole synchronous call, including callback changes
+  and subsequent Admin handling through quiescence. Current results omit that later work.
+- Review whether the block-based transaction coordinator, application guards and completion
+  callbacks belong in the engine API, along with unnecessary history controls, copying and
+  speculative APIs.
+  Preserve safe client-controlled rollback when reviewing those controls.
+  Review grouped/scalar task conveniences before retaining them. Code comments mark the current
+  differences; the cleanup deliberately leaves their behavior unchanged.
+- Clarify System classification versus non-Iconic presentation separately. Review when concrete
+  System work and explicit BY Admin work change assignee.
 
 - Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct
   `Lose 12 M€` effect. The marked-variable references now follow recorded occurrences, but the older
   interaction-trigger Anyone-to-Player normalization still supplies an implicit `that player`.
-- Investigate repeated selection probes followed by execution under `EAGER`; preserve manual-task
-  competition and failure handling before removing probes.
-- Start using `Agents.overlay` for an actual client or agent forecast, then measure its cost and
-  compare it with the existing fork path. Internal selection and execution probes still use atomic
-  rollback and may need a cheaper construction path. Probes on a source World currently invalidate
-  its overlays even when the source history returns to the same point.
 - Investigate repeated ranking of the same field while testing each candidate. Scores must reflect
-  the current state, including rollback; avoid a second persistent representation of game scores.
+  the current state; avoid a second persistent representation of game scores.
 
 - Verify remaining inferred Research counts, anonymous draws, action grouping, and earlier
   adopted card identities in `Wsbg2025Test`. Jon's generation-six two-card Research keep now
