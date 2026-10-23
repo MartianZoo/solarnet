@@ -101,6 +101,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Investigate a diagnostic test mode that varies Admin task execution order, alongside the existing
   randomized independent `::` listeners. Use it to expose accidental ordering dependencies; retain
   FIFO in ordinary execution. See [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md).
+- Refine and verify the strategy catalogue in [DECISION_GRAPH.md](docs/agents/DECISION_GRAPH.md).
+  Settle action-completion recognition and task comparison ignoring ordinals; inventory which
+  existing forced deductions belong in Player and Admin agents. Measure pruning and safe eager
+  execution on Canon scenarios such as Project Eden, retaining UNKNOWN when analysis runs out
+  of information or work. The document selects semantic rules, not an implementation.
 - Evolve `TaskForm` and the other agent choice surfaces to the ordered decision kinds
   **TASK, OR, TYPE, NUMBER, CARD**. TASK chooses pending work; OR chooses an alternative;
   TYPE narrows classes and dependencies; NUMBER supplies `?` amounts or `X`; CARD supplies

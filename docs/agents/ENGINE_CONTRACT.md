@@ -21,7 +21,7 @@ application state or history that has been discarded.
 
 The engine calculates the consequences of submitted instructions. **Selected:** exploring whether
 choices can complete an entire action, and pruning choices that cannot, are agent concerns the
-engine module does not and will not take on. Raw material for that work belongs in
+engine module does not and will not take on. Selected agent rules and candidate strategies belong in
 [DECISION_GRAPH.md](DECISION_GRAPH.md).
 
 ## Clients and transactions

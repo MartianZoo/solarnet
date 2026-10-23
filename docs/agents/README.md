@@ -25,7 +25,7 @@ architecture change. Then choose the narrowest relevant note:
 | Client interaction, transactions, task priorities, or mandatory Admin handling | [`ENGINE_CONTRACT.md`](ENGINE_CONTRACT.md) |
 | Transaction grouping, execution motivation, event ordinals, or transaction-based checkpoints | [`ORDINAL_REWORK.md`](ORDINAL_REWORK.md) — implemented preparation steps and remaining scope |
 | Inventory of automatic task revisions, admission, resolution, execution, and their timing | [`TASK_HANDLING.md`](TASK_HANDLING.md) — source-based draft of current behavior |
-| Single-action decision graphs, agent pruning, or speculative card choices | [`DECISION_GRAPH.md`](DECISION_GRAPH.md) — raw discussion notes only |
+| Single-action decision graphs, agent pruning, or speculative card choices | [`DECISION_GRAPH.md`](DECISION_GRAPH.md) — first design draft; selected rules and candidate strategies |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |
 | Correction, `exMachina`, `sneak`, effect suppression, or correction invariants | [`EX_MACHINA.md`](EX_MACHINA.md) |
 | Card backs, draws, purchases, reveals, or replay card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) |
@@ -85,8 +85,8 @@ Kotlin visibility auditing across runtime modules remains in [VISIBILITY.md](VIS
 [obsolete/README.md](obsolete/README.md) indexes material retained for archaeology only.
 It supplies no current requirements. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the
 interaction terms and distinguishes selected direction from remaining proposals; keep those terms
-there until explicitly approved for the glossary. [DECISION_GRAPH.md](DECISION_GRAPH.md) holds
-unfinished agent exploration notes separately.
+there until explicitly approved for the glossary. [DECISION_GRAPH.md](DECISION_GRAPH.md) owns
+the agent exploration design, separating selected rules from candidate strategies.
 
 ## Maintain this collection
 
