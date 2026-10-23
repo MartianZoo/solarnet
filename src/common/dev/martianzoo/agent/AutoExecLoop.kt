@@ -10,6 +10,7 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Motivation
 import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
@@ -82,7 +83,10 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
               policy(taskId) != NONE && !isDeferred(taskId)
             } ?: return false
         if (selected != null || candidates.isNotEmpty()) return false
-        command(taskId, Kind.DO_TASK_ID) { engineFor(taskId).doTask(taskId) }
+        val engine = engineFor(taskId)
+        engine.transaction(motivationFor(engine.actor)) {
+          command(taskId, Kind.DO_TASK_ID) { engine.doTask(taskId) }
+        }
         error("that should've completed")
       }
       // A manual Actor's available task still competes with this option. Do not acquire an
@@ -94,11 +98,13 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
             try {
               var progressed = false
               world.timeline.atomic {
-                command(taskId, Kind.CHOOSE) { engine.selectTask(taskId) }
-                progressed =
-                    taskId !in allTasks ||
-                        allTasks.getTaskData(taskId).assignee != engine.actor ||
-                        command(taskId, Kind.TRY_SELECTED) { engine.trySelectedTask() }
+                engine.transaction(motivationFor(engine.actor)) {
+                  command(taskId, Kind.CHOOSE) { engine.selectTask(taskId) }
+                  progressed =
+                      taskId !in allTasks ||
+                          allTasks.getTaskData(taskId).assignee != engine.actor ||
+                          command(taskId, Kind.TRY_SELECTED) { engine.trySelectedTask() }
+                }
                 world.agentTransactionGuard?.validate()
               }
               if (progressed) return true
@@ -119,7 +125,10 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     for (taskId in options) {
       try {
         world.timeline.atomic {
-          command(taskId, Kind.DO_TASK_ID) { engineFor(taskId).doTask(taskId) }
+          val engine = engineFor(taskId)
+          engine.transaction(motivationFor(engine.actor)) {
+            command(taskId, Kind.DO_TASK_ID) { engine.doTask(taskId) }
+          }
           world.agentTransactionGuard?.validate()
         }
         return true
@@ -140,6 +149,10 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     if (!recoverable) throw DeadEndException("")
     return false
   }
+
+  /** Automatic handling is mandatory for Admin and configured policy for every other Actor. */
+  private fun motivationFor(actor: Actor): Motivation =
+      if (actor == ADMIN) Motivation.ADMIN_EAGER_POLICY else Motivation.PLAYER_POLICY
 
   private fun canSelectTask(taskId: TaskId): Boolean = engineFor(taskId).canSelectTask(taskId)
 

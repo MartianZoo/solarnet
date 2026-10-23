@@ -86,8 +86,8 @@ public interface World {
    * returns, and the originating call's result includes those changes and the task handling that
    * follows them.
    *
-   * History navigation is refused while this hook runs, including from gameplay calls it starts,
-   * so it cannot leave the World away from the end of its history.
+   * History navigation is refused while this hook runs, including from gameplay calls it starts, so
+   * it cannot leave the World away from the end of its history.
    *
    * Proposed contract, pending human review: completion must not expose a Player-facing state with
    * eligible Admin work pending. Current placement does not establish that guarantee: the hook runs

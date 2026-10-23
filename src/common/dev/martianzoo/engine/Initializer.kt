@@ -27,6 +27,7 @@ internal class Initializer(
     private val timeline: TimelineImpl,
     private val premise: GamePremise,
     private val actorEngines: (Actor) -> ActorEngine,
+    private val transactions: Transactions,
 ) {
   // Taking 14% of total solo game time
   internal fun initialize() {
@@ -37,6 +38,7 @@ internal class Initializer(
     drainBootstrapTasks()
     verifyCompletedBootstrap()
     timeline.initializationFinished()
+    transactions.initializationFinished()
     timeline.commit()
   }
 

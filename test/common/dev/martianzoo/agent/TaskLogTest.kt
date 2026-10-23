@@ -9,6 +9,7 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.eventContent
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -348,7 +349,10 @@ internal class TaskLogTest {
     imported.world.tasks.isEmpty() shouldBe true
     imported[PLAYER1].autoExecPolicy shouldBe NONE
     imported[ADMIN].autoExecPolicy shouldBe NONE
-    imported.world.events.entriesSinceSetup() shouldBe source.world.events.entriesSinceSetup()
+    // The source performed this work through EAGER policies; the replay submits it. Identical
+    // changes, different provenance.
+    imported.world.events.entriesSinceSetup().eventContent() shouldBe
+        source.world.events.entriesSinceSetup().eventContent()
   }
 
   @Test

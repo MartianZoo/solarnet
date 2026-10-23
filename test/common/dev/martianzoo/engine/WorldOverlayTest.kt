@@ -5,7 +5,6 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
@@ -50,8 +49,7 @@ internal class WorldOverlayTest {
     source.timeline.checkpoint() shouldBe sourceCheckpoint
 
     val copied = imagined.fork()
-    copied.world.events.entriesSince(0) shouldBe
-        imagined.world.events.entriesSince(0)
+    copied.world.events.entriesSince(0) shouldBe imagined.world.events.entriesSince(0)
     copied.world.events.entriesSince(0).first().notes shouldBe "overlay only"
     copied.world.timeline.positions shouldBe imagined.world.timeline.positions
     copied[PLAYER1].count("Pong") shouldBe 1

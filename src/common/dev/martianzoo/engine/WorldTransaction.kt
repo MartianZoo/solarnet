@@ -9,10 +9,10 @@ import dev.martianzoo.state.TaskResult
  * transactions. The outermost call handles pending work and checks completion, then invokes its
  * completion callback and handles work added there. Corrections use [correct] without those steps.
  *
- * Every call reports the retained events of its own whole interval, so an outermost call covers
- * its initial block, its task handling, its completion callback, and the handling that follows
- * the callback. History navigation is refused while the callback runs, so the World is still at
- * the end of its history afterward.
+ * Every call reports the retained events of its own whole interval, so an outermost call covers its
+ * initial block, its task handling, its completion callback, and the handling that follows the
+ * callback. History navigation is refused while the callback runs, so the World is still at the end
+ * of its history afterward.
  *
  * TODO(ENGINE_CONTRACT): Review how this coordinator and the outside Admin driver run the engine to
  *   quiescence. Failure restoration remains separate: a failing callback leaves earlier work in

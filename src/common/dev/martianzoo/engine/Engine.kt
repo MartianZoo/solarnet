@@ -130,9 +130,12 @@ public object Engine {
     // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector =
         Effector(elaborator, customClasses, overlaySource?.effector) { reader }
-    private val taskQueues: TaskQueues = TaskQueues(gameWorld) { timeline.requireAtEnd() }
+    private val transactions = Transactions(gameWorld)
+    private val taskQueues: TaskQueues =
+        TaskQueues(gameWorld, transactions::forEvent) { timeline.requireAtEnd() }
     private val reader: GameReader = gameWorld.reader
-    private val changer: Changer = Changer(reader, gameWorld, effector) { timeline.requireAtEnd() }
+    private val changer: Changer =
+        Changer(reader, gameWorld, effector, transactions::forEvent) { timeline.requireAtEnd() }
     private val timeline: TimelineImpl = TimelineImpl(gameWorld, changer)
     private val limiter = Limiter(classTable, gameWorld)
     private val worldTransaction: WorldTransaction =
@@ -152,6 +155,7 @@ public object Engine {
             timeline,
             premise,
             actorEngines::getValue,
+            transactions,
         )
     private val world: WholeWorld =
         if (overlaySource == null) {
@@ -183,6 +187,7 @@ public object Engine {
     }
 
     internal fun createFork(positions: List<Checkpoint>, sourceEffector: Effector): WholeWorld {
+      transactions.initializationFinished()
       effector.copyIndexFrom(sourceEffector)
       timeline.restorePositions(positions)
       timeline.commit()
@@ -192,6 +197,7 @@ public object Engine {
     }
 
     internal fun createOverlay(positions: List<Checkpoint>): SpeculativeWorld {
+      transactions.initializationFinished()
       timeline.restorePositions(positions)
       timeline.commit()
       limiter.checkRequiredCounts = true
@@ -324,6 +330,7 @@ public object Engine {
             instructor,
             worldTransaction,
             elaborator,
+            transactions,
         )
   }
 }

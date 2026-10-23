@@ -12,6 +12,11 @@ import dev.martianzoo.state.Task.TaskId
  *
  * Queries here take plain `Int` event ordinals, which address individual events. They are not
  * client navigation positions; see [Checkpoint].
+ *
+ * Each event carries the [Transaction] that produced it, so this log also answers which transaction
+ * owns an event and which events a transaction owns. There is no separate list of transactions to
+ * keep synchronized: removing a suffix of events removes exactly the transaction records those
+ * events carried, and the serial they freed is reused by later work.
  */
 public class EventLog
 internal constructor(
@@ -68,7 +73,89 @@ internal constructor(
 
   internal fun append(entry: GameEvent) {
     requireNext(entry)
+    requireTransactionFollows(entry)
     events += entry
+  }
+
+  /**
+   * Transaction serials begin at zero, never decrease, and advance by one, and an initialization
+   * prefix event cannot follow a transaction. An event continuing a transaction must carry that
+   * transaction's own value.
+   */
+  private fun requireTransactionFollows(entry: GameEvent) {
+    val previous = lastSerial()
+    val serial = entry.transaction?.serial ?: PREFIX_SERIAL
+    require(serial == previous || serial == previous + 1) {
+      "event ${entry.ordinal} has transaction serial $serial following $previous"
+    }
+    if (serial == previous && serial != PREFIX_SERIAL) {
+      require(entry.transaction == entryAt(entry.ordinal - 1).transaction) {
+        "event ${entry.ordinal} continues transaction $serial with different metadata"
+      }
+    }
+  }
+
+  private fun lastSerial(): Int = if (size == 0) PREFIX_SERIAL else serialAt(size - 1)
+
+  private fun serialAt(ordinal: Int): Int = entryAt(ordinal).transaction?.serial ?: PREFIX_SERIAL
+
+  /** The transaction owning the most recent retained event, or null when none owns it. */
+  public val lastTransaction: Transaction?
+    get() = if (size == 0) null else entryAt(size - 1).transaction
+
+  /** The transaction owning the event at [ordinal], or null for an initialization-prefix event. */
+  public fun transactionAt(ordinal: Int): Transaction? {
+    require(ordinal in 0 until size)
+    return entryAt(ordinal).transaction
+  }
+
+  /**
+   * The events owned by transaction [serial], or null when retained history has no such
+   * transaction. The range is never empty.
+   *
+   * Serials never decrease along event ordinals and every transaction owns at least one event, so
+   * transaction [serial] cannot begin before ordinal [serial] and this searches only from there.
+   */
+  public fun transactionRange(serial: Int): IntRange? {
+    require(serial >= 0)
+    val first = lowerBound(serial)
+    if (first >= size || serialAt(first) != serial) return null
+    return first until lowerBound(serial + 1)
+  }
+
+  /** The first ordinal whose transaction serial is at least [serial], or [nextOrdinal]. */
+  private fun lowerBound(serial: Int): Int {
+    var low = minOf(serial, size)
+    var high = size
+    while (low < high) {
+      val middle = (low + high) / 2
+      if (serialAt(middle) < serial) low = middle + 1 else high = middle
+    }
+    return low
+  }
+
+  /**
+   * The first event ordinal of each retained transaction in ascending order, followed by
+   * [nextOrdinal]. These are the positions between transactions: history with only an
+   * initialization prefix offers just that prefix's end.
+   */
+  public val transactionStarts: List<Int>
+    get() {
+      val count = size
+      return buildList {
+        var previous = PREFIX_SERIAL
+        for (ordinal in 0 until count) {
+          val serial = serialAt(ordinal)
+          if (serial != previous && serial != PREFIX_SERIAL) add(ordinal)
+          previous = serial
+        }
+        add(count)
+      }
+    }
+
+  private companion object {
+    /** Stands for the absent transaction of an initialization-prefix event. */
+    const val PREFIX_SERIAL = -1
   }
 
   internal fun last(): GameEvent {

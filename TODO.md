@@ -92,8 +92,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   client-controlled rollback for larger scopes. Complete transaction checks for legal narrowings,
   then align the Player/Admin priority gate, Admin FIFO retries and stalled-pass exception,
   mandatory eager Admin handling, and deferred promotion after completed transactions.
-- Follow the preparation plan in [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md),
-  resolving its remaining review choices before exposing intermediate live navigation.
+- Continue [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md) at step 4: the P0/P1/P2 gate,
+  mandatory Admin handling with FIFO retries and the stalled-pass exception, deferred promotion at
+  the end of the transaction that makes it eligible, and eager Admin during replay. Step 5 then
+  switches `Checkpoint` to a transaction position and removes `recordedPositions`. Steps 1 to 3
+  have landed; determining Admin's complete legal candidate set is still open and deliberately
+  outside that sequence.
 - Investigate a diagnostic test mode that varies Admin task execution order, alongside the existing
   randomized independent `::` listeners. Use it to expose accidental ordering dependencies; retain
   FIFO in ordinary execution. See [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md).

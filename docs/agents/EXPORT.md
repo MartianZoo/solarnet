@@ -14,7 +14,10 @@
 `GameFileJson` in `state` encodes a resolved premise recipe, SHA-256 digests of the entire static
 Catalog data and the resolved premise, and a chronological `RecordedInput` list. The first input
 starts the game. Full files also retain the exact event history and playback
-positions, including setup, task events, and every event's notes. `Document.open(catalog)` checks
+positions, including setup, task events, and every event's notes. An event's transaction is stored
+on the first event that carries it and inherited by the events that follow, so grouping survives
+export and import without enlarging the file; the format identifier is now `solarnet-game-2`.
+`Document.open(catalog)` checks
 the hashes and creates a passive Game World without `engine`. A short file omits events and positions
 but uses the same premise and input fields; state refuses to open it as an exact recording.
 Hashing uses Java `MessageDigest` on the JVM and Web Crypto in the browser. Web Crypto is

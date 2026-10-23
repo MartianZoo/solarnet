@@ -32,9 +32,12 @@ internal object EventLogJson {
 
   internal fun encodeEvents(events: List<GameEvent>): JsonArray {
     val tasks = mutableMapOf<TaskId, Task>()
+    var open: Transaction? = null
     return buildJsonArray {
       events.forEach { event ->
-        add(encodeEvent(event))
+        // Every event of a transaction carries the same value, so only its first event stores it.
+        add(encodeEvent(event, startsTransaction = event.transaction != open))
+        open = event.transaction
         if (event is GameEvent.TaskEvent) applyTaskEvent(tasks, event)
       }
     }
@@ -48,33 +51,44 @@ internal object EventLogJson {
         .decodeEvents(source)
   }
 
-  private fun encodeEvent(event: GameEvent): JsonObject = buildJsonObject {
-    when (event) {
-      is ChangeEvent -> {
-        put("event", "change")
-        put("ordinal", event.ordinal)
-        put("actor", event.actor.className.toString())
-        put("change", encodeChange(event.change))
-        put("cause", encodeCause(event.cause))
+  private fun encodeEvent(event: GameEvent, startsTransaction: Boolean): JsonObject =
+      buildJsonObject {
+        when (event) {
+          is ChangeEvent -> {
+            put("event", "change")
+            put("ordinal", event.ordinal)
+            put("actor", event.actor.className.toString())
+            put("change", encodeChange(event.change))
+            put("cause", encodeCause(event.cause))
+          }
+          is TaskAddedEvent -> {
+            put("event", "task-added")
+            put("ordinal", event.ordinal)
+            put("task", encodeTask(event.task))
+          }
+          is TaskRemovedEvent -> {
+            put("event", "task-removed")
+            put("ordinal", event.ordinal)
+            put("taskId", event.task.id.ordinal)
+          }
+          is TaskEditedEvent -> {
+            put("event", "task-edited")
+            put("ordinal", event.ordinal)
+            put("task", encodeTask(event.task))
+          }
+        }
+        if (startsTransaction) put("transaction", encodeTransaction(event.transaction))
+        put("notes", event.notes?.let(::JsonPrimitive) ?: JsonNull)
       }
-      is TaskAddedEvent -> {
-        put("event", "task-added")
-        put("ordinal", event.ordinal)
-        put("task", encodeTask(event.task))
-      }
-      is TaskRemovedEvent -> {
-        put("event", "task-removed")
-        put("ordinal", event.ordinal)
-        put("taskId", event.task.id.ordinal)
-      }
-      is TaskEditedEvent -> {
-        put("event", "task-edited")
-        put("ordinal", event.ordinal)
-        put("task", encodeTask(event.task))
-      }
-    }
-    put("notes", event.notes?.let(::JsonPrimitive) ?: JsonNull)
-  }
+
+  private fun encodeTransaction(transaction: Transaction?): JsonElement =
+      transaction?.let {
+        buildJsonObject {
+          put("serial", it.serial)
+          put("actor", it.actor.className.toString())
+          put("motivation", it.motivation.name)
+        }
+      } ?: JsonNull
 
   private fun applyTaskEvent(tasks: MutableMap<TaskId, Task>, event: GameEvent.TaskEvent) {
     when (event) {
@@ -142,9 +156,13 @@ internal object EventLogJson {
 
     fun decodeEvents(source: JsonArray): List<GameEvent> {
       val tasks = mutableMapOf<TaskId, Task>()
+      var open: Transaction? = null
       return source.mapIndexed { index, element ->
         try {
-          decodeEvent(element.jsonObject, tasks).also { event ->
+          val encoded = element.jsonObject
+          // An event without its own field continues the transaction of the event before it.
+          encoded["transaction"]?.let { open = decodeTransaction(it) }
+          decodeEvent(encoded, tasks, open).also { event ->
             if (event is GameEvent.TaskEvent) applyTaskEvent(tasks, event)
           }
         } catch (e: RuntimeException) {
@@ -153,9 +171,20 @@ internal object EventLogJson {
       }
     }
 
+    private fun decodeTransaction(source: JsonElement): Transaction? {
+      if (source == JsonNull) return null
+      val transaction = source.jsonObject
+      return Transaction(
+          requiredInt(transaction, "serial"),
+          decodeActor(requiredString(transaction, "actor")),
+          Motivation.valueOf(requiredString(transaction, "motivation")),
+      )
+    }
+
     private fun decodeEvent(
         source: JsonObject,
         tasks: Map<TaskId, Task>,
+        transaction: Transaction?,
     ): GameEvent {
       val event =
           when (requiredString(source, "event")) {
@@ -165,23 +194,31 @@ internal object EventLogJson {
                   decodeActor(requiredString(source, "actor")),
                   decodeChange(requiredObject(source, "change")),
                   decodeCause(requiredElement(source, "cause")),
+                  transaction,
               )
             }
             "task-added" -> {
               TaskAddedEvent(
                   requiredInt(source, "ordinal"),
                   decodeTask(requiredObject(source, "task")),
+                  transaction,
               )
             }
             "task-removed" -> {
               TaskRemovedEvent(
                   requiredInt(source, "ordinal"),
                   tasks.getValue(TaskId(requiredInt(source, "taskId"))),
+                  transaction,
               )
             }
             "task-edited" -> {
               val task = decodeTask(requiredObject(source, "task"))
-              TaskEditedEvent(requiredInt(source, "ordinal"), tasks.getValue(task.id), task)
+              TaskEditedEvent(
+                  requiredInt(source, "ordinal"),
+                  tasks.getValue(task.id),
+                  task,
+                  transaction,
+              )
             }
             else -> throw IllegalArgumentException("unknown event kind")
           }

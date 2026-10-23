@@ -1,8 +1,8 @@
 # Transaction records and checkpoints
 
-> **Human review required — October 22, 2026.** This is a preparation plan, not an implemented
-> contract. **Selected** identifies the human decisions recorded below. The implementation steps
-> and representation are proposed. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the transaction,
+> **Partly implemented — October 22, 2026.** Steps 1 through 3 have landed and their sections
+> describe current behavior; steps 4 and 5 are still proposed. **Selected** identifies the human
+> decisions recorded below. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the transaction,
 > priority, and result rules; this document plans the history changes needed to support them.
 
 ## What this change should accomplish
@@ -46,13 +46,15 @@ construct checkpoints in the middle of a transaction.
 No separate concept named “request” is needed. A synchronous call can perform a transaction, run
 eligible work to quiescence, and return a result spanning several transactions.
 
-## Proposed history representation
+## History representation
 
-Keep a list of transaction records with the event history, preferably owned by
-[EventLog](../../src/common/dev/martianzoo/state/EventLog.kt). Each completed record contains its
-serial, a nonempty event range, the initiating Actor and submitted operation/task information,
-and a short explanation of why execution happened now. Do not add marker events merely to
-separate ranges: that would change the ordinals used by existing causal links and task IDs.
+There is no list of transaction records. Each event carries the
+[Transaction](../../src/common/dev/martianzoo/state/Transaction.kt) that produced it — its serial,
+the initiating Actor, and why it executed now — and every event one transaction owns carries that
+same value. [EventLog](../../src/common/dev/martianzoo/state/EventLog.kt) derives a transaction's
+nonempty event range from the events, so nothing has to be kept synchronized with them. Step 3
+records why. No marker events were added to separate ranges; that would have changed the ordinals
+used by existing causal links and task IDs.
 
 For example, suppose a Player places greenery on a hex whose bonus grants steel:
 
@@ -61,28 +63,31 @@ For example, suppose a Player places greenery on a hex whose bonus grants steel:
 | 12 | Tile placement, immediate effects, task edits, and enqueueing the bonus | Client request |
 | 13 | Admin executes the bonus and removes its task | Admin eager policy |
 
-The result of the Player's synchronous call includes both transactions. `Checkpoint(13)` means
+The result of the Player's synchronous call includes both transactions, which it now does.
+`Checkpoint(13)` will mean
 before the bonus transaction: the tile is present and its bonus is pending. `Checkpoint(14)` is
-the current end, before a possible next transaction. This last position exists without fabricating
-an empty transaction record. Numbers here are illustrative, not a proposed constructor signature.
+the current end, before a possible next transaction. That last position exists without fabricating
+an empty transaction record, since `EventLog.transactionStarts` ends with the current event count.
+Those checkpoint meanings are step 5; numbers here are illustrative.
 
-Keep execution motivation separate from `Cause`: the placement rule authorizes the bonus, while
+Execution motivation stays separate from `Cause`: the placement rule authorizes the bonus, while
 Admin's eager policy explains why its task executed now. Drivers supply the motivation at the
-engine call; the engine does not infer it from the task's cause. Use a small explicit value for
-client submission, Admin eager policy, or an identified Player policy. A current Player policy
-counts too; implementing future policy choices is outside this plan. Choose the smallest way to
-pass this information after inspecting the actual entry points; do not rename public APIs to
-introduce another interaction concept.
+engine call, and the engine does not infer it from the task's cause. `Motivation` is one of client
+submission, Admin eager policy, or the Actor's own policy, with the Actor supplying identity.
+Future policy choices are outside this plan. No public API was renamed to introduce another
+interaction concept; `ActorEngine.transaction(motivation)` is the one addition, and it names the
+concept this document is about.
 
 [TaskLog](../../src/common/dev/martianzoo/agent/TaskLog.kt) is a compacted replay stream. It omits
 some intermediate submissions and cannot reconstruct the complete transaction grouping. Transaction
 records explain exact retained execution; they need not duplicate the entire replay command format.
 
-Proposed serial rules: start at zero after engine initialization; preserve the initialization event
-prefix and use its end as the first client checkpoint. Serials describe positions within retained
-history, not globally unique execution IDs. Truncating before serial 13 removes transaction 13 and
-its successors; new work can reuse 13. Checkpoints into discarded future history must be discarded
-by clients. Do not add branch identities or generation counters without a demonstrated need.
+Serial rules, as implemented: serials start at zero after engine initialization, whose event
+prefix carries no transaction and whose end is the first client position. Serials are positions
+within retained history, not globally unique execution IDs. Truncating before serial 13 removes
+transaction 13 and its successors, and new work reuses 13 because the next serial is derived from
+the last retained event. Checkpoints into discarded future history must be discarded by clients.
+No branch identities or generation counters were added.
 
 ## Implementation order
 
@@ -171,26 +176,55 @@ Admin handling through quiescence is not yet part of every call's coverage: `add
 `dropTask` still route through a path that deliberately skips task handling. That is step 4's work,
 not a reporting gap.
 
-### 3. Establish complete transactions, then record them
+### 3. Transaction records (landed as event grouping)
 
-Follow the failure-atomic transaction direction in ENGINE_CONTRACT: finish immediate effects and
-final checks before publishing a transaction record. Failed execution must not leave an unowned
-suffix of partial events. If providing that guarantee for a public method proves disproportionately
-difficult, revisit its contract explicitly, as the human has allowed; do not hide the problem with
-misleading records.
+The grouping is recorded **on the events**, not in a parallel list of records.
+[Transaction](../../src/common/dev/martianzoo/state/Transaction.kt) holds a serial, the initiating
+Actor, and a [Motivation], and every event one transaction owns carries that same value.
 
-Append a record only when a successful transaction retained events. An enclosing client rollback
-removes all completed records whose events it removes. Keep events and records together through
-rollback, retained future navigation, truncation, copying, fork/overlay reset, and recording import.
-Restore history metadata as well as components and tasks on failure. When deferred promotion moves
-to the end of the transaction that makes it eligible, include its task edits in that transaction;
-do not leave promotion events outside every record.
+This was chosen to keep rollback simple. A transaction's events are contiguous and serials never
+decrease along ordinals, so:
 
-Add passive recording support for the new ranges and metadata. Passive playback can step between
-transactions without running Admin or firing effects again. Before the priority work below lands,
-do not expose newly available points with pending Admin work as live gameplay positions. The
-simplest rollout is to keep the public navigation migration until step 5, rather than inventing a
-temporary second set of safe-position records.
+1. Removing a suffix of events removes exactly the transactions those events carried. Rollback,
+   truncation, fork, overlay reset, and import need no second structure to keep synchronized.
+2. The next serial is derived, not counted: one more than whatever the last retained event carries,
+   or zero when only the initialization prefix remains. That is why discarding history frees its
+   serials for reuse, with nothing to reset.
+3. An event names its transaction with no lookup, which is what "a transaction can be found from
+   each of its events" requires.
+4. A serial's event range comes from `EventLog.transactionRange`, a binary search bounded below by
+   the serial itself, since transaction *n* cannot begin before ordinal *n*. Interpolation search or
+   a derived serial-to-ordinal index would both be faster, and neither is warranted: step 5 caches
+   a checkpoint's event offset, so navigation resolves once and the remaining callers scan anyway.
+
+There is no submitted-task field. The events a transaction owns already record which tasks and
+components the submission touched, so storing it again was a second representation of the same
+fact — and the one that made a reconstructed history unequal to its source, because the compacted
+input stream does not always record which task a form commit was submitted against.
+
+`Motivation` is `CLIENT_REQUEST`, `ADMIN_EAGER_POLICY`, or `PLAYER_POLICY`, with the Actor supplying
+identity. Every public `ActorEngine` mutation opens a `CLIENT_REQUEST` transaction;
+`ActorEngine.transaction(motivation)` lets a driver state otherwise, and `AutoExecLoop` uses it for
+automatic handling. Internal engine work joins the open transaction, so one submitted mutation and
+the consequences it needs share one record, including the compound `doTask` conveniences.
+[Transactions](../../src/common/dev/martianzoo/engine/Transactions.kt) holds the open transaction
+and refuses an event produced outside one, which is how a missed entry point surfaces.
+
+Engine initialization records no transaction: its events form a prefix whose end is the first
+client position, and the first gameplay transaction is serial 0. `EventLog.append` enforces the
+rest — serials start at zero, never decrease, advance by one, a prefix event cannot follow a
+transaction, and an event continuing a transaction carries that transaction's own value.
+
+`EventLogJson` stores a transaction on the first event that carries it and lets the following
+events inherit it, so a file is no larger per event; the game-file format is now
+`solarnet-game-2`. Reconstruction from recorded inputs reproduces event content and grouping
+boundaries but not motivation, because a Player's recorded choice replays as a submission even when
+the original game performed it through that Player's own policy. That is the doc's provenance rule,
+and `TaskLogTest` compares such histories through a test-support helper that drops the grouping.
+
+Not done here: deriving navigation stops from `EventLog.transactionStarts` and stepping a passive
+playback between transactions are step 5; moving deferred promotion into the transaction that makes
+it eligible is step 4.
 
 ### 4. Make intermediate states safe to resume
 
@@ -214,11 +248,12 @@ Land these related changes together before opening every transaction position to
 Exactly which Admin narrowing may execute still needs implementation work; see the example below.
 The existing resolver is not a substitute for the contract's complete transaction-legality check.
 
-FIFO restoration is a separate unresolved detail. Failed attempts can rotate the queue without
-leaving events. For example, after A fails and B succeeds, the remaining order can be C,A rather
-than A,C. Choose explicitly whether restoration must preserve that retry order before promising
-identical subsequent execution. Randomized tests can reveal order dependencies; passing them does
-not settle the promise. Add no persisted retry-order representation until this choice requires it.
+**Selected:** restoration need not reproduce the retry rotation, and we do not promise that a
+restored position resumes Admin handling with the same task. Failed attempts rotate the queue
+without leaving events, so after A fails and B succeeds the remaining order can be C,A rather than
+A,C, and restoration puts back only what the events recorded. Add no persisted retry-order
+representation. State this limit in the contract rather than implying identical subsequent
+execution.
 
 ### 5. Switch client checkpoints and remove redundant positions
 
@@ -292,7 +327,11 @@ implementation-ready design. Neither review verified runtime behavior. This revi
 subsequent human answers about whole-call results, no-op records, callback cleanup, and randomized
 testing; it has not had another Opus review.
 
-Before implementation can promise the complete behavior, resolve FIFO restoration, audit the exact
-mutation/compound-call entry points, and determine how Admin's complete legal candidate set will be
-obtained. These are focused remaining design tasks, not reasons to postpone independent event-cursor
-cleanup or passive grouping. Public intermediate live navigation waits for the priority work.
+Human answers recorded since: results cover the whole call, a no-op leaves no record, callback
+navigation is removed, randomized effect order is used periodically, FIFO restoration promises no
+retry order, and the complete Admin narrowing check is **explicitly out of scope** for this pass —
+the existing selection probe stays as its approximation, and the gap stays recorded as a known
+difference. The entry-point audit is done and recorded in step 1.
+
+Steps 1 through 3 have landed. Determining Admin's complete legal candidate set remains the open
+design task, and public intermediate live navigation still waits for the step 4 priority work.

@@ -31,7 +31,7 @@ import kotlinx.serialization.json.put
  * Web Crypto, which requires a secure context.
  */
 public object GameFileJson {
-  private const val FORMAT = "solarnet-game-1"
+  private const val FORMAT = "solarnet-game-2"
   private val json = Json
 
   /**

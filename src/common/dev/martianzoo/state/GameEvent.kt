@@ -5,10 +5,22 @@ import dev.martianzoo.pets.ast.Expression
 /**
  * An event at [ordinal] in a world's exact history. Task events edit the pending queue; change
  * events edit the component multiset. [notes] is optional commentary, not gameplay state.
+ *
+ * [transaction] groups consecutive events into the transaction that produced them. Keeping that
+ * grouping on the events themselves means rollback, truncation, forking, and import carry it
+ * without a second structure to maintain.
  */
 public sealed class GameEvent private constructor() {
   /** Zero-based position of this event in its world's history. */
   public abstract val ordinal: Int
+
+  /**
+   * The transaction that owns this event, shared by value with every other event that transaction
+   * owns, or null when no transaction grouping is recorded. A live World records one for every
+   * event after engine initialization; the initialization prefix and hand-built passive events have
+   * none.
+   */
+  public abstract val transaction: Transaction?
 
   /** Mutable commentary excluded from this event's value equality and all gameplay semantics. */
   public var notes: String? = null
@@ -29,6 +41,7 @@ public sealed class GameEvent private constructor() {
   public data class TaskAddedEvent(
       override val ordinal: Int,
       override val task: Task,
+      override val transaction: Transaction? = null,
   ) : TaskEvent() {
     init {
       require(task.id.ordinal == ordinal)
@@ -41,6 +54,7 @@ public sealed class GameEvent private constructor() {
   public data class TaskRemovedEvent(
       override val ordinal: Int,
       override val task: Task,
+      override val transaction: Transaction? = null,
   ) : TaskEvent() {
     override fun toString(): String = "$ordinal: -Task${task.id}"
   }
@@ -50,6 +64,7 @@ public sealed class GameEvent private constructor() {
       override val ordinal: Int,
       val oldTask: Task,
       override val task: Task,
+      override val transaction: Transaction? = null,
   ) : TaskEvent() {
     init {
       require(task.id == oldTask.id)
@@ -65,6 +80,7 @@ public sealed class GameEvent private constructor() {
       val actor: Actor,
       val change: ComponentChange,
       val cause: Cause?,
+      override val transaction: Transaction? = null,
   ) : GameEvent() {
     init {
       require(ordinal >= 0)

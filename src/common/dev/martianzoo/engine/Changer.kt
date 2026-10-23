@@ -12,11 +12,13 @@ import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.Transaction
 
 internal class Changer(
     private val reader: GameReader,
     private val gameWorld: GameWorld,
     private val effector: Effector,
+    private val transactionForEvent: () -> Transaction? = { null },
     private val requireAtEnd: () -> Unit = {},
 ) {
 
@@ -38,7 +40,7 @@ internal class Changer(
             removing == null -> ComponentChange.Gain(count, gaining)
             else -> ComponentChange.Transmute(count, gaining, removing)
           }
-      val event = ChangeEvent(gameWorld.nextOrdinal, actor, change, cause)
+      val event = ChangeEvent(gameWorld.nextOrdinal, actor, change, cause, transactionForEvent())
       applyEvent(event) to true
     } catch (e: ExistingDependentsException) {
       removeAll(e.dependents.first(), cause, actor) to false

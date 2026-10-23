@@ -22,6 +22,7 @@ import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.Transaction
 
 /**
  * Constructs and edits task data using engine normalization before recording exact state events.
@@ -53,6 +54,7 @@ import dev.martianzoo.state.Task.TaskId
  */
 internal class TaskQueues(
     private val gameWorld: GameWorld,
+    private val transactionForEvent: () -> Transaction? = { null },
     private val requireAtEnd: () -> Unit = {},
 ) {
   private val classTable: ClassTable = gameWorld.classTable
@@ -94,7 +96,9 @@ internal class TaskQueues(
         if (dispatch != null && !task.deferred) {
           perform(dispatch, task)
         } else {
-          listOf(gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, task)))
+          listOf(
+              gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
+          )
         }
       }
 
@@ -113,9 +117,11 @@ internal class TaskQueues(
 
   internal fun removeTask(task: Task): TaskRemovedEvent {
     requireAtEnd()
-    return gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task)).also {
-      promoteDeferredWork()
-    }
+    return gameWorld
+        .apply(TaskRemovedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
+        .also {
+          promoteDeferredWork()
+        }
   }
 
   /**
@@ -143,7 +149,7 @@ internal class TaskQueues(
       if (dispatches.isEmpty()) return
       for (task in dispatches) {
         perform(task.instruction as Instruction.Dispatch, task)
-        gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task))
+        gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
       }
     }
   }
@@ -154,7 +160,12 @@ internal class TaskQueues(
     val oldTask = gameWorld.tasks.getTaskData(normalized.id)
     if (normalized == oldTask) return null
     return gameWorld.apply(
-        TaskEditedEvent(gameWorld.nextOrdinal, oldTask = oldTask, task = normalized)
+        TaskEditedEvent(
+            gameWorld.nextOrdinal,
+            oldTask = oldTask,
+            task = normalized,
+            transaction = transactionForEvent(),
+        )
     )
   }
 
