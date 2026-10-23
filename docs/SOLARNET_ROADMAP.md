@@ -25,8 +25,8 @@ after review. **Selected** means the direction is chosen while some design remai
 
 [ENGINE_CONTRACT.md](agents/ENGINE_CONTRACT.md) owns client interaction requirements, distinguishing
 selected direction from remaining proposals, including Admin handling. New interaction terminology
-stays there while the contract is developed. [DECISION_GRAPH.md](agents/DECISION_GRAPH.md) collects
-raw notes for future agent exploration and pruning; it is not a finished design.
+stays there while the contract is developed. [DECISION_GRAPH.md](agents/DECISION_GRAPH.md) is the
+first agent exploration and pruning design draft, with selected rules and candidate strategies.
 [ORDINAL_REWORK.md](agents/ORDINAL_REWORK.md) proposes transaction grouping and checkpoint migration;
 its implementation choices remain under review.
 [TASK_HANDLING.md](agents/TASK_HANDLING.md) drafts the complete runtime task-handling inventory,
