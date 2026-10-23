@@ -36,9 +36,8 @@ leave the subject broad, as in `PaymentScope<Class<Component>, Class<Heat>>`.
 
 `Owed`, `PayingFor`, `PaymentScope`, `Accepting`, and `AcceptingFromCard` are `System` bookkeeping.
 Fixed, concrete gains run as Admin, including scaled debt and gains inside automatic effects.
-An abstract type or variable amount such as `X Owed` stays with the Player until narrowed; Admin
-then performs the concrete gain. Acceptance opens explicit payment exchanges, which remain
-assigned to the Player.
+An abstract type or variable amount stays with the Player until narrowed; Admin then performs the
+concrete gain. Acceptance opens explicit payment exchanges, which remain assigned to the Player.
 `Accepting` offers `X Pay<Class<Resource>> FROM Resource OR Ok` only for an alternative resource,
 and only if the payer holds that resource when `PaymentScope` begins. The player
 chooses whether to spend, then chooses an exact positive amount. Card-held offers use
@@ -65,11 +64,13 @@ Skipping such work may be a future autoexecution policy; it must not override `N
 Action-cost classification follows declared inheritance from `StandardResource`, including abstract
 resource categories, in the assembled catalog before executable lowering. It does not load an extra
 class table or maintain a list of resource names.
-Both fixed and variable standard-resource action costs use the payment scope so acceptance and price
-adjustments can apply. A variable cost keeps its shared `X` in the sequence from `Owed` through
-`PaymentScope` to the action's result. Choosing `X = 4` for `X Energy -> X MC` opens a scope for 4 Energy;
-only after payment completes does the sequence offer 4 M€. Energy Market's `2X MC -> X Energy` can
-therefore accept Heat through FakeHelion's ordinary payment-scope listener instead of forcing an M€ loss.
+Fixed standard-resource action costs use payment scopes so acceptance and price adjustments can
+apply. Variable costs use ordinary mandatory spending followed by `THEN`, preserving the shared
+`X` in that instruction. For example, `X Energy -> X MC` becomes `-X! Energy THEN X MC`, and
+Energy Market's `2X MC -> X Energy` becomes `-2X! MC THEN X Energy`. No debt or payment scope is
+created for these actions. Supported Canon has no variable-cost action requiring alternative
+payment; Helion is explicitly out of scope. `FakeHelionTest` records its unsupported Energy Market
+interaction rather than making that stand-in a requirement for action lowering.
 
 ## Current pieces
 

@@ -33,8 +33,8 @@ Player. In ordinary games its driver handles automatic work rather than manual i
 **Selected:** Admin always uses the eager handling described below. P1 priority for Admin tasks,
 versus P2 for Player tasks, explains most scheduling differences. Other policies are conceivable
 because Admin is an Actor too, but exploring or offering them has no value for this design.
-“Turn off autoexec” and configurable autoexecution levels always refer to Players; Admin remains
-fully automatic, including during replay.
+Any discussion about “turning off autoexec” and configurable autoexecution levels always refers to
+Players; Admin remains fully automatic, including during replay.
 
 | Term | Meaning |
 | --- | --- |
@@ -87,8 +87,9 @@ task pending. Similarly, if Stan places greenery beside Kim's tile while Kim has
 [Philares](../../test/common/dev/martianzoo/tfm/tests/cards/PhilaresTest.kt), Kim's resource choice can
 remain pending when Stan's call returns.
 
-Taking a plant might trigger phase completion, production, and a generation change before the call
-returns. Those events were triggered by the command; they are not all fulfillment of “take a plant.”
+A small task like `Pass` could potentially trigger phase completion, production, and a generation
+change before the call returns. Those events were triggered by the command; they are not all
+fulfillment of the original task.
 Individual transactions remain smaller than the synchronous call that runs this progression.
 
 **General result rule:** a returned `TaskResult` should cover everything that happened during that
@@ -118,14 +119,14 @@ Lower numbers take precedence.
 
 A Player cannot select a P2 task while executable P1 work remains. A selected task excludes competing client
 mutations until it finishes. Admin tasks its execution creates wait until that transaction finishes.
-The synchronous call returns its results only after all eligible Admin work finishes; deferred
-Admin tasks may remain. This also rules out a callback inviting another Player command while
-executable P1 work remains.
+The synchronous call returns its results only after all currently executable Admin work finishes;
+waiting and deferred Admin tasks may remain. This also rules out a callback inviting another
+Player command while executable P1 work remains.
 
-**Human clarification:** an Admin placement signal waiting for payment must not prevent the Player
-from paying eight plants or 23 MC. Attempt later Admin tasks even when an earlier task waits, and
-retry after transactions change what can execute. The current approximation and remaining eligibility
-questions are recorded under implementation differences below.
+**Human clarification:** retrying an earlier failed task after later tasks succeed is existing
+behavior, as when negative victory points wait for positive scoring. It does not authorize
+silently returning after a completely unsuccessful pass. The current gate and Player-task
+exceptions below are implementation limitations, not requirements to preserve in a model redesign.
 
 **Recommendation:** gather unfinished Player choices in the client, then submit the task and its
 fully concrete instruction together. Choosing a card and then a quantity can be useful UI work
@@ -140,20 +141,21 @@ work finish.
 
 Promotion is checked only when a transaction completes, not while its queue is temporarily empty:
 `Transactions` performs it at the end of a successful transaction, so the promoting task edits
-belong to the transaction that made the work eligible. **Recommendation:** when P0–P3 are empty,
+belong to the transaction that made the work eligible. **Selected:** when P0–P3 are empty,
 promote all P4 tasks together using the same Actor-based priorities.
 
 ## Admin's choices and retries
 
-Admin handles eligible tasks in FIFO order. If a task cannot currently execute, move it to the end.
-Each success starts a fresh pass through the remaining tasks. If eligible tasks remain but a full
-pass executes none, throw an exception: the game cannot return to a Player in that state.
-Deferred P3/P4 tasks do not count until promoted.
+**Selected:** Admin handles eligible tasks in FIFO order. If a task cannot currently execute, move
+it to the end and try later tasks. Each success starts a fresh pass. After a full pass with no
+success, throw the retained rejection. Deferred P3/P4 tasks do not count until promoted.
+The current exceptions for unresolved work and tasks waiting on Player work are listed below.
+A successful return still does not certify completion; pending work and `MustCleanUp` are checked
+at the applicable completion check.
 
 Before executing an Admin task, determine **exactly one fully concrete legal instruction** that
-narrows it.
-Zero or multiple instructions mean it cannot currently execute. Partial narrowings do not count.
-Admin cannot leave ambiguous work pending while a Player acts to resolve it.
+narrows it. Complete enumeration remains a proposal, not implemented behavior. A failed attempt
+must not retain tentative selection or partial changes.
 
 The intended meaning of **legal narrowing** is that submitting it can complete its entire transaction
 successfully, including `::` consequences and final invariant checks. This excludes checking
@@ -165,9 +167,13 @@ such concrete narrowings remains open.
 its consequence still asks a Player which hex receives the greenery.
 
 An unsuccessful transaction must leave no changes behind before Admin tries another task.
-**Recommendation:** distinguish game-rule rejection, such as insufficient resources, a count limit,
-or `Die`, from an unexpected implementation error. Record game-rule rejection reasons for the
-unsuccessful-pass exception; propagate implementation errors immediately.
+Distinguish game-rule rejection, such as insufficient resources, a count limit, or `Die`, from an
+unexpected implementation error. Game-rule rejection uses Martian Zoo exception types; Kotlin
+implementation errors can use Kotlin's exception types. A rejection is retained while later tasks
+are tried and thrown if the pass cannot progress, subject to the current exceptions below.
+Implementation errors propagate immediately after restoration. A generic domain exception is not
+sufficient evidence of gameplay rejection: malformed Pets, custom-code failures, and implementation
+resource limits must also propagate.
 
 ## What belongs to Admin
 
@@ -209,8 +215,9 @@ fulfillment of the initiating command. Reconsider the scope if it requires dispr
 `UseAction` task, whose consequence is `Die`. The existing
 [Canon card test](../../test/common/dev/martianzoo/tfm/tests/cards/AiCentralTest.kt) expects rejection,
 then successfully uses its real action. `Die` itself is not System; a direct mandatory `Die`
-throws when the task would be created, rather than waiting in the queue. Current code therefore
-permits an invalid Player choice to fail during Admin handling.
+throws when the task would be created, rather than waiting in the queue. Admin restores its failed
+attempt, tries other work, and propagates the `DeadEndException` if no progress is possible.
+The enclosing Agent call restores the rejected action.
 
 Still to decide, separately from the recommendations above:
 
@@ -241,9 +248,10 @@ These are observations to address during review, not reasons to preserve the beh
   can wait while Player work remains, as with shared research payment capacity. A retained rule
   rejection is thrown after a pass with no progress. This is not the proposed complete uniqueness
   and stalled-pass rule; that remains outside the selected ORDINAL_REWORK scope.
+- Selection/execution probes restore their attempts after transaction completion, including deferred
+  promotion. Only gameplay rejection and unresolved instructions become negative results; other
+  failures propagate. A selection that hands off work does not execute the receiving Actor's task.
 - Admin configuration accepts only EAGER. Player policies alone are configurable and disabled
   during replay; Admin execution is omitted from replay inputs and repeated by its mandatory driver.
 - Queue edits and corrections can change the world while another task is selected, bypassing
   the proposed exclusion of competing client mutations. Partial selection can still persist.
-- Selection sometimes tests a concrete reassignment by executing the receiving Actor's instruction
-  and restoring it. That can reject the current call based on work proposed for a later transaction.

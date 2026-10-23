@@ -208,9 +208,8 @@ These methods do more than mark an existing task selected:
 6. A group result, even a singleton group, replaces the original with ordinary unselected child
    tasks. The original's continuation is admitted and the original is removed. An empty result
    completes it structurally. Children do not inherit selection.
-7. A concrete handoff currently performs a trial execution as the receiving Actor and rolls it
-   back. Failure can reject the initiating selection; observers can see attempted changes.
-   The handed-off task remains selected for the receiving Actor after a successful trial.
+7. A concrete handoff records assignment and leaves the task selected for the receiving Actor.
+   It does not trial-execute that Actor's instruction; execution occurs in a later transaction.
 
 Supplying a narrowing is checked against the pending instruction and shared-variable bindings;
 independent source/destination deductions cannot pick inconsistent values for the same variable.
@@ -224,7 +223,7 @@ priority guarantee from the ID-selection checks.
 
 Sources: ActorEngine `matchingTask`, `effectiveNarrowing`, `intersectTask`,
 `selectFirstStageOrNull`, `selectTask`, `narrowSelectedTask`, `applyResolution`,
-`executeSelectedIfConcrete`, `validateConcreteHandoff`.
+`executeSelectedIfConcrete`.
 
 ## 4. Resolution against the World
 
@@ -393,8 +392,8 @@ Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 | --- | --- |
 | `doTask` with `executeSubmittedGroup` | After the matched task disappears, attempt a snapshot of newly added tasks in that Actor's queue, including effects and continuations; stop when a task remains selected. This is not recursive draining of every later descendant. |
 | `combineScalars` | Resolve compatible pending scalar changes; if their signed total matches the supplied total, execute gains before removals. Newly spawned work does not join that total. |
-| `canSelectTask` | Trial selection, including execution if concrete even after handoff, then restore. An abstract selectable task can return true. Most exceptions become false; resource-limit errors propagate. |
-| `canExecuteTask` | Trial execution and restore; true only if the original task disappears. Later queued tasks are not checked. |
+| `canSelectTask` | Trial selection, including execution if concrete and still with the original Actor, then restore after transaction completion and deferred promotion. An abstract selection or handoff can return true. Gameplay rejection and unresolved instructions become false; other failures propagate. |
+| `canExecuteTask` | Trial execution and restore after transaction completion and deferred promotion; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and unresolved instructions become false; other failures propagate. |
 | `tryTask` | Execute within an atomic block; restore when choices/unavailability prevent completion, or a selection remains as specified by the overload. Other failures restore and propagate. The instruction overload evaluates an outer `PER` before that recovery block. |
 | `trySelectedTask` | Attempt selected work; missing choices return false, while current unavailability is reported as a dead end. Unlike `tryTask`, it needs an enclosing rollback scope. |
 | `restoreTask` | Replace an existing task's data and normalize it. Current code can alter instruction, assignee, and selection without ordinary selection checks; it does not recreate a removed task. |
@@ -414,7 +413,8 @@ These explain behavior seen through agent calls; they are not additional engine 
   shared AutoExecLoop at command/operation finishing points. TaskForm edits remain client-held
   until committed.
 - AutoExecLoop respects selected-task priority and runs mandatory Admin handling before optional
-  Player policies. It retries waiting Admin tasks after progress. The existing probe remains an
+  Player policies. It retries waiting Admin tasks after progress and throws a retained rejection
+  after an unsuccessful pass, subject to the existing waiting exceptions. The existing probe remains an
   approximation; [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#current-implementation-differences)
   records the eligibility rules and the remaining complete-choice-analysis gap.
 - WorldTransaction runs finishing work and validation for outermost calls, with special handling
@@ -439,7 +439,6 @@ These are known implementation observations, not new recommendations competing w
   multi-change transaction cannot necessarily postpone those checks until its final statement.
 - Direct task edits/corrections bypass some selected-task exclusions. Player priority uses the
   existing execution probe rather than complete legal-candidate enumeration.
-- Reassignment can trial-execute the receiving Actor's work before returning the handoff.
 - Concrete non-System `BY Admin` routing is narrower at admission than the intended general rule.
 
 Reviewing these differences does not authorize implementing them, preserving them as requirements,

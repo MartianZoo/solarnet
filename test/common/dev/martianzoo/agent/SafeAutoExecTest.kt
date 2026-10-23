@@ -5,6 +5,7 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
@@ -112,6 +113,46 @@ internal class SafeAutoExecTest {
     game.events.changesSince(before).map { it.actor } shouldBe listOf(ADMIN, ADMIN)
     game.isIdle() shouldBe true
     player.autoExecPolicy shouldBe NONE
+  }
+
+  @Test
+  internal fun unsuccessfulAdminPassThrowsAndRestoresTheCall() {
+    val game = Engine.newGame(testGamePremise("CLASS Point : System"))
+    val player = Agents(game) { NONE }[PLAYER1]
+    val before = game.events.nextOrdinal
+
+    shouldThrow<LimitsException> { player.addTasks("-2 Point") }
+
+    player.count("Point") shouldBe 0
+    game.tasks.isEmpty() shouldBe true
+    game.events.nextOrdinal shouldBe before
+  }
+
+  @Test
+  internal fun rejectedAdminEffectsRestoreTheWholeCallAfterOtherWorkSucceeds() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Rejected : System {
+                  This:: Notice!
+                  This: Die
+                }
+                CLASS Notice
+                CLASS Reward : System
+                """
+            )
+        )
+    val player = Agents(game) { NONE }[PLAYER1]
+    val before = game.events.nextOrdinal
+
+    shouldThrow<DeadEndException> { player.addTasks("Rejected, Reward") }
+
+    player.count("Reward") shouldBe 0
+    player.count("Rejected") shouldBe 0
+    player.count("Notice") shouldBe 0
+    game.tasks.isEmpty() shouldBe true
+    game.events.nextOrdinal shouldBe before
   }
 
   @Test

@@ -46,14 +46,12 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     if (allTasks.isEmpty()) return false
     val selected = allTasks.selectedTask()
     val pending = selected?.let(::listOf) ?: allTasks.ids().filterNot(::isDeferred)
-    // TODO(ENGINE_CONTRACT): proposed Admin handling requires exactly one fully concrete narrowing
-    // whose transaction succeeds. A selection probe can leave choices unresolved and proves less.
 
     // Selection probes can execute and roll back tasks. Only probe when automatic work is possible.
     if (pending.none { policy(it) != NONE }) return false
     // Keep manual tasks among the candidates: they still compete with automatic work.
-    // A sole task has no competing choice. Selection still validates its execution,
-    // and the enclosing Agent call rolls back any failure.
+    // A sole task has no competing choice. Selection can execute work or hand it off;
+    // the enclosing Agent call rolls back any failure that propagates.
     val candidates =
         if (selected != null || pending.size == 1) pending else pending.filter(::canSelectTask)
     val candidateCounts = candidates.groupingBy { allTasks.getTaskData(it).assignee }.eachCount()

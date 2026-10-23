@@ -6,7 +6,6 @@ import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
@@ -84,21 +83,8 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
   }
 
   private fun payWrittenActionCost(payment: String, taskIdsBeforeAction: Set<TaskId>) {
-    val costTasks = repl.game.tasks.extract { it }.filter { it.id !in taskIdsBeforeAction }
-    val billing = costTasks.singleOrNull { task ->
-      task.instruction.descendantsOfType<Change>().any { it.gaining?.className == cn("Owed") }
-    }
-    if (billing != null) {
-      val owed =
-          billing.instruction.descendantsOfType<Change>().single {
-            it.gaining?.className == cn("Owed")
-          }
-      val supplied =
-          paymentGains(payment).single { gain ->
-            gain.scaledEx.expression.className in owed.gaining!!.descendantsOfType<ClassName>()
-          }
-      repl.agent.selectTask("${supplied.scaledEx.scalar} ${owed.gaining}")
-    }
+    val costTasks =
+        repl.agent.tasks.extract { it }.filter { !it.deferred && it.id !in taskIdsBeforeAction }
     if (repl.agent.count("PaymentScope") > 0) {
       TfmPayCommand(repl).withArgs(payment)
       return

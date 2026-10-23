@@ -76,7 +76,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  internal fun `tfm action binds a variable billing cost`() {
+  internal fun `tfm action binds a variable resource cost`() {
     val repl = actionGame("PowerInfrastructure, 5 Energy")
 
     val output = repl.command("tfm_action PowerInfrastructure 1, 5 Energy")
@@ -91,7 +91,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  internal fun `tfm action binds a multiplied variable billing cost`() {
+  internal fun `tfm action binds a multiplied variable resource cost`() {
     val repl = actionGame("EnergyMarket, 6 MC", "BRPX")
 
     val output = repl.command("tfm_action EnergyMarket 1, 6 MC")

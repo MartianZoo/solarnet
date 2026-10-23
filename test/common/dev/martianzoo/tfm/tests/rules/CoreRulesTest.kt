@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
@@ -16,6 +17,18 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseStandardProject<SellPatentsProject>", "2! MC FROM ProjectCard")
+    }
+  }
+
+  @Test
+  internal fun `Sell Patents cannot choose zero cards`() {
+    newTestGame()
+
+    shouldThrow<PetSyntaxException> {
+      kim.inTurn {
+        doTask("UseStandardProject<SellPatentsProject>")
+        doTask("0 MC FROM ProjectCard!")
+      }
     }
   }
 

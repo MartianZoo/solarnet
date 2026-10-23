@@ -1,11 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -270,19 +272,34 @@ internal class FakeHelionTest : TfmSandboxTest() {
     }
   }
 
+  @Ignore // Helion is out of scope; variable action costs use direct resource spending.
   @Test
   internal fun `Can pay a variable card action with heat`() {
+    useEnergyMarketWithHeat().expect("-6 Heat, 3 Energy, 0 MC")
+  }
+
+  @Test
+  internal fun `BUG - FakeHelion cannot pay Energy Market's variable cost with heat`() {
+    shouldThrow<LimitsException> { useEnergyMarketWithHeat() }
+        .message
+        .shouldContain("cannot remove 6 `MC<Kim>`: maximum available is 0")
+    kim.count("Heat") shouldBe 6
+    kim.count("MC") shouldBe 0
+    kim.count("Energy") shouldBe 0
+    kim.count("ActionUsedMarker<EnergyMarket>") shouldBe 0
+  }
+
+  private fun useEnergyMarketWithHeat(): TaskResult {
     newTestGame(addOptions = "fakes:cards", kimCorporation = fakeHelion)
     kim.exMachina("EnergyMarket")
     kim.setToExMachina(0, "MC")
     kim.setToExMachina(6, "Heat")
 
-    kim.inTurn {
-          doTask("UseCardAction<EnergyMarket, Action1>")
-          selectOnlyTask(x = 3)
-          doTasks("6 Pay<Class<Heat>> FROM Heat", "Ok", "3 Energy")
-        }
-        .expect("-6 Heat, 3 Energy, 0 MC")
+    return kim.inTurn {
+      doTask("UseCardAction<EnergyMarket, Action1>")
+      selectOnlyTask(x = 3)
+      doTasks("6 Pay<Class<Heat>> FROM Heat", "Ok", "3 Energy")
+    }
   }
 
   @Ignore // Stormcraft accepts floaters toward Heat debt, but FakeHelion creates M€ debt.

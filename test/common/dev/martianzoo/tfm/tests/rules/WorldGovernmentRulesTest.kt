@@ -166,6 +166,22 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     }
 
     @Test
+    internal fun `An invalid selected Admin placement restores the choice so it can be corrected`() {
+      newTestGame(playerCount = 2)
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.selectOnlyTask()
+      val before = game.events.nextOrdinal
+
+      shouldThrow<DeadEndException> { kim.narrowTask("OceanTile<Tharsis_5_3>! BY Admin") }
+
+      admin.count("OceanTile") shouldBe 0
+      game.events.nextOrdinal shouldBe before
+      kim.narrowTask("OceanTile<Tharsis_1_2>! BY Admin").expect("OceanTile, 0 TerraformRating")
+    }
+
+    @Test
     internal fun `Solar World Government cannot place its ocean on land`() {
       newTestGame(playerCount = 2)
       kim.doTask("Pass")

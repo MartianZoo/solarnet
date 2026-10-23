@@ -27,9 +27,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   have no deck or discard supply. Question 16 (Helion retaining 2 MC while paying partial Mons
   Insurance with heat) needs real Helion; only `FakeHelion`, explicitly lacking correct payment
   allocation, exists. Do not treat that stand-in as evidence for the Canon interaction.
-  `FakeHelionTest` preserves eight unsupported intended scenarios beside passing `BUG -` tests:
-  five self-payment cases, Stormcraft floaters, and two Mons Insurance payouts. Revisit them with
-  real Helion rather than treating the stand-in's observed behavior as a ruling.
+  `FakeHelionTest` preserves nine unsupported intended scenarios beside passing `BUG -` tests:
+  five self-payment cases, Energy Market, Stormcraft floaters, and two Mons Insurance payouts. Revisit
+  them with real Helion rather than treating the stand-in's observed behavior as a ruling.
   Source: `/Users/dev/martianzoo/player-resources/_local/unanswered-rules-questions-2026-10-14.md`.
   Links: https://boardgamegeek.com/thread/1705209/article/37732543#37732543 and
   https://boardgamegeek.com/thread/3752654/article/48054640#48054640.
@@ -85,10 +85,13 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   evaluation followed by further narrowing. This TODO records the migration, not its completion.
 - Review the remaining proposals in [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md).
   [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md)'s five preparation steps are implemented.
-  Complete legal-candidate enumeration and the full Admin uniqueness/stalled-pass rule remain
-  deliberately outside that pass. Current handling distinguishes explicit payment gates and retries
-  later tasks, but abstract Admin work and missing external input can still remain pending. Establish
-  the intended model for Turmoil event draws and solo neutral placements before changing it.
+  Complete legal-candidate enumeration and Admin uniqueness remain unfinished. Admin retains the
+  existing retries after progress and throws a retained rejection after a completely unsuccessful
+  pass. Existing gate and Player-task waiting exceptions still need model-level review; do not
+  generalize them into suppressing all stalled-pass failures. Handoff does not trial-execute the
+  receiving Actor's task. Establish the intended model for Turmoil event draws and solo neutral
+  placements when implementing complete enumeration. Keep whole-action exploration in agents,
+  separate from the legality of an individual transaction.
 - Migrate Players away from the EAGER default, which can close legitimate gameplay choices.
   The user deliberately deferred the migration cleanup for now, hoping to move to a suitable smart
   policy rather than first migrating to NONE or CONCRETE. Leave the current default unchanged in

@@ -83,7 +83,7 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun systemGainPreservesAnExplicitPlayerPerformerAndRejectsIt() {
+  internal fun systemGainHandsOffBeforeThePlayersExecutionIsRejected() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
@@ -96,15 +96,19 @@ internal class TaskAssignmentCharacterizationTest {
             .single()
     admin.tasks.ids().shouldContainExactly(taskId)
 
-    shouldThrow<DeadEndException> {
-      game.timeline.atomic { game.actorEngine(ADMIN).selectTask(taskId) }
-    }
+    game.actorEngine(ADMIN).selectTask(taskId)
 
-    game.tasks.getTaskData(taskId).let {
-      it.assignee shouldBe ADMIN
-      it.selected shouldBe false
-    }
-    p2.tasks.isEmpty() shouldBe true
+    val handedOff = game.tasks.getTaskData(taskId)
+    handedOff.assignee shouldBe PLAYER2
+    handedOff.selected shouldBe true
+    admin.tasks.isEmpty() shouldBe true
+    p2.tasks.ids().shouldContainExactly(taskId)
+    val beforeExecution = game.events.nextOrdinal
+
+    shouldThrow<DeadEndException> { game.actorEngine(PLAYER2).doTask(taskId) }
+
+    game.tasks.getTaskData(taskId) shouldBe handedOff
+    game.events.nextOrdinal shouldBe beforeExecution
     p1.count("SystemToken") shouldBe 0
   }
 

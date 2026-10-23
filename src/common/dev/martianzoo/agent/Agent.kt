@@ -93,9 +93,10 @@ public interface Agent {
 
   /**
    * Probes whether [selectTask] would complete normally for [taskId] now. A missing or unselectable
-   * task yields false. The probe rolls back its attempted selection and any resulting effects.
-   * Tentative events can invalidate overlays based on this World. Resource-limit failures propagate
-   * to the caller.
+   * task yields false. The probe rolls back its attempted selection and any resulting effects. A
+   * handoff does not attempt the receiving Actor's execution. Gameplay rejection and unresolved
+   * instructions yield false; other failures propagate. Tentative events can invalidate overlays
+   * based on this World.
    */
   // TODO(ENGINE_CONTRACT): investigate removing speculative probes from this API. A successful
   // selection can remain abstract and must not be called a legal fully concrete narrowing.
@@ -104,8 +105,8 @@ public interface Agent {
   /**
    * Probes whether this actor can select and finish [taskId] now without another choice or handoff.
    * A missing or unfinished task yields false. The probe restores gameplay state, but tentative
-   * events can invalidate overlays based on this World. Resource-limit failures propagate to the
-   * caller.
+   * events can invalidate overlays based on this World. Gameplay rejection and unresolved
+   * instructions yield false; other failures propagate.
    */
   // TODO(ENGINE_CONTRACT): investigate whether callers need this execution probe. If retained,
   // define its answer using this instruction's whole transaction, without checking spawned tasks.

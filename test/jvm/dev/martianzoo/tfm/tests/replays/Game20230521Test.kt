@@ -1905,7 +1905,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTask("UseCardAction<$PowerInfrastructure, Action1>")
       selectTask(p1.tasks.extract { it }.single().bindXTo(8))
-      doTasks("8 Pay<Class<Energy>> FROM Energy", "8 MC")
+      doTask("8 MC")
     }
 
     p2.turn {
@@ -2086,7 +2086,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTask("UseCardAction<$PowerInfrastructure, Action1>")
       selectTask(p1.tasks.extract { it }.single().bindXTo(5))
-      doTasks("5 Pay<Class<Energy>> FROM Energy", "5 MC")
+      doTask("5 MC")
       doTasks(
           "UseCardAction<$ExtractorBalloons, Action1>",
           "Floater<$ExtractorBalloons>",

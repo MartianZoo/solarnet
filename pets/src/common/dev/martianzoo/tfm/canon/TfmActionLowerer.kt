@@ -66,7 +66,11 @@ internal object TfmActionLowerer {
           is Action.Cost.Per -> (cost.cost as? Action.Cost.Spend)?.let { it to cost.metric }
           else -> null
         } ?: return listOf(ordinaryEffect)
-    if (spend.scaledEx.expression.className !in standardResourceClasses) {
+    // Supported variable-cost actions spend their resource directly; Helion is out of scope.
+    if (
+        spend.scaledEx.scalar is XScalar ||
+            spend.scaledEx.expression.className !in standardResourceClasses
+    ) {
       return listOf(ordinaryEffect)
     }
 
@@ -80,16 +84,6 @@ internal object TfmActionLowerer {
             if (metric == null) "" else " / $metricText"
     val paymentScope =
         "PaymentScope<Class<This>, Class<${spend.scaledEx.expression}>, Class<$selector>>"
-    if (spend.scaledEx.scalar is XScalar) {
-      return listOf(
-          parse(
-              "UseAction<This, $selector>: $owed THEN " +
-                  "$paymentScope THEN " +
-                  "MAX 0 PaymentScope: (${action.instruction})"
-          )
-      )
-    }
-
     return listOf(
         parse("UseAction<This, $selector>: $owed THEN " + paymentScope),
         parse("-$paymentScope: " + action.instruction),

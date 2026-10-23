@@ -5,10 +5,10 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
-import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.TypeInfo
@@ -96,8 +96,6 @@ internal constructor(
   private object SelectionProbeSucceeded : RuntimeException()
 
   private object ExecutionProbeSucceeded : RuntimeException()
-
-  private object ConcreteHandoffValidated : RuntimeException()
 
   private object SelectionHandoffDetected : RuntimeException()
 
@@ -484,18 +482,17 @@ internal constructor(
 
   /**
    * Checks whether this task can be selected against the current world, restoring attempted changes
-   * before returning. A concrete selection also attempts execution; an abstract selection can
-   * return true while still requiring choices. This does not handle later queued tasks.
+   * before returning. A concrete selection also attempts execution if it stays with its current
+   * Actor; a handoff or abstract selection can return true without executing. This does not handle
+   * later queued tasks. Gameplay rejection or an unresolved instruction returns false; other
+   * failures propagate after restoration.
    *
-   * This is not a count of legal concrete narrowings. Current limitations: the attempt can notify
-   * live observers, and most exceptions become false, including unexpected implementation errors.
-   * [ResourceLimitException] propagates.
+   * This is not a count of legal concrete narrowings. The attempt can notify live observers.
    */
-  // TODO(ENGINE_CONTRACT): Investigate removing this public probe; do not hide implementation
-  // faults.
+  // TODO(ENGINE_CONTRACT): Review this probe against complete legal-candidate enumeration and
+  // observer effects.
   public fun canSelectTask(taskId: TaskId): Boolean = canSelectTask(taskId, tasks)
 
-  @Suppress("TooGenericExceptionCaught")
   private fun canSelectTask(
       taskId: TaskId,
       queue: TaskQueue,
@@ -505,25 +502,29 @@ internal constructor(
     return try {
       timeline.atomic {
         transactions.perform(actor, CLIENT_REQUEST) {
-          val selected = selectTask(queue, queue.getTaskData(taskId))
+          val original = queue.getTaskData(taskId)
+          val selected = selectTask(queue, original)
           if (selected != null) {
             val selectedQueue = queueForAnyTask(selected)
             val selectedTask = selectedQueue.getTaskData(selected)
             if (requireConcrete && selectedTask.instruction.isAbstract(reader))
                 throw AbortTransactionException()
-            if (!selectedTask.instruction.isAbstract(reader)) {
+            if (
+                selectedTask.assignee == original.assignee &&
+                    !selectedTask.instruction.isAbstract(reader)
+            ) {
               executeSelectedTask(selectedQueue, selected, selectedTask.assignee)
             }
           }
-          throw SelectionProbeSucceeded
         }
+        throw SelectionProbeSucceeded
       }
       false
     } catch (_: SelectionProbeSucceeded) {
       true
-    } catch (e: ResourceLimitException) {
-      throw e
-    } catch (_: Exception) {
+    } catch (_: GameplayException) {
+      false
+    } catch (_: NotFullySpecifiedException) {
       false
     }
   }
@@ -533,29 +534,28 @@ internal constructor(
    * before returning. Returns false if further narrowing or a different Actor is needed. Newly
    * queued work is outside this check.
    *
-   * Current limitations: live observers can see attempted changes, and most exceptions become
-   * false, including unexpected implementation errors. [ResourceLimitException] propagates. This
-   * API's role in determining proposed transaction-level legality needs review.
+   * Gameplay rejection or an unresolved instruction returns false; other failures propagate after
+   * restoration. Live observers can see attempted changes. This API's role in determining proposed
+   * transaction-level legality needs review.
    */
   // TODO(ENGINE_CONTRACT): Review this probe against complete-transaction legality and observer
   // effects.
-  @Suppress("TooGenericExceptionCaught")
   public fun canExecuteTask(taskId: TaskId): Boolean {
     timeline.requireAtEnd()
     return try {
       timeline.atomic {
         transactions.perform(actor, CLIENT_REQUEST) {
           doTask(taskId)
-          if (taskId !in allTasks) throw ExecutionProbeSucceeded
-          throw AbortTransactionException()
+          if (taskId in allTasks) throw AbortTransactionException()
         }
+        throw ExecutionProbeSucceeded
       }
       false
     } catch (_: ExecutionProbeSucceeded) {
       true
-    } catch (e: ResourceLimitException) {
-      throw e
-    } catch (_: Exception) {
+    } catch (_: GameplayException) {
+      false
+    } catch (_: NotFullySpecifiedException) {
       false
     }
   }
@@ -566,10 +566,9 @@ internal constructor(
    * its current assignee; independent structural children are admitted without inheriting
    * selection.
    *
-   * Current limitation: when resolution makes the task concrete and reassigns it, this call
-   * executes the receiving Actor's instruction temporarily and restores that attempt. Failure
-   * rejects the selection, and live observers can see the attempted changes. This examines work
-   * that the proposal would assign to the receiving Actor's subsequent transaction.
+   * When resolution reassigns the task, this call records the handoff without attempting the
+   * receiving Actor's execution. That Actor performs the instruction in a later transaction, which
+   * may fail independently of this selection.
    *
    * Rejects deferred work, a different selected task, and Player selection while the existing probe
    * finds an executable ordinary Admin task. A failed transaction restores its changes.
@@ -703,9 +702,6 @@ internal constructor(
             )
       }
       taskQueues.editTask(updated)
-      if (updated.assignee != actor && !updated.instruction.isAbstract(reader)) {
-        validateConcreteHandoff(updated.id)
-      }
     } else {
       // Structural completion admits ordinary pending work and fulfills the selected task. No child
       // inherits selection; a later player input must select whichever child comes next.
@@ -721,7 +717,7 @@ internal constructor(
   /**
    * Selects and executes [taskId] for this Actor, applying immediate effects and checking
    * invariants. Resulting ordinary tasks remain queued. A change assigned to another Actor remains
-   * selected for that Actor after the temporary execution attempt described by [selectTask].
+   * selected for that Actor to perform in a later transaction.
    *
    * An instruction still requiring a choice throws. A failed transaction restores its changes; for
    * example, rejecting removal of an opponent's protected plant leaves that plant intact.
@@ -758,20 +754,6 @@ internal constructor(
     handleTask(queue, selectedTask)
   }
 
-  // TODO(ENGINE_CONTRACT): Review this attempt to execute the receiving Actor's later work inside
-  // the current call. Proposed legality checks only the submitted instruction's own transaction.
-  private fun validateConcreteHandoff(taskId: TaskId) {
-    try {
-      timeline.atomic {
-        val task = allTasks.getTaskData(taskId)
-        executeSelectedTask(queueForAnyTask(taskId), taskId, task.assignee)
-        throw ConcreteHandoffValidated
-      }
-    } catch (_: ConcreteHandoffValidated) {
-      // The target Actor can execute it; the nested attempt restored the handed-off task.
-    }
-  }
-
   /**
    * Finds the task described by [narrowing], supplies that instruction, and executes it for this
    * Actor. [taskId] selects an exact pending task; [contextClass] restricts matching to tasks
@@ -785,7 +767,7 @@ internal constructor(
    * executing gains before removals; newly caused work does not join that total. These command
    * conveniences and their public parameters still need justification.
    *
-   * A change assigned to another Actor stays selected after the attempt described by [selectTask].
+   * A change assigned to another Actor stays selected without attempting that Actor's execution.
    * Without [executeSubmittedGroup], later queued tasks remain pending. A failed transaction
    * restores all changes made by this command.
    */
