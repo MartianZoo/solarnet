@@ -9,6 +9,7 @@ import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Component
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
@@ -54,14 +55,21 @@ internal class ByTriggerCharacterizationTest {
 
   private fun assertByActor(actor: Actor) {
     val game = newGame()
-    val agent = game.testAgent(actor).also { it.autoExecPolicy = NONE }
+    val agent = game.testAgent(actor).also { if (actor != ADMIN) it.autoExecPolicy = NONE }
     agent.sneak("ActorTriggerProbe!")
+    val before = game.events.nextOrdinal
 
-    agent.beginOperation("ActorTriggerSignal!") {
-      game.tasks
-          .extract { it.assignee to it.instruction.toString() }
-          .shouldContainExactly(actor to "Plant<Player1>!")
-    }
+    agent.beginOperation("ActorTriggerSignal!") {}
+
+    // Read the task as it was created: Admin performs its own work, so waiting to see it pending
+    // would only observe whether its assignee happens to be automatic. A cause marks the triggered
+    // consequence, as against the operation's own initiating task.
+    game.events
+        .entriesSince(before)
+        .filterIsInstance<TaskAddedEvent>()
+        .filter { it.task.cause != null }
+        .map { it.task.assignee to it.task.instruction.toString() }
+        .shouldContainExactly(actor to "Plant<Player1>!")
   }
 
   @Test
@@ -123,7 +131,7 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerRejectsAdmin() {
     val game = newGame()
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     admin.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
 
     admin.beginOperation("-ActorTriggerSignal!")
@@ -158,7 +166,7 @@ internal class ByTriggerCharacterizationTest {
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
     p1.sneak("RepeatedHolderProbe<Player2>!")
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     p1.runOperation("ActorTriggerSignal!")
     game.tasks.isEmpty() shouldBe true
@@ -214,7 +222,7 @@ internal class ByTriggerCharacterizationTest {
   internal fun systemMakesAnOwnedComponentsSubscriptionTableWide() {
     val game = newGame()
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     owner.sneak("SystemTriggerProbe<Player1>!")
 
     admin.beginOperation("SystemTriggerSignal!")
@@ -228,7 +236,7 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val other = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     owner.sneak("OpponentByProbe<Player1>!")
 
     owner.runOperation("ActorTriggerSignal!")

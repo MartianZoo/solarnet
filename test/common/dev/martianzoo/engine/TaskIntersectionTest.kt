@@ -69,7 +69,7 @@ internal class TaskIntersectionTest {
   @Test
   fun `selection cannot discard a choice when resolving a gate splits the task`() {
     val task = agent.addTasks("MAX 0 Marker: (Piece<Red, Shape>, Marker)").single()
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     val original = game.tasks.getTaskData(task)
 
     for (narrowing in
@@ -78,7 +78,7 @@ internal class TaskIntersectionTest {
           .message
           .shouldContain("splits during selection")
 
-      game.timeline.checkpoint() shouldBe before
+      game.events.nextOrdinal shouldBe before
       game.tasks.getTaskData(task) shouldBe original
       agent.count("Piece") shouldBe 0
       agent.count("Marker") shouldBe 0
@@ -119,13 +119,13 @@ internal class TaskIntersectionTest {
   @Test
   fun `a strict match does not hide another intersecting task`() {
     agent.addTasks("Piece<Color, Circle>, Piece<Red, Shape>")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { agent.doTask("Piece<Color, Circle>") }
         .message
         .shouldContain("ambiguous")
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.count("Piece") shouldBe 0
   }
 
@@ -188,34 +188,34 @@ internal class TaskIntersectionTest {
   @Test
   fun `intersection does not choose among remaining alternatives`() {
     agent.addTasks("Piece<Red, Circle> OR Piece<Red, Square>")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<NotFullySpecifiedException> { agent.doTask("Piece<Color, Shape>") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.count("Piece") shouldBe 0
   }
 
   @Test
   fun `disjoint choices and incompatible counts leave tasks unchanged`() {
     agent.addTasks("2 Piece<Red, Shape>")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { agent.doTask("2 Piece<Blue, Circle>") }
     shouldThrow<TaskException> { agent.doTask("3 Piece<Color, Circle>") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.count("Piece") shouldBe 0
   }
 
   @Test
   fun `ordinary narrowTask still requires a narrowing`() {
     agent.selectTask(agent.addTasks("Piece<Red, Shape>").single())
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<NarrowingException> { agent.narrowTask("Piece<Color, Circle>") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.count("Piece") shouldBe 0
   }
 
@@ -247,10 +247,10 @@ internal class TaskIntersectionTest {
   @Test
   fun `omitted quantifiers still inherit while explicit incompatible quantifiers fail`() {
     agent.addTasks("Piece<Red, Shape>*")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { agent.doTask("Piece<Color, Circle>!") }
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.doTask("Piece<Color, Circle>")
 
     agent.count("Piece<Red, Circle>") shouldBe 1
@@ -295,24 +295,24 @@ internal class TaskIntersectionTest {
   @Test
   fun `an omitted quantifier cannot weaken an incompatible count into an optional ceiling`() {
     agent.addTasks("2? Piece<Red, Shape>")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { agent.doTask("3 Piece<Color, Circle>") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.count("Piece") shouldBe 0
   }
 
   @Test
   fun `an unnamed type overlap cannot be ignored when matching tasks`() {
     agent.addTasks("LeftChoice?, RightChoice?")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { agent.doTask("LeftChoice!") }
         .message
         .shouldContain("more specific choice")
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.count("LeftChoice") shouldBe 0
   }
 

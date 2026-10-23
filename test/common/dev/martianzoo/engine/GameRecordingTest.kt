@@ -50,7 +50,9 @@ internal class GameRecordingTest {
     val subscription = game.components.listenToCount(heat, game.reader, observedCounts::add)
 
     tasks.beginOperation("Heat?")
+    val offered = game.timeline.checkpoint()
     agent.doTask("Heat!")
+    val done = game.timeline.checkpoint()
     val recording = game.recording()
     val playback = recording.open()
     val playbackHeat = playback.world.reader.resolve(parse<Expression>("Heat<Player1>"))
@@ -62,17 +64,17 @@ internal class GameRecordingTest {
             playbackCounts::add,
         )
 
-    playback.positions.size shouldBe 3
-    playback.positionIndex shouldBe 2
+    playback.positions.last() shouldBe done
+    playback.positionIndex shouldBe done.serial
     observedCounts.shouldContainExactly(0, 1)
 
     shouldThrow<IllegalArgumentException> { playback.seek(-1) }
 
     playback.seek(0)
     playback.world.reader.count(playbackHeat) shouldBe 0
-    playback.seek(1)
+    playback.seek(offered.serial)
     playback.world.reader.count(playbackHeat) shouldBe 0
-    playback.seek(2)
+    playback.seek(done.serial)
     playback.world.reader.count(playbackHeat) shouldBe 1
     playbackCounts.shouldContainExactly(1, 0, 1)
     agent.count("Heat<Player1>") shouldBe 1
@@ -86,11 +88,13 @@ internal class GameRecordingTest {
   internal fun callbackAgentCallsHaveSeparateRecordedSteps() {
     val game = TfmEngine.newGame(canonicalPremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    var afterPlant = 0
     var addAutomaticResources = true
     game.onTransactionComplete = {
       if (addAutomaticResources) {
         addAutomaticResources = false
         agent.runOperation("Plant")
+        afterPlant = game.timeline.checkpoint().serial
         agent.runOperation("Steel")
       }
     }
@@ -98,12 +102,11 @@ internal class GameRecordingTest {
     agent.runOperation("Heat")
     val playback = game.recording().open()
 
-    playback.positions.size shouldBe 3
-    playback.seek(1)
+    playback.seek(afterPlant)
     playback.world.reader.count(playback.world.reader.resolve(parse("Heat<Player1>"))) shouldBe 1
     playback.world.reader.count(playback.world.reader.resolve(parse("Plant<Player1>"))) shouldBe 1
     playback.world.reader.count(playback.world.reader.resolve(parse("Steel<Player1>"))) shouldBe 0
-    playback.seek(2)
+    playback.seek(playback.positions.lastIndex)
     playback.world.reader.count(playback.world.reader.resolve(parse("Plant<Player1>"))) shouldBe 1
     playback.world.reader.count(playback.world.reader.resolve(parse("Steel<Player1>"))) shouldBe 1
   }

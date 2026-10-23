@@ -20,7 +20,6 @@ import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldInclude
 import kotlin.test.Test
 
 internal class BootstrapLifecycleTest {
@@ -49,10 +48,9 @@ internal class BootstrapLifecycleTest {
     game.tasks.isEmpty() shouldBe true
     game.events.entriesSinceSetup().shouldBeEmpty()
 
-    shouldThrow<IllegalArgumentException> { game.timeline.seek(Checkpoint(0)) }
-        .message
-        .orEmpty()
-        .shouldInclude("committed through")
+    game.timeline.floor shouldBe Checkpoint(0)
+    game.timeline.seek(Checkpoint(0))
+    game.timeline.stepBack() shouldBe false
   }
 
   @Test

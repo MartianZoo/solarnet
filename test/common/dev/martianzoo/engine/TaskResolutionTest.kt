@@ -24,7 +24,7 @@ internal class TaskResolutionTest {
   private val game = setUpGame()
   private val tasks = game.tasks
   private val events = game.events
-  private val start = game.timeline.checkpoint()
+  private val start = game.events.nextOrdinal
   private val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = AutoExecPolicy.NONE }
 
   @Test
@@ -107,9 +107,9 @@ internal class TaskResolutionTest {
         .shouldContainExactlyInAnyOrder(
             "-TerraformRating<Player1>! OR Heat<Player1>! OR Tharsis_5_5!"
         )
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     shouldThrow<LimitsException> { agent.doTask("Tharsis_5_5!") }
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.doTask("Heat!")
     agent.count("Heat") shouldBe 1
   }
@@ -128,12 +128,12 @@ internal class TaskResolutionTest {
   internal fun `doing a gated action still checks its gate`() {
     agent.sneak("Heat")
     initiate("MAX 0 Heat: Plant")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<RequirementException> { agent.doTask("Plant") }
 
     agent.count("Plant") shouldBe 0
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
   }
 
   @Test

@@ -39,11 +39,6 @@ internal class AgentImpl(
 ) : Agent {
 
   private val autoExecPolicyOverrides = mutableListOf<AutoExecPolicy>()
-  private var delegatingFromOperationScope = 0
-
-  private fun recordPlayerReturn() {
-    if (actor != ADMIN) world.timeline.recordPosition()
-  }
 
   init {
     autoExecLoop.register(engine.actor) { autoExecPolicyOverrides.lastOrNull() ?: autoExecPolicy }
@@ -61,15 +56,16 @@ internal class AgentImpl(
   private val allTasks: TaskQueue
     get() = world.tasks
 
-  // TODO(ENGINE_CONTRACT): proposed Admin handling is mandatory. Admin's own configured or
-  // overridden policy can currently disable it, and Player policies can hide its failure.
-  override var autoExecPolicy: AutoExecPolicy = initialPolicy
+  override var autoExecPolicy: AutoExecPolicy =
+      if (actor == ADMIN) AutoExecPolicy.EAGER else initialPolicy
     set(newPolicy) {
+      require(actor != ADMIN || newPolicy == AutoExecPolicy.EAGER) {
+        "Admin always uses EAGER handling"
+      }
       if (newPolicy != field) {
         field = newPolicy
         if (newPolicy != AutoExecPolicy.NONE) {
           autoExecAtomically()
-          recordPlayerReturn()
         }
       }
     }
@@ -112,18 +108,16 @@ internal class AgentImpl(
   // TODO(ENGINE_CONTRACT): decide whether correction calls may deliberately omit required Admin
   // handling. This path currently returns without checking for eligible Admin tasks.
   override fun sneak(changes: String, fakeCause: Cause?): TaskResult =
-      world.timeline
-          .atomic {
-            engine.sneak(parseInstructionGroup(changes), fakeCause)
-            world.agentTransactionGuard?.validate()
-          }
-          .also { recordPlayerReturn() }
+      world.timeline.atomic {
+        engine.sneak(parseInstructionGroup(changes), fakeCause)
+        world.agentTransactionGuard?.validate()
+      }
 
   // TASKS
 
   override fun addTasks(instruction: String, firstCause: Cause?): List<TaskId> {
     var added = emptyList<TaskId>()
-    atomicWithoutAutoExec {
+    queueEdit {
       added = engine.addTasks(parseInstructionGroup(instruction), firstCause)
     }
     return added
@@ -131,7 +125,7 @@ internal class AgentImpl(
 
   override fun dropTask(taskId: TaskId): TaskRemovedEvent {
     lateinit var removed: TaskRemovedEvent
-    atomicWithoutAutoExec {
+    queueEdit {
       taskLog.capture(
           actor,
           tasks.getTaskData(taskId).instruction.toString(),
@@ -194,6 +188,7 @@ internal class AgentImpl(
 
   private fun addInitialTasks(initialInstructions: InstructionGroup) {
     engine.addTasks(initialInstructions).forEach { taskId ->
+      autoExecLoop.runAdmin()
       // Initial routing may assign the task to another Actor before task handling begins, and a
       // dispatch admits work that may wait.
       if (taskId !in tasks || tasks.getTaskData(taskId).deferred) return@forEach
@@ -216,19 +211,9 @@ internal class AgentImpl(
 
     override val reader = this@AgentImpl.reader
 
-    private inline fun <T> delegate(block: () -> T): T {
-      delegatingFromOperationScope++
-      return try {
-        block()
-      } finally {
-        delegatingFromOperationScope--
-      }
-    }
-
     private inline fun <T> returnedCall(block: () -> T): T {
-      val result = delegate(block)
+      val result = block()
       autoExecLoop.run()
-      recordPlayerReturn()
       return result
     }
 
@@ -255,18 +240,16 @@ internal class AgentImpl(
     fun performTasks(narrowings: Array<out String>) {
       narrowings.forEach { narrowing ->
         val parsed = parseTaskNarrowing(narrowing)
-        delegate {
-          decide {
-            taskLog.capture(actor, narrowing) {
-              engine.doTask(
-                  parsed.instruction,
-                  parsed.quantifierOmitted,
-                  parsed.submittedAsGroup || parsed.instruction is InstructionGroup,
-                  combineScalars = true,
-              )
-            }
-            finishTaskHandoff()
+        decide {
+          taskLog.capture(actor, narrowing) {
+            engine.doTask(
+                parsed.instruction,
+                parsed.quantifierOmitted,
+                parsed.submittedAsGroup || parsed.instruction is InstructionGroup,
+                combineScalars = true,
+            )
           }
+          finishTaskHandoff()
         }
         autoExecLoop.run()
       }
@@ -274,7 +257,6 @@ internal class AgentImpl(
 
     override fun doTasks(vararg narrowings: String) {
       performTasks(narrowings)
-      recordPlayerReturn()
     }
 
     override fun doTask(narrowing: String, contextClass: ClassName) {
@@ -295,12 +277,10 @@ internal class AgentImpl(
 
     override fun autoExecNow() {
       autoExecLoop.run()
-      recordPlayerReturn()
     }
 
     override fun autoExecNow(policy: AutoExecPolicy) {
       withAutoExecPolicyOverride(policy) { autoExecLoop.run() }
-      recordPlayerReturn()
     }
 
     override fun doWithAutoExecPolicy(policy: AutoExecPolicy, body: OperationBlock) {
@@ -309,7 +289,6 @@ internal class AgentImpl(
         body(this@Adapter)
         autoExecLoop.run()
       }
-      recordPlayerReturn()
     }
   }
 
@@ -319,6 +298,7 @@ internal class AgentImpl(
       withAutoExecPolicyOverride(policy) { atomic {} }
 
   private inline fun <T> withAutoExecPolicyOverride(policy: AutoExecPolicy, block: () -> T): T {
+    require(actor != ADMIN || policy == AutoExecPolicy.EAGER) { "Admin always uses EAGER handling" }
     autoExecPolicyOverrides.add(policy)
     return try {
       block()
@@ -482,8 +462,10 @@ internal class AgentImpl(
 
   /** Runs a submitted decision and task handling within the enclosing call. */
   private fun decide(block: () -> Unit): TaskResult = atomic {
+    autoExecLoop.runAdmin()
     markDecision()
     block()
+    autoExecLoop.runAdmin()
   }
 
   private fun finishTaskHandoff() {
@@ -495,7 +477,7 @@ internal class AgentImpl(
   }
 
   private fun markDecision() {
-    autoExecLoop.lastDecision = world.timeline.checkpoint()
+    autoExecLoop.lastDecision = world.events.nextOrdinal
   }
 
   private fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) =
@@ -503,33 +485,32 @@ internal class AgentImpl(
 
   // Agent calls can re-enter this site. Shared depth currently makes the outermost call handle
   // tasks and report completion, even when several Actor engine calls happen inside it.
-  // TODO(ENGINE_CONTRACT): run mandatory Admin work to quiescence regardless of Player policy.
-  // The returned TaskResult must include all retained changes through the end of the call.
   private fun atomic(
       validateCompletion: () -> Unit = {},
       block: () -> Unit,
   ): TaskResult =
-      engine
-          .transact(
-              block = block,
-              validateCompletion = validateCompletion,
-              afterChanges = {
-                autoExecLoop.run()
-                world.agentTransactionGuard?.validate()
-              },
-          )
-          .also {
-            if (delegatingFromOperationScope == 0) recordPlayerReturn()
-          }
+      engine.transact(
+          block = block,
+          validateCompletion = validateCompletion,
+          afterChanges = {
+            autoExecLoop.run()
+            world.agentTransactionGuard?.validate()
+          },
+      )
 
-  // TODO(ENGINE_CONTRACT): task additions and removals are changes too. Handle eligible Admin work
-  // before these calls return; the current path deliberately skips all task handling.
-  private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
-      engine
-          .transact(afterChanges = { world.agentTransactionGuard?.validate() }, block = block)
-          .also {
-            if (delegatingFromOperationScope == 0) recordPlayerReturn()
-          }
+  // Queue edits handle mandatory Admin work without choosing Player tasks.
+  private fun queueEdit(block: () -> Unit): TaskResult =
+      engine.transact(
+          afterChanges = {
+            autoExecLoop.runAdmin()
+            world.agentTransactionGuard?.validate()
+          },
+          block = {
+            autoExecLoop.runAdmin()
+            block()
+            autoExecLoop.runAdmin()
+          },
+      )
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,

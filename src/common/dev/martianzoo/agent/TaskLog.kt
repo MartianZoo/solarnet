@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.Player
@@ -23,10 +24,11 @@ import dev.martianzoo.state.Task.TaskId
  * remain because later narrowing may require the selected Actor. Intermediate event history is not
  * preserved.
  *
- * Reconstruction uses the same premise and implementation, with every Actor's autoexecution
- * disabled. Game start is recorded explicitly. Task selectors retain causal context instead of
- * source event ordinals. External card identities are carried by [RecordedInput.Command], but their
- * Agent-side capture awaits integration with CardTracking.
+ * Reconstruction uses the same premise and implementation, with every Player's autoexecution
+ * disabled; Admin's handling is automatic and always runs. Game start is recorded explicitly. Task
+ * selectors retain causal context instead of source event ordinals. External card identities are
+ * carried by [RecordedInput.Command], but their Agent-side capture awaits integration with
+ * CardTracking.
  */
 public class TaskLog internal constructor(private val world: World) {
   private class Submission(
@@ -63,22 +65,30 @@ public class TaskLog internal constructor(private val world: World) {
     gameStartRecorded = true
   }
 
-  /** Structured inputs for the shared game file, with rolled-back submissions removed. */
+  /**
+   * Structured inputs for the shared game file, with rolled-back submissions removed.
+   *
+   * Admin's automatic handling is left out. It is not configurable, so reconstruction performs it
+   * again on its own; recording it would replay work that is already done and fail to find its
+   * task. Admin's own corrections are still recorded, since nothing repeats those.
+   */
   public fun inputs(): List<RecordedInput> {
     check(gameStartRecorded) { "game start was not recorded" }
     return listOf(RecordedInput.StartGame) +
-        survivingSubmissions().map { item ->
-          RecordedInput.Command(
-              item.actor,
-              item.kind,
-              item.instruction,
-              taskSelector = item.taskSelector,
-          )
-        }
+        survivingSubmissions()
+            .filterNot { it.automatic && it.actor == ADMIN }
+            .map { item ->
+              RecordedInput.Command(
+                  item.actor,
+                  item.kind,
+                  item.instruction,
+                  taskSelector = item.taskSelector,
+              )
+            }
   }
 
   private fun survivingSubmissions(): List<Submission> {
-    val events = world.events.entriesSince(Checkpoint(0))
+    val events = world.events.entriesSince(0)
     val surviving = submissions.filter { item ->
       item.anchor?.let { events.getOrNull(it.ordinal) === it } == true
     }
@@ -96,7 +106,7 @@ public class TaskLog internal constructor(private val world: World) {
             it.kind == RecordedInput.Kind.EX_MACHINA ||
                 (it.actor is Player && it.selectsTask && (!it.automatic || it.awaitsInput))
           }
-          .map { Checkpoint(checkNotNull(it.anchor).ordinal) }
+          .map { Checkpoint(checkNotNull(checkNotNull(it.anchor).transaction).serial) }
           .distinct()
 
   internal fun <T> capture(
@@ -109,7 +119,7 @@ public class TaskLog internal constructor(private val world: World) {
       block: () -> T,
   ): T {
     if (!recording) return block()
-    val checkpoint = world.timeline.checkpoint()
+    val eventCursor = world.events.nextOrdinal
     val submission =
         Submission(
             actor,
@@ -122,7 +132,7 @@ public class TaskLog internal constructor(private val world: World) {
     submissions += submission
     return try {
       block().also {
-        val events = world.events.entriesSince(checkpoint)
+        val events = world.events.entriesSince(eventCursor)
         submission.anchor = events.firstOrNull()
         // Record the choice separately from the receiving Actor's policy execution. Import runs
         // with autoexecution disabled, so replaying a completion-demanding doTask would fail here.
@@ -187,9 +197,11 @@ public class TaskLog internal constructor(private val world: World) {
 
   public companion object {
     /**
-     * Replays the shared file's inputs with every Actor policy disabled. [startGame] starts the
-     * game; [supplyCardInputs] runs before a command that needs supplied card names. A failed
-     * command stops replay and leaves earlier successful commands applied.
+     * Replays the shared file's inputs with every Player's policy disabled. Admin still performs
+     * its own work, which is automatic and not configurable, so a recorded Admin command may find
+     * its task already handled. [startGame] starts the game; [supplyCardInputs] runs before a
+     * command that needs supplied card names. A failed command stops replay and leaves earlier
+     * successful commands applied.
      */
     public fun replay(
         inputs: List<RecordedInput>,
@@ -199,10 +211,7 @@ public class TaskLog internal constructor(private val world: World) {
     ) {
       require(inputs.firstOrNull() == RecordedInput.StartGame) { "game inputs must start the game" }
       require(inputs.drop(1).none { it == RecordedInput.StartGame })
-      // TODO(ENGINE_CONTRACT): replay must retain mandatory Admin handling. The current format
-      // records Admin commands explicitly and disables Admin along with Player policies.
-      // Reconcile those recorded commands with required Admin consequences before changing this.
-      agents.world.actors.forEach { agents[it].autoExecPolicy = NONE }
+      agents.world.actors.filterIsInstance<Player>().forEach { agents[it].autoExecPolicy = NONE }
       startGame()
       inputs.drop(1).forEachIndexed { index, input ->
         val command = input as RecordedInput.Command

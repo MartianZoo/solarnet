@@ -221,18 +221,18 @@ private constructor(
   }
 
   /**
-   * Returns change events since [checkpoint] in event order, plus task ids added in that interval
-   * that have not also been removed in it.
+   * Returns change events since event [ordinal] in event order, plus task ids added in that
+   * interval that have not also been removed in it.
    */
-  public fun activitySince(checkpoint: Checkpoint): TaskResult = events.activitySince(checkpoint)
+  public fun activitySince(ordinal: Int): TaskResult = events.activitySince(ordinal)
 
   /**
-   * Marks [checkpoint] as the start of gameplay history for queries such as
+   * Marks event [ordinal] as the start of gameplay history for queries such as
    * [EventLog.entriesSinceSetup]. Defaults to the current event position.
    */
-  public fun markSetupStart(checkpoint: Checkpoint = Checkpoint(nextOrdinal)) {
+  public fun markSetupStart(ordinal: Int = nextOrdinal) {
     check(!resettingOverlay) { "cannot change setup during Game World reset" }
-    events.markSetupStart(checkpoint)
+    events.markSetupStart(ordinal)
     localRevision++
   }
 

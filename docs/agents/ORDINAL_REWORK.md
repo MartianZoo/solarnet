@@ -1,9 +1,9 @@
 # Transaction records and checkpoints
 
-> **Human review required — October 22, 2026.** This is a preparation plan, not an implemented
-> contract. **Selected** identifies the human decisions recorded below. The implementation steps
-> and representation are proposed. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the transaction,
-> priority, and result rules; this document plans the history changes needed to support them.
+> **Implemented within the selected scope — October 22, 2026.** Steps 1 through 5 are implemented.
+> Complete legal-candidate enumeration for Admin remains explicitly outside this pass; the existing
+> selection probe remains an approximation. **Selected** identifies human decisions.
+> [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns scheduling and result rules and their remaining gaps.
 
 ## What this change should accomplish
 
@@ -46,160 +46,236 @@ construct checkpoints in the middle of a transaction.
 No separate concept named “request” is needed. A synchronous call can perform a transaction, run
 eligible work to quiescence, and return a result spanning several transactions.
 
-## Proposed history representation
+## History representation
 
-Keep a list of transaction records with the event history, preferably owned by
-[EventLog](../../src/common/dev/martianzoo/state/EventLog.kt). Each completed record contains its
-serial, a nonempty event range, the initiating Actor and submitted operation/task information,
-and a short explanation of why execution happened now. Do not add marker events merely to
-separate ranges: that would change the ordinals used by existing causal links and task IDs.
+There is no list of transaction records. Each event carries the
+[Transaction](../../src/common/dev/martianzoo/state/Transaction.kt) that produced it — its serial,
+the initiating Actor, and why it executed now — and every event one transaction owns carries that
+same value. [EventLog](../../src/common/dev/martianzoo/state/EventLog.kt) derives a transaction's
+nonempty event range from the events, so nothing has to be kept synchronized with them. Step 3
+records why. No marker events were added to separate ranges; that would have changed the ordinals
+used by existing causal links and task IDs.
 
 For example, suppose a Player places greenery on a hex whose bonus grants steel:
 
 | Transaction | Events it owns | Why it executed now |
 | --- | --- | --- |
 | 12 | Tile placement, immediate effects, task edits, and enqueueing the bonus | Client request |
-| 13 | Admin executes the bonus and removes its task | Admin eager policy |
+| 13 | Admin executes the placement signal, offering the Player the steel reward | Admin eager policy |
 
-The result of the Player's synchronous call includes both transactions. `Checkpoint(13)` means
-before the bonus transaction: the tile is present and its bonus is pending. `Checkpoint(14)` is
-the current end, before a possible next transaction. This last position exists without fabricating
-an empty transaction record. Numbers here are illustrative, not a proposed constructor signature.
+The result of the Player's synchronous call includes both transactions, which it now does.
+`Checkpoint(13)` means before the Admin transaction: the tile is present and its placement signal
+is pending. `Checkpoint(14)` is
+the current end, before a possible next transaction. That last position exists without fabricating
+an empty transaction record, since `EventLog.transactionStarts` ends with the current event count.
+Numbers here are illustrative. The Player subsequently takes the steel reward in another transaction.
 
-Keep execution motivation separate from `Cause`: the placement rule authorizes the bonus, while
+Execution motivation stays separate from `Cause`: the placement rule authorizes the bonus, while
 Admin's eager policy explains why its task executed now. Drivers supply the motivation at the
-engine call; the engine does not infer it from the task's cause. Use a small explicit value for
-client submission, Admin eager policy, or an identified Player policy. A current Player policy
-counts too; implementing future policy choices is outside this plan. Choose the smallest way to
-pass this information after inspecting the actual entry points; do not rename public APIs to
-introduce another interaction concept.
+engine call, and the engine does not infer it from the task's cause. `Motivation` is one of client
+submission, Admin eager policy, or the Actor's own policy, with the Actor supplying identity.
+Future policy choices are outside this plan. No public API was renamed to introduce another
+interaction concept; `ActorEngine.transaction(motivation)` is the one addition, and it names the
+concept this document is about.
 
 [TaskLog](../../src/common/dev/martianzoo/agent/TaskLog.kt) is a compacted replay stream. It omits
 some intermediate submissions and cannot reconstruct the complete transaction grouping. Transaction
 records explain exact retained execution; they need not duplicate the entire replay command format.
 
-Proposed serial rules: start at zero after engine initialization; preserve the initialization event
-prefix and use its end as the first client checkpoint. Serials describe positions within retained
-history, not globally unique execution IDs. Truncating before serial 13 removes transaction 13 and
-its successors; new work can reuse 13. Checkpoints into discarded future history must be discarded
-by clients. Do not add branch identities or generation counters without a demonstrated need.
+Serial rules, as implemented: serials start at zero after engine initialization, whose event
+prefix carries no transaction and whose end is the first client position. Serials are positions
+within retained history, not globally unique execution IDs. Truncating before serial 13 removes
+transaction 13 and its successors, and new work reuses 13 because the next serial is derived from
+the last retained event. Checkpoints into discarded future history must be discarded by clients.
+No branch identities or generation counters were added.
 
 ## Implementation order
 
-### 1. Identify the actual transaction entry points
+### 1. Transaction entry points (inventory)
 
-Inspect [ActorEngine](../../src/common/dev/martianzoo/engine/ActorEngine.kt),
-[WorldTransaction](../../src/common/dev/martianzoo/engine/WorldTransaction.kt), and
-[AgentImpl](../../src/common/dev/martianzoo/agent/AgentImpl.kt) together. Today's `transact` and
-`WorldTransaction` can enclose several Actor mutations plus Admin work; their names do not identify
-the new transaction units.
+This inventory records behavior at the start of this work. The later steps supersede its notes
+about failure restoration, Admin handling, and navigation; it remains the entry-point audit.
 
-For each public mutation, identify its outermost engine entry, immediate effects, final checks, and
-return. Internal helper calls belong to that same transaction. Admin work queued during it waits
-until it finishes. An Agent batch calling the engine repeatedly contains multiple transactions;
-a compound instruction executed within an engine mutation need not be split into separate records.
-Do not invent an at-most-single-task-per-call restriction to simplify recording.
+Three different mechanisms already bracket work today, and none of them identifies a transaction:
 
-Inspect grouped/scalar execution conveniences specifically: some consume several existing tasks
-inside an engine call. Record the behavior and assess it against selected-task exclusion; result
-aggregation alone neither justifies nor prohibits it. Any recommendation to remove such behavior
-needs its own explanation, rather than silently changing it as part of this migration.
+- `TimelineImpl.atomic` is a plain rollback scope. Probes, corrections, `tryTask`, and each
+  automatic-handling iteration use it, and it nests. A block that restores everything it did is not
+  a transaction, so `atomic` cannot define the unit.
+- `WorldTransaction.run` (reached as `ActorEngine.transact`) brackets an Agent call. Its outermost
+  invocation also runs task handling, completion validation, and the completion callback, so it
+  spans several transactions by the proposed definition.
+- `AutoExecLoop.actOnce` wraps each individual automatic task in its own `atomic` block. This is
+  the one place whose existing granularity already matches a transaction.
 
-Include queue edits, corrections, handoffs, initialization, and probes in the inventory. Distinguish
-engine initialization from ordinary Actor-driven setup. Apply priority checks to competing external
-calls, not to the current transaction's own task additions or other consequences.
+The transaction unit must therefore be marked explicitly where a mutation enters the engine. It
+cannot be inferred from the rollback scopes.
 
-### 2. Separate event cursors and fix whole-call results
+| Engine entry | Retains events? | Own restoration | Notes |
+| --- | --- | --- | --- |
+| `sneak` | yes | `worldTransaction.correct` | Runs `::` effects and final checks; no queued `:` effects, task handling, or completion callback |
+| `addTasks` | yes | none | Queue edit; can promote deferred work before the enclosing call finishes creating its own work |
+| `dropTask` | yes | none | Queue edit; can also promote deferred work |
+| `restoreTask` | yes | none | Task replacement without ordinary selection checks |
+| `selectTask` (either overload) | yes | none | May resolve, reassign, and execute when concrete |
+| `narrowTask` | yes | none | May execute when the narrowing becomes concrete |
+| `doTask(taskId)` | yes | none | |
+| `doTask(narrowing, …)` | yes | none | `executeSubmittedGroup` also attempts newly added tasks, and `combineScalars` consumes several existing tasks, inside this one call |
+| `tryTask` (either overload) | on success only | `atomic` + abort | An unfinished or unavailable attempt returns having retained nothing |
+| `trySelectedTask` | yes | none | |
+| `canSelectTask`, `canExecuteTask` | never | `atomic`, always rolled back | Probes; they retain no events and so earn no record |
+| `requireComplete`, `prepareTaskNarrowing`, `changeLimit` | no | n/a | Read-only; not entry points |
 
-Replace uses of `Checkpoint` that really mean an arbitrary event offset with explicitly named
-`Int` event cursors. Important consumers include invariant checks, cleanup scans, internal rollback,
-[CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt), and TaskLog anchors.
-Keep `GameEvent.ordinal`, `Cause.triggerEvent`, and `TaskId` event-based.
+Consequences for recording:
 
-This is not entirely private cleanup: `EventLog.entriesSince`/`changesSince`,
-`GameWorld.activitySince`, and `ActorEngine.requireComplete` have cross-module callers. Update their
-signatures and callers deliberately; preserve no compatibility layer just for this migration.
+1. One engine mutation is one transaction, including the compound conveniences. `doTask` with
+   `executeSubmittedGroup`, and `executeScalarSum`, each remain a single record. Their existing
+   multi-task behavior is recorded here, not changed; removing either needs its own justification
+   and its own change.
+2. A task edit with no component change still retains events, so `addTasks`, `dropTask`, and
+   `restoreTask` each produce a record.
+3. Probes and failed attempts retain no events and advance no serial.
+4. `AgentImpl.addInitialTasks` performs `engine.addTasks` and then one `engine.doTask` per admitted
+   task, so one Agent operation contains several engine mutations in sequence. These are the real
+   gaps between successive mutations that the priority rule must close; the outermost coordinator
+   is not the only place to inspect.
+5. Each `AutoExecLoop.actOnce` success is its own transaction, which already matches the proposed
+   Admin rule.
+6. Engine initialization is distinct. `Initializer.executeSeed` and `executeAdminTask` each use
+   `atomic`, while `drainBootstrapTasks` selects tasks in a bare loop with no per-task scope and no
+   regard for assignee priority, and `initialize` ends with `markSetupStart` plus `commit`. Its
+   events form a prefix that precedes the first client transaction.
 
-Compute returned results over the retained events from call entry through its final Admin handling.
-Nested and batch calls each report their own entire execution interval. Preserve existing field
-meanings: `changes` includes retained component changes in order, and `tasksSpawned` includes newly
-added tasks still pending at return. This does not promise restoration of all completed transactions
-if a later transaction fails; the enclosing recovery policy remains separate.
+### 2. Event cursors and whole-call results (landed)
 
-Remove callback-driven history navigation before relying on that simple interval calculation.
-The current `TimelineTest` methods `completionCallbackCanSeekAfterANestedPlayerCallReturns` and
-`completionCallbackMayLeaveTheWorldAtARecordedPastPosition` exercise real engine calls, but use
-synthetic ChoiceA/ChoiceB classes and establish no Canon gameplay need. No production assignment to
-`onTransactionComplete` was found in this checkout. Remove the unsupported behavior and those tests;
-do not preserve it just because it has tests. Review the callback API itself before adding any new
-machinery for it. Internal restoration of failed work remains available.
+`Checkpoint` no longer appears where an arbitrary event offset was meant. `EventLog.entriesSince`,
+`EventLog.changesSince`, `EventLog.markSetupStart`, `GameWorld.activitySince`,
+`GameWorld.markSetupStart`, `Limiter.checkInvariantsSince`, and `ActorEngine.requireComplete`'s
+`lastDecision` all take plain `Int` event ordinals, and `EventLog.nextOrdinal` is the public
+accessor that supplies one. `GameEvent.ordinal`, `Cause.triggerEvent`, and `TaskId` stay
+event-based. No compatibility layer was kept.
 
-### 3. Establish complete transactions, then record them
+Code holding a navigation `Checkpoint` resolves it with `EventLog.eventOrdinal` before scanning
+individual events. A checkpoint exposes a transaction serial, not an event ordinal.
 
-Follow the failure-atomic transaction direction in ENGINE_CONTRACT: finish immediate effects and
-final checks before publishing a transaction record. Failed execution must not leave an unowned
-suffix of partial events. If providing that guarantee for a public method proves disproportionately
-difficult, revisit its contract explicitly, as the human has allowed; do not hide the problem with
-misleading records.
+`WorldTransaction.run` now reports the retained events of its own whole interval, captured at call
+entry and computed after its finishing steps. An outermost call therefore includes its completion
+callback's changes and the task handling that follows the callback; nested and batch calls each
+report their own interval. This is reporting coverage only: a failing callback still leaves the
+initial work in place.
 
-Append a record only when a successful transaction retained events. An enclosing client rollback
-removes all completed records whose events it removes. Keep events and records together through
-rollback, retained future navigation, truncation, copying, fork/overlay reset, and recording import.
-Restore history metadata as well as components and tasks on failure. When deferred promotion moves
-to the end of the transaction that makes it eligible, include its task edits in that transaction;
-do not leave promotion events outside every record.
+Unsupported callback navigation is gone. `TimelineImpl` refuses `seek` and `truncate` while the
+completion callback runs, including from gameplay calls the callback starts, so the World is always
+at the end of its history when the callback returns and the final handling no longer needs an
+`atEnd` test. `TimelineTest.completionCallbackCanSeekAfterANestedPlayerCallReturns` and
+`completionCallbackMayLeaveTheWorldAtARecordedPastPosition` were removed with it. Ordinary client
+navigation after a call returns, and navigation from inside an operation body, both remain.
+Internal restoration of failed work is unaffected.
 
-Add passive recording support for the new ranges and metadata. Passive playback can step between
-transactions without running Admin or firing effects again. Before the priority work below lands,
-do not expose newly available points with pending Admin work as live gameplay positions. The
-simplest rollout is to keep the public navigation migration until step 5, rather than inventing a
-temporary second set of safe-position records.
+Step 4 extends mandatory Admin handling to nested decisions and queue edits as well as outer calls.
+Correction calls deliberately omit queued work.
+
+### 3. Transaction records (landed as event grouping)
+
+The grouping is recorded **on the events**, not in a parallel list of records.
+[Transaction](../../src/common/dev/martianzoo/state/Transaction.kt) holds a serial, the initiating
+Actor, and a [Motivation], and every event one transaction owns carries that same value.
+
+This was chosen to keep rollback simple. A transaction's events are contiguous and serials never
+decrease along ordinals, so:
+
+1. Removing a suffix of events removes exactly the transactions those events carried. Rollback,
+   truncation, fork, overlay reset, and import need no second structure to keep synchronized.
+2. The next serial is derived, not counted: one more than whatever the last retained event carries,
+   or zero when only the initialization prefix remains. That is why discarding history frees its
+   serials for reuse, with nothing to reset.
+3. An event names its transaction with no lookup, which is what "a transaction can be found from
+   each of its events" requires.
+4. A serial's event range comes from `EventLog.transactionRange`, a binary search bounded below by
+   the serial itself, since transaction *n* cannot begin before ordinal *n*. Interpolation search or
+   a derived serial-to-ordinal index would both be faster, and neither is warranted: passive playback caches
+   the derived transaction offsets; live navigation resolves the requested serial from the events.
+
+There is no submitted-task field. The events a transaction owns already record which tasks and
+components the submission touched, so storing it again was a second representation of the same
+fact — and the one that made a reconstructed history unequal to its source, because the compacted
+input stream does not always record which task a form commit was submitted against.
+
+`Motivation` is `CLIENT_REQUEST`, `ADMIN_EAGER_POLICY`, or `PLAYER_POLICY`, with the Actor supplying
+identity. Every public `ActorEngine` mutation opens a `CLIENT_REQUEST` transaction;
+`ActorEngine.transaction(motivation)` lets a driver state otherwise, and `AutoExecLoop` uses it for
+automatic handling. Internal engine work joins the open transaction, so one submitted mutation and
+the consequences it needs share one record, including the compound `doTask` conveniences.
+[Transactions](../../src/common/dev/martianzoo/engine/Transactions.kt) holds the open transaction
+and refuses an event produced outside one, which is how a missed entry point surfaces.
+
+Engine initialization records no transaction: its events form a prefix whose end is the first
+client position, and the first gameplay transaction is serial 0. `EventLog.append` enforces the
+rest — serials start at zero, never decrease, advance by one, a prefix event cannot follow a
+transaction, and an event continuing a transaction carries that transaction's own value.
+
+`EventLogJson` stores a transaction on the first event that carries it and lets the following
+events inherit it, so a file is no larger per event; the game-file format is now
+`solarnet-game-3`. Exact passive import preserves transaction grouping and motivation. Compact
+input replay compares causal component changes and final state rather than exact grouping: a
+Player's policy choice is replayed as an explicit submission, and compacted intermediate commands
+need not recreate identical transaction ranges.
 
 ### 4. Make intermediate states safe to resume
 
-Land these related changes together before opening every transaction position to live clients:
+Admin always uses mandatory eager handling; configuring or overriding another policy is an error.
+The driver attempts ordinary Admin work in FIFO order, moves waiting tasks to the end, and retries
+following progress. It respects selected-task priority and lets an already-started transaction
+finish before handling newly queued work. This includes compound resource commands.
 
-- Enforce P0/P1/P2 precedence in the engine. A Player cannot begin ordinary work while eligible
-  Admin work remains, including immediately after restoring or forking an intermediate position.
-- Make Admin handling mandatory, with FIFO retries and an exception after a full unsuccessful pass.
-  Player policies remain separate. Do not mistake another pending Player task for Admin progress.
-- Close actual gaps between successive engine mutations. Inspect `AgentImpl.addInitialTasks` and
-  nested selection loops, not just the outermost coordinator. Adapt
-  [Initializer](../../src/common/dev/martianzoo/engine/Initializer.kt), whose current bootstrap loop
-  ignores assignee priority. Preserve valid initialization under the new rule.
-- Move deferred promotion to completed transactions as proposed in ENGINE_CONTRACT. Promote the
-  whole existing P3 batch together, assigning Admin to P1 and Players to P2. Keep the proposed P4
-  rule visibly provisional until reviewed.
-- Adapt decision replay and capture together: Admin runs eagerly during replay rather than being
-  disabled and replayed as explicit Admin commands. Preserve Admin state assertions. Audit the
-  current `TaskLogTest` and `GameFileImporterTest` expectations that disable Admin.
+An explicit unmet gate can remain pending while ordinary Player work remains. In Canon's greenery
+conversion this allows payment of eight plants before the placement signal proceeds. Shared
+research payment capacity may likewise wait for another Player's payment. Rule rejection is retained
+and thrown after a full pass without progress. Abstract Admin work and missing external inputs still
+wait; full uniqueness and unconditional stalled-pass rejection are not claimed. The precise current
+rules and remaining gaps are in [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#current-implementation-differences).
 
-Exactly which Admin narrowing may execute still needs implementation work; see the example below.
-The existing resolver is not a substitute for the contract's complete transaction-legality check.
+Agent decisions and queue edits handle Admin before and after mutation, including nested calls.
+Initial instruction batches and bootstrap also respect executable Admin priority. The raw engine
+rejects a new Player selection if its existing probe finds an executable ordinary Admin task. That
+probe remains an approximation, not complete enumeration of all legal instructions.
 
-FIFO restoration is a separate unresolved detail. Failed attempts can rotate the queue without
-leaving events. For example, after A fails and B succeeds, the remaining order can be C,A rather
-than A,C. Choose explicitly whether restoration must preserve that retry order before promising
-identical subsequent execution. Randomized tests can reveal order dependencies; passing them does
-not settle the promise. Add no persisted retry-order representation until this choice requires it.
+Public engine mutations restore their own failed transaction through the existing event-restoration
+mechanism. Deferred promotion belongs to the completed transaction that made it eligible. Results
+cover the entire returned call, including nested Admin work and retained completion-callback changes.
+
+Replay disables only Player policies. It omits Admin execution commands and repeats their effects
+through mandatory handling, retaining Admin assertions. The two coverage losses from Claude's
+handoff migration are repaired: unfinished Player-to-Player handoff restores its input and state,
+and the first-stage alias scenario again rejects an incompatible narrowing.
 
 ### 5. Switch client checkpoints and remove redundant positions
 
-Have `Checkpoint` identify the pre-transaction position, optionally caching its event offset.
-Derive navigation stops from transaction starts plus the current end. Remove `recordedPositions`,
-manual `recordPosition` bookkeeping, and recording fields that duplicate that list. Adapt Timeline,
-recording playback, TaskLog selection positions, script rollback commands, and other consumers.
+`Checkpoint(serial)` identifies the state immediately before a transaction. Position zero is after
+initialization; the end is the next transaction serial. Live and passive navigation expose every
+such position, including intermediate Admin work. Checkpoints and exports are refused during an
+open transaction. Event ordinals remain internal restoration and scan coordinates.
 
-A live seek restores the recorded state; it need not immediately execute pending Admin tasks.
-The next gameplay progression must handle those tasks before allowing Player work. A passive
-viewer may inspect these positions freely. Forks must copy only the selected retained history,
-including matching transaction records; inspect today's end-only fork restriction before promising
-that a caller can fork a seeked position without first truncating its future.
+`recordedPositions`, `recordPosition`, and serialized position lists are removed. Timeline positions
+come from retained transaction metadata; immutable recordings cache only their derived event offsets.
+Playback applies recorded events without executing effects. A live seek leaves pending work intact;
+after truncating the retained future, the next Agent command handles Admin before Player work.
+Forks remain end-only, so callers truncate a seeked future before forking.
 
-Update the game-file format and regenerate affected exports. Exact files need transaction records;
-short replay files must reflect mandatory Admin execution. If these changes ship separately, each
-incompatible format change needs its own version change. Do not infer missing transaction ranges
-from old `positions` or silently reinterpret old event ordinals as transaction serials.
+The incompatible file format is `solarnet-game-3`. Full files retain events and transaction metadata;
+short files retain replay inputs. Existing files must be regenerated, not interpreted as if old event
+ordinals were transaction serials. Active replay exports and strict reconstruction are verified by
+`./gradlew build -PreplayExports`.
+
+### Acceptance checks
+
+- Player choices are explicit in the Canon scenarios; no EAGER assumption justifies the change.
+- Greenery payment remains possible while the Admin placement signal waits.
+- Admin attempts later tasks after an earlier task waits and retries following progress.
+- Completed transactions remain separate in history while returned results cover the whole call.
+- Protected Habitats rejection restores the raw mutation without a caller rollback wrapper.
+- Passive playback does not run effects; live resumption gives executable Admin work priority.
+- Failed attempts and no-ops retain no transaction; task-only edits remain navigable.
+- Export/import, truncation, forks, and overlays use derived transaction positions.
 
 ## Why current narrowing is not enough
 
@@ -228,16 +304,17 @@ separately from passive transaction grouping, but remains required for the compl
 Use functional scenarios to verify observable behavior, with small synthetic cases only where
 needed to isolate history mechanics:
 
-- Greenery placement and its Admin steel bonus produce separate transaction groups, while the
-  enclosing result includes both. Restore between them: the bonus is pending, Player execution is
-  rejected, and Admin can complete it. Passive stepping fires no effects again.
+- Greenery placement and its Admin placement signal produce separate transaction groups. Restore
+  between them: Player execution is rejected until Admin offers the reward. The Player then takes
+  the steel and oxygen choices. Passive stepping fires no effects again.
 - Removing a plant protected by Protected Habitats leaves neither partial changes nor a completed
   record on failure. Restoring an enclosing scope also removes earlier completed records in it.
 - A no-op and a restored probe leave the serial unchanged; a retained task-only edit creates a
   record. An ordinary multi-call Agent batch returns all retained changes without merging its
   transactions in history.
-- AI Central's nonexistent action cannot be hidden by unrelated pending Player work. Initialization
-  and initial task batches still work when early tasks enqueue Admin consequences.
+- AI Central's nonexistent action is rejected. Do not manufacture an unrelated pending resource
+  choice to claim a reachable gameplay defect. Initialization and initial task batches still work
+  when early tasks enqueue Admin consequences.
 - Export/import, replay, rollback, truncation, and fork preserve matching event ranges and metadata.
   A transaction can be found from each of its events; no client checkpoint exposes a partial change.
   Motivation text is provenance, not a new requirement that live replay choose the same policy label.
@@ -255,7 +332,15 @@ implementation-ready design. Neither review verified runtime behavior. This revi
 subsequent human answers about whole-call results, no-op records, callback cleanup, and randomized
 testing; it has not had another Opus review.
 
-Before implementation can promise the complete behavior, resolve FIFO restoration, audit the exact
-mutation/compound-call entry points, and determine how Admin's complete legal candidate set will be
-obtained. These are focused remaining design tasks, not reasons to postpone independent event-cursor
-cleanup or passive grouping. Public intermediate live navigation waits for the priority work.
+Human answers recorded since: results cover the whole call, a no-op leaves no record, callback
+navigation is removed, randomized effect order is used periodically, FIFO restoration promises no
+retry order, and the complete Admin narrowing check is **explicitly out of scope** for this pass —
+the existing selection probe stays as its approximation, and the gap stays recorded as a known
+difference. The entry-point audit is done and recorded in step 1.
+
+All five preparation steps are implemented within the selected scope. Complete Admin legal-candidate
+analysis, abstract Admin input modeling, and the randomized Admin-order diagnostic remain follow-ups.
+The full active build and replay export/reconstruction passed. The randomized-effect diagnostic
+reproduced the two documented Advanced Alloys attribution mismatches in ThermalMatterWaveTest and
+Game20230521Test; their preceding game-state assertions passed. These reporting failures are tracked
+in TODO.md and do not establish a transaction-order defect.

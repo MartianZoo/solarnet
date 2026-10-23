@@ -4,7 +4,6 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.recording
 import dev.martianzoo.engine.testGamePremise
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.GameRecording
@@ -19,7 +18,7 @@ import kotlinx.coroutines.test.runTest
 
 internal class GameFileImporterTest {
   @Test
-  internal fun exMachinaRecordsOnlyItsFinishedCorrection() {
+  internal fun exMachinaRetainsItsTransactionsAndRestoresTheSelectedTask() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
     val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val task = player.addTasks("Coin OR Marker").single()
@@ -28,7 +27,8 @@ internal class GameFileImporterTest {
 
     agents.exMachina(PLAYER1, "Coin")
 
-    agents.world.timeline.positions shouldBe before + agents.world.timeline.checkpoint()
+    agents.world.timeline.positions.take(before.size) shouldBe before
+    agents.world.timeline.positions.last() shouldBe agents.world.timeline.checkpoint()
     player.tasks.selectedTask() shouldBe task
     player.count("Coin") shouldBe 1
   }
@@ -73,7 +73,6 @@ internal class GameFileImporterTest {
                   coins.last().copy(cause = coins.first().cause)
               else event
             },
-            recording.positions,
         )
 
     shouldThrow<IllegalStateException> { replay(changedAncestry) }
@@ -106,7 +105,6 @@ internal class GameFileImporterTest {
     imported.world.events.changesSinceSetup().last().notes shouldBe
         "manual correction from paper log"
     imported[PLAYER1].autoExecPolicy shouldBe NONE
-    imported[ADMIN].autoExecPolicy shouldBe NONE
   }
 
   @Test

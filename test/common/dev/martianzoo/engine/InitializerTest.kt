@@ -4,7 +4,6 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
@@ -25,7 +24,7 @@ internal class InitializerTest {
                 premiseClassName = cn("Premise"),
             )
 
-    val events = Engine.newGame(premise).events.entriesSince(Checkpoint(0))
+    val events = Engine.newGame(premise).events.entriesSince(0)
 
     events.map { it::class } shouldBe
         listOf(

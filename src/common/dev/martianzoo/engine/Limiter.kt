@@ -7,7 +7,6 @@ import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.types.ClassLimitTable
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.toComponent
@@ -42,10 +41,10 @@ internal class Limiter(
     }
   }
 
-  internal fun checkInvariantsSince(checkpoint: Checkpoint) {
+  internal fun checkInvariantsSince(eventCursor: Int) {
     val changed =
         gameWorld.events
-            .changesSince(checkpoint)
+            .changesSince(eventCursor)
             .flatMap { event ->
               listOfNotNull(event.change.gaining, event.change.removing)
             }

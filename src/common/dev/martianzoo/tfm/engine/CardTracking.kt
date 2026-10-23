@@ -6,7 +6,6 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.Player
@@ -185,12 +184,10 @@ private constructor(
     // Ordinals can be reused after truncation. Only the same surviving event identifies our prefix.
     val previous = cachedSnapshot.takeIf {
       last == null ||
-          (last.ordinal < world.timeline.checkpoint().ordinal &&
-              world.events.changeAt(last.ordinal) === last)
+          (last.ordinal < world.events.nextOrdinal && world.events.changeAt(last.ordinal) === last)
     }
     val changes =
-        if (previous != null && last != null)
-            world.events.changesSince(Checkpoint(last.ordinal + 1))
+        if (previous != null && last != null) world.events.changesSince(last.ordinal + 1)
         else world.events.changesSinceSetup()
     if (previous != null && changes.isEmpty()) return previous
 

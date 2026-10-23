@@ -22,6 +22,7 @@ import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.Transaction
 
 /**
  * Constructs and edits task data using engine normalization before recording exact state events.
@@ -46,13 +47,14 @@ import dev.martianzoo.state.Task.TaskId
  *   Admin. System assignment dispatches a continuation back to the former assignee; explicit `BY`
  *   retains its own continuation scope. Abstract changes remain for the current assignee to choose.
  *   Selected tasks cannot be replaced by independent siblings
- * * Once no ordinary task remains, every task with the earliest remaining [Task.deferral] becomes
- *   ordinary at once
+ * * Once a completed transaction leaves no ordinary task, every task with the earliest remaining
+ *   [Task.deferral] becomes ordinary at once
  * * An ordinary task whose instruction is a dispatch is performed at once: `TASK R { b } >> c`
  *   becomes task `b` for R, with the dispatch's deferral, and task `c`
  */
 internal class TaskQueues(
     private val gameWorld: GameWorld,
+    private val transactionForEvent: () -> Transaction? = { null },
     private val requireAtEnd: () -> Unit = {},
 ) {
   private val classTable: ClassTable = gameWorld.classTable
@@ -71,7 +73,7 @@ internal class TaskQueues(
       deferral: Deferral = Deferral.NONE,
   ): List<TaskAddedEvent> {
     requireAtEnd()
-    return admit(instruction, assignee, cause, deferral).also { promoteDeferredWork() }
+    return admit(instruction, assignee, cause, deferral)
   }
 
   /**
@@ -94,7 +96,9 @@ internal class TaskQueues(
         if (dispatch != null && !task.deferred) {
           perform(dispatch, task)
         } else {
-          listOf(gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, task)))
+          listOf(
+              gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
+          )
         }
       }
 
@@ -113,9 +117,7 @@ internal class TaskQueues(
 
   internal fun removeTask(task: Task): TaskRemovedEvent {
     requireAtEnd()
-    return gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task)).also {
-      promoteDeferredWork()
-    }
+    return gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
   }
 
   /**
@@ -125,11 +127,13 @@ internal class TaskQueues(
    * Work deferred while that batch runs waits for the whole batch. A promoted dispatch is performed
    * at once, before it is removed, so its body joins the batch's work. Promotion is an ordinary
    * task edit, so recorded-event restoration also restores the previous deferral.
+   *
+   * [Transactions] calls this when a transaction completes successfully, so these edits belong to
+   * the transaction that made the work eligible. Individual queue edits no longer promote: a
+   * transaction that empties the queue only momentarily, before adding its own ordinary work, does
+   * not promote deferred work it has not finished competing with.
    */
-  // TODO(ENGINE_CONTRACT): review the recommendation to promote only after a complete transaction.
-  // Currently addTasks/removeTask can promote a batch while the queue is temporarily empty within
-  // a larger call, before that call has finished creating its ordinary work.
-  private fun promoteDeferredWork() {
+  internal fun promoteDeferredWork() {
     while (true) {
       val pending = gameWorld.tasks.extract { it }
       if (pending.isEmpty() || pending.any { !it.deferred }) return
@@ -143,7 +147,7 @@ internal class TaskQueues(
       if (dispatches.isEmpty()) return
       for (task in dispatches) {
         perform(task.instruction as Instruction.Dispatch, task)
-        gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task))
+        gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
       }
     }
   }
@@ -154,7 +158,12 @@ internal class TaskQueues(
     val oldTask = gameWorld.tasks.getTaskData(normalized.id)
     if (normalized == oldTask) return null
     return gameWorld.apply(
-        TaskEditedEvent(gameWorld.nextOrdinal, oldTask = oldTask, task = normalized)
+        TaskEditedEvent(
+            gameWorld.nextOrdinal,
+            oldTask = oldTask,
+            task = normalized,
+            transaction = transactionForEvent(),
+        )
     )
   }
 

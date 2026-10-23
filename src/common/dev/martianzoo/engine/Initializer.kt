@@ -27,6 +27,7 @@ internal class Initializer(
     private val timeline: TimelineImpl,
     private val premise: GamePremise,
     private val actorEngines: (Actor) -> ActorEngine,
+    private val transactions: Transactions,
 ) {
   // Taking 14% of total solo game time
   internal fun initialize() {
@@ -37,6 +38,7 @@ internal class Initializer(
     drainBootstrapTasks()
     verifyCompletedBootstrap()
     timeline.initializationFinished()
+    transactions.initializationFinished()
     timeline.commit()
   }
 
@@ -86,7 +88,12 @@ internal class Initializer(
   private fun drainBootstrapTasks() {
     val allTasks = gameWorld.tasks
     while (!allTasks.isEmpty()) {
-      val taskId = allTasks.selectedTask() ?: allTasks.ids().first()
+      val taskId =
+          allTasks.selectedTask()
+              ?: allTasks.ids().firstOrNull {
+                allTasks.getTaskData(it).assignee == ADMIN && actorEngines(ADMIN).canExecuteTask(it)
+              }
+              ?: allTasks.ids().first()
       val task = allTasks.getTaskData(taskId)
       if (task.selected && task.instruction.isAbstract(reader)) break
       val assignee = task.assignee

@@ -19,7 +19,7 @@ internal class GameWorldAtomicityTest {
   internal fun failedOperationRestoresTheWholeWorldTogether() {
     val world = TfmEngine.newGame(premise) as WholeWorld
     val admin = world.testAgent(ADMIN)
-    val checkpoint = world.timeline.checkpoint()
+    val checkpoint = world.events.nextOrdinal
     var successfulCompletions = 0
     world.onTransactionComplete = { successfulCompletions++ }
 
@@ -33,7 +33,7 @@ internal class GameWorldAtomicityTest {
     admin.count("Marker") shouldBe 0
     world.tasks.isEmpty() shouldBe true
     world.events.entriesSince(checkpoint).shouldBeEmpty()
-    world.timeline.checkpoint() shouldBe checkpoint
+    world.events.nextOrdinal shouldBe checkpoint
     successfulCompletions shouldBe 0
   }
 

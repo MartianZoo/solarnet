@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import io.kotest.matchers.shouldBe
@@ -21,7 +20,6 @@ internal class EffectAtomizationTest {
   @Test
   fun `queued self effects allow separate choices after scaling by trigger count`() {
     val admin = Engine.newGame(premise).testAgent(ADMIN)
-    admin.autoExecPolicy = NONE
 
     admin.runOperation("3 ChoiceProducer") {
       doTask("RedItem")

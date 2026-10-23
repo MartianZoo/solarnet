@@ -183,11 +183,11 @@ internal class DoTasksTest {
     val game = Engine.newGame(testGamePremise("CLASS Coin { HAS MAX 3 This }"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("2! Coin, 2! Coin")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<LimitsException> { player.continueOperation { doTasks("4 Coin") } }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     player.count("Coin") shouldBe 0
   }
 
@@ -196,11 +196,11 @@ internal class DoTasksTest {
     val game = Engine.newGame(testGamePremise("CLASS Coin { HAS MAX 1 This }"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("2! Coin, Coin!, Coin!")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<LimitsException> { player.continueOperation { doTasks("2 Coin") } }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     player.count("Coin") shouldBe 0
   }
 
@@ -209,11 +209,11 @@ internal class DoTasksTest {
     val game = Engine.newGame(testGamePremise("CLASS Coin"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("2! Coin, 2? Coin")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { player.continueOperation { doTasks("2 Coin") } }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     player.count("Coin") shouldBe 0
   }
 
@@ -222,11 +222,11 @@ internal class DoTasksTest {
     val game = Engine.newGame(testGamePremise("CLASS Coin"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("2! Coin, 3? Coin")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { player.continueOperation { doTasks("5 Coin") } }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     player.count("Coin") shouldBe 0
   }
 
@@ -235,11 +235,11 @@ internal class DoTasksTest {
     val game = Engine.newGame(testGamePremise("CLASS Coin\nCLASS Plant"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("Coin, 2 Plant")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { player.doTasks("Coin", "3 Plant") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     player.count("Coin") shouldBe 0
   }
 }

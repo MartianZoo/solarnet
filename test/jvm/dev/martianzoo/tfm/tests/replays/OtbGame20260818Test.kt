@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -1668,11 +1667,11 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     if (exportReplay) {
       runTest {
-        val originalEvents = game.events.entriesSince(Checkpoint(0))
+        val originalEvents = game.events.entriesSince(0)
         val file = checkNotNull(completedGameFileJson())
         val decoded = GameFileJson.parse(file).decode(gamePremise)
         val reconstructed = decoded.open().world
-        val decodedEvents = reconstructed.events.entriesSince(Checkpoint(0))
+        val decodedEvents = reconstructed.events.entriesSince(0)
         val allComponents = game.classTable.componentClass.baseType
 
         // The file stores Pets text, which can expand implicit type-variable arguments on parse.

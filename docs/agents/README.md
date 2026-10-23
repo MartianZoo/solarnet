@@ -23,7 +23,7 @@ architecture change. Then choose the narrowest relevant note:
 | Game flow, turns and offers, Head Start timing, task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
 | Payment choices, accepted resources, billing, or payment completion | [`PAYMENTS.md`](PAYMENTS.md) |
 | Client interaction, transactions, task priorities, or mandatory Admin handling | [`ENGINE_CONTRACT.md`](ENGINE_CONTRACT.md) |
-| Transaction grouping, execution motivation, event ordinals, or transaction-based checkpoints | [`ORDINAL_REWORK.md`](ORDINAL_REWORK.md) — proposed preparation plan |
+| Transaction grouping, execution motivation, event ordinals, or transaction-based checkpoints | [`ORDINAL_REWORK.md`](ORDINAL_REWORK.md) — implemented preparation steps and remaining scope |
 | Inventory of automatic task revisions, admission, resolution, execution, and their timing | [`TASK_HANDLING.md`](TASK_HANDLING.md) — source-based draft of current behavior |
 | Single-action decision graphs, agent pruning, or speculative card choices | [`DECISION_GRAPH.md`](DECISION_GRAPH.md) — raw discussion notes only |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |

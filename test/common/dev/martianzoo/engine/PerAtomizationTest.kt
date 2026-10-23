@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import io.kotest.matchers.shouldBe
@@ -22,7 +21,6 @@ internal class PerAtomizationTest {
   fun `computed atomized gains allow a separate choice for each item`() {
     val admin = Engine.newGame(premise).testAgent(ADMIN)
     admin.runOperation("3 Counter")
-    admin.autoExecPolicy = NONE
 
     admin.runOperation("Item / Counter") {
       doTask("RedItem")

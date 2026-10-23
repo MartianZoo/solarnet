@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -107,9 +106,9 @@ internal class PhantomTypeTest {
 
     agent.runOperation("Empty! OR Live!")
     agent.runOperation("ZeroCapacity! OR Live!") {
-      val before = game.timeline.checkpoint()
+      val before = game.events.nextOrdinal
       shouldThrow<LimitsException> { doTask("ZeroCapacity!") }
-      game.timeline.checkpoint() shouldBe before
+      game.events.nextOrdinal shouldBe before
       doTask("Live!")
     }
     agent.runOperation("Empty?")
@@ -132,7 +131,7 @@ internal class PhantomTypeTest {
             )
         )
     val agent = game.testAgent(ADMIN)
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     agent.runOperation("Source")
 
@@ -161,11 +160,19 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = game.testAgent(ADMIN)
+    val before = game.events.nextOrdinal
 
-    agent.beginOperation("Source") {
-      game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Live!")
-    }
+    agent.beginOperation("Source") {}
+
+    // The pruned arm never becomes a task. Read the task as created, since Admin performs its
+    // own; a cause marks the triggered consequence rather than the initiating task.
+    game.events
+        .entriesSince(before)
+        .filterIsInstance<TaskAddedEvent>()
+        .filter { it.task.cause != null }
+        .map { it.task.instruction.toString() }
+        .shouldContainExactly("Live!")
   }
 
   @Test

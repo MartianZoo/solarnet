@@ -63,11 +63,11 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
   internal fun `Scoring queries preserve state and history for later gameplay`() {
     newTestGame()
     kim.exMachina("$Pets, 4 Animal<$Pets>")
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     victoryPoints() shouldBe listOf(22, 20, 20)
     victoryPoints() shouldBe listOf(22, 20, 20)
-    game.timeline.checkpoint() shouldBe checkpoint
+    game.events.nextOrdinal shouldBe checkpoint
 
     kim.inTurn {
       doTasks(
@@ -95,9 +95,9 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           )
           // Resolve the empty plant attack separately from the pending ocean placements.
           selectTask("-6? Plant<Anyone>")
-          val checkpoint = game.timeline.checkpoint()
+          val checkpoint = game.events.nextOrdinal
           shouldThrow<IllegalStateException> { victoryPoints() }
-          game.timeline.checkpoint() shouldBe checkpoint
+          game.events.nextOrdinal shouldBe checkpoint
           doTasks("OceanTile<Tharsis_1_2>", "TerraformRating", "2 Steel")
           doTasks("OceanTile<Tharsis_1_4>", "TerraformRating", "ProjectCard")
         }
@@ -108,10 +108,10 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
   internal fun `A scoring failure restores state and history`() {
     newTestGame()
     kim.exMachina("$CorporateStronghold, -20 TerraformRating")
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     shouldThrow<LimitsException> { victoryPoints() }
-    game.timeline.checkpoint() shouldBe checkpoint
+    game.events.nextOrdinal shouldBe checkpoint
 
     kim.exMachina("20 TerraformRating")
     victoryPoints() shouldBe listOf(18, 20, 20)

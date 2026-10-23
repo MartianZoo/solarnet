@@ -116,10 +116,16 @@ Lower numbers take precedence.
 | P3 | `LATER` tasks |
 | P4 | `FINALLY` tasks |
 
-A Player cannot select a P2 task while P1 work remains. A selected task excludes competing client
+A Player cannot select a P2 task while executable P1 work remains. A selected task excludes competing client
 mutations until it finishes. Admin tasks its execution creates wait until that transaction finishes.
 The synchronous call returns its results only after all eligible Admin work finishes; deferred
-Admin tasks may remain. This also rules out a callback inviting another Player command while P1 work remains.
+Admin tasks may remain. This also rules out a callback inviting another Player command while
+executable P1 work remains.
+
+**Human clarification:** an Admin placement signal waiting for payment must not prevent the Player
+from paying eight plants or 23 MC. Attempt later Admin tasks even when an earlier task waits, and
+retry after transactions change what can execute. The current approximation and remaining eligibility
+questions are recorded under implementation differences below.
 
 **Recommendation:** gather unfinished Player choices in the client, then submit the task and its
 fully concrete instruction together. Choosing a card and then a quantity can be useful UI work
@@ -132,9 +138,10 @@ tasks become P2. New `LATER` work waits for a subsequent promotion.
 Science tag counts toward its draw; its deferred flip waits until the draw and other ordinary
 work finish.
 
-**Recommendations:** check for promotion only after a complete transaction, not while its queue
-is temporarily empty. When P0–P3 are empty, promote all P4 tasks together using the same Actor-based
-priorities.
+Promotion is checked only when a transaction completes, not while its queue is temporarily empty:
+`Transactions` performs it at the end of a successful transaction, so the promoting task edits
+belong to the transaction that made the work eligible. **Recommendation:** when P0–P3 are empty,
+promote all P4 tasks together using the same Actor-based priorities.
 
 ## Admin's choices and retries
 
@@ -187,10 +194,10 @@ it is not a prerequisite for recovering a failed engine transaction.
 For example, removing an opponent's plant protected by Protected Habitats can encounter `Die`
 after the internal removal. The failed engine call must restore the plant and the rest of that
 transaction. **Current-code evidence:** the
-[functional test](../../test/common/dev/martianzoo/engine/ActorEngineTransactionTest.kt) currently obtains
-this restoration with an enclosing `world.timeline.atomic { ... }` block. That demonstrates the
-existing facility, not compliance by every engine method. Arbitrary application side effects remain
-outside the engine's state guarantee.
+[functional test](../../test/common/dev/martianzoo/engine/ActorEngineTransactionTest.kt) invokes the
+raw engine mutation without an enclosing restoration block and verifies the plant and pending task
+remain intact. A second test checks restoration of an enclosing batch. Arbitrary application side
+effects remain outside the engine's state guarantee.
 
 **Recommendation, still separate from transaction atomicity:** restore the enclosing synchronous
 call on failure, including its completed Admin transactions. This restores more than the last failed
@@ -216,21 +223,27 @@ Still to decide, separately from the recommendations above:
 
 These are observations to address during review, not reasons to preserve the behavior.
 
-- Some public engine mutations still need an enclosing `Timeline.atomic` block to restore a
-  failed transaction. That differs from the selected failure-atomic guarantee.
+- Public engine mutations restore their transaction on an `Exception`; non-`Exception` failures
+  and arbitrary application side effects are outside that guarantee.
 - [WorldTransaction](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) ordinarily restores
-  the initiating command and its Admin handling together on failure. Completion callbacks and
-  their follow-up work run afterward and are absent from the returned `TaskResult`, contrary to
-  the general result rule above. A failing callback leaves the initial work in place.
+  the initiating command and its Admin handling together on failure. Returned results cover the
+  call's retained interval, including completion-callback work and subsequent handling. A failing
+  callback still leaves the initial work in place.
+- Agent decisions and queue edits handle Admin work before and after mutation, including nested
+  calls. Initial task batches and bootstrap also give executable Admin work priority. Corrections
+  deliberately omit queued task execution.
+- The raw Player priority check uses the existing selection/execution probe, not complete legal
+  candidate enumeration. It applies before a transaction changes state; work generated during a
+  compound command waits until that transaction finishes. A selected task retains P0 priority.
+- Admin attempts ordinary work in FIFO order and retries waiting tasks after progress. An explicit
+  unmet gate may wait while ordinary Player work remains, allowing the Player to finish payment.
+  Abstract work and missing external inputs also remain pending. Other unavailable concrete work
+  can wait while Player work remains, as with shared research payment capacity. A retained rule
+  rejection is thrown after a pass with no progress. This is not the proposed complete uniqueness
+  and stalled-pass rule; that remains outside the selected ORDINAL_REWORK scope.
+- Admin configuration accepts only EAGER. Player policies alone are configurable and disabled
+  during replay; Admin execution is omitted from replay inputs and repeated by its mandatory driver.
 - Queue edits and corrections can change the world while another task is selected, bypassing
-  the proposed exclusion of competing client mutations.
-- Player selection does not enforce the P1 gate. Selection can also return with an unfinished choice,
-  and deferred promotion happens during queue edits.
+  the proposed exclusion of competing client mutations. Partial selection can still persist.
 - Selection sometimes tests a concrete reassignment by executing the receiving Actor's instruction
   and restoring it. That can reject the current call based on work proposed for a later transaction.
-- Admin handling currently follows a configurable policy. Disabling it leaves ordinary Admin work
-  pending; replay currently disables it along with Player policies.
-- An unrelated pending Player task can hide Admin rejection from the caller. The
-  [AI Central test](../../test/common/dev/martianzoo/tfm/tests/cards/AiCentralTest.kt) demonstrates
-  a call using its nonexistent second action returning with failing Admin work still pending.
-  This differs from the proposed exception after a full pass without Admin progress.

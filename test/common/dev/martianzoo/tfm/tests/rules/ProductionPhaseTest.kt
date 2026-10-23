@@ -19,7 +19,7 @@ internal class ProductionPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     p1.runOperation("2 Energy, PROD[Energy]")
-    val manual = admin.also { it.autoExecPolicy = NONE }
+    val manual = admin
     p1.autoExecPolicy = NONE
 
     manual.beginOperation("ProductionPhase FROM Phase") {

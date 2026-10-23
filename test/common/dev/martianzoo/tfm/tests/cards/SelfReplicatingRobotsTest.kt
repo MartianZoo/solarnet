@@ -834,7 +834,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   internal fun `Second-place Collector ignores robot counters without an Audit`() {
     fundCollectorWithRobotUnits()
     kim.exMachina("-Plant, -Heat")
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     victoryPoints {
       kim.auditGainsSince(checkpoint) shouldBe 0

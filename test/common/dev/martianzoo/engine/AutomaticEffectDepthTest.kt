@@ -1,12 +1,14 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GamePremise
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
@@ -21,7 +23,7 @@ internal class AutomaticEffectDepthTest {
   internal fun `automatic effect cycle fails atomically at the depth limit`() {
     val world = TfmEngine.newGame(premise) as WholeWorld
     val admin = world.testAgent(ADMIN)
-    val checkpoint = world.timeline.checkpoint()
+    val checkpoint = world.events.nextOrdinal
 
     val failure = shouldThrow<ResourceLimitException> { admin.runOperation("ChainA") }
 
@@ -36,13 +38,17 @@ internal class AutomaticEffectDepthTest {
   @Test
   internal fun canSelectTaskPropagatesResourceLimitsAndRollsBack() {
     val world = TfmEngine.newGame(premise) as WholeWorld
-    val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
-    val task = admin.addTasks("ChainA").single()
-    val checkpoint = world.timeline.checkpoint()
+    val admin = world.testAgent(ADMIN)
+    val task =
+        world
+            .actorEngine(ADMIN)
+            .addTasks(InstructionGroup.of(parse<Instruction>("ChainA!")))
+            .single()
+    val checkpoint = world.events.nextOrdinal
 
     shouldThrow<ResourceLimitException> { admin.canSelectTask(task) }
 
-    world.timeline.checkpoint() shouldBe checkpoint
+    world.events.nextOrdinal shouldBe checkpoint
     admin.tasks.ids() shouldBe setOf(task)
     admin.count("ChainA") shouldBe 0
     admin.count("ChainB") shouldBe 0
@@ -52,13 +58,17 @@ internal class AutomaticEffectDepthTest {
   @Test
   internal fun canExecuteTaskPropagatesResourceLimitsAndRollsBack() {
     val world = TfmEngine.newGame(premise) as WholeWorld
-    val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
-    val task = admin.addTasks("ChainA").single()
-    val checkpoint = world.timeline.checkpoint()
+    val admin = world.testAgent(ADMIN)
+    val task =
+        world
+            .actorEngine(ADMIN)
+            .addTasks(InstructionGroup.of(parse<Instruction>("ChainA!")))
+            .single()
+    val checkpoint = world.events.nextOrdinal
 
     shouldThrow<ResourceLimitException> { admin.canExecuteTask(task) }
 
-    world.timeline.checkpoint() shouldBe checkpoint
+    world.events.nextOrdinal shouldBe checkpoint
     admin.tasks.ids() shouldBe setOf(task)
     admin.count("ChainA") shouldBe 0
     admin.count("ChainB") shouldBe 0

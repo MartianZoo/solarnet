@@ -4,9 +4,9 @@ import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.TaskResult
 
 /**
- * Existing history controls for a live [World]. A checkpoint counts recorded events; it is not a
- * copy of the World. [positions] identifies places explicitly exposed for navigation. Pending
- * Player work may remain at such a position, so "recorded" does not mean the game action is over.
+ * Existing history controls for a live [World]. A checkpoint identifies a transaction position; it
+ * is not a copy of the World. [positions] derives navigation stops from transactions. Pending Admin
+ * or Player work may remain there; subsequent Agent calls handle Admin before Player choices.
  *
  * Seeking changes the live components, tasks, and derived effect state, retaining later events for
  * forward navigation. New gameplay requires [truncate] before replacing that retained future.
@@ -19,17 +19,8 @@ import dev.martianzoo.state.TaskResult
  *   successful calls must not be decided by these existing methods.
  */
 public interface Timeline {
-  /** Captures the current event count. It is navigable only if also present in [positions]. */
+  /** Captures the current transaction position. Fails while a transaction is still executing. */
   public fun checkpoint(): Checkpoint
-
-  /**
-   * Records the current event count as a navigable position, without adding an event. Recording
-   * that same position again does nothing. New positions require the end of retained history.
-   *
-   * The caller must finish the work whose result it exposes first. Currently this method trusts the
-   * caller: it checks neither invariants nor completion of required Admin work.
-   */
-  public fun recordPosition()
 
   /**
    * Snapshot of recorded positions in ascending order. It may include retained future positions
@@ -71,9 +62,9 @@ public interface Timeline {
   public fun truncate()
 
   /**
-   * Sets [floor] to the current event count, preventing later navigation to earlier history.
-   * Requires the end of retained history. Earlier events remain readable; this does not record a
-   * position, validate tasks, or establish agreement among Players.
+   * Sets [floor] to the current transaction position, preventing later navigation to earlier
+   * history. Requires the end of retained history. Earlier events remain readable; this does not
+   * record a position, validate tasks, or establish agreement among Players.
    *
    * TODO(ENGINE_CONTRACT): Investigate restricting this to initialization and copy construction.
    *   Calling it from [atomic] currently changes the floor even if the block later fails.
@@ -92,8 +83,7 @@ public interface Timeline {
    * through the mutation API; this method alone supplies no transaction-completion checks.
    *
    * Current limits: arbitrary Kotlin side effects, existing event commentary, callback settings,
-   * and changes to [floor] are not restored. A position newly recorded at the block's starting
-   * event count also survives restoration. Non-[Exception] failures are not caught.
+   * and changes to [floor] are not restored. Non-[Exception] failures are not caught.
    *
    * TODO(ENGINE_CONTRACT): Review these limits against the safe rollback clients need when engine
    *   methods leave partial changes. Keep the restored state and excluded metadata explicit.

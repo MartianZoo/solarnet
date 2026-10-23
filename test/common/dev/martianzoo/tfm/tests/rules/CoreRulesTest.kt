@@ -68,7 +68,10 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant")
 
     kim.inTurn {
-      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+      doTask("ConvertPlants")
+      // The placement waits while the Player pays; it must neither execute nor block payment.
+      shouldThrow<TaskException> { doTask("GreeneryTile<Tharsis_3_3>") }
+      doTask("8 Pay<Class<Plant>> FROM Plant")
       doTask("GreeneryTile<Tharsis_3_3>")
       doTask("OxygenStep")
       doTask("TerraformRating")

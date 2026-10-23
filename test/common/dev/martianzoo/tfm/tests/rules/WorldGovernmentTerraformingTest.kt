@@ -52,7 +52,7 @@ internal class WorldGovernmentTerraformingTest : TfmGameplayTest() {
       val p2 = game.testAgent(PLAYER2)
       admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
       admin.runOperation("14 TemperatureStep")
-      val checkpoint = game.timeline.checkpoint()
+      val checkpoint = game.events.nextOrdinal
 
       admin.runOperation("TemperatureStep") { p2.doTask("OceanTile<Tharsis_1_2> BY Admin") }
 

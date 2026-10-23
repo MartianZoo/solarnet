@@ -32,7 +32,11 @@ internal class InstructionResolutionTest {
           effector,
           game.classTable,
           elaborator,
-          TimelineImpl(gameWorld, Changer(game.reader, gameWorld, effector)),
+          TimelineImpl(
+              gameWorld,
+              Changer(game.reader, gameWorld, effector),
+              Transactions(gameWorld, {}) {},
+          ),
       )
 
   init {

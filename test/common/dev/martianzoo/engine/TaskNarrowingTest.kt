@@ -10,7 +10,6 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
@@ -35,7 +34,7 @@ internal class TaskNarrowingTest {
   private val tasks: TaskQueue = game.tasks
   private val events = game.events
   private val writer = game.testAgent(PLAYER1)
-  private val start = game.timeline.checkpoint()
+  private val start = game.events.nextOrdinal
 
   init {
     writer.autoExecPolicy = NONE
@@ -47,7 +46,7 @@ internal class TaskNarrowingTest {
 
     tasks.isEmpty() shouldBe true
     history().shouldBeEmpty()
-    game.timeline.checkpoint() shouldBe start
+    game.events.nextOrdinal shouldBe start
   }
 
   @Test
@@ -57,7 +56,7 @@ internal class TaskNarrowingTest {
 
     tasks.isEmpty() shouldBe true
     history().shouldBeEmpty()
-    game.timeline.checkpoint() shouldBe start
+    game.events.nextOrdinal shouldBe start
   }
 
   @Test
@@ -72,7 +71,7 @@ internal class TaskNarrowingTest {
   internal fun `narrowing an instruction to itself adds no history after selection`() {
     initiate("2? Plant")
     writer.selectTask("2? Plant")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     writer.narrowTask("2? Plant")
     tasksAsText().shouldContainExactlyInAnyOrder("2? Plant<Player1>")
@@ -91,7 +90,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `an unselected task can be filled in progressively without changing the World`() {
     val id = initiate("3? StandardResource").single()
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     val form = writer.fillInTask(id)
 
     form.narrow("2? StandardResource")
@@ -111,7 +110,7 @@ internal class TaskNarrowingTest {
   internal fun `a form chooses an OR arm before its optional amount`() {
     val id = initiate("Plant? OR Heat?").single()
     val form = writer.fillInTask(id)
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     val arm = form.decisions().single()
     arm.kind shouldBe ALTERNATIVE
@@ -131,9 +130,9 @@ internal class TaskNarrowingTest {
     val form = writer.fillInTask(id)
 
     form.decisions().single().kind shouldBe ALTERNATIVE
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     form.options(form.decisions().single()).toList() shouldBe listOf("Heat<Player1>!")
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     form.choose(form.decisions().single(), "Heat<Player1>!")
     form.commit()
     writer.count("Heat") shouldBe 1
@@ -175,10 +174,10 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `options check current gates without predicting a THEN continuation`() {
     val form = writer.fillInTask(initiate("(Plant: Heat) OR (Steel THEN -Plant)").single())
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     form.options(form.decisions().single()).toList() shouldBe
         listOf("Steel<Player1>! THEN -Plant<Player1>!")
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
   }
 
   @Test
@@ -208,7 +207,7 @@ internal class TaskNarrowingTest {
                 players = 0,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(ADMIN)
     agent.runOperation("One, Two, Red, Blue")
     val form = agent.fillInTask(agent.addTasks("Choice*").single())
 
@@ -253,11 +252,11 @@ internal class TaskNarrowingTest {
     val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.sneak("Available<Player1>, OtherPlayers<Player2>")
     val form = agent.fillInTask(agent.addTasks("Token<Holder<Player1>>*").single())
-    val before = fixture.timeline.checkpoint()
+    val before = fixture.events.nextOrdinal
     val holder = form.decisions().single()
     holder.focus.toString() shouldBe "Holder"
     form.options(holder).toList() shouldBe listOf("Available")
-    fixture.timeline.checkpoint() shouldBe before
+    fixture.events.nextOrdinal shouldBe before
     form.choose(holder, "Available")
     form.decisions().shouldBeEmpty()
     form.commit()
@@ -314,10 +313,10 @@ internal class TaskNarrowingTest {
                 CLASS Mark<Spot> { HAS MAX 1 This }
                 """
                     .trimIndent(),
-                players = 0,
+                players = 1,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val form = agent.fillInTask(agent.addTasks("Spot(HAS MAX 0 Mark)*").single())
 
     form.decisions().shouldBeEmpty()
@@ -426,7 +425,7 @@ internal class TaskNarrowingTest {
                 players = 0,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(ADMIN)
     agent.runOperation("Full")
     val id = agent.addTasks("Choice*").single()
     val form = agent.fillInTask(id)
@@ -479,7 +478,7 @@ internal class TaskNarrowingTest {
   internal fun `a selected task can keep a form private until it is committed`() {
     val id = initiate("StandardResource?").single()
     writer.selectTask(id)
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     val form = writer.fillInTask(id)
 
     form.narrow("Steel!")
@@ -1247,7 +1246,7 @@ internal class TaskNarrowingTest {
                 players = 0,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(ADMIN)
     agent.runOperation("First, Second, Marker<First>")
     val id = agent.addTasks("Tile<Place(HAS Marker)>").single()
     agent.selectTask(id)
@@ -1276,11 +1275,11 @@ internal class TaskNarrowingTest {
                 players = 0,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(ADMIN)
     agent.runOperation("First, Second, Watcher")
     agent.runOperation("Pair<First, Second>")
     agent.count("Notice") shouldBe 0
-    agent.runOperation("Pair<First, First>") { doTask("Notice<First>") }
+    agent.runOperation("Pair<First, First>")
     agent.count("Notice<First>") shouldBe 1
     agent.count("Notice<Second>") shouldBe 0
   }
@@ -1337,13 +1336,14 @@ internal class TaskNarrowingTest {
                 CLASS Notice<Kind>
                 """
                     .trimIndent(),
-                players = 0,
+                players = 2,
             )
         )
-    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.runOperation("Other")
     agent.addTasks("Chosen@Shape THEN Notice<Chosen@Shape>")
     agent.doTask("Shape")
+
     agent.count("Only") shouldBe 1
     shouldThrow<TaskException> { agent.doTask("Notice<Other>") }
     agent.doTask("Notice<Only>")
@@ -1375,8 +1375,6 @@ internal class TaskNarrowingTest {
     writer.selectTask(current)
     writer.narrowTask(narrowing)
   }
-
-  private operator fun Checkpoint.plus(increment: Int) = Checkpoint(ordinal + increment)
 
   private fun history(): List<GameEvent> = events.entriesSince(start)
 

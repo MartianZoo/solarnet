@@ -93,7 +93,7 @@ internal class GameWorldTest {
     world.rollBackTo(0)
     world.components.count(token.type, NoGameState) shouldBe 0
     world.components.count(holder.type, NoGameState) shouldBe 0
-    world.events.entriesSince(Checkpoint(0)) shouldBe emptyList()
+    world.events.entriesSince(0) shouldBe emptyList()
   }
 
   @Test
@@ -143,16 +143,16 @@ internal class GameWorldTest {
       world.apply(TaskEditedEvent(1, oldTask = selected, task = task))
     }
     world.tasks.getTaskData(task.id) shouldBe task
-    world.events.entriesSince(Checkpoint(0)).map { it.ordinal } shouldBe listOf(0)
+    world.events.entriesSince(0).map { it.ordinal } shouldBe listOf(0)
 
     world.apply(TaskEditedEvent(1, oldTask = task, task = selected))
 
     world.tasks.getTaskData(task.id) shouldBe selected
-    world.events.entriesSince(Checkpoint(0)).map { it.ordinal } shouldBe listOf(0, 1)
+    world.events.entriesSince(0).map { it.ordinal } shouldBe listOf(0, 1)
 
     world.rollBackTo(0)
     world.tasks.isEmpty() shouldBe true
-    world.events.entriesSince(Checkpoint(0)) shouldBe emptyList()
+    world.events.entriesSince(0) shouldBe emptyList()
   }
 
   @Test
@@ -164,7 +164,7 @@ internal class GameWorldTest {
     }
 
     world.components.countComponent(token) shouldBe 0
-    world.events.entriesSince(Checkpoint(0)) shouldBe emptyList()
+    world.events.entriesSince(0) shouldBe emptyList()
   }
 
   @Test

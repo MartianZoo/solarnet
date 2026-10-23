@@ -34,7 +34,7 @@ internal class TaskDispatchTest {
   @Test
   internal fun `a dispatch gives its body to its recipient at once`() {
     val game = game()
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
     admin.addTasks("TASK Player2 { Choice }")

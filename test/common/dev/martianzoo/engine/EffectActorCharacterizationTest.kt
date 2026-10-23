@@ -18,7 +18,7 @@ internal class EffectActorCharacterizationTest {
   internal fun playerSubmittedSystemGainIsPerformedByAdmin() {
     val game = TfmEngine.newGame(canonicalPremise())
     val player = game.testAgent(PLAYER1)
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     player.runOperation("Generation")
 
@@ -41,10 +41,10 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun adminPerformedPlacementDoesNotGiveTheChangedComponentHolderTheAreaBonus() {
     val game = TfmEngine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     game.testAgent(PLAYER1).autoExecPolicy = NONE
     admin.runOperation("Photosynthesis")
-    val checkpoint = game.timeline.checkpoint()
+    val checkpoint = game.events.nextOrdinal
 
     admin.beginOperation("GreeneryTile<Player1, Elysium_9_8>") {
       game.tasks
@@ -78,7 +78,7 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun ownedEffectDoesNotTreatAdminAsAnOwner() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     val terraformRatingBefore = admin.count("TerraformRating")
 
     admin.runOperation("OxygenStep!")

@@ -180,14 +180,15 @@ internal class DeferredWorkTest {
 
   @Test
   internal fun `fixed scope cleanup finishes before its final continuation`() {
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
     admin.runOperation("Flow")
     admin.beginOperation("WorkScope<Player1>")
     admin.count("Allocation") shouldBe 1
     shouldThrow<TaskException> { admin.doTask("-WorkScope<Player1>") }
 
     p2.doTask("ChoiceA")
-    admin.doTask("-WorkScope<Player1>")
+
+    // Nothing ordinary remains, so the FINALLY cleanup is promoted and Admin performs it itself.
     admin.count("WorkScope") shouldBe 0
     admin.count("Allocation") shouldBe 0
     shouldThrow<TaskException> { p2.doTask("Done") }

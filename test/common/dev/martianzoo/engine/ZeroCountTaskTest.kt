@@ -44,11 +44,11 @@ internal class ZeroCountTaskTest {
   fun `zero cannot complete a positive mandatory metric task`() {
     agent.runOperation("Meter")
     agent.addTasks("Foo / Meter")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { agent.doTask("0 Foo") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.doTask("Foo")
     agent.count("Foo") shouldBe 1
     agent.count("Notice") shouldBe 1
@@ -78,11 +78,11 @@ internal class ZeroCountTaskTest {
   @Test
   fun `zero cannot dismiss an unrelated Ok alternative`() {
     agent.addTasks("Bar OR Ok")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { agent.doTask("0 Foo") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.doTask("Ok")
     game.tasks.isEmpty() shouldBe true
   }
@@ -91,11 +91,11 @@ internal class ZeroCountTaskTest {
   fun `zero cannot dismiss an unrelated selected Ok alternative`() {
     agent.addTasks("Bar OR Ok")
     agent.selectTask("Bar OR Ok")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<NarrowingException> { agent.doTask("0 Foo") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.doTask("Ok")
     game.tasks.isEmpty() shouldBe true
   }
@@ -113,11 +113,11 @@ internal class ZeroCountTaskTest {
   @Test
   fun `zero cannot select an unrelated Ok alternative at the start of a sequence`() {
     agent.addTasks("(Bar OR Ok) THEN Following")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { agent.doTask("0 Foo") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.doTask("Ok")
     agent.doTask("Following")
     agent.count("Following") shouldBe 1
@@ -187,11 +187,11 @@ internal class ZeroCountTaskTest {
   @Test
   fun `distinct zero tasks for the same type remain ambiguous`() {
     agent.addTasks("Foo / Meter, Foo / Bar")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> { agent.doTask("0 Foo") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
   }
 
   @Test

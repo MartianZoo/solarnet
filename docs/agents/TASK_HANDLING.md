@@ -18,7 +18,7 @@ being resolved and concrete does not prove successful execution or action comple
 | Moment | Work performed | Principal source |
 | --- | --- | --- |
 | Before admission | Elaborate client input or specialize a triggered effect; calculate its initial assignee. | [AgentImpl](../../src/common/dev/martianzoo/agent/AgentImpl.kt), [LiveEffect](../../src/common/dev/martianzoo/engine/LiveEffect.kt), [PendingTask](../../src/common/dev/martianzoo/engine/PendingTask.kt) |
-| Admission and queue edits | Normalize syntax, split independent work, manage continuations, route concrete work, perform ordinary dispatches, consider promotion. | [newTasks](../../src/common/dev/martianzoo/engine/newTasks.kt), [TaskQueues](../../src/common/dev/martianzoo/engine/TaskQueues.kt) |
+| Admission and queue edits | Normalize syntax, split independent work, manage continuations, route concrete work, perform ordinary dispatches. | [newTasks](../../src/common/dev/martianzoo/engine/newTasks.kt), [TaskQueues](../../src/common/dev/martianzoo/engine/TaskQueues.kt) |
 | Matching, selection, narrowing | Identify the task, resolve current-world questions, bind shared choices, record selection or handoff, split exposed groups, possibly execute immediately. | [ActorEngine](../../src/common/dev/martianzoo/engine/ActorEngine.kt), [Instructor](../../src/common/dev/martianzoo/engine/Instructor.kt) |
 | Execution and consequences | Change components, remove dependents, construct required parts, run immediate effects, collect queued effects, check invariants. | Instructor, [Changer](../../src/common/dev/martianzoo/engine/Changer.kt), [Effector](../../src/common/dev/martianzoo/engine/Effector.kt), [Limiter](../../src/common/dev/martianzoo/engine/Limiter.kt) |
 | Completion and subsequent work | Admit effects and continuation, remove the task, promote deferred work, let drivers handle eligible tasks. | ActorEngine, TaskQueues, [AutoExecLoop](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt), [WorldTransaction](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) |
@@ -84,8 +84,7 @@ Sources: LiveEffect `compile`, `Subscription`, `Hit`; PendingTask `fromEffect`.
 
 ## 2. Admission and normalization
 
-`TaskQueues.addTasks` normalizes the whole incoming group before admitting its children, then
-checks deferred promotion. Each task actually inserted receives its add-event ordinal as its ID.
+`TaskQueues.addTasks` normalizes the whole incoming group before admitting its children. Each task actually inserted receives its add-event ordinal as its ID.
 It can return no tasks or several tasks, including dispatch bodies belonging to other Actors.
 
 ### Structural rewrites
@@ -372,7 +371,7 @@ task's current assignee and cause, is ordinary, and undergoes all admission rewr
 dispatch and System routing. Queued reactions from execution have already been admitted.
 The continuation has no special priority over those reactions.
 
-After `addTasks` or `removeTask`, TaskQueues checks the whole World's pending work:
+At successful transaction completion, TaskQueues checks the whole World's pending work:
 
 - If any ordinary task remains, do nothing.
 - Otherwise take all tasks in the earliest remaining deferral together: `LATER` before
@@ -382,10 +381,8 @@ After `addTasks` or `removeTask`, TaskQueues checks the whole World's pending wo
 - Newly deferred work waits while any ordinary member or consequence of the current batch
   remains. A batch belongs to the World, not a particular Player's queue.
 
-Current timing matters: checks happen inside queue operations, not solely after the enclosing
-transaction finishes. A temporarily empty queue can therefore promote work before the caller has
-finished generating ordinary work. The contract recommends changing that timing; this draft
-records what the code currently does.
+Promotion belongs to the completed transaction that made it eligible. A temporarily empty queue
+inside a compound command does not promote deferred work before that command finishes.
 
 Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 `promoteDeferredWork`. A bare `dropTask` uses removal directly and does not admit its continuation.
@@ -416,16 +413,16 @@ These explain behavior seen through agent calls; they are not additional engine 
 - Agent input helpers elaborate instructions, initially attempt operation tasks, and invoke the
   shared AutoExecLoop at command/operation finishing points. TaskForm edits remain client-held
   until committed.
-- Current AutoExecLoop gives a selected task precedence; otherwise considers ordinary tasks,
-  uses selection probes, applies Actor policies, and tries Admin options before Player options.
-  It may select a sole task while leaving further choices pending. Its retries and failure handling
-  differ from the mandatory eager Admin algorithm in ENGINE_CONTRACT.
-- WorldTransaction runs the initial block, then finishing work and validation for the outermost
-  call. Ordinary nested calls omit their own finishing steps. Completion-callback calls have
-  special finishing behavior.
-- After the first restoring block succeeds, it invokes the completion callback, then runs finishing
-  work again if still at the end of history. Current results omit this later work, and a failure
-  there does not restore the earlier block.
+- AutoExecLoop respects selected-task priority and runs mandatory Admin handling before optional
+  Player policies. It retries waiting Admin tasks after progress. The existing probe remains an
+  approximation; [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#current-implementation-differences)
+  records the eligibility rules and the remaining complete-choice-analysis gap.
+- WorldTransaction runs finishing work and validation for outermost calls, with special handling
+  for calls from completion callbacks. Agent decisions and queue edits also run Admin handling
+  before returning from ordinary nested calls.
+- Completion callbacks run after the first restoring block. Returned results include their retained
+  changes and subsequent finishing work. A callback failure does not restore the earlier block.
+  Callbacks cannot seek or truncate history.
 - `requireComplete` does not execute tasks. It checks outstanding work and `MustCleanUp`, with
   a current exception once `FINALLY` promotion has occurred since the last decision. That check
   can precede scope removal and is not the proposed action-completion definition.
@@ -438,18 +435,12 @@ proposed agent analysis.
 
 These are known implementation observations, not new recommendations competing with the contract:
 
-- Public engine mutation paths are not uniformly failure-atomic; several still rely on an enclosing
-  timeline block. An admission failure after some dispatches/additions can leave earlier work.
 - Ordinary execution checks invariants per elementary change plus its immediate chain; a broad
   multi-change transaction cannot necessarily postpone those checks until its final statement.
-- Direct task edits/corrections bypass some selected-task exclusions. Player task commands do not
-  uniformly enforce the proposed ordinary-Admin priority gate.
+- Direct task edits/corrections bypass some selected-task exclusions. Player priority uses the
+  existing execution probe rather than complete legal-candidate enumeration.
 - Reassignment can trial-execute the receiving Actor's work before returning the handoff.
 - Concrete non-System `BY Admin` routing is narrower at admission than the intended general rule.
-- Deferred promotion runs during queue changes.
-- Admin remains configurable in current automation, with probes and retry behavior that can hide
-  or prematurely propagate failures. Intended Admin handling is always eager.
-- Synchronous results currently omit callback changes and subsequent handling.
 
 Reviewing these differences does not authorize implementing them, preserving them as requirements,
 or expanding the partial-narrowing investigation.

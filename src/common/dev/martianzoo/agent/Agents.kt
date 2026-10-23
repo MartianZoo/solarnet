@@ -10,14 +10,13 @@ import dev.martianzoo.state.Actor
  * and a separate collection of Agents, so an Agent is always paired with the World it acts on.
  * Calls through these Agents coordinate their changes and subsequent task handling.
  *
- * [initialPolicy] supplies each Actor's initial automatic-execution policy, defaulting to
- * [AutoExecPolicy.EAGER]. It is evaluated once per Actor. Construction does not execute pending
- * tasks; subsequent Agent commands use the supplied policies.
+ * [initialPolicy] supplies each Player's initial automatic-execution policy, defaulting to
+ * [AutoExecPolicy.EAGER]. It is evaluated once per Player; Admin always uses mandatory eager
+ * handling. Construction does not execute pending tasks; subsequent Agent commands handle them.
  */
 public open class Agents(
     public val world: World,
-    // TODO(ENGINE_CONTRACT): use explicit Player choices by default and mandatory Admin handling.
-    // The existing per-Actor callback can enable automatic Player work and disable Admin work.
+    // TODO: migrate Players to a suitable smart policy; the user deferred default-policy cleanup.
     initialPolicy: (Actor) -> AutoExecPolicy = { AutoExecPolicy.EAGER },
 ) {
   /** Opt-in task recording, including Player autoexecution; see [TaskLog] for supported scope. */
@@ -34,7 +33,7 @@ public open class Agents(
             elaborator,
             autoExecLoop,
             taskLog,
-            initialPolicy(it),
+            if (it == Actor.ADMIN) AutoExecPolicy.EAGER else initialPolicy(it),
         )
       }
 

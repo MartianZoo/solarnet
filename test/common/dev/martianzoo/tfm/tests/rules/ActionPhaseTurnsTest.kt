@@ -38,7 +38,7 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.selectTask("PassBaton")
     rob.doTask("Pass")
-    val lastPlayerActions = game.timeline.checkpoint()
+    val lastPlayerActions = game.events.nextOrdinal
 
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
@@ -70,7 +70,7 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
   @Test
   internal fun `Solo keeps offering actions until the player passes`() {
     newTestGame(playerCount = 1)
-    val beforeActions = game.timeline.checkpoint()
+    val beforeActions = game.events.nextOrdinal
 
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")

@@ -49,10 +49,10 @@ internal class CardTrackingTest : TfmTest() {
     agent.count("Mine") shouldBe 1
     agent.count("RobotUnit") shouldBe 0
     agent.count("MC") shouldBe 0
-    val afterPlay = game.timeline.checkpoint()
+    val afterPlay = game.events.nextOrdinal
     tracking.expectArrivals(player, cn("Mine"))
     shouldThrow<IllegalStateException> { agent.runOperation("ProjectCard") }
-    game.timeline.checkpoint() shouldBe afterPlay
+    game.events.nextOrdinal shouldBe afterPlay
     tracking.replacePendingArrivals(player)
     tracking.requireComplete()
   }
@@ -72,11 +72,11 @@ internal class CardTrackingTest : TfmTest() {
       autoExecNow(EAGER)
     }
     tracking.hand(player) shouldBe setOf(cn("TitaniumMine"))
-    val afterStaging = game.timeline.checkpoint()
+    val afterStaging = game.events.nextOrdinal
     shouldThrow<IllegalStateException> {
       agent.runOperation("PlayProject<Class<Mine>>") { autoExecNow(EAGER) }
     }
-    game.timeline.checkpoint() shouldBe afterStaging
+    game.events.nextOrdinal shouldBe afterStaging
     agent.count("ProjectCard<StagedProject<Class<Mine>>>") shouldBe 1
     tracking.requireComplete()
   }
@@ -160,14 +160,14 @@ internal class CardTrackingTest : TfmTest() {
     val beforeDiscard = game.timeline.checkpoint()
     tracking.expectDepartures(player, cn("AcquiredCompany"))
     agent.runOperation("-ProjectCard")
-    val discarded = game.timeline.checkpoint()
+    val discarded = game.events.nextOrdinal
     tracking.hand(player) shouldBe emptySet()
 
     game.timeline.seek(beforeDiscard)
     game.timeline.truncate()
     agent.runOperation("MC")
 
-    game.timeline.checkpoint() shouldBe discarded
+    game.events.nextOrdinal shouldBe discarded
     tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
     agent.count("MC") shouldBe 1
   }
@@ -175,11 +175,11 @@ internal class CardTrackingTest : TfmTest() {
   @Test
   internal fun unnamedHandGainFailsWithoutCommitting() {
     val (_, player) = newTrackedGame()
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<AgentInputRequiredException> { agents[player].runOperation("ProjectCard") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agents[player].count("ProjectCard<Hand>") shouldBe 0
   }
 
@@ -189,11 +189,11 @@ internal class CardTrackingTest : TfmTest() {
     val agent = agents[player]
     tracking.expectArrivals(player, cn("AdaptedLichen"))
     agent.runOperation("ProjectCard")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<AgentInputRequiredException> { agent.runOperation("-ProjectCard") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe setOf(cn("AdaptedLichen"))
   }
 
@@ -201,12 +201,12 @@ internal class CardTrackingTest : TfmTest() {
   internal fun corporationAndPreludeHandMovementsAlsoNeedNames() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<AgentInputRequiredException> { agent.runOperation("CorporationCard") }
     shouldThrow<AgentInputRequiredException> { agent.runOperation("PreludeCard") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.expectArrivals(player, cn("Ecoline"), back = cn("CorporationCard"))
     tracking.expectArrivals(player, cn("Biolab"), back = cn("PreludeCard"))
     agent.runOperation("CorporationCard")
@@ -250,11 +250,11 @@ internal class CardTrackingTest : TfmTest() {
   internal fun suppliedNameCountMustMatchTheActualMovement() {
     val (tracking, player) = newTrackedGame()
     tracking.expectArrivals(player, cn("AcquiredCompany"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<AgentInputRequiredException> { agents[player].runOperation("2 ProjectCard") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe emptySet()
     agents[player].runOperation("ProjectCard")
     tracking.requireComplete()
@@ -310,11 +310,11 @@ internal class CardTrackingTest : TfmTest() {
     tracking.expectArrivals(player, cn("Ecoline"), back = cn("CorporationCard"))
     val agent = agents[player]
     agent.runOperation("CorporationCard")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> { agent.runOperation("CrediCor FROM CorporationCard") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe setOf(cn("Ecoline"))
   }
 
@@ -334,7 +334,7 @@ internal class CardTrackingTest : TfmTest() {
     agents[holder].runOperation("ProductionWasAttacked<$holder, Class<Energy>, $attacker>")
     tracking.expectArrivals(holder, cn("LawSuit"))
     agents[holder].runOperation("ProjectCard")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     agents[holder].runOperation("LawSuit FROM ProjectCard") {
       selectOnlyTask()
@@ -347,7 +347,7 @@ internal class CardTrackingTest : TfmTest() {
     tracking.expectArrivals(attacker, cn("MineralDeposit"), cn("AstraMechanica"))
     agents[attacker].runOperation("2 ProjectCard")
     agents[attacker].runOperation("MineralDeposit FROM ProjectCard")
-    val beforeAstra = game.timeline.checkpoint()
+    val beforeAstra = game.events.nextOrdinal
 
     agents[attacker].runOperation("AstraMechanica FROM ProjectCard") {
       doTask("ProjectCard FROM PlayedEvent<Class<LawSuit>>")
@@ -378,7 +378,7 @@ internal class CardTrackingTest : TfmTest() {
     agent.runOperation("BribedCommittee FROM ProjectCard")
     // Pharmacy Union can become a PlayedEvent, but it is a corporation rather than an EventCard.
     agent.sneak("PlayedEvent<Class<PharmacyUnion>>")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> {
       agent.runOperation("AstraMechanica FROM ProjectCard") {
@@ -386,7 +386,7 @@ internal class CardTrackingTest : TfmTest() {
       }
     }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe setOf(cn("AstraMechanica"))
     agent.runOperation("AstraMechanica FROM ProjectCard") {
       doTask("ProjectCard FROM PlayedEvent<Class<MineralDeposit>>")
@@ -403,11 +403,11 @@ internal class CardTrackingTest : TfmTest() {
     agents.taskLog.start()
     agent.autoExecPolicy = NONE
     val taskId = agent.addTasks("ProjectCard").single()
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     agent.autoExecPolicy = EAGER
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     game.tasks.ids() shouldBe setOf(taskId)
     tracking.expectArrivals(player, cn("AdaptedLichen"))
     agent.autoExecNow()
@@ -439,13 +439,13 @@ internal class CardTrackingTest : TfmTest() {
     val agent = agents[player]
     tracking.expectArrivals(player, cn("AdaptedLichen"))
     agent.runOperation("ProjectCard")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
       agent.runOperation("AcquiredCompany FROM ProjectCard")
     }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe setOf(cn("AdaptedLichen"))
   }
 
@@ -482,13 +482,13 @@ internal class CardTrackingTest : TfmTest() {
   internal fun aFilteredArrivalMustHaveThePrintedTag() {
     val (tracking, player) = newTrackedGame()
     tracking.expectArrivals(player, cn("AcquiredCompany"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
       agents[player].runOperation("SearchForCard<TagFilter<Class<PlantTag>>>")
     }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe emptySet()
   }
 
@@ -496,13 +496,13 @@ internal class CardTrackingTest : TfmTest() {
   internal fun aFilteredBatchChecksEveryCard() {
     val (tracking, player) = newTrackedGame()
     tracking.expectArrivals(player, cn("AdaptedLichen"), cn("AcquiredCompany"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
       agents[player].runOperation("2 SearchForCard<TagFilter<Class<PlantTag>>>")
     }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe emptySet()
   }
 
@@ -520,13 +520,13 @@ internal class CardTrackingTest : TfmTest() {
   internal fun anEventIconCountsAsAPrintedTag() {
     val (tracking, player) = newTrackedGame()
     tracking.expectArrivals(player, cn("MiningExpedition"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
       agents[player].runOperation("SearchForCard<NoTagsFilter>")
     }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe emptySet()
   }
 
@@ -544,13 +544,13 @@ internal class CardTrackingTest : TfmTest() {
   internal fun aRequirementFilterRejectsCardsWithoutRequirements() {
     val (tracking, player) = newTrackedGame()
     tracking.expectArrivals(player, cn("AcquiredCompany"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
       agents[player].runOperation("SearchForCard<RequirementFilter>")
     }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe emptySet()
   }
 
@@ -568,13 +568,13 @@ internal class CardTrackingTest : TfmTest() {
   internal fun aReferenceFilterRejectsAnUnrelatedCard() {
     val (tracking, player) = newTrackedGame("PreludeExpansion, VenusNextExpansion")
     tracking.expectArrivals(player, cn("VenusGovernor"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
       agents[player].runOperation("SearchForCard<ReferenceFilter<Class<Floater>>>")
     }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe emptySet()
   }
 
@@ -598,13 +598,13 @@ internal class CardTrackingTest : TfmTest() {
             "PreludeExpansion, VenusNextExpansion, prelude2:cards, promos:cards, TurmoilExpansion"
         )
     tracking.expectArrivals(player, cn("BannedDelegate"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
       agents[player].runOperation("SearchForCard<ReferenceFilter<Class<Ruling>>>")
     }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe emptySet()
   }
 
@@ -625,7 +625,7 @@ internal class CardTrackingTest : TfmTest() {
   internal fun trackedOfferRecordsItsChoicesAndChecksTheHandTransfer() {
     val (tracking, player) = newTrackedGame(requireSelectingNames = true)
     val agent = agents[player]
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     tracking.expectArrivals(
         player,
         cn("AcquiredCompany"),
@@ -703,10 +703,10 @@ internal class CardTrackingTest : TfmTest() {
     tracking.expectArrivals(player, cn("AdaptedLichen"))
     agent.runOperation("ProjectCard")
     tracking.expectArrivals(player, cn("AdaptedLichen"), location = cn("Selecting"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> { agent.runOperation("ProjectCard<Selecting>") }
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
 
     tracking.replacePendingArrivals(player, cn("MicroMills"), location = cn("Selecting"))
     agent.runOperation("ProjectCard<Selecting>")
@@ -745,7 +745,7 @@ internal class CardTrackingTest : TfmTest() {
         location = cn("Selecting"),
     )
     agent.runOperation("2 ProjectCard<Selecting>")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<AgentInputRequiredException> { agent.runOperation("-ProjectCard<Selecting>") }
     tracking.expectArrivals(player, cn("MicroMills"))
@@ -753,7 +753,7 @@ internal class CardTrackingTest : TfmTest() {
       agent.runOperation("ProjectCard<Hand FROM Selecting>")
     }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.expectDepartures(player, cn("AdaptedLichen"), location = cn("Selecting"))
     agent.runOperation("-ProjectCard<Selecting>")
     tracking.replacePendingArrivals(player, cn("AcquiredCompany"))
@@ -766,13 +766,13 @@ internal class CardTrackingTest : TfmTest() {
   internal fun strictSelectingModeRequiresNamesBeforeTheOfferCompletes() {
     val (tracking, player) = newTrackedGame(requireSelectingNames = true)
     val agent = agents[player]
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<AgentInputRequiredException> { agent.runOperation("2 ProjectCard<Selecting>") }
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.expectArrivals(player, cn("AcquiredCompany"), location = cn("Selecting"))
     shouldThrow<AgentInputRequiredException> { agent.runOperation("2 ProjectCard<Selecting>") }
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.replacePendingArrivals(
         player,
         cn("AcquiredCompany"),
@@ -815,12 +815,12 @@ internal class CardTrackingTest : TfmTest() {
         location = cn("Selecting"),
     )
     agent.runOperation("PreludeCard<Selecting>")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
       agent.runOperation("Biolab FROM PreludeCard<Selecting>")
     }
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     agent.runOperation("AlliedBank FROM PreludeCard<Selecting>")
     game.events.changesSince(before).mapNotNull { it.notes } shouldBe listOf("Cards: AlliedBank")
     tracking.requireComplete()
@@ -835,13 +835,13 @@ internal class CardTrackingTest : TfmTest() {
     val agent = agents[player]
     agent.runOperation("ProjectCard<Selecting>")
     tracking.expectArrivals(player, cn("AcquiredCompany"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
       agent.runOperation("TakeSelectedCard<TagFilter<Class<VenusTag>>>")
     }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe emptySet()
   }
 
@@ -868,7 +868,7 @@ internal class CardTrackingTest : TfmTest() {
     val agent = agents[player]
     tracking.expectArrivals(player, cn("AcquiredCompany"), cn("AdaptedLichen"))
     agent.runOperation("2 ProjectCard")
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     tracking.expectDepartures(player, cn("AcquiredCompany"), cn("AdaptedLichen"))
 
     agent.runOperation("2 ProjectCard<Revealed FROM Hand>")
@@ -884,7 +884,7 @@ internal class CardTrackingTest : TfmTest() {
   internal fun laterValidationPreservesOtherEventNotesInPlace() {
     val (tracking, player) = newTrackedGame()
     tracking.expectArrivals(player, cn("AcquiredCompany"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
     agents[player].runOperation("ProjectCard")
     val event = game.events.changesSince(before).single()
     event.notes = "Source: archive\n${event.notes}\nReview: checked separately"
@@ -900,11 +900,11 @@ internal class CardTrackingTest : TfmTest() {
     tracking.expectArrivals(player, cn("AcquiredCompany"))
     agents[player].runOperation("ProjectCard")
     tracking.expectArrivals(player, cn("AcquiredCompany"))
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> { agents[player].runOperation("ProjectCard") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
   }
 
@@ -918,11 +918,11 @@ internal class CardTrackingTest : TfmTest() {
     tracking.expectArrivals(first, card)
     agents[first].runOperation("ProjectCard")
     tracking.expectArrivals(second, card)
-    val before = game.timeline.checkpoint()
+    val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> { agents[second].runOperation("ProjectCard") }
 
-    game.timeline.checkpoint() shouldBe before
+    game.events.nextOrdinal shouldBe before
     tracking.hand(first) shouldBe setOf(card)
     tracking.hand(second) shouldBe emptySet()
   }

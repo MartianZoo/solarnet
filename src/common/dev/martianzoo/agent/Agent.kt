@@ -25,17 +25,15 @@ import kotlin.reflect.KClass
  * and [tasks] exposes that actor's current pending work. Holding an Agent grants the ability to
  * submit that actor's choices; the engine does not authenticate the human or program holding it.
  *
- * A gameplay call may make several engine calls and handle resulting Admin work before returning.
- * The proposed contract, still under human review, requires all eligible Admin work to finish
- * before a Player receives the result. The call runs to quiescence, which can leave Player tasks
- * such as Philares's resource choice pending. Its [TaskResult] should cover every retained change
- * made during the call, including subsequent Admin handling.
+ * A gameplay call may make several engine calls. Mandatory Admin handling runs before and after
+ * Player decisions, including nested calls, while [autoExecPolicy] controls Player work. A selected
+ * task retains priority; an Admin task waiting on Player payment can remain pending. Complete
+ * enumeration of legal Admin choices is not implemented.
  *
- * Current task handling is controlled by [autoExecPolicy], including Admin, so calls can return
- * before required Admin work finishes. [sneak], [addTasks], and [dropTask] skip task handling. Call
- * failures normally restore changes made during the call. Completion callbacks run after that
- * restoring block, with separate failure handling; the returned [TaskResult] is captured before the
- * callback and omits changes from it and subsequent finishing work.
+ * A returned [TaskResult] covers every retained change during that call, including Admin handling
+ * and completion-callback work. Failures normally restore the call's changes. Completion callbacks
+ * run after that restoring block, with separate failure handling. [sneak] deliberately omits task
+ * handling; [addTasks] and [dropTask] handle Admin work without choosing Player tasks.
  *
  * The operation API groups work across calls: [beginOperation] and [continueOperation] allow tasks
  * to remain, while [runOperation] and [completeOperation] check whether that operation has
@@ -126,7 +124,7 @@ public interface Agent {
    *   selected
    * @throws [NotNowException] if the selected task cannot execute in the current World
    */
-  // TODO(ENGINE_CONTRACT): enforce ordinary Admin priority before Player selection. Investigate
+  // TODO(ENGINE_CONTRACT): Investigate
   // submitting a concrete instruction with selection instead of persisting unfinished choices.
   public fun selectTask(taskId: TaskId): TaskResult
 
@@ -244,7 +242,8 @@ public interface Agent {
   /**
    * Policy used for this Agent's task handling. Changing it to a different policy other than NONE
    * immediately runs task handling. Assigning NONE or the current value runs nothing. The policy
-   * belongs to this Agent, while task handling can affect the shared world.
+   * belongs to this Agent, while task handling can affect the shared world. Admin accepts only
+   * [AutoExecPolicy.EAGER], including scoped overrides; other values throw.
    */
   public var autoExecPolicy: AutoExecPolicy
 
@@ -285,14 +284,16 @@ public interface Agent {
   public fun completeOperation(body: OperationBlock = {}): TaskResult
 
   /**
-   * Adds manual work for [instruction] without selecting or executing it. [firstCause] attributes
-   * the initial tasks; effects triggered later record their own causes.
+   * Adds work for [instruction] and handles eligible Admin tasks. Returned IDs identify the tasks
+   * initially added; Admin may already have completed them. Player tasks remain pending.
+   * [firstCause] attributes the initial tasks; later effects record their own causes.
    */
   public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
 
   /**
    * Removes [taskId] from this actor's pending queue without executing its instruction. The
-   * returned event records that removal; an absent or other actor's task fails.
+   * returned event records that removal; an absent or other actor's task fails. Eligible Admin work
+   * is handled before return.
    */
   public fun dropTask(taskId: TaskId): TaskRemovedEvent
 

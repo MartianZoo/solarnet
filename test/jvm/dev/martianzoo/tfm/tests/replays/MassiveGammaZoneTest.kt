@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -217,16 +215,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       sellPatents(2)
       cardAction1(UndergroundDetonations)
       pass()
-      val previousAdminPolicy = admin.autoExecPolicy
-      admin.autoExecPolicy = CONCRETE
-      try {
-        doTask("-OceanTile<Tharsis_2_6>")
-        val resourceChoices = game.tasks.extract { it }.filterNot { it.deferred }
-        doTask("Titanium", resourceChoices[0].id)
-        doTask("Heat", resourceChoices[1].id)
-      } finally {
-        admin.autoExecPolicy = previousAdminPolicy
-      }
+      doTask("-OceanTile<Tharsis_2_6>")
+      val resourceChoices = game.tasks.extract { it }.filterNot { it.deferred }
+      doTask("Titanium", resourceChoices[0].id)
+      doTask("Heat", resourceChoices[1].id)
       admin.autoExecNow()
       admin.doTask("PartyLeader<Greens, Neutral>")
       admin.doTask("TerraformingLobbying")
@@ -279,13 +271,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyFollower<Unity>")
       }
       pass(unused = AppliedScience)
-      val previousAdminPolicy = admin.autoExecPolicy
-      admin.autoExecPolicy = CONCRETE
-      try {
-        doTask("OceanTile<Tharsis_1_5> BY Admin")
-      } finally {
-        admin.autoExecPolicy = previousAdminPolicy
-      }
+      doTask("OceanTile<Tharsis_1_5> BY Admin")
       admin.autoExecNow()
       admin.doTask("PartyFollower<Kelvinists, Neutral>")
       admin.doTask("ThawMining")
@@ -335,15 +321,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         placeTile(8, 6)
       }
       pass(unused = UndergroundDetonations)
-      val previousAdminPolicy = admin.autoExecPolicy
-      admin.autoExecPolicy = NONE
-      try {
-        admin.doTask("PartyFollower<Unity, Neutral>")
-        admin.doTask("PateraBoring")
-        admin.doTask("PartyLeader<Scientists, Neutral>")
-      } finally {
-        admin.autoExecPolicy = previousAdminPolicy
-      }
+      admin.doTask("PartyFollower<Unity, Neutral>")
+      admin.doTask("PateraBoring")
+      admin.doTask("PartyLeader<Scientists, Neutral>")
       admin.autoExecNow()
     }
   }

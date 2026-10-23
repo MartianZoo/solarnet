@@ -10,7 +10,6 @@ import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task
@@ -63,13 +62,12 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
       }
     }
   }
-  world.timeline.recordPosition()
 }
 
 private fun World.taskBeforeSelection(selectedId: TaskId): Task {
   val expectedTask = tasks.getTaskData(selectedId)
   return events
-      .entriesSince(Checkpoint(0))
+      .entriesSince(0)
       .asReversed()
       .asSequence()
       .filterIsInstance<TaskEditedEvent>()

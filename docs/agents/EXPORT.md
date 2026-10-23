@@ -13,9 +13,13 @@
 
 `GameFileJson` in `state` encodes a resolved premise recipe, SHA-256 digests of the entire static
 Catalog data and the resolved premise, and a chronological `RecordedInput` list. The first input
-starts the game. Full files also retain the exact event history and playback
-positions, including setup, task events, and every event's notes. `Document.open(catalog)` checks
-the hashes and creates a passive Game World without `engine`. A short file omits events and positions
+starts the game. Full files also retain the exact event history, including initialization, task
+events, and every event's notes. Playback positions are derived from transaction metadata rather
+than stored separately. An event's transaction is stored
+on the first event that carries it and inherited by the events that follow, so grouping survives
+export and import without enlarging the file; the format identifier is now `solarnet-game-3`.
+`Document.open(catalog)` checks
+the hashes and creates a passive Game World without `engine`. A short file omits events
 but uses the same premise and input fields; state refuses to open it as an exact recording.
 Hashing uses Java `MessageDigest` on the JVM and Web Crypto in the browser. Web Crypto is
 asynchronous, so encoding and hash-checking import methods are suspend functions; browser callers
@@ -42,8 +46,9 @@ in the exact passive recording because compacted task revisions need not have li
 
 `TaskLog` captures successful Actor submissions through the task API. It
 records selections, single-task and batch execution, tries, drops, and `exMachina` as distinct
-operations. A `doTask` completed through an Actor handoff records the originating selection and
-the receiving Actor's execution separately. Its causal task selector helps replay target repeated
+operations. A `doTask` completed through a Player handoff records the originating selection and the receiving
+Player's execution separately. Admin execution is omitted and repeated automatically during replay;
+Admin `HAS` assertions remain recorded. Its causal task selector helps replay target repeated
 tasks without storing source ordinals. Game start is mandatory and recorded by
 `TfmGameplay.startGame()`; import starts the game through that same method, and the game's own rules
 drive play from there.
