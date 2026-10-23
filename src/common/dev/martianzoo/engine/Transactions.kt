@@ -17,8 +17,12 @@ import dev.martianzoo.state.Transaction
  * and overlay reset need no bookkeeping: the next transaction follows whatever serial the last
  * retained event still carries, which is how a discarded serial comes to be reused.
  */
-internal class Transactions(private val gameWorld: GameWorld) {
+internal class Transactions(
+    private val gameWorld: GameWorld,
+    private val promoteDeferredWork: () -> Unit,
+) {
   private var open: Transaction? = null
+  private var depth = 0
   private var initializing = true
 
   /** Stops treating subsequent events as part of the initialization prefix. */
@@ -38,19 +42,23 @@ internal class Transactions(private val gameWorld: GameWorld) {
   }
 
   /**
-   * Records [block]'s events as one transaction attributed to [actor], unless a transaction is
-   * already open or initialization has not finished, in which case [block] simply runs.
+   * Records [block]'s events as one transaction attributed to [actor]. A nested call joins the
+   * transaction already open instead of starting its own, and initialization opens none at all.
    *
-   * A failed [block] leaves no transaction open, and the serial it would have used stays available,
-   * because an enclosing restoration removes the events that would have claimed it.
+   * Deferred work is promoted once this transaction is complete, so its task edits belong to the
+   * transaction that made the work eligible rather than to a moment when the queue happened to be
+   * empty. A failed [block] promotes nothing, leaves no transaction open, and keeps the serial it
+   * would have used available, because an enclosing restoration removes the events that would have
+   * claimed it.
    */
   internal fun <T> perform(actor: Actor, motivation: Motivation, block: () -> T): T {
-    if (initializing || open != null) return block()
-    open = Transaction(nextSerial(), actor, motivation)
+    if (depth == 0 && !initializing) open = Transaction(nextSerial(), actor, motivation)
+    depth++
     return try {
-      block()
+      block().also { if (depth == 1) promoteDeferredWork() }
     } finally {
-      open = null
+      depth--
+      if (depth == 0) open = null
     }
   }
 

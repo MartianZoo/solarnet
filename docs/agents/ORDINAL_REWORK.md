@@ -238,9 +238,10 @@ Land these related changes together before opening every transaction position to
   nested selection loops, not just the outermost coordinator. Adapt
   [Initializer](../../src/common/dev/martianzoo/engine/Initializer.kt), whose current bootstrap loop
   ignores assignee priority. Preserve valid initialization under the new rule.
-- Move deferred promotion to completed transactions as proposed in ENGINE_CONTRACT. Promote the
-  whole existing P3 batch together, assigning Admin to P1 and Players to P2. Keep the proposed P4
-  rule visibly provisional until reviewed.
+- Deferred promotion now happens when a transaction completes, not inside individual queue edits,
+  so its task edits belong to the transaction that made the work eligible. The whole earliest batch
+  is still promoted together; assigning Admin to P1 and Players to P2 waits for the priority gate
+  below, and the proposed P4 rule stays provisional until reviewed.
 - Adapt decision replay and capture together: Admin runs eagerly during replay rather than being
   disabled and replayed as explicit Admin commands. Preserve Admin state assertions. Audit the
   current `TaskLogTest` and `GameFileImporterTest` expectations that disable Admin.

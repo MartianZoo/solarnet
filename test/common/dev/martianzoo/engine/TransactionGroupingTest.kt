@@ -3,6 +3,8 @@ package dev.martianzoo.engine
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameEvent.TaskEditedEvent
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.Motivation.ADMIN_EAGER_POLICY
 import dev.martianzoo.state.Motivation.CLIENT_REQUEST
 import dev.martianzoo.testsupport.PLAYER1
@@ -107,6 +109,35 @@ internal class TransactionGroupingTest {
 
     agent.sneak("Coin")
     game.events.transactionStarts shouldBe listOf(setupEnd, afterFirst, game.events.nextOrdinal)
+  }
+
+  @Test
+  internal fun promotionBelongsToTheTransactionThatMadeItEligible() {
+    val game = Engine.newGame(premise)
+    val agent = game.testAgent(PLAYER1)
+    val token = agent.addTasks("Token, LATER { Coin }").first()
+    val before = game.events.nextOrdinal
+
+    agent.doTask(token)
+
+    // Coin stays deferred while Admin still owes the Reward, so the edit that makes it ordinary
+    // belongs to Admin's transaction, not to the Player's and not to a queue edit of its own.
+    val promotion =
+        game.events.entriesSince(before).filterIsInstance<TaskEditedEvent>().single {
+          it.oldTask.deferred && !it.task.deferred
+        }
+    val admin = checkNotNull(promotion.transaction)
+    admin.actor shouldBe ADMIN
+    admin.motivation shouldBe ADMIN_EAGER_POLICY
+
+    // That same transaction is the one that finished the Reward.
+    game.events
+        .entriesSince(before)
+        .filterIsInstance<TaskRemovedEvent>()
+        .single { it.task.assignee == ADMIN }
+        .transaction shouldBe admin
+
+    agent.count("Coin") shouldBe 1
   }
 
   @Test

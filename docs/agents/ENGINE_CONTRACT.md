@@ -132,9 +132,10 @@ tasks become P2. New `LATER` work waits for a subsequent promotion.
 Science tag counts toward its draw; its deferred flip waits until the draw and other ordinary
 work finish.
 
-**Recommendations:** check for promotion only after a complete transaction, not while its queue
-is temporarily empty. When P0–P3 are empty, promote all P4 tasks together using the same Actor-based
-priorities.
+Promotion is checked only when a transaction completes, not while its queue is temporarily empty:
+`Transactions` performs it at the end of a successful transaction, so the promoting task edits
+belong to the transaction that made the work eligible. **Recommendation:** when P0–P3 are empty,
+promote all P4 tasks together using the same Actor-based priorities.
 
 ## Admin's choices and retries
 
@@ -225,8 +226,8 @@ These are observations to address during review, not reasons to preserve the beh
   Queue edits remain outside that coverage because they skip task handling entirely.
 - Queue edits and corrections can change the world while another task is selected, bypassing
   the proposed exclusion of competing client mutations.
-- Player selection does not enforce the P1 gate. Selection can also return with an unfinished choice,
-  and deferred promotion happens during queue edits.
+- Player selection does not enforce the P1 gate, and selection can still return with an unfinished
+  choice. Deferred promotion no longer happens during queue edits.
 - Selection sometimes tests a concrete reassignment by executing the receiving Actor's instruction
   and restoring it. That can reject the current call based on work proposed for a later transaction.
 - Admin handling currently follows a configurable policy. Disabling it leaves ordinary Admin work

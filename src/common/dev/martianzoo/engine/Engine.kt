@@ -130,7 +130,7 @@ public object Engine {
     // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector =
         Effector(elaborator, customClasses, overlaySource?.effector) { reader }
-    private val transactions = Transactions(gameWorld)
+    private val transactions = Transactions(gameWorld) { taskQueues.promoteDeferredWork() }
     private val taskQueues: TaskQueues =
         TaskQueues(gameWorld, transactions::forEvent) { timeline.requireAtEnd() }
     private val reader: GameReader = gameWorld.reader

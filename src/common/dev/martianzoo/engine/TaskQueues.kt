@@ -47,8 +47,8 @@ import dev.martianzoo.state.Transaction
  *   Admin. System assignment dispatches a continuation back to the former assignee; explicit `BY`
  *   retains its own continuation scope. Abstract changes remain for the current assignee to choose.
  *   Selected tasks cannot be replaced by independent siblings
- * * Once no ordinary task remains, every task with the earliest remaining [Task.deferral] becomes
- *   ordinary at once
+ * * Once a completed transaction leaves no ordinary task, every task with the earliest remaining
+ *   [Task.deferral] becomes ordinary at once
  * * An ordinary task whose instruction is a dispatch is performed at once: `TASK R { b } >> c`
  *   becomes task `b` for R, with the dispatch's deferral, and task `c`
  */
@@ -73,7 +73,7 @@ internal class TaskQueues(
       deferral: Deferral = Deferral.NONE,
   ): List<TaskAddedEvent> {
     requireAtEnd()
-    return admit(instruction, assignee, cause, deferral).also { promoteDeferredWork() }
+    return admit(instruction, assignee, cause, deferral)
   }
 
   /**
@@ -117,11 +117,7 @@ internal class TaskQueues(
 
   internal fun removeTask(task: Task): TaskRemovedEvent {
     requireAtEnd()
-    return gameWorld
-        .apply(TaskRemovedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
-        .also {
-          promoteDeferredWork()
-        }
+    return gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
   }
 
   /**
@@ -131,11 +127,13 @@ internal class TaskQueues(
    * Work deferred while that batch runs waits for the whole batch. A promoted dispatch is performed
    * at once, before it is removed, so its body joins the batch's work. Promotion is an ordinary
    * task edit, so recorded-event restoration also restores the previous deferral.
+   *
+   * [Transactions] calls this when a transaction completes successfully, so these edits belong to
+   * the transaction that made the work eligible. Individual queue edits no longer promote: a
+   * transaction that empties the queue only momentarily, before adding its own ordinary work, does
+   * not promote deferred work it has not finished competing with.
    */
-  // TODO(ENGINE_CONTRACT): review the recommendation to promote only after a complete transaction.
-  // Currently addTasks/removeTask can promote a batch while the queue is temporarily empty within
-  // a larger call, before that call has finished creating its ordinary work.
-  private fun promoteDeferredWork() {
+  internal fun promoteDeferredWork() {
     while (true) {
       val pending = gameWorld.tasks.extract { it }
       if (pending.isEmpty() || pending.any { !it.deferred }) return
