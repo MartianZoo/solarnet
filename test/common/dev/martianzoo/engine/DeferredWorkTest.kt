@@ -187,7 +187,8 @@ internal class DeferredWorkTest {
     shouldThrow<TaskException> { admin.doTask("-WorkScope<Player1>") }
 
     p2.doTask("ChoiceA")
-    admin.doTask("-WorkScope<Player1>")
+
+    // Nothing ordinary remains, so the FINALLY cleanup is promoted and Admin performs it itself.
     admin.count("WorkScope") shouldBe 0
     admin.count("Allocation") shouldBe 0
     shouldThrow<TaskException> { p2.doTask("Done") }

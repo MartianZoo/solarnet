@@ -1280,7 +1280,7 @@ internal class TaskNarrowingTest {
     agent.runOperation("First, Second, Watcher")
     agent.runOperation("Pair<First, Second>")
     agent.count("Notice") shouldBe 0
-    agent.runOperation("Pair<First, First>") { doTask("Notice<First>") }
+    agent.runOperation("Pair<First, First>")
     agent.count("Notice<First>") shouldBe 1
     agent.count("Notice<Second>") shouldBe 0
   }
@@ -1344,9 +1344,10 @@ internal class TaskNarrowingTest {
     agent.runOperation("Other")
     agent.addTasks("Chosen@Shape THEN Notice<Chosen@Shape>")
     agent.doTask("Shape")
+
     agent.count("Only") shouldBe 1
-    shouldThrow<TaskException> { agent.doTask("Notice<Other>") }
-    agent.doTask("Notice<Only>")
+    // Admin performs the captured continuation itself, so the capture shows in what it produced
+    // rather than in a narrowing it would reject.
     agent.count("Notice<Only>") shouldBe 1
     agent.count("Notice<Other>") shouldBe 0
   }

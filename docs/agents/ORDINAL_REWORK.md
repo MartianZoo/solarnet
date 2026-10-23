@@ -228,51 +228,69 @@ it eligible is step 4.
 
 ### 4. Make intermediate states safe to resume
 
-Land these related changes together before opening every transaction position to live clients:
+**Landed: Admin's full automation as an engine invariant (Selected, October 22, 2026).**
+`AutoExecLoop` treats Admin as `EAGER` whatever policy is registered, so no configured or
+overridden `AutoExecPolicy` can disable Admin's handling — which is what
+[AutoExecPolicy](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) already said it must
+mean. With it, **Admin's work is always attempted**: a selection probe that rejects an Admin task
+no longer keeps it from being tried, so a pending Player task can no longer hide Admin's rejection.
+That alone fixed AI Central: `AiCentralTest.Cannot use an absent action while another Player task
+remains` is no longer `@Ignore`d, and the `BUG -` characterization that described the old behavior
+is gone.
 
-- Enforce P0/P1/P2 precedence in the engine. A Player cannot begin ordinary work while eligible
-  Admin work remains, including immediately after restoring or forking an intermediate position.
-- Make Admin handling mandatory, with FIFO retries and an exception after a full unsuccessful pass.
-  Player policies remain separate. Do not mistake another pending Player task for Admin progress.
+Replay adapted with it. `TaskLog.replay` disables Player policies only, and `TaskLog.inputs()`
+leaves Admin's automatic handling out of the recorded stream, because reconstruction performs it
+again on its own and a recorded Admin command would not find its task.
 
-  **Measured obstacle, needs a human decision.** A trial implementation — Admin's configured policy
-  ignored, plus an exception when a call would return with Admin's eligible work undone — failed 16
-  tests in `engine` and `agent` alone, before the run reached `tfm-tests` or any replay. The
-  obstacle is not the count. 45 test files drive synthetic scenarios **as Admin**, using it as a
-  convenient manually driven Actor, and 13 of those control its policy on purpose. Several of the
-  failures are tests whose whole subject is the model this rule replaces:
-  `SafeAutoExecTest.adminDoesNotLockAnAbstractTaskWhileAManualPlayerCanAct`,
-  `TaskAssignmentCharacterizationTest.sharedLoopRespectsEveryAssigneesPolicy` and
-  `eagerAdminWaitsForTheGateThenReturnsThePlayersChoice`, and
-  `TaskLogTest.completedHandoffsReplayAsChoicesFollowedByTheirAdminExecution`.
+**Still open, in the order they unblock each other:**
 
-  Rewriting them to drive as a Player is not mechanical: System work is assigned to Admin, so the
-  same scenario driven by a Player observes different assignment — which is exactly what those
-  characterization tests exist to pin down. The decision is whether Admin's full automation is an
-  engine invariant, which costs that test idiom, or a property of the driver a synthetic premise may
-  replace. The contract currently selects the former and forbids a switch, so this needs review
-  before implementation rather than a test sweep chosen by an agent.
-- Close actual gaps between successive engine mutations. Inspect `AgentImpl.addInitialTasks` and
-  nested selection loops, not just the outermost coordinator. Adapt
-  [Initializer](../../src/common/dev/martianzoo/engine/Initializer.kt), whose current bootstrap loop
-  ignores assignee priority. Preserve valid initialization under the new rule.
-- Deferred promotion now happens when a transaction completes, not inside individual queue edits,
-  so its task edits belong to the transaction that made the work eligible. The whole earliest batch
-  is still promoted together; assigning Admin to P1 and Players to P2 waits for the priority gate
-  below, and the proposed P4 rule stays provisional until reviewed.
-- Adapt decision replay and capture together: Admin runs eagerly during replay rather than being
-  disabled and replayed as explicit Admin commands. Preserve Admin state assertions. Audit the
-  current `TaskLogTest` and `GameFileImporterTest` expectations that disable Admin.
+1. **Admin eligibility: an unmet gate is not a stall.** This blocks both the stalled-pass exception
+   and the P0/P1/P2 gate, and nothing else here moves until it is settled. A trial exception that
+   threw whenever a call would return with Admin's eligible work undone failed 316 tests; the
+   distribution of the Admin tasks it reported is the evidence:
 
-Exactly which Admin narrowing may execute still needs implementation work; see the example below.
-The existing resolver is not a substitute for the contract's complete transaction-legality check.
+   | Kind | Instances | Example |
+   | --- | --- | --- |
+   | Gated work a Player unblocks | ~35 | `MAX 0 PaymentScope<Kim>: PlaceGreeneryTile<Kim>!` — Canon, converting plants; the placement waits for the player's payment scope to close |
+   | Abstract work needing a choice | 318 | `GlobalEvent! (THEN RevealDistantEvent FROM RevealComingEvent!)` (210, Turmoil) and `CityTile<SoloOpponent, LandArea(…)>! THEN GreeneryTile<…>` (108, solo neutral tiles) |
+   | Genuinely impossible | 1 | `UseAction<Kim, AiCentral<Kim>, Action2>!`, the case this contract cites |
 
-**Selected:** restoration need not reproduce the retry rotation, and we do not promise that a
-restored position resumes Admin handling with the same task. Failed attempts rotate the queue
-without leaving events, so after A fails and B succeeds the remaining order can be C,A rather than
-A,C, and restoration puts back only what the events recorded. Add no persisted retry-order
-representation. State this limit in the contract rather than implying identical subsequent
-execution.
+   For the first kind, throwing is wrong: returning to the Player is what satisfies the gate. The
+   P0/P1/P2 gate has the same defect in reverse — it would block the very Player whose action
+   unblocks Admin. The third kind is already handled by the attempt guarantee above.
+
+2. **Accumulation is checked at operation completion, not at quiescence.** `runOperation` and
+   `completeOperation` capture the tasks that existed beforehand and call
+   `ActorEngine.requireComplete`, which rejects any task created during the operation that is still
+   pending, and any surviving `MustCleanUp`. Gates are usually `Barrier`/`Signal`, both
+   `MustCleanUp`, so a gate cannot be left behind either. **Recommendation:** before adding a new
+   exception, evaluate whether the contract's stalled-Admin rule belongs at that existing boundary
+   rather than at quiescence, where it cannot tell a gate from a dead end. `beginOperation`,
+   `continueOperation`, and `doTasks` do not call it, which is the real hole.
+
+3. **Reduce the abstract Admin work rather than excusing it.** 210 of the 318 are one case: which
+   `GlobalEvent` is revealed. `GlobalEvent` is an `ABSTRACT CLASS` with one concrete subtype per
+   event, so this is a choice only because nothing makes it. A `CustomInstruction` that takes the
+   next event off the deck would make the instruction concrete and leave Admin nothing to decide;
+   the machinery already exists (`ScoreEventVps` in `scoring.pets`). The 108 solo neutral tile
+   placements may be reducible the same way by fixing the locations in the game premise — check the
+   solo rules first, since `BootstrapLifecycleTest.soloNeutralCitiesCannotBePlacedNextToEachOther`
+   reads like a constraint on a real choice.
+
+4. **Make Admin's policy an error, not merely ignored.** Admin's `autoExecPolicy` is still settable
+   and silently disregarded, which is a lie in the API. Rejecting a non-`EAGER` policy for Admin
+   surfaces the 13 test files that set one on purpose; `MassiveGammaZoneTest`'s toggles are already
+   known to be no-ops, since every replay passes with them ignored.
+
+5. **FIFO retries**, **the gaps between successive engine mutations** (`AgentImpl.addInitialTasks`
+   and `Initializer`'s bootstrap loop), and **step 5's live navigation** all remain. Step 5's
+   passive half does not depend on the gate and could proceed on its own.
+
+**On this document's shape:** steps 1 through 3 are about ordinals and checkpoints and are done.
+This step is ENGINE_CONTRACT's scheduling model — priorities, mandatory Admin, FIFO, replay
+semantics — which arrived here only because a checkpoint cannot be exposed as a *live* position
+unless resuming there is safe. It would sit more honestly in
+[ENGINE_CONTRACT.md](ENGINE_CONTRACT.md), leaving this document steps 1 through 3 and 5.
 
 ### 5. Switch client checkpoints and remove redundant positions
 

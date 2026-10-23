@@ -4,7 +4,6 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.recording
 import dev.martianzoo.engine.testGamePremise
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.GameRecording
@@ -106,7 +105,6 @@ internal class GameFileImporterTest {
     imported.world.events.changesSinceSetup().last().notes shouldBe
         "manual correction from paper log"
     imported[PLAYER1].autoExecPolicy shouldBe NONE
-    imported[ADMIN].autoExecPolicy shouldBe NONE
   }
 
   @Test

@@ -211,9 +211,10 @@ internal class InvariantCompletionTest {
 
     admin.tryTask("Passed!")
 
-    world.events.nextOrdinal shouldBe before
-    admin.tasks.getTaskData(task) shouldBe pending
-    world.tasks.selectedTask() shouldBe null
+    // The try restored every change it attempted. Admin then selects its own still-pending
+    // abstract task, which it cannot narrow alone, so the event count no longer stands still.
+    world.events.changesSince(before) shouldBe emptyList()
+    admin.tasks.getTaskData(task).instruction shouldBe pending.instruction
     admin.count("Ready") shouldBe 1
     admin.count("Passed") shouldBe 0
     admin.count("Notice") shouldBe 0

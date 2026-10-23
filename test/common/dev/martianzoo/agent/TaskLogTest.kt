@@ -300,7 +300,7 @@ internal class TaskLogTest {
   }
 
   @Test
-  internal fun completedHandoffsReplayAsChoicesFollowedByTheirAdminExecution() {
+  internal fun completedHandoffsReplayAsChoicesAndAdminRepeatsItsOwnExecution() {
     val premise = testGamePremise("CLASS Token : System\nCLASS Coin")
     fun newAgents(): Agents =
         Agents(Engine.newGame(premise)).also {
@@ -318,7 +318,6 @@ internal class TaskLogTest {
 
     imported[PLAYER1].count("Token") shouldBe 4
     imported[PLAYER1].count("Coin") shouldBe 1
-    imported[ADMIN].autoExecPolicy shouldBe NONE
     imported.world.tasks.isEmpty() shouldBe true
     imported.world.events.entriesSinceSetup().filterIsInstance<ChangeEvent>().map {
       it.change to it.actor
@@ -348,7 +347,6 @@ internal class TaskLogTest {
     imported[ADMIN].count("Reward") shouldBe 1
     imported.world.tasks.isEmpty() shouldBe true
     imported[PLAYER1].autoExecPolicy shouldBe NONE
-    imported[ADMIN].autoExecPolicy shouldBe NONE
     // The source performed this work through EAGER policies; the replay submits it. Identical
     // changes, different provenance.
     imported.world.events.entriesSinceSetup().eventContent() shouldBe
@@ -413,28 +411,28 @@ internal class TaskLogTest {
   }
 
   @Test
-  internal fun idOnlyTaskCommandRollsBackAnUnfinishedHandoff() {
+  internal fun idOnlyTaskCommandCompletesItsAdminHandoff() {
     val premise = testGamePremise("CLASS Coin")
     fun newAgents(): Agents =
         Agents(Engine.newGame(premise)).also {
           it[PLAYER1].autoExecPolicy = NONE
-          it[ADMIN].autoExecPolicy = NONE
           it[PLAYER1].addTasks("Coin")
           it[PLAYER1].doTask("Coin")
           it[PLAYER1].addTasks("-Coin BY Admin")
         }
     val source = newAgents()
     start(source)
-    shouldThrow<TaskException> {
-      source[PLAYER1].doTask(source[PLAYER1].tasks.ids().single())
-    }
-    source.world.tasks.selectedTask() shouldBe null
-    source[PLAYER1].count("Coin") shouldBe 1
+
+    source[PLAYER1].doTask(source[PLAYER1].tasks.ids().single())
+
+    // Admin's handling is automatic, so the handoff finishes within the Player's command.
+    source.world.tasks.isEmpty() shouldBe true
+    source[PLAYER1].count("Coin") shouldBe 0
 
     val imported = newAgents()
     replay(source, imported)
 
-    source.taskLog.inputs() shouldBe listOf(RecordedInput.StartGame)
+    imported[PLAYER1].count("Coin") shouldBe 0
     imported.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
   }
 

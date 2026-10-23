@@ -9,6 +9,7 @@ import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Component
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
@@ -56,12 +57,19 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val agent = game.testAgent(actor).also { it.autoExecPolicy = NONE }
     agent.sneak("ActorTriggerProbe!")
+    val before = game.events.nextOrdinal
 
-    agent.beginOperation("ActorTriggerSignal!") {
-      game.tasks
-          .extract { it.assignee to it.instruction.toString() }
-          .shouldContainExactly(actor to "Plant<Player1>!")
-    }
+    agent.beginOperation("ActorTriggerSignal!") {}
+
+    // Read the task as it was created: Admin performs its own work, so waiting to see it pending
+    // would only observe whether its assignee happens to be automatic. A cause marks the triggered
+    // consequence, as against the operation's own initiating task.
+    game.events
+        .entriesSince(before)
+        .filterIsInstance<TaskAddedEvent>()
+        .filter { it.task.cause != null }
+        .map { it.task.assignee to it.task.instruction.toString() }
+        .shouldContainExactly(actor to "Plant<Player1>!")
   }
 
   @Test

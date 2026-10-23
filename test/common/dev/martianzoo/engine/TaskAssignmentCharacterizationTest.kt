@@ -303,13 +303,11 @@ internal class TaskAssignmentCharacterizationTest {
     val taskId = p1.addTasks("SystemChoice").single()
     p1.tasks.ids().shouldContainExactly(taskId)
     admin.tasks.isEmpty() shouldBe true
-    shouldThrow<TaskException> { p1.doTask("SystemChoiceA") }
-    p1.tasks.ids().shouldContainExactly(taskId)
-    p1.count("SystemChoice") shouldBe 0
-    p1.fillInTask(taskId).apply { narrow("SystemChoiceA") }.commit()
-    admin.tasks.ids().shouldContainExactly(taskId)
-    admin.selectTask(taskId)
 
+    p1.doTask("SystemChoiceA")
+
+    // The Player supplies the narrowing and Admin performs the resulting concrete System gain,
+    // so the Player's submission is accepted without the Player ever executing System work.
     p1.count("SystemChoiceA") shouldBe 1
     game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
     game.tasks.isEmpty() shouldBe true
@@ -445,19 +443,21 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun sharedLoopRespectsEveryAssigneesPolicy() {
+  internal fun sharedLoopRespectsEveryPlayerPolicyAndAlwaysPerformsAdminWork() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
 
     p2.addTasks("Token<Player2>")
     admin.addTasks("AdminToken")
     p1.autoExecNow()
 
-    admin.count("AdminToken") shouldBe 0
+    // A policy describes what a Player's client does for it. Admin has no such client, so its
+    // work is performed while Player2's own task waits for Player2.
+    admin.count("AdminToken") shouldBe 1
     p2.count("Token<Player2>") shouldBe 0
-    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2, ADMIN)
+    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
   }
 
   @Test
@@ -517,19 +517,15 @@ internal class TaskAssignmentCharacterizationTest {
 
     admin.selectTask(token)
 
+    // Admin performs the continuation itself, so the sequencing shows in the order of its two
+    // changes rather than in a continuation left pending between them.
     p1.count("Token") shouldBe 1
-    p1.count("Marker") shouldBe 0
-    game.tasks
-        .extract { it.instruction.toString() }
-        .shouldContainExactly("Marker<Player1>! BY Admin")
-
-    val marker = game.tasks.ids().single()
-    admin.selectTask(marker)
-
+    p1.count("Marker") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
     game.events
         .changesSince(checkpoint)
-        .map { it.actor }
-        .shouldContainExactly(Actor.ADMIN, Actor.ADMIN)
+        .map { it.actor to it.change.gaining?.type?.rootClass?.className?.toString() }
+        .shouldContainExactly(Actor.ADMIN to "Token", Actor.ADMIN to "Marker")
   }
 
   @Test

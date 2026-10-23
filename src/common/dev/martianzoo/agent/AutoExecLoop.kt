@@ -78,6 +78,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
 
     when (options.size) {
       0 -> {
+        if (attemptAdminWork()) return true
         val taskId =
             allTasks.ids().firstOrNull { taskId ->
               policy(taskId) != NONE && !isDeferred(taskId)
@@ -154,6 +155,32 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
   private fun motivationFor(actor: Actor): Motivation =
       if (actor == ADMIN) Motivation.ADMIN_EAGER_POLICY else Motivation.PLAYER_POLICY
 
+  private fun isAdmin(taskId: TaskId): Boolean = allTasks.getTaskData(taskId).assignee == ADMIN
+
+  /**
+   * Attempts Admin's oldest eligible task when no automatic option remains, returning whether it
+   * progressed. Admin's handling is not optional, so a pending Player task must not keep its work
+   * from being tried: work held by an unmet gate or an unmade choice stays pending and returns
+   * false, while a rejection that can never succeed propagates to the caller.
+   */
+  private fun attemptAdminWork(): Boolean {
+    if (allTasks.selectedTask() != null) return false
+    val taskId = allTasks.ids().firstOrNull { isAdmin(it) && !isDeferred(it) } ?: return false
+    return try {
+      world.timeline.atomic {
+        command(taskId, Kind.DO_TASK_ID) { engineFor(taskId).doTask(taskId) }
+        world.agentTransactionGuard?.validate()
+      }
+      true
+    } catch (_: AgentInputRequiredException) {
+      false
+    } catch (_: NotFullySpecifiedException) {
+      false
+    } catch (_: NotNowException) {
+      false
+    }
+  }
+
   private fun canSelectTask(taskId: TaskId): Boolean = engineFor(taskId).canSelectTask(taskId)
 
   private fun isDeferred(taskId: TaskId): Boolean = allTasks.getTaskData(taskId).deferred
@@ -170,8 +197,10 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     )
   }
 
+  /** Admin is always fully automatic; a configured or overridden policy applies to Players only. */
   private fun policy(taskId: TaskId): AutoExecPolicy {
     val actor = allTasks.getTaskData(taskId).assignee
+    if (actor == ADMIN) return AutoExecPolicy.EAGER
     return policies.getValue(actor).invoke()
   }
 
