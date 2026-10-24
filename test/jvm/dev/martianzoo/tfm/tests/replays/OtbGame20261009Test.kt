@@ -475,8 +475,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Plant",
       )
       doTask("UseAction<ClaimMilestoneAction, Action1>")
-      // P2 has no wilds: finish this claim's empty allocation prompt.
-      selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
       doTasks("8 Pay<> FROM MC", "Diversifier")
     }
     p1.turn {
