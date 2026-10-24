@@ -7,7 +7,9 @@ import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Ignore
@@ -27,9 +29,9 @@ internal class HeadStartTest : TfmSandboxTest() {
       )
 
       shouldThrow<TaskException> { doTask("Pass") }
-      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
       shouldThrow<TaskException> { doTask("Pass") }
-      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
     }
   }
 
@@ -47,7 +49,7 @@ internal class HeadStartTest : TfmSandboxTest() {
           "2 Steel",
       )
       doTask("10 MC")
-      shouldThrow<TaskException> { doTask("UseStandardProject<PowerPlantProject>") }
+      shouldThrow<TaskException> { doTasks(*standardProjectTasks("PowerPlantProject")) }
       doTask("DoRequiredActions")
       doTask("3 PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
@@ -56,7 +58,7 @@ internal class HeadStartTest : TfmSandboxTest() {
           "PROD[Energy]",
           "PROD[Steel]",
           "6 MC",
-          "UseStandardProject<PowerPlantProject>",
+          *standardProjectTasks("PowerPlantProject"),
           "11 Pay<> FROM MC",
           "PROD[Energy]",
       )
@@ -85,9 +87,9 @@ internal class HeadStartTest : TfmSandboxTest() {
       )
       shouldThrow<TaskException> { doTask("Steel") }
       doTasks(
-          "UseStandardProject<SellPatentsProject>",
+          *standardProjectTasks("SellPatentsProject"),
           "MC FROM ProjectCard",
-          "UseStandardProject<SellPatentsProject>",
+          *standardProjectTasks("SellPatentsProject"),
           "MC FROM ProjectCard",
           "2 MC / ProjectCard",
           "2 Steel",
@@ -118,10 +120,10 @@ internal class HeadStartTest : TfmSandboxTest() {
           "2 Steel",
       )
       doTask("20 MC")
-      doTasks("ConvertHeat", "8 Pay<Class<Heat>> FROM Heat")
+      doTasks("UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM Heat")
       doTask("TemperatureStep")
       doTasks(
-          "UseStandardProject<AquiferProject>",
+          *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
           "OceanTile<Tharsis_5_5>",
           "TerraformRating",
@@ -157,10 +159,10 @@ internal class HeadStartTest : TfmSandboxTest() {
           "2 Steel",
       )
       doTask("0 MC")
-      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
       autoExecNow(EAGER)
       doTasks(
-          "UseStandardProject<PowerPlantProject>",
+          *standardProjectTasks("PowerPlantProject"),
           "11 Pay<> FROM MC",
           "PROD[Energy]",
       )
@@ -197,7 +199,7 @@ internal class HeadStartTest : TfmSandboxTest() {
           "2 Steel",
       )
       doTask("0 MC")
-      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      doTasks(*cardActionTasks("BoardOfDirectors"))
       doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
       doTask("-Director<BoardOfDirectors>")
@@ -208,7 +210,7 @@ internal class HeadStartTest : TfmSandboxTest() {
       doTask("SagittaFrontierServices FROM CorporationCard<Selecting>")
       doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")
       doTask("SearchForCard<Kim, NoTagsFilter>!")
-      doTasks("4 MC", "ConvertHeat", "8 Pay<Class<Heat>> FROM Heat")
+      doTasks("4 MC", "UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM Heat")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
@@ -227,7 +229,7 @@ internal class HeadStartTest : TfmSandboxTest() {
         kim.doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       }
       expectChanges("PROD[Energy<Kim>], -11 MC<Kim>") {
-        kim.doTask("UseStandardProject<PowerPlantProject>")
+        kim.doTasks(*standardProjectTasks("PowerPlantProject"))
         kim.autoExecNow(EAGER)
       }
       kim.count("Baton") shouldBe 1
@@ -236,7 +238,7 @@ internal class HeadStartTest : TfmSandboxTest() {
         kim.doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       }
       expectChanges("PROD[Energy<Kim>], -11 MC<Kim>") {
-        kim.doTask("UseStandardProject<PowerPlantProject>")
+        kim.doTasks(*standardProjectTasks("PowerPlantProject"))
         kim.autoExecNow(EAGER)
       }
       kim.count("Baton") shouldBe 1
@@ -254,7 +256,7 @@ internal class HeadStartTest : TfmSandboxTest() {
 
       repeat(2) {
         expectChanges("PROD[Energy<Kim>], -11 MC<Kim>") {
-          kim.doTask("UseStandardProject<PowerPlantProject>")
+          kim.doTasks(*standardProjectTasks("PowerPlantProject"))
           kim.autoExecNow(EAGER)
         }
         kim.count("Baton") shouldBe 1
@@ -271,14 +273,14 @@ internal class HeadStartTest : TfmSandboxTest() {
     internal fun `Head Start during the second ordinary action releases the baton after its grants`() {
       prepareBoardOfDirectors()
       expectChanges("PROD[Energy<Kim>], -11 MC<Kim>") {
-        kim.doTask("UseStandardProject<PowerPlantProject>")
+        kim.doTasks(*standardProjectTasks("PowerPlantProject"))
         kim.autoExecNow(EAGER)
       }
       playHeadStartThroughBoard()
 
       repeat(2) {
         expectChanges("PROD[Energy<Kim>], -11 MC<Kim>") {
-          kim.doTask("UseStandardProject<PowerPlantProject>")
+          kim.doTasks(*standardProjectTasks("PowerPlantProject"))
           kim.autoExecNow(EAGER)
         }
       }
@@ -298,7 +300,7 @@ internal class HeadStartTest : TfmSandboxTest() {
 
     private fun playHeadStartThroughBoard() {
       expectChanges("2 Steel<Kim>, 8 MC<Kim>, -Director<BoardOfDirectors<Kim>>") {
-        kim.doTask("UseCardAction<BoardOfDirectors, Action1>")
+        kim.doTasks(*cardActionTasks("BoardOfDirectors"))
         kim.doTask("PreludeCard")
         kim.doTask("-12 MC")
         kim.doTask("PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>")

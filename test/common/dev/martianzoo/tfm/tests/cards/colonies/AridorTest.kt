@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class AridorTest : TfmSandboxTest() {
@@ -48,7 +49,7 @@ internal class AridorTest : TfmSandboxTest() {
     kim.setToExMachina(11, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<DevelopmentCenter>>", "11 Pay<> FROM MC")
+      doTasks(*playCardTasks("DevelopmentCenter"), "11 Pay<> FROM MC")
       doTasks(
           "DevelopmentCenter FROM ProjectCard",
           "PROD[MC]",
@@ -89,7 +90,7 @@ internal class AridorTest : TfmSandboxTest() {
     kim.setToExMachina(16, "MC")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CryoSleep>>",
+          *playCardTasks("CryoSleep"),
           "10 Pay<> FROM MC",
           "CryoSleep FROM ProjectCard",
           "PROD[MC]",
@@ -100,7 +101,7 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Decomposers>>",
+          *playCardTasks("Decomposers"),
           "5 Pay<> FROM MC",
           "Decomposers FROM ProjectCard",
           "PROD[MC]",
@@ -125,7 +126,7 @@ internal class AridorTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CryoSleep>>",
+          *playCardTasks("CryoSleep"),
           "10 Pay<> FROM MC",
           "CryoSleep FROM ProjectCard",
           "PROD[MC]",
@@ -135,7 +136,7 @@ internal class AridorTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<IndustrialMicrobes>>", "12 Pay<> FROM MC")
+          doTasks(*playCardTasks("IndustrialMicrobes"), "12 Pay<> FROM MC")
           doTasks(
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
@@ -159,7 +160,7 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<BribedCommittee>>",
+              *playCardTasks("BribedCommittee"),
               "7 Pay<> FROM MC",
               "BribedCommittee FROM ProjectCard",
               "2 TerraformRating",
@@ -202,7 +203,7 @@ internal class AridorTest : TfmSandboxTest() {
     kim.setToExMachina(11, "MC")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<AerialMappers>>",
+          *playCardTasks("AerialMappers"),
           "11 Pay<> FROM MC",
           "AerialMappers FROM ProjectCard",
           "PROD[MC]",

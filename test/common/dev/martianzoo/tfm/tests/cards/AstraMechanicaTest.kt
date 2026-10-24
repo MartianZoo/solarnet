@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -18,7 +19,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<AstraMechanica>>",
+              *playCardTasks("AstraMechanica"),
               "7 Pay<> FROM MC",
               "AstraMechanica FROM ProjectCard",
               "ProjectCard FROM PlayedEvent<Class<MineralDeposit>>",
@@ -40,7 +41,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("PlayProject<Class<AstraMechanica>>")
+        doTasks(*playCardTasks("AstraMechanica"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -60,7 +61,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("PlayProject<Class<AstraMechanica>>")
+        doTasks(*playCardTasks("AstraMechanica"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -78,7 +79,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("PlayProject<Class<AstraMechanica>>")
+        doTasks(*playCardTasks("AstraMechanica"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -95,7 +96,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<AstraMechanica>>")
+        doTasks(*playCardTasks("AstraMechanica"))
         doTasks("7 Pay<> FROM MC", "AstraMechanica FROM ProjectCard")
         doTask("ProjectCard FROM PlayedEvent<Class<Flooding>>")
         doTask("ProjectCard FROM PlayedEvent<Class<Flooding>>")

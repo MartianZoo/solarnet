@@ -102,11 +102,18 @@ private fun isScopeRemovalHandoff(
   fun decline(tree: InstructionTree): Boolean =
       tree is Instruction.Gain && target(tree.gaining, "PassBaton") && fixedAmount(tree)
 
+  fun standardActionOffer(expression: Expression): Boolean =
+      expression.className == cn("UseAction") &&
+          expression.refinement == null &&
+          expression.arguments.count { it == cn("StandardAction").expression } == 1 &&
+          expression.arguments.all { it == cn("StandardAction").expression || fixedReference(it) }
+
   fun nextAction(tree: InstructionTree): Boolean =
       when (tree) {
         is Instruction.Gated -> nextAction(tree.inner)
         is Instruction.Gain ->
-            target(tree.gaining, "StandardAction", "DoRequiredActions") && fixedAmount(tree)
+            (standardActionOffer(tree.gaining) || target(tree.gaining, "DoRequiredActions")) &&
+                fixedAmount(tree)
         else -> false
       }
 
@@ -126,14 +133,14 @@ private fun isScopeRemovalHandoff(
         when (tree) {
           is Instruction.Remove -> target(tree.removing, "Baton", "SecondAction")
           is Instruction.Gain ->
-              target(
-                  tree.gaining,
-                  "Baton",
-                  "OfferAction",
-                  "PassBaton",
-                  "StandardAction",
-                  "DoRequiredActions",
-              )
+              standardActionOffer(tree.gaining) ||
+                  target(
+                      tree.gaining,
+                      "Baton",
+                      "OfferAction",
+                      "PassBaton",
+                      "DoRequiredActions",
+                  )
           is Instruction.Transmute ->
               (target(tree.removing, "Baton") && target(tree.gaining, "Baton")) ||
                   (phase(tree.removing) && phase(tree.gaining))

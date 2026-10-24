@@ -2,12 +2,7 @@ CLASS HellasMap : MarsMap
 
 CLASS Diversifier : Milestone {
   HAS MAX 1 Diversifier
-  HAS Class<DiversifierWatcher>
-  requirement = HAS "8 Class<@Tag>(HAS @Tag)"
-}
-"Offers tag choices whenever Diversifier is in the milestone pool"
-CLASS DiversifierWatcher<Class<Diversifier>> : CardWatcher {
-  ClaimMilestone<Class<Diversifier>, @Player>: EACH @WildTagElection<@Player> { Tag<@WildTagElection>? }
+  requirement = HAS "8 (Class<@Tag>(HAS @Tag) OR WildTagElection(HAS MAX 0 Tag))"
 }
 
 CLASS Tactician5 : Milestone {

@@ -51,10 +51,12 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val result =
         try {
           repl.game.timeline.atomic {
-            val grantedOperation =
+            val standardActionOffered =
                 repl.game.tasks
                     .matching {
-                      cn("UseAction") in it.instruction.descendantsOfType<ClassName>()
+                      it.instruction.descendantsOfType<ClassName>().any { name ->
+                        name == cn("StandardAction") || name == cn("UseActionOnCardAction")
+                      }
                     }
                     .any()
             if (pauseForWrittenCost) {
@@ -62,10 +64,10 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
               writtenCostPaused = true
             }
             val taskIdsBeforeAction = repl.game.tasks.ids()
-            val instruction =
-                if (grantedOperation) "UseAction<$cardName, $whichAction>"
-                else "UseCardAction<$cardName, $whichAction>"
-            repl.agent.doTask(instruction)
+            if (standardActionOffered) {
+              repl.agent.doTask("UseAction<UseActionOnCardAction, Action1>")
+            }
+            repl.agent.doTask("UseAction<$cardName, $whichAction>")
             if (payment.isNotEmpty()) {
               if (pauseForWrittenCost) payWrittenActionCost(payment, taskIdsBeforeAction)
               else TfmPayCommand(repl).withArgs(payment)

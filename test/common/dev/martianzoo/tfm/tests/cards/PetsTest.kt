@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -17,7 +18,7 @@ internal class PetsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTask("UseCardAction<Predators, Action1>")
+        doTasks(*cardActionTasks("Predators"))
         doTask("-Animal<Stan, Pets<Stan>>")
       }
     }
@@ -30,7 +31,7 @@ internal class PetsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTask("UseCardAction<Predators, Action1>")
+        doTasks(*cardActionTasks("Predators"))
         doTask("-Animal<Pets<Stan>>")
       }
     }

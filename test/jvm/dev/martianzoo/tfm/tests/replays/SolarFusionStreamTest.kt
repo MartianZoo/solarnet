@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -113,7 +114,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     }
     JR.playProject(Pets, 10)
     KB.playProject(StaticHarvesting, 4).expect("-1 MC")
-    KB.stdAction("ClaimMilestone<Class<Energizer>>")
+    KB.stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Energizer") }
     ER.cardAction1(IndustrialCenter)
     ER.declineSecondAction()
     JR.playProject(SterlingVents, 5)
@@ -132,7 +133,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     ER.cardAction1(TychoMagnetics, x = 2)
     ER.cardAction1(IndustrialCenter)
     JR.playProject(NaturalPreserve, 9) { placeTile(8, 4) }
-    JR.stdAction("ClaimMilestone<Class<Builder>>")
+    JR.stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Builder") }
     KB.cardAction1(RestrictedArea)
     KB.playProject(OlympusConference, 9, steel = 0)
     ER.pass()
@@ -178,7 +179,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     ER.sellPatents(1)
     JR.pass()
     KB.pass()
-    ER.stdAction("UseCardAction<$WaterImportFromEuropa, Action1>", payment = { ER.pay(12) }) {
+    ER.stdAction(*cardActionTasks("$WaterImportFromEuropa"), payment = { ER.pay(12) }) {
           placeTile(4, 4)
         }
         .expect("2 Plant")
@@ -194,7 +195,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
       ER.buyCards(0)
     }
-    JR.stdAction("ClaimMilestone<Class<Philantropist>>")
+    JR.stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Philantropist") }
     JR.playProject(SpaceElevator, 27)
     KB.playProject(HiredRaiders, 0) { doTask("2 Steel<KB> FROM Steel<ER>") }
         .expect("-3 MC<KB>, 3 MC<ER>")
@@ -206,7 +207,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.sellPatents(1)
     KB.playProject(EquatorialMagnetizer, 10)
     ER.stdAction(
-        "UseCardAction<$WaterImportFromEuropa, Action1>",
+        *cardActionTasks("$WaterImportFromEuropa"),
         payment = { ER.pay(titanium = 4) },
     ) {
       placeTile(5, 4)
@@ -233,7 +234,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     JR.playProject(FieldCappedCity, 29) { placeTile(6, 5) }
     KB.convertHeat()
     KB.convertHeat()
-    ER.stdAction("UseCardAction<$WaterImportFromEuropa, Action1>", payment = { ER.pay(12) }) {
+    ER.stdAction(*cardActionTasks("$WaterImportFromEuropa"), payment = { ER.pay(12) }) {
       placeTile(4, 6)
     }
     ER.convertPlants { placeTile(5, 8) }
@@ -280,7 +281,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.buyCards(2)
 
     JR.cardAction1(SpaceMirrors)
-    JR.stdAction("FundAward<Class<Banker>>")
+    JR.stdAction("UseAction<FundAwardAction, Action1>") { doTask("Banker") }
     KB.convertPlants { placeTile(5, 2) }
     KB.cardAction1(RestrictedArea)
     ER.cardAction1(TychoMagnetics, x = 1)
@@ -293,7 +294,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.sellPatents(1)
     ER.playProject(AdvancedAlloys, 9)
     ER.stdAction(
-            "UseCardAction<$WaterImportFromEuropa, Action1>",
+            *cardActionTasks("$WaterImportFromEuropa"),
             payment = { ER.pay(titanium = 3) },
         ) {
           placeTile(1, 3)
@@ -330,7 +331,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.cardAction1(EquatorialMagnetizer)
     ER.cardAction1(TychoMagnetics, x = 3)
     ER.stdAction(
-        "UseCardAction<$WaterImportFromEuropa, Action1>",
+        *cardActionTasks("$WaterImportFromEuropa"),
         payment = { ER.pay(titanium = 3) },
     ) {
       placeTile(1, 4)
@@ -371,7 +372,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
       doTask("CopyProductionBox<$GhgFactories>")
     }
     JR.playProject(PhobosSpaceHaven, 22, titanium = 1)
-    JR.stdAction("FundAward<Class<Founder>>")
+    JR.stdAction("UseAction<FundAwardAction, Action1>") { doTask("Founder") }
     KB.sellPatents(1)
     KB.playProject(Tardigrades, 1)
     ER.playProject(GeneRepair, 12) {
@@ -432,7 +433,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     ER.cardAction1(RedShips)
     ER.playProject(PublicBaths, mc = 0, steel = 2)
     KB.cardAction1(Ants)
-    KB.stdAction("FundAward<Class<Benefactor>>")
+    KB.stdAction("UseAction<FundAwardAction, Action1>") { doTask("Benefactor") }
     ER.sellPatents(1)
     ER.sellPatents(1)
     KB.playProject(BactoviralResearch, 7) {

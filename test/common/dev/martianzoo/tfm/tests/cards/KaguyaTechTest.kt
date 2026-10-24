@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -16,7 +17,7 @@ internal class KaguyaTechTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<KaguyaTech>>",
+          *playCardTasks("KaguyaTech"),
           "10 Pay<> FROM MC",
           "KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
@@ -32,7 +33,7 @@ internal class KaguyaTechTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("PlayProject<Class<KaguyaTech>>")
+        doTasks(*playCardTasks("KaguyaTech"))
         doTasks("10 Pay<> FROM MC", "KaguyaTech FROM ProjectCard")
         doTask("PROD[2 MC]")
         doTask("ProjectCard<Kim, Hand>")
@@ -47,7 +48,7 @@ internal class KaguyaTechTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<KaguyaTech>>",
+          *playCardTasks("KaguyaTech"),
           "10 Pay<> FROM MC",
           "KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",

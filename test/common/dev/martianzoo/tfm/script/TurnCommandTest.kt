@@ -22,7 +22,8 @@ internal class TurnCommandTest {
     assertEquals(0, repl.agent.count("Baton"))
     repl.command("mode green")
     repl.command("turn")
-    repl.command("task UseStandardProject<SellPatentsProject>")
+    repl.command("task UseAction<UseStandardProjectAction, Action1>")
+    repl.command("task UseAction<SellPatentsProject, Action1>")
     assertEquals(1, repl.agent.count("ActionScope<Player2>"))
   }
 
@@ -33,7 +34,8 @@ internal class TurnCommandTest {
     assertEquals(0, repl.agent.count("ActionScope"))
     assertEquals(0, repl.agent.count("Baton"))
 
-    repl.command("task UseStandardProject<SellPatentsProject>")
+    repl.command("task UseAction<UseStandardProjectAction, Action1>")
+    repl.command("task UseAction<SellPatentsProject, Action1>")
     assertEquals(1, repl.agent.count("ActionScope<Player2>"))
     assertEquals(0, repl.agent.count("ActionScope<Player1>"))
     repl.command("task MC FROM ProjectCard")

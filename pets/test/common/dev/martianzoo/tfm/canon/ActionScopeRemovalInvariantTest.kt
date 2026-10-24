@@ -134,10 +134,10 @@ internal class ActionScopeRemovalInvariantTest {
             playerEffects =
                 """
                 -ActionScope<This>: FINALLY { -Baton<This> }
-                -Baton<This>: StandardAction<This> OR PassBaton<This>
+                -Baton<This>: UseAction<This, StandardAction> OR PassBaton<This>
                 -ActionScope<This>: FINALLY { \
                   TASK This { \
-                    StandardAction<This> OR DoRequiredActions<This> \
+                    UseAction<This, StandardAction> OR DoRequiredActions<This> \
                   } \
                 }
                 """,
@@ -206,7 +206,8 @@ internal class ActionScopeRemovalInvariantTest {
         CLASS SecondAction<Baton>
         CLASS OfferAction<Player> : Signal
         CLASS PassBaton<Player> : Signal
-        CLASS StandardAction<Player> : Signal
+        ABSTRACT CLASS StandardAction
+        CLASS UseAction<Player, StandardAction> : Signal
         CLASS DoRequiredActions<Player> : Signal
         CLASS Pass<Player> { $passEffects }
         ABSTRACT CLASS Phase

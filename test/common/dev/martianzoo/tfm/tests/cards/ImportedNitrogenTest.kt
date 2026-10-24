@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -18,7 +19,7 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     stan.exMachina("$Tardigrades, $Pets")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<ImportedNitrogen>>", "23 Pay<> FROM MC")
+          doTasks(*playCardTasks("ImportedNitrogen"), "23 Pay<> FROM MC")
           doTasks(
               "ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
@@ -41,7 +42,7 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<ImportedNitrogen>>", "23 Pay<> FROM MC")
+          doTasks(*playCardTasks("ImportedNitrogen"), "23 Pay<> FROM MC")
           doTasks(
               "ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
@@ -64,7 +65,7 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<ImportedNitrogen>>", "23 Pay<> FROM MC")
+        doTasks(*playCardTasks("ImportedNitrogen"), "23 Pay<> FROM MC")
         doTask("ImportedNitrogen FROM ProjectCard")
         doTask("TerraformRating")
         doTask("4 Plant")

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -15,7 +16,7 @@ internal class PsychrophilesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<AdaptedLichen>>",
+              *playCardTasks("AdaptedLichen"),
               "9 Pay<> FROM MC",
               "AdaptedLichen FROM ProjectCard",
               "PROD[Plant]",
@@ -31,7 +32,7 @@ internal class PsychrophilesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<AdaptedLichen>>",
+              *playCardTasks("AdaptedLichen"),
               "Ok", // Keep the microbes.
               "9 Pay<> FROM MC",
               "AdaptedLichen FROM ProjectCard",
@@ -47,7 +48,7 @@ internal class PsychrophilesTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
 
     kim.inTurn {
-      doTask("PlayProject<Class<AdaptedLichen>>")
+      doTasks(*playCardTasks("AdaptedLichen"))
       // Choose to spend microbes while leaving their amount unresolved.
       selectTask("X PayFromCard<Psychrophiles> FROM Microbe<Psychrophiles>")
       doTasks(

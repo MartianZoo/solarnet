@@ -3,7 +3,9 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -16,7 +18,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
     kim.exMachina("$ProtectedHabitats, 8 Plant")
 
     kim.inTurn {
-      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTask("GreeneryTile<Tharsis_1_1>")
       doTask("OxygenStep")
       doTasks("2 Steel", "TerraformRating")
@@ -28,7 +30,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
     kim.exMachina("$ProtectedHabitats, $Predators, $Fish, Animal<$Fish>")
 
     kim.inTurn {
-          doTask("UseCardAction<Predators, Action1>")
+          doTasks(*cardActionTasks("Predators"))
           doTask("-Animal<Fish>")
           doTask("Animal<Predators>")
         }
@@ -40,7 +42,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
     kim.exMachina("$ProtectedHabitats, $Ants, $Tardigrades, Microbe<$Tardigrades>")
 
     kim.inTurn {
-          doTask("UseCardAction<Ants, Action1>")
+          doTasks(*cardActionTasks("Ants"))
           doTask("-Microbe<Tardigrades>")
           doTask("Microbe<Ants>")
         }
@@ -53,7 +55,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
+        doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
         doTask("AsteroidCard FROM ProjectCard")
         doTask("TemperatureStep")
         doTask("2 Titanium")
@@ -73,7 +75,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTask("UseCardAction<Predators, Action1>")
+        doTasks(*cardActionTasks("Predators"))
         doTask("-Animal<Kim, Fish<Kim>>")
       }
     }
@@ -87,7 +89,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTask("UseCardAction<Ants, Action1>")
+        doTasks(*cardActionTasks("Ants"))
         doTask("-Microbe<Kim, Tardigrades<Kim>>")
       }
     }

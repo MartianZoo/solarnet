@@ -49,7 +49,7 @@ internal class ActorEngineTransactionTest {
     agent.sneak("8 Plant")
     // During the action phase, greenery also offers the Player an oxygen increase.
     world.testAgent(ADMIN).sneak("Photosynthesis")
-    agent.beginOperation("ConvertPlants")
+    agent.beginOperation("UseAction<ConvertPlantsAction, Action1>")
     agent.doTask("8 Pay<Class<Plant>> FROM Plant")
     val player = world.actorEngine(PLAYER1)
     player.doTask(parse<Instruction>("GreeneryTile<Player1, Tharsis_1_1>!"))

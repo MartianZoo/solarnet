@@ -2,9 +2,11 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.AstroDrill
 import dev.martianzoo.tfm.tests.cards.cardnames.KuiperCooperative
 import dev.martianzoo.tfm.tests.cards.cardnames.SpaceStation
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -22,7 +24,7 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
     stan.exMachina("$AstroDrill")
 
     kim.inTurn {
-          doTask("UseCardAction<KuiperCooperative, Action1>")
+          doTasks(*cardActionTasks("KuiperCooperative"))
           doTask("3 Asteroid<KuiperCooperative>")
         }
         .expect("3 Asteroid<$KuiperCooperative>")
@@ -34,7 +36,7 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseStandardProject<AsteroidProject>",
+          *standardProjectTasks("AsteroidProject"),
           "2 PayFromCard<KuiperCooperative> FROM Asteroid<KuiperCooperative>",
           "12 Pay<> FROM MC",
       )
@@ -49,7 +51,7 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<AquiferProject>",
+              *standardProjectTasks("AquiferProject"),
               "2 PayFromCard<KuiperCooperative> FROM Asteroid<KuiperCooperative>",
               "16 Pay<> FROM MC",
               "OceanTile<Tharsis_1_2>",
@@ -66,7 +68,7 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseStandardProject<PowerPlantProject>")
+        doTasks(*standardProjectTasks("PowerPlantProject"))
         doTask("2 PayFromCard<KuiperCooperative> FROM Asteroid<KuiperCooperative>")
       }
     }
@@ -78,7 +80,7 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks("UseStandardProject<AsteroidProject>", "-Asteroid<AstroDrill>")
+        doTasks(*standardProjectTasks("AsteroidProject"), "-Asteroid<AstroDrill>")
       }
     }
   }

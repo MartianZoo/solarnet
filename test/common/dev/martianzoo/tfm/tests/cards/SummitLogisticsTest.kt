@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -14,7 +15,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTask("PlayProject<Class<SummitLogistics>>")
+        doTasks(*playCardTasks("SummitLogistics"))
       }
     }
   }
@@ -27,7 +28,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-          doTasks("PlayProject<Class<SummitLogistics>>", "10 Pay<> FROM MC")
+          doTasks(*playCardTasks("SummitLogistics"), "10 Pay<> FROM MC")
           doTasks("SummitLogistics FROM ProjectCard")
           doTask("3 MC")
           doTask("2 ProjectCard<Kim, Hand>")
@@ -41,12 +42,12 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayProject<Class<SummitLogistics>>")
+        doTasks(*playCardTasks("SummitLogistics"))
       }
     }
     kim.exMachina("PartyLeader<Scientists>, PartyFollower<Scientists>")
     kim.inTurn {
-          doTasks("PlayProject<Class<SummitLogistics>>", "10 Pay<> FROM MC")
+          doTasks(*playCardTasks("SummitLogistics"), "10 Pay<> FROM MC")
           doTasks("SummitLogistics FROM ProjectCard")
           doTask("0 MC")
           doTask("2 ProjectCard<Kim, Hand>")
@@ -63,7 +64,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     stan.exMachina("Colony<Luna>")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<SummitLogistics>>", "10 Pay<> FROM MC")
+          doTasks(*playCardTasks("SummitLogistics"), "10 Pay<> FROM MC")
           doTasks("SummitLogistics FROM ProjectCard")
           doTask("6 MC")
           doTask("2 ProjectCard<Kim, Hand>")

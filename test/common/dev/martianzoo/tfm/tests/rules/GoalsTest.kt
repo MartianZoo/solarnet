@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -16,7 +17,7 @@ internal class GoalsTest : TfmSandboxTest() {
     kim.setToExMachina(20, "MC")
 
     kim.inTurn {
-          doTasks("ClaimMilestone<Class<Briber>>", "8 Pay<> FROM MC")
+          doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
           doTask("Briber")
           doTask("-12 MC")
         }
@@ -30,7 +31,7 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Briber>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Briber")
         doTask("-12 MC")
@@ -52,7 +53,7 @@ internal class GoalsTest : TfmSandboxTest() {
     // outside Kim's requirement.
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Philantropist>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Philantropist")
       }
@@ -60,7 +61,7 @@ internal class GoalsTest : TfmSandboxTest() {
 
     kim.exMachina("$SpaceElevator")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Philantropist")
     }
   }
@@ -73,7 +74,7 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Merchant>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Merchant")
       }
@@ -83,7 +84,7 @@ internal class GoalsTest : TfmSandboxTest() {
 
     kim.setToExMachina(10, "MC")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Merchant>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Merchant")
     }
   }
@@ -91,7 +92,7 @@ internal class GoalsTest : TfmSandboxTest() {
   private fun aquifer(area: String, bonus: String) {
     kim.inTurn {
       doTasks(
-          "UseStandardProject<AquiferProject>",
+          *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
           "OceanTile<$area>",
           "TerraformRating",
@@ -113,13 +114,13 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       stan.inTurn {
-        doTask("ClaimMilestone<Class<Hydrologist>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Hydrologist")
       }
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Hydrologist>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Hydrologist")
     }
   }
@@ -132,14 +133,14 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks("ClaimMilestone<Class<$milestone>>", "8 Pay<> FROM MC")
+        doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
         doTask(milestone)
       }
     }
 
     kim.exMachina("PROD[Energy]")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<$milestone>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask(milestone)
     }
   }
@@ -159,7 +160,7 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Producer>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Producer")
       }
@@ -167,7 +168,7 @@ internal class GoalsTest : TfmSandboxTest() {
 
     kim.exMachina("PROD[Energy]")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Producer>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Producer")
     }
   }
@@ -179,7 +180,7 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Producer22>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Producer22")
       }
@@ -187,7 +188,7 @@ internal class GoalsTest : TfmSandboxTest() {
 
     kim.exMachina("PROD[Energy]")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Producer22>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Producer22")
     }
   }
@@ -201,7 +202,7 @@ internal class GoalsTest : TfmSandboxTest() {
       // Generation 1: Kim earns the credit that Dry Deserts will later test.
       // Revealed events fix delegate placements; none will resolve before the final claim.
       kim.completeOperation {
-        doTasks("UseStandardProject<AquiferProject>")
+        doTasks(*standardProjectTasks("AquiferProject"))
         doTask("OceanTile<Tharsis_1_2>")
         autoExecNow(EAGER)
       }
@@ -248,21 +249,21 @@ internal class GoalsTest : TfmSandboxTest() {
       // Generation 4: reusing the emptied area still earns another credit toward four placements.
       stan.doTask("Pass")
       kim.completeOperation {
-        doTasks("UseStandardProject<AquiferProject>")
+        doTasks(*standardProjectTasks("AquiferProject"))
         doTask("OceanTile<Tharsis_1_2>")
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AquiferProject>")
+        doTasks(*standardProjectTasks("AquiferProject"))
         doTask("OceanTile<Tharsis_1_5>")
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AquiferProject>")
+        doTasks(*standardProjectTasks("AquiferProject"))
         doTask("OceanTile<Tharsis_2_6>")
         autoExecNow(EAGER)
       }
-      kim.doTasks("ClaimMilestone<Class<Hydrologist>>")
+      kim.doTasks("UseAction<ClaimMilestoneAction, Action1>")
     }
   }
 }

@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -16,7 +18,7 @@ internal class SteelworksTest : TfmSandboxTest() {
     kim.setToExMachina(4, "Energy")
     kim.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_5_2>",
       )
@@ -26,7 +28,7 @@ internal class SteelworksTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseCardAction<Steelworks, Action1>",
+              *cardActionTasks("Steelworks"),
               "4 Pay<Class<Energy>> FROM Energy",
               "2 Steel",
           )

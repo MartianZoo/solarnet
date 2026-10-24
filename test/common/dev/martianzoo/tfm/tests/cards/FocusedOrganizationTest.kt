@@ -4,6 +4,7 @@ import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -17,7 +18,7 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
     kim.exMachina("$FocusedOrganization, Steel")
 
     kim.inTurn {
-          doTask("UseCardAction<FocusedOrganization, Action1>")
+          doTasks(*cardActionTasks("FocusedOrganization"))
           doTask("-ProjectCard<Kim, Hand>")
           doTask("-Steel")
           doTask("ProjectCard<Kim, Hand>")
@@ -62,7 +63,7 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
   }
 
   private fun useFocusedOrganization(spendResource: OperationBlock): TaskResult = kim.inTurn {
-    doTask("UseCardAction<FocusedOrganization, Action1>")
+    doTasks(*cardActionTasks("FocusedOrganization"))
     doTask("-ProjectCard<Kim, Hand>")
     spendResource()
     doTask("ProjectCard<Kim, Hand>")

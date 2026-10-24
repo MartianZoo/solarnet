@@ -4,7 +4,10 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -42,7 +45,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     stan.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>")
 
     kim.inTurn {
-          doTasks("UseCardAction<ArcadianCommunities, Action1>", "Community<Tharsis_2_1>")
+          doTasks(*cardActionTasks("ArcadianCommunities"), "Community<Tharsis_2_1>")
         }
         .expect("Community<Tharsis_2_1>, 0 NomadsMarker<Stan>")
     stan.assertCounts(1 to "NomadsMarker<Tharsis_2_1>")
@@ -55,7 +58,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     kim.inTurn { doTasks("DoRequiredActions", "Community<Tharsis_9_7>") }
 
     kim.inTurn {
-      doTask("UseCardAction<$ArcadianCommunities, Action1>")
+      doTasks(*cardActionTasks("$ArcadianCommunities"))
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_4_2>") }
       shouldThrow<LimitsException> { doTask("Community<Tharsis_2_2>") }
       doTask("Community<Tharsis_2_1>")
@@ -71,7 +74,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("UseCardAction<ArcadianCommunities, Action1>", "Community<Tharsis_4_3>")
+      doTasks(*cardActionTasks("ArcadianCommunities"), "Community<Tharsis_4_3>")
     }
   }
 
@@ -86,7 +89,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTask("UseCardAction<ArcadianCommunities, Action1>")
+      doTasks(*cardActionTasks("ArcadianCommunities"))
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_2_1>") }
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_4_3>") }
       doTask("Community<Tharsis_9_6>")
@@ -104,7 +107,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<GreeneryProject>",
+              *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_1_1>",
               "3 MC",
@@ -124,7 +127,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<LandClaim>>",
+          *playCardTasks("LandClaim"),
           "1 Pay<> FROM MC",
           "LandClaim FROM ProjectCard",
       )
@@ -134,7 +137,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<GreeneryProject>",
+              *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_1_1>",
               "3 MC",
@@ -157,14 +160,14 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
+        doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
         doTask("ArtificialLake FROM ProjectCard")
         doTask("OceanTile<Tharsis_1_3>")
       }
     }
     kim.setToExMachina(15, "MC")
     kim.inTurn {
-          doTask("PlayProject<Class<ArtificialLake>>")
+          doTasks(*playCardTasks("ArtificialLake"))
           doTask("Ok") // Keep the steel.
           doTask("15 Pay<> FROM MC")
           doTasks(

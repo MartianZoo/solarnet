@@ -3,7 +3,9 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -21,7 +23,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTask("UseCardAction<BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("BoardOfDirectors"))
           doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
           doTask("-Director<BoardOfDirectors>")
@@ -49,7 +51,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("UseCardAction<BoardOfDirectors, Action1>")
+        doTasks(*cardActionTasks("BoardOfDirectors"))
         doTask("PreludeCard<Kim, Hand>")
         doTask("-12 MC")
         doTask("-Director<BoardOfDirectors>")
@@ -61,7 +63,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
       }
     }
     kim.inTurn {
-          doTask("UseCardAction<BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("BoardOfDirectors"))
           doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
           doTask("-Director<BoardOfDirectors>")
@@ -86,7 +88,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTask("UseCardAction<BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("BoardOfDirectors"))
           doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
           doTask("-Director<BoardOfDirectors>")
@@ -99,7 +101,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
         .expect("$Inventrix")
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseStandardProject<PowerPlantProject>")
+        doTasks(*standardProjectTasks("PowerPlantProject"))
       }
     }
     kim.inTurn {
@@ -107,7 +109,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
       doTask("3 ProjectCard")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
     }
   }
 
@@ -126,7 +128,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     kim.setToExMachina(13, "MC")
 
     kim.inTurn {
-      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      doTasks(*cardActionTasks("BoardOfDirectors"))
       doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
       doTask("-Director<BoardOfDirectors>")

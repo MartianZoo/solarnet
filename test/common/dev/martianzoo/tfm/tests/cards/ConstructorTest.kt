@@ -29,7 +29,7 @@ internal class ConstructorTest : TfmSandboxTest() {
     newTestGame(addOptions = "AmazonisMap, -ColoniesExpansion")
     kim.exMachina("NormalCityTile<Amazonis_05_01>")
     return kim.inTurn {
-      doTask("FundAward<Class<Constructor>>")
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Constructor")
     }
   }
 }

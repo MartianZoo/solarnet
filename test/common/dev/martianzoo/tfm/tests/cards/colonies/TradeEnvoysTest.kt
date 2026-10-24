@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -16,7 +17,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     admin.setToExMachina(4, "ColonyProduction<Luna>")
 
     kim.inTurn {
-          doTasks("TradeAction", "9 Pay<> FROM MC")
+          doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC")
 
           doTasks("Trade<Luna>")
           // Hand the colony-track change to Admin before collecting trade income.
@@ -37,7 +38,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     admin.setToExMachina(4, "ColonyProduction<Luna>")
 
     kim.inTurn {
-      doTask("UseCardAction<TitanFloatingLaunchPad, Action2>")
+      doTasks(*cardActionTasks("TitanFloatingLaunchPad", "Action2"))
       doTask("-Floater<TitanFloatingLaunchPad>")
 
       doTasks("Trade<Luna>")
@@ -58,7 +59,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     admin.setToExMachina(6, "ColonyProduction<Luna>")
 
     kim.inTurn {
-          doTasks("TradeAction", "9 Pay<> FROM MC")
+          doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC")
 
           doTasks("Trade<Luna>")
           // Hand the colony-track change to Admin before collecting trade income.
@@ -78,7 +79,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
 
     kim.inTurn {
           // Decline the other card's additional optional track increase.
-          doTasks("TradeAction", "9 Pay<> FROM MC")
+          doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC")
 
           doTasks("Trade<Luna>")
           // Hand the colony-track change to Admin before collecting trade income.

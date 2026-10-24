@@ -5,6 +5,8 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -14,7 +16,9 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
   internal fun `An empty party cannot receive a follower`() {
     newTestGame("TurmoilExpansion")
     shouldThrow<DeadEndException> {
-      kim.inTurn { doTasks("LobbyAction", "PartyFollower<Scientists> FROM LobbyDelegate") }
+      kim.inTurn {
+        doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
+      }
     }
     kim.count("PartyDelegate<Scientists>") shouldBe 0
     kim.count("LobbyDelegate") shouldBe 1
@@ -31,9 +35,13 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
   @Test
   internal fun `Choosing leader on a tie cannot complete the turn`() {
     newTestGame("TurmoilExpansion")
-    kim.inTurn { doTasks("LobbyAction", "PartyLeader<Scientists> FROM LobbyDelegate") }
+    kim.inTurn {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
+    }
     shouldThrow<RequirementException> {
-      stan.inTurn { doTasks("LobbyAction", "PartyLeader<Scientists> FROM LobbyDelegate") }
+      stan.inTurn {
+        doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
+      }
     }
     stan.count("LobbyDelegate") shouldBe 1
     stan.count("PartyDelegate") shouldBe 0
@@ -43,10 +51,20 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
   @Test
   internal fun `Choosing follower when overtaking the incumbent cannot complete the turn`() {
     newTestGame("TurmoilExpansion")
-    kim.inTurn { doTasks("LobbyAction", "PartyLeader<Scientists> FROM LobbyDelegate") }
-    stan.inTurn { doTasks("LobbyAction", "PartyFollower<Scientists> FROM LobbyDelegate") }
+    kim.inTurn {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
+    }
+    stan.inTurn {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
+    }
     shouldThrow<DeadEndException> {
-      stan.inTurn { doTasks("PaidLobbyAction", "5 Pay<> FROM MC", "PartyFollower<Scientists>") }
+      stan.inTurn {
+        doTasks(
+            "UseAction<PaidLobbyAction, Action1>",
+            "5 Pay<> FROM MC",
+            "PartyFollower<Scientists>",
+        )
+      }
     }
     stan.count("MC") shouldBe 42
     stan.count("PartyDelegate<Scientists>") shouldBe 1
@@ -61,7 +79,7 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "PlayProject<Class<Recruitment>>",
+              *playCardTasks("Recruitment"),
               "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
@@ -126,20 +144,28 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
         val incumbent = players[incumbentSeat]
         val challenger = players[1 - incumbentSeat]
         if (incumbentSeat == 1) {
-          kim.completeOperation { doTask("UseStandardProject<PowerPlantProject>") }
+          kim.completeOperation { doTasks(*standardProjectTasks("PowerPlantProject")) }
           kim.selectTask("PassBaton")
         }
         incumbent.completeOperation {
-          doTasks("LobbyAction", "PartyLeader<Scientists> FROM LobbyDelegate")
+          doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
         }
-        incumbent.completeOperation { doTasks("PaidLobbyAction", "PartyFollower<Scientists>") }
+        incumbent.completeOperation {
+          doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
+        }
         challenger.completeOperation {
-          doTasks("LobbyAction", "PartyFollower<Scientists> FROM LobbyDelegate")
+          doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
         }
-        challenger.completeOperation { doTasks("PaidLobbyAction", "PartyFollower<Scientists>") }
-        incumbent.completeOperation { doTasks("PaidLobbyAction", "PartyFollower<Scientists>") }
+        challenger.completeOperation {
+          doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
+        }
+        incumbent.completeOperation {
+          doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
+        }
         incumbent.selectTask("PassBaton")
-        challenger.completeOperation { doTasks("PaidLobbyAction", "PartyFollower<Scientists>") }
+        challenger.completeOperation {
+          doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
+        }
         challenger.selectTask("PassBaton")
         incumbent.doTask("Pass")
         challenger.doTask("Pass")
@@ -164,14 +190,14 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     internal fun `A neutral event placement can overtake a player leader`() {
       newTestGame("TurmoilExpansion", playerCount = 2)
       kim.completeOperation {
-        doTasks("LobbyAction", "PartyLeader<Greens> FROM LobbyDelegate")
+        doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
       }
       kim.selectTask("PassBaton")
       stan.completeOperation {
-        doTasks("LobbyAction", "PartyLeader<Scientists> FROM LobbyDelegate")
+        doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
       }
       stan.completeOperation {
-        doTasks("PaidLobbyAction", "PartyFollower<Scientists>")
+        doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
       }
       kim.doTask("Pass")
       stan.doTask("Pass")
@@ -193,12 +219,12 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     internal fun `Government returns followers makes the leader chairman and refills the lobby`() {
       newTestGame("TurmoilExpansion", playerCount = 2)
       kim.completeOperation {
-        doTasks("LobbyAction", "PartyLeader<Scientists> FROM LobbyDelegate")
+        doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
       }
       kim.selectTask("PassBaton")
       stan.doTask("Pass")
       kim.completeOperation {
-        doTasks("PaidLobbyAction", "PartyFollower<Scientists>")
+        doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
       }
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }

@@ -5,6 +5,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
@@ -247,15 +248,16 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       cardAction1(Psychrophiles)
     }
     pink.turn {
-      stdAction("UseCardAction<$DirectedImpactors, Action1>", payment = { pay(6) }) {
+      stdAction(*cardActionTasks("$DirectedImpactors"), payment = { pay(6) }) {
         addCardResources(DirectedImpactors)
       }
     }
     green.turn {
       inTurn {
         doWithAutoExecPolicy(CONCRETE) {
-          useStdAction("ClaimMilestone<Class<Diversifier>>") {
-            doTask("EarthTag<WildTagElection<WildTag<AppliedScience>>>")
+          useStdAction("UseAction<ClaimMilestoneAction, Action1>") {
+            selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+            doTasks("EarthTag<WildTagElection<WildTag<AppliedScience>>>", "Diversifier")
           }
         }
       }
@@ -404,7 +406,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       playProject(Satellites, 4, titanium = 2)
     }
     pink.turn {
-      stdAction("UseCardAction<$DirectedImpactors, Action1>", payment = { pay(6) }) {
+      stdAction(*cardActionTasks("$DirectedImpactors"), payment = { pay(6) }) {
         addCardResources(DirectedImpactors)
       }
     }

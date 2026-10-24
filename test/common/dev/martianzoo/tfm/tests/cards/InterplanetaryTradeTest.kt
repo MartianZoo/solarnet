@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class InterplanetaryTradeTest : TfmSandboxTest() {
@@ -11,7 +12,7 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
     kim.exMachina("$Ecoline, $Mine, $SearchForLife")
     kim.setToExMachina(43, "MC")
     kim.inTurn {
-      doTasks("PlayProject<Class<ImportedHydrogen>>", "16 Pay<> FROM MC")
+      doTasks(*playCardTasks("ImportedHydrogen"), "16 Pay<> FROM MC")
       doTasks(
           "ImportedHydrogen FROM ProjectCard",
           "3 Plant",
@@ -22,7 +23,7 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("PlayProject<Class<InterplanetaryTrade>>", "27 Pay<> FROM MC")
+      doTasks(*playCardTasks("InterplanetaryTrade"), "27 Pay<> FROM MC")
       doTasks("InterplanetaryTrade FROM ProjectCard")
       selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
       doTask("PROD[4 MC]")

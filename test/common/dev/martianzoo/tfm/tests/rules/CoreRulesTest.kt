@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -16,7 +17,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.setToExMachina(3, "ProjectCard")
 
     kim.inTurn {
-      doTasks("UseStandardProject<SellPatentsProject>", "2! MC FROM ProjectCard")
+      doTasks(*standardProjectTasks("SellPatentsProject"), "2! MC FROM ProjectCard")
     }
   }
 
@@ -26,7 +27,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     shouldThrow<PetSyntaxException> {
       kim.inTurn {
-        doTask("UseStandardProject<SellPatentsProject>")
+        doTasks(*standardProjectTasks("SellPatentsProject"))
         doTask("0 MC FROM ProjectCard!")
       }
     }
@@ -38,7 +39,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Heat")
 
     kim.inTurn {
-      doTasks("ConvertHeat", "8 Pay<Class<Heat>> FROM Heat")
+      doTasks("UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM Heat")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
@@ -50,7 +51,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Heat, 2 TemperatureStep")
 
     kim.inTurn {
-      doTasks("ConvertHeat", "8 Pay<Class<Heat>> FROM Heat")
+      doTasks("UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM Heat")
       doTask("TemperatureStep")
       doTasks("TerraformRating", "PROD[Heat]")
     }
@@ -64,7 +65,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "ConvertHeat",
+          "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
@@ -81,7 +82,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant")
 
     kim.inTurn {
-      doTask("ConvertPlants")
+      doTask("UseAction<ConvertPlantsAction, Action1>")
       // The placement waits while the Player pays; it must neither execute nor block payment.
       shouldThrow<TaskException> { doTask("GreeneryTile<Tharsis_3_3>") }
       doTask("8 Pay<Class<Plant>> FROM Plant")
@@ -100,14 +101,14 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("ConvertPlants")
+        doTask("UseAction<ConvertPlantsAction, Action1>")
         doTask("8 Pay<Class<Plant>> FROM Plant")
         doTask("GreeneryTile<Hellas_1_1>")
       }
     }
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("ConvertPlants")
+        doTask("UseAction<ConvertPlantsAction, Action1>")
         doTask("8 Pay<Class<Plant>> FROM Plant")
         doTask("GreeneryTile<Hellas_9_7>")
         doTask("OxygenStep")
@@ -122,7 +123,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     kim.exMachina("6 MC")
     kim.inTurn {
-      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTask("GreeneryTile<Hellas_9_7>")
       doTask("OxygenStep")
       doTasks("-6 MC", "TerraformRating", "OceanTile<Hellas_6_7>", "TerraformRating")
@@ -135,7 +136,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant, 13 OxygenStep")
     stan.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_1_1>",
       )
@@ -144,7 +145,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
           doTask("GreeneryTile<Tharsis_3_3>")
           doTask("OxygenStep")
         }
@@ -157,7 +158,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant, 7 OxygenStep")
 
     kim.inTurn {
-      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTask("GreeneryTile<Tharsis_3_3>")
       doTask("OxygenStep")
       doTask("TerraformRating")
@@ -172,7 +173,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant, OceanTile<Tharsis_4_8>")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
           doTask("GreeneryTile<Tharsis_4_7>")
           doTask("OxygenStep")
           doTasks("Plant", "2 MC", "TerraformRating")
@@ -186,16 +187,16 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.setToExMachina(100, "MC")
 
     kim.inTurn {
-      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
       doTasks(
-          "UseStandardProject<AquiferProject>",
+          *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
@@ -205,7 +206,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseStandardProject<CityProject>",
+          *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_4_4>",
@@ -215,7 +216,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_4_5>",
       )
@@ -230,7 +231,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.setToExMachina(35, "TerraformRating")
 
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Terraformer35>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Terraformer35")
     }
   }
@@ -241,13 +242,13 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.setToExMachina(35, "TerraformRating")
     stan.setToExMachina(35, "TerraformRating")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Terraformer35>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Terraformer35")
     }
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        doTask("ClaimMilestone<Class<Terraformer35>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Terraformer35")
       }
@@ -259,15 +260,15 @@ internal class CoreRulesTest : TfmSandboxTest() {
     newTestGame()
 
     kim.inTurn {
-      doTasks("FundAward<Class<Landlord>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
       doTask("Landlord")
     }
     kim.inTurn {
-      doTasks("FundAward<Class<Scientist>>", "14 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC")
       doTask("Scientist")
     }
     kim.inTurn {
-      doTasks("FundAward<Class<Thermalist>>", "20 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC")
       doTask("Thermalist")
     }
   }
@@ -278,7 +279,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("3 Energy")
 
     kim.inTurn {
-      doTasks("TradeAction<Action2>", "3 Pay<Class<Energy>> FROM Energy")
+      doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
       doTasks("Trade<Ceres>", "2 Steel")
     }
   }

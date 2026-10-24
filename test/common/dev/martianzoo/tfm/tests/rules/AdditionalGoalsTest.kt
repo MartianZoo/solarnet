@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -12,31 +13,31 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
     kim.setToExMachina(25, "TerraformRating")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Terraformer26>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Terraformer26")
       }
     }
 
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Terraformer26>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Terraformer26")
     }
     shouldThrow<RequirementException> {
       stan.inTurn {
-        doTask("ClaimMilestone<Class<Terraformer35>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Terraformer35")
       }
     }
     stan.setToExMachina(35, "TerraformRating")
     stan.inTurn {
-      doTasks("ClaimMilestone<Class<Terraformer35>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Terraformer35")
     }
   }
@@ -49,18 +50,18 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
     )
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Lobbyist>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Lobbyist")
       }
     }
 
     kim.inTurn {
-      doTask("LobbyAction")
+      doTask("UseAction<LobbyAction, Action1>")
       doTask("PartyFollower<Scientists> FROM LobbyDelegate")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Lobbyist>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Lobbyist")
     }
   }

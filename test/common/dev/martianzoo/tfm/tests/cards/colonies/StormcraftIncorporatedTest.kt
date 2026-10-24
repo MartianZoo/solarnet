@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -12,7 +14,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     kim.exMachina("$TitanShuttles")
 
     kim.inTurn {
-      doTask("UseCardAction<StormcraftIncorporated, Action1>")
+      doTasks(*cardActionTasks("StormcraftIncorporated"))
       doTask("Floater<TitanShuttles>")
     }
   }
@@ -24,7 +26,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "ConvertHeat",
+              "UseAction<ConvertHeatAction, Action1>",
               "PayFromCard<StormcraftIncorporated> FROM Floater<StormcraftIncorporated>",
               "6 Pay<Class<Heat>> FROM Heat",
           )
@@ -40,7 +42,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<LocalHeatTrapping>>",
+              *playCardTasks("LocalHeatTrapping"),
               "1 Pay<> FROM MC",
               "LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
@@ -57,7 +59,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<LocalHeatTrapping>>",
+              *playCardTasks("LocalHeatTrapping"),
               "1 Pay<> FROM MC",
               "LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
@@ -74,7 +76,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<LocalHeatTrapping>>",
+              *playCardTasks("LocalHeatTrapping"),
               "1 Pay<> FROM MC",
               "LocalHeatTrapping FROM ProjectCard",
               "-3 Floater THEN 5 Heat",
@@ -98,13 +100,13 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     kim.exMachina("9 Floater<$StormcraftIncorporated>")
     stan.setToExMachina(2, "Heat")
     kim.inTurn {
-      doTasks("FundAward<Class<Thermalist>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
       doTask("Thermalist")
     }
 
     kim.inTurn {
           doTasks(
-              "ConvertHeat",
+              "UseAction<ConvertHeatAction, Action1>",
               "4 PayFromCard<StormcraftIncorporated> FROM Floater<StormcraftIncorporated>",
           )
           doTask("Ok") // Nothing remains to pay in Heat.

@@ -39,7 +39,7 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
             repl.agent.selectTask(repl.onlyTask().id)
             return repl.taskLines()
           }
-          else -> repl.agent.tryTask(args)
+          else -> repl.agent.doTask(args)
         }
     return repl.describeExecutionResults(result)
   }

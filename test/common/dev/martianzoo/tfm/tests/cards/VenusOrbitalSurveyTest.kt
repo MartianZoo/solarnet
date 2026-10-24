@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
@@ -12,7 +13,7 @@ internal class VenusOrbitalSurveyTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseCardAction<$VenusOrbitalSurvey, Action1>",
+          *cardActionTasks("$VenusOrbitalSurvey"),
           "2 ProjectCard<Selecting>",
           "TakeSelectedCard<TagFilter<Class<VenusTag>>>",
           "-0 ProjectCard<Selecting>", // Keep the other revealed card for purchase.

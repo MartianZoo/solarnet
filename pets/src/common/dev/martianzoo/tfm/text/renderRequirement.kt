@@ -323,10 +323,29 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
 private fun Describers.renderDistinctKindsRequirement(
     requirement: Requirement.Min,
 ): Clause? {
-  val expression = countedExpression(requirement) ?: return null
+  val counts =
+      when (val metric = requirement.metric) {
+        is Metric.Count -> listOf(metric.expression)
+        is Metric.Or -> metric.metrics.map { it.expression }
+        else -> return null
+      }
+  val expression = counts.singleOrNull { distinctOwnedKinds(it, this) != null } ?: return null
   val noun = distinctOwnedKinds(expression, this) ?: return null
-  val amount = quantifiedNoun(noun, requirement.target)
   val kind = resolveExpression(expression)?.sourceDependency(Key(CLASS, 0))
+  if (counts.size > 1) {
+    if (counts.size != 2 || kind?.simple != true || !isTag(kind.className)) return null
+    val wild = counts.single { it != expression }
+    if (
+        wild.arguments.isNotEmpty() ||
+            fact(wild.className, ComponentDescriber::tagAssignmentHolder) != true
+    )
+        return null
+    val absent =
+        (wild.refinement as? Expression.Refinement.Has)?.requirement as? Requirement.Max
+            ?: return null
+    if (absent.target != 0 || countedExpression(absent) != cn("Tag").expression) return null
+  }
+  val amount = quantifiedNoun(noun, requirement.target)
   return if (kind?.simple == true && isTag(kind.className)) requirementClause(amount)
   else ownedRequirementClause(amount)
 }

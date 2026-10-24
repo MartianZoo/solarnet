@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -93,7 +94,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // Ocean at 9,7: "one plant, then Arctic Algae gives me two more plants, and Terraforming
       // Deal gives me two money."
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         placeTile(9, 7)
       }
       // "Vairon, to reuse aquifer pumping, spend eight." The second ocean goes at 9,6.
@@ -137,7 +138,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // The ocean at 9,5 gives "two money and two plants for placing, two money and two plants
       // for my card bonuses."
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         placeTile(9, 5)
       }
     }
@@ -204,7 +205,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // Aquifer Pumping places the ocean at 9,9; Yellow pays 5 M€ for an energy production and a
       // hydroelectric resource.
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         placeTile(9, 9)
         useStdAction(
             "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
@@ -273,7 +274,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // Aquifer Pumping places an ocean at 7,9, then Neptunian Power Consultants costs 5 M€ for
       // an energy production and a hydroelectric resource.
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         placeTile(7, 9)
         useStdAction(
             "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",

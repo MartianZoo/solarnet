@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -20,7 +21,7 @@ internal class IceAsteroidTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<IceAsteroid>>", "23 Pay<> FROM MC")
+        doTasks(*playCardTasks("IceAsteroid"), "23 Pay<> FROM MC")
         doTasks("IceAsteroid FROM ProjectCard", "OceanTile<Tharsis_1_2>")
       }
     }

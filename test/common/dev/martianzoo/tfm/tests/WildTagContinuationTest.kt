@@ -12,7 +12,7 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     kim.exMachina("AppliedScience, MaxwellBase")
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<CorroderSuits>>",
+              *playCardTasks("CorroderSuits"),
               "8 Pay<> FROM MC",
               "CorroderSuits FROM ProjectCard",
               "PROD[2 MC]",
@@ -22,7 +22,7 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
         }
         .expect("Science<AppliedScience>, 0 Tag<WildTagElection<WildTag>>")
     kim.inTurn {
-          doTask("UseCardAction<MaxwellBase, Action1>")
+          doTasks(*cardActionTasks("MaxwellBase"))
           kim.count("VenusTag<WildTagElection<WildTag<AppliedScience>>>") shouldBe 1
           doTask("Science<AppliedScience>")
         }
@@ -34,7 +34,7 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     newTestGame("VenusNextExpansion, prelude2:cards, ResearchCoordination")
     kim.exMachina("ResearchCoordination, VenusShuttles")
     kim.inTurn {
-      kim.doTasks("UseCardAction<VenusShuttles, Action1>")
+      kim.doTasks(*cardActionTasks("VenusShuttles"))
           .expect("VenusTag<WildTagElection<WildTag<ResearchCoordination>>>")
       doTask("10 Pay<> FROM MC")
       doTask("VenusStep")
@@ -48,10 +48,10 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     newTestGame("ResearchCoordination")
     kim.exMachina("ResearchCoordination, OrbitalCleanup")
     kim.inTurn {
-      doTasks("UseCardAction<OrbitalCleanup, Action1>", "MC")
+      doTasks(*cardActionTasks("OrbitalCleanup"), "MC")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<ProjectInspection>>", "ProjectInspection FROM ProjectCard")
+      doTasks(*playCardTasks("ProjectInspection"), "ProjectInspection FROM ProjectCard")
       kim.doTasks("UseAction<OrbitalCleanup, Action1>")
           .expect("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>")
       kim.count("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>") shouldBe 1
@@ -65,7 +65,7 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     newTestGame("ResearchCoordination")
     kim.exMachina("ResearchCoordination, SearchForLife")
     kim.inTurn {
-      doTasks("PlayProject<Class<SolarProbe>>", "9 Pay<> FROM MC", "SolarProbe FROM ProjectCard")
+      doTasks(*playCardTasks("SolarProbe"), "9 Pay<> FROM MC", "SolarProbe FROM ProjectCard")
       kim.count("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>") shouldBe 1
       shouldThrow<TaskException> { doTask("PlayedEvent<Class<SolarProbe>> FROM SolarProbe") }
       doTask("ProjectCard")
@@ -79,7 +79,7 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, ResearchNetwork, OrbitalCleanup, Research")
     kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
     kim.inTurn {
-      kim.doTasks("UseCardAction<OrbitalCleanup, Action1>")
+      kim.doTasks(*cardActionTasks("OrbitalCleanup"))
           .expect(
               "ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>, ScienceTag<WildTagElection<WildTag<ResearchNetwork>>>"
           )
@@ -94,11 +94,11 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     newTestGame("ResearchCoordination")
     kim.exMachina("ResearchCoordination, KuiperCooperative, OrbitalCleanup")
     kim.inTurn {
-      doTask("UseCardAction<OrbitalCleanup, Action1>")
+      doTasks(*cardActionTasks("OrbitalCleanup"))
       doTask("MC")
     }
     kim.inTurn {
-      kim.doTasks("UseCardAction<KuiperCooperative, Action1>")
+      kim.doTasks(*cardActionTasks("KuiperCooperative"))
           .expect("SpaceTag<WildTagElection<WildTag<ResearchCoordination>>>")
       doTask("4 Asteroid<KuiperCooperative>")
     }

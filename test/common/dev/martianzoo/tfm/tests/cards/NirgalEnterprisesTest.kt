@@ -11,7 +11,7 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
     kim.setToExMachina(16, "ProjectCard")
 
     kim.inTurn {
-          doTask("ClaimMilestone<Class<Planner>>")
+          doTask("UseAction<ClaimMilestoneAction, Action1>")
           doTask("Planner")
         }
         .expect("0 MC")
@@ -22,7 +22,7 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
     newTestGame(addOptions = "NirgalEnterprises", kimCorporation = NirgalEnterprises)
 
     kim.inTurn {
-          doTask("FundAward<Class<Landlord>>")
+          doTask("UseAction<FundAwardAction, Action1>")
           doTask("Landlord")
         }
         .expect("0 MC")
@@ -34,7 +34,7 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
     kim.setToExMachina(12, "MC")
 
     kim.inTurn {
-      doTask("ClaimMilestone<Class<Briber>>")
+      doTask("UseAction<ClaimMilestoneAction, Action1>")
       doTask("Briber")
       doTask("-12 MC")
     }

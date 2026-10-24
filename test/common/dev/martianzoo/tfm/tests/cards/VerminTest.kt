@@ -7,8 +7,10 @@ import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.canonicalPremise
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.setUpGame
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -21,7 +23,7 @@ internal class VerminTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "UseStandardProject<CityProject>",
+              *standardProjectTasks("CityProject"),
               "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Tharsis_2_1>",
@@ -37,7 +39,7 @@ internal class VerminTest : TfmSandboxTest() {
     kim.exMachina("$Vermin, $Decomposers")
 
     kim.inTurn {
-          doTasks("UseCardAction<Vermin, Action1>", "Microbe<Decomposers>*")
+          doTasks(*cardActionTasks("Vermin"), "Microbe<Decomposers>*")
         }
         .expect("Microbe<$Decomposers>")
   }

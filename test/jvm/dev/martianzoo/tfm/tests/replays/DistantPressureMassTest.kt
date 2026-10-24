@@ -200,7 +200,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     }
     keen.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
     been.turn {
-      stdAction("TradeAction") { doTask("Trade<Ganymede>") }.expect("5 Plant")
+      stdAction("UseAction<TradeAction, Action1>") { doTask("Trade<Ganymede>") }.expect("5 Plant")
       convertPlants {
         placeTile(3, 7)
       }
@@ -232,14 +232,14 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
   private fun generation5() {
     been.buyCards(2)
     keen.buyCards(3)
-    keen.turn { stdAction("TradeAction<Action3>") { doTask("Trade<Ceres>") } }
+    keen.turn { stdAction("UseAction<TradeAction, Action3>") { doTask("Trade<Ceres>") } }
     been.turn {
       playProject(CorporateStronghold, 11) { placeTile(3, 5) }.expect("PROD[3 MC, -Energy], -9 MC")
       claimMilestone(cn("Mayor"))
     }
     keen.turn { playProject(FueledGenerators, 0) }
     been.turn {
-      stdAction("TradeAction<Action3>") {
+      stdAction("UseAction<TradeAction, Action3>") {
         doTask("Trade<Titan>")
         addCardResources(ExtractorBalloons, 1)
         addCardResources(ForcedPrecipitation, 3)
@@ -278,7 +278,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       cardAction2(ExtractorBalloons)
       cardAction2(ForcedPrecipitation)
     }
-    keen.turn { stdAction("TradeAction<Action3>") { doTask("Trade<Io>") } }
+    keen.turn { stdAction("UseAction<TradeAction, Action3>") { doTask("Trade<Io>") } }
     been.turn { convertPlants { placeTile(2, 5) } }
     keen.turn { cardAction1(BusinessNetwork) { buyCards(1) } }
     been.turn { playProject(EarthOffice, 1) }
@@ -347,7 +347,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     keen.turn {
       cardAction1(RestrictedArea)
     }
-    been.turn { stdAction("TradeAction<Action3>") { doTask("Trade<Ganymede>") } }
+    been.turn { stdAction("UseAction<TradeAction, Action3>") { doTask("Trade<Ganymede>") } }
     keen.turn { playProject(SterlingVents, 1, steel = 1) }
     been.turn { convertHeat() }
     keen.turn { cardAction1(WaterSplittingPlant) }
@@ -406,7 +406,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       fundAward(cn("Scientist"), 8)
     }
     been.turn {
-      stdAction("TradeAction<Action3>") {
+      stdAction("UseAction<TradeAction, Action3>") {
         doTask("Trade<Titan>")
         addCardResources(ExtractorBalloons, 1)
         addCardResources(ForcedPrecipitation, 3)
@@ -499,7 +499,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
 
     been.turn {
       playProject(RimFreighters, 1, titanium = 1)
-      stdAction("TradeAction<Action3>") { doTask("Trade<Ceres>") }
+      stdAction("UseAction<TradeAction, Action3>") { doTask("Trade<Ceres>") }
     }
     keen.turn {
       cardAction1(RestrictedArea)
@@ -570,12 +570,12 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       playProject(UrbanizedArea, 10) { placeTile(3, 4) }
     }
     keen.turn {
-      stdAction("TradeAction<Action2>") { doTask("Trade<Io>") }
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Io>") }
       convertPlants { placeTile(6, 5) }
     }
     been.turn {
       cardAction2(AerialMappers)
-      stdAction("TradeAction<Action3>") { doTask("Trade<Ganymede>") }
+      stdAction("UseAction<TradeAction, Action3>") { doTask("Trade<Ganymede>") }
           .expect("5 Plant<Been>, Plant<Keen>")
     }
     keen.turn {
@@ -623,7 +623,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     keen.buyCards(2)
     keen.turn {
       playProject(SubZeroSaltFish, 1) { doTask("PROD[-Plant<Been>]") }.expect("0 MC")
-      stdAction("TradeAction<Action2>") {
+      stdAction("UseAction<TradeAction, Action2>") {
         doTask("Trade<Miranda>")
         addCardResources(SubZeroSaltFish)
       }
@@ -637,7 +637,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       stdProject("CityProject") { doTask("NormalCityTile<Hellas_7_5>") }
     }
     been.turn {
-      stdAction("TradeAction<Action2>") { doTask("Trade<Ganymede>") }
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Ganymede>") }
       convertPlants { placeTile(1, 3) }
     }
     keen.turn {

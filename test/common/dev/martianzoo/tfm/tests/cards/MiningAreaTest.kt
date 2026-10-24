@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -15,7 +16,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
     kim.exMachina("NormalCityTile<Kim, Tharsis_7_9>")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<MiningArea>>", "4 Pay<> FROM MC")
+      doTasks(*playCardTasks("MiningArea"), "4 Pay<> FROM MC")
       doTasks(
           "MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Tharsis_8_9>",
@@ -33,7 +34,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<$MiningArea>>",
+          *playCardTasks("$MiningArea"),
           "4 Pay<> FROM MC",
           "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Cimmeria_6_4>",
@@ -45,7 +46,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<$RoboticWorkforce>>",
+          *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
           "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$MiningArea>",
@@ -61,7 +62,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
 
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<MiningArea>>", "4 Pay<> FROM MC")
+        doTasks(*playCardTasks("MiningArea"), "4 Pay<> FROM MC")
         doTask("MiningArea FROM ProjectCard")
         doTask("MiningArea_SpecialTile<Tharsis_3_2>")
         // Resolve the production choice to check that this area supplies a metal bonus.
@@ -78,7 +79,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
 
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<MiningArea>>", "4 Pay<> FROM MC", "MiningArea FROM ProjectCard")
+        doTasks(*playCardTasks("MiningArea"), "4 Pay<> FROM MC", "MiningArea FROM ProjectCard")
         doTask("MiningArea_SpecialTile<Tharsis_8_9>")
       }
     }
@@ -94,7 +95,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks(
-            "PlayProject<Class<MiningArea>>",
+            *playCardTasks("MiningArea"),
             "4 Pay<> FROM MC",
             "MiningArea FROM ProjectCard",
             "MiningArea_SpecialTile<Tharsis_8_9>",

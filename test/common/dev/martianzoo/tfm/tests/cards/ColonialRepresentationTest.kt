@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class ColonialRepresentationTest : TfmSandboxTest() {
@@ -15,7 +16,7 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<ColonialRepresentation>>",
+              *playCardTasks("ColonialRepresentation"),
               "10 Pay<> FROM MC",
               "ColonialRepresentation FROM ProjectCard",
           )
@@ -28,7 +29,7 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
     @Test
     internal fun `Its influence improves a Global Event payout even without colonies`() {
       newTestGame("ColonialRepresentation, TurmoilExpansion", playerCount = 2)
-      kim.doTasks("PlayProject<Class<$ColonialRepresentation>>")
+      kim.doTasks(*playCardTasks("$ColonialRepresentation"))
       kim.selectTask("PassBaton") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")

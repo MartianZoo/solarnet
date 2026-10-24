@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -16,7 +17,7 @@ internal class WgProjectTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<WgProject>>",
+              *playCardTasks("WgProject"),
               "9 Pay<> FROM MC",
               "WgProject FROM ProjectCard",
           )
@@ -39,7 +40,7 @@ internal class WgProjectTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<WgProject>>")
+        doTasks(*playCardTasks("WgProject"))
         doTasks("9 Pay<> FROM MC", "WgProject FROM ProjectCard")
         doTask("3 PreludeCard<Kim, Selecting>")
         doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
@@ -49,7 +50,7 @@ internal class WgProjectTest : TfmSandboxTest() {
     }
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<WgProject>>",
+              *playCardTasks("WgProject"),
               "9 Pay<> FROM MC",
               "WgProject FROM ProjectCard",
           )
@@ -74,7 +75,7 @@ internal class WgProjectTest : TfmSandboxTest() {
     kim.setToExMachina(1, "ProjectCard")
     return kim.inTurn {
       doTasks(
-          "PlayProject<Class<WgProject>>",
+          *playCardTasks("WgProject"),
           "9 Pay<> FROM MC",
           "WgProject FROM ProjectCard",
       )

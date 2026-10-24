@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.AirRaid
 import dev.martianzoo.tfm.tests.cards.cardnames.AtmoCollectors
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -20,7 +21,7 @@ internal class AirRaidTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<$AirRaid>>",
+          *playCardTasks("$AirRaid"),
           "$AirRaid FROM ProjectCard",
           "-Floater<$AtmoCollectors>",
           "5 MC<Kim FROM Rob>",
@@ -37,7 +38,7 @@ internal class AirRaidTest : TfmSandboxTest() {
     shouldThrow<ExpressionException> {
       kim.inTurn {
         doTasks(
-            "PlayProject<Class<AirRaid>>",
+            *playCardTasks("AirRaid"),
             "AirRaid FROM ProjectCard",
         )
         doTask("-Floater")
@@ -56,7 +57,7 @@ internal class AirRaidTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTasks(
-            "PlayProject<Class<AirRaid>>",
+            *playCardTasks("AirRaid"),
             "AirRaid FROM ProjectCard",
         )
         doTask("-Floater")

@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -17,7 +18,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            "PlayProject<Class<CulturalMetropolis>>",
+            *playCardTasks("CulturalMetropolis"),
             "20 Pay<> FROM MC",
             "CulturalMetropolis FROM ProjectCard",
             "PROD[-Energy]",
@@ -55,7 +56,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     // Kim starts with six reserve delegates and the unused lobby delegate.
     return kim.inTurn {
       doTasks(
-          "PlayProject<Class<CulturalMetropolis>>",
+          *playCardTasks("CulturalMetropolis"),
           "20 Pay<> FROM MC",
           "CulturalMetropolis FROM ProjectCard",
           "PROD[-Energy]",
@@ -77,7 +78,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<CulturalMetropolis>>",
+              *playCardTasks("CulturalMetropolis"),
               "20 Pay<> FROM MC",
               "CulturalMetropolis FROM ProjectCard",
               "PROD[-Energy]",
@@ -101,7 +102,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<CulturalMetropolis>>", "20 Pay<> FROM MC")
+        doTasks(*playCardTasks("CulturalMetropolis"), "20 Pay<> FROM MC")
         doTask("CulturalMetropolis FROM ProjectCard")
         doTask("PROD[-Energy]")
         doTask("PROD[3 MC]")
@@ -122,7 +123,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     kim.exMachina("Ruling<Unity FROM Greens>")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<CulturalMetropolis>>", "20 Pay<> FROM MC")
+          doTasks(*playCardTasks("CulturalMetropolis"), "20 Pay<> FROM MC")
           doTasks(
               "CulturalMetropolis FROM ProjectCard",
               "PROD[-Energy]",

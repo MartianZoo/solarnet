@@ -21,7 +21,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     advanceUntilActionPhase()
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<MineralDeposit>>",
+          *playCardTasks("MineralDeposit"),
           "5 Pay<> FROM MC",
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
@@ -51,7 +51,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Manutech)
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<MineralDeposit>>",
+          *playCardTasks("MineralDeposit"),
           "5 Pay<> FROM MC",
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
@@ -71,7 +71,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<MineralDeposit>>",
+          *playCardTasks("MineralDeposit"),
           "5 Pay<> FROM MC",
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
@@ -85,7 +85,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<GiantIceAsteroid>>",
+              *playCardTasks("GiantIceAsteroid"),
               "36 Pay<> FROM MC",
               "GiantIceAsteroid FROM ProjectCard",
               "TemperatureStep",
@@ -191,7 +191,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     shouldThrow<IllegalStateException> { stan }.message shouldBe "Stan is sitting this game out"
     shouldThrow<IllegalStateException> { rob }.message shouldBe "Rob is sitting this game out"
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
@@ -213,7 +213,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
         doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
         autoExecNow(EAGER)
       }
-      kim.doTasks("PlayProject<Class<$MineralDeposit>>").expect("5 Steel")
+      kim.doTasks(*playCardTasks("$MineralDeposit")).expect("5 Steel")
     }
   }
 }

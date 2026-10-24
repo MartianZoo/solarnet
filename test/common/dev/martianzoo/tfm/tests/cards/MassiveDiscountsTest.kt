@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class MassiveDiscountsTest : TfmSandboxTest() {
@@ -20,7 +21,7 @@ internal class MassiveDiscountsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<SpaceElevator>>",
+          *playCardTasks("SpaceElevator"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
@@ -36,7 +37,7 @@ internal class MassiveDiscountsTest : TfmSandboxTest() {
     kim.exMachina("$EarthOffice, $AcquiredCompany, $MediaGroup")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<LunaGovernor>>", "LunaGovernor FROM ProjectCard", "PROD[2 MC]")
+      doTasks(*playCardTasks("LunaGovernor"), "LunaGovernor FROM ProjectCard", "PROD[2 MC]")
     }
   }
 }

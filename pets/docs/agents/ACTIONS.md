@@ -2,7 +2,7 @@
 
 > **Agent information:** This is an agent-maintained design note.
 >
-> **Read when:** changing authored actions, action selection, `UseAction`, `UseCardAction`, or
+> **Read when:** changing authored actions, action selection, `UseAction`, standard actions, or
 > action-specific payment identity.
 >
 > **Status:** absent action slots are rejected by lowered `Die` effects; the replacement
@@ -15,8 +15,25 @@ Pets lowers the nth authored action to an effect triggered by `UseAction<This, A
 Terraforming Mars defines `Action1` through `Action3` as global slots, and its action lowerer fills
 unused slots with `Die` effects. Every concrete Canon `HasActions` class has an authored action,
 so lowering makes each react to all three slots without repeating the missing slots in source.
-`UseCardAction` forwards the selected slot to `UseAction` before creating the card's
-`ActionUsedMarker`.
+Standard actions are `HasActions` providers. The base game creates its fixed providers;
+Scientists and Kelvinists policies offer their actions directly while their policies exist.
+`StandardAction` imposes no minimum count, so those temporary providers can disappear normally.
+For example,
+`ConvertPlantsAction { 8 Plant -> PlaceGreeneryTile }` uses the same fixed-cost lowering as a
+printed card action: payment completion creates the result. `UseActionOnCardAction` offers
+`UseAction<@ActionCard> THEN ActionUsedMarker<@ActionCard>`, retaining the selected card across
+its invocation and shared generation marker. Card play and standard projects likewise begin by
+selecting their standard action, then selecting the particular card or project.
+
+Milestone and award actions take payment before offering the choice of milestone or award.
+Award pricing remains explicit Pets (8 M€ plus 6 per funded award); the player does not choose
+a price or an action slot according to the current number of awards. Nirgal's free claims and
+funding modify those action bills. Diversifier counts distinct tag types together with unused
+wild elections in its requirement; claiming a milestone creates no manual wild-tag choices.
+
+The current `UseAction`/slot invocation is an accepted intermediate. Removing global slots and
+introducing paid standard-project signals remain separate later changes. Test command abbreviations
+are governed by [Solarnet testing](../../../docs/agents/TESTING.md#command-abbreviations).
 
 [`AiCentralTest`](../../../test/common/dev/martianzoo/tfm/tests/cards/AiCentralTest.kt) checks that
 selecting AI Central's absent second action fails and leaves its real action available.

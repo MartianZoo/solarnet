@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -16,7 +17,7 @@ internal class PotatoesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Potatoes>>",
+          *playCardTasks("Potatoes"),
           "2 Pay<> FROM MC",
           "Potatoes FROM ProjectCard",
           "PROD[2 MC]",
@@ -33,7 +34,7 @@ internal class PotatoesTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Tactician>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Tactician")
       }

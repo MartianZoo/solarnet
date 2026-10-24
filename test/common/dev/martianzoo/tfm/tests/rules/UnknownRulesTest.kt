@@ -6,7 +6,9 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -56,7 +58,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
           "2 Steel",
       )
       doTask("20 MC")
-      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      doTasks(*cardActionTasks("BoardOfDirectors"))
       doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
       doTask("-Director<BoardOfDirectors>")
@@ -186,7 +188,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.setToExMachina(0, "PROD[Heat]")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CyberiaSystems>>",
+          *playCardTasks("CyberiaSystems"),
           "16 Pay<> FROM MC",
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
@@ -210,7 +212,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.setToExMachina(17, "MC")
     kim.inTurn {
       doTasks(
-          "UseCardAction<BoardOfDirectors, Action1>",
+          *cardActionTasks("BoardOfDirectors"),
           "PreludeCard<Hand>",
           "-12 MC",
           "-Director<BoardOfDirectors>",
@@ -243,7 +245,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     fillSelectedColonySlots()
     kim.inTurn {
       doTasks(
-          "UseCardAction<BoardOfDirectors, Action1>",
+          *cardActionTasks("BoardOfDirectors"),
           "PreludeCard<Hand>",
           "-12 MC",
           "-Director<BoardOfDirectors>",
@@ -300,7 +302,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.exMachina("BoardOfDirectors, Director<BoardOfDirectors>, AcquiredCompany, Sponsors")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Conscription>>",
+          *playCardTasks("Conscription"),
           "5 Pay<> FROM MC",
           "Conscription FROM ProjectCard",
           "Conscription_NextCardEffect",
@@ -308,7 +310,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks(
-          "UseCardAction<BoardOfDirectors, Action1>",
+          *cardActionTasks("BoardOfDirectors"),
           "PreludeCard<Hand>",
           "-12 MC",
           "-Director<BoardOfDirectors>",
@@ -317,7 +319,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Soletta>>",
+          *playCardTasks("Soletta"),
           "19 Pay<> FROM MC",
           "Soletta FROM ProjectCard",
           "PROD[7 Heat]",
@@ -333,7 +335,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.exMachina("SpliceTacticalGenomics")
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<IndustrialMicrobes>>",
+              *playCardTasks("IndustrialMicrobes"),
               "12 Pay<> FROM MC",
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
@@ -355,7 +357,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     shouldThrow<ExpressionException> {
       kim.inTurn {
         doTasks(
-            "PlayProject<Class<HiredRaiders>>",
+            *playCardTasks("HiredRaiders"),
             "1 Pay<> FROM MC",
             "HiredRaiders FROM ProjectCard",
         )
@@ -375,7 +377,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.exMachina("ThorGate, Donation")
     stan.exMachina("Mine")
     advanceUntilActionPhase()
-    kim.inTurn { doTasks("FundAward<Class<Innovator>>", "8 Pay<> FROM MC", "Innovator") }
+    kim.inTurn { doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Innovator") }
     victoryPoints() shouldBe listOf(25, 22, 20)
   }
 
@@ -387,21 +389,21 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.exMachina("Vermin, DustSeals, AdaptationTechnology, CryoSleep, SpaceElevator")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+        doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Philantropist")
       }
     }
     kim.count("Philantropist") shouldBe 0
     kim.setToExMachina(7, "OxygenStep")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Windmills>>",
+          *playCardTasks("Windmills"),
           "6 Pay<> FROM MC",
           "Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Philantropist")
     }
   }
 
@@ -416,21 +418,21 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_3_3>")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+        doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Philantropist")
       }
     }
     kim.count("Philantropist") shouldBe 0
     kim.setToExMachina(7, "OxygenStep")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Windmills>>",
+          *playCardTasks("Windmills"),
           "6 Pay<> FROM MC",
           "Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Philantropist")
     }
   }
 
@@ -443,14 +445,14 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.exMachina("Vitor, DustSeals, AdaptationTechnology, CryoSleep, SpaceElevator")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+        doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Philantropist")
       }
     }
     kim.count("Philantropist") shouldBe 0
     kim.setToExMachina(7, "OxygenStep")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Windmills>>",
+          *playCardTasks("Windmills"),
           "6 Pay<> FROM MC",
           "Windmills FROM ProjectCard",
           "PROD[Energy]",
@@ -458,7 +460,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       )
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Philantropist")
     }
   }
 
@@ -483,7 +485,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     shouldThrow<DependencyException> {
       kim.inTurn {
         doTasks(
-            "PlayProject<Class<RoboticWorkforce>>",
+            *playCardTasks("RoboticWorkforce"),
             "9 Pay<> FROM MC",
             "RoboticWorkforce FROM ProjectCard",
         )
@@ -544,7 +546,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            "PlayProject<Class<HiredRaiders>>",
+            *playCardTasks("HiredRaiders"),
             "1 Pay<> FROM MC",
             "HiredRaiders FROM ProjectCard",
         )

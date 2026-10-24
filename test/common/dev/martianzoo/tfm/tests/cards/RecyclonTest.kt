@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class RecyclonTest : TfmSandboxTest() {
@@ -27,7 +28,7 @@ internal class RecyclonTest : TfmSandboxTest() {
     kim.exMachina("Microbe<$Recyclon>")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<TitaniumMine>>", "7 Pay<> FROM MC")
+      doTasks(*playCardTasks("TitaniumMine"), "7 Pay<> FROM MC")
       doTasks("TitaniumMine FROM ProjectCard", "PROD[Titanium]")
       doTasks("-2 Microbe THEN PROD[Plant]", "PROD[Plant]")
     }

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -13,7 +14,7 @@ internal class UtopiaInvestTest : TfmSandboxTest() {
     kim.setToExMachina(2, "PROD[Plant]")
 
     kim.inTurn {
-      doTasks("UseCardAction<UtopiaInvest, Action1>", "PROD[-Plant] THEN 4 Plant", "4 Plant")
+      doTasks(*cardActionTasks("UtopiaInvest"), "PROD[-Plant] THEN 4 Plant", "4 Plant")
     }
   }
 
@@ -24,7 +25,7 @@ internal class UtopiaInvestTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseCardAction<UtopiaInvest, Action1>")
+        doTasks(*cardActionTasks("UtopiaInvest"))
         doTask("PROD[-Plant] THEN 4 Steel")
       }
     }

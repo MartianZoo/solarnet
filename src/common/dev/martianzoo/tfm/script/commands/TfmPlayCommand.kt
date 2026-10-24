@@ -35,13 +35,15 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
                     cn("PlayCard") in it.instruction.descendantsOfType<ClassName>()
                   }
                   .any()
-          val instruction =
-              if (grantedOperation) "PlayCard<Class<$kind>, Class<$cardName>>"
-              else "PlayProject<Class<$cardName>>"
           val previousPolicy = repl.agent.autoExecPolicy
           try {
             if (payment.isNotEmpty()) repl.agent.autoExecPolicy = NONE
-            repl.agent.doTask(instruction)
+            if (!grantedOperation) {
+              repl.agent.doTask("UseAction<PlayCardAction, Action1>")
+            }
+            repl.agent.doTask(
+                "PlayCard<Class<$kind>, Class<$cardName>, ${if (grantedOperation) "CardLocation" else "Hand"}>"
+            )
             if (payment.isNotEmpty()) TfmPayCommand(repl).withArgs(payment)
           } finally {
             repl.agent.autoExecPolicy = previousPolicy

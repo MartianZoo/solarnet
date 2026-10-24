@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
 
 internal class EventAnalystsTest : TfmGameplayTest() {
@@ -24,14 +26,14 @@ internal class EventAnalystsTest : TfmGameplayTest() {
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
     stan.autoExecNow(EAGER)
 
-    kim.doTasks("PlayProject<Class<$EventAnalysts>>")
+    kim.doTasks(*playCardTasks("$EventAnalysts"))
     kim.completeOperation {
-      doTasks("UseStandardProject<BuildColonyProject>")
+      doTasks(*standardProjectTasks("BuildColonyProject"))
       doTask("Colony<Luna>")
       autoExecNow(EAGER)
     }
     stan.doTask("Pass")
-    kim.doTasks("PlayProject<Class<$ColonialRepresentation>>")
+    kim.doTasks(*playCardTasks("$ColonialRepresentation"))
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     kim.doTask("VenusStep! BY Admin")
@@ -48,21 +50,21 @@ internal class EventAnalystsTest : TfmGameplayTest() {
     // The chairman retains its influence; the dominant party supplies leader and delegate
     // influence.
     kim.completeOperation {
-      doTask("LobbyAction")
+      doTask("UseAction<LobbyAction, Action1>")
       doTask("PartyLeader<Scientists> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTask("PaidLobbyAction")
+      doTask("UseAction<PaidLobbyAction, Action1>")
 
       doTask("PartyFollower<Scientists>")
     }
     kim.completeOperation {
-      doTask("PaidLobbyAction")
+      doTask("UseAction<PaidLobbyAction, Action1>")
 
       doTask("PartyFollower<Scientists>")
     }
     kim.completeOperation {
-      doTask("PaidLobbyAction")
+      doTask("UseAction<PaidLobbyAction, Action1>")
 
       doTask("PartyFollower<Scientists>")
     }

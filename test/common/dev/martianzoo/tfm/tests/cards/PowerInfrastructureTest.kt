@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.PowerInfrastructure
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
@@ -19,7 +20,7 @@ internal class PowerInfrastructureTest : TfmSandboxTest() {
 
     shouldThrow<NotFullySpecifiedException> {
       kim.inTurn {
-        doTask("UseCardAction<PowerInfrastructure, Action1>")
+        doTasks(*cardActionTasks("PowerInfrastructure"))
       }
     }
   }
@@ -30,7 +31,7 @@ internal class PowerInfrastructureTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
 
     kim.inTurn {
-          doTask("UseCardAction<PowerInfrastructure, Action1>")
+          doTasks(*cardActionTasks("PowerInfrastructure"))
           selectOnlyTask(x = 3)
           doTask("3 MC")
         }
@@ -44,7 +45,7 @@ internal class PowerInfrastructureTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
           kim.inTurn {
-            doTask("UseCardAction<PowerInfrastructure, Action1>")
+            doTasks(*cardActionTasks("PowerInfrastructure"))
             selectOnlyTask(x = 3)
             doTask("3 MC")
           }

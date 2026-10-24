@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -14,7 +15,7 @@ internal class SaturnSurfingTest : TfmSandboxTest() {
     kim.setToExMachina(6, "Floater<$SaturnSurfing>")
 
     kim.inTurn {
-          doTask("UseCardAction<SaturnSurfing, Action1>")
+          doTasks(*cardActionTasks("SaturnSurfing"))
           doTask("-Floater<SaturnSurfing>")
           doTask("4 MC")
           doTask("MC")
@@ -28,7 +29,7 @@ internal class SaturnSurfingTest : TfmSandboxTest() {
     kim.setToExMachina(4, "Floater<$SaturnSurfing>")
 
     kim.inTurn {
-          doTask("UseCardAction<SaturnSurfing, Action1>")
+          doTasks(*cardActionTasks("SaturnSurfing"))
           doTask("-Floater<SaturnSurfing>")
           doTask("3 MC")
           doTask("MC")

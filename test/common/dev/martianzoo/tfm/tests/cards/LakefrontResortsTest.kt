@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
 
 internal class LakefrontResortsTest : TfmSandboxTest() {
@@ -12,7 +13,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "UseStandardProject<AquiferProject>",
+              *standardProjectTasks("AquiferProject"),
               "18 Pay<> FROM MC",
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
@@ -31,7 +32,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "UseStandardProject<CityProject>",
+              *standardProjectTasks("CityProject"),
               "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Tharsis_2_2>",
@@ -51,7 +52,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
     // Two ordinary adjacency bonuses plus two Lakefront bonuses total 6 MC.
     kim.inTurn {
           doTasks(
-              "UseStandardProject<CityProject>",
+              *standardProjectTasks("CityProject"),
               "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Tharsis_2_2>",

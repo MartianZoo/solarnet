@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -138,7 +139,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
       placeTile(8, 8)
     }
     pink.playProject(DirectedImpactors, 3, titanium = 1)
-    pink.stdAction("UseCardAction<$DirectedImpactors, Action1>", payment = { pink.pay(6) }) {
+    pink.stdAction(*cardActionTasks("$DirectedImpactors"), payment = { pink.pay(6) }) {
       addCardResources(DirectedImpactors)
     }
     pink.doTask("Pass")
@@ -165,7 +166,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
     // Green does not meet Diversifier before Corporate Stronghold enters play.
     shouldThrow<RequirementException> {
-      green.stdAction("ClaimMilestone<Class<Diversifier>>")
+      green.stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Diversifier") }
     }
     green
         .playProject(CorporateStronghold, 7, steel = 2) {
@@ -173,7 +174,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
         }
         .expect("Disease<Player1>")
     purple.assertCounts(7 to "Plant")
-    green.stdAction("ClaimMilestone<Class<Diversifier>>")
+    green.stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Diversifier") }
 
     purple.playProject(IndustrialCenter, 4) {
       placeTile(2, 3)
@@ -185,7 +186,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     }
 
     pink.stdAction(
-        "UseCardAction<$DirectedImpactors, Action1>",
+        *cardActionTasks("$DirectedImpactors"),
         payment = { pink.pay(titanium = 2) },
     ) {
       addCardResources(DirectedImpactors)
@@ -286,10 +287,10 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
     // Pink does not meet Tycoon before Hermetic Order of Mars enters play.
     shouldThrow<RequirementException> {
-      pink.stdAction("ClaimMilestone<Class<Tycoon>>")
+      pink.stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Tycoon") }
     }
     pink.playProject(HermeticOrderOfMars, 8).expect("PROD[2 MC], -2 MC")
-    pink.stdAction("ClaimMilestone<Class<Tycoon>>")
+    pink.stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Tycoon") }
 
     green.playProject(Ants, 9) { doTask("2 MC") }
     green.cardAction1(Ants) {
@@ -352,7 +353,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
       doTask("-Microbe<Player1, $Psychrophiles<Player1>>")
     }
 
-    purple.stdAction("ClaimMilestone<Class<Trader>>")
+    purple.stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Trader") }
     purple
         .playProject(
             ProtectedValley,
@@ -439,7 +440,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     purple.cardAction1(Psychrophiles)
     purple.playProject(BioPrintingFacility, 1, steel = 3)
 
-    pink.stdAction("FundAward<Class<SpaceBaron>>")
+    pink.stdAction("UseAction<FundAwardAction, Action1>") { doTask("SpaceBaron") }
     pink.playProject(AsteroidCard, titanium = 4) {
       doTask("-3 Plant<Player3>")
     }
@@ -468,7 +469,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     purple.cardAction1(Hospitals)
 
     pink.playProject(IoMiningIndustries, 12, titanium = 9).expect("PROD[2 MC, 2 Titanium]")
-    pink.stdAction("UseCardAction<$DirectedImpactors, Action1>", payment = { pink.pay(6) }) {
+    pink.stdAction(*cardActionTasks("$DirectedImpactors"), payment = { pink.pay(6) }) {
       addCardResources(DirectedImpactors)
     }
 
@@ -499,7 +500,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     green.cardAction1(Ants) {
       doTask("-Microbe<Player1, $Recyclon<Player1>>")
     }
-    green.stdAction("FundAward<Class<Forecaster>>")
+    green.stdAction("UseAction<FundAwardAction, Action1>") { doTask("Forecaster") }
 
     purple.stdProject("AquiferProject") {
       placeTile(5, 6)
@@ -665,7 +666,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     green.cardAction2(AsteroidRights) { doTask("2 Titanium") }
     green.cardAction1(WeatherBalloons)
 
-    purple.stdAction("FundAward<Class<Botanist>>")
+    purple.stdAction("UseAction<FundAwardAction, Action1>") { doTask("Botanist") }
     purple.cardAction1(IndustrialCenter)
 
     pink.pass()

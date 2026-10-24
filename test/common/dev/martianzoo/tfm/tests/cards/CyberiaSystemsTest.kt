@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -17,7 +18,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
 
   private fun copyResearchNetwork() = kim.inTurn {
     doTasks(
-        "PlayProject<Class<CyberiaSystems>>",
+        *playCardTasks("CyberiaSystems"),
         "16 Pay<> FROM MC",
         "CyberiaSystems FROM ProjectCard",
         "PROD[Steel]",
@@ -36,7 +37,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<CyberiaSystems>>",
+              *playCardTasks("CyberiaSystems"),
               "16 Pay<> FROM MC",
               "CyberiaSystems FROM ProjectCard",
               "PROD[Steel]",
@@ -61,7 +62,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<CyberiaSystems>>",
+              *playCardTasks("CyberiaSystems"),
               "16 Pay<> FROM MC",
               "CyberiaSystems FROM ProjectCard",
               "PROD[Steel]",
@@ -90,7 +91,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
     initializeGame()
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CyberiaSystems>>",
+          *playCardTasks("CyberiaSystems"),
           "16 Pay<> FROM MC",
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
@@ -108,7 +109,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
     initializeGame()
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("PlayProject<Class<CyberiaSystems>>")
+        doTasks(*playCardTasks("CyberiaSystems"))
         doTasks("16 Pay<> FROM MC", "CyberiaSystems FROM ProjectCard")
         doTask("PROD[Steel]")
         doTask("CopyProductionBox<Mine>")
@@ -124,7 +125,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            "PlayProject<Class<CyberiaSystems>>",
+            *playCardTasks("CyberiaSystems"),
             "16 Pay<> FROM MC",
             "CyberiaSystems FROM ProjectCard",
             "PROD[Steel]",
@@ -144,7 +145,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CyberiaSystems>>",
+          *playCardTasks("CyberiaSystems"),
           "16 Pay<> FROM MC",
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",

@@ -340,6 +340,16 @@ indented multiline string followed by player-name varargs. Catalog-backed premis
 entry, so these literals do not need `trimIndent()`. Solo tests conventionally use `Me` as the
 canonical Player Class Name and use `Player.PLAYER1` in Kotlin.
 
+### Command abbreviations
+
+The user permits fixed command sequences in otherwise explicit `doTasks` tests, including selecting
+a standard action and then the particular card or project. `standardActionTasks.kt` returns command
+arrays determined only by its arguments. The caller submits them through ordinary `doTasks`.
+These functions receive no Agent or World and must not inspect game state, pending work, resources,
+policies or card data to change their commands. Do not add payment selection, retries, cleanup,
+corrections or missing game effects. Keep payment choices and outcome assertions visible in tests;
+representative lifecycle tests also retain literal invocation commands.
+
 ### Sandbox and gameplay fixture migration
 
 Choose the fixture by what the scenario proves, not the kind of card:
@@ -370,9 +380,9 @@ payment helpers. Shared corporation setup alone reads the bill for its five star
 so corporations such as TerraLabs use their actual purchase price.
 
 State the steps explicitly when testing their order. Finish or decline alternative payment
-offers before the exact remainder, and explain each `Ok`. Short repeated action sequences
-are written out; loops remain appropriate for seat-order traversal and long generation/endgame
-progressions.
+offers before the exact remainder, and explain each `Ok`. Fixed command abbreviations may
+shorten repeated invocation steps; payments and gameplay outcomes remain explicit. Loops remain
+appropriate for seat-order traversal and long generation/endgame progressions.
 
 Synthetic engine checks that only need setup use `setUpGame`, which starts the game and drops setup's
 pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCorporationPhaseOutOfTurn`

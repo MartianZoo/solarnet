@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -24,7 +25,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     shouldThrow<DeadEndException> {
       kim.inTurn {
         // Decline the remaining Floating Habs.
-        doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
+        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -36,7 +37,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
+        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -48,7 +49,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<L1TradeTerminal>>",
+              *playCardTasks("L1TradeTerminal"),
               "25 Pay<> FROM MC",
               "L1TradeTerminal FROM ProjectCard",
           )
@@ -75,7 +76,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
+        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -84,7 +85,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
+      doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
       doTasks("L1TradeTerminal FROM ProjectCard")
       // Expand the bonus into a separate resource choice for each eligible card.
       selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -103,7 +104,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
+        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -113,7 +114,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
+      doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
       doTasks("L1TradeTerminal FROM ProjectCard")
       // Expand the bonus into a separate resource choice for each eligible card.
       selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -133,7 +134,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
+        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -145,7 +146,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
+        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -155,7 +156,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
+          doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
           doTasks("L1TradeTerminal FROM ProjectCard")
           // Expand the bonus into a separate resource choice for each eligible card.
           selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -171,7 +172,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     stan.exMachina("$FloatingTradeHub, Floater<$FloatingTradeHub>")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
+          doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
           doTasks("L1TradeTerminal FROM ProjectCard")
           // Expand the bonus into a separate resource choice for each eligible card.
           selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")

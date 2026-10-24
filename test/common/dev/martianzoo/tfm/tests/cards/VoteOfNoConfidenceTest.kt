@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -15,7 +16,7 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
     kim.exMachina("PartyLeader<Greens>, 5 PartyFollower<Greens>")
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<VoteOfNoConfidence>>",
+              *playCardTasks("VoteOfNoConfidence"),
               "5 Pay<> FROM MC",
               "VoteOfNoConfidence FROM ProjectCard",
           )
@@ -33,7 +34,7 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTask("PlayProject<Class<VoteOfNoConfidence>>")
+        doTasks(*playCardTasks("VoteOfNoConfidence"))
         doTasks("5 Pay<> FROM MC", "VoteOfNoConfidence FROM ProjectCard")
         doTask("TerraformRating")
         // Hand the chairmanship transfer to Admin, which updates the political state.
@@ -53,7 +54,7 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<VoteOfNoConfidence>>")
+        doTasks(*playCardTasks("VoteOfNoConfidence"))
         doTasks("5 Pay<> FROM MC", "VoteOfNoConfidence FROM ProjectCard")
         doTask("TerraformRating")
         // Hand the chairmanship transfer to Admin, which updates the political state.

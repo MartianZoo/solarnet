@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
@@ -13,9 +15,9 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
   internal fun prepareRedsSupport() {
     newTestGame("RedAppeasement, TurmoilExpansion", playerCount = 2)
     kim.doTasks(
-        "LobbyAction",
+        "UseAction<LobbyAction, Action1>",
         "PartyFollower<Reds> FROM LobbyDelegate",
-        "PaidLobbyAction",
+        "UseAction<PaidLobbyAction, Action1>",
         "5 Pay<> FROM MC",
         "PartyLeader<Reds>",
     )
@@ -26,20 +28,20 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
     stan.doTask("Pass")
 
     shouldThrow<RequirementException> {
-      kim.doTasks("PlayProject<Class<RedAppeasement>>", "RedAppeasement FROM ProjectCard")
+      kim.doTasks(*playCardTasks("RedAppeasement"), "RedAppeasement FROM ProjectCard")
     }
   }
 
   @Test
   internal fun `Passes its owner so the next players pass ends the generation`() {
     stan.doTasks(
-        "UseStandardProject<SellPatentsProject>",
+        *standardProjectTasks("SellPatentsProject"),
         "MC FROM ProjectCard",
     )
     stan.selectTask("PassBaton")
 
     kim.doTasks(
-        "PlayProject<Class<RedAppeasement>>",
+        *playCardTasks("RedAppeasement"),
         "RedAppeasement FROM ProjectCard",
         "PROD[2 MC]",
         "Pass",
@@ -55,14 +57,14 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
   @Test
   internal fun `Playing as the second action passes its owner immediately`() {
     stan.doTasks(
-        "UseStandardProject<SellPatentsProject>",
+        *standardProjectTasks("SellPatentsProject"),
         "MC FROM ProjectCard",
     )
     stan.selectTask("PassBaton")
 
-    kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    kim.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
     kim.doTasks(
-        "PlayProject<Class<RedAppeasement>>",
+        *playCardTasks("RedAppeasement"),
         "RedAppeasement FROM ProjectCard",
         "PROD[2 MC]",
         "Pass",

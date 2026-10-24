@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -16,7 +17,7 @@ internal class MangroveTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Mangrove>>",
+          *playCardTasks("Mangrove"),
           "12 Pay<> FROM MC",
           "Mangrove FROM ProjectCard",
           "GreeneryTile<Tharsis_1_2>",

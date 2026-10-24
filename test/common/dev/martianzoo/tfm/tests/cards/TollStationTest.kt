@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -14,7 +15,7 @@ internal class TollStationTest : TfmSandboxTest() {
     stan.exMachina("$VestaShipyard, $SpaceElevator, $SolarWindPower")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<TollStation>>", "12 Pay<> FROM MC")
+      doTasks(*playCardTasks("TollStation"), "12 Pay<> FROM MC")
       doTasks("TollStation FROM ProjectCard")
       doTask("PROD[3 MC]")
     }

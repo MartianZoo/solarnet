@@ -104,6 +104,8 @@ tag's printed explanation, placing it below the artwork with the card's play-tim
 `tagAssignmentHolder` fact also enables generic `EACH` wording for assigning unused holders and
 card filters accepting a tag either directly or through an assignment holder. The same tag
 criterion is retained across a card-copy sequence; concrete holder identities stay in vocabulary data.
+A distinct-tag requirement may also count unused assignment holders toward missing tag types;
+the existing tag requirement wording covers that sum, without describing assignment bookkeeping.
 When a card selection accepts a named tag directly or through an assigned printed wild, it uses
 the named tag in English. A marked card selected through the corresponding gate uses that wording.
 

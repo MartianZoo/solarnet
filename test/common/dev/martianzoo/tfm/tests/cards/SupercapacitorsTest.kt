@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -13,7 +14,7 @@ internal class SupercapacitorsTest : TfmGameplayTest() {
   @BeforeTest
   fun initializeGame() {
     newTestGame(addOptions = "-VenusNextExpansion", playerCount = 2)
-    kim.doTasks("PlayProject<Class<$Supercapacitors>>")
+    kim.doTasks(*playCardTasks("$Supercapacitors"))
     kim.selectTask("PassBaton") // Decline the second action.
     stan.doTask("Pass")
     kim.doTask("Pass")

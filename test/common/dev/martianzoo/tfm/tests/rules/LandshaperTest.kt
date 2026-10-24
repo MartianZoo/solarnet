@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -15,7 +16,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     setupLandshaperCapital()
     kim.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_05_02>",
       )
@@ -25,7 +26,7 @@ internal class LandshaperTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Landshaper>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Landshaper")
       }
@@ -41,7 +42,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     setupLandshaperCapital()
     kim.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_05_02>",
       )
@@ -50,7 +51,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_06_01>",
       )
@@ -60,7 +61,7 @@ internal class LandshaperTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Landshaper>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Landshaper")
       }
@@ -76,7 +77,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     setupLandshaperCapital()
     kim.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_05_02>",
       )
@@ -85,7 +86,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks(
-          "UseStandardProject<CityProject>",
+          *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "NormalCityTile<Amazonis_01_01>",
@@ -94,7 +95,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Landshaper>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Landshaper")
     }
   }
@@ -105,7 +106,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     kim.setToExMachina(80, "MC")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Landshaper>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Landshaper")
       }

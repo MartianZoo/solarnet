@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -20,7 +21,7 @@ internal class DiversitySupportTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<DiversitySupport>>",
+          *playCardTasks("DiversitySupport"),
           "1 Pay<> FROM MC",
           "DiversitySupport FROM ProjectCard",
           "TerraformRating",
@@ -37,7 +38,7 @@ internal class DiversitySupportTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayProject<Class<DiversitySupport>>")
+        doTasks(*playCardTasks("DiversitySupport"))
       }
     }
   }

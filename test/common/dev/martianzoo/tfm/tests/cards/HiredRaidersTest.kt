@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -17,7 +18,7 @@ internal class HiredRaidersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<HiredRaiders>>",
+              *playCardTasks("HiredRaiders"),
               "1 Pay<> FROM MC",
               "HiredRaiders FROM ProjectCard",
               "3 MC<Kim FROM Stan>",
@@ -35,7 +36,7 @@ internal class HiredRaidersTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("PlayProject<Class<HiredRaiders>>")
+        doTasks(*playCardTasks("HiredRaiders"))
 
         doTasks(
             "1 Pay<> FROM MC",
@@ -54,7 +55,7 @@ internal class HiredRaidersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<HiredRaiders>>",
+              *playCardTasks("HiredRaiders"),
               "1 Pay<> FROM MC",
               "HiredRaiders FROM ProjectCard",
               "Steel<Kim FROM Rob>",

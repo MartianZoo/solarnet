@@ -71,9 +71,15 @@ public open class BusyPreludePhaseBenchmark {
     me.playCorp(cn("Teractor"))
 
     me.playPrelude(fakeHeadStart) {
-      doTask("PlayProject<Class<EarthOffice>>")
+      doTasks(
+          "UseAction<PlayCardAction, Action1>",
+          "PlayCard<Class<ProjectCard>, Class<EarthOffice>, Hand>",
+      )
       me.pay(0)
-      doTask("PlayProject<Class<HeavyTaxation>>")
+      doTasks(
+          "UseAction<PlayCardAction, Action1>",
+          "PlayCard<Class<ProjectCard>, Class<HeavyTaxation>, Hand>",
+      )
       me.pay(0)
     }
     me.playPrelude(cn("NewPartner")) {
@@ -87,9 +93,15 @@ public open class BusyPreludePhaseBenchmark {
     me.stdAction("DoRequiredActions") {
       me.playPrelude(cn("DoubleDown")) {
         doTask("CopyPrelude<$fakeHeadStart>")
-        doTask("PlayProject<Class<LunaGovernor>>")
+        doTasks(
+            "UseAction<PlayCardAction, Action1>",
+            "PlayCard<Class<ProjectCard>, Class<LunaGovernor>, Hand>",
+        )
         me.pay(0)
-        doTask("PlayProject<Class<ProductiveOutpost>>")
+        doTasks(
+            "UseAction<PlayCardAction, Action1>",
+            "PlayCard<Class<ProjectCard>, Class<ProductiveOutpost>, Hand>",
+        )
         me.pay(0)
       }
     }

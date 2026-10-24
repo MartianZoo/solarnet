@@ -19,7 +19,7 @@ internal class TfmPaymentHelpersTest : TfmTest() {
     game = setUpGame()
     agents.exMachina(PLAYER1, "AquiferPumping, Steel, 8 MC")
     val kim = game.testTfm(PLAYER1)
-    kim.addTasks("StandardAction")
+    kim.addTasks("UseAction<StandardAction>")
 
     kim.cardAction1(AquiferPumping) {
           kim.pay(6, steel = 1)
@@ -33,7 +33,7 @@ internal class TfmPaymentHelpersTest : TfmTest() {
     game = setUpGame(Prelude2Cards)
     agents.exMachina(PLAYER1, "NirgalEnterprises, 15 TerraformRating")
     val kim = game.testTfm(PLAYER1)
-    kim.addTasks("StandardAction")
+    kim.addTasks("UseAction<StandardAction>")
 
     kim.claimMilestone(cn("Terraformer35")).expect("Terraformer35, 0 MC")
   }
@@ -43,7 +43,7 @@ internal class TfmPaymentHelpersTest : TfmTest() {
     game = setUpGame(ColoniesExpansion, colonyTiles = setOf(cn("Ceres")))
     agents.exMachina(PLAYER1, "StormcraftIncorporated, Floater<StormcraftIncorporated>, 8 Heat")
     val kim = game.testTfm(PLAYER1)
-    kim.addTasks("StandardAction")
+    kim.addTasks("UseAction<StandardAction>")
 
     kim.convertHeat().expect("TemperatureStep, -8 Heat, 0 Floater<StormcraftIncorporated>")
   }
@@ -53,9 +53,9 @@ internal class TfmPaymentHelpersTest : TfmTest() {
     game = setUpGame(ColoniesExpansion, colonyTiles = setOf(cn("Ceres")))
     agents.exMachina(PLAYER1, "StormcraftIncorporated, Floater<StormcraftIncorporated>, 8 Heat")
     val kim = game.testTfm(PLAYER1)
-    kim.addTasks("StandardAction")
+    kim.addTasks("UseAction<StandardAction>")
 
-    kim.stdAction("ConvertHeat", payment = { kim.pay(heat = 8) })
+    kim.stdAction("UseAction<ConvertHeatAction, Action1>", payment = { kim.pay(heat = 8) })
         .expect("TemperatureStep, -8 Heat, 0 Floater<StormcraftIncorporated>")
   }
 
@@ -64,7 +64,7 @@ internal class TfmPaymentHelpersTest : TfmTest() {
     game = setUpGame(FakeCards)
     agents.exMachina(PLAYER1, "FakeHelion, 4 Heat, 4 MC, ProjectCard")
     val kim = game.testTfm(PLAYER1).requireExplicitPaymentChoices()
-    kim.addTasks("StandardAction")
+    kim.addTasks("UseAction<StandardAction>")
 
     shouldThrow<IllegalArgumentException> { kim.playProject(Mine, heat = 4) }
         .message
@@ -80,7 +80,7 @@ internal class TfmPaymentHelpersTest : TfmTest() {
     game = setUpGame(FakeCards)
     agents.exMachina(PLAYER1, "FakeHelion, 4 Heat, 3 MC, ProjectCard")
     val kim = game.testTfm(PLAYER1).requireExplicitPaymentChoices()
-    kim.addTasks("StandardAction")
+    kim.addTasks("UseAction<StandardAction>")
 
     kim.playProject(Mine, heat = 4).expect("Mine, PROD[Steel], -4 Heat, 0 MC")
   }

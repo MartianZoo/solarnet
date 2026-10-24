@@ -210,7 +210,7 @@ public class TfmGameplay(
   }
 
   private fun secondActionOffer(): Task? {
-    val ordinary = parse<Instruction>("StandardAction OR PassBaton")
+    val ordinary = parse<Instruction>("UseAction<StandardAction> OR PassBaton")
     val required = parse<Instruction>("DoRequiredActions OR PassBaton")
     return tasks
         .extract { it }
@@ -220,32 +220,32 @@ public class TfmGameplay(
   }
 
   /**
-   * Selects [option] from the current turn offer, runs [payment], then completes its `body`. For
-   * example, use `ClaimMilestone<Class<Builder>>` or `TradeAction<Action2>`. When a required action
-   * is pending, select `DoRequiredActions` instead.
+   * Selects [options] from the current turn offer, runs [payment], then completes its `body`. For
+   * example, use `UseAction<ClaimMilestoneAction, Action1>` or `UseAction<TradeAction, Action2>`.
+   * When a required action is pending, select `DoRequiredActions` instead.
    *
    * The default payment spends the bill's resource when it is the sole accepted resource. Supply
    * [payment] for mixed payments and `body` for remaining choices. Selection must narrow an offered
    * task; failures roll back this operation through [inTurn].
    */
   public fun stdAction(
-      option: String,
+      vararg options: String,
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
-  ): TaskResult = inTurn { useStdAction(option, payment, body) }
+  ): TaskResult = inTurn { useStdAction(*options, payment = payment, body = body) }
 
   /**
-   * Selects [option] from an action granted within the enclosing operation, then runs [payment] and
-   * `body`. Uses the same option syntax and default payment as [stdAction]; the enclosing operation
-   * owns completion and rollback.
+   * Selects [options] from an action granted within the enclosing operation, then runs [payment]
+   * and `body`. Uses the same option syntax and default payment as [stdAction]; the enclosing
+   * operation owns completion and rollback.
    */
   public fun OperationScope.useStdAction(
-      option: String,
+      vararg options: String,
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
   ) {
     doWithAutoExecPolicy(NONE) {
-      doTask(option)
+      doTasks(*options)
       payment()
     }
     autoExecNow()
@@ -254,11 +254,13 @@ public class TfmGameplay(
 
   /** Claims the offered [milestone] using the standard action and its default payment. */
   public fun claimMilestone(milestone: ClassName): TaskResult =
-      stdAction("ClaimMilestone<Class<$milestone>>")
+      stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("$milestone") }
 
   /** Funds the offered [award] and pays [amountPaid] through the current payment task. */
   public fun fundAward(award: ClassName, amountPaid: Int): TaskResult =
-      stdAction("FundAward<Class<$award>>", payment = { pay(amountPaid) })
+      stdAction("UseAction<FundAwardAction, Action1>", payment = { pay(amountPaid) }) {
+        doTask("$award")
+      }
 
   private fun OperationScope.payInvoiceFromItsResourceIfOffered() {
     val paymentCause = openPendingPayment()
@@ -285,7 +287,7 @@ public class TfmGameplay(
    * payment, the operation fails and rolls back.
    */
   public fun convertPlants(body: OperationBlock = {}): TaskResult {
-    return stdAction("ConvertPlants", body = body)
+    return stdAction("UseAction<ConvertPlantsAction, Action1>", body = body)
   }
 
   /**
@@ -294,7 +296,7 @@ public class TfmGameplay(
    * back.
    */
   public fun convertHeat(body: OperationBlock = {}): TaskResult {
-    return stdAction("ConvertHeat", body = body)
+    return stdAction("UseAction<ConvertHeatAction, Action1>", body = body)
   }
 
   /**
@@ -320,7 +322,12 @@ public class TfmGameplay(
       },
       body: OperationBlock = {},
   ) {
-    useStdAction("UseStandardProject<$stdProject>", payment, body)
+    useStdAction(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<$stdProject, Action1>",
+        payment = payment,
+        body = body,
+    )
   }
 
   /** Plays the offered prelude [cardName], then runs `body` for its resulting choices. */
@@ -408,16 +415,19 @@ public class TfmGameplay(
       payment: OperationBlock,
       body: OperationBlock,
   ) {
-    val instruction =
-        if (
-            tasks
-                .matching { cn("PlayCard") in it.instruction.descendantsOfType<ClassName>() }
-                .isNotEmpty()
-        )
-            "PlayCard<Class<ProjectCard>, Class<$cardName>>"
-        else "PlayProject<Class<$cardName>>"
     doWithAutoExecPolicy(NONE) {
-      doTask(instruction)
+      if (
+          tasks
+              .matching { cn("PlayCard") in it.instruction.descendantsOfType<ClassName>() }
+              .isEmpty()
+      ) {
+        doTasks(
+            "UseAction<PlayCardAction, Action1>",
+            "PlayCard<Class<ProjectCard>, Class<$cardName>, Hand>",
+        )
+      } else {
+        doTask("PlayCard<Class<ProjectCard>, Class<$cardName>, CardLocation>")
+      }
       payment()
       if (this@TfmGameplay.count("Owed") == 0) finishPayment(null)
     }
@@ -738,15 +748,18 @@ public class TfmGameplay(
       x: Int? = null,
       body: OperationBlock = {},
   ) {
-    val signal =
-        if (
-            tasks
-                .matching { cn("UseAction") in it.instruction.descendantsOfType<ClassName>() }
-                .isNotEmpty()
-        )
-            "UseAction"
-        else "UseCardAction"
-    doTask("$signal<$cardName, ${whichAction(which)}>")
+    if (
+        tasks
+            .matching {
+              it.instruction.descendantsOfType<ClassName>().any { name ->
+                name == cn("StandardAction") || name == cn("UseActionOnCardAction")
+              }
+            }
+            .isNotEmpty()
+    ) {
+      doTask("UseAction<UseActionOnCardAction, Action1>")
+    }
+    doTask("UseAction<$cardName, ${whichAction(which)}>")
     x?.let { chooseVariableAmount(this, it) }
     payInvoiceFromItsResourceIfOffered()
     body()

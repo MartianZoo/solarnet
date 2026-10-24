@@ -6,7 +6,10 @@ import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Ignore
@@ -22,12 +25,12 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     playStansPreludes()
 
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TemperatureStep, 0 TerraformRating")
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TemperatureStep, TerraformRating")
@@ -43,7 +46,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     playStansPreludes()
 
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TemperatureStep, 0 TerraformRating")
@@ -54,15 +57,15 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame()
     playPreludes()
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating")
     kim.selectTask("PassBaton") // Decline the second action.
-    stan.doTasks("UseStandardProject<SellPatentsProject>", "1 MC FROM ProjectCard")
+    stan.doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     stan.selectTask("PassBaton") // Decline the second action.
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TerraformRating")
@@ -72,12 +75,12 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating")
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TerraformRating")
@@ -115,11 +118,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     playPreludes(BoardOfDirectors, Donation)
 
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-          doTask("UseCardAction<$BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("$BoardOfDirectors"))
           doTask("-12 MC")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
@@ -133,9 +136,9 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(extraOptions = "BoardOfDirectors")
     playPreludes(BoardOfDirectors, Donation)
 
-    kim.doTasks("UseStandardProject<PowerPlantProject>")
+    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
     kim.completeOperation {
-          doTask("UseCardAction<$BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("$BoardOfDirectors"))
           doTask("-12 MC")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
@@ -151,12 +154,12 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     passGeneration()
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
 
     shouldThrow<RequirementException> {
-      kim.doTasks("UseCardAction<$UnitedNationsMarsInitiative, Action1>")
+      kim.doTasks(*cardActionTasks("$UnitedNationsMarsInitiative"))
     }
     kim.count("TerraformRating") shouldBe 25
   }
@@ -168,15 +171,15 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     passGeneration()
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
 
-    kim.doTasks("UseCardAction<$UnitedNationsMarsInitiative, Action1>").expect("TerraformRating")
+    kim.doTasks(*cardActionTasks("$UnitedNationsMarsInitiative")).expect("TerraformRating")
   }
 
   @Test
@@ -184,7 +187,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(UnitedNationsMarsInitiative)
     playPreludes()
 
-    kim.doTasks("UseCardAction<$UnitedNationsMarsInitiative, Action1>").expect("0 TerraformRating")
+    kim.doTasks(*cardActionTasks("$UnitedNationsMarsInitiative")).expect("0 TerraformRating")
   }
 
   @Test
@@ -192,11 +195,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(UnitedNationsMarsInitiative)
     playPreludes()
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
 
-    kim.doTasks("UseCardAction<$UnitedNationsMarsInitiative, Action1>").expect("TerraformRating")
+    kim.doTasks(*cardActionTasks("$UnitedNationsMarsInitiative")).expect("TerraformRating")
   }
 
   @Test
@@ -204,7 +207,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(Pristar, extraOptions = "Pristar")
     playPreludes()
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     kim.selectTask("PassBaton") // Decline the second action.
@@ -223,7 +226,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     passGeneration()
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
 
@@ -240,11 +243,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     passGeneration()
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
 
@@ -261,7 +264,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
     kim.completeOperation {
           doTasks(
-              "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
+              *playCardTasks("$MagneticFieldGeneratorsPromo"),
           )
           doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
           autoExecNow(EAGER)
@@ -278,7 +281,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
     kim.completeOperation {
           doTasks(
-              "PlayProject<Class<$TerraformingGanymede>>",
+              *playCardTasks("$TerraformingGanymede"),
               "Ok", /* No Titanium payment. */
           )
           autoExecNow(EAGER)
@@ -293,13 +296,13 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     passGeneration()
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
 
     kim.completeOperation {
           doTasks(
-              "PlayProject<Class<$TerraformingGanymede>>",
+              *playCardTasks("$TerraformingGanymede"),
               "4 Pay<Class<Titanium>> FROM Titanium",
           )
           autoExecNow(EAGER)
@@ -314,26 +317,26 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     passGeneration()
     stan
         .completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TerraformRating")
     stan.selectTask("PassBaton") // Decline the second action.
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating")
     kim.selectTask("PassBaton") // Decline the second action.
     stan
         .completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TerraformRating")
     stan.selectTask("PassBaton") // Decline the second action.
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TerraformRating")
@@ -352,7 +355,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     playStansPreludes()
 
     kim.completeOperation {
-          doTasks("PlayProject<Class<$Comet>>", "Ok" /* No Titanium payment. */)
+          doTasks(*playCardTasks("$Comet"), "Ok" /* No Titanium payment. */)
           doTask("OceanTile<Tharsis_1_2>")
           autoExecNow(EAGER)
         }
@@ -378,12 +381,12 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(extraOptions = "BoardOfDirectors")
     playPreludes(PreservationProgram, BoardOfDirectors)
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
 
     kim.completeOperation {
-          doTask("UseCardAction<$BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("$BoardOfDirectors"))
           doTask("-12 MC")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")
@@ -398,7 +401,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     startPharmacyGame()
     playPreludes()
 
-    kim.doTask("PlayProject<Class<$PhysicsComplex>>")
+    kim.doTasks(*playCardTasks("$PhysicsComplex"))
         .expect("-Disease<$PharmacyUnion>, 0 TerraformRating")
   }
 
@@ -409,13 +412,13 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     passGeneration()
     stan.doTask("Pass")
     kim.completeOperation {
-          doTask("UseCardAction<$WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
           doTask("TemperatureStep BY Admin")
         }
         .expect("TemperatureStep, 0 TerraformRating")
 
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating")
@@ -426,11 +429,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(extraOptions = "TurmoilExpansion, Unsafe")
     playPreludes()
     kim.completeOperation {
-      doTask("LobbyAction")
+      doTask("UseAction<LobbyAction, Action1>")
       doTask("PartyLeader<Scientists> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTask("PaidLobbyAction")
+      doTask("UseAction<PaidLobbyAction, Action1>")
 
       doTask("PartyFollower<Scientists>")
     }
@@ -448,7 +451,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating")
@@ -459,13 +462,13 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(extraOptions = "BoardOfDirectors, Pristar")
     playPreludes(BoardOfDirectors, Donation)
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     kim.selectTask("PassBaton") // Decline the second action.
     stan.doTask("Pass")
     kim.completeOperation {
-          doTask("UseCardAction<$BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("$BoardOfDirectors"))
           doTask("-12 MC")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
@@ -475,7 +478,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
         .expect("-2 TerraformRating")
 
     kim.completeOperation {
-          doTask("PlayProject<Class<$ProjectInspection>>")
+          doTasks(*playCardTasks("$ProjectInspection"))
           doTask("UseAction<$BoardOfDirectors, Action1>")
           doTask("-12 MC")
           autoExecNow(EAGER)
@@ -492,15 +495,15 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     passGeneration()
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-          doTask("UseCardAction<$BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("$BoardOfDirectors"))
           doTask("-12 MC")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
@@ -510,7 +513,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
         .expect("-2 TerraformRating")
 
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TerraformRating")
@@ -522,7 +525,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     playPreludes()
     repeat(14) { passGeneration("OxygenStep") }
     kim.completeOperation {
-          doTasks("ConvertPlants")
+          doTasks("UseAction<ConvertPlantsAction, Action1>")
           doTask("GreeneryTile<Tharsis_2_4>")
         }
         .expect("0 OxygenStep, 0 TerraformRating")
@@ -530,7 +533,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating")
@@ -545,7 +548,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("ConvertPlants")
+          doTasks("UseAction<ConvertPlantsAction, Action1>")
           doTask("GreeneryTile<Tharsis_2_4>")
           autoExecNow(EAGER)
           doTask("OceanTile<Tharsis_1_2>")
@@ -559,7 +562,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     startPharmacyGame()
     playPreludes()
     kim.completeOperation {
-      doTasks("PlayProject<Class<$Research>>")
+      doTasks(*playCardTasks("$Research"))
       autoExecNow(EAGER)
     }
     kim.selectTask("PassBaton") // Decline the second action.
@@ -568,7 +571,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("PlayProject<Class<$PhysicsComplex>>")
+          doTasks(*playCardTasks("$PhysicsComplex"))
           doTask("Ok") // Keep the steel before paying the exact MC remainder.
           autoExecNow(EAGER)
           selectTask("PlayedEvent FROM $PharmacyUnion")
@@ -584,14 +587,14 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(extraOptions = "BoardOfDirectors")
     playPreludes(BoardOfDirectors, Donation)
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     kim.selectTask("PassBaton") // Decline the second action.
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTask("UseCardAction<$BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("$BoardOfDirectors"))
           doTask("-12 MC")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
@@ -609,25 +612,25 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.autoExecNow(EAGER)
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
     kim.completeOperation {
-      doTask("LobbyAction")
+      doTask("UseAction<LobbyAction, Action1>")
       doTask("PartyFollower<Reds> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTask("PaidLobbyAction")
+      doTask("UseAction<PaidLobbyAction, Action1>")
 
       doTask("PartyLeader<Reds>")
     }
     stan.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     stan.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     kim.doTask("Pass")
     stan.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     // Kim has the lower rating; Reds and the chairmanship each grant TR after revision.
@@ -646,7 +649,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating")
@@ -660,7 +663,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("UseStandardProject<AirScrappingProject>")
+          doTasks(*standardProjectTasks("AirScrappingProject"))
           autoExecNow(EAGER)
         }
         .expect("VenusStep, TerraformRating")
@@ -678,12 +681,12 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
 
     kim.completeOperation {
-          doTasks("UseStandardProject<BufferGasProject>")
+          doTasks(*standardProjectTasks("BufferGasProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating")
     kim.completeOperation {
-          doTasks("UseStandardProject<BufferGasProject>")
+          doTasks(*standardProjectTasks("BufferGasProject"))
           autoExecNow(EAGER)
         }
         .expect("TerraformRating")
@@ -760,7 +763,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     startPaymentDefectGame(deal = true)
     kim.completeOperation {
           doTasks(
-              "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
+              *playCardTasks("$MagneticFieldGeneratorsPromo"),
               "Ok", /* No Steel payment. */
           )
           doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
@@ -774,7 +777,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     startPaymentDefectGame(deal = true)
     kim.completeOperation {
           doTasks(
-              "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
+              *playCardTasks("$MagneticFieldGeneratorsPromo"),
               "Ok", /* No Steel payment. */
           )
           doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
@@ -794,7 +797,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
         neutralRole = "PartyLeader",
     )
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating, -14 MC")
@@ -810,7 +813,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
         neutralRole = "PartyLeader",
     )
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating, -17 MC")
@@ -828,7 +831,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     )
     kim.completeOperation {
           doTasks(
-              "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
+              *playCardTasks("$MagneticFieldGeneratorsPromo"),
               "Ok", /* No Steel payment. */
           )
           doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
@@ -848,7 +851,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     )
     kim.completeOperation {
           doTasks(
-              "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
+              *playCardTasks("$MagneticFieldGeneratorsPromo"),
               "Ok", /* No Steel payment. */
           )
           doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
@@ -861,14 +864,14 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   @Test
   internal fun `Reds permits an affordable two-step gain when the first TR is prevented`() {
     prepareAffordableTwoStepGain()
-    kim.doTasks("PlayProject<Class<$ReleaseOfInertGases>>").expect("TerraformRating, -17 MC")
+    kim.doTasks(*playCardTasks("$ReleaseOfInertGases")).expect("TerraformRating, -17 MC")
   }
 
   @Test
   internal fun `BUG - Reds rejects an affordable two-step gain when the first TR is prevented`() {
     prepareAffordableTwoStepGain()
     shouldThrow<LimitsException> {
-      kim.doTasks("PlayProject<Class<$ReleaseOfInertGases>>")
+      kim.doTasks(*playCardTasks("$ReleaseOfInertGases"))
     }
     kim.assertCounts(
         17 to "MC",
@@ -886,12 +889,12 @@ internal class PreservationProgramTest : TfmGameplayTest() {
         neutralRole = "PartyLeader",
     )
     // Ordinary purchases leave exactly 17 MC and a card, without using the generation's TR skip.
-    kim.doTasks("UseStandardProject<PowerPlantProject>")
-    kim.doTasks("UseStandardProject<PowerPlantProject>")
-    kim.doTasks("UseStandardProject<PowerPlantProject>")
-    kim.doTasks("UseStandardProject<PowerPlantProject>")
-    kim.doTasks("UseStandardProject<PowerPlantProject>")
-    kim.doTasks("UseStandardProject<SellPatentsProject>", "9 MC FROM ProjectCard")
+    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
+    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
+    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
+    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
+    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
+    kim.doTasks(*standardProjectTasks("SellPatentsProject"), "9 MC FROM ProjectCard")
   }
 
   // Terraforming Deal outside Action:
@@ -901,7 +904,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   internal fun `Terraforming Deal ignores prevented TR after a chairman award`() {
     startPaymentDefectGame(deal = true, rulingParty = "Scientists")
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating, -14 MC")
@@ -911,7 +914,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   internal fun `BUG - Terraforming Deal pays for prevented TR after a chairman award`() {
     startPaymentDefectGame(deal = true, rulingParty = "Scientists")
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating, -12 MC")
@@ -929,24 +932,24 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     playPreludes(PreservationProgram, if (deal) TerraformingDeal else PowerGeneration)
     if (rulingParty != null) {
       kim.completeOperation {
-        doTask("LobbyAction")
+        doTask("UseAction<LobbyAction, Action1>")
         doTask("$firstRole<$rulingParty> FROM LobbyDelegate")
       }
       kim.completeOperation {
-        doTask("PaidLobbyAction")
+        doTask("UseAction<PaidLobbyAction, Action1>")
 
         doTask("$secondRole<$rulingParty>")
       }
     } else {
       kim.doTasks(
-          "PlayProject<Class<$GiantSpaceMirror>>",
+          *playCardTasks("$GiantSpaceMirror"),
       )
       kim.selectTask("PassBaton") // Decline the second action.
     }
     stan.doTask("Pass")
     if (deal && rulingParty != null)
         kim.doTasks(
-            "PlayProject<Class<$GiantSpaceMirror>>",
+            *playCardTasks("$GiantSpaceMirror"),
         )
     passGeneration(
         nextEvent = if (rulingParty == null) null else "ExploreFirstDirective",

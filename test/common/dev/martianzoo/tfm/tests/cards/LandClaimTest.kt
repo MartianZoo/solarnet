@@ -6,6 +6,8 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -16,7 +18,7 @@ internal class LandClaimTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot claim the Noctis area`() {
     kim.inTurn {
-      doTasks("PlayProject<Class<LandClaim>>", "1 Pay<> FROM MC")
+      doTasks(*playCardTasks("LandClaim"), "1 Pay<> FROM MC")
       doTask("LandClaim FROM ProjectCard")
       shouldThrow<ExpressionException> { doTask("Community<Tharsis_5_3>") }
       doTask("Community<Tharsis_1_1>")
@@ -28,7 +30,7 @@ internal class LandClaimTest : TfmSandboxTest() {
   internal fun `Prevents an opponent from building on the claimed area`() {
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<LandClaim>>",
+          *playCardTasks("LandClaim"),
           "1 Pay<> FROM MC",
           "LandClaim FROM ProjectCard",
       )
@@ -37,7 +39,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        doTask("UseStandardProject<CityProject>")
+        doTasks(*standardProjectTasks("CityProject"))
         doTask("25 Pay<> FROM MC")
         doTask("PROD[MC]")
         doTask("CityTile<Tharsis_1_1>")
@@ -52,7 +54,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<GreeneryProject>",
+              *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_1_1>",
           )
@@ -69,7 +71,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
+        doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
         doTask("ArtificialLake FROM ProjectCard")
         doTask("OceanTile<Tharsis_1_3>")
       }
@@ -84,7 +86,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<$ArtificialLake>>",
+              *playCardTasks("$ArtificialLake"),
               "15 Pay<> FROM MC",
               "$ArtificialLake FROM ProjectCard",
               "OceanTile<Tharsis_1_3>",
@@ -100,7 +102,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<CityProject>",
+              *standardProjectTasks("CityProject"),
               "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Tharsis_4_2>",
@@ -116,7 +118,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("UseStandardProject<GreeneryProject>")
+        doTasks(*standardProjectTasks("GreeneryProject"))
         doTask("23 Pay<> FROM MC")
         doTask("GreeneryTile<Tharsis_4_3>")
       }
@@ -130,7 +132,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<GreeneryProject>",
+              *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_2_1>",
           )
@@ -147,7 +149,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<GreeneryProject>",
+              *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_9_7>",
           )
@@ -164,7 +166,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("UseStandardProject<GreeneryProject>")
+        doTasks(*standardProjectTasks("GreeneryProject"))
         doTask("23 Pay<> FROM MC")
         doTask("GreeneryTile<Tharsis_2_2>")
       }
@@ -179,7 +181,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("UseStandardProject<GreeneryProject>")
+        doTasks(*standardProjectTasks("GreeneryProject"))
         doTask("23 Pay<> FROM MC")
         doTask("GreeneryTile<Tharsis_9_7>")
       }
@@ -194,7 +196,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<GreeneryProject>",
+              *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_2_2>",
           )
@@ -211,7 +213,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("UseStandardProject<GreeneryProject>")
+        doTasks(*standardProjectTasks("GreeneryProject"))
         doTask("23 Pay<> FROM MC")
         doTask("GreeneryTile<Tharsis_9_7>")
       }
@@ -226,7 +228,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<GreeneryProject>",
+              *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_2_1>",
           )
@@ -242,7 +244,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<LandClaim>>")
+        doTasks(*playCardTasks("LandClaim"))
 
         doTasks(
             "1 Pay<> FROM MC",
@@ -260,7 +262,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<LandClaim>>")
+        doTasks(*playCardTasks("LandClaim"))
 
         doTasks(
             "1 Pay<> FROM MC",

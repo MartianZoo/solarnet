@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.VenusianAnimals
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -14,7 +15,7 @@ internal class CorroderSuitsTest : TfmSandboxTest() {
   internal fun `Can be played without an eligible Venus card`() {
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<CorroderSuits>>",
+              *playCardTasks("CorroderSuits"),
               "8 Pay<> FROM MC",
               "CorroderSuits FROM ProjectCard",
               "PROD[2 MC]",
@@ -31,7 +32,7 @@ internal class CorroderSuitsTest : TfmSandboxTest() {
     // An empty stored-card alternative must not make the available addition optional.
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("PlayProject<Class<CorroderSuits>>")
+        doTasks(*playCardTasks("CorroderSuits"))
         doTasks("8 Pay<> FROM MC", "CorroderSuits FROM ProjectCard")
         doTask("PROD[2 MC]")
         doTask("Ok")

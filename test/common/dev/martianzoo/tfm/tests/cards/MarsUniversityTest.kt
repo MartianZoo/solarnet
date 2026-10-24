@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -16,7 +17,7 @@ internal class MarsUniversityTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Research>>",
+              *playCardTasks("Research"),
               "11 Pay<> FROM MC",
               "Research FROM ProjectCard",
           )
@@ -34,7 +35,7 @@ internal class MarsUniversityTest : TfmSandboxTest() {
     kim.setToExMachina(8, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<MarsUniversity>>", "8 Pay<> FROM MC")
+      doTasks(*playCardTasks("MarsUniversity"), "8 Pay<> FROM MC")
       doTasks("MarsUniversity FROM ProjectCard")
       // Resolve the exchange offer: the empty hand leaves no card to discard.
       selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
@@ -49,7 +50,7 @@ internal class MarsUniversityTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<SearchForLife>>",
+          *playCardTasks("SearchForLife"),
           "3 Pay<> FROM MC",
           "SearchForLife FROM ProjectCard",
       )

@@ -157,11 +157,13 @@ internal class ColoniesBasicRulesTest : TfmTest() {
       p1.stdProject("BuildColonyProject") { doTask("Colony<Miranda>") }
     }
 
-    shouldThrow<DependencyException> { p1.stdAction("TradeAction") { doTask("Trade<Miranda>") } }
+    shouldThrow<DependencyException> {
+      p1.stdAction("UseAction<TradeAction, Action1>") { doTask("Trade<Miranda>") }
+    }
 
     // And just to show that it would have worked otherwise
     p1.playProject(Pets, 10)
-    p1.stdAction("TradeAction") {
+    p1.stdAction("UseAction<TradeAction, Action1>") {
       doTask("Trade<Miranda>")
       doTask("Animal<$Pets>")
     }
@@ -214,7 +216,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
         "5 ColonyProduction<Luna>, Colony<Player1, Luna>, Colony<Player2, Luna>, 3 Energy<Player1>"
     )
     p1.assertCounts(6 to "ColonyProduction<Luna>")
-    p1.stdAction("TradeAction<Action2>") {
+    p1.stdAction("UseAction<TradeAction, Action2>") {
           doTask("Trade<Luna>")
           // Then follow the Colony Tile instructions: Check the Colony Tile track to determine your
           // trade income, and give the local colony owners their colony bonus.
@@ -251,7 +253,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   @Test
   internal fun `trade fleet cannot be reused`() {
-    p1.stdAction("TradeAction<Action1>") { doTask("Trade<Luna>") }
+    p1.stdAction("UseAction<TradeAction, Action1>") { doTask("Trade<Luna>") }
 
     shouldThrow<GameplayException> { p1.runOperation("Trade<Player1, Triton>") }
     shouldThrow<GameplayException> { p1.runOperation("Trade<Triton>, TradeFleet") }
@@ -264,7 +266,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   @Test
   internal fun `additional trade fleet permits a later trade`() {
-    p1.stdAction("TradeAction<Action1>") { doTask("Trade<Luna>") }
+    p1.stdAction("UseAction<TradeAction, Action1>") { doTask("Trade<Luna>") }
     p1.runOperation("TradeFleet")
     p1.runOperation("Trade<Triton>")
 

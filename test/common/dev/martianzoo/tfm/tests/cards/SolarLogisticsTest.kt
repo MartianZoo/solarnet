@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -13,7 +14,7 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
     kim.exMachina("$SolarLogistics")
     // The drawn card replaces the played event in hand.
     kim.inTurn {
-          doTasks("PlayProject<Class<ImportedGhg>>", "5 Pay<> FROM MC")
+          doTasks(*playCardTasks("ImportedGhg"), "5 Pay<> FROM MC")
           doTasks(
               "ImportedGhg FROM ProjectCard",
               "PROD[Heat]",
@@ -30,7 +31,7 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
 
     stan.inTurn {
       doTasks(
-          "PlayProject<Class<$TechnologyDemonstration>>",
+          *playCardTasks("$TechnologyDemonstration"),
           "5 Pay<> FROM MC",
           "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",

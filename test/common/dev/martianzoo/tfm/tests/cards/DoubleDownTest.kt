@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -283,7 +284,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
       stan.autoExecNow(EAGER)
 
       kim.completeOperation {
-            doTasks("PlayProject<Class<$Comet>>", "Ok" /* No Titanium payment. */)
+            doTasks(*playCardTasks("$Comet"), "Ok" /* No Titanium payment. */)
             doTask("OceanTile<Tharsis_1_2>")
             autoExecNow(EAGER)
           }

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -16,7 +17,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseStandardProject<CityProject>",
+          *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_1_1>",
@@ -35,7 +36,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseStandardProject<CityProject>",
+          *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_8_9>",
@@ -53,7 +54,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<CityProject>",
+              *standardProjectTasks("CityProject"),
               "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Tharsis_4_4>",
@@ -73,7 +74,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_05_03>",
       )
@@ -105,7 +106,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
     return kim.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_05_03>",
       )

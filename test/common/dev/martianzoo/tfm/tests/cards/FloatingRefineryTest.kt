@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class FloatingRefineryTest : TfmSandboxTest() {
@@ -12,7 +13,7 @@ internal class FloatingRefineryTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<FloatingRefinery>>",
+              *playCardTasks("FloatingRefinery"),
               "7 Pay<> FROM MC",
               "FloatingRefinery FROM ProjectCard",
           )

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -14,7 +15,7 @@ internal class AppliedScienceTest : TfmSandboxTest() {
     kim.exMachina("AppliedScience, Science<AppliedScience>")
     stan.exMachina("Pets, Animal<Pets>")
     kim.inTurn {
-          doTasks("UseCardAction<AppliedScience, Action1>", "-Science<AppliedScience>")
+          doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>")
           shouldThrow<TaskException> { doTask("Animal<Pets<Stan>>") }
           doTask("Steel")
         }
@@ -29,7 +30,7 @@ internal class AppliedScienceTest : TfmSandboxTest() {
     kim.exMachina("$AppliedScience, Science<$AppliedScience>")
 
     kim.inTurn {
-          doTasks("UseCardAction<AppliedScience, Action1>", "-Science<AppliedScience>")
+          doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>")
           // No card holds resources now; the uncollectible card-resource option resolves to Ok.
           doTask("Ok")
         }
@@ -44,7 +45,7 @@ internal class AppliedScienceTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-          doTask("UseCardAction<AppliedScience, Action1>")
+          doTasks(*cardActionTasks("AppliedScience"))
           doTask("-Science<AppliedScience>")
           doTask("Director<BoardOfDirectors>*")
         }
@@ -57,7 +58,7 @@ internal class AppliedScienceTest : TfmSandboxTest() {
     kim.exMachina("$AppliedScience, Science<$AppliedScience>, $BoardOfDirectors")
 
     kim.inTurn {
-          doTasks("UseCardAction<AppliedScience, Action1>", "-Science<AppliedScience>")
+          doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>")
           shouldThrow<NarrowingException> { doTask("Director<$BoardOfDirectors>") }
           doTask("Steel")
         }
@@ -70,7 +71,7 @@ internal class AppliedScienceTest : TfmSandboxTest() {
     kim.exMachina("$AppliedScience, Science<$AppliedScience>")
 
     kim.inTurn {
-      doTasks("UseCardAction<AppliedScience, Action1>", "-Science<AppliedScience>")
+      doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>")
       shouldThrow<NarrowingException> { doTask("Science<$AppliedScience>") }
       doTask("Steel")
     }

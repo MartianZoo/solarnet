@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -16,7 +17,7 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<SponsoredAcademies>>",
+              *playCardTasks("SponsoredAcademies"),
               "9 Pay<> FROM MC",
               "SponsoredAcademies FROM ProjectCard",
           )
@@ -39,7 +40,7 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<SponsoredAcademies>>")
+        doTasks(*playCardTasks("SponsoredAcademies"))
         doTasks("9 Pay<> FROM MC", "SponsoredAcademies FROM ProjectCard")
         // Expand the reward into separate tasks for each other player.
         selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")

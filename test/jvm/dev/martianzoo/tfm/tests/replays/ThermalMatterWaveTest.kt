@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -65,7 +66,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       convertHeat()
       playProject(CryoSleep, 10)
-      stdAction("TradeAction<Action2>") {
+      stdAction("UseAction<TradeAction, Action2>") {
             doTask("Trade<Ceres>")
           }
           .expect("-2 Energy, 6 Steel")
@@ -83,7 +84,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction2(TitanShuttles) {
         doTask("-8 Floater<$TitanShuttles> THEN 8 Titanium")
       }
-      stdAction("TradeAction<Action3>") { doTask("Trade<Triton>") }
+      stdAction("UseAction<TradeAction, Action3>") { doTask("Trade<Triton>") }
       playProject(SterlingVents, 2, steel = 1).expect("PROD[2 Energy, -2 Heat]")
       playProject(ElectroCatapult, 8, steel = 3)
       cardAction1(ElectroCatapult)
@@ -103,7 +104,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(SaturnSurfing).expect("-Floater, 3 MC")
       playProject(DesignedMicroorganisms, 16)
       playProject(RotatorImpacts, 2, titanium = 1)
-      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(2, titanium = 1) })
+      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(2, titanium = 1) })
 
       pass()
       wgt("OceanTile<Tharsis_4_8>")
@@ -122,7 +123,8 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(TitanShuttles) { addCardResources(SaturnSurfing) }
       cardAction1(SaturnSurfing)
       cardAction2(RotatorImpacts)
-      stdAction("TradeAction<Action3>") { doTask("Trade<Io>") }.expect("-2 Titanium, 13 Heat")
+      stdAction("UseAction<TradeAction, Action3>") { doTask("Trade<Io>") }
+          .expect("-2 Titanium, 13 Heat")
       convertHeat()
       convertHeat()
       playProject(SpinOffDepartment, 4, steel = 2)
@@ -151,7 +153,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(ElectroCatapult)
       cardAction1(TitanShuttles) { addCardResources(SaturnSurfing) }
       cardAction1(SaturnSurfing).expect("-Floater, 5 MC")
-      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(2, titanium = 1) })
+      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(2, titanium = 1) })
       cardAction1(Tardigrades)
       playProject(BribedCommittee, 7)
       playProject(ReleaseOfInertGases, 14)
@@ -185,7 +187,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       playProject(MarsUniversity, 2, steel = 2) {
         doTask("-ProjectCard")
       }
-      stdAction("TradeAction<Action1>") { doTask("Trade<Triton>") }
+      stdAction("UseAction<TradeAction, Action1>") { doTask("Trade<Triton>") }
       playProject(Comet, 1, titanium = 5) {
         // Decline removing an opponent's plants.
         declineTask()
@@ -206,7 +208,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       }
       playProject(AsteroidRights, 10)
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
-      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(2, titanium = 1) })
+      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(2, titanium = 1) })
       cardAction1(Tardigrades)
       playProject(PowerSupplyConsortium, 5)
       cardAction1(ForcedPrecipitation)
@@ -267,7 +269,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       }
       playProject(Shuttles, 2, titanium = 2).expect("PROD[2 MC, -Energy]")
       playProject(PioneerSettlement, 3, titanium = 2) { doTask("Colony<Triton>") }
-      stdAction("TradeAction<Action2>") { doTask("Trade<Io>") }
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Io>") }
       convertHeat()
       convertHeat()
       playProject(TitanFloatingLaunchPad, 18) {

@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -24,7 +25,7 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
 
       kim.count("MC") shouldBe 30
       shouldThrow<NarrowingException> { doTask("UseAction<SellPatentsProject, Action1>") }
-      shouldThrow<TaskException> { doTask("PlayProject<Class<Mine>>") }
+      shouldThrow<TaskException> { doTasks(*playCardTasks("Mine")) }
       doTask("UseAction<PowerPlantProject, Action1>")
       doTasks("11 Pay<> FROM MC", "PROD[Energy]")
 

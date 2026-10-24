@@ -4,6 +4,8 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -16,7 +18,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<CityProject>",
+              *standardProjectTasks("CityProject"),
               "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Cimmeria_3_3>",
@@ -33,7 +35,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseStandardProject<CityProject>",
+          *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Cimmeria_3_3>",
@@ -52,7 +54,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     shouldThrow<NotFullySpecifiedException> {
       kim.inTurn {
         doTasks(
-            "UseStandardProject<CityProject>",
+            *standardProjectTasks("CityProject"),
             "25 Pay<> FROM MC",
             "PROD[MC]",
             "CityTile<Cimmeria_3_3>",
@@ -72,7 +74,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.exMachina("$Ecoline, $EarthCatapult")
     stan.exMachina("$Mine")
     kim.inTurn {
-      doTasks("PlayProject<Class<SmallAsteroid>>", "8 Pay<> FROM MC")
+      doTasks(*playCardTasks("SmallAsteroid"), "8 Pay<> FROM MC")
       doTasks(
           "SmallAsteroid FROM ProjectCard",
       )
@@ -83,7 +85,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("FundAward<Class<Incorporator>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
       doTask("Incorporator")
     }
     victoryPoints() shouldBe listOf(23, 25)
@@ -96,7 +98,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Utopia_5_5>")
 
     kim.inTurn {
-      doTasks("FundAward<Class<Suburbian>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
       doTask("Suburbian")
     }
     victoryPoints() shouldBe listOf(25, 20)
@@ -111,7 +113,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("FundAward<Class<Founder>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
       doTask("Founder")
     }
     victoryPoints() shouldBe listOf(25, 20)
@@ -124,7 +126,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(4, "PROD[Titanium]")
 
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Metallurgist>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Metallurgist")
     }
   }
@@ -137,7 +139,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Trader>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Trader")
     }
   }
@@ -149,7 +151,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Fundraiser>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Fundraiser")
       }
@@ -157,7 +159,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
 
     kim.setToExMachina(12, "PROD[MC]")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Fundraiser>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Fundraiser")
     }
   }

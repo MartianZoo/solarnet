@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -76,7 +77,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("UseCardAction<BoardOfDirectors, Action1>")
+        doTasks(*cardActionTasks("BoardOfDirectors"))
         doTask("PreludeCard<Kim, Hand>")
         doTask("-12 MC")
         doTask("-Director<BoardOfDirectors>")
@@ -93,7 +94,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
       }
     }
     kim.inTurn {
-          doTask("UseCardAction<BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("BoardOfDirectors"))
           doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
           doTask("-Director<BoardOfDirectors>")

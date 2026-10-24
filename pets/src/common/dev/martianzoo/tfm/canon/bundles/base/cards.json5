@@ -12,7 +12,7 @@
           "name": "Ecoline",
           "tags": [ "PlantTag" ],
           "direct": "36 MC, 3 Plant, PROD[2 Plant]",
-          "effects": [ "PaymentScope<Class<ConvertPlants>>:: -1 Owed<Class<Plant>>" ],
+          "effects": [ "PaymentScope<Class<ConvertPlantsAction>>:: -1 Owed<Class<Plant>>" ],
         },
         {
           "name": "InterplanetaryCinematics",

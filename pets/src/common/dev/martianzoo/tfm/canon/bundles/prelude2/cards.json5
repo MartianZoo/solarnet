@@ -14,8 +14,8 @@
           "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
           "direct": "30 MC, PROD[Energy, Plant, Steel]",
           "effects": [
-            "PaymentScope<Class<Milestone>>:: -Owed / Owed",
-            "PaymentScope<Class<Award>>:: -Owed / Owed",
+            "PaymentScope<Class<ClaimMilestoneAction>>:: -Owed / Owed",
+            "PaymentScope<Class<FundAwardAction>>:: -Owed / Owed",
           ],
         },
         {

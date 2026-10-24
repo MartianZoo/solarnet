@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -24,7 +25,7 @@ internal class CapitalTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Manager>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Manager")
     }
   }
@@ -35,7 +36,7 @@ internal class CapitalTest : TfmSandboxTest() {
     kim.exMachina("$Capital, CapitalTile<$Capital, Cimmeria_3_3>")
     stan.exMachina("GreeneryTile<Stan, Cimmeria_2_2>")
     stan.inTurn {
-      doTasks("FundAward<Class<Founder>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
       doTask("Founder")
     }
 
@@ -55,7 +56,7 @@ internal class CapitalTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<Capital>>", "26 Pay<> FROM MC")
+          doTasks(*playCardTasks("Capital"), "26 Pay<> FROM MC")
           doTasks(
               "Capital FROM ProjectCard",
               "PROD[-2 Energy]",

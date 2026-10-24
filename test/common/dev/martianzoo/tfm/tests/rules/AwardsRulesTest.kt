@@ -15,11 +15,11 @@ internal class AwardsRulesTest : TfmSandboxTest() {
     rob.setToExMachina(2, "Heat")
     rob.setToExMachina(2, "Steel")
     kim.inTurn {
-      doTasks("FundAward<Class<Thermalist>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
       doTask("Thermalist")
     }
     stan.inTurn {
-      doTasks("FundAward<Class<Miner>>", "14 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC")
       doTask("Miner")
     }
 
@@ -31,7 +31,7 @@ internal class AwardsRulesTest : TfmSandboxTest() {
     newTestGame(playerCount = 2)
     kim.setToExMachina(1, "Heat")
     kim.inTurn {
-      doTasks("FundAward<Class<Thermalist>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
       doTask("Thermalist")
     }
 

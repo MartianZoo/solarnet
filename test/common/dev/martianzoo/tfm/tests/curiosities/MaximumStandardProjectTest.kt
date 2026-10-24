@@ -166,8 +166,10 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     me.buyCards(4)
 
     me.turn {
-      stdAction("LobbyAction") { doTask("PartyFollower<Greens> FROM LobbyDelegate") }
-      stdAction("PaidLobbyAction") { doTask("PartyFollower<Greens>") }
+      stdAction("UseAction<LobbyAction, Action1>") {
+        doTask("PartyFollower<Greens> FROM LobbyDelegate")
+      }
+      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyFollower<Greens>") }
       playProject(ProtectedValley, 11, steel = 6) { placeTile(2, 1) }
       playProject(Plantation, 15) { placeTile(1, 4) }
       playProject(Algae, 10)

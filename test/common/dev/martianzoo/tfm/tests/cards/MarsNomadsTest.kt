@@ -7,7 +7,10 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -21,7 +24,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame()
 
     kim.inTurn {
-      doTasks("PlayProject<Class<MarsNomads>>", "13 Pay<> FROM MC")
+      doTasks(*playCardTasks("MarsNomads"), "13 Pay<> FROM MC")
       doTask("MarsNomads FROM ProjectCard")
       shouldThrow<ExpressionException> { doTask("NomadsMarker<Tharsis_5_3>") }
       doTask("NomadsMarker<Tharsis_1_1>")
@@ -35,7 +38,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<MarsNomads>>",
+              *playCardTasks("MarsNomads"),
               "13 Pay<> FROM MC",
               "MarsNomads FROM ProjectCard",
               "NomadsMarker<Tharsis_1_1>",
@@ -50,7 +53,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>")
 
     kim.inTurn {
-      doTask("UseCardAction<MarsNomads, Action1>")
+      doTasks(*cardActionTasks("MarsNomads"))
       doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
     }
   }
@@ -62,7 +65,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseCardAction<MarsNomads, Action1>")
+        doTasks(*cardActionTasks("MarsNomads"))
         doTask("NomadsMarker<Tharsis_4_2 FROM Tharsis_1_1>")
       }
     }
@@ -77,7 +80,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseCardAction<MarsNomads, Action1>")
+        doTasks(*cardActionTasks("MarsNomads"))
         doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
       }
     }
@@ -92,7 +95,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseCardAction<MarsNomads, Action1>")
+        doTasks(*cardActionTasks("MarsNomads"))
         doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
       }
     }
@@ -107,7 +110,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     shouldThrow<DeadEndException> {
       kim.inTurn {
         doTasks(
-            "UseStandardProject<CityProject>",
+            *standardProjectTasks("CityProject"),
             "25 Pay<> FROM MC",
             "CityTile<Tharsis_1_1>",
         )
@@ -123,7 +126,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTask("UseStandardProject<GreeneryProject>")
+        doTasks(*standardProjectTasks("GreeneryProject"))
         doTask("23 Pay<> FROM MC")
         doTask("GreeneryTile<Tharsis_1_1>")
       }
@@ -139,7 +142,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
+        doTasks(*playCardTasks("MiningRights"), "9 Pay<> FROM MC")
         doTask("MiningRights FROM ProjectCard")
         doTask("MiningRights_SpecialTile<Tharsis_1_1>")
       }
@@ -156,7 +159,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
+        doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
         doTask("ArtificialLake FROM ProjectCard")
         doTask("OceanTile<Tharsis_1_3>")
       }
@@ -172,7 +175,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks("UseStandardProject<GreeneryProject>", "23 Pay<> FROM MC")
+        doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
         doTask("GreeneryTile<Tharsis_1_1>")
       }
     }
@@ -192,7 +195,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "PlayProject<Class<LandClaim>>",
+              *playCardTasks("LandClaim"),
               "1 Pay<> FROM MC",
               "LandClaim FROM ProjectCard",
           )
@@ -210,7 +213,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<LandClaim>>", "1 Pay<> FROM MC")
+          doTasks(*playCardTasks("LandClaim"), "1 Pay<> FROM MC")
           doTasks("LandClaim FROM ProjectCard", "Community<Tharsis_1_1>")
         }
         .expect("0 NomadsMarker<Kim>")
@@ -224,7 +227,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     stan.exMachina("Community<Tharsis_2_1>")
 
     kim.inTurn {
-          doTask("UseCardAction<MarsNomads, Action1>")
+          doTasks(*cardActionTasks("MarsNomads"))
           doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
         }
         .expect("0 Community<Stan>")
@@ -232,7 +235,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("UseStandardProject<GreeneryProject>", "23 Pay<> FROM MC")
+          doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
           doTask("GreeneryTile<Tharsis_2_1>")
           doTasks("OxygenStep", "TerraformRating")
         }
@@ -247,7 +250,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTask("UseCardAction<MarsNomads, Action1>")
+      doTasks(*cardActionTasks("MarsNomads"))
       doTasks("NomadsMarker<Tharsis_5_7 FROM Tharsis_4_7>", "2 Plant", "2 MC", "2 MC", "2 MC")
     }
   }
@@ -258,7 +261,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_4_6>, OceanTile<Tharsis_4_8>")
 
     kim.inTurn {
-          doTask("UseCardAction<MarsNomads, Action1>")
+          doTasks(*cardActionTasks("MarsNomads"))
           doTasks("NomadsMarker<Tharsis_4_7 FROM Tharsis_4_6>", "Plant")
           doTask("MC")
           doTask("2 MC")
@@ -272,7 +275,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>")
 
     kim.inTurn {
-          doTask("UseCardAction<MarsNomads, Action1>")
+          doTasks(*cardActionTasks("MarsNomads"))
           doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
         }
         .expect("PROD[0 Steel]")
@@ -284,7 +287,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>, Ruling<MarsFirst FROM Greens>")
 
     kim.inTurn {
-      doTask("UseCardAction<MarsNomads, Action1>")
+      doTasks(*cardActionTasks("MarsNomads"))
       doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
     }
   }
@@ -301,7 +304,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTask("UseCardAction<MarsNomads, Action1>")
+          doTasks(*cardActionTasks("MarsNomads"))
           doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
         }
         .expect("0 StandardResource<Kim>")
@@ -315,7 +318,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseCardAction<MarsNomads, Action1>")
+        doTasks(*cardActionTasks("MarsNomads"))
         doTask("NomadsMarker<Tharsis_2_1 FROM Tharsis_1_1>")
       }
     }
@@ -329,7 +332,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseCardAction<MarsNomads, Action1>")
+        doTasks(*cardActionTasks("MarsNomads"))
         doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
       }
     }
@@ -342,7 +345,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.exMachina("$MarsNomads, NomadsMarker<Cimmeria_3_2>")
 
     kim.inTurn {
-          doTask("UseCardAction<MarsNomads, Action1>")
+          doTasks(*cardActionTasks("MarsNomads"))
           doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2>")
           doTask("CimmeriaPlacementBonus!")
           doTasks("-5 MC", "Colony<Luna>", "PROD[2 MC]")
@@ -359,7 +362,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTask("UseCardAction<MarsNomads, Action1>")
+        doTasks(*cardActionTasks("MarsNomads"))
         doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2>")
         doTask("CimmeriaPlacementBonus!")
         doTask("-5 MC")
@@ -383,13 +386,13 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_2_1>, $MarsNomads, NomadsMarker<Tharsis_2_2>")
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTask("ConvertPlants")
+        doTask("UseAction<ConvertPlantsAction, Action1>")
         doTask("8 Pay<Class<Plant>> FROM Plant")
         doTask("GreeneryTile<Tharsis_2_2>")
       }
     }
     kim.inTurn {
-          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
           doTask("GreeneryTile<Tharsis_9_7>")
           doTasks("OxygenStep", "TerraformRating")
         }
@@ -403,7 +406,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_2_1>")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
           doTask("GreeneryTile<Tharsis_9_7>")
           doTasks("OxygenStep", "TerraformRating")
         }
@@ -418,12 +421,12 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+        doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
         doTask("GreeneryTile<Tharsis_9_7>")
       }
     }
     kim.inTurn {
-          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
           doTask("GreeneryTile<Tharsis_2_1>")
           doTasks("OxygenStep", "TerraformRating")
         }
@@ -437,7 +440,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_2_1>, $MarsNomads, NomadsMarker<Tharsis_2_2>")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
           doTask("GreeneryTile<Tharsis_9_7>")
           doTasks("OxygenStep", "TerraformRating")
         }
@@ -452,7 +455,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>, 8 Plant")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+          doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
           doTask("GreeneryTile<Tharsis_9_7>")
           doTasks("OxygenStep", "TerraformRating")
         }

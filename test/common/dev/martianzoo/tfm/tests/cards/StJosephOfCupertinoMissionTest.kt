@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -13,7 +14,7 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Stan, Tharsis_4_2>")
 
     kim.inTurn {
-      doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "5 Pay<> FROM MC")
+      doTasks(*cardActionTasks("StJosephOfCupertinoMission"), "5 Pay<> FROM MC")
       doTasks("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
       doTask("CathedralOffer<Stan>")
       stan.doTasks("UseAction<CathedralOption, Action1>")
@@ -30,7 +31,7 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
 
     kim.inTurn {
       // Decline paying 2 MC for the city owner's card draw.
-      doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "5 Pay<> FROM MC")
+      doTasks(*cardActionTasks("StJosephOfCupertinoMission"), "5 Pay<> FROM MC")
       doTasks("Cathedral<CityTile<Anyone, Tharsis_2_5>>")
       doTask("CathedralOffer<Stan>")
       stan.doTask("0 UseAction<CathedralOption>")
@@ -45,7 +46,7 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
     kim.inTurn {
           // Decline paying 2 MC for the city owner's card draw.
           doTasks(
-              "UseCardAction<StJosephOfCupertinoMission, Action1>",
+              *cardActionTasks("StJosephOfCupertinoMission"),
               "2 Pay<Class<Steel>> FROM Steel",
               "1 Pay<> FROM MC",
               "Cathedral<CityTile<Anyone, Tharsis_4_2>>",
@@ -63,7 +64,7 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
     kim.exMachina("$StJosephOfCupertinoMission")
 
     kim.inTurn {
-      doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "5 Pay<> FROM MC")
+      doTasks(*cardActionTasks("StJosephOfCupertinoMission"), "5 Pay<> FROM MC")
       doTasks("Cathedral<$city>")
       doTask("CathedralOffer<SoloOpponent>")
     }

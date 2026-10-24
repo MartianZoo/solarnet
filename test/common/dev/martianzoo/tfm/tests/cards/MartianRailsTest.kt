@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -16,7 +17,7 @@ internal class MartianRailsTest : TfmSandboxTest() {
     kim.setToExMachina(1, "Energy")
 
     kim.inTurn {
-          doTasks("UseCardAction<MartianRails, Action1>", "1 Pay<Class<Energy>> FROM Energy")
+          doTasks(*cardActionTasks("MartianRails"), "1 Pay<Class<Energy>> FROM Energy")
           doTask("0 MC")
         }
         .expect("-Energy, 0 MC")

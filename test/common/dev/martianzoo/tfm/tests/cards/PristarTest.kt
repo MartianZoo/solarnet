@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -27,7 +28,7 @@ internal class PristarTest : TfmGameplayTest() {
   internal fun `An opponent's TR increase does not suppress the production bonus`() {
     kim.doTask("Pass")
     stan.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
 
@@ -41,7 +42,7 @@ internal class PristarTest : TfmGameplayTest() {
   @Test
   internal fun `Does not pay its production bonus after a TR increase`() {
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>")
+      doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
     kim.selectTask("PassBaton") // Decline the second action.

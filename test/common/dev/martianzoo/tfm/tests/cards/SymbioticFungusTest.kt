@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -14,7 +15,7 @@ internal class SymbioticFungusTest : TfmSandboxTest() {
     kim.exMachina("$SymbioticFungus")
 
     kim.inTurn {
-          doTask("UseCardAction<SymbioticFungus, Action1>")
+          doTasks(*cardActionTasks("SymbioticFungus"))
           // Resolve the microbe offer: no eligible card can hold it.
           selectTask("Microbe")
         }

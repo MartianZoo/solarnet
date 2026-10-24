@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.Spire
 import dev.martianzoo.tfm.tests.cards.cardnames.StandardTechnology
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -16,7 +17,7 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
     kim.setToExMachina(22, "MC")
 
     kim.inTurn {
-      doTask("UseStandardProject<CityProject>")
+      doTasks(*standardProjectTasks("CityProject"))
       shouldThrow<TaskException> { doTask("3 MC") }
       shouldThrow<TaskException> { doTask("25 Pay<> FROM MC") }
       abort()
@@ -33,7 +34,7 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseStandardProject<PowerPlantProject>")
+        doTasks(*standardProjectTasks("PowerPlantProject"))
         doTask("11 Pay<> FROM MC")
       }
     }
@@ -46,7 +47,7 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$StandardTechnology")
 
-    kim.inTurn { doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard") }
+    kim.inTurn { doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard") }
   }
 
   @Test
@@ -61,13 +62,16 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
     kim.setToExMachina(7, "Science<$Spire>")
     stan.setToExMachina(18, "TemperatureStep")
     stan.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
 
     kim.inTurn {
-          doTasks("UseStandardProject<AsteroidProject>", "7 PayFromCard<Spire> FROM Science<Spire>")
+          doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "7 PayFromCard<Spire> FROM Science<Spire>",
+          )
           doTask("Ok") // Nothing remains to pay in MC.
           doTask("TemperatureStep")
           doTask("3 MC")

@@ -1,9 +1,8 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  UseTurmoilPolicyAction<Action1>: UseAction<ScientistsPolicy, Action1>
-  UseTurmoilPolicyAction<Action2>: UseAction<KelvinistsPolicy, Action1>
   This: Neutral, ReferenceFilter<Class<Ruling>>
-  HAS Class<LobbyAction>, Class<PaidLobbyAction>, Class<UseTurmoilPolicyAction>, Class<PartyLeader>, Class<PartyFollower>
+  This: LobbyAction, PaidLobbyAction
+  HAS Class<PartyLeader>, Class<PartyFollower>
 
   // Party derives each successor edge from this committee-order creation sequence.
   This: MarsFirst THEN Kelvinists THEN Reds THEN Greens THEN Unity THEN Scientists
@@ -115,7 +114,7 @@ CLASS Scientists : Party {
   ApplyRulingBonus<This>: EACH Me@Player { 1 MC / ScienceTag }
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
-CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, HasActions {
+CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, StandardAction {
   10 MC -> 3 ProjectCard THEN ScientistsUsedMarker
 }
 CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player>, System, Iconic {
@@ -157,7 +156,7 @@ CLASS Kelvinists : Party {
   ApplyRulingBonus<This>: EACH Me@Player { 1 MC / PROD[Heat] }
   ActionPhase IF Ruling<This>:: KelvinistsPolicy
 }
-CLASS KelvinistsPolicy : Policy<Ruling<Kelvinists>>, HasActions {
+CLASS KelvinistsPolicy : Policy<Ruling<Kelvinists>>, StandardAction {
   10 MC -> PROD[Heat, Energy]
 }
 
@@ -244,12 +243,12 @@ CLASS RecalculateDominance<Source@Party> : Signal, System {
 
 "Sends the player's free lobby delegate to a party"
 CLASS LobbyAction : StandardAction {
-  This: PartyDelegate FROM LobbyDelegate
+  -> PartyDelegate FROM LobbyDelegate
 }
 
 "Places a delegate from the reserve for 5 M€"
 CLASS PaidLobbyAction : StandardAction {
-  This: 5 Owed<> THEN PaymentScope<Class<PaidLobbyAction>> THEN (MAX 0 PaymentScope, MAX 6 Delegate): PartyDelegate
+  5 MC -> MAX 6 Delegate: PartyDelegate
 }
 
 "Restores free lobbying for each player who has an available delegate"
@@ -277,8 +276,4 @@ ABSTRACT CLASS Influence<GenerationScope> : Owned<Player> {
 "A ruling party's capability during the Action phase"
 ABSTRACT CLASS Policy<Ruling<Party>, ActionPhase> {
   HAS MAX 1 Policy
-}
-
-CLASS UseTurmoilPolicyAction<ActionSlot> : StandardAction {
-  DEFAULT UseTurmoilPolicyAction<Action1>
 }

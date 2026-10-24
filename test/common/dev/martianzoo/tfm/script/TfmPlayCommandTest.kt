@@ -15,7 +15,10 @@ internal class TfmPlayCommandTest {
     repl.agent.runOperation("ProjectCard, 4 MC")
     repl.command("phase Action")
     repl.command("turn")
-    repl.agent.doTask("PlayProject<Class<Mine>>")
+    repl.agent.doTasks(
+        "UseAction<PlayCardAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<Mine>, Hand>",
+    )
 
     val result = repl.command("tfm_play Mine, 4 MC")
 

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class NoctisCityTest : TfmSandboxTest() {
@@ -11,7 +12,7 @@ internal class NoctisCityTest : TfmSandboxTest() {
     kim.setToExMachina(18, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<NoctisCity>>", "18 Pay<> FROM MC")
+      doTasks(*playCardTasks("NoctisCity"), "18 Pay<> FROM MC")
       doTasks(
           "NoctisCity FROM ProjectCard",
           "PROD[-Energy]",
@@ -28,7 +29,7 @@ internal class NoctisCityTest : TfmSandboxTest() {
     kim.setToExMachina(18, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<NoctisCity>>", "18 Pay<> FROM MC")
+      doTasks(*playCardTasks("NoctisCity"), "18 Pay<> FROM MC")
       doTasks(
           "NoctisCity FROM ProjectCard",
           "PROD[-Energy]",

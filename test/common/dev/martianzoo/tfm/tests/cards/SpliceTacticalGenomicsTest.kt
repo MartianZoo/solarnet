@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -44,7 +45,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "PlayProject<Class<Decomposers>>",
+              *playCardTasks("Decomposers"),
               "5 Pay<> FROM MC",
               "Decomposers FROM ProjectCard",
           )
@@ -77,7 +78,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "PlayProject<Class<Decomposers>>",
+              *playCardTasks("Decomposers"),
               "5 Pay<> FROM MC",
               "Decomposers FROM ProjectCard",
           )
@@ -110,7 +111,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "PlayProject<Class<Decomposers>>",
+              *playCardTasks("Decomposers"),
               "5 Pay<> FROM MC",
               "Decomposers FROM ProjectCard",
           )
@@ -142,7 +143,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<IndustrialMicrobes>>", "12 Pay<> FROM MC")
+          doTasks(*playCardTasks("IndustrialMicrobes"), "12 Pay<> FROM MC")
           doTasks(
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",

@@ -4,7 +4,9 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.SystemClasses.AUDIT
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
@@ -18,7 +20,7 @@ internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
     kim.exMachina("$AsteroidDeflectionSystem, $AsteroidRights")
 
     val result = kim.inTurn {
-      doTasks("UseCardAction<AsteroidRights, Action1>", "1 Pay<> FROM MC")
+      doTasks(*cardActionTasks("AsteroidRights"), "1 Pay<> FROM MC")
       doTask("Asteroid<AsteroidDeflectionSystem>")
     }
     result.expect("Asteroid<$AsteroidDeflectionSystem>")
@@ -32,7 +34,7 @@ internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTask("PlayProject<Class<Virus>>")
+        doTasks(*playCardTasks("Virus"))
 
         doTasks(
             "1 Pay<> FROM MC",
@@ -49,7 +51,7 @@ internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
     kim.exMachina("$AsteroidDeflectionSystem")
 
     val result = kim.inTurn {
-      doTask("UseCardAction<AsteroidDeflectionSystem, Action1>")
+      doTasks(*cardActionTasks("AsteroidDeflectionSystem"))
       doTask("ProjectCard<Revealed>")
       doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
       doTask("-ProjectCard<Revealed>")

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -78,7 +79,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(BribedCommittee, 7)
       cardAction1(AppliedScience) { doTask("Plant") }
       playProject(Mine, 4)
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyLeader<Greens> FROM LobbyDelegate")
       }
       pass()
@@ -91,14 +92,14 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
   private fun generation2() {
     with(me) {
       buyCards(0)
-      stdAction("UseTurmoilPolicyAction")
+      stdAction("UseAction<ScientistsPolicy, Action1>")
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
         playPrelude(CorporateArchives)
       }
       cardAction1(AppliedScience) { doTask("Steel") }
       playProject(TitaniumMine, mc = 3, steel = 2)
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyFollower<Reds> FROM LobbyDelegate")
       }
       pass()
@@ -124,7 +125,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(AppliedScience) { doTask("Steel") }
       playProject(UndergroundDetonations, steel = 3)
       cardAction1(UndergroundDetonations)
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyFollower<Unity> FROM LobbyDelegate")
       }
       pass()
@@ -143,7 +144,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("-12 MC")
         playPrelude(AntiDesertificationTechniques)
       }
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyLeader<Greens> FROM LobbyDelegate")
       }
       cardAction1(AppliedScience) { addCardResources(BoardOfDirectors) }
@@ -176,7 +177,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       // Applied Science's wild tag is the fifth Plant tag counted by Robot Pollinators.
       playProject(RobotPollinators, 9)
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyLeader<Unity> FROM LobbyDelegate")
       }
       playProject(AstraMechanica, 7) {
@@ -206,10 +207,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(RestrictedArea, 11) { placeTile(6, 6) }
       cardAction1(RestrictedArea)
       convertHeat()
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyFollower<Greens> FROM LobbyDelegate")
       }
-      stdAction("PaidLobbyAction") {
+      stdAction("UseAction<PaidLobbyAction, Action1>") {
         doTask("PartyFollower<Greens>")
       }
       sellPatents(2)
@@ -254,20 +255,20 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertPlants { placeTile(6, 5) }
       playProject(StJosephOfCupertinoMission, 7)
       stdAction(
-          "UseCardAction<$StJosephOfCupertinoMission, Action1>",
+          *cardActionTasks("$StJosephOfCupertinoMission"),
           payment = { pay(mc = 2, steel = 1) },
       ) {
         doTask("Cathedral<CityTile<Tharsis_4_6>>")
         useStdAction("UseAction<CathedralOption, Action1>", payment = { pay(2) })
       }
       cardAction1(UndergroundDetonations)
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyFollower<Scientists> FROM LobbyDelegate")
       }
       convertPlants { placeTile(5, 7) }
       convertPlants { placeTile(6, 4) }
       stdProject("AsteroidProject")
-      stdAction("PaidLobbyAction") {
+      stdAction("UseAction<PaidLobbyAction, Action1>") {
         doTask("PartyFollower<Unity>")
       }
       pass(unused = AppliedScience)
@@ -282,7 +283,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
   private fun generation8() {
     with(me) {
       buyCards(2)
-      stdAction("UseTurmoilPolicyAction")
+      stdAction("UseAction<ScientistsPolicy, Action1>")
       cardAction1(RestrictedArea)
       playProject(MineralDeposit, 5)
       playProject(CulturalMetropolis, mc = 2, steel = 6) {
@@ -291,7 +292,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyLeader<Greens>")
       }
       stdAction(
-          "UseCardAction<$StJosephOfCupertinoMission, Action1>",
+          *cardActionTasks("$StJosephOfCupertinoMission"),
           payment = { pay(mc = 2, steel = 1) },
       ) {
         doTask("Cathedral<CityTile<Tharsis_7_5>>")
@@ -308,7 +309,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("Titanium")
       }
       convertHeat()
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyFollower<Kelvinists> FROM LobbyDelegate")
       }
       cardAction1(AppliedScience) { doTask("Titanium") }
@@ -343,7 +344,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(GhgShipment, 3)
       playProject(KelpFarming, 17)
       stdProject("CityProject") { placeTile(4, 3) }
-      stdAction("UseCardAction<$StJosephOfCupertinoMission, Action1>", payment = { pay(5) }) {
+      stdAction(*cardActionTasks("$StJosephOfCupertinoMission"), payment = { pay(5) }) {
         doTask("Cathedral<CityTile<Tharsis_4_3>>")
         useStdAction("UseAction<CathedralOption, Action1>", payment = { pay(2) })
       }
@@ -351,10 +352,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("-MC")
         doTask("Plant")
       }
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyLeader<Kelvinists> FROM LobbyDelegate")
       }
-      stdAction("PaidLobbyAction") {
+      stdAction("UseAction<PaidLobbyAction, Action1>") {
         doTask("PartyLeader<MarsFirst>")
       }
       pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
@@ -389,7 +390,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertHeat()
       convertHeat()
       playProject(Capital, 26) { placeTile(2, 5) }
-      stdAction("UseCardAction<$StJosephOfCupertinoMission, Action1>", payment = { pay(5) }) {
+      stdAction(*cardActionTasks("$StJosephOfCupertinoMission"), payment = { pay(5) }) {
         doTask("Cathedral<CityTile<Tharsis_2_5>>")
         useStdAction("UseAction<CathedralOption, Action1>", payment = { pay(2) })
       }
@@ -428,7 +429,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(SpaceElevator)
       cardAction1(SaturnSurfing)
       stdAction(
-          "UseCardAction<$StJosephOfCupertinoMission, Action1>",
+          *cardActionTasks("$StJosephOfCupertinoMission"),
           payment = { pay(mc = 2, steel = 1) },
       ) {
         doTask("Cathedral<CityTile<Tharsis_5_3>>")
@@ -463,7 +464,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdProject("AsteroidProject")
       stdProject("AsteroidProject")
       cardAction1(RedShips)
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyLeader<Greens> FROM LobbyDelegate")
       }
       stdProject("CityProject") { doTask("NormalCityTile<Tharsis_3_4>") }
@@ -482,7 +483,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(Meltworks)
       cardAction1(SaturnSurfing)
       stdAction(
-          "UseCardAction<$StJosephOfCupertinoMission, Action1>",
+          *cardActionTasks("$StJosephOfCupertinoMission"),
           payment = { pay(mc = 2, steel = 1) },
       ) {
         doTask("Cathedral<CityTile<Tharsis_6_3>>")
@@ -491,13 +492,13 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(Recruitment, 0) {
         doTask("PartyFollower<Reds> FROM PartyFollower<Reds, Neutral>")
       }
-      stdAction("LobbyAction") {
+      stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyLeader<Reds> FROM LobbyDelegate")
       }
-      stdAction("PaidLobbyAction") {
+      stdAction("UseAction<PaidLobbyAction, Action1>") {
         doTask("PartyFollower<Scientists>")
       }
-      stdAction("PaidLobbyAction") {
+      stdAction("UseAction<PaidLobbyAction, Action1>") {
         doTask("PartyLeader<Scientists>")
       }
       playProject(EventAnalysts, 1)

@@ -2,7 +2,9 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -46,7 +48,7 @@ internal class VitorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<SearchForLife>>",
+              *playCardTasks("SearchForLife"),
               "3 Pay<> FROM MC",
               "SearchForLife FROM ProjectCard",
               "3 MC",
@@ -64,7 +66,7 @@ internal class VitorTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Mine>>", "4 Pay<> FROM MC")
+      doTasks(*playCardTasks("Mine"), "4 Pay<> FROM MC")
       doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
   }
@@ -79,7 +81,7 @@ internal class VitorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<BribedCommittee>>",
+          *playCardTasks("BribedCommittee"),
           "7 Pay<> FROM MC",
           "BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
@@ -100,19 +102,19 @@ internal class VitorTest : TfmSandboxTest() {
     }
     advanceUntilActionPhase()
     stan.inTurn {
-      doTasks("FundAward<Class<Landlord>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
       doTask("Landlord")
     }
     stan.inTurn {
-      doTasks("FundAward<Class<Banker>>", "14 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC")
       doTask("Banker")
     }
     stan.inTurn {
-      doTasks("FundAward<Class<Scientist>>", "20 Pay<> FROM MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC")
       doTask("Scientist")
     }
     kim.inTurn {
-      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      doTasks(*cardActionTasks("BoardOfDirectors"))
       doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
       doTask("-Director<BoardOfDirectors>")
@@ -133,7 +135,7 @@ internal class VitorTest : TfmSandboxTest() {
     stan.setToExMachina(20, "MC")
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTask("FundAward<Class<Miner>>")
+        doTask("UseAction<FundAwardAction, Action1>")
       }
     }
   }

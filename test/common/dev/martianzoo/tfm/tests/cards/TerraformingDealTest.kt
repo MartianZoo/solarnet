@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -18,7 +19,7 @@ internal class TerraformingDealTest : TfmGameplayTest() {
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
     stan.autoExecNow(EAGER)
 
-    kim.doTasks("PlayProject<Class<$BribedCommittee>>").expect("2 TerraformRating, -3 MC")
+    kim.doTasks(*playCardTasks("$BribedCommittee")).expect("2 TerraformRating, -3 MC")
   }
 
   @Test

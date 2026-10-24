@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -13,7 +14,7 @@ internal class FactorumTest : TfmSandboxTest() {
     kim.setToExMachina(3, "PROD[Energy]")
 
     kim.inTurn {
-      doTask("UseCardAction<Factorum, Action1>")
+      doTasks(*cardActionTasks("Factorum"))
       doTask("PROD[Energy]")
     }
   }
@@ -25,7 +26,7 @@ internal class FactorumTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseCardAction<Factorum, Action1>")
+        doTasks(*cardActionTasks("Factorum"))
         // Resolve the production reward so the stored-energy requirement is checked.
         selectTask("Production")
       }

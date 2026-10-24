@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -14,7 +15,7 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
     kim.exMachina("$MartianMediaCenter")
 
     kim.inTurn {
-          doTasks("UseCardAction<MartianMediaCenter, Action1>", "3 Pay<> FROM MC")
+          doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC")
           doTask("PartyLeader<Greens>")
         }
         .expect("-3 MC, 0 LobbyDelegate")
@@ -27,7 +28,7 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
     kim.exMachina("PartyLeader<Unity>, 5 PartyFollower<Unity>")
 
     kim.inTurn {
-          doTasks("UseCardAction<MartianMediaCenter, Action1>", "3 Pay<> FROM MC")
+          doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC")
           doTask("PartyLeader<Greens>")
         }
         .expect("-3 MC, -LobbyDelegate")
@@ -41,7 +42,7 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTask("UseCardAction<MartianMediaCenter, Action1>")
+        doTasks(*cardActionTasks("MartianMediaCenter"))
         doTask("3 Pay<> FROM MC")
         doTask("PartyLeader<Greens>")
       }

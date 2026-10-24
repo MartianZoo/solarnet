@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -13,7 +14,7 @@ internal class AphroditeTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Aphrodite)
 
     stan.inTurn {
-      doTasks("UseStandardProject<AirScrappingProject>", "15 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AirScrappingProject"), "15 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
       kim.doTask("2 MC")

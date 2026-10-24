@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
@@ -13,7 +14,7 @@ internal class VenusShuttlesTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("UseCardAction<VenusShuttles, Action1>", "6 Pay<> FROM MC")
+      doTasks(*cardActionTasks("VenusShuttles"), "6 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
     }

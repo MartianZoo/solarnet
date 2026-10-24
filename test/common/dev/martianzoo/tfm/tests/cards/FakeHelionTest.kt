@@ -5,6 +5,9 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -39,7 +42,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(4, "Heat")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<Mine>>", "4 Pay<Class<Heat>> FROM Heat", "Ok")
+          doTasks(*playCardTasks("Mine"), "4 Pay<Class<Heat>> FROM Heat", "Ok")
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
         }
         .expect("Mine, -4 Heat, 0 MC")
@@ -52,7 +55,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(4, "Heat")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<Mine>>", "4 Pay<Class<Heat>> FROM Heat", "Ok")
+          doTasks(*playCardTasks("Mine"), "4 Pay<Class<Heat>> FROM Heat", "Ok")
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
         }
         .expect("Mine, -4 Heat, 0 MC")
@@ -65,7 +68,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(2, "Heat")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<Mine>>", "2 Pay<Class<Heat>> FROM Heat")
+          doTasks(*playCardTasks("Mine"), "2 Pay<Class<Heat>> FROM Heat")
           doTasks("2 Pay<> FROM MC", "Mine FROM ProjectCard", "PROD[Steel]")
         }
         .expect("Mine, -2 Heat, -2 MC")
@@ -78,7 +81,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(4, "Heat")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<Mine>>", "Ok", "4 Pay<> FROM MC")
+          doTasks(*playCardTasks("Mine"), "Ok", "4 Pay<> FROM MC")
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
         }
         .expect("Mine, 0 Heat, -4 MC")
@@ -92,7 +95,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<PowerPlantProject>",
+              *standardProjectTasks("PowerPlantProject"),
               "11 Pay<Class<Heat>> FROM Heat",
               "Ok",
               "PROD[Energy]",
@@ -201,7 +204,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(12, "Heat")
 
     return kim.inTurn {
-      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      doTasks(*cardActionTasks("BoardOfDirectors"))
       doTask("PreludeCard<Kim, Hand>")
       doTasks("12 Pay<Class<Heat>> FROM Heat", "Ok")
       doTask("-Director<BoardOfDirectors>")
@@ -235,7 +238,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(20, "Heat")
 
     return kim.inTurn {
-      doTasks("ClaimMilestone<Class<Briber>>", "8 Pay<Class<Heat>> FROM Heat", "Ok")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<Class<Heat>> FROM Heat", "Ok")
       doTask("Briber")
       doTasks("12 Pay<Class<Heat>> FROM Heat", "Ok")
     }
@@ -296,7 +299,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(6, "Heat")
 
     return kim.inTurn {
-      doTask("UseCardAction<EnergyMarket, Action1>")
+      doTasks(*cardActionTasks("EnergyMarket"))
       selectOnlyTask(x = 3)
       doTasks("6 Pay<Class<Heat>> FROM Heat", "Ok", "3 Energy")
     }
@@ -325,7 +328,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
 
     return kim.inTurn {
       doTasks(
-          "PlayProject<Class<Mine>>",
+          *playCardTasks("Mine"),
           "2 PayFromCard<StormcraftIncorporated> FROM Floater<StormcraftIncorporated>",
           "Ok",
       )
@@ -340,7 +343,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(0, "Heat")
 
     shouldThrow<TaskException> {
-      kim.inTurn { doTasks("ConvertHeat", "8 Pay<Class<Heat>> FROM MC") }
+      kim.inTurn { doTasks("UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM MC") }
     }
     kim.count("MC") shouldBe 8
     kim.count("TemperatureStep") shouldBe 0
@@ -355,7 +358,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "PlayProject<Class<HiredRaiders>>",
+              *playCardTasks("HiredRaiders"),
               "1 Pay<> FROM MC",
               "HiredRaiders FROM ProjectCard",
               "2 MC<Stan FROM Kim>",
@@ -435,7 +438,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
 
     return stan.inTurn {
       doTasks(
-          "PlayProject<Class<HiredRaiders>>",
+          *playCardTasks("HiredRaiders"),
           "1 Pay<> FROM MC",
           "HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",

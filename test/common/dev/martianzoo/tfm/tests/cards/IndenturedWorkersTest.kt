@@ -1,7 +1,10 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
 
 internal class IndenturedWorkersTest : TfmSandboxTest() {
@@ -12,13 +15,13 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<IndenturedWorkers>>",
+          *playCardTasks("IndenturedWorkers"),
           "IndenturedWorkers FROM ProjectCard",
       )
       doTask("IndenturedWorkers_NextCardEffect")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "27 Pay<> FROM MC")
+      doTasks(*playCardTasks("Soletta"), "27 Pay<> FROM MC")
       doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
@@ -31,26 +34,26 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<IndenturedWorkers>>",
+          *playCardTasks("IndenturedWorkers"),
           "IndenturedWorkers FROM ProjectCard",
       )
       doTask("IndenturedWorkers_NextCardEffect")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("ConvertHeat", "8 Pay<Class<Heat>> FROM Heat")
+      doTasks("UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM Heat")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<SellPatentsProject>", "2! MC FROM ProjectCard")
+      doTasks(*standardProjectTasks("SellPatentsProject"), "2! MC FROM ProjectCard")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "27 Pay<> FROM MC")
+      doTasks(*playCardTasks("Soletta"), "27 Pay<> FROM MC")
       doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
@@ -62,18 +65,18 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<IndenturedWorkers>>",
+          *playCardTasks("IndenturedWorkers"),
           "IndenturedWorkers FROM ProjectCard",
       )
       doTask("IndenturedWorkers_NextCardEffect")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "27 Pay<> FROM MC")
+      doTasks(*playCardTasks("Soletta"), "27 Pay<> FROM MC")
       doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<AdvancedAlloys>>",
+          *playCardTasks("AdvancedAlloys"),
           "9 Pay<> FROM MC",
           "AdvancedAlloys FROM ProjectCard",
       )
@@ -86,7 +89,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<IndenturedWorkers>>",
+          *playCardTasks("IndenturedWorkers"),
           "IndenturedWorkers FROM ProjectCard",
       )
       doTask("IndenturedWorkers_NextCardEffect")
@@ -95,7 +98,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.setToExMachina(35, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "35 Pay<> FROM MC")
+      doTasks(*playCardTasks("Soletta"), "35 Pay<> FROM MC")
       doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
@@ -110,13 +113,13 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<IndenturedWorkers>>",
+          *playCardTasks("IndenturedWorkers"),
           "IndenturedWorkers FROM ProjectCard",
       )
       doTask("IndenturedWorkers_NextCardEffect")
     }
     kim.inTurn {
-      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      doTasks(*cardActionTasks("BoardOfDirectors"))
       doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
       doTask("-Director<BoardOfDirectors>")
@@ -124,7 +127,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "27 Pay<> FROM MC")
+      doTasks(*playCardTasks("Soletta"), "27 Pay<> FROM MC")
       doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }

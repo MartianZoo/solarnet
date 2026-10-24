@@ -24,12 +24,17 @@ or card holder; clients cannot turn a different resource removal into payment cr
 
 `Owed` records the debt but does not install acceptance. A `PaymentScope` starts after debt is
 created; its creation announces card and printed-tag pricing and installs available alternative
-resources. Removing the scope ends acceptance before the purchased result runs.
+resources. Removing the scope ends acceptance and creates the purchased result for authored fixed-cost
+actions, award funding, and research purchases. The research-purchase completion rule belongs to
+the existing `Selecting` location, which remains present after the request signal disappears.
+Card play still queues its result behind `MAX 0 Barrier`; replacing that separate requirement and
+payment flow is deferred.
 
 `Owed` is the amount still due, including during price adjustment. `PaymentScope` tracks payment
 through completion and carries a subject, denomination, and operation. Cards, printed actions, conversions,
 milestones, and awards use this same type. For example,
-`PaymentScope<Class<Builder>>` retains the selected milestone through payment, while
+`PaymentScope<Class<ClaimMilestoneAction>>` pays for a milestone claim before the player chooses
+the milestone, while
 `PaymentScope<Class<Steelworks>, Class<Energy>, Class<Action1>>` identifies a printed action and
 its currency. The operation defaults to `Action1` and the currency to M€. Currency-only listeners
 leave the subject broad, as in `PaymentScope<Class<Component>, Class<Heat>>`.

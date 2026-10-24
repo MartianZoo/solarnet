@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class GmoContractTest : TfmSandboxTest() {
@@ -12,7 +13,7 @@ internal class GmoContractTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<AdvancedEcosystems>>",
+          *playCardTasks("AdvancedEcosystems"),
           "11 Pay<> FROM MC",
           "AdvancedEcosystems FROM ProjectCard",
           "2 MC",

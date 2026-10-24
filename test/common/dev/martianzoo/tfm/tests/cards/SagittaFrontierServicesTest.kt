@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -31,7 +32,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<AtmoCollectors>>",
+          *playCardTasks("AtmoCollectors"),
           "15 Pay<> FROM MC",
           "AtmoCollectors FROM ProjectCard",
           "4 MC",
@@ -47,7 +48,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Sabotage>>",
+              *playCardTasks("Sabotage"),
               "1 Pay<> FROM MC",
               "Sabotage FROM ProjectCard",
               "MC",
@@ -66,7 +67,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     kim.setToExMachina(10, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<SmallAsteroid>>", "10 Pay<> FROM MC")
+      doTasks(*playCardTasks("SmallAsteroid"), "10 Pay<> FROM MC")
       doTasks(
           "SmallAsteroid FROM ProjectCard",
       )
@@ -82,7 +83,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     newTestGame("SagittaFrontierServices, -Merger", kimCorporation = SagittaFrontierServices)
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Mine>>", "4 Pay<> FROM MC")
+      doTasks(*playCardTasks("Mine"), "4 Pay<> FROM MC")
       doTasks("Mine FROM ProjectCard", "PROD[Steel]", "MC")
     }
   }
@@ -94,7 +95,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Research>>",
+          *playCardTasks("Research"),
           "11 Pay<> FROM MC",
           "Research FROM ProjectCard",
       )
@@ -108,7 +109,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<Mine>>", "4 Pay<> FROM MC")
+          doTasks(*playCardTasks("Mine"), "4 Pay<> FROM MC")
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
         }
         .expect("0 MC<Kim>")

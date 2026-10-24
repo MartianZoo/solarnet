@@ -2,7 +2,9 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -45,7 +47,7 @@ internal class BoomTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<SmallAsteroid>>",
+          *playCardTasks("SmallAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
           "SmallAsteroid FROM ProjectCard",
@@ -57,7 +59,7 @@ internal class BoomTownTest : TfmSandboxTest() {
     }
     stan.inTurn {
       doTasks(
-          "PlayProject<Class<SpaceStation>>",
+          *playCardTasks("SpaceStation"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "7 Pay<> FROM MC",
           "SpaceStation FROM ProjectCard",
@@ -87,7 +89,7 @@ internal class BoomTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<SmallAsteroid>>",
+          *playCardTasks("SmallAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
           "SmallAsteroid FROM ProjectCard",
@@ -110,7 +112,7 @@ internal class BoomTownTest : TfmSandboxTest() {
     // Titanium is worth 3 - 1 + 1 + 1 + 1 + 1 = 6 MC.
     kim.inTurn {
           doTasks(
-              "UseCardAction<IcyImpactors, Action1>",
+              *cardActionTasks("IcyImpactors"),
               "1 Pay<Class<Titanium>> FROM Titanium",
               "4 Pay<> FROM MC",
           )

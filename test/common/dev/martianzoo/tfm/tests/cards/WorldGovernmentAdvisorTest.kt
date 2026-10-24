@@ -2,7 +2,9 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -13,7 +15,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     kim.exMachina("$WorldGovernmentAdvisor")
 
     kim.inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
           shouldThrow<TaskException> { doTask("OceanTile<Tharsis_3_3> BY Admin") }
           doTask("OceanTile<Tharsis_1_2> BY Admin")
         }
@@ -27,7 +29,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("TemperatureStep BY Admin")
         }
@@ -41,7 +43,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     stan.exMachina("$Aphrodite")
 
     kim.inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("VenusStep BY Admin")
           stan.doTask("2 MC")
@@ -56,7 +58,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     stan.exMachina("$ArcticAlgae, $LakefrontResorts")
 
     kim.inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("OceanTile<Tharsis_1_2> BY Admin")
           stan.doTask("2 Plant")
@@ -71,7 +73,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     kim.exMachina("$WorldGovernmentAdvisor, 14 TemperatureStep")
 
     kim.inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("TemperatureStep BY Admin")
           // Hand the threshold ocean choice to the start player before placing it.
@@ -88,13 +90,13 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     kim.exMachina("$WorldGovernmentAdvisor, $HomeostasisBureau")
 
     kim.inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("TemperatureStep BY Admin")
         }
         .expect("0 TerraformRating, 0 MC")
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTasks("TerraformRating", "3 MC")
     }

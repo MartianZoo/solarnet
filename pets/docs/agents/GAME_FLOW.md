@@ -14,14 +14,15 @@ that published turn and declines an unused second opportunity.
 
 ### Offering, taking, and finishing an action
 
-- The first action-phase offer is `StandardAction OR Pass`, or its required-action equivalent.
+- The first action-phase offer is `UseAction<StandardAction> OR Pass`, or its required-action equivalent.
   Passing creates no scope and ends that player's participation for the generation.
-- Accepting `StandardAction`, `DoRequiredActions`, or `PlayCard` creates a scope only when
-  none exists. Generic `UseAction` does not create a scope: reactive abilities and nested card
-  plays resolve within the current action.
+- Invoking a `StandardAction` through `UseAction`, or accepting `DoRequiredActions` or `PlayCard`,
+  creates a scope only when none exists. Invoking other `HasActions` providers does not create
+  a scope: reactive abilities and nested card plays resolve within the current action.
 - `PlayCard` and `UseAction` are System signals. The player supplies any unresolved card or
   action choice; Admin executes the fully specified dispatch. Standard-action forwarding uses
-  ordinary queued effects, so it does not require another player decision.
+  ordinary queued effects. Playing a card or using a project/card action first selects the standard
+  action, then the specific card, project or printed action it offers.
 - The scope remains through payment, effects, placement bonuses, other players' responses, and
   `LATER` cleanup. Its own `FINALLY { -This }` ends that lifetime. The baton holder's shared
   scope-removal rule schedules `FINALLY { OfferAction }`.
@@ -94,7 +95,7 @@ count only that owner's status. Literal `Anyone` explicitly suppresses implicit 
 
 During the action phase, `InRound` supplies a first offer on receiving the baton, and grants a
 baton-dependent `SecondAction` allowance when another player remains. After the first action,
-`OfferAction` consumes that allowance and its removal offers `StandardAction OR PassBaton`, or
+`OfferAction` consumes that allowance and its removal offers `UseAction<StandardAction> OR PassBaton`, or
 the required-action equivalent. After the second action, `OfferAction` requests `PassBaton`.
 A player carrying `Pass` passes a received baton onward without opening a scope; the same
 `OfferAction` response hands over play after a pass made during an action finishes resolving.

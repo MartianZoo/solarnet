@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.fake.FakeCanon
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -364,7 +365,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       playProject(SisterPlanetSupport, 7).expect("PROD[3 MC]")
     }
     nor.turn {
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         placeTile(6, 9)
       }
     }
@@ -396,7 +397,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 3, temp = -30, oxygen = 3, oceans = 2, venus = 4)
 
     nor.turn {
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         placeTile(6, 8)
       }
       playProject(StaticHarvesting, 5)
@@ -443,7 +444,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       }
     }
     nor.turn {
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         placeTile(4, 8)
       }
       convertPlants { placeTile(5, 8) }
@@ -491,7 +492,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 5, venus = 10)
 
     nor.turn {
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         placeTile(5, 6)
       }
       convertPlants { placeTile(4, 6) }
@@ -553,7 +554,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.turn { cardAction1(LocalShading) }
     vin.turn { playProject(SolarLogistics, 14, titanium = 2) }
     nor.turn {
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         placeTile(6, 7)
       }
       playProject(IshtarMining, 5)
@@ -580,7 +581,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 7, temp = -14, oxygen = 8, oceans = 8, venus = 16)
 
     nor.turn {
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         placeTile(5, 4)
       }
       fundAward(cn("Landlord"), 8)

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.HomeostasisBureau
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -14,7 +15,7 @@ internal class HomeostasisBureauTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
+          doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
           doTask("TemperatureStep")
           doTask("TerraformRating")
         }

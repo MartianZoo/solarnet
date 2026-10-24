@@ -6,6 +6,8 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -18,7 +20,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     kim.count("Baton") shouldBe 1
 
     kim.completeOperation {
-          doTask("UseStandardProject<PowerPlantProject>")
+          doTasks(*standardProjectTasks("PowerPlantProject"))
           admin.count("ActionScope<Kim>") shouldBe 1
           doTask("11 Pay<> FROM MC")
           admin.count("ActionScope<Kim>") shouldBe 1
@@ -29,7 +31,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     kim.count("Baton") shouldBe 1
 
     kim.completeOperation {
-          doTask("UseStandardProject<PowerPlantProject>")
+          doTasks(*standardProjectTasks("PowerPlantProject"))
           admin.count("ActionScope<Kim>") shouldBe 1
           doTask("11 Pay<> FROM MC")
           admin.count("ActionScope<Kim>") shouldBe 1
@@ -40,7 +42,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
 
     stan.count("Baton") shouldBe 1
     kim.count("Baton") shouldBe 0
-    stan.doTask("UseStandardProject<PowerPlantProject>")
+    stan.doTasks(*standardProjectTasks("PowerPlantProject"))
     admin.count("ActionScope<Stan>") shouldBe 1
     admin.count("ActionScope<Kim>") shouldBe 0
   }
@@ -49,7 +51,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
   internal fun `Declining the second action leaves no scope or pass status`() {
     newTestGame(playerCount = 2)
     kim.completeOperation {
-          doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
+          doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
         }
         .expect("PROD[Energy], -11 MC")
     admin.count("ActionScope") shouldBe 0
@@ -60,7 +62,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     stan.doTask("Pass")
     admin.count("ActionScope") shouldBe 0
 
-    kim.doTask("UseStandardProject<PowerPlantProject>")
+    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
     admin.count("ActionScope<Kim>") shouldBe 1
   }
 
@@ -69,13 +71,13 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     newTestGame("ResearchCoordination", playerCount = 2)
     kim.completeOperation {
           doTasks(
-              "PlayProject<Class<ResearchCoordination>>",
+              *playCardTasks("ResearchCoordination"),
               "4 Pay<> FROM MC",
               "ResearchCoordination FROM ProjectCard",
           )
         }
         .expect("ResearchCoordination, -4 MC")
-    kim.doTasks("PlayProject<Class<Cartel>>", "8 Pay<> FROM MC", "Cartel FROM ProjectCard")
+    kim.doTasks(*playCardTasks("Cartel"), "8 Pay<> FROM MC", "Cartel FROM ProjectCard")
         .expect("Cartel, -8 MC")
     admin.count("ActionScope<Kim>") shouldBe 1
     kim.count("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>") shouldBe 1
@@ -85,7 +87,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
         doTask("PROD[2 MC]")
         admin.count("ActionScope") shouldBe 0
         kim.count("WildTagElection") shouldBe 0
-        doTask("UseStandardProject<PowerPlantProject>")
+        doTasks(*standardProjectTasks("PowerPlantProject"))
       }
     }
     admin.count("ActionScope<Kim>") shouldBe 1
@@ -205,7 +207,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     kim.selectTask("PassBaton")
 
     stan.doTasks(
-        "UseStandardProject<GreeneryProject>",
+        *standardProjectTasks("GreeneryProject"),
         "23 Pay<> FROM MC",
         "GreeneryTile<Tharsis_3_2>",
         "OxygenStep",
@@ -213,11 +215,11 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     )
     admin.count("ActionScope<Stan>") shouldBe 1
     admin.count("ActionScope<Kim>") shouldBe 0
-    shouldThrow<TaskException> { stan.doTask("UseStandardProject<PowerPlantProject>") }
+    shouldThrow<TaskException> { stan.doTasks(*standardProjectTasks("PowerPlantProject")) }
 
     kim.doTask("Titanium").expect("Titanium")
     admin.count("ActionScope") shouldBe 0
-    stan.doTask("UseStandardProject<PowerPlantProject>")
+    stan.doTasks(*standardProjectTasks("PowerPlantProject"))
     admin.count("ActionScope<Stan>") shouldBe 1
   }
 }

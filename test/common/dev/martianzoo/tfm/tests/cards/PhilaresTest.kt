@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -21,7 +23,7 @@ internal class PhilaresTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "UseStandardProject<GreeneryProject>",
+              *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_3_2>",
           )
@@ -39,7 +41,7 @@ internal class PhilaresTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_3_2>",
       )
@@ -57,7 +59,7 @@ internal class PhilaresTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "UseStandardProject<GreeneryProject>",
+              *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_2_1>",
           )
@@ -75,7 +77,7 @@ internal class PhilaresTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<GreeneryProject>",
+              *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_3_2>",
           )
@@ -92,7 +94,7 @@ internal class PhilaresTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "PlayProject<Class<KaguyaTech>>",
+              *playCardTasks("KaguyaTech"),
               "10 Pay<> FROM MC",
               "KaguyaTech FROM ProjectCard",
               "PROD[2 MC]",

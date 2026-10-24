@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -12,11 +13,11 @@ internal class VironTest : TfmSandboxTest() {
   internal fun `Can repeat an action used earlier in the generation`() {
     newTestGame(kimCorporation = Viron)
     kim.exMachina("$AtmoCollectors")
-    kim.inTurn { doTasks("UseCardAction<$AtmoCollectors, Action1>", "Floater<$AtmoCollectors>") }
+    kim.inTurn { doTasks(*cardActionTasks("$AtmoCollectors"), "Floater<$AtmoCollectors>") }
 
     kim.inTurn {
       doTasks(
-          "UseCardAction<$Viron, Action1>",
+          *cardActionTasks("$Viron"),
           "UseAction<$AtmoCollectors, Action1>",
           "Floater<$AtmoCollectors>",
       )
@@ -28,12 +29,12 @@ internal class VironTest : TfmSandboxTest() {
     initializeGame()
 
     kim.inTurn {
-      doTask("UseCardAction<AtmoCollectors, Action1>")
+      doTasks(*cardActionTasks("AtmoCollectors"))
       doTask("Floater<AtmoCollectors>")
     }
 
     kim.inTurn {
-          doTasks("UseCardAction<Viron, Action1>", "UseAction<AtmoCollectors, Action2>")
+          doTasks(*cardActionTasks("Viron"), "UseAction<AtmoCollectors, Action2>")
           doTask("-Floater<AtmoCollectors>")
           doTask("2 Titanium")
         }
@@ -44,12 +45,12 @@ internal class VironTest : TfmSandboxTest() {
   internal fun `Cannot use Viron to repeat Viron's own action`() {
     initializeGame()
     kim.inTurn {
-      doTask("UseCardAction<AtmoCollectors, Action1>")
+      doTasks(*cardActionTasks("AtmoCollectors"))
       doTask("Floater<AtmoCollectors>")
     }
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseCardAction<$Viron, Action1>")
+        doTasks(*cardActionTasks("$Viron"))
         doTask("UseAction<$Viron, Action1>")
       }
     }
@@ -60,13 +61,13 @@ internal class VironTest : TfmSandboxTest() {
     initializeGame()
     kim.exMachina("$ExtractorBalloons")
     kim.inTurn {
-      doTask("UseCardAction<AtmoCollectors, Action1>")
+      doTasks(*cardActionTasks("AtmoCollectors"))
       doTask("Floater<AtmoCollectors>")
     }
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("UseCardAction<$Viron, Action1>")
+        doTasks(*cardActionTasks("$Viron"))
         doTask("UseAction<$ExtractorBalloons, Action1>")
       }
     }
@@ -78,17 +79,17 @@ internal class VironTest : TfmSandboxTest() {
     kim.exMachina("$ExtractorBalloons")
     stan.exMachina("$AtmoCollectors, Floater<$AtmoCollectors>")
     kim.inTurn {
-      doTask("UseCardAction<ExtractorBalloons, Action1>")
+      doTasks(*cardActionTasks("ExtractorBalloons"))
       doTask("Floater<ExtractorBalloons>")
     }
     stan.inTurn {
-      doTask("UseCardAction<AtmoCollectors, Action1>")
+      doTasks(*cardActionTasks("AtmoCollectors"))
       doTask("Floater<AtmoCollectors>")
     }
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseCardAction<$Viron, Action1>")
+        doTasks(*cardActionTasks("$Viron"))
         doTask("UseAction<$AtmoCollectors<Stan>, Action1>")
       }
     }
@@ -99,12 +100,12 @@ internal class VironTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Viron)
     kim.exMachina("$Celestic")
     kim.inTurn {
-      doTask("UseCardAction<Celestic, Action1>")
+      doTasks(*cardActionTasks("Celestic"))
       doTask("Floater<Celestic>*")
     }
 
     kim.inTurn {
-          doTasks("UseCardAction<Viron, Action1>", "UseAction<Celestic, Action1>")
+          doTasks(*cardActionTasks("Viron"), "UseAction<Celestic, Action1>")
           doTask("Floater<Celestic>*")
         }
         .expect("Floater<$Celestic>")

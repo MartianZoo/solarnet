@@ -5,6 +5,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -591,8 +592,9 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // Blue paid 18 M€ and 5 heat for Protected Valley at 2-7, receiving the space's two titanium
       // and 2 M€ ocean adjacency. She then paid 4 M€ and 4 heat to claim Landshaper.
       playProject(ProtectedValley, 18, heat = 5) { placeTile(2, 7) }
-      doTask("ClaimMilestone<Class<Landshaper>>")
+      doTask("UseAction<ClaimMilestoneAction, Action1>")
       pay(4, heat = 4)
+      doTask("Landshaper")
     }
     green.turn {
       // 3:33:24 PM — Green: "Okay. I'm gonna sell this card for one money."
@@ -828,7 +830,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 4:02:56 PM — Green: "I'm going to use Icy Impactors to spend three titanium and one real
     // money to put two roids on the card. [Yellow]'s turn."
     green.turn {
-      stdAction("UseCardAction<$IcyImpactors, Action1>", payment = { pay(1, titanium = 3) })
+      stdAction(*cardActionTasks("$IcyImpactors"), payment = { pay(1, titanium = 3) })
     }
     // 4:03:17 PM — Rainbow: "going to spend four money on moss which requires me to lose a plant
     // but
@@ -1056,7 +1058,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // bacteria. I'm going to take my floater and find a reaction to remove two floaters and gain
       // one titanium and two money. And that's two actions."
       cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
-      stdAction("UseCardAction<$FloatingRefinery, Action2>").expect("2 MC")
+      stdAction(*cardActionTasks("$FloatingRefinery", "Action2")).expect("2 MC")
       assertCounts(21 to "MC")
     }
     // 3:22:14 PM — Blue: "Okay, um, I pass."

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -60,7 +61,7 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
     newTestGame(addOptions = "ElysiumMap")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Generalist2>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Generalist2")
       }
@@ -68,17 +69,17 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
     kim.exMachina("PROD[MC, Steel, Titanium, Plant, Heat]")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Generalist2>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Generalist2")
       }
     }
 
     kim.inTurn {
-      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Generalist2>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Generalist2")
     }
   }
@@ -89,17 +90,17 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
     kim.exMachina("PROD[MC, Steel, Titanium, Plant, Heat]")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Generalist>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Generalist")
       }
     }
 
     kim.inTurn {
-      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Generalist>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Generalist")
     }
   }

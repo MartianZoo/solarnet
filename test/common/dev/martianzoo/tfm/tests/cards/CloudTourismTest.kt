@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class CloudTourismTest : TfmSandboxTest() {
@@ -12,7 +13,7 @@ internal class CloudTourismTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CloudTourism>>",
+          *playCardTasks("CloudTourism"),
           "9 Pay<> FROM MC",
           "CloudTourism FROM ProjectCard",
       )
@@ -29,7 +30,7 @@ internal class CloudTourismTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CloudTourism>>",
+          *playCardTasks("CloudTourism"),
           "9 Pay<> FROM MC",
           "CloudTourism FROM ProjectCard",
       )

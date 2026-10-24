@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.FloatingTradeHub
 import kotlin.test.Test
 
@@ -11,7 +12,7 @@ internal class FloatingTradeHubTest : TfmSandboxTest() {
     kim.exMachina("$FloatingTradeHub, 5 Floater<$FloatingTradeHub>")
 
     kim.inTurn {
-      doTask("UseCardAction<FloatingTradeHub, Action2>")
+      doTasks(*cardActionTasks("FloatingTradeHub", "Action2"))
       doTask("-3 Floater<FloatingTradeHub> THEN 3 Titanium")
       doTask("3 Titanium")
     }

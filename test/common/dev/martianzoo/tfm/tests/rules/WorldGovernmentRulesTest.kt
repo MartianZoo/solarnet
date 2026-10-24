@@ -5,7 +5,10 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -18,13 +21,13 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, 14 VenusStep")
     kim.inTurn {
-      doTasks("UseStandardProject<AirScrappingProject>", "15 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AirScrappingProject"), "15 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
     }
 
     kim.inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("VenusStep BY Admin")
         }
@@ -42,7 +45,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("UseStandardProject<AirScrappingProject>")
+        doTasks(*standardProjectTasks("AirScrappingProject"))
         doTask("15 Pay<> FROM MC")
         doTask("VenusStep")
         doTask("TerraformRating")
@@ -66,7 +69,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     fillSelectedColonySlots()
 
     kim.inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("VenusStep BY Admin")
         }
@@ -81,7 +84,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.exMachina("$WorldGovernmentAdvisor, 7 VenusStep")
 
     kim.inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("VenusStep BY Admin")
         }
@@ -115,18 +118,18 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     )
     kim.setToExMachina(100, "MC")
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<AirScrappingProject>", "15 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AirScrappingProject"), "15 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
       doTasks(
-          "UseStandardProject<GreeneryProject>",
+          *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_3_3>",
       )
@@ -135,7 +138,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks(
-          "UseStandardProject<AquiferProject>",
+          *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
           "OceanTile<Tharsis_4_8>",
           "TerraformRating",
@@ -144,7 +147,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
           // Resolve the world-government handoff even though all tracks are complete.
           selectTask("GlobalParameter(NOT OceanTile<LandArea>)* BY Admin")
         }
@@ -208,7 +211,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     @Test
     internal fun `Admin terraforming does not trigger Homeostasis Bureau's owner effect`() {
       newTestGame(playerCount = 2)
-      kim.doTasks("PlayProject<Class<$HomeostasisBureau>>")
+      kim.doTasks(*playCardTasks("$HomeostasisBureau"))
       kim.selectTask("PassBaton") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")

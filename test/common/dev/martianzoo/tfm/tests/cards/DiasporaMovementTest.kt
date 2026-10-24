@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class DiasporaMovementTest : TfmSandboxTest() {
@@ -13,7 +14,7 @@ internal class DiasporaMovementTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<DiasporaMovement>>",
+              *playCardTasks("DiasporaMovement"),
               "7 Pay<> FROM MC",
               "DiasporaMovement FROM ProjectCard",
           )

@@ -50,8 +50,7 @@ CLASS PlayPrelude<@CardLocation> : Owned<Player>, Signal, System {
 "Buys every project card left in this Player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal, System {
   This IF ProjectCard<Selecting>: \
-    3 Owed<> / ProjectCard<Selecting> THEN PaymentScope<Class<BuySelectedCards>> THEN \
-    MAX 0 PaymentScope: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
+    3 Owed<> / ProjectCard<Selecting> THEN PaymentScope<Class<BuySelectedCards>>
 }
 
 "An externally specified search criterion; the selected card is not tracked before it reaches a hand"
@@ -114,7 +113,10 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier, System {
 "The current place of an anonymous unplayed card associated with a Player"
 ABSTRACT CLASS CardLocation : System {
   CLASS Hand : Iconic { HAS =1 This }
-  CLASS Selecting { HAS =1 This }
+  CLASS Selecting {
+    HAS =1 This
+    -PaymentScope<Class<BuySelectedCards>>: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
+  }
   CLASS Revealed { HAS =1 This }
 }
 

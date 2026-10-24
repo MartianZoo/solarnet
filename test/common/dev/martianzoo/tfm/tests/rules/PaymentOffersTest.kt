@@ -3,7 +3,9 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -16,7 +18,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseCardAction<WaterImportFromEuropa, Action1>",
+              *cardActionTasks("WaterImportFromEuropa"),
               "4 Pay<Class<Titanium>> FROM Titanium",
               "Ok", // Nothing remains to pay in MC.
               "OceanTile<Tharsis_1_2>",
@@ -35,7 +37,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseCardAction<AquiferPumping, Action1>",
+          *cardActionTasks("AquiferPumping"),
           "3 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
           "OceanTile<Tharsis_1_2>",
@@ -52,7 +54,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
 
     kim.inTurn {
           // Thorgate makes the card free even with several alternative payment sources.
-          doTasks("PlayProject<Class<SpaceMirrors>>", "SpaceMirrors FROM ProjectCard")
+          doTasks(*playCardTasks("SpaceMirrors"), "SpaceMirrors FROM ProjectCard")
         }
         .expect("0 MC, 0 Titanium, 0 Graphene")
   }
@@ -63,7 +65,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
     kim.exMachina("$FakeHelion, $EarthCatapult, $AntiGravityTechnology, Steel, Heat")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<Mine>>", "Mine FROM ProjectCard", "PROD[Steel]")
+          doTasks(*playCardTasks("Mine"), "Mine FROM ProjectCard", "PROD[Steel]")
         }
         .expect("0 MC, 0 Steel, 0 Heat")
   }
@@ -76,7 +78,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<$SpaceElevator>>",
+              *playCardTasks("$SpaceElevator"),
               "7 Pay<Class<Steel>> FROM Steel",
               "5 Pay<Class<Titanium>> FROM Titanium",
               "Ok",
@@ -93,7 +95,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<SpaceElevator>>",
+          *playCardTasks("SpaceElevator"),
           "27 Pay<> FROM MC",
           "SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
@@ -108,7 +110,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<SpaceElevator>>",
+          *playCardTasks("SpaceElevator"),
           "Pay<Class<Steel>> FROM Steel",
           "25 Pay<> FROM MC",
           "SpaceElevator FROM ProjectCard",
@@ -124,7 +126,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
 
     kim.inTurn {
-      doTask("PlayProject<Class<SpaceElevator>>")
+      doTasks(*playCardTasks("SpaceElevator"))
       doTasks(
           "9 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // Nothing remains to pay in MC.
@@ -141,7 +143,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<SpaceElevator>>",
+          *playCardTasks("SpaceElevator"),
           "Pay<Class<Steel>> FROM Steel",
           "Pay<Class<Titanium>> FROM Titanium",
           "21 Pay<> FROM MC",
@@ -157,7 +159,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
     kim.exMachina("Steel")
 
     kim.inTurn {
-      doTask("PlayProject<Class<Mine>>")
+      doTasks(*playCardTasks("Mine"))
       shouldThrow<TaskException> { doTask("4 Pay<> FROM MC") }
       doTask("Pay<Class<Steel>> FROM Steel")
       shouldThrow<TaskException> { doTask("Pay<> FROM MC") }
@@ -174,7 +176,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
     kim.exMachina("Steel")
 
     kim.inTurn {
-          doTask("PlayProject<Class<Mine>>")
+          doTasks(*playCardTasks("Mine"))
           doTask("Ok") // Keep the steel.
           doTasks("4 Pay<> FROM MC", "Mine FROM ProjectCard", "PROD[Steel]")
         }
@@ -188,7 +190,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<Mine>>", "2 Pay<Class<Steel>> FROM Steel")
+          doTasks(*playCardTasks("Mine"), "2 Pay<Class<Steel>> FROM Steel")
           shouldThrow<RequirementException> { doTask("Mine FROM ProjectCard") }
           doTask("Ok") // Nothing remains to pay in MC.
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
@@ -203,7 +205,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
     kim.setToExMachina(15, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<SpaceElevator>>", "3 Pay<Class<Steel>> FROM Steel")
+      doTasks(*playCardTasks("SpaceElevator"), "3 Pay<Class<Steel>> FROM Steel")
       shouldThrow<TaskException> { doTask("15 Pay<> FROM MC") }
       doTasks(
           "2 Pay<Class<Titanium>> FROM Titanium",

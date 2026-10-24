@@ -18,16 +18,24 @@ import kotlin.test.Test
 
 internal class StandardActionTest : TfmTest() {
   @Test
-  internal fun `a selected project goes straight to payment without a category task`() {
+  internal fun `the standard card action offers the card play and then payment`() {
     game = setUpGame(canonicalPremise())
     val p1 = game.testTfm(PLAYER1)
-    p1.runOperation("20 MC, ProjectCard")
+    p1.runOperation("20 MC, ProjectCard, ProjectCard<Selecting>, ProjectCard<Revealed>")
     admin.phase("Action")
     p1.autoExecPolicy = NONE
 
     p1.beginOperation("OfferAction")
+    p1.doTask("UseAction<PlayCardAction, Action1>")
+    shouldThrow<TaskException> {
+      p1.doTask("PlayCard<Class<ProjectCard>, Class<Mine>, Selecting>")
+    }
+    shouldThrow<TaskException> {
+      p1.doTask("PlayCard<Class<ProjectCard>, Class<Mine>, Revealed>")
+    }
+    p1.count("MC") shouldBe 20
     p1.doTasks(
-        "PlayProject<Class<Mine>>",
+        "PlayCard<Class<ProjectCard>, Class<Mine>, Hand>",
         "4 Pay<> FROM MC",
         "Mine FROM ProjectCard",
         "PROD[Steel]",
@@ -36,7 +44,7 @@ internal class StandardActionTest : TfmTest() {
   }
 
   @Test
-  internal fun `the milestone and award are chosen before paying`() {
+  internal fun `the milestone and award are chosen after paying`() {
     game = setUpGame(canonicalPremise())
     val p1 = game.testTfm(PLAYER1)
     p1.runOperation("40 MC, 15 TerraformRating")
@@ -44,9 +52,13 @@ internal class StandardActionTest : TfmTest() {
     p1.autoExecPolicy = NONE
 
     p1.beginOperation("OfferAction")
-    p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "8 Pay<> FROM MC", "Terraformer35")
+    p1.doTask("UseAction<ClaimMilestoneAction, Action1>")
+    shouldThrow<TaskException> { p1.doTask("Terraformer35") }
+    p1.doTasks("8 Pay<> FROM MC", "Terraformer35")
     p1.beginOperation("OfferAction")
-    p1.doTasks("FundAward<Class<Banker>>", "8 Pay<> FROM MC", "Banker")
+    p1.doTask("UseAction<FundAwardAction, Action1>")
+    shouldThrow<TaskException> { p1.doTask("Banker") }
+    p1.doTasks("8 Pay<> FROM MC", "Banker")
 
     p1.count("MC") shouldBe 24
     game.isIdle() shouldBe true
@@ -61,17 +73,27 @@ internal class StandardActionTest : TfmTest() {
     p1.autoExecPolicy = NONE
 
     p1.beginOperation("OfferAction")
-    shouldThrow<TaskException> { p1.doTask("PlayProject<Class<Mine>>") }
+    shouldThrow<TaskException> {
+      p1.doTasks(
+          "UseAction<PlayCardAction, Action1>",
+          "PlayCard<Class<ProjectCard>, Class<Mine>, Hand>",
+      )
+    }
     p1.doTasks("DoRequiredActions", "3 ProjectCard")
 
     p1.count("RequiredAction") shouldBe 0
     p1.beginOperation("OfferAction")
-    p1.doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
+    p1.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<PowerPlantProject, Action1>",
+        "11 Pay<> FROM MC",
+        "PROD[Energy]",
+    )
     game.isIdle() shouldBe true
   }
 
   @Test
-  internal fun `using a card directly still consumes its action for the generation`() {
+  internal fun `using a card through the standard action consumes its action for the generation`() {
     game = setUpGame(canonicalPremise())
     val p1 = game.testTfm(PLAYER1)
     p1.runOperation("DevelopmentCenter, 2 Energy")
@@ -80,7 +102,8 @@ internal class StandardActionTest : TfmTest() {
 
     p1.beginOperation("OfferAction")
     p1.doTasks(
-        "UseCardAction<DevelopmentCenter, Action1>",
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<DevelopmentCenter, Action1>",
         "Pay<Class<Energy>> FROM Energy",
         "ProjectCard",
     )
@@ -88,7 +111,8 @@ internal class StandardActionTest : TfmTest() {
     p1.beginOperation("OfferAction")
     shouldThrow<LimitsException> {
       p1.doTasks(
-          "UseCardAction<DevelopmentCenter, Action1>",
+          "UseAction<UseActionOnCardAction, Action1>",
+          "UseAction<DevelopmentCenter, Action1>",
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
@@ -111,7 +135,7 @@ internal class StandardActionTest : TfmTest() {
     p1.beginOperation("OfferAction")
     shouldThrow<RequirementException> {
       p1.doTasks(
-          "ClaimMilestone<Class<Terraformer35>>",
+          "UseAction<ClaimMilestoneAction, Action1>",
           "8 Pay<> FROM MC",
           "Terraformer35",
       )
@@ -132,7 +156,9 @@ internal class StandardActionTest : TfmTest() {
     p1.autoExecPolicy = NONE
 
     p1.beginOperation("OfferAction")
-    p1.doTasks("ConvertPlants", "7 Pay<Class<Plant>> FROM Plant")
+    p1.doTask("UseAction<ConvertPlantsAction, Action1>")
+    shouldThrow<TaskException> { p1.doTask("PlaceGreeneryTile") }
+    p1.doTask("7 Pay<Class<Plant>> FROM Plant")
     p1.doTasks(
         "GreeneryTile<Tharsis_1_3>",
         "OxygenStep",
@@ -159,9 +185,9 @@ internal class StandardActionTest : TfmTest() {
     val startingMoney = p1.count("MC")
 
     p1.beginOperation("OfferAction")
-    p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "Terraformer35")
+    p1.doTasks("UseAction<ClaimMilestoneAction, Action1>", "Terraformer35")
     p1.beginOperation("OfferAction")
-    p1.doTasks("FundAward<Class<Banker>>", "Banker")
+    p1.doTasks("UseAction<FundAwardAction, Action1>", "Banker")
 
     p1.count("MC") shouldBe startingMoney
     game.isIdle() shouldBe true
@@ -182,7 +208,10 @@ internal class StandardActionTest : TfmTest() {
     p1.autoExecPolicy = NONE
 
     p1.runOperation("OfferAction") {
-          doTask("UseStandardProject<PowerPlantProject>")
+          doTasks(
+              "UseAction<UseStandardProjectAction, Action1>",
+              "UseAction<PowerPlantProject, Action1>",
+          )
           doTask("11 Pay<> FROM MC")
           doTask("PROD[Energy]")
           p1.selectTask(p1.tasks.ids().single())

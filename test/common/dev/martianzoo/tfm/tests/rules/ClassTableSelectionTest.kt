@@ -62,11 +62,11 @@ internal class ClassTableSelectionTest {
     val twoPlayerGame = gameView("")
 
     assertSelected(soloGame, setOf(cn("SoloOpponent")))
-    assertOmitted(soloGame, setOf(cn("ClaimMilestone")))
+    assertOmitted(soloGame, setOf(cn("ClaimMilestoneAction")))
     // Player seats are premise-local declarations, not classes in the Canon catalog.
     soloGame.classNames.shouldNotContain(cn("Player2"))
     assertOmitted(twoPlayerGame, setOf(cn("SoloOpponent")))
-    assertSelected(twoPlayerGame, setOf(cn("ClaimMilestone")))
+    assertSelected(twoPlayerGame, setOf(cn("ClaimMilestoneAction")))
     twoPlayerGame.classNames.shouldContain(cn("Player2"))
   }
 
@@ -258,16 +258,8 @@ internal class ClassTableSelectionTest {
               cn("HydrologistCredit"),
               cn("HydrologistWatcher"),
               cn("Diversifier"),
-              cn("DiversifierWatcher"),
           ),
       )
-    }
-  }
-
-  @Test
-  internal fun `Hellas selects Diversifier and its allocation watcher together`() {
-    assertValidView("HellasMap") { view ->
-      assertSelected(view, setOf(cn("Diversifier"), cn("DiversifierWatcher")))
     }
   }
 

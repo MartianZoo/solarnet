@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -14,7 +15,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Can be played after removing an opponent's plant`() {
     stan.exMachina("Plant")
     kim.inTurn {
-      doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
+      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
           "AsteroidCard FROM ProjectCard",
       )
@@ -24,7 +25,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CrashSiteCleanup>>",
+          *playCardTasks("CrashSiteCleanup"),
           "4 Pay<> FROM MC",
           "CrashSiteCleanup FROM ProjectCard",
           "Titanium",
@@ -36,7 +37,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after removing the owner's plant`() {
     kim.exMachina("Plant")
     kim.inTurn {
-      doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
+      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
           "AsteroidCard FROM ProjectCard",
       )
@@ -46,7 +47,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayProject<Class<CrashSiteCleanup>>")
+        doTasks(*playCardTasks("CrashSiteCleanup"))
       }
     }
   }
@@ -55,7 +56,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after an opponent removes their own plant`() {
     stan.exMachina("Plant")
     stan.inTurn {
-      doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
+      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
           "AsteroidCard FROM ProjectCard",
       )
@@ -65,7 +66,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayProject<Class<CrashSiteCleanup>>")
+        doTasks(*playCardTasks("CrashSiteCleanup"))
       }
     }
   }
@@ -74,7 +75,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after a plant removal in the previous generation`() {
     stan.exMachina("Plant")
     kim.inTurn {
-      doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
+      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
           "AsteroidCard FROM ProjectCard",
       )
@@ -85,7 +86,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayProject<Class<CrashSiteCleanup>>")
+        doTasks(*playCardTasks("CrashSiteCleanup"))
       }
     }
   }
@@ -94,7 +95,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played by a player who did not remove the plant`() {
     stan.exMachina("Plant")
     rob.inTurn {
-      doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
+      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
           "AsteroidCard FROM ProjectCard",
       )
@@ -104,7 +105,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayProject<Class<CrashSiteCleanup>>")
+        doTasks(*playCardTasks("CrashSiteCleanup"))
       }
     }
   }
@@ -113,7 +114,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after declining an asteroid's plant attack`() {
     stan.exMachina("Plant")
     kim.inTurn {
-          doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
+          doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
           doTasks(
               "AsteroidCard FROM ProjectCard",
           )
@@ -125,7 +126,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayProject<Class<CrashSiteCleanup>>")
+        doTasks(*playCardTasks("CrashSiteCleanup"))
       }
     }
   }

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -17,7 +18,7 @@ internal class FreyjaBiodomesTest : TfmSandboxTest() {
     kim.inTurn {
           // Decline adding animals to Venusian Animals by choosing the unavailable microbe gain.
           doTasks(
-              "PlayProject<Class<FreyjaBiodomes>>",
+              *playCardTasks("FreyjaBiodomes"),
               "14 Pay<> FROM MC",
               "FreyjaBiodomes FROM ProjectCard",
               "PROD[-Energy]",

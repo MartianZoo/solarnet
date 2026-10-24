@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -10,7 +11,7 @@ internal class ProductiveOutpostTest : TfmSandboxTest() {
   @Test
   internal fun `Pays no bonuses without colonies`() {
     kim.inTurn {
-          doTasks("PlayProject<Class<ProductiveOutpost>>", "ProductiveOutpost FROM ProjectCard")
+          doTasks(*playCardTasks("ProductiveOutpost"), "ProductiveOutpost FROM ProjectCard")
         }
         .expect("0 MC")
   }
@@ -21,7 +22,7 @@ internal class ProductiveOutpostTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<ProductiveOutpost>>",
+          *playCardTasks("ProductiveOutpost"),
           "ProductiveOutpost FROM ProjectCard",
           "2 Heat",
           "2 MC",
@@ -36,7 +37,7 @@ internal class ProductiveOutpostTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<ProductiveOutpost>>",
+          *playCardTasks("ProductiveOutpost"),
           "ProductiveOutpost FROM ProjectCard",
           "2 MC",
           "2 MC",

@@ -18,7 +18,7 @@ internal class TfmActionCommandTest {
   @Test
   internal fun `tfm action continues a turn choice narrowed to card actions`() {
     val repl = actionGame("PROD[Energy], AiCentral")
-    repl.agent.narrowTask("UseCardAction")
+    repl.agent.narrowTask("UseAction<UseActionOnCardAction>")
 
     val output = repl.command("tfm_action AiCentral 1")
 

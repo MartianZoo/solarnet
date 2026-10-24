@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -19,7 +20,7 @@ internal class PredatorsTest : TfmSandboxTest() {
     initializeGame()
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("UseCardAction<Predators, Action1>")
+        doTasks(*cardActionTasks("Predators"))
         // Resolve the mandatory removal to prove that an empty target set rejects the action.
         selectTask("-Animal")
       }
@@ -32,7 +33,7 @@ internal class PredatorsTest : TfmSandboxTest() {
     stan.exMachina("$Birds, 2 Animal<$Birds>")
 
     kim.inTurn {
-          doTask("UseCardAction<Predators, Action1>")
+          doTasks(*cardActionTasks("Predators"))
           doTask("-Animal<Birds<Stan>>")
           doTask("Animal<Predators>")
         }
@@ -47,7 +48,7 @@ internal class PredatorsTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseCardAction<Predators, Action1>")
+        doTasks(*cardActionTasks("Predators"))
         doTask("Ok")
       }
     }
@@ -61,7 +62,7 @@ internal class PredatorsTest : TfmSandboxTest() {
     kim.exMachina("Animal<$Predators>")
 
     kim.inTurn {
-          doTasks("UseCardAction<Predators, Action1>", "-Animal<Birds>")
+          doTasks(*cardActionTasks("Predators"), "-Animal<Birds>")
           doTask("Animal<Predators>")
         }
         .expect("Animal<$Predators>")
@@ -73,7 +74,7 @@ internal class PredatorsTest : TfmSandboxTest() {
     kim.exMachina("$Predators, $MeatIndustry, Animal<$Predators>")
 
     kim.inTurn {
-          doTask("UseCardAction<Predators, Action1>")
+          doTasks(*cardActionTasks("Predators"))
           doTask("-Animal<Predators>")
           doTask("Animal<Predators>")
           doTask("2 MC")
@@ -87,7 +88,7 @@ internal class PredatorsTest : TfmSandboxTest() {
     kim.exMachina("$Predators")
 
     kim.inTurn {
-          doTask("UseCardAction<Predators, Action1>")
+          doTasks(*cardActionTasks("Predators"))
           doTask("-Animal<SoloCardResourceReserve<Class<Animal>>>")
           doTask("Animal<Predators>")
         }

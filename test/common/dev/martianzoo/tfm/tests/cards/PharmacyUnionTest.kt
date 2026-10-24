@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -73,7 +74,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
   internal fun `A science tag removes disease and raises TR`() {
     initializeGame()
     kim.inTurn {
-          doTasks("PlayProject<Class<PhysicsComplex>>", "12 Pay<> FROM MC")
+          doTasks(*playCardTasks("PhysicsComplex"), "12 Pay<> FROM MC")
           doTasks("PhysicsComplex FROM ProjectCard")
           doTask("TerraformRating FROM Disease<PharmacyUnion>")
         }
@@ -88,7 +89,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "PlayProject<Class<Decomposers>>",
+              *playCardTasks("Decomposers"),
               "5 Pay<> FROM MC",
               "Decomposers FROM ProjectCard",
           )
@@ -107,7 +108,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Research>>",
+              *playCardTasks("Research"),
               "11 Pay<> FROM MC",
               "Research FROM ProjectCard",
               "TerraformRating FROM Disease<PharmacyUnion>",
@@ -127,7 +128,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Research>>",
+          *playCardTasks("Research"),
           "11 Pay<> FROM MC",
           "Research FROM ProjectCard",
       )
@@ -145,7 +146,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     kim.exMachina("$MediaGroup")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<PhysicsComplex>>", "12 Pay<> FROM MC")
+      doTasks(*playCardTasks("PhysicsComplex"), "12 Pay<> FROM MC")
       doTasks("PhysicsComplex FROM ProjectCard")
       selectTask("PlayedEvent FROM PharmacyUnion")
       doTask("3 TerraformRating")
@@ -162,7 +163,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<RegolithEaters>>",
+              *playCardTasks("RegolithEaters"),
               "13 Pay<> FROM MC",
               "RegolithEaters FROM ProjectCard",
           )

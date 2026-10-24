@@ -1,32 +1,21 @@
-"The action a player selects and performs during their turn"
-ABSTRACT CLASS StandardAction : Owned<Player>, Signal {
-  This IF MAX 0 ActionScope:: ActionScope<Me@>
-  This:: MAX 0 RequiredAction: Ok
+"The basic actions a player may take during their turn"
+ABSTRACT CLASS StandardAction : HasActions {
+  UseAction<Me@Player, This> IF MAX 0 ActionScope<Me@>:: ActionScope<Me@>
+  UseAction<This>:: MAX 0 RequiredAction: Ok
 
-  CLASS PlayProject<Class<@CardFront>> {
-    This: PlayCard<Class<ProjectCard>, Class<@CardFront>, Hand>
+  CLASS PlayCardAction {
+    -> PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> OR \
+      PlayCard<Class<ProjectCard>, Class<CardFront>, StagedProject>
   }
-  CLASS UseStandardProject<@StandardProject> {
-    This: UseAction<@StandardProject, Action1>
-  }
-  CLASS UseCardAction<@ActionCard<@Player>, @ActionSlot> : StandardAction<@Player> {
-    This: UseAction<@ActionCard, @ActionSlot> THEN ActionUsedMarker<@ActionCard>
-  }
-  CLASS ConvertPlants {
-    This: 8 Owed<Class<Plant>> THEN PaymentScope<Class<ConvertPlants>, Class<Plant>> \
-      THEN MAX 0 PaymentScope: PlaceGreeneryTile
-  }
-  CLASS ConvertHeat {
-    This: 8 Owed<Class<Heat>> THEN PaymentScope<Class<ConvertHeat>, Class<Heat>> \
-      THEN MAX 0 PaymentScope: TemperatureStep
-  }
-  CLASS ClaimMilestone<Class<@Milestone>> {
-    This: 8 Owed<> THEN PaymentScope<Class<@Milestone>> THEN MAX 0 PaymentScope: @Milestone
-  }
-  CLASS FundAward<Class<@Award>> {
-    This IF 3 Award: Die
-    This: 8 Owed<> THEN 6 Owed<> / Award THEN PaymentScope<Class<@Award>> \
-      THEN MAX 0 PaymentScope: @Award
+  CLASS UseStandardProjectAction { -> UseAction<StandardProject, Action1> }
+  CLASS UseActionOnCardAction { -> UseAction<@ActionCard> THEN ActionUsedMarker<@ActionCard> }
+  CLASS ConvertPlantsAction { 8 Plant -> PlaceGreeneryTile }
+  CLASS ConvertHeatAction { 8 Heat -> TemperatureStep }
+  CLASS ClaimMilestoneAction { 8 MC -> Milestone }
+  CLASS FundAwardAction {
+    UseAction<This> IF 3 Award: Die
+    -> 8 Owed<> THEN 6 Owed<> / Award THEN PaymentScope<Class<This>>
+    -PaymentScope<Class<This>>: Award
   }
 }
 

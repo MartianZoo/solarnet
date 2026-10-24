@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -31,8 +32,8 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
     stan.autoExecNow(EAGER)
 
-    kim.doTasks("UseStandardProject<PowerPlantProject>").expect("PROD[Energy], -9 MC")
-    kim.doTasks("UseStandardProject<PowerPlantProject>").expect("PROD[Energy], -9 MC")
+    kim.doTasks(*standardProjectTasks("PowerPlantProject")).expect("PROD[Energy], -9 MC")
+    kim.doTasks(*standardProjectTasks("PowerPlantProject")).expect("PROD[Energy], -9 MC")
   }
 
   @Test
@@ -45,10 +46,10 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
     stan.autoExecNow(EAGER)
 
-    kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    kim.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
         .expect("MC, -ProjectCard")
     kim.count("SuitableInfrastructureBonus") shouldBe 0
-    kim.doTask("UseStandardProject<PowerPlantProject>").expect("PROD[Energy], -9 MC")
+    kim.doTasks(*standardProjectTasks("PowerPlantProject")).expect("PROD[Energy], -9 MC")
   }
 
   @Test

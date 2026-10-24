@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.CeresTechMarket
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -15,12 +16,12 @@ internal class CeresTechMarketTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("UseCardAction<CeresTechMarket, Action1>")
+        doTasks(*cardActionTasks("CeresTechMarket"))
         doTask("-5 ProjectCard THEN 10 MC")
       }
     }
     kim.inTurn {
-          doTask("UseCardAction<CeresTechMarket, Action1>")
+          doTasks(*cardActionTasks("CeresTechMarket"))
           doTask("-4 ProjectCard THEN 8 MC")
           doTask("8 MC")
         }

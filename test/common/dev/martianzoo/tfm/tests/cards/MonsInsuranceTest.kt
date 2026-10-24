@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -85,7 +86,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     stan.inTurn {
       doTasks(
-          "PlayProject<Class<HiredRaiders>>",
+          *playCardTasks("HiredRaiders"),
           "1 Pay<> FROM MC",
           "HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
@@ -129,7 +130,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Birds>>",
+              *playCardTasks("Birds"),
               "10 Pay<> FROM MC",
               "Birds FROM ProjectCard",
               "PROD[-2 Plant<Stan>]",
@@ -148,7 +149,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "PlayProject<Class<Moss>>",
+              *playCardTasks("Moss"),
               "4 Pay<> FROM MC",
               "Moss FROM ProjectCard",
               "PROD[Plant]",
@@ -167,7 +168,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     stan.inTurn {
       doTasks(
-          "PlayProject<Class<$HiredRaiders>>",
+          *playCardTasks("$HiredRaiders"),
           "Pay<> FROM MC",
           "$HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
@@ -183,7 +184,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan.exMachina("$PharmacyUnion")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<IndustrialMicrobes>>", "12 Pay<> FROM MC")
+          doTasks(*playCardTasks("IndustrialMicrobes"), "12 Pay<> FROM MC")
           doTasks(
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
@@ -202,7 +203,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan.exMachina("Plant")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
+          doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
           doTasks(
               "AsteroidCard FROM ProjectCard",
           )
@@ -220,7 +221,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<HiredRaiders>>",
+              *playCardTasks("HiredRaiders"),
               "1 Pay<> FROM MC",
               "HiredRaiders FROM ProjectCard",
               "3 MC<Kim FROM SoloOpponent>",
@@ -240,7 +241,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
+          doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
           doTasks(
               "AsteroidCard FROM ProjectCard",
           )

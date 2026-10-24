@@ -5,6 +5,8 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -52,7 +54,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
     kim.setToExMachina(2, "MC")
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("ConvertPlants")
+        doTask("UseAction<ConvertPlantsAction, Action1>")
         doTask("8 Pay<Class<Plant>> FROM Plant")
         doTasks("GreeneryTile<Amazonis_05_03>", "Steel", "OxygenStep", "TerraformRating", "-3 MC")
       }
@@ -63,7 +65,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
     kim.count("Steel") shouldBe 0
 
     kim.inTurn {
-      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
+      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Amazonis_05_03>", "MC")
       doTask("OxygenStep")
       doTasks("TerraformRating", "-3 MC")
@@ -124,7 +126,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<SmallAsteroid>>", "10 Pay<> FROM MC")
+        doTasks(*playCardTasks("SmallAsteroid"), "10 Pay<> FROM MC")
         doTasks(
             "SmallAsteroid FROM ProjectCard",
             "-Plant<Stan>",
@@ -140,7 +142,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
     stan.count("Plant") shouldBe 1
 
     kim.inTurn {
-          doTasks("PlayProject<Class<SmallAsteroid>>", "10 Pay<> FROM MC")
+          doTasks(*playCardTasks("SmallAsteroid"), "10 Pay<> FROM MC")
           doTasks(
               "SmallAsteroid FROM ProjectCard",
               "-Plant<Stan>",
@@ -199,7 +201,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
     kim.setToExMachina(30, "MC")
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTasks("UseStandardProject<CityProject>", "25 Pay<> FROM MC")
+        doTasks(*standardProjectTasks("CityProject"), "25 Pay<> FROM MC")
         doTasks("CityTile<Cimmeria_3_3>", "CimmeriaPlacementBonus", "Colony<Luna>")
       }
     }

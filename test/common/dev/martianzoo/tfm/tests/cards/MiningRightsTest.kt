@@ -6,6 +6,7 @@ import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -28,7 +29,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
   private fun playOnWildBonus(): TaskResult {
     newTestGame(addOptions = "AmazonisMap, Unsafe")
     return kim.inTurn {
-      doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
+      doTasks(*playCardTasks("MiningRights"), "9 Pay<> FROM MC")
       doTasks(
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Amazonis_05_03>",
@@ -47,7 +48,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
+      doTasks(*playCardTasks("MiningRights"), "9 Pay<> FROM MC")
       doTasks(
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
@@ -59,7 +60,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<RoboticWorkforce>>",
+          *playCardTasks("RoboticWorkforce"),
           "9 Pay<> FROM MC",
           "RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<MiningRights>",
@@ -73,7 +74,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame()
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
+        doTasks(*playCardTasks("MiningRights"), "9 Pay<> FROM MC")
         doTask("MiningRights FROM ProjectCard")
         doTask("MiningRights_SpecialTile<Tharsis_2_1>")
         // Resolve the production choice to check that this area supplies a metal bonus.
@@ -91,7 +92,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks(
-            "PlayProject<Class<MiningRights>>",
+            *playCardTasks("MiningRights"),
             "9 Pay<> FROM MC",
             "MiningRights FROM ProjectCard",
             "MiningRights_SpecialTile<Tharsis_1_1>",
@@ -108,7 +109,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
+      doTasks(*playCardTasks("MiningRights"), "9 Pay<> FROM MC")
       doTasks(
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
@@ -125,7 +126,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<$MiningRights>>",
+          *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
           "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",

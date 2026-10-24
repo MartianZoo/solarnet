@@ -4,7 +4,10 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -22,7 +25,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     stan.selectTask("PassBaton") // Decline Stan's final greenery.
     admin.count("ActionScope") shouldBe 0
     kim.completeOperation {
-          doTasks("ConvertPlants")
+          doTasks("UseAction<ConvertPlantsAction, Action1>")
           admin.count("ActionScope<Kim>") shouldBe 1
           doTask("GreeneryTile<Tharsis_3_3>")
         }
@@ -39,7 +42,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
   internal fun `MC breaks an otherwise tied multiplayer final score`() {
     reachMultiplayerEnd()
     stan.doTask("Pass")
-    kim.doTasks("UseStandardProject<SellPatentsProject>", "1 MC FROM ProjectCard")
+    kim.doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
         .expect("MC, -ProjectCard")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -164,7 +167,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     kim.count("Victory") shouldBe 1
     admin.count("OxygenStep") shouldBe 0
     kim.completeOperation {
-          doTasks("ConvertPlants")
+          doTasks("UseAction<ConvertPlantsAction, Action1>")
           doTask("GreeneryTile<Tharsis_3_3>")
         }
         .expect("GreeneryTile, -8 Plant, 0 OxygenStep, 0 TerraformRating")
@@ -205,7 +208,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     repeat(11) {
       while (kim.count("MC") >= 16 && kim.count("TerraformRating") < 63) kim.completeOperation {
         doTasks(
-            "UseStandardProject<BufferGasProject>",
+            *standardProjectTasks("BufferGasProject"),
         )
         autoExecNow(EAGER)
       }
@@ -215,13 +218,13 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     }
     while (kim.count("TerraformRating") < 63) kim.completeOperation {
       doTasks(
-          "UseStandardProject<BufferGasProject>",
+          *standardProjectTasks("BufferGasProject"),
       )
       autoExecNow(EAGER)
     }
     kim.count("TerraformRating") shouldBe 63
     kim.completeOperation {
-          doTask("UseCardAction<$BoardOfDirectors, Action1>")
+          doTasks(*cardActionTasks("$BoardOfDirectors"))
           doTask("-12 MC")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
@@ -273,20 +276,20 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$secondPrelude>>")
     kim.autoExecNow(EAGER)
     // Ordinary early investments fund the later standard projects within twelve generations.
-    kim.doTasks("PlayProject<Class<$EarthOffice>>")
-    kim.doTask("PlayProject<Class<$LunaGovernor>>")
-    kim.doTasks("PlayProject<Class<$Sponsors>>")
-    kim.doTasks("PlayProject<Class<$AcquiredCompany>>")
-    kim.doTasks("PlayProject<Class<$Cartel>>")
-    kim.doTasks("PlayProject<Class<$MirandaResort>>")
-    kim.doTasks("PlayProject<Class<$StandardTechnology>>")
+    kim.doTasks(*playCardTasks("$EarthOffice"))
+    kim.doTasks(*playCardTasks("$LunaGovernor"))
+    kim.doTasks(*playCardTasks("$Sponsors"))
+    kim.doTasks(*playCardTasks("$AcquiredCompany"))
+    kim.doTasks(*playCardTasks("$Cartel"))
+    kim.doTasks(*playCardTasks("$MirandaResort"))
+    kim.doTasks(*playCardTasks("$StandardTechnology"))
   }
 
   private fun playSoloBufferGas(target: Int) {
     repeat(12) { generation ->
       while (kim.count("MC") >= 16 && kim.count("TerraformRating") < target) {
         kim.completeOperation {
-          doTasks("UseStandardProject<BufferGasProject>")
+          doTasks(*standardProjectTasks("BufferGasProject"))
           autoExecNow(EAGER)
         }
       }
@@ -301,7 +304,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
       while (kim.count("MC") >= 14 && admin.count("TemperatureStep") < 19) {
         val temperature = admin.count("TemperatureStep")
         kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
 
           if (temperature == 14)
@@ -311,7 +314,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
       }
       while (kim.count("MC") >= 18 && admin.count("OceanTile") < 9) {
         kim.completeOperation {
-          doTasks("UseStandardProject<AquiferProject>")
+          doTasks(*standardProjectTasks("AquiferProject"))
           doTask("OceanTile<${kim.list("WaterArea(HAS MAX 0 Tile)").first()}>")
           autoExecNow(EAGER)
         }
@@ -320,7 +323,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
         val adjacent = kim.list("LandArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)")
         val area = (adjacent.ifEmpty { kim.list("LandArea(HAS MAX 0 Tile)") }).first()
         kim.completeOperation {
-          doTasks("UseStandardProject<GreeneryProject>")
+          doTasks(*standardProjectTasks("GreeneryProject"))
           doTask("GreeneryTile<$area>")
           autoExecNow(EAGER)
         }
@@ -328,7 +331,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
       if (completeVenus) {
         while (kim.count("MC") >= 15 && admin.count("VenusStep") < 15) {
           kim.completeOperation {
-            doTasks("UseStandardProject<AirScrappingProject>")
+            doTasks(*standardProjectTasks("AirScrappingProject"))
             autoExecNow(EAGER)
           }
         }

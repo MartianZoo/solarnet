@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -19,7 +21,7 @@ internal class SpireTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<BusinessContacts>>",
+              *playCardTasks("BusinessContacts"),
               "7 Pay<> FROM MC",
               "BusinessContacts FROM ProjectCard",
           )
@@ -30,7 +32,7 @@ internal class SpireTest : TfmSandboxTest() {
         .expect("Science<$Spire>")
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<MineralDeposit>>",
+              *playCardTasks("MineralDeposit"),
               "5 Pay<> FROM MC",
               "MineralDeposit FROM ProjectCard",
               "5 Steel",
@@ -51,7 +53,7 @@ internal class SpireTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Research>>",
+              *playCardTasks("Research"),
               "11 Pay<> FROM MC",
               "Research FROM ProjectCard",
           )
@@ -73,7 +75,7 @@ internal class SpireTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseStandardProject<PowerPlantProject>",
+          *standardProjectTasks("PowerPlantProject"),
           "PayFromCard<Spire> FROM Science<Spire>",
           "9 Pay<> FROM MC",
           "PROD[Energy]",
@@ -93,7 +95,7 @@ internal class SpireTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<Mine>>", "PayFromCard<Spire> FROM Science<Spire>")
+        doTasks(*playCardTasks("Mine"), "PayFromCard<Spire> FROM Science<Spire>")
       }
     }
   }
@@ -109,13 +111,13 @@ internal class SpireTest : TfmSandboxTest() {
         .expect("ProjectCard")
     kim.setToExMachina(1, "Science<$Spire>")
     kim.inTurn {
-          doTasks("UseStandardProject<SellPatentsProject>", "1! MC FROM ProjectCard")
+          doTasks(*standardProjectTasks("SellPatentsProject"), "1! MC FROM ProjectCard")
         }
         .expect("MC, -ProjectCard, 0 Science<$Spire>")
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<Mine>>", "PayFromCard<Spire> FROM Science<Spire>")
+        doTasks(*playCardTasks("Mine"), "PayFromCard<Spire> FROM Science<Spire>")
       }
     }
   }

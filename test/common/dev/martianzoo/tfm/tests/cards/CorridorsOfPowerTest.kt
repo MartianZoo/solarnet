@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -15,7 +16,7 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<BannedDelegate>>",
+              *playCardTasks("BannedDelegate"),
               "BannedDelegate FROM ProjectCard",
               "-PartyFollower<Scientists, Stan>",
               "ProjectCard",
@@ -30,10 +31,18 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
     kim.exMachina(
         "CorridorsOfPower, PartyLeader<Scientists>, PartyLeader<Unity>, 4 PartyFollower<Unity>"
     )
-    stan.inTurn { doTasks("LobbyAction", "PartyFollower<Scientists> FROM LobbyDelegate") }
+    stan.inTurn {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
+    }
 
     stan
-        .inTurn { doTasks("PaidLobbyAction", "5 Pay<> FROM MC", "PartyLeader<Scientists>") }
+        .inTurn {
+          doTasks(
+              "UseAction<PaidLobbyAction, Action1>",
+              "5 Pay<> FROM MC",
+              "PartyLeader<Scientists>",
+          )
+        }
         .expect(
             "-PartyLeader<Scientists, Kim>, PartyFollower<Scientists, Kim>, 0 LobbyDelegate<Kim>, 0 ProjectCard<Kim>"
         )
@@ -55,13 +64,17 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTask("LobbyAction")
+          doTask("UseAction<LobbyAction, Action1>")
           doTask("PartyLeader<Scientists> FROM LobbyDelegate")
           doTask("ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
     kim.inTurn {
-          doTasks("PaidLobbyAction", "5 Pay<> FROM MC", "PartyFollower<Scientists>")
+          doTasks(
+              "UseAction<PaidLobbyAction, Action1>",
+              "5 Pay<> FROM MC",
+              "PartyFollower<Scientists>",
+          )
         }
         .expect("0 ProjectCard")
   }

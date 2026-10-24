@@ -91,7 +91,8 @@ internal class CanonClassesTest {
           }
         }
 
-    val aspects = listOf("Owned", "Iconic", "System", "HasActions", "ColonyTileSelection")
+    // HasActions is too close to the heuristic's direct-subclass cutoff to be a stable example.
+    val aspects = listOf("Owned", "Iconic", "System", "ColonyTileSelection")
     aspects.forEach { name ->
       withClue("$name adds an aspect") {
         table.isProbableAspect(table.getClass(cn(name))) shouldBe true

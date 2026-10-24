@@ -5,6 +5,8 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.ArtificialLake
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -19,7 +21,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
+        doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
         doTask("ArtificialLake FROM ProjectCard")
         doTask("OceanTile<Tharsis_2_3>")
       }
@@ -35,7 +37,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     kim.exMachina(kim.list("WaterArea").take(8).joinToString { "OceanTile<$it>" })
 
     kim.inTurn {
-      doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
+      doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
       doTasks(
           "ArtificialLake FROM ProjectCard",
           "OceanTile<Tharsis_2_3>",
@@ -52,7 +54,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     kim.exMachina(kim.list("WaterArea").take(8).joinToString { "OceanTile<$it>" })
     stan.inTurn {
       doTasks(
-          "UseStandardProject<AquiferProject>",
+          *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
           "OceanTile<Tharsis_6_7>",
           "TerraformRating",
@@ -62,7 +64,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
+          doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
           doTasks("ArtificialLake FROM ProjectCard")
           // Resolve the placement offer: the full ocean track leaves no legal placement.
           selectOnlyTask()
@@ -78,7 +80,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
+        doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
         doTask("ArtificialLake FROM ProjectCard")
         doTask("Ok")
       }

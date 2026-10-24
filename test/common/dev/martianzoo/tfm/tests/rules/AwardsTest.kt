@@ -28,10 +28,10 @@ internal class AwardsTest : TfmTest() {
 
     val award = game.classTable.getClass(cn("Award"))
     game.classTable.allSubclasses(award).filterNot { it.abstract }.shouldBeEmpty()
-    game.classTable.isInhabited(cn("ClaimMilestone")) shouldBe false
-    game.classTable.isInhabited(cn("FundAward")) shouldBe false
-    (cn("ClaimMilestone") in game.classTable.allClassNames) shouldBe false
-    (cn("FundAward") in game.classTable.allClassNames) shouldBe false
+    game.classTable.isInhabited(cn("ClaimMilestoneAction")) shouldBe false
+    game.classTable.isInhabited(cn("FundAwardAction")) shouldBe false
+    (cn("ClaimMilestoneAction") in game.classTable.allClassNames) shouldBe false
+    (cn("FundAwardAction") in game.classTable.allClassNames) shouldBe false
     admin.assertCounts(
         1 to "AquiferProject",
     )
@@ -96,25 +96,25 @@ internal class AwardsTest : TfmTest() {
     val p1 = game.testTfm(PLAYER1)
     p1.sneak("100 MC")
 
-    val first = p1.runOperation("FundAward<Class<Landlord>>")
+    val first = p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Landlord") }
     first.expect("-8 MC")
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     shouldThrow<LimitsException> {
-      p1.runOperation("FundAward<Class<Landlord>>")
+      p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Landlord") }
     }
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
-    val second = p1.runOperation("FundAward<Class<Scientist>>")
+    val second = p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Scientist") }
     second.expect("-14 MC")
     p1.assertCounts(78 to "MC", 1 to "Scientist")
 
-    val third = p1.runOperation("FundAward<Class<Thermalist>>")
+    val third = p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Thermalist") }
     third.expect("-20 MC")
     p1.assertCounts(58 to "MC", 1 to "Thermalist", 3 to "Award")
 
     shouldThrow<DeadEndException> {
-      p1.runOperation("FundAward<Class<Miner>>")
+      p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Miner") }
     }
     p1.assertCounts(58 to "MC", 3 to "Award", 0 to "Miner")
   }

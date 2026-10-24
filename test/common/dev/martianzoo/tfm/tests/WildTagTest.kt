@@ -34,7 +34,9 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.count("WildTag") shouldBe 3
     kim.count("Tag") shouldBe 0
     // Invoke the plays directly: this scenario tests card effects, not phase offers.
-    kim.runOperation("PlayProject<Class<AdvancedEcosystems>>") {
+    kim.runOperation("UseAction<PlayCardAction, Action1>") {
+      doTask("PlayCard<Class<ProjectCard>, Class<AdvancedEcosystems>, Hand>")
+
       kim.count("PlantTag<WildTagElection<WildTag<AppliedScience>>>") shouldBe 1
       kim.count("MicrobeTag<WildTagElection<WildTag<ResearchNetwork>>>") shouldBe 1
       kim.count("AnimalTag<WildTagElection<WildTag<SeptemTribus>>>") shouldBe 1
@@ -42,7 +44,9 @@ internal class WildTagTest : TfmSandboxTest() {
     }
     kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
     kim.count("Tag<AdvancedEcosystems>") shouldBe 3
-    kim.runOperation("PlayProject<Class<ResearchCoordination>>") {
+    kim.runOperation("UseAction<PlayCardAction, Action1>") {
+      doTask("PlayCard<Class<ProjectCard>, Class<ResearchCoordination>, Hand>")
+
       doTasks("4 Pay<> FROM MC", "ResearchCoordination FROM ProjectCard")
     }
     kim.inTurn {
@@ -50,16 +54,7 @@ internal class WildTagTest : TfmSandboxTest() {
       doTasks("NobelPrize FROM PreludeCard", "5 MC", "2 SearchForCard<RequirementFilter>")
     }
     kim.count("WildTag") shouldBe 5
-    kim.runOperation("ClaimMilestone<Class<Diversifier>>") {
-          selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
-          doTasks(
-              "BuildingTag<WildTagElection<WildTag<AppliedScience>>>",
-              "SpaceTag<WildTagElection<WildTag<NobelPrize>>>",
-              "ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>",
-              "EarthTag<WildTagElection<WildTag<ResearchNetwork>>>",
-              "JovianTag<WildTagElection<WildTag<SeptemTribus>>>",
-          )
-          kim.count("Class<@Tag>(HAS @Tag)") shouldBe 8
+    kim.runOperation("UseAction<ClaimMilestoneAction, Action1>") {
           doTasks("8 Pay<> FROM MC", "Diversifier")
         }
         .expect("Diversifier, 0 Tag<WildTagElection<WildTag>>, 0 WildTag")
@@ -80,12 +75,12 @@ internal class WildTagTest : TfmSandboxTest() {
     newTestGame("TurmoilExpansion, " + cards.joinToString())
     kim.exMachina(cards.joinToString())
     kim.inTurn {
-      doTask("PlayProject<Class<MassConverter>>")
+      doTasks(*playCardTasks("MassConverter"))
       cards.forEach { kim.count("ScienceTag<WildTagElection<WildTag<$it>>>") shouldBe 1 }
       doTasks("8 Pay<> FROM MC", "MassConverter FROM ProjectCard", "PROD[6 Energy]")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Cartel>>", "8 Pay<> FROM MC", "Cartel FROM ProjectCard")
+      doTasks(*playCardTasks("Cartel"), "8 Pay<> FROM MC", "Cartel FROM ProjectCard")
       cards.forEach { kim.count("EarthTag<WildTagElection<WildTag<$it>>>") shouldBe 1 }
       doTask("PROD[6 MC]")
     }
@@ -100,7 +95,7 @@ internal class WildTagTest : TfmSandboxTest() {
         "ResearchCoordination, ResearchNetwork, Research, SearchForLife, DevelopmentCenter"
     )
     kim.inTurn {
-      kim.doTasks("PlayProject<Class<MassConverter>>")
+      kim.doTasks(*playCardTasks("MassConverter"))
           .expect("ScienceTag<WildTagElection<WildTag<ResearchCoordination>>>")
       kim.count("Tag<WildTagElection<WildTag>>") shouldBe 1
       doTask("8 Pay<> FROM MC")
@@ -116,7 +111,7 @@ internal class WildTagTest : TfmSandboxTest() {
     newTestGame("ResearchCoordination, ResearchNetwork")
     kim.exMachina("ResearchCoordination, ResearchNetwork, Ecoline")
     kim.inTurn {
-      kim.doTasks("PlayProject<Class<AdvancedEcosystems>>")
+      kim.doTasks(*playCardTasks("AdvancedEcosystems"))
           .expect(
               "MicrobeTag<WildTagElection<WildTag<ResearchCoordination>>>, AnimalTag<WildTagElection<WildTag<ResearchNetwork>>>"
           )
@@ -131,7 +126,7 @@ internal class WildTagTest : TfmSandboxTest() {
     newTestGame("ResearchCoordination")
     kim.exMachina("ResearchCoordination, Ecoline")
     shouldThrow<RequirementException> {
-      kim.inTurn { doTask("PlayProject<Class<AdvancedEcosystems>>") }
+      kim.inTurn { doTasks(*playCardTasks("AdvancedEcosystems")) }
     }
     kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
@@ -141,11 +136,11 @@ internal class WildTagTest : TfmSandboxTest() {
     newTestGame("ResearchCoordination, ResearchNetwork, PointLuna")
     kim.exMachina("ResearchNetwork, PointLuna")
     kim.inTurn {
-      doTasks("PlayProject<Class<ResearchCoordination>>", "4 Pay<> FROM MC")
+      doTasks(*playCardTasks("ResearchCoordination"), "4 Pay<> FROM MC")
       kim.doTasks("ResearchCoordination FROM ProjectCard").expect("WildTag<ResearchCoordination>")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Cartel>>", "8 Pay<> FROM MC")
+      doTasks(*playCardTasks("Cartel"), "8 Pay<> FROM MC")
       kim.doTasks("Cartel FROM ProjectCard")
           .expect(
               "EarthTag<WildTagElection<WildTag<ResearchCoordination>>>, EarthTag<WildTagElection<WildTag<ResearchNetwork>>>"
@@ -153,7 +148,7 @@ internal class WildTagTest : TfmSandboxTest() {
       doTasks("ProjectCard", "PROD[4 MC]")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Satellites>>", "10 Pay<> FROM MC")
+      doTasks(*playCardTasks("Satellites"), "10 Pay<> FROM MC")
       kim.doTasks("Satellites FROM ProjectCard")
           .expect(
               "SpaceTag<WildTagElection<WildTag<ResearchCoordination>>>, SpaceTag<WildTagElection<WildTag<ResearchNetwork>>>"
@@ -167,7 +162,7 @@ internal class WildTagTest : TfmSandboxTest() {
     newTestGame("ResearchCoordination")
     kim.exMachina("ResearchCoordination, PROD[2 Energy]")
     kim.inTurn {
-      doTasks("PlayProject<Class<Gyropolis>>", "20 Pay<> FROM MC")
+      doTasks(*playCardTasks("Gyropolis"), "20 Pay<> FROM MC")
       kim.doTasks("Gyropolis FROM ProjectCard")
           .expect("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
       doTasks("PROD[-2 Energy]", "PROD[0 MC]", "PROD[1 MC]", "CityTile<Tharsis_1_1>", "2 Steel")
@@ -180,11 +175,11 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, Ecoline")
     stan.exMachina("ResearchNetwork")
     shouldThrow<RequirementException> {
-      kim.inTurn { doTask("PlayProject<Class<AdvancedEcosystems>>") }
+      kim.inTurn { doTasks(*playCardTasks("AdvancedEcosystems")) }
     }
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Cartel>>",
+          *playCardTasks("Cartel"),
           "8 Pay<> FROM MC",
           "Cartel FROM ProjectCard",
           "PROD[2 MC]",
@@ -200,7 +195,7 @@ internal class WildTagTest : TfmSandboxTest() {
     stan.exMachina("ResearchCoordination")
     stan.inTurn {
       doTasks(
-          "PlayProject<Class<TerraformingGanymede>>",
+          *playCardTasks("TerraformingGanymede"),
           "33 Pay<> FROM MC",
           "TerraformingGanymede FROM ProjectCard",
       )
@@ -215,7 +210,7 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, ResearchNetwork, PointLuna")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CloudTourism>>",
+          *playCardTasks("CloudTourism"),
           "11 Pay<> FROM MC",
           "CloudTourism FROM ProjectCard",
       )
@@ -233,7 +228,7 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, ResearchNetwork")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CloudTourism>>",
+          *playCardTasks("CloudTourism"),
           "11 Pay<> FROM MC",
           "CloudTourism FROM ProjectCard",
       )
@@ -249,7 +244,7 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination, ResearchNetwork, Ecoline")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<InterplanetaryTrade>>",
+          *playCardTasks("InterplanetaryTrade"),
           "27 Pay<> FROM MC",
           "InterplanetaryTrade FROM ProjectCard",
       )
@@ -268,7 +263,7 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.exMachina("ResearchCoordination")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<InterplanetaryTrade>>",
+          *playCardTasks("InterplanetaryTrade"),
           "27 Pay<> FROM MC",
           "InterplanetaryTrade FROM ProjectCard",
       )
@@ -283,7 +278,7 @@ internal class WildTagTest : TfmSandboxTest() {
     newTestGame("ElysiumMap, ResearchCoordination, ResearchNetwork")
     kim.exMachina("ResearchCoordination, ResearchNetwork, AdvancedEcosystems")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Ecologist>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       val result = kim.doTask("Ecologist")
       result.expect("0 Tag<WildTagElection<WildTag>>")
       val assigned = kim.resolve("PlantTag<WildTagElection<WildTag<ResearchCoordination>>>")
@@ -302,7 +297,7 @@ internal class WildTagTest : TfmSandboxTest() {
         "ResearchCoordination, ResearchNetwork, Sponsors, VenusGovernor, IoMiningIndustries"
     )
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Planetologist>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       val result = kim.doTask("Planetologist")
       result.expect("0 Tag<WildTagElection<WildTag>>")
       for (tag in
@@ -321,17 +316,43 @@ internal class WildTagTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Diversifier offers wild tag choices before claiming`() {
+  internal fun `Diversifier counts unused wilds without assigning tag types`() {
     newTestGame("TharsisMap, Diversifier, ResearchCoordination, ResearchNetwork")
     kim.exMachina(
         "AdvancedEcosystems, ResearchOutpost, Satellites, ResearchCoordination, ResearchNetwork"
     )
     kim.inTurn {
-      doTask("ClaimMilestone<Class<Diversifier>>")
-      selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
-      doTask("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
-      doTask("0 EventTag<WildTagElection<WildTag<ResearchNetwork>>>")
+      doTask("UseAction<ClaimMilestoneAction, Action1>")
       doTasks("8 Pay<> FROM MC", "Diversifier")
+    }
+  }
+
+  @Test
+  internal fun `Diversifier still needs eight distinct types including unused wilds`() {
+    newTestGame("Diversifier, ResearchCoordination, ResearchNetwork")
+    kim.exMachina("AdvancedEcosystems, ResearchOutpost, Mine, ResearchCoordination")
+    stan.exMachina("ResearchNetwork")
+    kim.setToExMachina(8, "MC")
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Diversifier")
+      }
+    }
+    kim.count("MC") shouldBe 8
+    kim.count("Diversifier") shouldBe 0
+    kim.exMachina("Satellites")
+    kim.inTurn {
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Diversifier")
+    }
+  }
+
+  @Test
+  internal fun `Claiming Energizer with wilds requires no tag assignment`() {
+    newTestGame("HellasMap, ResearchCoordination")
+    kim.exMachina("ResearchCoordination")
+    kim.setToExMachina(6, "PROD[Energy]")
+    kim.inTurn {
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Energizer")
     }
   }
 }

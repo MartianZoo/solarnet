@@ -7,6 +7,8 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.NeptunianPowerConsultants
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -17,7 +19,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Flooding>>",
+              *playCardTasks("Flooding"),
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
@@ -33,7 +35,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Flooding>>",
+              *playCardTasks("Flooding"),
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
@@ -49,7 +51,7 @@ internal class FloodingTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -68,7 +70,7 @@ internal class FloodingTest : TfmSandboxTest() {
     stan.setToExMachina(2, "MC")
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Flooding>>",
+              *playCardTasks("Flooding"),
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
@@ -84,7 +86,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -100,7 +102,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
         doTasks("7 Pay<> FROM MC", "Flooding FROM ProjectCard")
         doTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
         doTask("TerraformRating")
@@ -116,7 +118,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Flooding>>",
+          *playCardTasks("Flooding"),
           "7 Pay<> FROM MC",
           "Flooding FROM ProjectCard",
       )
@@ -125,7 +127,7 @@ internal class FloodingTest : TfmSandboxTest() {
     kim.setToExMachina(18, "MC")
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseStandardProject<AquiferProject>")
+        doTasks(*standardProjectTasks("AquiferProject"))
         doTask("18 Pay<> FROM MC")
         // Resolve the ocean offer separately from other pending placement effects.
         selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>*")
@@ -146,7 +148,7 @@ internal class FloodingTest : TfmSandboxTest() {
     )
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Flooding>>",
+              *playCardTasks("Flooding"),
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
@@ -168,7 +170,7 @@ internal class FloodingTest : TfmSandboxTest() {
     stan.setToExMachina(18, "MC")
     stan.inTurn {
       doTasks(
-          "UseStandardProject<AquiferProject>",
+          *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
           "OceanTile<Tharsis_6_8>",
           "TerraformRating",
@@ -178,7 +180,7 @@ internal class FloodingTest : TfmSandboxTest() {
     }
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Flooding>>",
+              *playCardTasks("Flooding"),
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
@@ -198,7 +200,7 @@ internal class FloodingTest : TfmSandboxTest() {
     )
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Flooding>>",
+              *playCardTasks("Flooding"),
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
@@ -220,7 +222,7 @@ internal class FloodingTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<Flooding>>", "7 Pay<> FROM MC", "Flooding FROM ProjectCard")
+        doTasks(*playCardTasks("Flooding"), "7 Pay<> FROM MC", "Flooding FROM ProjectCard")
         doTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
       }
     }
@@ -234,7 +236,7 @@ internal class FloodingTest : TfmSandboxTest() {
     kim.exMachina("OceanTile<Tharsis_1_2>")
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -252,7 +254,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -273,7 +275,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -290,7 +292,7 @@ internal class FloodingTest : TfmSandboxTest() {
     kim.exMachina("OceanTile<Tharsis_1_2>")
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -306,7 +308,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -322,7 +324,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -338,7 +340,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -356,7 +358,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("PlayProject<Class<Flooding>>")
+        doTasks(*playCardTasks("Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
@@ -377,7 +379,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Flooding>>",
+              *playCardTasks("Flooding"),
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
@@ -391,7 +393,7 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Flooding>>",
+              *playCardTasks("Flooding"),
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
@@ -419,7 +421,7 @@ internal class FloodingTest : TfmSandboxTest() {
     kim.setToExMachina(16, "MC")
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Flooding>>",
+              *playCardTasks("Flooding"),
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
@@ -450,7 +452,7 @@ internal class FloodingTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Flooding>>",
+          *playCardTasks("Flooding"),
           "7 Pay<> FROM MC",
           "Flooding FROM ProjectCard",
       )
@@ -482,7 +484,7 @@ internal class FloodingTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<Flooding>>",
+          *playCardTasks("Flooding"),
           "7 Pay<> FROM MC",
           "Flooding FROM ProjectCard",
       )

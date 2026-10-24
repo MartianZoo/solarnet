@@ -6,6 +6,8 @@ import dev.martianzoo.tfm.tests.cards.cardnames.ExtractorBalloons
 import dev.martianzoo.tfm.tests.cards.cardnames.ForcedPrecipitation
 import dev.martianzoo.tfm.tests.cards.cardnames.NitriteReducingBacteria
 import dev.martianzoo.tfm.tests.cards.cardnames.RegolithEaters
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -16,7 +18,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", playerCount = 2)
     kim.inTurn {
       doTasks(
-          "UseStandardProject<BuildColonyProject>",
+          *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Luna>",
           "PROD[2 MC]",
@@ -26,7 +28,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "UseStandardProject<BuildColonyProject>",
+              *standardProjectTasks("BuildColonyProject"),
               "17 Pay<> FROM MC",
               "Colony<Luna>",
               "PROD[2 MC]",
@@ -40,14 +42,14 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Enceladus", playerCount = 2)
     stan.inTurn {
       doTasks(
-          "PlayProject<Class<RegolithEaters>>",
+          *playCardTasks("RegolithEaters"),
           "13 Pay<> FROM MC",
           "RegolithEaters FROM ProjectCard",
       )
     }
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<NitriteReducingBacteria>>",
+          *playCardTasks("NitriteReducingBacteria"),
           "11 Pay<> FROM MC",
           "NitriteReducingBacteria FROM ProjectCard",
       )
@@ -55,7 +57,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks(
-          "UseStandardProject<BuildColonyProject>",
+          *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Enceladus>",
       )
@@ -63,7 +65,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     }
 
     stan.inTurn {
-      doTasks("TradeAction<Action1>", "9 Pay<> FROM MC")
+      doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC")
       run {
         doTasks("Trade<Enceladus>", "Microbe<$RegolithEaters>")
         kim.doTask("Microbe<$NitriteReducingBacteria>")
@@ -79,7 +81,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Pluto, Luna, Ceres, Triton, Ganymede", playerCount = 2)
     kim.inTurn {
       doTasks(
-          "UseStandardProject<BuildColonyProject>",
+          *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Pluto>",
       )
@@ -90,7 +92,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.setToExMachina(0, "ProjectCard")
 
     stan.inTurn {
-      doTasks("TradeAction<Action2>", "3 Pay<Class<Energy>> FROM Energy")
+      doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
       doTasks("Trade<Pluto>")
       doTask("ProjectCard<Stan, Hand>")
       kim.doTask("ProjectCard<Kim, Hand>")
@@ -107,7 +109,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.exMachina("3 Energy")
     stan.inTurn {
       doTasks(
-          "UseStandardProject<BuildColonyProject>",
+          *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Pluto>",
       )
@@ -116,14 +118,14 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.setToExMachina(0, "ProjectCard")
     kim.inTurn {
       doTasks(
-          "UseStandardProject<BuildColonyProject>",
+          *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Pluto>",
       )
       doTask("2 ProjectCard<Kim, Hand>")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<ResearchColony>>", "20 Pay<> FROM MC")
+      doTasks(*playCardTasks("ResearchColony"), "20 Pay<> FROM MC")
       doTasks("ResearchColony FROM ProjectCard")
       doTask("2 ProjectCard<Kim, Hand>")
       doTask("Colony<Pluto>")
@@ -133,7 +135,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
 
     stan.inTurn {
       doTasks(
-          "TradeAction<Action2>",
+          "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Pluto>",
           "2 ProjectCard",
@@ -164,7 +166,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     kim.exMachina(waterAreas.joinToString { "OceanTile<$it>" })
     kim.inTurn {
       doTasks(
-          "UseStandardProject<AquiferProject>",
+          *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
           "OceanTile<Tharsis_9_9>",
           "TerraformRating",
@@ -174,7 +176,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<BuildColonyProject>",
+              *standardProjectTasks("BuildColonyProject"),
               "17 Pay<> FROM MC",
               "Colony<Europa>",
           )
@@ -192,7 +194,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.exMachina("3 Energy")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<RegolithEaters>>",
+          *playCardTasks("RegolithEaters"),
           "13 Pay<> FROM MC",
           "RegolithEaters FROM ProjectCard",
       )
@@ -200,7 +202,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("TradeAction<Action2>", "3 Pay<Class<Energy>> FROM Energy")
+          doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
           doTasks("Trade<Enceladus>")
           // Resolve the trade reward: this player has no card that can hold microbes.
           selectTask("Microbe")
@@ -217,14 +219,14 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.exMachina("3 Energy")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<ForcedPrecipitation>>",
+          *playCardTasks("ForcedPrecipitation"),
           "8 Pay<> FROM MC",
           "ForcedPrecipitation FROM ProjectCard",
       )
     }
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<ExtractorBalloons>>",
+          *playCardTasks("ExtractorBalloons"),
           "21 Pay<> FROM MC",
           "ExtractorBalloons FROM ProjectCard",
       )
@@ -232,14 +234,14 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks(
-          "UseStandardProject<BuildColonyProject>",
+          *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Titan>",
       )
       doTask("3* Floater<ForcedPrecipitation>")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<ResearchColony>>", "20 Pay<> FROM MC")
+      doTasks(*playCardTasks("ResearchColony"), "20 Pay<> FROM MC")
       doTasks("ResearchColony FROM ProjectCard")
       doTask("2 ProjectCard<Kim, Hand>")
       doTask("Colony<Titan>")
@@ -247,7 +249,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     }
     stan.inTurn {
       doTasks(
-          "PlayProject<Class<Dirigibles>>",
+          *playCardTasks("Dirigibles"),
           "11 Pay<> FROM MC",
           "Dirigibles FROM ProjectCard",
       )
@@ -255,7 +257,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("TradeAction<Action2>", "3 Pay<Class<Energy>> FROM Energy")
+          doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
           doTasks("Trade<Titan>", "Floater<Dirigibles>")
           kim.doTask("Floater<ForcedPrecipitation>*")
           kim.doTask("Floater<ExtractorBalloons>*")

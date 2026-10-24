@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -18,7 +19,7 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<UnexpectedApplication>>")
+        doTasks(*playCardTasks("UnexpectedApplication"))
 
         doTasks(
             "4 Pay<> FROM MC",
@@ -32,7 +33,7 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
     kim.setToExMachina(2, "ProjectCard")
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<UnexpectedApplication>>",
+          *playCardTasks("UnexpectedApplication"),
           "4 Pay<> FROM MC",
           "UnexpectedApplication FROM ProjectCard",
       )

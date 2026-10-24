@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -13,7 +16,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
   internal fun `Greens rewards greenery during action play and leaves before solar`() {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     kim.completeOperation {
-          doTasks("UseStandardProject<GreeneryProject>")
+          doTasks(*standardProjectTasks("GreeneryProject"))
           doTask("GreeneryTile<Tharsis_3_3>")
           autoExecNow(EAGER)
         }
@@ -33,7 +36,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("UseStandardProject<CityProject>")
+          doTasks(*standardProjectTasks("CityProject"))
           doTask("CityTile<Tharsis_3_3>")
           autoExecNow(EAGER)
         }
@@ -44,8 +47,9 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
   internal fun `Scientists draws three cards only once per generation`() {
     electGovernment("Scientists")
     stan.doTask("Pass")
-    kim.doTasks("UseTurmoilPolicyAction").expect("-10 MC, 3 ProjectCard")
-    shouldThrow<NotNowException> { kim.doTasks("UseTurmoilPolicyAction") }
+    shouldThrow<DependencyException> { kim.doTask("UseAction<KelvinistsPolicy, Action1>") }
+    kim.doTasks("UseAction<ScientistsPolicy, Action1>").expect("-10 MC, 3 ProjectCard")
+    shouldThrow<NotNowException> { kim.doTasks("UseAction<ScientistsPolicy, Action1>") }
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
 
@@ -57,12 +61,12 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     electGovernment("Unity")
     stan
         .completeOperation {
-          doTasks("PlayProject<Class<$SolarWindPower>>", "1 Pay<Class<Titanium>> FROM Titanium")
+          doTasks(*playCardTasks("$SolarWindPower"), "1 Pay<Class<Titanium>> FROM Titanium")
           autoExecNow(EAGER)
         }
         .expect("Titanium, -7 MC")
     stan.selectTask("PassBaton") // Decline the second action.
-    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "1 Pay<Class<Titanium>> FROM Titanium")
+    kim.doTasks(*playCardTasks("$VestaShipyard"), "1 Pay<Class<Titanium>> FROM Titanium")
         .expect("-Titanium, -11 MC")
     kim.selectTask("PassBaton") // Decline the second action.
     stan.doTask("Pass")
@@ -77,7 +81,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     electGovernment("Reds", "PartyFollower", "PartyLeader", "PartyLeader")
     stan.doTask("Pass")
 
-    kim.doTasks("PlayProject<Class<$BribedCommittee>>").expect("-13 MC, 2 TerraformRating")
+    kim.doTasks(*playCardTasks("$BribedCommittee")).expect("-13 MC, 2 TerraformRating")
   }
 
   @Test
@@ -85,12 +89,12 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     electGovernment("Reds", "PartyFollower", "PartyLeader", "PartyLeader")
     stan.doTask("Pass")
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("-17 MC, TemperatureStep, TerraformRating")
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>")
+          doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("-17 MC, TemperatureStep, TerraformRating")
@@ -98,7 +102,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     kim.count("MC") shouldBe 14
     shouldThrow<NotNowException> {
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>")
+        doTasks(*standardProjectTasks("AsteroidProject"))
         autoExecNow(EAGER)
       }
     }
@@ -114,7 +118,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("UseTurmoilPolicyAction<Action2>")
+          doTasks("UseAction<KelvinistsPolicy, Action1>")
           autoExecNow(EAGER)
         }
         .expect("-10 MC, PROD[Heat, Energy]")
@@ -131,20 +135,20 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
   ) {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     kim.completeOperation {
-      doTask("LobbyAction")
+      doTask("UseAction<LobbyAction, Action1>")
       doTask("$firstRole<$party> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTasks("PaidLobbyAction")
+      doTasks("UseAction<PaidLobbyAction, Action1>")
       doTask("$secondRole<$party>")
     }
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("PaidLobbyAction")
+      doTasks("UseAction<PaidLobbyAction, Action1>")
       doTask("PartyFollower<$party>")
     }
     kim.completeOperation {
-      doTasks("PaidLobbyAction")
+      doTasks("UseAction<PaidLobbyAction, Action1>")
       doTask("PartyFollower<$party>")
     }
     kim.doTask("Pass")

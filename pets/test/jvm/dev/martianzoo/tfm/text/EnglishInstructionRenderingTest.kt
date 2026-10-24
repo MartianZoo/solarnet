@@ -47,6 +47,22 @@ internal class EnglishInstructionRenderingTest {
   }
 
   @Test
+  internal fun describesDistinctTagRequirementsWithUnusedWilds() {
+    english.describe(
+        parse<Requirement>("8 (Class<@Tag>(HAS @Tag) OR WildTagElection(HAS MAX 0 Tag))")
+    ) shouldBe "Requires 8 different tags."
+    english.describe(
+        parse<Requirement>("5 (WildTagElection(HAS MAX 0 Tag) OR Class<@Tag>(HAS @Tag))")
+    ) shouldBe "Requires 5 different tags."
+    english.describe(
+        parse<Requirement>("8 (Class<@Tag>(HAS @Tag) OR WildTagElection(HAS Tag))")
+    ) shouldContain "["
+    english.describe(
+        parse<Requirement>("8 (Class<@Tag>(HAS @Tag) OR WildTagElection<Anyone>(HAS MAX 0 Tag))")
+    ) shouldContain "["
+  }
+
+  @Test
   internal fun preservesCapOrderAndResourceRetention() {
     english.describe(parse<InstructionTree>("-2* MC / (BuildingTag MAX 3 - Influence)")) shouldBe
         "Lose 2 M€ per building tag you have (max 3) in excess of influence (to the extent possible)."

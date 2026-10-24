@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -23,7 +24,7 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
   internal fun `Can raise MC production from a negative level`() {
     kim.exMachina("PROD[-1 MC]")
     kim.inTurn {
-          doTasks("UseCardAction<RobinsonIndustries, Action1>", "4 Pay<> FROM MC")
+          doTasks(*cardActionTasks("RobinsonIndustries"), "4 Pay<> FROM MC")
           doTask("PROD[MC]")
         }
         .expect("PROD[1 MC]")
@@ -33,7 +34,7 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
   internal fun `Can raise uniquely lowest titanium production`() {
     kim.exMachina("PROD[1 MC, Steel, Plant, Energy, Heat]")
     kim.inTurn {
-      doTasks("UseCardAction<RobinsonIndustries, Action1>", "4 Pay<> FROM MC")
+      doTasks(*cardActionTasks("RobinsonIndustries"), "4 Pay<> FROM MC")
       doTask("PROD[Titanium]")
     }
   }
@@ -43,7 +44,7 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
     seedProductionTie()
     kim.inTurn {
       doTasks(
-          "UseCardAction<RobinsonIndustries, Action1>",
+          *cardActionTasks("RobinsonIndustries"),
           "4 Pay<> FROM MC",
           "PROD[Titanium]",
       )
@@ -56,7 +57,7 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("UseCardAction<RobinsonIndustries, Action1>")
+        doTasks(*cardActionTasks("RobinsonIndustries"))
         doTask("4 Pay<> FROM MC")
         doTask("PROD[Steel]")
       }

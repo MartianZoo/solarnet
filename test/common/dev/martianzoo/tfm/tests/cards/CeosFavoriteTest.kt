@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -17,7 +18,7 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<CeosFavoriteProject>>",
+          *playCardTasks("CeosFavoriteProject"),
           "1 Pay<> FROM MC",
           "CeosFavoriteProject FROM ProjectCard",
           "Science<SearchForLife>",
@@ -32,7 +33,7 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<CeosFavoriteProject>>",
+              *playCardTasks("CeosFavoriteProject"),
               "1 Pay<> FROM MC",
               "CeosFavoriteProject FROM ProjectCard",
           )
@@ -48,7 +49,7 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTask("PlayProject<Class<CeosFavoriteProject>>")
+        doTasks(*playCardTasks("CeosFavoriteProject"))
         doTasks("1 Pay<> FROM MC", "CeosFavoriteProject FROM ProjectCard")
         // Select the resource offer before testing whether a required gain can be declined.
         selectTask("CardResource<ResourceHolder(HAS CardResource)>*")

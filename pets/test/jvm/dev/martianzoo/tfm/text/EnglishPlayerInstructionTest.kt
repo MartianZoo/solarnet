@@ -38,9 +38,9 @@ class EnglishPlayerInstructionTest {
         parse<InstructionTree>("MAX 0 Owed<Purple, Class<MC>>: PlaceGreeneryTile<Purple>!")
     ) shouldContain "Purple"
     renderer.render(
-        parse<InstructionTree>("StandardAction<Purple>! OR -Baton<Purple>!"),
+        parse<InstructionTree>("UseAction<Purple, StandardAction>! OR -Baton<Purple>!"),
         cn("Purple"),
-    ) shouldBe "Take an action or end your turn."
+    ) shouldBe "Use an action or end your turn."
   }
 
   @Test
@@ -144,12 +144,13 @@ class EnglishPlayerInstructionTest {
   fun rendersActionChoicesAndKeepsSequencesInsideTheirAlternative() {
     for ((source, expected) in
         listOf(
-            "StandardAction<Green>! OR Pass<Green>!" to "Take an action or pass.",
-            "StandardAction<Green>! OR -Baton<Green>!" to "Take an action or end your turn.",
+            "UseAction<Green, StandardAction>! OR Pass<Green>!" to "Use an action or pass.",
+            "UseAction<Green, StandardAction>! OR -Baton<Green>!" to
+                "Use an action or end your turn.",
             "-Baton<Green>!" to "End your turn.",
-            "StandardAction<Green>?" to "You may take an action.",
-            "UseCardAction<Psychrophiles<Green>, Action1>!" to "Use Action1 on Psychrophiles.",
-            "UseStandardProject<Green, PowerPlantProject>!" to "Use PowerPlantProject.",
+            "UseAction<Green, StandardAction>?" to "You may use an action.",
+            "UseAction<Psychrophiles<Green>, Action1>!" to "Use Action1 on Psychrophiles.",
+            "UseAction<Green, PowerPlantProject>!" to "Use PowerPlantProject.",
             "UseAction<Green, Psychrophiles<Green>, Action1>?" to
                 "You may use Action1 on Psychrophiles.",
             "Plant<Green>! OR (Heat<Green>!, Steel<Green>!)" to

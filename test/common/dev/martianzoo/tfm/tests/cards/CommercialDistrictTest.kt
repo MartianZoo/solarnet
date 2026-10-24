@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -11,7 +12,7 @@ internal class CommercialDistrictTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("NormalCityTile<Kim, Tharsis_3_2>")
     kim.inTurn {
-      doTasks("PlayProject<Class<CommercialDistrict>>", "16 Pay<> FROM MC")
+      doTasks(*playCardTasks("CommercialDistrict"), "16 Pay<> FROM MC")
       doTasks(
           "CommercialDistrict FROM ProjectCard",
           "PROD[-Energy]",

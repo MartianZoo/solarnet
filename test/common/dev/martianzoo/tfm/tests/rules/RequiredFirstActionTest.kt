@@ -4,6 +4,8 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -23,7 +25,7 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     passFirstGeneration()
     kim.doTask("DoRequiredActions")
 
-    kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */).expect("PROD[Steel]")
+    kim.doTasks(*playCardTasks("$Mine"), "Ok" /* No Steel payment. */).expect("PROD[Steel]")
   }
 
   @Test
@@ -31,7 +33,7 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
 
     shouldThrow<NarrowingException> {
-      kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
+      kim.doTasks(*playCardTasks("$Mine"), "Ok" /* No Steel payment. */)
     }
     kim.count("$Mine") shouldBe 0
     kim.count("RequiredAction") shouldBe 1
@@ -44,7 +46,7 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
 
     shouldThrow<NarrowingException> {
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>")
+        doTasks(*standardProjectTasks("AsteroidProject"))
         autoExecNow(EAGER)
       }
     }
@@ -72,7 +74,9 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     passFirstGeneration()
     kim.count("Heat") shouldBe 8
 
-    shouldThrow<NarrowingException> { kim.doTasks("ConvertHeat", "8 Pay<Class<Heat>> FROM Heat") }
+    shouldThrow<NarrowingException> {
+      kim.doTasks("UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM Heat")
+    }
     kim.count("Heat") shouldBe 8
     kim.count("RequiredAction") shouldBe 1
   }

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -156,7 +157,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
 
     green.turn {
       // Green used Aquifer Pumping action
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(steel = 4) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(steel = 4) }) {
             // Green placed ocean tile at 46
             placeTile(7, 3)
             // Green gained 2 titanium
@@ -219,7 +220,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Green gained 10 M€
       playProject(InvestmentLoan, 0).expect("PROD[-1 MC], 10 MC")
       // Green used Aquifer Pumping action
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
             // Green placed ocean tile at 35
             placeTile(5, 7)
             // Green gained 3 heat
@@ -231,7 +232,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Green played Rotator Impacts
       playProject(RotatorImpacts, titanium = 2)
       // Green used Rotator Impacts action
-      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(6) })
+      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(6) })
       // Green added 1 Asteroid to Rotator Impacts
     }
     // Green passed
@@ -290,7 +291,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     pink.pass()
     green.turn {
       // Green used Aquifer Pumping action
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
         // Green placed ocean tile at 26
         placeTile(4, 6)
         // Green gained 1 plant
@@ -337,8 +338,9 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Green claimed Diversifier milestone
       inTurn {
         doWithAutoExecPolicy(CONCRETE) {
-          useStdAction("ClaimMilestone<Class<Diversifier>>") {
-            doTask("MicrobeTag<WildTagElection<WildTag<NobelPrize>>>")
+          useStdAction("UseAction<ClaimMilestoneAction, Action1>") {
+            selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+            doTasks("MicrobeTag<WildTagElection<WildTag<NobelPrize>>>", "Diversifier")
           }
         }
       }
@@ -396,7 +398,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     green.turn {
       // Green used Rotator Impacts action
-      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(6) })
+      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(6) })
       // Green added 1 Asteroid to Rotator Impacts
       // Green ended turn
     }
@@ -467,7 +469,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Pink gained 2 titanium
       playProject(SolarWindPower, titanium = 3)
       // Pink claimed Generalist milestone
-      stdAction("ClaimMilestone<Class<Generalist>>")
+      stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Generalist") }
     }
     green.turn {
       // Green used Ironworks action
@@ -511,7 +513,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     green.turn {
       // Green funded Contractor award
-      stdAction("FundAward<Class<Contractor>>")
+      stdAction("UseAction<FundAwardAction, Action1>") { doTask("Contractor") }
       // Green ended turn
     }
     pink.turn {
@@ -558,7 +560,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       playProject(DeimosDown, 14, titanium = 5) { doTask("-7 Plant<Green>") }
           .expect("4 Steel, -7 Plant<Green>")
       // Pink claimed Terraformer milestone
-      stdAction("ClaimMilestone<Class<Terraformer>>")
+      stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Terraformer") }
     }
     green.turn {
       // Green played Terraforming Contract
@@ -575,7 +577,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     green.turn {
       // Green used Rotator Impacts action
-      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(titanium = 2) })
+      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(titanium = 2) })
       // Green added 1 Asteroid to Rotator Impacts
       // Green ended turn
     }
@@ -600,7 +602,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     green.turn {
       // Green used Aquifer Pumping action
-      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(4, steel = 2) }) {
+      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(4, steel = 2) }) {
         // Green placed ocean tile at 36
         placeTile(5, 8)
         // Green gained 4 M€ from 2 ocean(s)
@@ -828,7 +830,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     green.turn {
       // Green used Rotator Impacts action
-      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(6) })
+      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(6) })
       // Green added 1 Asteroid to Rotator Impacts
       // Green ended turn
     }
@@ -1018,7 +1020,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     pink.turn {
       // Pink funded Landscaper award
-      stdAction("FundAward<Class<Landscaper>>")
+      stdAction("UseAction<FundAwardAction, Action1>") { doTask("Landscaper") }
       // Pink ended turn
     }
     // Green passed
@@ -1083,7 +1085,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // You drew Toll Station,Fueled Generators
       playProject(TechnologyDemonstration, titanium = 1)
       // Pink funded Founder award
-      stdAction("FundAward<Class<Founder>>").expect("Award")
+      stdAction("UseAction<FundAwardAction, Action1>") { doTask("Founder") }.expect("Award")
     }
     green.turn {
       // Green used Ironworks action

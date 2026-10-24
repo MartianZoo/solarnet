@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -15,7 +16,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   internal fun `Can raise one colony track and lower another`() {
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<MarketManipulation>>",
+              *playCardTasks("MarketManipulation"),
               "1 Pay<> FROM MC",
               "MarketManipulation FROM ProjectCard",
           )
@@ -31,7 +32,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<MarketManipulation>>")
+        doTasks(*playCardTasks("MarketManipulation"))
         doTasks("1 Pay<> FROM MC", "MarketManipulation FROM ProjectCard")
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
@@ -46,7 +47,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<MarketManipulation>>")
+        doTasks(*playCardTasks("MarketManipulation"))
         doTasks("1 Pay<> FROM MC", "MarketManipulation FROM ProjectCard")
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
@@ -59,7 +60,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   internal fun `Cannot select the same colony track twice`() {
     shouldThrow<ExpressionException> {
       kim.inTurn {
-        doTask("PlayProject<Class<MarketManipulation>>")
+        doTasks(*playCardTasks("MarketManipulation"))
         doTasks("1 Pay<> FROM MC", "MarketManipulation FROM ProjectCard")
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
@@ -72,7 +73,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   internal fun `Cannot raise Titan's delayed colony track`() {
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTask("PlayProject<Class<MarketManipulation>>")
+        doTasks(*playCardTasks("MarketManipulation"))
         doTasks("1 Pay<> FROM MC", "MarketManipulation FROM ProjectCard")
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
@@ -85,7 +86,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   internal fun `Cannot lower Titan's delayed colony track`() {
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<MarketManipulation>>")
+        doTasks(*playCardTasks("MarketManipulation"))
         doTasks("1 Pay<> FROM MC", "MarketManipulation FROM ProjectCard")
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")

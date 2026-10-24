@@ -34,7 +34,9 @@ internal class CardTrackingTest : TfmTest() {
     tracking.expectArrivals(player, cn("Mine"))
     agent.runOperation("ProjectCard")
 
-    agent.runOperation("UseCardAction<SelfReplicatingRobots, Action1>") {
+    agent.runOperation("UseAction<UseActionOnCardAction, Action1>") {
+      doTask("UseAction<SelfReplicatingRobots, Action1>")
+
       doTask("StageForReplicatedProject<Class<Mine>>")
       autoExecNow(EAGER)
     }
@@ -42,7 +44,9 @@ internal class CardTrackingTest : TfmTest() {
     agent.count("ProjectCard<StagedProject<Class<Mine>>>") shouldBe 1
     agent.count("RobotUnit<StagedProject<Class<Mine>>>") shouldBe 2
 
-    agent.runOperation("PlayStagedProject<Class<Mine>>") {
+    agent.runOperation("UseAction<PlayCardAction, Action1>") {
+      doTask("PlayCard<Class<ProjectCard>, Class<Mine>, StagedProject<Class<Mine>>>")
+
       autoExecNow(EAGER)
     }
     tracking.hand(player) shouldBe emptySet()
@@ -67,14 +71,19 @@ internal class CardTrackingTest : TfmTest() {
     agent.runOperation("ProjectCard")
     agent.runOperation("ProjectCard")
 
-    agent.runOperation("UseCardAction<SelfReplicatingRobots, Action1>") {
+    agent.runOperation("UseAction<UseActionOnCardAction, Action1>") {
+      doTask("UseAction<SelfReplicatingRobots, Action1>")
+
       doTask("StageForReplicatedProject<Class<Mine>>")
       autoExecNow(EAGER)
     }
     tracking.hand(player) shouldBe setOf(cn("TitaniumMine"))
     val afterStaging = game.events.nextOrdinal
     shouldThrow<IllegalStateException> {
-      agent.runOperation("PlayProject<Class<Mine>>") { autoExecNow(EAGER) }
+      agent.runOperation("UseAction<PlayCardAction, Action1>") {
+        doTask("PlayCard<Class<ProjectCard>, Class<Mine>, Hand>")
+        autoExecNow(EAGER)
+      }
     }
     game.events.nextOrdinal shouldBe afterStaging
     agent.count("ProjectCard<StagedProject<Class<Mine>>>") shouldBe 1

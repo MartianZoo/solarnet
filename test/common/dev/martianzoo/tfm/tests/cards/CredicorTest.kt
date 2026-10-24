@@ -4,6 +4,8 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -14,7 +16,7 @@ internal class CrediCorTest : TfmSandboxTest() {
     kim.setToExMachina(21, "MC")
 
     kim.inTurn {
-      doTask("UseStandardProject<CityProject>")
+      doTasks(*standardProjectTasks("CityProject"))
       shouldThrow<TaskException> { doTask("4 MC") }
       shouldThrow<TaskException> { doTask("25 Pay<> FROM MC") }
       abort()
@@ -29,7 +31,7 @@ internal class CrediCorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<PowerPlantProject>",
+              *standardProjectTasks("PowerPlantProject"),
               "11 Pay<> FROM MC",
               "PROD[Energy]",
           )
@@ -45,7 +47,7 @@ internal class CrediCorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<EarthCatapult>>",
+          *playCardTasks("EarthCatapult"),
           "19 Pay<> FROM MC",
           "EarthCatapult FROM ProjectCard",
           "4 MC",
@@ -61,7 +63,7 @@ internal class CrediCorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "UseStandardProject<CityProject>",
+          *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
           "CityTile<Tharsis_2_1>",
           "PROD[MC]",

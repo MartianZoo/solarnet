@@ -121,7 +121,9 @@ internal class EnglishTest {
     ) shouldBe "Pay 3 M€ to any player (to the extent possible)."
     english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe "Requires 6% oxygen or less."
     english.describe(
-        parse<Effect>("PaymentScope<Class<ConvertPlants>, Class<Plant>>:: -Owed<Class<Plant>>")
+        parse<Effect>(
+            "PaymentScope<Class<ConvertPlantsAction>, Class<Plant>>:: -Owed<Class<Plant>>"
+        )
     ) shouldBe "When you convert plants to greenery, you pay 1 plant less."
     english.describe(parse<Effect>("PayingFor<Class<CardFront>>:: -2 Owed<>")) shouldBe
         "When you play a card, you pay 2 M€ less for it."

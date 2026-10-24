@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -15,7 +16,7 @@ internal class DirigiblesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<AerialMappers>>",
+          *playCardTasks("AerialMappers"),
           "2 PayFromCard<Dirigibles> FROM Floater<Dirigibles>",
           "5 Pay<> FROM MC",
           "AerialMappers FROM ProjectCard",
@@ -31,7 +32,7 @@ internal class DirigiblesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<StratosphericBirds>>",
+              *playCardTasks("StratosphericBirds"),
               "3 PayFromCard<Dirigibles> FROM Floater<Dirigibles>",
               "3 Pay<> FROM MC",
               "StratosphericBirds FROM ProjectCard",

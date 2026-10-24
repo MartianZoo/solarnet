@@ -3,7 +3,9 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.WorldGovernmentAdvisor
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -18,34 +20,34 @@ internal class ThawerTest : TfmSandboxTest() {
     asteroid("PROD[Heat]")
     asteroid()
     stan.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTasks("TerraformRating", "PROD[Heat]")
       doTask("ThawerCredit")
     }
     kim.exMachina("$WorldGovernmentAdvisor")
     kim.inTurn {
-          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("TemperatureStep BY Admin")
         }
         .expect("0 TerraformRating")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("ClaimMilestone<Class<Thawer>>")
+        doTask("UseAction<ClaimMilestoneAction, Action1>")
         doTask("8 Pay<> FROM MC")
         doTask("Thawer")
       }
     }
 
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
+      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
       doTask("ThawerCredit")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Thawer>>", "8 Pay<> FROM MC")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
       doTask("Thawer")
     }
   }
@@ -53,7 +55,7 @@ internal class ThawerTest : TfmSandboxTest() {
   private fun asteroid(vararg bonuses: String) {
     kim.inTurn {
       doTasks(
-          "UseStandardProject<AsteroidProject>",
+          *standardProjectTasks("AsteroidProject"),
           "14 Pay<> FROM MC",
           "TemperatureStep",
           "TerraformRating",
@@ -112,23 +114,23 @@ internal class ThawerTest : TfmSandboxTest() {
       // Generation 4: Kim earns five temperature credits before Snow Cover removes two steps.
       stan.doTask("Pass")
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>")
+        doTasks(*standardProjectTasks("AsteroidProject"))
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>")
+        doTasks(*standardProjectTasks("AsteroidProject"))
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>")
+        doTasks(*standardProjectTasks("AsteroidProject"))
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>")
+        doTasks(*standardProjectTasks("AsteroidProject"))
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>")
+        doTasks(*standardProjectTasks("AsteroidProject"))
         autoExecNow(EAGER)
       }
       admin.count("TemperatureStep") shouldBe 5
@@ -146,12 +148,12 @@ internal class ThawerTest : TfmSandboxTest() {
       // Re-raising a removed step also earns fresh credit.
       admin.count("TemperatureStep") shouldBe 3
       kim.completeOperation {
-            doTasks("UseStandardProject<AsteroidProject>")
+            doTasks(*standardProjectTasks("AsteroidProject"))
             autoExecNow(EAGER)
           }
           .expect("TemperatureStep, ThawerCredit, TerraformRating")
       kim.count("ThawerCredit") shouldBe 6
-      kim.doTasks("ClaimMilestone<Class<Thawer>>")
+      kim.doTasks("UseAction<ClaimMilestoneAction, Action1>")
     }
   }
 }

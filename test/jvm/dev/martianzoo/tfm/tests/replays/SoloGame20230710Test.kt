@@ -81,7 +81,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       nextRound("VenusStep", 1)
 
       playProject(EnergySaving, 15)
-      stdAction("TradeAction<Action2>") { doTask("Trade<Callisto>") }.expect("4 Energy")
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Callisto>") }.expect("4 Energy")
 
       nextRound("OceanTile<Tharsis_5_5>", 1)
 
@@ -95,14 +95,15 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       convertHeat()
       convertHeat()
       stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
-      stdAction("TradeAction<Action2>") { doTask("Trade<Luna>") }.expect("-3 Energy, 15 MC")
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Luna>") }
+          .expect("-3 Energy, 15 MC")
       playProject(GiantSolarShade, 27).expect("Card")
       playProject(GeothermalPower, 2, steel = 3)
 
       nextRound("VenusStep", 2)
 
       convertHeat().expect("PROD[Heat]")
-      stdAction("TradeAction<Action2>") { doTask("Trade<Ganymede>") }
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Ganymede>") }
       convertPlants { placeTile(6, 3) }.expect("-6 Plant, TerraformRating")
 
       playProject(MineralDeposit, 5)
@@ -132,7 +133,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
       convertHeat()
       convertHeat()
-      stdAction("TradeAction<Action2>") { doTask("Trade<Luna>") }
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Luna>") }
 
       playProject(GiantIceAsteroid, 18, titanium = 4) {
         doTask("-6 Plant<SoloOpponent>")
@@ -162,7 +163,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       }
       stdProject("AirScrappingProject").expect("-12 MC")
       cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
-      stdAction("TradeAction<Action2>") { doTask("Trade<Ganymede>") }
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Ganymede>") }
       sellPatents(3)
       convertPlants { placeTile(8, 7) }
       playProject(PermafrostExtraction, 7) { placeTile(9, 9) }
@@ -194,7 +195,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       playProject(RefugeeCamps, 9)
       cardAction1(RefugeeCamps)
-      stdAction("TradeAction<Action2>") { doTask("Trade<Callisto>") }
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Callisto>") }
 
       nextRound("VenusStep", 4)
 
@@ -210,7 +211,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       cardAction1(RefugeeCamps)
       playProject(IceCapMelting, 4) { placeTile(1, 4) }
 
-      stdAction("TradeAction<Action2>") { doTask("Trade<Luna>") }
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Luna>") }
       playProject(TransNeptuneProbe, 3) { doTask("ProjectCard FROM Science") }
       stdProject("CityProject") { placeTile(6, 5) }
       playProject(UrbanizedArea, steel = 3) { placeTile(7, 5) }
@@ -243,11 +244,11 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playProject(MagneticFieldDome, 1, steel = 1)
       stdProject("GreeneryProject") { placeTile(9, 6) }
       playProject(InterstellarColonyShip, 1, titanium = 5)
-      stdAction("TradeAction<Action2>") { doTask("Trade<Luna>") }
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Luna>") }
       stdProject("CityProject") { placeTile(9, 5) }
       playProject(SpacePort, 3, steel = 6) { placeTile(6, 2) }
       sellPatents(1)
-      stdAction("TradeAction<Action2>") { doTask("Trade<Ganymede>") }
+      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Ganymede>") }
       convertPlants { placeTile(7, 6) }
       stdProject("GreeneryProject") { placeTile(7, 3) }
       stdProject("AirScrappingProject")

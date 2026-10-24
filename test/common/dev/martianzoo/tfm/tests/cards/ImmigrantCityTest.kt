@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -16,7 +17,7 @@ internal class ImmigrantCityTest : TfmSandboxTest() {
     kim.setToExMachina(13, "MC")
 
     kim.inTurn {
-      doTask("PlayProject<Class<ImmigrantCity>>")
+      doTasks(*playCardTasks("ImmigrantCity"))
       doTask("Ok") // Keep the steel.
       doTask("13 Pay<> FROM MC")
       doTasks(

@@ -37,6 +37,6 @@ CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
   HAS MAX 1 FakeHeadStart
   This:: Audit
   This: 2 Steel, 2 MC / ProjectCard, \
-    (MAX 0 RequiredAction: StandardAction) OR (RequiredAction: DoRequiredActions), \
-    (MAX 0 RequiredAction: StandardAction) OR (RequiredAction: DoRequiredActions)
+    (MAX 0 RequiredAction: UseAction<StandardAction>) OR (RequiredAction: DoRequiredActions), \
+    (MAX 0 RequiredAction: UseAction<StandardAction>) OR (RequiredAction: DoRequiredActions)
 }

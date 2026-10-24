@@ -578,7 +578,7 @@ internal object TerraformingMarsDescribers {
                             ),
                     )
             ),
-        klass("ConvertPlants") to
+        klass("ConvertPlantsAction") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -623,7 +623,7 @@ internal object TerraformingMarsDescribers {
                             ),
                     )
             ),
-        klass("Milestone") to
+        klass("ClaimMilestoneAction") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -632,8 +632,9 @@ internal object TerraformingMarsDescribers {
                     )
             ),
         klass("Award") to
+            ComponentDescriber(changeFrame = Frame.Procedure("fund", "an award for free")),
+        klass("FundAwardAction") to
             ComponentDescriber(
-                changeFrame = Frame.Procedure("fund", "an award for free"),
                 actionUse =
                     ComponentDescriber.ActionUse(
                         reference = ComponentDescriber.ActionUse.Reference.Fixed("an award"),
@@ -648,8 +649,6 @@ internal object TerraformingMarsDescribers {
                         paymentDiscount = ComponentDescriber.PaymentDiscount("use an action"),
                     )
             ),
-        klass("UseCardAction") to ComponentDescriber(triggerFrame = Trigger.UseAction),
-        klass("UseStandardProject") to ComponentDescriber(triggerFrame = Trigger.UseAction),
         klass("ActionScope") to
             ComponentDescriber(
                 actionUse =
@@ -663,8 +662,6 @@ internal object TerraformingMarsDescribers {
                         leave = Frame.Procedure("end", "your turn"),
                     ),
             ),
-        klass("StandardAction") to
-            ComponentDescriber(triggerFrame = Trigger.Named("take", "an action")),
         klass("DoRequiredActions") to
             ComponentDescriber(triggerFrame = Trigger.Named("take", "an action")),
         klass("Owed") to

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -16,7 +17,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     // The unavailable animal branch has already resolved to an untyped Ok.
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<RegolithEaters>>",
+              *playCardTasks("RegolithEaters"),
               "13 Pay<> FROM MC",
               "RegolithEaters FROM ProjectCard",
           )
@@ -30,7 +31,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     newTestGame()
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<ViralEnhancers>>",
+          *playCardTasks("ViralEnhancers"),
           "9 Pay<> FROM MC",
           "ViralEnhancers FROM ProjectCard",
           "Plant",
@@ -47,7 +48,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<AdvancedEcosystems>>",
+          *playCardTasks("AdvancedEcosystems"),
           "11 Pay<> FROM MC",
           "AdvancedEcosystems FROM ProjectCard",
           "Plant",
@@ -65,7 +66,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<EcologicalZone>>",
+              *playCardTasks("EcologicalZone"),
               "12 Pay<> FROM MC",
               "EcologicalZone FROM ProjectCard",
           )
@@ -87,7 +88,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayProject<Class<Moss>>",
+              *playCardTasks("Moss"),
               "4 Pay<> FROM MC",
               "Moss FROM ProjectCard",
               "PROD[Plant]",
@@ -103,7 +104,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     initializeExistingMicrobeCard()
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("PlayProject<Class<RegolithEaters>>")
+        doTasks(*playCardTasks("RegolithEaters"))
         doTasks("13 Pay<> FROM MC", "RegolithEaters FROM ProjectCard")
         doTask("Microbe<NitriteReducingBacteria>")
       }
@@ -115,7 +116,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     initializeExistingMicrobeCard()
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<RegolithEaters>>",
+          *playCardTasks("RegolithEaters"),
           "13 Pay<> FROM MC",
           "RegolithEaters FROM ProjectCard",
           "Microbe<RegolithEaters>!",
@@ -181,7 +182,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$ViralEnhancers")
     kim.inTurn {
-      doTasks("PlayProject<Class<IndustrialMicrobes>>", "12 Pay<> FROM MC")
+      doTasks(*playCardTasks("IndustrialMicrobes"), "12 Pay<> FROM MC")
       doTasks(
           "IndustrialMicrobes FROM ProjectCard",
           "PROD[Energy]",
@@ -199,7 +200,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.exMachina("$ViralEnhancers")
     // Choose the uncollectible bonus instead of the available plant.
     kim.inTurn {
-          doTasks("PlayProject<Class<IndustrialMicrobes>>", "12 Pay<> FROM MC")
+          doTasks(*playCardTasks("IndustrialMicrobes"), "12 Pay<> FROM MC")
           doTasks(
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",

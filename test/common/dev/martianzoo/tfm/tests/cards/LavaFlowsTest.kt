@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -15,7 +16,7 @@ internal class LavaFlowsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<LavaFlows>>",
+          *playCardTasks("LavaFlows"),
           "18 Pay<> FROM MC",
           "LavaFlows FROM ProjectCard",
       )
@@ -37,7 +38,7 @@ internal class LavaFlowsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<LavaFlows>>",
+          *playCardTasks("LavaFlows"),
           "18 Pay<> FROM MC",
           "LavaFlows FROM ProjectCard",
       )
@@ -64,7 +65,7 @@ internal class LavaFlowsTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("PlayProject<Class<LavaFlows>>")
+        doTasks(*playCardTasks("LavaFlows"))
 
         doTasks(
             "18 Pay<> FROM MC",

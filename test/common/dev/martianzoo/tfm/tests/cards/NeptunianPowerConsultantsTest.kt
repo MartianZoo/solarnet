@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.NeptunianPowerConsultants
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -16,7 +17,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "UseStandardProject<AquiferProject>",
+              *standardProjectTasks("AquiferProject"),
               "18 Pay<> FROM MC",
               "OceanTile<Tharsis_4_8>",
               "TerraformRating",
@@ -39,7 +40,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "UseStandardProject<AquiferProject>",
+              *standardProjectTasks("AquiferProject"),
               "18 Pay<> FROM MC",
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
@@ -64,7 +65,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
         .inTurn {
           // Decline the unaffordable Neptunian bonus.
           doTasks(
-              "UseStandardProject<AquiferProject>",
+              *standardProjectTasks("AquiferProject"),
               "18 Pay<> FROM MC",
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -15,7 +16,7 @@ internal class PublicPlansTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<PublicPlans>>",
+          *playCardTasks("PublicPlans"),
           "7 Pay<> FROM MC",
           "PublicPlans FROM ProjectCard",
       )
@@ -31,7 +32,7 @@ internal class PublicPlansTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<PublicPlans>>",
+          *playCardTasks("PublicPlans"),
           "7 Pay<> FROM MC",
           "PublicPlans FROM ProjectCard",
       )
@@ -47,7 +48,7 @@ internal class PublicPlansTest : TfmSandboxTest() {
 
     shouldThrow<NotNowException> {
       kim.inTurn {
-        doTask("PlayProject<Class<PublicPlans>>")
+        doTasks(*playCardTasks("PublicPlans"))
 
         doTasks(
             "7 Pay<> FROM MC",

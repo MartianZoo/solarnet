@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.IcyImpactors
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -14,7 +15,7 @@ internal class IcyImpactorsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTask("UseCardAction<IcyImpactors, Action2>")
+          doTasks(*cardActionTasks("IcyImpactors", "Action2"))
           doTask("-Asteroid<IcyImpactors>")
           // Expand the start-player choice; its System signal is executed by Admin.
           selectOnlyTask()

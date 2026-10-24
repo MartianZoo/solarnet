@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.EnergyMarket
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
@@ -18,7 +19,7 @@ internal class EnergyMarketTest : TfmSandboxTest() {
     kim.setToExMachina(6, "MC")
 
     kim.inTurn {
-          doTask("UseCardAction<EnergyMarket, Action1>")
+          doTasks(*cardActionTasks("EnergyMarket"))
           selectOnlyTask(x = 3)
           doTask("3 Energy")
         }
@@ -32,7 +33,7 @@ internal class EnergyMarketTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
           kim.inTurn {
-            doTask("UseCardAction<EnergyMarket, Action1>")
+            doTasks(*cardActionTasks("EnergyMarket"))
             selectOnlyTask(x = 3)
             doTask("3 Energy")
           }
@@ -42,7 +43,7 @@ internal class EnergyMarketTest : TfmSandboxTest() {
     kim.assertCounts(5 to "MC", 0 to "Energy", 0 to "ActionUsedMarker<EnergyMarket>")
 
     kim.inTurn {
-          doTask("UseCardAction<EnergyMarket, Action1>")
+          doTasks(*cardActionTasks("EnergyMarket"))
           selectOnlyTask(x = 2)
           doTask("2 Energy")
         }

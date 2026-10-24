@@ -34,9 +34,23 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Links: https://boardgamegeek.com/thread/1705209/article/37732543#37732543 and
   https://boardgamegeek.com/thread/3752654/article/48054640#48054640.
 
+- Continue the authored-action migration with card play: retain the chosen card and source through
+  requirement preparation and payment, then create the play result at completion. The standard
+  actions now use authored costs and completion-created results; card play still uses its existing
+  `MAX 0 Barrier` result. Preserve supported requirement timing and temporary/stored card sources.
+  Resolve context retention without introducing a general operation framework.
+- Simplify the stored-card face/location relationship. `PlayCardAction` now offers only Hand or
+  StagedProject, but the latter still checks the face separately against its recorded class.
+  Sharing a selected type across those arguments in a single offered instruction is not supported
+  by the current local-variable rules. Do not add a preparation step or gameplay helper just to
+  replace this check.
+- Replace global action slots with actual offered actions after the lifecycle changes. Preserve
+  live-source availability, shared card use limits, required actions and repeat grants; the exact
+  representation remains unselected. See [action identity](pets/docs/agents/ACTIONS.md).
+
 - Explore making each `StandardProject` a signal emitted only after its cost is paid.
-  `UseStandardProject` would select the class and open the bill; the resulting project signal
-  would trigger its tile/production effect and CrediCor/Standard Technology rebates. This
+  `UseStandardProjectAction` would offer the project choice and open its bill; the resulting project
+  signal would trigger its tile/production effect and CrediCor/Standard Technology rebates. This
   would replace the persistent `HasActions` standard-project components and their `UseAction`
   path. Account for Established Methods' direct `UseAction` grants and other standard-project
   payment listeners when evaluating the replacement.

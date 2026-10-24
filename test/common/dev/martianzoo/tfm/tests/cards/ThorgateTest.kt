@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
 
 internal class ThorGateTest : TfmSandboxTest() {
@@ -11,7 +12,7 @@ internal class ThorGateTest : TfmSandboxTest() {
     kim.setToExMachina(8, "MC")
 
     kim.inTurn {
-      doTasks("UseStandardProject<PowerPlantProject>", "8 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*standardProjectTasks("PowerPlantProject"), "8 Pay<> FROM MC", "PROD[Energy]")
     }
   }
 }

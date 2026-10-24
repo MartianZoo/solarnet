@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.Test
 
 internal class CarbonNanosystemsTest : TfmSandboxTest() {
@@ -12,7 +13,7 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayProject<Class<AsteroidCard>>",
+          *playCardTasks("AsteroidCard"),
           "2 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
           "6 Pay<> FROM MC",
           "AsteroidCard FROM ProjectCard",
