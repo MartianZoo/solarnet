@@ -224,7 +224,8 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
     // Clearing Mars First leaves Reds and Greens at 1 each. Democratic Reform adds to Greens;
     // Red Resistance then adds to Reds. Both finish at 2, but Greens keeps dominance.
-    admin.doTasks("PartyFollower<Greens, Neutral>", "RedResistance", "PartyFollower<Reds, Neutral>")
+    (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
+    admin.doTask("RedResistance").expect("PartyFollower<Reds, Neutral>")
     admin.count("PartyDelegate<Greens, Anyone>") shouldBe 2
     admin.count("PartyDelegate<Reds, Anyone>") shouldBe 2
     admin.count("Dominant<Greens>") shouldBe 1
@@ -283,7 +284,8 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     expectChanges("MC<Kim>, -TerraformRating<Kim>, -TerraformRating<Stan>") {
       kim.doTask("VenusStep! BY Admin")
       autoExecutePlayers()
-      admin.doTasks("PartyLeader<Greens, Neutral>", "RedResistance", "PartyFollower<Reds, Neutral>")
+      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+      admin.doTask("RedResistance").expect("PartyFollower<Reds, Neutral>")
     }
   }
 
@@ -557,11 +559,8 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     autoExecutePlayers()
     kim.doTask("VenusStep! BY Admin")
     autoExecutePlayers()
-    admin.doTasks(
-        "PartyLeader<Greens, Neutral>",
-        "ExploreFirstDirective",
-        "PartyLeader<Reds, Neutral>",
-    )
+    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+    admin.doTask("ExploreFirstDirective").expect("PartyLeader<Reds, Neutral>")
     kim.doTasks("Ok") // Buy all four research cards at TerraLabs' price.
     kim.count("MC") shouldBe 20
     kim.completeOperation {
@@ -596,7 +595,8 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
       currentPlacement: String,
       distantPlacement: String,
   ) {
-    admin.doTasks(currentPlacement, distantEvent, distantPlacement)
+    (admin.count(currentPlacement) > 0) shouldBe true
+    admin.doTask(distantEvent).expect(distantPlacement)
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
   }
 

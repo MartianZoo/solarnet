@@ -226,6 +226,15 @@ direction; production dependencies may not. Small generic declarations are prefe
 make a test clearer, but replacing domain examples is independent cleanup rather than a prerequisite
 for correct ownership.
 
+**Human direction, October 24, 2026:** functional game scenarios should go through the agent
+layer. Their readability must not depend on low-level task IDs. The selected engine destination
+also accepts jointly sufficient task/request information; explicit IDs are not the governing API
+principle. Focused raw-engine tests must exercise task matching separately from transaction-level
+uniqueness, and distinguish selection from execution. Agent tests include subsequent mandatory
+Admin work; raw engine uniqueness tests must exclude those later transactions. Combined
+resource-total submission is being considered for test support only, not selected as ordinary engine or agent behavior. See
+[the engine review](ENGINE_CONTRACT.md#task-identity-optional-queries-and-conveniences--items-10-1315-and-17).
+
 ### Test categories we care about
 
 Card and game-rule scenarios use the `TfmSandboxTest` and `TfmGameplayTest` fixtures described

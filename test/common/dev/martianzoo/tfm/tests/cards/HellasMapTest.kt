@@ -44,6 +44,7 @@ internal class HellasMapTest : TfmSandboxTest() {
           )
           // Separate Lakefront's extra adjacency income from the ordinary ocean bonuses.
           selectTask("MC! / Neighbor<OceanTile, Hellas_5_7>")
+          doTask("2 MC")
           doTasks("2 MC", "2 MC", "-6 MC")
         }
         .expect("0 MC")

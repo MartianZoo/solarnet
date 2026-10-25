@@ -226,7 +226,10 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     pink
         .playProject(PublicPlans, 5) {
           // Source log: six cards revealed and 6 M€ gained.
-          doTask("6 ProjectCard<Revealed FROM Hand>")
+          doWithoutAutoExec(pink) {
+            selectOnlyTask(x = 6)
+            doTask("6 ProjectCard<Revealed FROM Hand>")
+          }
         }
         .expect("4 MC")
 

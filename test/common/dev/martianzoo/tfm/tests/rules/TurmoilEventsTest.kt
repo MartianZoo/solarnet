@@ -20,8 +20,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
     kim.doTask("VenusStep! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
-    admin.doTask("PartyLeader<Greens, Neutral>")
-    admin.doTasks("ExperimentalLifeforms", "PartyFollower<Greens, Neutral>")
+    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+    admin.doTask("ExperimentalLifeforms").expect("PartyFollower<Greens, Neutral>")
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
     val first = players.single { it.count("StartToken") == 1 }
@@ -72,11 +72,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     admin.count("Current<ExploreFirstDirective>") shouldBe 1
     admin.count("Coming<MoralMovement>") shouldBe 1
     admin.count("Distant") shouldBe 0
-    admin.doTasks(
-        "PartyLeader<Scientists, Neutral>",
-        "ScientificProgress",
-        "PartyFollower<Scientists, Neutral>",
-    )
+    admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
+    admin.doTask("ScientificProgress").expect("PartyFollower<Scientists, Neutral>")
     admin.count("Distant<ScientificProgress>") shouldBe 1
   }
 
@@ -1054,7 +1051,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     kim.doTask("VenusStep! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
 
-    admin.doTasks("PartyLeader<Greens, Neutral>", "RedResistance", "PartyFollower<Reds, Neutral>")
+    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+    admin.doTask("RedResistance").expect("PartyFollower<Reds, Neutral>")
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
     // Kim is chairman and takes Unity's leadership and an ordinary delegate's influence.
@@ -1080,11 +1078,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
     }
-    admin.doTasks(
-        "PartyLeader<Unity, Neutral>",
-        "CharismaticWgPresident",
-        "PartyFollower<Unity, Neutral>",
-    )
+    admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
+    admin.doTask("CharismaticWgPresident").expect("PartyFollower<Unity, Neutral>")
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
     kim.completeOperation {
@@ -1184,9 +1179,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
           players.forEach { player ->
             player.tasks.extract { it.id }.forEach { player.doTask("Heat", it) }
           }
-      neutralPlacements[generation][0]?.let { admin.doTask(it) }
+      neutralPlacements[generation][0]?.let { (admin.count(it) > 0) shouldBe true }
       admin.doTask(reveals[generation % reveals.size])
-      neutralPlacements[generation][1]?.let { admin.doTask(it) }
+      neutralPlacements[generation][1]?.let { (admin.count(it) > 0) shouldBe true }
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     }
     admin.count("Delegate<Neutral>") shouldBe 14
@@ -1313,8 +1308,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         kim.doTask("OceanTile<Tharsis_1_2> BY Admin")
         players.forEach { it.autoExecNow(EAGER) }
       }
-      admin.doTask(neutralPlacements[index * 2])
-      admin.doTasks(reveal, neutralPlacements[index * 2 + 1])
+      (admin.count(neutralPlacements[index * 2]) > 0) shouldBe true
+      admin.doTask(reveal).expect(neutralPlacements[index * 2 + 1])
       kim.doTask("-4 ProjectCard<Selecting>")
     }
   }
@@ -1393,8 +1388,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
             players.forEach { it.autoExecNow(EAGER) }
           } // Democratic Reform.
           // Minimal Impact Policy removes that sole ocean automatically in generation 3.
-          admin.doTask(neutralPlacements[index * 2])
-          admin.doTasks(reveal, neutralPlacements[index * 2 + 1])
+          (admin.count(neutralPlacements[index * 2]) > 0) shouldBe true
+          admin.doTask(reveal).expect(neutralPlacements[index * 2 + 1])
           players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
         }
     stan.doTask("Pass") // Kim may now prepare the subject's relevant position in generation 4.
@@ -1429,9 +1424,10 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         first.doTask("OceanTile<Tharsis_1_2> BY Admin")
         players.forEach { it.autoExecNow(EAGER) }
       } // Temperature threshold.
-      admin.doTask(neutralPlacements[index * 2])
-      admin.doTask(if (index == temperature - 3) event else laterEvents[index % laterEvents.size])
-      admin.doTask(neutralPlacements[index * 2 + 1])
+      (admin.count(neutralPlacements[index * 2]) > 0) shouldBe true
+      admin
+          .doTask(if (index == temperature - 3) event else laterEvents[index % laterEvents.size])
+          .expect(neutralPlacements[index * 2 + 1])
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     }
     admin.count("Current<$event>") shouldBe 1

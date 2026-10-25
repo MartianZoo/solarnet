@@ -640,11 +640,8 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
     }
-    admin.doTasks(
-        "PartyLeader<Greens, Neutral>",
-        "ExploreFirstDirective",
-        "PartyLeader<Reds, Neutral>",
-    )
+    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+    admin.doTask("ExploreFirstDirective").expect("PartyLeader<Reds, Neutral>")
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     stan.doTask("Pass")
 
@@ -745,7 +742,8 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
 
     if (nextEvent != null) {
-      admin.doTasks(neutralPlacements[0], nextEvent, neutralPlacements[1])
+      (admin.count(neutralPlacements[0]) > 0) shouldBe true
+      admin.doTask(nextEvent).expect(neutralPlacements[1])
     }
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
   }

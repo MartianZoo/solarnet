@@ -25,10 +25,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Hellas_6_2" to "Hellas_9_5"
 
   override fun resolveExpansionSetupTasks() {
-    admin.doTask("DemocraticReform")
-    admin.doTask("PartyLeader<MarsFirst, Neutral>")
-    admin.doTask("MinimalImpactPolicy")
-    admin.doTask("PartyLeader<Reds, Neutral>")
+    admin.doTask("DemocraticReform").expect("PartyLeader<MarsFirst, Neutral>")
+    admin.doTask("MinimalImpactPolicy").expect("PartyLeader<Reds, Neutral>")
   }
 
   @Test
@@ -64,9 +62,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     }
 
     me.pass()
-    admin.doTask("PartyLeader<Greens, Neutral>")
-    admin.doTask("FreeAcademiaTreaty")
-    admin.doTask("PartyLeader<Scientists, Neutral>")
+    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+    admin.doTask("FreeAcademiaTreaty").expect("PartyLeader<Scientists, Neutral>")
     me.buyCards(3)
 
     me.turn {
@@ -76,18 +73,16 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     }
     me.pass()
     me.doTask("OceanTile<Hellas_1_1> BY Admin")
-    admin.doTask("PartyLeader<Unity, Neutral>")
-    admin.doTask("PateraBoring")
-    admin.doTask("PartyFollower<Scientists, Neutral>")
+    admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
+    admin.doTask("PateraBoring").expect("PartyFollower<Scientists, Neutral>")
     me.buyCards(3)
 
     me.turn {
       playProject(AcquiredCompany, 7)
     }
     me.pass()
-    admin.doTask("PartyLeader<Scientists, Neutral>")
-    admin.doTask("ScienceSummit")
-    admin.doTask("PartyFollower<Scientists, Neutral>")
+    admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
+    admin.doTask("ScienceSummit").expect("PartyFollower<Scientists, Neutral>")
     me.buyCards(4)
 
     me.turn {
@@ -95,18 +90,16 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       playProject(MediaArchives, 5)
     }
     me.pass()
-    admin.doTask("PartyLeader<Kelvinists, Neutral>")
-    admin.doTask("TerraformingLobbying")
-    admin.doTask("PartyFollower<Kelvinists, Neutral>")
+    admin.count("PartyLeader<Kelvinists, Neutral>") shouldBe 1
+    admin.doTask("TerraformingLobbying").expect("PartyFollower<Kelvinists, Neutral>")
     me.buyCards(4)
 
     me.turn {
       playProject(HomeostasisBureau, 16)
     }
     me.pass()
-    admin.doTask("PartyFollower<Greens, Neutral>")
-    admin.doTask("CharismaticWgPresident")
-    admin.doTask("PartyFollower<Unity, Neutral>")
+    (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
+    admin.doTask("CharismaticWgPresident").expect("PartyFollower<Unity, Neutral>")
     me.buyCards(4)
 
     me.turn {
@@ -116,9 +109,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       playProject(LavaFlows, 18) { doTask("LavaFlows_SpecialTile<Hellas_2_2>") }
     }
     me.pass()
-    admin.doTask("PartyFollower<Unity, Neutral>")
-    admin.doTask("SolarnetGlobalEvent")
-    admin.doTask("PartyFollower<Unity, Neutral>")
+    (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
+    admin.doTask("SolarnetGlobalEvent").expect("PartyFollower<Unity, Neutral>")
     me.buyCards(3)
 
     me.turn {
@@ -135,9 +127,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       }
     }
     me.pass()
-    admin.doTask("PartyLeader<Unity, Neutral>")
-    admin.doTask("BioengineeringBoom")
-    admin.doTask("PartyLeader<Greens, Neutral>")
+    admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
+    admin.doTask("BioengineeringBoom").expect("PartyLeader<Greens, Neutral>")
     me.buyCards(4)
 
     me.turn {
@@ -160,9 +151,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       }
     }
     me.pass()
-    admin.doTask("PartyFollower<Greens, Neutral>")
-    admin.doTask("SelfSufficiencyProgram")
-    admin.doTask("PartyFollower<Greens, Neutral>")
+    (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
+    admin.doTask("SelfSufficiencyProgram").expect("PartyFollower<Greens, Neutral>")
     me.buyCards(4)
 
     me.turn {
@@ -188,9 +178,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       convertPlants { placeTile(1, 5) }
     }
     me.pass()
-    admin.doTask("PartyLeader<Scientists, Neutral>")
-    admin.doTask("RedResistance")
-    admin.doTask("PartyLeader<Reds, Neutral>")
+    admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
+    admin.doTask("RedResistance").expect("PartyLeader<Reds, Neutral>")
     me.buyCards(4)
 
     me.turn {

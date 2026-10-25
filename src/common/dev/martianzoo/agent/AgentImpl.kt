@@ -35,6 +35,7 @@ internal class AgentImpl(
     private val elaborator: PetElaborator,
     private val autoExecLoop: AutoExecLoop,
     private val taskLog: TaskLog,
+    private val validateApplication: () -> Unit,
     initialPolicy: AutoExecPolicy,
 ) : Agent {
 
@@ -96,7 +97,6 @@ internal class AgentImpl(
     return ParsedTaskNarrowing(
         elaborator.elaborateInput(parsed, actor as? Player),
         quantifierOmitted = parsed is Change && parsed.quantifier == null,
-        submittedAsGroup = parsed is InstructionGroup,
     )
   }
 
@@ -110,7 +110,7 @@ internal class AgentImpl(
   override fun sneak(changes: String, fakeCause: Cause?): TaskResult =
       world.timeline.atomic {
         engine.sneak(parseInstructionGroup(changes), fakeCause)
-        world.agentTransactionGuard?.validate()
+        validateApplication()
       }
 
   // TASKS
@@ -245,8 +245,6 @@ internal class AgentImpl(
             engine.doTask(
                 parsed.instruction,
                 parsed.quantifierOmitted,
-                parsed.submittedAsGroup || parsed.instruction is InstructionGroup,
-                combineScalars = true,
             )
           }
           finishTaskHandoff()
@@ -309,7 +307,7 @@ internal class AgentImpl(
 
   private fun autoExecAtomically(): TaskResult =
       engine.transact(
-          afterChanges = { world.agentTransactionGuard?.validate() },
+          afterChanges = { validateApplication() },
           block = { autoExecLoop.run() },
       )
 
@@ -382,7 +380,6 @@ internal class AgentImpl(
       engine.doTask(
           parsed.instruction,
           parsed.quantifierOmitted,
-          parsed.submittedAsGroup,
       )
     }
     finishTaskHandoff()
@@ -394,7 +391,6 @@ internal class AgentImpl(
       engine.doTask(
           parsed.instruction,
           parsed.quantifierOmitted,
-          parsed.submittedAsGroup,
           contextClass = contextClass,
       )
     }
@@ -407,7 +403,6 @@ internal class AgentImpl(
       engine.doTask(
           parsed.instruction,
           parsed.quantifierOmitted,
-          parsed.submittedAsGroup,
           taskId,
       )
     }
@@ -432,7 +427,6 @@ internal class AgentImpl(
       engine.tryTask(
           parsed.instruction,
           parsed.quantifierOmitted,
-          parsed.submittedAsGroup,
       )
     }
   }
@@ -443,7 +437,6 @@ internal class AgentImpl(
       engine.tryTask(
           parsed.instruction,
           parsed.quantifierOmitted,
-          parsed.submittedAsGroup,
           taskId,
       )
     }
@@ -494,7 +487,7 @@ internal class AgentImpl(
           validateCompletion = validateCompletion,
           afterChanges = {
             autoExecLoop.run()
-            world.agentTransactionGuard?.validate()
+            validateApplication()
           },
       )
 
@@ -503,7 +496,7 @@ internal class AgentImpl(
       engine.transact(
           afterChanges = {
             autoExecLoop.runAdmin()
-            world.agentTransactionGuard?.validate()
+            validateApplication()
           },
           block = {
             autoExecLoop.runAdmin()
@@ -515,6 +508,5 @@ internal class AgentImpl(
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,
       val quantifierOmitted: Boolean,
-      val submittedAsGroup: Boolean,
   )
 }

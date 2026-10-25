@@ -99,8 +99,8 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
           doTask("-12 MC")
           doTask("-Director<BoardOfDirectors>")
           doTask("-PreludeCard")
-          // Hand the fizzle audit to Admin before receiving compensation.
-          selectTask("Audit!")
+          // Execute the fizzle audit before receiving compensation.
+          doTask("Audit!")
           doTask("15 MC")
         }
         .expect("0 $EarlyColonization, 0 Colony<Ceres>, 0 Energy, 0 ColonyProduction<Luna>")

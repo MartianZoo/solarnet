@@ -1,6 +1,7 @@
 package dev.martianzoo.agent
 
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.SpeculativeWorld
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.state.Actor
@@ -22,7 +23,30 @@ public open class Agents(
   /** Opt-in task recording, including Player autoexecution; see [TaskLog] for supported scope. */
   public val taskLog: TaskLog = TaskLog(world)
 
-  private val autoExecLoop = AutoExecLoop(world, taskLog)
+  /**
+   * Optional application check for this session; fresh sessions and speculative copies have none.
+   */
+  public var transactionGuard: AgentTransactionGuard? = null
+    private set
+
+  /**
+   * Installs this session's application check once. Direct engine calls and other independently
+   * constructed sessions bypass it. Install before submitting commands which need validation. A
+   * speculative session cannot install a guard; fork a complete World to start tracked play.
+   */
+  public fun installTransactionGuard(guard: AgentTransactionGuard) {
+    check(world !is SpeculativeWorld) {
+      "a speculative session cannot install an Agent transaction guard"
+    }
+    check(transactionGuard == null) { "An Agent transaction guard is already installed" }
+    transactionGuard = guard
+  }
+
+  internal fun validateApplication() {
+    transactionGuard?.validate()
+  }
+
+  private val autoExecLoop = AutoExecLoop(world, taskLog, ::validateApplication)
   private val elaborator = PetElaborator(world.classTable)
 
   private val agents: Map<Actor, Agent> =
@@ -33,6 +57,7 @@ public open class Agents(
             elaborator,
             autoExecLoop,
             taskLog,
+            ::validateApplication,
             if (it == Actor.ADMIN) AutoExecPolicy.EAGER else initialPolicy(it),
         )
       }

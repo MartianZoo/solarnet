@@ -30,7 +30,7 @@ internal class AridorTest : TfmSandboxTest() {
           // Hand colony selection to Admin so the unused tiles become available.
           selectTask("ColonyTileSelection!")
           // Hand the chosen tile to Admin; Titan remains delayed until floaters are in play.
-          selectTask("DelayedTitan!")
+          doTask("DelayedTitan!")
         }
         .expect("Titan, ColonyProduction, 0 DelayedTitan")
   }

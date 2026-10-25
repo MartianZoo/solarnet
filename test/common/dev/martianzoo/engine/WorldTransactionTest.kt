@@ -48,9 +48,11 @@ internal class WorldTransactionTest {
     val taskId = agent.addTasks("-Token?").single()
     agent.selectTask(taskId)
     agent.narrowTask("-Token")
+    agent.count("Token") shouldBe 1
+    agent.doTask(taskId)
     agent.dropTask(agent.addTasks("Token?").single())
 
-    completions shouldBe 5
+    completions shouldBe 6
     agent.count("Token") shouldBe 0
     agent.tasks.isEmpty() shouldBe true
   }

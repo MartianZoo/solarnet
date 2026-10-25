@@ -20,6 +20,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       )
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
+      doTask("2 MC")
       doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
@@ -35,6 +36,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       )
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
+      doTask("2 MC")
       doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -51,6 +53,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           )
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
+          doTask("Microbe<Decomposers>!")
           kim.doTask("2 MC")
           doTask("2 MC")
         }
@@ -68,6 +71,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       )
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
+      doTask("2 MC")
       doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -84,6 +88,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           )
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
+          doTask("Microbe<Decomposers>!")
           kim.doTask("2 MC")
           doTask("Microbe<Decomposers>!")
         }
@@ -101,6 +106,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       )
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
+      doTask("2 MC")
       doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -117,6 +123,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           )
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
+          doTask("Microbe<Decomposers>!")
           kim.doTask("2 MC")
           shouldThrow<TaskException> { doTask("Microbe<$RegolithEaters>!") }
           doTask("Microbe<Decomposers>")
@@ -135,6 +142,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       )
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
+      doTask("2 MC")
       doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()

@@ -267,9 +267,9 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
-      admin.doTask("PartyFollower<Greens, Neutral>")
+      (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
 
-      admin.doTasks("ExploreFirstDirective", "PartyFollower<Reds, Neutral>")
+      admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       admin.count("Ruling<Scientists>") shouldBe 1
@@ -308,7 +308,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
-      admin.doTask("PartyLeader<Greens, Neutral>")
+      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
 
       kim.count("Influence") shouldBe 1
       stan.count("Influence") shouldBe 1
@@ -340,11 +340,11 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
-      admin.doTask("PartyLeader<Greens, Neutral>")
+      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
 
       kim.count("Influence") shouldBe 3
       stan.count("Influence") shouldBe 1
-      admin.doTasks("ExploreFirstDirective", "PartyFollower<Reds, Neutral>")
+      admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
       kim.count("Influence") shouldBe 0
       stan.count("Influence") shouldBe 0
@@ -371,9 +371,9 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
-      admin.doTask("PartyLeader<Greens, Neutral>")
+      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
 
-      admin.doTasks("ExploreFirstDirective", "PartyFollower<Reds, Neutral>")
+      admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
       stan.doTask("Pass")
 

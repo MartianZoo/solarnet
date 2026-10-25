@@ -67,7 +67,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
           doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
           doTasks("ArtificialLake FROM ProjectCard")
           // Resolve the placement offer: the full ocean track leaves no legal placement.
-          selectOnlyTask()
+          doTask("0 OceanTile<LandArea>")
         }
         .expect("0 OceanTile, 0 TerraformRating")
   }

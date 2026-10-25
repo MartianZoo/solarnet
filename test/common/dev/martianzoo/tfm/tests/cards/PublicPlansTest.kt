@@ -20,6 +20,7 @@ internal class PublicPlansTest : TfmSandboxTest() {
           "7 Pay<> FROM MC",
           "PublicPlans FROM ProjectCard",
       )
+      selectOnlyTask(x = 2)
       doTask("2 ProjectCard<Revealed FROM Hand>")
       doTask("2 ProjectCard FROM ProjectCard<Revealed>")
       doTask("2 MC")
@@ -36,6 +37,7 @@ internal class PublicPlansTest : TfmSandboxTest() {
           "7 Pay<> FROM MC",
           "PublicPlans FROM ProjectCard",
       )
+      selectOnlyTask(x = 1)
       doTask("ProjectCard<Revealed FROM Hand>")
       doTask("ProjectCard FROM ProjectCard<Revealed>")
       doTask("MC")
@@ -54,6 +56,7 @@ internal class PublicPlansTest : TfmSandboxTest() {
             "7 Pay<> FROM MC",
             "PublicPlans FROM ProjectCard",
         )
+        selectOnlyTask(x = 1)
         doTask("ProjectCard<Revealed FROM Hand>")
       }
     }

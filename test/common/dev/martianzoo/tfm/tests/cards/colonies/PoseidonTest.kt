@@ -10,7 +10,8 @@ internal class PoseidonTest : TfmSandboxTest() {
   internal fun `Its free starting colony earns both Luna and Poseidon production bonuses`() {
     newTestGame(addOptions = "Luna", kimCorporation = Poseidon)
 
-    kim.inTurn { doTasks("DoRequiredActions", "Colony<Luna>", "PROD[3 MC]") }.expect("0 MC")
+    kim.inTurn { doTasks("DoRequiredActions", "Colony<Luna>", "PROD[2 MC]", "PROD[MC]") }
+        .expect("0 MC")
     kim.count("RequiredAction") shouldBe 0
   }
 }

@@ -59,8 +59,8 @@ internal class HighCirclesTest : TfmSandboxTest() {
               "PROD[Plant]",
               "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
           )
-          // Hand the requirement waiver to Admin before playing the project.
-          selectTask("-Required* / Required")
+          // Execute the requirement waiver before playing the project.
+          doTask("-Required* / Required")
           doTasks("3 Pay<> FROM MC", "SupportedResearch FROM ProjectCard")
           doTask("2 ProjectCard<Kim, Hand>")
         }
@@ -90,11 +90,8 @@ internal class HighCirclesTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       kim.count("Chairman") shouldBe 1
-      admin.doTasks(
-          "PartyLeader<Greens, Neutral>",
-          "ExploreFirstDirective",
-          "PartyFollower<Reds, Neutral>",
-      )
+      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+      admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("Pass")

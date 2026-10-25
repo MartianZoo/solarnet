@@ -9,7 +9,15 @@
 > **Skip when:** changing ordering between separate instructions; use
 > [SEQUENCING.md](SEQUENCING.md).
 >
-> **Status:** current normative engine contract.
+> **Status:** quantity semantics and current implementation rules. Ownership and deduction timing
+> are being revised toward the [selected engine destination](ENGINE_CONTRACT.md).
+
+Preserve authored quantity meaning, including optional and AMAP zero results. For an explicit
+execution request, determining the sole narrowing whose transaction succeeds can require target
+feasibility and limit analysis in the engine. Automatically reducing an unanswered choice belongs
+to the agent. The current special cases below are not requirements to preserve unchanged. A
+quantity-limit read can bound candidates without proving their transactions succeed; temporary
+invariant violations repaired by immediate effects must not be rejected by an over-eager filter.
 
 ## Source map
 

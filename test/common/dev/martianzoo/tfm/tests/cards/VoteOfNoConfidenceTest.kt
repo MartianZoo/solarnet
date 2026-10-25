@@ -20,8 +20,8 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
               "5 Pay<> FROM MC",
               "VoteOfNoConfidence FROM ProjectCard",
           )
-          // Hand the chairmanship transfer to Admin, which updates the political state.
-          selectTask("Chairman<Kim FROM Neutral>!")
+          // Execute the chairmanship transfer, including the political-state changes.
+          doTask("Chairman<Kim FROM Neutral>!")
           doTask("TerraformRating")
         }
         .expect("-LobbyDelegate")
@@ -37,8 +37,8 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
         doTasks(*playCardTasks("VoteOfNoConfidence"))
         doTasks("5 Pay<> FROM MC", "VoteOfNoConfidence FROM ProjectCard")
         doTask("TerraformRating")
-        // Hand the chairmanship transfer to Admin, which updates the political state.
-        selectTask("Chairman<Kim FROM Neutral>!")
+        // Execute the chairmanship transfer, including the political-state changes.
+        doTask("Chairman<Kim FROM Neutral>!")
       }
     }
 
@@ -57,8 +57,8 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
         doTasks(*playCardTasks("VoteOfNoConfidence"))
         doTasks("5 Pay<> FROM MC", "VoteOfNoConfidence FROM ProjectCard")
         doTask("TerraformRating")
-        // Hand the chairmanship transfer to Admin, which updates the political state.
-        selectTask("Chairman<Kim FROM Neutral>!")
+        // Execute the chairmanship transfer, including the political-state changes.
+        doTask("Chairman<Kim FROM Neutral>!")
       }
     }
 

@@ -79,9 +79,8 @@ internal class ThawerTest : TfmSandboxTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
-      admin.doTask("PartyLeader<Greens, Neutral>")
-      admin.doTask("MoholeLakeGlobalEvent")
-      admin.doTask("PartyLeader<Kelvinists, Neutral>")
+      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+      admin.doTask("MoholeLakeGlobalEvent").expect("PartyLeader<Kelvinists, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 2: Democratic Reform gives Stan an Admin ocean, leaving temperature alone.
@@ -94,9 +93,8 @@ internal class ThawerTest : TfmSandboxTest() {
       stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
-      admin.doTask("PartyLeader<Unity, Neutral>")
-      admin.doTask("ExploreFirstDirective")
-      admin.doTask("PartyLeader<Reds, Neutral>")
+      admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
+      admin.doTask("ExploreFirstDirective").expect("PartyLeader<Reds, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 3: Minimal Impact Policy removes the sole ocean automatically.
@@ -106,9 +104,8 @@ internal class ThawerTest : TfmSandboxTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
-      admin.doTask("PartyFollower<Kelvinists, Neutral>")
-      admin.doTask("MoralMovement")
-      admin.doTask("PartyFollower<Reds, Neutral>")
+      (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
+      admin.doTask("MoralMovement").expect("PartyFollower<Reds, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 4: Kim earns five temperature credits before Snow Cover removes two steps.
@@ -139,9 +136,8 @@ internal class ThawerTest : TfmSandboxTest() {
       stan.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
-      admin.doTask("PartyLeader<Scientists, Neutral>")
-      admin.doTask("FreeAcademiaTreaty")
-      admin.doTask("PartyFollower<Scientists, Neutral>")
+      admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
+      admin.doTask("FreeAcademiaTreaty").expect("PartyFollower<Scientists, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 5: the track fell, but Kim's five earned credits still qualify.

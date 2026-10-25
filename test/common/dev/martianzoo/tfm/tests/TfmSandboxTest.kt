@@ -245,12 +245,8 @@ internal abstract class TfmSandboxTest {
       }
     }
     if (admin.count("RevealComingEvent") > 0) {
-      admin.doTasks(
-          "DemocraticReform",
-          "PartyLeader<MarsFirst, Neutral>",
-          "MinimalImpactPolicy",
-          "PartyLeader<Reds, Neutral>",
-      )
+      admin.doTask("DemocraticReform").expect("PartyLeader<MarsFirst, Neutral>")
+      admin.doTask("MinimalImpactPolicy").expect("PartyLeader<Reds, Neutral>")
     }
     if (players.size == 1) {
       val map = Canon.marsMapDefinitions.single { admin.count(it.className.toString()) == 1 }

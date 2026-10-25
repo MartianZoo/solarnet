@@ -6,9 +6,12 @@ import dev.martianzoo.agent.TaskForm.Decision.Kind.ALTERNATIVE
 import dev.martianzoo.agent.TaskForm.Decision.Kind.AMOUNT
 import dev.martianzoo.agent.TaskForm.Decision.Kind.TARGET
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
@@ -102,6 +105,7 @@ internal class TaskNarrowingTest {
     form.instruction.toString() shouldBe "Plant<Player1>!"
 
     form.commit()
+    writer.doTask(writer.tasks.selectedTask()!!)
     writer.count("Plant") shouldBe 1
     tasks.isEmpty() shouldBe true
   }
@@ -135,6 +139,7 @@ internal class TaskNarrowingTest {
     game.events.nextOrdinal shouldBe before
     form.choose(form.decisions().single(), "Heat<Player1>!")
     form.commit()
+    writer.doTask(writer.tasks.selectedTask()!!)
     writer.count("Heat") shouldBe 1
   }
 
@@ -167,6 +172,7 @@ internal class TaskNarrowingTest {
     form.options(decision).toSet() shouldBe setOf("Plant", "Steel")
     form.choose(decision, "Plant")
     form.commit()
+    writer.doTask(writer.tasks.selectedTask()!!)
     writer.count("Plant") shouldBe 0
     writer.count("Steel") shouldBe 2
   }
@@ -260,6 +266,7 @@ internal class TaskNarrowingTest {
     form.choose(holder, "Available")
     form.decisions().shouldBeEmpty()
     form.commit()
+    agent.doTask(agent.tasks.selectedTask()!!)
     agent.count("Token<Available<Player1>>") shouldBe 1
 
     // An optional gain can choose an absent holder and then choose zero, so retain those paths.
@@ -299,6 +306,7 @@ internal class TaskNarrowingTest {
     form.options(destination).toSet() shouldBe setOf("MC", "Titanium", "Plant", "Energy", "Heat")
     form.choose(form.decisions().single(), "Titanium")
     form.commit()
+    writer.doTask(writer.tasks.selectedTask()!!)
     writer.count("Steel") shouldBe 0
     writer.count("Titanium") shouldBe 1
   }
@@ -486,6 +494,7 @@ internal class TaskNarrowingTest {
     events.entriesSince(before).shouldBeEmpty()
     tasksAsText().shouldContainExactly("StandardResource<Player1>?")
     form.commit()
+    writer.doTask(writer.tasks.selectedTask()!!)
     writer.count("Steel") shouldBe 1
   }
 
@@ -499,6 +508,7 @@ internal class TaskNarrowingTest {
 
     tasks.getTaskData(id).instruction shouldBe before
     form.commit()
+    writer.doTask(writer.tasks.selectedTask()!!)
 
     writer.count("Steel") shouldBe 1
     writer.doTask("Steel")
@@ -535,21 +545,24 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `id-based narrowing of a selected task executes when concrete`() {
+  internal fun `id-based narrowing retains a concrete task until execution`() {
     val taskId = initiate("2? Plant").single()
     writer.selectTask(taskId)
 
     writer.narrowTask("Plant!")
+    writer.count("Plant") shouldBe 0
+    writer.doTask(tasks.selectedTask()!!)
 
     writer.count("Plant") shouldBe 1
     tasks.isEmpty() shouldBe true
   }
 
   @Test
-  internal fun `a concrete narrowing executes immediately`() {
+  internal fun `a concrete narrowing waits for explicit execution`() {
     initiate("2? Plant")
 
     selectAndNarrow("2? Plant", "Plant!")
+    writer.doTask(tasks.selectedTask()!!)
     writer.count("Plant") shouldBe 1
     tasks.isEmpty() shouldBe true
   }
@@ -571,6 +584,7 @@ internal class TaskNarrowingTest {
     selectAndNarrow("2? StandardResource", "2? Plant")
     selectAndNarrow("2? Plant", "Plant?")
     selectAndNarrow("Plant?", "Plant!")
+    writer.doTask(tasks.selectedTask()!!)
 
     writer.count("Plant") shouldBe 1
     tasks.isEmpty() shouldBe true
@@ -582,6 +596,7 @@ internal class TaskNarrowingTest {
     tasksAsText().shouldContainExactlyInAnyOrder("5! Plant<Player1> OR 4! Heat<Player1>")
 
     selectAndNarrow("5 Plant OR 4 Heat", "5 Plant")
+    writer.doTask(tasks.selectedTask()!!)
     writer.count("Plant") shouldBe 5
     tasks.isEmpty() shouldBe true
   }
@@ -656,11 +671,12 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `narrowing to the first stage executes it and admits its THEN continuation`() {
+  internal fun `executing the narrowed first stage admits its THEN continuation`() {
     writer.runOperation("ProjectCard")
     initiate("(-ProjectCard THEN ProjectCard) OR Ok")
 
     selectAndNarrow("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
+    writer.doTask(tasks.selectedTask()!!)
 
     tasksAsText().shouldContainExactly("ProjectCard<Player1, Hand>!")
   }
@@ -730,10 +746,11 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `selection can resolve a limited task to completion`() {
+  internal fun `selection resolves a limited amount for explicit execution`() {
     initiate("-30? TerraformRating")
 
     writer.selectTask("-30? TerraformRating")
+    writer.doTask(tasks.selectedTask()!!)
 
     writer.count("TerraformRating") shouldBe 0
     tasks.isEmpty() shouldBe true
@@ -749,6 +766,7 @@ internal class TaskNarrowingTest {
     writer.selectTask("OceanTile<>")
     shouldThrow<NarrowingException> { writer.narrowTask("OceanTile<Tharsis_1_2>") }
     writer.narrowTask("OceanTile<Tharsis_1_4>")
+    writer.doTask(tasks.selectedTask()!!)
 
     tasks.selectedTask() shouldBe null
     writer.count("OceanTile<Tharsis_1_4>") shouldBe 1
@@ -764,6 +782,7 @@ internal class TaskNarrowingTest {
     p1.addTasks("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
 
     p1.selectTask("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
+    p1.doTask(p1.tasks.selectedTask()!!)
 
     p1.count("Cathedral<Player1, NormalCityTile<Player2, Tharsis_4_2>>") shouldBe 1
   }
@@ -774,6 +793,7 @@ internal class TaskNarrowingTest {
     initiate("-5* MC<Player>")
 
     selectAndNarrow("-5* MC<Player>", "-5* MC<Player1>")
+    writer.doTask(tasks.selectedTask()!!)
 
     tasks.isEmpty() shouldBe true
     writer.count("MC") shouldBe 0
@@ -788,6 +808,7 @@ internal class TaskNarrowingTest {
     initiate("GlobalParameter*")
 
     selectAndNarrow("GlobalParameter*", "OxygenStep*")
+    writer.doTask(tasks.selectedTask()!!)
 
     tasks.isEmpty() shouldBe true
     writer.count("OxygenStep") shouldBe 14
@@ -822,16 +843,18 @@ internal class TaskNarrowingTest {
 
     writer.selectTask("OceanTile<> / Plant")
     writer.narrowTask("OceanTile<Tharsis_1_4>")
+    writer.doTask(tasks.selectedTask()!!)
 
     tasks.selectedTask() shouldBe null
     writer.count("OceanTile<Tharsis_1_4>") shouldBe 1
   }
 
   @Test
-  internal fun `selecting a PER-wrapped AMAP target with a zero metric resolves to NoOp`() {
+  internal fun `a zero PER amount remains pending until explicitly executed`() {
     initiate("OceanTile<> / Steel")
 
     writer.selectTask("OceanTile<> / Steel")
+    writer.doTask(tasks.selectedTask()!!)
 
     tasks.isEmpty() shouldBe true
   }
@@ -889,9 +912,10 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `selecting a THEN head carries its X into the continuation`() {
+  internal fun `explicitly binding X carries it into the continuation`() {
     initiate("X? Plant THEN X? Heat")
 
+    writer.selectTask(tasks.extract { it }.single().bindXTo(3))
     writer.doTask("3 Plant")
 
     tasksAsText().shouldContainExactly("3? Heat<Player1>")
@@ -941,6 +965,7 @@ internal class TaskNarrowingTest {
     initiate("X? Plant THEN X? Heat")
 
     selectAndNarrow("X? Plant THEN X? Heat", "3 Plant THEN 3 Heat")
+    writer.doTask(tasks.selectedTask()!!)
 
     val task = tasks.extract { it }.single()
     task.instruction.toString() shouldBe "3! Heat<Player1>"
@@ -958,8 +983,10 @@ internal class TaskNarrowingTest {
     tasks.matching { it.then != null }.shouldBeEmpty()
 
     selectAndNarrow("Heat?", "Heat!")
+    writer.doTask(tasks.selectedTask()!!)
 
     selectAndNarrow("Steel?", "Steel!")
+    writer.doTask(tasks.selectedTask()!!)
 
     tasks.isEmpty() shouldBe true
   }
@@ -1051,6 +1078,7 @@ internal class TaskNarrowingTest {
     shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1>") }
     shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1> THEN Steel") }
     writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
 
     writer.count("MC") shouldBe 1
@@ -1070,6 +1098,7 @@ internal class TaskNarrowingTest {
 
     shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1>") }
     writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
 
     writer.count("MC") shouldBe 1
@@ -1085,6 +1114,7 @@ internal class TaskNarrowingTest {
             .single()
     writer.selectTask(first)
     writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
 
     val second =
@@ -1093,6 +1123,7 @@ internal class TaskNarrowingTest {
     writer.selectTask(second)
     shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1> THEN Steel") }
     writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
 
     writer.count("MC") shouldBe 2
@@ -1110,6 +1141,7 @@ internal class TaskNarrowingTest {
             .single()
     writer.selectTask(id)
     writer.narrowTask("MC<Player1> THEN Ok")
+    writer.doTask(tasks.selectedTask()!!)
 
     writer.count("MC") shouldBe 1
     writer.count("Heat") shouldBe 1
@@ -1125,6 +1157,7 @@ internal class TaskNarrowingTest {
     writer.selectTask(id)
     shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1> THEN Steel") }
     writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
 
     writer.count("MC") shouldBe 1
@@ -1148,6 +1181,7 @@ internal class TaskNarrowingTest {
 
     writer.selectTask(id)
     writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
     writer.count("MC") shouldBe 1
     writer.count("Heat") shouldBe 2
@@ -1157,11 +1191,13 @@ internal class TaskNarrowingTest {
   internal fun `An unrelated first stage runs while later shared choices stay correlated`() {
     val id = initiate("Heat THEN Chosen@StandardResource THEN Chosen@StandardResource").single()
     writer.selectTask(id)
+    writer.doTask(tasks.selectedTask()!!)
     writer.count("Heat") shouldBe 1
 
     writer.selectTask(tasks.ids().single())
     shouldThrow<NarrowingException> { writer.narrowTask("Steel THEN Plant") }
     writer.narrowTask("Steel THEN Steel")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Steel")
     writer.count("Steel") shouldBe 2
     tasks.isEmpty() shouldBe true
@@ -1173,6 +1209,7 @@ internal class TaskNarrowingTest {
     val id = initiate("MC<Chosen@Player> THEN (StandardResource: Heat<Chosen@Player>)").single()
     writer.selectTask(id)
     writer.narrowTask("MC<Player1> THEN (StandardResource: Heat<Player1>)")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
 
     writer.count("MC") shouldBe 1
@@ -1193,6 +1230,7 @@ internal class TaskNarrowingTest {
       writer.narrowTask("MC<Player1> THEN Steel THEN Heat<Player1>")
     }
     writer.narrowTask("MC<Player1> THEN Heat THEN Heat<Player1>")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
     writer.doTask("Heat")
 
@@ -1206,6 +1244,7 @@ internal class TaskNarrowingTest {
     val id = initiate("Heat<Chosen@Player> THEN StandardResource<Chosen@Player>").single()
     writer.selectTask(id)
     writer.narrowTask("Heat<Player1> THEN StandardResource<Player1>")
+    writer.doTask(tasks.selectedTask()!!)
     writer.count("Heat") shouldBe 1
     writer.doTask("Steel<Player1>")
     writer.count("Steel") shouldBe 1
@@ -1223,6 +1262,7 @@ internal class TaskNarrowingTest {
     writer.selectTask(id)
     shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1> THEN Steel") }
     writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
     writer.count("MC") shouldBe 1
     writer.count("Heat") shouldBe 2
@@ -1248,11 +1288,17 @@ internal class TaskNarrowingTest {
         )
     val agent = fixture.testAgent(ADMIN)
     agent.runOperation("First, Second, Marker<First>")
-    val id = agent.addTasks("Tile<Place(HAS Marker)>").single()
-    agent.selectTask(id)
-    shouldThrow<NarrowingException> { agent.narrowTask("Tile<Place>") }
-    shouldThrow<NarrowingException> { agent.narrowTask("Tile<Second>") }
-    agent.narrowTask("Tile<First>")
+    val engine = fixture.actorEngine(ADMIN)
+    val id =
+        engine
+            .addTasks(InstructionGroup.of(parse<Instruction>("Tile<Place(HAS Marker)>!")))
+            .single()
+    engine.selectTask(id)
+    shouldThrow<NarrowingException> { engine.narrowTask(parse<Instruction>("Tile<Place>!")) }
+    shouldThrow<NarrowingException> { engine.narrowTask(parse<Instruction>("Tile<Second>!")) }
+    engine.narrowTask(parse<Instruction>("Tile<First>!"))
+    agent.count("Tile") shouldBe 0
+    engine.doTask(id)
     agent.count("Tile<First>") shouldBe 1
     agent.count("Tile<Second>") shouldBe 0
   }
@@ -1295,6 +1341,7 @@ internal class TaskNarrowingTest {
     writer.count("MC") shouldBe 0
     shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1> THEN Steel") }
     writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
     writer.count("MC") shouldBe 1
     writer.count("Heat") shouldBe 2
@@ -1318,6 +1365,7 @@ internal class TaskNarrowingTest {
     writer.selectTask(id)
     writer.count("MC") shouldBe 0
     writer.narrowTask("(Heat: MC) THEN Heat")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
     writer.count("MC") shouldBe 1
     writer.count("Heat") shouldBe 2
@@ -1364,6 +1412,7 @@ internal class TaskNarrowingTest {
     writer.count("Steel") shouldBe 0
 
     writer.narrowTask("-MC<Player1> THEN Heat")
+    writer.doTask(tasks.selectedTask()!!)
     writer.doTask("Heat")
     writer.count("MC") shouldBe 1
     writer.count("Heat") shouldBe 2

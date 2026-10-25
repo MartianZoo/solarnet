@@ -14,11 +14,10 @@ import dev.martianzoo.state.TaskQueue
  * Later gameplay and history navigation change what those views report. Use [recording] for an
  * independent record and [actorEngine] for Actor-attributed gameplay.
  *
- * The [proposed interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md) is under human
- * review. It describes a transaction as a client command plus its immediate consequences and
- * invariant checks, with resulting Admin tasks handled by an outside client in later transactions.
- * The synchronous API should run to quiescence before returning and report all changes made during
- * the call. The individual members identify current differences from that intent.
+ * The [intended interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md) assigns each
+ * raw engine request its immediate consequences and invariant checks. Resulting Admin tasks belong
+ * to later transactions submitted by the caller. Agent calls handle that subsequent work and report
+ * their retained changes. General transaction-success uniqueness remains transition work.
  */
 public interface World {
   /** Participating Actors: configured Players in seat order, followed by Admin. */
@@ -60,23 +59,6 @@ public interface World {
    * the World. This selects attribution, not authentication of the program making the call.
    */
   public fun actorEngine(actor: Actor): ActorEngine
-
-  /**
-   * Optional application check shared by clients using the Agent API; null until installed. Direct
-   * [ActorEngine] calls do not invoke it. See [AgentTransactionGuard] for its restricted mutation
-   * contract and the pending review of its placement in the engine module.
-   */
-  public val agentTransactionGuard: AgentTransactionGuard?
-
-  /**
-   * Installs [guard] for this World. It cannot subsequently be removed or replaced, even by the
-   * same instance. A [SpeculativeWorld] rejects installation.
-   *
-   * Install before submitting gameplay that depends on the check. Currently this method enforces
-   * only installation once; it does not verify that no earlier client command has run, validate
-   * existing history, or invoke [AgentTransactionGuard.validate].
-   */
-  public fun installAgentTransactionGuard(guard: AgentTransactionGuard)
 
   /**
    * Hook invoked when an outermost [ActorEngine.transact] finishes its initial restoring block

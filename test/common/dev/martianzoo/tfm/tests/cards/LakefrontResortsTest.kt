@@ -58,7 +58,8 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
               "CityTile<Tharsis_2_2>",
               "Steel",
           )
-          doTasks("6 MC")
+          selectTask("MC! / Neighbor<OceanTile, Tharsis_2_2>")
+          doTasks("2 MC", "2 MC", "2 MC")
         }
         .expect("-19 MC")
   }

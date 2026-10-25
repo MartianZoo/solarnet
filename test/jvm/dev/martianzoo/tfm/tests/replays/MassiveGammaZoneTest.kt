@@ -31,10 +31,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Tharsis_3_3" to "Tharsis_5_9"
 
   override fun resolveExpansionSetupTasks() {
-    admin.doTask("ScienceSummit")
-    admin.doTask("PartyLeader<Scientists, Neutral>")
-    admin.doTask("AiResearch")
-    admin.doTask("PartyFollower<Scientists, Neutral>")
+    admin.doTask("ScienceSummit").expect("PartyLeader<Scientists, Neutral>")
+    admin.doTask("AiResearch").expect("PartyFollower<Scientists, Neutral>")
   }
 
   @Test
@@ -83,9 +81,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyLeader<Greens> FROM LobbyDelegate")
       }
       pass()
-      admin.doTask("PartyFollower<Greens, Neutral>")
-      admin.doTask("RedResistance")
-      admin.doTask("PartyLeader<Reds, Neutral>")
+      (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
+      admin.doTask("RedResistance").expect("PartyLeader<Reds, Neutral>")
     }
   }
 
@@ -103,9 +100,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyFollower<Reds> FROM LobbyDelegate")
       }
       pass()
-      admin.doTask("PartyLeader<MarsFirst, Neutral>")
-      admin.doTask("LocalTerraformingSupport")
-      admin.doTask("PartyFollower<MarsFirst, Neutral>")
+      admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
+      admin.doTask("LocalTerraformingSupport").expect("PartyFollower<MarsFirst, Neutral>")
     }
   }
 
@@ -129,9 +125,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyFollower<Unity> FROM LobbyDelegate")
       }
       pass()
-      admin.doTask("PartyFollower<Unity, Neutral>")
-      admin.doTask("MinimalImpactPolicy")
-      admin.doTask("PartyLeader<Reds, Neutral>")
+      (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
+      admin.doTask("MinimalImpactPolicy").expect("PartyLeader<Reds, Neutral>")
     }
   }
 
@@ -149,9 +144,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       cardAction1(AppliedScience) { addCardResources(BoardOfDirectors) }
       pass(unused = UndergroundDetonations)
-      admin.doTask("PartyFollower<Scientists, Neutral>")
-      admin.doTask("DemocraticReform")
-      admin.doTask("PartyFollower<MarsFirst, Neutral>")
+      (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
+      admin.doTask("DemocraticReform").expect("PartyFollower<MarsFirst, Neutral>")
     }
   }
 
@@ -189,9 +183,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(PoliticalAlliance, 4)
       playProject(BribedCommittee, 7)
       pass(unused = UndergroundDetonations)
-      admin.doTask("PartyFollower<Unity, Neutral>")
-      admin.doTask("MoholeLakeGlobalEvent")
-      admin.doTask("PartyLeader<Kelvinists, Neutral>")
+      (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
+      admin.doTask("MoholeLakeGlobalEvent").expect("PartyLeader<Kelvinists, Neutral>")
     }
   }
 
@@ -221,9 +214,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       doTask("Titanium", resourceChoices[0].id)
       doTask("Heat", resourceChoices[1].id)
       admin.autoExecNow()
-      admin.doTask("PartyLeader<Greens, Neutral>")
-      admin.doTask("TerraformingLobbying")
-      admin.doTask("PartyFollower<Kelvinists, Neutral>")
+      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+      admin.doTask("TerraformingLobbying").expect("PartyFollower<Kelvinists, Neutral>")
     }
   }
 
@@ -274,9 +266,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       pass(unused = AppliedScience)
       doTask("OceanTile<Tharsis_1_5> BY Admin")
       admin.autoExecNow()
-      admin.doTask("PartyFollower<Kelvinists, Neutral>")
-      admin.doTask("ThawMining")
-      admin.doTask("PartyFollower<Kelvinists, Neutral>")
+      (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
+      admin.doTask("ThawMining").expect("PartyFollower<Kelvinists, Neutral>")
     }
   }
 
@@ -322,9 +313,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         placeTile(8, 6)
       }
       pass(unused = UndergroundDetonations)
-      admin.doTask("PartyFollower<Unity, Neutral>")
-      admin.doTask("PateraBoring")
-      admin.doTask("PartyLeader<Scientists, Neutral>")
+      (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
+      admin.doTask("PateraBoring").expect("PartyLeader<Scientists, Neutral>")
       admin.autoExecNow()
     }
   }
@@ -359,9 +349,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyLeader<MarsFirst>")
       }
       pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
-      admin.doTask("PartyFollower<Greens, Neutral>")
-      admin.doTask("ExperimentalLifeforms")
-      admin.doTask("PartyLeader<Greens, Neutral>")
+      (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
+      admin.doTask("ExperimentalLifeforms").expect("PartyLeader<Greens, Neutral>")
     }
   }
 
@@ -416,9 +405,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdProject("AsteroidProject") { placeTile(9, 9) }
       playProject(ImportedNitrogen, mc = 3, titanium = 3)
       pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
-      admin.doTask("PartyFollower<Kelvinists, Neutral>")
-      admin.doTask("CorporateAlliance")
-      admin.doTask("PartyLeader<Unity, Neutral>")
+      (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
+      admin.doTask("CorporateAlliance").expect("PartyLeader<Unity, Neutral>")
     }
   }
 
@@ -469,9 +457,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       stdProject("CityProject") { doTask("NormalCityTile<Tharsis_3_4>") }
       pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
-      admin.doTask("PartyFollower<Reds, Neutral>")
-      admin.doTask("HeatFirstPolicy")
-      admin.doTask("PartyLeader<Kelvinists, Neutral>")
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
+      admin.doTask("HeatFirstPolicy").expect("PartyLeader<Kelvinists, Neutral>")
     }
   }
 

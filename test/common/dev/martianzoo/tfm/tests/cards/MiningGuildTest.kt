@@ -80,8 +80,8 @@ internal class MiningGuildTest : TfmSandboxTest() {
       )
       doTask("OxygenStep")
       doTask("PROD[Steel]")
-      // Hand the fizzle audit to Admin before receiving compensation.
-      selectTask("Audit!")
+      // Execute the fizzle audit before receiving compensation.
+      doTask("Audit!")
       doTask("TerraformRating")
 
       doTask("Titanium")
@@ -112,8 +112,8 @@ internal class MiningGuildTest : TfmSandboxTest() {
       )
       doTask("OxygenStep")
       doTask("PROD[Steel]")
-      // Hand the fizzle audit to Admin before receiving compensation.
-      selectTask("Audit!")
+      // Execute the fizzle audit before receiving compensation.
+      doTask("Audit!")
       doTask("TerraformRating")
 
       doTask("Plant")

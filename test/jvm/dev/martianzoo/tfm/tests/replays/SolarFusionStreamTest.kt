@@ -426,7 +426,10 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     JR.pass()
     KB.playProject(PublicPlans, 4) {
           // Source log: 14 cards revealed and 14 M€ gained.
-          doTask("14 ProjectCard<Revealed FROM Hand>")
+          doWithoutAutoExec(KB) {
+            selectOnlyTask(x = 14)
+            doTask("14 ProjectCard<Revealed FROM Hand>")
+          }
         }
         .expect("10 MC")
     KB.playProject(Ants, 6)

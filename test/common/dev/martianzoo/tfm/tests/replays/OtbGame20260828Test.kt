@@ -107,7 +107,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       return commit()
     }
 
-    fun commit(): TaskResult = player.continueOperation { form.commit() }
+    fun commit(): TaskResult = player.continueOperation {
+      form.commit()
+      if (form.taskId in player.tasks) player.doTask(form.taskId)
+    }
   }
 
   private val colonyTiles = listOf("Ganymede", "Io", "Luna", "Miranda", "Titan")

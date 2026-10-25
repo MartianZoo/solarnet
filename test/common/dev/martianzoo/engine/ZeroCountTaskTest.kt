@@ -136,10 +136,12 @@ internal class ZeroCountTaskTest {
   }
 
   @Test
-  fun `a zero batch total still executes offsetting changes and their effects`() {
+  fun `a zero total does not authorize offsetting tasks`() {
     agent.addTasks("Foo, -Foo")
 
-    agent.doTasks("0 Foo")
+    shouldThrow<TaskException> { agent.doTasks("0 Foo") }
+    agent.count("Notice") shouldBe 0
+    agent.doTasks("Foo", "-Foo")
 
     agent.count("Foo") shouldBe 0
     agent.count("Notice") shouldBe 1

@@ -156,8 +156,8 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     kim.doTask("VenusStep! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
 
-    admin.doTask("PartyLeader<Greens, Neutral>")
-    admin.doTasks("ExploreFirstDirective", "$neutralRole<Reds, Neutral>")
+    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+    admin.doTask("ExploreFirstDirective").expect("$neutralRole<Reds, Neutral>")
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     admin.count("Ruling<$party>") shouldBe 1
   }

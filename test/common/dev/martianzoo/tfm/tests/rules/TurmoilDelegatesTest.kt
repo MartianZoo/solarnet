@@ -101,7 +101,7 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
 
     admin
         .runOperation("RevealDistantEvent") {
-          doTasks("ExperimentalLifeforms", "PartyLeader<Greens, Neutral>")
+          doTask("ExperimentalLifeforms")
         }
         .expect("Delegate<Neutral>, -PartyLeader<Greens, Kim>, PartyFollower<Greens, Kim>")
     admin.count("Delegate<Neutral>") shouldBe 14
@@ -206,10 +206,9 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       // Democratic Reform becoming current ties Kim's delegate in Greens.
-      admin.doTask("PartyFollower<Greens, Neutral>")
-      admin.doTask("ExperimentalLifeforms")
+      (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
       admin
-          .doTask("PartyLeader<Greens, Neutral>")
+          .doTask("ExperimentalLifeforms")
           .expect(
               "PartyLeader<Greens, Neutral>, -PartyLeader<Greens, Kim>, PartyFollower<Greens, Kim>"
           )

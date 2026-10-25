@@ -72,8 +72,10 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
           )
           // Resolve Ecological Zone's resource separately from Viral Enhancers' choice.
           selectTask("Animal<EcologicalZone>*")
+          doTask("Animal<EcologicalZone>")
           // Resolve Ecological Zone's resource separately from Viral Enhancers' choice.
           selectTask("Animal<EcologicalZone>*")
+          doTask("Animal<EcologicalZone>")
           doTasks("EcologicalZone_SpecialTile<Tharsis_4_5>", "2 Plant", "Plant", "Animal")
         }
         // One plant from Viral Enhancers and two from the Tharsis 4,5 placement bonus.

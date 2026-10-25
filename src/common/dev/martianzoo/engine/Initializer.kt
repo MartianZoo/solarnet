@@ -58,7 +58,7 @@ internal class Initializer(
   private fun executeAdminTask(instruction: String, cause: Cause): TaskResult = timeline.atomic {
     val parsed = parseMandatoryInstruction(instruction)
     val admin = actorEngines(ADMIN)
-    admin.addTasks(InstructionGroup.of(parsed), cause).forEach(admin::selectTask)
+    admin.addTasks(InstructionGroup.of(parsed), cause).forEach(admin::doTask)
   }
 
   private fun parseMandatoryInstruction(instruction: String): Instruction {
@@ -98,6 +98,11 @@ internal class Initializer(
       if (task.selected && task.instruction.isAbstract(reader)) break
       val assignee = task.assignee
       actorEngines(assignee).selectTask(taskId)
+      if (taskId in allTasks) {
+        val selected = allTasks.getTaskData(taskId)
+        if (selected.instruction.isAbstract(reader)) break
+        actorEngines(selected.assignee).doTask(taskId)
+      }
     }
     gameWorld.requireNoPendingTasks()
   }

@@ -121,7 +121,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "-4 MC",
         "TemperatureStep",
         "OxygenStep",
-        "2 TerraformRating",
+        "TerraformRating",
+        "TerraformRating",
         "-3 ProjectCard",
     )
     // The table omitted Project Eden's oxygen and TR. The 13:53:05 photo shows oxygen 0,
@@ -152,15 +153,19 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           *playCardTasks("$GiantIceAsteroid"),
           "36 Pay<> FROM MC",
           "$GiantIceAsteroid FROM ProjectCard",
-          "2 TemperatureStep",
-          "2 TerraformRating",
+          "TemperatureStep",
+          "TemperatureStep",
+          "TerraformRating",
+          "TerraformRating",
           "OceanTile<Vastitas_6_7>",
           "TerraformRating",
-          "4 MC",
+          "2 MC",
+          "2 MC",
           "ProjectCard",
           "OceanTile<Vastitas_5_7>",
           "TerraformRating",
-          "4 MC",
+          "2 MC",
+          "2 MC",
           "2 Plant",
           "-Plant<Aqua>",
           "PROD[Heat]",
@@ -181,7 +186,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "PROD[-2 MC]",
           "CityTile<Vastitas_7_8>",
           "PROD[MC]",
-          "5 MC",
+          "3 MC",
+          "2 MC",
           "Plant",
       )
     }
@@ -209,8 +215,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p1.turn {
       doTasks("Pass")
     }
-    p1.doTasks("17 MC", "4 Titanium", "2 Energy")
-    p2.doTasks("27 MC")
+    p1.doTasks("2 MC", "20 MC", "-5 MC", "4 Titanium", "2 Energy")
+    p2.doTasks("5 MC", "27 MC", "-5 MC")
     p2.doTasks("2 Energy")
     p1.doTasks("VenusStep! BY Admin")
 
@@ -301,8 +307,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 2 -> 3: each player's 2 remaining energy becomes heat.
-    p1.doTasks("2 Heat FROM Energy", "18 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("2 Heat FROM Energy", "31 MC")
+    p1.doTasks("2 Heat FROM Energy", "3 MC", "20 MC", "-5 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("2 Heat FROM Energy", "9 MC", "27 MC", "-5 MC")
     p2.doTasks("OceanTile<Vastitas_3_3>! BY Admin")
     // board-22-02-46.jpg; Aqua entries 46–51, Pink 49–54.
     p1.assertResources(m = 28, s = 1, t = 4, p = 1, e = 5, h = 2)
@@ -333,7 +339,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Io>",
       )
       selectTask("ColonyProduction<Io>?")
-      narrowTask("ColonyProduction<Io>")
+      doTask("ColonyProduction<Io>")
       doTasks("8 Heat")
     }
     p2.turn {
@@ -384,8 +390,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 3 -> 4: Aqua's 2 remaining energy becomes heat.
-    p1.doTasks("2 Heat FROM Energy", "18 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("31 MC", "Steel")
+    p1.doTasks("2 Heat FROM Energy", "3 MC", "20 MC", "-5 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("9 MC", "27 MC", "-5 MC", "Steel")
     p1.doTasks("OxygenStep! BY Admin")
     // board-22-11-07.jpg; Aqua entries 62–67, Pink 68–73.
     p1.assertResources(m = 36, s = 1, t = 8, p = 1, e = 5, h = 12)
@@ -420,7 +426,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "$MarketManipulation FROM ProjectCard",
       )
       selectTask("ColonyProduction FROM ColonyProduction")
-      narrowTask("ColonyProduction<Triton> FROM ColonyProduction<Miranda>")
+      doTask("ColonyProduction<Triton> FROM ColonyProduction<Miranda>")
 
       doTasks(
           "UseAction<TradeAction, Action2>",
@@ -428,8 +434,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Triton>",
       )
       selectTask("ColonyProduction<Triton>?")
-      narrowTask("ColonyProduction<Triton>")
-      doTasks("6 Titanium")
+      doTask("ColonyProduction<Triton>")
+      doTasks("5 Titanium", "Titanium")
     }
     p2.turn {
       doTasks(
@@ -515,8 +521,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 4 -> 5: Aqua's 2 remaining energy becomes heat.
-    p1.doTasks("2 Heat FROM Energy", "18 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("31 MC", "2 Steel")
+    p1.doTasks("2 Heat FROM Energy", "3 MC", "20 MC", "-5 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("9 MC", "27 MC", "-5 MC", "2 Steel")
     p2.doTasks("OceanTile<Vastitas_4_3>! BY Admin")
     // Aqua entries 77–82; Pink 88–93. Spoken production is at 22:20:10;
     // Pink's app timestamps this at 22:12:12 and its photographed display lags the ledger.
@@ -552,7 +558,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Callisto>",
       )
       selectTask("ColonyProduction<Callisto>?")
-      narrowTask("ColonyProduction<Callisto>")
+      doTask("ColonyProduction<Callisto>")
       doTasks("13 Energy")
     }
     // "Requires six ocean tiles. Thank you, me. Gain two money production, gain three plant
@@ -637,7 +643,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "GreeneryTile<Vastitas_4_4>",
           "Plant",
-          "4 MC",
+          "2 MC",
+          "2 MC",
           "OxygenStep",
           "TerraformRating",
       )
@@ -669,8 +676,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 5 -> 6: Aqua's 18 remaining energy becomes heat.
-    p1.doTasks("18 Heat FROM Energy", "21 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("42 MC", "3 Steel", "3 Plant")
+    p1.doTasks("18 Heat FROM Energy", "4 MC", "22 MC", "-5 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("19 MC", "28 MC", "-5 MC", "3 Steel", "3 Plant")
     p1.doTasks("TemperatureStep! BY Admin")
 
     // board-22-32-56.jpg; Aqua entries 102–107; Pink 126–131. No generation-6 draws yet.
@@ -755,7 +762,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Io>",
       )
       selectTask("ColonyProduction<Io>?")
-      narrowTask("ColonyProduction<Io>")
+      doTask("ColonyProduction<Io>")
       doTasks("2 Heat", "8 Heat")
     }
     p2.turn {
@@ -778,7 +785,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Miranda>",
       )
       selectTask("ColonyProduction<Miranda>?")
-      narrowTask("ColonyProduction<Miranda>")
+      doTask("ColonyProduction<Miranda>")
       // The printed three-animal trade reward had no legal holder and yielded nothing.
       agents[p1.actor].dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
     }
@@ -840,8 +847,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 6 -> 7: Aqua's 5 remaining energy becomes heat.
-    p1.doTasks("5 Heat FROM Energy", "27 MC", "4 Titanium", "6 Energy", "4 Heat")
-    p2.doTasks("44 MC", "3 Steel", "2 Titanium", "3 Plant", "Heat")
+    p1.doTasks("5 Heat FROM Energy", "6 MC", "26 MC", "-5 MC", "4 Titanium", "6 Energy", "4 Heat")
+    p2.doTasks("19 MC", "30 MC", "-5 MC", "3 Steel", "2 Titanium", "3 Plant", "Heat")
     p2.doTasks("VenusStep! BY Admin")
     // board-11-23-10.jpg; phone logs at the generation 7 checkpoint.
     p1.assertResources(m = 33, s = 1, t = 11, p = 1, e = 6, h = 12)
@@ -931,11 +938,14 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "3 Pay<Class<Titanium>> FROM Titanium",
           "24 Pay<> FROM MC",
           "$GiantIceAsteroid FROM ProjectCard",
-          "2 TemperatureStep",
-          "2 TerraformRating",
+          "TemperatureStep",
+          "TemperatureStep",
+          "TerraformRating",
+          "TerraformRating",
           "OceanTile<Vastitas_3_2>",
           "TerraformRating",
-          "4 MC",
+          "2 MC",
+          "2 MC",
           "2 Plant",
           "OceanTile<Vastitas_6_5>",
           "TerraformRating",
@@ -948,8 +958,10 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           *playCardTasks("$LavaFlows"),
           "18 Pay<> FROM MC",
           "$LavaFlows FROM ProjectCard",
-          "2 TemperatureStep",
-          "2 TerraformRating",
+          "TemperatureStep",
+          "TemperatureStep",
+          "TerraformRating",
+          "TerraformRating",
           "LavaFlows_SpecialTile<Vastitas_2_6>",
           "ProjectCard",
           "OceanTile<Vastitas_5_3>", // the 0 C threshold grants the final ocean
@@ -971,7 +983,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "GreeneryTile<Vastitas_4_6>",
           "ProjectCard",
-          "4 MC",
+          "2 MC",
+          "2 MC",
           "OxygenStep",
           "TerraformRating",
       )
@@ -1024,7 +1037,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Triton>",
       )
       selectTask("2 ColonyProduction<Triton> OR Ok")
-      narrowTask("2 ColonyProduction<Triton>")
+      doTask("2 ColonyProduction<Triton>")
       declineTask("ColonyProduction<Triton>?") // decline Trading Colony's one step
       doTasks("Titanium", "5 Titanium")
     }
@@ -1083,9 +1096,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Io>",
       )
       selectTask("ColonyProduction<Io>?") // Trading Colony
-      narrowTask("ColonyProduction<Io>")
+      doTask("ColonyProduction<Io>")
       selectTask("2 ColonyProduction<Io> OR Ok") // L1 Trade Terminal
-      narrowTask("2 ColonyProduction<Io>")
+      doTask("2 ColonyProduction<Io>")
       doTasks("2 Heat", "10 Heat")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -1114,8 +1127,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 7 -> 8: Aqua's 3 remaining energy becomes heat.
-    p1.doTasks("3 Heat FROM Energy", "30 MC", "4 Titanium", "5 Energy", "4 Heat")
-    p2.doTasks("53 MC", "3 Steel", "2 Titanium", "3 Plant", "3 Heat")
+    p1.doTasks("3 Heat FROM Energy", "6 MC", "29 MC", "-5 MC", "4 Titanium", "5 Energy", "4 Heat")
+    p2.doTasks("19 MC", "39 MC", "-5 MC", "3 Steel", "2 Titanium", "3 Plant", "3 Heat")
     p1.doTasks("OxygenStep! BY Admin")
     // board-11-44-28.jpg; the logs show these balances before generation 8 Research.
     p1.assertResources(m = 36, s = 1, t = 10, p = 0, e = 5, h = 7)
@@ -1213,9 +1226,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Enceladus>",
       )
       selectTask("ColonyProduction<Enceladus>?")
-      narrowTask("ColonyProduction<Enceladus>")
+      doTask("ColonyProduction<Enceladus>")
       selectTask("2 ColonyProduction<Enceladus> OR Ok")
-      narrowTask("2 ColonyProduction<Enceladus>")
+      doTask("2 ColonyProduction<Enceladus>")
       doTasks("4 Microbe<$Decomposers>")
     }
     p2.turn {
@@ -1252,9 +1265,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Triton>",
       )
       selectTask("ColonyProduction<Triton>?")
-      narrowTask("ColonyProduction<Triton>")
+      doTask("ColonyProduction<Triton>")
       selectTask("2 ColonyProduction<Triton> OR Ok")
-      narrowTask("2 ColonyProduction<Triton>")
+      doTask("2 ColonyProduction<Triton>")
       doTasks("Titanium", "4 Titanium")
     }
     p2.turn {
@@ -1282,8 +1295,11 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "10 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no MC paid
           "$OrbitalReflectors FROM ProjectCard",
-          "2 VenusStep",
-          "3 TerraformRating", // includes the Venus 16% threshold
+          "VenusStep",
+          "VenusStep",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating", // includes the Venus 16% threshold
           "PROD[2 Heat]",
       )
     }
@@ -1352,8 +1368,17 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
 
     // Production 8 -> 9: Aqua's 2 remaining energy becomes heat.
-    p1.doTasks("2 Heat FROM Energy", "36 MC", "4 Titanium", "Plant", "4 Energy", "6 Heat")
-    p2.doTasks("63 MC", "3 Steel", "2 Titanium", "4 Plant", "4 Energy", "3 Heat")
+    p1.doTasks(
+        "2 Heat FROM Energy",
+        "6 MC",
+        "35 MC",
+        "-5 MC",
+        "4 Titanium",
+        "Plant",
+        "4 Energy",
+        "6 Heat",
+    )
+    p2.doTasks("28 MC", "40 MC", "-5 MC", "3 Steel", "2 Titanium", "4 Plant", "4 Energy", "3 Heat")
     p2.doTasks("OxygenStep! BY Admin")
     // board-12-00-57.jpg; before generation 9 Research.
     p1.assertResources(m = 50, s = 1, t = 9, p = 1, e = 4, h = 15)
@@ -1388,9 +1413,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Triton>",
       )
       selectTask("ColonyProduction<Triton>?")
-      narrowTask("ColonyProduction<Triton>")
+      doTask("ColonyProduction<Triton>")
       selectTask("2 ColonyProduction<Triton> OR Ok")
-      narrowTask("2 ColonyProduction<Triton>")
+      doTask("2 ColonyProduction<Triton>")
       doTasks("Titanium", "4 Titanium")
       doTasks(
           "UseAction<TradeAction, Action3>",
@@ -1398,9 +1423,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Enceladus>",
       )
       selectTask("ColonyProduction<Enceladus>?")
-      narrowTask("ColonyProduction<Enceladus>")
+      doTask("ColonyProduction<Enceladus>")
       selectTask("2 ColonyProduction<Enceladus> OR Ok")
-      narrowTask("2 ColonyProduction<Enceladus>")
+      doTask("2 ColonyProduction<Enceladus>")
       doTasks("4 Microbe<$Decomposers>")
     }
     // "I think I will fund the investor and the traveler, which will be a total of 22."
@@ -1431,7 +1456,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Vastitas_7_7>",
-          "7 MC",
+          "3 MC",
+          "2 MC",
+          "2 MC",
           "2 Plant",
           "OxygenStep",
           "TerraformRating",
@@ -1458,7 +1485,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
           "GreeneryTile<Vastitas_6_4>",
-          "4 MC",
+          "2 MC",
+          "2 MC",
           "Plant",
           "OxygenStep",
           "TerraformRating",
@@ -1587,10 +1615,21 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
 
     // Production 9 -> 10; Aqua chooses oxygen in the world-government phase.
-    p1.doTasks("Heat FROM Energy", "45 MC", "4 Titanium", "2 Plant", "3 Energy", "6 Heat")
+    p1.doTasks(
+        "Heat FROM Energy",
+        "13 MC",
+        "37 MC",
+        "-5 MC",
+        "4 Titanium",
+        "2 Plant",
+        "3 Energy",
+        "6 Heat",
+    )
     p2.doTasks(
         "Heat FROM Energy",
-        "69 MC",
+        "31 MC",
+        "43 MC",
+        "-5 MC",
         "3 Steel",
         "2 Titanium",
         "6 Plant",
@@ -1645,9 +1684,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Triton>",
       )
       selectTask("ColonyProduction<Triton>?")
-      narrowTask("ColonyProduction<Triton>")
+      doTask("ColonyProduction<Triton>")
       selectTask("2 ColonyProduction<Triton> OR Ok")
-      narrowTask("2 ColonyProduction<Triton>")
+      doTask("2 ColonyProduction<Triton>")
       doTasks("Titanium", "4 Titanium")
       doTasks(
           "UseAction<TradeAction, Action3>",
@@ -1655,9 +1694,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Enceladus>",
       )
       selectTask("ColonyProduction<Enceladus>?")
-      narrowTask("ColonyProduction<Enceladus>")
+      doTask("ColonyProduction<Enceladus>")
       selectTask("2 ColonyProduction<Enceladus> OR Ok")
-      narrowTask("2 ColonyProduction<Enceladus>")
+      doTask("2 ColonyProduction<Enceladus>")
       doTasks("4 Microbe<$Decomposers>")
     }
     p2.turn {
@@ -1704,7 +1743,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Vastitas_6_8>",
-          "7 MC",
+          "3 MC",
+          "2 MC",
+          "2 MC",
           "Plant",
           "OxygenStep",
           "TerraformRating",
@@ -1771,7 +1812,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Miranda>",
           "Animal<$Pets>",
-          "2 ProjectCard",
+          "ProjectCard",
+          "ProjectCard",
       )
     }
     p1.turn {
@@ -1795,7 +1837,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "18 Pay<> FROM MC",
           "$Atmoscoop FROM ProjectCard",
           "2 VenusStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "2 Floater<$JovianLanterns>",
       )
     }
@@ -1822,16 +1865,29 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
 
     // Production 10 -> 11. The phone logs combine energy conversion and new production.
-    p1.doTasks("3 Heat FROM Energy", "47 MC", "4 Titanium", "2 Plant", "2 Energy", "6 Heat")
+    p1.doTasks(
+            "3 Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "4 Titanium",
+            "2 Plant",
+            "2 Energy",
+            "6 Heat",
+        )
+        .expect("47 MC")
     p2.doTasks(
-        "Heat FROM Energy",
-        "74 MC",
-        "3 Steel",
-        "2 Titanium",
-        "5 Plant",
-        "4 Energy",
-        "5 Heat",
-    )
+            "Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "3 Steel",
+            "2 Titanium",
+            "5 Plant",
+            "4 Energy",
+            "5 Heat",
+        )
+        .expect("74 MC")
     p2.doTasks("VenusStep! BY Admin")
     // board-16-22-18.jpg, before generation 11 Research.
     p1.assertResources(m = 65, s = 6, t = 7, p = 8, e = 2, h = 31)
@@ -1895,7 +1951,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Miranda>",
           "2 Animal<$Pets>",
-          "2 ProjectCard",
+          "ProjectCard",
+          "ProjectCard",
       )
     }
     p1.turn {
@@ -1926,7 +1983,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       p1.doTasks("PROD[MC]")
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Vastitas_3_5>", "Plant")
-      selectTask("OxygenStep") // oxygen is already maxed
+      doTask("0 OxygenStep") // oxygen is already maxed
     }
     p1.turn {
       doTasks(
@@ -1935,9 +1992,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Triton>",
       )
       selectTask("ColonyProduction<Triton>?")
-      narrowTask("ColonyProduction<Triton>")
+      doTask("ColonyProduction<Triton>")
       selectTask("2 ColonyProduction<Triton> OR Ok")
-      narrowTask("2 ColonyProduction<Triton>")
+      doTask("2 ColonyProduction<Triton>")
       doTasks("Titanium", "4 Titanium")
     }
     p2.turn {
@@ -1954,9 +2011,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Trade<Enceladus>",
       )
       selectTask("ColonyProduction<Enceladus>?")
-      narrowTask("ColonyProduction<Enceladus>")
+      doTask("ColonyProduction<Enceladus>")
       selectTask("2 ColonyProduction<Enceladus> OR Ok")
-      narrowTask("2 ColonyProduction<Enceladus>")
+      doTask("2 ColonyProduction<Enceladus>")
       doTasks("4 Microbe<$Decomposers>")
     }
     p2.turn {
@@ -2039,8 +2096,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           *playCardTasks("$MolecularPrinting"),
           "8 Pay<> FROM MC",
           "$MolecularPrinting FROM ProjectCard",
-          "11 MC",
       )
+      doTasks("MC / CityTile<Anyone>", "MC / Colony<Anyone>").expect("11 MC")
     }
     p2.turn {
       doTasks(*cardActionTasks("$VenusianInsects"), "Microbe<$VenusianInsects>")
@@ -2055,8 +2112,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       )
     }
     p2.turn {
+      doTasks(*cardActionTasks("$SulphurEatingBacteria", "Action2"))
+      selectOnlyTask(x = 4)
       doTasks(
-          *cardActionTasks("$SulphurEatingBacteria", "Action2"),
           "-4 Microbe<$SulphurEatingBacteria>",
           "12 MC",
       )
@@ -2076,7 +2134,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "PROD[2 Plant]",
           "3 TerraformRating",
           "MagneticFieldGeneratorsPromo_SpecialTile<Vastitas_2_2>",
-          "4 MC",
+          "2 MC",
+          "2 MC",
           "2 Plant",
       )
     }
@@ -2188,19 +2247,39 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
 
     // The last production is recorded before Pink's final greenery.
-    p1.doTasks("2 Heat FROM Energy", "57 MC", "4 Titanium", "2 Plant", "Energy", "6 Heat")
-    p2.doTasks("Heat FROM Energy", "84 MC", "3 Steel", "2 Titanium", "7 Plant", "5 Heat")
+    p1.doTasks(
+            "2 Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "4 Titanium",
+            "2 Plant",
+            "Energy",
+            "6 Heat",
+        )
+        .expect("57 MC")
+    p2.doTasks(
+            "Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "3 Steel",
+            "2 Titanium",
+            "7 Plant",
+            "5 Heat",
+        )
+        .expect("84 MC")
     p1.assertResources(m = 69, s = 6, t = 11, p = 3, e = 1, h = 39)
     p2.assertResources(m = 87, s = 3, t = 2, p = 8, e = 0, h = 26)
     // The phone app advances its display to generation 12; Solarnet keeps the final played
     // generation.
     assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
-    p1.selectTask("PassBaton") // only three plants; no final greenery
+    p1.doTask("PassBaton") // only three plants; no final greenery
     // "Do you replace, you don't." "I do actually." "You do." "Probably on two four."
     // The final photo shows Pink's last greenery here.
     p2.doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
     p2.doTasks("GreeneryTile<Vastitas_2_4>")
-    p2.selectTask("PassBaton") // no more plants to convert
+    p2.doTask("PassBaton") // no more plants to convert
     // board-16-47-03.jpg, after final greenery.
     p2.assertCounts(7 to "GreeneryTile", 3 to "CityTile", 56 to "TerraformRating")
     // "Almost completely shut me out, but not quite."

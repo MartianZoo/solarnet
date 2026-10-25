@@ -61,6 +61,8 @@ internal class TaskIntersectionTest {
     agent.addTasks("Piece<Red, Shape>")
 
     agent.selectTask("Piece<Color, Circle>")
+    agent.count("Piece") shouldBe 0
+    agent.doTask(agent.tasks.selectedTask()!!)
 
     agent.count("Piece<Red, Circle>") shouldBe 1
     game.tasks.isEmpty() shouldBe true
@@ -86,6 +88,7 @@ internal class TaskIntersectionTest {
 
     agent.selectTask(task)
     agent.selectTask("Piece<Red, Circle>")
+    agent.doTask("Piece<Red, Circle>")
     agent.doTask("Marker")
 
     agent.count("Piece<Red, Circle>") shouldBe 1
@@ -100,6 +103,8 @@ internal class TaskIntersectionTest {
     val pending = agent.tasks.extract { it }.single()
 
     agent.selectTask(pending.bindXTo(3))
+    agent.count("Marker") shouldBe 0
+    agent.doTask("3 Marker")
     agent.doTask("3 Notice<Red>")
 
     agent.count("Marker") shouldBe 3

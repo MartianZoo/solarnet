@@ -24,11 +24,13 @@ after review. **Selected** means the direction is chosen while some design remai
 ## Internal design and game execution
 
 [ENGINE_CONTRACT.md](agents/ENGINE_CONTRACT.md) owns client interaction requirements, distinguishing
-selected direction from remaining proposals, including Admin handling. New interaction terminology
-stays there while the contract is developed. [DECISION_GRAPH.md](agents/DECISION_GRAPH.md) is the
-first agent exploration and pruning design draft, with selected rules and candidate strategies.
-[ORDINAL_REWORK.md](agents/ORDINAL_REWORK.md) proposes transaction grouping and checkpoint migration;
-its implementation choices remain under review.
+the selected destination from current behavior and remaining details, including Admin handling.
+The engine establishes unique execution within the requested transaction; the agent explores later
+tasks and supplies automatic choices. [ENGINE_TRANSITION_PLAN.md](agents/ENGINE_TRANSITION_PLAN.md)
+orders experiments and their evaluation; the destination may be refined as those costs become known.
+[DECISION_GRAPH.md](agents/DECISION_GRAPH.md) owns agent exploration rules and candidate strategies.
+[Transaction history and checkpoints](agents/ENGINE.md#transaction-history-and-checkpoints) are
+implemented; that migration is complete.
 [TASK_HANDLING.md](agents/TASK_HANDLING.md) drafts the complete runtime task-handling inventory,
 with timing and current differences from the interaction contract.
 

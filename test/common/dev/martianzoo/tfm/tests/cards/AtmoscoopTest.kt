@@ -20,8 +20,6 @@ internal class AtmoscoopTest : TfmSandboxTest() {
           doTasks("Atmoscoop FROM ProjectCard")
           doTask("2* Floater")
           doTask("2 VenusStep")
-          doTask("VenusStep")
-          doTask("VenusStep")
         }
         .expect("0 TemperatureStep, 0 VenusStep")
   }

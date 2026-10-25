@@ -50,7 +50,7 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
       world
           .actorEngine(adjustingActor)
           .sneak(InstructionGroup.of(agent.parse<InstructionTree>(auditedAdjustment)))
-      world.agentTransactionGuard?.validate()
+      validateApplication()
       if (
           agent.list("MustCleanUp").entries.any { (type, count) -> count > (unfinished[type] ?: 0) }
       ) {

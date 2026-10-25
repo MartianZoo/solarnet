@@ -178,6 +178,8 @@ internal class TaskLogTest {
       commit()
     }
     source.taskLog.inputs().size shouldBe 2
+    player.count("Coin") shouldBe 0
+    player.doTask("Coin")
 
     val imported = newAgents()
     replay(source, imported)
@@ -253,6 +255,8 @@ internal class TaskLogTest {
       } else {
         player.narrowTask("Marker")
       }
+      player.count("Marker") shouldBe 0
+      player.doTask("Marker")
       val selection = if (useForm) "Coin! OR Marker!" else "Coin! OR Marker! OR Prize!"
       source.taskLog.inputs().drop(1).map {
         (it as RecordedInput.Command).copy(taskSelector = null)
@@ -260,6 +264,7 @@ internal class TaskLogTest {
           listOf(
               RecordedInput.Command(PLAYER1, RecordedInput.Kind.CHOOSE, selection),
               RecordedInput.Command(PLAYER1, RecordedInput.Kind.CHOOSE, "Marker!"),
+              RecordedInput.Command(PLAYER1, RecordedInput.Kind.DO_TASK, "Marker"),
           )
       val completed = newAgents()
       replay(source, completed)
@@ -507,7 +512,7 @@ internal class TaskLogTest {
   }
 
   @Test
-  internal fun replaysCombinedAmountsAndKeepsPendingWork() {
+  internal fun replaysSeparateAmountsAndKeepsPendingWork() {
     val premise = testGamePremise("CLASS Coin\nCLASS Marker")
     fun newAgents(): Agents =
         Agents(Engine.newGame(premise)).also {
@@ -516,7 +521,7 @@ internal class TaskLogTest {
         }
     val source = newAgents()
     start(source)
-    source[PLAYER1].doTasks("5 Coin")
+    source[PLAYER1].doTasks("2 Coin", "3 Coin")
 
     val imported = newAgents()
     replay(source, imported)

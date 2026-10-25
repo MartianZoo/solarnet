@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.AgentInputRequiredException
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.engine.AgentInputRequiredException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
@@ -22,7 +22,7 @@ internal class CardTrackingTest : TfmTest() {
     val config = GameConfig(expansions, "Player1")
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     val player = game.actors.filterIsInstance<Player>().single()
-    return CardTracking.start(game, requireSelectingNames) to player
+    return CardTracking.start(agents, requireSelectingNames) to player
   }
 
   @Test
@@ -116,11 +116,11 @@ internal class CardTrackingTest : TfmTest() {
     agents[player].runOperation("ProjectCard")
 
     val imagined = agents.overlay()
-    imagined.world.agentTransactionGuard shouldBe null
+    imagined.transactionGuard shouldBe null
     imagined[player].runOperation("ProjectCard")
 
     val copied = imagined.fork()
-    copied.world.agentTransactionGuard shouldBe null
+    copied.transactionGuard shouldBe null
     copied[player].count("ProjectCard<Hand>") shouldBe 2
     sourceTracking.requireComplete()
 
@@ -139,7 +139,7 @@ internal class CardTrackingTest : TfmTest() {
     agents[player].runOperation("ProjectCard")
 
     val copied = agents.fork()
-    copied.world.agentTransactionGuard shouldBe null
+    copied.transactionGuard shouldBe null
     copied[player].runOperation("ProjectCard")
 
     sourceTracking.requireComplete()
@@ -154,7 +154,7 @@ internal class CardTrackingTest : TfmTest() {
     val player = game.actors.filterIsInstance<Player>().single()
     val imagined = agents.overlay()
 
-    shouldThrow<IllegalStateException> { CardTracking.start(imagined.world) }
+    shouldThrow<IllegalStateException> { CardTracking.start(imagined) }
     imagined[player].runOperation("ProjectCard")
     imagined[player].count("ProjectCard<Hand>") shouldBe 1
     agents[player].count("ProjectCard<Hand>") shouldBe 0
@@ -337,7 +337,7 @@ internal class CardTrackingTest : TfmTest() {
         )
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     val (holder, attacker) = game.actors.filterIsInstance<Player>()
-    val tracking = CardTracking.start(game)
+    val tracking = CardTracking.start(agents)
     admin.runOperation("Generation")
     agents[attacker].runOperation("3 MC")
     agents[holder].runOperation("ProductionWasAttacked<$holder, Class<Energy>, $attacker>")
@@ -922,7 +922,7 @@ internal class CardTrackingTest : TfmTest() {
     val config = GameConfig("PreludeExpansion", "Player1", "Player2")
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     val (first, second) = game.actors.filterIsInstance<Player>()
-    val tracking = CardTracking.start(game)
+    val tracking = CardTracking.start(agents)
     val card = cn("AcquiredCompany")
     tracking.expectArrivals(first, card)
     agents[first].runOperation("ProjectCard")

@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ColonialRepresentationTest : TfmSandboxTest() {
@@ -37,9 +38,8 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
-      admin.doTask("PartyLeader<Greens, Neutral>")
-      admin.doTask("ExploreFirstDirective")
-      admin.doTask("PartyFollower<Reds, Neutral>")
+      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+      admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("Pass")

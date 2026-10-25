@@ -45,7 +45,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
     kim.doTask("VenusStep! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
-    admin.doTask("PartyLeader<Greens, Neutral>")
+    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
 
     kim.count("Chairman") shouldBe 1
     stan.count("Chairman") shouldBe 0
@@ -59,7 +59,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     stan.count("PartyDelegate<Scientists>") shouldBe 1
     admin.count("Ruling<MarsFirst>") shouldBe 1
     admin.count("Dominant<Reds>") shouldBe 1
-    admin.doTasks("ExploreFirstDirective", "PartyFollower<Reds, Neutral>")
+    admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     stan
         .completeOperation {
@@ -212,7 +212,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
     kim.doTask("VenusStep! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
-    admin.doTask("PartyLeader<Greens, Neutral>")
+    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
 
     // At 20 after revision Reds adds a TR; at 21 it does not. Both gain the chairman TR.
     kim.count("TerraformRating") shouldBe 22
@@ -252,7 +252,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
     kim.doTask("VenusStep! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
-    admin.doTask("PartyLeader<Greens, Neutral>")
+    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
   }
 
   private fun assertRulingBonus(kimBonus: Int, stanBonus: Int) {
@@ -262,7 +262,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     expectChanges("$kimBonus MC<Kim>, $stanBonus MC<Stan>") {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
-      admin.doTask("PartyLeader<Greens, Neutral>")
+      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
     }
   }
 

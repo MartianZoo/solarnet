@@ -3,7 +3,6 @@ package dev.martianzoo.agent
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.ActorEngine
-import dev.martianzoo.engine.AgentInputRequiredException
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
@@ -18,7 +17,11 @@ import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
 /** Mandatory Admin handling followed by optional Player-policy execution. */
-internal class AutoExecLoop(private val world: World, private val taskLog: TaskLog) {
+internal class AutoExecLoop(
+    private val world: World,
+    private val taskLog: TaskLog,
+    private val validateApplication: () -> Unit,
+) {
   private val allTasks: TaskQueue
     get() = world.tasks
 
@@ -47,10 +50,10 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     val selected = allTasks.selectedTask()
     val pending = selected?.let(::listOf) ?: allTasks.ids().filterNot(::isDeferred)
 
-    // Selection probes can execute and roll back tasks. Only probe when automatic work is possible.
+    // Selection probes execute in disposable copies. Probe only when automatic work is possible.
     if (pending.none { policy(it) != NONE }) return false
     // Keep manual tasks among the candidates: they still compete with automatic work.
-    // A sole task has no competing choice. Selection can execute work or hand it off;
+    // A sole task has no competing choice. Selection can expose children or hand work off;
     // the enclosing Agent call rolls back any failure that propagates.
     val candidates =
         if (selected != null || pending.size == 1) pending else pending.filter(::canSelectTask)
@@ -73,7 +76,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
         if (selected != null || candidates.isNotEmpty()) return false
         val engine = engineFor(taskId)
         engine.transaction(motivationFor(engine.actor)) {
-          command(taskId, Kind.DO_TASK_ID) { engine.doTask(taskId) }
+          command(taskId, Kind.DO_TASK_ID) { executeConcretePlayerTask(engine, taskId) }
         }
         error("that should've completed")
       }
@@ -91,9 +94,10 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
                   progressed =
                       taskId !in allTasks ||
                           allTasks.getTaskData(taskId).assignee != engine.actor ||
-                          command(taskId, Kind.TRY_SELECTED) { engine.trySelectedTask() }
+                          (!allTasks.getTaskData(taskId).instruction.isAbstract(world.reader) &&
+                              command(taskId, Kind.TRY_SELECTED) { engine.trySelectedTask() })
                 }
-                world.agentTransactionGuard?.validate()
+                validateApplication()
               }
               if (progressed) return true
             } catch (_: AgentInputRequiredException) {
@@ -111,9 +115,9 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
         world.timeline.atomic {
           val engine = engineFor(taskId)
           engine.transaction(motivationFor(engine.actor)) {
-            command(taskId, Kind.DO_TASK_ID) { engine.doTask(taskId) }
+            command(taskId, Kind.DO_TASK_ID) { executeConcretePlayerTask(engine, taskId) }
           }
-          world.agentTransactionGuard?.validate()
+          validateApplication()
         }
         return true
       } catch (_: AgentInputRequiredException) {
@@ -128,6 +132,16 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     }
     if (!recoverable) throw DeadEndException("")
     return false
+  }
+
+  /** Existing Player policies do not authorize transaction-based choice inference. */
+  private fun executeConcretePlayerTask(engine: ActorEngine, taskId: TaskId) {
+    engine.selectTask(taskId)
+    if (taskId !in allTasks || allTasks.getTaskData(taskId).assignee != engine.actor) return
+    if (allTasks.getTaskData(taskId).instruction.isAbstract(world.reader)) {
+      throw NotFullySpecifiedException("Player policy requires a concrete selected instruction")
+    }
+    engine.doTask(taskId)
   }
 
   /** Automatic handling is mandatory for Admin and configured policy for every other Actor. */
@@ -166,7 +180,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
               engine.transaction(Motivation.ADMIN_EAGER_POLICY) {
                 command(taskId, Kind.DO_TASK_ID) { engine.doTask(taskId) }
               }
-              world.agentTransactionGuard?.validate()
+              validateApplication()
             }
             progressed = true
           } catch (_: AgentInputRequiredException) {
@@ -185,11 +199,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
                 rejection = e
           } catch (e: NotNowException) {
             waiting += taskId
-            if (
-                !allTasks.getTaskData(taskId).instruction.isAbstract(world.reader) &&
-                    allTasks.ids().none { !isAdmin(it) && !isDeferred(it) }
-            )
-                rejection = e
+            if (allTasks.ids().none { !isAdmin(it) && !isDeferred(it) }) rejection = e
           } catch (e: DeadEndException) {
             waiting += taskId
             rejection = e

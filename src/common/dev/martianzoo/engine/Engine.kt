@@ -28,9 +28,9 @@ import dev.martianzoo.state.validateCustomClasses
  * configured components, shared rule definitions, and the Actor-scoped engines that interpret
  * subsequent commands. Construction does not create clients or obtain Player choices.
  *
- * The [proposed interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md) remains under
- * human review. In particular, existing copy APIs below are not a decision to retain speculative
- * execution in that design.
+ * The [intended interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md) uses internal
+ * copies to check a requested transaction. The scope of these public copy APIs remains under
+ * review.
  */
 public object Engine {
 
@@ -92,8 +92,8 @@ public object Engine {
    * state; [fork] produces an independent copy. Guards cannot be installed on this result, so
    * application checks such as card-identity tracking are absent.
    *
-   * This documents an existing capability pending the removal review on [SpeculativeWorld];
-   * speculative execution is not selected by the proposed client contract.
+   * This documents an existing capability pending the removal review on [SpeculativeWorld]; the
+   * public copy API remains under review independently of internal transaction trials.
    *
    * @throws IllegalArgumentException if [source] was not created by this Engine
    * @throws IllegalStateException if [source] is not at the end of valid recorded history
@@ -330,6 +330,9 @@ public object Engine {
             worldTransaction,
             elaborator,
             transactions,
+            // Internal trials may begin inside a request after its task has been selected.
+            // They get their own transaction completion and no source listeners.
+            { Wiring(premise, gameWorld.overlay(), overlaySource = world).createOverlay() },
         )
   }
 }

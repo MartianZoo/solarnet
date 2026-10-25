@@ -21,6 +21,7 @@ internal class EnergyMarketTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*cardActionTasks("EnergyMarket"))
           selectOnlyTask(x = 3)
+          doTask("-6 MC")
           doTask("3 Energy")
         }
         .expect("-6 MC")
@@ -35,6 +36,7 @@ internal class EnergyMarketTest : TfmSandboxTest() {
           kim.inTurn {
             doTasks(*cardActionTasks("EnergyMarket"))
             selectOnlyTask(x = 3)
+            doTask("-6 MC")
             doTask("3 Energy")
           }
         }
@@ -45,6 +47,7 @@ internal class EnergyMarketTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*cardActionTasks("EnergyMarket"))
           selectOnlyTask(x = 2)
+          doTask("-4 MC")
           doTask("2 Energy")
         }
         .expect("-4 MC")

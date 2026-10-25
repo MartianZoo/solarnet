@@ -76,7 +76,7 @@ internal class TaskAssignmentCharacterizationTest {
       it.selected shouldBe false
     }
 
-    game.timeline.atomic { game.actorEngine(ADMIN).selectTask(taskId) }
+    game.timeline.atomic { game.actorEngine(ADMIN).doTask(taskId) }
 
     p1.count("SystemToken") shouldBe 1
     game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
@@ -140,7 +140,7 @@ internal class TaskAssignmentCharacterizationTest {
     p1.tasks.isEmpty() shouldBe true
     admin.tasks.ids().shouldContainExactly(taskId)
 
-    game.timeline.atomic { game.actorEngine(ADMIN).selectTask(taskId) }
+    game.timeline.atomic { game.actorEngine(ADMIN).doTask(taskId) }
     p1.count("SystemToken") shouldBe 1
     game.tasks.isEmpty() shouldBe true
   }
@@ -498,7 +498,7 @@ internal class TaskAssignmentCharacterizationTest {
     }
     p1.count("Token") shouldBe 0
 
-    game.timeline.atomic { game.actorEngine(ADMIN).selectTask(task) }
+    game.timeline.atomic { game.actorEngine(ADMIN).doTask(task) }
 
     p1.count("Token") shouldBe 1
     game.events.changesSince(checkpoint).single().actor shouldBe Actor.ADMIN
@@ -516,12 +516,14 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun aFormCanCompleteConcreteByWorkThatRemainsWithItsAssignee() {
+  internal fun aFormRetainsConcreteByWorkForExplicitExecution() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val task = p1.addTasks("Token<Player1> BY Player1").single()
 
     p1.fillInTask(task).commit()
+    p1.count("Token") shouldBe 0
+    p1.doTask(task)
 
     p1.count("Token") shouldBe 1
     game.tasks.isEmpty() shouldBe true
@@ -580,9 +582,11 @@ internal class TaskAssignmentCharacterizationTest {
       it.then shouldBe InstructionGroup(listOf(parse<Instruction>("Marker<Player1>! BY Player2")))
     }
     p2.selectTask(task)
+    p2.doTask(task)
 
     val marker = game.tasks.ids().single()
     p2.selectTask(marker)
+    p2.doTask(marker)
     p1.count("Token<Player1>") shouldBe 1
     p1.count("Marker<Player1>") shouldBe 1
   }

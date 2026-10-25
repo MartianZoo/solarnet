@@ -64,6 +64,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
           doTasks("Trade<Luna>")
           // Hand the colony-track change to Admin before collecting trade income.
           selectTask("ColonyProduction<Luna>?")
+          doTask("0 ColonyProduction<Luna>")
           doTask("17 MC")
         }
         .expect("8 MC")

@@ -14,8 +14,8 @@ import dev.martianzoo.state.TaskResult
  * check game invariants, run Admin tasks, or record a navigable position.
  *
  * TODO(ENGINE_CONTRACT): Review public history controls while preserving safe client-controlled
- *   rollback. The [proposed interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md)
- *   remains under human review. In particular, how far an unsuccessful call may undo earlier
+ *   rollback. The [intended interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md)
+ *   leaves broader recovery unresolved. How far an unsuccessful Agent call may undo earlier
  *   successful calls must not be decided by these existing methods.
  */
 public interface Timeline {

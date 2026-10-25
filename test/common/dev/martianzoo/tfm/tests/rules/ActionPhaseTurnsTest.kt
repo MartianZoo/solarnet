@@ -18,7 +18,7 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     shouldThrow<TaskException> { stan.doTask("Pass") }
     kim.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
     shouldThrow<TaskException> { kim.doTask("Pass") }
-    val handoff = kim.selectTask("PassBaton")
+    val handoff = kim.doTask("PassBaton")
     handoff.expect("-Baton<Kim>, Baton<Stan>")
     val batonChanges =
         handoff.changes
@@ -33,11 +33,11 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     admin.count("ActionPhase") shouldBe 1
     stan.doTask("Pass")
     rob.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
-    rob.selectTask("PassBaton")
+    rob.doTask("PassBaton")
 
     // Declining the second action did not pass Kim; Stan is skipped on the next circuit.
     kim.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
-    kim.selectTask("PassBaton")
+    kim.doTask("PassBaton")
     rob.doTask("Pass")
     val lastPlayerActions = game.events.nextOrdinal
 
@@ -51,9 +51,36 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     admin.count("ProductionPhase") shouldBe 1
     admin.count("Baton") shouldBe 0
 
-    kim.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
-    stan.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
-    rob.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
+    kim.doTasks(
+        "MC / Production<Class<MC>>",
+        "MC / TerraformRating",
+        "-5 MC",
+        "Steel",
+        "Titanium",
+        "Plant",
+        "Energy",
+        "Heat",
+    )
+    stan.doTasks(
+        "MC / Production<Class<MC>>",
+        "MC / TerraformRating",
+        "-5 MC",
+        "Steel",
+        "Titanium",
+        "Plant",
+        "Energy",
+        "Heat",
+    )
+    rob.doTasks(
+        "MC / Production<Class<MC>>",
+        "MC / TerraformRating",
+        "-5 MC",
+        "Steel",
+        "Titanium",
+        "Plant",
+        "Energy",
+        "Heat",
+    )
     admin.count("SolarPhase") shouldBe 1
     admin.count("Baton") shouldBe 0
 
@@ -83,7 +110,16 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     kim.doTask("Pass")
     admin.count("ProductionPhase") shouldBe 1
     admin.count("Baton") shouldBe 0
-    kim.doTasks("13 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
+    kim.doTasks(
+        "MC / Production<Class<MC>>",
+        "MC / TerraformRating",
+        "-5 MC",
+        "Steel",
+        "Titanium",
+        "Plant",
+        "Energy",
+        "Heat",
+    )
     admin.count("SolarPhase") shouldBe 1
     admin.count("Baton") shouldBe 0
 

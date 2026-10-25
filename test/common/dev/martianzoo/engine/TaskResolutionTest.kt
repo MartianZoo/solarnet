@@ -42,9 +42,11 @@ internal class TaskResolutionTest {
   }
 
   @Test
-  internal fun `selection that resolves to zero completes the task`() {
+  internal fun `selection that resolves to zero leaves the task pending`() {
     initiate("-2? Plant")
     agent.selectTask("-2? Plant")
+    tasks.isEmpty() shouldBe false
+    agent.doTask(tasks.selectedTask()!!)
 
     tasks.isEmpty() shouldBe true
     assertHistoryTypes(
@@ -55,9 +57,12 @@ internal class TaskResolutionTest {
   }
 
   @Test
-  internal fun `selection executes a concrete task immediately`() {
+  internal fun `selection leaves a concrete task pending until execution`() {
     initiate("Plant!")
     agent.selectTask("Plant!")
+    agent.count("Plant") shouldBe 0
+    tasks.isEmpty() shouldBe false
+    agent.doTask(tasks.selectedTask()!!)
 
     tasks.isEmpty() shouldBe true
     assertHistoryTypes(

@@ -6,8 +6,9 @@ import dev.martianzoo.state.Actor
 /**
  * Agents for a reusable speculative World.
  *
- * TODO(ENGINE_CONTRACT): investigate removing this API with Agents.overlay; reusable speculative
- *   execution is outside the proposed client contract.
+ * Caller-controlled exploration can include later tasks; it remains distinct from the engine's
+ * internal copies used to prove a requested transaction. The public copy/reset surface remains
+ * subject to review under ENGINE_CONTRACT.
  */
 public class SpeculativeAgents
 internal constructor(

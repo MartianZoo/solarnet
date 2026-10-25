@@ -18,6 +18,8 @@ internal class SelectOnlyTaskTest {
     player.count("Coin") shouldBe 0
     player.count("Marker") shouldBe 0
     player.narrowTask("Coin")
+    player.count("Coin") shouldBe 0
+    player.doTask("Coin")
     player.count("Coin") shouldBe 1
     player.tasks.isEmpty() shouldBe true
   }
@@ -35,12 +37,14 @@ internal class SelectOnlyTaskTest {
   }
 
   @Test
-  internal fun `Scope selection resolves a concrete task and exposes its continuation`() {
+  internal fun `Scope execution after selection exposes the continuation`() {
     val player = player()
     player.addTasks("Coin THEN Marker")
     player.completeOperation {
       selectOnlyTask()
+      doTask("Coin")
       selectOnlyTask()
+      doTask("Marker")
     }
     player.count("Coin") shouldBe 1
     player.count("Marker") shouldBe 1
@@ -58,7 +62,9 @@ internal class SelectOnlyTaskTest {
     player.addTasks("X Coin THEN X Marker")
     player.completeOperation {
       selectOnlyTask(x = 3)
+      doTask("3 Coin")
       selectOnlyTask()
+      doTask("3 Marker")
     }
     player.count("Coin") shouldBe 3
     player.count("Marker") shouldBe 3

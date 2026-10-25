@@ -25,7 +25,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     super.commonSetup()
     cards =
         CardTracking.start(
-            game,
+            agents,
             requireSelectingNames =
                 selectingArrivalOrder.isNotEmpty() || selectingDepartureOrder.isNotEmpty(),
         )

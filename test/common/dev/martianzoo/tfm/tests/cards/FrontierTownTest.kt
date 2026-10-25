@@ -20,8 +20,8 @@ internal class FrontierTownTest : TfmSandboxTest() {
       doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Amazonis_02_02>")
       doTask("-FrontierTownBonus!")
-      // Hand the repeat-bonus signal to Admin so the area offers its bonus again.
-      selectTask("RepeatPlacementBonus<Kim, Amazonis_02_02>!")
+      // Execute the repeat-bonus signal so the area offers its bonus again.
+      doTask("RepeatPlacementBonus<Kim, Amazonis_02_02>!")
       doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
       doTask("PartyFollower<Scientists>")
     }
@@ -39,8 +39,8 @@ internal class FrontierTownTest : TfmSandboxTest() {
       doTasks("PROD[-Energy]", "CityTile<Hellas_9_7>")
       doTask("-FrontierTownBonus!")
       doTask("-6 MC")
-      // Hand the repeat-bonus signal to Admin so the area offers its bonus again.
-      selectTask("RepeatPlacementBonus<Kim, Hellas_9_7>!")
+      // Execute the repeat-bonus signal so the area offers its bonus again.
+      doTask("RepeatPlacementBonus<Kim, Hellas_9_7>!")
       doTasks(
           "-6 MC",
           "-6 MC",
@@ -71,8 +71,8 @@ internal class FrontierTownTest : TfmSandboxTest() {
       doTasks("PROD[-Energy]", "CityTile<Cimmeria_3_3>")
       doTask("-FrontierTownBonus!")
       doTask("CimmeriaPlacementBonus!")
-      // Hand the repeat-bonus signal to Admin so the area offers its bonus again.
-      selectTask("RepeatPlacementBonus<Kim, Cimmeria_3_3>!")
+      // Execute the repeat-bonus signal so the area offers its bonus again.
+      doTask("RepeatPlacementBonus<Kim, Cimmeria_3_3>!")
       doTask("-5 MC")
       doTask("CimmeriaPlacementBonus!")
       doTask("CimmeriaPlacementBonus!")
@@ -106,8 +106,8 @@ internal class FrontierTownTest : TfmSandboxTest() {
         doTask("CityTile<Cimmeria_3_3>")
         doTask("-FrontierTownBonus!")
         doTask("CimmeriaPlacementBonus!")
-        // Hand the repeat-bonus signal to Admin so the area offers its bonus again.
-        selectTask("RepeatPlacementBonus<Kim, Cimmeria_3_3>!")
+        // Execute the repeat-bonus signal so the area offers its bonus again.
+        doTask("RepeatPlacementBonus<Kim, Cimmeria_3_3>!")
         doTask("-5 MC")
         doTask("CimmeriaPlacementBonus!")
         doTask("CimmeriaPlacementBonus!")

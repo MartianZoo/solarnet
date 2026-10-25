@@ -33,6 +33,7 @@ internal class PowerInfrastructureTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*cardActionTasks("PowerInfrastructure"))
           selectOnlyTask(x = 3)
+          doTask("-3 Energy")
           doTask("3 MC")
         }
         .expect("-3 Energy")
@@ -47,6 +48,7 @@ internal class PowerInfrastructureTest : TfmSandboxTest() {
           kim.inTurn {
             doTasks(*cardActionTasks("PowerInfrastructure"))
             selectOnlyTask(x = 3)
+            doTask("-3 Energy")
             doTask("3 MC")
           }
         }

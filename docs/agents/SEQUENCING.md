@@ -23,7 +23,7 @@ meaning for Player choices. Admin handling follows [ENGINE_CONTRACT.md](ENGINE_C
 - `TASK R { B }` dispatches B as R's work; `LATER { B }` and `FINALLY { B }` dispatch B as work
   that waits until no ordinary work, or no ordinary and `LATER` work, remains in the World.
 
-The proposed task priorities are owned by [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
+The intended task priorities are owned by [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
 Current task data has no exclusive interaction spanning several tasks.
 The turn order and every phase change are authored rules; see [Game flow](../../pets/docs/agents/GAME_FLOW.md#game-flow).
 A Player client chooses among its available tasks.
@@ -49,9 +49,9 @@ See [Canon turns and game flow](../../pets/docs/agents/GAME_FLOW.md#game-flow).
   consequences.
 - **Trigger snapshot:** `Effector.fire` materializes an automatic listener batch against the same
   post-change World before executing it.
-- **Failure recovery:** an engine method may restore its own failure, or the client may supply
-  a restoring scope. Before gameplay continues, restore components, tasks, history, and derived
-  indexes to the start of the failed transaction.
+- **Failure recovery:** a failed public engine mutation restores its own transaction, including
+  components, tasks, history, and derived indexes. A caller may additionally restore a larger group
+  of completed transactions; that is not required to recover an individual failed mutation.
 - **Selection integrity:** at most a single task is selected across the World. Authored Pets cannot
   edit, cancel, or reprioritize another task.
 
@@ -94,6 +94,27 @@ A's reactions is deferred instead; it waits for all other work in the World
 `EACH Player { A THEN B }` gives each branch a continuation. `EACH Player { A } THEN B` is invalid:
 completing the `EACH` task admits independent branches and does not wait for them to finish.
 
+### Reviewed client view of THEN
+
+**Human direction, October 24, 2026; not fully implemented:** a client should see a joined `THEN`
+only while a type variable or X used across its stages remains unbound. Prefer explicit client
+substitution of that shared type or number. After binding, or when no shared binding is needed,
+show a single task with its current instruction and a separate continuation: the continuation is
+work that will be enqueued when this task finishes. In that split form, the client absolutely may
+submit only a narrowing of the current instruction; it need not repeat the continuation.
+
+**Selected destination, implementation to investigate:** remove accepting `3 Foo` for joined
+`X Foo THEN X Bar` by reconstructing X and then creating `3 Bar`. Do not move that convenience into the agent. Requiring
+divisibility for a first stage `3X Foo` illustrates why inferring a binding backward from its result
+is the wrong interaction. Explicitly supplying `X = 3` is different: it determines `9 Foo` and
+`3 Bar` for `3X Foo THEN X Bar`. The engine must still preserve and validate the supplied binding.
+The exact API for explicit substitution remains to be reviewed.
+
+Current `normalizeTask` can also retain a joined sequence because an outer continuation already
+occupies `Task.then`; current `selectFirstStageOrNull` accepts first-stage inference. These are
+implementation differences to investigate, not reasons to weaken the desired client description.
+Keep nested variable scopes distinct when changing the representation.
+
 ## Automatic effects
 
 Required component parts are constructed before gain reactions. Parts' automatic reactions
@@ -135,6 +156,25 @@ An automatic `Die` can reject a forbidden component change. It cannot generally
 police task selection because selecting or narrowing an abstract task can change task state without
 producing a component event. Trigger-side `BY` matches the event Actor; instruction-side `BY`
 reassigns concrete queued work.
+
+### Investigating inferred immediate work
+
+**Human direction, October 24, 2026:** for effects whose `::` execution currently needs inferred
+targets, first ask whether they strictly need to be immediate. High-priority Admin follow-up work
+may express the requirement without immediate execution. The selected engine transaction rule can
+justify inference within genuinely immediate work; removing all inference is no longer the goal.
+Conversely, checks currently performed in later Admin work may need to become immediate if they
+must reject the initiating transaction. Direct mandatory `: Die` already rejects during admission
+and does not need that conversion. Decide the required timing from the game rule, not from the
+current declaration or from a wish to make an abstract client request easier to accept.
+
+For Canon's `NextPlayer` construction, links must nevertheless be created as the Players are
+created, and the final link must close the circle correctly. Merely queueing all the work and
+trusting its iteration order is not acceptable. Identify the state that must hold before the next
+Player is created, then test whether Admin follow-up can establish it at that point. The proposal
+is not permission to postpone every link until all Players exist or to use incidental FIFO order
+as its game rule. [game.pets](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/base/game.pets)
+contains `New@Player IF MultiplayerMode` and the `ModulesReady` closing effect.
 
 ## Committed precursors
 
@@ -195,6 +235,12 @@ See [Canon game flow](../../pets/docs/agents/GAME_FLOW.md#facts-in-components-fu
 
 ### Engine obligations
 
+**Transition note:** the dispatch/promotion mechanics below describe current behavior. The selected
+[separation of selection and execution](ENGINE_CONTRACT.md#selection-must-not-quietly-mean-execution--item-9)
+requires investigating whether structural work exposed by selection needs explicit execution too.
+Do not silently retain enqueue-only work as an exception or remove it without measuring the effect
+on Canon. Deferred priority and continuation meaning must still hold.
+
 The language rules state what deferral means. A task's deferral records which dispatch admitted it:
 `TASK`, `LATER`, or `FINALLY`. A selected task is always ordinary. Beyond those rules:
 
@@ -247,7 +293,7 @@ they must not generate further choices for the completed action. This is an auth
 not a new engine completion rule. Do not mark the finally-removed scope `MustCleanUp`, since that
 check runs before removal.
 
-The proposed [action-completion endpoint](DECISION_GRAPH.md#proposed-endpoint-action-completion) includes
+The proposed [action-completion endpoint](DECISION_GRAPH.md#other-players-and-the-endpoint) includes
 scope removal and its consequences. The current check above is therefore insufficient for that
 agent exploration endpoint. Those rough notes leave recognition of the endpoint, and reconciliation
 with the older restriction on cleanup choices, open; they add no engine completion requirement.
@@ -256,7 +302,9 @@ with the older restriction on cleanup choices, open; they add no engine completi
 
 - **Dispatch is not a step.** On 2026-10-12 the owner ruled that a pure dispatch should never sit in
   a queue as current work; the engine performs it, as it releases a `THEN` continuation. This
-  replaced the earlier rule that each dispatch was a task of its own.
+  replaced the earlier rule that each dispatch was a task of its own. The October 24 selection
+  review reopens how this rule interacts with selection without execution; no structural exception
+  has yet been selected for the destination.
 - **`FINALLY` for game flow.** On 2026-10-11 the owner ruled out a band below `LATER`. On
   2026-10-12, once nested `LATER` proved to need either a depth rule or a lowest band, he chose
   `FINALLY`, so that turns and phases can advance through authored rules. Keeping

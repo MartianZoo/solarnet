@@ -20,13 +20,17 @@ See the [Pets card model](../../pets/docs/agents/CARD_MODEL.md#external-offer-pr
 ## Card-hand tracking
 
 [CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt) is an optional mode
-selected once per World before the first card-hand movement. Once selected, each Agent command
+selected once per Agents session before the first card-hand movement. Once selected, each command
+through that session
 validates all surviving `CardBack<Hand>` gains and removals, including project, corporation,
 Prelude, and beginner cards, before it can complete. The client supplies names in each Player's
 per-back hand-entry order and names for otherwise anonymous departures. Supplied names must resolve
 to concrete `CardFront` classes with the matching back in the catalog. A source card can be named
 even when that card is excluded from this game's playable pool. An operation with missing names
 fails validation.
+The application guard and missing-input exception belong to the agent module. A separately
+constructed Agents session for the same World has no guard; clients keep the tracked session.
+Raw engine calls bypass it. Forks and overlays start without a guard.
 Unused supplied names may be replaced after a failed operation without changing names used by
 surviving events.
 
@@ -57,7 +61,7 @@ Staging a card carries the face in the destination's type, so its departure from
 supplied name. Playing it from the staged location also carries that face and needs no temporary
 Hand arrival or extra supplied name.
 
-`CardTracking.start(world, requireSelectingNames = true)` additionally requires every `Selecting`
+`CardTracking.start(agents, requireSelectingNames = true)` additionally requires every `Selecting`
 movement to be named. The option applies to the whole game; it cannot mix known and unknown offers.
 The default mode ignores Selecting identities and rejects supplied Selecting names. In the enabled
 mode, the tracker compares named Selecting holdings with modeled counts, checks card locations, and

@@ -36,8 +36,8 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<EcologicalZone>>",
       )
-      // Hand the requirement waiver to Admin before playing the project.
-      selectTask("-Required* / Required")
+      // Execute the requirement waiver before playing the project.
+      doTask("-Required* / Required")
       doTasks("12 Pay<> FROM MC", "EcologicalZone FROM ProjectCard")
       doTask("Animal<EcologicalZone>*")
       doTask("Animal<EcologicalZone>*")
@@ -76,8 +76,8 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<Decomposers>>",
       )
-      // Hand the requirement waiver to Admin before playing the project.
-      selectTask("-Required* / Required")
+      // Execute the requirement waiver before playing the project.
+      doTask("-Required* / Required")
       doTasks("5 Pay<> FROM MC", "Decomposers FROM ProjectCard")
       doTask("Microbe<Decomposers>*")
     }
@@ -98,11 +98,12 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       )
       stan.doTask("2 MC")
       doTasks("2 MC", "PlayCard<Class<ProjectCard>, Class<Decomposers>>")
-      // Hand the requirement waiver to Admin before playing the project.
-      selectTask("-Required* / Required")
+      // Execute the requirement waiver before playing the project.
+      doTask("-Required* / Required")
       doTasks("5 Pay<> FROM MC", "Decomposers FROM ProjectCard")
       // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
       selectTask("Microbe<Decomposers>*")
+      doTask("Microbe<Decomposers>")
       stan.doTask("2 MC")
       doTask("2 MC")
     }
@@ -122,8 +123,8 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
       )
-      // Hand the requirement waiver to Admin before playing the project.
-      selectTask("-Required* / Required")
+      // Execute the requirement waiver before playing the project.
+      doTask("-Required* / Required")
       doTasks("2 Pay<> FROM MC", "DustSeals FROM ProjectCard")
     }
   }
@@ -139,8 +140,8 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
       )
-      // Hand the requirement waiver to Admin before playing the project.
-      selectTask("-Required* / Required")
+      // Execute the requirement waiver before playing the project.
+      doTask("-Required* / Required")
       doTasks("2 Pay<> FROM MC", "DustSeals FROM ProjectCard")
     }
     kim.inTurn {
@@ -150,8 +151,8 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<Decomposers>>",
       )
-      // Hand the requirement waiver to Admin before playing the project.
-      selectTask("-Required* / Required")
+      // Execute the requirement waiver before playing the project.
+      doTask("-Required* / Required")
       doTasks("5 Pay<> FROM MC", "Decomposers FROM ProjectCard")
       doTask("Microbe<Decomposers>*")
     }
@@ -195,8 +196,8 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<ViralEnhancers>>",
       )
-      // Hand the requirement waiver to Admin before playing the project.
-      selectTask("-Required* / Required")
+      // Execute the requirement waiver before playing the project.
+      doTask("-Required* / Required")
       doTasks("9 Pay<> FROM MC", "ViralEnhancers FROM ProjectCard", "Plant")
     }
   }

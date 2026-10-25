@@ -37,7 +37,7 @@ import kotlin.reflect.KClass
  *
  * The operation API groups work across calls: [beginOperation] and [continueOperation] allow tasks
  * to remain, while [runOperation] and [completeOperation] check whether that operation has
- * finished. An operation in those APIs is not the proposed engine transaction.
+ * finished. An operation in those APIs is not the intended engine transaction.
  */
 public interface Agent {
 
@@ -78,9 +78,9 @@ public interface Agent {
   public fun fillInTask(taskId: TaskId): TaskForm
 
   /**
-   * Narrows this Actor's selected task and resolves it again. A partial narrowing remains selected;
-   * a concrete result executes before this call returns unless `BY` or `System` routing assigns it
-   * to another Actor.
+   * Narrows this Actor's selected task and resolves it again without executing component changes.
+   * Concrete and partial instructions remain pending. The surrounding Agent call may separately
+   * submit work according to Player policy; Admin handling remains automatic.
    *
    * @param [narrowing] the new instruction tree; may be abstract or a grouped arm selected from an
    *   `OR`; a group replaces this one task with one task per member; if identical to the current
@@ -92,11 +92,11 @@ public interface Agent {
   public fun narrowTask(narrowing: String): TaskResult
 
   /**
-   * Probes whether [selectTask] would complete normally for [taskId] now. A missing or unselectable
-   * task yields false. The probe rolls back its attempted selection and any resulting effects. A
-   * handoff does not attempt the receiving Actor's execution. Gameplay rejection and unresolved
-   * instructions yield false; other failures propagate. Tentative events can invalidate overlays
-   * based on this World.
+   * Tries selection and, when concrete, execution of [taskId] in a disposable World. A missing or
+   * rejected task yields false; an abstract selection can succeed without execution. A handoff does
+   * not attempt the receiving Actor's execution. Gameplay rejection and unresolved instructions
+   * yield false; other failures propagate. Source listeners and existing overlays remain
+   * unaffected.
    */
   // TODO(ENGINE_CONTRACT): investigate removing speculative probes from this API. A successful
   // selection can remain abstract and must not be called a legal fully concrete narrowing.
@@ -104,17 +104,17 @@ public interface Agent {
 
   /**
    * Probes whether this actor can select and finish [taskId] now without another choice or handoff.
-   * A missing or unfinished task yields false. The probe restores gameplay state, but tentative
-   * events can invalidate overlays based on this World. Gameplay rejection and unresolved
-   * instructions yield false; other failures propagate.
+   * A missing or unfinished task yields false. The probe uses a disposable World; source listeners
+   * and existing overlays remain unaffected. Gameplay rejection and unresolved instructions yield
+   * false; other failures propagate.
    */
   // TODO(ENGINE_CONTRACT): investigate whether callers need this execution probe. If retained,
   // define its answer using this instruction's whole transaction, without checking spawned tasks.
   public fun canExecuteTask(taskId: TaskId): Boolean
 
   /**
-   * Selects one pending task and resolves its instruction against the current World. An abstract
-   * result remains selected for later [narrowTask] calls. Concrete `BY` or System routing may
+   * Selects a pending task and resolves its instruction against the current World. Concrete and
+   * abstract results remain pending for an execution command. Concrete `BY` or System routing may
    * assign it to another Actor. The call's task handling then runs, so that Actor's policy decides
    * whether the task finishes before this call returns.
    *
@@ -189,9 +189,10 @@ public interface Agent {
 
   /**
    * Executes an atomic batch against this Actor's pending tasks using [OperationScope.doTasks]
-   * matching and signed scalar totals. Runs configured autoexecution before, between, and after
-   * submitted instructions. Returns the whole batch's changes; any failure rolls the entire batch
-   * back. This may leave work pending, so callers can split an operation across multiple batches.
+   * matching. Each input identifies a task; amounts from separate tasks are not combined. Runs
+   * configured autoexecution before, between, and after submitted instructions. Returns the whole
+   * batch's changes; any failure rolls the entire batch back. This may leave work pending, so
+   * callers can split an operation across multiple batches.
    */
   public fun doTasks(vararg narrowings: String): TaskResult
 
@@ -348,16 +349,9 @@ public interface Agent {
 
     /**
      * Submits each instruction in order, including all component changes when a chosen amount
-     * expands into a group. A concrete scalar change consumes all pending gains and removals of its
-     * type when at least two have the same quantifier and their signed counts equal the submitted
-     * amount, including zero when gains and removals cancel. This also applies when an individual
-     * task has that amount. Gains execute before removals. Each original task executes separately,
-     * preserving its effects, cause, and continuation; newly created tasks are not included in the
-     * total. Otherwise, normal single-task matching applies. Failure rolls back the enclosing
-     * operation.
+     * expands into a group. Each input identifies a pending task; separate gains and removals are
+     * not combined into a total. Failure rolls back the enclosing operation.
      */
-    // TODO(ENGINE_CONTRACT): investigate removing implicit scalar matching and gain-before-removal
-    // ordering. Explicit client choices should identify which pending instructions to perform.
     public fun doTasks(vararg narrowings: String)
 
     /** Tries [narrowing], leaving incomplete or unavailable work pending. */

@@ -149,7 +149,7 @@ public class TfmGameplay(
                 task.assignee == actor && asActor(task.assignee).canSelectTask(task.id)
               }
               .firstOrNull { task -> !task.instruction.isAbstract(reader) } ?: return
-      selectTaskForActor(next)
+      this@TfmGameplay.doTask(next.id)
     }
   }
 
@@ -205,7 +205,7 @@ public class TfmGameplay(
       val secondAction =
           secondActionOffer()
               ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
-      selectTask(secondAction.copy(instruction = parse<Instruction>("PassBaton")))
+      this@TfmGameplay.doTask("PassBaton", secondAction.id)
     }
   }
 
@@ -577,7 +577,7 @@ public class TfmGameplay(
             it.cause?.context?.className == cn("PaymentScope")
           } ?: return
       selectTaskForActor(offer)
-      if (offer.id in game.tasks) narrowTask("Ok")
+      if (offer.id in game.tasks) doTask("Ok")
     }
   }
 
@@ -594,7 +594,7 @@ public class TfmGameplay(
                     asActor(task.assignee).canSelectTask(task.id)
               }
               .singleOrNull() ?: return
-      selectTaskForActor(next)
+      this@TfmGameplay.doTask(next.id)
     }
   }
 
@@ -602,7 +602,7 @@ public class TfmGameplay(
     val matching = pendingPaymentOffers(currency)
     val selectedOffer = pendingPaymentOffers().singleOrNull { it.selected }
     if (selectedOffer != null && matching.none { it.id == selectedOffer.id }) {
-      asActor(selectedOffer.assignee).narrowTask("Ok")
+      asActor(selectedOffer.assignee).doTask("Ok")
     }
     val offer = pendingPaymentOffers(currency).singleOrNull() ?: return
     if (offer.assignee != actor) asActor(offer.assignee).selectTask(offer.id)
@@ -632,7 +632,7 @@ public class TfmGameplay(
   private fun OperationScope.selectTaskForActor(task: Task) {
     while (task.id in game.tasks) {
       val current = game.tasks.getTaskData(task.id)
-      if (current.selected && current.instruction.isAbstract(reader)) return
+      if (current.selected) return
       if (current.assignee == actor) selectTask(task.id)
       else asActor(current.assignee).selectTask(task.id)
     }

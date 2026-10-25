@@ -370,10 +370,16 @@ internal class GameFlowTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     admin.startGame()
-    admin.doTask("DemocraticReform")
-    admin.doTask("PartyLeader<MarsFirst, Neutral>")
-    admin.doTask("MinimalImpactPolicy")
-    admin.doTask("PartyLeader<Reds, Neutral>")
+    TestHelpers.assertNetChanges(
+        admin.doTask("DemocraticReform"),
+        game,
+        "PartyLeader<MarsFirst, Neutral>",
+    )
+    TestHelpers.assertNetChanges(
+        admin.doTask("MinimalImpactPolicy"),
+        game,
+        "PartyLeader<Reds, Neutral>",
+    )
     p1.keepStartingProjects(0)
     p2.keepStartingProjects(0)
     playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)

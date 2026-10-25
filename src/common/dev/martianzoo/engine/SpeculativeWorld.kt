@@ -6,11 +6,9 @@ package dev.martianzoo.engine
  * views, even if the source later returns to the same state. Guards are absent and cannot be
  * installed; application validation does not automatically follow the copy.
  *
- * TODO(ENGINE_CONTRACT): Investigate removing this API and its reset machinery. Speculative
- *   execution has not been selected in the
- *   [proposed interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md), which remains
- *   under human review. The descriptions here explain existing behavior without approving it as
- *   part of the replacement design.
+ * Internal copies support the selected transaction-success checks without notifying source
+ * listeners. The scope and continued need of this public copy/reset API remain under review; see
+ * the [intended interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md).
  */
 public interface SpeculativeWorld : World {
   /**

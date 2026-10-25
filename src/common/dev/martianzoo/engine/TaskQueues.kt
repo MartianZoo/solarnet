@@ -71,21 +71,24 @@ internal class TaskQueues(
       assignee: Actor,
       cause: Cause?,
       deferral: Deferral = Deferral.NONE,
+      includeDispatchedTasks: Boolean = true,
   ): List<TaskAddedEvent> {
     requireAtEnd()
-    return admit(instruction, assignee, cause, deferral)
+    return admit(instruction, assignee, cause, deferral, includeDispatchedTasks)
   }
 
   /**
    * Adds [instruction]'s tasks without promoting deferred work, so that a whole group is admitted
    * before promotion is considered. An ordinary task that is only a dispatch is never added: the
-   * dispatch is performed instead.
+   * dispatch is performed instead. When [includeDispatchedTasks] is false, its resulting tasks are
+   * excluded from the return value so group execution does not consume later work.
    */
   private fun admit(
       instruction: InstructionGroup,
       assignee: Actor,
       cause: Cause?,
       deferral: Deferral,
+      includeDispatchedTasks: Boolean = true,
   ): List<TaskAddedEvent> =
       taskInstructions(instruction).flatMap {
         val task =
@@ -94,7 +97,8 @@ internal class TaskQueues(
             )
         val dispatch = task.instruction as? Instruction.Dispatch
         if (dispatch != null && !task.deferred) {
-          perform(dispatch, task)
+          val dispatched = perform(dispatch, task)
+          if (includeDispatchedTasks) dispatched else emptyList()
         } else {
           listOf(
               gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))

@@ -16,8 +16,5 @@ internal class OverlayWorld(
 ) :
     WholeWorld(gameWorld, overlayTimeline, reader, classTable, actorEngines, effector),
     SpeculativeWorld {
-  override fun installAgentTransactionGuard(guard: AgentTransactionGuard): Nothing =
-      error("a speculative World cannot install an Agent transaction guard")
-
   override fun reset() = overlayTimeline.resetOverlay()
 }

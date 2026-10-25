@@ -1,7 +1,8 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.engine.AgentInputRequiredException
-import dev.martianzoo.engine.AgentTransactionGuard
+import dev.martianzoo.agent.AgentInputRequiredException
+import dev.martianzoo.agent.AgentTransactionGuard
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -650,11 +651,13 @@ private constructor(
     private val FILTERED_HAND_ARRIVALS = setOf(cn("SearchForCard"), cn("TakeSelectedCard"))
 
     /**
-     * Starts mandatory Hand tracking before the first hand movement. When [requireSelectingNames]
-     * is true, start before the first Selecting movement too; every such movement must be named.
-     * Otherwise Selecting movements are outside tracking and Selecting names cannot be supplied.
+     * Starts mandatory Hand tracking for [agents] before the first hand movement. When
+     * [requireSelectingNames] is true, start before the first Selecting movement too; every such
+     * movement must be named. Otherwise Selecting movements are outside tracking and Selecting
+     * names cannot be supplied.
      */
-    public fun start(world: World, requireSelectingNames: Boolean = false): CardTracking {
+    public fun start(agents: Agents, requireSelectingNames: Boolean = false): CardTracking {
+      val world = agents.world
       val tracker = CardTracking(world, requireSelectingNames)
       check(
           world.events.changesSinceSetup().none { event ->
@@ -669,7 +672,7 @@ private constructor(
       ) {
         "tracked card movements already occurred before tracking started"
       }
-      world.installAgentTransactionGuard(tracker)
+      agents.installTransactionGuard(tracker)
       return tracker
     }
   }

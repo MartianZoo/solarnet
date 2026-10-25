@@ -149,7 +149,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
           // Resolve the world-government handoff even though all tracks are complete.
-          selectTask("GlobalParameter(NOT OceanTile<LandArea>)* BY Admin")
+          doTask("GlobalParameter(NOT OceanTile<LandArea>)* BY Admin")
         }
         .expect("0 TerraformRating, 0 VenusStep, 0 TemperatureStep, 0 OxygenStep, 0 OceanTile")
     kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1

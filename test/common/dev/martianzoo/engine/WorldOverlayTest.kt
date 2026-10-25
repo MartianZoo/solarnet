@@ -186,7 +186,7 @@ internal class WorldOverlayTest {
   }
 
   @Test
-  internal fun sourceTaskProbesInvalidateAnOverlayEvenWhenTheyRestoreTheSource() {
+  internal fun sourceTaskProbesLeaveExistingOverlaysValid() {
     val source = Engine.newGame(testGamePremise("CLASS Choice"))
     val sourceAgents = Agents(source) { NONE }
     val agent = sourceAgents[PLAYER1]
@@ -196,12 +196,12 @@ internal class WorldOverlayTest {
     val first = sourceAgents.overlay()
     agent.canSelectTask(task) shouldBe true
     source.timeline.checkpoint() shouldBe before
-    shouldThrow<IllegalStateException> { first.world.timeline.checkpoint() }
+    first.world.timeline.checkpoint() shouldBe before
 
     val second = sourceAgents.overlay()
     agent.canExecuteTask(task)
     source.timeline.checkpoint() shouldBe before
-    shouldThrow<IllegalStateException> { second.world.timeline.checkpoint() }
+    second.world.timeline.checkpoint() shouldBe before
   }
 
   @Test

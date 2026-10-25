@@ -1,4 +1,4 @@
-package dev.martianzoo.engine
+package dev.martianzoo.agent
 
 /**
  * Signals that an Agent call needs information from its client before it can finish. For example, a
@@ -10,9 +10,5 @@ package dev.martianzoo.engine
  *
  * @constructor Creates a missing-input signal with the caller-facing [message]. Subclasses may
  *   carry the specific information the client must supply; constructing it changes no game state.
- *
- * TODO(ENGINE_CONTRACT): Investigate removing this client-input exception from the engine API along
- *   with its application guard. The engine should enforce game rules without requesting application
- *   data.
  */
 public open class AgentInputRequiredException(message: String) : RuntimeException(message)

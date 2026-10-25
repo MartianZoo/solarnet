@@ -26,10 +26,8 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Tharsis_3_5" to "Tharsis_7_9"
 
   override fun resolveExpansionSetupTasks() {
-    admin.doTask("IndependenceMovement")
-    admin.doTask("PartyLeader<MarsFirst, Neutral>")
-    admin.doTask("WorldGovernmentDirectives")
-    admin.doTask("PartyLeader<Unity, Neutral>")
+    admin.doTask("IndependenceMovement").expect("PartyLeader<MarsFirst, Neutral>")
+    admin.doTask("WorldGovernmentDirectives").expect("PartyLeader<Unity, Neutral>")
   }
 
   @Test
@@ -72,15 +70,16 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       // The following Turmoil phase forms government and advances the two visible events;
       // generation 1 has no Current event to resolve yet.
       wgt("OceanTile<Tharsis_6_7>").expect("OceanTile<Tharsis_6_7>")
-      admin.doTask("PartyFollower<Reds, Neutral>")
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "MarsFirst",
           dominant = "Reds",
           current = "IndependenceMovement",
           coming = "WorldGovernmentDirectives",
       )
-      admin.doTask("ScienceSummit").expect("ScienceSummit, Distant<ScienceSummit>")
-      admin.doTask("PartyFollower<Scientists, Neutral>")
+      admin
+          .doTask("ScienceSummit")
+          .expect("ScienceSummit, Distant<ScienceSummit>, PartyFollower<Scientists, Neutral>")
     }
   }
 
@@ -104,7 +103,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       val trBeforeWgt = count("TerraformRating")
       wgt("OceanTile<Tharsis_5_5>").expect("OceanTile<Tharsis_5_5>")
       count("TerraformRating") shouldBe trBeforeWgt + 1
-      admin.doTask("PartyLeader<MarsFirst, Neutral>")
+      admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
       assertTurmoilState(
           ruling = "Reds",
           chairman = "Bloo",
@@ -113,8 +112,9 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "WorldGovernmentDirectives",
           coming = "ScienceSummit",
       )
-      admin.doTask("MoralMovement").expect("MoralMovement, Distant<MoralMovement>")
-      admin.doTask("PartyLeader<Reds, Neutral>")
+      admin
+          .doTask("MoralMovement")
+          .expect("MoralMovement, Distant<MoralMovement>, PartyLeader<Reds, Neutral>")
     }
   }
 
@@ -145,7 +145,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       count("MC") shouldBe mcBeforeWgt + scienceTagsBeforeWgt
       count("TerraformRating") shouldBe trBeforeWgt
       count("PartyDelegate<Scientists>") shouldBe scientistDelegatesBeforeWgt - 1
-      admin.doTask("PartyFollower<Greens, Neutral>")
+      (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Scientists",
           dominant = "Greens",
@@ -156,7 +156,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       admin
           .doTask("MoholeLakeGlobalEvent")
           .expect("MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>")
-      admin.doTask("PartyFollower<Kelvinists, Neutral>")
+      (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -191,7 +191,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       wgt("TemperatureStep").expect("TemperatureStep")
       count("MC") shouldBe mcBeforeWgt + bioTagsBeforeWgt
       count("TerraformRating") shouldBe trBeforeWgt
-      admin.doTask("PartyFollower<MarsFirst, Neutral>")
+      (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Greens",
           dominant = "Kelvinists",
@@ -202,7 +202,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       admin
           .doTask("ExploreFirstDirective")
           .expect("ExploreFirstDirective, Distant<ExploreFirstDirective>")
-      admin.doTask("PartyFollower<Reds, Neutral>")
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -218,7 +218,12 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       admin.assertCounts(1 to "PartyDelegate<Scientists>")
       cardAction2(LocalShading)
       // Source log: 17 cards revealed and 17 M€ gained.
-      playProject(PublicPlans, 7) { doTask("17 ProjectCard<Revealed FROM Hand>") }
+      playProject(PublicPlans, 7) {
+        doWithoutAutoExec(me) {
+          selectOnlyTask(x = 17)
+          doTask("17 ProjectCard<Revealed FROM Hand>")
+        }
+      }
       playProject(Satellites, titanium = 2)
       playProject(WavePower, 8)
       playProject(Algae, 10)
@@ -231,7 +236,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       val trBeforeWgt = count("TerraformRating")
       wgt("VenusStep").expect("VenusStep")
       count("TerraformRating") shouldBe trBeforeWgt
-      admin.doTask("PartyLeader<Kelvinists, Neutral>")
+      admin.count("PartyLeader<Kelvinists, Neutral>") shouldBe 1
       assertTurmoilState(
           ruling = "Kelvinists",
           dominant = "Reds",
@@ -239,8 +244,9 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "MoholeLakeGlobalEvent",
           coming = "ExploreFirstDirective",
       )
-      admin.doTask("RedResistance").expect("RedResistance, Distant<RedResistance>")
-      admin.doTask("PartyFollower<Reds, Neutral>")
+      admin
+          .doTask("RedResistance")
+          .expect("RedResistance, Distant<RedResistance>, PartyFollower<Reds, Neutral>")
     }
   }
 
@@ -272,7 +278,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       pass()
       // Snow Cover resolves first, Reds form the government, and the visible events advance.
       wgt("VenusStep").expect("VenusStep")
-      admin.doTask("PartyFollower<Scientists, Neutral>")
+      (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Reds",
           chairman = "Neutral",
@@ -284,7 +290,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       admin
           .doTask("ViralModificationsApproved")
           .expect("ViralModificationsApproved, Distant<ViralModificationsApproved>")
-      admin.doTask("PartyFollower<Greens, Neutral>")
+      (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
       // FAQ v1.8 p.100 awards the solo Reds bonus only at 20 TR or below. The archived server
       // nevertheless awarded it at 21 after annual revision; retain that source result explicitly.
       exMachina("TerraformRating")
@@ -320,7 +326,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       // Scientific Community pays 18 M€ for cards and influence; the Scientists bonus pays 4 M€.
       count("MC") shouldBe mcBeforeWgt + 22
       count("TerraformRating") shouldBe trBeforeWgt
-      admin.doTask("PartyFollower<Unity, Neutral>")
+      (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Scientists",
           chairman = "Bloo",
@@ -331,7 +337,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       admin
           .doTask("SolarnetGlobalEvent")
           .expect("SolarnetGlobalEvent, Distant<SolarnetGlobalEvent>")
-      admin.doTask("PartyFollower<Unity, Neutral>")
+      (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -377,7 +383,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       wgt("VenusStep").expect("VenusStep")
       // Homeworld Support pays 10 M€; the Unity bonus pays 6 M€ for planetary tags.
       count("MC") shouldBe mcBeforeWgt + 16
-      admin.doTask("PartyFollower<MarsFirst, Neutral>")
+      (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Unity",
           chairman = "Neutral",
@@ -389,7 +395,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       admin
           .doTask("CharismaticWgPresident")
           .expect("CharismaticWgPresident, " + "Distant<CharismaticWgPresident>")
-      admin.doTask("PartyLeader<Unity, Neutral>")
+      admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
     }
   }
 
@@ -441,7 +447,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       // Pandemic costs 9 M€; the Kelvinists bonus pays 5 M€ for heat production.
       count("MC") shouldBe mcBeforeWgt - 4
       count("TerraformRating") shouldBe trBeforeWgt
-      admin.doTask("PartyFollower<Greens, Neutral>")
+      (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Kelvinists",
           chairman = "Bloo",
@@ -450,8 +456,9 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "SolarnetGlobalEvent",
           coming = "CharismaticWgPresident",
       )
-      admin.doTask("BioengineeringBoom").expect("BioengineeringBoom, Distant<BioengineeringBoom>")
-      admin.doTask("PartyLeader<Greens, Neutral>")
+      admin
+          .doTask("BioengineeringBoom")
+          .expect("BioengineeringBoom, Distant<BioengineeringBoom>, PartyLeader<Greens, Neutral>")
     }
   }
 
@@ -504,7 +511,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       wgt("TemperatureStep").expect("TemperatureStep")
       // Celebrity Leaders pays 14 M€; the Greens bonus pays 7 M€ for bio tags.
       count("MC") shouldBe mcBeforeWgt + 21
-      admin.doTask("PartyFollower<Unity, Neutral>")
+      (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Greens",
           chairman = "Neutral",
@@ -516,7 +523,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       admin
           .doTask("LocalTerraformingSupport")
           .expect("LocalTerraformingSupport, Distant<LocalTerraformingSupport>")
-      admin.doTask("PartyFollower<MarsFirst, Neutral>")
+      (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -582,7 +589,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       wgt("TemperatureStep").expect("TemperatureStep")
       // Interplanetary Trade pays 18 M€; the Mars First bonus pays 10 M€ for building tags.
       count("MC") shouldBe mcBeforeWgt + 28
-      admin.doTask("PartyFollower<Scientists, Neutral>")
+      (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "MarsFirst",
           dominant = "Unity",
@@ -590,8 +597,9 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "BioengineeringBoom",
           coming = "LocalTerraformingSupport",
       )
-      admin.doTask("PateraBoring").expect("PateraBoring, Distant<PateraBoring>")
-      admin.doTask("PartyLeader<Scientists, Neutral>")
+      admin
+          .doTask("PateraBoring")
+          .expect("PateraBoring, Distant<PateraBoring>, PartyLeader<Scientists, Neutral>")
     }
   }
 

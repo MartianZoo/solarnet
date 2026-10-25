@@ -77,7 +77,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
           doTask("3 PreludeCard<Kim, Selecting>")
           doTask("-PreludeCard<Selecting>")
           // Hand the fizzle audit to Admin before receiving compensation.
-          selectTask("Audit!")
+          doTask("Audit!")
           doTask("15 MC")
         }
         .expect("-RequiredAction, 0 $IndustrialComplex, 0 PreludeCard<Selecting>")

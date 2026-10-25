@@ -211,14 +211,15 @@ internal class InvariantCompletionTest {
   internal fun failedTryWithNarrowingRestoresThePendingTaskAndCascade() {
     val world = statusWorld("This:: Notice!")
     val admin = world.testAgent(ADMIN)
-    val task = admin.addTasks("Status!").single()
+    val engine = world.actorEngine(ADMIN)
+    val task = engine.addTasks(InstructionGroup.of(parse<Instruction>("Status!"))).single()
     val pending = admin.tasks.getTaskData(task)
     val before = world.events.nextOrdinal
 
-    admin.tryTask("Passed!")
+    engine.tryTask(parse<Instruction>("Passed!"), taskId = task)
 
-    // The try restored every change it attempted. Admin then selects its own still-pending
-    // abstract task, which it cannot narrow alone, so the event count no longer stands still.
+    // Use the raw engine so later automatic Admin submissions cannot obscure restoration.
+    world.events.nextOrdinal shouldBe before
     world.events.changesSince(before) shouldBe emptyList()
     admin.tasks.getTaskData(task).instruction shouldBe pending.instruction
     admin.count("Ready") shouldBe 1
@@ -282,7 +283,9 @@ internal class InvariantCompletionTest {
     val world = statusWorld("This:: -Ready!")
     val admin = world.testAgent(ADMIN)
 
-    admin.runOperation("Status!") { doTask("Passed!") }
+    val engine = world.actorEngine(ADMIN)
+    val task = engine.addTasks(InstructionGroup.of(parse<Instruction>("Status!"))).single()
+    engine.doTask(task)
 
     admin.count("Passed") shouldBe 1
     admin.count("Ready") shouldBe 0
@@ -861,7 +864,9 @@ internal class InvariantCompletionTest {
         )
     val admin = world.testAgent(ADMIN)
 
-    admin.runOperation("-Token!") { doTask("-First!") }
+    val engine = world.actorEngine(ADMIN)
+    val task = engine.addTasks(InstructionGroup.of(parse<Instruction>("-Token!"))).single()
+    engine.doTask(task)
 
     admin.count("Token") shouldBe 2
     admin.count("First") shouldBe 0
@@ -869,7 +874,7 @@ internal class InvariantCompletionTest {
   }
 
   @Test
-  internal fun abstractGainLeavesTheChoiceOfARepairToTheClient() {
+  internal fun abstractGainSelectsTheUniqueRepairAfterRejectingTheBrokenConcreteRequest() {
     val world =
         world(
             """
@@ -884,13 +889,13 @@ internal class InvariantCompletionTest {
         )
     val admin = world.testAgent(ADMIN)
 
-    admin.runOperation("Status!") {
-      admin.count("Passed") shouldBe 0
-      val before = world.events.nextOrdinal
-      shouldThrow<LimitsException> { doTask("Broken!") }
-      world.events.nextOrdinal shouldBe before
-      doTask("Passed!")
-    }
+    val engine = world.actorEngine(ADMIN)
+    val task = engine.addTasks(InstructionGroup.of(parse<Instruction>("Status!"))).single()
+    admin.count("Passed") shouldBe 0
+    val before = world.events.nextOrdinal
+    shouldThrow<LimitsException> { engine.doTask(parse<Instruction>("Broken!"), taskId = task) }
+    world.events.nextOrdinal shouldBe before
+    engine.doTask(task)
 
     admin.count("Ready") shouldBe 0
     admin.count("Passed") shouldBe 1

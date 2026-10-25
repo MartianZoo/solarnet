@@ -91,7 +91,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
           "$AlliedBank FROM PreludeCard",
           "PROD[4 MC]",
-          "7 MC",
+          "3 MC",
+          "4 MC",
       )
     }
 
@@ -202,8 +203,24 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 2
-    p1.doTasks("Heat FROM Energy", "28 MC", "3 Steel")
-    p2.doTasks("20 MC", "Steel", "Titanium", "3 Heat", "Plant")
+    p1.doTasks(
+            "Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "3 Steel",
+        )
+        .expect("28 MC")
+    p2.doTasks(
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "Steel",
+            "Titanium",
+            "3 Heat",
+            "Plant",
+        )
+        .expect("20 MC")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -317,8 +334,18 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 3
-    p1.doTasks("27 MC", "3 Steel", "Energy")
-    p2.doTasks("21 MC", "Steel", "Titanium", "3 Heat", "Plant")
+    p1.doTasks("MC / Production<Class<MC>>", "MC / TerraformRating", "-5 MC", "3 Steel", "Energy")
+        .expect("27 MC")
+    p2.doTasks(
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "Steel",
+            "Titanium",
+            "3 Heat",
+            "Plant",
+        )
+        .expect("21 MC")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -426,7 +453,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "4 Pay<> FROM MC",
           "$ImportedGhg FROM ProjectCard",
           "PROD[Heat]",
-          "7 Heat",
+          "3 Heat",
+          "3 Heat",
+          "Heat",
           "3 MC",
       )
     }
@@ -440,8 +469,27 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 4
-    p1.doTasks("Heat FROM Energy", "30 MC", "3 Steel", "Energy", "Heat")
-    p2.doTasks("22 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
+    p1.doTasks(
+            "Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "3 Steel",
+            "Energy",
+            "Heat",
+        )
+        .expect("30 MC")
+    p2.doTasks(
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "Steel",
+            "Titanium",
+            "3 Heat",
+            "Plant",
+            "Energy",
+        )
+        .expect("22 MC")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -578,8 +626,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
           *playCardTasks("$SpinInducingAsteroid"),
           "16 Pay<> FROM MC",
           "$SpinInducingAsteroid FROM ProjectCard",
-          "2 VenusStep",
-          "2 TerraformRating",
+          "VenusStep",
+          "VenusStep",
+          "TerraformRating",
+          "TerraformRating",
           "ProjectCard",
           "3 MC",
           "3 Heat",
@@ -589,8 +639,28 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 5
-    p1.doTasks("3 Heat FROM Energy", "34 MC", "3 Steel", "4 Energy", "2 Heat")
-    p2.doTasks("Heat FROM Energy", "24 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
+    p1.doTasks(
+            "3 Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "3 Steel",
+            "4 Energy",
+            "2 Heat",
+        )
+        .expect("34 MC")
+    p2.doTasks(
+            "Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "Steel",
+            "Titanium",
+            "3 Heat",
+            "Plant",
+            "Energy",
+        )
+        .expect("24 MC")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -635,7 +705,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "3 MC",
           "TerraformRating",
           "PROD[Heat]",
-          "4 Heat",
+          "3 Heat",
+          "Heat",
       )
     }
 
@@ -750,8 +821,28 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 6
-    p1.doTasks("5 Heat FROM Energy", "38 MC", "3 Steel", "5 Energy", "3 Heat")
-    p2.doTasks("Heat FROM Energy", "27 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
+    p1.doTasks(
+            "5 Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "3 Steel",
+            "5 Energy",
+            "3 Heat",
+        )
+        .expect("38 MC")
+    p2.doTasks(
+            "Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "Steel",
+            "Titanium",
+            "3 Heat",
+            "Plant",
+            "Energy",
+        )
+        .expect("27 MC")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -822,7 +913,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           *cardActionTasks("$AquiferPumping"),
           "8 Pay<> FROM MC",
           "OceanTile<Tharsis_1_5>",
-          "4 MC",
+          "2 MC",
+          "2 MC",
           "TerraformRating",
           "2 Plant",
       )
@@ -868,7 +960,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "$DuskLaserMining FROM ProjectCard",
           "PROD[Titanium]",
           "PROD[-Energy]",
-          "5 Titanium",
+          "4 Titanium",
+          "Titanium",
       )
 
       doTasks(
@@ -974,8 +1067,30 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 7
-    p1.doTasks("4 Heat FROM Energy", "49 MC", "5 Steel", "4 Energy", "3 Heat", "Titanium", "Plant")
-    p2.doTasks("Heat FROM Energy", "31 MC", "2 Steel", "Titanium", "3 Heat", "Plant", "2 Energy")
+    p1.doTasks(
+            "4 Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "5 Steel",
+            "4 Energy",
+            "3 Heat",
+            "Titanium",
+            "Plant",
+        )
+        .expect("49 MC")
+    p2.doTasks(
+            "Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "2 Steel",
+            "Titanium",
+            "3 Heat",
+            "Plant",
+            "2 Energy",
+        )
+        .expect("31 MC")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -1146,8 +1261,29 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 8
-    p1.doTasks("7 Heat FROM Energy", "50 MC", "5 Steel", "8 Energy", "3 Heat", "Titanium", "Plant")
-    p2.doTasks("31 MC", "2 Steel", "2 Titanium", "3 Heat", "Plant", "4 Energy")
+    p1.doTasks(
+            "7 Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "5 Steel",
+            "8 Energy",
+            "3 Heat",
+            "Titanium",
+            "Plant",
+        )
+        .expect("50 MC")
+    p2.doTasks(
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "2 Steel",
+            "2 Titanium",
+            "3 Heat",
+            "Plant",
+            "4 Energy",
+        )
+        .expect("31 MC")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -1255,7 +1391,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
       )
     }
 
@@ -1282,9 +1419,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "7 Pay<> FROM MC",
           "$MoholeLake FROM ProjectCard",
           "OceanTile<Tharsis_5_5>",
-          "5 Plant",
+          "3 Plant",
+          "2 Plant",
           "TemperatureStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
       )
       p2.doTasks("2 Plant")
 
@@ -1366,16 +1505,30 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 9
-    p1.doTasks("7 Heat FROM Energy", "65 MC", "5 Steel", "8 Energy", "3 Heat", "Titanium", "Plant")
+    p1.doTasks(
+            "7 Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "5 Steel",
+            "8 Energy",
+            "3 Heat",
+            "Titanium",
+            "Plant",
+        )
+        .expect("65 MC")
     p2.doTasks(
-        "2 Heat FROM Energy",
-        "34 MC",
-        "2 Steel",
-        "3 Titanium",
-        "3 Heat",
-        "Plant",
-        "3 Energy",
-    )
+            "2 Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "2 Steel",
+            "3 Titanium",
+            "3 Heat",
+            "Plant",
+            "3 Energy",
+        )
+        .expect("34 MC")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -1424,14 +1577,22 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "5 Pay<Class<Titanium>> FROM Titanium",
           "9 Pay<> FROM MC",
           "$DeimosDownPromo FROM ProjectCard",
-          "3 TemperatureStep",
+          "TemperatureStep",
+          "TemperatureStep",
+          "TemperatureStep",
           "OceanTile<Tharsis_6_7>",
           "DeimosDownPromo_SpecialTile<Tharsis_2_5>",
           "-4 Plant<Player1>",
           "4 Steel",
-          "3 Plant",
-          "4 TerraformRating",
-          "6 MC",
+          "2 Plant",
+          "Plant",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "2 MC",
+          "2 MC",
+          "2 MC",
       )
       doTasks(
           *cardActionTasks("$AiCentral"),
@@ -1460,9 +1621,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "3 Pay<Class<Steel>> FROM Steel",
           "Ok", // no mc paid
           "OceanTile<Tharsis_5_6>",
-          "4 MC",
+          "2 MC",
+          "2 MC",
           "TerraformRating",
-          "4 Plant",
+          "2 Plant",
+          "2 Plant",
       )
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
@@ -1521,8 +1684,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "10 Pay<> FROM MC",
           "$EcologicalZone FROM ProjectCard",
           "EcologicalZone_SpecialTile<Tharsis_4_5>",
-          "2 Animal<$EcologicalZone>",
-          "4 MC",
+          "Animal<$EcologicalZone>",
+          "Animal<$EcologicalZone>",
+          "2 MC",
+          "2 MC",
           "2 Plant",
       )
 
@@ -1594,7 +1759,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "$NaturalPreserve FROM ProjectCard",
           "-ProjectCard",
           "NaturalPreserve_SpecialTile<Tharsis_3_1>",
-          "2 ProjectCard",
+          "ProjectCard",
+          "ProjectCard",
           "PROD[MC]",
       )
     }
@@ -1638,7 +1804,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "13 Pay<> FROM MC",
           "$Trees FROM ProjectCard",
           "PROD[3 Plant]",
-          "4 Plant",
+          "Plant",
+          "3 Plant",
       )
       doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Banker")
     }
@@ -1676,23 +1843,29 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Generation 10
     p1.doTasks(
-        "8 Heat FROM Energy",
-        "70 MC",
-        "5 Steel",
-        "9 Energy",
-        "3 Heat",
-        "Titanium",
-        "4 Plant",
-    )
+            "8 Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "5 Steel",
+            "9 Energy",
+            "3 Heat",
+            "Titanium",
+            "4 Plant",
+        )
+        .expect("70 MC")
     p2.doTasks(
-        "Heat FROM Energy",
-        "44 MC",
-        "2 Steel",
-        "3 Titanium",
-        "3 Heat",
-        "4 Plant",
-        "3 Energy",
-    )
+            "Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "2 Steel",
+            "3 Titanium",
+            "3 Heat",
+            "4 Plant",
+            "3 Energy",
+        )
+        .expect("44 MC")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -1825,7 +1998,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "$Atmoscoop FROM ProjectCard",
           "2 VenusStep",
           "2 Floater<$AerialMappers>",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
       )
 
       doTasks(
@@ -1908,6 +2082,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(*cardActionTasks("$PowerInfrastructure"))
       selectTask(p1.tasks.extract { it }.single().bindXTo(8))
+      doTask("-8 Energy")
       doTask("8 MC")
     }
 
@@ -1998,16 +2173,29 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Generation 11
-    p1.doTasks("79 MC", "5 Steel", "6 Energy", "3 Heat", "Titanium", "7 Plant")
+    p1.doTasks(
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "5 Steel",
+            "6 Energy",
+            "3 Heat",
+            "Titanium",
+            "7 Plant",
+        )
+        .expect("79 MC")
     p2.doTasks(
-        "Heat FROM Energy",
-        "48 MC",
-        "2 Steel",
-        "3 Titanium",
-        "3 Heat",
-        "6 Plant",
-        "9 Energy",
-    )
+            "Heat FROM Energy",
+            "MC / Production<Class<MC>>",
+            "MC / TerraformRating",
+            "-5 MC",
+            "2 Steel",
+            "3 Titanium",
+            "3 Heat",
+            "6 Plant",
+            "9 Energy",
+        )
+        .expect("48 MC")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -2089,6 +2277,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(*cardActionTasks("$PowerInfrastructure"))
       selectTask(p1.tasks.extract { it }.single().bindXTo(5))
+      doTask("-5 Energy")
       doTask("5 MC")
       doTasks(
           *cardActionTasks("$ExtractorBalloons"),
@@ -2109,7 +2298,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "OceanTile<Tharsis_5_4>",
           "2 MC",
           "TerraformRating",
-          "4 Plant",
+          "2 Plant",
+          "2 Plant",
       )
     }
 
@@ -2198,7 +2388,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PROD[-4 Energy]",
           "PROD[2 Plant]",
           "3 TerraformRating",
-          "6 MC",
+          "2 MC",
+          "2 MC",
+          "2 MC",
           "Plant",
       )
 
@@ -2208,10 +2400,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "1 Pay<> FROM MC",
           "$TowingAComet FROM ProjectCard",
           "OceanTile<Tharsis_6_8>",
-          "5 Plant",
+          "2 Plant",
+          "2 Plant",
+          "Plant",
           "OxygenStep",
-          "2 TerraformRating",
-          "5 MC",
+          "TerraformRating",
+          "TerraformRating",
+          "3 MC",
+          "2 MC",
       )
     }
 
@@ -2291,7 +2487,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_5_7>",
-          "9 MC",
+          "3 MC",
+          "2 MC",
+          "2 MC",
+          "2 MC",
           "2 Plant",
           "OxygenStep",
           "TerraformRating",
@@ -2322,7 +2521,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "GreeneryTile<Tharsis_4_4>",
           "Plant",
-          "4 MC",
+          "2 MC",
+          "2 MC",
           "0 OxygenStep", // oxygen maxed
       )
     }
@@ -2378,8 +2578,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
 
-    p1.doTasks("Heat FROM Energy", "83 MC")
-    p2.doTasks("7 Heat FROM Energy", "60 MC")
+    p1.doTasks("Heat FROM Energy", "MC / Production<Class<MC>>", "MC / TerraformRating", "-5 MC")
+        .expect("83 MC")
+    p2.doTasks("7 Heat FROM Energy", "MC / Production<Class<MC>>", "MC / TerraformRating", "-5 MC")
+        .expect("60 MC")
     p1.doTasks("5 Steel")
     p2.doTasks("2 Steel", "3 Titanium", "3 Heat", "9 Plant", "5 Energy")
     p1.doTasks("7 Energy", "3 Heat", "Titanium", "7 Plant")
@@ -2389,15 +2591,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks(
         "GreeneryTile<Tharsis_6_5>",
         "Plant",
-        "4 MC",
+        "2 MC",
+        "2 MC",
     )
-    p1.selectTask("PassBaton") // no more greenery
+    p1.doTask("PassBaton") // no more greenery
     p2.doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
     p2.doTasks(
         "GreeneryTile<Tharsis_8_8>",
         "2 MC",
     )
-    p2.selectTask("PassBaton") // no more greenery
+    p2.doTask("PassBaton") // no more greenery
 
     p1.assertCounts(126 to "VictoryPoint", 1 to "Victory")
     p2.assertCounts(92 to "VictoryPoint", 0 to "Victory")

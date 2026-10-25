@@ -5,7 +5,7 @@ import dev.martianzoo.state.TaskResult
 /**
  * Groups nested commands and subsequent task handling inside a rollback scope.
  *
- * The name predates the proposed transaction definition: this block can include several Actor
+ * The name predates the intended transaction definition: this block can include several Actor
  * transactions. The outermost call handles pending work and checks completion, then invokes its
  * completion callback and handles work added there. Corrections use [correct] without those steps.
  *
@@ -14,9 +14,8 @@ import dev.martianzoo.state.TaskResult
  * callback. History navigation is refused while the callback runs, so the World is still at the end
  * of its history afterward.
  *
- * TODO(ENGINE_CONTRACT): Review how this coordinator and the outside Admin driver run the engine to
- *   quiescence. Failure restoration remains separate: a failing callback leaves earlier work in
- *   place.
+ * TODO(ENGINE_CONTRACT): Review ownership of the code that groups commands, runs subsequent Admin
+ *   work, and reports completion. A failing callback currently leaves earlier work in place.
  */
 internal class WorldTransaction(
     private val timeline: TimelineImpl,

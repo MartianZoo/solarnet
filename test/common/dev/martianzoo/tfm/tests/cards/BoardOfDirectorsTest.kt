@@ -68,8 +68,8 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           doTask("-12 MC")
           doTask("-Director<BoardOfDirectors>")
           doTask("-PreludeCard")
-          // Hand the fizzle audit to Admin before receiving compensation.
-          selectTask("Audit!")
+          // Execute the fizzle audit before receiving compensation.
+          doTask("Audit!")
           doTask("15 MC")
         }
         .expect("0 $IndustrialComplex")
@@ -138,8 +138,8 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
       )
-      // Hand the requirement waiver to Admin before playing the project.
-      selectTask("-Required* / Required")
+      // Execute the requirement waiver before playing the project.
+      doTask("-Required* / Required")
       doTasks("1 Pay<> FROM MC", "DustSeals FROM ProjectCard")
     }
   }
