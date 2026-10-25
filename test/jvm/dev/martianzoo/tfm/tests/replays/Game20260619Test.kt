@@ -473,5 +473,6 @@ internal class Game20260619Test : AbstractFullGameTest() {
       playProject(SoilFactory, 9)
       pass()
     }
+    expectPendingTasksAtEnd(4) // the next Research phase's two offers and deferred work
   }
 }

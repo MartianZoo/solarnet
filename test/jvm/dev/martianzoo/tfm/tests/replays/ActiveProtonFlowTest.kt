@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -82,26 +82,47 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun activeProtonFlowThroughGeneration2() {
-    admin.startGame()
-
     green.autoExecPolicy = NONE
     pink.autoExecPolicy = NONE
+    admin.startGame()
     pink.selectTask("BeginnerOption OR StandardOption")
     pink.narrowTask("StandardOption")
+    green.selectTask("BeginnerOption OR StandardOption")
+    green.narrowTask("BeginnerOption")
+    green.doTask("20 TerraformRating")
+    pink.doTask("20 TerraformRating")
     pink.doTask("2 CorporationCard")
     pink.doTask("10 ProjectCard<Selecting>")
     pink.doTask("-CorporationCard")
     pink.doTask("-5 ProjectCard<Selecting>")
-    green.selectTask("BeginnerOption OR StandardOption")
-    green.narrowTask("BeginnerOption")
     green.doTask("BeginnerCard")
-    green.autoExecPolicy = CONCRETE
-    pink.autoExecPolicy = CONCRETE
 
     generation1()
     generation2()
 
-    green.pass()
+    green.doTask("Pass")
+    green.doTasks(
+        "6 MC",
+        "21 MC",
+        "-5 MC",
+        "Steel",
+        "Titanium",
+        "Plant",
+        "4 Heat FROM Energy",
+        "5 Energy",
+        "Heat",
+    )
+    pink.doTasks(
+        "4 MC",
+        "21 MC",
+        "-5 MC",
+        "3 Steel",
+        "Titanium",
+        "Plant",
+        "2 Heat FROM Energy",
+        "2 Energy",
+        "4 Heat",
+    )
 
     // Database save 37: generation 3 Research, immediately after generation 2 production.
     green.assertResources(m = 33, s = 2, t = 2, p = 2, e = 5, h = 9)
@@ -130,6 +151,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 2)
     admin.assertCounts(2 to "Tile")
     assertCardTrackingComplete()
+    expectPendingTasksAtEnd(4) // Generation 3 Research offers and their deferred phase work
   }
 
   private fun generation1() {
@@ -147,10 +169,10 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     )
     green.inTurn {
       doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
+      doTask("BeginnerCorporation1 FROM BeginnerCard")
       doTask("42 MC")
+      doTask("10 ProjectCard")
     }
-    green.autoExecPolicy = EAGER
-    pink.autoExecPolicy = EAGER
     pink.draw(
         PowerPlant,
         Flooding,
@@ -158,34 +180,90 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
         LavaFlows,
         CupolaCity,
     )
-    pink.playCorp(MiningGuild)
+    pink.turn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$MiningGuild>>",
+          "$MiningGuild FROM CorporationCard",
+          "30 MC",
+          "5 Steel",
+          "PROD[Steel]",
+          "15 Pay<> FROM MC",
+          "5 ProjectCard<Hand FROM Selecting>",
+      )
+    }
 
-    green.turn { playProject(SpaceMirrors, 3) }
-    pink.turn { playProject(ArcticAlgae, 12) }
     green.turn {
-      playProject(OptimalAerobraking, 7)
+      doTasks(*playCardTasks("$SpaceMirrors"), "3 Pay<> FROM MC", "$SpaceMirrors FROM ProjectCard")
+    }
+    pink.turn {
+      doTasks(
+          *playCardTasks("$ArcticAlgae"),
+          "12 Pay<> FROM MC",
+          "$ArcticAlgae FROM ProjectCard",
+          "Plant",
+      )
+    }
+    green.turn {
+      doTasks(
+          *playCardTasks("$OptimalAerobraking"),
+          "7 Pay<> FROM MC",
+          "$OptimalAerobraking FROM ProjectCard",
+      )
       draw(
           OreProcessor,
           ImportedHydrogen,
           ResearchOutpost,
       )
-      playProject(ConvoyFromEuropa, 15) {
-            placeTile(2, 6)
-          }
-          .expect("-12 MC, 3 Heat")
+      doTasks(
+          *playCardTasks("$ConvoyFromEuropa"),
+          "15 Pay<> FROM MC",
+          "$ConvoyFromEuropa FROM ProjectCard",
+      )
+      doTask("ProjectCard")
+      doTask("3 MC")
+      doTask("3 Heat")
+      doTask("OceanTile<Tharsis_2_6>")
+      doTask("TerraformRating")
     }
-    pink.turn { playProject(PowerPlant, steel = 2) }
-    green.turn { playProject(GeothermalPower, 11) }
-    pink.pass()
+    pink.doTask("2 Plant")
+    green.doTask("2 ProjectCard")
+    pink.turn {
+      doTasks(
+          *playCardTasks("$PowerPlant"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "Ok", // no mc paid
+          "$PowerPlant FROM ProjectCard",
+          "PROD[Energy]",
+      )
+    }
     green.turn {
-      cardAction1(SpaceMirrors)
-      pass()
+      doTasks(
+          *playCardTasks("$GeothermalPower"),
+          "11 Pay<> FROM MC",
+          "$GeothermalPower FROM ProjectCard",
+          "PROD[2 Energy]",
+      )
+    }
+    pink.doTask("Pass")
+    green.turn {
+      doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
+      doTask("Pass")
     }
   }
 
   private fun generation2() {
-    pink.buyCards(HeatTrappers, NitrophilicMoss, BlackPolarDust)
-    green.buyCards(MagneticFieldGenerators, ImmigrantCity)
+    green.doTasks("6 MC", "21 MC", "-5 MC", "Steel", "Titanium", "Plant", "4 Energy", "Heat")
+    pink.doTasks("6 MC", "20 MC", "-5 MC", "2 Steel", "Titanium", "Plant", "2 Energy", "Heat")
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
+    pink.draw(HeatTrappers, NitrophilicMoss, BlackPolarDust)
+    pink.doTasks("-ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+    green.draw(MagneticFieldGenerators, ImmigrantCity)
+    green.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
     // Database save 28: immediately after both generation 2 Research purchases.
     green.assertResources(m = 18, s = 1, t = 1, p = 1, e = 4, h = 4)
@@ -195,8 +273,21 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 2, t = 1, p = 1, e = 2, h = 1)
     pink.assertCounts(20 to "TerraformRating", 6 to "ProjectCard")
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 1)
-    pink.turn { playProject(BlackPolarDust, 15) { placeTile(9, 9) } }
-    green.turn { cardAction1(SpaceMirrors) }
-    pink.pass()
+    pink.turn {
+      doTasks(
+          *playCardTasks("$BlackPolarDust"),
+          "15 Pay<> FROM MC",
+          "$BlackPolarDust FROM ProjectCard",
+          "OceanTile<Tharsis_9_9>",
+          "TerraformRating",
+          "2 Plant",
+          "PROD[-2 MC]",
+          "PROD[3 Heat]",
+      )
+    }
+    pink.doTasks("PROD[Steel]", "2 Titanium")
+    pink.doTask("PassBaton")
+    green.turn { doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]") }
+    pink.doTask("Pass")
   }
 }

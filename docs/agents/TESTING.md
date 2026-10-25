@@ -697,6 +697,11 @@ checkpoints verify the live state without simulating production or scoring; part
 do not assert hypothetical victory points.
 
 Replay input recording and export are disabled by default, including in browser tests.
+Every successful JVM replay checks that no tasks remain at its endpoint. A replay intentionally
+stopping with open work calls `expectPendingTasksAtEnd(count)` at the end of its test, naming the
+offered turn or phase in a short comment. The count includes deferred Admin tasks. For a final
+action that should finish before the saved position, `completeOperation { ... }` checks its effects
+before the replay accepts the next turn or phase offer.
 With `-PreplayExports`, `ReplayExportExtension` enables recording before test setup, so
 `AbstractFullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
 replay, the extension writes full and short game files and reexecutes the full file in a

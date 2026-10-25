@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 
-/** Opt-in input recording, file export, and verification of reconstruction from recorded inputs. */
+/** Checks replay endpoints and optionally exports and verifies recorded inputs. */
 internal class ReplayExportExtension : BeforeEachCallback, AfterTestExecutionCallback {
   override fun beforeEach(context: ExtensionContext) {
     val replay = context.requiredTestInstance as? AbstractFullGameTest ?: return
@@ -17,6 +17,7 @@ internal class ReplayExportExtension : BeforeEachCallback, AfterTestExecutionCal
   override fun afterTestExecution(context: ExtensionContext) = runBlocking {
     if (context.executionException.isPresent) return@runBlocking
     val replay = context.requiredTestInstance as? AbstractFullGameTest ?: return@runBlocking
+    replay.assertPendingTasksAtEnd()
     if (!replay.exportReplay) return@runBlocking
     val directory =
         Path.of(

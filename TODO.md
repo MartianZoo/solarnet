@@ -2,6 +2,12 @@
 
 Delete entries when they are done. Static-language and English work lives in [Pets TODO](pets/TODO.md).
 
+- Continue converting replay tests that use Player autoexecution or `TfmGameplay` actions to
+  explicit Player `doTask`/`doTasks` submissions. Keep source-backed state checkpoints and
+  expectations for effects that are not evident from those submissions. The archived
+  `HellasPromoWithoutPreludeTest` is a verified small example; `OtbGame20260828Test` has a
+  deliberate TaskForm interaction style and should be assessed separately.
+
 - Investigate the deferred nested-placement and partial-selection experiment in
   [Make types types again](docs/agents/MAKE_TYPES_TYPES_AGAIN.md) if that proposal is selected.
 

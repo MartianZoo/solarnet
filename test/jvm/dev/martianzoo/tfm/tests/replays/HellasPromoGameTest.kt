@@ -123,5 +123,6 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     }
 
     Summarizer(game).net("$PharmacyUnion", "TerraformRating<Player2>") shouldBe 5
+    expectPendingTasksAtEnd(1) // Player2's next action offer
   }
 }

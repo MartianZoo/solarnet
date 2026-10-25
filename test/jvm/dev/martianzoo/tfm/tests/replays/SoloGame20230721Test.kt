@@ -582,7 +582,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
 
       // Legacy comments claim 99 VP and report 111 on herokuapp; the discrepancy is unresolved.
       // Flooding now consumes its normal action instead of being injected outside a turn.
-      (sum.signalCount("InRound", "StandardAction<Me>") +
+      (sum.signalCount("InRound", "UseAction<Me, StandardAction>") +
           sum.signalCount("InRound", "DoRequiredActions<Me>")) shouldBe 99
     }
   }
