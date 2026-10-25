@@ -1,8 +1,12 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -19,85 +23,250 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun hellasPromoGame() {
+    p1.autoExecPolicy = NONE
+    p2.autoExecPolicy = NONE
     admin.startGame()
-    keepStartingProjects(7, 5)
+    p1.doTask("20 TerraformRating")
+    p2.doTask("20 TerraformRating")
+    p1.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+        "-3 ProjectCard<Selecting>",
+    )
+    p2.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+        "-5 ProjectCard<Selecting>",
+    )
 
-    p1.playCorp(InterplanetaryCinematics)
-    p2.playCorp(PharmacyUnion) {
-      doTask("Disease<$PharmacyUnion>")
-      doTask("Disease<$PharmacyUnion>")
+    p1.turn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
+          "$InterplanetaryCinematics FROM CorporationCard",
+          "30 MC",
+          "20 Steel",
+          "21 Pay<> FROM MC",
+          "7 ProjectCard<Hand FROM Selecting>",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
+          "$PharmacyUnion FROM CorporationCard",
+          "SearchForCard<TagFilter<Class<ScienceTag>>>",
+          "54 MC",
+          "15 Pay<> FROM MC",
+          "5 ProjectCard<Hand FROM Selecting>",
+          "Disease<$PharmacyUnion>",
+          "Disease<$PharmacyUnion>",
+          "-8 MC",
+      )
     }
 
     p1.turn {
-      playPrelude(UnmiContractor) // 3 TR<Player1>
-      playPrelude(CorporateArchives)
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
+          "$UnmiContractor FROM PreludeCard",
+          "3 TerraformRating",
+          "ProjectCard",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$CorporateArchives>>",
+          "$CorporateArchives FROM PreludeCard",
+          "13 MC",
+          "7 ProjectCard<Selecting>",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
     }
     p2.turn {
-      playPrelude(BiosphereSupport)
-      playPrelude(SocietySupport)
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$BiosphereSupport>>",
+          "$BiosphereSupport FROM PreludeCard",
+          "PROD[-MC]",
+          "PROD[2 Plant]",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$SocietySupport>>",
+          "$SocietySupport FROM PreludeCard",
+          "PROD[-MC]",
+          "PROD[Plant]",
+          "PROD[Energy]",
+          "PROD[Heat]",
+      )
     }
 
     // Generation 1 (Player1 first)
 
     p1.turn {
-      playProject(MediaGroup, 6)
-      playProject(Sabotage, 1) { doTask("-7 MC<Player2>") }
+      doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$Sabotage"),
+          "1 Pay<> FROM MC",
+          "$Sabotage FROM ProjectCard",
+          "2 MC",
+          "3 MC",
+          "-7 MC<Player2>",
+      )
     }
     p2.turn {
-      playProject(Research, 11) // 1 VP<Player2>, 2 TR<Player2>
-      playProject(MartianSurvey, 9) {
-        // Decline flipping Pharmacy Union after its diseases are gone.
-        declineTask()
-      } // 1 VP<Player2>
+      doTasks(
+          *playCardTasks("$Research"),
+          "11 Pay<> FROM MC",
+          "$Research FROM ProjectCard",
+          "2 ProjectCard",
+          "TerraformRating FROM Disease<$PharmacyUnion>",
+          "TerraformRating FROM Disease<$PharmacyUnion>",
+      )
+      doTasks(
+          *playCardTasks("$MartianSurvey"),
+          "9 Pay<> FROM MC",
+          "$MartianSurvey FROM ProjectCard",
+          "2 ProjectCard",
+          "Ok", // decline Pharmacy Union's optional flip
+      )
     }
-    p1.pass()
+    p1.doTask("Pass")
     p2.turn {
-      playProject(SearchForLife, 3) {
-        selectTask(
-            "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating"
-        ) // 3 TR<Player2>
-      }
-      cardAction1(SearchForLife) { /* Decline the science resource. */
-        declineTask()
-      }
+      doTasks(
+          *playCardTasks("$SearchForLife"),
+          "3 Pay<> FROM MC",
+          "$SearchForLife FROM ProjectCard",
+          "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating",
+          "3 TerraformRating",
+      )
+      doTasks(
+          *cardActionTasks("$SearchForLife"),
+          "1 Pay<> FROM MC",
+          "ProjectCard<Revealed>",
+          "Ok", // decline reward
+      )
+      doTask("-ProjectCard<Revealed>")
     }
-    p2.pass()
+    p2.doTask("Pass")
+
+    p1.doTasks("-5 MC", "5 MC", "23 MC")
+    p2.doTasks("3 MC", "25 MC", "-5 MC", "3 Plant", "Energy", "Heat")
 
     // Generation 2 (Player2 first)
-    p1.buyCards(1)
-    p2.buyCards(3)
+    p1.doTasks(
+        "4 ProjectCard<Selecting>",
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "4 ProjectCard<Selecting>",
+        "-ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
 
     p2.turn {
-      sellPatents(1)
-      playProject(VestaShipyard, 15) // 1 VP<Player2>
+      doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$VestaShipyard"),
+          "15 Pay<> FROM MC",
+          "$VestaShipyard FROM ProjectCard",
+          "PROD[Titanium]",
+      )
     }
     p1.turn {
-      playProject(EarthCatapult, 23) // 2 VP<Player1>
-      playProject(OlympusConference, steel = 4) // 1 VP<Player1>
+      doTasks(
+          *playCardTasks("$EarthCatapult"),
+          "23 Pay<> FROM MC",
+          "$EarthCatapult FROM ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("$OlympusConference"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "Ok", // no MC paid
+          "$OlympusConference FROM ProjectCard",
+          "Science<$OlympusConference>",
+      )
     }
-    p2.pass()
+    p2.doTask("Pass")
 
     p1.turn {
-      playProject(DevelopmentCenter, 1, steel = 4) {
-        doTask("ProjectCard FROM Science")
-      }
-      playProject(GeothermalPower, 1, steel = 4)
-      playProject(MirandaResort, 10) // 1 VP<Player1>
-      playProject(Hackers, 1) { doTask("PROD[-2 MC<Player2>]") } // -1 VP<Player1>
-      playProject(MicroMills, 1)
+      doTasks(
+          *playCardTasks("$DevelopmentCenter"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
+          "$DevelopmentCenter FROM ProjectCard",
+          "ProjectCard FROM Science",
+      )
+      doTasks(
+          *playCardTasks("$GeothermalPower"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
+          "$GeothermalPower FROM ProjectCard",
+          "PROD[2 Energy]",
+      )
+      doTasks(
+          *playCardTasks("$MirandaResort"),
+          "10 Pay<> FROM MC",
+          "$MirandaResort FROM ProjectCard",
+          "PROD[4 MC]",
+      )
+      doTasks(
+          *playCardTasks("$Hackers"),
+          "1 Pay<> FROM MC",
+          "$Hackers FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[2 MC]",
+          "PROD[-2 MC<Player2>]",
+      )
+      doTasks(
+          *playCardTasks("$MicroMills"),
+          "1 Pay<> FROM MC",
+          "$MicroMills FROM ProjectCard",
+          "PROD[Heat]",
+      )
     }
-    p1.pass()
+    p1.doTask("Pass")
+
+    p1.doTasks("11 MC", "-5 MC", "23 MC", "Energy", "Heat")
+    p2.doTasks("MC", "25 MC", "-5 MC", "3 Plant", "Energy", "Heat", "Heat FROM Energy", "Titanium")
 
     // Generation 3 (Player1 first)
-    p1.buyCards(3)
-    p2.buyCards(1)
+    p1.doTasks(
+        "4 ProjectCard<Selecting>",
+        "-ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "4 ProjectCard<Selecting>",
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "ProjectCard<Hand FROM Selecting>",
+    )
 
     p1.turn {
-      cardAction1(DevelopmentCenter)
-      playProject(ImmigrantCity, 1, steel = 5) {
-        placeTile(9, 7)
-        placeTile(5, 6) // 1 TR<Player1>
-      }
+      doTasks(
+          *cardActionTasks("$DevelopmentCenter"),
+          "1 Pay<Class<Energy>> FROM Energy",
+          "ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("$ImmigrantCity"),
+          "5 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
+          "$ImmigrantCity FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[-2 MC]",
+          "CityTile<Hellas_9_7>",
+          "PROD[MC]",
+          "-6 MC",
+          "OceanTile<Hellas_5_6>",
+          "TerraformRating",
+          "ProjectCard",
+      )
     }
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 1)
