@@ -172,9 +172,20 @@ public interface Agent {
    * pending task's quantifier, the pending quantifier is retained; an explicitly written quantifier
    * must be compatible with the task's quantifier.
    *
+   * With no selected task, a concrete gain/removal (including an atomized group) can instead name
+   * the signed total of this Actor's current nondeferred gains/removals of exactly that Type. Agent
+   * considers fixed amounts and `/` calculations directly wrapping a change, ignores zero amounts,
+   * and requires at least two matches with a shared quantifier. An unspecified amount prevents
+   * combining; an explicit submitted quantifier must match. Agent uses all such matches, never
+   * searches subsets, and prefers their total even when an individual task has that amount. It
+   * executes each matched task separately by ID, gains before removals, preserving its effects and
+   * continuation. Newly caused tasks cannot join the total. Any failure rolls back this call. If
+   * the total does not match, ordinary task matching applies. Explicit task IDs bypass totals; the
+   * context-Class overload restricts the considered tasks to that Class.
+   *
    * A submitted zero count retains its Type constraint: `0 Foo` can match `Foo / metric` when the
-   * metric evaluates to zero. An unrelated `Ok` alternative does not identify a matching task.
-   * Executing a zero count emits no component changes.
+   * metric evaluates to zero. An unrelated `Ok` alternative does not identify a matching task. A
+   * zero count emits no component changes unless it names offsetting nonzero tasks as above.
    *
    * Selection or narrowing may hand the task to another Actor, including Admin for a concrete
    * `System` change. Runs configured autoexecution and succeeds only if that task finishes; a
@@ -189,14 +200,14 @@ public interface Agent {
 
   /**
    * Executes an atomic batch against this Actor's pending tasks using [OperationScope.doTasks]
-   * matching. Each input identifies a task; amounts from separate tasks are not combined. Runs
-   * configured autoexecution before, between, and after submitted instructions. Returns the whole
-   * batch's changes; any failure rolls the entire batch back. This may leave work pending, so
-   * callers can split an operation across multiple batches.
+   * matching, including the combined-total convenience described by [doTask]. Runs configured
+   * autoexecution before, between, and after submitted instructions. Returns the whole batch's
+   * changes; any failure rolls the entire batch back. This may leave work pending, so callers can
+   * split an operation across multiple batches.
    */
   public fun doTasks(vararg narrowings: String): TaskResult
 
-  /** Carries out [narrowing] against the task caused by a component of [contextClass]. */
+  /** Uses [doTask]'s matching and total rules, restricted to tasks caused by [contextClass]. */
   public fun doTask(narrowing: String, contextClass: ClassName): TaskResult
 
   /** Carries out [narrowing] against the task identified by [taskId]. */
@@ -349,8 +360,8 @@ public interface Agent {
 
     /**
      * Submits each instruction in order, including all component changes when a chosen amount
-     * expands into a group. Each input identifies a pending task; separate gains and removals are
-     * not combined into a total. Failure rolls back the enclosing operation.
+     * expands into a group. Uses [Agent.doTask]'s matching and combined-total rules. Failure rolls
+     * back the enclosing operation.
      */
     public fun doTasks(vararg narrowings: String)
 

@@ -215,8 +215,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p1.turn {
       doTasks("Pass")
     }
-    p1.doTasks("2 MC", "20 MC", "-5 MC", "4 Titanium", "2 Energy")
-    p2.doTasks("5 MC", "27 MC", "-5 MC")
+    p1.doTasks("17 MC", "4 Titanium", "2 Energy")
+    p2.doTasks("27 MC")
     p2.doTasks("2 Energy")
     p1.doTasks("VenusStep! BY Admin")
 
@@ -307,8 +307,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 2 -> 3: each player's 2 remaining energy becomes heat.
-    p1.doTasks("2 Heat FROM Energy", "3 MC", "20 MC", "-5 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("2 Heat FROM Energy", "9 MC", "27 MC", "-5 MC")
+    p1.doTasks("2 Heat FROM Energy", "18 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("2 Heat FROM Energy", "31 MC")
     p2.doTasks("OceanTile<Vastitas_3_3>! BY Admin")
     // board-22-02-46.jpg; Aqua entries 46–51, Pink 49–54.
     p1.assertResources(m = 28, s = 1, t = 4, p = 1, e = 5, h = 2)
@@ -390,8 +390,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 3 -> 4: Aqua's 2 remaining energy becomes heat.
-    p1.doTasks("2 Heat FROM Energy", "3 MC", "20 MC", "-5 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("9 MC", "27 MC", "-5 MC", "Steel")
+    p1.doTasks("2 Heat FROM Energy", "18 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("31 MC", "Steel")
     p1.doTasks("OxygenStep! BY Admin")
     // board-22-11-07.jpg; Aqua entries 62–67, Pink 68–73.
     p1.assertResources(m = 36, s = 1, t = 8, p = 1, e = 5, h = 12)
@@ -521,8 +521,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 4 -> 5: Aqua's 2 remaining energy becomes heat.
-    p1.doTasks("2 Heat FROM Energy", "3 MC", "20 MC", "-5 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("9 MC", "27 MC", "-5 MC", "2 Steel")
+    p1.doTasks("2 Heat FROM Energy", "18 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("31 MC", "2 Steel")
     p2.doTasks("OceanTile<Vastitas_4_3>! BY Admin")
     // Aqua entries 77–82; Pink 88–93. Spoken production is at 22:20:10;
     // Pink's app timestamps this at 22:12:12 and its photographed display lags the ledger.
@@ -676,8 +676,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 5 -> 6: Aqua's 18 remaining energy becomes heat.
-    p1.doTasks("18 Heat FROM Energy", "4 MC", "22 MC", "-5 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("19 MC", "28 MC", "-5 MC", "3 Steel", "3 Plant")
+    p1.doTasks("18 Heat FROM Energy", "21 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("42 MC", "3 Steel", "3 Plant")
     p1.doTasks("TemperatureStep! BY Admin")
 
     // board-22-32-56.jpg; Aqua entries 102–107; Pink 126–131. No generation-6 draws yet.
@@ -847,8 +847,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 6 -> 7: Aqua's 5 remaining energy becomes heat.
-    p1.doTasks("5 Heat FROM Energy", "6 MC", "26 MC", "-5 MC", "4 Titanium", "6 Energy", "4 Heat")
-    p2.doTasks("19 MC", "30 MC", "-5 MC", "3 Steel", "2 Titanium", "3 Plant", "Heat")
+    p1.doTasks("5 Heat FROM Energy", "27 MC", "4 Titanium", "6 Energy", "4 Heat")
+    p2.doTasks("44 MC", "3 Steel", "2 Titanium", "3 Plant", "Heat")
     p2.doTasks("VenusStep! BY Admin")
     // board-11-23-10.jpg; phone logs at the generation 7 checkpoint.
     p1.assertResources(m = 33, s = 1, t = 11, p = 1, e = 6, h = 12)
@@ -1127,8 +1127,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Production 7 -> 8: Aqua's 3 remaining energy becomes heat.
-    p1.doTasks("3 Heat FROM Energy", "6 MC", "29 MC", "-5 MC", "4 Titanium", "5 Energy", "4 Heat")
-    p2.doTasks("19 MC", "39 MC", "-5 MC", "3 Steel", "2 Titanium", "3 Plant", "3 Heat")
+    p1.doTasks("3 Heat FROM Energy", "30 MC", "4 Titanium", "5 Energy", "4 Heat")
+    p2.doTasks("53 MC", "3 Steel", "2 Titanium", "3 Plant", "3 Heat")
     p1.doTasks("OxygenStep! BY Admin")
     // board-11-44-28.jpg; the logs show these balances before generation 8 Research.
     p1.assertResources(m = 36, s = 1, t = 10, p = 0, e = 5, h = 7)
@@ -1368,17 +1368,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
 
     // Production 8 -> 9: Aqua's 2 remaining energy becomes heat.
-    p1.doTasks(
-        "2 Heat FROM Energy",
-        "6 MC",
-        "35 MC",
-        "-5 MC",
-        "4 Titanium",
-        "Plant",
-        "4 Energy",
-        "6 Heat",
-    )
-    p2.doTasks("28 MC", "40 MC", "-5 MC", "3 Steel", "2 Titanium", "4 Plant", "4 Energy", "3 Heat")
+    p1.doTasks("2 Heat FROM Energy", "36 MC", "4 Titanium", "Plant", "4 Energy", "6 Heat")
+    p2.doTasks("63 MC", "3 Steel", "2 Titanium", "4 Plant", "4 Energy", "3 Heat")
     p2.doTasks("OxygenStep! BY Admin")
     // board-12-00-57.jpg; before generation 9 Research.
     p1.assertResources(m = 50, s = 1, t = 9, p = 1, e = 4, h = 15)
@@ -1615,21 +1606,10 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
 
     // Production 9 -> 10; Aqua chooses oxygen in the world-government phase.
-    p1.doTasks(
-        "Heat FROM Energy",
-        "13 MC",
-        "37 MC",
-        "-5 MC",
-        "4 Titanium",
-        "2 Plant",
-        "3 Energy",
-        "6 Heat",
-    )
+    p1.doTasks("Heat FROM Energy", "45 MC", "4 Titanium", "2 Plant", "3 Energy", "6 Heat")
     p2.doTasks(
         "Heat FROM Energy",
-        "31 MC",
-        "43 MC",
-        "-5 MC",
+        "69 MC",
         "3 Steel",
         "2 Titanium",
         "6 Plant",
@@ -1865,29 +1845,16 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
 
     // Production 10 -> 11. The phone logs combine energy conversion and new production.
-    p1.doTasks(
-            "3 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "4 Titanium",
-            "2 Plant",
-            "2 Energy",
-            "6 Heat",
-        )
-        .expect("47 MC")
+    p1.doTasks("3 Heat FROM Energy", "47 MC", "4 Titanium", "2 Plant", "2 Energy", "6 Heat")
     p2.doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "3 Steel",
-            "2 Titanium",
-            "5 Plant",
-            "4 Energy",
-            "5 Heat",
-        )
-        .expect("74 MC")
+        "Heat FROM Energy",
+        "74 MC",
+        "3 Steel",
+        "2 Titanium",
+        "5 Plant",
+        "4 Energy",
+        "5 Heat",
+    )
     p2.doTasks("VenusStep! BY Admin")
     // board-16-22-18.jpg, before generation 11 Research.
     p1.assertResources(m = 65, s = 6, t = 7, p = 8, e = 2, h = 31)
@@ -2247,28 +2214,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
 
     // The last production is recorded before Pink's final greenery.
-    p1.doTasks(
-            "2 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "4 Titanium",
-            "2 Plant",
-            "Energy",
-            "6 Heat",
-        )
-        .expect("57 MC")
-    p2.doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "3 Steel",
-            "2 Titanium",
-            "7 Plant",
-            "5 Heat",
-        )
-        .expect("84 MC")
+    p1.doTasks("2 Heat FROM Energy", "57 MC", "4 Titanium", "2 Plant", "Energy", "6 Heat")
+    p2.doTasks("Heat FROM Energy", "84 MC", "3 Steel", "2 Titanium", "7 Plant", "5 Heat")
     p1.assertResources(m = 69, s = 6, t = 11, p = 3, e = 1, h = 39)
     p2.assertResources(m = 87, s = 3, t = 2, p = 8, e = 0, h = 26)
     // The phone app advances its display to generation 12; Solarnet keeps the final played

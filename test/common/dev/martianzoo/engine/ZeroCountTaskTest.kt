@@ -2,8 +2,10 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -136,12 +138,14 @@ internal class ZeroCountTaskTest {
   }
 
   @Test
-  fun `a zero total does not authorize offsetting tasks`() {
+  fun `only Agent combines a zero total from offsetting tasks`() {
     agent.addTasks("Foo, -Foo")
 
-    shouldThrow<TaskException> { agent.doTasks("0 Foo") }
+    shouldThrow<TaskException> {
+      game.actorEngine(PLAYER1).doTask(parse<InstructionTree>("0! Foo"))
+    }
     agent.count("Notice") shouldBe 0
-    agent.doTasks("Foo", "-Foo")
+    agent.doTasks("0 Foo")
 
     agent.count("Foo") shouldBe 0
     agent.count("Notice") shouldBe 1

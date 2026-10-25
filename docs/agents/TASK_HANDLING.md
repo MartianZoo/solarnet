@@ -50,7 +50,7 @@ required when an execution command is actually submitted.
 | Selection produces a concrete `BY` or System handoff | Change the assignee; the receiving Actor executes later. | No in this step. |
 | Any successful outer engine transaction, including queue edits | Promote eligible `LATER`/`FINALLY` batches and perform dispatches exposed by promotion. | No direct component changes; tasks can be created/removed. |
 | `doTask` with an explicit group | Execute only the submitted members after structural selection exposes them; leave their reactions and continuations pending. | Yes, for the submitted members. |
-| Combined scalar totals | Removed on the experiment branch. Callers submit each pending task explicitly. | No implicit aggregation. |
+| Combined scalar totals | Engine has no total command. Agent expands an explicitly submitted total into individual engine calls. | Yes, only after an execution request. |
 | `canSelectTask` or `canExecuteTask` | Try work in a disposable World, including completion and deferred admission. | Only in the copy; source listeners are not notified. |
 | Engine uses a trial internally | Player priority and bootstrap use isolated probes. Finite transaction inference uses disposable Worlds. `selectionHandsOff` still attempts and restores task edits. | No trial component changes in the source. |
 | Engine construction | Execute configured creation work and pending bootstrap tasks before returning the World. | Yes. |
@@ -447,7 +447,7 @@ Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 | Entry path | Additional or different handling |
 | --- | --- |
 | `doTask` with an explicit group | Execute the supplied members after structural selection; admission identifies normalized dispatches so their bodies and continuations remain pending too. Do not sweep newly queued reactions or continuations. |
-| Combined scalar totals | Removed. Separate requests preserve task effects and leave their ordering explicit. |
+| Combined scalar totals | Agent only: a submitted total can consume matching current fixed gains/removals, including amounts calculated with `/`. Gains execute first, each through its own task ID. No subset search; newly queued effects do not join the total. Selected tasks and explicit IDs remain individual requests. See `Agent.doTask` for the full contract. |
 | `canSelectTask` | Trial selection, including execution if concrete and still with the original Actor, in a disposable World through transaction completion and deferred promotion. An abstract selection or handoff can return true. Gameplay rejection and unresolved instructions become false; other failures propagate. |
 | `canExecuteTask` | Trial execution in a disposable World through transaction completion and deferred promotion; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and unresolved instructions become false; other failures propagate. |
 | `tryTask` | Execute within an atomic block; restore when choices/unavailability prevent completion, or a selection remains as specified by the overload. Other failures restore and propagate. The instruction overload evaluates an outer `PER` before that recovery block. |

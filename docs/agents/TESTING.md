@@ -232,7 +232,8 @@ also accepts jointly sufficient task/request information; explicit IDs are not t
 principle. Focused raw-engine tests must exercise task matching separately from transaction-level
 uniqueness, and distinguish selection from execution. Agent tests include subsequent mandatory
 Admin work; raw engine uniqueness tests must exclude those later transactions. Combined
-resource-total submission is being considered for test support only, not selected as ordinary engine or agent behavior. See
+resource-total submission belongs in Agent, not engine. Restore the single production money amount;
+keep unrelated card rewards written separately. See
 [the engine review](ENGINE_CONTRACT.md#task-identity-optional-queries-and-conveniences--items-10-1315-and-17).
 
 ### Test categories we care about
@@ -687,10 +688,12 @@ Follow the game's flow through the last passes, production, final greenery, and 
 manually supply turns or phase transitions. Omit copied game-log
 comments that only restate the submitted tasks.
 Use resolved, concrete instructions and `PROD[...]` in these `doTasks` calls, without AMAP dots or
-unevaluated metrics. Combine amounts when the matching tasks are already pending. A scalar total
-consumes all pending gains and removals of the same type and quantifier when their signed total
-matches, even if an individual task has that amount. Gains execute first; effects created while
-those changes run do not join the total. Explicit `doTasks(...)` calls are atomic, resumable batches.
+unevaluated metrics. Combine the three production money amounts into their net income when those
+tasks are already pending. Keep amounts from unrelated reasons separate, for example Investment
+Loan's 10 MC and Media Group's 3 MC. Agent translates the production total into individual engine
+calls, with gains before removals and each task's effects preserved; engine has no combined-total
+command. See `Agent.doTask` for exact matching rules. Explicit `doTasks(...)` calls are atomic,
+resumable batches.
 In explicit setup, have each player take their starting TR before either player handles starting
 cards. Group each corporation, Prelude, and action-phase turn in `player.turn { ... }`; the wrapper
 declines an unused second action. Keep the task submissions inside each section as raw `doTasks`

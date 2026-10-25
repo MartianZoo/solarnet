@@ -21,7 +21,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   succeeds because `Repair:: Notice, -Repair` repairs its own MAX 0 limit. Also reconcile form commit
   selecting/evaluating before applying a narrowing with direct execution applying the request first.
   A sole displayed option is not proof of a sole successful transaction. Keep Player automatic
-  policy scope unchanged until this is resolved; do not transplant combined-total arithmetic.
+  policy scope unchanged until this is resolved. Explicit combined-total requests are a separate
+  Agent convenience, selected for production income; they do not authorize automatic choice-making.
 
 - Investigate the deferred nested-placement and partial-selection experiment in
   [Make types types again](docs/agents/MAKE_TYPES_TYPES_AGAIN.md) if that proposal is selected.

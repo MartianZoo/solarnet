@@ -187,8 +187,13 @@ In particular, enforcing Admin priority must not turn task finding into conseque
 Quantity-limit reads remain useful: otherwise options may be effectively infinite. A candidate
 bound is not a promise that every candidate's transaction succeeds or that an action can finish.
 
-Combining separate resource tasks into a net total is still a candidate for test support only,
-not an ordinary engine or agent obligation. Investigate removing extra queued execution from
+Combining separate resource tasks into a net total belongs in Agent, not engine. The user selected
+restoring this convenience for production: a submitted 21 MC can execute 6 MC of production,
+20 MC from Terraform Rating, and the -5 MC offset as separate engine calls. Tests should keep
+amounts from unrelated rewards separate, such as Investment Loan's 10 MC and Media Group's 3 MC.
+This is a caller-writing preference, not game-specific recognition inside Agent. Agent preserves
+each task's effects and continuation; it does not replace them with a single net component change.
+Investigate removing extra queued execution from
 `executeSubmittedGroup`; preserve explicit execution of submitted work without also consuming its
 reactions or continuation. The [verified example](TASK_HANDLING.md#extra-execution-requested-by-executesubmittedgroup)
 shows the issue. Neither convenience is required by accepting an abstract request within a task.
@@ -453,7 +458,8 @@ changes on that branch. General uniqueness and the treatment of structural selec
 - Selection and narrowing retain concrete instructions until explicit execution. Structural group
   expansion, admission normalization, and handoff remain; their final treatment is still open.
   Explicit groups execute only their admitted members; reactions and continuations remain queued.
-  Combined scalar totals are removed, and joined numeric THEN choices require explicit X binding.
+  Combined scalar totals are removed from engine; Agent translates submitted totals into individual
+  engine calls. Joined numeric THEN choices require explicit X binding.
   These paths are inventoried in [TASK_HANDLING.md](TASK_HANDLING.md).
 - Public engine mutations restore their transaction on an `Exception`; non-`Exception` failures
   and arbitrary application side effects are outside that guarantee.

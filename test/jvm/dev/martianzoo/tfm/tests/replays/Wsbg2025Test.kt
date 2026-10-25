@@ -240,24 +240,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     red.turn { doTasks("Pass") }
 
     // Generation 2
-    blue
-        .doTasks("MC / Production<Class<MC>>", "MC / TerraformRating", "-5 MC", "Plant", "Energy")
-        .expect("23 MC")
-    red.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Plant",
-            "Steel",
-            "2 Heat",
-        )
-        .expect("21 MC")
-    green
-        .doTasks("MC / Production<Class<MC>>", "MC / TerraformRating", "-5 MC", "Plant", "Titanium")
-        .expect("22 MC")
-    black
-        .doTasks("MC / Production<Class<MC>>", "MC / TerraformRating", "-5 MC", "Energy", "4 Heat")
-        .expect("28 MC")
+    blue.doTasks("23 MC", "Plant", "Energy")
+    red.doTasks("21 MC", "Plant", "Steel", "2 Heat")
+    green.doTasks("22 MC", "Plant", "Titanium")
+    black.doTasks("28 MC", "Energy", "4 Heat")
     players.forEach { it.doTasks("4 ProjectCard<Selecting>") }
 
     blue.assertCounts(2 to "Generation", 23 to "TerraformRating", 1 to "OwnedTile")
@@ -376,45 +362,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
 
     // Generation 3
-    blue
-        .doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Plant",
-        )
-        .expect("23 MC")
-    red.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Plant",
-            "Steel",
-            "2 Heat",
-        )
-        .expect("21 MC")
-    green
-        .doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Plant",
-            "Titanium",
-            "Energy",
-            "Steel",
-            "Heat",
-        )
-        .expect("22 MC")
-    black
-        .doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "4 Heat",
-        )
-        .expect("34 MC")
+    blue.doTasks("Heat FROM Energy", "23 MC", "Plant")
+    red.doTasks("21 MC", "2 Plant", "Steel", "2 Heat")
+    green.doTasks("22 MC", "Plant", "Titanium", "Energy", "Steel", "Heat")
+    black.doTasks("Heat FROM Energy", "34 MC", "4 Heat")
     players.forEach { it.doTasks("4 ProjectCard<Selecting>") }
 
     blue.assertCounts(3 to "Generation", 23 to "TerraformRating", 1 to "OwnedTile")
@@ -581,40 +532,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     blue.turn { doTasks("Pass") }
 
     // Generation 4
-    blue
-        .doTasks("MC / Production<Class<MC>>", "MC / TerraformRating", "-5 MC", "3 Plant")
-        .expect("26 MC")
-    red.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Plant",
-            "Steel",
-            "2 Heat",
-        )
-        .expect("23 MC")
-    green
-        .doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Plant",
-            "3 Titanium",
-            "Energy",
-            "Steel",
-            "Heat",
-        )
-        .expect("22 MC")
-    black
-        .doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "6 Heat",
-            "2 Energy",
-        )
-        .expect("33 MC")
+    blue.doTasks("26 MC", "3 Plant")
+    red.doTasks("23 MC", "2 Plant", "Steel", "2 Heat")
+    green.doTasks("Heat FROM Energy", "22 MC", "Plant", "3 Titanium", "Energy", "Steel", "Heat")
+    black.doTasks("33 MC", "6 Heat", "2 Energy")
     players.forEach { it.doTasks("4 ProjectCard<Selecting>") }
 
     assertEquals(
@@ -856,49 +777,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     black.turn { doTasks("Pass") }
 
     // Production, about 01:03:30.
-    blue
-        .doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Plant",
-            "2 Energy",
-            "Heat",
-        )
-        .expect("31 MC")
-    red.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Plant",
-            "Steel",
-            "2 Heat",
-        )
-        .expect("26 MC")
-    green
-        .doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Plant",
-            "3 Titanium",
-            "Energy",
-            "2 Steel",
-            "Heat",
-        )
-        .expect("22 MC")
-    black
-        .doTasks(
-            "2 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Plant",
-            "6 Heat",
-            "2 Energy",
-        )
-        .expect("38 MC")
+    blue.doTasks("31 MC", "2 Plant", "2 Energy", "Heat")
+    red.doTasks("26 MC", "2 Plant", "Steel", "2 Heat")
+    green.doTasks("Heat FROM Energy", "22 MC", "Plant", "3 Titanium", "Energy", "2 Steel", "Heat")
+    black.doTasks("2 Heat FROM Energy", "38 MC", "2 Plant", "6 Heat", "2 Energy")
     players.forEach { it.doTasks("4 ProjectCard<Selecting>") }
     blue.assertCounts(
         5 to "Generation",
@@ -1068,50 +950,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
 
     // Generation 6 production, about 01:18.
-    blue
-        .doTasks(
-            "2 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Titanium",
-            "2 Plant",
-            "2 Heat",
-        )
-        .expect("37 MC")
-    red.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "5 Plant",
-            "2 Heat",
-        )
-        .expect("26 MC")
-    green
-        .doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Steel",
-            "3 Titanium",
-            "2 Plant",
-            "Energy",
-            "Heat",
-        )
-        .expect("25 MC")
-    black
-        .doTasks(
-            "2 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "4 Plant",
-            "2 Energy",
-            "6 Heat",
-        )
-        .expect("39 MC")
+    blue.doTasks("2 Heat FROM Energy", "37 MC", "2 Titanium", "2 Plant", "2 Heat")
+    red.doTasks("26 MC", "Steel", "5 Plant", "2 Heat")
+    green.doTasks("Heat FROM Energy", "25 MC", "2 Steel", "3 Titanium", "2 Plant", "Energy", "Heat")
+    black.doTasks("2 Heat FROM Energy", "39 MC", "4 Plant", "2 Energy", "6 Heat")
     players.forEach { it.doTasks("4 ProjectCard<Selecting>") }
     blue.assertCounts(6 to "Generation", 32 to "TerraformRating", 8 to "OceanTile")
     green.assertCounts(4 to "Animal<$Predators>")
@@ -1372,51 +1214,18 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
         8 to "PROD[Energy]",
         6 to "PROD[Heat]",
     ) // visual confirmation
-    blue
-        .doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Titanium",
-            "4 Plant",
-            "2 Heat",
-        )
-        .expect("49 MC")
-    red.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "5 Plant",
-            "2 Heat",
-        )
-        .expect("29 MC")
-    green
-        .doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "3 Steel",
-            "3 Titanium",
-            "2 Plant",
-            "2 Energy",
-            "Heat",
-        )
-        .expect("26 MC")
-    black
-        .doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "Titanium",
-            "4 Plant",
-            "8 Energy",
-            "6 Heat",
-        )
-        .expect("39 MC")
+    blue.doTasks("49 MC", "2 Titanium", "4 Plant", "2 Heat")
+    red.doTasks("29 MC", "Steel", "5 Plant", "2 Heat")
+    green.doTasks(
+        "Heat FROM Energy",
+        "26 MC",
+        "3 Steel",
+        "3 Titanium",
+        "2 Plant",
+        "2 Energy",
+        "Heat",
+    )
+    black.doTasks("Heat FROM Energy", "39 MC", "Steel", "Titanium", "4 Plant", "8 Energy", "6 Heat")
     players.forEach { it.doTasks("4 ProjectCard<Selecting>") }
     blue.assertCounts(
         7 to "Generation",
@@ -1652,51 +1461,18 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     black.turn { doTasks("Pass") }
 
     // Generation 8 production. Secondary 01:10:51 corrects Black to 24 MC / 1 steel production.
-    blue
-        .doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Titanium",
-            "6 Plant",
-            "2 Heat",
-        )
-        .expect("53 MC")
-    red.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "9 Plant",
-            "Energy",
-            "2 Heat",
-        )
-        .expect("28 MC")
-    green
-        .doTasks(
-            "2 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "5 Steel",
-            "4 Titanium",
-            "2 Plant",
-            "Heat",
-        )
-        .expect("26 MC")
-    black
-        .doTasks(
-            "7 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "Titanium",
-            "4 Plant",
-            "9 Energy",
-            "6 Heat",
-        )
-        .expect("54 MC")
+    blue.doTasks("53 MC", "2 Titanium", "6 Plant", "2 Heat")
+    red.doTasks("28 MC", "Steel", "9 Plant", "Energy", "2 Heat")
+    green.doTasks("2 Heat FROM Energy", "26 MC", "5 Steel", "4 Titanium", "2 Plant", "Heat")
+    black.doTasks(
+        "7 Heat FROM Energy",
+        "54 MC",
+        "Steel",
+        "Titanium",
+        "4 Plant",
+        "9 Energy",
+        "6 Heat",
+    )
     black.exMachina("2 MC") // 01:50:42-01:50:57: table agrees to refund Miranda's missed discount
     players.forEach { it.doTasks("4 ProjectCard<Selecting>") }
     blue.assertCounts(
@@ -2071,50 +1847,18 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     black.assertCounts(33 to "TerraformRating", 5 to "Animal<$EcologicalZone>")
 
     // Final production and greenery, 02:10:45–02:12:25.
-    blue
-        .doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Titanium",
-            "6 Plant",
-            "2 Heat",
-        )
-        .expect("59 MC")
-    red.doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "12 Plant",
-            "2 Heat",
-        )
-        .expect("36 MC")
-    green
-        .doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "5 Steel",
-            "4 Titanium",
-            "2 Plant",
-            "Heat",
-        )
-        .expect("36 MC")
-    black
-        .doTasks(
-            "8 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "Titanium",
-            "6 Plant",
-            "9 Energy",
-            "6 Heat",
-        )
-        .expect("68 MC")
+    blue.doTasks("59 MC", "2 Titanium", "6 Plant", "2 Heat")
+    red.doTasks("Heat FROM Energy", "36 MC", "Steel", "12 Plant", "2 Heat")
+    green.doTasks("36 MC", "5 Steel", "4 Titanium", "2 Plant", "Heat")
+    black.doTasks(
+        "8 Heat FROM Energy",
+        "68 MC",
+        "Steel",
+        "Titanium",
+        "6 Plant",
+        "9 Energy",
+        "6 Heat",
+    )
     black.doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
     black.doTasks("GreeneryTile<Elysium_4_2>", "Plant")
     black.doTask("PassBaton")

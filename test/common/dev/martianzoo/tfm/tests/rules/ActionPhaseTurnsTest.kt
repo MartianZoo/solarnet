@@ -51,36 +51,9 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     admin.count("ProductionPhase") shouldBe 1
     admin.count("Baton") shouldBe 0
 
-    kim.doTasks(
-        "MC / Production<Class<MC>>",
-        "MC / TerraformRating",
-        "-5 MC",
-        "Steel",
-        "Titanium",
-        "Plant",
-        "Energy",
-        "Heat",
-    )
-    stan.doTasks(
-        "MC / Production<Class<MC>>",
-        "MC / TerraformRating",
-        "-5 MC",
-        "Steel",
-        "Titanium",
-        "Plant",
-        "Energy",
-        "Heat",
-    )
-    rob.doTasks(
-        "MC / Production<Class<MC>>",
-        "MC / TerraformRating",
-        "-5 MC",
-        "Steel",
-        "Titanium",
-        "Plant",
-        "Energy",
-        "Heat",
-    )
+    kim.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
+    stan.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
+    rob.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
     admin.count("SolarPhase") shouldBe 1
     admin.count("Baton") shouldBe 0
 
@@ -110,16 +83,7 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     kim.doTask("Pass")
     admin.count("ProductionPhase") shouldBe 1
     admin.count("Baton") shouldBe 0
-    kim.doTasks(
-        "MC / Production<Class<MC>>",
-        "MC / TerraformRating",
-        "-5 MC",
-        "Steel",
-        "Titanium",
-        "Plant",
-        "Energy",
-        "Heat",
-    )
+    kim.doTasks("13 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
     admin.count("SolarPhase") shouldBe 1
     admin.count("Baton") shouldBe 0
 

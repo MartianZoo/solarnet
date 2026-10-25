@@ -136,9 +136,12 @@ can be expensive. Do not optimize an invented worst case before measuring the re
 Run these as separate, recoverable changes; neither requires the complete uniqueness implementation.
 
 **Combined totals:** inventory `combineScalars` / `executeScalarSum` callers. Try removing the engine
-facility and expressing the actual separate tasks in test support where needed. Preserve each
-task's individual effects and real ordering choices. Do not replace it with a normal agent feature
-unless a real production need is demonstrated. Explain any former gains-before-removals reliance.
+facility while retaining Agent's ability to translate a submitted total into separate engine calls.
+The user subsequently selected production income as the main reason to retain this convenience:
+combine production, Terraform Rating income, and the -5 MC offset in test inputs. Keep amounts
+from unrelated rewards separate in those inputs. Preserve each task's effects and continuation;
+gains execute before removals so negative production does not require starting money. Do not add
+Canon-specific recognition to Agent. The earlier test-support-only alternative is rejected.
 
 **Extra queued work:** remove or narrow `executeSubmittedGroup` so explicit submitted work can
 execute without also consuming reactions or continuations merely because they appeared in the

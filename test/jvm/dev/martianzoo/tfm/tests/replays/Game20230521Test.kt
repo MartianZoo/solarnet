@@ -203,24 +203,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 2
-    p1.doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "3 Steel",
-        )
-        .expect("28 MC")
-    p2.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "Titanium",
-            "3 Heat",
-            "Plant",
-        )
-        .expect("20 MC")
+    p1.doTasks("Heat FROM Energy", "28 MC", "3 Steel")
+    p2.doTasks("20 MC", "Steel", "Titanium", "3 Heat", "Plant")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -334,18 +318,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 3
-    p1.doTasks("MC / Production<Class<MC>>", "MC / TerraformRating", "-5 MC", "3 Steel", "Energy")
-        .expect("27 MC")
-    p2.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "Titanium",
-            "3 Heat",
-            "Plant",
-        )
-        .expect("21 MC")
+    p1.doTasks("27 MC", "3 Steel", "Energy")
+    p2.doTasks("21 MC", "Steel", "Titanium", "3 Heat", "Plant")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -469,27 +443,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 4
-    p1.doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "3 Steel",
-            "Energy",
-            "Heat",
-        )
-        .expect("30 MC")
-    p2.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "Titanium",
-            "3 Heat",
-            "Plant",
-            "Energy",
-        )
-        .expect("22 MC")
+    p1.doTasks("Heat FROM Energy", "30 MC", "3 Steel", "Energy", "Heat")
+    p2.doTasks("22 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -639,28 +594,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 5
-    p1.doTasks(
-            "3 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "3 Steel",
-            "4 Energy",
-            "2 Heat",
-        )
-        .expect("34 MC")
-    p2.doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "Titanium",
-            "3 Heat",
-            "Plant",
-            "Energy",
-        )
-        .expect("24 MC")
+    p1.doTasks("3 Heat FROM Energy", "34 MC", "3 Steel", "4 Energy", "2 Heat")
+    p2.doTasks("Heat FROM Energy", "24 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -821,28 +756,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 6
-    p1.doTasks(
-            "5 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "3 Steel",
-            "5 Energy",
-            "3 Heat",
-        )
-        .expect("38 MC")
-    p2.doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "Steel",
-            "Titanium",
-            "3 Heat",
-            "Plant",
-            "Energy",
-        )
-        .expect("27 MC")
+    p1.doTasks("5 Heat FROM Energy", "38 MC", "3 Steel", "5 Energy", "3 Heat")
+    p2.doTasks("Heat FROM Energy", "27 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -1067,30 +982,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 7
-    p1.doTasks(
-            "4 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "5 Steel",
-            "4 Energy",
-            "3 Heat",
-            "Titanium",
-            "Plant",
-        )
-        .expect("49 MC")
-    p2.doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Steel",
-            "Titanium",
-            "3 Heat",
-            "Plant",
-            "2 Energy",
-        )
-        .expect("31 MC")
+    p1.doTasks("4 Heat FROM Energy", "49 MC", "5 Steel", "4 Energy", "3 Heat", "Titanium", "Plant")
+    p2.doTasks("Heat FROM Energy", "31 MC", "2 Steel", "Titanium", "3 Heat", "Plant", "2 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -1261,29 +1154,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 8
-    p1.doTasks(
-            "7 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "5 Steel",
-            "8 Energy",
-            "3 Heat",
-            "Titanium",
-            "Plant",
-        )
-        .expect("50 MC")
-    p2.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Steel",
-            "2 Titanium",
-            "3 Heat",
-            "Plant",
-            "4 Energy",
-        )
-        .expect("31 MC")
+    p1.doTasks("7 Heat FROM Energy", "50 MC", "5 Steel", "8 Energy", "3 Heat", "Titanium", "Plant")
+    p2.doTasks("31 MC", "2 Steel", "2 Titanium", "3 Heat", "Plant", "4 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -1505,30 +1377,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 9
-    p1.doTasks(
-            "7 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "5 Steel",
-            "8 Energy",
-            "3 Heat",
-            "Titanium",
-            "Plant",
-        )
-        .expect("65 MC")
+    p1.doTasks("7 Heat FROM Energy", "65 MC", "5 Steel", "8 Energy", "3 Heat", "Titanium", "Plant")
     p2.doTasks(
-            "2 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Steel",
-            "3 Titanium",
-            "3 Heat",
-            "Plant",
-            "3 Energy",
-        )
-        .expect("34 MC")
+        "2 Heat FROM Energy",
+        "34 MC",
+        "2 Steel",
+        "3 Titanium",
+        "3 Heat",
+        "Plant",
+        "3 Energy",
+    )
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -1843,29 +1701,23 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Generation 10
     p1.doTasks(
-            "8 Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "5 Steel",
-            "9 Energy",
-            "3 Heat",
-            "Titanium",
-            "4 Plant",
-        )
-        .expect("70 MC")
+        "8 Heat FROM Energy",
+        "70 MC",
+        "5 Steel",
+        "9 Energy",
+        "3 Heat",
+        "Titanium",
+        "4 Plant",
+    )
     p2.doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Steel",
-            "3 Titanium",
-            "3 Heat",
-            "4 Plant",
-            "3 Energy",
-        )
-        .expect("44 MC")
+        "Heat FROM Energy",
+        "44 MC",
+        "2 Steel",
+        "3 Titanium",
+        "3 Heat",
+        "4 Plant",
+        "3 Energy",
+    )
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -2173,29 +2025,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
     // Generation 11
-    p1.doTasks(
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "5 Steel",
-            "6 Energy",
-            "3 Heat",
-            "Titanium",
-            "7 Plant",
-        )
-        .expect("79 MC")
+    p1.doTasks("79 MC", "5 Steel", "6 Energy", "3 Heat", "Titanium", "7 Plant")
     p2.doTasks(
-            "Heat FROM Energy",
-            "MC / Production<Class<MC>>",
-            "MC / TerraformRating",
-            "-5 MC",
-            "2 Steel",
-            "3 Titanium",
-            "3 Heat",
-            "6 Plant",
-            "9 Energy",
-        )
-        .expect("48 MC")
+        "Heat FROM Energy",
+        "48 MC",
+        "2 Steel",
+        "3 Titanium",
+        "3 Heat",
+        "6 Plant",
+        "9 Energy",
+    )
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -2578,10 +2417,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks("Pass")
     }
 
-    p1.doTasks("Heat FROM Energy", "MC / Production<Class<MC>>", "MC / TerraformRating", "-5 MC")
-        .expect("83 MC")
-    p2.doTasks("7 Heat FROM Energy", "MC / Production<Class<MC>>", "MC / TerraformRating", "-5 MC")
-        .expect("60 MC")
+    p1.doTasks("Heat FROM Energy", "83 MC")
+    p2.doTasks("7 Heat FROM Energy", "60 MC")
     p1.doTasks("5 Steel")
     p2.doTasks("2 Steel", "3 Titanium", "3 Heat", "9 Plant", "5 Energy")
     p1.doTasks("7 Energy", "3 Heat", "Titanium", "7 Plant")

@@ -470,7 +470,9 @@ issue:
 ## Transition experiment status
 
 The experiment branch separates selection/narrowing from component execution, removes combined
-scalar-total commands, and requires explicit X binding for joined numeric THEN instructions.
+scalar-total commands from engine, and requires explicit X binding for joined numeric THEN
+instructions. Agent can translate a submitted resource total into separate engine calls; production
+tests use this to combine production, Terraform Rating income, and the -5 MC offset.
 Fixed mandatory gains/removals can prove a unique successful concrete type through isolated
 transactions using the existing overlay implementation. Public probes also use disposable Worlds.
 Both include deferred admission but do not execute queued follow-up work. The full intended

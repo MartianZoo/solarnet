@@ -56,8 +56,10 @@ open because supplied information can unlock both further narrowing and evaluati
 
 The [THEN rule](SEQUENCING.md#reviewed-client-view-of-then) requires explicit shared bindings before
 exposing the separate current instruction and continuation. Do not reconstruct X backward from a
-submitted first-stage result in either module. Combined resource totals remain a candidate for
-test support only. Optional transaction trials and quantity-limit reads are reasonable engine
+submitted first-stage result in either module. Agent can translate an explicitly submitted resource
+total into individual engine calls; production tests use this for their three money sources, while
+unrelated rewards stay separate. See [the contract](ENGINE_CONTRACT.md#task-identity-optional-queries-and-conveniences--items-10-1315-and-17).
+Optional transaction trials and quantity-limit reads are reasonable engine
 services; neither certifies completion of later work.
 
 Admin remains permanently automatic in the agent, through separate engine transactions. Its

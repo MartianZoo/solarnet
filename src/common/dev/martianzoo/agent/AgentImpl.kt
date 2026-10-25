@@ -11,9 +11,11 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.util.Multiset
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -242,10 +244,7 @@ internal class AgentImpl(
         val parsed = parseTaskNarrowing(narrowing)
         decide {
           taskLog.capture(actor, narrowing) {
-            engine.doTask(
-                parsed.instruction,
-                parsed.quantifierOmitted,
-            )
+            executeInput(parsed)
           }
           finishTaskHandoff()
         }
@@ -374,13 +373,76 @@ internal class AgentImpl(
     }
   }
 
+  private fun executeInput(parsed: ParsedTaskNarrowing, contextClass: ClassName? = null) {
+    if (allTasks.selectedTask() == null && combineAmounts(parsed, contextClass)) return
+    engine.doTask(parsed.instruction, parsed.quantifierOmitted, contextClass = contextClass)
+  }
+
+  /** A submitted total describes all matching current amounts, never a searched subset. */
+  private fun combineAmounts(parsed: ParsedTaskNarrowing, contextClass: ClassName?): Boolean {
+    val requested =
+        InstructionGroup.of(parsed.instruction).instructions.map { it as? Change ?: return false }
+    val first = requested.firstOrNull() ?: return false
+    if (first.gaining != null && first.removing != null) return false
+    if (requested.any { it.isAbstract(reader) || it.count !is ActualScalar }) return false
+    if (
+        requested.any {
+          it.gaining != first.gaining ||
+              it.removing != first.removing ||
+              (!parsed.quantifierOmitted && it.quantifier != first.quantifier)
+        }
+    )
+        return false
+    val target = first.gaining ?: first.removing
+    fun sameTarget(change: Change): Boolean =
+        (change.gaining == target && change.removing == null) ||
+            (change.removing == target && change.gaining == null)
+    fun signedCount(change: Change): Long =
+        (change.count as ActualScalar).value.toLong() * if (change.gaining == null) -1 else 1
+    val matches =
+        tasks
+            .extract { it }
+            .mapNotNull { task ->
+              if (
+                  task.deferred ||
+                      (contextClass != null && task.cause?.context?.className != contextClass)
+              ) {
+                return@mapNotNull null
+              }
+              val instruction = task.instruction
+              val change =
+                  when (instruction) {
+                    is Change -> instruction
+                    is Per -> {
+                      val inner = instruction.inner as? Change ?: return@mapNotNull null
+                      if (!sameTarget(inner)) return@mapNotNull null
+                      (inner * reader.count(instruction.metric)) as? Change
+                          ?: return@mapNotNull null
+                    }
+                    else -> return@mapNotNull null
+                  }
+              if (!sameTarget(change) || change.count == ActualScalar(0)) return@mapNotNull null
+              task to change
+            }
+    if (matches.size < 2) return false
+    val amounts = matches.map { it.second }
+    if (amounts.any { it.count !is ActualScalar }) return false
+    if (amounts.map { it.quantifier }.distinct().size != 1) return false
+    if (!parsed.quantifierOmitted && amounts.any { it.quantifier != first.quantifier }) return false
+    if (amounts.sumOf(::signedCount) != requested.sumOf(::signedCount)) return false
+    // Take the snapshot before executing: newly caused rewards cannot join this total.
+    matches
+        .sortedBy { it.second.gaining == null }
+        .forEach { (task, change) ->
+          engine.doTask(change, taskId = task.id)
+        }
+    return true
+  }
+
   override fun doTask(narrowing: String) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.DO_TASK) {
       val parsed = parseTaskNarrowing(narrowing)
-      engine.doTask(
-          parsed.instruction,
-          parsed.quantifierOmitted,
-      )
+      executeInput(parsed)
     }
     finishTaskHandoff()
   }
@@ -388,11 +450,7 @@ internal class AgentImpl(
   override fun doTask(narrowing: String, contextClass: ClassName) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.DO_TASK) {
       val parsed = parseTaskNarrowing(narrowing)
-      engine.doTask(
-          parsed.instruction,
-          parsed.quantifierOmitted,
-          contextClass = contextClass,
-      )
+      executeInput(parsed, contextClass)
     }
     finishTaskHandoff()
   }

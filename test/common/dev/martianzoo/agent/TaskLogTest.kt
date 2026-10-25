@@ -512,7 +512,7 @@ internal class TaskLogTest {
   }
 
   @Test
-  internal fun replaysSeparateAmountsAndKeepsPendingWork() {
+  internal fun replaysCombinedAmountsAndKeepsPendingWork() {
     val premise = testGamePremise("CLASS Coin\nCLASS Marker")
     fun newAgents(): Agents =
         Agents(Engine.newGame(premise)).also {
@@ -521,7 +521,7 @@ internal class TaskLogTest {
         }
     val source = newAgents()
     start(source)
-    source[PLAYER1].doTasks("2 Coin", "3 Coin")
+    source[PLAYER1].doTasks("5 Coin")
 
     val imported = newAgents()
     replay(source, imported)

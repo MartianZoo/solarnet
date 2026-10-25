@@ -22,7 +22,7 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | --- | --- | --- |
 | 7 Surrounding Agent call | Application checks belong to an Agents session; cross-session behavior tested. Callback behavior characterized. | Good independent change. Does not settle callback failure recovery or FINALLY-based completion. |
 | 1b Submitted groups | Executes the exact IDs returned when group members are admitted; excludes dispatch bodies, reactions, and continuations. | Good independent change; repairs the initial queue-difference approach. |
-| 1a Combined scalar totals | Deleted the arithmetic helper and flag; callers now submit individual permissions. | Worth merging with caller migration. Adds no replacement mechanism. |
+| 1a Combined scalar totals | Deleted engine arithmetic and flag; Agent translates explicit totals into separate engine calls. Production tests use totals again; unrelated rewards stay separate. | Worth merging with the Agent restoration below. |
 | 3 Selection | Selection/narrowing do not execute component changes; callers explicitly execute. | Worth merging with numeric 2 and caller migration. Structural selection remains an open question. |
 | 2 THEN | Shared numeric X must be supplied explicitly; no reverse inference from the requested first-stage amount. | Numeric change is suitable with 3. Broad shared-type removal remains parked. |
 | 4 Transaction uniqueness | Fixed mandatory gains/removals enumerate concrete types and try complete transactions in disposable copies. | Experimental integration candidate, not complete general inference. Review cost and unsupported forms before merging. |
@@ -61,18 +61,39 @@ in review is not valid Pets syntax; supported group members with individual cont
 covered instead. Atmoscoop's duplicate VenusStep submissions were removed; its original outcome
 assertion remains.
 
-## 1a: removing totals exposes real separate permissions
+## 1a: totals belong in Agent
 
-`executeScalarSum` and `combineScalars` were deleted. Agent does not inherit their arithmetic.
-For example, a production request that formerly submitted a net 21 MC now executes production,
-terraform-rating income, and the negative-production offset separately. Game20230521 and Wsbg2025
-retain their net `.expect` checks. OtbGame20261009 retains resource checkpoints. Other callers
-include Allied Bank/Manutech, Miranda's card rewards, Molecular Printing's city/colony rewards,
-Lakefront Resorts, Poseidon, and ActionPhaseTurns.
+The first pass deleted `executeScalarSum` and `combineScalars` from engine and expanded all affected
+inputs. Temporary tracing recorded 69 old-helper matches in `total-caller-migrations.tsv`; the
+tracing code was removed. That pass also excluded totals from Agent. The user subsequently
+rejected that restriction: restoring the three production money sources as a single submitted
+amount is the priority, while rewards for unrelated reasons should remain separate in tests.
 
-Temporary tracing recorded 69 old-helper matches in `total-caller-migrations.tsv`; the tracing
-code was removed. This is input expansion, not a Canon change or a new Agent helper. Old recorded
-commands using totals require migration; they are not silently accepted through another API.
+Agent now translates a matching explicit total into separate engine calls by task ID. For example,
+21 MC executes 6 MC of production, 20 MC from Terraform Rating, and the -5 MC offset. Each task
+retains its own effects and continuation. Gains run before removals, so the offset needs no starting
+money. All matching current nonzero amounts must sum to the request with a shared quantifier;
+Agent never searches subsets or includes tasks created by those executions. Selection and explicit
+IDs keep the request attached to that individual task. Failure restores the whole Agent call.
+
+This uses a private Agent helper for fixed gains/removals and `/` calculations directly wrapping
+those changes, without exposing engine's general instruction evaluation. No Canon-specific
+production recognizer or additional public API was introduced. Costs retained deliberately: Agent
+must perform the arithmetic, and a submitted total selects gains-before-removals ordering. It does
+not collapse the engine transactions or their intermediate effects into a net change.
+
+Restored 88 production submissions across ActionPhaseTurns and five replay classes. Unrelated
+rewards remain separate, including Investment Loan/Media Group and Imported GHG/Optimal
+Aerobraking. Existing production totals and final resource checkpoints remain the evidence; no
+new replay facts were inferred. Agent tests cover totals, task continuations, atomized changes,
+rollback, selection/explicit IDs, unspecified amounts, and replaying the recorded total. Raw-engine
+tests verify that the total itself still cannot consume separate tasks.
+
+The Agent restoration passed `spotlessApply :agent:jvmTest :engine:jvmTest :tfm-tests:jvmTest
+:tfm-tests:replayTest :web:jsBrowserTest` in 3m 33s. Exact suite counts are recorded in
+`agent-totals-tests.tsv`; `agent-totals-verification.log` records the successful run. Optional
+archived suites remain disabled. The final diff preserves the earlier unrelated-reward inputs;
+only production submissions were recombined in Canon scenarios. `git diff --check` passed.
 
 ## 3 and numeric 2: choose, then execute
 

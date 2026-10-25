@@ -101,21 +101,9 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     generation2()
 
     green.doTask("Pass")
-    green.doTasks(
-        "6 MC",
-        "21 MC",
-        "-5 MC",
-        "Steel",
-        "Titanium",
-        "Plant",
-        "4 Heat FROM Energy",
-        "5 Energy",
-        "Heat",
-    )
+    green.doTasks("22 MC", "Steel", "Titanium", "Plant", "4 Heat FROM Energy", "5 Energy", "Heat")
     pink.doTasks(
-        "4 MC",
-        "21 MC",
-        "-5 MC",
+        "20 MC",
         "3 Steel",
         "Titanium",
         "Plant",
@@ -252,8 +240,8 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
   }
 
   private fun generation2() {
-    green.doTasks("6 MC", "21 MC", "-5 MC", "Steel", "Titanium", "Plant", "4 Energy", "Heat")
-    pink.doTasks("6 MC", "20 MC", "-5 MC", "2 Steel", "Titanium", "Plant", "2 Energy", "Heat")
+    green.doTasks("22 MC", "Steel", "Titanium", "Plant", "4 Energy", "Heat")
+    pink.doTasks("21 MC", "2 Steel", "Titanium", "Plant", "2 Energy", "Heat")
     pink.doTask("4 ProjectCard<Selecting>")
     green.doTask("4 ProjectCard<Selecting>")
     pink.draw(HeatTrappers, NitrophilicMoss, BlackPolarDust)

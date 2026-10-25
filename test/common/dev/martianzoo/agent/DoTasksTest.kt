@@ -3,8 +3,10 @@ package dev.martianzoo.agent
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
@@ -36,7 +38,7 @@ internal class DoTasksTest {
   }
 
   @Test
-  internal fun executesResolvedAmountsAndTheirContinuationsExplicitly() {
+  internal fun combinesResolvedAmountsAndPreservesTheirContinuations() {
     val game =
         Engine.newGame(
             testGamePremise(
@@ -52,7 +54,7 @@ internal class DoTasksTest {
     player.runOperation("2 Marker")
     player.addTasks("Coin / Marker THEN First, 3 Coin THEN Second")
 
-    player.doTasks("2 Coin", "3 Coin", "First", "Second")
+    player.doTasks("5 Coin", "First", "Second")
 
     player.count("Coin") shouldBe 5
     player.count("First") shouldBe 1
@@ -61,12 +63,12 @@ internal class DoTasksTest {
   }
 
   @Test
-  internal fun executesSeparateScalarsAndTheirContinuationsExplicitly() {
+  internal fun combinesDifferentScalarsAndPreservesBothContinuations() {
     val game = Engine.newGame(testGamePremise("CLASS Coin\nCLASS First\nCLASS Second"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("2 Coin THEN First, 3 Coin THEN Second")
 
-    player.doTasks("2 Coin", "3 Coin", "First", "Second")
+    player.doTasks("5 Coin", "First", "Second")
 
     player.count("Coin") shouldBe 5
     player.count("First") shouldBe 1
@@ -75,12 +77,12 @@ internal class DoTasksTest {
   }
 
   @Test
-  internal fun executesSeparateAtomizedGains() {
+  internal fun combinesAtomizedGainsWithoutIncludingNewlyTriggeredTasks() {
     val game = Engine.newGame(testGamePremise("CLASS Rating : Atomized { This: Rating }"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("3 Rating")
 
-    player.doTasks("Rating", "Rating", "Rating")
+    player.doTasks("3 Rating")
 
     player.count("Rating") shouldBe 3
     player.tasks.ids().size shouldBe 3
@@ -121,7 +123,7 @@ internal class DoTasksTest {
     player.addTasks("Coin, 2 Coin")
     val otherCoins = other.addTasks("4 Coin")
 
-    player.continueOperation { doTasks("Coin", "2 Coin") }
+    player.continueOperation { doTasks("3 Coin") }
 
     player.count("Coin") shouldBe 3
     player.count("Plant") shouldBe 0
@@ -130,25 +132,25 @@ internal class DoTasksTest {
   }
 
   @Test
-  internal fun executesSeparateRemovals() {
+  internal fun combinesRemovals() {
     val game = Engine.newGame(testGamePremise("CLASS Coin"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.runOperation("5 Coin")
     player.addTasks("-2! Coin, -3! Coin")
 
-    player.completeOperation { doTasks("-2 Coin", "-3 Coin") }
+    player.completeOperation { doTasks("-5 Coin") }
 
     player.count("Coin") shouldBe 0
     game.isIdle() shouldBe true
   }
 
   @Test
-  internal fun callerSpecifiesGainsBeforeRemoval() {
+  internal fun combinesNetGainWithAnEarlierRemovalWithoutRequiringStartingStock() {
     val game = Engine.newGame(testGamePremise("CLASS Coin"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("-5! Coin, 6! Coin, 35! Coin")
 
-    player.doTasks("6 Coin", "35 Coin", "-5 Coin")
+    player.doTasks("36 Coin")
 
     player.count("Coin") shouldBe 36
     game.isIdle() shouldBe true
@@ -167,7 +169,7 @@ internal class DoTasksTest {
   }
 
   @Test
-  internal fun aMatchingAmountDoesNotAuthorizeOffsettingTasks() {
+  internal fun usesTheWholeNetTotalEvenWhenAnIndividualTaskHasThatAmount() {
     val game = Engine.newGame(testGamePremise("CLASS Coin"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("-5! Coin, 27! Coin, 5! Coin")
@@ -175,17 +177,17 @@ internal class DoTasksTest {
     player.doTasks("27 Coin")
 
     player.count("Coin") shouldBe 27
-    player.tasks.ids().size shouldBe 2
+    game.isIdle() shouldBe true
   }
 
   @Test
-  internal fun rollsBackEverySubmittedTaskIfALaterTaskFails() {
+  internal fun rollsBackEverySummedTaskIfALaterTaskFails() {
     val game = Engine.newGame(testGamePremise("CLASS Coin { HAS MAX 3 This }"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("2! Coin, 2! Coin")
     val before = game.events.nextOrdinal
 
-    shouldThrow<LimitsException> { player.continueOperation { doTasks("2 Coin", "2 Coin") } }
+    shouldThrow<LimitsException> { player.continueOperation { doTasks("4 Coin") } }
 
     game.events.nextOrdinal shouldBe before
     player.count("Coin") shouldBe 0
@@ -241,5 +243,56 @@ internal class DoTasksTest {
 
     game.events.nextOrdinal shouldBe before
     player.count("Coin") shouldBe 0
+  }
+
+  @Test
+  fun agentCombinesIncomeWhileEngineStillRequiresIndividualTasks() {
+    val game = Engine.newGame(testGamePremise("CLASS Coin\nCLASS Rating"))
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    player.sneak("20 Rating")
+    player.addTasks("-5! Coin, 6! Coin, Coin / Rating")
+    val before = game.events.nextOrdinal
+
+    shouldThrow<TaskException> {
+      game.actorEngine(PLAYER1).doTask(parse<InstructionTree>("21! Coin"))
+    }
+    game.events.nextOrdinal shouldBe before
+    player.doTask("21 Coin")
+
+    player.count("Coin") shouldBe 21
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  fun explicitTaskIdAndSelectionKeepOtherAmountsPending() {
+    for (selected in listOf(false, true)) {
+      val game = Engine.newGame(testGamePremise("CLASS Coin"))
+      val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+      val offsetting = player.addTasks("-5! Coin, 5! Coin")
+      val income = player.addTasks("27! Coin").single()
+
+      if (selected) {
+        player.selectTask(income)
+        player.doTask("27 Coin")
+      } else {
+        player.doTask("27 Coin", income)
+      }
+
+      player.count("Coin") shouldBe 27
+      player.tasks.ids() shouldBe offsetting.toSet()
+    }
+  }
+
+  @Test
+  fun anUnspecifiedAmountPreventsCombiningTheOtherAmounts() {
+    val game = Engine.newGame(testGamePremise("CLASS Coin"))
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    val fixed = player.addTasks("2 Coin, 3 Coin")
+    player.addTasks("X Coin")
+
+    player.doTask("5 Coin")
+
+    player.count("Coin") shouldBe 5
+    player.tasks.ids() shouldBe fixed.toSet()
   }
 }

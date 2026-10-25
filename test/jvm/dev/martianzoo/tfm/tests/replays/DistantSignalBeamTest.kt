@@ -218,8 +218,8 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       // Database save 33: Rotator Impacts introduced Purple's first space tag.
       doTask("Pass")
     }
-    pink.doTasks("5 MC", "23 MC", "2 Heat", "-5 MC")
-    purple.doTasks("19 MC", "22 MC", "Energy", "-5 MC")
+    pink.doTasks("23 MC", "2 Heat")
+    purple.doTasks("36 MC", "Energy")
     pink.doTask("OceanTile<Hellas_5_7>! BY Admin")
   }
 
@@ -309,8 +309,8 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     purple.turn { doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>") }
     pink.doTask("Pass")
     purple.doTask("Pass")
-    purple.doTasks("21 MC", "22 MC", "Energy", "Heat FROM Energy", "-5 MC")
-    pink.doTasks("5 MC", "23 MC", "3 Heat", "Steel", "Energy", "-5 MC")
+    purple.doTasks("38 MC", "Energy", "Heat FROM Energy")
+    pink.doTasks("23 MC", "3 Heat", "Steel", "Energy")
     purple.doTask("OxygenStep! BY Admin")
   }
 
