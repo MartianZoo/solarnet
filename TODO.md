@@ -40,26 +40,22 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Links: https://boardgamegeek.com/thread/1705209/article/37732543#37732543 and
   https://boardgamegeek.com/thread/3752654/article/48054640#48054640.
 
-- Continue the authored-action migration with card play: retain the chosen card and source through
-  requirement preparation and payment, then create the play result at completion. The standard
-  actions now use authored costs and completion-created results; card play still uses its existing
-  `MAX 0 Barrier` result. Preserve supported requirement timing and temporary/stored card sources.
-  Resolve context retention without introducing a general operation framework.
+- Give standard projects a meaningful paid event. Paying for the Greenery standard project
+  should emit an event saying that project was bought; its placement effect, Standard Technology's
+  rebate, and CrediCor's rebate should respond to that event instead of payment bookkeeping
+  disappearing. Preserve Established Methods' granted uses. Treat this as the next substantial,
+  reasonably contained payment improvement; it can work independently of the card-play work below.
+- Make card play create its result when payment finishes instead of queuing it behind
+  `MAX 0 Barrier`: choose the card, satisfy its requirements, pay, then create the play result.
+  Retain the selected card and its source through those steps, including Self-Replicating Robots'
+  stored cards. Preserve supported requirement timing and temporary/stored card sources without
+  introducing a general-purpose operation framework. Investigate this harder case separately
+  from standard projects.
 - Simplify the stored-card face/location relationship. `PlayCardAction` now offers only Hand or
   StagedProject, but the latter still checks the face separately against its recorded class.
   Sharing a selected type across those arguments in a single offered instruction is not supported
   by the current local-variable rules. Do not add a preparation step or gameplay helper just to
   replace this check.
-- Replace global action slots with actual offered actions after the lifecycle changes. Preserve
-  live-source availability, shared card use limits, required actions and repeat grants; the exact
-  representation remains unselected. See [action identity](pets/docs/agents/ACTIONS.md).
-
-- Explore making each `StandardProject` a signal emitted only after its cost is paid.
-  `UseStandardProjectAction` would offer the project choice and open its bill; the resulting project
-  signal would trigger its tile/production effect and CrediCor/Standard Technology rebates. This
-  would replace the persistent `HasActions` standard-project components and their `UseAction`
-  path. Account for Established Methods' direct `UseAction` grants and other standard-project
-  payment listeners when evaluating the replacement.
 - Add Canon invariant tests for incompatibilities: self-heat removal outside PaymentScope, except
   Local Heat Trapping, must be declared incompatible with Stormcraft. Include abstract resource choices.
 - Revisit Stormcraft plus Helion payment composition if that combination is supported.
@@ -103,9 +99,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   distinguish a fully specified instruction becoming invalid from an unresolved choice.
   Cover AMAP target selection leaving the task open until its amount is evaluated, and
   evaluation followed by further narrowing. This TODO records the migration, not its completion.
-- Review the remaining proposals in [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md).
-  [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md)'s five preparation steps are implemented.
-  Complete legal-candidate enumeration and Admin uniqueness remain unfinished. Admin retains the
+- Investigate the selected destination in [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md)
+  using the [transition plan](docs/agents/ENGINE_TRANSITION_PLAN.md).
+  Complete transaction-success analysis and Admin uniqueness remain unfinished. Admin retains the
   existing retries after progress and throws a retained rejection after a completely unsuccessful
   pass. Existing gate and Player-task waiting exceptions still need model-level review; do not
   generalize them into suppressing all stalled-pass failures. Handoff does not trial-execute the
@@ -115,7 +111,7 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Migrate Players away from the EAGER default, which can close legitimate gameplay choices.
   The user deliberately deferred the migration cleanup for now, hoping to move to a suitable smart
   policy rather than first migrating to NONE or CONCRETE. Leave the current default unchanged in
-  this pass; the ordinal rework's Canon scenarios use explicit Player choices.
+  this pass. Use explicit Player choices when testing engine semantics independently of policy.
 - Resolve order-dependent Advanced Alloys discount attribution: the randomized-effect diagnostic
   reproduced the known `ThermalMatterWaveTest` (-96 versus -92) and `Game20230521Test`
   (-33 versus -31) reporting mismatches. Game-state assertions before those checks passed.
@@ -123,7 +119,7 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   from transaction checkpoints and remains deferred.
 - Investigate a diagnostic test mode that varies Admin task execution order, alongside the existing
   randomized independent `::` listeners. Use it to expose accidental ordering dependencies; retain
-  FIFO in ordinary execution. See [ORDINAL_REWORK.md](docs/agents/ORDINAL_REWORK.md).
+  FIFO in ordinary execution. See [Admin handling](docs/agents/ENGINE_CONTRACT.md#admins-choices-and-retries).
 - Refine and verify the strategy catalogue in [DECISION_GRAPH.md](docs/agents/DECISION_GRAPH.md).
   Settle action-completion recognition and task comparison ignoring ordinals; inventory which
   existing forced deductions belong in Player and Admin agents. Measure pruning and safe eager
@@ -136,16 +132,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   and card-movement naming are separate. Preserve class-before-dependency ordering within TYPE,
   including dependencies revealed by a narrower class. Distinguish guided prompts from
   unrestricted draft narrowing. This records the requested evolution, not an implementation.
-- Investigate whether engine-level partial narrowing is needed at all, versus retaining unfinished
-  choices solely in client-held forms. Examine a choice between System and non-System instructions,
-  reassignment after narrowing, and admission rewrites; identify any concrete case that needs an
-  intermediate World mutation. This is an investigation, not approval to remove the API.
-- Review whether the block-based transaction coordinator, application guards and completion
-  callbacks belong in the engine API, along with unnecessary history controls, copying and
-  speculative APIs.
-  Preserve safe client-controlled rollback when reviewing those controls.
-  Review grouped/scalar task conveniences before retaining them. Code comments mark the current
-  differences; the cleanup deliberately leaves their behavior unchanged.
+- Investigate moving the code that runs several engine calls, checks supplied card identities,
+  reports completion to application code, and decides whether an action has finished out of the
+  engine package. Preserve transaction validity, rollback, and complete returned results. The
+  [transition plan](docs/agents/ENGINE_TRANSITION_PLAN.md#experiment-7--the-surrounding-agent-call)
+  explains each responsibility and the separate recovery questions.
 - Clarify System classification versus non-Iconic presentation separately. Review when concrete
   System work and explicit BY Admin work change assignee.
 
@@ -168,3 +159,17 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   `Tag<@WildTagElection>?` marks the type reference's empty arguments as
   explicitly specified. `OtbGame20260818Test` now verifies serialized event
   text, notes, and file round trips; the internal AST marker still differs.
+
+## Engine contract investigations
+
+Follow [ENGINE_TRANSITION_PLAN.md](docs/agents/ENGINE_TRANSITION_PLAN.md) for the ordered branch
+experiments, acceptance cases, and cost reports. [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md)
+owns the selected destination: simple permitting-task matching; unique successful narrowing within
+the requested transaction; no subsequent Admin execution in that proof; no execution implied by
+selection. This is intended behavior, not a completed migration.
+
+The plan covers combined totals, extra queued execution, explicit THEN bindings, partial narrowing,
+transaction-level inference, Die/Ok simplification, immediate-effect timing, the surrounding Agent
+call, and generalized agent narrowing. Earlier instructions to move all inference into agents or
+require task IDs for most mutations are superseded. Record evidence from rejected experiments as
+well as retained changes. Whole-action exploration remains agent work.

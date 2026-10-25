@@ -7,8 +7,9 @@
 > tasks, effect execution, or the engine-facing part of `Agent`.
 >
 > **Status:** current-model map. It explains the engine's responsibilities and causal path, not
-> every Pets operator or Terraforming Mars rule. The proposed client interaction requirements
-> remain subject to human review in [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
+> every Pets operator or Terraforming Mars rule. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns
+> the selected destination, with implementation questions still to learn through experiments.
+> Current behavior described here must not be mistaken for a requirement to retain it.
 
 ## The model to keep in mind
 
@@ -113,7 +114,41 @@ Ordinary game mechanics react to the current World and the event being processed
 arbitrary event history. Event ordinals and Task ids are causal and diagnostic identities, not game
 resources or presentation order.
 
-## Tasks are choices, not a program counter
+### Transaction history and checkpoints
+
+Transaction grouping and checkpoint migration are completed. Each retained event carries its
+transaction serial, initiating Actor, and execution motivation; no parallel transaction list or
+marker events are needed. Event ordinals still identify individual events and causes. A public
+`Checkpoint` identifies the state immediately before a transaction, not an arbitrary event offset.
+Initialization is an event prefix without a transaction; client serials start at zero afterward.
+The end position is the next serial. Truncation discards later history and allows serial reuse,
+so clients must discard checkpoints into that abandoned future.
+
+A retained task edit earns a transaction even without component changes. A successful no-op with
+no retained events, a failed attempt, and a fully restored probe earn none. Zero net resource
+change is not the same as an empty event interval. The caller supplies `Motivation` to explain why
+execution happened now; `Cause` records which rule or event produced the work. Neither replaces
+the other, and motivation grants no authority.
+
+Passive navigation reapplies events without firing effects. Live navigation may stop with Admin
+work pending; after truncating the future, Agent calls give that work its normal priority.
+Checkpoints and exports cannot expose an open transaction. Navigation during completion callbacks
+is refused; ordinary navigation after a call returns remains available. Retained results span the
+whole returned call without combining its separate transactions in history.
+
+See [Transactions](../../src/common/dev/martianzoo/engine/Transactions.kt),
+[EventLog](../../src/common/dev/martianzoo/state/EventLog.kt), and
+[export/import](EXPORT.md) for implemented behavior. The remaining uniqueness and Admin-input
+questions belong to the engine transition; they do not reopen completed history work.
+
+## Tasks express permission
+
+**Intended interaction:** the engine accepts an explicit request when the identified task and
+request admit exactly a single narrowing whose transaction succeeds. Finding that task need not
+try consequences; proving uniqueness within it may. Subsequent tasks, including Admin work, are
+outside that proof. Selection alone is intended not to execute. The details below describe today's
+implementation, including differences from that destination; see the
+[transition plan](ENGINE_TRANSITION_PLAN.md).
 
 There is one semantic Task pool. Actor-specific queues are filtered views. Iteration is stable for
 reproducibility; Player clients choose among their available tasks. Admin handling follows
@@ -222,7 +257,7 @@ The finishing task's assignee receives structural children and continuations. A 
 encodes the former assignee in its continuation, so Admin executes the System step and returns later
 work to that Actor. Authored `TASK` dispatch can also give work to another Actor. Queued reactions
 use ownership and event attribution as described in [IDENTITY.md](IDENTITY.md). Deferral by `LATER` and `FINALLY` is described in
-[SEQUENCING.md](SEQUENCING.md#deferred-work). The proposed priority model is owned by
+[SEQUENCING.md](SEQUENCING.md#deferred-work). The intended priority model is owned by
 [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md). There is no persistent delegated operation in current
 task data. The remaining routing and completion questions are in
 [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over). Game-rule restrictions

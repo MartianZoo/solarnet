@@ -1,15 +1,18 @@
 # Automatic task revisions and handling
 
-> **Source-based draft — October 22, 2026.** This inventories the current working-tree
+> **Source-based inventory — updated October 24, 2026.** This inventories the current working-tree
 > implementation, including uncommitted work. It is an account for review, not approval of every
-> behavior. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns selected and proposed interaction rules.
-> This draft changes no runtime behavior and does not investigate removing partial narrowing.
+> behavior. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the selected destination and open details.
+> [ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) orders experiments. This inventory
+> describes current code, including behavior to remove or reevaluate during that transition.
 
 ## Scope and reading order
 
-The simple reference flow is: add a possibly abstract task, receive a concrete narrowing, execute
-it, remove it. The sections below list the runtime departures from that flow: what causes them,
-when they happen, what they change, and what can fail.
+The destination is to identify a permitting task, combine it with an explicit execution request,
+establish the unique narrowing whose transaction succeeds, and execute that transaction. Today's
+paths below do not yet implement that general rule. In particular, they contain execution during
+selection and special inference rules; this inventory explains when those paths run, what they
+change, and what can fail. It does not require callers to supply every concrete detail themselves.
 
 “Automatic” here means performed without a separate client instruction for that step. It includes
 rewrites and bookkeeping, not just double-colon effects or agent autoexecution. An instruction
@@ -28,6 +31,72 @@ and `doExecuteResolved`, plus the paths that create, edit, remove, dispatch, or 
 Initialization, corrections, probes, and history restoration are included separately because they
 do not all take the ordinary path. Static language lowering is owned by Pets; its runtime entry
 points are identified here rather than redefined as another engine processing stage.
+
+## Automatic actions without a separate execute command
+
+**Review evidence, October 24, 2026.** The user's starting presumption is that selection should
+never execute anything. This table distinguishes interpreting an instruction, editing tasks, and
+changing components so that exceptions can be considered explicitly. A row describes current code,
+not permission to preserve it. Ordinary execution of `::` and authored calculations remains
+required when an execution command is actually submitted.
+
+| Entry or condition | What currently happens without another execute call | Component changes? |
+| --- | --- | --- |
+| Task admission or replacement | Remove no-ops, reject direct mandatory `Die`, simplify alternatives, and separate eligible `THEN` continuations. | No; this can fail before a body executes. |
+| Ordinary pure dispatch admitted or exposed by an edit/promotion path that admits it | Enqueue its body for its recipient and admit its continuation; do not retain a separate ordinary dispatch task. | No. |
+| `selectTask` or `narrowTask` resolves to concrete work owned by the calling Actor | Execute the instruction, run immediate effects, create queued reactions, admit the continuation, and remove the selected task. | Yes for component instructions. |
+| Selection/narrowing resolves to zero or `Ok` | Finish the task and admit its continuation without a component event. | No, but the task is completed. |
+| Selection/narrowing exposes a group, including `EACH` branches or a gated group | Admit independent children and the original continuation, then remove the original task. Children are not automatically executed by this structural replacement. | No. |
+| Selection produces a concrete `BY` or System handoff | Change the assignee; the receiving Actor executes later. | No in this step. |
+| Any successful outer engine transaction, including queue edits | Promote eligible `LATER`/`FINALLY` batches and perform dispatches exposed by promotion. | No direct component changes; tasks can be created/removed. |
+| `doTask(..., executeSubmittedGroup=true)` | After the matched task disappears, attempt a snapshot of tasks newly added to this Actor's queue. | Yes; see the verified example below. |
+| `doTask(..., combineScalars=true)` | Choose the matching total and execute its constituent tasks, gains before removals. | Yes; each constituent retains its effects. |
+| `canSelectTask` or `canExecuteTask` | Attempt selection/execution and restore recorded state afterward. Listeners can still observe the attempt. | Temporarily, depending on the task. |
+| Engine uses a trial internally | Player priority uses `canSelectTask`; bootstrap uses `canExecuteTask`; `selectionHandsOff` attempts and restores selection. | Depends on the trial; these calls were not explicitly requested as trials by the caller. |
+| Engine construction | Execute configured creation work and pending bootstrap tasks before returning the World. | Yes. |
+| Agent call after an engine selection/narrowing | `AutoExecLoop` may submit Admin and configured Player work; the agent owns those choices. | Yes, but separate engine calls are made. |
+
+Task matching and `prepareTaskNarrowing` can interpret or combine instructions without changing
+components or tasks. They must not be confused with the engine trials above. Similarly, narrowing
+an expression in a client-held `TaskForm` does not execute the task until submission. The last row
+must remain separate from engine selection behavior when testing: Player `NONE` disables Player
+agent automation, not the engine's execution-on-selection and not mandatory Admin work.
+
+Sources: ActorEngine `selectAndExecuteIfConcrete`, `narrowSelectedTask`, `applyResolution`,
+`selectionHandsOff`, `requireNoOtherSelectedTask`, and `doTask`; TaskQueues `admit`, `perform`,
+`promoteDeferredWork`; Transactions `perform`; Initializer `drainBootstrapTasks`; AutoExecLoop.
+The sections below describe each path and the remaining direct execution and correction paths.
+
+### Extra execution requested by executeSubmittedGroup
+
+**Verified with focused temporary JVM tests on October 24, 2026**, using synthetic declarations:
+
+```pets
+CLASS First { This: Second }
+CLASS Second
+CLASS Third
+```
+
+Enqueue `First! THEN Third!` for a Player. The task's current instruction is `First!`, with
+`Third!` stored as its continuation. Execute the current instruction through the raw engine:
+
+```kotlin
+engine.doTask(parse<Instruction>("First!"), executeSubmittedGroup = true)
+```
+
+The call gains First, whose queued reaction creates a Second task; completion also creates the
+Third task. The flag then attempts both newly added tasks, so First, Second, and Third all have
+count 1 when the call returns. With the flag false, only First is gained and the Second and Third
+tasks remain pending. No agent autoexecution is involved in this comparison.
+
+This is not the behavior of every `doTask` call. The flag defaults to false. Agent string commands
+set it for submitted groups; the `doTasks` path also recognizes groups produced by elaboration.
+A companion test, with Player policy NONE, submits `First!, Third!` against
+`(First!, Third!) OR Other!`. It executes the submitted children but leaves their newly created
+Second reaction pending: the loop iterates a snapshot, not an expanding queue. These tests prove
+the convenience flag can execute extra work and that ordinary group handling does not recursively
+drain all descendants. They do not establish a Canon card that relies on the extra execution.
+The temporary tests were outside the repository; no production or permanent test source changed.
 
 ## 1. Before a task reaches the queue
 
@@ -218,8 +287,10 @@ A structural split may require a later submission naming a child.
 
 The overloads do not all follow the same route: `doTask(narrowing)` can apply a matched narrowing
 directly via `narrowSelectedTask`, while `selectTask(id)` takes the explicit selection path.
-The proposed P1 gate is not enforced consistently by current task commands; do not infer a uniform
-priority guarantee from the ID-selection checks.
+Both routes call `requireNoOtherSelectedTask`, whose Player priority check uses the existing trial
+rather than complete legal-choice enumeration. Queue edits and corrections still bypass selected-task
+exclusion. See ENGINE_CONTRACT's current implementation differences rather than treating every
+mutation as an equivalent task command.
 
 Sources: ActorEngine `matchingTask`, `effectiveNarrowing`, `intersectTask`,
 `selectFirstStageOrNull`, `selectTask`, `narrowSelectedTask`, `applyResolution`,
@@ -395,7 +466,7 @@ Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 | `canSelectTask` | Trial selection, including execution if concrete and still with the original Actor, then restore after transaction completion and deferred promotion. An abstract selection or handoff can return true. Gameplay rejection and unresolved instructions become false; other failures propagate. |
 | `canExecuteTask` | Trial execution and restore after transaction completion and deferred promotion; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and unresolved instructions become false; other failures propagate. |
 | `tryTask` | Execute within an atomic block; restore when choices/unavailability prevent completion, or a selection remains as specified by the overload. Other failures restore and propagate. The instruction overload evaluates an outer `PER` before that recovery block. |
-| `trySelectedTask` | Attempt selected work; missing choices return false, while current unavailability is reported as a dead end. Unlike `tryTask`, it needs an enclosing rollback scope. |
+| `trySelectedTask` | Attempt selected work; missing choices return false, while current unavailability is reported as a dead end. Its mutation is transaction-restoring; its public role remains under review. |
 | `restoreTask` | Replace an existing task's data and normalize it. Current code can alter instruction, assignee, and selection without ordinary selection checks; it does not recreate a removed task. |
 | `sneak` correction | Execute concrete elementary changes, required parts, dependent removals, and immediate effects, suppressing queued reactions. Check all invariants after the whole correction group, using a failure-restoring wrapper. No ordinary task handling or completion callback. |
 | Initialization | Create the Admin seed directly, then admit configured work through ordinary Admin task commands. Retry dependency-blocked component creation; drain choice-free bootstrap tasks, reject leftover choices, audit required counts, and establish the history floor. |

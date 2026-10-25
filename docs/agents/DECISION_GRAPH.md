@@ -1,6 +1,7 @@
 # Single-Action Decision Graph
 
-> **First design draft — October 22, 2026.** **Selected** records direction agreed with the
+> **Agent design — updated October 24, 2026; implementation remains exploratory.**
+> **Selected** records direction agreed with the
 > project owner. **Candidate** describes a strategy whose proof and implementation still need
 > review. **Open** identifies an unsettled question. Current-code evidence does not establish
 > that the proposed behavior is implemented.
@@ -33,30 +34,42 @@ making completion analysis practical, not merely presentation work after analysi
 
 ## Division of responsibility
 
-**Selected:** the engine calculates game consequences from expressed decisions. Its essential
-client operations are selecting a task, narrowing it, and executing it. It validates the submitted
-instruction and calculates effects, task changes, and other consequences under the engine contract.
+**Selected destination, October 24, 2026; not yet implemented in full:** the engine interprets an
+explicit request within an identified permitting task. It combines the task and submitted input,
+and can examine the entire requested transaction to establish that exactly a single concrete
+narrowing succeeds. It does not execute subsequently queued tasks to decide this, including Admin
+work. Task finding itself may remain a simple descriptive comparison, without trying consequences
+to choose between different tasks. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#execute-the-clients-intended-request)
+owns the precise rule and remaining implementation questions.
 
-The engine has no obligation to make those operations pleasant or convenient. For a task requiring
-`CityTile<MarsArea(...)>`, it can wait for the client to supply the necessary narrowing. It need
-not decompose the question, enumerate convenient answers, choose a forced answer, or search for a
-way to complete the action.
+The agent answers different questions: what to ask when the client has not supplied a complete
+request, whether to execute automatically, and whether choices can finish the later action. It can
+reduce an unanswered menu partway, compose partial deductions, and investigate later tasks. The
+engine's successful transaction is the beginning of that later analysis, not proof of completion.
+The agent must not duplicate the engine's legality rules in a separate game interpreter.
 
-The Player agent provides that kinder API. It understands the remaining decisions, presents them
-in useful steps, analyzes alternatives, and supplies instructions to the engine. Keeping an
-unfinished choice in a client draft need not mutate the World.
+The earlier plan to move every unique-subtype or present-dependency gain deduction into the agent
+is superseded. Deductions used to interpret an explicit execution request can remain in the engine;
+unsolicited narrowing and automatic execution are agent policy. Partial reductions remain useful
+even when they do not immediately permit execution. Voluntarily retained engine narrowing remains
+open because supplied information can unlock both further narrowing and evaluation.
 
-**Selected direction, migration still to review:** existing engine deductions that supply missing
-choices probably belong in the agent. Some are essential to Admin's agent too; others may be
-Player conveniences. Moving them is about clear responsibility, not duplicating the same reasoning
-in separate implementations. [TASK_HANDLING.md](TASK_HANDLING.md) inventories the current behavior.
-The exact split between interpreting submitted instructions and supplying omitted choices remains
-to be examined. This draft does not decide whether engine-level partial narrowing is removed.
+The [THEN rule](SEQUENCING.md#reviewed-client-view-of-then) requires explicit shared bindings before
+exposing the separate current instruction and continuation. Do not reconstruct X backward from a
+submitted first-stage result in either module. Combined resource totals remain a candidate for
+test support only. Optional transaction trials and quantity-limit reads are reasonable engine
+services; neither certifies completion of later work.
 
-Admin remains an Actor with a driver outside the engine module. Its mandatory automatic handling
-is governed by [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries). The Player
-strategies here do not replace that contract with a configurable Admin policy. Speculation must
-include the Admin transactions that actual execution would perform.
+Admin remains permanently automatic in the agent, through separate engine transactions. Its
+scheduling follows [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries). Player
+policy settings never disable Admin. Agent exploration must include the Admin transactions that
+actual execution would perform; engine uniqueness deliberately stops before them. Outcome
+comparison below also includes settled Admin work and therefore must not be reused as the engine's
+rule for accepting an ambiguous request.
+
+[ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) describes the autonomous experiment sequence.
+The remainder of this document governs agent exploration, not a requirement to build the whole
+search system before trying the engine changes.
 
 ## What the graph describes
 
@@ -383,8 +396,9 @@ proved impossible, or all retained answers are proved equivalent. This includes 
 type, dependency, or amount, as well as a task order. It reduces both question count and search.
 
 An incomplete option list cannot prove uniqueness. A sole successful answer plus unexamined or
-unknown answers is insufficient. Which existing engine deductions can establish these facts
-for Player and Admin agents needs review.
+unknown answers is insufficient. Review which existing engine deductions establish these facts
+and can be reused by Player and Admin agents. The engine transaction rule is the
+starting point; deciding to supply an answer or execute without a client request is agent policy.
 
 ### 8. Reuse established analysis
 
