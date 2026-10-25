@@ -23,6 +23,7 @@ import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
 
 internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
@@ -40,6 +41,22 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   protected abstract val config: GameConfig
   protected open val requireExplicitPaymentChoices: Boolean = true
   internal var exportReplay: Boolean = false
+  private var expectedPendingTasksAtEnd: Int = 0
+
+  /** States how many tasks the source position intentionally leaves pending. */
+  protected fun expectPendingTasksAtEnd(count: Int) {
+    require(count > 0) { "Use the default check when no tasks should remain" }
+    expectedPendingTasksAtEnd = count
+  }
+
+  internal fun assertPendingTasksAtEnd() {
+    val pending = game.tasks.extract { it }
+    assertEquals(
+        expectedPendingTasksAtEnd,
+        pending.size,
+        "Unexpected pending tasks at replay end:\n${pending.joinToString("\n")}",
+    )
+  }
 
   internal suspend fun verifyGameFileRoundTrip(json: String) {
     val document = GameFileJson.parse(json)

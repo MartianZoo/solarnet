@@ -2,7 +2,7 @@
 
 Status: authorized follow-up reviewed for the user-requested commit, October 24, 2026. The selected
 destination is still incomplete. This commit records the experiments and review fixes; it does not
-merge or push them. The branch is
+publish them or merge them into main. The branch is
 `codex/engine-transition-experiments`, at base `c14c000b23f143f0f672ba2b94ae21966ff245d7`, in
 `/Users/dev/solarnet/engine-transition-experiments`. The initial work1 design documents were copied
 here. During review, the user requested integrating main and committing those design documents in
@@ -228,6 +228,25 @@ The review also corrected `narrowTask(taskId, ...)` documentation that still pro
 Four OtbGame20261009 production batches and Molecular Printing now retain their original expected
 MC totals independently of the migrated commands' calculated amounts. Existing resource
 checkpoints remain. No additional operation representation or public API was introduced.
+
+## Integration of main and the work1 documentation commit
+
+At the user's request, work1 first fast-forwarded to main `4974858d2`, then committed the original
+design documents as `2b3ad9c8a`. The reviewed experiments were committed separately as `ca1b8d01a`.
+This branch then merged work1, retaining the experiment's newer implementation descriptions and
+report while adding main's replay changes and TODO. No experiment code was copied back into work1.
+
+The merged replay inputs needed three straightforward adaptations to the removed combined-total
+feature: Atmospheric Enhancers submits its two TR tasks separately; Investment Loan and Media
+Group submit 10 MC and 3 MC; Imported GHG and Optimal Aerobraking submit their separate 3 Heat
+gains. Source-backed final resource assertions remain intact. Main's new replay endpoint checks
+are retained. These adjustments change replay commands, not engine or Canon behavior.
+
+After integration, `:tfm-tests:replayTest :web:jsBrowserTest` passed all 23 curated replays and both
+browser checks in 44 seconds. Formatting and `git diff --check` passed. Evidence:
+`merge-work1-format.log`, `merge-work1-verification.log`, and `merge-work1-tests.tsv`.
+The full build recorded below verified the unchanged production code before this integration;
+optional archived suites remain disabled.
 
 ## Verification and recoverability
 
