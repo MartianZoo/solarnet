@@ -238,6 +238,48 @@ production Agent reducer are not included. The evidence tests for 6 are useful i
 
 ## Additional review findings
 
+A subsequent strict task-matching experiment preserved `cause` when comparing otherwise identical
+tasks in `ActorEngine.uniqueMatchingTask` and `TaskLog.matchingTask`. Focused Agent and engine tests
+passed, but `./gradlew build --continue --console=plain` exposed failures in Canon scenarios and
+curated replays. Ecological Zone offered two identical animal rewards from different trigger events;
+Frontier Town offered ocean placements with different causes; a World Government scenario offered
+identical money gains caused by two ocean tiles; Synthetic Plasma Current had identical card tasks
+from separate draws. The strict change was removed. Requiring IDs for all such calls would change
+ordinary Player inputs, while ignoring cause can change event ancestry and application input checks.
+The selected conservative interchangeability comparison therefore remains open; these cases are
+evidence for specifying it, not approval of the old comparison. The exploratory build also found a
+formatting violation in the temporary code, so it was not a passing full build.
+
+The original temporary diff was removed without saving its patch. A reconstructed minimal production
+patch is now in `_local/engine-transition-evidence/strict-cause-reconstructed.patch` (also under
+`$TMPDIR`). It changes the two task comparisons described above and applies at this branch revision;
+it is not a copy of the original temporary diff. With that patch applied,
+`./gradlew :tfm-tests:jvmTest --tests 'dev.martianzoo.tfm.tests.cards.ViralEnhancersTest' --tests 'dev.martianzoo.tfm.tests.cards.FrontierTownTest' --console=plain`
+failed 7 of 16 tests. The exact failing cases and messages are saved in
+`_local/engine-transition-evidence/strict-cause-reconstructed-failures.tsv`. The patch was then
+reversed, leaving the conservative comparison in place.
+
+The retained code change sends a uniquely proven concrete instruction through
+`narrowSelectedTask` instead of applying a separate direct resolution. Its disposable trial reaches
+that same step through `doTask(candidate, taskId)` and `intersectTask`. The Admin priority probe now
+uses the probed task's assignee engine, so the shared narrowing step also works when a Player engine
+checks pending Admin work. No new inference rule was added.
+The new Admin priority test failed before the probe fix and passed afterward. The focused
+`TransactionUniquenessExperimentTest` and `TransactionTrialIsolationTest` run passed before the fix.
+After reversing the strict-cause patch, the focused Canon tests and
+`./gradlew build --console=plain --quiet` passed with the probe fix and split amount tests. These
+checks do not establish uniqueness for the unsupported instruction forms listed above.
+
+A raw-engine characterization confirms the optional-amount issue is below `TaskForm`:
+`doTask(taskId)` consumes `Repair?` as zero, while an explicit `Repair!` succeeds and produces
+`Notice` after the immediate removal repairs `HAS MAX 0 Repair`. An unconstrained `Notice?` remains
+unresolved. Thus the selected contract would require a choice between zero and one for `Repair?`.
+`Repair*` also resolves to zero, but its desired amount rule remains open. `QUANTIFIERS.md` explicitly
+caps both optional and AMAP using invariant room in the current World; Canon's neutral
+`PartyDelegate` placement uses mandatory gain because AMAP would gain zero before leader demotion.
+The focused `AgentNarrowingExperimentTest` run passed. Characterize the Canon impact before changing
+`Instructor.limitChange` or the documented amount rule.
+
 The whole-branch review reproduced and fixed a missed form of experiment 1b: an explicit group
 member `(TASK Player1 { First! } THEN Following!)` admitted First and Following, then incorrectly
 executed both. Admission now distinguishes the submitted member from the tasks produced by its

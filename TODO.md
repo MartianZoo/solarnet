@@ -18,8 +18,13 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Admin waiting behavior, callback failure recovery, and custom Kotlin effects separately.
 - Fix Agent choice completeness before adopting automatic form reduction. The passing
   `AgentNarrowingExperimentTest` BUG case shows `Repair?` offering only `Ok` even though `Repair!`
-  succeeds because `Repair:: Notice, -Repair` repairs its own MAX 0 limit. Also reconcile form commit
-  selecting/evaluating before applying a narrowing with direct execution applying the request first.
+  succeeds because `Repair:: Notice, -Repair` repairs its own MAX 0 limit. A raw engine call by task
+  ID consumes `Repair?` as zero even though both zero and one succeed; the selected contract would
+  require a choice. `Repair*` also resolves to zero under the documented current-headroom rule in
+  `QUANTIFIERS.md`, but its intended amount rule remains open. Canon's neutral `PartyDelegate`
+  placement deliberately uses mandatory gain for this reason. Characterize affected Canon amounts
+  before changing the rule. Reconcile form commit selecting/evaluating before applying a narrowing
+  with direct execution applying the request first.
   A sole displayed option is not proof of a sole successful transaction. Keep Player automatic
   policy scope unchanged until this is resolved. Explicit combined-total requests are a separate
   Agent convenience, selected for production income; they do not authorize automatic choice-making.
@@ -125,6 +130,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   receiving Actor's task. Establish the intended model for Turmoil event draws and solo neutral
   placements when implementing complete enumeration. Keep whole-action exploration in agents,
   separate from the legality of an individual transaction.
+  Specify when tasks with different causes are interchangeable: strict cause equality broke
+  Ecological Zone, Frontier Town, and curated replay requests for repeated rewards, while cause
+  still affects event ancestry and application input checks. Do not require task IDs for all of
+  those ordinary requests merely to make the comparator strict.
 - Migrate Players away from the EAGER default, which can close legitimate gameplay choices.
   The user deliberately deferred the migration cleanup for now, hoping to move to a suitable smart
   policy rather than first migrating to NONE or CONCRETE. Leave the current default unchanged in

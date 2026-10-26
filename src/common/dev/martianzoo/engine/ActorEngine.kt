@@ -500,7 +500,10 @@ internal constructor(
   ): Boolean {
     timeline.requireAtEnd()
     if (taskId !in queue) return false
-    return trialWorld().actorEngine(actor).probeSelection(taskId, requireConcrete)
+    // The Admin priority check can probe a task from a Player's engine.
+    return trialWorld()
+        .actorEngine(allTasks.getTaskData(taskId).assignee)
+        .probeSelection(taskId, requireConcrete)
   }
 
   private fun probeSelection(taskId: TaskId, requireConcrete: Boolean): Boolean =
@@ -731,7 +734,7 @@ internal constructor(
     val instruction = selectedTask.instruction
     if (instruction.isAbstract(reader)) {
       val chosen = successfulNarrowing(taskId, instruction, executingActor)
-      applyResolution(queue, selectedTask, instructor.resolve(chosen), selectedTask.then)
+      narrowSelectedTask(taskId, chosen, quantifierOmitted = false)
       if (taskId in allTasks && allTasks.getTaskData(taskId).assignee == executingActor) {
         executeSelectedTask(queueForAnyTask(taskId), taskId, executingActor)
       }

@@ -4,6 +4,7 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
@@ -32,6 +33,34 @@ internal class AdminTimingExperimentTest {
     agents[PLAYER1].autoExecNow()
     agents[PLAYER1].count("Allowed") shouldBe 1
     world.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  fun playerSelectionWaitsForUniquelyInferableAdminWork() {
+    val world =
+        Engine.newGame(
+            testGamePremise(
+                """
+        ABSTRACT CLASS Choice
+        CLASS Allowed : Choice
+        CLASS Forbidden : Choice { HAS MAX 0 This }
+        CLASS Foo
+        """
+            )
+        )
+    val admin = world.actorEngine(ADMIN)
+    val player = world.actorEngine(PLAYER1)
+    val choice = admin.addTasks(InstructionGroup.of(parse<InstructionTree>("Choice!"))).single()
+    val foo = player.addTasks(InstructionGroup.of(parse<InstructionTree>("Foo!"))).single()
+    val before = world.events.nextOrdinal
+
+    shouldThrow<TaskException> { player.selectTask(foo) }
+    world.events.nextOrdinal shouldBe before
+    world.tasks.getTaskData(foo).selected shouldBe false
+
+    admin.doTask(choice)
+    player.selectTask(foo)
+    world.tasks.getTaskData(foo).selected shouldBe true
   }
 
   @Test

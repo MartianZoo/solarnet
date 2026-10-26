@@ -5,9 +5,11 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.TaskForm
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.testsupport.PLAYER1
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -32,6 +34,16 @@ internal class AgentNarrowingExperimentTest {
       CLASS Foo : Resource
       CLASS Bar : Resource
       CLASS Reward
+      """
+          )
+      )
+
+  private fun repairWorld() =
+      Engine.newGame(
+          testGamePremise(
+              """
+      CLASS Repair { HAS MAX 0 This; This:: Notice, -This }
+      CLASS Notice
       """
           )
       )
@@ -108,15 +120,7 @@ internal class AgentNarrowingExperimentTest {
 
   @Test
   fun `BUG - optional amount menu hides a gain repaired by its immediate effect`() {
-    val world =
-        Engine.newGame(
-            testGamePremise(
-                """
-        CLASS Repair { HAS MAX 0 This; This:: Notice, -This }
-        CLASS Notice
-        """
-            )
-        )
+    val world = repairWorld()
     val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
     val task = agent.addTasks("Repair?").single()
     val form = agent.fillInTask(task)
@@ -127,5 +131,44 @@ internal class AgentNarrowingExperimentTest {
     agent.doTask("Repair!")
     agent.count("Repair") shouldBe 0
     agent.count("Notice") shouldBe 1
+  }
+
+  @Test
+  fun `BUG - raw optional task is consumed as zero despite another successful amount`() {
+    val unconstrainedWorld = repairWorld()
+    val unconstrainedEngine = unconstrainedWorld.actorEngine(PLAYER1)
+    val notice =
+        unconstrainedEngine
+            .addTasks(InstructionGroup.of(parse<InstructionTree>("Notice?")))
+            .single()
+    shouldThrow<NotFullySpecifiedException> { unconstrainedEngine.doTask(notice) }
+    unconstrainedWorld.tasks.getTaskData(notice).selected shouldBe false
+
+    val world = repairWorld()
+    val engine = world.actorEngine(PLAYER1)
+    val task = engine.addTasks(InstructionGroup.of(parse<InstructionTree>("Repair?"))).single()
+    engine.doTask(task)
+    Agents(world)[PLAYER1].count("Notice") shouldBe 0
+    world.tasks.isEmpty() shouldBe true
+
+    val explicitWorld = repairWorld()
+    val explicitEngine = explicitWorld.actorEngine(PLAYER1)
+    val explicitTask =
+        explicitEngine.addTasks(InstructionGroup.of(parse<InstructionTree>("Repair?"))).single()
+    explicitEngine.doTask(parse<InstructionTree>("Repair!"), taskId = explicitTask)
+    Agents(explicitWorld)[PLAYER1].count("Notice") shouldBe 1
+    explicitWorld.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  fun rawAmapTaskUsesCurrentInvariantHeadroom() {
+    val world = repairWorld()
+    val engine = world.actorEngine(PLAYER1)
+    val task = engine.addTasks(InstructionGroup.of(parse<InstructionTree>("Repair*"))).single()
+
+    engine.doTask(task)
+
+    Agents(world)[PLAYER1].count("Notice") shouldBe 0
+    world.tasks.isEmpty() shouldBe true
   }
 }
