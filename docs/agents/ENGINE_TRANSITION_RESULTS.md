@@ -1,8 +1,8 @@
 # Engine transition experiment results
 
-Status: authorized follow-up reviewed for the user-requested commit, October 24, 2026. The selected
-destination is still incomplete. This commit records the experiments and review fixes; it does not
-publish them or merge them into main. The branch is
+Status: authorized follow-up reviewed for the user-requested commit, October 24, 2026, plus the
+separately committed increments recorded below, October 27, 2026. The selected destination is still
+incomplete. Nothing here is published or merged into main. The branch is
 `codex/engine-transition-experiments`, at base `c14c000b23f143f0f672ba2b94ae21966ff245d7`, in
 `/Users/dev/solarnet/engine-transition-experiments`. The initial work1 design documents were copied
 here. During review, the user requested integrating main and committing those design documents in
@@ -321,6 +321,42 @@ browser checks in 44 seconds. Formatting and `git diff --check` passed. Evidence
 `merge-work1-format.log`, `merge-work1-verification.log`, and `merge-work1-tests.tsv`.
 The full build recorded below verified the unchanged production code before this integration;
 optional archived suites remain disabled.
+
+## Increments after the October 24 review
+
+The user asked for one well-defined increment at a time, each verified and committed on its own.
+Two landed on October 27, 2026. Neither advances experiments 4 and 5, and neither touches
+corrections.
+
+`349676f33` closes the queue-edit half of the selected-task exclusion. `ActorEngine.addTasks` and
+`ActorEngine.dropTask` now refuse while any task is selected, except dropping the selected task
+itself, which is how a client abandons work it has started. A private `requireNoSelectedTask` sits
+beside `requireNoOtherSelectedTask`; both methods' KDoc records the refusal. No field, exception
+type, representation, or public API was added. `sneak` and `restoreTask` are unchanged because the
+contract defers corrections separately, and
+[ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) records the narrowed difference.
+
+`TaskAssignmentCharacterizationTest.aSelectedTaskExcludesCompetingQueueEdits` is the only test in
+the corpus that exercises a queue edit against a selected task: the whole suite passes with the
+guard in place, so nothing else performs one. The guard was therefore verified by removing it. With
+both guard calls removed the test fails at its `addTasks` assertion; with only `dropTask`'s guard
+removed it fails at its `dropTask` assertion. Each half is independently proven, and in both runs it
+is the only failure among that class's 32 tests. Those two runs are
+`increment-01-guard-removed-failure.log` and
+`increment-01-droptask-guard-removed-failure.log`. Their reported frame numbers are Kotlin
+inline-function positions beyond the end of the 636-line source, not file lines; the assertions
+themselves are adjacent.
+
+`7962b4f84` answers the two "establish a required use" markers on reusable speculative state. The
+finding is recorded under [Additional review findings](#additional-review-findings); that commit is
+comments and documentation only.
+
+Each increment passed a whole `./gradlew build`: 5m 13s and 4m 41s, 462 tasks each, no failures,
+including `:tfm-tests:replayTest` and the web browser checks. `spotlessApply` changed nothing in
+either. The second build's engine, Agent, and state test tasks resolved from cache because
+comment-only edits recompile to identical bytecode. Logs are `increment-01-build.log` and
+`increment-02-build.log`. `refs/claude/engine-transition-increments-2026-10-27` pins the branch tip
+at this record, so the increments survive a later reset of the branch.
 
 ## Verification and recoverability
 
