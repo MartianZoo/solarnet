@@ -132,8 +132,7 @@ private constructor(
           ?: classesByName
               .getValue(removal.removing.className)
               .defaults
-              .removeOnly
-              .quantifier
+              .removalQuantifier
               .modality()
 
   internal fun <T> fact(

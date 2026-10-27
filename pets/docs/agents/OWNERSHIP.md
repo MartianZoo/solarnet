@@ -14,6 +14,11 @@ trigger-side `BY Anyone` for every performer.
 same binding, such as `Me@Player`. Independently inherited bindings with the same name are
 ambiguous unless they reach the same dependency. A marked `EACH Me@Player` or
 `RANK Me@Player` rebinds `Me` inside its body; an unmarked selector preserves the outer binding.
+`Player(HAS ... RANK { ... })` preserves it too. Ranking supplies compatible omitted metric
+dependencies for each competitor before ownership insertion, including through `EVAL`; explicit
+`Score<Me@>` still refers to the outer owner. This fills only outermost metric expressions;
+it does not descend into their arguments or refinements. Award scoring retains explicit
+`RANK Me@Player` for nested ownership in Collector and Excentric. See language rule L4-8.
 
 `Me@` and other named references may omit their type when the visible name selects a unique
 binding, as specified by language rule L1-7. The supplying occurrence still writes its type. An

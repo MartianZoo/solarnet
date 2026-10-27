@@ -107,13 +107,13 @@ public class CanonQuery(public val form: Form, catalog: TfmCatalog = Canon) {
             listOf(
                     "universal" to d.universal,
                     "gainOnly" to d.gainOnly,
-                    "removeOnly" to d.removeOnly,
                     "triggerOnly" to d.triggerOnly,
                 )
                 .forEach { (name, value) ->
                   val target = xml.element(defaults, name, mapOf("quantifier" to value.quantifier))
                   value.specs.forEach { xml.node(target, selected(it)) }
                 }
+            xml.element(defaults, "removeOnly", mapOf("quantifier" to d.removalQuantifier))
           }
           xml.nodes(element, "extraNodes", declaration.extraNodes.map(::selected))
           if (form == Form.AUTHORED) {

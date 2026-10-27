@@ -610,15 +610,15 @@ internal class CatalogDiagnosticsTest {
 
   @Test
   internal fun defaultsNamingDifferentClasses() {
-    val source = "CLASS Garden { DEFAULT Garden; DEFAULT Plant }"
+    val source = "CLASS Garden { DEFAULT +Garden*; DEFAULT +Plant* }"
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
     assertEquals("`DEFAULT` clauses name different classes: `Garden`, `Plant`", error.detail)
     assertEquals(
         """
-        |`DEFAULT` clauses name different classes: `Garden`, `Plant` at 1:40
-        |CLASS Garden { DEFAULT Garden; DEFAULT Plant }
-        |                                       ^
+        |`DEFAULT` clauses name different classes: `Garden`, `Plant` at 1:43
+        |CLASS Garden { DEFAULT +Garden*; DEFAULT +Plant* }
+        |                                          ^
         """
             .trimMargin(),
         error.message,
@@ -860,19 +860,19 @@ internal class CatalogDiagnosticsTest {
 
   @Test
   internal fun customDefault() {
-    val source = "CLASS Garden : CustomMetric { DEFAULT Garden }"
+    val source = "CLASS Garden : CustomMetric { DEFAULT +Garden* }"
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
     assertEquals(
         "custom metric `Garden` cannot declare Pets defaults; its behavior comes from its Kotlin implementation",
         error.detail,
     )
-    // Prefer highlighting the entire forbidden `DEFAULT Garden` clause, starting at `DEFAULT`.
+    // Prefer highlighting the entire forbidden `DEFAULT +Garden*` clause, starting at `DEFAULT`.
     assertEquals(
         """
-        |custom metric `Garden` cannot declare Pets defaults; its behavior comes from its Kotlin implementation at 1:39
-        |CLASS Garden : CustomMetric { DEFAULT Garden }
-        |                                      ^
+        |custom metric `Garden` cannot declare Pets defaults; its behavior comes from its Kotlin implementation at 1:40
+        |CLASS Garden : CustomMetric { DEFAULT +Garden* }
+        |                                       ^
         """
             .trimMargin(),
         error.message,
@@ -2068,7 +2068,7 @@ internal class CatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun incompatibleInheritedDefaults() {
+  internal fun conflictingInheritedDefaults() {
     val source =
         """
         ABSTRACT CLASS Resource
@@ -2083,13 +2083,13 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "`Garden` inherits incompatible defaults for `Holder_0`: `Holder_0=Plant` and `Holder_0=Water`",
+        "`Garden` inherits conflicting defaults for `Holder_0`: `Holder_0=Plant`, `Holder_0=Water`",
         error.detail,
     )
     // Prefer highlighting `HasPlant, HasWater` and showing the conflicting default arguments.
     assertEquals(
         """
-        |`Garden` inherits incompatible defaults for `Holder_0`: `Holder_0=Plant` and `Holder_0=Water` at 7:7
+        |`Garden` inherits conflicting defaults for `Holder_0`: `Holder_0=Plant`, `Holder_0=Water` at 7:7
         |CLASS Garden : HasPlant, HasWater
         |      ^
         """
@@ -2414,7 +2414,12 @@ internal class CatalogDiagnosticsTest {
           ClassDeclaration(
               cn("Garden"),
               ClassDeclaration.ClassKind.CONCRETE,
-              defaultsDeclaration = ClassDeclaration.DefaultsDeclaration(forClass = cn("Plant")),
+              defaultsDeclaration =
+                  ClassDeclaration.DefaultsDeclaration(
+                      gainOnly =
+                          ClassDeclaration.DefaultsDeclaration.OneDefault(quantifier = OPTIONAL),
+                      forClass = cn("Plant"),
+                  ),
           )
         }
     assertEquals(

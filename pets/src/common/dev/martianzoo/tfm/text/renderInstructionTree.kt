@@ -920,7 +920,7 @@ internal val doNothingClause: Clause.Simple =
 private fun renderPlacementSiteFallback(
     instruction: Instruction.Or,
     describers: Describers,
-): Clause.Simple? {
+): Clause? {
   if (instruction.instructions.size != 2) return null
   val preferred =
       InstructionGroup.of(instruction.instructions.first()).instructions.singleOrNull() as? Gain
@@ -928,22 +928,21 @@ private fun renderPlacementSiteFallback(
   val fallback =
       InstructionGroup.of(instruction.instructions.last()).instructions.singleOrNull()
           as? Instruction.Gated ?: return null
-  val unrestricted =
+  val fallbackGain =
       InstructionGroup.of(fallback.inner).instructions.singleOrNull() as? Gain ?: return null
   val preferredPlacement = resolvePlacementExpression(preferred.gaining, describers) ?: return null
-  val unrestrictedPlacement =
-      resolvePlacementExpression(unrestricted.gaining, describers) ?: return null
+  val fallbackPlacement =
+      resolvePlacementExpression(fallbackGain.gaining, describers) ?: return null
   if (
       preferred.gaining.refinement != null ||
-          preferred.gaining.className != unrestricted.gaining.className ||
+          preferred.gaining.className != fallbackGain.gaining.className ||
           preferredPlacement.owner != null ||
           preferredPlacement.unknownDependencies.isNotEmpty() ||
-          unrestrictedPlacement.owner != null ||
-          unrestrictedPlacement.sites.isNotEmpty() ||
-          unrestrictedPlacement.unknownDependencies.isNotEmpty() ||
-          unrestricted.gaining.refinement != null ||
-          preferred.quantifier.modality() != unrestricted.quantifier.modality() ||
-          preferred.count != unrestricted.count ||
+          fallbackPlacement.owner != null ||
+          fallbackPlacement.unknownDependencies.isNotEmpty() ||
+          fallbackGain.gaining.refinement != null ||
+          preferred.quantifier.modality() != fallbackGain.quantifier.modality() ||
+          preferred.count != fallbackGain.count ||
           preferred.count.fixedQuantity() != 1
   ) {
     return null
@@ -956,10 +955,18 @@ private fun renderPlacementSiteFallback(
   if (absence.maximum != 0 || countedSite.expression != site) return null
 
   val preferredClause = renderChange(preferred, describers) as? Clause.Simple ?: return null
-  if (renderChange(unrestricted, describers) !is Clause.Simple) return null
-  return preferredClause
-      .withModifier(Modifier.Phrase("if using a board that has one"))
-      .withModifier(Modifier.Supplement("otherwise place it normally"))
+  val fallbackClause = renderChange(fallbackGain, describers) as? Clause.Simple ?: return null
+  val conditional = preferredClause.withModifier(Modifier.Phrase("if using a board that has one"))
+  return if (fallbackPlacement.sites.isEmpty()) {
+    conditional.withModifier(Modifier.Supplement("otherwise place it normally"))
+  } else {
+    Clause.Coordinated(
+        Coordination(
+            listOf(conditional, fallbackClause.withModifier(Modifier.Phrase("otherwise"))),
+            Conjunction.COMMA_OR,
+        )
+    )
+  }
 }
 
 internal fun Describers.renderGateCondition(

@@ -114,7 +114,7 @@
           "name": "CommercialDistrict",
           "cost": 16,
           "tags": [ "BuildingTag" ],
-          "direct": "PROD[-Energy, 4 MC], SpecialTile<> {}",
+          "direct": "PROD[-Energy, 4 MC], SpecialTile<LandArea> {}",
           "effects": [ "End: VictoryPoint / Adjacency<CommercialDistrict_SpecialTile, CityTile<Anyone>>" ],
         },
         {
@@ -384,7 +384,7 @@
           "name": "RestrictedArea",
           "cost": 11,
           "tags": [ "ScienceTag" ],
-          "direct": "SpecialTile<> {}",
+          "direct": "SpecialTile<LandArea> {}",
           "actions": [ "2 MC -> ProjectCard" ],
         },
         {

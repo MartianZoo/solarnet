@@ -695,7 +695,7 @@ private constructor(
     fun hasInstructionQuantifier(defaults: DefaultsDeclaration): Boolean =
         defaults.universal.quantifier != null ||
             defaults.gainOnly.quantifier != null ||
-            defaults.removeOnly.quantifier != null
+            defaults.removalQuantifier != null
 
     val inheritedDefaults =
         klass.properSuperclasses().filter {

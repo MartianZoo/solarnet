@@ -96,8 +96,8 @@ Children:
 - `supertypes` and `dependencies`: declared expression ASTs.
 - `invariants`: declared requirements; `effectiveInvariants`: resolved inherited requirements.
 - `properties/Property[@name]`: resolved property values, including type bounds.
-- `defaults/universal`, `gainOnly`, `removeOnly`, `triggerOnly`: declared defaults, with optional
-  `@quantifier` and expression children.
+- `defaults/universal`, `gainOnly`, `triggerOnly`: declared dependency defaults, with optional
+  `@quantifier` and expression children. `defaults/removeOnly` carries only `@quantifier`.
 - `extraNodes`: remaining declaration AST nodes.
 - `actions/Action/cost` and `actions/Action/instruction`: authored action operands.
 - `effects/Effect[@automatic]/trigger` and `effects/Effect/instruction`: effect operands.

@@ -300,6 +300,31 @@ internal class Lang11ClassDeclarationsTest {
     shouldRejectSource("CLASS Tile { DEFAULT +Tile?; DEFAULT +Tile! }")
   }
 
+  @Test
+  internal fun `L11-8 removal defaults can specify only a quantifier`() {
+    parseClasses("CLASS Owed { DEFAULT -Owed* }")
+        .single()
+        .defaultsDeclaration
+        .removalQuantifier shouldBe Instruction.Quantifier.AMAP
+    shouldRejectSource("CLASS Owed { DEFAULT -Owed<Class<MC>>* }")
+    shouldRejectSource("CLASS Owed { DEFAULT -Owed<>* }")
+    shouldRejectSource("CLASS Owed { DEFAULT -Owed*; DEFAULT -Owed? }")
+  }
+
+  @Test
+  internal fun `L11-8 empty DEFAULT clauses are rejected before merging`() {
+    for (clause in
+        listOf(
+            "DEFAULT Tile",
+            "DEFAULT +Tile",
+            "DEFAULT -Tile",
+            "DEFAULT Tile:",
+            "DEFAULT Tile<>",
+        )) {
+      shouldRejectSource("CLASS Tile { $clause; DEFAULT +Tile* }")
+    }
+  }
+
   // L11-9 Properties
 
   @Test
@@ -368,7 +393,7 @@ internal class Lang11ClassDeclarationsTest {
           HAS =1 This
           DEFAULT Alpha<Xyz>
           DEFAULT +Alpha<Abc>?
-          DEFAULT -Alpha<Def>!
+          DEFAULT -Alpha!
           row = Number
           column = 2
           This: DoStuff
@@ -382,7 +407,7 @@ internal class Lang11ClassDeclarationsTest {
     parseClasses(declaration.toString(oneLine = true)).single() shouldBe declaration
     declaration.toString(oneLine = true) shouldBe
         "\"A useful class\"\nABSTRACT CLASS Alpha<Beta, Qux> : Root, Eep " +
-            "{ HAS =1 This; DEFAULT Alpha<Xyz>; DEFAULT +Alpha<Abc>?; DEFAULT -Alpha<Def>!; " +
+            "{ HAS =1 This; DEFAULT Alpha<Xyz>; DEFAULT +Alpha<Abc>?; DEFAULT -Alpha!; " +
             "row = Number; column = 2; This: DoStuff }"
   }
 

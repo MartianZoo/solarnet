@@ -589,7 +589,7 @@
           "name": "LavaFlows",
           "cost": 18,
           "tags": [ "EventTag" ],
-          "direct": "2 TemperatureStep, LavaFlows_SpecialTile<VolcanicArea> OR (MAX 0 VolcanicArea: LavaFlows_SpecialTile<>)",
+          "direct": "2 TemperatureStep, LavaFlows_SpecialTile<VolcanicArea> OR (MAX 0 VolcanicArea: LavaFlows_SpecialTile<LandArea>)",
           "components": [ "CLASS LavaFlows_SpecialTile : SpecialTile" ],
         },
         {
@@ -669,7 +669,7 @@
           "name": "MiningRights",
           "cost": 9,
           "tags": [ "BuildingTag" ],
-          "direct": "SpecialTile<> {}, PROD[Metal(HAS PlacementBonus<LandArea(HAS MiningRights_SpecialTile)>)]",
+          "direct": "SpecialTile<LandArea> {}, PROD[Metal(HAS PlacementBonus<LandArea(HAS MiningRights_SpecialTile)>)]",
           "incompatible": [ "AmazonisMap" ],
         },
         {
@@ -741,7 +741,7 @@
           "name": "NuclearZone",
           "cost": 10,
           "tags": [ "EarthTag" ],
-          "direct": "SpecialTile<> {}, 2 TemperatureStep",
+          "direct": "SpecialTile<LandArea> {}, 2 TemperatureStep",
           "effects": [ "End: -2 VictoryPoint" ],
         },
         {

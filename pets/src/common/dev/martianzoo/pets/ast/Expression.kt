@@ -2,6 +2,7 @@ package dev.martianzoo.pets.ast
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.types.ClassLoader
@@ -118,7 +119,25 @@ public open class Expression(
     if (reference?.argumentsSpecified ?: argumentsSpecified) {
       append(arguments.joinToString(", ", "<", ">"))
     }
-    if (reference == null) refinement?.let { append("($it)") }
+    if (reference == null)
+        refinement?.let {
+          val domain = copy(refinement = null, typeVariableName = null)
+          val rendered =
+              object : PetTransformer() {
+                    override fun transformNode(node: PetNode): PetNode =
+                        when {
+                          node is Expression -> node
+                          node is Metric.Rank && node.selector == domain ->
+                              node.copy(
+                                  selector = null,
+                                  metrics = node.metrics.map(::transformMetric),
+                              )
+                          else -> transformChildren(node)
+                        }
+                  }
+                  .transformRefinement(it)
+          append("($rendered)")
+        }
   }
 
   /** Does this expression consist only of a class name, with no arguments and no refinement? */

@@ -46,6 +46,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
@@ -58,7 +59,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.withTypeVariables
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
-import dev.martianzoo.pets.types.Defaults
 import dev.martianzoo.pets.types.Defaults.DefaultSpec
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.DependencySet
@@ -225,11 +225,59 @@ public class PetElaborator(public val classTable: ClassTable) {
       context: Expression,
   ): InstructionTree = propertyEvaluator(context).transformInstructionTree(input)
 
-  /** Expands Class-property syntax in the supplied Metric context, requiring fixed values. */
+  /**
+   * Expands Class-property syntax in the supplied Metric context, requiring fixed values. When
+   * ranking, [candidate] supplies omitted compatible dependencies of outermost metric expressions,
+   * including in expanded metrics. Arguments and nested refinements retain their own contexts;
+   * explicit arguments and lexical `Me` retain their meanings.
+   */
   public fun evaluateProperties(
       input: Metric,
       context: Expression,
-  ): Metric = propertyEvaluator(context).transformMetric(input)
+      candidate: Expression? = null,
+  ): Metric =
+      chain(
+              bindMetricCandidate(candidate),
+              propertyEvaluator(context, metricCandidate = candidate),
+          )
+          .transformMetric(input)
+
+  /** Supplies a ranking competitor only where a metric leaves a compatible dependency open. */
+  private fun bindMetricCandidate(candidate: Expression?): PetTransformer {
+    if (candidate == null) return noOp()
+    return object : PetTransformer() {
+      override fun transformNode(node: PetNode): PetNode {
+        if (node is Metric.Rank || node is Property) return node
+        if (node !is Expression) return transformChildren(node)
+        // Arguments and nested refinements have their own meaning and candidate.
+        if (leaveItAlone(node) || node.typeVariableName != null) return node
+        val klass = classTable.getClass(node.className)
+        val supplied = klass.argumentDependencies.matchPartial(node.arguments, classTable)
+        val open =
+            klass.argumentDependencies.subMapInOrder(
+                klass.argumentDependencies.keys.filter {
+                  it !in supplied.keys && !klass.dependencyDeterminedBy(it, supplied.keys)
+                }
+            )
+        val key =
+            try {
+              open.matchPartial(listOf(candidate), classTable).keys.single()
+            } catch (_: ExpressionException) {
+              return node
+            }
+        val arguments = supplied.keys.zip(node.arguments).toMap()
+        return node
+            .copy(
+                arguments =
+                    klass.argumentDependencies.keys.mapNotNull {
+                      arguments[it] ?: candidate.takeIf { _ -> it == key }
+                    },
+                argumentsSpecified = true,
+            )
+            .also { it.sourceLocation = node.sourceLocation }
+      }
+    }
+  }
 
   /**
    * Expands explicit property syntax in context, optionally retaining evaluations for later
@@ -238,6 +286,7 @@ public class PetElaborator(public val classTable: ClassTable) {
   private fun propertyEvaluator(
       context: Expression,
       deferAbstract: Boolean = false,
+      metricCandidate: Expression? = null,
   ): PetTransformer {
     val expanding = mutableSetOf<Pair<Expression, PropertyName>>()
     val contextualizer = replaceThisExpressionsWith(context)
@@ -249,8 +298,8 @@ public class PetElaborator(public val classTable: ClassTable) {
         if (node is Each) {
           return Each(transformExpression(node.selector), node.body)
         }
-        // A RANK key is evaluated once per candidate. Expanding its properties before then
-        // loses the candidate that supplies a lexical Me to the property's value.
+        // A RANK key is evaluated once per competitor. Expanding its properties before then
+        // loses the competitor that supplies omitted dependencies in the property's value.
         if (node is Metric.Rank) {
           if (deferAbstract) return node
           return node
@@ -349,6 +398,7 @@ public class PetElaborator(public val classTable: ClassTable) {
                   chain(
                       replaceThisExpressionsWith(propertyType.expressionFull),
                       bindFreeMe(me),
+                      bindMetricCandidate(metricCandidate),
                       insertOwnedContext(me, propertyType.expressionFull),
                   )
               when (syntax) {
@@ -605,7 +655,7 @@ public class PetElaborator(public val classTable: ClassTable) {
       }
       if (node is Metric.Rank) {
         val selected = available || node.selector?.let(::selectedMe) != null
-        return withinRefinementCandidate(null) {
+        return withinRefinementCandidate(node.selector) {
           (node.selector?.let { needsMe(it, selected) } ?: false) ||
               node.metrics.any { needsMe(it, selected) }
         }
@@ -765,7 +815,7 @@ public class PetElaborator(public val classTable: ClassTable) {
         }
         if (node is Metric.Rank) {
           val previous = me
-          return withinRefinementCandidate(null) {
+          return withinRefinementCandidate(node.selector) {
             try {
               val selector = node.selector?.let(::transformExpression)
               me = selector?.let(::selectedMe) ?: previous
@@ -953,11 +1003,11 @@ public class PetElaborator(public val classTable: ClassTable) {
             if (node is Change) {
               when (node) {
                 is Gain ->
-                    handleIt(node, node.gaining, { it.gainOnly }) { fixed, quantifier ->
+                    handleIt(node, node.gaining) { fixed, quantifier ->
                       gain(scaledEx(fixed, node.count), quantifier)
                     }
                 is Remove ->
-                    handleIt(node, node.removing, { it.removeOnly }) { fixed, quantifier ->
+                    handleIt(node, node.removing) { fixed, quantifier ->
                       remove(scaledEx(fixed, node.count), quantifier)
                     }
                 is Transmute -> handleTransmute(node)
@@ -972,7 +1022,6 @@ public class PetElaborator(public val classTable: ClassTable) {
       private fun handleIt(
           node: Change,
           original: Expression,
-          extractor: (Defaults) -> DefaultSpec,
           rebuild: (Expression, Instruction.Quantifier?) -> Instruction,
       ): Instruction {
         return if (original.className == THIS) {
@@ -980,14 +1029,20 @@ public class PetElaborator(public val classTable: ClassTable) {
         } else if (leaveItAlone(original)) {
           node // don't descend
         } else {
-          val kind = if (node is Gain) "gain" else "removal"
-          val spec = extractor(classTable.getClass(original.className).defaults)
-          rejectEmptyArgumentsWithoutDefaults(original, spec, kind)
-          if (kind == "gain") requireExplicitDependencyDefaults(original, spec, kind)
+          val defaults = classTable.getClass(original.className).defaults
           val fixed =
-              if (kind == "removal" && hasUnacceptedDependencyDefaults(original, spec)) original
-              else insertDefaultsIntoExpr(original, spec.dependencies, context, classTable)
-          val quantifier = node.quantifier ?: spec.quantifier
+              if (node is Gain) {
+                val spec = defaults.gainOnly
+                rejectEmptyArgumentsWithoutDefaults(original, spec, "gain")
+                requireExplicitDependencyDefaults(original, spec, "gain")
+                insertDefaultsIntoExpr(original, spec.dependencies, context, classTable)
+              } else {
+                rejectEmptyArgumentsWithoutDefaults(original, defaults.allUsages, "removal")
+                original
+              }
+          val quantifier =
+              node.quantifier
+                  ?: if (node is Gain) defaults.gainOnly.quantifier else defaults.removalQuantifier
           rebuild(fixed, quantifier)
         }
       }
@@ -995,15 +1050,23 @@ public class PetElaborator(public val classTable: ClassTable) {
       // Rule L9-8: the gained and removed projections are defaulted independently, and where the
       // transmutation writes no quantifier, the projections' defaults are intersected.
       private fun handleTransmute(node: Transmute): Transmute {
-        val gainDefault = defaultFor(node.gaining, { it.gainOnly }, gain = true)
-        val removeDefault = defaultFor(node.removing, { it.removeOnly }, gain = false)
+        val gainDefault = gainDefaultFor(node.gaining)
+        val removalQuantifier =
+            if (leaveItAlone(node.removing)) null
+            else {
+              val defaults = classTable.getClass(node.removing.className).defaults
+              rejectEmptyArgumentsWithoutDefaults(node.removing, defaults.allUsages, "removal")
+              defaults.removalQuantifier
+            }
         val quantifier =
             node.quantifier
                 ?: if (node.gaining.className == THIS || node.removing.className == THIS) MANDATORY
-                else intersectQuantifiers(gainDefault?.quantifier, removeDefault?.quantifier)
+                else intersectQuantifiers(gainDefault?.quantifier, removalQuantifier)
 
-        val gaining = applyDefault(node.gaining, gainDefault, context, gain = true)
-        val removing = applyDefault(node.removing, removeDefault, context, gain = false)
+        val gaining =
+            if (gainDefault == null) node.gaining
+            else insertDefaultsIntoExpr(node.gaining, gainDefault.dependencies, context, classTable)
+        val removing = node.removing
         val fromExpression =
             (node.fromEx as? Compact)?.let { retainCompactForm(it, gaining, removing) }
                 ?: Full(gaining, removing)
@@ -1011,31 +1074,13 @@ public class PetElaborator(public val classTable: ClassTable) {
             .withTypeVariables(node.typeVariables.transformedBy(this))
       }
 
-      private fun defaultFor(
-          expression: Expression,
-          extractor: (Defaults) -> DefaultSpec,
-          gain: Boolean,
-      ): DefaultSpec? {
+      private fun gainDefaultFor(expression: Expression): DefaultSpec? {
         if (leaveItAlone(expression)) return null
-        val default = extractor(classTable.getClass(expression.className).defaults)
-        rejectEmptyArgumentsWithoutDefaults(
-            expression,
-            default,
-            if (gain) "gain" else "removal",
-        )
-        if (gain) requireExplicitDependencyDefaults(expression, default, "gain")
+        val default = classTable.getClass(expression.className).defaults.gainOnly
+        rejectEmptyArgumentsWithoutDefaults(expression, default, "gain")
+        requireExplicitDependencyDefaults(expression, default, "gain")
         return default
       }
-
-      private fun applyDefault(
-          expression: Expression,
-          default: DefaultSpec?,
-          context: Expression,
-          gain: Boolean,
-      ): Expression =
-          if (default == null || (!gain && hasUnacceptedDependencyDefaults(expression, default))) {
-            expression
-          } else insertDefaultsIntoExpr(expression, default.dependencies, context, classTable)
 
       /** The stricter of the two, per rule L9-8: mandatory beats AMAP, which beats optional. */
       private fun intersectQuantifiers(
@@ -1058,8 +1103,7 @@ public class PetElaborator(public val classTable: ClassTable) {
   /**
    * Rule L9-5: a gain must opt in. Where a class has gain dependency defaults, a gain may not leave
    * its argument list implicit — `OceanTile<>` accepts them — so a defaulted placement stays
-   * visible at the point of use. A removal declines by writing nothing instead (L9-6), so this is
-   * not applied to one.
+   * visible at the point of use. Removals have no use-specific dependency defaults (L9-6).
    */
   private fun requireExplicitDependencyDefaults(
       expression: Expression,
@@ -1104,28 +1148,13 @@ public class PetElaborator(public val classTable: ClassTable) {
   }
 
   /**
-   * Rule L9-6: a removal declines its use-specific defaults by writing nothing. An implicit
-   * argument list on a removal is not an error — it simply does not receive the removal-only
-   * defaults, though all-use defaults (L9-4) still apply.
-   */
-  private fun hasUnacceptedDependencyDefaults(
-      expression: Expression,
-      default: DefaultSpec,
-  ): Boolean =
-      default.dependencies.keys.isNotEmpty() &&
-          expression.arguments.isEmpty() &&
-          !expression.argumentsSpecified
-
-  /**
    * Rule L9-4: every expression receives its class's all-use dependency defaults, recursively.
    *
    * During this pass, an outermost dependent expression written without arguments reserves its
    * first candidate-compatible slot instead of accepting that slot's default (L9-9). Writing any
-   * argument list, including `<>`, keeps ordinary default handling. Independently, L9-10 defers a
-   * bare class-header-variable default throughout a refinement.
+   * argument list, including `<>`, keeps ordinary default handling.
    */
   private fun insertExpressionDefaults(context: Expression): PetTransformer {
-    var refinementDepth = 0
     val refinementCandidates = mutableListOf<Expression?>()
 
     fun <T> withinRefinementCandidate(candidate: Expression?, block: () -> T): T {
@@ -1164,22 +1193,22 @@ public class PetElaborator(public val classTable: ClassTable) {
             defaultDeps,
             context,
             classTable,
-            deferVariableDefaults = refinementDepth > 0 && !shell.argumentsSpecified,
             refinementCandidate = refinementCandidate,
         )
       }
 
       override fun transformNode(node: PetNode): PetNode {
-        if (node is Expression.Refinement) {
-          refinementDepth++
-          try {
-            return transformChildren(node)
-          } finally {
-            refinementDepth--
-          }
-        }
         if (node is Metric.Rank) {
-          return withinRefinementCandidate(null) { transformChildren(node) }
+          val selector =
+              withinRefinementCandidate(null) { node.selector?.let(::transformExpression) }
+          return node
+              .copy(
+                  selector = selector,
+                  metrics =
+                      withinRefinementCandidate(selector) { node.metrics.map(::transformMetric) },
+              )
+              .withTypeVariables(node.typeVariables)
+              .also { it.sourceLocation = node.sourceLocation }
         }
         if (node is Compact) {
           val shell =
@@ -1231,7 +1260,6 @@ public class PetElaborator(public val classTable: ClassTable) {
       defaultDeps: DependencySet,
       contextCpt: Expression,
       classTable: ClassTable,
-      deferVariableDefaults: Boolean = false,
       refinementCandidate: Expression? = null,
   ): Expression {
 
@@ -1256,10 +1284,7 @@ public class PetElaborator(public val classTable: ClassTable) {
     val fallbacks: Map<Key, Expression> =
         defaultDeps
             .typeDependencies()
-            .filterNot {
-              (deferVariableDefaults && klass.isEqualityConstrainedDependency(it.key)) ||
-                  it.key == refinementBoundKey
-            }
+            .filterNot { it.key == refinementBoundKey }
             .associate {
               it.key to it.expression
             }

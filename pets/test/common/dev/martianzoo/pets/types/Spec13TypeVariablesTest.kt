@@ -4,6 +4,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TableWorld
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
@@ -134,15 +135,18 @@ internal class Spec13TypeVariablesTest {
     val cards =
         loadTypes(
             "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
             "ABSTRACT CLASS CardFront : Owned",
             "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Owner>> : Owned<CardHolder@Owner>",
         )
 
     cards.getClass(cn("Cardbound")).typeVariables.map { "$it" } shouldContainExactly
         listOf("CardFront<CardHolder@Owner>", "CardHolder", "Me")
-    cards
-        .getClass(cn("Cardbound"))
-        .isEqualityConstrainedDependency(Dependency.Key(cn("Owned"), 0)) shouldBe true
+    cards.resolve(te("Cardbound<Player1>")).expressionFull shouldBe
+        te("Cardbound<Player1, CardFront<Player1>>")
+    shouldThrow<ExpressionException> {
+      cards.resolve(te("Cardbound<Player1, CardFront<Player2>>"))
+    }
   }
 
   @Test
@@ -175,13 +179,18 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-2 an explicit name can link two header roots`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Person { CLASS Alice }",
-            "ABSTRACT CLASS Duo<P@Person, P@Person>",
+            """
+            ABSTRACT CLASS Person {
+              CLASS Alice
+              CLASS Bob
+            }
+            ABSTRACT CLASS Duo<P@Person, P@Person>
+            """,
         )
 
     table.getClass(cn("Duo")).typeVariables.map { "$it" } shouldContainExactly listOf("P")
-    table.getClass(cn("Duo")).isEqualityConstrainedDependency(Dependency.Key(cn("Duo"), 0)) shouldBe
-        true
+    table.resolve(te("Duo<Alice>")).expressionFull shouldBe te("Duo<Alice, Alice>")
+    shouldThrow<ExpressionException> { table.resolve(te("Duo<Alice, Bob>")) }
   }
 
   @Test

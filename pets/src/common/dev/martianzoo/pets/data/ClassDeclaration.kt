@@ -19,7 +19,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.ABSTRACT
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.ALL_USAGES
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.GAIN_ONLY
-import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.REMOVE_ONLY
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.TRIGGER_ONLY
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 
@@ -235,26 +234,39 @@ public data class ClassDeclaration(
    * Authored dependency and quantifier defaults, kept separately for all uses, gains, removals, and
    * triggers under
    * [type-system rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#10-defaults).
-   * [forClass] identifies the declaring class; it may be null only when all four sets are empty.
-   * Merging clauses does not resolve or inherit defaults.
+   * Removals carry only a quantifier. [forClass] identifies the declaring class; it may be null
+   * only when no defaults are declared. Merging clauses does not resolve or inherit defaults.
    *
    * @property universal Defaults that apply in every use context.
    * @property gainOnly Additional defaults applied only to a gain.
-   * @property removeOnly Additional defaults applied only to a removal.
+   * @property removalQuantifier The removal amount policy, or null to inherit it.
    * @property triggerOnly Dependency defaults applied only to gain and removal triggers.
    * @property forClass Declaring class name, or null for an empty declaration.
    */
   public data class DefaultsDeclaration(
       val universal: OneDefault = OneDefault(),
       val gainOnly: OneDefault = OneDefault(),
-      val removeOnly: OneDefault = OneDefault(),
+      val removalQuantifier: Quantifier? = null,
       val triggerOnly: OneDefault = OneDefault(),
       val forClass: ClassName? = null,
   ) {
     init {
+      if (
+          forClass != null &&
+              removalQuantifier == null &&
+              listOf(universal, gainOnly, triggerOnly).all {
+                it == OneDefault()
+              }
+      ) {
+        throw PetSyntaxException(
+            "`DEFAULT` for `$forClass` has no effect: supply dependency arguments or a quantifier",
+            sourceLocation = forClass.sourceLocation,
+        )
+      }
       require(
           forClass != null ||
-              listOf(universal, gainOnly, removeOnly, triggerOnly).all { it == OneDefault() }
+              (removalQuantifier == null &&
+                  listOf(universal, gainOnly, triggerOnly).all { it == OneDefault() })
       ) {
         "defaults without a declaring class cannot be rendered or applied"
       }
@@ -272,7 +284,6 @@ public data class ClassDeclaration(
     internal enum class DefaultKind {
       ALL_USAGES,
       GAIN_ONLY,
-      REMOVE_ONLY,
       TRIGGER_ONLY,
     }
 
@@ -280,7 +291,6 @@ public data class ClassDeclaration(
         when (kind) {
           ALL_USAGES -> universal
           GAIN_ONLY -> gainOnly
-          REMOVE_ONLY -> removeOnly
           TRIGGER_ONLY -> triggerOnly
         }
 
@@ -313,10 +323,23 @@ public data class ClassDeclaration(
           }
           return merged
         }
+        val removals = defs.filter { it.removalQuantifier != null }
+        val removalQuantifiers = removals.mapNotNull { it.removalQuantifier }.distinct()
+        if (removalQuantifiers.size > 1) {
+          throw PetSyntaxException(
+              "invalid defaults for `${owners.singleOrNull()}`: conflicting quantifier defaults: " +
+                  removalQuantifiers.joinToString { "`${it.symbol}`" },
+              sourceLocation =
+                  removals
+                      .first { it.removalQuantifier != removalQuantifiers.first() }
+                      .forClass
+                      ?.sourceLocation,
+          )
+        }
         return DefaultsDeclaration(
             universal = mergeKind(ALL_USAGES),
             gainOnly = mergeKind(GAIN_ONLY),
-            removeOnly = mergeKind(REMOVE_ONLY),
+            removalQuantifier = removalQuantifiers.singleOrNull(),
             triggerOnly = mergeKind(TRIGGER_ONLY),
             forClass = owners.singleOrNull(),
         )
@@ -339,7 +362,7 @@ public data class ClassDeclaration(
     }
 
     internal val allNodes: Set<PetNode> =
-        listOf(universal, gainOnly, removeOnly, triggerOnly).flatMap { it.specs }.toSet()
+        listOf(universal, gainOnly, triggerOnly).flatMap { it.specs }.toSet()
   }
 
   /**
@@ -402,11 +425,8 @@ public data class ClassDeclaration(
       if (gainOnly.specs.isNotEmpty() || gainOnly.quantifier != null) {
         add("DEFAULT +${gainOnly.expression()}${gainOnly.quantifier?.symbol.orEmpty()}")
       }
-      if (removeOnly.specs.isNotEmpty() || removeOnly.quantifier != null) {
-        add("DEFAULT -${removeOnly.expression()}${removeOnly.quantifier?.symbol.orEmpty()}")
-      }
+      removalQuantifier?.let { add("DEFAULT -$owner${it.symbol}") }
       if (triggerOnly.specs.isNotEmpty()) add("DEFAULT ${triggerOnly.expression()}:")
-      if (isEmpty()) add("DEFAULT $owner")
     }
   }
 }

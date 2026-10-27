@@ -139,37 +139,6 @@ internal class BugsTest {
   }
 
   @Test
-  internal fun `a meet incorrectly ignores dependencies that identify a greatest common type`() {
-    // Simplified Pets and Ants: keep only their distinct resource kinds.
-    val table =
-        loadTypes(
-            """
-            ABSTRACT CLASS CardResource {
-              CLASS Animal
-              CLASS Microbe
-            }
-            ABSTRACT CLASS ResourceHolder<Class<CardResource>>
-            ABSTRACT CLASS CardFront
-            CLASS Pets : CardFront, ResourceHolder<Class<Animal>>
-            CLASS Ants : CardFront, ResourceHolder<Class<Microbe>>
-            """
-        )
-    val card = table.resolve(parse<Expression>("CardFront"))
-    val animalHolder = table.resolve(parse<Expression>("ResourceHolder<Class<Animal>>"))
-    val pets = table.resolve(parse<Expression>("Pets"))
-
-    pets.isSubtypeOf(card) shouldBe true
-    pets.isSubtypeOf(animalHolder) shouldBe true
-    table.resolve(parse<Expression>("Ants")).isSubtypeOf(animalHolder) shouldBe false
-    table.allConcreteSubtypes(card).filter { it.isSubtypeOf(animalHolder) }.toList() shouldBe
-        listOf(pets)
-
-    // T7-1 requires Pets, but the implementation stops at the ambiguous root classes.
-    table.glb(card, animalHolder) shouldBe null
-    table.glb(animalHolder, card) shouldBe null
-  }
-
-  @Test
   internal fun `EACH and RANK inconsistently scope Me in their selector refinements`() {
     val table =
         loadTypes(
@@ -193,7 +162,7 @@ internal class BugsTest {
         parse("RANK Me@Player(HAS Box<Plant>) { Plant }"),
         parse("This"),
         cn("Player1").expression,
-    ) shouldBe parse<Metric>("RANK Me@Player(HAS Box<Plant<Player1>>) { Plant<Me@Player> }")
+    ) shouldBe parse<Metric>("RANK Me@Player(HAS Box<Plant<Player1>>) { Plant }")
   }
 
   @Test

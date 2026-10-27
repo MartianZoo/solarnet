@@ -86,8 +86,9 @@ public abstract class ClassTable {
   }
 
   /**
-   * Returns the greatest lower bound of [left] and [right] in this universe, or null when absent,
-   * following
+   * Returns the supported greatest lower bound of [left] and [right], or null when the root-first
+   * calculation cannot produce it. Null does not prove disjointness: dependencies do not resolve
+   * competing root subclasses. The supported calculation is specified by
    * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#7-greatest-lower-bounds).
    *
    * @throws IllegalArgumentException if either operand cannot be interpreted by this table (rule

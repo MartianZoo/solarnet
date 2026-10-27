@@ -49,7 +49,7 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
     val body = (node as? SourceExpression)?.body ?: return transformChildren(node)
 
     // Rule L12-2: the generated name is the owner's name, an underscore, and the base class name,
-    // so `SpecialTile<> {}` on MiningRights becomes `MiningRights_SpecialTile`.
+    // so `SpecialTile<LandArea> {}` on MiningRights becomes `MiningRights_SpecialTile`.
     val base = node.className
     val generated = cn("${owner}_$base").also { it.sourceLocation = node.sourceLocation }
     val bodyNodes = body.asDerivedDeclaration(generated, base.expression).allNodes

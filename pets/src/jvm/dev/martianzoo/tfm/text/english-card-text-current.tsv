@@ -166,7 +166,7 @@ BeamFromAThoriumAsteroid	Beam From A Thorium Asteroid	Requires a Jovian tag. Inc
 Mangrove	Mangrove	Requires +4°C or warmer. Place a greenery tile on an area reserved for ocean.
 Trees	Trees	Requires -4°C or warmer. Increase your plant production 3 steps. Gain 1 plant.
 MiningExpedition	Mining Expedition	Raise oxygen 1 step. You may remove up to 2 plants from any player. Gain 2 steel.
-MiningRights	Mining Rights	Place this tile. Increase your titanium or steel production 1 step matching a placement bonus on a land area with this tile.
+MiningRights	Mining Rights	Place this tile on a land area. Increase your titanium or steel production 1 step matching a placement bonus on a land area with this tile.
 Birds	Birds	Requires 13% oxygen. Decrease any player's plant production 2 steps. 1 VP per animal on this card.	Action: Add 1 animal to this card.
 TowingAComet	Towing A Comet	Gain 2 plants. Raise oxygen 1 step. Place an ocean tile.
 SpaceMirrors	Space Mirrors		Action: Spend 7 M€ to increase your energy production 1 step.
@@ -180,7 +180,7 @@ Heather	Heather	Requires -14°C or warmer. Increase your plant production 1 step
 PeroxidePower	Peroxide Power	Decrease your M€ production 1 step and increase your energy production 2 steps.
 Bushes	Bushes	Requires -10°C or warmer. Increase your plant production 2 steps. Gain 2 plants.
 Greenhouses	Greenhouses	Gain 1 plant per city tile in play.
-NuclearZone	Nuclear Zone	Place this tile. Raise temperature 2 steps.
+NuclearZone	Nuclear Zone	Place this tile on a land area. Raise temperature 2 steps.
 FueledGenerators	Fueled Generators	Decrease your M€ production 1 step and increase your energy production 1 step.
 Ironworks	Ironworks		Action: Spend 4 energy to gain 1 steel and raise oxygen 1 step.
 PowerGrid	Power Grid	Increase your energy production 1 step per power tag you have (including this).
@@ -209,7 +209,7 @@ AdvancedEcosystems	Advanced Ecosystems	Requires a plant tag, a microbe tag, and 
 GreatDam	Great Dam	Requires 4 ocean tiles. Increase your energy production 2 steps.
 StripMine	Strip Mine	Decrease your energy production 2 steps and increase your steel production 2 steps and your titanium production 1 step. Raise oxygen 2 steps.
 WavePower	Wave Power	Requires 3 ocean tiles. Increase your energy production 1 step.
-LavaFlows	Lava Flows	Raise temperature 2 steps. Place this tile on a volcanic area if using a board that has one, otherwise place it normally.
+LavaFlows	Lava Flows	Raise temperature 2 steps. Place this tile on a volcanic area if using a board that has one, or place this tile on a land area otherwise.
 PowerPlant	Power Plant	Increase your energy production 1 step.
 MoholeArea	Mohole Area	Increase your heat production 4 steps. Place this tile on an area reserved for ocean.
 LargeConvoy	Large Convoy	Place an ocean tile. Draw 2 cards. Gain 5 plants or add 4 animals to another card.
@@ -282,7 +282,7 @@ ViralEnhancers	Viral Enhancers		Effect: When you play a bio tag (including this)
 QuantumExtractor	Quantum Extractor	Requires 4 science tags. Increase your energy production 4 steps.	Effect: When you play a space tag, you pay 2 M€ less for it.
 CallistoPenalMines	Callisto Penal Mines	Increase your M€ production 3 steps.
 TransNeptuneProbe	Trans-Neptune Probe
-CommercialDistrict	Commercial District	Decrease your energy production 1 step and increase your M€ production 4 steps. Place this tile. 1 VP per city tile in play next to this tile.
+CommercialDistrict	Commercial District	Decrease your energy production 1 step and increase your M€ production 4 steps. Place this tile on a land area. 1 VP per city tile in play next to this tile.
 RoboticWorkforce	Robotic Workforce	Copy the production box in the direct effect of a building card.
 Research	Research	Draw 2 cards.
 GeneRepair	Gene Repair	Requires 3 science tags. Increase your M€ production 2 steps.
@@ -321,7 +321,7 @@ PowerInfrastructure	Power Infrastructure		Action: Spend 1 or more energy to gain
 IndenturedWorkers	Indentured Workers	When you play the next card this generation, you pay 8 M€ less for it.
 LagrangeObservatory	Lagrange Observatory	Draw 1 card.
 TerraformingGanymede	Terraforming Ganymede	Raise your terraform rating 1 step per Jovian tag you have (including this).
-RestrictedArea	Restricted Area	Place this tile.	Action: Spend 2 M€ to draw 1 card.
+RestrictedArea	Restricted Area	Place this tile on a land area.	Action: Spend 2 M€ to draw 1 card.
 EnergyTapping	Energy Tapping	Decrease any player's energy production 1 step and increase your energy production 1 step.
 TechnologyDemonstration	Technology Demonstration	Draw 2 cards.
 MedicalLab	Medical Lab	Increase your M€ production 1 step per 2 building tags you have (including this).
@@ -507,7 +507,7 @@ SubCrustMeasurements	Sub-Crust Measurements	Requires 2 science tags.	Action: Dra
 TopsoilContract	Topsoil Contract	Gain 3 plants.	Effect: When you add a microbe to any card, gain 1 M€.
 DeimosDownPromo	Deimos Down*	Raise temperature 3 steps. Place this tile on a land area next to no city tile. Gain 4 steel. You may remove up to 6 plants from any player.
 GreatDamPromo	Great Dam*	Requires 4 ocean tiles. Increase your energy production 2 steps. Place this tile on a land area next to an ocean tile.
-MagneticFieldGeneratorsPromo	Magnetic Field Generators*	Decrease your energy production 4 steps and increase your plant production 2 steps. Raise your terraform rating 3 steps. Place this tile.
+MagneticFieldGeneratorsPromo	Magnetic Field Generators*	Decrease your energy production 4 steps and increase your plant production 2 steps. Raise your terraform rating 3 steps. Place this tile on a land area.
 AsteroidRights	Asteroid Rights	Add 2 asteroids to this card.	Action: Spend 1 M€ to add 1 asteroid to any card, or spend 1 asteroid from this card to increase your M€ production 1 step or gain 2 titanium.
 BioPrintingFacility	Bio Printing Facility		Action: Spend 2 energy to gain 2 plants or add 1 animal to another card.
 BactoviralResearch	Bactoviral Research	Draw 1 card. Add 1 microbe to another card per science tag you have (including this).

@@ -86,7 +86,7 @@ private fun isScopeRemovalHandoff(
     val quantifier =
         change.quantifier
             ?: if (change.gaining != null) defaults.gainOnly.quantifier
-            else defaults.removeOnly.quantifier
+            else defaults.removalQuantifier
     return !change.count.abstract && quantifier?.abstract != true
   }
 

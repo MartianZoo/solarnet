@@ -54,7 +54,7 @@ internal class Lang09ElaborationTest {
                   CLASS First
                   CLASS Second
                 }
-                CLASS Piece<Area> { DEFAULT +Piece<First>; DEFAULT -Piece<Second> }
+                CLASS Piece<Area> { DEFAULT +Piece<First> }
                 CLASS Marker
                 CLASS Notice<Piece<Area>>
                 """
@@ -73,7 +73,7 @@ internal class Lang09ElaborationTest {
                 "Notice<Piece<First>>(HAS Piece<First>)! THEN Piece<First>!",
             ),
             Triple(
-                "-@Piece<> THEN Notice<@Piece>",
+                "-@Piece<Second> THEN Notice<@Piece>",
                 "Second",
                 "-Piece<Second>! THEN Notice<Piece<Second>>!",
             ),
@@ -149,7 +149,7 @@ internal class Lang09ElaborationTest {
             }
             CLASS Marker<Place> {
               DEFAULT +Marker<Here>?
-              DEFAULT -Marker<Here>*
+              DEFAULT -Marker*
               This: This, -This, This?, -This?, This*, -This*
             }
             """
@@ -221,9 +221,10 @@ internal class Lang09ElaborationTest {
 
   @Test
   internal fun `L9-3 a RANK selector can rebind Me`() {
-    metric("RANK Player { Plant }") shouldBe parse<Metric>("RANK Player { Plant<Player1> }")
+    metric("RANK Player { Plant }") shouldBe parse<Metric>("RANK Player { Plant }")
     metric("RANK Player { Plant<Player> }") shouldBe parse<Metric>("RANK Player { Plant<Player> }")
-    metric("RANK Me@Player { Plant }") shouldBe parse<Metric>("RANK Me@Player { Plant<Me@Player> }")
+    metric("RANK Me@Player { Plant<Me@> }") shouldBe
+        parse<Metric>("RANK Me@Player { Plant<Me@Player> }")
     metric("RANK Player { Plant<Anyone> }") shouldBe parse<Metric>("RANK Player { Plant<Anyone> }")
   }
 
@@ -246,14 +247,31 @@ internal class Lang09ElaborationTest {
     shouldThrow<ExpressionException> { elaborate("Tile") }
   }
 
-  // L9-6 A removal declines by writing nothing
+  // L9-6 Removals have no use-specific dependency defaults
 
   @Test
-  internal fun `L9-6 a removal with no argument list declines its removal-only defaults`() {
-    // `Marker` declares `DEFAULT -Marker<LandArea>`; a bare removal declines it.
-    elaborate("-Marker") shouldBe parse<InstructionTree>("-Marker<Player1>!")
-    elaborate("-Marker<>") shouldBe parse<InstructionTree>("-Marker<Player1, LandArea>!")
-    elaborate("-Marker<Mars1>") shouldBe parse<InstructionTree>("-Marker<Player1, Mars1>!")
+  internal fun `L9-6 removals do not inherit the gain's dependency choice`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Resource {
+              CLASS MC
+              CLASS Steel
+            }
+            CLASS Owed<Class<Resource>> {
+              DEFAULT +Owed<Class<MC>>
+              DEFAULT -Owed*
+            }
+            """
+        )
+    val elaborator = PetElaborator(table)
+    elaborator.elaborateInput(parse<InstructionTree>("-8 Owed")) shouldBe
+        parse<InstructionTree>("-8* Owed")
+    elaborator.elaborateInput(parse<InstructionTree>("-Owed<Class<Steel>>")) shouldBe
+        parse<InstructionTree>("-Owed<Class<Steel>>*")
+    shouldThrow<ExpressionException> {
+      elaborator.elaborateInput(parse<InstructionTree>("-Owed<>"))
+    }
   }
 
   // L9-7 An empty list is an acceptance
@@ -292,7 +310,7 @@ internal class Lang09ElaborationTest {
                 }
                 CLASS Marker<Area> : Owned {
                   DEFAULT +Marker<Land1>
-                  DEFAULT -Marker<Land2>
+                  DEFAULT Marker<Land2>
                 }
                 """
         )
@@ -391,13 +409,30 @@ internal class Lang09ElaborationTest {
         parse<Metric>("Owner(HAS Pointer<Land1>)")
   }
 
-  // L9-10 Deferring a class-header variable's default
-
   @Test
-  internal fun `L9-10 a nested HAS candidate takes precedence over lexical ownership`() {
+  internal fun `L9-9 a nested HAS candidate takes precedence over lexical ownership`() {
     metric("Animal") shouldBe parse<Metric>("Animal<Player1>")
     metric("CardFront(HAS Animal)") shouldBe parse<Metric>("CardFront<Player1>(HAS Animal)")
     shouldThrow<ExpressionException> { metric("CardFront(HAS Animal<>)") }
+  }
+
+  @Test
+  internal fun `L9-9 a refinement does not suppress defaults merely because dependencies are linked`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Area {
+              CLASS First
+              CLASS Second
+            }
+            CLASS Pair<@Area, @Area> { DEFAULT Pair<First> }
+            CLASS Marker
+            """
+        )
+    val elaborator = PetElaborator(table)
+
+    elaborator.elaborateInput(parse<Metric>("Marker(HAS Pair)")) shouldBe
+        parse<Metric>("Marker(HAS Pair<First, First>)")
   }
 
   // L9-11 Atomized gains

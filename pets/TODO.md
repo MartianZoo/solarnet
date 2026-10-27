@@ -2,6 +2,20 @@
 
 Delete entries when they are done.
 
+- Deeper shorthand RANK inference is deferred unless a new concrete use justifies it.
+  Collector's `Class<@Resource>(HAS @Resource, NOT Class<RobotUnit>)` and Excentric's
+  `CardResource<CardFront>` need the competitor's ownership below the outermost expression.
+  Temporarily removing `Me@Player` from award scoring awarded undeserved first places for both
+  and broke Mogul's production metric. Award scoring therefore retains its explicit `RANK Me@Player`
+  binding. A broader implicit rule must preserve the accepted meaning of explicitly written `Me`
+  as the outer owner. Do not solve this by silently rebinding that name.
+  The current Canon RANK inventory supplies no further need for this deeper inference. Existing
+  award metric declarations work unchanged with their shared explicit binding.
+
+- Continue the language-complexity audit with at least two concrete Canon beneficiaries for each
+  retained wrinkle. Nearest-ancestor override precedence (T10-4) still has no identified Canon
+  dependency-default example; investigate whether it is necessary.
+
 - Consider moving the remaining configuration policies in `autoSelectWhen` and
   `premiseRequirement` out of Pets properties. Pairwise implementation incompatibilities already
   live in card JSON and are checked as catalog metadata; broader policy changes are deferred.
@@ -54,13 +68,6 @@ Delete entries when they are done.
 - Recognize the same represented-class predicate under a narrower bound (T8-1 and T8-10).
   Pets `BugsTest` shows `Class<@BuildingTag>(HAS @BuildingTag)` incorrectly fails to narrow
   `Class<@Tag>(HAS @Tag)`, although both predicates ask about the selected class.
-
-- Implement T7-1's greatest-lower-bound promise beyond the current root-first calculation.
-  Pets `BugsTest` shows `CardFront` intersected with `ResourceHolder<Class<Animal>>` returns no result
-  even when `Pets` is the greatest common type and the only rival, `Ants`, is excluded by its resource kind.
-  A bounded candidate-search experiment was rejected: a failed dependency meet can mean an
-  unnamed overlap, not disjointness, so discarding that candidate can return a false greatest
-  type. `Spec07BoundsTest` preserves the competing `Broad<Second>` and `Narrow` witness.
 
 - Improve the bracketed English fragments exposed by removing the exact-expression phrase table,
   using ordinary composition only where it stays small. Marker effects, distinct-type filters,

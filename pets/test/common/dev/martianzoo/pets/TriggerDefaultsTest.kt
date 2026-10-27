@@ -77,7 +77,7 @@ internal class TriggerDefaultsTest {
         CLASS Tag<Holder> {
           DEFAULT Tag<Printed>:
           DEFAULT +Tag<Wild>
-          DEFAULT -Tag<Holder>*
+          DEFAULT -Tag*
         }
         """
     val declaration = parseClasses(source).single()

@@ -1,7 +1,7 @@
 "The quantity still owed in a standard-resource denomination"
 CLASS Owed<@Class<StandardResource>> : Owned<Player>, Barrier, System {
   DEFAULT +Owed<Class<MC>>
-  DEFAULT -Owed<Class<MC>>*
+  DEFAULT -Owed*
 }
 
 "Announces a card or printed tag while its payment is being adjusted"

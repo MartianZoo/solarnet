@@ -430,6 +430,25 @@ internal class Spec08RefinementsTest {
   // T8-9 Greatest lower bound
 
   @Test
+  internal fun `T8-9 narrowing a ranked field preserves its competitors when rendered`() {
+    val table =
+        loadTypes(
+            """
+        ABSTRACT CLASS Player : Owner {
+          CLASS Player1
+          CLASS Player2
+        }
+        """,
+            "CLASS Score : Owned<Player>",
+        )
+    val ranked = table.resolve(te("Player(HAS =2 (RANK { Score }))"))
+    val narrowed = table.glb(ranked, table.resolve(te("Player2")))!!
+
+    narrowed.expression.toString() shouldBe "Player2(HAS =2 (RANK Player { Score }))"
+    table.resolve(te(narrowed.expression.toString())) shouldBe narrowed
+  }
+
+  @Test
   internal fun `T8-9 glb keeps a refinement the other operand lacks`() {
     mars.glb(type("LandArea(HAS Neighbor)"), type("Tharsis_2_2")) shouldBe
         type("Tharsis_2_2(HAS Neighbor)")

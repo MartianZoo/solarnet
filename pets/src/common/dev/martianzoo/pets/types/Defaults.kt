@@ -7,12 +7,12 @@ import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 
 /**
- * The four independently inherited default sets defined by
+ * The dependency defaults and independent removal quantifier defined by
  * [rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#10-defaults).
  * Defaults provide authored context during elaboration; they do not change which types exist.
  *
- * @constructor Groups the independently inherited [allUsages], [gainOnly], [removeOnly], and
- *   [triggerOnly] sets separated by
+ * @constructor Groups the independently inherited dependency sets [allUsages], [gainOnly], and
+ *   [triggerOnly], plus the [removalQuantifier], as specified by
  *   [rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#10-defaults).
  */
 public data class Defaults(
@@ -29,10 +29,10 @@ public data class Defaults(
     val gainOnly: DefaultSpec,
 
     /**
-     * Dependency and quantifier defaults applied only to removals under
+     * The amount policy for removals; removals have no use-specific dependency defaults under
      * [rules T10-1 and T10-2](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#10-defaults).
      */
-    val removeOnly: DefaultSpec,
+    val removalQuantifier: Quantifier,
 
     /** Dependency defaults applied only to gain and removal trigger expressions (T10-1). */
     val triggerOnly: DefaultSpec,
@@ -45,7 +45,6 @@ public data class Defaults(
     internal fun forClass(klass: Class): Defaults {
       val allUsagesDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.ALL_USAGES)
       val gainDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.GAIN_ONLY)
-      val removeDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.REMOVE_ONLY)
       val triggerDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.TRIGGER_ONLY)
 
       val gainQuantifier =
@@ -53,14 +52,14 @@ public data class Defaults(
       val removeQuantifier =
           inheritDefault(
               klass,
-              { it.defaultsDecl.removeOnly.quantifier },
+              { it.defaultsDecl.removalQuantifier },
               onlyOne(klass, "removal"),
           )!!
 
       return Defaults(
           allUsages = DefaultSpec(allUsagesDeps, null),
           gainOnly = DefaultSpec(gainDeps, gainQuantifier),
-          removeOnly = DefaultSpec(removeDeps, removeQuantifier),
+          removalQuantifier = removeQuantifier,
           triggerOnly = DefaultSpec(triggerDeps, null),
       )
     }
@@ -101,7 +100,17 @@ public data class Defaults(
       val declared =
           klass.allSuperclasses().associateWith { origin ->
             try {
-              toDependencyMap(origin, origin.defaultsDecl.default(kind).specs)
+              val declaration = origin.defaultsDecl.default(kind)
+              val dependencies = toDependencyMap(origin, declaration.specs)
+              if (declaration.specs.isNotEmpty() && dependencies.keys.isEmpty()) {
+                throw InvalidPetDefinitionException(
+                    "`DEFAULT` for `${origin.className}` has no effect: " +
+                        "its arguments do not narrow any declared dependency bound",
+                    sourceLocation =
+                        declaration.specs.first().sourceLocation ?: origin.className.sourceLocation,
+                )
+              }
+              dependencies
             } catch (e: ExpressionException) {
               throw InvalidPetDefinitionException(
                   "invalid defaults for `${origin.className}`: ${e.detail}",
@@ -116,17 +125,14 @@ public data class Defaults(
                 klass,
                 { origin -> declared.getValue(origin).getIfPresent(key) },
                 { deps: List<Dependency> ->
-                  // Decide overrides before omitting defaults incompatible with this class.
-                  deps
-                      .mapNotNull { klass.classTable.glb(it, klass.dependencies.get(key)) }
-                      .reduceOrNull { left, right ->
-                        klass.classTable.glb(left, right)
-                            ?: throw InvalidPetDefinitionException(
-                                "`${klass.className}` inherits incompatible defaults for `$key`: " +
-                                    "`$left` and `$right`",
-                                sourceLocation = klass.className.sourceLocation,
-                            )
-                      }
+                  val agreed =
+                      deps.singleOrNull()
+                          ?: throw InvalidPetDefinitionException(
+                              "`${klass.className}` inherits conflicting defaults for `$key`: " +
+                                  deps.joinToString { "`$it`" },
+                              sourceLocation = klass.className.sourceLocation,
+                          )
+                  klass.classTable.glb(agreed, klass.dependencies.get(key))
                 },
             )
           }
@@ -138,8 +144,7 @@ public data class Defaults(
    * One inherited default set for a use kind, combined according to
    * [rules T10-2 through T10-5](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#10-defaults).
    *
-   * @constructor Associates narrowed default [dependencies] with the gain or removal [quantifier]
-   *   under
+   * @constructor Associates narrowed default [dependencies] with the gain [quantifier] under
    *   [rules T10-1 and T10-2](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#10-defaults).
    */
   public data class DefaultSpec(
@@ -150,9 +155,9 @@ public data class Defaults(
       val dependencies: DependencySet = DependencySet.of(),
 
       /**
-       * The gain or removal quantifier inherited independently under
+       * The gain quantifier inherited under
        * [rule T10-2](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#10-defaults),
-       * or null for all-usage defaults.
+       * or null for all-usage and trigger defaults.
        */
       val quantifier: Quantifier?,
   )

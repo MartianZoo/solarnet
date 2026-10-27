@@ -355,8 +355,6 @@ internal class Spec03DependenciesTest {
 
     cards.getClass(cn("Cardbound")).baseType.expressionFull shouldBe
         te("Cardbound<Owner, CardFront<Owner>>")
-    cards.getClass(cn("Cardbound")).isEqualityConstrainedDependency(Key(cn("Owned"), 0)) shouldBe
-        true
 
     // Choosing the owner also chooses the card's owner, and vice versa.
     cards.resolve(te("Animal<Player1>")).expressionFull shouldBe
@@ -377,9 +375,6 @@ internal class Spec03DependenciesTest {
             "ABSTRACT CLASS Adjacency<Area, Area>",
         )
 
-    table
-        .getClass(cn("Adjacency"))
-        .isEqualityConstrainedDependency(Key(cn("Adjacency"), 0)) shouldBe false
     table.resolve(te("Adjacency<Tharsis_2_2, Tharsis_2_3>")).expressionFull shouldBe
         te("Adjacency<Tharsis_2_2, Tharsis_2_3>")
   }

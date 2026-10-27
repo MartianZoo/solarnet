@@ -42,8 +42,14 @@ Blockquoted insets are not rules. A **Non-normative example** shows a rule at wo
 content; a **Non-normative design note** explains why an otherwise surprising provision exists; a
 **Present limitation** says what Pets cannot yet express. Examples explain why the illustrated
 capability matters to a named card or mechanic. Authoring conventions and provisions without a
-known canonical TfM witness are distinguished from game requirements; one example need not justify
-every subcase of the accompanying rule.
+known canonical TfM witness are distinguished from game requirements; an example need not justify
+every subcase of the accompanying rule. For a surprising provision, explain what would go wrong
+without it for at least two named Canon cards, milestones, awards, or rules. A shared declaration
+can serve many such components; counting declarations is not counting beneficiaries. Explain
+whether losing the provision changes gameplay or merely requires more explicit Pets. Fewer than
+two substantial beneficiaries make it a candidate for simplification, not a reason to invent
+further examples.
+An existing implementation or conformance test is evidence of behavior, not of its value.
 
 ### Notation
 
@@ -406,8 +412,10 @@ ProjectCard<SoloOpponent>                                     →   error: not a
 > Replacing the bound would make the trigger a type its class cannot have (T5-7).
 
 > **Non-normative example — Protected Valley.** It places `GreeneryTile<WaterArea>`. The written
-> `WaterArea` meets the greenery's `MarsArea` bound, and the result is the legal special placement.
-> Neither constraint replaces the other.
+> `WaterArea` is already a subtype of its declared `MarsArea` bound, so the result is simply
+> `WaterArea`. This imposes neither the land restriction nor the owned-tile adjacency requirement
+> of the standard greenery action. Those conditions belong to `PlaceGreeneryTile`, not
+> `GreeneryTile`; Protected Valley can choose any otherwise available water area.
 
 **T3-5. Argument matching is greedy, left to right across open positions.** Each written argument
 takes the first open dependency not already taken whose current bound it can intersect. Fixed
@@ -485,9 +493,12 @@ Without a marker, each occurrence declares its own variable and the positions co
 The two tiles of `Adjacency<Tile<Area>, Tile<Area>>` are independent. `Adjacency<@Tile, @Tile>`
 would require them to be the same tile.
 
-> **Non-normative example — Pets.** An animal on Player 1's Pets card must also be owned by
-> Player 1. Without propagation between the two occurrences of `@Owner`, it could acquire Player 2
-> as its independent owner, and Player 2 could spend it.
+> **Non-normative examples — Pets and Ants.** Animals on Player 1's Pets and microbes on Player
+> 1's Ants must both belong to Player 1. Without propagation between the two occurrences of
+> `@Owner`, a resource could name Player 1's card as its holder but Player 2 as its owner.
+> Counting a player's resources and counting the resources on that player's cards could then
+> disagree. The shared declaration in `CardResource` serves both cards, not just a single
+> component that happens to declare the constraint.
 
 **T3-9. A dependency may only target a type limited to one copy.** An edge names its target by
 exact type alone, so a type that admitted two identical components could not say which one it
@@ -817,12 +828,13 @@ constraint that cannot meet the domain at all accepts nothing.
 
 ## 7. Greatest lower bounds
 
-**T7-1. Greatest lower bound (`⊓`).** The meet of two types, in the universe that interprets them,
-is the most general type below both, or **absent** when there is none. The result must satisfy
-both operands' dependency bounds as well as its root class's declared bounds and shared-variable
-equalities. Its root class can contribute keys neither operand had and bounds narrower than either
-operand stated. Refinements combine by T8-9. Dependency constraints can identify a greatest type
-even when the root classes alone have no greatest common subclass under T2-8.
+**T7-1. Supported greatest lower bound (`⊓`).** The calculation first requires a unique
+greatest common subclass of the operands' root classes (T2-8). It then intersects their dependency
+bounds recursively, including the selected root's own declared bounds and shared-variable
+equalities. That root can contribute keys neither operand had and narrower bounds. Refinements
+combine by T8-9. If any required root or dependency meet is absent, the result is **absent**.
+The calculation does not search competing subclasses to see whether their dependencies eliminate
+all but a single candidate.
 
 ```text
 Tile<Tharsis_2_2>  ⊓  Owned<Player1>                =  OwnedTile<Player1, Tharsis_2_2>
@@ -832,8 +844,7 @@ Tile<Tharsis_2_2>  ⊓  Tile<Tharsis_2_3>             =  absent
 GreeneryTile  ⊓  OceanTile                          =  absent
 ```
 
-Absent covers two different situations, and every rule that treats it as an error depends on which
-one it is:
+Absent does not prove that the operands are disjoint. It covers these different situations:
 
 - **The operands are disjoint.** `Tile<Tharsis_2_2> ⊓ Tile<Tharsis_2_3>` is absent because no
   component could be both: their extensions do not overlap. Writing an argument outside a bound
@@ -843,12 +854,23 @@ one it is:
   naming, not a claim about components. A Catalog that needs the intersection declares a class for
   it, which is why canon declares `OwnedTile`.
 
-Where a meet exists it narrows both operands, and every type below both narrows it.
+- **Dependency constraints could resolve ambiguous roots, but the calculation stops earlier.**
+  Suppose `Pets` and `Ants` both extend `CardFront` and `ResourceHolder`, with no shared
+  `ResourceCard` superclass. Even if only Pets holds animals, the supported calculation returns
+  absent for `CardFront ⊓ ResourceHolder<Class<Animal>>`: the roots have no unique greatest
+  common subclass. Declaring and using the shared `ResourceCard` type avoids that search.
 
-> **Non-normative example — Protected Valley.** In `GreeneryTile<WaterArea>`, the card's `WaterArea`
-> meets the greenery's inherited `MarsArea` bound and yields `WaterArea`. The containing type keeps
-> the greenery's other dependencies and rules while restricting its area to the card's exceptional
-> placement. Widening back to `MarsArea` would lose that restriction.
+Where the calculation returns a meet it narrows both operands, and every type below both narrows it.
+
+> **Non-normative example — Protected Valley.** `WaterArea ⊓ MarsArea` is simply `WaterArea`.
+> Without retaining this written argument, the card would incorrectly offer non-water areas.
+> The ordinary greenery action's land and adjacency conditions are not part of this meet.
+>
+> **Non-normative examples — Enceladus and Miranda.** Canon names the combination of
+> `CardFront` and `ResourceHolder` as `ResourceCard`. These colonies use
+> `ResourceCard<Class<Microbe>>` and `ResourceCard<Class<Animal>>` to find eligible cards.
+> They need that combination, but do not need the language to discover it by searching rival
+> subclasses. No Canon behavior requiring that additional search has been identified.
 
 **T7-2. `⊓` is idempotent and commutative.** Refinement clauses form a set (T8-9), so two meets
 that list their clauses in different orders are equal types, even though they may render
@@ -1019,9 +1041,15 @@ a dependency is left unchanged after explicit represented-class substitution. It
 of the requirement; unlike an ordinary component refinement (T8-3), the unmatched binding does not
 make the refinement fail.
 
-> **Non-normative example — Diversifier.** The milestone requires `8 Class<@Tag>(HAS @Tag<Me@Owner>)`:
-> eight distinct kinds of tag the player has, not eight tags. Testing the represented class is what
-> makes five Earth tags count as one kind.
+> **Non-normative examples — Diversifier and Collector.** Diversifier's
+> `Class<@Tag>(HAS @Tag)` term counts distinct tag kinds, alongside its separate allowance for
+> unassigned wild tags. Collector similarly counts resource kinds with
+> `Class<@Resource>(HAS @Resource, NOT Class<RobotUnit>)`. Without testing each represented class,
+> neither query could ask whether the player has something of that particular kind. Counting
+> components instead would make five Earth tags contribute five toward Diversifier and ten MC
+> contribute ten toward Collector; the class-counting terms each contribute just a single kind.
+> These examples justify represented-class tests, not every narrowing or rendering promise made
+> for those tests.
 
 **T8-11. Refinements inside dependencies** behave like any other refinement, and survive rendering
 and re-resolution.
@@ -1101,42 +1129,56 @@ classes, not because of the costs.
 ## 10. Defaults
 
 A `DEFAULT` clause records context that the physical game leaves implicit: that a tile goes on a
-land area, or that a resource belongs to the player in context. It changes how an authored
+land area, or that a drawn card goes into hand. It changes how an authored
 expression *resolves*. It never changes which types exist.
 
-**T10-1. Four separate sets.** Defaults are gathered independently for all uses
-(`DEFAULT Foo<...>`), for gains (`DEFAULT +Foo<...>`), for removals (`DEFAULT -Foo<...>`), and for
-gain/removal triggers (`DEFAULT Foo<...>:`). A class's all-uses defaults give it a **default template**,
+**T10-1. Three dependency-default sets.** Dependency defaults are gathered independently for
+all uses (`DEFAULT Foo<...>`), gains (`DEFAULT +Foo<...>`), and gain/removal triggers
+(`DEFAULT Foo<...>:`). Removals receive only all-use dependency defaults; a removal-specific
+clause may supply a quantifier, but not dependency arguments (T10-2).
+A class's all-uses defaults give it a **default template**,
 its base type written with those defaults filled in, and a **default type**, the type that template
 denotes. The two differ only as
 T10-5 says. Elaboration applies defaults according to the expression's use (L9-4 through L9-8);
-resolution alone applies none of the four sets.
+resolution alone applies none of these defaults.
 
 ```pets
-ABSTRACT CLASS SpecialTile : Tile<MarsArea> {
-  DEFAULT +SpecialTile<LandArea>
+ABSTRACT CLASS CityTile : OwnedTile {
+  DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
 }
 ```
 
-The gain default says that a special tile placed without saying where goes on a land area.
-`SpecialTile<Tharsis_1_2>` still resolves, to a water area, because a default is not a bound.
+The gain default says that `CityTile<>` asks for land with no neighboring city.
+Phobos Space Haven instead explicitly places its city on a `RemoteArea`; the placement default
+does not restrict the class's declared area bound.
 
 > **Non-normative example — Aquifer.** Gaining `OceanTile<>` accepts the gain default and asks for a
 > water area that is empty at the moment of placement. Merely counting oceans, or removing one, must
-> not invent a placement target. That is why the gain, removal and all-uses defaults cannot be one
-> set.
+> not invent a placement target. That is why gain defaults must be separate from all-use defaults.
 
 **T10-2. Quantifiers.** A gain or removal default may also carry a quantifier: `!` mandatory, `*`
 as much as possible, or `?` optional. `Component` supplies `!` for both, so every class inherits
 one. Gain and removal quantifiers are inherited independently, and supertypes that disagree about
 one are an error.
 
-> **Non-normative example — paying `Owed`.** Creating a debt is mandatory, while removing one
-> defaults to as-much-as-possible (`DEFAULT -Owed<Class<MC>>*`), so a debt can be paid off in parts
-> from mixed sources. A single inherited quantifier for both directions would make either the debt
-> optional or partial payment illegal.
+> **Non-normative examples — Indentured Workers and Space Station.** Creating debt is mandatory,
+> while removing it defaults to as-much-as-possible (`DEFAULT -Owed*`). Without that removal
+> quantifier, an 8 MC Indentured Workers discount on a 3 MC bill, or a 2 MC Space Station discount
+> on a 1 MC bill, would demand more debt than exists. The amount policy is independent of the
+> denomination and does not require a removal dependency default.
 
 **T10-3. A `DEFAULT` clause must name the class that declares it.**
+
+An empty clause is an error. A nonempty dependency-default argument list must narrow at least one
+declared dependency bound; an ineffective list is rejected even when a quantifier is also supplied.
+A quantifier-only default such as `DEFAULT +Tile*` is valid.
+This check uses the declaring class's bounds, not a subclass's:
+an inherited default becoming redundant under a narrower subclass bound is valid.
+
+Individual arguments may repeat a bound when another argument makes the dependency default
+effective. `PaymentScope<Class<Component>, Class<MC>, Class<Action1>>` keeps its first
+argument as a positional placeholder. Without it, `Class<MC>` would fill the subject position
+instead of choosing the payment currency.
 
 > **Non-normative design note — defaults have one owner.** No card needs one class's declaration to
 > install another class's default. Permitting it would let the meaning of bare `OceanTile<>` depend
@@ -1144,32 +1186,32 @@ one are an error.
 
 **T10-4. Inheriting dependency defaults.** For one dependency key and one use kind, only the
 nearest declaring superclasses supply a default: anything a nearer superclass overrode is
-discarded. After resolving overrides, each survivor is intersected with the inheriting class's
-own bound. A survivor with no common narrowing with that bound is omitted; this does not restore
-any overridden default. The remaining survivors are intersected (`⊓`), and survivors with no
-common narrowing with each other are an error. If none remain, the key has no default for this
-use kind. A default that a class declares, and that merely restates that class's own bound for
-the key, records nothing at all.
+discarded. The surviving defaults must denote the same type; differing defaults are an error,
+even if they have a common narrowing. This agreement is checked before intersecting the default
+with the inheriting class's own bound. If that intersection is absent, the default is omitted;
+this does not restore any overridden default. An argument that merely restates the declaring
+class's bound contributes no dependency restriction; the complete default must pass T10-3.
 
-> **Non-normative example — Lava Flows.** Its tile is declared plainly as
-> `LavaFlows_SpecialTile : SpecialTile`. On a map without volcanic areas the card places
-> `LavaFlows_SpecialTile<>`, which accepts the land-area gain default inherited from `SpecialTile`.
-> Had the tile been declared `SpecialTile<VolcanicArea>`, the inherited default would have narrowed
-> to `VolcanicArea` with it.
-
-> **Non-normative example — Mohole Area.** Its tile specializes `SpecialTile<WaterArea>`. The
-> inherited land-area placement default is incompatible with this bound and is omitted; the
-> tile keeps its water-area restriction.
-
-> **Non-normative design note — the precedence cases still lack Canon witnesses.** Lava Flows motivates
-> inheriting defaults and intersecting them with bounds. It does not demonstrate competing defaults
-> from several nearest ancestors, a nearer override hiding an incompatible ancestor, or an
-> incompatible nearer override that leaves a compatible ancestor discarded. No current canonical
-> TfM example has been identified for those cases; their necessity remains under audit.
+> **Non-normative examples — Capital and Inventrix.** Capital's `CapitalTile` inherits `CityTile`'s
+> placement default. Inventrix's three `ProjectCard` gains inherit `CardBack`'s `Hand` default.
+> Without inheritance, those classes would need their own default declarations or the card effects
+> would have to state the area and card location explicitly. Capital is also a `SpecialTile`, but
+> that class supplies no placement default, so there is nothing to combine or override.
+>
+> **Non-normative examples — Lava Flows and Mohole Area.** Special tiles state their placement
+> restrictions explicitly. Lava Flows uses `LavaFlows_SpecialTile<LandArea>` when the map has no
+> volcanic areas; Mohole Area declares `SpecialTile<WaterArea>`. Neither needs an inherited
+> special-tile placement default or rules for reconciling that default with its own restriction.
+>
+> **Non-normative design note — override precedence still lacks Canon witnesses.** No current
+> canonical declaration demonstrates a nearer dependency default replacing an ancestor's default,
+> or an incompatible nearer override leaving a compatible ancestor discarded. Those cases remain
+> under audit separately from the agreement required between inherited defaults.
 
 **T10-5. `Anyone` in a declared default obeys T10-4.** It is an ordinary class expression and is
-intersected with the class's bound. `Card : Owned<Player> { DEFAULT Card<Anyone> }` therefore has
-`Card<Player>` as its default expression and type. `Owned` itself declares no dependency default;
+intersected with the class's bound. `Card : Owned<Player> { DEFAULT Card<Anyone> }` is rejected:
+intersecting `Anyone` with `Player` leaves the bound unchanged, so the clause has no effect.
+`Owned` itself declares no dependency default;
 omitted owners are inserted during elaboration by L9-3.
 
 > **Non-normative design note — no current TfM witness for this declared-default case.** No current
