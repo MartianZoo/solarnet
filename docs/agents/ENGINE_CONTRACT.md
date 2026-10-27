@@ -488,5 +488,7 @@ changes on that branch. General uniqueness and the treatment of structural selec
   and unresolved instructions become negative results; other failures propagate. A selection that hands off work does not execute the receiving Actor's task.
 - Admin configuration accepts only EAGER. Player policies alone are configurable and disabled
   during replay; Admin execution is omitted from replay inputs and repeated by mandatory Agent handling.
-- Queue edits and corrections can change the world while another task is selected, bypassing
-  the intended exclusion of competing client mutations. Partial selection can still persist.
+- Queue edits respect the selected-task exclusion: `addTasks` and `dropTask` are refused while a
+  task is selected, except dropping the selected task itself, which is how a client abandons work
+  it started. Corrections still bypass it, since their treatment while a task is selected remains
+  under review separately. Partial selection can still persist.

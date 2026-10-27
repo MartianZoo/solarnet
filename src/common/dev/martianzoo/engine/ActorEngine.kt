@@ -178,12 +178,15 @@ internal constructor(
    * the ids of tasks actually added in creation order. Normalization can discard no-ops, split
    * groups, perform dispatches, and assign concrete System changes to Admin.
    *
+   * Refused while any task is selected: that task must finish before the queue changes around it.
+   *
    * Adding work does not execute its ordinary task bodies. Eligible deferred work is promoted at
    * transaction completion. A failed transaction restores its additions.
    */
   // TODO(ENGINE_CONTRACT): Review whether direct queue editing belongs in the public API.
   public fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
       transactions.perform(actor, CLIENT_REQUEST) {
+        requireNoSelectedTask("add tasks")
         taskQueues.addTasks(instructions, actor, firstCause).map { it.task.id }
       }
 
@@ -191,12 +194,16 @@ internal constructor(
    * Removes an existing task assigned to [actor] and returns its removal event. Does not execute
    * the removed task's instruction. Rejects a missing task or a task belonging to another Actor.
    *
-   * Current limitation: removing work may promote deferred tasks and perform their dispatches. It
-   * does not enforce selected-task exclusion or handle newly eligible Admin work by itself.
+   * Refused while a different task is selected. Dropping the selected task itself is permitted:
+   * that is how a client abandons work it has started.
+   *
+   * Current limitation: removing work may promote deferred tasks and perform their dispatches, and
+   * does not handle newly eligible Admin work by itself.
    */
   // TODO(ENGINE_CONTRACT): Review removing direct task deletion from the engine's public API.
   public fun dropTask(taskId: TaskId): TaskRemovedEvent =
       transactions.perform(actor, CLIENT_REQUEST) {
+        requireNoSelectedTask("drop task $taskId", allowed = taskId)
         taskQueues.removeTask(tasks.getTaskData(taskId))
       }
 
@@ -291,9 +298,20 @@ internal constructor(
     taskQueues.removeTask(stored)
   }
 
+  /**
+   * A selected task excludes a competing queue edit, as it already excludes a competing task
+   * command: the selected task must finish before the queue it belongs to changes around it.
+   * Dropping the selected task itself is how a client abandons it.
+   */
+  private fun requireNoSelectedTask(attempt: String, allowed: TaskId? = null) {
+    val selected = allTasks.selectedTask() ?: return
+    if (selected == allowed) return
+    throw TaskException("cannot $attempt while task $selected is selected")
+  }
+
   private fun requireNoOtherSelectedTask(taskId: TaskId) {
     // Check the whole task pool: another Actor's selection also excludes this task command.
-    // TODO(ENGINE_CONTRACT): Queue edits and corrections currently bypass this exclusion.
+    // TODO(ENGINE_CONTRACT): Corrections still bypass this exclusion; queue edits no longer do.
     val already = allTasks.selectedTask()
     if (already != null && already != taskId) {
       val instr = allTasks.getTaskData(already).instruction

@@ -20,9 +20,30 @@ import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class TaskAssignmentCharacterizationTest {
+  @Test
+  internal fun aSelectedTaskExcludesCompetingQueueEdits() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val offered = p1.addTasks("Token<Player1> OR Marker<Player1>").single()
+    val other = p1.addTasks("AdminToken").single()
+    p1.selectTask(offered)
+    game.tasks.selectedTask() shouldBe offered
+
+    // The selected task must finish before the queue around it changes.
+    shouldThrow<TaskException> { p1.addTasks("Token<Player1>") }.message shouldContain "is selected"
+    shouldThrow<TaskException> { p1.dropTask(other) }.message shouldContain "is selected"
+
+    // Abandoning the selected task itself is how a client gets out of it.
+    p1.dropTask(offered)
+    game.tasks.selectedTask() shouldBe null
+    val added = p1.addTasks("Token<Player1>").single()
+    game.tasks.ids().shouldContainExactly(other, added)
+  }
+
   private fun game() =
       Engine.newGame(
           testGamePremise(
