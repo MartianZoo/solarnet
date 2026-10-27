@@ -292,6 +292,17 @@ Four OtbGame20261009 production batches and Molecular Printing now retain their 
 MC totals independently of the migrated commands' calculated amounts. Existing resource
 checkpoints remain. No additional operation representation or public API was introduced.
 
+The two "establish a required use" markers on reusable speculative state now have an answer, and it
+differs by layer. `GameWorld.resetOverlay` and the engine's `SpeculativeWorld.reset` are required:
+`ActorEngine.successfulNarrowing` creates one trial World and resets it once per concrete candidate
+while proving a unique narrowing, so that capability cannot be removed independently of experiments
+4 and 5. The agent-level session is not required: nothing in production constructs
+`Agents.overlay()` or `SpeculativeAgents`, and the only callers are `WorldOverlayTest` and
+`CardTrackingTest`. Removing the agent-level surface is therefore available without touching the
+engine's trial Worlds, but it would delete the overlay-invalidation and card-anonymity scenarios
+that currently cover it. That trade is a user decision, so both markers were narrowed to record the
+answer rather than acted on.
+
 ## Integration of main and the work1 documentation commit
 
 At the user's request, work1 first fast-forwarded to main `4974858d2`, then committed the original

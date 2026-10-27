@@ -71,9 +71,9 @@ public open class Agents(
    * are absent, so card movements can remain anonymous. Recording and completion callbacks begin
    * fresh. The returned session can be reset and reused without rebuilding its Agents.
    */
-  // TODO(ENGINE_CONTRACT): investigate removing speculative sessions and their reset protocol.
-  // The proposed contract does not select this capability; establish a required use before keeping
-  // it.
+  // TODO(ENGINE_CONTRACT): no required use is established. Nothing in production constructs these
+  // sessions; the engine's own trial Worlds do not use them. Removing this surface is available,
+  // but it deletes the overlay-invalidation and card-anonymity scenarios that now cover it.
   public fun overlay(): SpeculativeAgents =
       SpeculativeAgents(Engine.overlay(world)) { actor -> get(actor).autoExecPolicy }
 

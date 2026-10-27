@@ -122,9 +122,9 @@ private constructor(
    * invalidate it. [fork] on the overlay materializes its complete history and current state into
    * an independent World.
    */
-  // TODO(ENGINE_CONTRACT): investigate removing reusable speculative state and resetOverlay.
-  // The proposed contract does not select this capability; establish a required use before keeping
-  // it.
+  // TODO(ENGINE_CONTRACT): a required use is established. `ActorEngine.successfulNarrowing` creates
+  // one trial World and resets it once per concrete candidate, so removing reusable speculative
+  // state depends on experiments 4 and 5 rather than on this capability alone.
   public fun overlay(): GameWorld =
       GameWorld(
           premise,
