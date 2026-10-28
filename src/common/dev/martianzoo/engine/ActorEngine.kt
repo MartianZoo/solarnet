@@ -1157,31 +1157,6 @@ internal constructor(
     }
   }
 
-  // Unlike tryTask, reports unavailable selected work as a failed task.
-  /**
-   * Attempts this Actor's selected task. Returns true if that task finishes, or false if further
-   * choices remain. Throws when no progress is possible for another reason; current
-   * unavailable-work errors are reported as [DeadEndException].
-   *
-   * Returns false when another Actor owns the selection. Current limitations: a missing selection
-   * produces an implementation exception. Rejected execution restores its transaction. Its need as
-   * public API requires review.
-   */
-  // TODO(ENGINE_CONTRACT): Investigate removing this public selected-task retry helper.
-  public fun trySelectedTask(): Boolean {
-    val taskId = allTasks.selectedTask()!!
-    return try {
-      transactions.perform(actor, CLIENT_REQUEST) {
-        doTask(queueForAnyTask(taskId), taskId)
-      }
-      taskId !in allTasks
-    } catch (e: NotNowException) {
-      throw DeadEndException(e)
-    } catch (_: NotFullySpecifiedException) {
-      false
-    }
-  }
-
   private fun queueForAnyTask(taskId: TaskId): TaskQueue =
       gameWorld.tasksFor(allTasks.getTaskData(taskId).assignee)
 }

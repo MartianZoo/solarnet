@@ -95,7 +95,16 @@ internal class AutoExecLoop(
                       taskId !in allTasks ||
                           allTasks.getTaskData(taskId).assignee != engine.actor ||
                           (!allTasks.getTaskData(taskId).instruction.isAbstract(world.reader) &&
-                              command(taskId, Kind.TRY_SELECTED) { engine.trySelectedTask() })
+                              command(taskId, Kind.TRY_SELECTED) {
+                                try {
+                                  engine.doTask(taskId)
+                                  taskId !in allTasks
+                                } catch (e: NotNowException) {
+                                  throw DeadEndException(e)
+                                } catch (_: NotFullySpecifiedException) {
+                                  false
+                                }
+                              })
                 }
                 validateApplication()
               }

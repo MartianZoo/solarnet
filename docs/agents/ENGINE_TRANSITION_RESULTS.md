@@ -358,6 +358,19 @@ comment-only edits recompile to identical bytecode. Logs are `increment-01-build
 `increment-02-build.log`. `refs/claude/engine-transition-increments-2026-10-27` pins the branch tip
 at this record, so the increments survive a later reset of the branch.
 
+### Increment 03: remove an engine retry policy
+
+Base `a0161506a`; recoverable patch: `$TMPDIR/engine-contract-increment-03-a0161506a.patch`.
+`ActorEngine.trySelectedTask()` had only one production caller, Player automatic execution in
+`AutoExecLoop`. Its special results were Player policy decisions: an unfinished choice waits, while
+current unavailability is reported as a dead end. The Agent loop now calls the engine's ordinary
+`doTask(taskId)` and applies those decisions at that call site. `RecordedInput.Kind.TRY_SELECTED`
+still identifies the automatic attempt in task recordings; its replay path already uses
+`Agent.tryTask`. The public engine retry method and its inventory row were removed. No new method,
+stored fact, or instruction form was added. The Agent and engine JVM suites and `spotlessCheck`
+passed, followed by `./gradlew build --console=plain --quiet`, including the active replay and
+browser checks. This change does not settle the separate optional amount or Admin waiting questions.
+
 ## Verification and recoverability
 
 The additional review passed `./gradlew build --continue --console=plain` in 3m 55s: 462 tasks,
