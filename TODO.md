@@ -8,6 +8,32 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   `HellasPromoWithoutPreludeTest` is a verified small example; `OtbGame20260828Test` has a
   deliberate TaskForm interaction style and should be assessed separately.
 
+- Continue from [the engine experiment report](docs/agents/ENGINE_TRANSITION_RESULTS.md).
+  Explicit numeric THEN bindings, separate selection/execution, Agent translation of submitted
+  scalar totals into individual engine calls,
+  exact admitted group IDs, and session-owned application checks are implemented on the experiment
+  branch. Complete shared type binding and nested THEN representation without adding a second
+  continuation slot. Move `EACH` child admission out of selection/narrowing: it is execution of
+  the parent task, and children follow ordinary priority afterward. Define the remaining
+  structural actions permitted during selection.
+- Extend transaction-success analysis beyond fixed mandatory gains/removals and full-form
+  transmutations only after measuring complete Agent calls. Resolve compact transmutations and a
+  search resource limit without treating incomplete analysis as a failed transaction. Keep
+  unsupported forms and unresolved immediate effects unknown. Review Admin waiting behavior,
+  callback failure recovery, and custom Kotlin effects separately.
+- Fix Agent choice completeness before adopting automatic form reduction. The passing
+  `AgentNarrowingExperimentTest` BUG case shows `Repair?` offering only `Ok` even though `Repair!`
+  succeeds because `Repair:: Notice, -Repair` repairs its own MAX 0 limit. A raw engine call by task
+  ID consumes `Repair?` as zero even though both zero and one succeed; the selected contract would
+  require a choice. `Repair*` also resolves to zero under the documented current-headroom rule in
+  `QUANTIFIERS.md`, but its intended amount rule remains open. Canon's neutral `PartyDelegate`
+  placement deliberately uses mandatory gain for this reason. Characterize affected Canon amounts
+  before changing the rule. Reconcile form commit selecting/evaluating before applying a narrowing
+  with direct execution applying the request first.
+  A sole displayed option is not proof of a sole successful transaction. Keep Player automatic
+  policy scope unchanged until this is resolved. Explicit combined-total requests are a separate
+  Agent convenience, selected for production income; they do not authorize automatic choice-making.
+
 - Investigate the deferred nested-placement and partial-selection experiment in
   [Make types types again](docs/agents/MAKE_TYPES_TYPES_AGAIN.md) if that proposal is selected.
 
@@ -101,17 +127,25 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   evaluation followed by further narrowing. This TODO records the migration, not its completion.
 - Investigate the selected destination in [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md)
   using the [transition plan](docs/agents/ENGINE_TRANSITION_PLAN.md).
-  Complete transaction-success analysis and Admin uniqueness remain unfinished. Admin retains the
-  existing retries after progress and throws a retained rejection after a completely unsuccessful
-  pass. Existing gate and Player-task waiting exceptions still need model-level review; do not
-  generalize them into suppressing all stalled-pass failures. Handoff does not trial-execute the
-  receiving Actor's task. Establish the intended model for Turmoil event draws and solo neutral
-  placements when implementing complete enumeration. Keep whole-action exploration in agents,
-  separate from the legality of an individual transaction.
+  The committed branch covers finite mandatory gains, removals, and full-form transmutations,
+  including Admin uniqueness; this is not general coverage. Finish read-only task matching,
+  deterministic incomplete-analysis reporting, structural selection and Admin handoff, and the
+  client-facing call shape. Different continuations are not interchangeable. Settle when other
+  data, especially cause, makes repeated rewards distinct: strict cause equality broke Ecological
+  Zone, Frontier Town, and curated replay requests, while cause can affect event ancestry and
+  application input checks. Decide whether to retain the existing engine behavior where a resolved
+  task amount matches a submitted concrete amount (`Plant / Heat` with 2 Heat is executed by
+  `2 Plant` in `TaskResolutionTest`); settle the multiple-match case. Review Admin
+  waiting cases against the selected rule that Admin exhausts currently possible work before the
+  Player sees the state; a pending Admin task alone does not block Player selection. Also review
+  solo neutral placements and recheck Turmoil replay tests after work4's deck-model change is
+  integrated. Do not derive engine requirements from the current Turmoil workaround. Whole-action
+  exploration is separate Agent work.
 - Design engine-installed autoexec policies for selected tasks assigned to an Actor, configured
   by that Actor's agent. Use Arctic Algae collection without waiting for the receiving agent as
-  the acceptance example. Resolve matching, lifetime, selection/priority, failure, transaction,
-  replay, and speculation details in the [four-bucket inventory](docs/agents/AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
+  the acceptance example. Resolve matching, lifetime, selection and priority, failure, transaction,
+  replay, and speculation details in the
+  [Agent contract](docs/agents/AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
   Keep preference features such as "always take titanium for Philares" deferred; no policy API,
   implementation, or default migration is selected by this documentation work.
 - Migrate Players away from the EAGER default, which can close legitimate gameplay choices.
@@ -140,9 +174,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   unrestricted draft narrowing. This records the requested evolution, not an implementation.
 - Investigate moving the code that runs several engine calls, checks supplied card identities,
   reports completion to application code, and decides whether an action has finished out of the
-  engine package. Preserve transaction validity, rollback, and complete returned results. The
-  [transition plan](docs/agents/ENGINE_TRANSITION_PLAN.md#experiment-7--the-surrounding-agent-call)
-  explains each responsibility and the separate recovery questions.
+  engine package. Application checks and operation completion have moved to Agent on the branch;
+  the public call coordinator, callbacks, and recovery remain. Preserve transaction validity and
+  complete returned results. The [transition plan](docs/agents/ENGINE_TRANSITION_PLAN.md#4-simplify-the-client-facing-call)
+  gives the implementation order and unresolved recovery questions.
 - Clarify System classification versus non-Iconic presentation separately. Review when concrete
   System work and explicit BY Admin work change assignee.
 
@@ -168,14 +203,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Engine contract investigations
 
-Follow [ENGINE_TRANSITION_PLAN.md](docs/agents/ENGINE_TRANSITION_PLAN.md) for the ordered branch
-experiments, acceptance cases, and cost reports. [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md)
-owns the selected destination: simple permitting-task matching; unique successful narrowing within
-the requested transaction; no subsequent Admin execution in that proof; no execution implied by
-selection. This is intended behavior, not a completed migration.
-
-The plan covers combined totals, extra queued execution, explicit THEN bindings, partial narrowing,
-transaction-level inference, Die/Ok simplification, immediate-effect timing, the surrounding Agent
-call, and generalized agent narrowing. Earlier instructions to move all inference into agents or
-require task IDs for most mutations are superseded. Record evidence from rejected experiments as
-well as retained changes. Whole-action exploration remains agent work.
+Follow [ENGINE_TRANSITION_PLAN.md](docs/agents/ENGINE_TRANSITION_PLAN.md) for the remaining branch
+work and acceptance cases. [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md) owns the selected
+destination: task matching before transaction trials; unique successful narrowing within the
+requested transaction; no later Admin execution in that proof; and a client-facing call that gives
+Admin and other attached Actors their automatic turns before returning. Player selection does not
+itself execute as Player. This is intended behavior, not a completed migration. Combined totals,
+submitted-group execution, and explicit numeric THEN binding are already committed on the branch;
+do not repeat them as future work. Whole-action exploration is a separate Agent project.

@@ -6,6 +6,9 @@
 
 Read only the route needed for the task. Capture design decisions in the individual owning
 `docs/agents/` notes, distinguishing agreed intent, proposals, open questions, and current behavior.
+Maintain the engine contract, transition plan, experiment results, and Agent contract in work1,
+then sync those design documents to the experimental branch. Source inventories describe the checkout in which
+they are read; they must label findings from a different branch explicitly.
 The human-facing
 [`SOLARNET_ROADMAP.md`](../SOLARNET_ROADMAP.md) and
 [`PETS_ROADMAP.md`](../PETS_ROADMAP.md) index those notes and summarize priorities and status;
@@ -18,13 +21,13 @@ architecture change. Then choose the narrowest relevant note:
 
 | Subject | Read |
 | --- | --- |
-| Live World construction, components, tasks, effects, or the current Actor Engine/Agent relationship | [`ENGINE.md`](ENGINE.md) |
-| Agent assistance, delegated choices, interaction services, or engine-installed autoexec policies | [`AGENT_CONTRACT.md`](AGENT_CONTRACT.md) — four-bucket inventory, agreed responsibilities, proposed services, open questions, and deferred preferences |
+| Live World construction, components, tasks, effects, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
+| Agent assistance, delegated choices, interaction services, or engine-installed autoexec policies | [`AGENT_CONTRACT.md`](AGENT_CONTRACT.md) — responsibility inventory and open policy questions |
 | Actor attribution, on-turn identity, Admin, assignment, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md); lexical ownership is in [Pets](../../pets/docs/agents/OWNERSHIP.md) |
 | Game flow, turns and offers, Head Start timing, task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
 | Payment choices, accepted resources, billing, or payment completion | [`PAYMENTS.md`](PAYMENTS.md) |
 | Client interaction, engine versus agent deduction, transactions, task priorities, or mandatory Admin handling | [`ENGINE_CONTRACT.md`](ENGINE_CONTRACT.md) |
-| Autonomous experiments toward the engine/agent destination | [`ENGINE_TRANSITION_PLAN.md`](ENGINE_TRANSITION_PLAN.md) — order, acceptance cases, evidence, and stopping rules |
+| Remaining engine API transition work | [`ENGINE_TRANSITION_PLAN.md`](ENGINE_TRANSITION_PLAN.md) — branch status, owner decisions, order, and acceptance cases; [results](ENGINE_TRANSITION_RESULTS.md) — measured attempts and merge recommendations |
 | Transaction grouping, execution motivation, event ordinals, or transaction-based checkpoints | [`ENGINE.md`](ENGINE.md#transaction-history-and-checkpoints) — completed implementation; [`EXPORT.md`](EXPORT.md) for files |
 | Inventory of automatic task revisions, admission, resolution, execution, and their timing | [`TASK_HANDLING.md`](TASK_HANDLING.md) — current behavior and automatic-actions inventory |
 | Single-action decision graphs, agent pruning, or speculative card choices | [`DECISION_GRAPH.md`](DECISION_GRAPH.md) — selected agent rules and candidate strategies |
@@ -88,8 +91,8 @@ Kotlin visibility auditing across runtime modules remains in [VISIBILITY.md](VIS
 It supplies no current requirements. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the
 interaction terms and distinguishes selected direction from remaining proposals; keep those terms
 there until explicitly approved for the glossary. [AGENT_CONTRACT.md](AGENT_CONTRACT.md) owns
-the agent responsibility inventory and engine-installed policy direction. [DECISION_GRAPH.md](DECISION_GRAPH.md) owns
-the agent exploration design, separating selected rules from candidate strategies.
+the Agent responsibility inventory and standing-policy direction. [DECISION_GRAPH.md](DECISION_GRAPH.md)
+owns the agent exploration design, separating selected rules from candidate strategies.
 
 ## Maintain this collection
 

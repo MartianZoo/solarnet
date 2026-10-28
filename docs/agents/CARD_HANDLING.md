@@ -27,6 +27,10 @@ per-back hand-entry order and names for otherwise anonymous departures. Supplied
 to concrete `CardFront` classes with the matching back in the catalog. A source card can be named
 even when that card is excluded from this game's playable pool. An operation with missing names
 fails validation.
+On `codex/engine-transition-experiments`, the guard instead belongs to an `Agents` session and
+`CardTracking.start` accepts that session. That is branch behavior, described in
+[the experiment report](ENGINE_TRANSITION_RESULTS.md#7-application-checks-are-session-owned),
+not this work1 checkout's current API.
 Unused supplied names may be replaced after a failed operation without changing names used by
 surviving events.
 

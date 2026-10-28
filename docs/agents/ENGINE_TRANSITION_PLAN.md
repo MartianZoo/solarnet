@@ -1,318 +1,278 @@
-# Engine and agent transition experiments
+# Engine API transition plan
 
-> **Master plan — October 24, 2026.** Intended for a coding agent commissioned to investigate on
-> its own branch. This document is a plan, not a report that experiments have run. Preparing it
-> does not begin implementation or authorize merging experimental changes.
->
-> [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the selected destination and open details.
-> [DECISION_GRAPH.md](DECISION_GRAPH.md) owns agent choice and completion-analysis rules.
-> [TASK_HANDLING.md](TASK_HANDLING.md) maps current behavior; inspect source before relying on it.
-> Here “coding agent” means the investigator; `:agent` means the runtime module.
+> **Working plan — October 28, 2026.** This plans remaining work on
+> `codex/engine-transition-experiments`, not new initial experiments. The owner must settle the
+> marked decisions before an implementer treats a proposal as a requirement.
+> [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns intended semantics;
+> [ENGINE_TRANSITION_RESULTS.md](ENGINE_TRANSITION_RESULTS.md) records branch evidence;
+> [TASK_HANDLING.md](TASK_HANDLING.md) inventories paths in the checkout being read. Verify the
+> experimental branch's source and tests before editing its code.
 
-**October 28 design follow-up:** the
-[four-bucket inventory](AGENT_CONTRACT.md#agent-responsibilities-four-buckets) adds selected-task
-autoexec policies installed in engine by Agent. The existing selection experiments describe calls
-without that advance authorization. The new policy mechanism and its open questions remain future
-work; recording this direction does not expand the implementation scope of these experiments.
+Maintain this plan and the selected [contract](ENGINE_CONTRACT.md) in work1, then carry their
+updates into the experiment branch. The branch's code may be ahead of work1; its observations
+belong in [the results](ENGINE_TRANSITION_RESULTS.md) with the branch revision named. Do not let
+a branch-only implementation silently change the selected design.
 
-## Objective and successful outcome
+## Finish line
 
-Find the smallest coherent implementation of the intended engine responsibility, and discover its
-real costs. A useful outcome can include successful changes, rejected changes with evidence, and
-specific unresolved questions. The goal is not to accumulate the largest mergeable diff or to make
-every experiment pass by adding compensating machinery.
+Deliver a small, coherent **engine API** for a client's requested change. The engine identifies a
+permitting task without executing competing tasks, combines that task with supplied information,
+and executes only when exactly a single concrete narrowing completes the requested transaction.
+That transaction includes immediate consequences and task admission, but does not execute later
+queued work to justify the request. A client-facing call then gives attached Actors' automatic
+behavior a chance to run, beginning with Admin, and returns at quiescence. Lower-level transaction
+methods may be internal. The public shape and precise handoff behavior still need approval.
 
-The engine serves a client with an intended change. It first identifies permission through a
-conservative task comparison, then determines whether the request and that task admit exactly a
-single narrowing whose transaction succeeds. That transaction includes immediate consequences and
-task admission; it excludes executing subsequently queued work, including Admin work. The agent
-owns automatic-choice policy and reasoning about later tasks. Selection does not itself authorize
-execution; a matching installed policy may supply authorization in advance. These are intended
-responsibilities, not a claim that the transition or installed-policy support is complete.
+When a useful feature is removed from engine, carry it into Agent only as needed for current
+clients. General Player guidance, whole-action completion search, outcome equivalence, and a smart
+Player autoexecution policy are separate projects described in
+[DECISION_GRAPH.md](DECISION_GRAPH.md). The
+[Agent contract](AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine) also selects future
+standing policies installed in engine. That mechanism is not an acceptance condition here;
+selection tests in this plan assume no applicable installed policy. `TfmGameplay` is
+for deletion; its current helpers do not set the API design.
 
-Proceed through the experiments without seeking approval for routine choices inside their stated
-scope once commissioned. Reevaluate the order when evidence warrants it, recording why. If an
-experiment needs an unsettled semantic decision or disproportionate new machinery, preserve the
-finding, leave that experiment unresolved, and continue independent experiments. Do not silently
-change the selected contract to unblock code. Ask only when the remaining useful work actually
-depends on the owner's answer. Repository stop rules for growing architecture still apply.
+## Verified starting point
 
-## Branch, checkpoints, and evidence
+The branch checkpoint is merge commit `6c4686b61`, which incorporates `main` at `f1055a08b`;
+work1 was fast-forwarded to that same main commit. The experiment branch has not been merged
+back into main. Refresh these refs before work.
+Transaction recording and checkpoints already existed in `main` before this branch split; do not
+list or reimplement them as transition work. The following changes are **already committed on the
+experimental branch**. Their limits remain work; the completed portions are not tasks.
+The merged branch passed a full `./gradlew build`, including the curated replays and web browser
+checks. This plan does not authorize any further merge.
 
-1. Read checkout instructions and refresh status, current source, and the active design docs.
-   Create an isolated worktree on `codex/engine-transition-experiments` or an unused suffixed name.
-   Record the exact base revision. Do not modify another checkout's dirty work or assume its branch
-   tip contains the latest uncommitted design docs. Copy the explicitly relevant current docs into
-   the experiment checkout when needed and record that starting difference.
-2. Keep the original checkout untouched. Changes on the experiment branch must be attributable to
-   this plan. Do not merge, publish, or push experiments without separate authorization. If commits
-   are authorized by the commissioning request, make small experiment checkpoints. Otherwise keep
-   recoverable patches and exact base references under `$TMPDIR`; lack of commit permission need
-   not stop investigation. Human-facing findings belong in the experiment checkout's docs.
-3. Maintain `docs/agents/ENGINE_TRANSITION_RESULTS.md` on that branch with a compact status table:
-   experiment, hypothesis, base/checkpoint or patch, outcome, commands, and recommendation. Include
-   a reproducible counterexample for a rejected approach. Save an unsuccessful attempt before
-   removing only its own changes. Keep an independently useful experiment independent of a failed
-   predecessor wherever possible; do not make unrelated work depend on knowingly broken code.
-4. After each experiment, compare both against its starting point and against the original baseline.
-   Record what was deleted, what was added, and what moved. Distinguish test adaptation from new
-   production responsibilities. A passing test obtained by hiding work in `TfmGameplay` is failure.
-5. At the end, report which changes form coherent candidates for review, which should stay as
-   evidence only, and which questions still need a decision. The recommended integration set may
-   be empty. Do not label the destination implemented while acceptance cases remain unresolved.
-
-## Acceptance checklist used throughout
-
-Use this checklist before each revision and when reviewing the final experimental diff. Add newly
-settled requirements as the investigation proceeds; do not lose earlier requirements to later fixes.
-
-- Task finding is read-only and does not try consequences to pick between distinct matching tasks.
-  Interchangeability must include meaningful task data, not just matching immediate changes.
-- Information may be supplied jointly by the identified task and request. Do not require redundant
-  concrete names or change the class hierarchy to avoid valid abstract requests.
-- Unique execution means exactly a single concrete narrowing completes the requested transaction.
-  First success, equivalent outcomes, and incomplete analysis do not establish uniqueness.
-- Temporary invariant violations repaired by immediate effects remain possible candidates. Errors
-  caused by missing information, resource limits, or implementation defects are not game-rule
-  rejections that eliminate candidates.
-- Newly queued Admin work is not executed during that proof. Direct mandatory Die admission can
-  reject now; later failure remains later. Trying a candidate leaves no retained state or history.
-- Selecting or narrowing alone does not authorize execution. Explicit combined execution and
-  advance authorization from an installed policy are distinct cases. Existing selection experiments
-  use no installed policy. Classify structural task changes separately and expose unresolved cases.
-- Joined THEN retains a shared unbound type/X; explicit binding exposes current work and a separate
-  continuation. Do not infer X backward from a submitted first-stage result in either module.
-- Partial deductions can be useful without permitting execution. Voluntary stored partial
-  narrowing remains an experiment, not a deletion decided in advance.
-- Admin is always automatic through the agent, including replay. Player policy settings do not
-  disable it. Raw engine clients remain possible and preserve transaction validity independently.
-- Public engine failures restore their transaction. Broader Agent-call recovery, application side
-  effects, and history inspection remain separate questions. Preserve completed history semantics.
-- Whole-action exploration and outcome equivalence remain in the agent. UNKNOWN never licenses
-  removing a potentially meaningful choice. Finite candidate generation must not allocate an
-  unbounded integer domain.
-- Functional game scenarios use agents; focused engine tests exercise raw engine promises. Preserve
-  actual Canon behavior, not incidental queue order, helper assumptions, or obsolete APIs.
-
-## Baseline and measurements
-
-Before changing behavior, inspect `ActorEngine`, `Instructor`, `newTasks`, `TaskQueues`, `Limiter`,
-`Effector`, `Initializer`, `WorldTransaction`, `AgentTransactionGuard`, `AgentImpl`, `AutoExecLoop`,
-and `TaskForm` only for the experiment at hand. Follow the source map in TASK_HANDLING rather than
-assuming method names describe all their effects. Inventory actual production and test callers.
-
-Read [TESTING.md](TESTING.md). Start with the relevant existing engine and agent JVM suites and a
-small Canon scenario set. Record preexisting failures separately. Use filtered card/rule tests via
-`:tfm-tests:jvmTest`; full-game cases use `:tfm-tests:replayTest`, whose class filter must actually
-include the requested replay. Expand to the curated replay suite when scheduling or runtime
-semantics change. Run a full build at coherent cross-module checkpoints, not after each tiny edit.
-Run browser checks when changed public surfaces reach browser clients. Do not enable intentionally
-disabled optional suites as a side effect of this plan.
-
-Choose a fixed representative workload before timing changes: ordinary resource payment, a
-placement with location choice, a direct protected removal, a request requiring immediate-effect
-validation, and replay segments with multiple tasks and Admin follow-up. Measure raw engine calls
-and complete Agent calls separately. Use the same starting states, commands, environment, and warmup
-for comparisons. For each request report candidates after type intersection, candidates excluded
-by sound cheap checks, transaction attempts, and whether later Admin work was executed. For Agent
-calls report that later work separately. Do not claim complete smart-policy coverage from timing
-only the search function; exercise the actual path submitting choices and handling Admin.
-
-Cost reports must cover:
-
-| Cost | Evidence to retain |
+| Already on branch | Relevant limit |
 | --- | --- |
-| Conceptual | Added or removed concepts, public methods, stored facts, exceptional cases, and cross-module dependencies. |
-| Code | Production and test diff sizes separately; moved code separately from new code; duplicated rules eliminated or introduced. |
-| Gameplay | Named Canon card/rule, before/after choices and effects, meaningful failing and passing scenarios. State when no Canon reliance is known. |
-| Usability | How a direct engine request and an Agent request change; how much test setup became more explicit. |
-| Runtime | Candidate and attempt counts, complete measured latency, slow cases, and amount of unresolved analysis. |
-| Recovery | Components, tasks, selection, events, and transaction positions after failure or speculative attempts; observer limitations where relevant. |
+| Application input checks and operation completion moved to Agent sessions. | Completion callbacks and whole-call failure semantics are unsettled. |
+| Engine combined resource totals removed; Agent translates an explicitly submitted total into separate calls. Existing engine matching can identify an individual task by its calculated amount. | Decide whether to retain calculated-amount matching in the final engine API and settle multiple matches. |
+| Explicit submitted groups execute their admitted member IDs, leaving reactions and continuations queued. | Structural selection and handoff still need a final rule. |
+| Selection/narrowing no longer execute component changes as the selecting Actor; numeric `THEN` bindings are explicit. Ordinary add/drop queue edits now refuse while a task is selected, except dropping that task itself. | Selection still expands exposed `EACH` tasks. The owner defines that expansion as execution, so this branch behavior must move to an execute command. Voluntary partial narrowing and other structural paths need review. |
+| Finite mandatory gains/removals and full-form transmutations try complete candidate transactions in disposable Worlds; Admin and Player priority use this finite uniqueness rule. | Other forms and deterministic proof limits remain open. |
+| Admin remains mandatory in Agent calls, retries after progress, and preserves retained rule failures. | Stalled passes, waiting cases, and public orchestration need settlement. |
 
-Prefer temporary instrumentation to permanent metrics APIs. A wider diff can be worthwhile if it
-removes a concept. Conversely, few lines that introduce a second interpreter or a lasting exception
-can be expensive. Do not optimize an invented worst case before measuring the representative cases.
+Do not call the branch a completed contract implementation. Current engine methods expose more
+low-level operations than the proposed public API may need, and the engine does not yet have a
+selected final task matcher or a general proof of unique transaction success.
 
-## Experiment 1 — remove conveniences that execute more than requested
+## Decisions to settle with the owner
 
-Run these as separate, recoverable changes; neither requires the complete uniqueness implementation.
+These are implementation gates. Continue independent work when a gate is unresolved; do not
+silently choose an answer.
 
-**Combined totals:** remove the engine convenience while retaining Agent's selected translation
-of an explicit production total into separate task executions. Preserve each task's effects and
-continuation, and keep unrelated rewards separate in scenario inputs. The
-[bucket 3 responsibility](AGENT_CONTRACT.md#3-carry-out-and-maintain-the-interaction) supersedes
-this experiment's earlier test-support-only direction. Explain any gains-before-removals reliance.
+1. **Task identity and interchangeability.** Confirm the owner's proposed rule: if a submitted
+   task string intersects exactly a single pending task for the submitting Actor, use the
+   intersection as the request. Specify whether “intersects” includes current-world resolution,
+   a satisfied gate, a `THEN` first stage, or a currently failed gate matched with possible facts.
+   Different continuations make tasks distinct. Define the positive rule for considering other
+   task data interchangeable, especially different causes and otherwise identical repeated rewards.
+   Decide whether to retain the existing resolved-value match in the engine: with 3 Foo present,
+   `1 MC / Foo` evaluates to `3 MC`, so may a client submit `3 MC`? (The owner's `3 Foo` wording
+   reverses the result.) Decide what happens when
+   several tasks resolve to the same change.
+2. **Public call shape.** Decide whether to reshape the existing public `ActorEngine.transact`
+   callback coordinator or place the client-facing method in Agent or a thin coordinator. `:agent`
+   depends on `:engine`: an Agent-level caller leaves an engine operation public, while an
+   engine-level caller needs engine-defined callbacks. Define which `Agents` session supplies
+   attached Actors when independent sessions share a World. The owner accepts the existing
+   shared `AutoExecLoop`; splitting it is not required now. Admin must be retried before **every**
+   automatic Player step when no task is selected. Admin must do everything it can before the
+   Player sees the state. A waiting Admin task does not alone block Player selection once Admin
+   can make no further progress; Player work may be needed to move the game forward. If the
+   current game model requires an external input, surface that need before Player work. This
+   does not commit Turmoil to its present deck workaround, which is being changed in work4.
+   The selected P0 task must execute before any other work. Settle how Player work is
+   ordered after Admin and whether `World.onTransactionComplete` remains a separate hook. No
+   production code assigns that hook; removing it would simplify callback timing but delete the
+   tested notification surface. Admin cannot be disabled by Player policy or replay configuration.
+3. **Proof coverage and limits.** Decide how to expose incomplete uniqueness analysis without
+   claiming impossibility or picking the first success. A wall-clock timeout is not approved:
+   identical game requests must not change answers according to machine speed. Specify finite
+   domains, deterministic work limits or another terminating proof strategy, and the observable
+   result when no proof is possible. `Repair?` is a concrete counterexample: current raw execution
+   takes zero although the explicit `Repair!` branch can succeed after an immediate repair.
+   **Recommendation to validate:** fully examine finite domains derived from instruction shape,
+   with no count cap until measurement shows a need. Return a distinct incomplete-analysis result
+   for forms outside that domain, such as unbound numeric X; use no elapsed-time cutoff.
+   Verify that the Admin driver really exhausts all currently possible work before a Player sees
+   the state; a queue-empty check is not the rule. Current code can leave an Admin task pending and
+   checks priority through a concrete selection trial. Characterize Canon waiting tasks and
+   retained failures before changing that path; a synthetic gate test alone cannot justify it.
+   The current abstract `GlobalEvent` draw is a deck-model workaround, not a reason to leave other
+   runnable Admin work behind. Work4 is changing it; preserve the Turmoil replay tests when that
+   change is integrated, without making the old draw request an engine API requirement.
+4. **Selection, structural edits, and handoff.** Decide whether a voluntary partial narrowing is
+   retained by engine or must live in a client draft, especially when a target choice unlocks AMAP
+   evaluation. Decide which queue edits are permitted during a
+   selection-only call: group expansion other than `EACH`, pure dispatch, `Ok` elimination, deferred promotion,
+   and assignment to Admin. Selection does not execute the selecting Player's components. If it
+   reassigns the selected P0 task to Admin, Admin executes that same task before any other work.
+   A separately created Admin task waits until P0 is executed. Reconcile structural replacement
+   of a selected task with this rule before treating it as valid completion. Current
+   `dropTask(selectedTaskId)` is an external correction request, outside the in-game priority rule;
+   audit it with correction APIs without making it an implementation gate for P0 scheduling.
+   Move `EACH` expansion out of selection/narrowing: enqueuing all children and consuming the
+   parent is execution of the selected `EACH` task. After that execution, children take their
+   ordinary priorities. Use Canon base `SetupPhase: EACH Me@Player { PROD[...] }` to exercise the
+   distinction; selection alone must not create its production child tasks.
+   Specify whether the completed public call succeeds if that later Admin transaction fails.
+5. **Whole-call results and recovery.** Decide what a client-facing call returns and restores when
+   a completion callback or later automatic transaction fails. Engine transaction failure already
+   restores its own game state. Current `WorldTransaction` restores the initiating work together
+   with ordinary Admin follow-up on failure, but invokes `World.onTransactionComplete` after that
+   restoring block; a failing callback can leave earlier work retained. External application side
+   effects cannot be rolled back by the engine. Decide whether this hook survives before promising
+   a uniform whole-call failure rule.
+   Also decide whether correction methods may edit the queue while a task is selected; the branch
+   now refuses ordinary add/drop edits but still allows some correction paths.
 
-**Extra queued work:** remove or narrow `executeSubmittedGroup` so explicit submitted work can
-execute without also consuming reactions or continuations merely because they appeared in the
-queue. Reproduce the documented First/Second/Third case: executing First should leave its Second
-reaction and Third continuation pending in the raw engine. Also exercise an explicitly submitted
-group, so removing the convenience does not make ordinary group submission impossible.
+## Consequences to validate explicitly
 
-Use focused engine tests for these mechanics and Agent tests for affected input forms. Name any
-Canon scenario that actually relies on the convenience. A synthetic test preserving the old flag
-is not sufficient reason to retain it. Report whether the removal simplifies transaction scope.
+These follow from the proposed API or current implementation but have not been individually
+approved. Raise them with the owner instead of letting an implementer infer consent.
 
-## Experiment 2 — explicit shared bindings and the THEN client view
+- A public call that runs to quiescence can run configured **Player EAGER** behavior after the
+  client's request. Today's shared loop may select the first successful Player option in queue
+  order. Preserving that current policy as carryover does not approve it as the final Player policy;
+  determine which calls can expose it and what the client sees.
+- If the lower-level engine operation becomes inaccessible to ordinary clients, sandbox tests,
+  importers, and direct engine consumers may have to use a session with explicit automatic-policy
+  settings. Audit real callers before removing a method; do not preserve obsolete APIs merely for
+  hypothetical compatibility.
+- A task identified by its **calculated** amount may no longer match after a World change. A log
+  saying `3 MC` records the concrete request, but not necessarily which permission supplied it.
+  Multiple matching permissions with different continuations cannot be resolved by a successful
+  transaction trial.
+- A later Admin failure may occur inside the same public call after the initiating Player
+  transaction succeeded. Whole-call restoration would undo that successful game change; retaining
+  it would return or throw with a partially completed call. A completion callback may already have
+  changed external state. This decision affects what a client can safely display or record.
+- A deterministic incomplete-analysis result means some valid abstract requests may need a more
+  specific input. The chosen public result must let a client distinguish that situation from a
+  genuine rule rejection and from two successful alternatives.
 
-Try the smallest existing binding mechanism before adding an API. Show joined work only while a
-shared type/X needs a value; after explicit binding, expose current instruction and continuation.
-Exercise `X Foo THEN X Bar`, `3X Foo THEN X Bar`, shared types, nested scopes, and an already occupied
-continuation. A client binding X to 3 must mean 9 Foo then 3 Bar in the scaled case. Supplying only
-3 Foo must not secretly infer X. Once split, narrowing the current half must not repeat the future
-half. Test failure restoration as well as successful binding.
+## Execution order after those decisions
 
-Trace every affected Canon case before treating a changed test as gameplay loss. Adapt consumers to
-the selected meaning; do not add a second continuation representation to preserve an old shortcut.
-If a new representation appears necessary, record the concrete obstacle and park that approach
-before building it. Keep this experiment independent of generalized agent search.
+### 0. Refresh evidence and preserve the branch
 
-## Experiment 3 — selection and narrowing without execution
+Read [README.md](README.md), [VALUES.md](VALUES.md), the contract, this plan, results, and only
+relevant source and tests. Record exact branch/main refs, working-tree status, dirty work, and
+baseline test failures. Keep main and sibling worktrees untouched. No merge, push, or commit follows
+merely from this plan. Maintain the results document with exact evidence and limits. Use
+[TESTING.md](TESTING.md) when running tests and [REVIEW_CRITERIA.md](REVIEW_CRITERIA.md) on the
+complete final diff.
 
-Walk every row of the automatic-actions inventory. First remove execution merely because selection
-or narrowing reaches a fully specified instruction. Compare raw engine selection, explicit engine
-execution, and an Agent command under Player NONE with Admin still automatic. An apparent Agent
-execution may be a legitimate separate submission; trace it rather than inferring from final state.
+### 1. Finish task identification before transaction trials
 
-Investigate zero/Ok completion, EACH/group expansion, pure dispatch, handoff, continuation admission,
-and deferred promotion individually. Start with no implicit execution; compare any proposed
-structural exception against that version. State exactly what task edits it permits and why it is
-needed. Do not retain exceptions simply because they make old tests pass. Check World Government
-Advisor's Player-chosen placement and subsequent Admin work where relevant.
+Make matching a read-only pass. Compare the supplied task string against pending descriptions and
+their meaningful retained data. Do not trial-execute several tasks and choose whichever works. If
+a supplied string intersects exactly a single pending task, apply the owner-approved intersection
+rule to form the request.
+If several match, use only the owner-approved interchangeability rule; otherwise require an
+explicit task identity. A task ID remains available but is not the normal requirement.
 
-Retain voluntary partial narrowing for the first attempt. Exercise a target choice unlocking AMAP
-evaluation. A separate comparison may use client drafts; measure lost evaluations, extra APIs, and
-revalidation costs before recommending removal of stored narrowing. No transaction stays open
-while a human chooses. This experiment may expose code the agent must explicitly call; count that
-cost instead of concealing it in another engine method named select.
+Use concrete checks: `Tile<Tharsis_6_7>` against a Capital tile task; never treat bare
+`Tharsis_6_7` as a tile. In Canon, Capital cannot go on that water area; use a legal land area
+such as `Tharsis_1_1` for successful Capital execution. Exercise repeated rewards with different
+causes, identical instructions with different continuations, and the existing calculated-amount
+match. If retained, include two tasks that both evaluate to `3 MC`. Keep metric evaluation
+read-only and distinct from the Agent's already implemented sum of separate tasks.
 
-## Experiment 4 — transaction-success uniqueness for explicit requests
+### 2. Complete the engine's requested-transaction rule
 
-This is the central harder experiment. Establish the matcher and its tests before changing how an
-identified task is executed. Keep exact task IDs available to bypass matching; do not require them
-as the only intelligible way to use the engine.
+Reuse existing intersection, dependency, limit, transaction, and disposable-World mechanisms.
+Remove special-case inference when a shared rule covers it; do not add a parallel game interpreter.
+For an identified task, count concrete narrowings whose complete requested transaction succeeds.
+Zero is rejection when the proof is complete; exactly a single success executes; multiple successes
+are ambiguous. A partial search is neither zero nor unique. Trials must leave no components,
+tasks, selection, listeners, events, or history in the source World.
 
-For matching, test several apparently compatible tasks with different continuations or assignees.
-Reject ambiguity without trying their transactions. Define a conservative comparison from actual
-task data; do not reuse the agent's equality-of-outcomes rule.
+Characterize unsupported forms before claiming generality: optional/AMAP amounts, alternatives,
+groups, shared bindings, nested instructions, and missing external information. Use the approved
+deterministic proof result for cases the engine cannot finish. Measure candidate counts, attempts,
+and complete call latency on fixed states; do not invent an unbounded integer list. Do not execute
+newly queued Admin tasks during this proof. Direct mandatory `: Die` may reject at admission;
+later Admin failure belongs to a later transaction.
+Prove the `Repair?` counterexample through the raw engine path: zero and positive count can both
+complete when its immediate effect repairs the limit, so the request cannot silently select zero.
 
-Within the identified task, compose existing type intersection, dependency queries, limits, and
-rollback support. Start with the finite domains already present in the source; identify anything
-their enumeration misses before treating the result as complete. Reuse the real execution path for
-hard cases instead of implementing another approximation of effects. Cover this acceptance matrix:
+### 3. Settle selection, handoff, and Admin scheduling
 
-| Case | Required observation |
+Walk the [automatic-actions inventory](TASK_HANDLING.md#automatic-actions-without-a-separate-execute-command).
+For each selection-only entry, record task edits and component changes separately. Check the
+Player-selected placement offered by World Government Advisor, its assignment to Admin, the
+subsequent Admin transaction, and the Actor recorded for each change. Cover `Ok`, empty groups,
+EACH, dispatch, continuations, and deferred promotion. Check voluntary partial narrowing where
+choosing a target unlocks an AMAP amount. No transaction stays open while a person chooses.
+
+Apply the same approved proof rule to Admin work and Player P1 priority checks. Retain Admin's
+mandatory priority, FIFO attempts, and retry after progress unless a concrete Canon case proves
+the selected behavior differs. Characterize greenery plant payment, shared research capacity, and
+solo neutral placements before claiming all Admin cases are covered. Recheck Turmoil replay tests
+after integrating work4's deck-model change; the current abstract `GlobalEvent` request does not
+define the engine API.
+Do not let the engine's task matcher use incidental order to choose among distinct permissions.
+The existing Player EAGER policy has its own queue-order behavior; this project carries it over
+without deciding its final design. Test engine semantics with Player policy `NONE`.
+
+### 4. Simplify the client-facing call
+
+Implement the selected public shape around an operation that performs zero or a single engine
+transaction. Then run attached automatic behavior until quiescence, retrying Admin before every
+automatic Player step. Each follow-up
+engine command is a separate transaction. Preserve existing Player policy behavior only where it
+is needed by current clients; moving policy is not a license to build the separate smart Player
+project. Keep Agent provision and selection of automatic behavior distinct from the engine's
+calculation of a submitted command. Retain the shared loop unless the selected public call shape
+demonstrates a concrete need to change it. Do not add a registration framework for future flexibility.
+
+Move or delete remaining engine-owned caller policy only after tracing its current users. Verify
+nested calls, completion callbacks, operation completion, and returned changes over the whole
+retained interval. Define what is restored when later work fails; a lower-level transaction must
+always restore its own failure. Do not relocate responsibilities into `TfmGameplay` or keep obsolete
+public APIs for compatibility.
+
+Inventory the actual public surface, including `transact`, `transaction`, `doTask`, `selectTask`,
+`narrowTask`, `tryTask`, `canSelectTask`, `canExecuteTask`, queue edits, correction methods, and
+limit reads. For each, record whether ordinary clients need it, Agent needs it across modules,
+or it can be internal/deleted. The finish line is an explicit documented API list, not merely a
+new wrapper beside all old entry points.
+
+### 5. Review, verify, and report completion honestly
+
+Keep an acceptance checklist for settled answers. Test focused engine semantics, Agent carryover,
+and Canon interactions. Expand to relevant replay tests for scheduling or call-shape changes; run
+a full build at a coherent cross-module checkpoint. Measure raw transactions separately from
+client-facing calls, with the same states and commands. Report conceptual cost (removed and added
+APIs, layers, stored facts, exceptions) as well as runtime cost. Prefer a broader diff that deletes
+an old concept to a small diff that adds a duplicate route.
+
+Acceptance requires all owner-approved cases below, no unexplained existing Canon failures, a
+review of the entire diff, and an API a client can use without accidental task creation or
+unnecessary raw operations. Tests of the engine's own choice behavior must use Player policy
+`NONE` so current EAGER behavior does not obscure it. A passing finite subset is not proof of
+full engine coverage. Leave unresolved cases clearly marked instead of declaring the transition
+finished. Update the owning docs and `TODO.md` to match verified behavior; do not preserve this
+plan's stale steps as future work after they are completed.
+
+## Concrete acceptance cases
+
+| Scenario | Required observation |
 | --- | --- |
-| Ocean permission plus Tile at Tharsis_5_5; CapitalTile plus supplied area. | Joint information is accepted when it fully determines a legal change. |
-| Remove the sole matching existing component. | No demand to repeat its concrete name. |
-| CityTile with Capital impossible in this transaction. | Accept NormalCityTile only if it is the sole full narrowing that succeeds. |
-| Remove another Player's plant: protected Kim versus unprotected Pat. | With both plants present and Protected Habitats only for Kim, direct Die admission eliminates Kim's removal. Keep the real Player attribution; Admin would change the rule. |
-| Land Claim placement with immediate cube removal. | Final invariant checks include the repair; an early capacity filter does not reject it. |
-| Two successful concrete narrowings. | Ambiguity, even if resource deltas happen to match. |
-| No successful narrowing; or an unfinished analysis. | Distinct failures; neither produces a choice or retained trial changes. |
-| Candidate succeeds now but creates Admin work that later fails. | Raw engine acceptance depends only on now; Agent handling separately exposes the later failure. |
-| Direct Die versus gated/optional Die or a later THEN failure. | Document admission/simplification meaning; do not generalize a direct rejection without proof. |
+| Typed tile input | `Tile<Tharsis_6_7>` names a tile for a schematic Capital task, but Canon rejects Capital on that water area. A legal land area such as `Tharsis_1_1` must succeed when other checks allow it; a bare area is not a tile request. |
+| City placement | If Capital cannot complete the transaction and Normal City is the sole success, execute Normal City. Two successes remain ambiguous. |
+| Protected Habitats | Removing an unprotected Player's plant can succeed; direct mandatory removal of a protected Player's plant is rejected at the correct point. |
+| Land Claim | An immediate cube removal repairs the temporary limit violation before final checks. |
+| Continuations | Two tasks with the same immediate change but different future work are not interchangeable. |
+| Calculated task | If retained, test `1 MC / Foo` with 3 Foo present against `3 MC`, plus multiple tasks resolving to that same change. |
+| Delayed failure | A transaction that queues Admin work is judged without executing that work; the public call handles Admin afterward and reports a later failure according to the approved recovery rule. |
+| Selection handoff | A Player selection that assigns concrete work to Admin does not execute as Player; Admin may then execute automatically in the same client-facing call. |
+| Turmoil replay integration | After work4's deck-model change is integrated, the existing Turmoil replay tests still pass; the former abstract event request is not an engine API acceptance case. |
+| Unknown analysis | A deterministic unfinished result never becomes game-rule rejection or proof of a unique choice. |
+| Optional `Repair?` | Test both zero and positive candidate transactions; do not accept zero as unique when `Repair!` also succeeds. |
+| Return and recovery | Failed trials retain no source changes; direct transaction failure restores its state; whole-call results and later failure match the approved rule. |
 
-Reconcile unique-subtype gain and present-dependency special cases under the general rule. They are
-not automatically moved out. Separate discovering impossibility/no-op from algebra on known
-Die/Ok results. Report whether current automatic effects use the same interpretation and what extra
-requirements truly immediate work imposes.
-
-Count how often cheap intersection suffices, how often transaction attempts are required, and the
-largest candidate domains. If the implementation cannot establish uniqueness, preserve that fact
-explicitly; do not silently execute the first success or treat a time cutoff as game illegality.
-The public way to report incomplete analysis remains a recommendation to evaluate, not a promise
-that the destination is already met for every Pets instruction.
-
-## Experiment 5 — Admin handling and Canon rejection timing
-
-Apply the same transaction-success rule to each Admin task that the agent attempts. Keep FIFO and
-retries after progress; preserve and explicitly investigate the existing waiting cases instead of
-inventing success after a stalled pass. Use greenery's plant payment and shared research capacity
-to distinguish legitimate waiting from a permanently stuck task. Check missing external input,
-Turmoil event draws, and solo neutral placements before claiming complete Admin coverage.
-
-Inventory how ordinary Player priority, handoff, and bootstrap currently try tasks. Keep the
-priority obligation separate from task matching: a priority check cannot silently select the task
-the client meant. Independently requested trial APIs can remain. Demonstrate no unrelated work is
-retained by a check and no receiving Actor's task executes just to complete a handoff.
-
-For each Canon timing candidate, record the triggering change, immediate checks, tasks admitted,
-first possible rejection, and the state visible between transactions. Use a TSV if the inventory
-outgrows a readable table. Include direct `: Die`, ordinary Admin work that later fails, and existing
-`::` effects that infer a target. Try conversion in either direction only when the rule demands it.
-NextPlayer links must form as Players are created, including the final closing link; do not queue
-all links and rely on their incidental order. Test corrections where changing `::` affects them.
-
-Never broaden engine uniqueness to run Admin simply because a Canon model becomes awkward. Report
-that modeling cost. Keep payment redesign and global authored-action replacement out of this
-experiment unless separately commissioned. The existing standard-project paid-event and card-play
-completion TODOs remain; AI Central's absent Action2 is evidence about delayed failure, not
-permission to start the deferred global-slot redesign.
-
-## Experiment 6 — generalized agent narrowing and explicit automation
-
-Use the engine's transaction rule as the source of immediate legality. Try composing partial
-reductions for type, dependency, and amount choices rather than adding separate card-specific
-rules. Keep narrowing a displayed question distinct from deciding to submit execution. Preserve
-both guided choices and direct input from a client that already knows the desired change.
-
-Measure partial reductions that stay partial as well as chains that determine a full instruction.
-Honor explicit THEN bindings. Bound number choices safely without constructing every integer.
-Retain missing-card and unexamined alternatives; do not choose the sole *tested* success. Show raw
-engine, manual Player Agent, and automatic Player Agent behavior side by side, with mandatory
-Admin handling in both Agent modes.
-
-Only then test the connection to later-task exploration from DECISION_GRAPH. Project Eden's
-competing placements and Old Mining Colony's needed cards are useful delayed-failure cases.
-Immediate transaction success must not be presented as action completion. Full completion search,
-outcome collapsing, and safe eager execution can be evaluated independently; a full graph system
-is not a prerequisite for reporting the engine experiments. Keep UNKNOWN when endpoint recognition,
-card identity, or analysis limits prevent a conclusion. Do not silently change the default Player
-policy; that migration remains separately deferred.
-
-## Experiment 7 — the surrounding Agent call
-
-This can begin after the baseline independently of experiments 4–6. Investigate each responsibility
-separately before proposing a package move or replacement API:
-
-| Current code or feature | Responsibility to evaluate in plain terms |
-| --- | --- |
-| `WorldTransaction.run` / `ActorEngine.transact` | Runs the client's commands, calls more task handling afterward, checks completion, calls application code, and handles work that application code added. Several engine transactions can happen before this call returns. |
-| `AgentTransactionGuard` | Checks application-supplied facts such as which anonymous card moved. Raw engine calls bypass it; it is not the check that component counts obey game rules. |
-| `World.onTransactionComplete` | Notifies application code after surrounding work; that code can issue more commands. Its failures and external side effects need a defined treatment. |
-| `ActorEngine.requireComplete` and operation tracking | Decides whether work across several tasks has finished, using event positions, pending work, and cleanup state. This is a different question from whether the last transaction succeeded. |
-| Timeline, fork, overlay, and correction APIs | Restore or inspect game state, or provide a branch for trying commands. Judge each independent capability on its actual use; support for agent speculation alone is not a reason to remove it. |
-| Initial construction | Builds a valid World and currently performs bootstrap work. Determine what must remain engine construction versus automatic handling by a caller, without requiring a new construction framework. |
-
-Try moving or deleting the smallest coherent piece that belongs to the agent/application. Preserve
-engine transaction restoration and safe client-controlled rollback. Keep the distinction between
-returning all retained changes and promising that failure undoes an entire multi-transaction call.
-A callback currently can fail after earlier work survived; demonstrate that case before recommending
-its treatment. Do not quietly promise rollback of arbitrary external application state.
-
-Re-run a raw Protected Habitats rejection, an Agent call that completes several transactions, an
-application card-input failure, and nested calls with completion notifications. Verify each returned
-result covers its actual retained interval. Keep navigation and transaction grouping intact; the
-completed ordinal/checkpoint work is not a new migration dependency. If deleting a helper requires
-a broad operation framework, record the cost and stop that approach. `TfmGameplay` is for deletion,
-not a destination for responsibilities removed from engine.
-
-## Review and final handoff
-
-After each coherent experiment run its focused tests, review the complete diff using
-[REVIEW_CRITERIA.md](REVIEW_CRITERIA.md), and update the acceptance checklist and results. When
-changes affect scheduling, payments, or deferred work, broaden to relevant Canon interactions and
-curated replays. Preserve original replay choices; changing old implementation-shaped commands is
-different from inventing a new game history. Record tests that were filtered out, skipped, or failed.
-
-The final report should let a reviewer answer, for every experiment: what changed, what it taught
-us, whether it obeyed the destination, what unexpectedly became harder, and what should happen
-next. Include reproduction commands and exact checkpoints or patches, summarize code and runtime
-costs, and distinguish measured facts from hypotheses. Identify dependent changes that cannot be
-reviewed or adopted separately. Leave the branch recoverable with no undocumented failures.
-
-Update current owning docs only for verified behavior on that experiment branch or newly accepted
-direction. Preserve the destination as intended until its acceptance cases are met. Do not turn an
-experiment's compromise into policy merely because it passed tests. Report completion of the
-investigation separately from completion of the transition; neither implies approval to merge.
+The first experiment report remains in `_local/engine-transition-evidence/first-pass-report.md`.
+Historical [SMART_AUTOEXEC.md](obsolete/SMART_AUTOEXEC.md) may inform discussion of composable
+autoexecutors but has no authority over the selected public API.

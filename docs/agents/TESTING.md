@@ -232,7 +232,10 @@ also accepts jointly sufficient task/request information; explicit IDs are not t
 principle. Focused raw-engine tests must exercise task matching separately from transaction-level
 uniqueness, and distinguish selection from execution. Agent tests include subsequent mandatory
 Admin work; raw engine uniqueness tests must exclude those later transactions. Combined
-resource-total submission is being considered for test support only, not selected as ordinary engine or agent behavior. See
+resource-total submission belongs in Agent under the selected design, not in engine. The
+experimental branch implements Agent translation of an explicit total into separate engine calls;
+this work1 checkout still has its older engine helper. Combine the three production money sources
+in test inputs, while keeping unrelated rewards separate. See
 [the engine review](ENGINE_CONTRACT.md#task-identity-optional-queries-and-conveniences--items-10-1315-and-17).
 
 ### Test categories we care about
@@ -687,10 +690,13 @@ Follow the game's flow through the last passes, production, final greenery, and 
 manually supply turns or phase transitions. Omit copied game-log
 comments that only restate the submitted tasks.
 Use resolved, concrete instructions and `PROD[...]` in these `doTasks` calls, without AMAP dots or
-unevaluated metrics. Combine amounts when the matching tasks are already pending. A scalar total
-consumes all pending gains and removals of the same type and quantifier when their signed total
-matches, even if an individual task has that amount. Gains execute first; effects created while
-those changes run do not join the total. Explicit `doTasks(...)` calls are atomic, resumable batches.
+unevaluated metrics. In work1's current engine, a submitted scalar total consumes all pending
+gains and removals of the same type and quantifier when their signed total matches, even if an
+individual task has that amount. Gains execute first; effects created while those changes run do
+not join the total. The selected design keeps the total convenience in Agent: combine the three
+production money sources, but submit unrelated rewards separately. On the experiment branch,
+Agent translates such a total into individual engine calls while preserving each task's effects
+and continuation. Explicit `doTasks(...)` calls are atomic, resumable batches.
 In explicit setup, have each player take their starting TR before either player handles starting
 cards. Group each corporation, Prelude, and action-phase turn in `player.turn { ... }`; the wrapper
 declines an unused second action. Keep the task submissions inside each section as raw `doTasks`

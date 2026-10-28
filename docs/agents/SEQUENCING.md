@@ -284,6 +284,9 @@ work defers. It exists for turn and phase handoffs.
 World `FINALLY` work has begun since the operation's last decision. The first final promotion
 occurs after all preceding ordinary and `LATER` work, and the cleanup-component check uses that
 same point in the event log. Agents record each operation's beginning and decisions.
+The experimental branch has moved this check to `AgentImpl.requireComplete`; see
+[the results](ENGINE_TRANSITION_RESULTS.md#committed-increment-operation-completion-belongs-to-agent).
+That branch change is not present in work1's current code.
 
 This check precedes `ActionScope` removal, which runs as final work. Canon's
 [scope-removal rule](../../pets/docs/agents/GAME_FLOW.md#scope-removal-must-not-require-choices)

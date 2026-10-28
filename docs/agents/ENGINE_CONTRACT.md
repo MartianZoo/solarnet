@@ -1,12 +1,18 @@
 # Engine contract
 
-> **Selected destination — October 24, 2026; transition remains experimental.** The responsibility
+> **Selected destination — revised October 28, 2026; transition remains experimental.** The responsibility
 > rules below are intended behavior, not a claim that the current implementation satisfies them.
 > **Selected** records agreed direction; remaining choices are explicitly labeled.
 > **Recommendation** identifies additional suggestions. Current-code observations are evidence, not approval of that behavior.
 > **Investigation direction** records an experiment to try, not a completed behavior change.
 > **Open** and **working presumption** retain questions and preferences that are not settled rules.
 > Keep interaction terms here, not in the glossary.
+
+Maintain this selected design in work1 and carry updates into the experiment branch.
+Implementation-status observations refer to `codex/engine-transition-experiments` at `6c4686b61`
+unless they explicitly say otherwise; work1 and `main` do not yet contain that code. Record
+branch-specific evidence in
+[ENGINE_TRANSITION_RESULTS.md](ENGINE_TRANSITION_RESULTS.md).
 
 ## Foundations
 
@@ -22,17 +28,18 @@ history, not concurrent transactions. The existing [Timeline](../../src/common/d
 has navigation and restoration limits; this foundation does not promise restoration of arbitrary
 application state or history that has been discarded.
 
-The engine calculates the consequences of submitted instructions. **Selected:** exploring whether
-choices can complete an entire action, and pruning choices that cannot, are agent concerns the
-engine module does not and will not take on. Selected agent rules and candidate strategies belong in
-[DECISION_GRAPH.md](DECISION_GRAPH.md).
-
-[AGENT_CONTRACT.md](AGENT_CONTRACT.md) owns the four-bucket agent responsibility inventory,
-including standing autoexec policies installed in the engine and their open design questions.
+**This project's finish line is a clean, simplified engine API.** An Agent must take over behavior
+removed from the engine when clients still need that behavior. Implementing smarter Player menus,
+whole-action completion search, outcome equivalence, or general Player autoexecution is a separate
+project. The engine calculates submitted instructions and their immediate consequences; the later
+Agent design is recorded in [DECISION_GRAPH.md](DECISION_GRAPH.md), not in this project's acceptance
+criteria.
+[AGENT_CONTRACT.md](AGENT_CONTRACT.md) owns the broader Agent responsibility inventory and the
+separate direction for standing autoexec policies installed in engine by an Agent.
 
 ## How much should the engine determine for its caller?
 
-**Selected destination, October 24, 2026; transition not implemented.** The review has reached a
+**Selected destination, October 24, 2026; transition incomplete.** The review has reached a
 working division of responsibility. Treat the rules below as the destination for experiments,
 not a claim that today's APIs satisfy them or that every implementation detail is settled.
 When an experiment exposes a cost or contradiction, record it explicitly; do not quietly weaken
@@ -58,24 +65,41 @@ There are two different questions, with deliberately different amounts of requir
 1. **Which task permits the request?** A read-only matcher may compare the request and task
    descriptions without attempting their consequences. If several tasks match, they must be
    interchangeable under a conservative comparison, or the caller must identify the intended
-   task. The exact comparison remains to be specified. Different continuations, assignments,
-   priorities, or other meaningful retained task data cannot be ignored merely because the
-   immediate instructions look alike. Do not execute possible tasks to select the successful one.
+   task. Different continuations are not interchangeable. Equal immediate instructions alone are
+   insufficient. Whether other data such as cause distinguishes otherwise matching tasks remains
+   open; current code ignores ID and cause, even though cause can affect recorded ancestry and
+   application input checks. Do not execute possible tasks to select the successful one. The
+   exact positive test for interchangeability remains to be specified.
 2. **Within that task, is the request specific enough?** Combine the task's restrictions with the
    client's input. Accept execution when exactly a single concrete narrowing can successfully
    complete the requested transaction. The engine may examine everything within that transaction
    to establish uniqueness, including dependencies, limits, and immediate effects. This analysis
    must not become a way to choose between the different tasks in the first question.
 
-An explicit task ID remains a useful way to identify permission, but requiring IDs for most
-commands is no longer the intended API principle. Exact signatures are open. Functional scenarios
-use the agent layer; direct clients must also have an intelligible engine API.
+**Working proposal from the owner:** if a submitted task string intersects exactly a single
+pending task, execute as though the intersection itself had been supplied. Intersecting an
+instruction and finding its sole concrete successful transaction are different steps. A client
+may also identify a task by ID. A task string may express a calculated change. The owner's
+illustrative wording was `1 MC / Foo` with 3 Foo present, followed by `3 Foo`; in Pets, that
+expression evaluates to **3 MC**. The analogous task yielding `3 Foo` would be `Foo / MC` with
+3 MC present. This calculated-amount convenience is valuable to sandbox tests and task-log import.
+Whether it belongs in the final engine matcher, and how to handle several tasks resolving to the
+same change, remain open. Exact API signatures remain open.
 
-For example, permission to place an ocean on a water area combined with a request to place a tile
-at `Tharsis_5_5` may identify the full change. For `CapitalTile<MarsArea>`, the request
-`Tile<Tharsis_6_7>` need not repeat CapitalTile. If a visible hand contains a single spade,
-“remove the spade” already identifies an existing card. The earlier contrast with adding a card
-remains useful for understanding what must be established, but is not a rule forbidding gain
+**Current-code evidence:** `ActorEngine.matchingTask` already tries intersection with a resolved
+pending instruction when direct intersection fails. `TaskResolutionTest` executes a pending
+`Plant / Heat` task through Agent by submitting its calculated `2 Plant` change. The engine
+fallback is visible in source, but that test does not isolate a raw engine call. Neither the code
+nor the test decides that resolved-value matching belongs in the final contract or establishes the
+multiple-task rule.
+
+For example, permission to place an ocean on a water area combined with a request to place
+`Tile<Tharsis_5_5>` may identify the full change. The request names a tile at an existing map
+area; naming `Tharsis_5_5` alone could look like creating the area. For a schematic
+`CapitalTile<MarsArea>` task, `Tile<Tharsis_6_7>` illustrates a typed request without repeating
+CapitalTile; it is not a claim that Canon permits Capital on that water area. If a visible hand
+contains a single spade, “remove the spade” already identifies an existing card. The earlier
+contrast with adding a card remains useful for understanding what must be established, but is not a rule forbidding gain
 inference. A broad CityTile request can be sufficient if CapitalTile cannot complete this
 transaction and NormalCityTile is the sole surviving possibility. None of these examples assumes
 that other unspecified fields magically disappear; every required choice must be accounted for.
@@ -93,9 +117,9 @@ another candidate. Successful exploration must not leave events, tasks, or selec
 
 **Do not execute the newly queued tasks to decide whether the request succeeds.** This includes
 single-colon work assigned to Admin. Admin's priority does not make its subsequent transaction
-part of the transaction that created it. The normal Agent call can run that work afterward; a raw
-engine call need not do so. A later failure can therefore still occur. Determining whether all
-later work can finish belongs to the agent.
+part of the transaction that created it. The client-facing call runs eligible Admin work afterward;
+the lower-level transaction does not. A later failure can therefore still occur. Determining
+whether all later work can finish is outside this engine API project.
 
 A direct mandatory `: Die` is included: admitting that task already fails in the current
 transaction. No `::` conversion is required for this case. In contrast, an ordinary Admin task
@@ -127,25 +151,28 @@ which attempt happened to succeed first.
 
 The engine's responsibility is defined by the requested transaction, not by an arbitrary list of
 cheap checks. Nevertheless, “go to any length” does not provide a terminating algorithm for an
-unbounded domain. Finite candidate generation, resource limits, and how to report an unfinished
-analysis remain implementation questions. An unfinished search, missing information, or a resource
-failure cannot count as proof of uniqueness or impossibility. Distinguish these from actual
-game-rule rejection. Measure the hypothesis that expensive analysis is uncommon.
+unbounded domain. **No wall-clock timeout is selected.** Search must not make the same request
+succeed or fail according to machine speed or incidental iteration order. Finite candidate
+generation, deterministic limits or other bounded proof methods, and the public result of an
+unfinished analysis remain open. An unfinished search, missing information, or resource failure
+cannot count as proof of uniqueness or impossibility. Distinguish these from actual game-rule
+rejection. Measure the hypothesis that expensive analysis is uncommon.
 
-### Generalized auto-narrowing — items 1, 2, 7, 8, and 16
+### Engine inference and Agent carryover — items 1, 2, 7, 8, and 16
 
 The purpose of the call now determines ownership. Unique-subtype inference, present-dependency
 inference, and target feasibility can help the engine answer an explicit execution request under
 the rules above. Do not move them wholesale into the agent merely because they infer information.
 Do not retain separate special cases where the same transaction rule can replace them.
 
-The agent owns improving an unanswered question without an execution request: narrowing a menu,
-combining partial deductions, and deciding whether to execute on the client's behalf. Partial
-narrowing is useful even if it does not immediately determine the whole instruction: a breakfast
-menu is a more accurate question when only breakfast is served. Several such reductions can also
-combine to determine the full change. Preserve every meaningful remaining choice.
+The Agent owns any retained convenience that improves an unanswered question without an execution
+request: narrowing a menu, combining partial deductions, and deciding whether to execute on the
+client's behalf. Implementing general menu reduction is outside this engine simplification
+project. Preserve an existing useful capability if moving it out of the engine would otherwise
+break current clients; record a separate Agent improvement rather than leaving a duplicate engine
+policy behind.
 
-**Still open:** whether and how the engine should retain voluntarily supplied partial narrowing.
+**Still open for this project:** whether and how the engine should retain voluntarily supplied partial narrowing.
 A target choice can unlock evaluation of its AMAP amount as well as further narrowing. Client
 `TaskForm` drafts are useful but are not an approved universal replacement for this capability.
 Retaining supplied information is distinct from automatically executing it.
@@ -167,19 +194,32 @@ task may supply resources. Do not turn the direct-Die rule into general future-c
 
 ### Selection must not quietly mean execution — item 9
 
-**Destination for experiments:** a selection or narrowing call does not authorize task
-execution. Becoming fully specified is not an execute command. An agent may separately request
-execution according to its policy, and an explicitly combined execute API can perform its needed
-selection internally. Keep these distinguishable in tests and in the public contract.
-
-**October 28 clarification:** an agent may supply execution permission in advance through an
+**Selected:** a Player's selection or narrowing call does not itself request that Player's task
+execution. Becoming fully specified is not the Player's execute command. If narrowing makes a
+System change concrete and hands it to Admin, the public call may then execute it as Admin's next
+automatic transaction. That can make narrowing appear to execute from the Player's perspective;
+the task's assignee and the recorded Actor distinguish the operations. An explicitly combined
+execute API can perform its needed selection internally. Keep these cases distinct in tests.
+An Agent may separately authorize execution in advance through an
 [installed autoexec policy](AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
-The experiments below assume no applicable installed policy; selection itself grants no permission.
+The current selection experiments assume no applicable installed policy; selection alone grants
+no execution permission.
 
-Start from no automatic execution and investigate every path in the
+**Selected meaning of `EACH` execution:** executing an `EACH` task enqueues all its child tasks
+and consumes the parent. That queue change is the parent task's execution, just as gaining or
+removing components is the execution of a gain or removal task. The children then follow ordinary
+priority; the parent does not retain P0 until all children finish. Therefore a Player's selection
+or narrowing call must not expand an `EACH` task without an execution request or a previously
+installed policy authorizing that execution. The experimental branch currently expands exposed
+`EACH` tasks during selection, so this part of the selected contract is not implemented there.
+Canon's base `SetupPhase: EACH Me@Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }`
+illustrates the task shape. Other structural forms still need their own classification.
+
+Start from no automatic execution *by the selecting Actor* and investigate every path in the
 [automatic-actions inventory](TASK_HANDLING.md#automatic-actions-without-a-separate-execute-command),
-including zero/Ok completion, EACH expansion, dispatch, reassignment, continuation admission, and
-promotion. Whether enqueue-only structural work needs an exception remains open. The earlier
+including zero/Ok completion, group expansion other than `EACH`, dispatch, reassignment,
+continuation admission, and promotion. Classify those forms individually; the `EACH` rule above
+is settled, while other enqueue-only structural work remains open. The earlier
 [pure-dispatch rule](SEQUENCING.md#decisions-and-open-questions) is current behavior with a reopened
 interaction question, not an exception silently granted to selection.
 
@@ -194,9 +234,13 @@ In particular, enforcing Admin priority must not turn task finding into conseque
 Quantity-limit reads remain useful: otherwise options may be effectively infinite. A candidate
 bound is not a promise that every candidate's transaction succeeds or that an action can finish.
 
-Translating submitted resource totals into separate task executions belongs to
-[Agent](AGENT_CONTRACT.md#3-carry-out-and-maintain-the-interaction), preserving each task's effects
-and continuation. Investigate removing extra queued execution from
+Combining separate resource tasks into a net total belongs in Agent, not engine. The user selected
+restoring this convenience for production: a submitted 21 MC can execute 6 MC of production,
+20 MC from Terraform Rating, and the -5 MC offset as separate engine calls. Tests should keep
+amounts from unrelated rewards separate, such as Investment Loan's 10 MC and Media Group's 3 MC.
+This is a caller-writing preference, not game-specific recognition inside Agent. Agent preserves
+each task's effects and continuation; it does not replace them with a single net component change.
+Investigate removing extra queued execution from
 `executeSubmittedGroup`; preserve explicit execution of submitted work without also consuming its
 reactions or continuation. The [verified example](TASK_HANDLING.md#extra-execution-requested-by-executesubmittedgroup)
 shows the issue. Neither convenience is required by accepting an abstract request within a task.
@@ -220,10 +264,11 @@ NextPlayer links must be created as Players are created, without relying on inci
 | Combine the identified task with submitted type/location/amount information. | Engine interpretation of the request. |
 | Exclude alternatives using dependencies, limits, or full requested transactions. | Engine, when necessary to establish unique execution. |
 | Reject direct mandatory Die admission and simplify known results. | Engine; exact nested simplifications still need review. |
-| Display a smaller unanswered choice or combine partial deductions. | Agent policy; retained voluntary engine narrowing remains open. |
+| Preserve an existing smaller unanswered choice or combined deduction after removing its engine policy. | Agent carryover when required; new general Player guidance is outside this project. |
 | Automatically submit an execution without a new client execute command. | Agent policy, applied during the call or installed in engine in advance; selection itself supplies no such permission. |
-| Run queued Admin work after the initiating transaction. | Mandatory Admin handling in the agent; separate transactions. |
-| Explore later tasks, prove action completion, or collapse equivalent outcomes. | Agent only. |
+| Supply and select automatic behaviors, including mandatory Admin behavior. | Attached Agents; exact registration interface remains open. |
+| Invoke attached automatic behaviors until quiescent after the initiating transaction. | Public call coordinator; whether this lives in engine or a thin facade remains open. |
+| Explore later tasks, prove action completion, or collapse equivalent outcomes. | Separate Agent project. |
 
 ### Currently rejected alternatives
 
@@ -234,7 +279,7 @@ NextPlayer links must be created as Players are created, without relying on inci
 - Choosing among matching tasks by executing their consequences, or counting later Admin success
   as part of the initiating transaction's uniqueness test.
 - Treating a successful candidate, an incomplete search, or equal outcomes as uniqueness.
-- Letting a selection silently authorize execution; reconstructing shared X backward from a result.
+- Treating a Player selection as that Player's execution; reconstructing shared X backward from a result.
 - Changing the Pets hierarchy to conceal inconvenient execution requirements, or adding a general
   operation framework to infer whole-action completion inside the engine.
 
@@ -245,7 +290,9 @@ examples above, not an earlier imperative to implement the rejected alternatives
 
 Clients express the change they want; they need not repeat information already established by
 the permitting task and transaction checks. The engine interprets and executes that request.
-Admin is also an Actor. Agent code submits its work automatically through separate engine calls.
+Admin is also an Actor. The client-facing operation must coordinate the requested engine work and
+the automatic work supplied for all attached Actors. A lower-level operation that performs zero or
+one transaction may be internal; its present public visibility is no design requirement.
 
 **Selected:** Admin always uses the eager handling described below. P1 priority for Admin tasks,
 versus P2 for Player tasks, explains most scheduling differences. Other policies are conceivable
@@ -256,7 +303,8 @@ Players; Admin remains fully automatic, including during replay.
 | Term | Meaning |
 | --- | --- |
 | **Task** | An instruction waiting to be handled by its assigned Actor. |
-| **Transaction** | A client-initiated state change and the immediate consequences needed to make the world self-consistent again. |
+| **Transaction** | An Actor-attributed command and the immediate consequences needed to make the world self-consistent again, whether submitted by a client or automatic handling. |
+| **Client-facing call** | The requested transaction, if any, plus automatic follow-up transactions run before returning. |
 
 Describe resolution and concreteness separately. Even an instruction that is both resolved against
 the current World and concrete can fail during execution or final checks. These properties say
@@ -267,11 +315,11 @@ including their timing and differences from this contract.
 
 ## Inside a transaction
 
-Each transaction begins with a potentially state-changing call into the engine from a client acting
-for an Actor. It includes the requested change, task additions/edits/removals, dependent removals,
+Each transaction begins with a potentially state-changing engine command for an Actor. It includes
+the requested change, task additions/edits/removals, dependent removals,
 recursive double-colon (`::`) effects, and checks of temporarily suspended invariants. If execution
 or final checks fail, the engine restores the entire transaction before returning the failure.
-**Selected:** a public engine mutation must not return with an inseparable change partly applied.
+**Selected:** an engine transaction must not return with an inseparable change partly applied.
 Clients need not add a rollback wrapper to obtain that guarantee.
 
 For example, placing a tile on your
@@ -283,22 +331,64 @@ No competing client command may change the world during this work. The transacti
 consequences must run, including task creation and the cube's removal. Resulting Admin tasks are
 enqueued now and handled in subsequent transactions.
 
-## Agent calls: running to quiescence and returning results
+## Client-facing calls: running automatic work and returning results
 
-**Selected scope:** the synchronous Agent API submits the requested engine transaction, then
-continues eligible work until no further automatic work can proceed without input (quiescence).
-The raw engine transaction returns after its own consequences and task admission; it does not
-run subsequent Admin transactions. The Agent is responsible for making those later calls. Each
-Admin task is performed through a subsequent transaction, with the same rules as a Player's.
-This is the intended division of responsibility; some surrounding-call machinery still lives in
-the engine package today. Its location is part of the transition, not a new responsibility for
-raw engine requests. No separate name or object for the enclosing call is required.
+**Owner's current API direction:** a client invokes a public engine-facing method. Its lower-level
+part performs zero or one engine transaction. Before the public method returns, the call gives all
+Agents attached to that call a chance to run automatic behavior, starting with Admin and continuing until
+quiescence. Each automatic command executes as a separate engine transaction. The lower-level
+method need not be public to ordinary clients. Whether the public method is packaged on Engine,
+Agent, or a thin coordinator remains open; name and module placement must follow the simplest
+coherent implementation rather than preserving current method locations.
+
+Current `Agents` is a session that supplies an Agent for each Actor; independent sessions can share
+a World while holding different application checks. “Attached” needs an exact rule for which
+session's Agents and callbacks a call uses. It must not mean that every independent session over
+the same World is implicitly invoked.
+
+Agents own which automatic behaviors they provide. **Design hypothesis to validate:** an Agent
+could provide any number of small autoexecutors; the public call coordinates their invocation.
+Today's `Agents` session owns a single `AutoExecLoop` shared across Actors; individual Agents
+register policies, not individual autoexecutors. **Owner clarification, October 28:** the shared
+loop is acceptable, and Admin must have priority before every automatic Player step. Splitting
+that loop is not a requirement of this engine API project. Before a Player sees a state or selects
+a task, Admin must do everything it can currently complete. A pending Admin task that cannot yet
+progress does not by itself prohibit Player selection; Player work may be needed to move the game
+forward. Once selected, the P0 task must execute before any other work. This does
+not authorize adding a general callback framework in anticipation. The historical
+[SMART_AUTOEXEC.md](obsolete/SMART_AUTOEXEC.md) recorded
+composable policies, but it is archaeology, not a current implementation contract.
+The separate Agent design also selects standing policies that an Agent installs in engine for
+covered selected tasks. Their matching, lifetime, replay, and failure rules remain open; implementing
+those policies is not part of this engine API transition. This public-call design must leave room
+for them without treating later policy-driven work as proof that the initiating transaction succeeds.
+
+**Current-code and module constraint:** public `ActorEngine.transact` already accepts `afterChanges`
+and `validateCompletion` callbacks; `World.onTransactionComplete` is a separate notification hook.
+The `:agent` module depends on `:engine`, and Kotlin `internal` does not cross that module split.
+Putting the public call in Agent would leave some engine operation public to Agent; putting it in
+engine would require Agent behavior to arrive through engine-defined callbacks. The final design
+must decide the fate of both current callback routes, rather than assume a fresh coordinator.
+No production code currently assigns `World.onTransactionComplete`; tests use it to characterize
+notification and failure timing. Deleting it is a concrete simplification candidate, not a
+selected requirement.
+
+Admin always has mandatory automatic behavior. Configuring a Player's policy or replaying Player
+inputs cannot disable Admin. Before each automatic Player action when no task is selected, the
+coordinator tries eligible Admin work again, including work newly admitted by the preceding Player
+transaction. Providing automatic behavior and deciding its policy remain Agent responsibilities
+even if its callback executes inside an engine-owned call loop. The coordinator does not invent a
+Player choice. Today's configured Player EAGER policy can select a successful option in queue
+order; carrying it through this engine API transition is not approval of that separate policy.
 
 Quiescence means the mandatory Admin driver and configured Player drivers have no further work
 they can perform without more client input. It does not mean every task is gone or the game action
-is complete. No eligible Admin task may remain: a full pass without Admin progress is an exception,
-not successful quiescence. Deferred work can become eligible during this progression and must be
-considered before returning, using the promotion rules below.
+is complete. Admin must exhaust all work it can currently perform before the Player sees the
+resulting state. Waiting or unresolved Admin tasks may remain, and their mere presence does not
+prevent Player selection. A full pass with a retained concrete rejection currently throws rather
+than returning
+success, but the general stalled-pass rule still needs approval. Deferred work can become eligible
+during this progression and must be considered before returning, using the promotion rules below.
 
 For example, using AI Central starts a Player transaction, followed by Admin transactions handling
 `UseAction` and its bookkeeping. With manual Player choices, the call can then return with the draw
@@ -336,22 +426,37 @@ Lower numbers take precedence.
 | P3 | `LATER` tasks |
 | P4 | `FINALLY` tasks |
 
-A Player cannot select a P2 task while executable P1 work remains. A selected task excludes competing client
-mutations until it finishes. Admin tasks its execution creates wait until that transaction finishes.
-The synchronous Agent call returns only after all currently executable Admin work finishes;
+A Player cannot select a P2 task while Admin can still perform P1 work. There is no separate
+requirement for Admin's queue to be empty: if Admin has exhausted what it can do and pending work
+needs a game-state change from a Player, the Player may select a task. If Admin is waiting for a
+required external input under the current game model, surface that need before the Player acts.
+This does not require any particular Canon card to keep using such an input. A selected P0 task
+must execute before any other task or transaction. An Admin task created separately waits. If the
+selected task itself is reassigned to Admin, Admin executes that same P0 task before any other work.
+`dropTask(selectedTaskId)` is an external correction request with acknowledged risk, outside the
+coherent in-game model. Its existence is not a gameplay exception to selected-task priority.
+Admin tasks its execution creates wait until that transaction finishes.
+The synchronous client-facing call returns only after all currently executable Admin work finishes;
 waiting and deferred Admin tasks may remain. This also rules out a callback inviting another
 Player command while executable P1 work remains.
 
 **Human clarification:** retrying an earlier failed task after later tasks succeed is existing
 behavior, as when negative victory points wait for positive scoring. It does not authorize
-silently returning after a completely unsuccessful pass. The current gate and Player-task
-exceptions below are implementation limitations, not requirements to preserve in a model redesign.
+silently returning after a completely unsuccessful pass. Existing gate, unavailable input, and
+Player-task waiting cases are described in [the experiment results](ENGINE_TRANSITION_RESULTS.md)
+and [the source inventory](TASK_HANDLING.md); their final classification remains open.
+The experimental loop can retain unresolved Admin tasks, and its priority check uses a concrete
+selection trial. That is implementation evidence, not proof that the driver has exhausted every
+Canon task it could perform. Audit actual Canon waiting cases and retained failures against the
+selected rule above. Turmoil's current abstract `GlobalEvent` draw is a deck workaround being
+replaced in work4. This contract does not require that workaround or derive a general engine rule
+from it; preserve the Turmoil replay results when the work4 change is integrated.
 
 **Open after the October 24 review:** client-held drafts are useful, but do not yet remove
 engine-level partial narrowing. A voluntary narrowing can enable more deductions or evaluations;
 its value depends on the engine's selected responsibilities. Committing an unfinished selection
 currently excludes other task selections, which must also be considered. No transaction should
-stay open while a person thinks. See [generalized auto-narrowing](#generalized-auto-narrowing--items-1-2-7-8-and-16).
+stay open while a person thinks. See [engine inference and Agent carryover](#engine-inference-and-agent-carryover--items-1-2-7-8-and-16).
 
 When P0–P2 are empty, promote **all existing P3 tasks together**: Admin tasks become P1 and Player
 tasks become P2. New `LATER` work waits for a subsequent promotion.
@@ -367,9 +472,11 @@ promote all P4 tasks together using the same Actor-based priorities.
 ## Admin's choices and retries
 
 **Selected:** Admin handles eligible tasks in FIFO order. If a task cannot currently execute, move
-it to the end and try later tasks. Each success starts a fresh pass. After a full pass with no
-success, throw the retained rejection. Deferred P3/P4 tasks do not count until promoted.
-The current exceptions for unresolved work and tasks waiting on Player work are listed below.
+it to the end and try later tasks. Each success starts a fresh pass. Deferred P3/P4 tasks do not
+count until promoted. **Open:** after a full pass without progress, which tasks may legitimately
+wait for Player input or another transaction, and which retained concrete rejections must throw?
+The current exceptions are in [the results](ENGINE_TRANSITION_RESULTS.md) and
+[the source inventory](TASK_HANDLING.md); they are not automatically approved as final semantics.
 A successful return still does not certify completion; pending work and `MustCleanUp` are checked
 at the applicable completion check.
 
@@ -392,7 +499,8 @@ An unsuccessful transaction must leave no changes behind before Admin tries anot
 Distinguish game-rule rejection, such as insufficient resources, a count limit, or `Die`, from an
 unexpected implementation error. Game-rule rejection uses Martian Zoo exception types; Kotlin
 implementation errors can use Kotlin's exception types. A rejection is retained while later tasks
-are tried and thrown if the pass cannot progress, subject to the current exceptions below.
+are tried. When no task progresses, handle it under the approved stalled-pass rule above; do not
+silently treat a concrete rejection as successful quiescence.
 Implementation errors propagate immediately after restoration. A generic domain exception is not
 sufficient evidence of gameplay rejection: malformed Pets, custom-code failures, and implementation
 resource limits must also propagate.
@@ -413,7 +521,7 @@ from being non-`Iconic` is deferred; today's type classifications do not settle 
 
 ## Failure and recovery
 
-**Selected:** public engine mutations guarantee failure atomicity for their transaction: failure
+**Selected:** every engine transaction guarantees failure atomicity: failure
 restores its starting game state, including components, tasks, derived effects, and event history.
 An implementation can make intermediate changes internally, but cannot expose them as the result
 of a failed call. Safe client-controlled rollback remains useful for larger groups of calls;
@@ -439,7 +547,7 @@ fulfillment of the initiating command. Reconsider the scope if it requires dispr
 then successfully uses its real action. `Die` itself is not System; a direct mandatory `Die`
 throws when the task would be created, rather than waiting in the queue. Admin restores its failed
 attempt, tries other work, and propagates the `DeadEndException` if no progress is possible.
-The enclosing Agent call restores the rejected action.
+The enclosing call currently restores the rejected action.
 
 Still to decide, separately from the recommendations above:
 
@@ -448,39 +556,25 @@ Still to decide, separately from the recommendations above:
 - Can a later failure require undoing an earlier call that already returned successfully?
   The AI Central example does not establish that need.
 
-## Current implementation differences
+## Current implementation status
 
-These are observations to address during transition, not reasons to preserve the behavior.
+Snapshot: `codex/engine-transition-experiments` at `6c4686b61`, after merging `main` at
+`f1055a08b` on October 28, 2026. The experiment branch remains separate from `main`.
+Transaction recording and checkpoints already exist in `main`; the
+transition plan does not list them as future work. Detailed evidence and limits are in
+[ENGINE_TRANSITION_RESULTS.md](ENGINE_TRANSITION_RESULTS.md). For current entry paths, use
+[TASK_HANDLING.md](TASK_HANDLING.md) in the checkout whose code is being examined: work1 describes
+main, while the experimental checkout describes its branch.
 
-- The engine has several specific inference and filtering rules, not the general proof of a unique
-  successful transaction described above. Its current task matching and narrowing paths need to be
-  separated and checked against their different intended responsibilities.
-- Selection and narrowing can execute when they reach concrete work; exposed groups and no-ops can
-  also complete a task. `executeSubmittedGroup` can execute newly queued reactions or continuation
-  work. These paths are inventoried in [TASK_HANDLING.md](TASK_HANDLING.md).
-- Public engine mutations restore their transaction on an `Exception`; non-`Exception` failures
-  and arbitrary application side effects are outside that guarantee.
-- [WorldTransaction](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) ordinarily restores
-  the initiating command and its Admin handling together on failure. Returned results cover the
-  call's retained interval, including completion-callback work and subsequent handling. A failing
-  callback still leaves the initial work in place.
-- Agent decisions and queue edits handle Admin work before and after mutation, including nested
-  calls. Initial task batches and bootstrap also give executable Admin work priority. Corrections
-  deliberately omit queued task execution.
-- The raw Player priority check uses the existing selection/execution probe, not complete legal
-  candidate enumeration. It applies before a transaction changes state; work generated during a
-  compound command waits until that transaction finishes. A selected task retains P0 priority.
-- Admin attempts ordinary work in FIFO order and retries waiting tasks after progress. An explicit
-  unmet gate may wait while ordinary Player work remains, allowing the Player to finish payment.
-  Abstract work and missing external inputs also remain pending. Other unavailable concrete work
-  can wait while Player work remains, as with shared research payment capacity. A retained rule
-  rejection is thrown after a pass with no progress. This is not the proposed complete uniqueness
-  and stalled-pass rule; those remain transition work. Transaction recording and checkpoint
-  migration are completed and do not depend on this remaining analysis.
-- Selection/execution probes restore their attempts after transaction completion, including deferred
-  promotion. Only gameplay rejection and unresolved instructions become negative results; other
-  failures propagate. A selection that hands off work does not execute the receiving Actor's task.
-- Admin configuration accepts only EAGER. Player policies alone are configurable and disabled
-  during replay; Admin execution is omitted from replay inputs and repeated by its mandatory driver.
-- Queue edits and corrections can change the world while another task is selected, bypassing
-  the proposed exclusion of competing client mutations. Partial selection can still persist.
+| Area | Already on the experiment branch | Still needed for the selected destination |
+| --- | --- | --- |
+| Moving policy out of engine | Application validation is session-owned; operation completion and selected-task retry policy live in Agent; combined resource totals are translated by Agent into individual engine calls. `ActorEngine.transact` already coordinates callbacks, while a shared `AutoExecLoop` handles all Actors in a session. | Decide and simplify the public call coordinator, both callback routes, and any remaining engine-owned caller policy. |
+| Selection and execution | Selection/narrowing no longer perform component changes as the selecting Actor; submitted groups execute admitted members only; numeric `THEN` bindings must be explicit. Ordinary add/drop queue edits are refused while another task is selected. | Specify and test structural task edits, Admin handoff, voluntary partial narrowing, correction paths, and the final public API. |
+| Identified task execution | Existing task-string matching intersects direct and resolved instructions; fixed mandatory gains, removals, and full-form transmutations try complete finite candidate transactions in disposable Worlds. Shared type pairs and malformed generated changes are filtered before trial. | Decide whether to retain resolved-value matching and finish interchangeability; cover unsupported instruction forms or report analysis honestly; settle deterministic search limits. |
+| Admin and priority | Admin is mandatory in Agent calls, retries after progress, and uses the same finite uniqueness rule as the Player priority probe. An ambiguous Admin candidate does not become executable just because some candidate succeeds. | Resolve stalled passes and handoff timing across all relevant Canon cases; integrate Agent-provided automatic work into the chosen public API shape. |
+| Recovery and result | Engine mutations restore their transaction on an `Exception`; surrounding calls usually restore the initiating command and Admin handling together. Returned results cover the retained call interval. | Decide callback failure recovery and precisely what the public call promises; arbitrary application side effects remain outside game-state rollback. |
+
+The branch does **not** implement a complete transaction uniqueness proof or the selected final task matcher,
+an arbitrary collection of Agent-provided autoexecutors, or the proposed public engine-facing
+call shape. A direct raw engine method is still public today; that is current code, not a selected
+API requirement. Player choice search in [DECISION_GRAPH.md](DECISION_GRAPH.md) is separate work.

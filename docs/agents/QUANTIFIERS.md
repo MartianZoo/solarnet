@@ -15,9 +15,13 @@
 Preserve authored quantity meaning, including optional and AMAP zero results. For an explicit
 execution request, determining the sole narrowing whose transaction succeeds can require target
 feasibility and limit analysis in the engine. Automatically reducing an unanswered choice belongs
-to the agent. The current special cases below are not requirements to preserve unchanged. A
-quantity-limit read can bound candidates without proving their transactions succeed; temporary
-invariant violations repaired by immediate effects must not be rejected by an over-eager filter.
+to the agent. The current special cases below are not requirements to preserve unchanged. In
+particular, `Repair?` can resolve to zero under current headroom rules even though a positive
+gain succeeds after its immediate effect repairs the limit. The
+[transition plan](ENGINE_TRANSITION_PLAN.md) requires this case to be settled against the intended
+unique-transaction rule before general coverage is claimed. A quantity-limit read can bound
+candidates without proving their transactions succeed; temporary invariant violations repaired
+by immediate effects must not be rejected by an over-eager filter.
 
 ## Source map
 
@@ -210,6 +214,10 @@ be gained, removed, or transmuted.
 The pure-change domain search deliberately does not preflight abstract transmutations. Source and
 destination Types can use the same variable, so narrowing must choose one compatible atomic pair
 before its limit is known. Once concrete, the pair follows the concrete transmutation rules.
+On the engine-transition branch, an explicit fixed mandatory full-form request can try finite
+concrete pairs through complete transactions after task selection. This does not add independent
+source and destination preflight to pure-change resolution. Compact transmutation inference remains
+unresolved.
 
 This permits a selected nonmandatory pair to execute zero and still supply its Type Variable to a
 `THEN` continuation. A missing destination dependency remains unavailable rather than becoming an
