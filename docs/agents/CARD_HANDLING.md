@@ -26,7 +26,9 @@ Prelude, and beginner cards, before it can complete. The client supplies names i
 per-back hand-entry order and names for otherwise anonymous departures. Supplied names must resolve
 to concrete `CardFront` classes with the matching back in the catalog. A source card can be named
 even when that card is excluded from this game's playable pool. An operation with missing names
-rolls back; automatic execution can leave the affected card task pending for the client.
+rolls back; automatic execution can leave the affected card task pending for the client. The
+Playground supplies names from tracked Selecting cards when Admin clears the leftovers after an
+action or research. The Player still names cards for a choice to discard or keep.
 Unused supplied names may be replaced after a failed operation without changing names used by
 surviving events.
 
@@ -39,9 +41,10 @@ Missing names raise `CardTracking.NamesRequiredException`, an `AgentInputRequire
 the Player, back, location, direction, additional count, and attempted change event. Its detached
 `candidates` set describes the eligible source immediately before that movement, including earlier
 movements within the rolled-back command and excluding names already supplied for this movement.
-Null means a recognized fresh arrival requiring an external dealer; an empty set means no known
-source card is eligible. Unknown transfers must not be interpreted as draws. `filter` carries the
-arrival's `CardFilter` when present. The public `cardMatchesFilter` function shares the tracker's
+Null means a fresh arrival requiring an external dealer, including a card gained while consuming a
+non-card resource with `FROM`; an empty set means no known source card is eligible. Unknown
+card-backed transfers must not be interpreted as draws. `filter` carries the arrival's `CardFilter`
+when present. The public `cardMatchesFilter` function shares the tracker's
 printed-card predicate with dealers. The attempted event is diagnostic evidence, not committed
 history.
 

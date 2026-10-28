@@ -4,8 +4,11 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.AgentInputRequiredException
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.CardTracking
 import dev.martianzoo.tfm.engine.CardTracking.NamesRequiredException
@@ -41,8 +44,13 @@ internal class CardTrackingTest : TfmTest() {
     tracking.hand(player) shouldBe emptySet()
     agent.count("ProjectCard<StagedProject<Class<Mine>>>") shouldBe 1
     agent.count("RobotUnit<StagedProject<Class<Mine>>>") shouldBe 2
+    tracking.playableFaces(
+        player,
+        Parsing.parse<InstructionTree>("PlayProject<$player, Class<CardFront>, CardLocation>"),
+        Parsing.parse<Expression>("CardFront"),
+    ) shouldBe setOf(cn("Mine"))
 
-    agent.runOperation("PlayStagedProject<Class<Mine>>") {
+    agent.runOperation("PlayProject<Class<Mine>, StagedProject<Class<Mine>>>") {
       autoExecNow(EAGER)
     }
     tracking.hand(player) shouldBe emptySet()
@@ -136,6 +144,28 @@ internal class CardTrackingTest : TfmTest() {
     sourceTracking.requireComplete()
     sourceTracking.hand(player) shouldBe setOf(firstCard)
     copied[player].count("ProjectCard<Hand>") shouldBe 2
+  }
+
+  @Test
+  internal fun speculativeCopyCanRequireAndFollowNamedCardsWithoutChangingTheSource() {
+    val (sourceTracking, player) = newTrackedGame()
+    val card = cn("AcquiredCompany")
+    sourceTracking.expectArrivals(player, card)
+    agents[player].runOperation("ProjectCard")
+
+    val copied = agents.fork()
+    val copyTracking = sourceTracking.forkTo(copied.world)
+    copyTracking.hand(player) shouldBe setOf(card)
+    shouldThrow<NamesRequiredException> { copied[player].runOperation("-ProjectCard") }
+    copyTracking.expectDepartures(player, card)
+    copied[player].runOperation("-ProjectCard")
+    copyTracking.hand(player) shouldBe emptySet()
+
+    val further = copied.fork()
+    val furtherTracking = copyTracking.forkTo(further.world)
+    furtherTracking.hand(player) shouldBe emptySet()
+    sourceTracking.hand(player) shouldBe setOf(card)
+    sourceTracking.requireComplete()
   }
 
   @Test
@@ -414,6 +444,29 @@ internal class CardTrackingTest : TfmTest() {
 
     tracking.hand(player) shouldBe setOf(cn("AdaptedLichen"))
     game.events.changesSince(before).single().notes shouldBe "Cards: AdaptedLichen"
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun olympusConferenceDrawFromScienceNeedsANewCardName() {
+    val (tracking, player) = newTrackedGame("CorporateEraExpansion")
+    val agent = agents[player]
+    agent.runOperation("OlympusConference")
+    agent.runOperation("Science<OlympusConference>")
+    val scienceBefore = agent.count("Science<OlympusConference>")
+
+    val request =
+        shouldThrow<NamesRequiredException> {
+          agent.runOperation("ProjectCard FROM Science<OlympusConference>")
+        }
+    request.arriving shouldBe true
+    request.candidates shouldBe null
+
+    tracking.expectArrivals(player, cn("AdaptedLichen"))
+    agent.runOperation("ProjectCard FROM Science<OlympusConference>")
+
+    agent.count("Science<OlympusConference>") shouldBe scienceBefore - 1
+    tracking.hand(player) shouldBe setOf(cn("AdaptedLichen"))
     tracking.requireComplete()
   }
 

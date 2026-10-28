@@ -13,7 +13,22 @@ internal data class Prompt(
     val retreat: String? = null,
     /** False for history or unsupported Admin work: this prompt cannot accept input. */
     val enabled: Boolean = true,
+    /** A provisional choice of named cards from Hand or Selecting, committed on the Play tab. */
+    val cards: Cards? = null,
+    /** A search failure that leaves offered choices available. */
+    val warning: String? = null,
 ) {
+  data class Cards(
+      val drawing: Boolean,
+      val fromHand: Boolean,
+      val available: Set<String>,
+      val chosen: Set<String>,
+      val canConfirm: Boolean,
+      /** Cards whose selection has no witnessed completion. */
+      val unproven: Set<String> = emptySet(),
+      val confirmUnproven: Boolean = false,
+  )
+
   data class Option(
       val label: String,
       val who: String? = null,
@@ -23,5 +38,8 @@ internal data class Prompt(
       val taskId: TaskId? = null,
       /** Available OR arms of a task, shown as separate click targets. */
       val arms: List<String> = emptyList(),
+      /** The search did not find a completion through this choice. */
+      val unproven: Boolean = false,
+      val unprovenArms: Set<String> = emptySet(),
   )
 }

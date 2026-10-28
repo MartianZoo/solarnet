@@ -6,6 +6,8 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
@@ -136,6 +138,99 @@ private constructor(
   }
 
   /**
+   * The held cards [player] could name when narrowing [focus] in [instruction], or null when that
+   * narrowing does not choose a card face or its source cannot be identified. Cards come from the
+   * source the instruction plays or moves them from, with its card back; a played card's action is
+   * not such a choice. A location that identifies its stored card supplies that face without
+   * another naming input.
+   */
+  public fun playableFaces(
+      player: Player,
+      instruction: InstructionTree,
+      focus: Expression?,
+  ): Set<ClassName>? {
+    val table = world.classTable
+    val front = table.getClass(CARD_FRONT)
+    if (focus == null || !table.getClass(focus.className).isSubtypeOf(front)) return null
+    val change = instruction.descendantsOfType<Change>().firstOrNull() ?: return null
+    val gain = change.gaining?.let(world.reader::resolve) ?: return null
+    val back = table.getClass(CARD_BACK)
+    val location = table.getClass(CARD_LOCATION)
+    val source =
+        when (gain.className) {
+          PLAY_PROJECT,
+          PLAY_CARD -> gain
+          else -> {
+            if (!gain.rootClass.isSubtypeOf(front)) return null
+            change.removing?.let(world.reader::resolve)?.takeIf { it.rootClass.isSubtypeOf(back) }
+                ?: return null
+          }
+        }
+    val arguments = source.expressionFull.arguments.map(world.reader::resolve)
+    val sourceLocation =
+        arguments.singleOrNull { it.rootClass.isSubtypeOf(location) } ?: return null
+    if (gain.className == PLAY_PROJECT) {
+      val faces = linkedSetOf<ClassName>()
+      for ((card, _) in world.reader.getComponents(PROJECT_CARD.expression).entries) {
+        if (card.toComponent().owningPlayer != player) continue
+        val heldLocation =
+            card.expressionFull.arguments.map(world.reader::resolve).singleOrNull {
+              it.rootClass.isSubtypeOf(location)
+            } ?: continue
+        if (!heldLocation.narrows(sourceLocation, world.reader)) continue
+        when (heldLocation.className) {
+          HAND -> faces += hand(player, PROJECT_CARD)
+          SELECTING -> {
+            if (!requireSelectingNames) return null
+            faces += hand(player, PROJECT_CARD, SELECTING)
+          }
+          else -> {
+            val named =
+                heldLocation.expressionFull.arguments
+                    .map(world.reader::resolve)
+                    .mapNotNull { it.groundType.representedClass }
+                    .filter { it.isSubtypeOf(front) }
+            if (named.size != 1) return null
+            faces += named.single().className
+          }
+        }
+      }
+      return faces
+    }
+    val sourceBack =
+        if (source.rootClass.isSubtypeOf(back)) source.rootClass
+        else
+            arguments
+                .singleOrNull { it.groundType.representedClass?.isSubtypeOf(back) == true }
+                ?.groundType
+                ?.representedClass ?: return null
+    return listOf(HAND, SELECTING)
+        .filter { table.getClass(it).isSubtypeOf(sourceLocation.rootClass) }
+        .filter { it == HAND || requireSelectingNames }
+        .flatMap { hand(player, location = it) }
+        .filterTo(linkedSetOf()) { cardBack(table.getClass(it))?.isSubtypeOf(sourceBack) == true }
+  }
+
+  /**
+   * Installs independent named-card tracking on a full World fork at this World's current completed
+   * position. The fork inherits held identities and unused supplied names; subsequent names and
+   * movements in either World do not change the other. The caller must fork the same source World
+   * without intervening changes. This does not work with an overlay World.
+   */
+  public fun forkTo(fork: World): CardTracking {
+    check(fork.timeline.checkpoint() == world.timeline.checkpoint()) {
+      "card tracking can only follow a fork at the same position"
+    }
+    val copy = CardTracking(fork, requireSelectingNames)
+    arrivals.forEach { (key, names) -> copy.arrivals[key] = names.toMutableList() }
+    departures.forEach { (key, names) -> copy.departures[key] = names.toMutableList() }
+    copy.cachedSnapshot = snapshot()
+    copy.lastTrackedChange = lastTrackedChange?.let { fork.events.changeAt(it.ordinal) }
+    fork.installAgentTransactionGuard(copy)
+    return copy
+  }
+
+  /**
    * An Agent command moved cards of [back] into ([arriving]) or out of [player]'s [location]
    * without enough supplied names; [count] more are needed. [event] is the first such movement. The
    * command rolled back, so supplying the names and repeating it can succeed.
@@ -243,6 +338,11 @@ private constructor(
       val change = event.change
       val removing = change.removing
       val gaining = change.gaining
+      val removingIsCardBack =
+          removing != null &&
+              world.classTable
+                  .getClass(removing.className)
+                  .isSubtypeOf(world.classTable.getClass(CARD_BACK))
       val arrivalFilter =
           event.cause
               ?.context
@@ -362,10 +462,10 @@ private constructor(
                       event,
                       "arrivals",
                       when {
-                        removing == null -> null
                         requireSelectingNames && removing.cardBackAt(SELECTING) == gainingBack ->
                             held(checkNotNull(gainingBack), Selecting(player))
-                        else -> emptySet()
+                        removingIsCardBack -> emptySet()
+                        else -> null
                       },
                       arrivalFilter.takeIf { gainingBack == PROJECT_CARD },
                   )
@@ -452,7 +552,7 @@ private constructor(
                     change.count,
                     event,
                     "Selecting arrivals",
-                    if (removing == null) null else emptySet(),
+                    if (removingIsCardBack) emptySet() else null,
                 )
         check(selectedGainedNames.size == selectedGainedNames.distinct().size) {
           "the same card enters $player's Selecting twice in $event"
@@ -647,6 +747,9 @@ private constructor(
     private val PLAYED_EVENT = cn("PlayedEvent")
     private val CARD_FRONT = cn("CardFront")
     private val CARD_FILTER = cn("CardFilter")
+    private val CARD_LOCATION = cn("CardLocation")
+    private val PLAY_PROJECT = cn("PlayProject")
+    private val PLAY_CARD = cn("PlayCard")
     private val HAND = cn("Hand")
     private val SELECTING = cn("Selecting")
     private val REVEALED = cn("Revealed")

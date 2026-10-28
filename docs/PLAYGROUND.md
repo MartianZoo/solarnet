@@ -103,8 +103,8 @@ history navigation still needs design; do not assume Compose provides that mappi
   remain unidentified. Earlier declaration is optional and low priority.
 - Gameplay mode applies normal game rules and exposes the Solarnet task queue. Selecting a task shows
   the available ways to narrow it.
-- Task execution is manual, including concrete tasks; avoid autoexecution so the user can follow
-  resolution step by step. Effects accumulate in a log viewer panel.
+- The Play tab starts with Player autoexecution off; the user can turn on SAFE autoexecution and
+  its action-completion choice filter. Effects accumulate in a log viewer panel.
 - Separate explanations of why a rule applies are not required. Watching the task queue resolve
   is the intended way to understand the result.
 

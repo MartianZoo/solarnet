@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package dev.martianzoo.tfm.web.playground
 
 import androidx.compose.foundation.background
@@ -23,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.launch
 
 /**
  * The product title and its mode badge: PLAY at a live game's latest position, HISTORY elsewhere.
@@ -42,6 +46,7 @@ import androidx.compose.ui.window.DialogProperties
 @Composable
 internal fun TitleBar(recording: RecordingStore? = null) {
   val palette = LocalPalette.current
+  val scope = rememberCoroutineScope()
   Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
     Text(
         "Mars Playground",
@@ -61,6 +66,21 @@ internal fun TitleBar(recording: RecordingStore? = null) {
       recording.seed?.let { seed ->
         Spacer(Modifier.width(palette.spacing * 1.2f))
         Text("seed ${formatPlaySeed(seed)}", style = palette.mono.copy(color = palette.dimText))
+      }
+      if (recording.liveLogConnecting) {
+        Spacer(Modifier.width(palette.spacing * 1.2f))
+        Text("log pending", style = palette.label.copy(color = palette.mars))
+      } else if (!recording.liveLogConnected) {
+        Spacer(Modifier.width(palette.spacing * 1.2f))
+        Text(
+            "connect log",
+            Modifier.clickable {
+              recording.connectLiveLog()?.let { selection ->
+                scope.launch { recording.attachLiveLog(selection) }
+              }
+            },
+            style = palette.label.copy(color = palette.dimText),
+        )
       }
     }
     if (live && recording.historyMode) {
@@ -93,6 +113,7 @@ internal fun OutOfGame(
     recording: RecordingStore,
     onLoad: (String) -> Unit,
     onPlay: () -> Unit,
+    onRecover: () -> Unit,
     onStartOver: () -> Unit,
 ) {
   val palette = LocalPalette.current
@@ -102,6 +123,7 @@ internal fun OutOfGame(
       horizontalArrangement = Arrangement.spacedBy(palette.spacing, Alignment.End),
   ) {
     OutlinedAction("PLAY", palette.accent, onPlay)
+    if (recording.recoveryAvailable) OutlinedAction("RECOVER GAME", palette.accent, onRecover)
     LoadGameAction(recording, onLoad)
     OutlinedAction("TO START", palette.mars, onStartOver)
   }

@@ -68,9 +68,10 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   It also checks event balances across gains, removals, transfers, and history navigation.
   Explorer coverage checks that hiding aspect categories preserves concrete components and counts.
   `PlaySessionTest` checks repeatable opening cards and neutral tiles, cancellation of card naming,
-  and undo before an automatic deal, including explicit continuation with the same cards.
+  and history truncation before an automatic deal, including explicit continuation with the same cards.
   `RecordingStoreTest` opens the packaged three-player Turmoil recording, checks preview progress, blocked navigation,
-  final winner messaging and subsequent history navigation, and renders its task English;
+  final winner messaging, action-based undo for setup and research discards, subsequent history
+  navigation, and renders its task English;
   `karma.config.d/resources.js` serves its Compose resources. Generate replay exports first when
   absent or stale, using `:tfm-tests:replayTest -PreplayExports`.
 - Temporarily uncomment `allBrowserTests` in the root build and run
@@ -695,6 +696,13 @@ incorrect behavior, and their names say what currently happens incorrectly. Pref
 characterization over a disproportionate workaround.
 
 ## Game replay tests
+
+`PlaygroundGame20261025Test` is a JVM resource-loaded replay in the curated `replayTest` suite.
+It reads `modules/tfm-tests/src/jvmTest/resources/replays/PlaygroundGame20261025.short.json.gz`,
+reexecutes only recorded Player commands with automatic Admin, and checks the supplied final
+screenshots using an ASCII map plus dashboard and score assertions. Its four neutral solo tile
+placements are external setup inputs from the source log. It does not use `AbstractFullGameTest`
+or the generated-export hook.
 
 `Game20230521Test` and `Wsbg2025Test` deliberately exercise the raw Agent task API.
 Their players use `NONE` during the replay, while Admin retains normal autoexecution and handles

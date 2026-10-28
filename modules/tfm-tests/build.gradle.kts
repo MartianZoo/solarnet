@@ -63,8 +63,9 @@ kotlin {
               rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/tests/replays"),
           )
       )
-      // The replay scenarios are portable; their JUnit file-export hook is JVM-only.
+      // Most replay scenarios are portable; the export hook and gzip resource replay are JVM-only.
       kotlin.exclude("ReplayExportExtension.kt")
+      kotlin.exclude("PlaygroundGame20261025Test.kt")
     }
     wasmJsTest {
       kotlin.setSrcDirs(
@@ -175,6 +176,7 @@ val activeReplayClasses =
             "OtbGame20260904Test",
             "OtbGame20260912Test",
             "OtbGame20261009Test",
+            "PlaygroundGame20261025Test",
             "SolarFusionStreamTest",
             "StaticPressureStreamTest",
             "StinaGameTest",

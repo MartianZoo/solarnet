@@ -233,6 +233,11 @@ internal fun liveSpecimen(
                   val change = instruction as? Change ?: return@flatMap emptyList()
                   val amount = (change.count as? ActualScalar)?.value ?: return@flatMap emptyList()
                   when {
+                    change.gaining?.className == cn("CimmeriaPlacementBonus") ->
+                        listOf(
+                            Specimen.MapBonus(image = "Colony"),
+                            Specimen.MapBonus(image = "MC/MC-5"),
+                        )
                     change.gaining?.className == MC && amount in 1..49 ->
                         listOf(
                             Specimen.MapBonus(image = "MC/MC${amount.toString().padStart(2, '0')}")

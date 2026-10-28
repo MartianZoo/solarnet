@@ -2,6 +2,8 @@
 
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
@@ -34,6 +36,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.CustomInstruction
 import dev.martianzoo.state.CustomMetric
@@ -64,6 +67,15 @@ public object TfmEngine {
    * premises or missing custom declarations fail during world construction.
    */
   public fun newGame(premise: GamePremise): World = Engine.newGame(premise, customClasses)
+
+  /**
+   * Builds Agents for [world] whose SAFE policy uses the Canon task register. [initialPolicy]
+   * defaults every Actor to EAGER, and construction does not settle pending tasks.
+   */
+  public fun agents(
+      world: World,
+      initialPolicy: (Actor) -> AutoExecPolicy = { AutoExecPolicy.EAGER },
+  ): Agents = Agents(world, TfmAutoExec::safeTask, initialPolicy)
 
   /** Custom instructions and metrics recognized when constructing a Terraforming Mars world. */
   public val customClasses: Set<CustomClass> =

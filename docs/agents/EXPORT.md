@@ -32,7 +32,7 @@ have identical behavior. Strict replay compares the behavior, and the format ide
 advanced when the interpretation of the file changes.
 
 `GameFileImporter` in `agent` checks hashes before constructing a live game. The caller supplies
-the game-specific runtime constructor and the game's start. It disables autoexecution for **all**
+the game-specific runtime constructor and the game's start. By default it disables autoexecution for **all**
 Actors, including Admin, then submits every recorded command through the corresponding Agent.
 A full import compares the multiset of component changes with Actor and causal ancestry, final
 components, and pending tasks with their causal ancestry. Raw event ordinals, task IDs, component
@@ -40,6 +40,14 @@ change order among independent effects, and intermediate task revisions may diff
 copies source change notes to corresponding live changes after checking any notes produced by the
 new execution. A mismatch throws; there is no repair or discrepancy UI yet. Task-event notes stay
 in the exact passive recording because compacted task revisions need not have live counterparts.
+
+For player-only short files, `GameFileImporter.replay(..., automaticAdmin = true)` and
+`TaskLog.replay(..., automaticAdmin = true)` accept only Player commands, leave Players at NONE,
+and run Admin with EAGER policy. Admin commands in such a file are rejected before game start.
+The caller's start callback supplies external setup choices, such as the four neutral solo tile
+locations. Normal Admin consequences, including final scoring, are computed by the engine.
+`PlaygroundGame20261025Test` exercises this mode against a compressed short JSON fixture and
+independent screenshot assertions for the final map, dashboard, and score.
 
 `TaskLog` captures successful Actor submissions, including Player and Admin policy actions. It
 records selections, single-task and batch execution, tries, drops, and `exMachina` as distinct

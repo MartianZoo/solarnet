@@ -33,7 +33,12 @@ internal class EventBalanceTest {
           it.change.gaining?.className == cn("ConvertPlants")
         }
     val changes = world.events.changesSince(Checkpoint(0))
-    val measuredBalances = eventBalances(premise, world.events.entriesSince(Checkpoint(0)))
+    val history = world.events.entriesSince(Checkpoint(0))
+    val measuredBalances = eventBalances(premise, history)
+    val incremental = EventBalances(premise)
+    incremental.extend(history.take(history.size / 2))
+    assertEquals(measuredBalances, incremental.extend(history))
+    assertEquals(false, incremental.canExtend(history.dropLast(1)))
 
     fun displayed() =
         liveSpecimen(

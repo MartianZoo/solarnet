@@ -95,7 +95,7 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
     val defaults = GameConfig(BASE_GAME_OPTIONS)
     val config = fixtureConfig(options, defaults)
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
-    agents = Agents(game) { if (it == ADMIN) EAGER else playerPolicy }
+    agents = TfmEngine.agents(game) { if (it == ADMIN) EAGER else playerPolicy }
     players = game.actors.filterIsInstance<Player>().map { agents[it] }
   }
 

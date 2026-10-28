@@ -35,8 +35,9 @@ internal suspend fun replayIndex(directory: Path): String {
         ) {
           TfmCatalog(Canon, FakeCanon)
         } else Canon
-    val reader = document.open(catalog).world.reader
-    val finished = reader.count(reader.resolve(cn("VictoryPhase").expression)) > 0
+    val world = document.open(catalog).world
+    val reader = world.reader
+    val finished = world.tasks.isEmpty()
     val scores =
         if (finished) {
           reader.actors

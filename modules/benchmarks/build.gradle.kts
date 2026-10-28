@@ -15,6 +15,7 @@ kotlin {
 }
 
 dependencies {
+  implementation(libs.kotlinx.coroutines.core)
   implementation(project(":agent"))
   implementation("dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}")
   implementation("dev.martianzoo.pets:tfm-canon:${providers.gradleProperty("petsVersion").get()}")

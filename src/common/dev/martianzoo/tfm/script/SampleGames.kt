@@ -4,6 +4,7 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
 /** Scripted two-player games, played in the game's own turn order, for the REPL to show. */
@@ -17,7 +18,7 @@ internal object SampleGames {
     var gens = generations
 
     val setup = OptionCodeTranslation.setup("BRVPX", 2)
-    val agents = Agents(createGame(setup))
+    val agents = TfmEngine.agents(createGame(setup))
     val (p1, p2) = agents.world.actors.filterIsInstance<Player>().map { agents.tfm(it) }
 
     agents.tfm(ADMIN).startGame()

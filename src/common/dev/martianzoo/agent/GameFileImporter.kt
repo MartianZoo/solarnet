@@ -14,7 +14,9 @@ import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 
-/** Rebuilds a game from its recorded Actor inputs, with all Actor autoexecution disabled. */
+/**
+ * Rebuilds a game from recorded inputs, optionally calculating Admin consequences automatically.
+ */
 public object GameFileImporter {
   /**
    * Checks the Catalog and resolved premise before creating a live game. [newAgents] provides the
@@ -22,6 +24,11 @@ public object GameFileImporter {
    * component change and pending task after replay, ignoring internal event ordinals and
    * intermediate task revisions. Change commentary from the file is retained on matching live
    * changes; commentary produced by the live game must appear verbatim in the recorded note.
+   *
+   * With [automaticAdmin], the file must contain only Player commands. Admin runs with EAGER policy
+   * while Players remain at NONE; [startGame] must supply any external setup choices (such as
+   * neutral tile locations). Otherwise every Actor runs at NONE and the file must contain their
+   * commands, including Admin's.
    */
   public suspend fun replay(
       document: GameFileJson.Document,
@@ -29,6 +36,7 @@ public object GameFileImporter {
       newAgents: (GamePremise) -> Agents,
       startGame: (Agents) -> Unit,
       supplyCardInputs: ((Agents, List<RecordedInput.CardInput>) -> Unit)? = null,
+      automaticAdmin: Boolean = false,
   ): Agents {
     val premise = document.premise(catalog)
     val expected = if (document.hasEvents) document.decode(premise) else null
@@ -36,6 +44,7 @@ public object GameFileImporter {
     TaskLog.replay(
         document.inputs(premise),
         agents,
+        automaticAdmin = automaticAdmin,
         startGame = {
           startGame(agents)
           agents.world.timeline.recordPosition()

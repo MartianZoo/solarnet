@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package dev.martianzoo.tfm.web.playground
 
 import androidx.compose.foundation.background
@@ -84,7 +86,11 @@ private fun MarsPlayground() {
   val store = remember { LayoutStore() }
   val scope = rememberCoroutineScope()
   val loadGame: (String) -> Unit = { name -> scope.launch { recording.load(name) } }
+  val recoverGame: () -> Unit = { scope.launch { recording.recoverLastGame() } }
   val newGame = remember { NewGameDraft() }
+  var savedSetups by remember {
+    mutableStateOf(runCatching { savedGameSetups() }.getOrDefault(emptyList()))
+  }
   var choosingGame by remember { mutableStateOf(false) }
   var startupError by remember { mutableStateOf<String?>(null) }
   LaunchedEffect(Unit) { recording.discover() }
@@ -118,7 +124,7 @@ private fun MarsPlayground() {
         val loaded = recording.specimen
         if (loaded != null) {
           CompositionLocalProvider(LocalSpecimen provides loaded) {
-            Playground(store, recording, loadGame) { choosingGame = true }
+            Playground(store, recording, loadGame, recoverGame) { choosingGame = true }
           }
           Box(Modifier.fillMaxWidth().height(palette.borderWidth).background(palette.line))
           StyleControls(style) { store.arrange(store.layout.copy(style = it)) }
@@ -130,6 +136,10 @@ private fun MarsPlayground() {
             Box(Modifier.weight(1f).fillMaxHeight()) { TitleBar() }
             OutlinedAction("PLAY", palette.accent) { choosingGame = true }
             Spacer(Modifier.width(palette.spacing))
+            if (recording.recoveryAvailable) {
+              OutlinedAction("RECOVER GAME", palette.accent, recoverGame)
+              Spacer(Modifier.width(palette.spacing))
+            }
             LoadGameAction(recording, loadGame)
           }
           Text(
@@ -160,11 +170,46 @@ private fun MarsPlayground() {
       }
     }
     if (choosingGame) {
-      NewGameDialog(newGame, { choosingGame = false }, startupError) { config, premise, seed ->
-        if (recording.play(config, premise, seed)) {
-          choosingGame = false
-          startupError = null
-        } else startupError = recording.error
+      NewGameDialog(
+          newGame,
+          savedSetups,
+          { choosingGame = false },
+          startupError,
+          !recording.liveLogConnected,
+          recording.liveLogConnecting,
+      ) { config, premise, seed ->
+        val needsFolder = !recording.liveLogConnected
+        if (needsFolder) choosingGame = false
+        val logSelection =
+            if (needsFolder && !recording.liveLogConnecting) recording.connectLiveLog() else null
+        val startGame = {
+          if (recording.play(config, premise, seed)) {
+            choosingGame = false
+            startupError = null
+            runCatching {
+              savedSetups =
+                  rememberGameSetup(
+                      SavedGameSetup(
+                          newGame.entries.toList(),
+                          newGame.playerName,
+                          requireNotNull(recording.seed),
+                      )
+                  )
+            }
+                .onFailure {
+                  recording.reportError(
+                      "Game started, but its setup could not be saved: ${it.message}"
+                  )
+                }
+          } else {
+            startupError = recording.error
+            choosingGame = true
+          }
+        }
+        startGame()
+        if (logSelection != null) {
+          scope.launch { recording.attachLiveLog(logSelection) }
+        }
       }
     }
   }
@@ -176,12 +221,13 @@ private fun Playground(
     store: LayoutStore,
     recording: RecordingStore,
     onLoad: (String) -> Unit,
+    onRecover: () -> Unit,
     onPlay: () -> Unit,
 ) {
   val specimen = LocalSpecimen.current
   var shownTab by remember { mutableStateOf(GlobalTab.Explorer) }
   var useIcons by remember { mutableStateOf(true) }
-  var useTrays by remember { mutableStateOf(false) }
+  var useTrays by remember { mutableStateOf(true) }
   var publishedCardText by remember { mutableStateOf(false) }
   val handOrders = remember(recording.gameRevision) { mutableStateMapOf<String, List<String>>() }
   val tabs = availableTabs(specimen, recording.playing)
@@ -226,7 +272,18 @@ private fun Playground(
   CompositionLocalProvider(
       LocalOpenClass provides ::openAlmanacClass,
       LocalClassNames provides classNames,
-      LocalPlayChoices provides recording.prompt?.let { PlayChoices(it, recording::choose) },
+      LocalPlayChoices provides
+          recording.prompt?.let {
+            PlayChoices(
+                it,
+                recording::choose,
+                recording::chooseTaskArm,
+                { recording.prompt },
+                recording::cardActionAvailable,
+                recording::projectCardAvailable,
+                recording::playProjectCard,
+            )
+          },
       LocalUseTrays provides useTrays,
       LocalInstructionEnglish provides
           remember(recording.classTable) {
@@ -236,7 +293,7 @@ private fun Playground(
     Workspace(layout, store::arrange, store::save) { region ->
       when (region) {
         Region.Title -> TitleBar(recording)
-        Region.OutOfGame -> OutOfGame(recording, onLoad, onPlay, recording::seekToStart)
+        Region.OutOfGame -> OutOfGame(recording, onLoad, onPlay, onRecover, recording::seekToStart)
         Region.Mars -> Surface { MarsTab() }
         Region.Details ->
             GlobalPane(
@@ -334,6 +391,8 @@ private fun Playground(
                   { publishedCardText = it },
                   handOrders[player.name].orEmpty(),
                   { handOrders[player.name] = it },
+                  recording.prompt?.cards?.takeIf { recording.playing && !recording.historyMode },
+                  recording::toggleCard,
               )
             }
         Region.NextPlayer -> PlayerArrow(">") { viewed.step(1) }

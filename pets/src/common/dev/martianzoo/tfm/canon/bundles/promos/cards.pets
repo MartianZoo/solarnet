@@ -66,18 +66,11 @@ CLASS StagedProject<Class<@CardFront>> : CardLocation, ResourceHolder<Class<Robo
   -ProjectCard<This>:: -This
 }
 
-"Plays a project stored on Self-Replicating Robots"
-CLASS PlayStagedProject<Class<@CardFront>> : StandardAction {
-  This: PlayCard<Class<ProjectCard>, Class<@CardFront>, StagedProject<Class<@CardFront>>>
-}
-
 CLASS SelfReplicatingRobots : ActionCard, ActiveCard {
   cost = 7
   requirement = HAS "2 ScienceTag"
 
   HAS MAX 1 SelfReplicatingRobots
-  HAS Class<PlayStagedProject>
-
   -> StageForReplicatedProject<Class<CardFront>>
   -> ReplicateForStagedProject<Class<@CardFront>(HAS StagedProject<Class<@CardFront>>)>
 }

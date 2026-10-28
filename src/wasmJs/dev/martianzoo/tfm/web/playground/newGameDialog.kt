@@ -26,7 +26,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.darkColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,14 +42,16 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
-import kotlinx.coroutines.delay
 
 /** A solo GameConfig editor; GO starts a live game from the resolved configuration. */
 @Composable
 internal fun NewGameDialog(
     draft: NewGameDraft,
+    savedSetups: List<SavedGameSetup>,
     onClose: () -> Unit,
     startupError: String?,
+    needsLogAccess: Boolean,
+    logConnecting: Boolean,
     onGo: (GameConfig, GamePremise, Int?) -> Unit,
 ) {
   val palette = LocalPalette.current
@@ -60,12 +61,6 @@ internal fun NewGameDialog(
       remember(entries, playerName) {
         mutableStateOf<Result<Pair<GameConfig, GamePremise>>?>(null)
       }
-  LaunchedEffect(entries, playerName) {
-    delay(150)
-    resolved = runCatching {
-      draft.resolve()
-    }
-  }
   val premise = resolved?.getOrNull()?.second
   val seed = draft.seedText.trim()
   val parsedSeed = parsePlaySeed(seed)
@@ -115,6 +110,10 @@ internal fun NewGameDialog(
               horizontalArrangement = Arrangement.spacedBy(20.dp),
           ) {
             Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())) {
+              if (savedSetups.isNotEmpty()) {
+                SavedSetupMenu(savedSetups, draft::recall)
+                Spacer(Modifier.height(12.dp))
+              }
               PlayerEditor(draft)
               OutlinedTextField(
                   value = draft.seedText,
@@ -139,10 +138,10 @@ internal fun NewGameDialog(
                     .border(palette.borderWidth, palette.line)
                     .padding(16.dp)
             ) {
-              Text("GAMECONFIG", style = palette.label.copy(color = palette.accent))
-              Spacer(Modifier.height(10.dp))
-              Text("CLICK A LINE TO REMOVE IT", style = palette.label)
-              Column(Modifier.heightIn(max = 240.dp).verticalScroll(rememberScrollState())) {
+              Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                Text("GAMECONFIG", style = palette.label.copy(color = palette.accent))
+                Spacer(Modifier.height(10.dp))
+                Text("CLICK A LINE TO REMOVE IT", style = palette.label)
                 entries.forEach { entry ->
                   Text(
                       entry,
@@ -152,15 +151,16 @@ internal fun NewGameDialog(
                       style = palette.mono,
                   )
                 }
-              }
-              Spacer(Modifier.height(12.dp))
-              Text("PLAYER", style = palette.label)
-              Text(playerName, style = palette.mono)
-              Spacer(Modifier.height(16.dp))
-              Text("GAMEPREMISE · ADDITIONAL PARTS", style = palette.label)
-              Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                Spacer(Modifier.height(12.dp))
+                Text("PLAYER", style = palette.label)
+                Text(playerName, style = palette.mono)
+                Spacer(Modifier.height(16.dp))
+                Text("GAMEPREMISE · ADDITIONAL PARTS", style = palette.label)
                 if (premise == null) {
-                  Text("No resolved premise", style = palette.mono.copy(color = palette.dimText))
+                  Text(
+                      "Calculated when you press GO",
+                      style = palette.mono.copy(color = palette.dimText),
+                  )
                 }
                 premise
                     ?.classSelections
@@ -191,7 +191,9 @@ internal fun NewGameDialog(
               Text(
                   problem
                       ?: startupError
-                      ?: if (resolved == null) "Checking configuration…"
+                      ?: if (logConnecting)
+                          "Chrome has not returned a log folder. GO can still start the game."
+                      else if (resolved == null) "Ready to check configuration."
                       else "Configuration accepted.",
                   style =
                       palette.body.copy(
@@ -201,19 +203,62 @@ internal fun NewGameDialog(
                       ),
               )
               Spacer(Modifier.height(12.dp))
+              if (needsLogAccess) {
+                Text(
+                    "GO starts the game and asks Chrome for the live log folder. Choose " +
+                        "/Users/dev/solarnet/main/_local if the chooser appears. " +
+                        "Until then, the log is not being saved to disk.",
+                    style = palette.label,
+                )
+                Spacer(Modifier.height(12.dp))
+              }
               Button(
                   onClick = {
-                    resolved?.getOrNull()?.let { (config, premise) ->
+                    val checked = runCatching { draft.resolve() }
+                    resolved = checked
+                    checked.getOrNull()?.let { (config, premise) ->
                       onGo(config, premise, parsedSeed)
                     }
                   },
-                  enabled = premise != null && problem == null,
+                  enabled = seed.isEmpty() || parsedSeed != null,
                   modifier = Modifier.fillMaxWidth(),
               ) {
                 Text("GO")
               }
             }
           }
+        }
+      }
+    }
+  }
+}
+
+@Composable
+private fun SavedSetupMenu(saved: List<SavedGameSetup>, onChoose: (SavedGameSetup) -> Unit) {
+  val palette = LocalPalette.current
+  var open by remember { mutableStateOf(false) }
+  Box(Modifier.fillMaxWidth()) {
+    Text(
+        "Replay a saved setup  ▾",
+        Modifier.fillMaxWidth()
+            .border(palette.borderWidth, palette.line)
+            .clickable { open = true }
+            .padding(10.dp),
+        style = palette.body,
+    )
+    DropdownMenu(
+        open,
+        onDismissRequest = { open = false },
+        modifier = Modifier.heightIn(max = 330.dp).background(palette.raised),
+    ) {
+      saved.forEach { setup ->
+        DropdownMenuItem(
+            onClick = {
+              open = false
+              onChoose(setup)
+            }
+        ) {
+          Text(setup.label, style = palette.mono)
         }
       }
     }
@@ -245,6 +290,7 @@ private fun SelectionEditors(draft: NewGameDraft, premise: GamePremise?) {
   val choiceKey = entries to draft.playerName
   val maps = remember { Canon.marsMapDefinitions.map { it.className.toString() }.sorted() }
   val modules = remember { Canon.modules.keys.map { it.toString() }.sorted() }
+  val soloObjectives = listOf("StandardSoloObjective", "Tr63SoloObjective")
   val packs = remember { Canon.bundles.map { "${it.bundleName}:cards" }.distinct().sorted() }
   val milestones = remember { concreteNamesBelow("Milestone") }
   val awards = remember { concreteNamesBelow("Award") }
@@ -252,23 +298,44 @@ private fun SelectionEditors(draft: NewGameDraft, premise: GamePremise?) {
   val colonyTiles = remember { Canon.colonyTileClassNames.map { it.toString() }.sorted() }
   Text("CONFIGURATION", style = palette.label.copy(color = palette.accent))
   Spacer(Modifier.height(8.dp))
+  Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    ChoiceMenu(
+        "Map · ${entries.firstOrNull { it in maps } ?: "none"}",
+        maps,
+        Modifier.weight(1f),
+    ) {
+      draft.chooseMap(it)
+    }
+    Button(
+        onClick = { draft.chooseMap(maps.filterNot(entries::contains).ifEmpty { maps }.random()) }
+    ) {
+      Text("RANDOM")
+    }
+  }
+  Spacer(Modifier.height(8.dp))
   ChoiceMenu(
-      "Map · ${entries.firstOrNull { it in maps } ?: "none"}",
-      maps,
+      "Solo objective · ${entries.firstOrNull { it in soloObjectives } ?: "default"}",
+      soloObjectives,
   ) {
-    draft.chooseMap(it)
+    draft.chooseSoloObjective(it)
   }
   Spacer(Modifier.height(8.dp))
   ChoiceMenu(
       "Add an option",
-      modules.filter { it !in entries && "-$it" !in entries && it !in maps },
+      modules.filter {
+        it !in entries && "-$it" !in entries && it !in maps && it !in soloObjectives
+      },
   ) {
     draft.add(it)
   }
   Spacer(Modifier.height(8.dp))
   ChoiceMenu(
       "Exclude an option",
-      modules.map { "-$it" }.filter { it !in entries && it.drop(1) !in entries },
+      modules
+          .map { "-$it" }
+          .filter {
+            it !in entries && it.drop(1) !in entries && it.drop(1) !in soloObjectives
+          },
   ) {
     draft.add(it)
   }

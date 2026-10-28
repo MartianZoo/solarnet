@@ -1,36 +1,91 @@
-# Autoexecution and pruning
+# Safe and smart autoexecution
 
-> **Agent information:** This is an agent-maintained information-tracking document, written by
-> agents for agents. It can record human decisions, but it is not human-authored documentation.
+> **Agent information:** This note records the implemented Player policy, its Canon evidence, and
+> the remaining research. Source and tests establish current behavior.
 >
-> **Read when:** changing autoexecution policy or the shared loop; designing a pruner or a
-> preference; judging whether an automatic command preserves outcomes and decision authority;
-> changing how Admin settles its work.
+> **Read when:** changing Agent policy, judging whether a Player task can be claimed automatically,
+> investigating task order, or changing Admin settlement.
 >
-> **Status:** The current model is the three-value
-> [`AutoExecPolicy`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) and the shared
-> [`AutoExecLoop`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt). The owner set a new
-> direction on 2026-10-14 (D1–D6); none of it is implemented. This version replaces a note that
-> treated the subject as proving individual commands safe. The parts of that analysis that still
-> hold are folded in below.
+> **Status (2026-10-21):** SAFE is available as an opt-in Player policy in the Agent API; the
+> Playground enables it by default. Agents still default Players to EAGER. `TfmAutoExec` supplies
+> the Canon register below to every Terraforming Mars Agent, including the Playground. `SafeTasks`
+> lives in test sources as a development-time row proposer. Admin keeps
+> the current Agent behavior; the owner's separate full-autoexecution direction remains open.
 
-## The idea in brief
+## The decision we are trying to make
 
-**Pruning belongs here, in agent/client policy, not in the engine or Pets model.** Under the
-[universal design assumption](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client),
-the player's agent or client either presents only choices known not to dead-end the turn, or
-exposing dead ends is acceptable. The engine and model do not wait for this proposed policy work
-to be implemented. Protected Habitats requiring rollback after an attempted theft is valid today.
+A Player may have several tasks in the queue after initiating an action. A task is safe to do
+eagerly when claiming it now cannot remove any post-action game state that the Player could have
+reached by claiming that **same mandatory task later**. Compare continuations of the same
+initiating action from the same position. All its ordinary queued consequences must finish; a
+different turn or a separately initiated action cannot be inserted into the comparison.
 
-A Player's interaction is a walk through a decision graph: which task to select, how to narrow it,
-which task next. Many paths end in the same state; taking a Plant and then a Steel is the same as
-the reverse order. **Pruning** removes edges that can only lead to dead ends. **Collapsing** groups
-edges that lead to equivalent outcomes. When pruning and collapsing leave exactly one live choice,
-taking it closes nothing off, and that is all autoexecution should do. Any automatic choice among
-several live choices is a strategic preference. It is not autoexecution, and it should be labeled
-as a preference.
+This is directional. The task need not commute perfectly with every other task. Gaining Steel
+early, for example, may leave an additional spending option available without forcing its use.
+The question is whether doing the task early makes a later state unreachable. Compare complete
+states, including components, dependencies, pending work, and any distinction later Canon play
+can observe. A different event-log order alone is not a lost game state unless later rules use it.
 
-Pruning is the hard part. Autoexecution only walks the path that pruning leaves.
+A Player Agent must not resolve a genuine Player choice merely because an outcome seems better or
+a queue order is convenient. It must not pick among card discards, payment splits, targets, OR
+alternatives, or amounts unless a separate safe rule establishes that no choice is lost. The
+owner has stipulated that card discards should remain manual. Explicit Player commands may, of
+course, choose any legal option.
+
+For now, the owner permits a narrower exception to the no-lost-outcome rule: perform concrete,
+mandatory card draws early, even beside other card work, because the Playground can undo back
+through the deal. This includes a `PER` draw whose count is resolved from the current World when
+claimed. A future mode that forbids undo before a draw must disable this exception. Choosing cards
+to discard or to move from Selecting remains manual.
+
+The Player policy can use EAGER, SAFE, CONCRETE, or NONE at this stage. EAGER remains available
+while SAFE is being evaluated; it can make genuine Player choices. SAFE uses the game's live
+predicate when several tasks compete. CONCRETE considers an actor's sole selectable task, but
+other actors' work can still prevent it from running; NONE takes nothing automatically.
+
+Terraforming Mars SAFE uses the Canon register below when several ordinary tasks compete. Its
+shared loop also claims the only ordinary task in the World when its instruction is concrete and
+the claim finishes without Player input. The register is checked again after every task. Card
+departures that ask which named card leaves Hand or Selecting remain manual in the Playground.
+When two or three ordinary Player tasks remain and the first is concrete, the Playground also
+tries the short queue through `DecisionSearch`. It takes that first task only if every searched
+continuation finishes in the same complete state within 100 search steps. The search applies
+the SAFE predicate after every step, so it does not try orders that postpone an eagerly safe task.
+An unlisted choice, failed path, different outcome, or exhausted limit leaves the tasks for manual
+selection. Giant Solar Collector's Energy production and Venus step exercise this case.
+The four play phases are also where the Playground's checked autoexec option filters visible
+choices through a speculative completion search. The search uses the end of the current
+`ActionScope` as its witness,
+or `PassBaton` when the player declines an action before a scope opens. It never asks for an
+action-completion witness during setup, research, production, or solar work. Only an exhaustive
+search that establishes no completion path hides a choice. Exhausting the node budget or reaching
+an unsupported branch leaves the choice visible and reports that the search could not decide.
+The same applies when a numeric choice has more options than the search lists: failure at a smaller
+amount does not prove every larger amount fails.
+Each Playground search for a prompt or card shortcut gets 2,000 steps and 500 milliseconds shared
+across its verdict calls, including steps spent listing unfinished form choices. Once either limit
+is reached, the remaining choices stay visible as undecided. The browser lists numeric choices and
+alternatives that open a numeric choice directly from the TaskForm, without completion searches or
+uncertainty marks. It leaves those choices to the Player instead of making a provisional amount
+selection on the browser thread. The Playground also checks a one-second limit between steps of an
+automatic settlement walk, because each step can create a fresh completion search; remaining tasks
+stay available for manual selection. A single engine step still runs synchronously, so this limit
+cannot interrupt it.
+The Playground also saves completed live positions to browser storage. After a stalled click, a
+reload and RECOVER GAME reconstruct the named cards and deck positions and open with Player
+autoexec off. This resumes at the last saved position; it does not interrupt work in the old tab.
+Moving search off the browser thread remains open.
+With the checkbox off, hand-card shortcuts require a held card and an offered PlayProject; printed
+card-action shortcuts check their local form choices. Neither runs a completion search. A clicked
+choice may still fail during actual play and be undone or changed manually.
+The Playground passes the exact unfinished TaskForm instruction into speculation; the search follows
+its remaining choices before committing the form. Rebuilding it from rendered text can lose an open
+choice such as TradeAction's payment action.
+Speculation never names cards: the World models unplayed cards as anonymous backs, and card
+tracking records names only for real moves. A narrowing that names a card face offers the faces
+the Player holds when the search begins; a face drawn during the explored line is unknowable, so
+such a line is undecided rather than dead. Merger is exempt by name, because its rules let a
+Player start it without proving the turn can finish.
 
 ## Owner direction (2026-10-14)
 
@@ -52,404 +107,270 @@ Pruning is the hard part. Autoexecution only walks the path that pruning leaves.
   rollback are not engine/model defects. Pruning them is the agent or client's responsibility;
   its absence does not justify changes to the model.
 
-## The decision graph
+Admin is different. Its intended full autoexecution has no safe-predicate gate. It attempts every
+supplied task in receipt order and retries work that is temporarily unavailable; a full pass with
+no progress is an error. Admin is not a Player choosing an order. Keep its greedy settlement
+separate from the Player policy and its safety predicates.
 
-These definitions give the rules below precise terms.
+## What a task predicate means
 
-- **G1. Decision point.** A World position together with an Actor who has pending work. Its edges
-  are that Actor's legal Agent commands: select one of its pending tasks, or, for a selected task,
-  choose one option of the current `TaskForm` decision (an `OR` alternative, a target, or an
-  amount). A `doTask` call is a path of such edges.
-- **G2. Completion.** A path is complete at operation completion as
-  [SEQUENCING.md](SEQUENCING.md#operation-completion) defines it. This horizon is provisional
-  (Q1).
-- **G3. Live and dead.** An edge is *live* when some complete path continues through it, and *dead*
-  when none does. Showing an edge live takes one witness path. Showing it dead takes an exhaustive
-  argument.
-- **G4. Equivalent edges.** Two edges are equivalent when they reach the same set of completed
-  outcomes under the [state equivalence](#state-equivalence) relation, and every corresponding
-  decision keeps the same Actor and the same position relative to reveals (R2, R3).
-- **G5. Pruning and collapsing.** Pruning marks dead edges. Collapsing groups equivalent live
-  edges into one *class*.
-- **G6. Forced.** A decision point is forced when exactly one live class remains.
-- **G7. Walking.** Taking a representative edge of a forced point's only class. Choosing among two
-  or more live classes is a *preference*, not a walk.
+The starting research scope is a **pending, mandatory, fully concrete Player gain or removal**:
+the exact Type, holder or dependency, direction, and fixed amount are known; the task is not
+optional, AMAP, an unresolved PER, or an unchosen branch. The policy may later gain rules for
+other task shapes, but calling a target concrete does not make its amount or continuation fixed.
+See [QUANTIFIERS.md](QUANTIFIERS.md) for the resolution-time differences.
 
-Paths converge, so the structure is a DAG over states, not a tree. Edges are already exposed: the
-Actor's queue lists tasks, and `TaskForm.decisions()` and `options()` list the narrowings.
-`TaskForm.options` filters little, on purpose: a partial choice that looks unworkable can become
-workable after a later choice. No new representation is needed to name an edge.
+A task predicate is a claim of this form: **when this exact task shape occurs under these live
+conditions, the Player can select or execute it now without losing a post-action state.** There
+will be separate collections of currently eligible gain and removal predicates. They are more
+specific than lists of component names: a Type can be safe for a direct gain but unsafe for an
+AMAP gain, a particular holder, or a task with a continuation.
 
-## Contract
+SAFE applies the game's predicate to every optional change or removal, even when it is the only
+actionable task. Being alone in the queue does not establish that an amount or card identity can
+be chosen automatically.
 
-- **R1. Outcome preservation.** For a fixed premise, let `S →a S'` be an ordinary legal command,
-  including its automatic consequences and task updates but not later policy choices. Corrections
-  and deliberate rule bypasses are outside the relation. Let `N(S)` be the completed outcomes
-  reachable from `S`. A walk must satisfy
+The effective collections change as the action unfolds:
 
-  ```text
-  N(S) = N(a(S))
-  ```
+- **Start narrowly.** Enable a researched predicate only for the Canon configurations and task
+  shapes covered by its record. Unknown content or task structure does not match it.
+- **Remove the affected predicate early.** An initiating card play or action use can identify a
+  rare dangerous route before the interacting card exists. If New Partner can leave its MC
+  production gain pending while its chosen Prelude eventually brings in Manutech, the
+  MC-production-gain predicate must be disabled when that route begins, not when Manutech appears.
+  A coarse action-long suspension is acceptable for a rare route; it need not suspend unrelated
+  types or ordinary actions.
+- **Check live work as well as components.** Pharmacy Union's queued MC loss can remain after the
+  corporation flips. A guard based only on whether Pharmacy Union is currently in play would
+  restore MC-gain eligibility too soon. Industrial Complex and other production readers may be
+  relevant before their cards enter play if pending work can play them.
+- **Add predicates back when the reason ends.** At a completed action, or sooner if the relevant
+  work and lasting effects have disappeared, restore each predicate whose normal conditions hold.
+  Re-evaluate after committed commands; a cached list must not disagree with the World or queue.
 
-  `a` is legal, so its outcomes are already in `N(S)`. The hard direction is showing that every
-  other outcome is still reachable after `a`. One way is to show that every successful schedule
-  has an equivalent schedule that begins with `a`.
+The implementation computes eligibility from the current World and queue each time it considers a
+task. No second mutable list needs synchronization. A guard therefore takes effect as soon as its
+condition appears and ends when that condition clears.
 
-- **R2. Decision authority.** Equal outcomes are not enough. Each choice must remain with the same
-  Actor, including the choice of when to hand work over. Equal final resources do not justify P1
-  deciding for P2, or starting P2's payment early.
+## Current Canon predicate register
 
-- **R3. Information order.** A walk must not move a decision from after a reveal to before it. A
-  reveal is any fact supplied from outside the calculation, such as a drawn card or a revealed
-  global event ([CARD_HANDLING.md](CARD_HANDLING.md), [ADVERSARIAL.md](ADVERSARIAL.md)). Two orders
-  can reach equal outcome sets while one makes the Player decide with less information. R1 alone
-  does not exclude that.
+The stock, production, and Terraform Rating rows require a pending Player task consisting of a
+direct `Gain` or `Remove`, with a positive fixed count, mandatory quantifier, fully concrete target,
+no target refinement, no `THEN`, and no deferral. The target must have exactly the task assignee as
+its owner. The card-draw row also accepts `PER` around such a gain. The same-track step row instead accepts a single
+`AMAP` step on a public track. A transmutation, optional change, open `X`, held card resource,
+or unresolved choice does not match these rows. These are **investigated or argued safe within
+current Canon**, not mathematical proofs covering future declarations.
 
-- **R4. Unknown means decline.** Incomplete analysis makes no choice. A search budget is
-  acceptable only when exhausting it produces "unknown", never "forced".
+| Eligible task | Normal enabling conditions | Remove from eligibility when | Return to eligibility |
+| --- | --- | --- | --- |
+| Gain MC, Steel, Titanium, Plant, Energy, or Heat stock | No SolarPhase; no pending nested play/action route, unfinished card placement, or order-sensitive same-stock loss | Enter SolarPhase; queue a variable, clipped, optional, transferred, cross-actor, or otherwise complex same-stock loss; queue PlayCard, PlayPrelude, PlayProject, CopyPrelude, CopyProductionBox, UseAction, UseCardAction, UseStandardProject, UseTurmoilPolicyAction, DoRequiredActions, or StandardAction; or leave a card placement pending after such a signal is claimed | Those live conditions end |
+| Gain MC stock, additionally | Conditions above | PharmacyUnion or MonsInsurance is in play; any pending task or its `THEN` contains an AMAP MC removal or transfer | The card leaves play and all related clipped-loss work clears |
+| Gain TerraformRating | This Player's ActionScope exists; no pending nested play/action route; TerraformingDeal absent | Scope ends, a nested route appears, or TerraformingDeal enters play | A new qualifying scope or the route/card leaves |
+| Gain Production of MC, Steel, Titanium, Plant, Energy, or Heat | This Player's ActionScope exists; no SoloMode or SolarPhase; no pending nested play/action route; every other ordinary task assigned to the same Player is a direct, positive, fixed, mandatory stock/TR change or another standard-resource Production gain of that Player, without target refinements or `THEN` | A competing task leaves that simple shape | Competing work clears while normal conditions hold |
+| Gain CardBack into this Player's possession | Concrete mandatory draw, including a `PER` count evaluated when claimed; undo remains available | A future mode forbids undo back through the deal | Undo becomes available again. The current Playground deals opening corporation, project, and Prelude cards automatically while leaving their discards manual. |
+| Gain one OxygenStep, TemperatureStep, or VenusStep with `AMAP` | This Player's ActionScope exists; every other ordinary task has the same Actor, cause, resolved track, amount one, and `AMAP` quantifier; no pending nested play route | Any other ordinary task differs or a nested play route appears | The different work clears. Venus L1 Shade's three Venus steps are the Canon scenario. |
+| Remove TerraformRating | This Player's ActionScope exists; no pending nested play/action route; every other ordinary task assigned to the same Player is a direct, positive, fixed, mandatory stock/TR change of a different Type belonging to that Player, without target refinements or `THEN` | Scope ends, a nested route appears, or a competing task leaves that simple shape | A new qualifying scope with only independent work |
+| Remove MC, Steel, Titanium, Plant, Energy, or Heat stock | This Player's ActionScope exists; no SoloMode, SolarPhase, or pending nested route; every other ordinary task assigned to the same Player is a direct, positive, fixed, mandatory stock/TR change of a different component type belonging to that Player, without target refinements or `THEN` | Any competing ordinary task falls outside that shape, or the phase/mode/route changes | Competing work clears and the normal conditions hold |
+| Remove MC stock, additionally | Conditions above | PharmacyUnion or MonsInsurance is in play; pending work contains an AMAP MC loss/transfer; or RedsPolicy is in play while an ordinary TerraformRating gain remains pending | Those conditions end |
 
-- **R5. Re-derive after a commit.** Analysis based on an earlier World is stale once any command
-  commits.
+Evidence for the changed and added rows is in
+[SafeTfmAutoExecCanonTest](../../test/common/dev/martianzoo/tfm/tests/rules/SafeTfmAutoExecCanonTest.kt):
 
-- **R6. Legal commands only.** A policy chooses among engine-legal commands. It cannot supply a
-  missing ordering, exclusion, or completion rule, and it cannot make a forbidden intervention
-  safe. Delegated payment must be correct under `NONE` before any policy can claim to preserve it.
-  See [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over) and roadmap item 5
-  in [SOLARNET_ROADMAP.md](../SOLARNET_ROADMAP.md).
+- The stock-gain correction uses Mining Expedition in solo play and the
+  [SoloStandardResourceReserve source](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/base/solo.pets).
+- The Terraform Rating correction uses Shipment to Earth with Reds Policy and its
+  [queued MC charge](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/turmoil/classes.pets).
+- The production correction uses Anti-Desertification Techniques with Manutech and with Suitable
+  Infrastructure already in play, while `OrderingMattersTest` checks Manutech arriving mid-action.
+- The card-draw row uses Biolab's three ProjectCard draw beside its Plant production gain and the
+  opening corporation, project, and Prelude draws. [PlaySessionTest](../../test/wasmJs/dev/martianzoo/tfm/web/playground/PlaySessionTest.kt)
+  compares SAFE's opening deal with manual clicks using the same seed and verifies the discard
+  tasks remain pending.
+- The same-track row uses Venus L1 Shade's three `AMAP` VenusStep tasks from the same card;
+  its [card source](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/prelude2/cards.json5)
+  supplies that batch.
 
-- **R7. Analysis leaves the live World unchanged.** Exploration uses rolled-back transactions
-  (`Timeline.atomic` with an abort, as `ActorEngine.canSelectTask` does) or `Engine.fork`.
+Deferred `LATER` and `FINALLY` work cannot overtake an ordinary task, so the removal predicate
+checks competing **ordinary** tasks. `ActionScope` itself schedules its cleanup under `FINALLY`;
+counting that cleanup as an ordinary competitor would disable every action-scope removal.
+The same-Player assignee, same-Player target, and unrefined sibling requirements prevent a target
+choice or a cross-player listener from hiding inside an otherwise simple-looking change. An
+ActionScope owned by a different Player does not enable these predicates.
 
-## Why the whole graph is never needed
+The shared nested-route check also sees a pending change that places a `CardFront`, including
+one inside a task's `THEN` continuation. It suspends the stock, TR, production, and removal
+predicates while that placement remains pending; claiming the original `PlayCard` or `UseAction`
+signal alone does not restore eligibility. Later consequences are checked against the live queue.
 
-The full graph from an interesting position is enormous. Autoexecution never needs it, because
-its two possible answers cost very different amounts:
+The six direct stock gains have no current Canon gain listener that changes the Player's stock
+according to its order. `SoloStandardResourceReserve` reacts to the SoloOpponent's own stock and
+production and queues an Admin refill; it does not clip a Player's gain. The Mining Expedition
+solo scenario checks the Player's Steel gain while other work remains. In an ordinary action, the
+non-MC stock losses found in Canon are exact mandatory costs or optional attacks. An
+early gain cannot force the Player to spend it, and an optional attack can still take the same
+amount as after a delayed gain. Turmoil's Plant, Heat, and Titanium losses are computed or clipped
+in SolarPhase; the stock predicates are suspended there. Pending nested play/action routes are
+suspended before their new cards or actions are chosen. For additional caution, any currently
+ordinary task or `THEN` that can remove the same stock suspends the gain predicate unless it is
+an exact, fixed, mandatory, direct removal assigned to that Player, of that Player's stock, with
+no continuation. Such a removal commutes with the gain even if the gain must fund the removal;
+the resulting balance is the same. This exception lets production income run beside the five-MC
+ProdOffset removal. A pending attack still suspends eligibility until that work clears.
 
-- **"Not forced" costs nothing to conclude.** By R4, failing to prove a point forced is a valid
-  outcome that does nothing. Autoexecution never has to prove that a choice is real.
-- **"Forced" is expensive.** Every other edge must be shown dead or equivalent. A search can stop
-  as soon as it finds two live edges it cannot merge.
+MC differs. PharmacyUnion's microbe-tag consequence loses up to four MC, so gaining MC first can
+increase the amount lost. MonsInsurance can transfer up to three of its owner's MC after an attack;
+a MediaGroup reward can be gained before or after that compensation in the same HiredRaiders
+action. Recession can queue a clipped MC loss for another Player during a nested Prelude play. The
+MC guard checks both the live cards and unfinished clipped-loss instructions. After PharmacyUnion
+flips to a PlayedEvent, the outstanding `-4* MC` work still disables MC autoexecution; when that
+work clears, MC becomes eligible again.
 
-So the sources of size behave differently:
+The pending placement matters in a reachable WG Project action. Ecology Experts' microbe tag
+queues Splice Tactical Genomics' mandatory two-MC reward for Kim. Stan chooses Project Inspection
+as Ecology Experts' project. Even after Stan claims `PlayCard<ProjectInspection>`, its zero-cost
+card placement is still pending; placing it reuses Board of Directors' action to play Recession.
+Recession takes up to five MC from Kim. Taking the Splice reward before the placement leaves Kim
+with zero MC; taking the same reward afterward leaves her with two. SAFE must hold the reward
+through that placement, not merely through the original `PlayCard` task.
 
-| Source | Raw size | Effect on autoexecution |
-| --- | --- | --- |
-| Order of `k` independent tasks | `k!` paths | The main target. Memoizing states reduces it only to `2^k` nodes (one per subset done). Getting to about `k` means not exploring alternative orders at all: *partial-order reduction* (persistent, stubborn, or sleep sets in model checking). |
-| Tile spaces, holders, `X` amounts | Wide, often dozens | Mostly harmless. Distinct live outcomes end the search after two. Width costs something only when nearly every option is dead. |
-| Payment splits | Moderate | Different leftover resources are real choices. Picking one is a preference, never a prune. |
-| Draws (Merger, New Partner, any card draw) | Unbounded | The draw is a reveal and a leaf. R3 forbids reordering decisions across it. |
+The TR-gain entry is deliberately confined to an action scope. The current gain listeners are
+PreservationProgram's first-increment cancellation, RedsPolicy's queued three-MC cost,
+UNMI/Pristar's once-per-generation marker, and TerraformingDeal's two-MC reward.
+PreservationProgram cancels a single increment, and the UNMI/Pristar marker records whether an
+increment occurred. RedsPolicy queues its MC charge whether the TR gain is claimed first or after
+the other fixed work; Shipment to Earth exercises that order. TerraformingDeal's reward could be clipped by a
+later MC loss, so its presence also disables the entry. TR-dependent Turmoil global
+effects occur in SolarPhase, outside the entry. Direct fixed TR losses in ordinary ActionScopes
+come from Pristar and TerraLabsResearch; the SolarPhase TR losses are AMAP and excluded. The
+stock-removal entry is narrower: with only simple different-type changes competing, the surveyed
+Canon listeners and quantities have no same-resource read that can distinguish doing that removal
+first. The MC-removal entry adds the clipped-loss guards. With RedsPolicy in play, a queued
+TerraformRating gain can cause a three-MC removal. The predicate conservatively waits until the
+TerraformRating work clears before taking a competing fixed MC removal. Fixed costs alone have
+not established a harmful early order; further same-action listeners or conditional income have
+not been exhaustively ruled out. RedsPolicy alone does not disable a later unrelated MC removal.
 
-### Immediate commutation is not independence
+The production-gain entry allows other fixed standard-resource production gains in the queue;
+two such gains add independently even when they name the same resource. A pending
+IndustrialComplex production box or Cyberia copy cannot pass the check, and a pending nested play
+is suspended before that box appears. IndustrialComplex already in play has no ongoing production
+listener. Manutech and Suitable Infrastructure already in play observe the same increase whether it
+is claimed first or second; the Anti-Desertification Techniques scenarios check each live listener.
+The nested-play guard still applies if a card could bring either listener into play between gains.
+A pending RobinsonIndustries action or other quantity reader cannot pass the simple-competitor check. The
+solo reserve and Turmoil global effects account for the phase/mode exclusions. This is an
+investigated Canon predicate, not a claim that all production gains commute with other work.
 
-Suppose executing A creates queued work C, and C changes a metric or opens a gate that B reads. The
-orders A,B and B,A can leave the same components with C pending, while the legal interleaving A,C,B
-reaches a different result. Equal results for A,B and B,A therefore show neither order safe.
+## Why a few actions deserve special attention
 
-Sufficient conditions include a closed batch that creates no interleavable work, or a proof that A
-can move before every command that could precede it, including created tasks. This is the
-persistent-set condition from partial-order reduction. The argument must preserve availability
-as well as results: a command cannot commute through a state where it is illegal. Automatic effects
-belong to their command's transition. Queued effects and `THEN` continuations create further
-interleavings.
+The current Solarnet model puts all work from a card play and its nested plays into the same
+eligible task queue. New Partner can therefore expose its MC-production gain beside a pending
+Prelude draw and play; the chosen Prelude may be Merger, which plays a corporation. Ecology
+Experts, WG Project, Excentric Sponsor, Board of Directors, and Double Down provide other
+nested-play routes. Valley Trust plays a Prelude through a later required action; its starting
+money is not in that same queue. Action-use routes, including Established Methods, Project
+Inspection, Viron, Neptunian Power Consultants, and St. Joseph of Cupertino Mission, also deserve
+a same-queue check. Merely naming a card with a play or action instruction is not evidence that it
+can coexist with a particular concrete gain.
 
-"No matching trigger" is useful evidence but does not establish independence. Commands can share
-a cap, consume dependencies, change a metric or gate, cascade removals, or install an effect that
-changes later behavior without creating work at once.
+The reported physical-game ruling treats a card played by another card as a nested action context;
+for example, a wild tag could be assigned differently in each context. Solarnet does not model
+those protected contexts, and there is no current plan to add them for this policy. Analyze the
+queue the engine actually offers, mark any resulting physical-rules uncertainty, and guard the
+affected predicate. [ActionScopeTest](../../test/common/dev/martianzoo/tfm/tests/rules/ActionScopeTest.kt)
+shows the present shared scope; [UnknownRulesTest](../../test/common/dev/martianzoo/tfm/tests/rules/UnknownRulesTest.kt)
+records the unresolved New Partner ordering question.
 
-## Composing policies
+## Research standard
 
-**Proposal (2026-10-14), not yet accepted.** D2 says that if any attached policy wants to act, it
-acts. Taken literally, the result then depends on list order, and nothing shows which policies can
-close a choice. This proposal keeps the library and splits it by soundness into three parts:
+Only current Canon in supported, compatible configurations is in scope. Explicit Unsafe
+configurations are outside the safety claim. FakeHeadStart, invented cards, and tasks inserted
+directly into a test queue do not establish a Canon interaction. A candidate counterexample must
+start at a reachable decision point in a real Canon action. The same concrete task must be
+claimed in both runs of that same action; only its claim time changes. Account for tasks generated
+while the queue clears.
 
-- **Pruners** are sound, and their order is irrelevant.
-- **The walker** is fixed and not configurable.
-- **Preferences** are lossy by design, opt-in, and ordered.
+A mathematical proof for every predicate is not required. A highly determined search that finds
+no counterexample is acceptable evidence for enabling a predicate. Record that result honestly
+as **investigated safe**, not proven safe. A direct argument covering the relevant Canon cases can
+be recorded as **argued safe**. In either case, name what was searched, the possible competing
+instructions and listeners, the exact task shape, and when the predicate is disabled. If a
+counterexample emerges, disable or narrow the predicate and add its same-action witness.
+Unresearched cases remain manual. The policy aims to make no known Player choice; an empirical
+record is not an absolute theorem about future Canon edits.
 
-Rules:
+Maintain a record for each candidate predicate:
 
-- **C1.** At a decision point, a pruner reports edges known dead and groups of edges known
-  equivalent. Silence means unknown.
-- **C2.** Findings combine by union. A dead edge stays dead, and equivalence groups merge
-  transitively into classes.
-- **C3.** The walker, not a pruner, picks each class's representative, by a fixed rule: first in
-  queue order, then first offered option. Otherwise pruner A drops `x` because it equals `y`,
-  pruner B drops `y` because it equals `x`, and both disappear.
-- **C4.** A pruner's findings do not depend on other pruners' findings.
-- **C5.** Dominance ("this outcome is better") is not a pruner finding. No ordering of outcomes is
-  sound for every player, so dominance belongs to preferences.
-- **C6.** The walker acts only at a forced point (G6), and only as the Actor who owns that point.
-- **C7.** Preferences run only when two or more live classes remain. The first preference that
-  chooses acts. Each preference choice closes options, so a client should be able to report it as
-  such (D5).
-
-The current enum maps onto this almost exactly, so the first change can be a refactor with no
-change in behavior:
-
-| Current | Equivalent composition |
+| Field | Question to answer |
 | --- | --- |
-| `NONE` | Walker disabled. |
-| `CONCRETE` | Walker + one-step dead-end pruner (`canSelectTask`), counted per Actor. |
-| `EAGER` | `CONCRETE` + a "first completing task in queue order" preference. |
+| Task | What exact gain or removal, amount, holder, and quantifier does it match? |
+| Normal eligibility | In which compatible Canon configurations and queue positions is it enabled? |
+| Removal from active set | What initiating action, component, pending task, or continuation disables it, and how early? |
+| Return to active set | What observable condition makes it eligible again? |
+| Same-action evidence | Which reachable competing instructions, spawned work, listeners, limits, dependencies, and choices were checked? |
+| Confidence | Argued safe, investigated safe, known counterexample, or unresearched; which tests and sources support it? |
 
-Pruning has a second client besides autoexecution. A UI can grey out dead edges and merge
-equivalent ones even when several live classes remain. That argues for exposing pruning as an Agent
-query, with autoexecution as one caller of it.
-[ENGINE.md](ENGINE.md#queries-invariants-and-dead-ends) already assigns client-facing exploration
-and pruning to Agents.
+Audit gains and removals separately. For removal, test whether early consumption affects later
+payment, quantity resolution, minimum counts, a holder's existence, or loss listeners. For gain,
+test later consumption or loss, caps, quantity readers, production or TR reactions, and a listener
+that could be installed before a delayed gain. Check whether a named card's instructions can
+actually mingle with the task in the same queue; the mere existence of a relevant action on that
+card is insufficient.
 
-## Admin
+[OrderingMattersTest](../../test/common/dev/martianzoo/tfm/tests/rules/OrderingMattersTest.kt)
+already supplies harmful-early gain examples for MC and several production Types, with explicit
+physical-rules qualifications for some Cyberia orders. Its comments naming Types without a
+witness are **not** safe-predicate entries. The stock, TerraformRating, and restricted production
+rows above are seeded under their stated live conditions.
 
-**Current model.** Admin is not locked to greedy.
+## Implementation and remaining research
 
-- `Agents` gives every Actor, Admin included, `EAGER` by default, and any caller can change it.
-- Import and `TaskLog.replay` set Admin to `NONE` and submit its recorded commands
-  ([EXPORT.md](EXPORT.md)).
-- [`MassiveGammaZoneTest`](../../test/jvm/dev/martianzoo/tfm/tests/replays/MassiveGammaZoneTest.kt)
-  switches Admin to `CONCRETE` or `NONE` three times, each around Turmoil global-event work.
-- `EffectAtomizationTest` and `PerAtomizationTest` set Admin to `NONE`.
+[AutoExecLoop.kt](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt) claims the only ordinary
+task in the World if its instruction is concrete, or a competing task approved by the game's
+predicate. A task that needs Player input stays pending; SAFE does not choose or leave a task
+selected. It reevaluates after every committed command. The factory currently defaults Players
+and Admin to EAGER; Players opt into SAFE explicitly. [TfmAutoExec.kt](../../src/common/dev/martianzoo/tfm/engine/TfmAutoExec.kt)
+owns the Canon predicates, supplied by [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt)
+to all production Terraforming Mars Agent entry points. Game-neutral Agents have no researched
+game predicate, so SAFE takes only an eligible sole task whose choices resolve without input there.
 
-In the loop, Admin's options come first, in queue order. When every Admin option needs input or
-is temporarily unavailable, the loop falls through to Player options.
-[IDENTITY.md](IDENTITY.md#admin-and-engine) says Admin "may control, receive, select, and narrow
-tasks" and that "no identity rule requires Admin's decisions to be deterministic." D1 contradicts
-that sentence. Settle it before implementing D1.
+Within a turn-based play, production gains outside the restricted row remain manual because their
+timing or amount can interact with pending work. Card-held resources, variable quantities, special
+holders, and nonstandard changes remain manual there. A fixed stock gain computed by `PER` can
+match the ordinary stock row after the World resolves its amount; Shipment to Earth's Earth-tag MC
+gain is a Canon example. The register still declines a competing MC payment step or card placement
+after payment: payment can have remaining resource choices, and placing a card can install
+same-action listeners. A sole concrete task may be claimed by the shared loop.
+The current predicates should be revisited when Canon adds a direct stock
+gain listener, a new source of clipped loss, a quantity reader, or a new nested-play route.
 
-Today Admin holds work of three kinds:
+The policy has focused tests for unsafe early-gain witnesses and selected SAFE predicates. Its
+acceptance claim is limited to the predicate register and actual Canon queue shapes.
 
-1. **Bookkeeping**: concrete `System` changes and routine flow. Greedy execution is correct.
-   IDENTITY.md already requires fixed gains and concrete removals to be safe for eager Admin
-   execution.
-2. **A choice a rule gives to some Player**: for example, a global event's tile placement. The
-   choice should go to the Actor the rule names, using existing assignment (`TASK`, `BY`, effect
-   context), leaving Admin only the concrete change.
-3. **A supplied fact**: for example, which global event is revealed. It is a reveal. The dealer
-   arrangement in [ADVERSARIAL.md](ADVERSARIAL.md) supplies it, as it supplies card identities.
+`SafeTasks` is test-only development analysis. It can propose additional rows, but its runtime
+summary is not the predicate. Check any proposal against `DecisionSearch` with policy NONE, which
+enumerates completed outcomes without SAFE's order reduction. A scratch harness compared the old
+analyzer with this oracle on 806 claimable tasks at 240 positions from three random solo games with
+at least two pending Player tasks: 692 were production income, 43 action-phase tasks, and the rest
+setup, Prelude, and research work. All but one agreed; the exception was a payment whose own gate
+kept it unavailable. The search found no claim that lost an outcome. Since production income
+dominated the sample, those numbers are evidence that the analyzer was often conservative, not
+evidence that its accepted tasks are sound across Canon. `OrderingMattersTest` supplies the rare
+same-action witnesses for Pharmacy Union, Mons Insurance, nested Recession, Manutech arriving
+through Merger, and Cyberia copying Industrial Complex. The register refuses those claims.
 
-D1 is consistent once Admin holds only the first kind. The consequences to verify:
+`DecisionSearch` also supports the Playground's dead-end pruning and forced-choice walk. A choice
+is hidden only when an exhaustive search proves it cannot finish; an exhausted budget leaves it
+visible. The Playground deals cards for draws the register accepts, but does not auto-claim a task
+that asks which named card leaves Hand or Selecting. The search consults no deck and branches over
+no card names, so its verdicts use only what the Player knows. Invention Contest, for example, is
+proved completable with its cost alone (`DecisionSearchTest`).
 
-- Admin leaves the policy map.
-- Recordings omit Admin's greedy steps (the file format may change freely).
-- Import stops disabling Admin.
-- A pass that executes nothing becomes an error. Deferred work is excluded, because it waits by
-  design.
-
-Whether any other Admin work needs the current fall-through is exactly what the Admin census
-(stage 0) answers.
-
-## Current model (verified 2026-10-14)
-
-- **Policy.** `AutoExecPolicy` is `NONE`, `CONCRETE`, or `EAGER`, held per Agent. A scoped override
-  stack supports `autoExecNow(policy)` and `doWithAutoExecPolicy`. Assigning a non-`NONE` policy
-  runs autoexecution immediately.
-- **Loop.** `AutoExecLoop.actOnce`:
-  - It returns without probing unless some pending, non-deferred task belongs to an Actor whose
-    policy is not `NONE`.
-  - Candidates are the selected task, or the only pending task, or else every pending task that
-    passes the one-step `canSelectTask` probe. Manual Actors' tasks remain candidates and compete.
-  - `CONCRETE` takes a task only when it is its Actor's sole candidate. `EAGER` takes any candidate.
-  - Options are tried Admin first, then in queue order. The first that completes wins, and the loop
-    restarts.
-  - Needing input, being not fully specified, or an abstract `NotNow` is recoverable, and leaves
-    the task pending. If every option fails without recovery, a `DeadEndException` is thrown. If
-    no candidate passes the probe at all, the first eligible task is executed to surface its real
-    error.
-- **What `CONCRETE` checks.** `CONCRETE` approximates "forced": a task is its Actor's only candidate
-  that passes a one-step probe. It does no lookahead and does not consider other Actors' decisions.
-  The REPL's `auto` help says `concrete` preserves "every choice allowed by the game". That claim is
-  untested; the explorer can test it.
-- **Defaults.**
-  - `Agents(world)`, and so the REPL, gives every Actor `EAGER`.
-  - `TfmGameplayTest` gives Players `CONCRETE` and Admin `EAGER`.
-  - Sandbox tests give Players `NONE`.
-  - Import gives every Actor `NONE`.
-- **Clients guarding choices from `EAGER`.** Four call sites save the policy, change it, and
-  restore it:
-  - `TfmGameplay.playCorp` (to `NONE`)
-  - `TfmGameplay.pay` (to `CONCRETE`)
-  - `TfmActionCommand` (to `NONE` while paying a written cost)
-  - `TfmPayCommand` (to `NONE`)
-- **Tests settling routine work.** Tests contain 430 `autoExecNow(EAGER)` calls in 31 files.
-  [TESTING.md](TESTING.md) tells authors to settle competing routine effects that way, and states
-  that an automatically chosen order is not evidence of a required order. Each call marks a point
-  where `CONCRETE` stops and a test author judged the remaining order unimportant. That makes them
-  the largest available seed for the census.
-
-## Staged plan
-
-**Proposal (2026-10-14).** Stages 0 and 3 are independent of the others. Stage 4's pruner order
-should follow stage 1's census and stage 2's measurements.
-
-0. **Admin census and lock.**
-   - Classify every non-greedy Admin use into the three kinds above.
-   - Move rule-delegated choices to the Actor the rule names.
-   - Make supplied facts reveals.
-   - Update IDENTITY.md, then implement D1 and its consequences.
-1. **Census of choice points.** Change no behavior. Record each point where `EAGER` would act and
-   `CONCRETE` would not, in replays and at the 430 `autoExecNow(EAGER)` sites. For each point,
-   record the decision's edge kinds and the Canon plays that produced it. This becomes the
-   real-play corpus that [validation](#validation-and-the-canon-corpus) requires.
-2. **Bounded explorer** (test-only; a prototype that may be stashed). Run it on 5–10 census points,
-   including a tile placement, a payment, and a Merger. Record its measurements here. See
-   [The bounded explorer](#the-bounded-explorer).
-3. **Composition refactor.** Replace the enum with pruners, walker, and preferences, following the
-   mapping above, with no change in behavior.
-4. **Pruner library.** Add one pruner at a time. Each pruner needs:
-   - oracle tests at corpus points (the explorer's outcome classes do not change after the prune);
-   - a `CanonInvariantsTest` guard naming any Canon property it relies on.
-5. **Defaults.** Move Players to pruners only, keeping preferences opt-in (D5). Delete the four
-   save/restore sites and the replay overrides.
-
-Measures of success:
-
-- the four save/restore sites and Admin's overrides are gone;
-- the number of `autoExecNow(EAGER)` calls that become unnecessary (baseline 430);
-- for each census point: forced, not forced, or unknown, with the explorer's cost.
-
-## The bounded explorer
-
-A test-only oracle, never run during play. Its permanent role is to check pruners (R1 made
-mechanical). Its first role is to measure where size actually comes from.
-
-- **Edges:** the acting Actor's queue and its `TaskForm` decisions (G1). Every Actor's edges are
-  explored, with each decision labeled by its Actor (R2, Q2).
-- **Horizon:** operation completion (G2, Q1).
-- **Leaves:** reveals, and commands that need supplied information (R3).
-- **Rollback:** depth-first with transactional rollback (R7); forks where parallel comparison helps.
-- **Memoization:** keyed by a conservative canonical state (see below). A key that distinguishes
-  too much only costs missed merges. A key that distinguishes too little makes the oracle wrong.
-- **Budget:** a node limit. Exhausting it reports "unknown" (R4).
-- **Report:** nodes expanded, distinct states, outcome classes, dead edges, branching by edge kind
-  (task order, alternative, target, amount, payment), and whether the budget ran out.
-
-Unverified expectation, to be replaced by measurement: task order dominates raw path counts; tile
-width barely matters for forced-point detection; and most real points come out "not forced" within
-a few dozen nodes.
-
-### State equivalence
-
-The canonical state must retain everything later play can observe. Equal visible resource counts
-are too weak. A key must account for:
-
-- exact component Types, multiplicities, dependencies, and ownership;
-- pending instructions and continuations, including unresolved linked choices;
-- assignee, selection, and deferral of each pending task;
-- any cause relationships that operations or client helpers consult (payment helpers do); and
-- operation membership and scheduling eligibility, if the model adds them.
-
-Components have no instance identity. That does not permit arbitrarily renaming Actors, providers,
-or dependencies. Task ids and event ordinals can be ignored only when the relationships and every
-later legal command are preserved. Iteration order and derived indexes must not create gameplay
-meaning. If a custom implementation or an external card-identity record can affect later play,
-either include it or state that the result does not cover that path.
-
-## Candidate pruners and preferences
-
-These are candidates, listed roughly from cheapest to most expensive. Stage 1 should reorder them.
-
-1. **Sole edge.** One out-edge. Trivially sound.
-2. **One-step dead end.** An edge whose command fails now is dead *as this edge*. A later "select
-   `t` after `u`" is a different edge at a different point. This is today's `canSelectTask` probe.
-   Before relying on it, confirm that every probe failure means the command is illegal now, and
-   not that it needs supplied information.
-3. **Interchangeable tasks.** Collapse tasks with equal instructions only when assignee,
-   continuation, and any consulted causes also match. Equal text alone is not enough.
-4. **Forced narrowing.** At a selected task's `TaskForm` decision, every option but one is dead
-   (for example, one legal space or one valid holder). The select lock excludes other work
-   meanwhile. A claim made before selection must also survive any legal work that can precede
-   selection.
-5. **Closed-batch commutation.** Concrete changes that create no interleavable work and share no
-   cap, metric, gate, dependency, or listener are equivalent in either order (the persistent-set
-   condition). The premises can come from analysis of the catalog and premise: what an instruction
-   reads, changes, removes through dependencies, creates, or subscribes, including inherited and
-   self effects, actor constraints, and custom implementations. Overestimating interactions only
-   declines automation. Missing one breaks soundness. No summary compiler, cache, or certificate
-   format is selected. Each needs a measured case that simpler analysis cannot handle.
-6. **Lookahead dead end.** `k`-step search with a budget (R4).
-
-The only preference so far is **first completing task in queue order**, which is today's `EAGER`.
-Add others only as real use demands them (roadmap item 5).
-
-## Validation and the Canon corpus
-
-Claims about current Canon need positions reached through real Canon play. Tasks inserted with
-`Agent.addTasks`, hypothetical cards, FakeCanon, and FakeHeadStart are not counterexamples, and
-they are not supporting evidence either.
-
-An earlier attempt built a corpus from inserted task pairs, then from pairs of orders within single
-card plays. Both encoded the wrong premise. Pairing an Energy gain with Factorum's action assumed
-that a reachable play puts both in one queue. Pairing a Player's removal with an Admin production
-phase ignored the fact that the game's flow starts the next phase only as `FINALLY` work, after
-everything else drains ([SEQUENCING.md](../../pets/docs/agents/GAME_FLOW.md#game-flow)). Those tests were removed and
-nothing from them was kept.
-
-The test subject is a **pending concrete task at a real decision point**:
-
-1. Pause real Canon play there.
-2. Fork the World.
-3. In one fork, take the candidate first; in others, clear earlier legal work first.
-4. Finish all generated work, and compare outcomes, remaining choices, and decision owners.
-
-A difference counts as a counterexample only when both orders were legal from the same reachable
-position. A point where the candidate was the only command records a forced case, not an
-interaction. Stage 1 supplies the positions, and the explorer automates the comparison.
-
-Group observed tasks by exact Type, direction, owner, dependencies, and quantifier. These families
-are search seeds, not claims of reachability:
-
-| Family | Directions | Canon plays worth examining |
-| --- | --- | --- |
-| Six standard resources | Gain and removal of MC, Steel, Titanium, Plant, Energy, Heat | Allied Bank, Mining Operations, Supply Drop, Biofuels, Early Colonization, Imported GHG; Local Heat Trapping for Heat removal |
-| Six production Types | Gain and removal of each | Mining Operations, Industrial Microbes, Business Empire, Heat Trappers, production-changing projects |
-| Five card resources | Gain and removal on a named Canon holder | Imported Nitrogen, Olympus Conference, AstroDrill, Air Scrapping Expedition, cards that spend stored resources |
-| Other concrete Types | Where Canon offers them | Terraform Rating and global-parameter steps; cards in Hand or Selecting; tiles, colonies, delegates |
-
-For each observed Type and direction, cover a normal case and each *reachable* interaction that
-could reverse the preferred order: another task reads its count, consumes it, changes its capacity
-or dependency, changes a listener before it fires, or changes how many effects it causes. Record
-directions with no reachable witness instead of manufacturing a queue.
-
-A positive rule such as "take Steel now" also needs an audit of every enabled Canon declaration
-that can observe or change Steel before the queue drains. The audit must cover inherited effects,
-metrics, caps, dependencies, gates, and custom code, and state the cheap live-queue condition that
-excludes each interaction. For Energy, the audit must check whether a `UseAction<Factorum>` task
-can coexist with the gain; that Factorum has such an action is not enough. When a rule relies on a
-property of all current Canon declarations, add a `CanonInvariantsTest` check that names the
-declaration that violates it. That check guards future Canon edits; it is not a reason to model
-imaginary cards now.
-
-## Open questions
-
-- **Q1. Horizon.** Is the end of the operation the right point at which to compare outcomes, or
-  the end of the turn, or something else? The explorer needs an answer before stage 2 reports
-  numbers.
-- **Q2. Several Actors.** When P1 and P2 both have pending work, who owns the decision point, and
-  is "P2 decides before P1's step" an observable difference? R2 says decisions keep their owners.
-  Treat such orders as distinct until this is settled. `CONCRETE`'s per-Actor counting does not
-  address this.
-- **Q3. Reveals in practice.** Which current commands are reveals: supplied card inputs, Admin's
-  global-event gains, any command needing `AgentInputRequiredException` data? R3 needs a list.
-- **Q4. Admin's identity.** Settle D1 against IDENTITY.md, and decide whether Admin keeps an Agent
-  at all once it holds no decisions.
-- **Q5. Defaults.** Which policy should the REPL and `Agents(world)` give Players once pruners
-  exist? D5 points toward pruners only, with preferences opt-in.
-
-## Source map
-
-- [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) and
-  [`AutoExecLoop.kt`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt): the current enum and
-  loop. `actOnce` makes choices; it does not prove safety.
-- [`Agents.kt`](../../src/common/dev/martianzoo/agent/Agents.kt) and
-  [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt): initial policies, the
-  override stack, and the operation completion check (`requireComplete` with `lastDecision`).
-- [`TaskForm.kt`](../../src/common/dev/martianzoo/agent/TaskForm.kt): narrowing edges
-  (`decisions`, `options`).
-- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt): `canSelectTask` and
-  `canExecuteTask` probes, `prepareTaskNarrowing`, `enforceSelectLock`, `requireComplete`.
-- [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): `Engine.fork`.
-- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt): `resolve` and
-  `executeResolved` separate current-state simplification from execution.
-- [`SafeAutoExecTest.kt`](../../test/common/dev/martianzoo/agent/SafeAutoExecTest.kt): current
-  policy scenarios. Its name does not establish safety for arbitrary compositions.
-- [`AutoCommand.kt`](../../src/common/dev/martianzoo/tfm/script/commands/AutoCommand.kt): the REPL's
-  policy switch and its help text.
+The search reads a choice's options lazily, since an amount can have an unbounded domain: Tycho
+Magnetics' owed Energy is offered up to `Int.MAX_VALUE`. It lists at most 100 amounts and tries
+the middle and endpoints first, then the others. This can find a completion quickly without
+assuming that completion is monotonic or forms a single range. A dead-end verdict still requires
+checking every offered amount; if more than 100 amounts exist, failed listed amounts leave the
+answer undecided. Paying more Titanium can make Nitrogen-Rich Asteroid playable when paying less
+does not (`DecisionSearchTest`). Declining an optional amount is its own choice.

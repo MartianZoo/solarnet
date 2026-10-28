@@ -2,6 +2,7 @@ package dev.martianzoo.agent
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.AutoExecPolicy.SAFE
 import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.AgentInputRequiredException
 import dev.martianzoo.engine.World
@@ -12,11 +13,16 @@ import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.RecordedInput.Kind
+import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
 /** Shared Agent-policy queue drain above the policy-free engine. */
-internal class AutoExecLoop(private val world: World, private val taskLog: TaskLog) {
+internal class AutoExecLoop(
+    private val world: World,
+    private val taskLog: TaskLog,
+    private val safeTask: (World, Task) -> Boolean,
+) {
   private val allTasks: TaskQueue
     get() = world.tasks
 
@@ -33,7 +39,34 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
   }
 
   internal fun run() {
-    while (actOnce()) {}
+    while (actOnce() || claimSafeTask()) {}
+  }
+
+  /**
+   * Performs one SAFE actor's task that no choice and no order can make different: the only
+   * ordinary task in the World, or one the game's [safeTask] proves can be claimed now without
+   * losing an outcome. A task that turns out to need client input stays pending.
+   */
+  private fun claimSafeTask(): Boolean {
+    if (allTasks.selectedTask() != null) return false
+    val pending = allTasks.ids().filterNot(::isDeferred)
+    for (taskId in pending) {
+      if (policy(taskId) != SAFE) continue
+      val task = allTasks.getTaskData(taskId)
+      if (task.instruction.isAbstract(world.reader)) continue
+      if (pending.size > 1 && !safeTask(world, task)) continue
+      try {
+        var progressed = false
+        world.timeline.atomic {
+          command(taskId, Kind.DO_TASK_ID) { engineFor(taskId).doTask(taskId) }
+          // A finished task, or a concrete handoff that its new assignee now settles.
+          progressed = taskId !in allTasks || allTasks.getTaskData(taskId).assignee != task.assignee
+          world.agentTransactionGuard?.validate()
+        }
+        if (progressed) return true
+      } catch (_: AgentInputRequiredException) {} catch (_: NotNowException) {}
+    }
+    return false
   }
 
   private fun actOnce(): Boolean {
@@ -41,7 +74,8 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     val selected = allTasks.selectedTask()
     val pending = selected?.let(::listOf) ?: allTasks.ids().filterNot(::isDeferred)
     // Selection probes can execute and roll back tasks. Only probe when automatic work is possible.
-    if (pending.none { policy(it) != NONE }) return false
+    // SAFE claims its tasks separately, without competing with these options.
+    if (pending.none { policy(it) !in MANUAL_HERE }) return false
     // Keep manual tasks among the candidates: they still compete with automatic work.
     // A sole task has no competing choice. Selection still validates its execution,
     // and the enclosing Agent transaction rolls back any failure.
@@ -51,7 +85,8 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     val policyOptions = candidates.filter { taskId ->
       val actor = allTasks.getTaskData(taskId).assignee
       when (policy(taskId)) {
-        NONE -> false
+        NONE,
+        SAFE -> false
         CONCRETE -> candidateCounts.getValue(actor) == 1
         else -> true
       }
@@ -64,7 +99,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
       0 -> {
         val taskId =
             allTasks.ids().firstOrNull { taskId ->
-              policy(taskId) != NONE && !isDeferred(taskId)
+              policy(taskId) !in MANUAL_HERE && !isDeferred(taskId)
             } ?: return false
         if (selected != null || candidates.isNotEmpty()) return false
         command(taskId, Kind.DO_TASK_ID) { engineFor(taskId).doTask(taskId) }
@@ -140,4 +175,9 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
 
   private fun engineFor(taskId: TaskId): ActorEngine =
       world.actorEngine(allTasks.getTaskData(taskId).assignee)
+
+  private companion object {
+    /** Policies that never offer an option to the shared competition below. */
+    val MANUAL_HERE = setOf(NONE, SAFE)
+  }
 }

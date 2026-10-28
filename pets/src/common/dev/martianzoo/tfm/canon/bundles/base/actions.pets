@@ -3,8 +3,9 @@ ABSTRACT CLASS StandardAction : Owned<Player>, Signal {
   This IF MAX 0 ActionScope:: ActionScope<Me@>
   This:: MAX 0 RequiredAction: Ok
 
-  CLASS PlayProject<Class<@CardFront>> {
-    This: PlayCard<Class<ProjectCard>, Class<@CardFront>, Hand>
+  CLASS PlayProject<Class<@CardFront>, @CardLocation> {
+    DEFAULT PlayProject<Class<@CardFront>, Hand>
+    This: PlayCard<Class<ProjectCard>, Class<@CardFront>, @CardLocation>
   }
   CLASS UseStandardProject<@StandardProject> {
     This: UseAction<@StandardProject, Action1>

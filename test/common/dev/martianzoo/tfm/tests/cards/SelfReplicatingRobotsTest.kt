@@ -29,7 +29,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.assertCounts(0 to "ProjectCard<Hand>", 1 to "ProjectCard<StagedProject<Class<Mine>>>")
 
     kim.inTurn {
-      doTask("PlayStagedProject<Class<Mine>>")
+      doTask("PlayProject<Class<Mine>, StagedProject<Class<Mine>>>")
       kim.assertCounts(
           0 to "ProjectCard<Hand>",
           1 to "ProjectCard<StagedProject<Class<Mine>>>",
@@ -51,7 +51,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     stage("Mine")
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTask("PlayStagedProject<Class<TitaniumMine>>")
+        doTask("PlayProject<Class<TitaniumMine>, StagedProject<Class<TitaniumMine>>>")
       }
     }
     kim.assertCounts(
@@ -301,7 +301,9 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("PlayStagedProject<Class<BeamFromAThoriumAsteroid>>")
+        doTask(
+            "PlayProject<Class<BeamFromAThoriumAsteroid>, StagedProject<Class<BeamFromAThoriumAsteroid>>>"
+        )
       }
     }
 
@@ -335,7 +337,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.count("CityTile") shouldBe 0
 
     kim.inTurn {
-      doTask("PlayStagedProject<Class<ImmigrantCity>>")
+      doTask("PlayProject<Class<ImmigrantCity>, StagedProject<Class<ImmigrantCity>>>")
       doTasks(
           "ImmigrantCity FROM ProjectCard<StagedProject<Class<ImmigrantCity>>>",
           "PROD[-Energy]",
@@ -362,7 +364,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTask("PlayStagedProject<Class<Mine>>")
+      doTask("PlayProject<Class<Mine>, StagedProject<Class<Mine>>>")
       doTask("2 Pay<> FROM MC")
       doTasks("Mine FROM ProjectCard<StagedProject<Class<Mine>>>", "PROD[Steel]")
     }
@@ -395,7 +397,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTask("PlayStagedProject<Class<Mine>>")
+          doTask("PlayProject<Class<Mine>, StagedProject<Class<Mine>>>")
           doTasks("Mine FROM ProjectCard<StagedProject<Class<Mine>>>", "PROD[Steel]")
         }
         .expect("0 MC")
@@ -436,7 +438,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTask("PlayStagedProject<Class<Mine>>")
+          doTask("PlayProject<Class<Mine>, StagedProject<Class<Mine>>>")
           doTasks("Mine FROM ProjectCard<StagedProject<Class<Mine>>>", "PROD[Steel]")
         }
         .expect("0 MC")
@@ -601,7 +603,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.setToExMachina(1, "MC")
     kim.inTurn {
       doTasks(
-          "PlayStagedProject<Class<TitaniumMine>>",
+          "PlayProject<Class<TitaniumMine>, StagedProject<Class<TitaniumMine>>>",
           "2 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
           "TitaniumMine FROM ProjectCard<StagedProject<Class<TitaniumMine>>>",
@@ -621,7 +623,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
     kim.inTurn {
       doTasks(
-          "PlayStagedProject<Class<SpaceStation>>",
+          "PlayProject<Class<SpaceStation>, StagedProject<Class<SpaceStation>>>",
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC",
           "SpaceStation FROM ProjectCard<StagedProject<Class<SpaceStation>>>",
@@ -637,7 +639,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.setToExMachina(12, "MC")
     kim.inTurn {
       doTasks(
-          "PlayStagedProject<Class<AsteroidCard>>",
+          "PlayProject<Class<AsteroidCard>, StagedProject<Class<AsteroidCard>>>",
           "12 Pay<> FROM MC",
           "AsteroidCard FROM ProjectCard<StagedProject<Class<AsteroidCard>>>",
           "TemperatureStep",
@@ -749,7 +751,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTask("PlayStagedProject<Class<ResearchOutpost>>")
+          doTask("PlayProject<Class<ResearchOutpost>, StagedProject<Class<ResearchOutpost>>>")
           doTask("16 Pay<> FROM MC")
           doTasks("ResearchOutpost FROM ProjectCard<StagedProject<Class<ResearchOutpost>>>")
           // Resolve the exchange offer: the empty hand leaves no card to discard.
@@ -1068,7 +1070,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     stage("Mine")
     kim.inTurn {
           doTasks(
-              "PlayStagedProject<Class<Mine>>",
+              "PlayProject<Class<Mine>, StagedProject<Class<Mine>>>",
               "2 Pay<> FROM MC",
               "Mine FROM ProjectCard<StagedProject<Class<Mine>>>",
               "PROD[Steel]",

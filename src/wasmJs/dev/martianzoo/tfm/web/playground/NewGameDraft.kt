@@ -27,6 +27,13 @@ internal class NewGameDraft {
 
   var seedText by mutableStateOf("")
 
+  fun recall(saved: SavedGameSetup) {
+    entries.clear()
+    entries.addAll(saved.entries)
+    playerName = saved.playerName
+    seedText = formatPlaySeed(saved.seed)
+  }
+
   fun resolve(proposedEntries: List<String> = entries): Pair<GameConfig, GamePremise> {
     val requested = GameConfig(proposedEntries.joinToString("\n"), playerName)
     val resolved = Canon.gamePremise(requested)
@@ -56,6 +63,14 @@ internal class NewGameDraft {
     val maps = Canon.marsMapDefinitions.mapTo(hashSetOf()) { it.className.toString() }
     val old = entries.indexOfFirst { it in maps }
     entries.removeAll(maps)
+    entries.add(if (old >= 0) old.coerceAtMost(entries.size) else entries.size, name)
+  }
+
+  fun chooseSoloObjective(name: String) {
+    val objectives = setOf("StandardSoloObjective", "Tr63SoloObjective")
+    require(name in objectives)
+    val old = entries.indexOfFirst { it in objectives }
+    entries.removeAll(objectives)
     entries.add(if (old >= 0) old.coerceAtMost(entries.size) else entries.size, name)
   }
 }

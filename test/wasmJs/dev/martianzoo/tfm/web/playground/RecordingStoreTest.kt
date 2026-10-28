@@ -1,8 +1,12 @@
 package dev.martianzoo.tfm.web.playground
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.state.GameFileJson
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.text.EnglishInstructionTextRenderer
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,6 +21,141 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 
 internal class RecordingStoreTest {
+  @Test
+  fun newLiveGameSavesARecoverablePosition() = runTest {
+    val store = RecordingStore()
+    val config = GameConfig("TharsisMap, SoloMode, CorporateEraExpansion", "Green")
+    val seed = 8264
+    assertTrue(store.play(config, Canon.gamePremise(config), seed), store.error)
+    val position = store.eventOrdinal
+
+    var saved: PlaySession.Recovery? = null
+    for (attempt in 1..40) {
+      saved = savedRecovery()?.takeIf { it.seed == seed }
+      if (saved != null) break
+      delay(25)
+    }
+    val recovery = assertNotNull(saved, store.error ?: "No live recovery was saved")
+    assertEquals(
+        position,
+        GameFileJson.parse(recovery.gameFile).open(Canon).positions.last().ordinal,
+    )
+    assertTrue(store.recoveryAvailable)
+  }
+
+  @Test
+  fun undoReturnsToTheCurrentSetupDiscardThenThePreviousStart() {
+    val store = RecordingStore()
+    val config = GameConfig("TharsisMap, SoloMode, CorporateEraExpansion", "Green")
+    assertTrue(store.play(config, Canon.gamePremise(config), seed = 42), store.error)
+    store.setSafeAutoexec(false)
+    val gameStart = store.eventOrdinal
+    repeat(20) {
+      if (store.prompt?.cards != null) return@repeat
+      val next = assertNotNull(store.prompt).options.first { it.enabled }
+      store.choose(next)
+      assertNull(store.problem)
+    }
+    val discard = assertNotNull(assertNotNull(store.prompt).cards)
+    val discardStart = store.eventOrdinal
+    assertTrue(discardStart > gameStart)
+    store.toggleCard(discard.available.first())
+    assertTrue(store.undo(), store.error)
+    assertEquals(discardStart, store.eventOrdinal)
+    assertNull(store.prompt?.cards?.chosen?.firstOrNull())
+    assertTrue(store.undo(), store.error)
+    assertTrue(store.eventOrdinal < discardStart)
+    assertNull(store.error)
+  }
+
+  @Test
+  fun undoReturnsToTheResearchDiscardAfterPassingTheRound() {
+    val store = RecordingStore()
+    val config = GameConfig("TharsisMap, SoloMode, CorporateEraExpansion", "Green")
+    assertTrue(store.play(config, Canon.gamePremise(config), seed = 42), store.error)
+    for (attempt in 1..80) {
+      val prompt = assertNotNull(store.prompt)
+      val phase = assertNotNull(store.specimen).global.phase
+      if (phase == "Research" && prompt.cards?.drawing == false) break
+      val cards = prompt.cards
+      if (cards != null) {
+        if (!cards.canConfirm) store.toggleCard(cards.available.first())
+        store.confirmCards()
+      } else {
+        val pass =
+            if (phase == "Action")
+                PlayChoices(prompt, store::choose, store::chooseTaskArm).action("PassBaton")
+            else null
+        if (pass != null) {
+          pass()
+        } else store.choose(prompt.options.first { it.enabled })
+      }
+      assertNull(store.problem, "At $phase: $prompt")
+    }
+    val research = assertNotNull(store.prompt)
+    assertEquals("Research", assertNotNull(store.specimen).global.phase)
+    val cards = assertNotNull(research.cards)
+    assertFalse(cards.drawing)
+    val start = store.eventOrdinal
+    store.toggleCard(cards.available.first())
+    assertTrue(store.undo(), store.error)
+    assertEquals(start, store.eventOrdinal)
+    assertTrue(store.undo(), store.error)
+    assertEquals("Action", assertNotNull(store.specimen).global.phase)
+  }
+
+  @Test
+  fun undoSkipsIntermediateChoicesWithinTheSameAction() {
+    val store = RecordingStore()
+    val config =
+        GameConfig("TharsisMap, SoloMode, CorporateEraExpansion, VenusNextExpansion", "Green")
+    val premise = Canon.gamePremise(config)
+    // Offer the world's terraforming choice during setup to isolate undo from a full generation.
+    val green = premise.premiseClassDeclarations.single { it.className == cn("Green") }
+    val withTerraforming =
+        premise.copy(
+            premiseClassDeclarations =
+                premise.premiseClassDeclarations - green +
+                    green.copy(
+                        authoredEffects =
+                            green.authoredEffects +
+                                parse<Effect>(
+                                    "SetupPhase: GlobalParameter(NOT OceanTile<LandArea>)! BY Admin"
+                                )
+                    )
+        )
+    assertTrue(store.play(config, withTerraforming, seed = 42), store.error)
+    store.setSafeAutoexec(false)
+    val beforeTask = assertNotNull(store.prompt)
+    val beforeTaskOrdinal = store.eventOrdinal
+    store.choose(beforeTask.options.single { "GlobalParameter" in it.label })
+    val beforeOcean = assertNotNull(store.prompt)
+    store.choose(beforeOcean.options.single { it.label == "OceanTile" })
+    val ocean = assertNotNull(store.prompt)
+    assertTrue(ocean.options.isNotEmpty(), ocean.toString())
+    store.choose(ocean.options.first())
+    assertNull(store.problem)
+
+    assertTrue(store.undo(), store.error)
+    assertTrue(store.eventOrdinal < beforeTaskOrdinal)
+    assertTrue(store.prompt != beforeOcean && store.prompt != ocean)
+    assertNull(store.error)
+    assertFalse(store.historyMode)
+  }
+
+  @Test
+  fun undoStillUsesActionStartsAfterTruncation() {
+    val store = RecordingStore()
+    val config = GameConfig("TharsisMap, SoloMode, CorporateEraExpansion", "Green")
+    assertTrue(store.play(config, Canon.gamePremise(config), seed = 42))
+    store.choose(assertNotNull(store.prompt).options.first())
+    store.truncate()
+    assertTrue(store.undo(), store.error)
+    assertFalse(store.historyMode)
+    assertNull(store.error)
+    assertNotNull(store.prompt)
+  }
+
   @Test
   fun arrowsVisitDecisionsBeforeActionsAndCollapseHiddenDecisions() =
       runTest() {

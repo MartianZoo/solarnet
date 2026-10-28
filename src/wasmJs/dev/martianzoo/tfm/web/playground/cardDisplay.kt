@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -67,6 +68,8 @@ import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.Font
 
 private val LocalCardImageDirectory = compositionLocalOf { "classes" }
+private val LocalCardActionBoxes =
+    compositionLocalOf<Map<String, List<CardActionBox>>> { emptyMap() }
 
 /**
  * Selecting cards and a reorderable hand share a scrolling row. Played cards fill eight columns:
@@ -79,13 +82,20 @@ internal fun PlayedCards(
     onPublishedText: (Boolean) -> Unit,
     handOrder: List<String>,
     onHandOrder: (List<String>) -> Unit,
+    cards: Prompt.Cards?,
+    onToggleCard: (String) -> Unit,
 ) {
   val palette = LocalPalette.current
+  val actionBoxes by
+      produceState<Map<String, List<CardActionBox>>>(emptyMap()) {
+        value = loadCardActionBoxes()
+      }
   BoxWithConstraints(Modifier.fillMaxWidth()) {
     val gap = maxWidth * (8f / 1472f)
     val width = (maxWidth - gap * 7) / 8
     CompositionLocalProvider(
-        LocalCardImageDirectory provides if (publishedText) "classes-pubtext" else "classes"
+        LocalCardImageDirectory provides if (publishedText) "classes-pubtext" else "classes",
+        LocalCardActionBoxes provides actionBoxes,
     ) {
       Column(verticalArrangement = Arrangement.spacedBy(gap * 3)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -108,7 +118,7 @@ internal fun PlayedCards(
         if (player.hand.isNotEmpty() || player.selecting.isNotEmpty()) {
           val hand =
               handOrder.filter { it in player.hand } + player.hand.filterNot { it in handOrder }
-          HandRow(player, hand, onHandOrder, width, gap)
+          HandRow(player, hand, onHandOrder, width, gap, cards, onToggleCard)
         }
         PlayedRow(player, width, gap)
       }
@@ -124,6 +134,8 @@ private fun HandRow(
     onHandOrder: (List<String>) -> Unit,
     width: Dp,
     gap: Dp,
+    cards: Prompt.Cards?,
+    onToggleCard: (String) -> Unit,
 ) {
   val palette = LocalPalette.current
   val currentHand by rememberUpdatedState(hand)
@@ -141,7 +153,24 @@ private fun HandRow(
         Text("SELECTING", style = palette.label)
         Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
           player.selecting.forEach { name ->
-            key(name) { CardImage(name, null, false, player.name, width) }
+            key(name) {
+              CardImage(
+                  name,
+                  null,
+                  false,
+                  player.name,
+                  width,
+                  selectedColor =
+                      if (cards?.fromHand == false && name in cards.chosen) {
+                        if (cards?.drawing == true) Color(0xFF4DAA67) else Color(0xFFC54B4B)
+                      } else null,
+                  onSelect =
+                      if (cards?.fromHand == false && name in cards.available)
+                          ({ onToggleCard(name) })
+                      else null,
+                  unproven = name in cards?.unproven.orEmpty(),
+              )
+            }
           }
         }
       }
@@ -190,6 +219,14 @@ private fun HandRow(
                         }
                       }
                     },
+                selectedColor =
+                    if (cards?.fromHand == true && name in cards.chosen) Color(0xFFC54B4B)
+                    else null,
+                onSelect =
+                    if (cards?.fromHand == true && name in cards.available) ({ onToggleCard(name) })
+                    else null,
+                action = "PlayProject",
+                unproven = name in cards?.unproven.orEmpty(),
             )
           }
         }
@@ -286,6 +323,7 @@ private fun CardImage(
         width,
         modifier,
         card.resourceType,
+        actionBoxes = LocalCardActionBoxes.current[card.name].orEmpty(),
     )
 
 @Composable
@@ -297,23 +335,59 @@ private fun CardImage(
     width: Dp,
     modifier: Modifier = Modifier,
     resourceType: String? = null,
+    selectedColor: Color? = null,
+    onSelect: (() -> Unit)? = null,
+    action: String? = null,
+    unproven: Boolean = false,
+    actionBoxes: List<CardActionBox> = emptyList(),
 ) {
+  val palette = LocalPalette.current
+  val choices = LocalPlayChoices.current
   val alternateName = if (name.startsWith("Fake")) name.removePrefix("Fake") else "Fake$name"
   val directory = LocalCardImageDirectory.current
   val image =
       rememberGameImage("$directory/$name.png")
           ?: rememberGameImage("$directory/$alternateName.png")
   val height = if (image != null) width * image.height / image.width else width * (672f / 552f)
-  Box(choiceModifier(listOf(name, "Class<$name>"), modifier.width(width).height(height))) {
+  val cardModifier = modifier.width(width).height(height)
+  val selectResourceCard =
+      if (resourceType == null) null else choices?.resourceCard(name, resourceType, resources)
+  val availableActions =
+      if (image == null || actionUsed || choices == null) emptyList()
+      else actionBoxes.mapNotNull { box -> choices.cardAction(name, box.slot)?.let { box to it } }
+  val projectClick = if (action == "PlayProject") choices?.playProject(name) else null
+  Box(
+      if (onSelect == null && availableActions.isEmpty() && selectResourceCard == null)
+          if (action == "PlayProject" && projectClick == null) cardModifier
+          else
+              choiceModifier(
+                  listOf(name, "Class<$name>"),
+                  cardModifier,
+                  if (action == "PlayProject") null else action,
+                  onChoice = projectClick,
+              )
+      else if (onSelect == null) cardModifier
+      else
+          cardModifier
+              .pointerHoverIcon(PointerIcon.Hand)
+              .clickable(onClick = onSelect)
+              .then(if (selectedColor == null) Modifier else Modifier.border(4.dp, selectedColor))
+  ) {
     if (image != null) {
       Image(image, name, Modifier.fillMaxSize())
     } else {
-      val palette = LocalPalette.current
       Box(
           Modifier.fillMaxSize().background(palette.raised).border(1.dp, palette.line).padding(8.dp)
       ) {
         Text(name, style = palette.mono)
       }
+    }
+    if (unproven) {
+      Text(
+          "*",
+          Modifier.align(Alignment.TopStart).background(palette.raised).padding(horizontal = 3.dp),
+          style = palette.mono.copy(color = palette.mars),
+      )
     }
     if (actionUsed) {
       ActorSquare(
@@ -356,19 +430,50 @@ private fun CardImage(
       }
     }
     if (resourceType != null) {
+      if (selectResourceCard != null) {
+        // The badge is small; keep twelve card pixels between it and the green hitbox.
+        Box(
+            Modifier.align(Alignment.BottomStart)
+                .offset(x = width * (24f / 552f), y = -(width * (29f / 552f)))
+                .width(width * (94f / 552f))
+                .height(width * (72f / 552f))
+                .border(1.dp, Color(0xFF4DAA67))
+                .pointerHoverIcon(PointerIcon.Hand)
+                .clickable(onClick = selectResourceCard)
+        )
+      } else {
+        Box(
+            choiceModifier(
+                listOf(
+                    resourceType,
+                    "Class<$resourceType>",
+                    "$resourceType<$name>",
+                    "CardResource<$name>",
+                ),
+                Modifier.align(Alignment.BottomStart)
+                    .offset(x = width * (36f / 552f), y = -(width * (41f / 552f)))
+                    .width(width * (70f / 552f))
+                    .height(width * (48f / 552f)),
+            )
+        )
+      }
+    }
+    for ((box, select) in availableActions) {
+      // The survey bounds enclose the print; eight source pixels keep the outline off the artwork.
+      val left = (box.x - 8).coerceAtLeast(0)
+      val top = (box.y - 8).coerceAtLeast(0)
+      val right = (box.x + box.width + 8).coerceAtMost(box.imageWidth)
+      val bottom = (box.y + box.height + 8).coerceAtMost(box.imageHeight)
       Box(
-          choiceModifier(
-              listOf(
-                  resourceType,
-                  "Class<$resourceType>",
-                  "$resourceType<$name>",
-                  "CardResource<$name>",
-              ),
-              Modifier.align(Alignment.BottomStart)
-                  .offset(x = width * (36f / 552f), y = -(width * (41f / 552f)))
-                  .width(width * (70f / 552f))
-                  .height(width * (48f / 552f)),
-          )
+          Modifier.offset(
+                  x = width * (left.toFloat() / box.imageWidth),
+                  y = height * (top.toFloat() / box.imageHeight),
+              )
+              .width(width * ((right - left).toFloat() / box.imageWidth))
+              .height(height * ((bottom - top).toFloat() / box.imageHeight))
+              .border(1.5.dp, Color(0xFFE04444).copy(alpha = 0.85f))
+              .pointerHoverIcon(PointerIcon.Hand)
+              .clickable(onClick = select)
       )
     }
   }

@@ -1,0 +1,145 @@
+deck	class	action	x	y	width	height	image_width	image_height	note
+CorporationCard	ArcadianCommunities	1	86	423	373	85	544	750	printed action is text only; no red arrow
+CorporationCard	AstroDrill	1	123	378	253	67	544	750
+CorporationCard	AstroDrill	2	152	470	239	67	544	750
+CorporationCard	Celestic	1	195	494	163	67	544	750
+CorporationCard	Factorum	1	33	417	197	107	544	750
+CorporationCard	Factorum	2	275	409	237	107	544	750
+CorporationCard	KuiperCooperative	1	157	351	235	73	544	750
+CorporationCard	PalladinShipping	1	141	479	259	101	544	750
+CorporationCard	RobinsonIndustries	1	136	355	272	105	544	750
+CorporationCard	SeptemTribus	1	155	422	245	67	544	750
+CorporationCard	StormcraftIncorporated	1	195	354	161	67	544	750
+CorporationCard	TychoMagnetics	1	43	420	471	87	544	750
+CorporationCard	UnitedNationsMarsInitiative	1	128	354	297	84	544	750
+CorporationCard	UtopiaInvest	1	131	411	278	105	544	750
+CorporationCard	Viron	1	88	395	369	107	544	750	arrow and printed action text
+PreludeCard	AppliedScience	1	156	200	240	67	544	664
+PreludeCard	BoardOfDirectors	1	56	217	434	174	544	664	arrow and printed action text
+PreludeCard	FloatingTradeHub	1	115	200	248	67	544	664
+PreludeCard	FloatingTradeHub	2	119	292	300	67	544	664
+PreludeCard	FocusedOrganization	1	92	200	359	87	544	664
+PreludeCard	MainBeltAsteroids	1	65	200	162	55	544	664
+PreludeCard	WorldGovernmentAdvisor	1	39	201	479	98	544	664
+ProjectCard	AerialMappers	1	151	200	177	67	544	664
+ProjectCard	AerialMappers	2	164	301	215	68	544	664
+ProjectCard	AiCentral	1	167	248	212	87	544	664
+ProjectCard	Ants	1	165	248	214	67	544	664
+ProjectCard	AquiferPumping	1	133	201	286	97	544	664
+ProjectCard	AsteroidDeflectionSystem	1	107	200	320	87	544	664
+ProjectCard	AsteroidHollowing	1	108	197	328	105	544	664
+ProjectCard	AsteroidRights	1	120	200	252	67	544	664
+ProjectCard	AsteroidRights	2	48	289	453	105	544	664
+ProjectCard	AtmoCollectors	1	171	200	133	67	544	664
+ProjectCard	AtmoCollectors	2	0	292	520	68	544	664
+ProjectCard	BioPrintingFacility	1	41	200	467	67	544	664
+ProjectCard	Birds	1	49	248	141	68	544	664
+ProjectCard	BusinessNetwork	1	66	205	417	95	544	664	arrow and printed action text
+ProjectCard	CaretakerContract	1	120	250	296	84	544	664
+ProjectCard	CeresTechMarket	1	121	200	298	86	544	664
+ProjectCard	CloudTourism	1	203	200	140	67	544	664
+ProjectCard	CometAiming	1	120	200	252	67	544	664
+ProjectCard	CometAiming	2	152	293	237	97	544	664
+ProjectCard	DeuteriumExport	1	161	200	143	67	544	664
+ProjectCard	DeuteriumExport	2	152	289	248	105	544	664
+ProjectCard	DevelopmentCenter	1	164	209	215	68	544	664
+ProjectCard	DirectedHeatUsage	1	49	200	442	67	544	664
+ProjectCard	DirectedImpactors	1	82	200	326	67	544	664
+ProjectCard	DirectedImpactors	2	178	291	187	102	544	664
+ProjectCard	Dirigibles	1	195	200	165	67	544	664
+ProjectCard	ElectroCatapult	1	118	248	68	68	544	664	plant payment icon; shares printed arrow
+ProjectCard	ElectroCatapult	2	209	248	68	68	544	664	steel payment icon; shares printed arrow
+ProjectCard	EnergyMarket	1	110	200	257	67	544	664
+ProjectCard	EnergyMarket	2	143	289	248	105	544	664
+ProjectCard	EquatorialMagnetizer	1	117	197	307	105	544	664
+ProjectCard	ExtractorBalloons	1	195	200	140	67	544	664
+ProjectCard	ExtractorBalloons	2	121	291	351	89	544	664
+ProjectCard	ExtremeColdFungus	1	161	248	143	67	544	664
+ProjectCard	ExtremeColdFungus	2	151	340	246	67	544	664
+ProjectCard	Extremophiles	1	195	248	165	67	544	664
+ProjectCard	Fish	1	203	248	140	68	544	664
+ProjectCard	FloaterTechnology	1	195	200	165	67	544	664
+ProjectCard	FloatingHabs	1	156	248	242	67	544	664
+ProjectCard	FloatingRefinery	1	160	200	145	67	544	664
+ProjectCard	FloatingRefinery	2	76	291	392	69	544	664
+ProjectCard	ForcedPrecipitation	1	130	200	218	67	544	664
+ProjectCard	ForcedPrecipitation	2	96	292	349	87	544	664
+ProjectCard	GhgProducingBacteria	1	161	248	143	67	544	664
+ProjectCard	GhgProducingBacteria	2	142	340	259	100	544	664
+ProjectCard	HiTechLab	1	126	209	297	68	544	664
+ProjectCard	Hospitals	1	106	362	332	67	544	664
+ProjectCard	IcyImpactors	1	90	200	363	67	544	664
+ProjectCard	IcyImpactors	2	168	292	275	100	544	664
+ProjectCard	IndustrialCenter	1	144	197	256	105	544	664
+ProjectCard	InventorsGuild	1	66	205	417	95	544	664	arrow and printed action text
+ProjectCard	Ironworks	1	92	205	347	88	544	664
+ProjectCard	JetStreamMicroscrappers	1	94	200	289	67	544	664
+ProjectCard	JetStreamMicroscrappers	2	96	292	349	87	544	664
+ProjectCard	JovianLanterns	1	128	248	287	67	544	664
+ProjectCard	JupiterFloatingStation	1	153	247	161	84	544	664
+ProjectCard	JupiterFloatingStation	2	83	372	373	67	544	664
+ProjectCard	Livestock	1	203	248	140	68	544	664
+ProjectCard	LocalShading	1	161	200	143	67	544	664
+ProjectCard	LocalShading	2	152	289	248	105	544	664
+ProjectCard	MarsNomads	1	193	200	169	71	544	664
+ProjectCard	MartianMediaCenter	1	172	248	201	67	544	664
+ProjectCard	MartianRails	1	106	202	339	67	544	664
+ProjectCard	MartianZoo	1	157	404	232	67	544	664
+ProjectCard	MaxwellBase	1	197	247	161	84	544	664
+ProjectCard	Meltworks	1	74	200	391	67	544	664
+ProjectCard	MoholeLake	1	105	200	345	67	544	664
+ProjectCard	NitriteReducingBacteria	1	161	200	143	67	544	664
+ProjectCard	NitriteReducingBacteria	2	66	294	413	86	544	664
+ProjectCard	OrbitalCleanup	1	157	197	235	73	544	664
+ProjectCard	OreProcessor	1	92	205	347	88	544	664
+ProjectCard	Penguins	1	203	248	140	68	544	664
+ProjectCard	PhysicsComplex	1	148	200	243	67	544	664
+ProjectCard	PowerInfrastructure	1	149	200	240	67	544	664
+ProjectCard	Predators	1	165	248	214	67	544	664
+ProjectCard	Psychrophiles	1	203	248	140	67	544	664
+ProjectCard	RedShips	1	107	251	330	97	544	664
+ProjectCard	RedSpotObservatory	1	71	258	133	70	544	664	first printed action
+ProjectCard	RedSpotObservatory	2	256	248	219	90	544	664	second printed action
+ProjectCard	RefugeeCamps	1	143	197	256	105	544	664
+ProjectCard	RegolithEaters	1	161	200	143	67	544	664
+ProjectCard	RegolithEaters	2	110	297	318	90	544	664
+ProjectCard	RestrictedArea	1	164	209	215	68	544	664
+ProjectCard	RotatorImpacts	1	126	248	291	67	544	664
+ProjectCard	RotatorImpacts	2	158	339	280	90	544	664
+ProjectCard	SaturnSurfing	1	62	210	416	68	544	664
+ProjectCard	SearchForLife	1	94	245	355	73	544	664
+ProjectCard	SecurityFleet	1	164	200	215	67	544	664
+ProjectCard	SelfReplicatingRobots	1	73	230	147	108	544	664	first printed action
+ProjectCard	SelfReplicatingRobots	2	302	257	179	72	544	664	second printed action
+ProjectCard	SmallAnimals	1	203	248	140	68	544	664
+ProjectCard	SpaceElevator	1	164	200	215	67	544	664
+ProjectCard	SpaceMirrors	1	144	197	256	105	544	664
+ProjectCard	Steelworks	1	56	205	420	88	544	664
+ProjectCard	StJosephOfCupertinoMission	1	126	200	301	67	544	664
+ProjectCard	Stratopolis	1	153	247	248	84	544	664
+ProjectCard	StratosphericBirds	1	203	248	140	68	544	664
+ProjectCard	SubCrustMeasurements	1	202	248	143	88	544	664
+ProjectCard	SubZeroSaltFish	1	203	248	140	68	544	664
+ProjectCard	SulphurEatingBacteria	1	161	248	143	67	544	664
+ProjectCard	SulphurEatingBacteria	2	141	340	256	67	544	664
+ProjectCard	SymbioticFungus	1	195	248	161	67	544	664
+ProjectCard	Tardigrades	1	203	200	140	67	544	664
+ProjectCard	Teslaract	1	123	197	297	105	544	664
+ProjectCard	Thermophiles	1	153	247	164	84	544	664
+ProjectCard	Thermophiles	2	96	372	349	87	544	664
+ProjectCard	TitanAirScrapping	1	94	200	289	67	544	664
+ProjectCard	TitanAirScrapping	2	102	294	338	84	544	664
+ProjectCard	TitanFloatingLaunchPad	1	161	199	161	84	544	664
+ProjectCard	TitanFloatingLaunchPad	2	152	329	243	83	544	664
+ProjectCard	TitanShuttles	1	111	199	249	84	544	664
+ProjectCard	TitanShuttles	2	123	324	292	67	544	664
+ProjectCard	UndergroundDetonations	1	108	197	328	105	544	664
+ProjectCard	VenusianInsects	1	203	248	140	67	544	664
+ProjectCard	VenusMagnetizer	1	111	245	318	105	544	664
+ProjectCard	VenusOrbitalSurvey	1	74	217	402	240	544	664	arrow and printed action text
+ProjectCard	VenusShuttles	1	39	200	475	87	544	664
+ProjectCard	Vermin	1	133	390	289	67	544	664
+ProjectCard	WaterImportFromEuropa	1	122	201	297	97	544	664
+ProjectCard	WaterSplittingPlant	1	74	253	390	90	544	664
+ProjectCard	WeatherBalloons	1	223	202	87	45	544	664	first printed action
+ProjectCard	WeatherBalloons	2	136	268	289	76	544	664	second printed action

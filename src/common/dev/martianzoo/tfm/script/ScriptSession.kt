@@ -94,7 +94,7 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateAgents = Agents(candidateGame)
+    val candidateAgents = TfmEngine.agents(candidateGame)
     val candidateAgent = candidateAgents[ADMIN] // default autoexec policy
     candidateAgents.tfm(ADMIN).startGame()
     if (!purple) {

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -22,6 +23,7 @@ import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -57,13 +59,14 @@ internal fun TaskQueue(
     onSelect: (Int) -> Unit,
 ) {
   val specimen = LocalSpecimen.current
+  val listState = remember(specimen.tasks.map { it.id }) { LazyListState() }
   Surface {
     Column(Modifier.fillMaxSize().padding(LocalPalette.current.spacing / 2)) {
       TableTitle("TASK QUEUE", "PENDING")
       if (specimen.tasks.isEmpty()) {
         Text("No tasks pending at this position.", style = LocalPalette.current.label)
       }
-      RawTable(TASK_COLUMNS, widths, onResize, onResized, rememberLazyListState(), gutter = 20.dp) {
+      RawTable(TASK_COLUMNS, widths, onResize, onResized, listState, gutter = 20.dp) {
         items(specimen.tasks, key = { it.id }) { task ->
           Row {
             Spacer(Modifier.width(20.dp))

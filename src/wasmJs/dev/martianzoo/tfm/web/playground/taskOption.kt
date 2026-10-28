@@ -33,20 +33,26 @@ internal fun taskOption(
       val events = world.events.entriesSince(before)
       val selected =
           events.filterIsInstance<TaskEditedEvent>().firstOrNull { it.task.id == task.id }
+      val addedChildren =
+          events
+              .takeWhile { it !is TaskRemovedEvent || it.task.id != task.id }
+              .any { it is TaskAddedEvent }
       instruction =
-          selected?.task?.let(::text)
-              ?: events
-                  .takeWhile { it !is TaskRemovedEvent || it.task.id != task.id }
-                  .filterIsInstance<TaskAddedEvent>()
-                  .joinToString(", ") { text(it.task) }
-                  .ifEmpty { "Ok" }
+          selected?.task?.let(::text) ?: if (addedChildren) "Expand into separate tasks" else "Ok"
       arms =
           world.tasks
               .selectedTask()
               ?.let(world.tasks::getTaskData)
               ?.let { active ->
-                if (orArms(active.instruction).isEmpty()) emptyList()
-                else availableArms?.invoke(active) ?: orArms(active.instruction)
+                val possible = orArms(active.instruction)
+                if (possible.isEmpty()) emptyList()
+                else
+                    try {
+                      availableArms?.invoke(active) ?: possible
+                    } catch (_: UnsupportedOperationException) {
+                      // If the form cannot list narrowed arms, retain the instruction's arms.
+                      possible
+                    }
               }
               .orEmpty()
       selectable = true

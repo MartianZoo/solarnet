@@ -53,7 +53,7 @@ adds two `RobotUnit` resources. It requires a printed Building or Space tag; `Pr
 checks those printed tags without gaining the card's face. The stored project contributes no live
 tags, actions, play effects, or printed resource capacity.
 
-`PlayProject` uses Hand; `PlayStagedProject` uses the matching staged location. The stored back stays
+`PlayProject` defaults to Hand and can name the matching staged location. The stored back stays
 there through payment, while the holder's robot count reduces `Owed` during `PayingFor`. Playing the
 face consumes the back from its staged location; removing that back removes the holder and its
 resources. Ordinary play requirements and payment choices remain in force. In optional
@@ -90,9 +90,9 @@ Corporation phase plays the retained corporation or beginner card from `Hand`. G
 when Admin starts the purchase. Completing the earlier `PlayCard` signal is not sufficient.
 Gameplay callers choose the card face without repeating its location. `PlayCard` has no location
 default: `doTask` intersects the caller's choice with the pending task, which supplies the authorized
-source (`Hand` for ordinary plays, `Selecting` for plays from an offer). The optional Robots bundle
-offers `PlayStagedProject` for the matching staged location. An explicit conflicting source is
-rejected even when that location contains another card.
+source (`Hand` for ordinary plays, `Selecting` for plays from an offer). The action-phase
+`PlayProject` defaults to Hand but can explicitly use any `CardLocation`, including a matching staged
+location. An explicit conflicting source is rejected even when that location contains another card.
 
 An ordinary draw adds `ProjectCard<Hand>`. Fixed-size project-card offers, including buys,
 gain the full offer as `ProjectCard<Selecting>`. Look-and-keep effects move only retained backs to

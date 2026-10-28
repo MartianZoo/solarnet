@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package dev.martianzoo.tfm.web.playground
 
 import androidx.compose.runtime.Stable
@@ -9,6 +11,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.ComponentChange
@@ -27,10 +30,17 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.fake.FakeCanon
 import dev.martianzoo.tfm.web.playground.resources.Res
+import kotlin.js.JsAny
+import kotlin.js.Promise
 import kotlin.random.Random
 import kotlin.time.TimeSource
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.await
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
@@ -110,6 +120,10 @@ internal class RecordingStore {
   var error by mutableStateOf<String?>(null)
     private set
 
+  fun reportError(message: String) {
+    error = message
+  }
+
   var config by mutableStateOf<GameConfig?>(null)
     private set
 
@@ -125,12 +139,57 @@ internal class RecordingStore {
   var historyMode by mutableStateOf(true)
     private set
 
+  var completed by mutableStateOf(false)
+    private set
+
+  var liveLogConnected by mutableStateOf(false)
+    private set
+
+  var liveLogConnecting by mutableStateOf(false)
+    private set
+
+  var recoveryAvailable by mutableStateOf(false)
+    private set
+
+  private val logScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+  private var recoverySession: PlaySession? = null
+  private var recoveryPending = false
+  private var recoveryWriting = false
+  private var recoveryVersion = 0
+  private var logFolder: JsAny? = null
+  private var logHandle: JsAny? = null
+  private var logSession: PlaySession? = null
+  private var logPending = false
+  private var logForcePending = false
+  private var logWriting = false
+  private var logVersion = 0
+
+  init {
+    logScope.launch {
+      val available = runCatching { savedRecovery() != null }.getOrDefault(false)
+      if (recoverySession == null) recoveryAvailable = available
+    }
+    logScope.launch {
+      try {
+        val folder = savedLiveLogFolder() ?: return@launch
+        if (liveLogConnecting) return@launch
+        logFolder = folder
+        liveLogConnected = hasLiveLogPermission(folder)
+        if (liveLogConnected) (shown as? Live)?.session?.let(::startLiveLog)
+      } catch (failure: Throwable) {
+        error = "Could not restore live log folder: ${failure.message}"
+      }
+    }
+  }
+
   var bootstrapEffects by mutableStateOf(emptySet<Effect>())
     private set
 
   private var shown: Shown? = null
   private var changes = emptyList<ChangeEvent>()
   private var balances = emptyMap<Int, Int>()
+  private var measuredGame: Shown? = null
+  private var balanceTracker: EventBalances? = null
   private var eventInstructions = emptyMap<Int, String>()
 
   var focusedEvent by mutableStateOf<Int?>(null)
@@ -151,6 +210,7 @@ internal class RecordingStore {
     private set
 
   private var turnStops = emptySet<Int>()
+  private var undoStops = emptyList<Int>()
 
   val visibleEvents: List<Specimen.LoggedChange>
     get() =
@@ -238,6 +298,7 @@ internal class RecordingStore {
       val (loadedConfig, active) = readGame(name)
       val recorded = Recorded(active)
       config = loadedConfig
+      stopLiveLog()
       open(name.removeSuffix(".json"), recorded)
       recorded.seek(0)
       redraw()
@@ -282,6 +343,41 @@ internal class RecordingStore {
     if (previewing) skipRequested = true
   }
 
+  /** Starts the browser's folder grant directly from a user click. */
+  fun connectLiveLog(): Promise<JsAny>? {
+    if (liveLogConnected || liveLogConnecting) return null
+    liveLogConnecting = true
+    return try {
+      authorizeLiveLogFolder()
+    } catch (failure: Throwable) {
+      liveLogConnecting = false
+      error = "Could not connect live log: ${failure.message}"
+      null
+    }
+  }
+
+  suspend fun attachLiveLog(selection: Promise<JsAny>): Boolean {
+    try {
+      val folder: JsAny = selection.await()
+      if (!hasLiveLogPermission(folder)) {
+        error = "Please allow this site to edit the chosen log folder."
+        return false
+      }
+      // Verify that the promised file can actually be created before reporting a connection.
+      openLiveLogFile(folder)
+      logFolder = keepLiveLogFolder(folder)
+      liveLogConnected = true
+      (shown as? Live)?.session?.let { startLiveLog(it, writeInitial = true) }
+      error = null
+      return true
+    } catch (failure: Throwable) {
+      error = "Could not connect live log: ${failure.message}"
+      return false
+    } finally {
+      liveLogConnecting = false
+    }
+  }
+
   /** Starts a live solo game; a failure leaves the shown game in place and reports why. */
   fun play(gameConfig: GameConfig, premise: GamePremise, seed: Int? = null): Boolean {
     if (loading) return false
@@ -289,7 +385,11 @@ internal class RecordingStore {
     try {
       val session = PlaySession(premise, seed ?: Random.nextInt(), safeAutoexec)
       config = gameConfig
+      stopLiveLog()
       open("Solo game", Live(session))
+      queueRecovery(session)
+      startLiveLog(session, writeInitial = true)
+      error = null
       gameRevision++
       return true
     } catch (failure: Throwable) {
@@ -298,10 +398,125 @@ internal class RecordingStore {
     }
   }
 
-  /** Reads the whole log of [game] at its latest position and shows it there. */
+  /** Opens the last saved completed position with Player autoexec disabled. */
+  suspend fun recoverLastGame(): Boolean {
+    if (loading) return false
+    loading = true
+    try {
+      val saved = requireNotNull(savedRecovery()) { "No saved live game was found" }
+      val document = GameFileJson.parse(saved.gameFile)
+      val session = recoverPlaySession(saved)
+      safeAutoexec = false
+      config = document.config
+      stopLiveLog()
+      open("Recovered solo game", Live(session))
+      startLiveLog(session, writeInitial = true)
+      gameRevision++
+      error = null
+      return true
+    } catch (failure: Throwable) {
+      error = "Could not recover the last game: ${failure.message}"
+      return false
+    } finally {
+      loading = false
+    }
+  }
+
+  /** Keeps the previous completed position available even when the next browser click stalls. */
+  private fun queueRecovery(session: PlaySession) {
+    if (recoverySession !== session) {
+      recoverySession = session
+      recoveryVersion++
+    }
+    recoveryPending = true
+    if (recoveryWriting) return
+    recoveryWriting = true
+    val version = recoveryVersion
+    logScope.launch {
+      try {
+        do {
+          recoveryPending = false
+          val snapshot = session.recovery()
+          if (version != recoveryVersion) break
+          saveRecovery(snapshot)
+          if (version == recoveryVersion) recoveryAvailable = true
+        } while (recoveryPending && version == recoveryVersion)
+      } catch (failure: Throwable) {
+        if (version == recoveryVersion) {
+          error = "Could not save game recovery: ${failure.message}"
+        }
+      } finally {
+        recoveryWriting = false
+        if (recoveryPending) recoverySession?.let(::queueRecovery)
+      }
+    }
+  }
+
+  private fun startLiveLog(session: PlaySession, writeInitial: Boolean = false) {
+    logSession = session
+    val folder = logFolder ?: return
+    if (!liveLogConnected) return
+    val version = logVersion
+    logScope.launch {
+      try {
+        val handle = openLiveLogFile(folder)
+        if (version != logVersion || (shown as? Live)?.session !== session) return@launch
+        logHandle = handle
+        if (writeInitial) queueLiveLog(force = true) else if (logPending) queueLiveLog()
+      } catch (failure: Throwable) {
+        if (version == logVersion) error = "Could not save live log: ${failure.message}"
+      }
+    }
+  }
+
+  fun stopLiveLog() {
+    logVersion++
+    logHandle = null
+    logSession = null
+    logPending = false
+    logForcePending = false
+  }
+
+  private fun queueLiveLog(force: Boolean = false) {
+    logPending = true
+    logForcePending = logForcePending || force
+    if (logHandle == null || logWriting) return
+    logWriting = true
+    val version = logVersion
+    logScope.launch {
+      try {
+        while (logPending) {
+          logPending = false
+          logForcePending = false
+          val handle = logHandle ?: break
+          val session = logSession ?: break
+          if ((shown as? Live)?.session !== session || !session.atTail) continue
+          val contents = session.replayFile()
+          if (handle !== logHandle) continue
+          overwriteLiveLogFile(handle, contents)
+        }
+      } catch (failure: Throwable) {
+        if (version == logVersion) {
+          stopLiveLog()
+          liveLogConnected = false
+          error = "Could not save live log: ${failure.message}"
+        }
+      } finally {
+        logWriting = false
+        if (logPending && logHandle != null) queueLiveLog()
+      }
+    }
+  }
+
   private fun open(name: String, game: Shown) {
     val entries = game.events.entriesSince(Checkpoint(0))
-    val measuredBalances = eventBalances(game.premise, entries)
+    val tracker =
+        balanceTracker?.takeIf { measuredGame === game && it.canExtend(entries) }
+            ?: EventBalances(game.premise).also {
+              measuredGame = game
+              balanceTracker = it
+            }
+    val measuredBalances = tracker.extend(entries)
     bootstrapEffects = bootstrapEffects(game.premise, entries)
     val live = (game as? Live)?.session
     stopOrdinals =
@@ -340,6 +555,59 @@ internal class RecordingStore {
     }
     rememberTurn(entries.size)
     turnStops = turns
+    val discardTasks = mutableListOf<Pair<Task, Int>>()
+    var phase: String? = null
+    for (event in entries) {
+      when (event) {
+        is ChangeEvent -> {
+          val gained = event.change.gaining?.className?.toString()
+          if (gained in setOf("SetupPhase", "CorporationPhase", "ResearchPhase", "ActionPhase"))
+              phase = gained
+        }
+        is TaskAddedEvent -> {
+          val change = event.task.instruction as? Change
+          val source = change?.removing
+          val card = source?.let { game.reader.resolve(it).rootClass.className }
+          if (
+              phase in setOf("SetupPhase", "CorporationPhase", "ResearchPhase") &&
+                  event.task.assignee is Player &&
+                  change?.gaining == null &&
+                  source != null &&
+                  ((card == cn("CorporationCard") && phase != "ResearchPhase") ||
+                      (card == cn("ProjectCard") && "Selecting" in source.toString()))
+          )
+              discardTasks += event.task to event.ordinal
+        }
+        else -> Unit
+      }
+    }
+    val addedTasks = entries.filterIsInstance<TaskAddedEvent>()
+    val removedAt =
+        entries.filterIsInstance<TaskRemovedEvent>().associate { it.task.id to it.ordinal }
+    val discardStops = discardTasks.mapNotNull { (task, added) ->
+      val preceding = addedTasks.filter { event ->
+        event.task.assignee == task.assignee &&
+            event.task.cause == task.cause &&
+            event.task.id.ordinal < task.id.ordinal
+      }
+      val completions = preceding.map { prior ->
+        removedAt[prior.task.id] ?: return@mapNotNull null
+      }
+      val ready = maxOf(added, completions.maxOrNull() ?: added)
+      game.positions
+          .firstOrNull { it.ordinal > ready }
+          ?.ordinal
+          ?.takeIf { stop ->
+            stop >= (live?.start?.ordinal ?: 0) &&
+                entries.none {
+                  it is TaskRemovedEvent &&
+                      it.task.id == task.id &&
+                      it.ordinal < stop &&
+                      it.ordinal > added
+                }
+          }
+    }
+    undoStops = (turns + discardStops + listOfNotNull(live?.start?.ordinal)).distinct().sorted()
     val allChanges = game.events.changesSince(Checkpoint(0))
     val generationEvents = allChanges.filter {
       it.change is ComponentChange.Gain && it.change.gaining?.className == cn("Generation")
@@ -416,6 +684,7 @@ internal class RecordingStore {
                     }
             )
     historyMode = live == null || !live.atTail
+    completed = live?.completed == true
     prompt = live?.prompt()
     problem = live?.problem
   }
@@ -476,6 +745,18 @@ internal class RecordingStore {
 
   fun chooseTaskArm(option: Prompt.Option, arm: String) = live { chooseTaskArm(option, arm) }
 
+  fun cardActionAvailable(card: String, slot: Int): Boolean =
+      (shown as? Live)?.session?.takeIf { !historyMode }?.cardActionAvailable(card, slot) == true
+
+  fun projectCardAvailable(card: String): Boolean =
+      (shown as? Live)?.session?.takeIf { !historyMode }?.projectCardAvailable(card) == true
+
+  fun playProjectCard(card: String) = live { playProjectCard(card) }
+
+  fun toggleCard(name: String) = live(changed = false) { toggleCard(name) }
+
+  fun confirmCards() = live { confirmCards() }
+
   fun setSafeAutoexec(enabled: Boolean) {
     if (historyMode || safeAutoexec == enabled) return
     safeAutoexec = enabled
@@ -495,28 +776,57 @@ internal class RecordingStore {
   }
 
   /** Discards the live game's history after the viewed position and resumes play there. */
-  fun truncate() = live { truncate() }
+  fun truncate() {
+    balanceTracker = null
+    live { truncate() }
+  }
 
-  /** Cancels provisional input first; otherwise discards the latest completed command. */
+  /** Returns to the beginning of the current action, or the preceding action at its start. */
   fun undo(): Boolean {
     val game = shown as? Live ?: return false
-    if (game.session.atTail && prompt?.retreat != null) {
-      retreat()
-      return true
+    if (!game.session.atTail) return false
+    val before = game.session.world.timeline.checkpoint()
+    val draft = game.session.hasDraftInput
+    val candidates =
+        undoStops.asReversed().filter { it < before.ordinal || (draft && it == before.ordinal) }
+    var restored = false
+    for (ordinal in candidates) {
+      val checkpoint = game.session.stops.firstOrNull { it.ordinal == ordinal } ?: continue
+      restored =
+          runCatching {
+            game.session.seek(checkpoint)
+            game.session.truncate()
+            game.session.prompt()
+          }
+              .isSuccess
+      if (restored) break
     }
-    val previous = game.positionIndex - 1
-    if (previous < 0) return false
-    seek(previous)
-    truncate()
+    if (!restored) return false
+    safeAutoexec =
+        game.session.agents[game.session.player].autoExecPolicy ==
+            dev.martianzoo.agent.AutoExecPolicy.SAFE
+    balanceTracker = null
+    open(gameName, game)
+    if (game.session.world.timeline.checkpoint() != before) {
+      queueRecovery(game.session)
+      queueLiveLog(force = true)
+    }
+    error = null
     return true
   }
 
   /** Runs [action] on the live game, then shows its effect; play happens only at the tail. */
-  private fun live(changed: Boolean = true, action: PlaySession.() -> Unit) {
+  private fun live(
+      changed: Boolean = true,
+      action: PlaySession.() -> Unit,
+  ) {
     val game = shown as? Live ?: return
+    val before = game.session.world.timeline.positions.last()
     val failure = runCatching { game.session.action() }.exceptionOrNull()
+    val after = game.session.world.timeline.positions.last()
+    if (after != before && game.session.atTail) queueRecovery(game.session)
     val displayFailure = runCatching {
-      if (changed) open(gameName, game) else redraw()
+      if (changed && after != before) open(gameName, game) else redraw()
     }
         .exceptionOrNull()
     error =
@@ -526,6 +836,8 @@ internal class RecordingStore {
           failure != null -> failure.message ?: failure.toString()
           else -> null
         }
+    // Every committed position is logged, so the file shows the state before any later failure.
+    if (displayFailure == null && after != before) queueLiveLog(force = true)
   }
 
   private companion object {

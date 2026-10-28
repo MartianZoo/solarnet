@@ -179,7 +179,15 @@ internal fun PlayerDashboard(player: Specimen.PlayerState) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
           Row(
-              choiceModifier(listOf(resource, "Class<$resource>", "$resource<${player.name}>")) {
+              choiceModifier(
+                  listOf(resource, "Class<$resource>", "$resource<${player.name}>"),
+                  action =
+                      when (resource) {
+                        "Plant" -> "ConvertPlants"
+                        "Heat" -> "ConvertHeat"
+                        else -> null
+                      },
+              ) {
                 openClass(resource)
               },
               verticalAlignment = Alignment.CenterVertically,

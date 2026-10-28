@@ -120,6 +120,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Mars Playground display
 
+- [ ] Generate the Playground script URL from the build artifact hash so deployments update the
+  browser cache without manually changing the query in `index.html`.
 - [ ] Consider amount-specific positive MC icons in task text (`1 MC` as `MC01`, `11 MC` as
   `MC11`). Keep generic MC elsewhere and do not use negative amount icons.
 - [ ] Reproduce the navigation freeze reported on 2026-10-15. The recording and final input are
@@ -135,6 +137,14 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   automated browser with a tooltip open, but not in fresh uninterrupted sessions.
 
 ## Mars Playground solo play
+
+- [ ] Make the live log reliable when Chrome's directory picker never appears on macOS. The game
+  now starts while the picker is pending, but no file is written until Chrome grants a folder.
+  Investigate a small local write path before adding another replay format or browser export flow.
+
+- [ ] Persist enough of a live game to restore it after Chrome evicts the page from its back/forward
+  cache or reloads it. The saved setup recreates the initial game only. Full game-file import still
+  needs automatic card-input capture before it can reconstruct the named cards and current choices.
 
 - [ ] Walk through Research Coordination wild-tag assignment and cleanup in Play, including
   temporary dashboard tag counts and history navigation with the restored Canon wild tags.
@@ -155,3 +165,31 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   and Selecting offers, such as Search for Life and Asteroid Deflection System. The playground
   excludes both from live games until fresh reveals can be named. Reuse tracking for known-card
   reveal/return rather than adding a second card-location model.
+
+## Safe autoexecution
+
+- If a single speculative engine step can still block the browser, move the completion search off
+  the browser thread. The current 500 ms stop is checked between steps and cannot interrupt work
+  already running inside a step.
+- When adding a game mode that forbids undo back through a card draw, disable SAFE's temporary
+  early-draw rule for that mode. The reported Business Empire follow-up still needs its own live
+  queue check.
+- Use the test-only `SafeTasks` analyzer to propose further Canon register rows, checking each
+  proposal against `DecisionSearch` outcome sets with the NONE policy at real multiplayer replay
+  positions. The 806-task solo sample is dominated by production income; see
+  [SMART_AUTOEXEC.md](docs/agents/SMART_AUTOEXEC.md#implementation-and-remaining-research).
+- Research a competing MC payment step after steel and titanium choices resolve, and card
+  placement after payment. Do not enable either shape solely because a lone concrete task is
+  claimable: earlier card effects can still change payment, and placement can install listeners.
+  Two `TfmPlayCommandTest` cases currently fail under `auto safe`: the MC `Pay` task remains gated by
+  `Accepting` while a card placement waits behind payment. Trace that payment sequence before
+  adding either register row or changing the script command.
+- Move forced-choice walking and dead-end hiding out of Playground's `PlaySession` so a shared
+  agent can run the complete smart mode in replays and other clients.
+- Add a tracked Business Network action search test: witness a completion in the fork while the
+  live deck, card tracker, and World remain unchanged.
+- The test-only analyzer cannot summarize some pending custom instructions or card plays.
+  Investigate `CopyProductionBox` and `CopyPrelude` as row proposals only after an outcome-oracle
+  check establishes the corresponding Canon queue positions.
+- `:playground:wasmJsBrowserTest` disconnects (Karma ping timeout) after the first
+  `RecordingStoreTest` case, which does not involve autoexecution; not yet compared with `main`.

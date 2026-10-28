@@ -73,14 +73,14 @@ internal class TaskOptionTest {
   }
 
   @Test
-  fun structuralSelectionShowsItsChildrenAndRestoresTheOriginalTask() {
+  fun structuralSelectionOffersExpansionWithoutCombiningItsChildren() {
     agent.sneak("Heat")
     val id = agent.addTasks("Heat: (Plant?, Steel?)").single()
 
     val option = preview(id)
 
     assertTrue(option.enabled)
-    assertEquals("$id  Plant<Red>?, Steel<Red>?", option.label)
+    assertEquals("$id  Expand into separate tasks", option.label)
     assertEquals(id, option.taskId)
   }
 
@@ -91,6 +91,22 @@ internal class TaskOptionTest {
     assertTrue(preview(id).enabled)
     assertEquals(emptySet(), tracker.hand(player))
     assertEquals(0, agent.count("ProjectCard"))
+  }
+
+  @Test
+  fun unlistableNarrowingsStillShowTheOriginalOrArms() {
+    val id = agent.addTasks("Heat OR Plant").single()
+
+    val option =
+        taskOption(world, world.tasks.getTaskData(id)) {
+          throw UnsupportedOperationException("cannot enumerate this form")
+        }
+
+    assertTrue(option.enabled)
+    assertEquals(2, option.arms.size)
+    assertTrue(option.arms.any { it.contains("Heat") })
+    assertTrue(option.arms.any { it.contains("Plant") })
+    assertEquals(null, world.tasks.selectedTask())
   }
 
   private fun preview(id: TaskId): Prompt.Option {

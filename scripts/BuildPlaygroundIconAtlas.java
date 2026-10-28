@@ -1,4 +1,5 @@
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -8,7 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import javax.imageio.ImageIO;
 
-/** Generates the Playground's bundled icons from the Martian Zoo site's 30px PNGs. */
+/** Generates the Playground's bundled icons from the Martian Zoo site's class and MC PNGs. */
 public class BuildPlaygroundIconAtlas {
   private static final int WIDTH = 1024;
   private static final int GAP = 2;
@@ -29,6 +30,13 @@ public class BuildPlaygroundIconAtlas {
               .sorted(Comparator.comparing(path -> path.getFileName().toString()))
               .toList();
     }
+    try (var entries = Files.list(source.getParent().resolve("MC"))) {
+      files = new java.util.ArrayList<>(files);
+      files.addAll(
+          entries.filter(path -> path.getFileName().toString().endsWith(".png"))
+              .sorted(Comparator.comparing(path -> path.getFileName().toString()))
+              .toList());
+    }
 
     var icons = new java.util.ArrayList<Icon>();
     var index = new StringBuilder("name\tx\ty\twidth\theight\n");
@@ -36,6 +44,16 @@ public class BuildPlaygroundIconAtlas {
     int y = GAP;
     for (Path file : files) {
       BufferedImage image = ImageIO.read(file.toFile());
+      boolean moneyIcon = file.getParent().getFileName().toString().equals("MC");
+      if (moneyIcon && image != null) {
+        var scaled = new BufferedImage(30, 30, BufferedImage.TYPE_INT_ARGB);
+        var graphics = scaled.createGraphics();
+        graphics.setRenderingHint(
+            RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        graphics.drawImage(image, 0, 0, 30, 30, null);
+        graphics.dispose();
+        image = scaled;
+      }
       if (image == null || image.getHeight() != 30 || image.getWidth() + 2 * GAP > WIDTH) {
         throw new IllegalArgumentException("Invalid 30px icon: " + file);
       }
@@ -43,7 +61,9 @@ public class BuildPlaygroundIconAtlas {
         x = GAP;
         y += 30 + GAP;
       }
-      String name = file.getFileName().toString().replaceFirst("\\.png$", "");
+      String name =
+          (moneyIcon ? "MC/" : "")
+              + file.getFileName().toString().replaceFirst("\\.png$", "");
       icons.add(new Icon(name, image, x, y));
       index.append(name).append('\t').append(x).append('\t').append(y).append('\t')
           .append(image.getWidth()).append('\t').append(image.getHeight()).append('\n');

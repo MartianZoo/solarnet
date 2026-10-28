@@ -75,21 +75,29 @@ internal fun MarsTab() {
         val x = dx + centerX(area) * unit
         val y = dy + centerY(area) * unit
         val hexUnit = unit * mapScale
-        val hex =
-            Path().apply {
-              moveTo(x, y - 58f * hexUnit)
-              lineTo(x + 50.2f * hexUnit, y - 29f * hexUnit)
-              lineTo(x + 50.2f * hexUnit, y + 29f * hexUnit)
-              lineTo(x, y + 58f * hexUnit)
-              lineTo(x - 50.2f * hexUnit, y + 29f * hexUnit)
-              lineTo(x - 50.2f * hexUnit, y - 29f * hexUnit)
-              close()
-            }
+        if (hexUnit <= 0f) continue
         val (ground, outline) =
             when (area.kind) {
               "WaterArea" -> Color(0x2149B9F0) to Color(0xFF5BC8F5)
               "NoctisArea" -> Color(0x21FFC93B) to Color(0xFFFFD557)
               else -> Color.White.copy(alpha = 0.025f) to Color(0xFFE1E7EF)
+            }
+        val originalStroke =
+            if (area.kind == "WaterArea" || area.kind == "NoctisArea") 1.92f else 1.32f
+        val stroke = originalStroke * 1.5f
+        // Shrink the hex enough to offset the wider stroke and increase its outside gap by 20%.
+        val gap = (107f - 2f * 50.2f) * hexUnit
+        val inset = gap * 0.1f + originalStroke * 0.15f
+        val hexScale = 1f - inset / (50.2f * hexUnit)
+        val hex =
+            Path().apply {
+              moveTo(x, y - 58f * hexUnit * hexScale)
+              lineTo(x + 50.2f * hexUnit * hexScale, y - 29f * hexUnit * hexScale)
+              lineTo(x + 50.2f * hexUnit * hexScale, y + 29f * hexUnit * hexScale)
+              lineTo(x, y + 58f * hexUnit * hexScale)
+              lineTo(x - 50.2f * hexUnit * hexScale, y + 29f * hexUnit * hexScale)
+              lineTo(x - 50.2f * hexUnit * hexScale, y - 29f * hexUnit * hexScale)
+              close()
             }
         drawPath(hex, ground)
         drawPath(
@@ -97,11 +105,7 @@ internal fun MarsTab() {
             outline.copy(
                 alpha = if (area.kind == "WaterArea" || area.kind == "NoctisArea") 1f else 0.88f
             ),
-            style =
-                Stroke(
-                    width =
-                        if (area.kind == "WaterArea" || area.kind == "NoctisArea") 1.92f else 1.32f
-                ),
+            style = Stroke(width = stroke),
         )
         if (area.tile == null && area.kind == "VolcanicArea") {
           val volcano =
@@ -332,7 +336,10 @@ internal fun GoalsTab() {
     SectionLabel("MILESTONES")
     Row(horizontalArrangement = Arrangement.spacedBy(palette.spacing)) {
       for (milestone in specimen.milestones) {
-        GoalTile(milestone.name) {
+        GoalTile(
+            milestone.name,
+            if (milestone.claimedBy == null) "ClaimMilestone" else null,
+        ) {
           if (milestone.claimedBy != null) ActorSquare(milestone.claimedBy, 18.dp) else EmptySlot()
         }
       }
@@ -341,7 +348,7 @@ internal fun GoalsTab() {
     SectionLabel("AWARDS")
     Row(horizontalArrangement = Arrangement.spacedBy(palette.spacing)) {
       for (award in specimen.awards) {
-        GoalTile(award.name) {
+        GoalTile(award.name, if (!award.funded) "FundAward" else null) {
           if (award.funded) {
             Box(Modifier.size(18.dp).clip(CircleShape).background(palette.mars))
           } else {
@@ -359,8 +366,12 @@ internal fun GoalsTab() {
 }
 
 @Composable
-private fun RowScope.GoalTile(name: String, marker: @Composable () -> Unit) {
+private fun RowScope.GoalTile(name: String, action: String?, marker: @Composable () -> Unit) {
   val palette = LocalPalette.current
+  val choices = LocalPlayChoices.current
+  val selectable =
+      choices?.find(listOf(name, "Class<$name>")) != null ||
+          (action != null && choices?.action(action) != null)
   Column(
       choiceModifier(
               listOf(name, "Class<$name>"),
@@ -373,6 +384,7 @@ private fun RowScope.GoalTile(name: String, marker: @Composable () -> Unit) {
                       palette.line,
                       RoundedCornerShape(palette.cornerRadius),
                   ),
+              action = action,
           )
           .padding(8.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
@@ -382,7 +394,7 @@ private fun RowScope.GoalTile(name: String, marker: @Composable () -> Unit) {
         name,
         style = palette.body,
         maxLines = 1,
-        linkClasses = LocalPlayChoices.current?.find(listOf(name, "Class<$name>")) == null,
+        linkClasses = !selectable,
     )
     marker()
   }

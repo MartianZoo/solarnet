@@ -334,6 +334,9 @@ internal class AgentImpl(
   override fun fillInTask(taskId: TaskId): TaskForm =
       TaskForm(taskId, tasks.getTaskData(taskId).instruction, this)
 
+  override fun fillInTask(taskId: TaskId, instruction: InstructionTree): TaskForm =
+      TaskForm(taskId, instruction, this)
+
   internal fun prepareFormNarrowing(taskId: TaskId, narrowing: String): InstructionTree {
     val parsed = parseTaskNarrowing(narrowing)
     return engine.prepareTaskNarrowing(taskId, parsed.instruction, parsed.quantifierOmitted)

@@ -1880,6 +1880,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .chooseAlternative("StandardAction")
           .choose("StandardAction" to "PlayProject")
           .choose("CardFront" to "MarketManipulation")
+          .choose("CardLocation" to "Hand")
           .done()
       fillInTask("ColonyProduction")
           .choose("ColonyTile" to "Luna")
@@ -1899,6 +1900,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .chooseAlternative("StandardAction")
           .choose("StandardAction" to "PlayProject")
           .choose("CardFront" to "IndenturedWorkers")
+          .choose("CardLocation" to "Hand")
           .done()
       // "I'm going to pay one titanium and 25 money." "I took your one plant, and I'm going to
       // place two oceans." "Row nine, column ... six and seven."
@@ -1922,6 +1924,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .chooseAlternative("StandardAction")
           .choose("StandardAction" to "PlayProject")
           .choose("CardFront" to "InventionContest")
+          .choose("CardLocation" to "Hand")
           .done()
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
@@ -2152,6 +2155,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .chooseAlternative("StandardAction")
           .choose("StandardAction" to "PlayProject")
           .choose("CardFront" to "LunaGovernor")
+          .choose("CardLocation" to "Hand")
           .done()
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
@@ -2529,6 +2533,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .chooseAlternative("StandardAction")
           .choose("StandardAction" to "PlayProject")
           .choose("CardFront" to "TransNeptuneProbe")
+          .choose("CardLocation" to "Hand")
           .done()
       fillInTask("ProjectCard")
           .chooseAlternative(

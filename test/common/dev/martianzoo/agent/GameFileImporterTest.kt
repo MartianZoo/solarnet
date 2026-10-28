@@ -19,6 +19,49 @@ import kotlinx.coroutines.test.runTest
 
 internal class GameFileImporterTest {
   @Test
+  internal fun playerOnlyReplayCalculatesAdminConsequences() = runTest {
+    val premise = testGamePremise("CLASS Coin { This: Marker BY Admin }\nCLASS Marker")
+    val source = Agents(Engine.newGame(premise))
+    source[PLAYER1].autoExecPolicy = NONE
+    source[PLAYER1].addTasks("Coin")
+    source.taskLog.start()
+    source.taskLog.gameStarted()
+    source[PLAYER1].doTask("Coin")
+    val decisions =
+        source.taskLog.inputs().filter {
+          it is RecordedInput.StartGame || (it as RecordedInput.Command).actor is Player
+        }
+    val document =
+        GameFileJson.parse(GameFileJson.encode(source.world.recording(), decisions, short = true))
+    val imported =
+        GameFileImporter.replay(
+            document,
+            premise.catalog,
+            newAgents = { Agents(Engine.newGame(it)) },
+            startGame = { it[PLAYER1].addTasks("Coin") },
+            automaticAdmin = true,
+        )
+    imported[ADMIN].count("Marker") shouldBe 1
+    imported.world.tasks.isEmpty() shouldBe true
+    imported[PLAYER1].autoExecPolicy shouldBe NONE
+    imported[ADMIN].autoExecPolicy shouldBe AutoExecPolicy.EAGER
+
+    val withAdminCommands =
+        GameFileJson.parse(
+            GameFileJson.encode(source.world.recording(), source.taskLog.inputs(), short = true)
+        )
+    shouldThrow<IllegalArgumentException> {
+      GameFileImporter.replay(
+          withAdminCommands,
+          premise.catalog,
+          newAgents = { Agents(Engine.newGame(it)) },
+          startGame = { error("Invalid input must be refused before starting") },
+          automaticAdmin = true,
+      )
+    }
+  }
+
+  @Test
   internal fun exMachinaRecordsOnlyItsFinishedCorrection() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
     val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }

@@ -62,10 +62,24 @@ internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
       }
     }
     prompt.detail?.let { ClassLinkedText(it) }
+    prompt.warning?.let { Text(it, style = palette.mono.copy(color = palette.mars)) }
     if (recording.historyMode) {
       Text("Viewing history: use RESUME PLAY or TRUNCATE to play again.", style = palette.label)
     }
     recording.problem?.let { Text(it, style = palette.mono.copy(color = palette.mars)) }
+    prompt.cards?.let { cards ->
+      Text(
+          "${cards.chosen.size} selected${if (cards.drawing) " to draw" else " to discard"}",
+          style = palette.label,
+      )
+      if (prompt.enabled && cards.canConfirm) {
+        OutlinedAction(
+            "${if (cards.confirmUnproven) "* " else ""}CONFIRM ${if (cards.drawing) "DRAW" else "DISCARD"} (${cards.chosen.size})",
+            if (cards.drawing) Color(0xFF4DAA67) else palette.mars,
+            recording::confirmCards,
+        )
+      }
+    }
     if (prompt.enabled && (prompt.retreat != null || prompt.more)) {
       Row(horizontalArrangement = Arrangement.spacedBy(palette.spacing)) {
         prompt.retreat?.let { OutlinedAction(it, palette.dimText, recording::retreat) }
@@ -92,6 +106,10 @@ internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
             ActorSquare(it)
             Spacer(Modifier.width(8.dp))
           }
+          if (option.unproven) {
+            Text("*", style = palette.mono.copy(color = palette.mars))
+            Spacer(Modifier.width(4.dp))
+          }
           TaskTooltip(instruction, option.who) {
             Row(verticalAlignment = Alignment.CenterVertically) {
               val parts =
@@ -99,8 +117,24 @@ internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
                       inlineArms(instruction, option.arms)
                   else null
               if (parts == null) {
-                TaskText(option.label, color, useIcons, prompt.enabled && option.enabled) {
-                  recording.choose(option)
+                if (option.arms.isEmpty()) {
+                  TaskText(option.label, color, useIcons, prompt.enabled && option.enabled) {
+                    recording.choose(option)
+                  }
+                } else {
+                  Column {
+                    Text(option.label, style = palette.label)
+                    option.arms.forEach { arm ->
+                      Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (arm in option.unprovenArms) {
+                          Text("*", style = palette.mono.copy(color = palette.mars))
+                        }
+                        TaskText(arm, color, useIcons, prompt.enabled && option.enabled) {
+                          recording.chooseTaskArm(option, arm)
+                        }
+                      }
+                    }
+                  }
                 }
               } else {
                 Text(option.label.substringBefore("  "), style = palette.label)
@@ -108,10 +142,14 @@ internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
                 parts.forEach { (text, arm) ->
                   if (arm == null)
                       PetsText(text, color = color, icons = useIcons, linkClasses = false)
-                  else
-                      TaskText(text, color, useIcons, prompt.enabled && option.enabled) {
-                        recording.chooseTaskArm(option, arm)
-                      }
+                  else {
+                    if (arm in option.unprovenArms) {
+                      Text("*", style = palette.mono.copy(color = palette.mars))
+                    }
+                    TaskText(text, color, useIcons, prompt.enabled && option.enabled) {
+                      recording.chooseTaskArm(option, arm)
+                    }
+                  }
                 }
               }
             }

@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tools
 
-import dev.martianzoo.agent.Agents
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.SystemClasses.ICONIC
@@ -47,7 +46,7 @@ private fun createGame(playerCount: Int): World {
               )
           )
   return TfmEngine.newGame(premise).also { game ->
-    val agents = Agents(game)
+    val agents = TfmEngine.agents(game)
     agents.tfm(ADMIN).startGame()
     val players = game.actors.filterIsInstance<Player>()
     if (playerCount == 1) {

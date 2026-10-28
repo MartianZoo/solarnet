@@ -31,7 +31,7 @@ internal abstract class TfmTest {
   protected var game: World
     get() = agents.world
     set(value) {
-      agents = Agents(value)
+      agents = TfmEngine.agents(value)
     }
 
   protected lateinit var agents: Agents

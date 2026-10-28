@@ -20,6 +20,7 @@ neutral cities and greeneries automatically, using the solo-placement tool's sta
 are available: Tharsis, Hellas, Elysium, Utopia, Cimmeria, Amazonis, and Vastitas.
 
 New games default to Green on Tharsis with Corporate Era, Prelude, Venus Next, and `promos:cards`.
+The map menu has a RANDOM button. Choosing a solo objective replaces the previous objective.
 Milestone and award entries are disabled for a single player. Colony tile entry is disabled until
 ColoniesExpansion is included. RANDOM beside the colony tile field replaces the selection with
 four random tiles for solo play. Matching milestone and award buttons choose five each when those
@@ -30,31 +31,72 @@ card-name choices. At **Choose a task**, each live task is selected hypothetical
 Selectable rows show the evaluated instruction, including current `PER` amounts; unavailable rows
 remain visible in darker gray and cannot be clicked. Selecting a row uses its original task ID.
 These previews do not deal cards or invoke application completion callbacks. The task log and
-history display retain their original task text. **Safe autoexec** is checked by default in the
-Play task window. It uses the agent's CONCRETE policy: a player's task runs automatically only
-when it is the sole selectable task for that player and can finish without another choice.
-Uncheck it to choose every player task manually. Admin retains EAGER autoexecution and receives
+history display retain their original task text. **Safe autoexec** starts checked in the
+Play task window. When checked, the Player's SAFE policy performs its registered tasks and deals
+concrete mandatory card draws, including the opening corporation, project, and Prelude cards.
+This early dealing relies on the ability to undo back through the draw. It never claims a task
+that asks which named card leaves Hand or Selecting. Each offered task, OR arm, narrowing option,
+and card selection in a corporation, Prelude, action, or final greenery play is then checked by
+searching a private copy of the game to the end of that play. The copy keeps unplayed cards
+anonymous: it reads no deck and never asks which card moves, offering only the card faces held when
+the search starts. A choice is hidden only when the search proves it cannot finish. If
+the search runs out of budget or meets a branch it cannot list, the choice stays visible with an
+asterisk on its left; Play explains the marker. Play automatically takes a sole remaining choice
+even when completion is unproven, after checking that the form has no unlisted options.
+Admin retains EAGER autoexecution and receives
 missing card names through the dealer. After undo or truncation,
 executable Admin work appears as a continuation row in Play; selecting it resumes automatic work
 through the same dealer. Unsupported Admin choices appear as a waiting status when they block play. Hand and
 Selecting cards appear above played cards. Card-playing choices are filtered to known cards at the
-source (Hand or Selecting), with the required card back, before pagination. Other choices can still
-fail: the options API checks current prerequisites without simulating effects or future work.
+source (Hand or Selecting), with the required card back, before pagination. With the checkbox off,
+other choices can still fail: the options API checks current prerequisites without simulating
+effects or future work.
+When the task queue empties, Play says **Game ended**. It shows a score only when the game has a
+VictoryPhase; a solo game that ends without victory has no VictoryPhase to score.
+For a card discard or a draw from Selecting to Hand, select the task, click the cards in Hand or
+Selecting, then press **CONFIRM DISCARD** or **CONFIRM DRAW** in Play. The chosen cards determine an
+optional amount. Chosen discards have a red border; chosen draws have a green border.
+When the action menu offers them, the Plant and Heat stock displays select ConvertPlants and
+ConvertHeat. With Safe autoexec checked, only a Hand or Selecting card whose exact PlayProject
+choice is proved completable is outlined. With it off, held cards are clickable whenever
+PlayProject is offered, without a completion search. Clicking a card submits it and its source in the same command,
+and an available milestone or award tile selects ClaimMilestone or FundAward. These use the Play
+list, including the second action offer before the player passes the baton. Click a specific goal
+when the game asks for its target.
+Played action cards draw red rectangles when that card and action slot are offered. With Safe
+autoexec checked, a trial must also show the action can complete. Each rectangle includes eight
+source-image pixels around the printed
+action and selects that card's action slot. Cards marked used and history positions show no action
+rectangles. The shipped rectangles come from `_local/action-bounds/boxes.tsv`.
+When choosing a card to gain or spend resources, each offered card shows a green rectangle around
+its resource counter. The larger rectangle is the click target for that card; if Play asks for a
+resource type first, the same click chooses the card's type and then the card.
 Read the error, reset provisional choices, or return to an earlier stop and **TRUNCATE**. Earlier
 successful commands remain committed when a later command fails.
 
 History browsing is read-only. **RESUME PLAY** returns to the retained tail; **TRUNCATE** discards
 its future, restores deck cursors and named holdings, and stays at that position until the next
-input. Undoing an automatic deal stops before that deal; another undo can then undo the preceding
-player command. **TO START**
+input. **TO START**
 returns to completed setup startup, with initialization events still in the log. Cmd-Z (Ctrl-Z)
-cancels a naming attempt or resets draft choices first; otherwise it steps back and truncates.
-The shortcut leaves text-field editing alone. Live sessions are not saved across page reloads.
+returns to the start of the current action. If already there, it returns to the start of the
+previous action. Each setup or research discard decision set counts as an action for this shortcut.
+The shortcut leaves text-field editing alone.
+On the first **GO**, choose the workspace's `_local` folder once when the browser asks for a log
+folder. The game starts even if Chrome's folder chooser does not appear; **log pending** beside the
+seed means no file is being written yet. When a folder is granted, the Playground writes the current
+game immediately and then updates `_local/live-game.json` after each completed action, including
+after undo. Its folder grant is remembered across visits. If the browser asks again, choose
+**Allow on every visit**; the small **connect log** link beside the seed retries a refused or
+revoked grant. The log is a normal file visible to local tools, with no export step. Live sessions
+also save their last completed position in this browser. If a tab stops responding, reload the
+same address and click **RECOVER GAME**. The recovered game opens with Safe autoexec off, so the
+last unfinished click can be retried manually. Draft choices made since the last completed
+position may need to be selected again. Browser storage is separate for each address and port.
 Development builds do not refresh an open page automatically; refresh manually when ready to use a
-new build. The new-game dialog offers configuration choices immediately. Some choices need another
+new build. The new-game dialog offers configuration choices immediately and checks the premise when
+GO is pressed, so editing options does not repeatedly rebuild it. Some choices need another
 selection before they form a valid game: ColoniesExpansion, for example, needs a colony tile. The
-dialog shows the current configuration error and enables GO only after full validation. GO reuses
-the resolved premise.
+dialog shows a configuration error after GO when the choices are invalid.
 
 ## What we know about the app itself
 
@@ -193,7 +235,7 @@ Reaching either end of the log must not pass wheel scrolling to the page. The lo
 
 The recorded Pets strings remain intact in display data. Pets text always uses monospace,
 including instructions, table contexts, and the Explorer. By default, player-name dependency
-arguments remain visible: `ProjectCard<Yellow, Hand>!` keeps `Yellow` inside the brackets. **Use trays** starts unchecked. Enabling it omits player dependency arguments from each complete type expression when they
+arguments remain visible: `ProjectCard<Yellow, Hand>!` keeps `Yellow` inside the brackets. **Use trays** starts checked. When enabled, it omits player dependency arguments from each complete type expression when they
 all name the same player, and puts a tray under exactly that shortened expression. For example,
 `Animal<Pets<Blue>>` becomes `Animal<Pets>` on a blue tray. Counts, punctuation, keywords, and
 neighboring types stay outside the tray. Bare player names stay unchanged and receive no tray; mixed-player types keep their

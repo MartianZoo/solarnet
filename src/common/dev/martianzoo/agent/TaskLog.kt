@@ -23,10 +23,11 @@ import dev.martianzoo.state.Task.TaskId
  * remain because later narrowing may require the selected Actor. Intermediate event history is not
  * preserved.
  *
- * Reconstruction uses the same premise and implementation, with every Actor's autoexecution
- * disabled. Game start is recorded explicitly. Task selectors retain causal context instead of
- * source event ordinals. External card identities are carried by [RecordedInput.Command], but their
- * Agent-side capture awaits integration with CardTracking.
+ * Reconstruction uses the same premise and implementation. By default every Actor's autoexecution
+ * is disabled; player-only replay instead runs Admin automatically. Game start is recorded
+ * explicitly. Task selectors retain causal context instead of source event ordinals. External card
+ * identities are carried by [RecordedInput.Command], but their Agent-side capture awaits
+ * integration with CardTracking.
  */
 public class TaskLog internal constructor(private val world: World) {
   private class Submission(
@@ -187,19 +188,31 @@ public class TaskLog internal constructor(private val world: World) {
 
   public companion object {
     /**
-     * Replays the shared file's inputs with every Actor policy disabled. [startGame] starts the
-     * game; [supplyCardInputs] runs before a command that needs supplied card names. A failed
-     * command stops replay and leaves earlier successful commands applied.
+     * Replays the shared file's inputs with every Actor policy disabled by default. [startGame]
+     * starts the game; [supplyCardInputs] runs before a command that needs supplied card names. A
+     * failed command stops replay and leaves earlier successful commands applied.
+     *
+     * With [automaticAdmin], accepts only Player commands and runs Admin with EAGER policy; Players
+     * remain at NONE. The caller supplies external setup choices in [startGame]. Admin consequences
+     * are calculated, never read from recorded Admin commands.
      */
     public fun replay(
         inputs: List<RecordedInput>,
         agents: Agents,
         startGame: () -> Unit,
         supplyCardInputs: ((RecordedInput.Command) -> Unit)? = null,
+        automaticAdmin: Boolean = false,
     ) {
       require(inputs.firstOrNull() == RecordedInput.StartGame) { "game inputs must start the game" }
       require(inputs.drop(1).none { it == RecordedInput.StartGame })
-      agents.world.actors.forEach { agents[it].autoExecPolicy = NONE }
+      if (automaticAdmin)
+          require(inputs.drop(1).all { (it as RecordedInput.Command).actor is Player }) {
+            "automatic Admin replay accepts only Player commands"
+          }
+      agents.world.actors.forEach {
+        agents[it].autoExecPolicy =
+            if (automaticAdmin && it == Actor.ADMIN) AutoExecPolicy.EAGER else NONE
+      }
       startGame()
       inputs.drop(1).forEachIndexed { index, input ->
         val command = input as RecordedInput.Command

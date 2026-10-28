@@ -22,14 +22,7 @@ internal fun TaskTooltip(
 ) {
   val renderer = LocalInstructionEnglish.current
   val english =
-      remember(renderer, instruction, assignee) {
-        instruction?.let {
-          renderer?.render(
-              parse<InstructionTree>(it),
-              assignee?.takeUnless { it == "Admin" }?.let(::cn),
-          )
-        }
-      }
+      remember(renderer, instruction, assignee) { taskExplanation(renderer, instruction, assignee) }
   Tooltip(
       english,
       modifier,
@@ -37,4 +30,18 @@ internal fun TaskTooltip(
       rightOfContent = true,
       content = content,
   )
+}
+
+/** Display labels can be prose, and a valid task can outlive optional English vocabulary. */
+internal fun taskExplanation(
+    renderer: EnglishInstructionTextRenderer?,
+    instruction: String?,
+    assignee: String?,
+): String? {
+  if (renderer == null || instruction == null) return null
+  val parsed = runCatching { parse<InstructionTree>(instruction) }.getOrNull() ?: return null
+  return runCatching {
+    renderer.render(parsed, assignee?.takeUnless { it == "Admin" }?.let(::cn))
+  }
+      .getOrElse { failure -> "Task explanation unavailable: ${failure.message ?: failure}" }
 }

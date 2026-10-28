@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Multiset
@@ -69,6 +70,14 @@ public interface Agent {
 
   /** Creates an independent, caller-held form for one of this Actor's tasks. */
   public fun fillInTask(taskId: TaskId): TaskForm
+
+  /**
+   * Resumes a provisional form from its exact [instruction] in this Agent's World. The instruction
+   * is rechecked against [taskId] when the form is read or committed. This preserves choices that
+   * cannot be recovered by parsing the instruction's display text, including an unchosen Class
+   * dependency. A speculative Agent can thus evaluate the same unfinished choice as the caller.
+   */
+  public fun fillInTask(taskId: TaskId, instruction: InstructionTree): TaskForm
 
   /**
    * Narrows this Actor's selected task and resolves it again. A partial narrowing remains selected;

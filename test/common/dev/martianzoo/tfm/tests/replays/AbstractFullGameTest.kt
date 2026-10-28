@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.GameFileImporter
 import dev.martianzoo.agent.exMachina
@@ -194,7 +195,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 }
 
-internal fun TfmGameplay.assertTags(
+internal fun Agent.assertTags(
     but: Int = 0,
     spt: Int = 0,
     sct: Int = 0,
