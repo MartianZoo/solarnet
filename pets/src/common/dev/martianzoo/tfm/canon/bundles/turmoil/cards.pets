@@ -56,8 +56,8 @@ CLASS SelfSufficiencyProgram : GePartyDistant<Greens>, GePartyCurrent<MarsFirst>
 }
 
 CLASS Election : GlobalEffect {
-  This IF MultiplayerMode, Me@Player(HAS =1 (RANK Ranked@Player { Influence<Ranked@> OR BuildingTag<Ranked@> OR CityTile<Ranked@> })): 2 TerraformRating
-  This IF MultiplayerMode, Me@Player(HAS =2 (RANK Ranked@Player { Influence<Ranked@> OR BuildingTag<Ranked@> OR CityTile<Ranked@> })): TerraformRating
+  This IF MultiplayerMode, Me@Player(HAS =1 (RANK { Influence OR BuildingTag OR CityTile })): 2 TerraformRating
+  This IF MultiplayerMode, Me@Player(HAS =2 (RANK { Influence OR BuildingTag OR CityTile })): TerraformRating
   This IF SoloMode: TerraformRating / 5 (Influence OR BuildingTag OR CityTile) MAX 2
 }
 
@@ -154,8 +154,8 @@ CLASS WorldGovernmentDirectives : GePartyDistant<Unity>, GePartyCurrent<MarsFirs
 }
 
 CLASS Revolution : GlobalEffect {
-  This IF MultiplayerMode, Me@Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { EarthTag<Ranked@> OR Influence<Ranked@> })): -2* TerraformRating
-  This IF MultiplayerMode, Me@Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { EarthTag<Ranked@> OR Influence<Ranked@> })): -TerraformRating*
+  This IF MultiplayerMode, Me@Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK { EarthTag OR Influence })): -2* TerraformRating
+  This IF MultiplayerMode, Me@Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK { EarthTag OR Influence })): -TerraformRating*
   This IF SoloMode, Me@Player(HAS 4 (EarthTag OR Influence)): -2* TerraformRating
 }
 

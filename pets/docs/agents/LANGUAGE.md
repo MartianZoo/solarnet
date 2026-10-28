@@ -128,6 +128,8 @@ spatial owner variables retain the tile and player relationships. A site occupan
 "this tile" must name a concrete class gained directly by the current card. A `PER` count of a concrete type
 whose compiled component limit is at most 1 uses the existing conditional wording. Abstract counts
 remain quantities: a limit on each specialization does not cap their combined count.
+Placement fallbacks guarded by the absence of a site describe both choices. An explicit fallback
+site, such as Lava Flows' land area, stays in the wording; only an implicit site says "normally".
 
 `ChangeFrame` is the one axis that got this right: a closed classification, dispatched exhaustively,
 declared as data. Treat it as the template, not as a finished job.

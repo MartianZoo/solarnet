@@ -27,6 +27,9 @@ choices can complete an entire action, and pruning choices that cannot, are agen
 engine module does not and will not take on. Selected agent rules and candidate strategies belong in
 [DECISION_GRAPH.md](DECISION_GRAPH.md).
 
+[AGENT_CONTRACT.md](AGENT_CONTRACT.md) owns the four-bucket agent responsibility inventory,
+including standing autoexec policies installed in the engine and their open design questions.
+
 ## How much should the engine determine for its caller?
 
 **Selected destination, October 24, 2026; transition incomplete.** The review has reached a
@@ -169,6 +172,10 @@ execution. Becoming fully specified is not an execute command. An agent may sepa
 execution according to its policy, and an explicitly combined execute API can perform its needed
 selection internally. Keep these distinguishable in tests and in the public contract.
 
+**October 28 clarification:** an agent may supply execution permission in advance through an
+[installed autoexec policy](AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
+The experiments below assume no applicable installed policy; selection itself grants no permission.
+
 Start from no automatic execution and investigate every path in the
 [automatic-actions inventory](TASK_HANDLING.md#automatic-actions-without-a-separate-execute-command),
 including zero/Ok completion, EACH expansion, dispatch, reassignment, continuation admission, and
@@ -193,6 +200,7 @@ restoring this convenience for production: a submitted 21 MC can execute 6 MC of
 amounts from unrelated rewards separate, such as Investment Loan's 10 MC and Media Group's 3 MC.
 This is a caller-writing preference, not game-specific recognition inside Agent. Agent preserves
 each task's effects and continuation; it does not replace them with a single net component change.
+See [Agent's interaction responsibility](AGENT_CONTRACT.md#3-carry-out-and-maintain-the-interaction).
 Investigate removing extra queued execution from
 `executeSubmittedGroup`; preserve explicit execution of submitted work without also consuming its
 reactions or continuation. The [verified example](TASK_HANDLING.md#extra-execution-requested-by-executesubmittedgroup)
@@ -218,7 +226,7 @@ NextPlayer links must be created as Players are created, without relying on inci
 | Exclude alternatives using dependencies, limits, or full requested transactions. | Engine, when necessary to establish unique execution. |
 | Reject direct mandatory Die admission and simplify known results. | Engine; exact nested simplifications still need review. |
 | Display a smaller unanswered choice or combine partial deductions. | Agent policy; retained voluntary engine narrowing remains open. |
-| Automatically submit an execution without a new client execute command. | Agent policy; selection itself supplies no such permission. |
+| Automatically submit an execution without a new client execute command. | Agent policy, applied during the call or installed in engine in advance; selection itself supplies no such permission. |
 | Run queued Admin work after the initiating transaction. | Mandatory Admin handling in the agent; separate transactions. |
 | Explore later tasks, prove action completion, or collapse equivalent outcomes. | Agent only. |
 

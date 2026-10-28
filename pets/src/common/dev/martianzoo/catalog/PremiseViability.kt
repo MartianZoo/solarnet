@@ -81,8 +81,8 @@ internal object PremiseViability {
         is Change ->
             tree.removing?.takeIf {
               interpreter.expressionIsUninhabited(it) &&
-                  (tree.quantifier
-                      ?: table.getClass(it.className).defaults.removeOnly.quantifier) == MANDATORY
+                  (tree.quantifier ?: table.getClass(it.className).defaults.removalQuantifier) ==
+                      MANDATORY
             }
         else ->
             tree.childNodes().filterIsInstance<InstructionTree>().firstNotNullOfOrNull {

@@ -79,7 +79,7 @@ ABSTRACT CLASS GameMode : Module {
     This: ClaimMilestoneAction, FundAwardAction
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
 
-    -GameScope: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
+    -GameScope: EACH Me@Player(HAS =1 (RANK { VictoryPoint, MC })) { Victory }
     CheckGameEnd: FinalGreeneryPhase FROM ProductionPhase
   }
 }

@@ -437,7 +437,7 @@
           "replaces": "MagneticFieldGenerators",
           "cost": 22,
           "tags": [ "BuildingTag" ],
-          "direct": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, SpecialTile<> {}",
+          "direct": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, SpecialTile<LandArea> {}",
         },
         {
           "name": "MagneticShield",

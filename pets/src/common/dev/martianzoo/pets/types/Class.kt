@@ -584,15 +584,6 @@ internal constructor(
       val paths: Set<DependencyPath>,
   )
 
-  /**
-   * Whether [key] participates in the same-header-variable equality of
-   * [rules T3-8 and T13-2](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#13-type-variables).
-   */
-  public fun isEqualityConstrainedDependency(key: Key): Boolean =
-      dependencyEqualities().any {
-        DependencyPath(key) in it.paths
-      }
-
   /** Whether a supplied dependency already determines [key] through a header variable. */
   internal fun dependencyDeterminedBy(key: Key, supplied: Collection<Key>): Boolean =
       dependencyEqualities().any { equality ->
@@ -1149,7 +1140,7 @@ internal constructor(
 
   private val defaultsLazy = lazy { Defaults.forClass(this) }
   /**
-   * The inherited all-usage, gain-only, and removal-only defaults defined by
+   * The inherited dependency defaults and gain/removal quantifiers defined by
    * [section 10](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#10-defaults).
    */
   public val defaults: Defaults

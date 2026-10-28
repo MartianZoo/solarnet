@@ -88,7 +88,7 @@ the expression repeats the change; it is no longer a boolean gate.
 when `X` has no candidates. The normal arm stays the normal rule, with no special case baked into
 its type.
 
-- **Lava Flows:** [`LavaFlows_SpecialTile<VolcanicArea> OR (MAX 0 VolcanicArea: LavaFlows_SpecialTile<>)`](../src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5) uses a volcanic area if the map has one and the normal special-tile placement default otherwise.
+- **Lava Flows:** [`LavaFlows_SpecialTile<VolcanicArea> OR (MAX 0 VolcanicArea: LavaFlows_SpecialTile<LandArea>)`](../src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5) uses a volcanic area if the map has one and explicitly allows a land area otherwise.
 - **Default greenery:** [`CLASS PlaceGreeneryTile`](../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets) offers `GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>` and opens the wider `GreeneryTile<LandArea>` choice only when no empty adjacent area exists.
 
 `OR` is a player choice if both arms survive. The zero test matters: an ungated fallback would offer
@@ -104,7 +104,7 @@ This lets the short notation stay short while still flagging a consequential boa
 - **City standard project:** [`1 MC / cost -> CityTile<>, PROD[1 MC]`](../src/common/dev/martianzoo/tfm/canon/bundles/base/actions.pets) accepts the city default that avoids neighboring cities.
 
 `<>` is not a universal “use defaults” decoration. It is invalid where that use has no dependency
-default to accept. A bare removal can also deliberately decline its removal-only default.
+default to accept. Removals have no use-specific dependency defaults; all-use defaults still apply.
 
 ## 9. Put an amount policy on the class, then omit it everywhere else
 

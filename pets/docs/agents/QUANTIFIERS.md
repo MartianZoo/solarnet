@@ -38,7 +38,8 @@ For `Gaining FROM Removing` with no explicit quantifier, the gain and removal de
 into the transmutation's one quantifier: it permits exactly the counts both defaults permit, which
 works out to mandatory beating AMAP and AMAP beating optional (L9-8). That is a combination of two
 policies, not a ranking — narrowing still treats mandatory and AMAP as incomparable (L3-4). Each
-side still supplies its own dependency defaults before the Types are resolved.
+side receives all-use dependency defaults before the Types are resolved; only the gained side
+can receive additional gain dependency defaults. Removal-specific clauses supply only a quantifier.
 
 ## Known Terraforming Mars consequences
 

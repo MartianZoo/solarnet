@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -71,8 +72,8 @@ internal class Spec13InlineClassTypeVariablesTest {
             "CLASS Host1 { This: EACH P@Person { Pair<P@Person, P@Person> {} } }",
         )
     val derived = table.getClass(cn("Host1_Pair"))
-    derived.isEqualityConstrainedDependency(Dependency.Key(cn("Pair"), 0)) shouldBe true
-    derived.isEqualityConstrainedDependency(Dependency.Key(cn("Pair"), 1)) shouldBe true
+    table.resolve(te("Host1_Pair<Alice>")).expressionFull shouldBe te("Host1_Pair<Alice, Alice>")
+    shouldThrow<ExpressionException> { table.resolve(te("Host1_Pair<Alice, Bob>")) }
     derived.typeVariables.size shouldBe 1
   }
 
@@ -120,7 +121,8 @@ internal class Spec13InlineClassTypeVariablesTest {
                 .trimIndent(),
         )
     val derived = table.getClass(cn("Host1_Pair"))
-    derived.isEqualityConstrainedDependency(Dependency.Key(cn("Pair"), 0)) shouldBe true
+    table.resolve(te("Host1_Pair<Alice>")).expressionFull shouldBe te("Host1_Pair<Alice, Alice>")
+    shouldThrow<ExpressionException> { table.resolve(te("Host1_Pair<Alice, Bob>")) }
     derived.typeVariables.size shouldBe 1
   }
 
@@ -177,7 +179,9 @@ internal class Spec13InlineClassTypeVariablesTest {
                 source,
             )
             .getClass(cn("Host1_Pair"))
-    reparsed.isEqualityConstrainedDependency(Dependency.Key(cn("Pair"), 0)) shouldBe true
+    reparsed.classTable.resolve(te("Host1_Pair<Alice>")).expressionFull shouldBe
+        te("Host1_Pair<Alice, Alice>")
+    shouldThrow<ExpressionException> { reparsed.classTable.resolve(te("Host1_Pair<Alice, Bob>")) }
     reparsed.typeVariables.size shouldBe 1
   }
 

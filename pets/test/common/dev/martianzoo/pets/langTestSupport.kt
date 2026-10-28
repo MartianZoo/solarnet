@@ -78,8 +78,8 @@ private const val LANG_DECLARATIONS: String =
     ABSTRACT CLASS CardFront : Owned { CLASS Ants }
     ABSTRACT CLASS Cardbound<CardFront<@Owner>> : Owned<@Owner> { CLASS Animal }
 
-    "A class whose removal-only default differs from its all-use default"
-    CLASS Marker<Area> : Owned { DEFAULT -Marker<LandArea> }
+    "A marker with no dependency defaults"
+    CLASS Marker<Area> : Owned
 
     ABSTRACT CLASS Scored { score = Metric }
     CLASS Gardener : Scored {

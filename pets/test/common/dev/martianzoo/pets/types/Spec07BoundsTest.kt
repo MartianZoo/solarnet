@@ -184,6 +184,37 @@ internal class Spec07BoundsTest {
     table.glb(right, left) shouldBe null
   }
 
+  @Test
+  internal fun `T7-1 dependencies do not resolve ambiguous root classes`() {
+    // Deliberately omit Canon's ResourceCard common superclass.
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS CardResource {
+              CLASS Animal
+              CLASS Microbe
+            }
+            ABSTRACT CLASS ResourceHolder<Class<CardResource>>
+            ABSTRACT CLASS CardFront
+            CLASS Pets : CardFront, ResourceHolder<Class<Animal>>
+            CLASS Ants : CardFront, ResourceHolder<Class<Microbe>>
+            """
+        )
+    val card = table.resolve(te("CardFront"))
+    val animalHolder = table.resolve(te("ResourceHolder<Class<Animal>>"))
+    val pets = table.resolve(te("Pets"))
+
+    pets.isSubtypeOf(card) shouldBe true
+    pets.isSubtypeOf(animalHolder) shouldBe true
+    table.resolve(te("Ants")).isSubtypeOf(animalHolder) shouldBe false
+    table.allConcreteSubtypes(card).filter { it.isSubtypeOf(animalHolder) }.toList() shouldBe
+        listOf(pets)
+
+    // The supported meet stops at ambiguous roots, even though Pets is the sole overlap.
+    table.glb(card, animalHolder) shouldBe null
+    table.glb(animalHolder, card) shouldBe null
+  }
+
   // T7-2 Algebraic shape
 
   @Test

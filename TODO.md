@@ -136,6 +136,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Ecological Zone, Frontier Town, and curated replay requests for repeated rewards, while cause
   still affects event ancestry and application input checks. Do not require task IDs for all of
   those ordinary requests merely to make the comparator strict.
+- Design engine-installed autoexec policies for selected tasks assigned to an Actor, configured
+  by that Actor's agent. Use Arctic Algae collection without waiting for the receiving agent as
+  the acceptance example. Resolve matching, lifetime, selection/priority, failure, transaction,
+  replay, and speculation details in the [four-bucket inventory](docs/agents/AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
+  Keep preference features such as "always take titanium for Philares" deferred; no policy API,
+  implementation, or default migration is selected by this documentation work.
 - Migrate Players away from the EAGER default, which can close legitimate gameplay choices.
   The user deliberately deferred the migration cleanup for now, hoping to move to a suitable smart
   policy rather than first migrating to NONE or CONCRETE. Leave the current default unchanged in

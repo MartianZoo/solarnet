@@ -436,7 +436,6 @@ public object Parsing {
             defaults.copy(
                 universal = transformDefault(defaults.universal),
                 gainOnly = transformDefault(defaults.gainOnly),
-                removeOnly = transformDefault(defaults.removeOnly),
                 triggerOnly = transformDefault(defaults.triggerOnly),
             ),
         properties =
@@ -1140,13 +1139,12 @@ public object Parsing {
             }
     private val removeDefault by
         skip(minus) and
-            expression and
+            className and
             quantifier map
-            { (expression, quantifier) ->
-              rejectInvalidDefaultRoot(expression)
+            { (className, quantifier) ->
               DefaultsDeclaration(
-                  removeOnly = OneDefault(expression.arguments, quantifier),
-                  forClass = expression.className,
+                  removalQuantifier = quantifier,
+                  forClass = className,
               )
             }
     private val triggerDefault by
@@ -1251,6 +1249,16 @@ public object Parsing {
             "`This` cannot have a marker, arguments, or refinement",
             sourceLocation = clazz.sourceLocation,
         )
+      }
+      val domain = Expression(clazz, args.orEmpty(), argumentsSpecified = args != null)
+      ref?.visitDescendants { node ->
+        if (node is Metric.Rank && node.selector == domain) {
+          throw PetSyntaxException(
+              "`RANK $domain` repeats the enclosing field; write `RANK { ... }` or mark the selector to name the competitor",
+              sourceLocation = node.selector?.sourceLocation,
+          )
+        }
+        node !is Expression
       }
       return Expression(
               clazz,

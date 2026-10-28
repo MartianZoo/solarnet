@@ -52,12 +52,12 @@ internal class Spec10DefaultsTest {
   // T10-1 The three default sets
 
   @Test
-  internal fun `T10-1 defaults are gathered separately for all uses, gains and removals`() {
+  internal fun `T10-1 dependency defaults are gathered separately for all uses, gains and triggers`() {
     val tile = defaults("Tile")
 
     tile.allUsages.dependencies.keys.shouldBeEmpty()
     tile.gainOnly.dependencies.keys shouldContainExactly listOf(Key(cn("Tile"), 0))
-    tile.removeOnly.dependencies.keys.shouldBeEmpty()
+    tile.triggerOnly.dependencies.keys.shouldBeEmpty()
   }
 
   @Test
@@ -112,9 +112,9 @@ internal class Spec10DefaultsTest {
 
     table.getClass(cn("GlobalParameter")).defaults.gainOnly.quantifier shouldBe AMAP
     // `Component` supplies `!` for anything that does not override it.
-    table.getClass(cn("GlobalParameter")).defaults.removeOnly.quantifier shouldBe MANDATORY
+    table.getClass(cn("GlobalParameter")).defaults.removalQuantifier shouldBe MANDATORY
     table.getClass(cn("OceanTile")).defaults.gainOnly.quantifier shouldBe AMAP
-    table.getClass(cn("OceanTile")).defaults.removeOnly.quantifier shouldBe OPTIONAL
+    table.getClass(cn("OceanTile")).defaults.removalQuantifier shouldBe OPTIONAL
     table.getClass(cn("Fixed")).defaults.gainOnly.quantifier shouldBe AMAP
   }
 
@@ -143,7 +143,11 @@ internal class Spec10DefaultsTest {
       ClassDeclaration(
           cn("Tile"),
           CONCRETE,
-          defaultsDeclaration = DefaultsDeclaration(forClass = cn("Other")),
+          defaultsDeclaration =
+              DefaultsDeclaration(
+                  gainOnly = OneDefault(quantifier = OPTIONAL),
+                  forClass = cn("Other"),
+              ),
       )
     }
     shouldThrow<IllegalArgumentException> {
@@ -188,37 +192,31 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
-  internal fun `T10-4 compatible defaults from separate inheritance paths intersect`() {
-    val table =
-        loadTypes(
-            """
-            ABSTRACT CLASS Area {
-              ABSTRACT CLASS MarsArea {
-                ABSTRACT CLASS LandArea { CLASS Tharsis_2_2 }
+  internal fun `T10-4 differing inherited defaults are rejected even when compatible`() {
+    shouldThrow<InvalidPetDefinitionException> {
+          loadTypes(
+              """
+              ABSTRACT CLASS Area {
+                ABSTRACT CLASS MarsArea {
+                  ABSTRACT CLASS LandArea { CLASS Tharsis_2_2 }
+                }
               }
-            }
-            ABSTRACT CLASS Tile<Area>
-            ABSTRACT CLASS MarsTile : Tile { DEFAULT +MarsTile<MarsArea> }
-            ABSTRACT CLASS LandTile : Tile { DEFAULT +LandTile<LandArea> }
-            CLASS GreeneryTile : LandTile, MarsTile
-            """
-                .trimIndent()
-        )
-
-    table
-        .getClass(cn("GreeneryTile"))
-        .defaults
-        .gainOnly
-        .dependencies
-        .get(Key(cn("Tile"), 0))
-        .expressionFull shouldBe te("LandArea")
+              ABSTRACT CLASS Tile<Area>
+              ABSTRACT CLASS MarsTile : Tile { DEFAULT +MarsTile<MarsArea> }
+              ABSTRACT CLASS LandTile : Tile { DEFAULT +LandTile<LandArea> }
+              CLASS GreeneryTile : LandTile, MarsTile
+              """
+                  .trimIndent()
+          )
+        }
+        .detail shouldContain "inherits conflicting defaults"
   }
 
   @Test
-  internal fun `T10-4 an inapplicable independent default leaves the compatible default available`() {
-    val table =
-        loadTypes(
-            """
+  internal fun `T10-4 narrowing a bound does not hide a conflict between inherited defaults`() {
+    shouldThrow<InvalidPetDefinitionException> {
+          loadTypes(
+              """
             ABSTRACT CLASS Area {
               ABSTRACT CLASS LandArea {
                 CLASS First
@@ -231,25 +229,69 @@ internal class Spec10DefaultsTest {
             ABSTRACT CLASS WaterTile : Tile { DEFAULT +WaterTile<Ocean> }
             CLASS RestrictedTile : LandTile<LandArea>, WaterTile
             """
-        )
-
-    val elaborator = PetElaborator(table)
-    // The independent water default cannot apply, but the land default still selects First.
-    elaborator.elaborateInput(parse<InstructionTree>("RestrictedTile<>")) shouldBe
-        parse<InstructionTree>("RestrictedTile<First>!")
-    elaborator.elaborateInput(parse<InstructionTree>("RestrictedTile<Second>")) shouldBe
-        parse<InstructionTree>("RestrictedTile<Second>!")
+          )
+        }
+        .detail shouldContain "inherits conflicting defaults"
   }
 
   @Test
-  internal fun `T10-4 a default that merely restates the declared bound records nothing`() {
+  internal fun `T10-4 equal defaults from separate inheritance paths agree`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
-            "ABSTRACT CLASS Tile<Area> { DEFAULT +Tile<Area> }",
+            """
+        ABSTRACT CLASS Area { CLASS Land }
+        ABSTRACT CLASS Tile<Area>
+        ABSTRACT CLASS LeftTile : Tile { DEFAULT +LeftTile<Land> }
+        ABSTRACT CLASS RightTile : Tile { DEFAULT +RightTile<Land> }
+        CLASS CombinedTile : LeftTile, RightTile
+        """
         )
 
-    table.getClass(cn("Tile")).defaults.gainOnly.dependencies.keys.shouldBeEmpty()
+    PetElaborator(table).elaborateInput(parse<InstructionTree>("CombinedTile<>")) shouldBe
+        parse<InstructionTree>("CombinedTile<Land>!")
+  }
+
+  @Test
+  internal fun `T10-4 a dependency default must narrow a declared bound`() {
+    for (clause in listOf("DEFAULT Tile<Area>", "DEFAULT +Tile<Area>", "DEFAULT Tile<Area>:")) {
+      shouldThrow<InvalidPetDefinitionException> {
+            loadTypes(
+                "ABSTRACT CLASS Area { CLASS First }",
+                "ABSTRACT CLASS Tile<Area> { $clause }",
+            )
+          }
+          .detail shouldContain "has no effect"
+    }
+  }
+
+  @Test
+  internal fun `T10-4 a bound-sized argument can reserve a position for another default`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Area {
+              CLASS First
+              CLASS Second
+            }
+            CLASS Pair<Area, Area> { DEFAULT +Pair<Area, Second> }
+            """,
+        )
+
+    PetElaborator(table).elaborateInput(parse<InstructionTree>("Pair<First>")) shouldBe
+        parse<InstructionTree>("Pair<First, Second>!")
+  }
+
+  @Test
+  internal fun `T10-4 a quantifier does not hide ineffective dependency arguments`() {
+    for (clauses in listOf("DEFAULT +Tile<Area>*", "DEFAULT +Tile<Area>; DEFAULT +Tile*")) {
+      shouldThrow<InvalidPetDefinitionException> {
+            loadTypes(
+                "ABSTRACT CLASS Area { CLASS First }",
+                "CLASS Tile<Area> { $clauses }",
+            )
+          }
+          .detail shouldContain "has no effect"
+    }
   }
 
   @Test
@@ -310,16 +352,13 @@ internal class Spec10DefaultsTest {
   // T10-5 Anyone is an ordinary default argument
 
   @Test
-  internal fun `T10-5 Anyone written in a default is intersected with the declared bound`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
-            "ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Anyone> \n CLASS ProjectCard }",
-        )
-
-    table.getClass(cn("Card")).baseType.expressionFull shouldBe te("Card<Player>")
-    table.getClass(cn("Card")).defaults.allUsages.dependencies.keys.shouldBeEmpty()
-    table.getClass(cn("ProjectCard")).defaultExpression shouldBe te("ProjectCard<Player>")
-    table.getClass(cn("ProjectCard")).defaultType.expressionFull shouldBe te("ProjectCard<Player>")
+  internal fun `T10-5 a broader default is ineffective after intersection with its bound`() {
+    shouldThrow<InvalidPetDefinitionException> {
+          loadTypes(
+              "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
+              "ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Anyone> }",
+          )
+        }
+        .detail shouldContain "has no effect"
   }
 }

@@ -85,6 +85,7 @@ internal class GameReaderImpl(
           elaborator.evaluateProperties(
               score,
               context = candidate.expressionFull,
+              candidate = candidate.expressionFull,
           )
       count(evaluated)
     }

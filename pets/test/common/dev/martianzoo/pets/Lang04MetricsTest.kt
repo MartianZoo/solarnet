@@ -179,17 +179,47 @@ internal class Lang04MetricsTest {
 
   @Test
   internal fun `L4-8 RANK may infer its selector only from an enclosing refinement`() {
-    parse<Expression>("Player(HAS =1 (RANK { Score }))") shouldBe
-        parse<Expression>("Player(HAS =1 (RANK Player { Score }))")
-    parse<Expression>("Holder<Player>(HAS =1 (RANK { Score }))") shouldBe
-        parse<Expression>("Holder<Player>(HAS =1 (RANK Holder<Player> { Score }))")
-    parse<Expression>("Outer(HAS Inner(HAS =1 (RANK { Score })))") shouldBe
-        parse<Expression>("Outer(HAS Inner(HAS =1 (RANK Inner { Score })))")
+    for ((source, field) in
+        listOf(
+            "Player(HAS =1 (RANK { Score }))" to "Player",
+            "Holder<Player>(HAS =1 (RANK { Score }))" to "Holder<Player>",
+            "Outer(HAS Inner(HAS =1 (RANK { Score })))" to "Inner",
+        )) {
+      val expression = parse<Expression>(source)
+      expression.descendantsOfType<Metric.Rank>().single().selector shouldBe
+          parse<Expression>(field)
+      expression.toString() shouldBe source
+      parse<Expression>(expression.toString()) shouldBe expression
+    }
 
     shouldThrow<PetSyntaxException> { parse<Metric>("RANK { Score }") }
     shouldThrow<PetSyntaxException> { parse<Expression.Refinement>("(HAS =1 (RANK { Score }))") }
     shouldThrow<PetSyntaxException> { parse<Expression>("Player(HAS RANK { Score })") }
     shouldThrow<PetSyntaxException> { parse<Expression>("Player(HAS =1 (RANK { }))") }
+  }
+
+  @Test
+  internal fun `L4-8 only redundant unmarked selectors are rejected`() {
+    for (source in
+        listOf(
+            "Player(HAS =1 (RANK Player { Score }))",
+            "@Player(HAS =1 (RANK Player { Score }))",
+            "Holder<Player>(HAS =1 (RANK Holder<Player> { Score }))",
+            "Outer(HAS Inner(HAS =1 (RANK Inner { Score })))",
+        )) {
+      shouldThrow<PetSyntaxException> { parse<Expression>(source) }
+    }
+    for (source in
+        listOf(
+            "Player(HAS =1 (RANK Ranked@Player { Score<Ranked@> }))",
+            "Player2(HAS =2 (RANK Player { Score }))",
+            "Holder<Player2>(HAS =2 (RANK Holder<Player> { Score }))",
+            "Player(HAS =1 (RANK Player(HAS Token) { Score }))",
+            "Outer(HAS Inner(HAS =1 (RANK Outer { Score })))",
+        )) {
+      val expression = parse<Expression>(source)
+      parse<Expression>(expression.toString()) shouldBe expression
+    }
   }
 
   // L4-9 Precedence

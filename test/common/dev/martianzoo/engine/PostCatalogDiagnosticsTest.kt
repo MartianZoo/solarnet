@@ -59,7 +59,6 @@ internal class PostCatalogDiagnosticsTest {
       }
       CLASS Tray<Species> {
         DEFAULT +Tray<Rose>
-        DEFAULT -Tray<Tulip>
       }
       ABSTRACT CLASS Scored { score = Metric }
       CLASS Recursive { score = COUNT "EVAL This.score" }

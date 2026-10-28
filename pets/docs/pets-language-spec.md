@@ -781,17 +781,35 @@ Property ::= ( Expression "." )? PropertyName
 > `CardFront.cost`. Supplying the chosen concrete card as receiver is what turns one generic rule
 > into the correct price for every card face.
 
-**L4-8. `RANK Selector { m1, m2, ... }` is a competition rank.** It denotes the highest-first
-position of one candidate among the components matching `Selector` in one state, comparing the
+**L4-8. `RANK { m1, m2, ... }` is a competition rank within an enclosing refinement.** It denotes
+the highest-first position of a candidate among the components matching the refinement's unrefined
+domain in one state, comparing the
 listed metrics lexicographically. Equal metric vectors share one rank, and the next unequal vector's
 rank skips the places occupied by the tie. Authored syntax leaves the candidate open; a refinement
-supplies it. Inside a `HAS` refinement only, the selector may also be omitted from a counted rank:
-`Foo(HAS =1 (RANK { score }))` means `Foo(HAS =1 (RANK Foo { score }))`, using the unrefined
-expression that owns that refinement as the field. Outside an expression refinement there is no
-outer domain to supply that selector, so `RANK { score }` is invalid. At least one metric is
-required. A marker on `Selector` explicitly makes the candidate available through the same marker
-on `SelectorRoot` in the metrics; other expressions in those metrics retain their ordinary
-meanings. An argument-free marked reference retains the selector's dependency arguments through
+supplies it. For example,
+`Foo(HAS =1 (RANK { score }))` uses the unrefined expression that owns that refinement as
+the field. Its metrics must be evaluated for each competitor: in
+`Player(HAS =1 (RANK { VictoryPoint, MC }))`, both counts belong to the player being compared,
+not the enclosing actor or all players together. Outside an expression refinement there is no
+outer domain to supply that selector, so `RANK { score }` is invalid. At least one metric is required.
+
+For each comparison, the competitor supplies the first compatible omitted dependency of each
+outermost metric expression. Explicit arguments stay as written;
+an expression with no compatible omitted dependency keeps its ordinary meaning. Arguments and
+nested refinements retain their own contexts. This applies to syntax expanded through `EVAL` too,
+before lexical ownership fills remaining omissions. The shorthand does not rebind `Me`:
+inside Alice's card effect, `Score` can count each competitor's score while `Score<Me@>` continues
+to count Alice's score.
+
+`RANK Selector { ... }` can instead state a different comparison field explicitly. An unmarked
+selector that repeats the enclosing unrefined expression is an error: write `RANK { ... }`.
+This check compares the written class and arguments, not semantic equivalence between types.
+For example, `Player2(HAS =2 (RANK Player { Score }))` is valid and compares Player2 with all players;
+omitting `Player` there would compare Player2 only with itself. Rendering preserves that field
+when a refined type is narrowed. A marker on `Selector`
+makes the competitor available through the same marker
+on `SelectorRoot` in the metrics. Explicit references to other names retain their meanings.
+An argument-free marked reference retains the selector's dependency arguments through
 elaboration, while the selector's refinement filters the field without becoming part of the
 candidate value. There is no lowest-first form; subtracting the metric from a known upper cap
 expresses the inverse ordering.
@@ -805,11 +823,28 @@ Rank ::= "RANK" PlainExpression? "{" Metric ( "," Metric )* "}"
 > place as well. Award scoring needs competition ranks, but uses only one comparison metric.
 >
 > **Non-normative example — victory and party leadership.** Final scoring uses
-> `RANK Me@Player { VictoryPoint, MC }`: money breaks a VP tie without outweighing even one VP.
+> `Player(HAS =1 (RANK { VictoryPoint, MC }))`: money breaks a VP tie without outweighing even one VP.
 > Turmoil needs three ordered metrics for party leadership: delegate count, incumbent leadership,
 > then clockwise player distance. A single count or an unordered metric set loses those priorities.
-> The omitted-selector `RANK { ... }` form is authoring shorthand; current canonical uses all write
-> a selector.
+> Final scoring already writes `Player(HAS ...)`; requiring another `Player` after `RANK` repeats
+> the field. Election and Revolution likewise use the enclosing Player field for their first-
+> and second-place effects. Without per-competitor binding for their bare metrics, each comparison
+> would count the same global total or enclosing player's holdings and incorrectly tie everyone.
+>
+> **Non-normative examples — Collector and Excentric.** Award scoring still explicitly writes
+> `RANK Me@Player { EVAL @Award.metric }`. Collector's stored metric counts resource kinds through
+> `Class<@Resource>(HAS @Resource, NOT Class<RobotUnit>)`; Excentric counts
+> `CardResource<CardFront>`. Their omitted ownership occurs inside a class refinement or holder
+> argument, beyond the outermost dependency filled by the shorthand. Naming `Me` gives those
+> nested expressions a competitor-specific lexical owner. Simply removing that binding currently
+> awards undeserved first places. Deeper implicit ownership is deliberately not supplied; these
+> metrics use the shared explicit binding instead.
+>
+> **Non-normative examples — Robinson Industries and the Reds ruling bonus.** Robinson Industries
+> names the resource class being compared so its metric can exclude that class from the production
+> total. Reds names the player being compared so `TerraformRating<Anyone(NOT Ranked@)>` can count
+> everyone else's rating, giving the lowest-rated player the highest score. These exclusions need
+> a reference to the competitor; an unnamed omitted dependency cannot express `NOT` that competitor.
 
 **L4-9. Precedence, tightest first: scaling and `MAX`, then subtraction, then `OR`.** So
 `A MAX 5 - B` caps `A` before subtracting, while `(A - B) MAX 5` caps the difference. Where a metric
@@ -1192,7 +1227,7 @@ resource belongs to the player doing the thing, and "gain 3 cards" means three s
 changes how a source reads without changing which types exist (T10).
 
 **L9-1. Elaboration rewrites an element against a context.** It splits atomized gains (L9-11)
-before inserting declared defaults (L9-4 through L9-10), dispatches transform blocks (L8), records
+before inserting declared defaults (L9-4 through L9-9), dispatches transform blocks (L8), records
 the resulting Type-variable scopes (T13-6 through T13-9), inserts omitted `Owned` owner arguments
 (L9-3), and expands property evaluations (L9-12). Submitted syntax records scopes after defaults
 and structural transforms: a supplier's `<>` does not make its bare references request defaults,
@@ -1247,8 +1282,8 @@ that relationship where they need it.
 > `-ProjectCard` discards from hand rather than from `Selecting` or `Revealed`. This inherited
 > all-use default supplies card location; the player's ownership is supplied separately by L9-3.
 
-**L9-5. A gain, removal, or gain/removal trigger also receives its use-kind defaults.**
-Gains and triggers must opt in.
+**L9-5. A gain or gain/removal trigger also receives its use-kind dependency defaults.**
+Both must opt in.
 When a class has gain dependency defaults, a gain may not leave its argument list implicit: write
 `OceanTile<>` to accept them, or supply at least one argument. This keeps a defaulted placement
 visible at the point of use.
@@ -1266,16 +1301,27 @@ cannot be used to *cancel* an all-use default for that key.
 > **Non-normative example — Subterranean Reservoir.** The card writes `OceanTile<>` to advertise that
 > its ocean will use the standard empty-water-area placement default. Allowing bare `OceanTile`
 > would conceal a board choice behind syntax that elsewhere merely names the type.
+>
+> **Non-normative examples — Mars University and Olympus Conference.** Both subscribe to
+> `ScienceTag<>:`, accepting the `CardFront` trigger default. Without that holder restriction,
+> assigning a wild tag to science would also offer Mars University's card exchange and Olympus
+> Conference's science-resource/card choice. Bare `ScienceTag:` leaves the holder choice unstated.
+> Rejecting it forces the author to distinguish `ScienceTag<>:` (printed tags) from
+> `ScienceTag<TagHolder>:` (any holder); otherwise an omitted argument could silently change
+> which events the card hears. `ScienceTag<CardFront>:` also states the intended restriction.
+> Likewise, Subterranean Reservoir and Aquifer use `OceanTile<>` to show where the standard
+> placement conditions are being accepted; applying them invisibly would hide that decision.
 
-**L9-6. A removal declines its use-specific defaults by writing nothing.** An implicit argument list
-on a removal is not an error: it simply does not receive the removal-only dependency defaults, though
-all-use defaults (L9-4) still apply. `-Marker<>` accepts them.
+**L9-6. Removals have no use-specific dependency defaults.** All-use defaults (L9-4) still
+apply, and the removal quantifier is inherited independently (T10-2). A gain's dependency defaults
+never supply a removal's missing arguments. A declaration such as
+`DEFAULT -Owed<Class<MC>>*` is invalid; `DEFAULT -Owed*` supplies only the amount policy.
 
-> **Non-normative example — Indentured Workers.** Its discount is written `-8 Owed`; `Owed` declares
-> an MC removal default, but this spelling leaves the denomination unspecified. `-8 Owed<>` would
-> explicitly accept MC. The card's bill is already in MC, so it illustrates the spelling without
-> proving a need to decline a removal default. No current card has been identified that requires
-> this opt-out to reach a different denomination.
+> **Non-normative examples — Indentured Workers and Space Station.** Their `-8 Owed` and
+> `-2 Owed` discounts match the existing bill without inventing its denomination. No removal
+> dependency default is required. Ecoline explicitly removes `Owed<Class<Plant>>`; Cryo Sleep
+> and Rim Freighters explicitly remove `Owed<Class<StandardResource>>`. These written arguments
+> remain restrictions on which debt the discount can reduce.
 
 **L9-7. `Foo<>` is invalid where that use has no dependency defaults to accept.** An empty list is
 an acceptance, not merely a second spelling of the same expression. A later bare reference to a
@@ -1288,6 +1334,7 @@ marked `Foo<>` does not repeat that acceptance.
 
 **L9-8. The gained and removed projections of `A FROM B` are defaulted independently.** Compact
 syntax remains compact; defaulting its two projections does not duplicate a retained argument.
+Both receive all-use defaults; only the gained projection can receive gain dependency defaults.
 Where the transmutation writes no quantifier of its own, it must satisfy both projections' defaults
 at once, and takes the one quantifier that permits exactly the amounts both of them permit.
 
@@ -1325,18 +1372,8 @@ default (L9-7).
 > **Non-normative example — World Government Terraforming and CEO's Favorite Project.** The
 > unowned `WorldGovernmentRule` has no lexical owner; the candidate in
 > `Starter@Player(HAS StartToken)` must supply the token's owner. CEO's Favorite Project chooses
-> `CardFront(HAS CardResource)` so the chosen card must already hold a resource. Supplying only
+> `ResourceHolder(HAS CardResource)` so the chosen holder must already hold a resource. Supplying only
 > the card owner's context would incorrectly count resources on other cards in that tableau.
-
-**L9-10. Inside a refinement, an ordinary declared default is deferred when its dependency is a
-bare reference to a class-header type variable** (T13-2), so candidate substitution can bind it through
-that occurrence. Candidate binding also precedes omitted-owner insertion under L9-9. Writing `<>`
-accepts a declared default explicitly; it cannot accept a default that does not exist.
-
-> **Non-normative design note — no current TfM witness for this extra deferral.** Current canonical
-> `DEFAULT` clauses do not name header variables. CEO's Favorite Project demonstrates
-> candidate binding (L9-9), but does not require this additional header-variable default rule.
-> Its necessity remains an open fidelity-audit question, not an established card requirement.
 
 **L9-11. A gain of several `Atomized` components becomes several gains of one.** `3 ProjectCard`
 becomes three independent gains, because three cards are three separate things to choose.
@@ -1570,9 +1607,13 @@ QuotedText ::= '"' [^"]* '"'
 per use kind (T10-1). Separate compatible clauses may supply the dependency arguments and quantifier
 of one use-kind default. Clauses that disagree about their class, dependency arguments or quantifier
 are rejected; declaration order never selects a winner. A clause naming another class is rejected.
+A removal clause supplies only a quantifier; dependency arguments are rejected.
+An empty clause is rejected. After compatible clauses for a use kind are merged, they must narrow
+at least one declared dependency bound if they supply dependency arguments (T10-3).
+A quantifier does not make an ineffective argument list valid; quantifier-only defaults are valid.
 
 ```ebnf
-DefaultClause ::= "DEFAULT" ( Expression ":"? | ( "+" | "-" ) Expression Quantifier? )
+DefaultClause ::= "DEFAULT" ( Expression ":"? | "+" Expression Quantifier? | "-" ClassName Quantifier? )
 ```
 
 > **Non-normative design note — split defaults are an authoring convenience.** Ocean placement
@@ -1666,7 +1707,7 @@ CLASS Inventrix { This: RequiredAction { -> 3 ProjectCard } }
 occurrence becomes that name, so the effect above is `This: Inventrix_RequiredAction`, and the
 generated declaration is `CLASS Inventrix_RequiredAction : RequiredAction`.
 
-> **Non-normative example — Commercial District.** `SpecialTile<> {}` becomes
+> **Non-normative example — Commercial District.** `SpecialTile<LandArea> {}` becomes
 > `CommercialDistrict_SpecialTile`, named by `Adjacency<CommercialDistrict_SpecialTile, CityTile<Anyone>>`
 > in its later scoring effect. The scoring rule needs a stable way to identify this particular
 > special tile; the underscore convention is the language's choice of spelling.
@@ -1886,7 +1927,7 @@ ClassMember        ::= BodyElement | Declaration                                
 BodyElement        ::= Invariant | DefaultClause | PropertyAssignment | Effect | Action  /* L11-5 */
 
 Invariant          ::= "HAS" Requirement                                                 /* L11-5 */
-DefaultClause      ::= "DEFAULT" ( Expression ":"? | ( "+" | "-" ) Expression Quantifier? )   /* L11-8 */
+DefaultClause      ::= "DEFAULT" ( Expression ":"? | "+" Expression Quantifier? | "-" ClassName Quantifier? )   /* L11-8 */
 PropertyAssignment ::= PropertyName "=" PropertyValue                                    /* L11-9 */
 PropertyValue      ::= "Number" | "Metric" | "Requirement" "?"? | Integer                /* L11-9 */
                      | "COUNT" QuotedText

@@ -41,7 +41,7 @@ internal class ClassDeclarationTest {
           HAS =1 This
           DEFAULT Foo<Xyz>
           DEFAULT +Foo<Abc>?
-          DEFAULT -Foo<Def>!
+          DEFAULT -Foo!
           row = Number
           column = 2
           This: DoStuff

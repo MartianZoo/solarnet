@@ -15,6 +15,12 @@ changes in the order 7, repaired 1b, 1a, 3 with numeric 2, then 4/5; experiment 
 until choice completeness is established. The report distinguishes the current branch from the
 initial parked prototypes. Neither pass marks the entire intended transition complete.
 
+**October 28 design follow-up:** the
+[four-bucket inventory](AGENT_CONTRACT.md#agent-responsibilities-four-buckets) adds selected-task
+autoexec policies installed in engine by Agent. The existing selection experiments describe calls
+without that advance authorization. The new policy mechanism and its open questions remain future
+work; recording this direction does not expand the implementation scope of these experiments.
+
 ## Objective and successful outcome
 
 Find the smallest coherent implementation of the intended engine responsibility, and discover its
@@ -26,8 +32,9 @@ The engine serves a client with an intended change. It first identifies permissi
 conservative task comparison, then determines whether the request and that task admit exactly a
 single narrowing whose transaction succeeds. That transaction includes immediate consequences and
 task admission; it excludes executing subsequently queued work, including Admin work. The agent
-owns automatic submissions and reasoning about later tasks. Selection does not itself authorize
-execution. These are the experiment's starting principles, not a claim that transition will be easy.
+owns automatic-choice policy and reasoning about later tasks. Selection does not itself authorize
+execution; a matching installed policy may supply authorization in advance. These are intended
+responsibilities, not a claim that the transition or installed-policy support is complete.
 
 Proceed through the experiments without seeking approval for routine choices inside their stated
 scope once commissioned. Reevaluate the order when evidence warrants it, recording why. If an
@@ -76,8 +83,9 @@ settled requirements as the investigation proceeds; do not lose earlier requirem
   rejections that eliminate candidates.
 - Newly queued Admin work is not executed during that proof. Direct mandatory Die admission can
   reject now; later failure remains later. Trying a candidate leaves no retained state or history.
-- Selecting or narrowing does not authorize execution. Explicit combined execution is
-  different. Classify structural task changes separately and expose unresolved exceptions.
+- Selecting or narrowing alone does not authorize execution. Explicit combined execution and
+  advance authorization from an installed policy are distinct cases. Existing selection experiments
+  use no installed policy. Classify structural task changes separately and expose unresolved cases.
 - Joined THEN retains a shared unbound type/X; explicit binding exposes current work and a separate
   continuation. Do not infer X backward from a submitted first-stage result in either module.
 - Partial deductions can be useful without permitting execution. Voluntary stored partial
@@ -141,7 +149,8 @@ The user subsequently selected production income as the main reason to retain th
 combine production, Terraform Rating income, and the -5 MC offset in test inputs. Keep amounts
 from unrelated rewards separate in those inputs. Preserve each task's effects and continuation;
 gains execute before removals so negative production does not require starting money. Do not add
-Canon-specific recognition to Agent. The earlier test-support-only alternative is rejected.
+Canon-specific recognition to Agent. The earlier test-support-only alternative is rejected; see
+[Agent's interaction responsibility](AGENT_CONTRACT.md#3-carry-out-and-maintain-the-interaction).
 
 **Extra queued work:** remove or narrow `executeSubmittedGroup` so explicit submitted work can
 execute without also consuming reactions or continuations merely because they appeared in the
