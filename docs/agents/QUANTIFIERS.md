@@ -15,9 +15,13 @@
 Preserve authored quantity meaning, including optional and AMAP zero results. For an explicit
 execution request, determining the sole narrowing whose transaction succeeds can require target
 feasibility and limit analysis in the engine. Automatically reducing an unanswered choice belongs
-to the agent. The current special cases below are not requirements to preserve unchanged. A
-quantity-limit read can bound candidates without proving their transactions succeed; temporary
-invariant violations repaired by immediate effects must not be rejected by an over-eager filter.
+to the agent. The current special cases below are not requirements to preserve unchanged. In
+particular, `Repair?` can resolve to zero under current headroom rules even though a positive
+gain succeeds after its immediate effect repairs the limit. The
+[transition plan](ENGINE_TRANSITION_PLAN.md) requires this case to be settled against the intended
+unique-transaction rule before general coverage is claimed. A quantity-limit read can bound
+candidates without proving their transactions succeed; temporary invariant violations repaired
+by immediate effects must not be rejected by an over-eager filter.
 
 ## Source map
 

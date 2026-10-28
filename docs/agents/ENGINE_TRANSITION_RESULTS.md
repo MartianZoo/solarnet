@@ -1,19 +1,28 @@
 # Engine transition experiment results
 
-Status: authorized follow-up reviewed for the user-requested commit, October 24, 2026, plus the
-separately committed increments and current experiment recorded below, October 27, 2026. The
-selected destination is still incomplete. Nothing here is published or merged into main. The branch is
-`codex/engine-transition-experiments`, at base `c14c000b23f143f0f672ba2b94ae21966ff245d7`, in
+This report is maintained in work1 and describes the experimental branch, not work1's current
+implementation. Source names and test results below refer to that branch at the stated revision;
+local evidence files remain in `/Users/dev/solarnet/engine-transition-experiments/_local/`.
+
+Status: all retained experiments below are committed through `8ceb7706b`; `main` at `f1055a08b`
+was subsequently merged into `codex/engine-transition-experiments` as `6c4686b61` on
+October 28, 2026. The selected engine API destination is still incomplete. The experiment branch
+has not been merged into main. The branch began at
+`c14c000b23f143f0f672ba2b94ae21966ff245d7`, in
 `/Users/dev/solarnet/engine-transition-experiments`. The initial work1 design documents were copied
 here. During review, the user requested integrating main and committing those design documents in
 work1; that documentation commit is `2b3ad9c8a`, based on main `4974858d2`. The code and its review
 fixes belong to the experiment checkout; work1's commit contains documentation only.
 
 [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the destination;
-[ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) owns the investigation checklist.
-Evidence is in `_local/engine-transition-evidence/`. The original report is preserved there as
+[ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) owns the remaining implementation order and
+the owner decisions that gate it. General Player choice search in
+[DECISION_GRAPH.md](DECISION_GRAPH.md) is outside this engine API miniproject.
+Evidence is in the experimental checkout's `_local/engine-transition-evidence/`. The original
+report is preserved there as
 `first-pass-report.md`; its parked/retained labels describe the first pass only.
-Two Opus/high discussions are preserved in `claude-review/`. This follow-up implements the agreed
+Two earlier Opus/high discussions are preserved in that evidence directory's `claude-review/`.
+This follow-up implements the agreed
 order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6.
 
 ## Current disposition
@@ -23,11 +32,20 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | 7 Surrounding Agent call | Application checks belong to an Agents session; cross-session behavior tested. Operation completion checking now lives in Agent. Callback behavior characterized. | Good independent change. Does not settle callback failure recovery or FINALLY-based completion. |
 | 1b Submitted groups | Executes the exact IDs returned when group members are admitted; excludes dispatch bodies, reactions, and continuations. | Good independent change; repairs the initial queue-difference approach. |
 | 1a Combined scalar totals | Deleted engine arithmetic and flag; Agent translates explicit totals into separate engine calls. Production tests use totals again; unrelated rewards stay separate. | Worth merging with the Agent restoration below. |
-| 3 Selection | Selection/narrowing do not execute component changes; callers explicitly execute. | Worth merging with numeric 2 and caller migration. Structural selection remains an open question. |
+| 3 Selection | Selection/narrowing do not execute component changes, but can expand exposed `EACH` tasks into children. The owner now defines that expansion as execution. | Numeric 2 and component-execution separation are useful; `EACH` expansion during selection must be corrected before this satisfies the selected contract. |
 | 2 THEN | Shared numeric X must be supplied explicitly; no reverse inference from the requested first-stage amount. | Numeric change is suitable with 3. Broad shared-type removal remains parked. |
 | 4 Transaction uniqueness | Fixed mandatory gains/removals and full-form transmutations enumerate concrete types or pairs and try complete transactions in disposable copies. | Experimental integration candidate, not complete general inference. Review cost and unsupported forms before merging. |
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
-| 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Merge evidence tests, not the proposed general reducer. Current menus are not complete enough. |
+| 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Evidence for the separate Agent choice project, not a gate for the engine API. |
+
+The current `ActorEngine.matchingTask` already compares a request with a pending instruction and,
+when direct intersection fails, with that instruction resolved against the current World.
+`TaskResolutionTest` proves `2 Plant` executes an individual `Plant / Heat` task through Agent
+when 2 Heat are present; it does not isolate a raw engine call. `uniqueMatchingTask` currently
+treats tasks as interchangeable when their task data matches after replacing ID and cause. Whether
+resolved-value matching belongs in the final engine
+API and when different causes matter are owner decisions; the current behavior does not settle
+them. This is separate from Agent's submitted total spanning several tasks.
 
 ## 7: application checks are session-owned
 
@@ -115,9 +133,11 @@ broke action-card selection across all 23 initial replays, and the current repre
 store a second continuation. No extra continuation field was added.
 
 Selection still performs structural work such as exposing EACH/group children and handoffs.
-Admission can discard literal Ok/zero and split eligible THENs. These are explicitly unresolved
-exceptions to investigate, not proof that selection is now entirely inert. Partial narrowing is
-retained because it enables useful subsequent AMAP evaluation.
+The owner has since clarified that enqueuing all `EACH` children and consuming the parent is
+execution of that parent task. Thus this branch still executes `EACH` through selection, contrary
+to the selected separation. Admission can discard literal Ok/zero and split eligible THENs; their
+classification remains open. Partial narrowing is retained because it enables useful subsequent
+AMAP evaluation.
 
 ## 4 and 5: prove a unique requested transaction
 
@@ -322,6 +342,13 @@ browser checks in 44 seconds. Formatting and `git diff --check` passed. Evidence
 The full build recorded below verified the unchanged production code before this integration;
 optional archived suites remain disabled.
 
+Main later advanced to `f1055a08b` with the Agent contract, Pets and Canon changes, and three
+replay test updates. Work1 fast-forwarded to that commit. The experiment branch merged it as
+`6c4686b61`, resolving four documentation conflicts while retaining the branch's findings and
+main's Agent direction. No source file had a textual conflict. The merged branch passed a full
+`./gradlew build` in 3m 51s: 462 tasks, including the curated replays and web browser checks.
+The pre-merge documentation edits were restored afterward and are not part of that merge commit.
+
 ## Increments after the October 24 review
 
 The user asked for one well-defined increment at a time, each verified and committed on its own.
@@ -372,9 +399,9 @@ stored fact, or instruction form was added. The Agent and engine JVM suites and 
 passed, followed by `./gradlew build --console=plain --quiet`, including the active replay and
 browser checks. This change does not settle the separate optional amount or Admin waiting questions.
 
-### Current experiment: operation completion belongs to Agent
+### Committed increment: operation completion belongs to Agent
 
-Base `f19079524`. `ActorEngine.requireComplete` was the only
+Committed in `8ceb7706b` after base `f19079524`. `ActorEngine.requireComplete` was the only
 engine method that decided whether an Agent operation spanning several tasks was finished. Only
 `AgentImpl` called it. The check now uses the same World task and event views from inside
 `AgentImpl`, and the public engine method is gone. Its existing pending-task, `MustCleanUp`, and
@@ -389,7 +416,7 @@ history-navigation lock, so this experiment does not relocate it.
 the existing operation scenarios and curated replays after the ownership move; it does not prove
 that the retained `FINALLY` rule is the intended completion rule.
 
-### Current experiment: finite mandatory transmutation pairs
+### Committed increment: finite mandatory transmutation pairs
 
 The engine's existing transaction-success trial now enumerates concrete source/destination pairs
 for a fixed mandatory transmutation, just as it enumerates concrete types for fixed mandatory gains
@@ -417,8 +444,9 @@ revision was a passing 12-test `AgentNarrowingExperimentTest` and a passing
 `./gradlew build --console=plain --quiet`. The first full-build attempt timed out in
 `:web:jsBrowserTest` with a skipped test and no assertion failure. Browser history, the selected
 replay, and their combined browser task each passed on retry; a second full build then passed.
-The current uncommitted diff is recoverable against `f19079524` from
-`$TMPDIR/engine-contract-reviewed-f19079524.patch`.
+This experiment and its review fixes are committed through `8ceb7706b`.
+The earlier patch against `f19079524` was a recovery snapshot before those commits, not an
+additional current work item.
 
 ## Verification and recoverability
 
