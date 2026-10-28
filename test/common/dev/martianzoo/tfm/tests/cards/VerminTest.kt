@@ -55,7 +55,7 @@ internal class VerminTest : TfmSandboxTest() {
 
     victoryPoints {
       // Expand the per-player deductions; Admin applies the scoring changes.
-      kim.selectOnlyTask()
+      kim.doTask(kim.tasks.matching { !it.deferred }.single())
     } shouldBe listOf(18, 19, 19)
   }
 

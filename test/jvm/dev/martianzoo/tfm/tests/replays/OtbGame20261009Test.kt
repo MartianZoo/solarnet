@@ -1022,9 +1022,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "8 Pay<> FROM MC",
           "$L1TradeTerminal FROM ProjectCard",
       )
-      selectTask(
-          game.tasks.extract { it }.single { !it.deferred }.id
-      ) // L1's three distinct holders
+      doTask(game.tasks.extract { it }.single { !it.deferred }.id) // L1's three distinct holders
       doTasks(
           "Asteroid<$RotatorImpacts>",
           "Floater<$Dirigibles>",

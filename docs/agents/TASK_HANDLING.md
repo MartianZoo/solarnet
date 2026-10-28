@@ -46,7 +46,8 @@ required when an execution command is actually submitted.
 | Ordinary pure dispatch admitted or exposed by an edit/promotion path that admits it | Enqueue its body for its recipient and admit its continuation; do not retain a separate ordinary dispatch task. | No. |
 | `selectTask` or `narrowTask` | Resolve and retain concrete or partial instructions; component changes wait for an execution command. Structural expansion and handoff still occur. | No requested component execution; existing priority probes are reviewed separately below. |
 | Selection/narrowing resolves to a retained zero or `Ok` instruction | Keep it selected until execution. Admission or an empty group can still eliminate no-ops structurally. | No. |
-| Selection/narrowing exposes a group, including `EACH` branches or a gated group | Admit independent children and the original continuation, then remove the original task. Children are not automatically executed by this structural replacement. | No. |
+| Selection/narrowing exposes a group other than `EACH`, including a gated group | Admit independent children and the original continuation, then remove the original task. Children are not automatically executed by this structural replacement. | No. |
+| Selection/narrowing reaches `EACH` | Retain the parent, selected, without creating children. An explicit execution or applicable Actor policy admits all children and consumes the parent. | No component change from expanding the parent. |
 | Selection produces a concrete `BY` or System handoff | Change the assignee; the receiving Actor executes later. | No in this step. |
 | Any successful outer engine transaction, including queue edits | Promote eligible `LATER`/`FINALLY` batches and perform dispatches exposed by promotion. | No direct component changes; tasks can be created/removed. |
 | `doTask` with an explicit group | Execute only the submitted members after structural selection exposes them; leave their reactions and continuations pending. | Yes, for the submitted members. |
@@ -56,11 +57,9 @@ required when an execution command is actually submitted.
 | Engine construction | Execute configured creation work and pending bootstrap tasks before returning the World. | Yes. |
 | Agent call after an engine selection/narrowing | `AutoExecLoop` may submit Admin and configured Player work; the agent owns those choices. | Yes, but separate engine calls are made. |
 
-**Selected design correction:** for `EACH`, admitting all children and consuming the parent is
-execution of that parent task, even when no component changes yet. The current selection path
-therefore executes `EACH` too early under [the contract](ENGINE_CONTRACT.md#selection-must-not-quietly-mean-execution--item-9).
-Move that expansion to an execution request; the children then follow ordinary priority. This
-inventory still describes current code, not the corrected behavior.
+For `EACH`, admitting all children and consuming the parent is execution of that parent task,
+even when no component changes yet. The branch now performs that expansion only after an
+execution request or applicable Actor policy. The children then follow ordinary priority.
 
 Task matching and `prepareTaskNarrowing` can interpret or combine instructions without changing
 components or tasks. They must not be confused with the engine trials above. Similarly, narrowing
@@ -304,7 +303,7 @@ continually rewriting every pending task.
 | Dispatch | Validate/canonicalize its recipient; do not resolve its body yet. |
 | `PER` | Count the metric now, multiply the inner instruction, atomize computed gains, and resolve the resulting instruction. A group remains independent work. |
 | Gate | Check the requirement now; fail if false, otherwise remove the gate and resolve its body. |
-| `EACH` | Require an abstract selector; enumerate matching component types now, bind each target, evaluate body properties, and resolve each branch. Return a group even for a sole branch; no matches yields an empty group. |
+| `EACH` | Selection retains the fanout without enumerating targets. On execution, require an abstract selector; enumerate matching component types, bind each target, evaluate body properties, and resolve each branch. Return a group even for a sole branch; no matches yields an empty group. |
 | `OR` | Resolve arms against the same current World; discard arms throwing `NotNowException` or `DeadEndException`. Collapse equal/sole surviving alternatives. If none survives, report dead end, all-gates failure, or other unavailability as appropriate. |
 | `THEN` | Resolve only the first stage; preserve later stages for the later World. If an open shared type choice prevents resolving the first stage, retain it, with the feasibility check below. |
 | Unlowered transform | Throw an expression error. |

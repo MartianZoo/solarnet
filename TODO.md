@@ -13,9 +13,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   scalar totals into individual engine calls,
   exact admitted group IDs, and session-owned application checks are implemented on the experiment
   branch. Complete shared type binding and nested THEN representation without adding a second
-  continuation slot. Move `EACH` child admission out of selection/narrowing: it is execution of
-  the parent task, and children follow ordinary priority afterward. Define the remaining
-  structural actions permitted during selection.
+  continuation slot. `EACH` child admission now happens when its parent is executed on the
+  experiment branch. Define the remaining structural actions permitted during selection.
 - Extend transaction-success analysis beyond fixed mandatory gains/removals and full-form
   transmutations only after measuring complete Agent calls. Resolve compact transmutations and a
   search resource limit without treating incomplete analysis as a failed transaction. Keep

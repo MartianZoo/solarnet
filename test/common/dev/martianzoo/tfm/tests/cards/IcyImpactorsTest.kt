@@ -18,7 +18,7 @@ internal class IcyImpactorsTest : TfmSandboxTest() {
           doTasks(*cardActionTasks("IcyImpactors", "Action2"))
           doTask("-Asteroid<IcyImpactors>")
           // Expand the start-player choice; its System signal is executed by Admin.
-          selectOnlyTask()
+          doTask(tasks.matching { !it.deferred }.single())
           kim.selectTask("OceanTile<Tharsis_2_6> BY Stan")
           doTask("OceanTile<Tharsis_2_6>")
           doTask("TerraformRating")

@@ -51,7 +51,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "You're buying six cards, which leaves you with 30 money."
     yellow
         .playCorp(MonsInsurance) {
-          yellow.selectTask(
+          yellow.doTask(
               "EACH Other@Player(NOT Yellow) { " +
                   "-2! Production<Other@Player, Class<MC>> BY Other@Player }"
           )

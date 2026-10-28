@@ -28,7 +28,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
-        selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
         doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>")
         doTask("0 Floater<CloudTourism>")
         doTask("0 Floater<FloatingHabs>")
@@ -40,7 +40,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
-        selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
         doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>", "Floater<CloudTourism>")
         doTask("Floater<FloatingHabs>")
       }
@@ -54,7 +54,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
               "L1TradeTerminal FROM ProjectCard",
           )
           // Expand the bonus into a separate resource choice for each eligible card.
-          selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+          doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
           shouldThrow<TaskException> {
             doTask("Floater<Stan, $JetStreamMicroscrappers<Stan>>")
           }
@@ -79,7 +79,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
-        selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
         doTask("0 Floater<FloatingHabs>")
       }
     }
@@ -88,7 +88,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
       doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
       doTasks("L1TradeTerminal FROM ProjectCard")
       // Expand the bonus into a separate resource choice for each eligible card.
-      selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+      doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
       doTask("Floater<FloatingHabs>")
     }
   }
@@ -107,7 +107,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
-        selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
         doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
         doTask("0 Floater<AerialMappers>")
       }
@@ -117,7 +117,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
       doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
       doTasks("L1TradeTerminal FROM ProjectCard")
       // Expand the bonus into a separate resource choice for each eligible card.
-      selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+      doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
       doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
       doTask("Floater<AerialMappers>")
     }
@@ -137,7 +137,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
-        selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
         doTask("Floater<FloatingHabs>")
         doTask("Floater<FloatingHabs>")
       }
@@ -149,7 +149,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
         doTasks("L1TradeTerminal FROM ProjectCard")
         // Expand the bonus into a separate resource choice for each eligible card.
-        selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
         doTask("Floater<FloatingHabs>")
         doTask("0 Microbe<VenusianInsects>")
       }
@@ -159,7 +159,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
           doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
           doTasks("L1TradeTerminal FROM ProjectCard")
           // Expand the bonus into a separate resource choice for each eligible card.
-          selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+          doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
           doTask("Floater<FloatingHabs>")
           doTask("Microbe<VenusianInsects>")
         }
@@ -175,7 +175,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
           doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
           doTasks("L1TradeTerminal FROM ProjectCard")
           // Expand the bonus into a separate resource choice for each eligible card.
-          selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+          doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
         }
         .expect("0 Floater<Stan, $FloatingTradeHub<Stan>>")
   }

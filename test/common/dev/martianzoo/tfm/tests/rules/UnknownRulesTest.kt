@@ -141,7 +141,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
           "-18 MC",
       )
       // Expand the production box after New Partner has raised MC production to its target.
-      selectOnlyTask()
+      doTask(tasks.matching { !it.deferred }.single())
       doTasks("PROD[Steel]", "PROD[Titanium]", "PROD[Plant]", "PROD[Energy]", "PROD[Heat]")
     }
     kim.count("PROD[MC]") - kim.count("ProdOffset<Class<MC>>") shouldBe 1
@@ -162,7 +162,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
           "-18 MC",
       )
       // Expand Industrial Complex's per-resource adjustment while New Partner remains pending.
-      selectTask(
+      doTask(
           "EACH Class<@StandardResource> { PROD[@StandardResource / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>>] }"
       )
       doTasks(

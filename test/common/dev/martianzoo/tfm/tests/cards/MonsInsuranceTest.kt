@@ -64,7 +64,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTask("MonsInsurance<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTasks("48 MC", "-42 MC", "PROD[4 MC]")
           // Expand the production losses into tasks assigned to each other player.
-          selectTask(
+          doTask(
               "EACH Other@Player(NOT Kim) { -2! Production<Other@Player, Class<MC>> BY Other@Player }"
           )
           doTask("4 MC")
@@ -271,7 +271,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
       doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
       doTask("10 MC")
       // Expand Recession into separate losses before checking compensation order.
-      selectOnlyTask()
+      doTask(tasks.matching { !it.deferred }.single())
       if (compensateFirst) {
         doTask("-5 MC<Rob>")
         kim.doTask("3* MC<Rob FROM Kim>")

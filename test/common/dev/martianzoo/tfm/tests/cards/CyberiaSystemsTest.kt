@@ -25,7 +25,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
         "CopyProductionBox<Mine>",
         "PROD[Steel]",
     )
-    selectTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
+    doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
     doTask("BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
     doTasks("CopyProductionBox<ResearchNetwork>", "PROD[MC]")
   }
@@ -42,7 +42,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
               "CyberiaSystems FROM ProjectCard",
               "PROD[Steel]",
           )
-          selectTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
+          doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
           doTask("BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
           doTasks(
               "CopyProductionBox<ResearchNetwork>",
@@ -67,7 +67,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
               "CyberiaSystems FROM ProjectCard",
               "PROD[Steel]",
           )
-          selectTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
+          doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
           doTask("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
           doTasks(
               "CopyProductionBox<Mine>",
@@ -157,7 +157,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           "CopyProductionBox<IndustrialComplex>",
       )
       // Expand the copied production box into its separate resource increases.
-      selectOnlyTask()
+      doTask(tasks.matching { !it.deferred }.single())
       doTasks(
           "PROD[MC]",
           "PROD[Titanium]",

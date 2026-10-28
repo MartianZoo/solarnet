@@ -22,7 +22,7 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
               "SponsoredAcademies FROM ProjectCard",
           )
           // Expand the reward into separate tasks for each other player.
-          selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
+          doTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
           doTask("ProjectCard<Kim, Hand>")
           doTask("-ProjectCard<Kim, Hand>")
           doTask("ProjectCard<Stan, Hand>")
@@ -43,7 +43,7 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
         doTasks(*playCardTasks("SponsoredAcademies"))
         doTasks("9 Pay<> FROM MC", "SponsoredAcademies FROM ProjectCard")
         // Expand the reward into separate tasks for each other player.
-        selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
+        doTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
         doTask("ProjectCard<Stan, Hand>")
         doTask("ProjectCard<Rob, Hand>")
         doTask("-ProjectCard<Kim, Hand>")

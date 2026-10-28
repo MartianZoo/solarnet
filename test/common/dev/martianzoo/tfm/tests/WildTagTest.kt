@@ -248,7 +248,7 @@ internal class WildTagTest : TfmSandboxTest() {
           "27 Pay<> FROM MC",
           "InterplanetaryTrade FROM ProjectCard",
       )
-      selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+      doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
       doTasks(
           "EventTag<WildTagElection<WildTag<ResearchCoordination>>>",
           "0 EarthTag<WildTagElection<WildTag<ResearchNetwork>>>",
@@ -268,7 +268,7 @@ internal class WildTagTest : TfmSandboxTest() {
           "InterplanetaryTrade FROM ProjectCard",
       )
       doTask("PROD[1 MC]")
-      selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+      doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
       doTask("EventTag<WildTagElection<WildTag<ResearchCoordination>>>")
     }
   }

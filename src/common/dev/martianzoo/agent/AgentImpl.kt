@@ -270,6 +270,10 @@ internal class AgentImpl(
       returnedCall { this@AgentImpl.doTask(narrowing, taskId) }
     }
 
+    override fun doTask(taskId: TaskId) {
+      returnedCall { this@AgentImpl.doTask(taskId) }
+    }
+
     override fun tryTask(narrowing: String) {
       returnedCall { this@AgentImpl.tryTask(narrowing) }
     }

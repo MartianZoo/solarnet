@@ -32,11 +32,29 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | 7 Surrounding Agent call | Application checks belong to an Agents session; cross-session behavior tested. Operation completion checking now lives in Agent. Callback behavior characterized. | Good independent change. Does not settle callback failure recovery or FINALLY-based completion. |
 | 1b Submitted groups | Executes the exact IDs returned when group members are admitted; excludes dispatch bodies, reactions, and continuations. | Good independent change; repairs the initial queue-difference approach. |
 | 1a Combined scalar totals | Deleted engine arithmetic and flag; Agent translates explicit totals into separate engine calls. Production tests use totals again; unrelated rewards stay separate. | Worth merging with the Agent restoration below. |
-| 3 Selection | Selection/narrowing do not execute component changes, but can expand exposed `EACH` tasks into children. The owner now defines that expansion as execution. | Numeric 2 and component-execution separation are useful; `EACH` expansion during selection must be corrected before this satisfies the selected contract. |
+| 3 Selection | Selection/narrowing do not execute component changes, and now retain `EACH` parents until execution; other structural splitting and handoffs remain. | The `EACH` correction satisfies its selected timing rule. Classify the remaining structural paths separately. |
 | 2 THEN | Shared numeric X must be supplied explicitly; no reverse inference from the requested first-stage amount. | Numeric change is suitable with 3. Broad shared-type removal remains parked. |
 | 4 Transaction uniqueness | Fixed mandatory gains/removals and full-form transmutations enumerate concrete types or pairs and try complete transactions in disposable copies. | Experimental integration candidate, not complete general inference. Review cost and unsupported forms before merging. |
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
 | 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Evidence for the separate Agent choice project, not a gate for the engine API. |
+
+### `EACH` now expands on execution
+
+After base `661cc1eb2`, selection resolves wrappers around `EACH` but retains the parent task.
+Executing that selected parent resolves its selector against the current World, admits every
+child, consumes the parent, and leaves the children unselected at their ordinary priorities.
+Bootstrap and the existing Player EAGER and CONCRETE policies explicitly execute a selected
+`EACH`; policy `NONE` leaves it pending. The Agent operation scope now accepts a task ID for
+execution, matching the existing top-level Agent call. No second fanout representation or task
+queue was added.
+
+The direct selection test proves that selection creates no children and that execution creates a
+pending child before the child's component change. Existing sandbox and replay calls that meant
+"expand this fanout" now submit execution; their chosen child tasks and outcome checks remain.
+The engine JVM suite (597 tests), sandbox suite (853 tests, 20 skipped), gameplay suite, and
+curated replay suite passed after this migration. A later full `./gradlew build` passed after the
+Opus review fixes for `BY` fanout and automatic selection checkpoints. These checks do not settle
+other structural selection paths or general transaction uniqueness.
 
 The current `ActorEngine.matchingTask` already compares a request with a pending instruction and,
 when direct intersection fails, with that instruction resolved against the current World.
@@ -132,12 +150,11 @@ explicitly too. Shared type inference and nested THEN remain unresolved: removin
 broke action-card selection across all 23 initial replays, and the current representation cannot
 store a second continuation. No extra continuation field was added.
 
-Selection still performs structural work such as exposing EACH/group children and handoffs.
-The owner has since clarified that enqueuing all `EACH` children and consuming the parent is
-execution of that parent task. Thus this branch still executes `EACH` through selection, contrary
-to the selected separation. Admission can discard literal Ok/zero and split eligible THENs; their
-classification remains open. Partial narrowing is retained because it enables useful subsequent
-AMAP evaluation.
+At this earlier checkpoint, selection still exposed `EACH` and other group children and performed
+handoffs. The owner clarified that enqueuing all `EACH` children and consuming the parent executes
+that parent task. The later correction above moves that work to execution. Admission can still
+discard literal Ok/zero and split eligible THENs; their classification remains open. Partial
+narrowing remains because it enables useful subsequent AMAP evaluation.
 
 ## 4 and 5: prove a unique requested transaction
 

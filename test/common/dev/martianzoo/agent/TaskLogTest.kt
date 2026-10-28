@@ -108,6 +108,32 @@ internal class TaskLogTest {
   }
 
   @Test
+  internal fun automaticEachExecutionDoesNotCreateAChoiceCheckpoint() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin")))
+    val player = agents[PLAYER1]
+    player.addTasks("EACH Player { Coin }")
+    agents.taskLog.start()
+
+    player.autoExecNow(EAGER)
+
+    player.count("Coin") shouldBe 1
+    agents.taskLog.selectionCheckpoints() shouldBe emptyList()
+  }
+
+  @Test
+  internal fun automaticEachExpansionDoesNotMarkTheParentAsWaitingForInput() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
+    val player = agents[PLAYER1]
+    player.addTasks("EACH Player { Coin OR Marker }")
+    agents.taskLog.start()
+    val beforeExpansion = agents.world.timeline.checkpoint()
+
+    player.autoExecNow(EAGER)
+
+    agents.taskLog.selectionCheckpoints().contains(beforeExpansion) shouldBe false
+  }
+
+  @Test
   internal fun selectionCheckpointsSkipAutomaticHandoffsToAdmin() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin")))
     val player = agents[PLAYER1]

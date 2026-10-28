@@ -668,7 +668,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       inTurn {
             doWithAutoExecPolicy(CONCRETE) {
               playProject(InterplanetaryTrade, 27) {
-                selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+                doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
                 doTask("JovianTag<WildTagElection<WildTag<AppliedScience>>>")
                 doTask("PlantTag<WildTagElection<WildTag<ResearchCoordination>>>")
               }

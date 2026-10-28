@@ -339,7 +339,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "$InterplanetaryTrade FROM ProjectCard",
       )
       inTurn {
-        selectTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+        doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
         doTask("PROD[9 MC]")
       }
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Producer")

@@ -18,6 +18,7 @@ import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
@@ -283,7 +284,7 @@ internal constructor(
    * Supplies [narrowing] for this Actor's selected task. When [quantifierOmitted] is true, retains
    * the pending task's quantifier where needed. Resolves and stores the resulting instruction
    * without executing component changes. Structural splitting and Actor reassignment follow
-   * [selectTask].
+   * [selectTask]; `EACH` child tasks remain uncreated until execution.
    *
    * Rejects a missing selection or incompatible narrowing and restores a failed transaction. It can
    * store a partial choice; keeping such choices in the client is a proposal awaiting review.
@@ -361,8 +362,8 @@ internal constructor(
    *
    * Rejects a competing selection, deferred work, an incompatible narrowing, or narrowing that
    * belongs to a different Actor after selection. A structural task may split into independent
-   * child tasks. A failed transaction restores its changes. Persistent partial choices remain under
-   * review.
+   * child tasks, except that `EACH` retains its parent until execution. A failed transaction
+   * restores its changes. Persistent partial choices remain under review.
    */
   public fun narrowTask(
       taskId: TaskId,
@@ -432,7 +433,11 @@ internal constructor(
     // worlds.
     val resolved =
         if (effectiveNarrowing is Instruction)
-            instructor.resolve(effectiveNarrowing, worldGainNarrowing = true)
+            instructor.resolve(
+                effectiveNarrowing,
+                worldGainNarrowing = true,
+                expandEach = false,
+            )
         else effectiveNarrowing
     val children = applyResolution(tasks, task, resolved, then = continuation)
     return children
@@ -511,8 +516,9 @@ internal constructor(
 
   /**
    * Selects this Actor's [taskId] and resolves its instruction against current state. Concrete
-   * component changes remain pending until an execution command. Independent structural children
-   * are admitted without inheriting selection.
+   * component changes remain pending until an execution command. `EACH` also stays selected until
+   * execution, when it admits independent children without passing selection to them. Other
+   * structural splitting can still admit children during selection.
    *
    * When resolution reassigns the task, this call records the handoff without attempting the
    * receiving Actor's execution. That Actor performs the instruction in a later transaction, which
@@ -594,7 +600,8 @@ internal constructor(
       throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
     }
     if (task.selected) return task.id
-    val resolved = instructor.resolve(task.instruction, worldGainNarrowing = true)
+    val resolved =
+        instructor.resolve(task.instruction, worldGainNarrowing = true, expandEach = false)
     applyResolution(queue, task, resolved, then = task.then)
     return task.id.takeIf { it in allTasks }
   }
@@ -658,8 +665,9 @@ internal constructor(
 
   /**
    * Selects and executes [taskId] for this Actor, applying immediate effects and checking
-   * invariants. Resulting ordinary tasks remain queued. A change assigned to another Actor remains
-   * selected for that Actor to perform in a later transaction.
+   * invariants. Executing `EACH` admits its children and consumes the parent; the children remain
+   * queued at their ordinary priorities. A change assigned to another Actor remains selected for
+   * that Actor to perform in a later transaction.
    *
    * A fixed mandatory change can infer its unique successful concrete target, or source and
    * destination pair, by trying its complete finite domain in disposable Worlds. Other unresolved
@@ -690,6 +698,11 @@ internal constructor(
     check(selectedTask.selected)
     check(selectedTask.assignee == executingActor)
     val instruction = selectedTask.instruction
+    if (instruction is Each) {
+      val children = instructor.resolve(instruction, worldGainNarrowing = true)
+      applyResolution(queue, selectedTask, children, then = selectedTask.then)
+      return
+    }
     if (instruction.isAbstract(reader)) {
       val chosen = successfulNarrowing(taskId, instruction, executingActor)
       narrowSelectedTask(taskId, chosen, quantifierOmitted = false)

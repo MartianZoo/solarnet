@@ -730,7 +730,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
         doTasks(*playCardTasks("SponsoredAcademies"))
         doTasks("9 Pay<> FROM MC", "SponsoredAcademies FROM ProjectCard")
         // Expand the reward into separate tasks for each other player.
-        selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
+        doTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
         doTask("ProjectCard<Stan, Hand>")
         doTask("ProjectCard<Rob, Hand>")
         doTask("-ProjectCard<Kim, Hand>")
@@ -975,7 +975,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
       doTasks("L1TradeTerminal FROM ProjectCard")
       // Expand the bonus into a separate resource choice for each eligible card.
-      selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+      doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
       choice()
     }
   }
@@ -994,7 +994,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
           doTask("L1TradeTerminal FROM ProjectCard")
-          selectTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
+          doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
           doTask("RobotUnit<StagedProject<Class<Mine>>>")
           shouldThrow<TaskException> { doTask("RobotUnit<StagedProject<Class<Mine>>>") }
           doTask("RobotUnit<StagedProject<Class<TitaniumMine>>>")

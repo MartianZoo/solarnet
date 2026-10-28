@@ -383,7 +383,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
               "Recession FROM PreludeCard",
               "10 MC",
           )
-          selectOnlyTask()
+          doTask(tasks.matching { !it.deferred }.single())
           doTasks("-5* MC<Kim>", "PROD[-MC<Kim>]")
           doTasks("-5* MC<Rob>", "PROD[-MC<Rob>]")
         }

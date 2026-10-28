@@ -210,8 +210,9 @@ and consumes the parent. That queue change is the parent task's execution, just 
 removing components is the execution of a gain or removal task. The children then follow ordinary
 priority; the parent does not retain P0 until all children finish. Therefore a Player's selection
 or narrowing call must not expand an `EACH` task without an execution request or a previously
-installed policy authorizing that execution. The experimental branch currently expands exposed
-`EACH` tasks during selection, so this part of the selected contract is not implemented there.
+installed policy authorizing that execution. On the experimental branch, selection retains the
+`EACH` parent without creating children, and execution expands it. Ordinary group splitting still
+needs classification.
 Canon's base `SetupPhase: EACH Me@Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }`
 illustrates the task shape. Other structural forms still need their own classification.
 
@@ -569,7 +570,7 @@ main, while the experimental checkout describes its branch.
 | Area | Already on the experiment branch | Still needed for the selected destination |
 | --- | --- | --- |
 | Moving policy out of engine | Application validation is session-owned; operation completion and selected-task retry policy live in Agent; combined resource totals are translated by Agent into individual engine calls. `ActorEngine.transact` already coordinates callbacks, while a shared `AutoExecLoop` handles all Actors in a session. | Decide and simplify the public call coordinator, both callback routes, and any remaining engine-owned caller policy. |
-| Selection and execution | Selection/narrowing no longer perform component changes as the selecting Actor; submitted groups execute admitted members only; numeric `THEN` bindings must be explicit. Ordinary add/drop queue edits are refused while another task is selected. | Specify and test structural task edits, Admin handoff, voluntary partial narrowing, correction paths, and the final public API. |
+| Selection and execution | Selection/narrowing no longer perform component changes as the selecting Actor; `EACH` selection retains its parent, while execution admits children at ordinary priority. Submitted groups execute admitted members only; numeric `THEN` bindings must be explicit. Ordinary add/drop queue edits are refused while another task is selected. | Specify and test other structural task edits, Admin handoff, voluntary partial narrowing, correction paths, and the final public API. |
 | Identified task execution | Existing task-string matching intersects direct and resolved instructions; fixed mandatory gains, removals, and full-form transmutations try complete finite candidate transactions in disposable Worlds. Shared type pairs and malformed generated changes are filtered before trial. | Decide whether to retain resolved-value matching and finish interchangeability; cover unsupported instruction forms or report analysis honestly; settle deterministic search limits. |
 | Admin and priority | Admin is mandatory in Agent calls, retries after progress, and uses the same finite uniqueness rule as the Player priority probe. An ambiguous Admin candidate does not become executable just because some candidate succeeds. | Resolve stalled passes and handoff timing across all relevant Canon cases; integrate Agent-provided automatic work into the chosen public API shape. |
 | Recovery and result | Engine mutations restore their transaction on an `Exception`; surrounding calls usually restore the initiating command and Admin handling together. Returned results cover the retained call interval. | Decide callback failure recovery and precisely what the public call promises; arbitrary application side effects remain outside game-state rollback. |

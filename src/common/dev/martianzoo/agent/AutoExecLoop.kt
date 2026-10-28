@@ -8,6 +8,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -94,7 +95,7 @@ internal class AutoExecLoop(
                   progressed =
                       taskId !in allTasks ||
                           allTasks.getTaskData(taskId).assignee != engine.actor ||
-                          (!allTasks.getTaskData(taskId).instruction.isAbstract(world.reader) &&
+                          (canExecuteWithoutChoice(taskId) &&
                               command(taskId, Kind.TRY_SELECTED) {
                                 try {
                                   engine.doTask(taskId)
@@ -147,10 +148,15 @@ internal class AutoExecLoop(
   private fun executeConcretePlayerTask(engine: ActorEngine, taskId: TaskId) {
     engine.selectTask(taskId)
     if (taskId !in allTasks || allTasks.getTaskData(taskId).assignee != engine.actor) return
-    if (allTasks.getTaskData(taskId).instruction.isAbstract(world.reader)) {
+    if (!canExecuteWithoutChoice(taskId)) {
       throw NotFullySpecifiedException("Player policy requires a concrete selected instruction")
     }
     engine.doTask(taskId)
+  }
+
+  private fun canExecuteWithoutChoice(taskId: TaskId): Boolean {
+    val instruction = allTasks.getTaskData(taskId).instruction
+    return instruction is Each || !instruction.isAbstract(world.reader)
   }
 
   /** Automatic handling is mandatory for Admin and configured policy for every other Actor. */

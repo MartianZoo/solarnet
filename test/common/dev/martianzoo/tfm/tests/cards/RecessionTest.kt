@@ -25,7 +25,7 @@ internal class RecessionTest : TfmSandboxTest() {
               "10 MC",
           )
           // Expand the effect into separate losses for each other player.
-          selectOnlyTask()
+          doTask(tasks.matching { !it.deferred }.single())
           doTask("-5* MC<Stan>")
           doTask("PROD[-MC<Stan>]")
           doTask("-5* MC<Rob>")
@@ -57,7 +57,7 @@ internal class RecessionTest : TfmSandboxTest() {
         doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
         doTask("10 MC")
         // Expand the effect into separate losses for each other player.
-        selectOnlyTask()
+        doTask(tasks.matching { !it.deferred }.single())
         doTask("-5* MC<Stan>")
         doTask("-5* MC<Rob>")
         doTask("PROD[-MC<Rob>]")
@@ -79,7 +79,7 @@ internal class RecessionTest : TfmSandboxTest() {
         doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
         doTask("10 MC")
         // Expand the effect into separate losses for each other player.
-        selectOnlyTask()
+        doTask(tasks.matching { !it.deferred }.single())
         doTask("-5* MC<Stan>")
         doTask("-5* MC<Rob>")
         doTask("PROD[-MC<Rob>]")

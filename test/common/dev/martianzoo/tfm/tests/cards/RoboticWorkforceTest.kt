@@ -23,7 +23,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
         "9 Pay<> FROM MC",
         "RoboticWorkforce FROM ProjectCard",
     )
-    selectTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
+    doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
     doTask("BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
     doTasks("CopyProductionBox<ResearchNetwork>", "PROD[MC]")
   }
@@ -40,7 +40,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
               "9 Pay<> FROM MC",
               "RoboticWorkforce FROM ProjectCard",
           )
-          selectTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
+          doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
           doTask("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
           doTasks("CopyProductionBox<Gyropolis>", "PROD[-2 Energy]", "PROD[0 MC]", "PROD[1 MC]")
         }
@@ -58,7 +58,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
               "9 Pay<> FROM MC",
               "RoboticWorkforce FROM ProjectCard",
           )
-          selectTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
+          doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
           doTask("BuildingTag<WildTagElection<WildTag<ResearchCoordination>>>")
           doTasks("CopyProductionBox<MedicalLab>", "PROD[1 MC]")
         }
@@ -146,7 +146,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
               "CopyProductionBox<IndustrialComplex>",
           )
           // Expand the copied production box into its separate resource increases.
-          selectOnlyTask()
+          doTask(tasks.matching { !it.deferred }.single())
           doTask("PROD[MC]")
         }
         .expect("PROD[MC, 0 Steel, 0 Titanium, 0 Plant, 0 Energy, 0 Heat]")

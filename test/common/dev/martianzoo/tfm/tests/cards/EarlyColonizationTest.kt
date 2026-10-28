@@ -24,7 +24,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
               "3 Energy",
           )
           // Expand the increase into separate track changes for each active colony.
-          selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
+          doTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
           doTasks("Colony<Luna>", "PROD[2 MC]")
         }
         .expect(
@@ -46,7 +46,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
         )
         doTask("3 Energy")
         // Expand the increase into separate track changes for each active colony.
-        selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
+        doTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
         // Resolve the colony offer to prove that no eligible active tile remains.
         selectTask("Colony<>")
       }
@@ -87,7 +87,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
         )
         doTask("3 Energy")
         // Expand the increase into separate track changes for each active colony.
-        selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
+        doTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
 
         doTask("Colony<Ceres>")
         doTask("PROD[Steel]")

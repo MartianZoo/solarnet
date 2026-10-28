@@ -48,7 +48,7 @@ checks. This plan does not authorize any further merge.
 | Application input checks and operation completion moved to Agent sessions. | Completion callbacks and whole-call failure semantics are unsettled. |
 | Engine combined resource totals removed; Agent translates an explicitly submitted total into separate calls. Existing engine matching can identify an individual task by its calculated amount. | Decide whether to retain calculated-amount matching in the final engine API and settle multiple matches. |
 | Explicit submitted groups execute their admitted member IDs, leaving reactions and continuations queued. | Structural selection and handoff still need a final rule. |
-| Selection/narrowing no longer execute component changes as the selecting Actor; numeric `THEN` bindings are explicit. Ordinary add/drop queue edits now refuse while a task is selected, except dropping that task itself. | Selection still expands exposed `EACH` tasks. The owner defines that expansion as execution, so this branch behavior must move to an execute command. Voluntary partial narrowing and other structural paths need review. |
+| Selection/narrowing no longer execute component changes as the selecting Actor; numeric `THEN` bindings are explicit. Ordinary add/drop queue edits now refuse while a task is selected, except dropping that task itself. `EACH` selection retains the parent, and execution admits its children. | Voluntary partial narrowing and structural paths other than `EACH` need review. |
 | Finite mandatory gains/removals and full-form transmutations try complete candidate transactions in disposable Worlds; Admin and Player priority use this finite uniqueness rule. | Other forms and deterministic proof limits remain open. |
 | Admin remains mandatory in Agent calls, retries after progress, and preserves retained rule failures. | Stalled passes, waiting cases, and public orchestration need settlement. |
 
@@ -112,10 +112,10 @@ silently choose an answer.
    of a selected task with this rule before treating it as valid completion. Current
    `dropTask(selectedTaskId)` is an external correction request, outside the in-game priority rule;
    audit it with correction APIs without making it an implementation gate for P0 scheduling.
-   Move `EACH` expansion out of selection/narrowing: enqueuing all children and consuming the
-   parent is execution of the selected `EACH` task. After that execution, children take their
-   ordinary priorities. Use Canon base `SetupPhase: EACH Me@Player { PROD[...] }` to exercise the
-   distinction; selection alone must not create its production child tasks.
+   The branch now moves `EACH` expansion to execution: enqueuing all children consumes the
+   selected parent, and the children take ordinary priorities. Keep the direct selection test and
+   Canon base `SetupPhase: EACH Me@Player { PROD[...] }` verification when changing neighboring
+   structural paths; selection alone must not create production child tasks.
    Specify whether the completed public call succeeds if that later Admin transaction fails.
 5. **Whole-call results and recovery.** Decide what a client-facing call returns and restores when
    a completion callback or later automatic transaction fails. Engine transaction failure already

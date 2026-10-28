@@ -3,6 +3,7 @@ package dev.martianzoo.agent
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
@@ -157,7 +158,8 @@ public class TaskLog internal constructor(private val world: World) {
         }
         submission.awaitsInput =
             world.tasks.selectedTask()?.let {
-              world.tasks.getTaskData(it).instruction.isAbstract(world.reader)
+              val instruction = world.tasks.getTaskData(it).instruction
+              instruction !is Each && instruction.isAbstract(world.reader)
             } == true
         // A later full form instruction includes provisional instruction choices. Keep selection,
         // structural changes, continuations and Actor handoffs, which have independent effects.

@@ -118,8 +118,8 @@ public interface Agent {
    * assign it to another Actor. The call's task handling then runs, so that Actor's policy decides
    * whether the task finishes before this call returns.
    *
-   * If resolution produces independent instructions, selecting the structural task completes it and
-   * admits those instructions as ordinary pending siblings.
+   * If resolution produces independent instructions, selecting the structural task may admit them
+   * as ordinary pending siblings. `EACH` retains its parent until [doTask] executes it.
    *
    * @throws [TaskException] if no task with id [taskId] exists, or if any other task is already
    *   selected
@@ -357,6 +357,9 @@ public interface Agent {
 
     /** Executes [narrowing] against the pending task identified by [taskId]. */
     public fun doTask(narrowing: String, taskId: TaskId)
+
+    /** Executes the pending task identified by [taskId], then runs applicable automatic work. */
+    public fun doTask(taskId: TaskId)
 
     /**
      * Submits each instruction in order, including all component changes when a chosen amount

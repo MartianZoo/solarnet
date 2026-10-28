@@ -60,7 +60,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           "3 Energy",
       )
       // Expand the increase into separate track changes for each active colony.
-      selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
+      doTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
       doTasks("Colony<Luna>", "PROD[2 MC]")
     }
 
@@ -68,7 +68,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
           doTasks("CopyPrelude<EarlyColonization>", "3 Energy")
           // Expand the increase into separate track changes for each active colony.
-          selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
+          doTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
           doTasks("Colony<Ceres>", "PROD[Steel]")
         }
         .expect("2 ColonyProduction<Luna>, 2 ColonyProduction<Ceres>")
@@ -221,7 +221,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           "-18 MC",
       )
       // Expand the copied production box into its separate resource increases.
-      selectOnlyTask()
+      doTask(tasks.matching { !it.deferred }.single())
       doTasks(
           "PROD[7 MC]",
           "PROD[Titanium]",
@@ -237,7 +237,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
           doTasks("CopyPrelude<IndustrialComplex>", "-18 MC")
           // Expand the copied production box into its separate resource increases.
-          selectOnlyTask()
+          doTask(tasks.matching { !it.deferred }.single())
           doTask("PROD[Steel]")
         }
         .expect("PROD[0 MC, Steel, 0 Titanium, 0 Plant, 0 Energy, 0 Heat]")
