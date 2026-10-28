@@ -210,6 +210,10 @@ be gained, removed, or transmuted.
 The pure-change domain search deliberately does not preflight abstract transmutations. Source and
 destination Types can use the same variable, so narrowing must choose one compatible atomic pair
 before its limit is known. Once concrete, the pair follows the concrete transmutation rules.
+On the engine-transition branch, an explicit fixed mandatory full-form request can try finite
+concrete pairs through complete transactions after task selection. This does not add independent
+source and destination preflight to pure-change resolution. Compact transmutation inference remains
+unresolved.
 
 This permits a selected nonmandatory pair to execute zero and still supply its Type Variable to a
 `THEN` continuation. A missing destination dependency remains unavailable rather than becoming an

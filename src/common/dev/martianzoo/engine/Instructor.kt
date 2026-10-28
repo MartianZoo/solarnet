@@ -545,18 +545,7 @@ internal constructor(
     }
 
     val (g, r) = narrowChangeTypes(change, count, intens, worldGainNarrowing) ?: return change
-    if (r?.rootClass?.declaration?.customMetric == true) {
-      throw ExpressionException(
-          "custom metric `${r.className}` cannot be removed",
-          sourceLocation = change.removing?.sourceLocation,
-      )
-    }
-    if (g?.rootClass?.declaration?.customMetric == true) {
-      throw ExpressionException(
-          "custom metric `${g.className}` cannot be gained",
-          sourceLocation = change.gaining?.sourceLocation,
-      )
-    }
+    validateChangeTypes(change, g, r, count)
     fun retainedExpression(resolved: Type?, authored: Expression?): Expression? =
         resolved?.expression?.let { expression ->
           authored?.let { elaborator.retainTypeVariableNames(expression, it) } ?: expression
@@ -569,13 +558,6 @@ internal constructor(
                 "`${it.expression}`"
               },
           sourceLocation = change.sourceLocation,
-      )
-    }
-    val atomized = classTable.findClass(ATOMIZED)
-    if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
-      throw ExpressionException(
-          "cannot transmute $count components into atomized type `${g.expression}`; " +
-              "split it into one-component transmutations"
       )
     }
     if (g?.className == DIE && intens == MANDATORY) {
@@ -640,6 +622,41 @@ internal constructor(
         count,
         intens,
     )
+  }
+
+  /** Checks a generated concrete candidate without executing its effects. */
+  internal fun validateConcreteChange(change: Change) {
+    val count = (change.count as? ActualScalar)?.value ?: return
+    validateChangeTypes(
+        change,
+        change.gaining?.let(reader::resolve),
+        change.removing?.let(reader::resolve),
+        count,
+    )
+  }
+
+  private fun validateChangeTypes(change: Change, g: Type?, r: Type?, count: Int) {
+    if (r?.rootClass?.declaration?.customMetric == true) {
+      throw ExpressionException(
+          "custom metric `${r.className}` cannot be removed",
+          sourceLocation = change.removing?.sourceLocation,
+      )
+    }
+    if (g?.rootClass?.declaration?.customMetric == true) {
+      throw ExpressionException(
+          "custom metric `${g.className}` cannot be gained",
+          sourceLocation = change.gaining?.sourceLocation,
+      )
+    }
+    // Preserve the uninhabited-type diagnosis made by the normal resolver below.
+    if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) return
+    val atomized = classTable.findClass(ATOMIZED)
+    if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
+      throw ExpressionException(
+          "cannot transmute $count components into atomized type `${g.expression}`; " +
+              "split it into one-component transmutations"
+      )
+    }
   }
 
   private fun narrowChangeTypes(

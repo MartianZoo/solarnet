@@ -452,9 +452,10 @@ These are observations to address during transition, not reasons to preserve the
 prototypes. Application guards now live on Agents sessions, and selection does not execute component
 changes on that branch. General uniqueness and the treatment of structural selection remain unfinished.
 
-- On the experiment branch, fixed mandatory gains/removals can prove uniqueness by trying the
-  complete finite type domain in disposable Worlds. Transmutations, alternatives/groups, shared
-  type binding, and unresolved immediate choices remain incomplete. This is not general coverage.
+- On the experiment branch, fixed mandatory gains/removals and full-form transmutations can prove
+  uniqueness by trying their complete finite type domains in disposable Worlds. Optional/AMAP amounts,
+  alternatives/groups, broader shared bindings, and unresolved immediate choices remain incomplete.
+  This is not general coverage.
 - Selection and narrowing retain concrete instructions until explicit execution. Structural group
   expansion, admission normalization, and handoff remain; their final treatment is still open.
   Explicit groups execute only their admitted members; reactions and continuations remain queued.

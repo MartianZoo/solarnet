@@ -280,7 +280,7 @@ work defers. It exists for turn and phase handoffs.
 
 ### Operation completion
 
-`ActorEngine.requireComplete` currently accepts an operation when no new task remains, or when
+`AgentImpl.requireComplete` currently accepts an operation when no new task remains, or when
 World `FINALLY` work has begun since the operation's last decision. The first final promotion
 occurs after all preceding ordinary and `LATER` work, and the cleanup-component check uses that
 same point in the event log. Agents record each operation's beginning and decisions.

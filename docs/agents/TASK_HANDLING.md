@@ -480,8 +480,8 @@ These explain behavior seen through agent calls; they are not additional engine 
 - Completion callbacks run after the first restoring block. Returned results include their retained
   changes and subsequent finishing work. A callback failure does not restore the earlier block.
   Callbacks cannot seek or truncate history.
-- `requireComplete` does not execute tasks. It checks outstanding work and `MustCleanUp`, with
-  a current exception once `FINALLY` promotion has occurred since the last decision. That check
+- AgentImpl's `requireComplete` does not execute tasks. It checks outstanding work and `MustCleanUp`,
+  with a current exception once `FINALLY` promotion has occurred since the last decision. That check
   can precede scope removal and is not the proposed action-completion definition.
 
 The engine does not search a Single-Action Decision Graph or prune choices by future completion.
@@ -523,15 +523,19 @@ section and its entry-path distinctions, especially any claim about when state i
 
 ## Finite transaction inference on the experiment branch
 
-After identifying and selecting a task, fixed mandatory gains/removals with unresolved types can
-use all included concrete structural subtypes as their candidate domain. Each candidate is submitted
-through the ordinary engine in a reusable disposable World. That copy completes its transaction,
-including deferred admission, even when the source call is inside an enclosing transaction. No
-queued Admin or Player instruction is executed to prove the candidate.
+After identifying and selecting a task, a fixed mandatory gain/removal with an unresolved type can
+use all included concrete structural subtypes as its candidate domain. A fixed mandatory
+full-form transmutation uses concrete source/destination pairs, excluding equal types and pairs
+incompatible with the original instruction's shared bindings. Compact transmutations remain
+unresolved. Malformed concrete changes are excluded before trial. Each remaining candidate is
+submitted through the ordinary engine in a reusable disposable World. That copy completes its
+transaction, including deferred admission, even when the source call is inside an enclosing
+transaction. No queued Admin or Player instruction is executed to prove the candidate.
 
 A second successful candidate means ambiguity; unresolved immediate work and implementation errors
-propagate. When all attempts fail, failures all reported as `DeadEndException` remain dead ends; other failures report current
-unavailability with sorted diagnostics, so candidate order cannot decide Admin waiting behavior.
+propagate. When all attempts fail, failures all reported as `DeadEndException` remain dead ends;
+other failures report current unavailability with sorted diagnostics, so candidate order cannot
+decide Admin waiting behavior.
 Priority checks require the same unique successful choice as Admin execution. Merely having some
 successful choice is insufficient: Turmoil event draws can still await external input.
 

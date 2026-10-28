@@ -6,9 +6,13 @@ import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Deferral.FINALLY
+import dev.martianzoo.pets.ast.Deferral.NONE
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Per
@@ -19,7 +23,9 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.util.Multiset
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
@@ -531,8 +537,53 @@ internal class AgentImpl(
     autoExecLoop.lastDecision = world.events.nextOrdinal
   }
 
-  private fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) =
-      engine.requireComplete(allowedPendingTasks, autoExecLoop.lastDecision)
+  /**
+   * Checks pending work after this Agent operation. Once `FINALLY` work begins, later tasks belong
+   * to the next operation; cleanup is checked at the first such promotion, not at the current World
+   * state. Whether that promotion is always the right completion point remains open.
+   */
+  private fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) {
+    val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
+    val workOver = autoExecLoop.lastDecision?.let(::finalWorkBegan)
+    if (pending.isNotEmpty() && workOver == null) {
+      if (pending.any { it.instruction.isAbstract(reader) }) {
+        throw NotFullySpecifiedException("pending abstract tasks:\n${pending.joinToString("\n")}")
+      }
+      throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
+    }
+    val cleanupLeft =
+        if (pending.isEmpty() || workOver == null)
+            reader.count(reader.resolve(MUST_CLEAN_UP.expression)) > 0
+        else cleanupComponentsAt(workOver) > 0
+    if (cleanupLeft) {
+      throw DeadEndException(
+          "components requiring cleanup remained after the operation: " +
+              reader.getComponents(MUST_CLEAN_UP.expression).elements
+      )
+    }
+  }
+
+  /** The event ordinal at which the World's `FINALLY` work first began since [eventCursor]. */
+  private fun finalWorkBegan(eventCursor: Int): Int? =
+      world.events
+          .entriesSince(eventCursor)
+          .firstOrNull {
+            it is TaskEditedEvent && it.oldTask.deferral == FINALLY && it.task.deferral == NONE
+          }
+          ?.ordinal
+
+  /** How many cleanup components existed at [eventCursor]: those present now, less later change. */
+  private fun cleanupComponentsAt(eventCursor: Int): Int {
+    val mustCleanUp = reader.classTable.getClass(MUST_CLEAN_UP)
+    fun cleanup(component: Component?) =
+        component?.type?.rootClass?.isSubtypeOf(mustCleanUp) == true
+    val changeSince =
+        world.events.changesSince(eventCursor).sumOf {
+          (if (cleanup(it.change.gaining)) it.change.count else 0) -
+              (if (cleanup(it.change.removing)) it.change.count else 0)
+        }
+    return reader.count(reader.resolve(MUST_CLEAN_UP.expression)) - changeSince
+  }
 
   // Agent calls can re-enter this site. Shared depth currently makes the outermost call handle
   // tasks and report completion, even when several Actor engine calls happen inside it.

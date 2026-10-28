@@ -1,8 +1,8 @@
 # Engine transition experiment results
 
 Status: authorized follow-up reviewed for the user-requested commit, October 24, 2026, plus the
-separately committed increments recorded below, October 27, 2026. The selected destination is still
-incomplete. Nothing here is published or merged into main. The branch is
+separately committed increments and current experiment recorded below, October 27, 2026. The
+selected destination is still incomplete. Nothing here is published or merged into main. The branch is
 `codex/engine-transition-experiments`, at base `c14c000b23f143f0f672ba2b94ae21966ff245d7`, in
 `/Users/dev/solarnet/engine-transition-experiments`. The initial work1 design documents were copied
 here. During review, the user requested integrating main and committing those design documents in
@@ -20,12 +20,12 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 
 | Experiment | Current branch | Merge assessment |
 | --- | --- | --- |
-| 7 Surrounding Agent call | Application checks belong to an Agents session; cross-session behavior tested. Callback behavior characterized. | Good independent change. Does not settle callback failure recovery or FINALLY-based completion. |
+| 7 Surrounding Agent call | Application checks belong to an Agents session; cross-session behavior tested. Operation completion checking now lives in Agent. Callback behavior characterized. | Good independent change. Does not settle callback failure recovery or FINALLY-based completion. |
 | 1b Submitted groups | Executes the exact IDs returned when group members are admitted; excludes dispatch bodies, reactions, and continuations. | Good independent change; repairs the initial queue-difference approach. |
 | 1a Combined scalar totals | Deleted engine arithmetic and flag; Agent translates explicit totals into separate engine calls. Production tests use totals again; unrelated rewards stay separate. | Worth merging with the Agent restoration below. |
 | 3 Selection | Selection/narrowing do not execute component changes; callers explicitly execute. | Worth merging with numeric 2 and caller migration. Structural selection remains an open question. |
 | 2 THEN | Shared numeric X must be supplied explicitly; no reverse inference from the requested first-stage amount. | Numeric change is suitable with 3. Broad shared-type removal remains parked. |
-| 4 Transaction uniqueness | Fixed mandatory gains/removals enumerate concrete types and try complete transactions in disposable copies. | Experimental integration candidate, not complete general inference. Review cost and unsupported forms before merging. |
+| 4 Transaction uniqueness | Fixed mandatory gains/removals and full-form transmutations enumerate concrete types or pairs and try complete transactions in disposable copies. | Experimental integration candidate, not complete general inference. Review cost and unsupported forms before merging. |
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
 | 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Merge evidence tests, not the proposed general reducer. Current menus are not complete enough. |
 
@@ -325,7 +325,7 @@ optional archived suites remain disabled.
 ## Increments after the October 24 review
 
 The user asked for one well-defined increment at a time, each verified and committed on its own.
-Two landed on October 27, 2026. Neither advances experiments 4 and 5, and neither touches
+Three landed on October 27, 2026. None advances experiments 4 and 5, and none touches
 corrections.
 
 `349676f33` closes the queue-edit half of the selected-task exclusion. `ActorEngine.addTasks` and
@@ -360,7 +360,8 @@ at this record, so the increments survive a later reset of the branch.
 
 ### Increment 03: remove an engine retry policy
 
-Base `a0161506a`; recoverable patch: `$TMPDIR/engine-contract-increment-03-a0161506a.patch`.
+Commit `f19079524`, based on `a0161506a`; recoverable patch:
+`$TMPDIR/engine-contract-increment-03-a0161506a.patch`.
 `ActorEngine.trySelectedTask()` had only one production caller, Player automatic execution in
 `AutoExecLoop`. Its special results were Player policy decisions: an unfinished choice waits, while
 current unavailability is reported as a dead end. The Agent loop now calls the engine's ordinary
@@ -370,6 +371,54 @@ still identifies the automatic attempt in task recordings; its replay path alrea
 stored fact, or instruction form was added. The Agent and engine JVM suites and `spotlessCheck`
 passed, followed by `./gradlew build --console=plain --quiet`, including the active replay and
 browser checks. This change does not settle the separate optional amount or Admin waiting questions.
+
+### Current experiment: operation completion belongs to Agent
+
+Base `f19079524`. `ActorEngine.requireComplete` was the only
+engine method that decided whether an Agent operation spanning several tasks was finished. Only
+`AgentImpl` called it. The check now uses the same World task and event views from inside
+`AgentImpl`, and the public engine method is gone. Its existing pending-task, `MustCleanUp`, and
+`FINALLY` behavior remains intact. This removes operation-completion policy from the engine API
+without adding a model or another processing step.
+The `FINALLY` completion convention itself remains open; moving its existing check does not approve
+it as the final action-completion rule. `WorldTransaction.run` still coordinates call finishing and
+callbacks. Moving that wrapper would require a new cross-module path to the World's callback and
+history-navigation lock, so this experiment does not relocate it.
+`./gradlew :agent:jvmTest :engine:jvmTest spotlessCheck --console=plain --quiet` and
+`./gradlew :tfm-tests:jvmTest :tfm-tests:replayTest --console=plain --quiet` passed. This checks
+the existing operation scenarios and curated replays after the ownership move; it does not prove
+that the retained `FINALLY` rule is the intended completion rule.
+
+### Current experiment: finite mandatory transmutation pairs
+
+The engine's existing transaction-success trial now enumerates concrete source/destination pairs
+for a fixed mandatory transmutation, just as it enumerates concrete types for fixed mandatory gains
+and removals. Equal concrete types are excluded by the Pets transmutation rule. Every remaining
+structurally compatible full-form pair goes through the ordinary task execution path in a reset
+disposable World; shared type bindings are checked before the trial, and immediate effects during
+it. Malformed concrete pairs (such as a multi-count transmutation into an Atomized type) are
+excluded before trial. Compact transmutations remain unresolved. A second successful pair remains
+ambiguous.
+This changes explicit engine requests and mandatory Admin work; Player automation policy is still
+separate. Optional/AMAP amounts, compound alternatives, and unbounded numeric choices remain open.
+The pair domain can grow as the product of its source and destination domains; no general search
+resource limit or incomplete-analysis result has yet been designed.
+
+The engine scenarios show a unique legal pair despite an absent source and a forbidden
+destination, two legal pairs causing ambiguity with all trials restored, a shared type choice
+with both source types present, and a malformed Atomized destination that does not hide a valid
+destination. The dead-end scenario ensures incompatible shared-type pairs cannot make Admin wait
+for work that cannot ever succeed. A first whole-engine run exposed
+invalid self-pairs in `ReflexiveTransmutationTest`; excluding equal concrete types restored the
+591-test engine suite. The full `./gradlew build --console=plain --quiet` then passed, including the
+curated replays and browser checks. Subsequent focused tests exposed the pair compatibility and
+malformed candidate defects, which this experiment now addresses. The final verification for this
+revision was a passing 12-test `AgentNarrowingExperimentTest` and a passing
+`./gradlew build --console=plain --quiet`. The first full-build attempt timed out in
+`:web:jsBrowserTest` with a skipped test and no assertion failure. Browser history, the selected
+replay, and their combined browser task each passed on retry; a second full build then passed.
+The current uncommitted diff is recoverable against `f19079524` from
+`$TMPDIR/engine-contract-reviewed-f19079524.patch`.
 
 ## Verification and recoverability
 

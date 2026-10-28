@@ -1,21 +1,20 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.engine.Exceptions.AbortTransactionException
-import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Deferral.FINALLY
-import dev.martianzoo.pets.ast.Deferral.NONE
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.FromExpression.Compact
+import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -33,9 +32,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.state.Actor
-import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
@@ -223,63 +220,6 @@ internal constructor(
       throw TaskException("`$actor` cannot restore a task assigned to `${current.assignee}`")
     }
     transactions.perform(actor, CLIENT_REQUEST) { taskQueues.editTask(task) }
-  }
-
-  /**
-   * Checks completion of the operation's work without executing any pending task.
-   *
-   * Throws if a pending task outside [allowedPendingTasks], or a `MustCleanUp` component, remains.
-   * If tasks remain but `FINALLY` work has been promoted since [lastDecision], those tasks are
-   * accepted and cleanup is counted as of just before that promotion. With no relevant pending
-   * tasks, cleanup is checked in the current state.
-   *
-   * This is an operation-level check, not a transaction's final invariant check. Using `FINALLY` as
-   * proof of completion is retained behavior whose role needs review.
-   */
-  // TODO(ENGINE_CONTRACT): Review this operation completion check and its public placement.
-  public fun requireComplete(
-      allowedPendingTasks: Set<TaskId> = emptySet(),
-      lastDecision: Int? = null,
-  ) {
-    val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
-    val workOver = lastDecision?.let(::finalWorkBegan)
-    if (pending.isNotEmpty() && workOver == null) {
-      if (pending.any { it.instruction.isAbstract(reader) }) {
-        throw NotFullySpecifiedException("pending abstract tasks:\n${pending.joinToString("\n")}")
-      }
-      throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
-    }
-    val cleanupLeft =
-        if (pending.isEmpty() || workOver == null) !reader.has(parse("MAX 0 $MUST_CLEAN_UP"))
-        else cleanupComponentsAt(workOver) > 0
-    if (cleanupLeft) {
-      throw DeadEndException(
-          "components requiring cleanup remained after the operation: " +
-              reader.getComponents(MUST_CLEAN_UP.expression).elements
-      )
-    }
-  }
-
-  /** The event ordinal at which the World's `FINALLY` work first began since [eventCursor]. */
-  private fun finalWorkBegan(eventCursor: Int): Int? =
-      gameWorld.events
-          .entriesSince(eventCursor)
-          .firstOrNull {
-            it is TaskEditedEvent && it.oldTask.deferral == FINALLY && it.task.deferral == NONE
-          }
-          ?.ordinal
-
-  /** How many cleanup components existed at [eventCursor]: those present now, less later change. */
-  private fun cleanupComponentsAt(eventCursor: Int): Int {
-    val mustCleanUp = reader.classTable.getClass(MUST_CLEAN_UP)
-    fun cleanup(component: Component?) =
-        component?.type?.rootClass?.isSubtypeOf(mustCleanUp) == true
-    val changeSince =
-        gameWorld.events.changesSince(eventCursor).sumOf {
-          (if (cleanup(it.change.gaining)) it.change.count else 0) -
-              (if (cleanup(it.change.removing)) it.change.count else 0)
-        }
-    return reader.count(reader.resolve(MUST_CLEAN_UP.expression)) - changeSince
   }
 
   /**
@@ -508,7 +448,7 @@ internal constructor(
    * This is not a count of legal concrete narrowings. The attempt uses a disposable World; source
    * listeners, callbacks, and application checks do not observe trial events.
    */
-  // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory gains and removals.
+  // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory changes.
   public fun canSelectTask(taskId: TaskId): Boolean = canSelectTask(taskId, tasks)
 
   private fun canSelectTask(
@@ -555,7 +495,7 @@ internal constructor(
    * restoration. The attempt runs in a disposable World and does not invalidate existing source
    * overlays or notify source listeners. Unsupported choice forms remain unresolved.
    */
-  // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory gains and removals.
+  // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory changes.
   public fun canExecuteTask(taskId: TaskId): Boolean {
     timeline.requireAtEnd()
     val trial = trialWorld()
@@ -721,11 +661,11 @@ internal constructor(
    * invariants. Resulting ordinary tasks remain queued. A change assigned to another Actor remains
    * selected for that Actor to perform in a later transaction.
    *
-   * A fixed mandatory gain/removal can infer its unique successful concrete type by trying its
-   * complete finite domain in disposable Worlds. Other unresolved choices throw. Trials include
-   * immediate effects and task admission/promotion, but do not execute subsequently queued work. A
-   * failed transaction restores its changes; for example, rejecting removal of an opponent's
-   * protected plant leaves that plant intact.
+   * A fixed mandatory change can infer its unique successful concrete target, or source and
+   * destination pair, by trying its complete finite domain in disposable Worlds. Other unresolved
+   * choices throw. Trials include immediate effects and task admission/promotion, but do not
+   * execute subsequently queued work. A failed transaction restores its changes; for example,
+   * rejecting removal of an opponent's protected plant leaves that plant intact.
    */
   public fun doTask(taskId: TaskId) {
     transactions.perform(actor, CLIENT_REQUEST) { doTask(tasks, taskId) }
@@ -776,24 +716,53 @@ internal constructor(
   ): Instruction {
     if (
         instruction !is Change ||
-            (instruction !is Gain && instruction !is Remove) ||
             instruction.count !is ActualScalar ||
             instruction.quantifier != Instruction.Quantifier.MANDATORY
     ) {
       throw NotFullySpecifiedException("instruction is abstract: `$instruction`")
     }
-    val target = instruction.gaining ?: instruction.removing!!
+    if (instruction is Transmute && instruction.fromEx is Compact) {
+      throw NotFullySpecifiedException(
+          "compact transmutation inference is unresolved: `$instruction`"
+      )
+    }
+    fun concreteTargets(target: Expression?): List<Expression?> =
+        if (target == null) listOf(null)
+        else
+            reader.classTable
+                .allConcreteSubtypes(reader.resolve(target))
+                .map { it.expression }
+                .distinct()
+                .toList()
+
+    val gains = concreteTargets(instruction.gaining)
+    val removals = concreteTargets(instruction.removing)
     val trial = trialWorld()
     var winner: Instruction? = null
+    var invalidCandidate: ExpressionException? = null
     val rejections = mutableListOf<GameplayException>()
-    for (type in reader.classTable.allConcreteSubtypes(reader.resolve(target)).distinct()) {
+    for (gaining in gains) for (removing in removals) {
+      // Equal concrete types cannot form a transmutation (Pets rule L2-1).
+      if (gaining != null && gaining == removing) continue
       val candidate =
           Change.change(
-              if (instruction.gaining != null) type.expression else null,
-              if (instruction.removing != null) type.expression else null,
+              gaining,
+              removing,
               (instruction.count as ActualScalar).value,
               Instruction.Quantifier.MANDATORY,
-          )
+          ) as Change
+      if (
+          instruction is Transmute &&
+              instruction.fromEx is Full &&
+              !candidate.narrows(instruction, possibleWorldFacts)
+      )
+          continue
+      try {
+        instructor.validateConcreteChange(candidate)
+      } catch (e: ExpressionException) {
+        invalidCandidate = invalidCandidate ?: e
+        continue
+      }
       trial.reset()
       try {
         trial.actorEngine(executingActor).doTask(candidate, taskId = taskId)
@@ -812,7 +781,11 @@ internal constructor(
       return it
     }
     if (rejections.isEmpty()) {
+      invalidCandidate?.let { throw it }
       instructor.resolve(instruction) // Retain the existing uninhabited-type diagnostic.
+      if (instruction is Transmute) {
+        throw DeadEndException("no compatible concrete transmutation for `$instruction`")
+      }
       throw NotFullySpecifiedException("no complete candidate domain for `$instruction`")
     }
     val detail = rejections.map { it.detail }.distinct().sorted().joinToString("; ")

@@ -5,9 +5,11 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.TaskForm
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -116,6 +118,144 @@ internal class AgentNarrowingExperimentTest {
       agents[PLAYER1].doTask("Choice!")
       agents[PLAYER1].count("Allowed") shouldBe 1
     }
+  }
+
+  @Test
+  fun mandatoryTransmutationUsesTheSoleSuccessfulSourceAndDestinationPair() {
+    val world =
+        Engine.newGame(
+            testGamePremise(
+                """
+          ABSTRACT CLASS Source
+          CLASS Present : Source
+          CLASS Absent : Source
+          ABSTRACT CLASS Destination
+          CLASS Allowed : Destination
+          CLASS Forbidden : Destination { HAS MAX 0 This }
+          """
+            )
+        )
+    val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
+    agent.sneak("Present")
+    val task = agent.addTasks("Destination FROM Source").single()
+
+    world.actorEngine(PLAYER1).doTask(task)
+
+    agent.count("Present") shouldBe 0
+    agent.count("Allowed") shouldBe 1
+    world.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  fun mandatoryTransmutationRetainsAmbiguityAndRestoresItsTrialChanges() {
+    val world =
+        Engine.newGame(
+            testGamePremise(
+                """
+          ABSTRACT CLASS Source
+          CLASS Present : Source
+          ABSTRACT CLASS Destination
+          CLASS First : Destination
+          CLASS Second : Destination
+          """
+            )
+        )
+    val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
+    agent.sneak("Present")
+    val task = agent.addTasks("Destination FROM Source").single()
+    val before = world.events.nextOrdinal
+
+    shouldThrow<NotFullySpecifiedException> { world.actorEngine(PLAYER1).doTask(task) }
+
+    world.events.nextOrdinal shouldBe before
+    world.tasks.getTaskData(task).selected shouldBe false
+    agent.count("Present") shouldBe 1
+    agent.count("Destination") shouldBe 0
+  }
+
+  @Test
+  fun mandatoryTransmutationKeepsTheSourceAndDestinationTypeChoiceTogether() {
+    val world =
+        Engine.newGame(
+            testGamePremise(
+                """
+          ABSTRACT CLASS Place
+          CLASS Red : Place
+          CLASS Blue : Place
+          CLASS Source<Place>
+          CLASS Target<Place>
+          """
+            )
+        )
+    val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
+    agent.sneak("Red, Blue, Source<Red>, Source<Blue>")
+    val task = agent.addTasks("Target<@Place> FROM Source<@Place>").single()
+
+    shouldThrow<NotFullySpecifiedException> { world.actorEngine(PLAYER1).doTask(task) }
+
+    agent.count("Source<Red>") shouldBe 1
+    agent.count("Source<Blue>") shouldBe 1
+    agent.count("Target<Red>") shouldBe 0
+    agent.count("Target<Blue>") shouldBe 0
+  }
+
+  @Test
+  fun incompatibleTypeVariablePairsDoNotMakeAdminWait() {
+    val world =
+        Engine.newGame(
+            testGamePremise(
+                """
+          ABSTRACT CLASS Place
+          CLASS Red : Place
+          CLASS Blue : Place
+          CLASS Source<Place>
+          CLASS Target<Place> { This: Die }
+          CLASS Pending
+          """
+            )
+        )
+    val agents = Agents(world) { NONE }
+    val agent = agents[PLAYER1]
+    agent.sneak("Red, Blue, Source<Red>, Source<Blue>")
+    agent.addTasks("Pending")
+    val task =
+        world
+            .actorEngine(ADMIN)
+            .addTasks(
+                InstructionGroup.of(parse<InstructionTree>("Target<@Place> FROM Source<@Place>!"))
+            )
+            .single()
+
+    shouldThrow<DeadEndException> { world.actorEngine(ADMIN).doTask(task) }
+    shouldThrow<DeadEndException> { agents[ADMIN].autoExecNow() }
+
+    agent.count("Source<Red>") shouldBe 1
+    agent.count("Source<Blue>") shouldBe 1
+    world.tasks.getTaskData(task).selected shouldBe false
+  }
+
+  @Test
+  fun invalidAtomizedDestinationDoesNotHideAnotherSuccessfulPair() {
+    val world =
+        Engine.newGame(
+            testGamePremise(
+                """
+          CLASS Source
+          ABSTRACT CLASS Destination
+          CLASS Whole : Destination, Atomized
+          CLASS Plain : Destination
+          """
+            )
+        )
+    val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
+    agent.sneak("2 Source")
+    val task = agent.addTasks("2 Destination FROM Source").single()
+
+    world.actorEngine(PLAYER1).doTask(task)
+
+    agent.count("Source") shouldBe 0
+    agent.count("Plain") shouldBe 2
+    agent.count("Whole") shouldBe 0
   }
 
   @Test

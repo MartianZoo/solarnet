@@ -13,9 +13,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   exact admitted group IDs, and session-owned application checks are implemented on the experiment
   branch. Complete shared type binding and nested THEN representation without adding a second
   continuation slot. Define the remaining structural actions permitted during selection.
-- Extend transaction-success analysis beyond fixed mandatory gains/removals only after measuring
-  complete Agent calls. Keep unsupported forms and unresolved immediate effects unknown. Review
-  Admin waiting behavior, callback failure recovery, and custom Kotlin effects separately.
+- Extend transaction-success analysis beyond fixed mandatory gains/removals and full-form
+  transmutations only after measuring complete Agent calls. Resolve compact transmutations and a
+  search resource limit without treating incomplete analysis as a failed transaction. Keep
+  unsupported forms and unresolved immediate effects unknown. Review Admin waiting behavior,
+  callback failure recovery, and custom Kotlin effects separately.
 - Fix Agent choice completeness before adopting automatic form reduction. The passing
   `AgentNarrowingExperimentTest` BUG case shows `Repair?` offering only `Ok` even though `Repair!`
   succeeds because `Repair:: Notice, -Repair` repairs its own MAX 0 limit. A raw engine call by task
@@ -122,8 +124,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   evaluation followed by further narrowing. This TODO records the migration, not its completion.
 - Investigate the selected destination in [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md)
   using the [transition plan](docs/agents/ENGINE_TRANSITION_PLAN.md).
-  General transaction-success analysis remains unfinished; the branch covers finite mandatory gains
-  and removals, including Admin uniqueness. Admin retains the
+  General transaction-success analysis remains unfinished; the branch covers finite mandatory gains,
+  removals, and full-form transmutations, including Admin uniqueness. Admin retains the
   existing retries after progress and throws a retained rejection after a completely unsuccessful
   pass. Existing gate and Player-task waiting exceptions still need model-level review; do not
   generalize them into suppressing all stalled-pass failures. Handoff does not trial-execute the
