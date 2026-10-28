@@ -8,7 +8,9 @@
 >
 > [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns engine transactions, task priorities, and
 > mandatory Admin handling. This document owns agent decision decomposition, completion analysis,
-> pruning, collapsing, and automatic walking.
+> pruning, collapsing, and automatic walking. The
+> [four-bucket inventory](AGENT_CONTRACT.md#agent-responsibilities-four-buckets) owns the broader
+> Agent responsibilities and the October 28 direction for engine-installed autoexec policies.
 
 ## Purpose and governing rule
 
@@ -50,22 +52,25 @@ The agent must not duplicate the engine's legality rules in a separate game inte
 
 The earlier plan to move every unique-subtype or present-dependency gain deduction into the agent
 is superseded. Deductions used to interpret an explicit execution request can remain in the engine;
-unsolicited narrowing and automatic execution are agent policy. Partial reductions remain useful
-even when they do not immediately permit execution. Voluntarily retained engine narrowing remains
+unsolicited narrowing and authorization of automatic execution are agent policy. An installed
+policy can let the engine finish covered selected tasks without consulting Agent again; this does
+not move completion analysis into the engine. Partial reductions remain useful even when they do
+not immediately permit execution. Voluntarily retained engine narrowing remains
 open because supplied information can unlock both further narrowing and evaluation.
 
 The [THEN rule](SEQUENCING.md#reviewed-client-view-of-then) requires explicit shared bindings before
 exposing the separate current instruction and continuation. Do not reconstruct X backward from a
-submitted first-stage result in either module. Combined resource totals remain a candidate for
-test support only. Optional transaction trials and quantity-limit reads are reasonable engine
-services; neither certifies completion of later work.
+submitted first-stage result in either module. Agent can translate an explicit production resource
+total into separate engine calls, preserving each task's effects and continuation; see
+[bucket 3](AGENT_CONTRACT.md#3-carry-out-and-maintain-the-interaction). Optional transaction trials
+and quantity-limit reads are reasonable engine services; neither certifies completion of later work.
 
 Admin remains permanently automatic in the agent, through separate engine transactions. Its
 scheduling follows [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries). Player
-policy settings never disable Admin. Agent exploration must include the Admin transactions that
-actual execution would perform; engine uniqueness deliberately stops before them. Outcome
-comparison below also includes settled Admin work and therefore must not be reused as the engine's
-rule for accepting an ambiguous request.
+policy settings never disable Admin. Agent exploration must include the Admin transactions and
+installed Player-policy execution that actual play would perform. Engine uniqueness deliberately
+excludes subsequent task execution. Outcome comparison below also includes settled Admin work and
+therefore must not be reused as the engine's rule for accepting an ambiguous request.
 
 [ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) describes the autonomous experiment sequence.
 The remainder of this document governs agent exploration, not a requirement to build the whole
@@ -256,6 +261,12 @@ because neither has mutated the World; their supplied choices and remaining ques
 Likewise, unknown card consequences cannot establish equality by their absence from a partial trace.
 
 ## Safe eager execution and automatic walking
+
+This section governs bucket 2's agent decisions justified by completion or equivalence proofs.
+Bucket 1 may expose the same analysis without submitting anything. Bucket 4's standing policies
+can eventually encode an explicit preference, such as always choosing titanium for Philares;
+that authorization is not a claim that the other resources are equivalent or impossible.
+The [inventory](AGENT_CONTRACT.md#agent-responsibilities-four-buckets) records that deferred scope.
 
 ### Doing harmless work early
 

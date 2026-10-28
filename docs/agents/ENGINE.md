@@ -146,7 +146,8 @@ questions belong to the engine transition; they do not reopen completed history 
 **Intended interaction:** the engine accepts an explicit request when the identified task and
 request admit exactly a single narrowing whose transaction succeeds. Finding that task need not
 try consequences; proving uniqueness within it may. Subsequent tasks, including Admin work, are
-outside that proof. Selection alone is intended not to execute. The details below describe today's
+outside that proof. Selection alone supplies no execution authorization; an installed policy may
+supply it in advance, as described in the contract. The details below describe today's
 implementation, including differences from that destination; see the
 [transition plan](ENGINE_TRANSITION_PLAN.md).
 
@@ -426,6 +427,10 @@ and Mons Insurance consume those records; prevention rules remain removal trigge
 replace that shape with an `AttackKind` hierarchy and per-resource watchers.
 
 ## Actor Engines and Agents
+
+The [four-bucket inventory](AGENT_CONTRACT.md#agent-responsibilities-four-buckets) records intended
+Agent responsibilities, including engine-installed autoexec policies. The current relationship
+below does not establish that those policies are implemented.
 
 Each World retains one `ActorEngine` per Actor. It owns attributed task and state
 commands but shares the World's changer, instructor, timeline, and Task services. `Agents(world)`

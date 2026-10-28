@@ -108,6 +108,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   receiving Actor's task. Establish the intended model for Turmoil event draws and solo neutral
   placements when implementing complete enumeration. Keep whole-action exploration in agents,
   separate from the legality of an individual transaction.
+- Design engine-installed autoexec policies for selected tasks assigned to an Actor, configured
+  by that Actor's agent. Use Arctic Algae collection without waiting for the receiving agent as
+  the acceptance example. Resolve matching, lifetime, selection/priority, failure, transaction,
+  replay, and speculation details in the [four-bucket inventory](docs/agents/AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
+  Keep preference features such as "always take titanium for Philares" deferred; no policy API,
+  implementation, or default migration is selected by this documentation work.
 - Migrate Players away from the EAGER default, which can close legitimate gameplay choices.
   The user deliberately deferred the migration cleanup for now, hoping to move to a suitable smart
   policy rather than first migrating to NONE or CONCRETE. Leave the current default unchanged in

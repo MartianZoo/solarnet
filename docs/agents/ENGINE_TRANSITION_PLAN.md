@@ -9,6 +9,12 @@
 > [TASK_HANDLING.md](TASK_HANDLING.md) maps current behavior; inspect source before relying on it.
 > Here “coding agent” means the investigator; `:agent` means the runtime module.
 
+**October 28 design follow-up:** the
+[four-bucket inventory](AGENT_CONTRACT.md#agent-responsibilities-four-buckets) adds selected-task
+autoexec policies installed in engine by Agent. The existing selection experiments describe calls
+without that advance authorization. The new policy mechanism and its open questions remain future
+work; recording this direction does not expand the implementation scope of these experiments.
+
 ## Objective and successful outcome
 
 Find the smallest coherent implementation of the intended engine responsibility, and discover its
@@ -20,8 +26,9 @@ The engine serves a client with an intended change. It first identifies permissi
 conservative task comparison, then determines whether the request and that task admit exactly a
 single narrowing whose transaction succeeds. That transaction includes immediate consequences and
 task admission; it excludes executing subsequently queued work, including Admin work. The agent
-owns automatic submissions and reasoning about later tasks. Selection does not itself authorize
-execution. These are the experiment's starting principles, not a claim that transition will be easy.
+owns automatic-choice policy and reasoning about later tasks. Selection does not itself authorize
+execution; a matching installed policy may supply authorization in advance. These are intended
+responsibilities, not a claim that the transition or installed-policy support is complete.
 
 Proceed through the experiments without seeking approval for routine choices inside their stated
 scope once commissioned. Reevaluate the order when evidence warrants it, recording why. If an
@@ -70,8 +77,9 @@ settled requirements as the investigation proceeds; do not lose earlier requirem
   rejections that eliminate candidates.
 - Newly queued Admin work is not executed during that proof. Direct mandatory Die admission can
   reject now; later failure remains later. Trying a candidate leaves no retained state or history.
-- Selecting or narrowing does not authorize execution. Explicit combined execution is
-  different. Classify structural task changes separately and expose unresolved exceptions.
+- Selecting or narrowing alone does not authorize execution. Explicit combined execution and
+  advance authorization from an installed policy are distinct cases. Existing selection experiments
+  use no installed policy. Classify structural task changes separately and expose unresolved cases.
 - Joined THEN retains a shared unbound type/X; explicit binding exposes current work and a separate
   continuation. Do not infer X backward from a submitted first-stage result in either module.
 - Partial deductions can be useful without permitting execution. Voluntary stored partial
@@ -129,10 +137,11 @@ can be expensive. Do not optimize an invented worst case before measuring the re
 
 Run these as separate, recoverable changes; neither requires the complete uniqueness implementation.
 
-**Combined totals:** inventory `combineScalars` / `executeScalarSum` callers. Try removing the engine
-facility and expressing the actual separate tasks in test support where needed. Preserve each
-task's individual effects and real ordering choices. Do not replace it with a normal agent feature
-unless a real production need is demonstrated. Explain any former gains-before-removals reliance.
+**Combined totals:** remove the engine convenience while retaining Agent's selected translation
+of an explicit production total into separate task executions. Preserve each task's effects and
+continuation, and keep unrelated rewards separate in scenario inputs. The
+[bucket 3 responsibility](AGENT_CONTRACT.md#3-carry-out-and-maintain-the-interaction) supersedes
+this experiment's earlier test-support-only direction. Explain any gains-before-removals reliance.
 
 **Extra queued work:** remove or narrow `executeSubmittedGroup` so explicit submitted work can
 execute without also consuming reactions or continuations merely because they appeared in the

@@ -18,7 +18,8 @@ architecture change. Then choose the narrowest relevant note:
 
 | Subject | Read |
 | --- | --- |
-| Live World construction, components, tasks, effects, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
+| Live World construction, components, tasks, effects, or the current Actor Engine/Agent relationship | [`ENGINE.md`](ENGINE.md) |
+| Agent assistance, delegated choices, interaction services, or engine-installed autoexec policies | [`AGENT_CONTRACT.md`](AGENT_CONTRACT.md) — four-bucket inventory, agreed responsibilities, proposed services, open questions, and deferred preferences |
 | Actor attribution, on-turn identity, Admin, assignment, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md); lexical ownership is in [Pets](../../pets/docs/agents/OWNERSHIP.md) |
 | Game flow, turns and offers, Head Start timing, task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
 | Payment choices, accepted resources, billing, or payment completion | [`PAYMENTS.md`](PAYMENTS.md) |
@@ -86,7 +87,8 @@ Kotlin visibility auditing across runtime modules remains in [VISIBILITY.md](VIS
 [obsolete/README.md](obsolete/README.md) indexes material retained for archaeology only.
 It supplies no current requirements. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the
 interaction terms and distinguishes selected direction from remaining proposals; keep those terms
-there until explicitly approved for the glossary. [DECISION_GRAPH.md](DECISION_GRAPH.md) owns
+there until explicitly approved for the glossary. [AGENT_CONTRACT.md](AGENT_CONTRACT.md) owns
+the agent responsibility inventory and engine-installed policy direction. [DECISION_GRAPH.md](DECISION_GRAPH.md) owns
 the agent exploration design, separating selected rules from candidate strategies.
 
 ## Maintain this collection
