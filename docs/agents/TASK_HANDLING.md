@@ -1,18 +1,18 @@
 # Automatic task revisions and handling
 
-> **Source-based inventory — updated October 24, 2026.** This inventories the current working-tree
-> implementation, including uncommitted work. It is an account for review, not approval of every
+> **Source-based inventory — branch status reviewed October 28, 2026.** This inventories the
+> experimental branch implementation. It is an account for review, not approval of every
 > behavior. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the selected destination and open details.
-> [ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) orders experiments. This inventory
+> [ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) orders remaining work. This inventory
 > describes current code, including behavior to remove or reevaluate during that transition.
 
 ## Scope and reading order
 
 The destination is to identify a permitting task, combine it with an explicit execution request,
 establish the unique narrowing whose transaction succeeds, and execute that transaction. Today's
-paths below do not yet implement that general rule. In particular, they contain execution during
-selection and special inference rules; this inventory explains when those paths run, what they
-change, and what can fail. It does not require callers to supply every concrete detail themselves.
+paths below do not yet implement that general rule. In particular, they contain structural task
+edits during selection and special inference rules; this inventory explains when those paths run,
+what they change, and what can fail. It does not require callers to supply every concrete detail.
 
 “Automatic” here means performed without a separate client instruction for that step. It includes
 rewrites and bookkeeping, not just double-colon effects or agent autoexecution. An instruction
@@ -55,6 +55,12 @@ required when an execution command is actually submitted.
 | Engine uses a trial internally | Player priority and bootstrap use isolated probes. Finite transaction inference uses disposable Worlds. `selectionHandsOff` still attempts and restores task edits. | No trial component changes in the source. |
 | Engine construction | Execute configured creation work and pending bootstrap tasks before returning the World. | Yes. |
 | Agent call after an engine selection/narrowing | `AutoExecLoop` may submit Admin and configured Player work; the agent owns those choices. | Yes, but separate engine calls are made. |
+
+**Selected design correction:** for `EACH`, admitting all children and consuming the parent is
+execution of that parent task, even when no component changes yet. The current selection path
+therefore executes `EACH` too early under [the contract](ENGINE_CONTRACT.md#selection-must-not-quietly-mean-execution--item-9).
+Move that expansion to an execution request; the children then follow ordinary priority. This
+inventory still describes current code, not the corrected behavior.
 
 Task matching and `prepareTaskNarrowing` can interpret or combine instructions without changing
 components or tasks. They must not be confused with the engine trials above. Similarly, narrowing
@@ -272,10 +278,12 @@ A structural split may require a later submission naming a child.
 
 The overloads do not all follow the same route: `doTask(narrowing)` can apply a matched narrowing
 directly via `narrowSelectedTask`, while `selectTask(id)` takes the explicit selection path.
-Both routes call `requireNoOtherSelectedTask`, whose Player priority check uses the same finite transaction inference
-as explicit execution. Unsupported forms remain unresolved; the full destination is not implemented. Queue edits and corrections still bypass selected-task
-exclusion. See ENGINE_CONTRACT's current implementation differences rather than treating every
-mutation as an equivalent task command.
+Both routes call `requireNoOtherSelectedTask`, whose Player priority check uses the same finite
+transaction inference as explicit execution. Unsupported forms remain unresolved; the full
+destination is not implemented. Ordinary `addTasks` and `dropTask` now refuse while a task is
+selected, except dropping that selected task; some correction paths still bypass this exclusion.
+See [ENGINE_CONTRACT's current status](ENGINE_CONTRACT.md#current-implementation-status) rather
+than treating every mutation as an equivalent task command.
 
 Sources: ActorEngine `matchingTask`, `effectiveNarrowing`, `intersectTask`,
 `selectFirstStageOrNull`, `selectTask`, `narrowSelectedTask`, `applyResolution`,
@@ -472,8 +480,9 @@ These explain behavior seen through agent calls; they are not additional engine 
 - AutoExecLoop respects selected-task priority and runs mandatory Admin handling before optional
   Player policies. It retries waiting Admin tasks after progress and throws a retained rejection
   after an unsuccessful pass, subject to the existing waiting exceptions. The existing probe remains an
-  approximation; [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#current-implementation-differences)
-  records the eligibility rules and the remaining complete-choice-analysis gap.
+  approximation; [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries)
+  records the intended priority and open stalled-pass rule, while
+  [the results](ENGINE_TRANSITION_RESULTS.md) record the finite choice-analysis coverage.
 - WorldTransaction runs finishing work and validation for outermost calls, with special handling
   for calls from completion callbacks. Agent decisions and queue edits also run Admin handling
   before returning from ordinary nested calls.
