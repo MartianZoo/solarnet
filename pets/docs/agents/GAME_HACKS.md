@@ -184,6 +184,7 @@ substitute payout. This is the setup-order issue already tracked in TODO, genera
 corporation rather than another special payout.
 
 **Source:** `PlaceNeutralTiles` in [solo.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/solo.pets),
+with fixed premise locations supplied by [soloTileSetup](../../src/common/dev/martianzoo/tfm/canon/soloTileSetup.kt),
 `TharsisRepublic` in [base cards](../../src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5),
 and [TharsisRepublicTest](../../../test/common/dev/martianzoo/tfm/tests/cards/TharsisRepublicTest.kt).
 

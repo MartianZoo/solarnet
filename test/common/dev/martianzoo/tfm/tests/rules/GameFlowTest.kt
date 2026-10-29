@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -33,7 +34,10 @@ internal class GameFlowTest {
   @Test
   internal fun startingPurchasesUseTheCorporationAlreadyInPlay() {
     for ((corporation, cost) in listOf(TerraLabsResearch to 2, Polyphemos to 10)) {
-      val game = TfmEngine.newGame(Canon.gamePremise(GameConfig("$corporation", "Player1")))
+      val game =
+          TfmEngine.newGame(
+              withTestSoloSetup(Canon.gamePremise(GameConfig("$corporation", "Player1")))
+          )
       val agents = game.testAgents()
       val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
       val admin = game.testTfm(ADMIN)
@@ -45,10 +49,6 @@ internal class GameFlowTest {
           "10 ProjectCard<Selecting>",
           "-8 ProjectCard<Selecting>",
       )
-      admin.doTask("CityTile<Tharsis_4_1>")
-      admin.doTask("GreeneryTile<Tharsis_5_1>")
-      admin.doTask("CityTile<Tharsis_2_2>")
-      admin.doTask("GreeneryTile<Tharsis_2_3>")
       admin.count("CorporationPhase") shouldBe 1
 
       player.doTasks("PlayCard<Class<CorporationCard>, Class<$corporation>>")

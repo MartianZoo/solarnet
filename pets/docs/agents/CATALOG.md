@@ -47,6 +47,14 @@ Catalog's compiled master structure; separate Worlds from that premise share com
 but no mutable game state. See
 [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt).
 
+Terraforming Mars solo setup uses `soloTileSetup(premise, locations)` to add a selected local
+`SoloTileLocations` declaration. It binds four location arguments of canonical `PlaceNeutralTiles`,
+whose Pets effects place the two city/greenery pairs. Locations are chosen before world construction
+and validated against the selected map, including city separation and each greenery's adjacency.
+`TfmEngine` rejects solo premises without a unique placement
+declaration. This uses the existing local declaration mechanism; no runtime choice supplier or
+additional game-file field is involved.
+
 View construction reads each included declaration once. Structural references enter the next
 frontier directly; constructive references retain their trigger and enclosing instruction gates in
 a temporary worklist. A reference leaves that worklist when its target classes are already included

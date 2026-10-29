@@ -52,11 +52,11 @@ CLASS SoloOpponent : Owner, System {
   SetupPhase: PlaceNeutralTiles
 }
 
-"Creates the two independent city-and-greenery placement tasks in solo setup"
-CLASS PlaceNeutralTiles : Signal, System, Owned<SoloOpponent> {
+"The premise supplies a concrete declaration with the two neutral city-and-greenery placements"
+ABSTRACT CLASS PlaceNeutralTiles<FirstCity@LandArea, FirstGreenery@LandArea, SecondCity@LandArea, SecondGreenery@LandArea> : Signal, System, Owned<SoloOpponent> {
   HAS MAX 1 This
-  This: @CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>
-  This: @CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>
+  This: CityTile<FirstCity@LandArea> THEN GreeneryTile<FirstGreenery@LandArea>
+  This: CityTile<SecondCity@LandArea> THEN GreeneryTile<SecondGreenery@LandArea>
 }
 
 "Creates the neutral solo stock of each standard resource and its production"

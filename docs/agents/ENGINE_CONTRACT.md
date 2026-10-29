@@ -415,6 +415,11 @@ Admin work fails after the Player request succeeds, restore the request and all 
 Arbitrary application side effects are outside game-state restoration; the precise state covered
 by the implementation is specified in `Timeline.atomic`.
 
+Solo neutral placement follows the same setup-owned input rule as the Turmoil deck. Setup supplies
+the four locations in the resolved premise. On this branch, a selected premise-local declaration
+contains the fixed city/greenery instructions and is retained by the existing game-file codec.
+Admin executes them automatically; callers do not submit placement instructions.
+
 ## Which task acts next
 
 Lower numbers take precedence.

@@ -13,8 +13,8 @@ import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
  *
  * [compatibility] preserves the command-line tool's alternate procedure: costs are one-based and
  * cards choose city 1, greenery 1, city 2, greenery 2. This function neither draws cards nor
- * changes a World; callers consume the four cards and submit the resulting locations to their
- * normal placement tasks.
+ * changes a World; setup supplies the resulting locations to [soloTileSetup] before creating the
+ * World. The resolved premise retains them for automatic placement and replay.
  *
  * @throws IllegalArgumentException for a count other than four, invalid costs, a city cost beyond
  *   the remaining legal areas, or a city without an available greenery space.

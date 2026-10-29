@@ -106,10 +106,10 @@ silently choose an answer.
    Admin resolves the neutral placement through unique narrowing. This removes the old
    caller-supplied event and delegate inputs. It does not prove that Admin handles every other
    Canon waiting task.
-   The source audit also found solo neutral setup still using four incoming Admin placement calls
-   in `AbstractSoloTest`, `TfmGameplayTest`, and `TfmSandboxTest`. Supplying those locations in the
-   premise and exports is now selected by the owner; implementation, updated replay callers, and
-   regenerated exports remain.
+   The owner also selected supplying solo neutral locations in the resolved premise. The branch
+   now stores concrete placement instructions in premise-local declarations, updates replay and
+   fixture callers, and uses automatic Admin placement. Existing file serialization retains those
+   declarations; the focused scenario verifies full and short file replay.
 4. **Selection, structural edits, and handoff.** Decide whether a voluntary partial narrowing is
    retained by engine or must live in a client draft, especially when a target choice unlocks AMAP
    evaluation. Decide which queue edits are permitted during a
@@ -228,7 +228,8 @@ choosing a target unlocks an AMAP amount. No transaction stays open while a pers
 Apply the same approved proof rule to Admin work and Player P1 priority checks. Retain Admin's
 mandatory priority, FIFO attempts, and retry after progress unless a concrete Canon case proves
 the selected behavior differs. Characterize greenery plant payment, shared research capacity, and
-solo neutral placements before claiming all Admin cases are covered. The Turmoil replay tests now
+other Canon waiting work before claiming all Admin cases are covered. Solo neutral placements
+now use fixed premise declarations. The Turmoil replay tests now
 pass with a premise-owned deck and automatic neutral placements; the former abstract `GlobalEvent`
 request does not define the engine API.
 Do not let the engine's task matcher use incidental order to choose among distinct permissions.

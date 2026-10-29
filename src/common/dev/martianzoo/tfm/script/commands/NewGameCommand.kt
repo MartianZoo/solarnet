@@ -19,7 +19,8 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
         R=coRpoRate eRa, H=Hellas & Elysium, U=Utopia & Cimmeria,
         X=Promos, and the rest
         are what you'd think. The base game is always included. The player count must be positive.
-        A count of 1 applies the solo starting state.
+        A count of 1 applies the solo starting state. Setup draws four printed project-card costs
+        to choose the neutral tile locations once; the resolved premise records those locations.
 
         When using Colonies, list the selected colony tile names after the player count.
         Instead of the legacy option-code form, quote a comma-separated list of canonical class

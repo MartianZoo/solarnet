@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.World
@@ -19,6 +21,10 @@ import dev.martianzoo.state.actors
 import dev.martianzoo.state.iconicLogEvents
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
+import dev.martianzoo.tfm.canon.cardBack
+import dev.martianzoo.tfm.canon.cardCost
+import dev.martianzoo.tfm.canon.soloTileAreas
+import dev.martianzoo.tfm.canon.soloTileSetup
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.script.Access.BlueMode
@@ -95,8 +101,8 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateAgents = Agents(candidateGame)
-    val candidateAgent = candidateAgents[ADMIN] // default autoexec policy
+    val candidateAgents = Agents(candidateGame) { if (it == ADMIN || purple) EAGER else NONE }
+    val candidateAgent = candidateAgents[ADMIN]
     candidateAgents.tfm(ADMIN).startGame()
     if (!purple) {
       // Outside purple mode the user changes phases, so the game does not leave setup on its own.
@@ -104,6 +110,10 @@ public class ScriptSession(
           .extract { it }
           .filter { it.deferred }
           .forEach { candidateAgents[it.assignee].dropTask(it.id) }
+      candidateGame.actors.filterIsInstance<Player>().forEach {
+        candidateAgents[it].autoExecPolicy = EAGER
+      }
+      candidateAgent.autoExecNow()
     }
     optionCodes = candidateOptionCodes
     playerCount = candidatePlayerCount
@@ -126,9 +136,10 @@ public class ScriptSession(
       configText: String,
       playerNames: List<String>,
       purple: Boolean = false,
+      soloLocations: List<ClassName> = emptyList(),
   ) {
     val config = GameConfig(configText, *playerNames.toTypedArray())
-    val premise = shuffledPremise(config)
+    val premise = shuffledPremise(config, soloLocations)
     val options = OptionCodeTranslation.recognizedOptions(premise.modules)
     val candidateGame = TfmEngine.newGame(premise)
     installGame(
@@ -421,8 +432,29 @@ internal fun createGame(setup: OptionCodeTranslation.Setup): World {
   return TfmEngine.newGame(shuffledPremise(config))
 }
 
-private fun shuffledPremise(config: GameConfig): GamePremise {
-  val premise = Canon.gamePremise(config)
+private fun shuffledPremise(
+    config: GameConfig,
+    soloLocations: List<ClassName> = emptyList(),
+): GamePremise {
+  var premise = Canon.gamePremise(config)
+  if (cn("SoloMode") in premise.modules) {
+    val map = Canon.marsMapDefinitions.single { it.className in premise.modules }
+    val locations = soloLocations.ifEmpty {
+      val costs =
+          Canon.cards
+              .filter {
+                cardBack(it)?.className == cn("ProjectCard") &&
+                    premise.classTable
+                        .findClass(it.className)
+                        ?.let(premise.classTable::isInhabited) == true
+              }
+              .shuffled()
+              .take(4)
+              .map(::cardCost)
+      soloTileAreas(map, costs).map { it.className }
+    }
+    premise = soloTileSetup(premise, locations)
+  }
   return premise.copy(drawOrder = TfmEngine.globalEventDeck(premise).shuffled())
 }
 

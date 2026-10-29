@@ -10,6 +10,7 @@ import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.canon.soloTileSetup
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -38,15 +39,18 @@ public open class BusyPreludePhaseBenchmark {
   public fun setUp() {
     game =
         TfmEngine.newGame(
-            TfmCatalog(Canon, FakeCanon)
-                .gamePremise(
-                    GameConfig(
-                        "TerraformingMars, TharsisMap, PreludeExpansion, " +
-                            "ColoniesExpansion, promos:cards, fakes:cards, Callisto, Ceres, Ganymede, " +
-                            "Luna",
-                        "Player1",
-                    )
-                )
+            soloTileSetup(
+                TfmCatalog(Canon, FakeCanon)
+                    .gamePremise(
+                        GameConfig(
+                            "TerraformingMars, TharsisMap, PreludeExpansion, " +
+                                "ColoniesExpansion, promos:cards, fakes:cards, Callisto, Ceres, Ganymede, " +
+                                "Luna",
+                            "Player1",
+                        )
+                    ),
+                listOf("Tharsis_4_1", "Tharsis_5_1", "Tharsis_5_8", "Tharsis_5_7").map(::cn),
+            )
         )
     val agents = Agents(game)
     me = agents.tfm(PLAYER1)
@@ -55,10 +59,6 @@ public open class BusyPreludePhaseBenchmark {
     admin.startGame()
     me.keepStartingProjects(10)
     me.doTask("-SelectedColonyTile<Class<Ceres>>")
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_7, SoloOpponent>")
     check(admin.count("CorporationPhase") == 1) {
       "benchmark setup did not reach the corporation phase:\n${game.tasks}"
     }

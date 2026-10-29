@@ -3,9 +3,8 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -20,6 +19,7 @@ import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class BootstrapLifecycleTest {
@@ -144,22 +144,21 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  internal fun soloNeutralCitiesCannotBePlacedNextToEachOther() {
-    val game = TfmEngine.newGame(canonicalPremise(players = 1))
-    val admin = game.testAgent(ADMIN)
-    game.testTfm(ADMIN).startGame()
-
-    admin.doTask("CityTile<Tharsis_4_1>")
-    admin.doTask("GreeneryTile<Tharsis_5_1>")
-    shouldThrow<TaskException> { admin.doTask("CityTile<Tharsis_4_2>") }
-    admin.count("CityTile") shouldBe 1
-    admin.count("Occupant<Tharsis_4_2>") shouldBe 0
-
-    admin.doTask("CityTile<Tharsis_2_2>")
-    shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_4_2>") }
-    admin.doTask("GreeneryTile<Tharsis_2_3>")
-    admin.count("CityTile<SoloOpponent>") shouldBe 2
-    admin.count("GreeneryTile<SoloOpponent>") shouldBe 2
+  internal fun soloSetupRejectsAdjacentCitiesAndDistantGreenery() {
+    for (locations in
+        listOf(
+            listOf("Tharsis_4_1", "Tharsis_5_1", "Tharsis_4_2", "Tharsis_4_3"),
+            listOf("Tharsis_4_1", "Tharsis_5_1", "Tharsis_2_2", "Tharsis_4_2"),
+        )) {
+      shouldThrow<IllegalArgumentException> {
+            withTestSoloSetup(canonicalPremise(players = 1), locations.map(::cn))
+          }
+          .message
+          .shouldContain(
+              if (locations[2] == "Tharsis_4_2") "cities cannot be adjacent"
+              else "greenery must be adjacent"
+          )
+    }
   }
 
   @Test
@@ -180,10 +179,6 @@ internal class BootstrapLifecycleTest {
     admin.count("SoloColoniesSetup") shouldBe 0
 
     game.testTfm(ADMIN).startGame()
-    admin.doTask("CityTile<Tharsis_4_1>")
-    admin.doTask("GreeneryTile<Tharsis_5_1>")
-    admin.doTask("CityTile<Tharsis_2_2>")
-    admin.doTask("GreeneryTile<Tharsis_2_3>")
 
     admin.count("SoloColoniesSetup") shouldBe 1
     player.doTask("-SelectedColonyTile<Class<${colonies.first()}>>")

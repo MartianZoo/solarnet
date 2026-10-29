@@ -25,11 +25,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   before ambiguity, about 1.95 ms through Agent on the measured machine. Larger counts and domains
   remain unmeasured. If those become costly, physical availability could exclude absent sources
   before trial without consulting invariant room; no optimization or search cap is justified yet.
-- Remove solo setup's remaining caller-supplied Admin tile placements to meet the no-Admin-input
-  goal. `AbstractSoloTest`, `TfmGameplayTest`, and `TfmSandboxTest` still submit two neutral cities
-  and their adjacent greeneries. The owner selected four locations supplied once by
-  setup in the resolved premise and retained in game exports. Update replay callers and regenerate
-  exports; no compatibility path for old files is required.
 - Complete Agent choice analysis before adopting automatic form reduction. `Repair?` now offers
   both `Ok` and its positive amount, and form submission can execute the immediate repair.
   Menus still list candidates without proving their complete transactions. `Repair*`
@@ -143,7 +138,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   permissions require an explicit task ID. Review Admin
   waiting cases against the selected rule that Admin exhausts currently possible work before the
   Player sees the state; a pending Admin task alone does not block Player selection. Also review
-  premise-owned solo neutral placements, updated replay callers, and regenerated exports (owner approved). Do not derive engine requirements from the removed Turmoil event-draw
+  other Canon waiting work. Solo neutral setup now uses premise-local declarations. Do not derive
+  engine requirements from the removed Turmoil event-draw
   workaround. Whole-action
   exploration is separate Agent work.
 - Design engine-installed autoexec policies for selected tasks assigned to an Actor, configured

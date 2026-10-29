@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.startSetupOnly
 import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
@@ -37,8 +38,9 @@ internal fun canonicalPremise(
             classSelections = base.classSelections + extensionClassNames.map(::ClassSelection)
         )
       }
-  return if (setupComponents.isEmpty()) selected
-  else selected.withTestSetup(setupComponents.joinToString())
+  val withSolo = withTestSoloSetup(selected)
+  return if (setupComponents.isEmpty()) withSolo
+  else withSolo.withTestSetup(setupComponents.joinToString())
 }
 
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =

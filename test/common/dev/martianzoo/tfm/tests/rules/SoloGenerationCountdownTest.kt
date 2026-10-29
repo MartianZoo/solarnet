@@ -17,7 +17,6 @@ internal class SoloGenerationCountdownTest {
   internal fun laterGenerationsRemoveOneGenerationLeft() {
     val game = setUpGame(players = 1)
     val admin = game.testTfm(ADMIN)
-    finishNeutralSetup(admin)
 
     admin.runOperation("Generation")
 
@@ -28,7 +27,6 @@ internal class SoloGenerationCountdownTest {
   internal fun enteringTheFinalSoloGenerationRemovesTheLastGameEndBarrier() {
     val game = setUpGame(players = 1)
     val admin = game.testTfm(ADMIN)
-    finishNeutralSetup(admin)
     admin.sneak("-12 SoloGenerationsLeft")
 
     admin.runOperation("-SoloGenerationsLeft")
@@ -42,7 +40,6 @@ internal class SoloGenerationCountdownTest {
     val game = setUpGame(Tr63SoloObjective, players = 1)
     val admin = game.testTfm(ADMIN)
     val player = game.testTfm(PLAYER1)
-    finishNeutralSetup(admin)
 
     player.count("Tr63SoloObjective") shouldBe 1
     player.count("StandardSoloObjective") shouldBe 0
@@ -58,12 +55,5 @@ internal class SoloGenerationCountdownTest {
     admin.runOperation("CheckGameEnd")
 
     player.count("Victory<Player1>") shouldBe 1
-  }
-
-  private fun finishNeutralSetup(admin: TfmGameplay) {
-    admin.doTask("CityTile<Tharsis_4_1>")
-    admin.doTask("GreeneryTile<Tharsis_5_1>")
-    admin.doTask("CityTile<Tharsis_2_2>")
-    admin.doTask("GreeneryTile<Tharsis_2_3>")
   }
 }

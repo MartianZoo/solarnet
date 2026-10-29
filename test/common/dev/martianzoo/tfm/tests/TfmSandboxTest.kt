@@ -6,6 +6,7 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.agent.exMachina
+import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
@@ -16,7 +17,6 @@ import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
-import dev.martianzoo.tfm.canon.soloTileAreas
 import dev.martianzoo.tfm.engine.TfmEngine
 
 /**
@@ -225,7 +225,10 @@ internal abstract class TfmSandboxTest {
     val config = fixtureConfig(options, defaults)
     game =
         TfmEngine.newGame(
-            withTestTurmoilDeck(canonicalCatalog(config).gamePremise(config), firstGlobalEvents)
+            withTestTurmoilDeck(
+                withTestSoloSetup(canonicalCatalog(config).gamePremise(config)),
+                firstGlobalEvents,
+            )
         )
     bindPlayers()
     players.forEach { it.autoExecPolicy = NONE }
@@ -256,15 +259,6 @@ internal abstract class TfmSandboxTest {
       }
       if (admin.count("PreludeExpansion") > 0) {
         player.doTasks("4 PreludeCard", "-2 PreludeCard")
-      }
-    }
-    if (players.size == 1) {
-      val map = Canon.marsMapDefinitions.single { admin.count(it.className.toString()) == 1 }
-      // The four most common printed project-card costs in Canon, in frequency order.
-      val placements = soloTileAreas(map, listOf(11, 10, 12, 8)).map { it.className }
-      placements.chunked(2).forEach { (city, greenery) ->
-        admin.doTask("CityTile<$city>")
-        admin.doTask("GreeneryTile<$greenery>")
       }
     }
   }

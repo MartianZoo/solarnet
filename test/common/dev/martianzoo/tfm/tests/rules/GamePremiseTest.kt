@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
@@ -357,7 +358,9 @@ internal class GamePremiseTest {
 
   @Test
   internal fun soloModeDoesNotActivateDefaultGoalsOrMultiplayerGoalActions() {
-    val table = TfmEngine.newGame(Canon.gamePremise(GameConfig("", "Player1"))).classTable
+    val table =
+        TfmEngine.newGame(withTestSoloSetup(Canon.gamePremise(GameConfig("", "Player1"))))
+            .classTable
 
     table.allSubclasses(Canon.classTable.getClass(cn("Milestone"))).shouldBeEmpty()
     table.allSubclasses(Canon.classTable.getClass(cn("Award"))).shouldBeEmpty()
@@ -370,7 +373,10 @@ internal class GamePremiseTest {
       TfmEngine.newGame(Canon.gamePremise(GameConfig("Landlord", "Player1")))
     }
     val explicitMilestone =
-        TfmEngine.newGame(Canon.gamePremise(GameConfig("Terraformer35", "Player1"))).classTable
+        TfmEngine.newGame(
+                withTestSoloSetup(Canon.gamePremise(GameConfig("Terraformer35", "Player1")))
+            )
+            .classTable
     explicitMilestone.isInhabited(cn("Terraformer35")) shouldBe true
     explicitMilestone.isInhabited(cn("ClaimMilestone")) shouldBe false
   }

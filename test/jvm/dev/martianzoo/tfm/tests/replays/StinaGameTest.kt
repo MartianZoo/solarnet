@@ -10,6 +10,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class StinaGameTest : CardTrackingFullGameTest() {
+  override val soloTileLocations =
+      listOf("Elysium_5_6", "Elysium_5_5", "Elysium_7_7", "Elysium_7_6")
   override val config = GameConfig("ElysiumMap, PreludeExpansion", "Me")
   // Test inference: the source names only the selected cards. CrediCor, Allied Bank, and
   // Business Empire are invented identities for the three rejected setup cards, not source facts.
@@ -68,10 +70,6 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
     super.commonSetup()
     p1.autoExecPolicy = NONE
     admin.startGame()
-    admin.doTask("CityTile<Elysium_5_6, SoloOpponent>")
-    admin.doTask("GreeneryTile<Elysium_5_5, SoloOpponent>")
-    admin.doTask("CityTile<Elysium_7_7, SoloOpponent>")
-    admin.doTask("GreeneryTile<Elysium_7_6, SoloOpponent>")
   }
 
   @Test

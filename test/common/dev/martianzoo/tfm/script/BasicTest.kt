@@ -53,6 +53,16 @@ internal class BasicTest {
   }
 
   @Test
+  internal fun quotedSoloConfigurationInPurpleModePlacesNeutralTiles() {
+    val session = ScriptSession()
+    val response = session.command("newgame \"TerraformingMars, ElysiumMap\" Me purple")
+    assertEquals("Me", session.playerSnapshot().playerName, response.joinToString("\n"))
+    assertEquals(ScriptSession.ScriptMode.PURPLE, session.mode)
+    assertEquals(2, session.agent.count("CityTile<SoloOpponent>"))
+    assertEquals(2, session.agent.count("GreeneryTile<SoloOpponent>"))
+  }
+
+  @Test
   internal fun invalidNewGameConfigurationIncludesUsage() {
     val response = ScriptSession().command("newgame B 0")
 
@@ -64,8 +74,10 @@ internal class BasicTest {
   internal fun playerSnapshotDefaultsToTheFirstConfiguredPlayer() {
     val session = ScriptSession()
 
-    session.command("newgame B 1")
-    assertEquals("Me", session.playerSnapshot().playerName)
+    val created = session.command("newgame B 1")
+    assertEquals("Me", session.playerSnapshot().playerName, created.joinToString("\n"))
+    assertEquals(2, session.agent.count("CityTile<SoloOpponent>"))
+    assertEquals(2, session.agent.count("GreeneryTile<SoloOpponent>"))
 
     session.command("newgame \"\" Blue Yellow")
     assertEquals("Blue", session.playerSnapshot().playerName)

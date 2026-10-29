@@ -12,6 +12,10 @@ internal abstract class AbstractSoloTest : AbstractFullGameTest() {
 
   protected abstract fun greeneryAreas(): Pair<String, String>
 
+  override val soloTileLocations: List<String>
+    get() =
+        listOf(cityAreas().first, greeneryAreas().first, cityAreas().second, greeneryAreas().second)
+
   @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
@@ -19,11 +23,6 @@ internal abstract class AbstractSoloTest : AbstractFullGameTest() {
     me = p1
     admin.startGame()
     resolveExpansionSetupTasks()
-
-    admin.doTask("CityTile<${cityAreas().first}, SoloOpponent>")
-    admin.doTask("GreeneryTile<${greeneryAreas().first}, SoloOpponent>")
-    admin.doTask("CityTile<${cityAreas().second}, SoloOpponent>")
-    admin.doTask("GreeneryTile<${greeneryAreas().second}, SoloOpponent>")
   }
 
   protected open fun resolveExpansionSetupTasks() {}

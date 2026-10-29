@@ -67,10 +67,6 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.testTfm(PLAYER1)
     admin.runOperation("-13 SoloGenerationsLeft")
     admin.startGame()
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.keepStartingProjects(0)
     playCorporationWithoutStartingProjects(p1, Ecoline)
 

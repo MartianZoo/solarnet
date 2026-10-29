@@ -5,6 +5,7 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -12,7 +13,6 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.soloTileAreas
 import dev.martianzoo.tfm.engine.TfmEngine
 
 /**
@@ -111,7 +111,7 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
     val defaults = GameConfig(BASE_GAME_OPTIONS)
     val config = fixtureConfig(options, defaults)
     val premise = canonicalCatalog(config).gamePremise(config)
-    game = TfmEngine.newGame(withTestTurmoilDeck(premise, firstGlobalEvents))
+    game = TfmEngine.newGame(withTestTurmoilDeck(withTestSoloSetup(premise), firstGlobalEvents))
     agents = Agents(game) { if (it == ADMIN) EAGER else playerPolicy }
     players = game.actors.filterIsInstance<Player>().map { agents[it] }
   }
@@ -127,15 +127,6 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
     }
     players.forEach { it.autoExecNow(EAGER) }
     if (kimCorporation != null || !playCorporations) kim.doTask("-5 ProjectCard<Selecting>")
-    if (players.size == 1) {
-      val map = Canon.marsMapDefinitions.single { admin.count(it.className.toString()) == 1 }
-      // The four most common printed project-card costs in Canon, in frequency order.
-      val placements = soloTileAreas(map, listOf(11, 10, 12, 8)).map { it.className }
-      placements.chunked(2).forEach { (city, greenery) ->
-        admin.doTask("CityTile<$city>")
-        admin.doTask("GreeneryTile<$greenery>")
-      }
-    }
   }
 
   private fun playStartingCorporations(kimCorporation: ClassName?) {

@@ -2,9 +2,11 @@ package dev.martianzoo.agenttestsupport
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
@@ -33,6 +35,13 @@ internal fun World.testTfm(actor: Actor): TfmGameplay = testAgents().tfm(actor)
  */
 internal fun World.startSetupOnly() {
   val agents = testAgents()
-  agents.tfm(ADMIN).startGame()
-  tasks.extract { it }.filter { it.deferred }.forEach { agents[it.assignee].dropTask(it.id) }
+  val policies = actors.filterIsInstance<Player>().associateWith { agents[it].autoExecPolicy }
+  try {
+    policies.keys.forEach { agents[it].autoExecPolicy = NONE }
+    agents.tfm(ADMIN).startGame()
+    tasks.extract { it }.filter { it.deferred }.forEach { agents[it.assignee].dropTask(it.id) }
+  } finally {
+    policies.forEach { (actor, policy) -> agents[actor].autoExecPolicy = policy }
+  }
+  agents[ADMIN].autoExecNow()
 }

@@ -4,6 +4,7 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.GameFileImporter
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.recording
@@ -83,6 +84,8 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   /** Pets declarations for concrete Players with sourced per-seat setup rules. */
   protected open val playerClassPets: String = ""
+  /** Neutral solo locations in city, greenery, city, greenery order. */
+  protected open val soloTileLocations: List<String> = emptyList()
   /** Ordered events observed by a replay; the fixture adds the remaining unused cards. */
   protected open val firstGlobalEvents: List<String> = emptyList()
   protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
@@ -97,7 +100,10 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   open fun commonSetup() {
     gamePremise =
         withTestTurmoilDeck(
-            catalog.gamePremise(config, parseClasses(playerClassPets)),
+            withTestSoloSetup(
+                catalog.gamePremise(config, parseClasses(playerClassPets)),
+                soloTileLocations.map(::cn),
+            ),
             firstGlobalEvents,
         )
     game = TfmEngine.newGame(gamePremise)

@@ -2,9 +2,10 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
@@ -17,6 +18,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class StartTokenTest : TfmGameplayTest() {
@@ -67,14 +69,15 @@ internal class StartTokenTest : TfmGameplayTest() {
   internal class Setup : TfmTest() {
     @Test
     internal fun `solo setup links each greenery to its own city`() {
-      val admin = setUpGame(players = 1).testAgent(ADMIN)
-
-      admin.doTask("CityTile<Tharsis_4_1>")
-      admin.doTask("GreeneryTile<Tharsis_5_1>")
-      admin.doTask("CityTile<Tharsis_5_8>")
-
-      // This area neighbors the first city, but not the selected second city.
-      shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_3_1>") }
+      // The second greenery neighbors the first city, but not the second city.
+      shouldThrow<IllegalArgumentException> {
+            withTestSoloSetup(
+                canonicalPremise(players = 1),
+                listOf("Tharsis_4_1", "Tharsis_5_1", "Tharsis_5_8", "Tharsis_3_1").map(::cn),
+            )
+          }
+          .message
+          .shouldContain("greenery must be adjacent")
     }
 
     @Test

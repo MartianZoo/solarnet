@@ -39,6 +39,34 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
 | 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Evidence for the separate Agent choice project, not a gate for the engine API. |
 
+### Solo neutral locations are part of the resolved premise
+
+Setup now supplies the four fixed locations through `soloTileSetup`. A selected premise-local
+declaration binds the four arguments of canonical `PlaceNeutralTiles`; its ordinary Pets effects
+place the two city/greenery pairs. Existing local class serialization and hashing retain it in full and short game files; no new engine input,
+custom instruction, or serialized field was added. The canonical setup signal is abstract and
+Admin infers its sole configured concrete subclass. Invalid location geometry is rejected before
+the setup can leave Admin waiting for an impossible fixed placement.
+
+The initial attempt put adjacency refinements on bound type variables, which Pets rejects.
+Opus identified the duplicate geometry checks in the subsequent generated-instruction attempt.
+The retained form validates fixed setup locations before world creation and keeps the placement
+effects in canonical Pets. Kotlin emits only the configured subclass declaration. The REPL
+chooses four printed-card costs at setup; fixtures and sourced replay locations remain explicit.
+`AbstractSoloTest`, `StinaGameTest`, gameplay/sandbox fixtures, the benchmark, and rule/script
+scenarios no longer supply incoming Admin placement calls. The focused `SoloPremiseTest` checks
+all four tiles and reconstruction from both file formats. Existing invalid-city and wrong-city
+greenery checks now exercise invalid resolved setup input. Opus/high reviewed the implementation
+and agreed with the final parameterized form. The REPL and setup-only fixture configure their
+phase behavior before enabling Player automation; Admin remains mandatory throughout.
+
+The final `./gradlew build -PreplayExports` passed: 619 engine tests, 72 Agent tests, 50 script
+tests, 1,358 card/rule tests (26 existing skips), 23 active replay tests with regenerated files and
+live reconstruction, and the browser checks. Both full and short solo files are also checked by
+the focused scenario. The initial broad runs exposed remaining solo fixture constructors and
+setup-only phase configuration timing; those callers were corrected without weakening engine
+selection rules or disabling Admin.
+
 ### Whole-call recovery and removal of the unused completion hook
 
 The owner selected restoring the entire Agent call when later Admin work fails and removing

@@ -12,13 +12,13 @@ internal class StinaScriptTest {
   @Test
   internal fun `Stina Saturn Systems game`() {
     val repl = ScriptSession()
-    repl.command(
-        "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMap, PreludeExpansion\" Me purple"
+    repl.newGame(
+        "TerraformingMars, CorporateEraExpansion, ElysiumMap, PreludeExpansion",
+        listOf("Me"),
+        purple = true,
+        soloLocations =
+            listOf("Elysium_5_6", "Elysium_5_5", "Elysium_7_7", "Elysium_7_6").map(::cn),
     )
-    repl.command("task CityTile<Elysium_5_6, SoloOpponent>")
-    repl.command("task GreeneryTile<Elysium_5_5, SoloOpponent>")
-    repl.command("task CityTile<Elysium_7_7, SoloOpponent>")
-    repl.command("task GreeneryTile<Elysium_7_6, SoloOpponent>")
     repl.command("become Me")
     repl.keepStartingProjects(10)
     repl.playCorporation("SaturnSystems")

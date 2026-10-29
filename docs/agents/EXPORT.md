@@ -35,6 +35,11 @@ runtime Kotlin implementations; an equal data hash is not a claim that two diffe
 have identical behavior. Strict replay compares the behavior, and the format identifier can be
 advanced when the interpretation of the file changes.
 
+Solo neutral tile locations are retained in the premise-local `SoloTileLocations` declaration,
+which the existing codec and premise digest already include. Both full and short files reconstruct
+the same two city/greenery pairs through automatic Admin execution; no recorded Admin placement
+commands or compatibility conversion are needed. `SoloPremiseTest` verifies both formats.
+
 `GameFileImporter` in `agent` checks hashes before constructing a live game. The caller supplies
 the game-specific runtime constructor and the game's start. Recorded commands are submitted
 through the corresponding Agent.

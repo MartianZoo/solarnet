@@ -63,7 +63,8 @@ public object TfmEngine {
 
   /**
    * Builds a live [World] from [premise] with this engine's [customClasses] available. Invalid
-   * premises or missing custom declarations fail during world construction.
+   * premises or missing custom declarations fail during world construction. A solo premise must
+   * include its fixed neutral placement declaration, supplied by `soloTileSetup` before this call.
    */
   public fun newGame(premise: GamePremise): World {
     val available = globalEventDeck(premise)
@@ -72,6 +73,18 @@ public object TfmEngine {
           "Global Event draw order must contain every available event exactly once: " +
               "expected $available, found ${premise.drawOrder}"
       )
+    }
+    if (cn("SoloMode") in premise.modules) {
+      val placement = premise.classTable.getClass(cn("PlaceNeutralTiles"))
+      val choices =
+          premise.classTable.allSubclasses(placement).count {
+            !it.abstract && premise.classTable.isInhabited(it)
+          }
+      if (choices != 1) {
+        throw InvalidGameConfigException(
+            "Solo setup requires a single premise-supplied tile placement declaration"
+        )
+      }
     }
     return Engine.newGame(premise, customClasses)
   }

@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AgentInputRequiredException
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -22,7 +23,10 @@ internal class CardTrackingTest : TfmTest() {
       requireSelectingNames: Boolean = false,
   ): Pair<CardTracking, Player> {
     val config = GameConfig(expansions, "Player1")
-    game = TfmEngine.newGame(withTestTurmoilDeck(canonicalCatalog(config).gamePremise(config)))
+    game =
+        TfmEngine.newGame(
+            withTestTurmoilDeck(withTestSoloSetup(canonicalCatalog(config).gamePremise(config)))
+        )
     val player = game.actors.filterIsInstance<Player>().single()
     return CardTracking.start(agents, requireSelectingNames) to player
   }
@@ -153,7 +157,7 @@ internal class CardTrackingTest : TfmTest() {
   @Test
   internal fun cardTrackingCannotBeStartedOnAnOverlay() {
     val config = GameConfig("PreludeExpansion", "Player1")
-    game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
+    game = TfmEngine.newGame(withTestSoloSetup(canonicalCatalog(config).gamePremise(config)))
     val player = game.actors.filterIsInstance<Player>().single()
     val imagined = Agents(Engine.overlay(game))
 

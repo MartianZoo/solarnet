@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
@@ -594,7 +595,11 @@ internal class ModuleSelectionTest {
 
   private fun premise(config: String, players: Int) =
       withTestTurmoilDeck(
-          Canon.gamePremise(GameConfig(config, *(1..players).map { "Player$it" }.toTypedArray()))
+          withTestSoloSetup(
+              Canon.gamePremise(
+                  GameConfig(config, *(1..players).map { "Player$it" }.toTypedArray())
+              )
+          )
       )
 
   private fun multiplayerWith(vararg additions: String): Set<ClassName> =
