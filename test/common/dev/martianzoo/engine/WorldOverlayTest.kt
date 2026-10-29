@@ -32,7 +32,8 @@ internal class WorldOverlayTest {
     val pending = sourceAgent.addTasks("Choice?").single()
     val sourceCheckpoint = source.timeline.checkpoint()
 
-    val imagined = sourceAgents.overlay()
+    val overlay = Engine.overlay(source)
+    val imagined = Agents(overlay) { NONE }
     val imaginedAgent = imagined[PLAYER1]
     val originalNote = source.events.entriesSince(0).first().notes
     imagined.world.events.entriesSince(0).first().notes = "overlay only"
@@ -57,7 +58,7 @@ internal class WorldOverlayTest {
     imaginedAgent.count("CopyOnly") shouldBe 0
     sourceAgent.count("CopyOnly") shouldBe 0
 
-    imagined.reset()
+    overlay.reset()
     imagined.world.timeline.checkpoint() shouldBe sourceCheckpoint
     imagined.world.tasks.getTaskData(pending) shouldBe source.tasks.getTaskData(pending)
     imagined.world.events.entriesSince(0).first().notes shouldBe originalNote
@@ -74,7 +75,8 @@ internal class WorldOverlayTest {
         )
     val sourceAgent = Agents(source) { NONE }[PLAYER1]
     sourceAgent.runOperation("Listener")
-    val imagined = Agents(source) { NONE }.overlay()
+    val overlay = Engine.overlay(source)
+    val imagined = Agents(overlay) { NONE }
     val imaginedAgent = imagined[PLAYER1]
     val start = imagined.world.timeline.checkpoint()
     val retainedComponents = imagined.world.components
@@ -88,12 +90,12 @@ internal class WorldOverlayTest {
         )
 
     imaginedAgent.runOperation("Ping") { doTask("Pong") }
-    imagined.reset()
+    overlay.reset()
     imagined.world.timeline.checkpoint() shouldBe start
     retainedEvents.entriesSince(retainedEvents.eventOrdinal(start)) shouldBe emptyList()
     imaginedAgent.runOperation("Other")
     imagined.world.timeline.commit()
-    imagined.reset()
+    overlay.reset()
     imagined.world.timeline.floor shouldBe start
     imaginedAgent.runOperation("Ping") { doTask("Pong") }
     imagined.world.timeline.stepBack() shouldBe true
@@ -113,7 +115,8 @@ internal class WorldOverlayTest {
         Engine.newGame(testGamePremise("CLASS Listener { Ping: Pong }\nCLASS Ping\nCLASS Pong"))
     val sourceAgent = Agents(source) { NONE }[PLAYER1]
     sourceAgent.runOperation("Listener")
-    val imagined = Agents(source) { NONE }.overlay()
+    val overlay = Engine.overlay(source)
+    val imagined = Agents(overlay) { NONE }
     val imaginedAgent = imagined[PLAYER1]
 
     imaginedAgent.runOperation("-Listener")
@@ -124,7 +127,7 @@ internal class WorldOverlayTest {
     copied[PLAYER1].runOperation("Ping")
     copied[PLAYER1].count("Pong") shouldBe 0
 
-    imagined.reset()
+    overlay.reset()
     imaginedAgent.runOperation("Ping") { doTask("Pong") }
     imaginedAgent.count("Pong") shouldBe 1
     sourceAgent.runOperation("Ping") { doTask("Pong") }
@@ -134,7 +137,8 @@ internal class WorldOverlayTest {
   @Test
   internal fun aResetListenerCannotStartAnotherTrialDuringReset() {
     val source = Engine.newGame(testGamePremise("CLASS Token\nCLASS Other"))
-    val imagined = Agents(source) { NONE }.overlay()
+    val overlay = Engine.overlay(source)
+    val imagined = Agents(overlay) { NONE }
     val agent = imagined[PLAYER1]
     val start = imagined.world.timeline.checkpoint()
     var armed = false
@@ -152,7 +156,7 @@ internal class WorldOverlayTest {
 
     agent.runOperation("Token")
     armed = true
-    imagined.reset()
+    overlay.reset()
 
     rejected shouldBe true
     imagined.world.timeline.checkpoint() shouldBe start
@@ -193,15 +197,15 @@ internal class WorldOverlayTest {
     val task = agent.addTasks("Choice?").single()
     val before = source.timeline.checkpoint()
 
-    val first = sourceAgents.overlay()
+    val first = Engine.overlay(source)
     agent.canSelectTask(task) shouldBe true
     source.timeline.checkpoint() shouldBe before
-    first.world.timeline.checkpoint() shouldBe before
+    first.timeline.checkpoint() shouldBe before
 
-    val second = sourceAgents.overlay()
+    val second = Engine.overlay(source)
     agent.canExecuteTask(task)
     source.timeline.checkpoint() shouldBe before
-    second.world.timeline.checkpoint() shouldBe before
+    second.timeline.checkpoint() shouldBe before
   }
 
   @Test

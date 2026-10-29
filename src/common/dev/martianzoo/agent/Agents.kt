@@ -15,7 +15,7 @@ import dev.martianzoo.state.Actor
  * [AutoExecPolicy.EAGER]. It is evaluated once per Player; Admin always uses mandatory eager
  * handling. Construction does not execute pending tasks; subsequent Agent commands handle them.
  */
-public open class Agents(
+public class Agents(
     public val world: World,
     // TODO: migrate Players to a suitable smart policy; the user deferred default-policy cleanup.
     initialPolicy: (Actor) -> AutoExecPolicy = { AutoExecPolicy.EAGER },
@@ -64,18 +64,6 @@ public open class Agents(
 
   /** This world's Agent for [actor]. */
   public operator fun get(actor: Actor): Agent = agents.getValue(actor)
-
-  /**
-   * A speculative session with fresh Agents and the same current per-Actor policies. The source
-   * World stays unchanged; mutating it later invalidates the speculative World. Application guards
-   * are absent, so card movements can remain anonymous. Recording and completion callbacks begin
-   * fresh. The returned session can be reset and reused without rebuilding its Agents.
-   */
-  // TODO(ENGINE_CONTRACT): no required use is established. Nothing in production constructs these
-  // sessions; the engine's own trial Worlds do not use them. Removing this surface is available,
-  // but it deletes the overlay-invalidation and card-anonymity scenarios that now cover it.
-  public fun overlay(): SpeculativeAgents =
-      SpeculativeAgents(Engine.overlay(world)) { actor -> get(actor).autoExecPolicy }
 
   /**
    * A fully independent copy, including this World's complete event history. This also materializes

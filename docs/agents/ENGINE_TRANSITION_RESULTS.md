@@ -355,12 +355,12 @@ The two "establish a required use" markers on reusable speculative state now hav
 differs by layer. `GameWorld.resetOverlay` and the engine's `SpeculativeWorld.reset` are required:
 `ActorEngine.successfulNarrowing` creates one trial World and resets it once per concrete candidate
 while proving a unique narrowing, so that capability cannot be removed independently of experiments
-4 and 5. The agent-level session is not required: nothing in production constructs
-`Agents.overlay()` or `SpeculativeAgents`, and the only callers are `WorldOverlayTest` and
-`CardTrackingTest`. Removing the agent-level surface is therefore available without touching the
-engine's trial Worlds, but it would delete the overlay-invalidation and card-anonymity scenarios
-that currently cover it. That trade is a user decision, so both markers were narrowed to record the
-answer rather than acted on.
+4 and 5. The agent-level session was not required: nothing in production constructed
+`Agents.overlay()` or `SpeculativeAgents`, and the only callers were `WorldOverlayTest` and
+`CardTrackingTest`. The transition now removes that wrapper, its recording-reset method, and
+inheritance from `Agents`. Those tests construct `Engine.overlay` directly and retain their
+checks for invalidation, history, reset effects, and anonymous card draws. No engine trial
+capability or test scenario was removed.
 
 ## Integration of main and the work1 documentation commit
 

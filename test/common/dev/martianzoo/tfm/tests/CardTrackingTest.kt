@@ -1,9 +1,11 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.AgentInputRequiredException
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
@@ -109,13 +111,14 @@ internal class CardTrackingTest : TfmTest() {
   }
 
   @Test
-  internal fun speculativeAgentsDrawAnonymousCardsWithoutChangingTrackedSource() {
+  internal fun anOverlayDrawsAnonymousCardsWithoutChangingTrackedSource() {
     val (sourceTracking, player) = newTrackedGame()
     val firstCard = cn("AcquiredCompany")
     sourceTracking.expectArrivals(player, firstCard)
     agents[player].runOperation("ProjectCard")
 
-    val imagined = agents.overlay()
+    val overlay = Engine.overlay(game)
+    val imagined = Agents(overlay)
     imagined.transactionGuard shouldBe null
     imagined[player].runOperation("ProjectCard")
 
@@ -124,7 +127,7 @@ internal class CardTrackingTest : TfmTest() {
     copied[player].count("ProjectCard<Hand>") shouldBe 2
     sourceTracking.requireComplete()
 
-    imagined.reset()
+    overlay.reset()
     sourceTracking.hand(player) shouldBe setOf(firstCard)
     imagined[player].count("ProjectCard<Hand>") shouldBe 1
     imagined[player].runOperation("ProjectCard")
@@ -152,7 +155,7 @@ internal class CardTrackingTest : TfmTest() {
     val config = GameConfig("PreludeExpansion", "Player1")
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     val player = game.actors.filterIsInstance<Player>().single()
-    val imagined = agents.overlay()
+    val imagined = Agents(Engine.overlay(game))
 
     shouldThrow<IllegalStateException> { CardTracking.start(imagined) }
     imagined[player].runOperation("ProjectCard")

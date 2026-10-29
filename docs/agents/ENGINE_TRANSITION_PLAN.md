@@ -251,6 +251,9 @@ limit reads. For each, record whether ordinary clients need it, Agent needs it a
 or it can be internal/deleted. The finish line is an explicit documented API list, not merely a
 new wrapper beside all old entry points.
 
+The unused Agent overlay wrapper is removed, with engine isolation and card-tracking scenarios
+preserved; see [the API audit results](ENGINE_TRANSITION_RESULTS.md).
+
 ### 5. Review, verify, and report completion honestly
 
 Keep an acceptance checklist for settled answers. Test focused engine semantics, Agent carryover,
