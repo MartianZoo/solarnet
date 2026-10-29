@@ -261,18 +261,40 @@ internal class AgentNarrowingExperimentTest {
   }
 
   @Test
-  fun `BUG - optional amount menu hides a gain repaired by its immediate effect`() {
+  fun optionalAmountMenuOffersAndSubmitsAnImmediateRepair() {
     val world = repairWorld()
     val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
     val task = agent.addTasks("Repair?").single()
     val form = agent.fillInTask(task)
-    form.options(form.decisions().single()).toList() shouldBe listOf("Ok")
-
-    // The menu is incomplete: a fully specified request succeeds and has a different result.
-    // Therefore the reducer above is evidence only, never an automatic-execution policy.
-    agent.doTask("Repair!")
+    val amount = form.decisions().single()
+    form.options(amount).toList() shouldBe listOf("Ok", "1")
+    form.choose(amount, "1")
+    form.commit()
+    agent.count("Notice") shouldBe 0
+    agent.doTask(task)
     agent.count("Repair") shouldBe 0
     agent.count("Notice") shouldBe 1
+  }
+
+  @Test
+  fun optionalVariableAmountMenuKeepsRepairableCountsLazy() {
+    val world = repairWorld()
+    val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
+    val task = agent.addTasks("X? Repair").single()
+    val form = agent.fillInTask(task)
+    val amount = form.decisions().single()
+
+    form.options(amount).take(3).toList() shouldBe listOf("Ok", "1", "2")
+    form.choose(amount, "2")
+    // Binding X retains the optional choice of how much of that amount to gain.
+    val optionalAmount = form.decisions().single()
+    form.options(optionalAmount).toList() shouldBe listOf("Ok", "1", "2")
+    form.choose(optionalAmount, "2")
+    form.commit()
+    agent.doTask(task)
+
+    agent.count("Repair") shouldBe 0
+    agent.count("Notice") shouldBe 2
   }
 
   @Test

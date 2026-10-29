@@ -206,8 +206,8 @@ Other paths still need the same distinction. The Agent Admin loop catches the pa
 `ActorEngine.probeSelection` and `canExecuteTask` also catch that parent type and return `false`;
 their Boolean results cannot currently distinguish unfinished proof from an impossible action.
 The raw `Repair?` test now proves that zero and positive count can both complete when its immediate
-effect repairs the limit; the request therefore requires an explicit choice. The Agent menu still
-omits that positive choice, and AMAP count semantics remain separate work.
+effect repairs the limit; the request therefore requires an explicit choice. The Agent menu now
+offers and submits that positive choice. AMAP count semantics remain separate work.
 
 ### 3. Settle selection, handoff, and Admin scheduling
 

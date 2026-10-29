@@ -19,8 +19,9 @@ to the agent. The current special cases below are not requirements to preserve u
 particular, raw `Repair?` now remains a choice when both zero and a positive gain succeed after an
 immediate effect repairs the limit. Fixed optional counts use the same transaction trials as
 mandatory changes, including a single `Ok` candidate and every positive count up to the requested
-amount. Agent menus and AMAP still use current invariant room; their remaining work is tracked in
-the [transition plan](ENGINE_TRANSITION_PLAN.md). A quantity-limit read can bound
+amount. Agent optional amount menus use the same physical bounds but do not prove transaction
+success. AMAP still uses current invariant room; its remaining work is tracked in the
+[transition plan](ENGINE_TRANSITION_PLAN.md). A quantity-limit read can bound
 candidates without proving their transactions succeed; temporary invariant violations repaired
 by immediate effects must not be rejected by an over-eager filter.
 

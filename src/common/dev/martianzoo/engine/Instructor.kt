@@ -466,7 +466,7 @@ internal constructor(
       limiter.findLimit(
           gain?.toComponent(),
           removal?.toComponent(),
-          invariants = change.quantifier != MANDATORY,
+          invariants = change.quantifier == AMAP,
       )
     } catch (_: DependencyException) {
       null

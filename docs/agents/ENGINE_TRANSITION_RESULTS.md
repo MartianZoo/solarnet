@@ -53,9 +53,12 @@ The case itself remains synthetic; no Canon rule using that immediate-repair pat
 
 Player EAGER still executes only concrete requests, so it now waits on an unresolved capped optional
 that previously resolved to zero during selection. The raw execution command can prove zero when
-explicitly requested. Agent amount menus and AMAP still use current invariant room. Optional card
-discard domains can include many absent card types; measuring and filtering those physical failures
-is tracked in `TODO.md`. No public API, stored state, or additional execution stage was introduced.
+explicitly requested. A subsequent menu fix makes optional amount menus retain positive counts up
+to physical availability; the form can now submit the successful `Repair!` choice. These options
+remain candidates rather than proven legal transactions. AMAP still uses current invariant room.
+Optional card discard domains can include many absent card types; measuring and filtering those
+physical failures is tracked in `TODO.md`. No public API, stored state, or additional execution
+stage was introduced.
 
 ### `EACH` now expands on execution
 

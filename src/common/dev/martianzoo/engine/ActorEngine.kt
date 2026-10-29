@@ -320,8 +320,8 @@ internal constructor(
   /**
    * Returns the immediate quantity bound for a change with concrete gain/removal targets, or null
    * if a required destination dependency is absent. The change's quantifier determines whether
-   * count invariants contribute to the bound; mandatory changes do not use them to hide failing
-   * choices.
+   * count invariants contribute to the bound; only AMAP uses them to determine its count. Mandatory
+   * and optional requests keep positive choices that immediate effects may repair.
    *
    * This reads current state without executing the change. Its result does not establish that the
    * change's `::` consequences and final checks can complete successfully.

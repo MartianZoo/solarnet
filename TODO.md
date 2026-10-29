@@ -23,10 +23,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Measure raw optional card-discard requests: the finite proof currently tries every concrete card
   type at each permitted positive count, including cards absent from the source location. Physical
   availability could exclude those candidates before trial without consulting invariant room.
-- Fix Agent choice completeness before adopting automatic form reduction. The passing
-  `AgentNarrowingExperimentTest` BUG case shows `Repair?` offering only `Ok` even though `Repair!`
-  succeeds because `Repair:: Notice, -Repair` repairs its own MAX 0 limit. A raw engine call by task
-  ID now correctly requires a choice because both zero and a positive count succeed. `Repair*`
+- Complete Agent choice analysis before adopting automatic form reduction. `Repair?` now offers
+  both `Ok` and its positive amount, and form submission can execute the immediate repair.
+  Menus still list candidates without proving their complete transactions. `Repair*`
   still resolves to zero under the documented current-headroom rule in
   `QUANTIFIERS.md`, but its intended amount rule remains open. Canon's neutral `PartyDelegate`
   placement deliberately uses mandatory gain for this reason. Characterize affected Canon amounts
