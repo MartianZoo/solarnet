@@ -69,8 +69,6 @@ internal class WorldForkTest {
             source.reader,
             sourceChoiceCounts::add,
         )
-    var sourceCompletions = 0
-    source.onTransactionComplete = { sourceCompletions++ }
 
     val fork = Engine.fork(source)
     val forkAgent = fork.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
@@ -92,7 +90,6 @@ internal class WorldForkTest {
     sourceAgent.count("Choice") shouldBe 0
     sourceAgent.count("Pong") shouldBe 0
     (pendingChoice in source.tasks) shouldBe true
-    sourceCompletions shouldBe 0
     sourceChoiceCounts shouldBe listOf(0)
 
     sourceAgent.doTask("Choice")

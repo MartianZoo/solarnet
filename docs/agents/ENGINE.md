@@ -138,8 +138,8 @@ the other, and motivation grants no authority.
 
 Passive navigation reapplies events without firing effects. Live navigation may stop with Admin
 work pending; after truncating the future, Agent calls give that work its normal priority.
-Checkpoints and exports cannot expose an open transaction. Navigation during completion callbacks
-is refused; ordinary navigation after a call returns remains available. Retained results span the
+Checkpoints and exports cannot expose an open transaction. Navigation inside a restoring block
+cannot precede that block's start. Retained results span the
 whole returned call without combining its separate transactions in history.
 
 See [Transactions](../../src/common/dev/martianzoo/engine/Transactions.kt),

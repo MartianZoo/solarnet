@@ -20,15 +20,16 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   and unsupported nested forms remain. Resolve compact transmutations and a
   search resource limit without treating incomplete analysis as a failed transaction. Keep
   unsupported forms and unresolved immediate effects unknown. Review Admin waiting behavior,
-  callback failure recovery, and custom Kotlin effects separately.
+  whole-call recovery limits, and custom Kotlin effects separately.
   The fixed optional card-removal benchmark measures 220 candidates and an expected 146 trials
   before ambiguity, about 1.95 ms through Agent on the measured machine. Larger counts and domains
   remain unmeasured. If those become costly, physical availability could exclude absent sources
   before trial without consulting invariant room; no optimization or search cap is justified yet.
 - Remove solo setup's remaining caller-supplied Admin tile placements to meet the no-Admin-input
   goal. `AbstractSoloTest`, `TfmGameplayTest`, and `TfmSandboxTest` still submit two neutral cities
-  and their adjacent greeneries. The proposed replacement is four locations supplied once by
-  setup in the resolved premise and retained in game exports; the owner decision is pending.
+  and their adjacent greeneries. The owner selected four locations supplied once by
+  setup in the resolved premise and retained in game exports. Update replay callers and regenerate
+  exports; no compatibility path for old files is required.
 - Complete Agent choice analysis before adopting automatic form reduction. `Repair?` now offers
   both `Ok` and its positive amount, and form submission can execute the immediate repair.
   Menus still list candidates without proving their complete transactions. `Repair*`
@@ -137,14 +138,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   The branch covers finite mandatory/optional changes and their `OR` alternatives,
   including Admin uniqueness; this is not general coverage. Finish read-only task matching,
   deterministic incomplete-analysis reporting, structural selection and Admin handoff, and the
-  client-facing call shape. Different continuations are not interchangeable. Settle when other
-  data, especially cause, makes repeated rewards distinct: strict cause equality broke Ecological
-  Zone, Frontier Town, and curated replay requests, while cause can affect event ancestry and
-  application input checks. The owner retained calculated matching when unique; distinct matching
+  client-facing call shape. Different continuations are not interchangeable; the owner selected ignoring IDs and originating
+  causes for otherwise identical tasks. The owner retained calculated matching when unique; distinct matching
   permissions require an explicit task ID. Review Admin
   waiting cases against the selected rule that Admin exhausts currently possible work before the
   Player sees the state; a pending Admin task alone does not block Player selection. Also review
-  solo neutral placements. Do not derive engine requirements from the removed Turmoil event-draw
+  premise-owned solo neutral placements, updated replay callers, and regenerated exports (owner approved). Do not derive engine requirements from the removed Turmoil event-draw
   workaround. Whole-action
   exploration is separate Agent work.
 - Design engine-installed autoexec policies for selected tasks assigned to an Actor, configured
@@ -181,7 +180,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Investigate moving the code that runs several engine calls, checks supplied card identities,
   reports completion to application code, and decides whether an action has finished out of the
   engine package. Application checks and operation completion have moved to Agent on the branch;
-  the public call coordinator, callbacks, and recovery remain. Preserve transaction validity and
+  the public call coordinator and remaining recovery limits need review. The unused completion hook
+  is removed and whole-call rollback is selected. Preserve transaction validity and
   complete returned results. The [transition plan](docs/agents/ENGINE_TRANSITION_PLAN.md#4-simplify-the-client-facing-call)
   gives the implementation order and unresolved recovery questions.
 - Clarify System classification versus non-Iconic presentation separately. Review when concrete

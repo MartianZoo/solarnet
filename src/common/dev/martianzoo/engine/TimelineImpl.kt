@@ -9,7 +9,7 @@ import dev.martianzoo.state.TaskResult
 /**
  * Derives transaction positions and keeps the retained future of a live World. The [atomic] helper
  * restores recorded game changes after a failed block; it does not define or complete an engine
- * transaction. History navigation is refused while the completion callback runs.
+ * transaction.
  */
 internal class TimelineImpl(
     private val gameWorld: GameWorld,
@@ -28,26 +28,6 @@ internal class TimelineImpl(
 
   /** The changes and surviving new tasks recorded since event [ordinal]. */
   internal fun activitySince(ordinal: Int): TaskResult = gameWorld.activitySince(ordinal)
-
-  private var inCompletionCallback = false
-
-  /**
-   * Runs [block] as the completion callback, during which history navigation is refused. Nested
-   * gameplay calls are still permitted; they may not seek or truncate either.
-   */
-  internal fun <T> duringCompletionCallback(block: () -> T): T {
-    check(!inCompletionCallback) { "already reporting completion" }
-    inCompletionCallback = true
-    return try {
-      block()
-    } finally {
-      inCompletionCallback = false
-    }
-  }
-
-  private fun requireNotReportingCompletion() {
-    check(!inCompletionCallback) { "Cannot navigate history while reporting completion" }
-  }
 
   override var floor = Checkpoint(0)
     private set
@@ -84,7 +64,6 @@ internal class TimelineImpl(
   }
 
   override fun seek(checkpoint: Checkpoint) {
-    requireNotReportingCompletion()
     val ordinal = eventOrdinal(checkpoint)
     check(atomicStarts.lastOrNull()?.let { ordinal >= it } != false) {
       "Cannot seek before the current atomic call began"
@@ -125,7 +104,6 @@ internal class TimelineImpl(
   }
 
   override fun truncate() {
-    requireNotReportingCompletion()
     checkpoint() // Reject navigation during an open transaction.
     future.clear()
   }

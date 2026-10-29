@@ -45,7 +45,7 @@ checks. This plan does not authorize any further merge.
 
 | Already on branch | Relevant limit |
 | --- | --- |
-| Application input checks and operation completion moved to Agent sessions. | Completion callbacks and whole-call failure semantics are unsettled. |
+| Application input checks and operation completion moved to Agent sessions. | The owner selected whole-call rollback and removal of the unused completion hook. |
 | Engine combined resource totals removed; Agent translates an explicitly submitted total into separate calls. Existing engine matching can identify an individual task by its calculated amount. | Decide whether to retain calculated-amount matching in the final engine API and settle multiple matches. |
 | Explicit submitted groups execute their admitted member IDs, leaving reactions and continuations queued. | Structural selection and handoff still need a final rule. |
 | Selection/narrowing no longer execute component changes as the selecting Actor; numeric `THEN` bindings are explicit. Ordinary add/drop queue edits now refuse while a task is selected, except dropping that task itself. `EACH` selection retains the parent, and execution admits its children. | Voluntary partial narrowing and structural paths other than `EACH` need review. |
@@ -67,8 +67,9 @@ silently choose an answer.
    task string intersects exactly a single pending task for the submitting Actor, use the
    intersection as the request. Specify whether “intersects” includes current-world resolution,
    a satisfied gate, a `THEN` first stage, or a currently failed gate matched with possible facts.
-   Different continuations make tasks distinct. Define the positive rule for considering other
-   task data interchangeable, especially different causes and otherwise identical repeated rewards.
+   The owner selected ignoring IDs and originating causes when comparing otherwise identical
+   tasks; different continuations make tasks distinct. Compare instructions, continuations,
+   assignees, selection, and deferral conservatively.
    The existing resolved-value match stays in the engine: with 3 Foo present, `1 MC / Foo`
    evaluates to `3 MC`, so a client may submit `3 MC` if it is unique. (The owner's earlier `3 Foo`
    wording reverses the result.)
@@ -83,9 +84,9 @@ silently choose an answer.
    current game model requires an external input, surface that need before Player work. Turmoil's
    former caller-supplied Global Event draw has been replaced by a premise-owned deck on this branch.
    The selected P0 task must execute before any other work. Settle how Player work is
-   ordered after Admin and whether `World.onTransactionComplete` remains a separate hook. No
-   production code assigns that hook; removing it would simplify callback timing but delete the
-   tested notification surface. Admin cannot be disabled by Player policy or replay configuration.
+   ordered after Admin. The owner selected removing `World.onTransactionComplete`; no production
+   caller used it, and the branch now removes it and its special completion path. Admin cannot be
+   disabled by Player policy or replay configuration.
 3. **Proof coverage and limits.** The owner selected a distinct incomplete-analysis result when
    the engine cannot finish proving uniqueness. A wall-clock timeout is not approved:
    identical game requests must not change answers according to machine speed. Specify finite
@@ -107,7 +108,8 @@ silently choose an answer.
    Canon waiting task.
    The source audit also found solo neutral setup still using four incoming Admin placement calls
    in `AbstractSoloTest`, `TfmGameplayTest`, and `TfmSandboxTest`. Supplying those locations in the
-   premise and exports is proposed separately; the owner decision is pending.
+   premise and exports is now selected by the owner; implementation, updated replay callers, and
+   regenerated exports remain.
 4. **Selection, structural edits, and handoff.** Decide whether a voluntary partial narrowing is
    retained by engine or must live in a client draft, especially when a target choice unlocks AMAP
    evaluation. Decide which queue edits are permitted during a
@@ -122,14 +124,11 @@ silently choose an answer.
    selected parent, and the children take ordinary priorities. Keep the direct selection test and
    Canon base `SetupPhase: EACH Me@Player { PROD[...] }` verification when changing neighboring
    structural paths; selection alone must not create production child tasks.
-   Specify whether the completed public call succeeds if that later Admin transaction fails.
-5. **Whole-call results and recovery.** Decide what a client-facing call returns and restores when
-   a completion callback or later automatic transaction fails. Engine transaction failure already
-   restores its own game state. Current `WorldTransaction` restores the initiating work together
-   with ordinary Admin follow-up on failure, but invokes `World.onTransactionComplete` after that
-   restoring block; a failing callback can leave earlier work retained. External application side
-   effects cannot be rolled back by the engine. Decide whether this hook survives before promising
-   a uniform whole-call failure rule.
+5. **Whole-call results and recovery.** The owner selected restoring the entire Agent call if
+   subsequent Admin work fails, including a successful initiating Player transaction. The unused
+   completion hook is removed; request, automatic work, and completion validation now share the
+   restoring block. External application side effects cannot be rolled back by the engine.
+   Audit the remaining `Timeline.atomic` limits against the selected recovery rule.
    Also decide whether correction methods may edit the queue while a task is selected; the branch
    now refuses ordinary add/drop edits but still allows some correction paths.
 
@@ -150,10 +149,8 @@ approved. Raise them with the owner instead of letting an implementer infer cons
   saying `3 MC` records the concrete request, but not necessarily which permission supplied it.
   Multiple matching permissions with different continuations cannot be resolved by a successful
   transaction trial.
-- A later Admin failure may occur inside the same public call after the initiating Player
-  transaction succeeded. Whole-call restoration would undo that successful game change; retaining
-  it would return or throw with a partially completed call. A completion callback may already have
-  changed external state. This decision affects what a client can safely display or record.
+- The owner selected whole-call restoration for a later Admin failure after a successful Player
+  transaction. Game changes are restored together; arbitrary external application state is not.
 - A deterministic incomplete-analysis result means some valid abstract requests may need a more
   specific input. The chosen public result must let a client distinguish that situation from a
   genuine rule rejection and from two successful alternatives.
@@ -250,10 +247,10 @@ calculation of a submitted command. Retain the shared loop unless the selected p
 demonstrates a concrete need to change it. Do not add a registration framework for future flexibility.
 
 Move or delete remaining engine-owned caller policy only after tracing its current users. Verify
-nested calls, completion callbacks, operation completion, and returned changes over the whole
-retained interval. Define what is restored when later work fails; a lower-level transaction must
-always restore its own failure. Do not relocate responsibilities into `TfmGameplay` or keep obsolete
-public APIs for compatibility.
+nested calls, operation completion, and returned changes over the whole retained interval.
+The unused completion hook is removed. Preserve whole-call restoration when later work fails;
+a lower-level transaction must always restore its own failure. Do not relocate responsibilities
+into `TfmGameplay` or keep obsolete public APIs for compatibility.
 
 Inventory the actual public surface, including `transact`, `transaction`, `doTask`, `selectTask`,
 `narrowTask`, `tryTask`, `canSelectTask`, `canExecuteTask`, queue edits, correction methods, and

@@ -37,6 +37,8 @@ internal class TaskIntersectionTest {
       CLASS MC
       CLASS RedOffer { This: Piece<Red, Shape> }
       CLASS BlueOffer { This: Piece<Blue, Shape> }
+      CLASS FirstReward { This: MC }
+      CLASS SecondReward { This: MC }
       ABSTRACT CLASS LeftChoice
       ABSTRACT CLASS RightChoice
       CLASS FirstChoice : LeftChoice, RightChoice
@@ -149,6 +151,23 @@ internal class TaskIntersectionTest {
     agent.count("Piece<Red, Circle>") shouldBe 1
     agent.count("Piece<Blue>") shouldBe 0
     game.tasks.ids().size shouldBe 1
+  }
+
+  @Test
+  fun `identical rewards from different causes remain interchangeable`() {
+    agent.beginOperation("FirstReward, SecondReward")
+    val rewards = game.tasks.extract { it }
+    rewards.size shouldBe 2
+    rewards.map { it.id }.distinct().size shouldBe 2
+    rewards.map { it.cause }.distinct().size shouldBe 2
+
+    val engine = game.actorEngine(PLAYER1)
+    engine.doTask(agent.parse<InstructionTree>("MC"))
+    agent.count("MC") shouldBe 1
+    game.tasks.ids().size shouldBe 1
+    engine.doTask(agent.parse<InstructionTree>("MC"))
+    agent.count("MC") shouldBe 2
+    game.tasks.isEmpty() shouldBe true
   }
 
   @Test

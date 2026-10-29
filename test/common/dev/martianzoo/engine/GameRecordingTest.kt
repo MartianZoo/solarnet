@@ -85,21 +85,15 @@ internal class GameRecordingTest {
   }
 
   @Test
-  internal fun callbackAgentCallsHaveSeparateRecordedSteps() {
+  internal fun nestedAgentCallsHaveSeparateRecordedSteps() {
     val game = TfmEngine.newGame(canonicalPremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     var afterPlant = 0
-    var addAutomaticResources = true
-    game.onTransactionComplete = {
-      if (addAutomaticResources) {
-        addAutomaticResources = false
-        agent.runOperation("Plant")
-        afterPlant = game.timeline.checkpoint().serial
-        agent.runOperation("Steel")
-      }
+    agent.runOperation("Heat") {
+      agent.runOperation("Plant")
+      afterPlant = game.timeline.checkpoint().serial
+      agent.runOperation("Steel")
     }
-
-    agent.runOperation("Heat")
     val playback = game.recording().open()
 
     playback.seek(afterPlant)

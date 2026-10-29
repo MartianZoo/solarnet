@@ -10,9 +10,6 @@ import kotlin.math.absoluteValue
  * contains component change events in event order. [tasksSpawned] contains task ids added during
  * that interval that remain pending at return; later world activity may remove them. This result
  * does not imply that a whole game action has finished or that all pending tasks are gone.
- *
- * Current limitation: engine and Agent completion callbacks can perform work that their returned
- * result omits. That is an implementation gap, not a smaller intended reporting interval.
  */
 public data class TaskResult(
     public val changes: List<ChangeEvent> = emptyList(),

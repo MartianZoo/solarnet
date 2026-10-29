@@ -632,9 +632,8 @@ aborted actions have no successful `TaskResult`, so assert their relevant unchan
 Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert that a particular type did not
 change.
 
-A `TaskResult` includes its operation's changes, but subsequent completion callbacks can begin
-production or continue a Solar phase after that result was recorded. Gameplay tests use
-`expectChanges("...") { ... }` when the observation must include that follow-up work or several
+A `TaskResult` includes all retained changes through the call's return, including automatic work.
+Gameplay tests use `expectChanges("...") { ... }` when the observation must span several calls or
 choices in the same phase. This assertion reads change events across the block without changing
 the commands' behavior. Place it immediately around the relevant choices, and use
 explicit player holders for cross-player effects. For example, a global-event payout may occur

@@ -59,27 +59,4 @@ public interface World {
    * the World. This selects attribution, not authentication of the program making the call.
    */
   public fun actorEngine(actor: Actor): ActorEngine
-
-  /**
-   * Hook invoked when an outermost [ActorEngine.transact] finishes its initial restoring block
-   * normally, whether called directly or through an Agent. A cancellation caught by that block also
-   * counts as normal completion and invokes the hook. Defaults to doing nothing. Corrections do not
-   * invoke it. Synchronous commands started here can change the World before the originating call
-   * returns, and the originating call's result includes those changes and the task handling that
-   * follows them.
-   *
-   * History navigation is refused while this hook runs, including from gameplay calls it starts, so
-   * it cannot leave the World away from the end of its history.
-   *
-   * Proposed contract, pending human review: completion must not expose a Player-facing state with
-   * eligible Admin work pending. Current placement does not establish that guarantee: the hook runs
-   * outside the initial failure-restoring block. If it throws, the originating call's earlier
-   * changes survive and the exception propagates. For an Agent call, the outer Agent method then
-   * records no position, although nested calls may already have recorded theirs.
-   *
-   * TODO(ENGINE_CONTRACT): Investigate whether this callback belongs in the public engine API. Its
-   *   name must not imply notification after every individual Actor transaction. Review its timing
-   *   while preserving quiescence before return.
-   */
-  public var onTransactionComplete: () -> Unit
 }

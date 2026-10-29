@@ -9,23 +9,6 @@ import kotlin.test.Test
 
 internal class WorldTransactionTest {
   @Test
-  internal fun nestedOperationsAcrossActorsReportOnlyTheOutermostCompletion() {
-    val game = Engine.newGame(testGamePremise(players = 2))
-    val player1 = game.testAgent(PLAYER1)
-    val player2 = game.testAgent(PLAYER2)
-    var completions = 0
-    game.onTransactionComplete = { completions++ }
-
-    player1.runOperation("Ok") { player2.runOperation("Ok") }
-
-    completions shouldBe 1
-
-    player1.runOperation("Ok")
-
-    completions shouldBe 2
-  }
-
-  @Test
   internal fun outerCallHandlesEveryAgentsPolicyAfterNestedCalls() {
     val game = Engine.newGame(testGamePremise(players = 2))
     val player1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
@@ -38,12 +21,10 @@ internal class WorldTransactionTest {
   }
 
   @Test
-  internal fun manualTaskEditsReportCompletion() {
+  internal fun manualTaskEditsPreserveSelectionAndDoNotExecutePlayerWork() {
     val game = Engine.newGame(testGamePremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.sneak("Token")
-    var completions = 0
-    game.onTransactionComplete = { completions++ }
 
     val taskId = agent.addTasks("-Token?").single()
     agent.selectTask(taskId)
@@ -52,7 +33,6 @@ internal class WorldTransactionTest {
     agent.doTask(taskId)
     agent.dropTask(agent.addTasks("Token?").single())
 
-    completions shouldBe 6
     agent.count("Token") shouldBe 0
     agent.tasks.isEmpty() shouldBe true
   }

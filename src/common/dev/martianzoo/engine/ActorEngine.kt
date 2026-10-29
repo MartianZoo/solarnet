@@ -102,21 +102,14 @@ internal constructor(
    * Runs [block] and subsequent task handling, returning their combined [TaskResult]. The intended
    * synchronous behavior is to run to quiescence and report all changes made before return.
    *
-   * Currently runs [afterChanges] and [validateCompletion] for the outermost call. Ordinary nested
-   * calls skip their own finishing steps; a call made directly by the completion callback runs its
-   * own finishing steps. Agent supplies task handling and application validation, or validation
-   * alone.
+   * Runs [afterChanges] and [validateCompletion] for the outermost call, inside the same restoring
+   * block as [block]. Nested calls skip their own finishing steps. Agent supplies task handling and
+   * application validation. This wrapper does not assign an Actor to changes; commands inside do.
    *
-   * After the outermost restoring block returns normally, including cancellation through
-   * [AbortTransactionException], invokes [World.onTransactionComplete] and then runs [afterChanges]
-   * again. This wrapper does not assign an Actor to changes; the commands called inside it do that.
-   *
-   * The returned result covers the retained events of this whole call, so an outermost call
-   * includes its callback's changes and the task handling that follows them. Failure in that later
-   * work still does not restore the initial work.
-   *
-   * The proposed contract requires eligible Admin work to finish before return and recommends
-   * restoring the whole call on failure wherever practical, subject to human review.
+   * The returned result covers every retained event in the call. An [Exception] during the request,
+   * task handling, or completion validation restores the whole call's game changes before escaping.
+   * [AbortTransactionException] restores the innermost block and returns normally. See
+   * [Timeline.atomic] for the state covered by restoration.
    */
   // TODO(ENGINE_CONTRACT): Review whether this block-based coordinator belongs in the public API.
   // Preserve synchronous execution through quiescence and complete TaskResult reporting.
@@ -161,8 +154,8 @@ internal constructor(
    * `:` effects and client task handling do not. Returns the correction's component changes and
    * surviving new tasks.
    *
-   * This bypasses ordinary task selection and does not call the world's completion callback. The
-   * proposed treatment of corrections while a task is selected or Admin work remains needs review.
+   * This bypasses ordinary task selection. The proposed treatment of corrections while a task is
+   * selected or Admin work remains needs review.
    */
   public fun sneak(changes: InstructionGroup, cause: Cause? = null): TaskResult =
       worldTransaction.correct {

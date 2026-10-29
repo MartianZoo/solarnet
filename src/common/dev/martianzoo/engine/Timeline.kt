@@ -82,8 +82,9 @@ public interface Timeline {
    * exception also escapes an enclosing call. The block must perform any needed invariant checks
    * through the mutation API; this method alone supplies no transaction-completion checks.
    *
-   * Current limits: arbitrary Kotlin side effects, existing event commentary, callback settings,
-   * and changes to [floor] are not restored. Non-[Exception] failures are not caught.
+   * Current limits: arbitrary Kotlin side effects, existing event commentary, Agent policies,
+   * guards, listeners, and changes to [floor] are not restored. Non-[Exception] failures are not
+   * caught.
    *
    * TODO(ENGINE_CONTRACT): Review these limits against the safe rollback clients need when engine
    *   methods leave partial changes. Keep the restored state and excluded metadata explicit.

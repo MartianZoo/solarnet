@@ -30,7 +30,7 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 
 | Experiment | Current branch | Merge assessment |
 | --- | --- | --- |
-| 7 Surrounding Agent call | Application checks belong to an Agents session; cross-session behavior tested. Operation completion checking now lives in Agent. Callback behavior characterized. | Good independent change. Does not settle callback failure recovery or FINALLY-based completion. |
+| 7 Surrounding Agent call | Application checks belong to an Agents session; cross-session behavior tested. Operation completion checking now lives in Agent. Unused completion hook removed; request and automatic work share whole-call recovery. | Good independent change. FINALLY-based completion remains separate. |
 | 1b Submitted groups | Executes the exact IDs returned when group members are admitted; excludes dispatch bodies, reactions, and continuations. | Good independent change; repairs the initial queue-difference approach. |
 | 1a Combined scalar totals | Deleted engine arithmetic and flag; Agent translates explicit totals into separate engine calls. Production tests use totals again; unrelated rewards stay separate. | Worth merging with the Agent restoration below. |
 | 3 Selection | Selection/narrowing do not execute component changes, and now retain `EACH` parents until execution; other structural splitting and handoffs remain. | The `EACH` correction satisfies its selected timing rule. Classify the remaining structural paths separately. |
@@ -38,6 +38,27 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | 4 Transaction uniqueness | Fixed mandatory gains/removals and full-form transmutations enumerate concrete types or pairs and try complete transactions in disposable copies. | Experimental integration candidate, not complete general inference. Review cost and unsupported forms before merging. |
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
 | 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Evidence for the separate Agent choice project, not a gate for the engine API. |
+
+### Whole-call recovery and removal of the unused completion hook
+
+The owner selected restoring the entire Agent call when later Admin work fails and removing
+`World.onTransactionComplete`. The branch now deletes that hook, the post-restoration callback
+pass, and its navigation lock. Agent's request, automatic work, and validation share the restoring
+block. `Timeline.atomic` documents the remaining limits, including external side effects.
+
+`AgentCallCharacterizationTest` now verifies restoration of a Player request and an earlier
+successful Admin reward when a subsequent Admin step fails, nested calls across Actors, complete
+returned results, and cancellation. Recording coverage retains intermediate playback positions
+inside nested Agent calls. Callback-only assertions were removed from fork and atomicity tests;
+their state and isolation checks remain. The owner also confirmed that otherwise identical tasks
+with different IDs and causes are interchangeable. `TaskIntersectionTest` exercises distinct
+causes; `TransactionUniquenessExperimentTest` retains the different-continuations refusal case.
+
+Opus/high found no code correctness issue. Its review led to restored nested recording coverage
+and clearer documentation: an exception that escapes automatic handling restores the whole call;
+a waiting task whose attempted failure is handled internally does not itself fail the call.
+The full `./gradlew test` passed, including active replays and browser tests. The nested recording
+and continuation-ambiguity checks were then rerun after review edits.
 
 ### Finite alternatives use complete transaction trials
 
@@ -122,11 +143,12 @@ The new test proves that missing input restores the tracked session's attempt, a
 can act independently, and the tracked session remains blocked until its own input is supplied.
 Clients must retain the tracked session. Speculative sessions cannot install tracking checks.
 
-`AgentCallCharacterizationTest` names existing callback behavior without approving it: a callback
+At this earlier checkpoint, `AgentCallCharacterizationTest` characterized the then-existing callback behavior: a callback
 that throws can leave the initial engine changes and external notification retained. Nested
 callback commands and Admin rewards appear in the returned result. Moving transaction nesting,
 callback timing, and FINALLY-based completion requires further decisions; no operation framework
-was introduced to make this package move appear complete.
+was introduced to make this package move appear complete. The later whole-call recovery increment
+above removes the hook and replaces these characterizations.
 
 ## 1b: group execution follows admitted IDs
 

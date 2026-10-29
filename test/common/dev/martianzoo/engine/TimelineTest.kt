@@ -117,24 +117,19 @@ internal class TimelineTest {
   }
 
   @Test
-  internal fun directDoTasksRecordsAfterItsCompletionCallback() {
+  internal fun directDoTasksRecordsNavigablePositions() {
     val game = Engine.newGame(testGamePremise("CLASS ChoiceA\nCLASS ChoiceB"))
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.addTasks("ChoiceA")
-    var callbackStarted = false
-    game.onTransactionComplete = {
-      if (!callbackStarted) {
-        callbackStarted = true
-        (game.timeline.checkpoint() in game.timeline.positions) shouldBe true
-        agent.runOperation("ChoiceB")
-      }
-    }
-
     agent.doTasks("ChoiceA")
 
     game.timeline.positions shouldBe (0..game.timeline.checkpoint().serial).map(::Checkpoint)
     agent.count("ChoiceA") shouldBe 1
-    agent.count("ChoiceB") shouldBe 1
+    val done = game.timeline.checkpoint()
+    game.timeline.stepBack() shouldBe true
+    agent.count("ChoiceA") shouldBe 0
+    game.timeline.seek(done)
+    agent.count("ChoiceA") shouldBe 1
   }
 
   @Test

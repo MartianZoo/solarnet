@@ -462,13 +462,13 @@ Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 | `canExecuteTask` | Trial execution in a disposable World through transaction completion and deferred promotion; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and unresolved instructions become false; other failures propagate. |
 | Agent `tryTask` | Call engine `doTask` within an atomic block; restore when choices/unavailability prevent completion, or a selection remains as specified by the overload. Other failures restore and propagate. This includes unavailable outer `PER` evaluation. No engine try-policy method remains. |
 | `restoreTask` | Replace an existing task's data and normalize it. Current code can alter instruction, assignee, and selection without ordinary selection checks; it does not recreate a removed task. |
-| `sneak` correction | Execute concrete elementary changes, required parts, dependent removals, and immediate effects, suppressing queued reactions. Check all invariants after the whole correction group, using a failure-restoring wrapper. No ordinary task handling or completion callback. |
+| `sneak` correction | Execute concrete elementary changes, required parts, dependent removals, and immediate effects, suppressing queued reactions. Check all invariants after the whole correction group, using a failure-restoring wrapper. No ordinary task handling. |
 | Initialization | Create the Admin seed directly, then admit configured work through ordinary Admin task commands. Retry dependency-blocked component creation; drain choice-free bootstrap tasks, reject leftover choices, audit required counts, and establish the history floor. |
 | Event restoration/replay | Apply/reverse saved task and component events, synchronizing derived effect subscriptions. Do not rerun matching, immediate effects, admission rewrites, or autoexecution merely to restore a position. |
 
 Sources: ActorEngine methods named above; AgentImpl `tryExecution`; [Initializer](../../src/common/dev/martianzoo/engine/Initializer.kt);
 Changer `replay`/`rollBackTo`; [TimelineImpl](../../src/common/dev/martianzoo/engine/TimelineImpl.kt).
-Trial Worlds have no source listeners, completion callbacks, or application guards. Supplied custom
+Trial Worlds have no source listeners or application guards. Supplied custom
 Kotlin implementations are still shared objects; copying game state does not copy arbitrary Kotlin
 state. Public restoring blocks remain distinct and do not undo arbitrary external side effects.
 
@@ -485,12 +485,10 @@ These explain behavior seen through agent calls; they are not additional engine 
   approximation; [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries)
   records the intended priority and open stalled-pass rule, while
   [the results](ENGINE_TRANSITION_RESULTS.md) record the finite choice-analysis coverage.
-- WorldTransaction runs finishing work and validation for outermost calls, with special handling
-  for calls from completion callbacks. Agent decisions and queue edits also run Admin handling
-  before returning from ordinary nested calls.
-- Completion callbacks run after the first restoring block. Returned results include their retained
-  changes and subsequent finishing work. A callback failure does not restore the earlier block.
-  Callbacks cannot seek or truncate history.
+- WorldTransaction runs finishing work and validation for outermost calls inside the same restoring
+  block as the request. Agent decisions and queue edits also run Admin handling before returning
+  from ordinary nested calls. Results include all retained changes; an exception escaping subsequent
+  Admin handling restores the initiating Player change too. The unused completion hook is removed.
 - AgentImpl's `requireComplete` does not execute tasks. It checks outstanding work and `MustCleanUp`,
   with a current exception once `FINALLY` promotion has occurred since the last decision. That check
   can precede scope removal and is not the proposed action-completion definition.
@@ -526,7 +524,7 @@ tests were run and no claim of complete test coverage is made.
 | Deferred work | [DeferredWorkTest](../../test/common/dev/martianzoo/engine/DeferredWorkTest.kt): whole-World batches, nested deferrals, delayed metric/fanout evaluation, restoration. |
 | Effects and construction | [TriggerScalingTest](../../test/common/dev/martianzoo/engine/TriggerScalingTest.kt), [AutomaticEffectOrderTest](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt), [InvariantCompletionTest](../../test/common/dev/martianzoo/engine/InvariantCompletionTest.kt): multiplicity, shared trigger snapshots, required parts, immediate repairs, per-change checks. |
 | Computed gains | [PerAtomizationTest](../../test/common/dev/martianzoo/engine/PerAtomizationTest.kt), [EffectAtomizationTest](../../test/common/dev/martianzoo/engine/EffectAtomizationTest.kt): separate gains and choices. |
-| Call completion and rollback | [WorldTransactionTest](../../test/common/dev/martianzoo/engine/WorldTransactionTest.kt), [ActorEngineTransactionTest](../../test/common/dev/martianzoo/engine/ActorEngineTransactionTest.kt): restoring scopes and callback behavior. |
+| Call completion and rollback | [WorldTransactionTest](../../test/common/dev/martianzoo/engine/WorldTransactionTest.kt), [ActorEngineTransactionTest](../../test/common/dev/martianzoo/engine/ActorEngineTransactionTest.kt): restoring scopes; `AgentCallCharacterizationTest` covers whole-call recovery. |
 
 Keep this as a runtime inventory, linking detailed language and quantifier contracts rather than
 creating another normative language specification. When task handling changes, revisit the owning
@@ -581,7 +579,7 @@ separate module; public visibility alone does not make a low-level method the cl
 | `prepareTaskNarrowing` | Agent form preparation and input recording. Read-only instruction compatibility, not a proof of transaction success. |
 | `changeLimit` | Agent form amount options. Retain the quantity read; it bounds candidates without proving success. |
 | `canSelectTask`, `canExecuteTask` | Agent queries and existing policy; selection probe also enforces engine Admin priority. Their Boolean treatment of incomplete analysis remains unresolved. |
-| `transact` | Agent groups a client call, automatic work, and application checks. Whole-call failure and callback ownership await the decisions in the plan. |
+| `transact` | Agent groups a client call, automatic work, and application checks. Request and automatic work share the restoring block; the unused completion hook is removed. |
 | `transaction` | AutoExecLoop supplies automatic-execution motivation. Retain until transaction attribution can be expressed without a separate public wrapper. |
 | `addTasks`, `dropTask` | Agent operation seeding and explicit queue edits. Ordinary task execution does not need either; correction/selection rules remain open. |
 | `sneak`, `restoreTask` | Agent corrections; `restoreTask` is used only by `exMachina` to restore a task before correcting state. Keep these separate from ordinary gameplay; correction rules remain open. |

@@ -110,7 +110,8 @@ meaningful answer.
   execution is repeated automatically during replay; recording new installed-policy execution
   needs its own explicit decision below.
 
-**Open:** recovery across callbacks and already-returned calls; recognition of action completion;
+The owner selected whole-call restoration after a subsequent Admin failure, and removal of the
+unused completion hook. **Open:** recovery across already-returned calls; recognition of action completion;
 and the precise client contracts for previews and diagnostics. Arbitrary external application
 side effects are not covered by engine rollback. Existing operation helpers are implementation
 evidence, not a requirement to retain their lifecycle or completion assumptions.

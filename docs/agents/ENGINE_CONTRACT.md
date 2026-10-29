@@ -66,10 +66,10 @@ There are two different questions, with deliberately different amounts of requir
    descriptions without attempting their consequences. If several tasks match, they must be
    interchangeable under a conservative comparison, or the caller must identify the intended
    task. Different continuations are not interchangeable. Equal immediate instructions alone are
-   insufficient. Whether other data such as cause distinguishes otherwise matching tasks remains
-   open; current code ignores ID and cause, even though cause can affect recorded ancestry and
-   application input checks. Do not execute possible tasks to select the successful one. The
-   exact positive test for interchangeability remains to be specified.
+   insufficient. The owner selected treating tasks as interchangeable when only their IDs and
+   originating causes differ. Compare their instructions, continuations, assignees, selection, and
+   deferral; retain the actual executed task's ancestry in history. Do not execute possible tasks
+   to select the successful one.
 2. **Within that task, is the request specific enough?** Combine the task's restrictions with the
    client's input. Accept execution when exactly a single concrete narrowing can successfully
    complete the requested transaction. The engine may examine everything within that transaction
@@ -91,8 +91,8 @@ whose direct intersection fails; direct and resolved matches are considered toge
 `TaskResolutionTest` executes a pending
 `Plant / Heat` task through Agent by submitting its calculated `2 Plant` change. The engine
 fallback is visible in source. `TaskIntersectionTest` now checks the unique and multiple-task cases
-through raw engine calls. Interchangeability of otherwise identical tasks with different causes
-remains open.
+through raw engine calls. Task matching ignores IDs and causes under the owner's selected rule;
+continuations and other functional task data must agree.
 
 For example, permission to place an ocean on a water area combined with a request to place
 `Tile<Tharsis_5_5>` may identify the full change. The request names a tile at an existing map
@@ -270,7 +270,7 @@ NextPlayer links must be created as Players are created, without relying on inci
 | Preserve an existing smaller unanswered choice or combined deduction after removing its engine policy. | Agent carryover when required; new general Player guidance is outside this project. |
 | Automatically submit an execution without a new client execute command. | Agent policy, applied during the call or installed in engine in advance; selection itself supplies no such permission. |
 | Supply and select automatic behaviors, including mandatory Admin behavior. | Attached Agents; exact registration interface remains open. |
-| Invoke attached automatic behaviors until quiescent after the initiating transaction. | Public call coordinator; whether this lives in engine or a thin facade remains open. |
+| Invoke attached automatic behaviors until quiescent after the initiating transaction. | Agent, selected by the owner. |
 | Explore later tasks, prove action completion, or collapse equivalent outcomes. | Separate Agent project. |
 
 ### Currently rejected alternatives
@@ -340,9 +340,8 @@ enqueued now and handled in subsequent transactions.
 part performs zero or one engine transaction. Before the public method returns, the call gives all
 Agents attached to that call a chance to run automatic behavior, starting with Admin and continuing until
 quiescence. Each automatic command executes as a separate engine transaction. The lower-level
-method need not be public to ordinary clients. Whether the public method is packaged on Engine,
-Agent, or a thin coordinator remains open; name and module placement must follow the simplest
-coherent implementation rather than preserving current method locations.
+method need not be public to ordinary clients. The owner selected Agent for the final public call;
+engine methods needed across the module split remain public to Agent.
 
 Current `Agents` is a session that supplies an Agent for each Actor; independent sessions can share
 a World while holding different application checks. “Attached” needs an exact rule for which
@@ -366,15 +365,11 @@ covered selected tasks. Their matching, lifetime, replay, and failure rules rema
 those policies is not part of this engine API transition. This public-call design must leave room
 for them without treating later policy-driven work as proof that the initiating transaction succeeds.
 
-**Current-code and module constraint:** public `ActorEngine.transact` already accepts `afterChanges`
-and `validateCompletion` callbacks; `World.onTransactionComplete` is a separate notification hook.
-The `:agent` module depends on `:engine`, and Kotlin `internal` does not cross that module split.
-Putting the public call in Agent would leave some engine operation public to Agent; putting it in
-engine would require Agent behavior to arrive through engine-defined callbacks. The final design
-must decide the fate of both current callback routes, rather than assume a fresh coordinator.
-No production code currently assigns `World.onTransactionComplete`; tests use it to characterize
-notification and failure timing. Deleting it is a concrete simplification candidate, not a
-selected requirement.
+**Current-code and module constraint:** public `ActorEngine.transact` accepts `afterChanges`
+and `validateCompletion` callbacks supplied by Agent inside the same restoring block as the
+request. The `:agent` module depends on `:engine`, and Kotlin `internal` does not cross that split.
+The owner selected removing the unused `World.onTransactionComplete` notification hook; the
+experimental branch now removes it and its separate post-restoration execution path.
 
 Admin always has mandatory automatic behavior. Configuring a Player's policy or replaying Player
 inputs cannot disable Admin. Before each automatic Player action when no task is selected, the
@@ -406,7 +401,7 @@ Individual transactions remain smaller than the synchronous call that runs this 
 
 **General result rule:** a returned `TaskResult` should cover everything that happened during that
 call, including the initiating transaction, subsequent Admin work, and any other work performed
-before return. Work performed by a completion callback is included too. Changes that were undone
+before return. Changes that were undone
 before return are not reported as retained changes. With the current fields, `changes` includes
 component changes in event order across that entire interval, and `tasksSpawned` includes tasks
 added during it that remain pending at return. The event log retains the detailed event history.
@@ -415,7 +410,10 @@ A UI can present those intermediate events without requiring a separate API retu
 For example, if a greenery placement triggers an Admin-handled steel bonus before returning,
 the result must include both the placement and the steel gain. Capturing the result immediately
 after placement and omitting the subsequent bonus would violate this rule. This reporting rule
-says how much the result covers; it does not by itself make the whole call failure-atomic.
+says how much the result covers. The owner also selected whole-call restoration: if subsequent
+Admin work fails after the Player request succeeds, restore the request and all subsequent work.
+Arbitrary application side effects are outside game-state restoration; the precise state covered
+by the implementation is specified in `Timeline.atomic`.
 
 ## Which task acts next
 
@@ -572,11 +570,11 @@ main, while the experimental checkout describes its branch.
 
 | Area | Already on the experiment branch | Still needed for the selected destination |
 | --- | --- | --- |
-| Moving policy out of engine | Application validation is session-owned; operation completion and selected-task retry policy live in Agent; combined resource totals are translated by Agent into individual engine calls. `ActorEngine.transact` already coordinates callbacks, while a shared `AutoExecLoop` handles all Actors in a session. | Decide and simplify the public call coordinator, both callback routes, and any remaining engine-owned caller policy. |
+| Moving policy out of engine | Application validation is session-owned; operation completion and selected-task retry policy live in Agent; combined resource totals are translated by Agent into individual engine calls. `ActorEngine.transact` already coordinates callbacks, while a shared `AutoExecLoop` handles all Actors in a session. | Decide and simplify the public call coordinator and remaining engine-owned caller policy. |
 | Selection and execution | Selection/narrowing no longer perform component changes as the selecting Actor; `EACH` selection retains its parent, while execution admits children at ordinary priority. Submitted groups execute admitted members only; numeric `THEN` bindings must be explicit. Ordinary add/drop queue edits are refused while another task is selected. | Specify and test other structural task edits, Admin handoff, voluntary partial narrowing, correction paths, and the final public API. |
-| Identified task execution | Existing task-string matching intersects direct and resolved instructions; fixed mandatory/optional changes and their `OR` alternatives try complete finite candidate transactions in disposable Worlds. Full-form transmutation pairs retain shared bindings; malformed generated changes are filtered before trial. | Finish task interchangeability; cover unsupported instruction forms or report analysis honestly; settle deterministic search limits. Unique calculated-amount matching is retained by owner decision. |
+| Identified task execution | Existing task-string matching intersects direct and resolved instructions; fixed mandatory/optional changes and their `OR` alternatives try complete finite candidate transactions in disposable Worlds. Full-form transmutation pairs retain shared bindings; malformed generated changes are filtered before trial. | Cover unsupported instruction forms or report analysis honestly; settle deterministic search limits. Unique calculated-amount matching is retained by owner decision. |
 | Admin and priority | Admin is mandatory in Agent calls, retries after progress, and uses the same finite uniqueness rule as the Player priority probe. An ambiguous Admin candidate does not become executable just because some candidate succeeds. | Resolve stalled passes and handoff timing across all relevant Canon cases; integrate Agent-provided automatic work into the chosen public API shape. |
-| Recovery and result | Engine mutations restore their transaction on an `Exception`; surrounding calls usually restore the initiating command and Admin handling together. Returned results cover the retained call interval. | Decide callback failure recovery and precisely what the public call promises; arbitrary application side effects remain outside game-state rollback. |
+| Recovery and result | Engine mutations restore their transaction on an `Exception`; surrounding calls restore the initiating command and Admin handling together. Returned results cover the retained call interval. | Audit remaining restoration limits against whole-call recovery; arbitrary application side effects remain outside game-state rollback. |
 
 The branch does **not** implement a complete transaction uniqueness proof or the selected final task matcher,
 an arbitrary collection of Agent-provided autoexecutors, or the proposed public engine-facing

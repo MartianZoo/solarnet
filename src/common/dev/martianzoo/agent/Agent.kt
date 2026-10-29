@@ -31,9 +31,10 @@ import kotlin.reflect.KClass
  * enumeration of legal Admin choices is not implemented.
  *
  * A returned [TaskResult] covers every retained change during that call, including Admin handling
- * and completion-callback work. Failures normally restore the call's changes. Completion callbacks
- * run after that restoring block, with separate failure handling. [sneak] deliberately omits task
- * handling; [addTasks] and [dropTask] handle Admin work without choosing Player tasks.
+ * and configured Player work. An [Exception] escaping the call restores its game changes, including
+ * a successful request followed by failing Admin work; see [dev.martianzoo.engine.Timeline.atomic]
+ * for the state covered by restoration. [sneak] deliberately omits task handling; [addTasks] and
+ * [dropTask] handle Admin work without choosing Player tasks.
  *
  * The operation API groups work across calls: [beginOperation] and [continueOperation] allow tasks
  * to remain, while [runOperation] and [completeOperation] check whether that operation has
@@ -391,9 +392,8 @@ public interface Agent {
 
     /**
      * Throws [AbortTransactionException] to cancel the innermost active restoring block. That block
-     * restores its changes and returns normally; an enclosing block can continue. Cancelling an
-     * outermost call still permits its completion callback and subsequent finishing work to run, so
-     * this does not promise that the whole call leaves the World unchanged.
+     * restores its changes and returns normally; an enclosing block can continue. Cancelling the
+     * outermost call skips its remaining task handling and completion validation.
      */
     public fun abort(): Nothing = throw AbortTransactionException()
   }

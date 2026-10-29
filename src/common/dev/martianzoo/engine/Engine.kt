@@ -47,7 +47,7 @@ public object Engine {
    * objects.
    *
    * Configuration, unresolved bootstrap choices, or invalid resulting counts cause construction to
-   * fail without returning a partial World. No guard or completion callback is installed.
+   * fail without returning a partial World. No guard is installed.
    */
   public fun newGame(
       premise: GamePremise,
@@ -63,9 +63,9 @@ public object Engine {
    * cannot seek before its creation position, even though its earlier events remain readable.
    *
    * Premise data and custom-class implementation objects are shared. Mutable engine collections and
-   * event commentary are copied; guards, completion callbacks, component listeners, and client
-   * objects are not. Copying a [SpeculativeWorld] materializes its inherited and local history.
-   * Subsequent gameplay in either World leaves the other's game state unchanged.
+   * event commentary are copied; guards, component listeners, and client objects are not. Copying a
+   * [SpeculativeWorld] materializes its inherited and local history. Subsequent gameplay in either
+   * World leaves the other's game state unchanged.
    *
    * @throws IllegalArgumentException if [source] was not created by this Engine
    * @throws IllegalStateException if [source] is not at the end of its recorded history or its
@@ -140,8 +140,7 @@ public object Engine {
         Changer(reader, gameWorld, effector, transactions::forEvent) { timeline.requireAtEnd() }
     private val timeline: TimelineImpl = TimelineImpl(gameWorld, changer, transactions)
     private val limiter = Limiter(classTable, gameWorld)
-    private val worldTransaction: WorldTransaction =
-        WorldTransaction(timeline) { world.onTransactionComplete() }
+    private val worldTransaction: WorldTransaction = WorldTransaction(timeline)
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, timeline)
     private val actorEngines: Map<Actor, ActorEngine> =

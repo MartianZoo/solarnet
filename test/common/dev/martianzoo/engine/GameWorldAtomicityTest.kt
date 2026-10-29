@@ -20,8 +20,6 @@ internal class GameWorldAtomicityTest {
     val world = TfmEngine.newGame(premise) as WholeWorld
     val admin = world.testAgent(ADMIN)
     val checkpoint = world.events.nextOrdinal
-    var successfulCompletions = 0
-    world.onTransactionComplete = { successfulCompletions++ }
 
     shouldThrow<IllegalStateException> {
       admin.runOperation("Marker") {
@@ -34,7 +32,6 @@ internal class GameWorldAtomicityTest {
     world.tasks.isEmpty() shouldBe true
     world.events.entriesSince(checkpoint).shouldBeEmpty()
     world.events.nextOrdinal shouldBe checkpoint
-    successfulCompletions shouldBe 0
   }
 
   private companion object {

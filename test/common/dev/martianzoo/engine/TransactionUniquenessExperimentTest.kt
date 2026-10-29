@@ -17,6 +17,7 @@ import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlin.test.Test
 
@@ -244,8 +245,10 @@ internal class TransactionUniquenessExperimentTest {
         agent.addTasks("Foo! THEN Baz!")
         val before = world.events.nextOrdinal
         shouldThrow<TaskException> {
-          world.actorEngine(PLAYER1).doTask(parse<InstructionTree>("Foo!"))
-        }
+              world.actorEngine(PLAYER1).doTask(parse<InstructionTree>("Foo!"))
+            }
+            .message
+            .shouldContain("ambiguous")
         world.events.nextOrdinal shouldBe before
         agent.count("Foo") shouldBe 0
       }
