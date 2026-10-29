@@ -129,7 +129,9 @@ silently choose an answer.
    completion hook is removed; request, automatic work, and completion validation now share the
    restoring block. External application side effects cannot be rolled back by the engine.
    The unused public `Timeline.commit` is removed; internal floor changes are forbidden during
-   restoring blocks. Audit the remaining `Timeline.atomic` limits against the selected recovery rule.
+   restoring blocks. Raw transactions and whole calls restore game state on any escaping
+   `Throwable`, including assertion failures, then rethrow it. Audit the remaining exclusions
+   documented on `Timeline.atomic` against the selected recovery rule.
    Also decide whether correction methods may edit the queue while a task is selected; the branch
    now refuses ordinary add/drop edits but still allows some correction paths.
 

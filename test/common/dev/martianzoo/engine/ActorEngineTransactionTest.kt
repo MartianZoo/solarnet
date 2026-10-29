@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import kotlin.test.Test
 
 internal class ActorEngineTransactionTest {
@@ -98,6 +99,41 @@ internal class ActorEngineTransactionTest {
     world.tasks.extract { it } shouldBe pending
     world.events.entriesSince(before).shouldBeEmpty()
     world.events.nextOrdinal shouldBe before
+  }
+
+  @Test
+  internal fun assertionFailureRestoresRawTransactionAndAllowsAnotherTransaction() {
+    val world =
+        Engine.newGame(testGamePremise("CLASS Token { This: Reward BY Admin }\nCLASS Reward"))
+    val player = world.actorEngine(PLAYER1)
+    val checkpoint = world.timeline.checkpoint()
+    val events = world.events.nextOrdinal
+    val failure = AssertionError("fail after changes and queued work")
+
+    val caught =
+        shouldThrow<AssertionError> {
+          player.transaction(dev.martianzoo.state.Motivation.CLIENT_REQUEST) {
+            player
+                .addTasks(InstructionGroup.of(parse<Instruction>("Token!")))
+                .forEach(player::doTask)
+            world.reader.count(parse<Metric>("Token")) shouldBe 1
+            world.tasks.isEmpty() shouldBe false
+            throw failure
+          }
+        }
+
+    caught shouldBeSameInstanceAs failure
+    world.reader.count(parse<Metric>("Token")) shouldBe 0
+    world.tasks.isEmpty() shouldBe true
+    world.events.nextOrdinal shouldBe events
+    world.timeline.checkpoint() shouldBe checkpoint
+    world.timeline.positions.last() shouldBe checkpoint
+
+    player.transaction(dev.martianzoo.state.Motivation.CLIENT_REQUEST) {
+      player.addTasks(InstructionGroup.of(parse<Instruction>("Token!"))).forEach(player::doTask)
+    }
+    world.reader.count(parse<Metric>("Token")) shouldBe 1
+    world.timeline.checkpoint().serial shouldBe checkpoint.serial + 1
   }
 
   @Test

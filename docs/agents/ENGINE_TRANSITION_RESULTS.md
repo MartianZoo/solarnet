@@ -39,6 +39,17 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
 | 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Evidence for the separate Agent choice project, not a gate for the engine API. |
 
+### Assertion failures restore transactions and enclosing calls
+
+Both raw transaction restoration and the enclosing timeline block now catch `Throwable`, restore
+their game changes, and rethrow the original object. The explicit abort signal still restores and
+returns an empty result normally. The new raw scenario executes a gain that queues Admin work,
+throws an assertion failure, and verifies restoration plus transaction serial reuse. The Agent
+scenario throws after nested calls from two Players and verifies restoration and a usable next
+call. This adds no new API or stored state. External side effects and arbitrary caller metadata
+remain excluded. Opus/high found no correctness issue; its test consolidation and documentation suggestions were
+accepted. All 621 engine tests and 72 Agent tests passed.
+
 ### History floor changes are construction-only
 
 The API audit found no production client of `Timeline.commit`: only initialization and

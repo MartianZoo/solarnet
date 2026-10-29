@@ -7,6 +7,7 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import kotlin.test.Test
 
 internal class AgentCallCharacterizationTest {
@@ -64,23 +65,32 @@ internal class AgentCallCharacterizationTest {
   }
 
   @Test
-  fun failureAfterNestedActorCallRestoresBothActorsChanges() {
+  fun assertionFailureAfterNestedCallsRestoresGameAndAllowsAnotherCall() {
     val world = Engine.newGame(testGamePremise("CLASS Foo\nCLASS Bar", players = 2))
     val agents = Agents(world) { NONE }
     val checkpoint = world.timeline.checkpoint()
+    val events = world.events.nextOrdinal
+    val failure = AssertionError("fail after nested calls")
 
-    shouldThrow<IllegalStateException> {
-      agents[PLAYER1].runOperation("Foo!") {
-        agents[PLAYER2].runOperation("Bar!")
-        error("fail after both actors have changed the world")
-      }
-    }
+    val caught =
+        shouldThrow<AssertionError> {
+          agents[PLAYER1].runOperation("Foo!") {
+            agents[PLAYER2].runOperation("Bar!")
+            throw failure
+          }
+        }
 
+    caught shouldBeSameInstanceAs failure
     agents[PLAYER1].count("Foo") shouldBe 0
     agents[PLAYER1].count("Bar") shouldBe 0
     world.tasks.isEmpty() shouldBe true
+    world.events.nextOrdinal shouldBe events
     world.timeline.checkpoint() shouldBe checkpoint
     world.timeline.positions.last() shouldBe checkpoint
+
+    agents[PLAYER1].runOperation("Foo!")
+    agents[PLAYER1].count("Foo") shouldBe 1
+    world.tasks.isEmpty() shouldBe true
   }
 
   @Test

@@ -55,7 +55,7 @@ internal class Transactions(
    *
    * Deferred work is promoted once this transaction is complete, so its task edits belong to the
    * transaction that made the work eligible rather than to a moment when the queue happened to be
-   * empty. An [Exception] restores the transaction's events and leaves its serial available for
+   * empty. A [Throwable] restores the transaction's events and leaves its serial available for
    * reuse. Nested calls join the outer transaction and share its restoration scope.
    */
   internal fun <T> perform(actor: Actor, motivation: Motivation, block: () -> T): T {
@@ -64,7 +64,7 @@ internal class Transactions(
     depth++
     return try {
       block().also { if (depth == 1) promoteDeferredWork() }
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
       if (depth == 1 && gameWorld.events.nextOrdinal > start) restore(start)
       throw e
     } finally {

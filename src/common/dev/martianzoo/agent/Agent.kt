@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
  * enumeration of legal Admin choices is not implemented.
  *
  * A returned [TaskResult] covers every retained change during that call, including Admin handling
- * and configured Player work. An [Exception] escaping the call restores its game changes, including
+ * and configured Player work. A [Throwable] escaping the call restores its game changes, including
  * a successful request followed by failing Admin work; see [dev.martianzoo.engine.Timeline.atomic]
  * for the state covered by restoration. [sneak] deliberately omits task handling; [addTasks] and
  * [dropTask] handle Admin work without choosing Player tasks.

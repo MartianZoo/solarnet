@@ -57,7 +57,7 @@ import dev.martianzoo.state.TaskResult
  * For example, placing greenery on a Land Claim cube removes the cube through `::` before
  * returning; the placement bonus remains queued for Admin.
  *
- * Each public mutation restores its transaction on an [Exception]. [Timeline.atomic] can also
+ * Each public mutation restores its transaction on a [Throwable]. [Timeline.atomic] can also
  * restore an enclosing batch of completed transactions. Kotlin side effects and observer callbacks
  * are not undone.
  *
@@ -106,7 +106,7 @@ internal constructor(
    * block as [block]. Nested calls skip their own finishing steps. Agent supplies task handling and
    * application validation. This wrapper does not assign an Actor to changes; commands inside do.
    *
-   * The returned result covers every retained event in the call. An [Exception] during the request,
+   * The returned result covers every retained event in the call. A [Throwable] during the request,
    * task handling, or completion validation restores the whole call's game changes before escaping.
    * [AbortTransactionException] restores the innermost block and returns normally. See
    * [Timeline.atomic] for the state covered by restoration.

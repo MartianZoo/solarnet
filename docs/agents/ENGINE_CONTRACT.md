@@ -542,11 +542,11 @@ raw engine mutation without an enclosing restoration block and verifies the plan
 remain intact. A second test checks restoration of an enclosing batch. Arbitrary application side
 effects remain outside the engine's state guarantee.
 
-**Recommendation, still separate from transaction atomicity:** restore the enclosing synchronous
+**Selected, separately from transaction atomicity:** restore the enclosing synchronous
 call on failure, including its completed Admin transactions. This restores more than the last failed
 transaction, preventing a rejected Player command from leaving earlier changes behind. The call can
 also include subsequent game progression; deciding its recovery scope does not make all that work
-fulfillment of the initiating command. Reconsider the scope if it requires disproportionate machinery.
+fulfillment of the initiating command.
 
 **Current-code evidence:** asking for AI Central's nonexistent second action reaches the System
 `UseAction` task, whose consequence is `Die`. The existing
@@ -556,7 +556,7 @@ throws when the task would be created, rather than waiting in the queue. Admin r
 attempt, tries other work, and propagates the `DeadEndException` if no progress is possible.
 The enclosing call currently restores the rejected action.
 
-Still to decide, separately from the recommendations above:
+Still to decide, separately from the recovery scope above:
 
 - Is failure during Admin handling an ordinary rejected Player choice, a broken model, or either
   depending on the cause? Recovery scope alone does not answer that.
@@ -579,7 +579,7 @@ main, while the experimental checkout describes its branch.
 | Selection and execution | Selection/narrowing no longer perform component changes as the selecting Actor; `EACH` selection retains its parent, while execution admits children at ordinary priority. Submitted groups execute admitted members only; numeric `THEN` bindings must be explicit. Ordinary add/drop queue edits are refused while another task is selected. | Specify and test other structural task edits, Admin handoff, voluntary partial narrowing, correction paths, and the final public API. |
 | Identified task execution | Existing task-string matching intersects direct and resolved instructions; fixed mandatory/optional changes and their `OR` alternatives try complete finite candidate transactions in disposable Worlds. Full-form transmutation pairs retain shared bindings; malformed generated changes are filtered before trial. | Cover unsupported instruction forms or report analysis honestly; settle deterministic search limits. Unique calculated-amount matching is retained by owner decision. |
 | Admin and priority | Admin is mandatory in Agent calls, retries after progress, and uses the same finite uniqueness rule as the Player priority probe. An ambiguous Admin candidate does not become executable just because some candidate succeeds. | Resolve stalled passes and handoff timing across all relevant Canon cases; integrate Agent-provided automatic work into the chosen public API shape. |
-| Recovery and result | Engine mutations restore their transaction on an `Exception`; surrounding calls restore the initiating command and Admin handling together. Returned results cover the retained call interval. | Audit remaining restoration limits against whole-call recovery; arbitrary application side effects remain outside game-state rollback. |
+| Recovery and result | Engine mutations restore their transaction on a `Throwable`; surrounding calls restore the initiating command and Admin handling together. Returned results cover the retained call interval. | Audit remaining restoration limits against whole-call recovery; arbitrary application side effects remain outside game-state rollback. |
 
 The branch does **not** implement a complete transaction uniqueness proof or the selected final task matcher,
 an arbitrary collection of Agent-provided autoexecutors, or the proposed public engine-facing

@@ -63,8 +63,8 @@ public interface Timeline {
   public fun truncate()
 
   /**
-   * Runs [block] and returns the component changes and newly pending tasks recorded during it. On
-   * an [Exception], restores the block's starting components, tasks, derived effects, and events
+   * Runs [block] and returns the component changes and newly pending tasks recorded during it. On a
+   * [Throwable], restores the block's starting components, tasks, derived effects, and events
    * before rethrowing. Recorded positions after the start are removed.
    * [Exceptions.AbortTransactionException] instead calls the same restoration and a normal return
    * with an empty result.
@@ -76,7 +76,7 @@ public interface Timeline {
    * The [floor] stays unchanged throughout the block.
    *
    * Current limits: arbitrary Kotlin side effects, existing event commentary, Agent policies,
-   * guards, and listeners are not restored. Non-[Exception] failures are not caught.
+   * guards, and listeners are not restored.
    *
    * TODO(ENGINE_CONTRACT): Review these limits against the safe rollback clients need when engine
    *   methods leave partial changes. Keep the restored state and excluded metadata explicit.

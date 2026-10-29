@@ -133,9 +133,7 @@ internal class TimelineImpl(
       block()
     } catch (_: AbortTransactionException) {
       rollBackStateTo(start)
-    } catch (e: Exception) {
-      // TODO(ENGINE_CONTRACT): decide which failure types require restoration. Errors and other
-      // non-Exception Throwables currently escape without restoring the block's game changes.
+    } catch (e: Throwable) {
       rollBackStateTo(start)
       throw e
     } finally {
