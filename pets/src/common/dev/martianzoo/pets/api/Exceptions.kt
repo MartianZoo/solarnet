@@ -139,9 +139,14 @@ public object Exceptions {
       sourceLocation: SourceLocation? = null,
   ) : DomainException(message, cause, sourceLocation)
 
-  /** The request does not specify a concrete component, instruction, or choice to evaluate. */
-  public class NotFullySpecifiedException(message: String, sourceLocation: SourceLocation? = null) :
-      DomainException(message, sourceLocation = sourceLocation)
+  /**
+   * The request does not specify a concrete component, instruction, or choice to evaluate. Engine
+   * implementations may subclass this to report an unfinished uniqueness analysis separately.
+   */
+  public open class NotFullySpecifiedException(
+      message: String,
+      sourceLocation: SourceLocation? = null,
+  ) : DomainException(message, sourceLocation = sourceLocation)
 
   /** A custom Kotlin implementation failed while evaluating otherwise valid Pets input. */
   public class CustomCodeException(

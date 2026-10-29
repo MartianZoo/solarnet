@@ -196,6 +196,13 @@ deterministic proof result for cases the engine cannot finish. Measure candidate
 and complete call latency on fixed states; do not invent an unbounded integer list. Do not execute
 newly queued Admin tasks during this proof. Direct mandatory `: Die` may reject at admission;
 later Admin failure belongs to a later transaction.
+The finite mandatory-change trial now reports `IncompleteAnalysisException` when a candidate's
+immediate work cannot be fully examined, while multiple successful candidates remain a
+missing-choice result. Other paths still need the same distinction. In particular, raw `Repair?`
+currently selects zero before the finite trial runs. The Agent Admin loop catches the parent
+`NotFullySpecifiedException` type, so it does not yet surface incomplete analysis separately.
+`ActorEngine.probeSelection` and `canExecuteTask` also catch that parent type and return `false`;
+their Boolean results cannot currently distinguish unfinished proof from an impossible action.
 Prove the `Repair?` counterexample through the raw engine path: zero and positive count can both
 complete when its immediate effect repairs the limit, so the request cannot silently select zero.
 

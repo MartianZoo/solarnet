@@ -3,6 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
@@ -16,6 +17,7 @@ import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlin.test.Test
 
 internal class TransactionUniquenessExperimentTest {
@@ -52,13 +54,59 @@ internal class TransactionUniquenessExperimentTest {
         val id = agent.addTasks("Choice!").single()
         val tasks = world.tasks.extract { it }
         val before = world.events.nextOrdinal
-        shouldThrow<NotFullySpecifiedException> {
-          world.actorEngine(PLAYER1).doTask(parse<InstructionTree>("Choice!"), taskId = id)
-        }
+        val ambiguous =
+            shouldThrow<NotFullySpecifiedException> {
+              world.actorEngine(PLAYER1).doTask(parse<InstructionTree>("Choice!"), taskId = id)
+            }
+        ambiguous.shouldNotBeInstanceOf<IncompleteAnalysisException>()
         world.events.nextOrdinal shouldBe before
         world.tasks.extract { it } shouldBe tasks
         agent.count("Choice") shouldBe 0
       }
+
+  private fun ambiguousDespiteIncomplete(source: String) =
+      trial(source) { world ->
+        val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
+        val id = agent.addTasks("Choice!").single()
+        val tasks = world.tasks.extract { it }
+        val before = world.events.nextOrdinal
+        val ambiguous =
+            shouldThrow<NotFullySpecifiedException> {
+              world.actorEngine(PLAYER1).doTask(parse<InstructionTree>("Choice!"), taskId = id)
+            }
+        ambiguous.shouldNotBeInstanceOf<IncompleteAnalysisException>()
+        world.events.nextOrdinal shouldBe before
+        world.tasks.extract { it } shouldBe tasks
+        agent.count("Choice") shouldBe 0
+      }
+
+  @Test
+  fun twoSuccessesProveAmbiguityWithUnfinishedCandidateFirst() =
+      ambiguousDespiteIncomplete(
+          """
+      ABSTRACT CLASS Choice
+      CLASS Unfinished : Choice { This:: Extra }
+      CLASS First : Choice
+      CLASS Second : Choice
+      ABSTRACT CLASS Extra
+      CLASS Left : Extra
+      CLASS Right : Extra
+      """
+      )
+
+  @Test
+  fun twoSuccessesProveAmbiguityWithUnfinishedCandidateLast() =
+      ambiguousDespiteIncomplete(
+          """
+      ABSTRACT CLASS Choice
+      CLASS First : Choice
+      CLASS Second : Choice
+      CLASS Unfinished : Choice { This:: Extra }
+      ABSTRACT CLASS Extra
+      CLASS Left : Extra
+      CLASS Right : Extra
+      """
+      )
 
   @Test
   fun noSuccessfulCandidateRestoresState() =
@@ -93,11 +141,13 @@ internal class TransactionUniquenessExperimentTest {
       ) { world ->
         val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
         val id = agent.addTasks("Choice!").single()
+        val tasks = world.tasks.extract { it }
         val before = world.events.nextOrdinal
-        shouldThrow<NotFullySpecifiedException> {
+        shouldThrow<IncompleteAnalysisException> {
           world.actorEngine(PLAYER1).doTask(parse<InstructionTree>("Choice!"), taskId = id)
         }
         world.events.nextOrdinal shouldBe before
+        world.tasks.extract { it } shouldBe tasks
         agent.count("Choice") shouldBe 0
       }
 

@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
@@ -64,8 +65,8 @@ internal class DomainExceptionContractTest {
     val agent = agent()
     agent.beginOperation("X Plant")
 
-    val execution = shouldThrow<NotFullySpecifiedException> { agent.doTask("X Plant") }
-    execution.message!!.startsWith("instruction is abstract:") shouldBe true
+    val execution = shouldThrow<IncompleteAnalysisException> { agent.doTask("X Plant") }
+    execution.message!!.startsWith("transaction analysis does not cover") shouldBe true
 
     val completion = shouldThrow<NotFullySpecifiedException> { agent.completeOperation() }
     completion.message!!.startsWith("pending abstract tasks:") shouldBe true

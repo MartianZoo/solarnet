@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.engine.Exceptions.AbortTransactionException
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -670,10 +671,11 @@ internal constructor(
    * that Actor to perform in a later transaction.
    *
    * A fixed mandatory change can infer its unique successful concrete target, or source and
-   * destination pair, by trying its complete finite domain in disposable Worlds. Other unresolved
-   * choices throw. Trials include immediate effects and task admission/promotion, but do not
-   * execute subsequently queued work. A failed transaction restores its changes; for example,
-   * rejecting removal of an opponent's protected plant leaves that plant intact.
+   * destination pair, by trying its complete finite domain in disposable Worlds. Multiple
+   * successful choices throw [NotFullySpecifiedException]; an unfinished trial throws
+   * [IncompleteAnalysisException]. Trials include immediate effects and task admission/promotion,
+   * but do not execute subsequently queued work. A failed transaction restores its changes; for
+   * example, rejecting removal of an opponent's protected plant leaves that plant intact.
    */
   public fun doTask(taskId: TaskId) {
     transactions.perform(actor, CLIENT_REQUEST) { doTask(tasks, taskId) }
@@ -732,10 +734,10 @@ internal constructor(
             instruction.count !is ActualScalar ||
             instruction.quantifier != Instruction.Quantifier.MANDATORY
     ) {
-      throw NotFullySpecifiedException("instruction is abstract: `$instruction`")
+      throw IncompleteAnalysisException("transaction analysis does not cover `$instruction`")
     }
     if (instruction is Transmute && instruction.fromEx is Compact) {
-      throw NotFullySpecifiedException(
+      throw IncompleteAnalysisException(
           "compact transmutation inference is unresolved: `$instruction`"
       )
     }
@@ -752,6 +754,7 @@ internal constructor(
     val removals = concreteTargets(instruction.removing)
     val trial = trialWorld()
     var winner: Instruction? = null
+    var incomplete: IncompleteAnalysisException? = null
     var invalidCandidate: ExpressionException? = null
     val rejections = mutableListOf<GameplayException>()
     for (gaining in gains) for (removing in removals) {
@@ -779,17 +782,31 @@ internal constructor(
       trial.reset()
       try {
         trial.actorEngine(executingActor).doTask(candidate, taskId = taskId)
-        if (taskId in trial.tasks && trial.tasks.getTaskData(taskId).assignee == executingActor) {
-          throw NotFullySpecifiedException("candidate did not finish its requested transaction")
-        }
+      } catch (e: NotFullySpecifiedException) {
+        incomplete =
+            incomplete
+                ?: IncompleteAnalysisException(
+                    "candidate `$candidate` could not finish its requested transaction: ${e.detail}",
+                    e.sourceLocation,
+                )
+        continue
       } catch (e: GameplayException) {
         rejections += e
+        continue
+      }
+      if (taskId in trial.tasks && trial.tasks.getTaskData(taskId).assignee == executingActor) {
+        incomplete =
+            incomplete
+                ?: IncompleteAnalysisException(
+                    "candidate `$candidate` did not finish its transaction"
+                )
         continue
       }
       if (winner != null)
           throw NotFullySpecifiedException("multiple successful concrete narrowings")
       winner = candidate
     }
+    incomplete?.let { throw it }
     winner?.let {
       return it
     }
@@ -799,7 +816,7 @@ internal constructor(
       if (instruction is Transmute) {
         throw DeadEndException("no compatible concrete transmutation for `$instruction`")
       }
-      throw NotFullySpecifiedException("no complete candidate domain for `$instruction`")
+      throw IncompleteAnalysisException("no complete candidate domain for `$instruction`")
     }
     val detail = rejections.map { it.detail }.distinct().sorted().joinToString("; ")
     // The iteration order cannot decide whether Admin waits or rejects. A currently unavailable

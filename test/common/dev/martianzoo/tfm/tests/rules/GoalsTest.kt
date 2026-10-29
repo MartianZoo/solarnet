@@ -253,7 +253,7 @@ internal class GoalsTest : TfmSandboxTest() {
 
       kim.doTask("-OceanTile<Tharsis_1_2>")
           .expect(
-              "SelfSufficiencyProgram, Distant<SelfSufficiencyProgram>, PartyFollower<Greens, Neutral>"
+              "SelfSufficiencyProgram, Distant<SelfSufficiencyProgram>, 2 PartyFollower<Greens, Neutral>"
           )
       admin.count("Distant<SelfSufficiencyProgram>") shouldBe 1
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }

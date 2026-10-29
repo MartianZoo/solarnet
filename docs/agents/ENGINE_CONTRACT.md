@@ -154,10 +154,11 @@ The engine's responsibility is defined by the requested transaction, not by an a
 cheap checks. Nevertheless, “go to any length” does not provide a terminating algorithm for an
 unbounded domain. **No wall-clock timeout is selected.** Search must not make the same request
 succeed or fail according to machine speed or incidental iteration order. Finite candidate
-generation, deterministic limits or other bounded proof methods, and the public result of an
-unfinished analysis remain open. An unfinished search, missing information, or resource failure
-cannot count as proof of uniqueness or impossibility. Distinguish these from actual game-rule
-rejection. Measure the hypothesis that expensive analysis is uncommon.
+generation and deterministic limits or other bounded proof methods remain open. The owner selected
+a distinguishable incomplete-analysis result when proof cannot finish. The current engine exception
+is a subtype of `NotFullySpecifiedException`; callers must check that subtype to distinguish
+unfinished proof from an actual missing choice. An unfinished search, missing information, or resource failure cannot
+count as proof of uniqueness or impossibility. Measure the hypothesis that expensive analysis is uncommon.
 
 ### Engine inference and Agent carryover — items 1, 2, 7, 8, and 16
 
