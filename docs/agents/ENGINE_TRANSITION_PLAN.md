@@ -105,6 +105,9 @@ silently choose an answer.
    Admin resolves the neutral placement through unique narrowing. This removes the old
    caller-supplied event and delegate inputs. It does not prove that Admin handles every other
    Canon waiting task.
+   The source audit also found solo neutral setup still using four incoming Admin placement calls
+   in `AbstractSoloTest`, `TfmGameplayTest`, and `TfmSandboxTest`. Supplying those locations in the
+   premise and exports is proposed separately; the owner decision is pending.
 4. **Selection, structural edits, and handoff.** Decide whether a voluntary partial narrowing is
    retained by engine or must live in a client draft, especially when a target choice unlocks AMAP
    evaluation. Decide which queue edits are permitted during a
@@ -205,6 +208,7 @@ Other paths still need the same distinction. The Agent Admin loop catches the pa
 `NotFullySpecifiedException` type, so it does not yet surface incomplete analysis separately.
 `ActorEngine.probeSelection` and `canExecuteTask` also catch that parent type and return `false`;
 their Boolean results cannot currently distinguish unfinished proof from an impossible action.
+Agent's `tryTask` carryover also leaves both incomplete analysis and known missing choices pending.
 The raw `Repair?` test now proves that zero and positive count can both complete when its immediate
 effect repairs the limit; the request therefore requires an explicit choice. The Agent menu now
 offers and submits that positive choice. AMAP count semantics remain separate work.
@@ -253,6 +257,8 @@ new wrapper beside all old entry points.
 
 The unused Agent overlay wrapper is removed, with engine isolation and card-tracking scenarios
 preserved; see [the API audit results](ENGINE_TRANSITION_RESULTS.md).
+The engine's two `tryTask` overloads are removed. Agent now composes `doTask` and timeline rollback
+for its existing try policy, including the recorded-input reconstruction path.
 
 ### 5. Review, verify, and report completion honestly
 

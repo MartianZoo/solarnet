@@ -51,6 +51,64 @@ internal class AgentTest {
   }
 
   @Test
+  internal fun failedTryRestoresImmediateEffectsAndTheOriginalTask() {
+    for (byId in listOf(false, true)) {
+      val game =
+          Engine.newGame(
+              testGamePremise(
+                  """
+                  CLASS Offered { This:: Notice!, -Missing! }
+                  CLASS Notice
+                  CLASS Missing
+                  """
+              )
+          )
+      val agent = Agents(game) { NONE }[PLAYER1]
+      val task = agent.addTasks("Offered!").single()
+      val pending = agent.tasks.getTaskData(task)
+      val before = game.events.nextOrdinal
+
+      if (byId) agent.tryTask(task) else agent.tryTask("Offered!", task)
+
+      game.events.nextOrdinal shouldBe before
+      agent.tasks.getTaskData(task) shouldBe pending
+      agent.count("Offered") shouldBe 0
+      agent.count("Notice") shouldBe 0
+    }
+  }
+
+  @Test
+  internal fun tryRestoresAnUnfinishedHandoffBeforeAdminRuns() {
+    val game = Engine.newGame(testGamePremise("CLASS SystemToken : System\nCLASS Token"))
+    val agent = Agents(game) { NONE }[PLAYER1]
+    val task = agent.addTasks("SystemToken OR Token").single()
+    val pending = agent.tasks.getTaskData(task)
+    val before = game.events.nextOrdinal
+
+    agent.tryTask("SystemToken", task)
+
+    game.events.nextOrdinal shouldBe before
+    agent.tasks.getTaskData(task) shouldBe pending
+    agent.count("SystemToken") shouldBe 0
+    game.tasks.selectedTask() shouldBe null
+  }
+
+  @Test
+  internal fun unavailableMetricRequestLeavesItsTaskPending() {
+    val game = Engine.newGame(testGamePremise("CLASS Token\nCLASS Unit"))
+    val agent = Agents(game) { NONE }[PLAYER1]
+    agent.sneak("Unit")
+    val task = agent.addTasks("-Token! / Unit").single()
+    val pending = agent.tasks.getTaskData(task)
+    val before = game.events.nextOrdinal
+
+    agent.tryTask("-Token! / Unit")
+
+    game.events.nextOrdinal shouldBe before
+    agent.tasks.getTaskData(task) shouldBe pending
+  }
+
+  @Test
   internal fun aFormCannotExecuteADifferentAlternativeAfterSelectionResolvesTheTask() {
     val game =
         Engine.newGame(

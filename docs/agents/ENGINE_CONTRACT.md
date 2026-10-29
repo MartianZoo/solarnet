@@ -229,7 +229,7 @@ interaction question, not an exception silently granted to selection.
 ### Task identity, optional queries, and conveniences — items 10, 13–15, and 17
 
 Task finding follows the conservative comparison above. Explicit `canSelectTask`, `canExecuteTask`,
-and `tryTask` services are provisionally acceptable; their contracts must say what they attempt
+and Agent `tryTask` services are provisionally acceptable; their contracts must say what they attempt
 and retain. Trials within the identified execution request are now justified by its uniqueness
 rule. Trials of unrelated tasks, or hidden execution during selection, need a different reason.
 In particular, enforcing Admin priority must not turn task finding into consequence-based choice.

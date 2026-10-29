@@ -224,8 +224,8 @@ public interface Agent {
    * execution restore the engine attempt. A task left selected, including a handoff to another
    * Actor, also restores the attempt. Subsequent task handling can still execute that task or
    * reject the call. Invalid selection, invalid narrowing, and other failures propagate, including
-   * `Die` and failures encountered while handling Admin work. Currently unavailable work discovered
-   * during preliminary `/` metric evaluation also propagates its error.
+   * `Die` and failures encountered while handling Admin work. An unavailable `/` metric is handled
+   * like unavailable execution: the attempted request leaves no changes.
    */
   public fun tryTask(narrowing: String): TaskResult
 

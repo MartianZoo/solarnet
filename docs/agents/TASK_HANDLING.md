@@ -460,13 +460,13 @@ Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 | Combined scalar totals | Agent only: a submitted total can consume matching current fixed gains/removals, including amounts calculated with `/`. Gains execute first, each through its own task ID. No subset search; newly queued effects do not join the total. Selected tasks and explicit IDs remain individual requests. See `Agent.doTask` for the full contract. |
 | `canSelectTask` | Trial selection, including execution if concrete and still with the original Actor, in a disposable World through transaction completion and deferred promotion. An abstract selection or handoff can return true. Gameplay rejection and unresolved instructions become false; other failures propagate. |
 | `canExecuteTask` | Trial execution in a disposable World through transaction completion and deferred promotion; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and unresolved instructions become false; other failures propagate. |
-| `tryTask` | Execute within an atomic block; restore when choices/unavailability prevent completion, or a selection remains as specified by the overload. Other failures restore and propagate. The instruction overload evaluates an outer `PER` before that recovery block. |
+| Agent `tryTask` | Call engine `doTask` within an atomic block; restore when choices/unavailability prevent completion, or a selection remains as specified by the overload. Other failures restore and propagate. This includes unavailable outer `PER` evaluation. No engine try-policy method remains. |
 | `restoreTask` | Replace an existing task's data and normalize it. Current code can alter instruction, assignee, and selection without ordinary selection checks; it does not recreate a removed task. |
 | `sneak` correction | Execute concrete elementary changes, required parts, dependent removals, and immediate effects, suppressing queued reactions. Check all invariants after the whole correction group, using a failure-restoring wrapper. No ordinary task handling or completion callback. |
 | Initialization | Create the Admin seed directly, then admit configured work through ordinary Admin task commands. Retry dependency-blocked component creation; drain choice-free bootstrap tasks, reject leftover choices, audit required counts, and establish the history floor. |
 | Event restoration/replay | Apply/reverse saved task and component events, synchronizing derived effect subscriptions. Do not rerun matching, immediate effects, admission rewrites, or autoexecution merely to restore a position. |
 
-Sources: ActorEngine methods named above; [Initializer](../../src/common/dev/martianzoo/engine/Initializer.kt);
+Sources: ActorEngine methods named above; AgentImpl `tryExecution`; [Initializer](../../src/common/dev/martianzoo/engine/Initializer.kt);
 Changer `replay`/`rollBackTo`; [TimelineImpl](../../src/common/dev/martianzoo/engine/TimelineImpl.kt).
 Trial Worlds have no source listeners, completion callbacks, or application guards. Supplied custom
 Kotlin implementations are still shared objects; copying game state does not copy arbitrary Kotlin
@@ -534,8 +534,9 @@ section and its entry-path distinctions, especially any claim about when state i
 
 ## Finite transaction inference on the experiment branch
 
-After identifying and selecting a task, a fixed mandatory gain/removal with an unresolved type can
-use all included concrete structural subtypes as its candidate domain. A fixed mandatory
+After identifying and selecting a task, a fixed mandatory/optional gain or removal with an unresolved
+type can use all included concrete structural subtypes as its candidate domain. Optional requests
+also try zero and each positive count through the authored maximum. A fixed mandatory/optional
 full-form transmutation uses concrete source/destination pairs, excluding equal types and pairs
 incompatible with the original instruction's shared bindings. Compact transmutations remain
 unresolved. Malformed concrete changes are excluded before trial. Each remaining candidate is
@@ -543,15 +544,42 @@ submitted through the ordinary engine in a reusable disposable World. That copy 
 transaction, including deferred admission, even when the source call is inside an enclosing
 transaction. No queued Admin or Player instruction is executed to prove the candidate.
 
-A second successful candidate means ambiguity; unresolved immediate work and implementation errors
-propagate. When all attempts fail, failures all reported as `DeadEndException` remain dead ends;
+A second successful candidate means ambiguity, even if other candidates remain unexamined. With
+fewer successes, unresolved candidate work reports `IncompleteAnalysisException`; implementation
+errors propagate. When all attempts fail, failures all reported as `DeadEndException` remain dead ends;
 other failures report current unavailability with sorted diagnostics, so candidate order cannot
 decide Admin waiting behavior.
 Priority checks require the same unique successful choice as Admin execution. Merely having some
-successful choice is insufficient: Turmoil event draws can still await external input.
+successful choice is insufficient. Turmoil now draws from its premise deck and Admin completes the
+uniquely determined neutral placement without caller-supplied event or delegate choices.
 
 Existing Player CONCRETE/EAGER policies only execute work that becomes concrete during selection.
 They do not silently acquire the new transaction-inference policy. Explicit Player requests and
-Admin handling use finite inference. Broader Player narrowing remains experimental: TaskForm's
-optional amount menu can omit an immediately repaired gain, as AgentNarrowingExperimentTest shows.
+Admin handling use finite inference. TaskForm's optional amount menu now retains physically
+available counts, including an immediately repaired gain. Those entries are candidates rather than
+proofs of successful transactions; broader Player narrowing remains experimental.
 See ENGINE_TRANSITION_RESULTS.md for the measured scope and remaining forms.
+
+## Public ActorEngine surface audit
+
+This is the current usage inventory, not approval of every operation as the finished API. Ordinary
+gameplay clients use Agent. Kotlin visibility remains public where Agent needs access from its
+separate module; public visibility alone does not make a low-level method the client-facing call.
+
+| Surface | Current required caller and disposition |
+| --- | --- |
+| `actor`, `reader`, `tasks` | Agent attribution, queries, forms, and automatic execution. Retain shared read views. |
+| `doTask` by ID or instruction | Agent requests, Admin/Player automatic execution, initialization, and transaction trials. Core execution; matching and structural semantics remain under review. |
+| `selectTask` by ID or instruction | Agent selections and automatic execution. Selection-only behavior is still subject to the structural decisions in the plan. |
+| `narrowTask` for selected or identified task | Agent partial choices and form commit; engine also uses narrowing during explicit execution. Persistent partial choices remain an owner decision. |
+| `prepareTaskNarrowing` | Agent form preparation and input recording. Read-only instruction compatibility, not a proof of transaction success. |
+| `changeLimit` | Agent form amount options. Retain the quantity read; it bounds candidates without proving success. |
+| `canSelectTask`, `canExecuteTask` | Agent queries and existing policy; selection probe also enforces engine Admin priority. Their Boolean treatment of incomplete analysis remains unresolved. |
+| `transact` | Agent groups a client call, automatic work, and application checks. Whole-call failure and callback ownership await the decisions in the plan. |
+| `transaction` | AutoExecLoop supplies automatic-execution motivation. Retain until transaction attribution can be expressed without a separate public wrapper. |
+| `addTasks`, `dropTask` | Agent operation seeding and explicit queue edits. Ordinary task execution does not need either; correction/selection rules remain open. |
+| `sneak`, `restoreTask` | Agent corrections; `restoreTask` is used only by `exMachina` to restore a task before correcting state. Keep these separate from ordinary gameplay; correction rules remain open. |
+| `tryTask` | Removed from engine. Agent retains its try policy using `doTask` and existing timeline restoration. |
+
+The unused `Agents.overlay` and `SpeculativeAgents` APIs are also removed. Engine overlays remain
+required by transaction trials. No compatibility wrapper is retained for either removal.

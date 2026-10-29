@@ -362,6 +362,15 @@ inheritance from `Agents`. Those tests construct `Engine.overlay` directly and r
 checks for invalidation, history, reset effects, and anonymous card draws. No engine trial
 capability or test scenario was removed.
 
+The engine's `tryTask` overloads also had only Agent callers, apart from a direct restoration test.
+That policy now lives in Agent: attempt `doTask` within timeline rollback, restore unfinished
+handoffs, and leave unavailable work or requests needing choices pending. The engine restoration
+test now checks `doTask` rejection directly; Agent tests check restoration after an immediate-effect
+failure. Preliminary `/` evaluation now receives the same unavailable-work handling as execution,
+removing the old discrepancy. Existing try inputs still reconstruct through Agent. The broad
+`NotFullySpecifiedException` catch is retained carryover: exposing incomplete analysis distinctly
+through try calls, probes, and Admin scheduling remains tracked in the transition plan.
+
 ## Integration of main and the work1 documentation commit
 
 At the user's request, work1 first fast-forwarded to main `4974858d2`, then committed the original

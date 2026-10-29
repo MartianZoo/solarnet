@@ -23,6 +23,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Measure raw optional card-discard requests: the finite proof currently tries every concrete card
   type at each permitted positive count, including cards absent from the source location. Physical
   availability could exclude those candidates before trial without consulting invariant room.
+- Remove solo setup's remaining caller-supplied Admin tile placements to meet the no-Admin-input
+  goal. `AbstractSoloTest`, `TfmGameplayTest`, and `TfmSandboxTest` still submit two neutral cities
+  and their adjacent greeneries. The proposed replacement is four locations supplied once by
+  setup in the resolved premise and retained in game exports; the owner decision is pending.
 - Complete Agent choice analysis before adopting automatic form reduction. `Repair?` now offers
   both `Ok` and its positive amount, and form submission can execute the immediate repair.
   Menus still list candidates without proving their complete transactions. `Repair*`

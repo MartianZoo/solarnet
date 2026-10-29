@@ -1121,59 +1121,6 @@ internal constructor(
     )
   }
 
-  /**
-   * Attempts [id] as a failure-atomic task command. If it needs a choice, is currently unavailable,
-   * or must be completed by another Actor, restores the attempt and returns normally with the task
-   * pending. Other failures restore the attempt and propagate.
-   *
-   * A successful attempt retains the task's immediate effects and queues resulting work. It does
-   * not handle other pending tasks or promise that the rest of the game action can finish.
-   */
-  public fun tryTask(id: TaskId) {
-    try {
-      timeline.atomic {
-        transactions.perform(actor, CLIENT_REQUEST) {
-          doTask(id)
-          if (id in allTasks) throw AbortTransactionException()
-        }
-      }
-    } catch (_: NotFullySpecifiedException) {
-      // A probe that needs narrowing leaves the task and event history unchanged.
-    } catch (_: NotNowException) {
-      // A probe that is unavailable in the current World likewise changes nothing.
-    }
-  }
-
-  /**
-   * Attempts the task described by [narrowing], or the exact [taskId] when supplied, with failure
-   * restoration. [quantifierOmitted] has the meaning described by [doTask].
-   *
-   * Missing choices or currently unavailable work during execution restore the attempt and return
-   * normally. Current limitation: preliminary `/` metric evaluation happens before that handling,
-   * so an unavailable instruction there propagates its error. An outstanding selected task also
-   * restores it. Invalid selection, invalid narrowing, and other execution failures restore the
-   * attempt and propagate. Newly queued ordinary work can remain.
-   */
-  public fun tryTask(
-      narrowing: InstructionTree,
-      quantifierOmitted: Boolean = false,
-      taskId: TaskId? = null,
-  ) {
-    val evaluated = evaluatePer(narrowing)
-    try {
-      timeline.atomic {
-        transactions.perform(actor, CLIENT_REQUEST) {
-          doTask(evaluated, quantifierOmitted, taskId)
-          if (allTasks.selectedTask() != null) throw AbortTransactionException()
-        }
-      }
-    } catch (_: NotFullySpecifiedException) {
-      // A probe that needs narrowing leaves the task and event history unchanged.
-    } catch (_: NotNowException) {
-      // A probe that is unavailable in the current World likewise changes nothing.
-    }
-  }
-
   private fun queueForAnyTask(taskId: TaskId): TaskQueue =
       gameWorld.tasksFor(allTasks.getTaskData(taskId).assignee)
 }

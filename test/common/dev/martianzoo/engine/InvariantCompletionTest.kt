@@ -208,7 +208,7 @@ internal class InvariantCompletionTest {
   }
 
   @Test
-  internal fun failedTryWithNarrowingRestoresThePendingTaskAndCascade() {
+  internal fun failedExecutionWithNarrowingRestoresThePendingTaskAndCascade() {
     val world = statusWorld("This:: Notice!")
     val admin = world.testAgent(ADMIN)
     val engine = world.actorEngine(ADMIN)
@@ -216,7 +216,7 @@ internal class InvariantCompletionTest {
     val pending = admin.tasks.getTaskData(task)
     val before = world.events.nextOrdinal
 
-    engine.tryTask(parse<Instruction>("Passed!"), taskId = task)
+    shouldThrow<LimitsException> { engine.doTask(parse<Instruction>("Passed!"), taskId = task) }
 
     // Use the raw engine so later automatic Admin submissions cannot obscure restoration.
     world.events.nextOrdinal shouldBe before

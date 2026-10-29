@@ -3,11 +3,13 @@ package dev.martianzoo.agent
 import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.engine.ActorEngine
+import dev.martianzoo.engine.Exceptions.AbortTransactionException
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.ast.ClassName
@@ -492,21 +494,20 @@ internal class AgentImpl(
   override fun tryTask(narrowing: String) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.TRY_TASK) {
       val parsed = parseTaskNarrowing(narrowing)
-      engine.tryTask(
-          parsed.instruction,
-          parsed.quantifierOmitted,
-      )
+      tryExecution {
+        engine.doTask(parsed.instruction, parsed.quantifierOmitted)
+        if (allTasks.selectedTask() != null) throw AbortTransactionException()
+      }
     }
   }
 
   override fun tryTask(narrowing: String, taskId: TaskId) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.TRY_TASK, taskId = taskId) {
       val parsed = parseTaskNarrowing(narrowing)
-      engine.tryTask(
-          parsed.instruction,
-          parsed.quantifierOmitted,
-          taskId,
-      )
+      tryExecution {
+        engine.doTask(parsed.instruction, parsed.quantifierOmitted, taskId)
+        if (allTasks.selectedTask() != null) throw AbortTransactionException()
+      }
     }
   }
 
@@ -517,7 +518,20 @@ internal class AgentImpl(
         kind = Kind.TRY_TASK_ID,
         taskId = taskId,
     ) {
-      engine.tryTask(taskId)
+      tryExecution {
+        engine.doTask(taskId)
+        if (taskId in allTasks) throw AbortTransactionException()
+      }
+    }
+  }
+
+  private fun tryExecution(block: () -> Unit) {
+    try {
+      world.timeline.atomic(block)
+    } catch (_: NotFullySpecifiedException) {
+      // The existing try policy leaves unresolved requests pending.
+    } catch (_: NotNowException) {
+      // Currently unavailable work leaves the attempted task and its effects unchanged.
     }
   }
 
