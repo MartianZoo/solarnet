@@ -17,7 +17,7 @@ starts the game. Full files also retain the exact event history, including initi
 events, and every event's notes. Playback positions are derived from transaction metadata rather
 than stored separately. An event's transaction is stored
 on the first event that carries it and inherited by the events that follow, so grouping survives
-export and import without enlarging the file; the format identifier is now `solarnet-game-4`.
+export and import without enlarging the file; the format identifier is now `solarnet-game-5`.
 A task's instruction is a string for an individual instruction or an array of member strings for
 a selected group. The array preserves empty and singleton groups, whose printed text alone would
 lose their structure and change execution after import.
@@ -61,9 +61,12 @@ Admin `HAS` assertions remain recorded. Its causal task selector helps replay ta
 tasks without storing source ordinals. Game start is mandatory and recorded by
 `TfmGameplay.startGame()`; import starts the game through that same method, and the game's own rules
 drive play from there.
-Unique task instructions omit ancestry from their selectors. Full import compares complete causal
-ancestry through shared internal signatures, so authored phase flow does not require copying the
-entire preceding game for each change.
+Unique task instructions omit ancestry from their selectors. Context-class disambiguation retains
+the caller's `contextClass` input, including when that class filters a submitted total. A handoff
+records the chosen task selector so replay can select it without prematurely executing the
+receiving Player's work.
+Full import compares complete causal ancestry through shared internal signatures, so authored
+phase flow does not require copying the entire preceding game for each change.
 Commands produced by game effects are consequences rather than Actor submissions. Intermediate
 form edits that only narrow an instruction may be omitted; selections and stateful operations stay.
 

@@ -21,7 +21,7 @@ and executes only when exactly a single concrete narrowing completes the request
 That transaction includes immediate consequences and task admission, but does not execute later
 queued work to justify the request. A client-facing call then gives attached Actors' automatic
 behavior a chance to run, beginning with Admin, and returns at quiescence. Lower-level transaction
-methods may be internal. The public shape and precise handoff behavior still need approval.
+methods may be internal. The selected public call is Agent; the checklist below records the settled handoff behavior.
 
 When a useful feature is removed from engine, carry it into Agent only as needed for current
 clients. General Player guidance, whole-action completion search, outcome equivalence, and a smart
@@ -31,6 +31,46 @@ Player autoexecution policy are separate projects described in
 standing policies installed in engine. That mechanism is not an acceptance condition here;
 selection tests in this plan assume no applicable installed policy. `TfmGameplay` is
 for deletion; its current helpers do not set the API design.
+
+## Implementation checklist — October 29
+
+The owner decisions below are settled and implemented on this branch. The final verification and
+Opus review are recorded in [the results](ENGINE_TRANSITION_RESULTS.md); this checklist does not
+claim a general proof for unsupported instruction forms.
+
+- [x] Identify tasks without executing competing permissions. Retain unique calculated matching,
+  context-class disambiguation, and explicit IDs; ignore causes/IDs only for functionally equivalent
+  tasks, preserving distinct continuations. `TaskIntersectionTest` and `TaskResolutionTest` cover
+  matching; `GameFileImporterTest` and `TaskLogTest` cover recording the context-class choice.
+- [x] Execute complete candidate transactions for the documented finite domain. Keep later queued
+  work outside that proof. Optional positive repair and zero choices, OR alternatives, transmutation
+  pairs, ambiguity, and failed-trial isolation are covered by `TransactionUniquenessExperimentTest`,
+  `AlternativeTransactionTest`, and `TransactionTrialIsolationTest`. Unfinished proofs propagate as
+  `IncompleteAnalysisException`; no wall-clock cutoff or arbitrary count cap was added.
+- [x] Preserve partial choices and selected group/EACH/dispatch parents until execution. Preserve
+  intentional admission-time normalization. `SelectionOnlyExperimentTest`, `TaskNarrowingTest`,
+  Canon World Government Advisor/setup cases, and selected-group export/replay cover these paths.
+- [ ] Finish mandatory Admin reporting around the selected Agent client call, with Admin before optional Player work,
+  whole-call results, and whole-call restoration on later failure. `AgentCallCharacterizationTest`,
+  the transaction suites, and Canon waiting-work cases cover the retained behavior. The invoked
+  Agent's owning `Agents` session supplies Player policies and application validation; independent
+  sessions sharing a World do not acquire each other's settings. Nested calls share World rollback
+  depth; only the outermost call runs the `afterChanges` and completion callbacks, as documented on
+  the operation API. No policy-installation framework is introduced.
+- [x] Put Turmoil deck order and solo neutral locations in the resolved premise and exports. Admin
+  performs those draws/placements without incoming client choices; focused scenarios and active
+  full/short replays cover both.
+- [x] Consolidate corrections under `Agent.exMachina`, allow System edits, reject added unfinished
+  work, and preserve selected instructions. Remove obsolete correction/restore methods and migrate
+  callers. See `CorrectionTest` and [the correction contract](EX_MACHINA.md).
+- [x] Audit the remaining public surface in [TASK_HANDLING.md](TASK_HANDLING.md#public-actorengine-surface-audit).
+  Remove obsolete engine retry, overlay-wrapper, completion-hook, public history-commit, and
+  arbitrary task-restoration APIs. Retained module-level methods have current Agent/runtime users.
+
+Deferred by scope: general Player choice search and installed-policy design, general inference
+outside the documented finite proof domain, replacement of the existing Agent operation lifecycle,
+and correction-time recalculation. These are not silently implemented by a new fallback. Existing
+Player policy and operation behavior is carried over; unsupported proof requests remain explicit.
 
 ## Verified starting point
 
@@ -52,14 +92,13 @@ checks. This plan does not authorize any further merge.
 | Finite mandatory gains/removals and full-form transmutations try complete candidate transactions in disposable Worlds; Admin and Player priority use this finite uniqueness rule. | Other forms and deterministic proof limits remain open. |
 | Admin remains mandatory in Agent calls, retries after progress, and preserves retained rule failures. | Stalled passes, waiting cases, and public orchestration need settlement. |
 
-Do not call the branch a completed contract implementation. Current engine methods expose more
-low-level operations than the proposed public API may need, and the engine does not yet have a
-selected final task matcher or a general proof of unique transaction success.
+This starting snapshot was not a completed contract implementation. The current checklist above
+records subsequent API and matching changes; general uniqueness proof remains outside the finite
+implemented domain.
 
-## Decisions to settle with the owner
+## Settled owner decisions
 
-These are implementation gates. Continue independent work when a gate is unresolved; do not
-silently choose an answer.
+These were implementation gates; the following records the owner's answers and their implementation.
 
 1. **Task identity and interchangeability.** The owner selected retaining calculated-amount
    matching when it identifies a unique permission; several distinct permissions with the same
@@ -75,16 +114,16 @@ silently choose an answer.
    wording reverses the result.)
 2. **Public call shape.** The owner selected Agent for the final client-facing call, since it
    already owns the shared automatic-execution loop and session. Audit the remaining engine
-   operation surface rather than keeping obsolete public operations for compatibility. Define which `Agents` session supplies
-   attached Actors when independent sessions share a World. The owner accepts the existing
+   operation surface rather than keeping obsolete public operations for compatibility. The invoked Agent's owning `Agents` session supplies
+   the policies and application checks when independent sessions share a World. The owner accepts the existing
    shared `AutoExecLoop`; splitting it is not required now. Admin must be retried before **every**
    automatic Player step when no task is selected. Admin must do everything it can before the
    Player sees the state. A waiting Admin task does not alone block Player selection once Admin
    can make no further progress; Player work may be needed to move the game forward. If the
    current game model requires an external input, surface that need before Player work. Turmoil's
    former caller-supplied Global Event draw has been replaced by a premise-owned deck on this branch.
-   The selected P0 task must execute before any other work. Settle how Player work is
-   ordered after Admin. The owner selected removing `World.onTransactionComplete`; no production
+   The selected P0 task must execute before any other work. Existing Player policy orders its work
+   after Admin; its redesign is outside this transition. The owner selected removing `World.onTransactionComplete`; no production
    caller used it, and the branch now removes it and its special completion path. Admin cannot be
    disabled by Player policy or replay configuration.
 3. **Proof coverage and limits.** The owner selected a distinct incomplete-analysis result when

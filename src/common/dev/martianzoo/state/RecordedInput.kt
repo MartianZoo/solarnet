@@ -1,5 +1,7 @@
 package dev.martianzoo.state
 
+import dev.martianzoo.pets.ast.ClassName
+
 /**
  * An input supplied to a game in chronological order, separate from its calculated [GameEvent]s.
  * The first input starts the game. A [Command] retains the Actor's submitted instruction and any
@@ -12,7 +14,8 @@ public sealed class RecordedInput {
 
   /**
    * A successful Actor submission. [kind] preserves how the instruction was submitted; [cardInputs]
-   * supply card identities consumed while executing this command.
+   * supply card identities consumed while executing this command. [contextClass] retains the
+   * caller's optional task-context filter, including for a submitted total across matching tasks.
    */
   public data class Command(
       public val actor: Actor,
@@ -20,6 +23,7 @@ public sealed class RecordedInput {
       public val instruction: String,
       public val cardInputs: List<CardInput> = emptyList(),
       public val taskSelector: TaskSelector? = null,
+      public val contextClass: ClassName? = null,
   ) : RecordedInput()
 
   /** Named cards supplied before a task, grouped by Player, back, and destination. */

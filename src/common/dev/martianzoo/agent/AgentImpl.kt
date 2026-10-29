@@ -472,7 +472,7 @@ internal class AgentImpl(
   }
 
   override fun doTask(narrowing: String, contextClass: ClassName) = decide {
-    taskLog.capture(actor, narrowing, kind = Kind.DO_TASK) {
+    taskLog.capture(actor, narrowing, kind = Kind.DO_TASK, contextClass = contextClass) {
       val parsed = parseTaskNarrowing(narrowing)
       executeInput(parsed, contextClass)
     }

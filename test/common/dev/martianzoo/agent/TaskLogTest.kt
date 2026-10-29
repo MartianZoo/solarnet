@@ -5,6 +5,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.RecordedInput
@@ -18,6 +19,71 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.Test
 
 internal class TaskLogTest {
+  @Test
+  internal fun contextClassIsRetainedWhenCombiningRewards() {
+    val premise =
+        testGamePremise(
+            """
+        CLASS Left : Signal { This: Coin, Coin }
+        CLASS Right : Signal { This: Coin }
+        CLASS Coin
+    """
+        )
+    fun newAgents(): Agents =
+        Agents(Engine.newGame(premise)) { NONE }
+            .also {
+              it[PLAYER1].addTasks("Left, Right")
+            }
+    val source = newAgents()
+    start(source)
+    source[PLAYER1].doTasks("Left", "Right")
+    source[PLAYER1].doTask("2 Coin", cn("Left"))
+
+    val imported = newAgents()
+    replay(source, imported)
+
+    imported[PLAYER1].count("Coin") shouldBe 2
+    imported[PLAYER1].doTask("Coin", cn("Right"))
+    imported[PLAYER1].count("Coin") shouldBe 3
+    imported.world.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun contextClassIsRetainedWhenTheChoiceHandsOffToAnotherPlayer() {
+    val premise =
+        testGamePremise(
+            """
+        CLASS FirstOffer : Signal { This: (Coin BY Player2) OR (Marker BY Player2) }
+        CLASS SecondOffer : Signal { This: (Coin BY Player2) OR (Prize BY Player2) }
+        CLASS Coin
+        CLASS Marker
+        CLASS Prize
+    """,
+            players = 2,
+        )
+    fun newAgents(): Agents =
+        Agents(Engine.newGame(premise)) { NONE }
+            .also {
+              it[PLAYER2].autoExecPolicy = EAGER
+              it[PLAYER1].addTasks("FirstOffer, SecondOffer")
+            }
+    val source = newAgents()
+    start(source)
+    source[PLAYER1].doTasks("FirstOffer", "SecondOffer")
+    source[PLAYER1].doTask("Coin BY Player2", cn("FirstOffer"))
+
+    val imported = newAgents()
+    replay(source, imported)
+
+    imported[PLAYER1].count("Coin") shouldBe 1
+    imported.world.tasks.extract { it.instruction } shouldBe
+        source.world.tasks.extract { it.instruction }
+    imported[PLAYER1].selectTask("Prize BY Player2")
+    imported[PLAYER2].doTask(imported[PLAYER2].tasks.selectedTask()!!)
+    imported[PLAYER1].count("Prize") shouldBe 1
+    imported.world.tasks.isEmpty() shouldBe true
+  }
+
   private fun start(agents: Agents) {
     agents.taskLog.start()
     agents.taskLog.gameStarted()

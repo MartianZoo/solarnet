@@ -1,9 +1,12 @@
 package dev.martianzoo.agent
 
+import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.recording
 import dev.martianzoo.engine.testGamePremise
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameFileJson
@@ -18,6 +21,49 @@ import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
 internal class GameFileImporterTest {
+  @Test
+  internal fun contextClassChoiceSurvivesFullAndShortReplay() = runTest {
+    val premise =
+        testGamePremise(
+            """
+        CLASS Left : Signal { This: Coin THEN LeftDone }
+        CLASS Right : Signal { This: Coin THEN RightDone }
+        CLASS Coin
+        CLASS LeftDone
+        CLASS RightDone
+    """
+        )
+    val source = Agents(Engine.newGame(premise)) { NONE }
+    val player = source[PLAYER1]
+    source.taskLog.start()
+    source.taskLog.gameStarted()
+    player.addTasks("Left, Right")
+    player.doTasks("Left", "Right")
+    player.doTask("Coin", cn("Left"))
+    player.doTask("LeftDone")
+
+    for (short in listOf(false, true)) {
+      val file =
+          GameFileJson.parse(
+              GameFileJson.encode(source.world.recording(), source.taskLog.inputs(), short = short)
+          )
+      val imported =
+          GameFileImporter.replay(
+              file,
+              premise.catalog,
+              newAgents = { Agents(Engine.newGame(it)) },
+              startGame = { it[PLAYER1].addTasks("Left, Right") },
+          )
+      imported[PLAYER1].count("Coin") shouldBe 1
+      imported[PLAYER1].count("LeftDone") shouldBe 1
+      imported[PLAYER1].count("RightDone") shouldBe 0
+      imported[PLAYER1].doTask("Coin", cn("Right"))
+      imported[PLAYER1].doTask("RightDone")
+      imported[PLAYER1].count("Coin") shouldBe 2
+      imported.world.tasks.isEmpty() shouldBe true
+    }
+  }
+
   @Test
   internal fun exMachinaRetainsItsTransactionsAndPreservesTheSelectedTask() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
@@ -174,7 +220,11 @@ internal class GameFileImporterTest {
         source.taskLog.start()
         source.taskLog.gameStarted()
         val id = player.addTasks("(Coin, Marker) OR Prize").single()
-        player.selectTask("Coin, Marker")
+        player.selectTask(
+            player.tasks
+                .getTaskData(id)
+                .copy(instruction = player.parse<InstructionTree>("Coin, Marker"))
+        )
         player.exMachina("Prize")
         source[ADMIN].exMachina("Prize")
         source.world.tasks.ids().toList() shouldBe listOf(id)

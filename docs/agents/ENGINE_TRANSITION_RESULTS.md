@@ -759,3 +759,27 @@ replay. Focused correction checks cover immediate effects, suppressed queued eff
 rejection and rollback, removal of existing unfinished work, and preservation of partial choices.
 The first broad attempt exposed the Audit/source-location bugs and was stopped; the corrected broad
 run passed in 3m18s. Tests' gameplay assertions were retained.
+
+## Preserve context-class decisions and grouped selections in replay
+
+The final task-matching audit found that `doTask(instruction, contextClass)` executed correctly but
+omitted the class filter from recorded inputs. A focused test reproduced failure of fresh full/short
+replay with two Coin tasks carrying different continuations. Recorded commands now retain that input;
+replay calls the corresponding Agent overload. This also preserves class-filtered combined totals.
+When execution hands a task to another Player, recording uses the existing task selector for the
+selection command, captured before its instruction and assignee change. The context field is omitted
+from that rewritten selection command. Task-overload grouped selections now replay through
+InstructionTree parsing, removing the obsolete individual-Instruction assumption. File format 5
+prevents an older reader from silently ignoring the new context input.
+
+Opus/high found no blocker. The unused handoff context field and prose issues were fixed. A follow-up
+withdrew the suggested context-only snapshot filter: an already-selected task takes precedence over
+that filter in the engine, so the broader temporary snapshot is necessary for that path.
+
+`./gradlew build -PreplayExports` passed in 4m51s, including all browser checks and generated artifacts.
+It passed 31 state, 83 Agent, 633 engine, 50 script, 1358 Canon/rule cases (26 existing skips), all 23
+active replay exports/reconstructions, and both Web browser tests. The final handoff-field omission
+then passed Agent/state suites and formatting checks. No assertion was weakened.
+
+The same final review identified a remaining Admin missing-input reporting gap. The implementation
+checklist marks it open; do not interpret the passing build as completion of that requirement.

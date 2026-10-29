@@ -2,8 +2,9 @@ package dev.martianzoo.agent
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction.Each
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
@@ -36,9 +37,10 @@ public class TaskLog internal constructor(private val world: World) {
       val actor: Actor,
       var kind: RecordedInput.Kind,
       val instruction: String,
-      val taskSelector: RecordedInput.TaskSelector?,
+      var taskSelector: RecordedInput.TaskSelector?,
       val formTask: TaskId?,
       val automatic: Boolean = false,
+      val contextClass: ClassName? = null,
       var anchor: GameEvent? = null,
       var onlyNarrows: Boolean = false,
       var selectsTask: Boolean = false,
@@ -80,6 +82,8 @@ public class TaskLog internal constructor(private val world: World) {
                   item.kind,
                   item.instruction,
                   taskSelector = item.taskSelector,
+                  contextClass =
+                      item.contextClass.takeIf { item.kind == RecordedInput.Kind.DO_TASK },
               )
             }
   }
@@ -113,10 +117,20 @@ public class TaskLog internal constructor(private val world: World) {
       kind: RecordedInput.Kind = RecordedInput.Kind.DO_TASKS,
       taskId: TaskId? = null,
       automatic: Boolean = false,
+      contextClass: ClassName? = null,
       block: () -> T,
   ): T {
     if (!recording) return block()
     val eventCursor = world.events.nextOrdinal
+    // A context-filtered request may hand its task to another Actor. Replay records that as
+    // selection, so retain the task's selector before its instruction/assignee changes.
+    val contextSelectors =
+        if (contextClass == null) emptyMap()
+        else
+            world.tasks
+                .extract { it }
+                .filter { it.assignee == actor }
+                .associate { it.id to taskSelectorFor(actor, it.id) }
     val submission =
         Submission(
             actor,
@@ -125,6 +139,7 @@ public class TaskLog internal constructor(private val world: World) {
             taskId?.let { taskSelectorFor(actor, it) },
             formTask,
             automatic = automatic,
+            contextClass = contextClass,
         )
     submissions += submission
     return try {
@@ -144,6 +159,7 @@ public class TaskLog internal constructor(private val world: World) {
                     true
         ) {
           submission.kind = RecordedInput.Kind.CHOOSE
+          contextSelectors[world.tasks.selectedTask()]?.let { submission.taskSelector = it }
         }
         submission.selectsTask = events.any { event ->
           when (event) {
@@ -218,6 +234,7 @@ public class TaskLog internal constructor(private val world: World) {
             requireNotNull(supplyCardInputs) { "card identities have no input supplier" }(command)
           }
           val agent = agents[command.actor]
+          val contextClass = command.contextClass
           val target =
               command.taskSelector?.let { selector ->
                 val candidates =
@@ -235,8 +252,11 @@ public class TaskLog internal constructor(private val world: World) {
           when (command.kind) {
             RecordedInput.Kind.DO_TASKS -> agent.doTasks(command.instruction)
             RecordedInput.Kind.DO_TASK ->
-                if (target == null) agent.doTask(command.instruction)
-                else agent.doTask(command.instruction, target.id)
+                when {
+                  contextClass != null -> agent.doTask(command.instruction, contextClass)
+                  target != null -> agent.doTask(command.instruction, target.id)
+                  else -> agent.doTask(command.instruction)
+                }
             RecordedInput.Kind.DO_TASK_ID ->
                 agent.doTask(
                     (target ?: requireNotNull(matchingTask(agent, command.instruction))).id
@@ -256,8 +276,8 @@ public class TaskLog internal constructor(private val world: World) {
                     agent.selectTask(
                         target.copy(
                             instruction =
-                                agent.parseAs(Instruction::class, command.instruction)
-                                    as Instruction
+                                agent.parseAs(InstructionTree::class, command.instruction)
+                                    as InstructionTree
                         )
                     )
             RecordedInput.Kind.TRY_SELECTED ->
