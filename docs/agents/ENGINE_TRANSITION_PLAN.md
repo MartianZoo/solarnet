@@ -207,6 +207,9 @@ The finite mandatory/optional-change trial now reports `IncompleteAnalysisExcept
 candidate's immediate work cannot be fully examined, while multiple successful candidates remain a
 missing-choice result. Fixed optional counts now try `Ok` and each positive amount through the
 authored maximum, without using current invariant room to discard a repairable candidate.
+`OR` alternatives composed of those finite changes now use the same trial loop. Repeated concrete
+requests across arms count once. Unsupported alternatives retain incomplete analysis unless two
+successful concrete requests already prove ambiguity; groups and broader nested forms remain open.
 Other paths still need the same distinction. The Agent Admin loop catches the parent
 `NotFullySpecifiedException` type, so it does not yet surface incomplete analysis separately.
 `ActorEngine.probeSelection` and `canExecuteTask` also catch that parent type and return `false`;

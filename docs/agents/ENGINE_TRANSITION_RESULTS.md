@@ -4,9 +4,10 @@ This report is maintained in work1 and describes the experimental branch, not wo
 implementation. Source names and test results below refer to that branch at the stated revision;
 local evidence files remain in `/Users/dev/solarnet/engine-transition-experiments/_local/`.
 
-Status: all retained experiments below are committed through `8ceb7706b`; `main` at `f1055a08b`
+The initial retained experiments were committed through `8ceb7706b`; `main` at `f1055a08b`
 was subsequently merged into `codex/engine-transition-experiments` as `6c4686b61` on
-October 28, 2026. The selected engine API destination is still incomplete. The experiment branch
+October 28, 2026. Subsequent increments are recorded below. The selected engine API destination
+is still incomplete. The experiment branch
 has not been merged into main. The branch began at
 `c14c000b23f143f0f672ba2b94ae21966ff245d7`, in
 `/Users/dev/solarnet/engine-transition-experiments`. The initial work1 design documents were copied
@@ -37,6 +38,28 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | 4 Transaction uniqueness | Fixed mandatory gains/removals and full-form transmutations enumerate concrete types or pairs and try complete transactions in disposable copies. | Experimental integration candidate, not complete general inference. Review cost and unsupported forms before merging. |
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
 | 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Evidence for the separate Agent choice project, not a gate for the engine API. |
+
+### Finite alternatives use complete transaction trials
+
+After the fixed-state measurements, `successfulNarrowing` now enumerates the existing finite change
+domains through `OR` arms and uses the same disposable-world execution path. `Guarded OR Other`
+can execute Other when Guarded's immediate effect fails. Repeated concrete requests across arms
+count once, including the shared zero of optional arms. Unsupported arms preserve incomplete
+analysis unless two successful requests already prove ambiguity. No group product, continuation
+search, public API, or second transaction implementation was introduced.
+
+`AlternativeTransactionTest` covers immediate-effect restoration, queued work remaining pending,
+shared zero, overlapping positive domains, and incomplete alternatives. Four existing engine tests
+had manually supplied choices that Admin now determines. Their explicit failure and restoration
+assertions remain on raw engine calls; their Agent paths now verify automatic completion.
+Opus found the empty compatible-pair case still reporting incomplete analysis under an `OR`;
+complete empty domains now reject, with a focused shared-type transmutation test. Another scenario
+checks that Admin reports a dead end when every alternative fails, retaining the original task and
+state. No Canon rule change was needed.
+The full `./gradlew test` run passed. After the review's empty-domain fix, all 617 engine tests,
+72 Agent tests, and 23 active replay tests passed; every replay also exported and reconstructed its
+game file with `-PreplayExports`. Existing replay source needed no instruction changes for this
+increment.
 
 ### Fixed optional counts now use complete transaction trials
 
@@ -377,6 +400,8 @@ through try calls, probes, and Admin scheduling remains tracked in the transitio
 with Player policy `NONE`. JMH 1.37 on JDK 26.0.1 used two forks, two one-second warmup iterations,
 and three one-second measured iterations per fork. Setup and restoration are outside the measured
 call. Each invocation verifies its result and restores the same starting state.
+These prepared Agent calls have no subsequent eligible Admin work; they do not measure the
+additional nested priority checks caused by a queue of abstract Admin tasks.
 
 | Scenario | Selected candidates | Expected trials | Raw ms/call | Agent ms/call |
 | --- | ---: | ---: | ---: | ---: |

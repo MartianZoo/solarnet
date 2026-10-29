@@ -544,6 +544,12 @@ submitted through the ordinary engine in a reusable disposable World. That copy 
 transaction, including deferred admission, even when the source call is inside an enclosing
 transaction. No queued Admin or Player instruction is executed to prove the candidate.
 
+`OR` arms composed of these finite changes share that candidate loop. Identical concrete requests
+reached through different arms, including optional zero, are counted once. An unsupported arm such
+as an unbound numeric request or a group records incomplete analysis while the remaining arms are
+examined. Two successful concrete requests still prove ambiguity; fewer successes cannot establish
+uniqueness while any arm remains incomplete.
+
 A second successful candidate means ambiguity, even if other candidates remain unexamined. With
 fewer successes, unresolved candidate work reports `IncompleteAnalysisException`; implementation
 errors propagate. When all attempts fail, failures all reported as `DeadEndException` remain dead ends;

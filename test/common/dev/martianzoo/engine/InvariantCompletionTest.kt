@@ -228,22 +228,24 @@ internal class InvariantCompletionTest {
   }
 
   @Test
-  internal fun choiceKeepsAnInBoundsArmEvenWhenItsAutomaticWorkMayFail() {
-    val admin =
+  internal fun selectionLeavesAlternativesPendingUntilExecutionChecksTheirEffects() {
+    val world =
         world(
-                """
+            """
                 CLASS Guarded { This:: -Missing! }
                 CLASS Missing
                 CLASS Other
                 """
-            )
-            .testAgent(ADMIN)
-    val task = admin.addTasks("Guarded! OR Other!").single()
+        )
+    val admin = world.testAgent(ADMIN)
+    val engine = world.actorEngine(ADMIN)
+    val task =
+        engine.addTasks(InstructionGroup.of(parse<Instruction>("Guarded! OR Other!"))).single()
 
-    admin.selectTask(task)
+    engine.selectTask(task)
 
     admin.count("Other") shouldBe 0
-    admin.doTask("Other!")
+    engine.doTask(task)
     admin.count("Other") shouldBe 1
   }
 
@@ -263,14 +265,15 @@ internal class InvariantCompletionTest {
     val world = statusWorld("This:: Notice!")
     val admin = world.testAgent(ADMIN)
 
-    admin.runOperation("Passed! OR Reward!") {
-      val before = world.events.nextOrdinal
-      shouldThrow<LimitsException> { doTask("Passed!") }
-      world.events.nextOrdinal shouldBe before
-      admin.count("Notice") shouldBe 0
-      admin.count("Passed") shouldBe 0
-      doTask("Reward!")
-    }
+    val engine = world.actorEngine(ADMIN)
+    val task =
+        engine.addTasks(InstructionGroup.of(parse<Instruction>("Passed! OR Reward!"))).single()
+    val before = world.events.nextOrdinal
+    shouldThrow<LimitsException> { engine.doTask(parse<Instruction>("Passed!"), taskId = task) }
+    world.events.nextOrdinal shouldBe before
+    admin.count("Notice") shouldBe 0
+    admin.count("Passed") shouldBe 0
+    admin.autoExecNow()
 
     admin.count("Passed") shouldBe 0
     admin.count("Ready") shouldBe 1
@@ -949,7 +952,7 @@ internal class InvariantCompletionTest {
   }
 
   @Test
-  internal fun ordinaryAdminWorkAllowsAChoiceAfterTheInitiatingOperation() {
+  internal fun ordinaryAdminWorkExecutesItsOnlySuccessfulAlternative() {
     val world =
         world(
             """
@@ -961,7 +964,7 @@ internal class InvariantCompletionTest {
         )
     val admin = world.testAgent(ADMIN)
 
-    admin.runOperation("Start!") { doTask("Other!") }
+    admin.runOperation("Start!")
 
     admin.count("Start") shouldBe 1
     admin.count("Token") shouldBe 1

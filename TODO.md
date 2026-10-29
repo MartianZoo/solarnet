@@ -15,8 +15,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   branch. Complete shared type binding and nested THEN representation without adding a second
   continuation slot. `EACH` child admission now happens when its parent is executed on the
   experiment branch. Define the remaining structural actions permitted during selection.
-- Extend transaction-success analysis beyond fixed mandatory/optional gains/removals and full-form
-  transmutations only after measuring complete Agent calls. Resolve compact transmutations and a
+- Extend transaction-success analysis beyond finite mandatory/optional changes and their `OR`
+  alternatives. Complete Agent calls have fixed-state measurements; groups, shared bindings,
+  and unsupported nested forms remain. Resolve compact transmutations and a
   search resource limit without treating incomplete analysis as a failed transaction. Keep
   unsupported forms and unresolved immediate effects unknown. Review Admin waiting behavior,
   callback failure recovery, and custom Kotlin effects separately.
@@ -133,15 +134,14 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   evaluation followed by further narrowing. This TODO records the migration, not its completion.
 - Investigate the selected destination in [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md)
   using the [transition plan](docs/agents/ENGINE_TRANSITION_PLAN.md).
-  The committed branch covers finite mandatory gains, removals, and full-form transmutations,
+  The branch covers finite mandatory/optional changes and their `OR` alternatives,
   including Admin uniqueness; this is not general coverage. Finish read-only task matching,
   deterministic incomplete-analysis reporting, structural selection and Admin handoff, and the
   client-facing call shape. Different continuations are not interchangeable. Settle when other
   data, especially cause, makes repeated rewards distinct: strict cause equality broke Ecological
   Zone, Frontier Town, and curated replay requests, while cause can affect event ancestry and
-  application input checks. Decide whether to retain the existing engine behavior where a resolved
-  task amount matches a submitted concrete amount (`Plant / Heat` with 2 Heat is executed by
-  `2 Plant` in `TaskResolutionTest`); settle the multiple-match case. Review Admin
+  application input checks. The owner retained calculated matching when unique; distinct matching
+  permissions require an explicit task ID. Review Admin
   waiting cases against the selected rule that Admin exhausts currently possible work before the
   Player sees the state; a pending Admin task alone does not block Player selection. Also review
   solo neutral placements. Do not derive engine requirements from the removed Turmoil event-draw

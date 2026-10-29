@@ -670,13 +670,14 @@ internal constructor(
    * queued at their ordinary priorities. A change assigned to another Actor remains selected for
    * that Actor to perform in a later transaction.
    *
-   * A fixed mandatory or optional change can infer its unique successful concrete target, or source
-   * and destination pair, by trying its complete finite domain in disposable Worlds. Optional
-   * changes also try zero and every positive count up to the requested amount. Multiple successful
-   * choices throw [NotFullySpecifiedException]; an unfinished trial throws
-   * [IncompleteAnalysisException]. Trials include immediate effects and task admission/promotion,
-   * but do not execute subsequently queued work. A failed transaction restores its changes; for
-   * example, rejecting removal of an opponent's protected plant leaves that plant intact.
+   * A fixed mandatory or optional change, or OR of those changes, can infer its unique successful
+   * concrete target or source/destination pair by trying its complete finite domain in disposable
+   * Worlds. Optional changes also try zero and every positive count up to the requested amount.
+   * Repeated concrete requests across alternatives count once. Multiple successful choices throw
+   * [NotFullySpecifiedException]; an unfinished trial throws [IncompleteAnalysisException]. Trials
+   * include immediate effects and task admission/promotion, but do not execute subsequently queued
+   * work. A failed transaction restores its changes; for example, rejecting removal of an
+   * opponent's protected plant leaves that plant intact.
    */
   public fun doTask(taskId: TaskId) {
     transactions.perform(actor, CLIENT_REQUEST) { doTask(tasks, taskId) }
@@ -730,19 +731,7 @@ internal constructor(
       instruction: Instruction,
       executingActor: Actor,
   ): Instruction {
-    if (
-        instruction !is Change ||
-            instruction.count !is ActualScalar ||
-            instruction.quantifier !in
-                setOf(Instruction.Quantifier.MANDATORY, Instruction.Quantifier.OPTIONAL)
-    ) {
-      throw IncompleteAnalysisException("transaction analysis does not cover `$instruction`")
-    }
-    if (instruction is Transmute && instruction.fromEx is Compact) {
-      throw IncompleteAnalysisException(
-          "compact transmutation inference is unresolved: `$instruction`"
-      )
-    }
+    var incomplete: IncompleteAnalysisException? = null
     fun concreteTargets(target: Expression?): List<Expression?> =
         if (target == null) listOf(null)
         else
@@ -752,14 +741,34 @@ internal constructor(
                 .distinct()
                 .toList()
 
-    val gains = concreteTargets(instruction.gaining)
-    val removals = concreteTargets(instruction.removing)
-    val count = (instruction.count as ActualScalar).value
-    val counts =
-        if (instruction.quantifier == Instruction.Quantifier.OPTIONAL) 1..count else count..count
-    val candidates =
+    fun candidates(request: InstructionTree): Sequence<Instruction> =
         sequence<Instruction> {
-          if (instruction.quantifier == Instruction.Quantifier.OPTIONAL) yield(NoOp)
+          if (request == NoOp) {
+            yield(NoOp)
+            return@sequence
+          }
+          if (request is Or) {
+            for (alternative in request.instructions) yieldAll(candidates(alternative))
+            return@sequence
+          }
+          if (
+              request !is Change ||
+                  request.count !is ActualScalar ||
+                  request.quantifier !in
+                      setOf(Instruction.Quantifier.MANDATORY, Instruction.Quantifier.OPTIONAL) ||
+                  (request is Transmute && request.fromEx is Compact)
+          ) {
+            incomplete =
+                incomplete
+                    ?: IncompleteAnalysisException("transaction analysis does not cover `$request`")
+            return@sequence
+          }
+          val gains = concreteTargets(request.gaining)
+          val removals = concreteTargets(request.removing)
+          val count = (request.count as ActualScalar).value
+          val counts =
+              if (request.quantifier == Instruction.Quantifier.OPTIONAL) 1..count else count..count
+          if (request.quantifier == Instruction.Quantifier.OPTIONAL) yield(NoOp)
           for (candidateCount in counts) for (gaining in gains) for (removing in removals) {
             // Equal concrete types cannot form a transmutation (Pets rule L2-1).
             if (gaining != null && gaining == removing) continue
@@ -771,9 +780,9 @@ internal constructor(
                     Instruction.Quantifier.MANDATORY,
                 ) as Change
             if (
-                instruction is Transmute &&
-                    instruction.fromEx is Full &&
-                    !candidate.narrows(instruction, possibleWorldFacts)
+                request is Transmute &&
+                    request.fromEx is Full &&
+                    !candidate.narrows(request, possibleWorldFacts)
             )
                 continue
             yield(candidate)
@@ -781,10 +790,10 @@ internal constructor(
         }
     val trial = trialWorld()
     var winner: Instruction? = null
-    var incomplete: IncompleteAnalysisException? = null
     var invalidCandidate: ExpressionException? = null
     val rejections = mutableListOf<GameplayException>()
-    for (candidate in candidates) {
+    // An OR may reach the same concrete instruction through multiple arms (notably optional zero).
+    for (candidate in candidates(instruction).distinct()) {
       if (candidate is Change) {
         try {
           instructor.validateConcreteChange(candidate)
@@ -827,10 +836,7 @@ internal constructor(
     if (rejections.isEmpty()) {
       invalidCandidate?.let { throw it }
       instructor.resolve(instruction) // Retain the existing uninhabited-type diagnostic.
-      if (instruction is Transmute) {
-        throw DeadEndException("no compatible concrete transmutation for `$instruction`")
-      }
-      throw IncompleteAnalysisException("no complete candidate domain for `$instruction`")
+      throw DeadEndException("no compatible concrete narrowing for `$instruction`")
     }
     val detail = rejections.map { it.detail }.distinct().sorted().joinToString("; ")
     // The iteration order cannot decide whether Admin waits or rejects. A currently unavailable

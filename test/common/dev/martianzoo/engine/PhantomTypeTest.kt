@@ -1,12 +1,15 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
@@ -90,7 +93,7 @@ internal class PhantomTypeTest {
   }
 
   @Test
-  internal fun `choices discard empty types but leave mandatory count failures to execution`() {
+  internal fun `choices reject empty types and prove mandatory counts through execution`() {
     val game =
         TfmEngine.newGame(
             testGamePremise(
@@ -105,12 +108,15 @@ internal class PhantomTypeTest {
     val agent = game.testAgent(ADMIN)
 
     agent.runOperation("Empty! OR Live!")
-    agent.runOperation("ZeroCapacity! OR Live!") {
-      val before = game.events.nextOrdinal
-      shouldThrow<LimitsException> { doTask("ZeroCapacity!") }
-      game.events.nextOrdinal shouldBe before
-      doTask("Live!")
+    val engine = game.actorEngine(ADMIN)
+    val task =
+        engine.addTasks(InstructionGroup.of(parse<Instruction>("ZeroCapacity! OR Live!"))).single()
+    val before = game.events.nextOrdinal
+    shouldThrow<LimitsException> {
+      engine.doTask(parse<Instruction>("ZeroCapacity!"), taskId = task)
     }
+    game.events.nextOrdinal shouldBe before
+    agent.autoExecNow()
     agent.runOperation("Empty?")
     agent.runOperation("ZeroCapacity?")
 
