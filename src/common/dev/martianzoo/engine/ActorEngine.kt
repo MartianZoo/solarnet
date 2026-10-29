@@ -454,7 +454,7 @@ internal constructor(
    * This is not a count of legal concrete narrowings. The attempt uses a disposable World; source
    * listeners, callbacks, and application checks do not observe trial events.
    */
-  // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory changes.
+  // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory/optional changes.
   public fun canSelectTask(taskId: TaskId): Boolean = canSelectTask(taskId, tasks)
 
   private fun canSelectTask(
@@ -501,7 +501,7 @@ internal constructor(
    * restoration. The attempt runs in a disposable World and does not invalidate existing source
    * overlays or notify source listeners. Unsupported choice forms remain unresolved.
    */
-  // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory changes.
+  // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory/optional changes.
   public fun canExecuteTask(taskId: TaskId): Boolean {
     timeline.requireAtEnd()
     val trial = trialWorld()
@@ -670,9 +670,10 @@ internal constructor(
    * queued at their ordinary priorities. A change assigned to another Actor remains selected for
    * that Actor to perform in a later transaction.
    *
-   * A fixed mandatory change can infer its unique successful concrete target, or source and
-   * destination pair, by trying its complete finite domain in disposable Worlds. Multiple
-   * successful choices throw [NotFullySpecifiedException]; an unfinished trial throws
+   * A fixed mandatory or optional change can infer its unique successful concrete target, or source
+   * and destination pair, by trying its complete finite domain in disposable Worlds. Optional
+   * changes also try zero and every positive count up to the requested amount. Multiple successful
+   * choices throw [NotFullySpecifiedException]; an unfinished trial throws
    * [IncompleteAnalysisException]. Trials include immediate effects and task admission/promotion,
    * but do not execute subsequently queued work. A failed transaction restores its changes; for
    * example, rejecting removal of an opponent's protected plant leaves that plant intact.
@@ -732,7 +733,8 @@ internal constructor(
     if (
         instruction !is Change ||
             instruction.count !is ActualScalar ||
-            instruction.quantifier != Instruction.Quantifier.MANDATORY
+            instruction.quantifier !in
+                setOf(Instruction.Quantifier.MANDATORY, Instruction.Quantifier.OPTIONAL)
     ) {
       throw IncompleteAnalysisException("transaction analysis does not cover `$instruction`")
     }
@@ -752,32 +754,44 @@ internal constructor(
 
     val gains = concreteTargets(instruction.gaining)
     val removals = concreteTargets(instruction.removing)
+    val count = (instruction.count as ActualScalar).value
+    val counts =
+        if (instruction.quantifier == Instruction.Quantifier.OPTIONAL) 1..count else count..count
+    val candidates =
+        sequence<Instruction> {
+          if (instruction.quantifier == Instruction.Quantifier.OPTIONAL) yield(NoOp)
+          for (candidateCount in counts) for (gaining in gains) for (removing in removals) {
+            // Equal concrete types cannot form a transmutation (Pets rule L2-1).
+            if (gaining != null && gaining == removing) continue
+            val candidate =
+                Change.change(
+                    gaining,
+                    removing,
+                    candidateCount,
+                    Instruction.Quantifier.MANDATORY,
+                ) as Change
+            if (
+                instruction is Transmute &&
+                    instruction.fromEx is Full &&
+                    !candidate.narrows(instruction, possibleWorldFacts)
+            )
+                continue
+            yield(candidate)
+          }
+        }
     val trial = trialWorld()
     var winner: Instruction? = null
     var incomplete: IncompleteAnalysisException? = null
     var invalidCandidate: ExpressionException? = null
     val rejections = mutableListOf<GameplayException>()
-    for (gaining in gains) for (removing in removals) {
-      // Equal concrete types cannot form a transmutation (Pets rule L2-1).
-      if (gaining != null && gaining == removing) continue
-      val candidate =
-          Change.change(
-              gaining,
-              removing,
-              (instruction.count as ActualScalar).value,
-              Instruction.Quantifier.MANDATORY,
-          ) as Change
-      if (
-          instruction is Transmute &&
-              instruction.fromEx is Full &&
-              !candidate.narrows(instruction, possibleWorldFacts)
-      )
+    for (candidate in candidates) {
+      if (candidate is Change) {
+        try {
+          instructor.validateConcreteChange(candidate)
+        } catch (e: ExpressionException) {
+          invalidCandidate = invalidCandidate ?: e
           continue
-      try {
-        instructor.validateConcreteChange(candidate)
-      } catch (e: ExpressionException) {
-        invalidCandidate = invalidCandidate ?: e
-        continue
+        }
       }
       trial.reset()
       try {

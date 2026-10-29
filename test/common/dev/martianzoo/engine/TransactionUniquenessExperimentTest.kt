@@ -109,6 +109,65 @@ internal class TransactionUniquenessExperimentTest {
       )
 
   @Test
+  fun optionalAbstractTargetsShareASingleZeroChoice() =
+      trial(
+          """
+      ABSTRACT CLASS Choice
+      CLASS First : Choice { HAS MAX 0 This }
+      CLASS Second : Choice { HAS MAX 0 This }
+      """
+      ) { world ->
+        val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
+        val id = agent.addTasks("2? Choice").single()
+
+        world.actorEngine(PLAYER1).doTask(id)
+
+        agent.count("Choice") shouldBe 0
+        world.tasks.isEmpty() shouldBe true
+      }
+
+  @Test
+  fun optionalZeroStillAdmitsItsContinuationWithoutExecutingIt() =
+      trial(
+          """
+      CLASS Capped { HAS MAX 0 This }
+      CLASS Notice
+      """
+      ) { world ->
+        val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
+        val id = agent.addTasks("Capped? THEN Notice!").single()
+
+        world.actorEngine(PLAYER1).doTask(id)
+
+        agent.count("Notice") shouldBe 0
+        world.actorEngine(PLAYER1).doTask(world.tasks.ids().single())
+        agent.count("Notice") shouldBe 1
+        world.tasks.isEmpty() shouldBe true
+      }
+
+  @Test
+  fun optionalZeroIsNotUniqueWhenPositiveAnalysisIsUnfinished() =
+      trial(
+          """
+      CLASS Pending { This:: Extra }
+      ABSTRACT CLASS Extra
+      CLASS Left : Extra
+      CLASS Right : Extra
+      """
+      ) { world ->
+        val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
+        val id = agent.addTasks("Pending?").single()
+        val tasks = world.tasks.extract { it }
+        val before = world.events.nextOrdinal
+
+        shouldThrow<IncompleteAnalysisException> { world.actorEngine(PLAYER1).doTask(id) }
+
+        world.tasks.extract { it } shouldBe tasks
+        world.events.nextOrdinal shouldBe before
+        agent.count("Pending") shouldBe 0
+      }
+
+  @Test
   fun noSuccessfulCandidateRestoresState() =
       trial(
           """

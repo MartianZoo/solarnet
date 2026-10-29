@@ -90,8 +90,9 @@ silently choose an answer.
    the engine cannot finish proving uniqueness. A wall-clock timeout is not approved:
    identical game requests must not change answers according to machine speed. Specify finite
    domains, deterministic work limits or another terminating proof strategy, and the observable
-   result when no proof is possible. `Repair?` is a concrete counterexample: current raw execution
-   takes zero although the explicit `Repair!` branch can succeed after an immediate repair.
+   result when no proof is possible. The raw `Repair?` counterexample is now fixed: execution
+   requires a choice because zero and the explicit `Repair!` branch both succeed after immediate
+   repair.
    **Coverage recommendation to validate:** fully examine finite domains derived from instruction
    shape, with no count cap until measurement shows a need. Return the selected incomplete-analysis
    result for forms outside that domain, such as unbound numeric X; use no elapsed-time cutoff.
@@ -196,15 +197,17 @@ deterministic proof result for cases the engine cannot finish. Measure candidate
 and complete call latency on fixed states; do not invent an unbounded integer list. Do not execute
 newly queued Admin tasks during this proof. Direct mandatory `: Die` may reject at admission;
 later Admin failure belongs to a later transaction.
-The finite mandatory-change trial now reports `IncompleteAnalysisException` when a candidate's
-immediate work cannot be fully examined, while multiple successful candidates remain a
-missing-choice result. Other paths still need the same distinction. In particular, raw `Repair?`
-currently selects zero before the finite trial runs. The Agent Admin loop catches the parent
+The finite mandatory/optional-change trial now reports `IncompleteAnalysisException` when a
+candidate's immediate work cannot be fully examined, while multiple successful candidates remain a
+missing-choice result. Fixed optional counts now try `Ok` and each positive amount through the
+authored maximum, without using current invariant room to discard a repairable candidate.
+Other paths still need the same distinction. The Agent Admin loop catches the parent
 `NotFullySpecifiedException` type, so it does not yet surface incomplete analysis separately.
 `ActorEngine.probeSelection` and `canExecuteTask` also catch that parent type and return `false`;
 their Boolean results cannot currently distinguish unfinished proof from an impossible action.
-Prove the `Repair?` counterexample through the raw engine path: zero and positive count can both
-complete when its immediate effect repairs the limit, so the request cannot silently select zero.
+The raw `Repair?` test now proves that zero and positive count can both complete when its immediate
+effect repairs the limit; the request therefore requires an explicit choice. The Agent menu still
+omits that positive choice, and AMAP count semantics remain separate work.
 
 ### 3. Settle selection, handoff, and Admin scheduling
 

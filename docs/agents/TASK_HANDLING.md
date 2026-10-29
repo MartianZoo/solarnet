@@ -353,10 +353,13 @@ stages survive. This is immediate feasibility, not prediction of their consequen
 - Abstract transmutations do not run that independent candidate search; source and destination
   may share a binding.
 - For concrete changes, require destination dependencies and enough physical source copies.
-  AMAP/optional also use current invariant headroom/footroom; mandatory changes defer those
+  AMAP also uses current invariant headroom/footroom; mandatory and optional changes defer those
   declared count checks so immediate effects can repair them.
 - AMAP clamps to the selected target's available count and becomes mandatory. Optional clamps
-  its upper bound but remains optional. Mandatory rejects an unavailable requested count.
+  its upper bound to physical availability but remains optional. Explicit task execution tests its
+  zero and positive candidates as complete transactions. Player EAGER waits on an unresolved
+  optional, including a capped optional that the raw engine can prove has only a zero result.
+  Mandatory rejects an unavailable requested count.
   Limits shared by both sides of a transmutation cancel; dependency survival still limits removal.
   A concrete self-transmutation has zero capacity.
 - Missing-dependency fallback to `Ok` is limited to nonmandatory pure gains that are optional

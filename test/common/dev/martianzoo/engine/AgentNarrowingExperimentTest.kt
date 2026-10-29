@@ -4,6 +4,7 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.TaskForm
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
@@ -13,6 +14,7 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlin.test.Test
 
 internal class AgentNarrowingExperimentTest {
@@ -274,7 +276,7 @@ internal class AgentNarrowingExperimentTest {
   }
 
   @Test
-  fun `BUG - raw optional task is consumed as zero despite another successful amount`() {
+  fun rawOptionalTaskRequiresAChoiceWhenZeroAndPositiveBothSucceed() {
     val unconstrainedWorld = repairWorld()
     val unconstrainedEngine = unconstrainedWorld.actorEngine(PLAYER1)
     val notice =
@@ -287,9 +289,12 @@ internal class AgentNarrowingExperimentTest {
     val world = repairWorld()
     val engine = world.actorEngine(PLAYER1)
     val task = engine.addTasks(InstructionGroup.of(parse<InstructionTree>("Repair?"))).single()
-    engine.doTask(task)
+    val before = world.events.nextOrdinal
+    shouldThrow<NotFullySpecifiedException> { engine.doTask(task) }
+        .shouldNotBeInstanceOf<IncompleteAnalysisException>()
+    world.events.nextOrdinal shouldBe before
+    world.tasks.getTaskData(task).selected shouldBe false
     Agents(world)[PLAYER1].count("Notice") shouldBe 0
-    world.tasks.isEmpty() shouldBe true
 
     val explicitWorld = repairWorld()
     val explicitEngine = explicitWorld.actorEngine(PLAYER1)
@@ -309,6 +314,20 @@ internal class AgentNarrowingExperimentTest {
     engine.doTask(task)
 
     Agents(world)[PLAYER1].count("Notice") shouldBe 0
+    world.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  fun playerAutoexecWaitsWhileExplicitOptionalExecutionCanProveZero() {
+    val world = Engine.newGame(testGamePremise("CLASS Capped { HAS MAX 0 This }"))
+    val engine = world.actorEngine(PLAYER1)
+    val task = engine.addTasks(InstructionGroup.of(parse<InstructionTree>("Capped?"))).single()
+
+    Agents(world)[PLAYER1].autoExecNow(EAGER)
+    (task in world.tasks.ids()) shouldBe true
+    engine.doTask(task)
+
+    Agents(world)[PLAYER1].count("Capped") shouldBe 0
     world.tasks.isEmpty() shouldBe true
   }
 }

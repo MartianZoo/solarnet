@@ -15,16 +15,19 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   branch. Complete shared type binding and nested THEN representation without adding a second
   continuation slot. `EACH` child admission now happens when its parent is executed on the
   experiment branch. Define the remaining structural actions permitted during selection.
-- Extend transaction-success analysis beyond fixed mandatory gains/removals and full-form
+- Extend transaction-success analysis beyond fixed mandatory/optional gains/removals and full-form
   transmutations only after measuring complete Agent calls. Resolve compact transmutations and a
   search resource limit without treating incomplete analysis as a failed transaction. Keep
   unsupported forms and unresolved immediate effects unknown. Review Admin waiting behavior,
   callback failure recovery, and custom Kotlin effects separately.
+  Measure raw optional card-discard requests: the finite proof currently tries every concrete card
+  type at each permitted positive count, including cards absent from the source location. Physical
+  availability could exclude those candidates before trial without consulting invariant room.
 - Fix Agent choice completeness before adopting automatic form reduction. The passing
   `AgentNarrowingExperimentTest` BUG case shows `Repair?` offering only `Ok` even though `Repair!`
   succeeds because `Repair:: Notice, -Repair` repairs its own MAX 0 limit. A raw engine call by task
-  ID consumes `Repair?` as zero even though both zero and one succeed; the selected contract would
-  require a choice. `Repair*` also resolves to zero under the documented current-headroom rule in
+  ID now correctly requires a choice because both zero and a positive count succeed. `Repair*`
+  still resolves to zero under the documented current-headroom rule in
   `QUANTIFIERS.md`, but its intended amount rule remains open. Canon's neutral `PartyDelegate`
   placement deliberately uses mandatory gain for this reason. Characterize affected Canon amounts
   before changing the rule. Reconcile form commit selecting/evaluating before applying a narrowing

@@ -76,7 +76,7 @@ internal class Limiter(
     }
   }
 
-  /** Physical capacity, also bounded by current count invariants for AMAP/optional quantities. */
+  /** Physical capacity, also bounded by current count invariants when requested by the caller. */
   internal fun findLimit(
       gaining: Component?,
       removing: Component?,

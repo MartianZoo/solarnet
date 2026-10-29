@@ -16,10 +16,11 @@ Preserve authored quantity meaning, including optional and AMAP zero results. Fo
 execution request, determining the sole narrowing whose transaction succeeds can require target
 feasibility and limit analysis in the engine. Automatically reducing an unanswered choice belongs
 to the agent. The current special cases below are not requirements to preserve unchanged. In
-particular, `Repair?` can resolve to zero under current headroom rules even though a positive
-gain succeeds after its immediate effect repairs the limit. The
-[transition plan](ENGINE_TRANSITION_PLAN.md) requires this case to be settled against the intended
-unique-transaction rule before general coverage is claimed. A quantity-limit read can bound
+particular, raw `Repair?` now remains a choice when both zero and a positive gain succeed after an
+immediate effect repairs the limit. Fixed optional counts use the same transaction trials as
+mandatory changes, including a single `Ok` candidate and every positive count up to the requested
+amount. Agent menus and AMAP still use current invariant room; their remaining work is tracked in
+the [transition plan](ENGINE_TRANSITION_PLAN.md). A quantity-limit read can bound
 candidates without proving their transactions succeed; temporary invariant violations repaired
 by immediate effects must not be rejected by an over-eager filter.
 
@@ -61,9 +62,9 @@ See [Pets quantifier guidance](../../pets/docs/agents/QUANTIFIERS.md#before-writ
   resolved dependency Type does not exist. This is different from an existing target having no
   invariant headroom.
 - The **limit** `m` is the concrete change's capacity under the current invariant bounds and
-  physical source count. AMAP and optional quantities use it. Mandatory quantities require physical
-  sources immediately and satisfy count bounds at operation completion. Negative capacity is
-  clamped to zero.
+  physical source count. AMAP uses it to choose its count. Mandatory and optional quantities require
+  physical sources immediately and satisfy count bounds at transaction completion. Negative
+  capacity is clamped to zero.
 - Zero-count changes retain their gained/removed Types through resolution and task matching.
   Execution emits no component changes. `Ok` remains an untyped no-op and can narrow a zero change.
 
@@ -86,9 +87,10 @@ not repair during validation. Abstract/minimum-only requirements and unrelated p
 construct anything. A correction group instead validates all applicable invariants once after its
 explicit changes, required construction, and automatic effects, with queued effects suppressed; see [EX_MACHINA.md](EX_MACHINA.md).
 
-Physical source availability and dependency integrity are checked immediately. AMAP and optional
-quantity resolution also consult invariant bounds in the current World; negative headroom or
-footroom becomes zero. These quantities cannot assume that later consequences will make room.
+Physical source availability and dependency integrity are checked immediately. AMAP quantity
+resolution also consults invariant bounds in the current World; negative headroom or footroom
+becomes zero. Optional task inference tries complete transactions, allowing an immediate effect
+to repair an intermediate count violation.
 
 Completion determines when count invariants are enforced, not when changes become observable.
 Trigger batches keep their existing snapshots, and nested effects can observe intermediate counts.
@@ -125,8 +127,8 @@ For positive requested count `n`, the destination dependency is checked before i
 | Current World | mandatory | optional | AMAP |
 | --- | --- | --- | --- |
 | Destination dependency is missing | `DependencyException` | `Ok` | `DependencyException` |
-| Dependency exists and `m = 0` | `n!`, validated at operation completion | `0?` | `0!` |
-| `0 < m < n` | `n!`, validated at operation completion | `m?` | `m!` |
+| Dependency exists and `m = 0` | `n!`, validated at operation completion | `n?`, validated by transaction trials | `0!` |
+| `0 < m < n` | `n!`, validated at operation completion | `n?`, validated by transaction trials | `m!` |
 | `m >= n` | `n!` | `n?` | `n!` |
 
 Thus concrete AMAP is strict about the identity of its target but forgiving about the target's
@@ -143,16 +145,17 @@ For a positive requested count, a removal does not require the removed Type's de
 to exist separately: if no
 matching removable component exists, its footroom is zero. A mandatory removal requires all `n`
 physical copies immediately and validates declared minimums at operation completion. Optional and
-AMAP removals use the invariant-limited footroom:
+AMAP removals use the invariant-limited footroom. Optional removals are bounded by physical source
+count first, then their candidate transactions check the minimum invariants:
 
 | Limit | mandatory | optional | AMAP |
 | --- | --- | --- | --- |
-| `m = 0` | `n!` if physically available, validated at operation completion | `0?` | `0!` |
-| `0 < m < n` | `n!` if physically available, validated at operation completion | `m?` | `m!` |
+| `m = 0` | `n!` if physically available, validated at operation completion | Up to physically available `n?` | `0!` |
+| `0 < m < n` | `n!` if physically available, validated at operation completion | Up to physically available `n?` | `m!` |
 | `m >= n` | `n!` | `n?` | `n!` |
 
-The AMAP/optional limit includes every applicable minimum invariant. A mandatory removal may cross
-that minimum only if its automatic consequences restore it by operation completion.
+The AMAP limit includes every applicable minimum invariant. A mandatory or optional removal may
+cross that minimum only if its immediate consequences restore it by transaction completion.
 
 ## Concrete transmutations
 
@@ -162,7 +165,7 @@ transfer.
 
 When the destination dependency exists, the concrete quantifier rules above apply to the pair. A
 missing destination dependency makes the pair unavailable for every quantifier; optional and AMAP
-do not convert it to `Ok`. If source footroom is zero, however, optional and AMAP retain a
+do not convert it to `Ok`. If no source copies exist, however, optional and AMAP retain a
 zero-count transmutation.
 
 Transmuting a concrete Type into itself is invalid for every quantifier, including when a trigger,

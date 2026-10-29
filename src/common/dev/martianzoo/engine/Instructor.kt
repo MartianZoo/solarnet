@@ -352,7 +352,7 @@ internal constructor(
    * Resolution iterates to a fixed point. Examples include:
    * * Replaces inert instructions with `Ok`
    * * Auto-narrows gained and removed types to the extent possible
-   * * Modifies a `?` or `*` change based on limits (upgrading `*` to `!`)
+   * * Bounds `?` by physical availability and `*` by current invariants (upgrading `*` to `!`)
    * * Validates and removes "gates"
    * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
    * * Resolves each option of an [Or]
@@ -714,7 +714,7 @@ internal constructor(
   ): Instruction {
     val gaining = gainingType?.toComponent()
     val removing = removingType?.toComponent()
-    val limit = limiter.findLimit(gaining, removing, invariants = quantifier != MANDATORY)
+    val limit = limiter.findLimit(gaining, removing, invariants = quantifier == AMAP)
     val adjusted: Int = min(count, limit)
 
     if (quantifier == MANDATORY && adjusted != count) {

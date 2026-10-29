@@ -38,6 +38,25 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
 | 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Evidence for the separate Agent choice project, not a gate for the engine API. |
 
+### Fixed optional counts now use complete transaction trials
+
+Following `9ab9c008e`, concrete optional resolution keeps its authored count up to physical source
+availability. Current invariant room no longer discards a positive amount before its immediate
+effects can run. The existing finite trial loop now tries `Ok` once and all positive counts through
+that bound over the concrete type domain. It executes no later queued work during these trials.
+
+Raw `Repair?` now requires a choice because both zero and `Repair!` succeed; the latter's immediate
+effect removes Repair and restores its MAX 0 invariant. A capped optional without that repair still
+has zero as its sole successful transaction. The engine suite, repository `test` task, and full
+`build` passed without Canon edits. This supersedes the earlier raw optional characterization below.
+The case itself remains synthetic; no Canon rule using that immediate-repair pattern was identified.
+
+Player EAGER still executes only concrete requests, so it now waits on an unresolved capped optional
+that previously resolved to zero during selection. The raw execution command can prove zero when
+explicitly requested. Agent amount menus and AMAP still use current invariant room. Optional card
+discard domains can include many absent card types; measuring and filtering those physical failures
+is tracked in `TODO.md`. No public API, stored state, or additional execution stage was introduced.
+
 ### `EACH` now expands on execution
 
 After base `661cc1eb2`, selection resolves wrappers around `EACH` but retains the parent task.
