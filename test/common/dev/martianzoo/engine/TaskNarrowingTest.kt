@@ -210,10 +210,10 @@ internal class TaskNarrowingTest {
                 }
                 """
                     .trimIndent(),
-                players = 0,
+                players = 1,
             )
         )
-    val agent = fixture.testAgent(ADMIN)
+    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.runOperation("One, Two, Red, Blue")
     val form = agent.fillInTask(agent.addTasks("Choice*").single())
 
@@ -430,10 +430,10 @@ internal class TaskNarrowingTest {
                 }
                 """
                     .trimIndent(),
-                players = 0,
+                players = 1,
             )
         )
-    val agent = fixture.testAgent(ADMIN)
+    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.runOperation("Full")
     val id = agent.addTasks("Choice*").single()
     val form = agent.fillInTask(id)

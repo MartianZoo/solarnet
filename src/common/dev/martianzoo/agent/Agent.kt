@@ -29,7 +29,9 @@ import kotlin.reflect.KClass
  * A gameplay call may make several engine calls. Mandatory Admin handling runs before and after
  * Player decisions, including nested calls, while [autoExecPolicy] controls Player work. A selected
  * task retains priority; an Admin task waiting on Player payment can remain pending. Complete
- * enumeration of legal Admin choices is not implemented.
+ * enumeration of legal Admin choices is not implemented. Admin retries unfinished analysis after
+ * other work progresses; if a pass stalls with an unfinished proof, [IncompleteAnalysisException]
+ * fails the whole call and restores its game changes.
  *
  * A returned [TaskResult] covers every retained change during that call, including Admin handling
  * and configured Player work. A [Throwable] escaping the call restores its game changes, including
@@ -96,9 +98,10 @@ public interface Agent {
   /**
    * Tries selection and, when concrete, execution of [taskId] in a disposable World. A missing or
    * rejected task yields false; an abstract selection can succeed without execution. A handoff does
-   * not attempt the receiving Actor's execution. Gameplay rejection and unresolved instructions
-   * yield false; other failures propagate. Source listeners and existing overlays remain
-   * unaffected.
+   * not attempt the receiving Actor's execution. Gameplay rejection and known missing choices yield
+   * false. [IncompleteAnalysisException] propagates when a required execution proof cannot finish,
+   * including the Admin priority check. Other failures also propagate. Source listeners and
+   * existing overlays remain unaffected.
    */
   // TODO(ENGINE_CONTRACT): investigate removing speculative probes from this API. A successful
   // selection can remain abstract and must not be called a legal fully concrete narrowing.

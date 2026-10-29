@@ -39,6 +39,28 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
 | 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Evidence for the separate Agent choice project, not a gate for the engine API. |
 
+### Admin and selection preserve incomplete analysis
+
+The increment extends distinct incomplete-analysis reporting to selection probes and Admin
+handling. Admin retries after other work progresses. A stalled pass reports unfinished proof
+before a retained gameplay rejection, so task iteration order cannot erase the incomplete result.
+Whole-call rollback removes earlier automatic work when that result escapes.
+
+Five scenarios exercise restoration, retry, Player selection/probes, and mixed failures in either
+queue order. Three synthetic manual-choice scenarios now assign the choice to a Player with policy
+`NONE`, preserving their assertions about AMAP zero-capacity targets and form decisions. Admin is
+not an actor whose policy can be disabled to obtain a manual choice.
+
+Before the raw-priority review fix, JVM verification passed 628 engine tests, 73 Agent tests,
+50 script tests, 1358 Canon/rule tests (26 existing skips), and all 23 active replays with full/short
+export and reconstruction. After that fix, all 629 engine tests and 73 Agent tests passed.
+Opus/high identified an order-dependent raw Admin-priority check: an unfinished proof could hide
+a later proven-executable Admin task. The scan now retains incomplete analysis until it has looked
+for a definite priority blocker, with both orders tested. Agent and selection KDoc now describe the
+propagated failure. Automatic Player policy begins only after Admin has completed its pass and
+limits its own attempts to concrete instructions or `EACH`; initial-operation admission deliberately
+retains choices for the operation body.
+
 ### Execution queries and try calls preserve incomplete analysis
 
 `canExecuteTask` and every Agent `tryTask` overload now propagate the existing incomplete-analysis

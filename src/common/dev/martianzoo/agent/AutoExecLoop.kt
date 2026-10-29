@@ -3,6 +3,7 @@ package dev.martianzoo.agent
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.ActorEngine
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
@@ -168,7 +169,8 @@ internal class AutoExecLoop(
   /**
    * Attempts Admin work in FIFO order, retrying waiting tasks after each success. A selected Player
    * task retains priority. Unresolved choices and explicit gates waiting on Player work can remain;
-   * a retained rejection is thrown after a pass with no progress.
+   * a retained rejection is thrown after a pass with no progress. An unfinished proof is retried
+   * after progress and takes precedence over gameplay rejection when the pass stalls.
    *
    * Complete enumeration of legal narrowings remains outside this implementation.
    */
@@ -185,6 +187,7 @@ internal class AutoExecLoop(
       waiting.addAll(pending.filterNot { it in waiting })
       if (waiting.isEmpty()) return
       var rejection: Exception? = null
+      var incomplete: IncompleteAnalysisException? = null
       var progressed = false
       repeat(waiting.size) {
         if (!progressed) {
@@ -200,6 +203,9 @@ internal class AutoExecLoop(
             progressed = true
           } catch (_: AgentInputRequiredException) {
             waiting += taskId
+          } catch (e: IncompleteAnalysisException) {
+            waiting += taskId
+            incomplete = incomplete ?: e
           } catch (e: NotFullySpecifiedException) {
             waiting += taskId
             if (!allTasks.getTaskData(taskId).instruction.isAbstract(world.reader)) rejection = e
@@ -222,6 +228,7 @@ internal class AutoExecLoop(
         }
       }
       if (!progressed) {
+        incomplete?.let { throw it }
         rejection?.let { throw it }
         return
       }

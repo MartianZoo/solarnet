@@ -258,17 +258,24 @@ internal constructor(
             !transactions.hasRetainedEvents &&
             allTasks.getTaskData(taskId).assignee != Actor.ADMIN
     ) {
+      var incomplete: IncompleteAnalysisException? = null
       val admin =
           allTasks.ids().firstOrNull {
             val task = allTasks.getTaskData(it)
             task.assignee == Actor.ADMIN &&
                 !task.deferred &&
-                canSelectTask(it, queueForAnyTask(it), requireConcrete = true)
+                try {
+                  canSelectTask(it, queueForAnyTask(it), requireConcrete = true)
+                } catch (e: IncompleteAnalysisException) {
+                  incomplete = incomplete ?: e
+                  false
+                }
           }
       if (admin != null)
           throw TaskException(
               "Admin task $admin (${allTasks.getTaskData(admin).instruction}) must finish before Player selection"
           )
+      incomplete?.let { throw it }
     }
   }
 
@@ -441,8 +448,9 @@ internal constructor(
    * Checks whether this task can be selected against the current world, restoring attempted changes
    * before returning. A concrete selection also attempts execution if it stays with its current
    * Actor; a handoff or abstract selection can return true without executing. This does not handle
-   * later queued tasks. Gameplay rejection or an unresolved instruction returns false; other
-   * failures propagate after restoration.
+   * later queued tasks. Gameplay rejection or a known missing choice returns false.
+   * [IncompleteAnalysisException] propagates when a required execution proof cannot finish,
+   * including the Admin priority check. Other failures also propagate after restoration.
    *
    * This is not a count of legal concrete narrowings. The attempt uses a disposable World; source
    * listeners, callbacks, and application checks do not observe trial events.
@@ -481,6 +489,8 @@ internal constructor(
         true
       } catch (_: GameplayException) {
         false
+      } catch (e: IncompleteAnalysisException) {
+        throw e
       } catch (_: NotFullySpecifiedException) {
         false
       }
@@ -523,7 +533,9 @@ internal constructor(
    * may fail independently of this selection.
    *
    * Rejects deferred work, a different selected task, and Player selection while the existing probe
-   * finds an executable ordinary Admin task. A failed transaction restores its changes.
+   * finds an executable ordinary Admin task. If no Admin task is proven executable but an Admin
+   * proof remains unfinished, [IncompleteAnalysisException] propagates. A failed transaction
+   * restores its changes.
    */
   public fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)

@@ -210,17 +210,19 @@ authored maximum, without using current invariant room to discard a repairable c
 `OR` alternatives composed of those finite changes now use the same trial loop. Repeated concrete
 requests across arms count once. Unsupported alternatives retain incomplete analysis unless two
 successful concrete requests already prove ambiguity; groups and broader nested forms remain open.
-Other paths still need the same distinction. The Agent Admin loop catches the parent
-`NotFullySpecifiedException` type, so it does not yet surface incomplete analysis separately.
-`ActorEngine.probeSelection` still catches that parent type and returns `false`; its Boolean
-result cannot currently distinguish unfinished proof from an impossible action.
+Selection probes now propagate incomplete analysis, including when checking whether Admin work
+has priority over a Player request. A proven-executable Admin task establishes priority regardless
+of other unfinished proofs; if none is proven executable, incomplete analysis propagates.
+Admin retains incomplete analysis while trying other work,
+retries after progress, and reports the unfinished proof when its pass stalls.
 `canExecuteTask` and Agent's three `tryTask` overloads now propagate incomplete analysis separately,
 while known missing choices retain their false/unchanged result.
-Initialization retains an unfinished proof while trying later executable tasks, retries after
-progress, and propagates the incomplete result if no task can progress. The automatic Player
-policy catches and initial-operation admission also still catch the parent type; review those
-according to their purpose rather than treating them as explicit execution requests. Initial
-operation admission intentionally leaves abstract Player work for the operation body to narrow.
+Initialization likewise retains an unfinished proof while trying later executable tasks, retries
+after progress, and propagates the incomplete result if no task can progress. The remaining
+automatic Player policy runs only after Admin has finished its pass, so stalled Admin analysis
+propagates before that policy's recoverable-failure catches. Its own execution attempts are limited
+to concrete instructions or `EACH` by `canExecuteWithoutChoice`. Initial-operation admission intentionally
+leaves abstract Player work for the operation body to narrow; it does not promise completed execution.
 The raw `Repair?` test now proves that zero and positive count can both complete when its immediate
 effect repairs the limit; the request therefore requires an explicit choice. The Agent menu now
 offers and submits that positive choice. AMAP count semantics remain separate work.

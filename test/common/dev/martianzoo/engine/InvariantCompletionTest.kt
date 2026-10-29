@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
@@ -190,21 +191,21 @@ internal class InvariantCompletionTest {
   }
 
   private fun checkZeroCapacityChoice(quantifier: String) {
-    val admin =
-        world(
+    val premise =
+        testGamePremise(
                 """
                 CLASS Holder { HAS MAX 1 This }
                 ABSTRACT CLASS Token
                 CLASS Capped<Holder> : Token { HAS MAX 0 This }
                 CLASS Available<Holder> : Token
-                """,
-                "Holder",
+                """
             )
-            .testAgent(ADMIN)
+            .withTestSetup("Holder")
+    val player = Engine.newGame(premise).testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
-    admin.runOperation("Token$quantifier") { doTask("Capped$quantifier") }
+    player.runOperation("Token$quantifier") { doTask("Capped$quantifier") }
 
-    admin.count("Token") shouldBe 0
+    player.count("Token") shouldBe 0
   }
 
   @Test

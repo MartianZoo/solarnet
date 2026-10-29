@@ -458,7 +458,7 @@ Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 | --- | --- |
 | `doTask` with an explicit group | Execute the supplied members after structural selection; admission identifies normalized dispatches so their bodies and continuations remain pending too. Do not sweep newly queued reactions or continuations. |
 | Combined scalar totals | Agent only: a submitted total can consume matching current fixed gains/removals, including amounts calculated with `/`. Gains execute first, each through its own task ID. No subset search; newly queued effects do not join the total. Selected tasks and explicit IDs remain individual requests. See `Agent.doTask` for the full contract. |
-| `canSelectTask` | Trial selection, including execution if concrete and still with the original Actor, in a disposable World through transaction completion and deferred promotion. An abstract selection or handoff can return true. Gameplay rejection and unresolved instructions become false; other failures propagate. |
+| `canSelectTask` | Trial selection, including execution if concrete and still with the original Actor, in a disposable World through transaction completion and deferred promotion. An abstract selection or handoff can return true. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
 | `canExecuteTask` | Trial execution in a disposable World through transaction completion and deferred promotion; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
 | Agent `tryTask` | Call engine `doTask` within an atomic block; restore when choices/unavailability prevent completion, or a selection remains as specified by the overload. Other failures restore and propagate. This includes unavailable outer `PER` evaluation. Incomplete analysis propagates distinctly from a known missing choice. No engine try-policy method remains. |
 | `restoreTask` | Replace an existing task's data and normalize it. Current code can alter instruction, assignee, and selection without ordinary selection checks; it does not recreate a removed task. |
@@ -481,8 +481,9 @@ These explain behavior seen through agent calls; they are not additional engine 
   until committed.
 - AutoExecLoop respects selected-task priority and runs mandatory Admin handling before optional
   Player policies. It retries waiting Admin tasks after progress and throws a retained rejection
-  after an unsuccessful pass, subject to the existing waiting exceptions. The existing probe remains an
-  approximation; [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries)
+  after an unsuccessful pass, subject to the existing waiting exceptions. Incomplete analysis is
+  retried after progress and reported before a retained gameplay rejection when the pass stalls.
+  The existing probe remains an approximation; [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries)
   records the intended priority and open stalled-pass rule, while
   [the results](ENGINE_TRANSITION_RESULTS.md) record the finite choice-analysis coverage.
 - WorldTransaction runs finishing work and validation for outermost calls inside the same restoring
@@ -578,7 +579,7 @@ separate module; public visibility alone does not make a low-level method the cl
 | `narrowTask` for selected or identified task | Agent partial choices and form commit; engine also uses narrowing during explicit execution. Persistent partial choices remain an owner decision. |
 | `prepareTaskNarrowing` | Agent form preparation and input recording. Read-only instruction compatibility, not a proof of transaction success. |
 | `changeLimit` | Agent form amount options. Retain the quantity read; it bounds candidates without proving success. |
-| `canSelectTask`, `canExecuteTask` | Agent queries and existing policy; selection probe also enforces engine Admin priority. Execution queries propagate incomplete analysis; selection probes still conflate it with a negative result. |
+| `canSelectTask`, `canExecuteTask` | Agent queries and existing policy; selection probe also enforces engine Admin priority. Both propagate incomplete analysis rather than treating unfinished proof as a negative result. |
 | `transact` | Agent groups a client call, automatic work, and application checks. Request and automatic work share the restoring block; the unused completion hook is removed. |
 | `transaction` | AutoExecLoop supplies automatic-execution motivation. Retain until transaction attribution can be expressed without a separate public wrapper. |
 | `addTasks`, `dropTask` | Agent operation seeding and explicit queue edits. Ordinary task execution does not need either; correction/selection rules remain open. |
