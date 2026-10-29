@@ -371,6 +371,28 @@ removing the old discrepancy. Existing try inputs still reconstruct through Agen
 `NotFullySpecifiedException` catch is retained carryover: exposing incomplete analysis distinctly
 through try calls, probes, and Admin scheduling remains tracked in the transition plan.
 
+## Fixed-state transaction measurements
+
+`TransactionInferenceBenchmark` compares raw `ActorEngine.doTask` with the complete Agent call,
+with Player policy `NONE`. JMH 1.37 on JDK 26.0.1 used two forks, two one-second warmup iterations,
+and three one-second measured iterations per fork. Setup and restoration are outside the measured
+call. Each invocation verifies its result and restores the same starting state.
+
+| Scenario | Selected candidates | Expected trials | Raw ms/call | Agent ms/call |
+| --- | ---: | ---: | ---: | ---: |
+| Synthetic gain: 63 immediate-effect failures, one success | 64 | 64 | 1.721 ± 0.050 | 1.789 ± 0.052 |
+| Optional removal, only Acquired Company present | 2 | 2 | 0.081 ± 0.002 | 0.080 ± 0.005 |
+| Optional removal, Zeppelins and Worms present | 220 | 146 | 1.855 ± 0.047 | 1.950 ± 0.021 |
+
+Errors are JMH's reported 99.9% intervals. Trial counts are derived from the current candidate loop
+and fixed states, not runtime counters. The optional cases stop when zero and a positive removal
+both succeed; neither measures a full sweep of the card domain. The sole-card case first benefits
+from the existing present-component deduction. The broader card case remains abstract, and its
+first successful card's position depends on catalog order. These results justify no universal
+latency claim, search cap, or clock cutoff. Full output and the reproducible command are in
+`_local/engine-transition-evidence/transaction-inference-jmh.log`; summarized output is beside it
+in `transaction-inference-jmh.txt`. Opus reviewed the benchmark and confirmed these limitations.
+
 ## Integration of main and the work1 documentation commit
 
 At the user's request, work1 first fast-forwarded to main `4974858d2`, then committed the original

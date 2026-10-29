@@ -20,9 +20,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   search resource limit without treating incomplete analysis as a failed transaction. Keep
   unsupported forms and unresolved immediate effects unknown. Review Admin waiting behavior,
   callback failure recovery, and custom Kotlin effects separately.
-  Measure raw optional card-discard requests: the finite proof currently tries every concrete card
-  type at each permitted positive count, including cards absent from the source location. Physical
-  availability could exclude those candidates before trial without consulting invariant room.
+  The fixed optional card-removal benchmark measures 220 candidates and an expected 146 trials
+  before ambiguity, about 1.95 ms through Agent on the measured machine. Larger counts and domains
+  remain unmeasured. If those become costly, physical availability could exclude absent sources
+  before trial without consulting invariant room; no optimization or search cap is justified yet.
 - Remove solo setup's remaining caller-supplied Admin tile placements to meet the no-Admin-input
   goal. `AbstractSoloTest`, `TfmGameplayTest`, and `TfmSandboxTest` still submit two neutral cities
   and their adjacent greeneries. The proposed replacement is four locations supplied once by

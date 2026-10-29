@@ -200,6 +200,9 @@ deterministic proof result for cases the engine cannot finish. Measure candidate
 and complete call latency on fixed states; do not invent an unbounded integer list. Do not execute
 newly queued Admin tasks during this proof. Direct mandatory `: Die` may reject at admission;
 later Admin failure belongs to a later transaction.
+The [fixed-state measurements](ENGINE_TRANSITION_RESULTS.md#fixed-state-transaction-measurements)
+compare raw and Agent calls with candidate counts and derived trial counts; they do not establish
+a worst-case cost or justify a search cap.
 The finite mandatory/optional-change trial now reports `IncompleteAnalysisException` when a
 candidate's immediate work cannot be fully examined, while multiple successful candidates remain a
 missing-choice result. Fixed optional counts now try `Ok` and each positive amount through the
