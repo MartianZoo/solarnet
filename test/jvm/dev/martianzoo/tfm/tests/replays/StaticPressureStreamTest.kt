@@ -898,8 +898,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     }
     nor.turn {
       playProject(GhgProducingBacteria, 7) {
-        doTask("ProjectCard FROM Science")
         nor.draw(MoholeLake)
+        doTask("ProjectCard FROM Science")
       }
       playProject(MoholeLake, 30)
     }

@@ -172,7 +172,8 @@ internal class AutoExecLoop(
    * Attempts Admin work in FIFO order, retrying waiting tasks after each success. A selected Player
    * task retains priority. Unresolved choices and explicit gates waiting on Player work can remain;
    * a retained rejection is thrown after a pass with no progress. An unfinished proof is retried
-   * after progress and takes precedence over gameplay rejection when the pass stalls.
+   * after progress and takes precedence over gameplay rejection when the pass stalls. Missing
+   * application input is also retried after progress and reported before returning to Player work.
    *
    * Complete enumeration of legal narrowings remains outside this implementation.
    */
@@ -190,6 +191,7 @@ internal class AutoExecLoop(
       if (waiting.isEmpty()) return
       var rejection: Exception? = null
       var incomplete: IncompleteAnalysisException? = null
+      var inputRequired: AgentInputRequiredException? = null
       var progressed = false
       repeat(waiting.size) {
         if (!progressed) {
@@ -203,8 +205,9 @@ internal class AutoExecLoop(
               validateApplication()
             }
             progressed = true
-          } catch (_: AgentInputRequiredException) {
+          } catch (e: AgentInputRequiredException) {
             waiting += taskId
+            inputRequired = inputRequired ?: e
           } catch (e: IncompleteAnalysisException) {
             waiting += taskId
             incomplete = incomplete ?: e
@@ -230,6 +233,7 @@ internal class AutoExecLoop(
         }
       }
       if (!progressed) {
+        inputRequired?.let { throw it }
         incomplete?.let { throw it }
         rejection?.let { throw it }
         return

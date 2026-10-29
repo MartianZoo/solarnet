@@ -483,6 +483,9 @@ These explain behavior seen through agent calls; they are not additional engine 
   Player policies. It retries waiting Admin tasks after progress and throws a retained rejection
   after an unsuccessful pass, subject to the existing waiting exceptions. Incomplete analysis is
   retried after progress and reported before a retained gameplay rejection when the pass stalls.
+  Missing application input is likewise retried, then reported first on a stalled pass. Optional
+  Player policy still leaves its own input-dependent work pending; that carryover is separate from
+  mandatory Admin reporting.
   The existing probe remains an approximation; [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries)
   records the intended priority and open stalled-pass rule, while
   [the results](ENGINE_TRANSITION_RESULTS.md) record the finite choice-analysis coverage.
@@ -567,14 +570,13 @@ See ENGINE_TRANSITION_RESULTS.md for the measured scope and remaining forms.
 
 ## Public ActorEngine surface audit
 
-This is the current usage inventory, not approval of every operation as the finished API. Ordinary
-gameplay clients use Agent. Kotlin visibility remains public where Agent needs access from its
+This is the retained surface for the selected Agent call. Ordinary gameplay clients use Agent. Kotlin visibility remains public where Agent needs access from its
 separate module; public visibility alone does not make a low-level method the client-facing call.
 
 | Surface | Current required caller and disposition |
 | --- | --- |
 | `actor`, `reader`, `tasks` | Agent attribution, queries, forms, and automatic execution. Retain shared read views. |
-| `doTask` by ID or instruction | Agent requests, Admin/Player automatic execution, initialization, and transaction trials. Core execution; matching and structural semantics remain under review. |
+| `doTask` by ID or instruction | Agent requests, Admin/Player automatic execution, initialization, and transaction trials. Core execution with the approved matching and structural rules. Unsupported inference remains explicit. |
 | `selectTask` by ID or instruction | Agent selections and automatic execution. Selected groups and dispatches retain their parent until execution; partial choices remain in engine. |
 | `narrowTask` for selected or identified task | Agent partial choices and form commit; engine also uses narrowing during explicit execution. The owner selected retaining partial choices in engine. |
 | `prepareTaskNarrowing` | Agent form preparation and input recording. Read-only instruction compatibility, not a proof of transaction success. |

@@ -6,8 +6,8 @@ local evidence files remain in `/Users/dev/solarnet/engine-transition-experiment
 
 The initial retained experiments were committed through `8ceb7706b`; `main` at `f1055a08b`
 was subsequently merged into `codex/engine-transition-experiments` as `6c4686b61` on
-October 28, 2026. Subsequent increments are recorded below. The selected engine API destination
-is still incomplete. The experiment branch
+October 28, 2026. Subsequent increments and final acceptance evidence are recorded below. The selected transition
+is implemented within its documented finite domain; general inference remains incomplete. The experiment branch
 has not been merged into main. The branch began at
 `c14c000b23f143f0f672ba2b94ae21966ff245d7`, in
 `/Users/dev/solarnet/engine-transition-experiments`. The initial work1 design documents were copied
@@ -16,8 +16,8 @@ work1; that documentation commit is `2b3ad9c8a`, based on main `4974858d2`. The 
 fixes belong to the experiment checkout; work1's commit contains documentation only.
 
 [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the destination;
-[ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) owns the remaining implementation order and
-the owner decisions that gate it. General Player choice search in
+[ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) records the implementation checklist,
+settled owner decisions, and scope limits. General Player choice search in
 [DECISION_GRAPH.md](DECISION_GRAPH.md) is outside this engine API miniproject.
 Evidence is in the experimental checkout's `_local/engine-transition-evidence/`. The original
 report is preserved there as
@@ -26,7 +26,7 @@ Two earlier Opus/high discussions are preserved in that evidence directory's `cl
 This follow-up implements the agreed
 order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6.
 
-## Current disposition
+## Disposition after the initial experiments
 
 | Experiment | Current branch | Merge assessment |
 | --- | --- | --- |
@@ -783,3 +783,58 @@ then passed Agent/state suites and formatting checks. No assertion was weakened.
 
 The same final review identified a remaining Admin missing-input reporting gap. The implementation
 checklist marks it open; do not interpret the passing build as completion of that requirement.
+
+## Final Admin input reporting and Canon waiting audit
+
+The final Opus acceptance audit found that a completely stalled Admin pass swallowed missing
+application input. `runAdmin` now remembers the first `AgentInputRequiredException`, retries after
+other Admin progress, and reports it if the pass stalls, before Player work. A Player request and
+earlier successful Admin transactions are restored together when that error escapes. No new error
+class, processing phase, or policy API was introduced.
+
+`AdminInputTest` verifies a stalled pass with and without eager Player work, retry after the client
+supplies input, retry after another Admin task makes progress, and restoration after a Player
+request. The last scenario reproduced silent success before the fix. Raw setup in two new tests
+initially lacked explicit quantifiers; those test setup errors were corrected before verification.
+
+The named Canon waiting cases already have concrete scenarios:
+
+- `CoreRulesTest.Eight plants place greenery and raise oxygen and terraform rating` starts plant
+  conversion under manual Player policy, rejects greenery placement before payment, accepts the
+  eight-plant payment, then places greenery and raises oxygen/TR. The pending Admin machinery must
+  allow the Player's payment and then resume; it must not pre-execute placement or reject the
+  payment merely because Admin work remains.
+- `GameFlowTest.researchMakesEveryPlayerQueueAvailableTogether` lets Player 2 draw/discard, then
+  Player 1 draw/discard, before either finishes buying. `PaymentScope` has a shared maximum of one,
+  so Player 1's scope waits while Player 2 pays for two cards; Player 1 then pays for a card. This
+  exercises the existing temporary-capacity wait and retry after progress, with no client Admin
+  driver call. Both final hand sizes are asserted.
+
+These are gameplay waits that a Player action can resolve. They are distinct from an application
+input exception that Admin must report. Both Canon scenarios, all Agent tests, and CardTracking
+passed with the missing-input fix. This establishes the named cases, not every possible Admin wait.
+
+Opus/high found no blocker in the Admin fix. Its claim that no replay supplied card names mid-operation
+was disproved by the complete build: `StaticPressureStreamTest` supplied MoholeLake after requesting
+its draw. The existing name input now precedes `doTask("ProjectCard FROM Science")`; no card identity
+or game assertion changed. The focused replay passed with full/short reconstruction. The research
+scenario also now explicitly rejects Player 1's payment before Player 2 frees the shared capacity;
+that strengthened scenario passed. Optional Player policy still leaves its own input-dependent work
+pending, as existing carryover; the new reporting requirement applies to Admin.
+
+
+## Final acceptance — October 29
+
+The approved transition checklist is complete within the documented finite proof domain.
+`./gradlew spotlessApply build -PreplayExports` passed in 3m37s on the final runtime and replay code.
+Verification includes 86 Agent tests, 31 state tests, 633 engine tests, 50 script tests, 1358
+Canon/rule cases (26 existing skips), all 23 active full/short replay exports/reconstructions, and
+both Web browser tests. The earlier final-build attempt failed on the now-corrected card-input
+ordering; this passing invocation supersedes it. No gameplay assertion was weakened or test skipped
+to obtain the result. Opus/high reviewed each significant increment and the final fixes; no code
+blocker remained. Final review criteria were applied to the complete diff.
+
+The completed transition does not claim general inference or general action-completion search.
+Unsupported proof forms still return distinct incomplete analysis. Player-policy redesign,
+engine-installed policies, operation-lifecycle replacement, broader waiting-case classification,
+and correction-time recalculation remain documented future work. No merge or push is implied.

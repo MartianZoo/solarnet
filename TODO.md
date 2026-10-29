@@ -132,20 +132,13 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   distinguish a fully specified instruction becoming invalid from an unresolved choice.
   Cover AMAP target selection leaving the task open until its amount is evaluated, and
   evaluation followed by further narrowing. This TODO records the migration, not its completion.
-- Investigate the selected destination in [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md)
-  using the [transition plan](docs/agents/ENGINE_TRANSITION_PLAN.md).
-  The branch covers finite mandatory/optional changes and their `OR` alternatives,
-  including Admin uniqueness; this is not general coverage. Finish read-only task matching,
-  deterministic incomplete-analysis reporting, structural selection and Admin handoff, and the
-  client-facing call shape. Different continuations are not interchangeable; the owner selected ignoring IDs and originating
-  causes for otherwise identical tasks. The owner retained calculated matching when unique; distinct matching
-  permissions require an explicit task ID. Review Admin
-  waiting cases against the selected rule that Admin exhausts currently possible work before the
-  Player sees the state; a pending Admin task alone does not block Player selection. Also review
-  other Canon waiting work. Solo neutral setup now uses premise-local declarations. Do not derive
-  engine requirements from the removed Turmoil event-draw
-  workaround. Whole-action
-  exploration is separate Agent work.
+- Extend transaction inference beyond the finite mandatory/optional changes, OR alternatives, and
+  full-form transmutation pairs implemented by the [transition record](docs/agents/ENGINE_TRANSITION_PLAN.md).
+  Preserve distinct incomplete-analysis results for unsupported groups, AMAP, unbound numeric X,
+  and broader nested forms; no wall-clock cutoff. Broader Admin waiting-case classification and
+  general Player completion search remain separate work. The approved matching, selection, Agent
+  call, rollback, correction, premise-owned Turmoil/solo, and replay changes are implemented; do not
+  repeat them as future work.
 - Design engine-installed autoexec policies for selected tasks assigned to an Actor, configured
   by that Actor's agent. Use Arctic Algae collection without waiting for the receiving agent as
   the acceptance example. Resolve matching, lifetime, selection and priority, failure, transaction,
@@ -209,11 +202,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Engine contract investigations
 
-Follow [ENGINE_TRANSITION_PLAN.md](docs/agents/ENGINE_TRANSITION_PLAN.md) for the remaining branch
-work and acceptance cases. [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md) owns the selected
-destination: task matching before transaction trials; unique successful narrowing within the
-requested transaction; no later Admin execution in that proof; and a client-facing call that gives
-Admin and other attached Actors their automatic turns before returning. Player selection does not
-itself execute as Player. This is intended behavior, not a completed migration. Combined totals,
-submitted-group execution, and explicit numeric THEN binding are already committed on the branch;
-do not repeat them as future work. Whole-action exploration is a separate Agent project.
+[ENGINE_TRANSITION_PLAN.md](docs/agents/ENGINE_TRANSITION_PLAN.md) records the completed selected
+transition and its evidence. [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md) owns the destination.
+Finite uniqueness proof is implemented; unsupported forms report incomplete analysis. General
+Player exploration, installed-policy design, replacement of operation lifecycle conventions, and
+correction-time recalculation remain outside this increment.

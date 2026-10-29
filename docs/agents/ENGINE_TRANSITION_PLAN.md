@@ -1,8 +1,7 @@
 # Engine API transition plan
 
-> **Working plan — October 28, 2026.** This plans remaining work on
-> `codex/engine-transition-experiments`, not new initial experiments. The owner must settle the
-> marked decisions before an implementer treats a proposal as a requirement.
+> **Implementation record — October 29, 2026.** This records the selected transition on
+> `codex/engine-transition-experiments`, its settled owner decisions, and explicit remaining limits.
 > [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns intended semantics;
 > [ENGINE_TRANSITION_RESULTS.md](ENGINE_TRANSITION_RESULTS.md) records branch evidence;
 > [TASK_HANDLING.md](TASK_HANDLING.md) inventories paths in the checkout being read. Verify the
@@ -50,7 +49,7 @@ claim a general proof for unsupported instruction forms.
 - [x] Preserve partial choices and selected group/EACH/dispatch parents until execution. Preserve
   intentional admission-time normalization. `SelectionOnlyExperimentTest`, `TaskNarrowingTest`,
   Canon World Government Advisor/setup cases, and selected-group export/replay cover these paths.
-- [ ] Finish mandatory Admin reporting around the selected Agent client call, with Admin before optional Player work,
+- [x] Use the selected Agent client call, with mandatory Admin reporting before optional Player work,
   whole-call results, and whole-call restoration on later failure. `AgentCallCharacterizationTest`,
   the transaction suites, and Canon waiting-work cases cover the retained behavior. The invoked
   Agent's owning `Agents` session supplies Player policies and application validation; independent
@@ -72,14 +71,14 @@ outside the documented finite proof domain, replacement of the existing Agent op
 and correction-time recalculation. These are not silently implemented by a new fallback. Existing
 Player policy and operation behavior is carried over; unsupported proof requests remain explicit.
 
-## Verified starting point
+## Historical starting point
 
 The branch checkpoint is merge commit `6c4686b61`, which incorporates `main` at `f1055a08b`;
 work1 was fast-forwarded to that same main commit. The experiment branch has not been merged
 back into main. Refresh these refs before work.
-Transaction recording and checkpoints already existed in `main` before this branch split; do not
-list or reimplement them as transition work. The following changes are **already committed on the
-experimental branch**. Their limits remain work; the completed portions are not tasks.
+Transaction recording and checkpoints already existed in `main` before this branch split.
+The following is the starting inventory; the current checklist above supersedes its remaining-work
+column. Do not repeat completed increments as future work.
 The merged branch passed a full `./gradlew build`, including the curated replays and web browser
 checks. This plan does not authorize any further merge.
 

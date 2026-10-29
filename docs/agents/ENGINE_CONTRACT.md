@@ -350,10 +350,10 @@ quiescence. Each automatic command executes as a separate engine transaction. Th
 method need not be public to ordinary clients. The owner selected Agent for the final public call;
 engine methods needed across the module split remain public to Agent.
 
-Current `Agents` is a session that supplies an Agent for each Actor; independent sessions can share
-a World while holding different application checks. “Attached” needs an exact rule for which
-session's Agents and callbacks a call uses. It must not mean that every independent session over
-the same World is implicitly invoked.
+The selected Agent call uses its owning `Agents` session: that session supplies the Actor Agents,
+Player policies, and application checks. Independent sessions can share a World without sharing
+those settings; a call does not implicitly invoke the other sessions. Nested calls share the
+World's restoring scope, with outermost-only finishing callbacks as specified by the operation API.
 
 Agents own which automatic behaviors they provide. **Design hypothesis to validate:** an Agent
 could provide any number of small autoexecutors; the public call coordinates their invocation.
@@ -570,7 +570,12 @@ Still to decide, separately from the recovery scope above:
 - Can a later failure require undoing an earlier call that already returned successfully?
   The AI Central example does not establish that need.
 
-## Current implementation status
+## Earlier implementation snapshot
+
+The current implementation checklist and final evidence are in
+[the transition record](ENGINE_TRANSITION_PLAN.md#implementation-checklist--october-29) and
+[the results](ENGINE_TRANSITION_RESULTS.md). The snapshot below predates the completed increments;
+it is retained as historical context, not remaining work.
 
 Snapshot: `codex/engine-transition-experiments` at `6c4686b61`, after merging `main` at
 `f1055a08b` on October 28, 2026. The experiment branch remains separate from `main`.

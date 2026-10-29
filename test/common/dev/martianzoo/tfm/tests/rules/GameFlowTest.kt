@@ -287,6 +287,8 @@ internal class GameFlowTest {
     agents[PLAYER2].doTask("-2 ProjectCard<Selecting>")
     agents[PLAYER1].doTask("4 ProjectCard<Selecting>")
     agents[PLAYER1].doTask("-3 ProjectCard<Selecting>")
+    // The shared payment capacity still belongs to Player 2; Player 1's choices remain usable.
+    shouldThrow<TaskException> { agents[PLAYER1].doTask("3 Pay<> FROM MC") }
     agents[PLAYER2].doTasks("6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
     agents[PLAYER1].doTasks("3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
 
