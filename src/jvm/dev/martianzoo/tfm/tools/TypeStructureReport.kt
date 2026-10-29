@@ -36,7 +36,7 @@ private object TypeStructureReport {
   fun createGame(): World {
     val colonyCount = if (PLAYERS == 1) 4 else if (PLAYERS == 2) 5 else PLAYERS + 2
     val colonies = Canon.colonyTileClassNames.sorted().take(colonyCount).toSet()
-    return TfmEngine.newGame(
+    val premise =
         Canon.gamePremise(
             GameConfig.create(
                 included = selectedOptions + colonies,
@@ -44,7 +44,8 @@ private object TypeStructureReport {
                 playerNames = (1..PLAYERS).map { cn("Player$it") },
             )
         )
-    )
+    val deck = TfmEngine.globalEventDeck(premise).shuffled(kotlin.random.Random(0))
+    return TfmEngine.newGame(premise.copy(drawOrder = deck))
   }
 
   @Suppress("CyclomaticComplexMethod") // The branches compute independent report statistics.

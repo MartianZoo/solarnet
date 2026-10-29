@@ -15,6 +15,22 @@ import kotlin.test.Test
 // _local/replays/Game20260911/end-page-p662f1cec186f.html
 // http://newazure.local:8080/the-end?id=p662f1cec186f
 internal class MassiveGammaZoneTest : AbstractSoloTest() {
+  override val firstGlobalEvents =
+      listOf(
+          "ScienceSummit",
+          "AiResearch",
+          "RedResistance",
+          "LocalTerraformingSupport",
+          "MinimalImpactPolicy",
+          "DemocraticReform",
+          "MoholeLakeGlobalEvent",
+          "TerraformingLobbying",
+          "ThawMining",
+          "PateraBoring",
+          "ExperimentalLifeforms",
+          "CorporateAlliance",
+          "HeatFirstPolicy",
+      )
   override val config =
       GameConfig(
           """
@@ -31,8 +47,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Tharsis_3_3" to "Tharsis_5_9"
 
   override fun resolveExpansionSetupTasks() {
-    admin.doTask("ScienceSummit").expect("PartyLeader<Scientists, Neutral>")
-    admin.doTask("AiResearch").expect("PartyFollower<Scientists, Neutral>")
+    admin.count("Coming<ScienceSummit>") shouldBe 1
+    (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
+    admin.count("Distant<AiResearch>") shouldBe 1
+    (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
   }
 
   @Test
@@ -80,9 +98,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyLeader<Greens> FROM LobbyDelegate")
       }
-      pass()
+      pass().expect("RedResistance, Distant<RedResistance>, PartyLeader<Reds, Neutral>")
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-      admin.doTask("RedResistance").expect("PartyLeader<Reds, Neutral>")
+      admin.count("Distant<RedResistance>") shouldBe 1
     }
   }
 
@@ -100,8 +118,12 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyFollower<Reds> FROM LobbyDelegate")
       }
       pass()
+          .expect(
+              "LocalTerraformingSupport, Distant<LocalTerraformingSupport>, PartyFollower<MarsFirst, Neutral>"
+          )
       admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
-      admin.doTask("LocalTerraformingSupport").expect("PartyFollower<MarsFirst, Neutral>")
+      admin.count("Distant<LocalTerraformingSupport>") shouldBe 1
+      (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -124,9 +146,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyFollower<Unity> FROM LobbyDelegate")
       }
-      pass()
+      pass().expect("MinimalImpactPolicy, Distant<MinimalImpactPolicy>, PartyLeader<Reds, Neutral>")
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
-      admin.doTask("MinimalImpactPolicy").expect("PartyLeader<Reds, Neutral>")
+      admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
+      (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -144,8 +167,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       cardAction1(AppliedScience) { addCardResources(BoardOfDirectors) }
       pass(unused = UndergroundDetonations)
+          .expect("DemocraticReform, Distant<DemocraticReform>, PartyFollower<MarsFirst, Neutral>")
       (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
-      admin.doTask("DemocraticReform").expect("PartyFollower<MarsFirst, Neutral>")
+      admin.count("Distant<DemocraticReform>") shouldBe 1
+      (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -183,8 +208,12 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(PoliticalAlliance, 4)
       playProject(BribedCommittee, 7)
       pass(unused = UndergroundDetonations)
+          .expect(
+              "MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyLeader<Kelvinists, Neutral>"
+          )
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
-      admin.doTask("MoholeLakeGlobalEvent").expect("PartyLeader<Kelvinists, Neutral>")
+      admin.count("Distant<MoholeLakeGlobalEvent>") shouldBe 1
+      (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -213,9 +242,13 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       val resourceChoices = game.tasks.extract { it }.filterNot { it.deferred }
       doTask("Titanium", resourceChoices[0].id)
       doTask("Heat", resourceChoices[1].id)
+          .expect(
+              "TerraformingLobbying, Distant<TerraformingLobbying>, PartyFollower<Kelvinists, Neutral>"
+          )
       admin.autoExecNow()
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.doTask("TerraformingLobbying").expect("PartyFollower<Kelvinists, Neutral>")
+      admin.count("Distant<TerraformingLobbying>") shouldBe 1
+      (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -265,9 +298,11 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       pass(unused = AppliedScience)
       doTask("OceanTile<Tharsis_1_5> BY Admin")
+          .expect("ThawMining, Distant<ThawMining>, 2 PartyFollower<Kelvinists, Neutral>")
       admin.autoExecNow()
       (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
-      admin.doTask("ThawMining").expect("PartyFollower<Kelvinists, Neutral>")
+      admin.count("Distant<ThawMining>") shouldBe 1
+      (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -313,8 +348,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         placeTile(8, 6)
       }
       pass(unused = UndergroundDetonations)
+          .expect("PateraBoring, Distant<PateraBoring>, PartyLeader<Scientists, Neutral>")
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
-      admin.doTask("PateraBoring").expect("PartyLeader<Scientists, Neutral>")
+      admin.count("Distant<PateraBoring>") shouldBe 1
+      (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
       admin.autoExecNow()
     }
   }
@@ -349,8 +386,12 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyLeader<MarsFirst>")
       }
       pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
+          .expect(
+              "ExperimentalLifeforms, Distant<ExperimentalLifeforms>, PartyLeader<Greens, Neutral>"
+          )
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-      admin.doTask("ExperimentalLifeforms").expect("PartyLeader<Greens, Neutral>")
+      admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
+      (admin.count("PartyLeader<Greens, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -405,8 +446,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdProject("AsteroidProject") { placeTile(9, 9) }
       playProject(ImportedNitrogen, mc = 3, titanium = 3)
       pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
+          .expect("CorporateAlliance, Distant<CorporateAlliance>, PartyLeader<Unity, Neutral>")
       (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
-      admin.doTask("CorporateAlliance").expect("PartyLeader<Unity, Neutral>")
+      admin.count("Distant<CorporateAlliance>") shouldBe 1
+      (admin.count("PartyLeader<Unity, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -457,8 +500,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       stdProject("CityProject") { doTask("NormalCityTile<Tharsis_3_4>") }
       pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
+          .expect("HeatFirstPolicy, Distant<HeatFirstPolicy>, PartyLeader<Kelvinists, Neutral>")
       (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
-      admin.doTask("HeatFirstPolicy").expect("PartyLeader<Kelvinists, Neutral>")
+      admin.count("Distant<HeatFirstPolicy>") shouldBe 1
+      (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 

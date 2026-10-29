@@ -365,21 +365,17 @@ internal class GameFlowTest {
   @Test
   internal fun solarWaitsForWorldGovernmentBeforeTurmoil() {
     val game =
-        TfmEngine.newGame(canonicalPremise(VenusNextExpansion, TurmoilExpansion, players = 2))
+        TfmEngine.newGame(
+            withTestTurmoilDeck(canonicalPremise(VenusNextExpansion, TurmoilExpansion, players = 2))
+        )
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     admin.startGame()
-    TestHelpers.assertNetChanges(
-        admin.doTask("DemocraticReform"),
-        game,
-        "PartyLeader<MarsFirst, Neutral>",
-    )
-    TestHelpers.assertNetChanges(
-        admin.doTask("MinimalImpactPolicy"),
-        game,
-        "PartyLeader<Reds, Neutral>",
-    )
+    admin.count("Coming<DemocraticReform>") shouldBe 1
+    admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
+    admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
+    admin.count("PartyLeader<Reds, Neutral>") shouldBe 1
     p1.keepStartingProjects(0)
     p2.keepStartingProjects(0)
     playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)

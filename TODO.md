@@ -137,8 +137,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   `2 Plant` in `TaskResolutionTest`); settle the multiple-match case. Review Admin
   waiting cases against the selected rule that Admin exhausts currently possible work before the
   Player sees the state; a pending Admin task alone does not block Player selection. Also review
-  solo neutral placements and recheck Turmoil replay tests after work4's deck-model change is
-  integrated. Do not derive engine requirements from the current Turmoil workaround. Whole-action
+  solo neutral placements. Do not derive engine requirements from the removed Turmoil event-draw
+  workaround. Whole-action
   exploration is separate Agent work.
 - Design engine-installed autoexec policies for selected tasks assigned to an Actor, configured
   by that Actor's agent. Use Arctic Algae collection without waiting for the receiving agent as

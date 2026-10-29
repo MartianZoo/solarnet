@@ -4,6 +4,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.testCatalog
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
@@ -46,6 +47,28 @@ internal class GameFileJsonTest {
     file.hasEvents shouldBe false
     file.inputs(file.premise(catalog)) shouldBe inputs
     shouldThrow<IllegalArgumentException> { file.open(catalog) }
+  }
+
+  @Test
+  internal fun gameFileKeepsTheCompleteDrawOrderAndItsOrderAffectsThePremiseHash() = runTest {
+    val catalog = testCatalog("CLASS First : System\nCLASS Second : System")
+    val premise =
+        catalog
+            .gamePremise(GameConfig("First, Second"))
+            .copy(drawOrder = listOf(cn("Second"), cn("First")))
+    val file =
+        GameFileJson.parse(
+            GameFileJson.encode(
+                GameRecording(premise, emptyList()),
+                listOf(RecordedInput.StartGame),
+                short = true,
+            )
+        )
+
+    file.premise(catalog).drawOrder shouldBe premise.drawOrder
+    shouldThrow<IllegalArgumentException> {
+      file.inputs(premise.copy(drawOrder = premise.drawOrder.reversed()))
+    }
   }
 
   @Test

@@ -593,7 +593,9 @@ internal class ModuleSelectionTest {
   }
 
   private fun premise(config: String, players: Int) =
-      Canon.gamePremise(GameConfig(config, *(1..players).map { "Player$it" }.toTypedArray()))
+      withTestTurmoilDeck(
+          Canon.gamePremise(GameConfig(config, *(1..players).map { "Player$it" }.toTypedArray()))
+      )
 
   private fun multiplayerWith(vararg additions: String): Set<ClassName> =
       defaultMultiplayer + additions.map(::cn)

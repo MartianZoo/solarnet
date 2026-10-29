@@ -4,6 +4,7 @@ import dev.martianzoo.catalog.Catalog
 import dev.martianzoo.engine.testCatalog
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
@@ -45,6 +46,9 @@ internal class CustomClassTest {
       get() = error("unused")
 
     override val catalog: Catalog
+      get() = error("unused")
+
+    override val drawOrder: List<ClassName>
       get() = error("unused")
 
     override val classTable: ClassTable

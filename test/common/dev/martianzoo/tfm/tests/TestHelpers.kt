@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agenttestsupport.startSetupOnly
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -36,14 +35,29 @@ import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(premise: GamePremise): World =
-    TfmEngine.newGame(premise).apply {
+    TfmEngine.newGame(withTestTurmoilDeck(premise)).apply {
       val agents = testAgents()
       startSetupOnly()
       actors.filterIsInstance<Player>().forEach { player ->
         agents.tfm(player).keepStartingProjects(0)
       }
-      revealTurmoilSetupEvents(this)
     }
+
+/** Supplies a complete fixed deck for scenarios that include Turmoil. */
+internal fun withTestTurmoilDeck(
+    premise: GamePremise,
+    firstEvents: List<String> = emptyList(),
+): GamePremise {
+  val events = TfmEngine.globalEventDeck(premise)
+  if (premise.drawOrder.isNotEmpty()) {
+    require(premise.drawOrder.take(firstEvents.size) == firstEvents.map(::cn))
+    return premise
+  }
+  if (events.isEmpty()) return premise
+  val first = firstEvents.ifEmpty { listOf("DemocraticReform", "MinimalImpactPolicy") }.map(::cn)
+  require(first.distinct().size == first.size && first.all { it in events })
+  return premise.copy(drawOrder = first + (events - first.toSet()))
+}
 
 /**
  * Moves a setup-only game into the corporation phase through that phase's own start, so its queued
@@ -58,13 +72,6 @@ internal fun World.startCorporationPhaseOutOfTurn() {
   admin.list("Baton").elements.forEach { baton ->
     admin.sneak("-${admin.count("$baton")} $baton")
   }
-}
-
-internal fun revealTurmoilSetupEvents(game: World) {
-  val admin = game.testAgent(ADMIN)
-  if (admin.count("RevealComingEvent") == 0) return
-  admin.doTask("DemocraticReform")
-  admin.doTask("MinimalImpactPolicy")
 }
 
 internal fun playCorporationWithoutStartingProjects(

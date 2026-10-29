@@ -13,6 +13,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.Player
+import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -21,6 +22,7 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
+import dev.martianzoo.tfm.tests.withTestTurmoilDeck
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
@@ -60,6 +62,15 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   internal suspend fun verifyGameFileRoundTrip(json: String) {
     val document = GameFileJson.parse(json)
+    val orderedEvents = gamePremise.drawOrder.map { it.toString() }.toSet()
+    val suppliedEventsOrNeutralDelegates =
+        document.inputs(gamePremise).filterIsInstance<RecordedInput.Command>().filter { command ->
+          command.actor == ADMIN &&
+              (command.instruction in orderedEvents ||
+                  command.instruction.startsWith("PartyLeader<") ||
+                  command.instruction.startsWith("PartyFollower<"))
+        }
+    assertEquals(emptyList(), suppliedEventsOrNeutralDelegates)
     val importedAgents =
         GameFileImporter.replay(
             document,
@@ -72,6 +83,8 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   /** Pets declarations for concrete Players with sourced per-seat setup rules. */
   protected open val playerClassPets: String = ""
+  /** Ordered events observed by a replay; the fixture adds the remaining unused cards. */
+  protected open val firstGlobalEvents: List<String> = emptyList()
   protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
 
   internal suspend fun completedGameFileJson(short: Boolean = false): String? {
@@ -82,7 +95,11 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   @BeforeTest
   open fun commonSetup() {
-    gamePremise = catalog.gamePremise(config, parseClasses(playerClassPets))
+    gamePremise =
+        withTestTurmoilDeck(
+            catalog.gamePremise(config, parseClasses(playerClassPets)),
+            firstGlobalEvents,
+        )
     game = TfmEngine.newGame(gamePremise)
     if (exportReplay) agents.taskLog.start()
     val players = game.actors.filterIsInstance<Player>()

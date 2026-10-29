@@ -31,7 +31,7 @@ import kotlinx.serialization.json.put
  * SHA-256 with Web Crypto, which requires a secure context.
  */
 public object GameFileJson {
-  private const val FORMAT = "solarnet-game-3"
+  private const val FORMAT = "solarnet-game-4"
   private val json = Json
 
   /**
@@ -84,6 +84,7 @@ public object GameFileJson {
           },
       )
       put("players", strings(premise.playerNames.map { it.toString() }))
+      put("drawOrder", strings(premise.drawOrder.map { it.toString() }))
       put("bootstrap", premise.bootstrapClassName?.let { JsonPrimitive(it.toString()) } ?: JsonNull)
       put(
           "premiseClass",
@@ -147,6 +148,7 @@ public object GameFileJson {
               classSelections = selections(),
               componentAdjustments = config.componentAdjustments,
               playerNames = config.playerNames,
+              drawOrder = requiredStrings(source, "drawOrder").map { parse<ClassName>(it) },
               bootstrapClassName = optionalClassName(source, "bootstrap"),
               premiseClassName = optionalClassName(source, "premiseClass"),
               premiseClassDeclarations = local,

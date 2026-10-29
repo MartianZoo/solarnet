@@ -133,7 +133,12 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
       secondRole: String = "PartyFollower",
       neutralRole: String = "PartyFollower",
   ) {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents =
+            listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+    )
     kim.completeOperation {
       doTask("UseAction<LobbyAction, Action1>")
       doTask("$firstRole<$party> FROM LobbyDelegate")
@@ -157,7 +162,8 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
 
     admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-    admin.doTask("ExploreFirstDirective").expect("$neutralRole<Reds, Neutral>")
+    admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+    (admin.count("$neutralRole<Reds, Neutral>") > 0) shouldBe true
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     admin.count("Ruling<$party>") shouldBe 1
   }

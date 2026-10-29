@@ -13,7 +13,12 @@ import kotlin.test.Test
 internal class TurmoilGovernmentTest : TfmGameplayTest() {
   @Test
   internal fun `Government replaces the chairman returns its delegates and refills both lobbies`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents =
+            listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+    )
     kim.completeOperation {
       doTask("UseAction<LobbyAction, Action1>")
       doTask("PartyFollower<MarsFirst> FROM LobbyDelegate")
@@ -59,7 +64,8 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     stan.count("PartyDelegate<Scientists>") shouldBe 1
     admin.count("Ruling<MarsFirst>") shouldBe 1
     admin.count("Dominant<Reds>") shouldBe 1
-    admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
+    admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+    (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     stan
         .completeOperation {

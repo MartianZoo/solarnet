@@ -39,6 +39,20 @@ internal fun ScriptSession.playCorporation(cardName: String) {
 
 internal class BasicTest {
   @Test
+  internal fun turmoilSetupSuppliesTheFullDeckBeforeAdminDraws() {
+    val session = ScriptSession()
+    session.newGame("BT", 2)
+    assertTrue(session.game.reader.drawOrder.size > 2)
+    assertEquals(session.game.reader.drawOrder.size, session.game.reader.drawOrder.toSet().size)
+    assertEquals(2, session.agent.count("GlobalEventDrawn"))
+
+    session.newGame("TurmoilExpansion", listOf("Kim", "Stan"))
+    assertTrue(session.game.reader.drawOrder.size > 2)
+    assertEquals(session.game.reader.drawOrder.size, session.game.reader.drawOrder.toSet().size)
+    assertEquals(2, session.agent.count("GlobalEventDrawn"))
+  }
+
+  @Test
   internal fun invalidNewGameConfigurationIncludesUsage() {
     val response = ScriptSession().command("newgame B 0")
 

@@ -25,6 +25,7 @@ internal class GameReaderImpl(
     premise: GamePremise,
     private val gameWorld: GameWorld,
 ) : GameReader {
+  override val drawOrder = premise.drawOrder
   override val classTable = premise.classTable
   override val actors = premise.actors
   override val catalog = premise.catalog

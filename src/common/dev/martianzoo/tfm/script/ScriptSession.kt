@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.script
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName
@@ -127,7 +128,7 @@ public class ScriptSession(
       purple: Boolean = false,
   ) {
     val config = GameConfig(configText, *playerNames.toTypedArray())
-    val premise = Canon.gamePremise(config)
+    val premise = shuffledPremise(config)
     val options = OptionCodeTranslation.recognizedOptions(premise.modules)
     val candidateGame = TfmEngine.newGame(premise)
     installGame(
@@ -417,7 +418,12 @@ internal fun createGame(setup: OptionCodeTranslation.Setup): World {
               if (setup.players == 1) listOf(cn("Me"))
               else (1..setup.players).map { cn("Player$it") },
       )
-  return TfmEngine.newGame(Canon.gamePremise(config))
+  return TfmEngine.newGame(shuffledPremise(config))
+}
+
+private fun shuffledPremise(config: GameConfig): GamePremise {
+  val premise = Canon.gamePremise(config)
+  return premise.copy(drawOrder = TfmEngine.globalEventDeck(premise).shuffled())
 }
 
 public val welcome: String =

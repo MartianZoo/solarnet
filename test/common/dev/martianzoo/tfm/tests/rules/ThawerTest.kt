@@ -70,7 +70,19 @@ internal class ThawerTest : TfmSandboxTest() {
     // https://boardgamegeek.com/thread/3478406/article/47218204#47218204
     @Test
     internal fun `Snow Cover does not undo credit for earlier temperature increases`() {
-      newTestGame(addOptions = "TurmoilExpansion, Thawer, Builder, Engineer", playerCount = 2)
+      newTestGame(
+          addOptions = "TurmoilExpansion, Thawer, Builder, Engineer",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf(
+                  "DemocraticReform",
+                  "MinimalImpactPolicy",
+                  "MoholeLakeGlobalEvent",
+                  "ExploreFirstDirective",
+                  "MoralMovement",
+                  "FreeAcademiaTreaty",
+              ),
+      )
       // Generation 1: reveal Mohole Lake; its Snow Cover effect will resolve in generation 4.
       // Later reveals fix delegate placements but will not resolve during this scenario.
       kim.doTask("Pass")
@@ -80,7 +92,8 @@ internal class ThawerTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.doTask("MoholeLakeGlobalEvent").expect("PartyLeader<Kelvinists, Neutral>")
+      admin.count("Distant<MoholeLakeGlobalEvent>") shouldBe 1
+      (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 2: Democratic Reform gives Stan an Admin ocean, leaving temperature alone.
@@ -94,7 +107,8 @@ internal class ThawerTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
-      admin.doTask("ExploreFirstDirective").expect("PartyLeader<Reds, Neutral>")
+      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+      (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 3: Minimal Impact Policy removes the sole ocean automatically.
@@ -105,7 +119,8 @@ internal class ThawerTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
-      admin.doTask("MoralMovement").expect("PartyFollower<Reds, Neutral>")
+      admin.count("Distant<MoralMovement>") shouldBe 1
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 4: Kim earns five temperature credits before Snow Cover removes two steps.
@@ -137,7 +152,8 @@ internal class ThawerTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
-      admin.doTask("FreeAcademiaTreaty").expect("PartyFollower<Scientists, Neutral>")
+      admin.count("Distant<FreeAcademiaTreaty>") shouldBe 1
+      (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 5: the track fell, but Kim's five earned credits still qualify.

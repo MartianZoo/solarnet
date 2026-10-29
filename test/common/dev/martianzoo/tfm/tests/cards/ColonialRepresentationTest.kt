@@ -29,7 +29,12 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
   internal class Gameplay : TfmGameplayTest() {
     @Test
     internal fun `Its influence improves a Global Event payout even without colonies`() {
-      newTestGame("ColonialRepresentation, TurmoilExpansion", playerCount = 2)
+      newTestGame(
+          "ColonialRepresentation, TurmoilExpansion",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+      )
       kim.doTasks(*playCardTasks("$ColonialRepresentation"))
       kim.selectTask("PassBaton") // Decline the second action.
       stan.doTask("Pass")
@@ -39,7 +44,8 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
+      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("Pass")

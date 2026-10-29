@@ -449,9 +449,10 @@ and [the source inventory](TASK_HANDLING.md); their final classification remains
 The experimental loop can retain unresolved Admin tasks, and its priority check uses a concrete
 selection trial. That is implementation evidence, not proof that the driver has exhausted every
 Canon task it could perform. Audit actual Canon waiting cases and retained failures against the
-selected rule above. Turmoil's current abstract `GlobalEvent` draw is a deck workaround being
-replaced in work4. This contract does not require that workaround or derive a general engine rule
-from it; preserve the Turmoil replay results when the work4 change is integrated.
+selected rule above. The experimental branch now supplies Turmoil's complete Global Event order
+in the premise and draws events without caller commands; Admin places neutral delegates through
+unique narrowing. This contract does not derive a general engine rule from the old caller-supplied
+draw workaround.
 
 **Open after the October 24 review:** client-held drafts are useful, but do not yet remove
 engine-level partial narrowing. A voluntary narrowing can enable more deductions or evaluations;

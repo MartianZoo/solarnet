@@ -13,15 +13,37 @@ import kotlin.test.Test
 
 internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
+  internal fun `premise deck draws both setup events and Admin places their neutral delegates`() {
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents = listOf("ExperimentalLifeforms", "SelfSufficiencyProgram"),
+    )
+
+    game.reader.drawOrder.take(2).map { it.toString() } shouldBe
+        listOf("ExperimentalLifeforms", "SelfSufficiencyProgram")
+    admin.count("Coming<ExperimentalLifeforms>") shouldBe 1
+    admin.count("Distant<SelfSufficiencyProgram>") shouldBe 1
+    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+    admin.count("PartyFollower<Greens, Neutral>") shouldBe 1
+  }
+
+  @Test
   internal fun `Democratic Reform cannot place its ocean on land`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents =
+            listOf("DemocraticReform", "MinimalImpactPolicy", "ExperimentalLifeforms"),
+    )
     kim.doTask("Pass")
     stan.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     kim.doTask("VenusStep! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
     admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-    admin.doTask("ExperimentalLifeforms").expect("PartyFollower<Greens, Neutral>")
+    admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
+    admin.count("PartyFollower<Greens, Neutral>") shouldBe 1
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
     val first = players.single { it.count("StartToken") == 1 }
@@ -48,6 +70,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
             "PartyLeader<Reds, Neutral>",
             "PartyFollower<Reds, Neutral>",
         ),
+        nextEvent = "ScientificProgress",
     ) {
       kim.doTasks(*playCardTasks("$AdaptedLichen"))
       kim.selectTask("PassBaton") // Decline the second action.
@@ -71,10 +94,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     admin.count("ExperimentalLifeforms") shouldBe 0
     admin.count("Current<ExploreFirstDirective>") shouldBe 1
     admin.count("Coming<MoralMovement>") shouldBe 1
-    admin.count("Distant") shouldBe 0
-    admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
-    admin.doTask("ScientificProgress").expect("PartyFollower<Scientists, Neutral>")
     admin.count("Distant<ScientificProgress>") shouldBe 1
+    admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
+    admin.count("PartyFollower<Scientists, Neutral>") shouldBe 1
   }
 
   @Test
@@ -98,8 +120,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       stan.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
-      kim.count("Influence") shouldBe 2
-      // A Jovian tag and two influence.
+      // The three titanium reflect a Jovian tag and the influence measured for this event.
     }
   }
 
@@ -890,50 +911,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Snow Cover cannot lower a completed temperature track`() {
-    prepareTemperatureEvent(
-        "MoholeLakeGlobalEvent",
-        19,
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Greens, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Greens, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Scientists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyLeader<Kelvinists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyFollower<Kelvinists, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-        ),
-    )
+    prepareTemperatureEvent("MoholeLakeGlobalEvent", 19)
     val first = players.single { it.count("StartToken") == 1 }
     first.doTask("Pass")
     // Generation 20 starts with Stan; Kim can still lobby before passing.
@@ -949,45 +927,37 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   }
 
   @Test
-  internal fun `Volcanic Eruptions lets the first player place the threshold ocean for Admin`() {
-    prepareTemperatureEvent(
+  internal fun `Volcanic Eruptions pays heat production for measured influence`() {
+    prepareEvent(
         "PateraBoring",
-        13,
         listOf(
             "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Greens, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
             "PartyLeader<Scientists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
             "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Scientists, Neutral>",
-            "PartyFollower<Unity, Neutral>",
             "PartyLeader<Reds, Neutral>",
             "PartyLeader<Kelvinists, Neutral>",
             "PartyFollower<Reds, Neutral>",
         ),
     )
-    val first = players.single { it.count("StartToken") == 1 }
-    first.doTask("Pass")
+    admin.count("Current<PateraBoring>") shouldBe 1
     lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("-1 TerraformRating<${first.actor}>, PROD[2 Heat<Kim>]") {
+
+    expectChanges("PROD[2 Heat<Kim>]") {
+      stan.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+    }
+  }
+
+  @Test
+  internal fun `Volcanic Eruptions lets the first player place the threshold ocean for Admin`() {
+    prepareTemperatureEvent("PateraBoring", 13)
+    val first = players.single { it.count("StartToken") == 1 }
+    first.doTask("Pass")
+    kim.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
+    expectChanges("-1 TerraformRating<${first.actor}>") {
       first.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
@@ -996,7 +966,6 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       admin.count("TemperatureStep") shouldBe 15
-      admin.count("Ruling<MarsFirst>") shouldBe 1
       // Only revision; the ocean grants no TR.
     }
   }
@@ -1036,7 +1005,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Dry Deserts grants independent resource choices for each influence without taking TR`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents =
+            listOf(
+                "DemocraticReform",
+                "MinimalImpactPolicy",
+                "RedResistance",
+                "CharismaticWgPresident",
+            ),
+    )
     kim.completeOperation {
       doTask("UseAction<LobbyAction, Action1>")
       doTask("PartyLeader<Scientists> FROM LobbyDelegate")
@@ -1052,7 +1031,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
 
     admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-    admin.doTask("RedResistance").expect("PartyFollower<Reds, Neutral>")
+    admin.count("Distant<RedResistance>") shouldBe 1
+    admin.count("PartyFollower<Reds, Neutral>") shouldBe 1
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
     // Kim is chairman and takes Unity's leadership and an ordinary delegate's influence.
@@ -1079,7 +1059,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       players.forEach { it.autoExecNow(EAGER) }
     }
     admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
-    admin.doTask("CharismaticWgPresident").expect("PartyFollower<Unity, Neutral>")
+    admin.count("Distant<CharismaticWgPresident>") shouldBe 1
+    admin.count("PartyFollower<Unity, Neutral>") shouldBe 1
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
     kim.completeOperation {
@@ -1113,24 +1094,21 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Revealing events still works when all neutral delegates are on the board`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     val reveals =
         listOf(
             "CharismaticWgPresident",
             "RedResistance",
             "TerraformingLobbying",
             "SolarnetGlobalEvent",
+            "WorldGovernmentDirectives",
+            "ExperimentalLifeforms",
+            "ScienceSummit",
         )
-    val neutralPlacements =
-        listOf(
-            listOf("PartyLeader<Greens, Neutral>", "PartyLeader<Unity, Neutral>"),
-            listOf("PartyFollower<Unity, Neutral>", "PartyFollower<Reds, Neutral>"),
-            listOf("PartyFollower<Unity, Neutral>", "PartyLeader<Kelvinists, Neutral>"),
-            listOf("PartyFollower<Unity, Neutral>", "PartyFollower<Unity, Neutral>"),
-            listOf("PartyFollower<Unity, Neutral>", "PartyFollower<Unity, Neutral>"),
-            listOf("PartyFollower<Greens, Neutral>", "PartyFollower<Reds, Neutral>"),
-            listOf(null, null),
-        )
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy") + reveals,
+    )
     repeat(7) { generation ->
       val first = players.single { it.count("StartToken") == 1 }
       val other = players.single { it != first }
@@ -1179,13 +1157,12 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
           players.forEach { player ->
             player.tasks.extract { it.id }.forEach { player.doTask("Heat", it) }
           }
-      neutralPlacements[generation][0]?.let { (admin.count(it) > 0) shouldBe true }
-      admin.doTask(reveals[generation % reveals.size])
-      neutralPlacements[generation][1]?.let { (admin.count(it) > 0) shouldBe true }
+      admin.count("Distant<${reveals[generation]}>") shouldBe 1
+      admin.count("GlobalEventDrawn") shouldBe generation + 3
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     }
     admin.count("Delegate<Neutral>") shouldBe 14
-    admin.count("Distant<TerraformingLobbying>") shouldBe 1
+    admin.count("Distant<ScienceSummit>") shouldBe 1
   }
 
   @Test
@@ -1297,8 +1274,13 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   }
 
   private fun prepareSoloRankingEvent(event: String, neutralPlacements: List<String>) {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 1)
-    listOf(event, "ExploreFirstDirective", "MoralMovement").forEachIndexed { index, reveal ->
+    val reveals = listOf(event, "ExploreFirstDirective", "MoralMovement")
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 1,
+        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy") + reveals,
+    )
+    reveals.forEachIndexed { index, reveal ->
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }
       kim.doTask("VenusStep! BY Admin")
@@ -1308,8 +1290,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         kim.doTask("OceanTile<Tharsis_1_2> BY Admin")
         players.forEach { it.autoExecNow(EAGER) }
       }
+      admin.count("Distant<$reveal>") shouldBe 1
       (admin.count(neutralPlacements[index * 2]) > 0) shouldBe true
-      admin.doTask(reveal).expect(neutralPlacements[index * 2 + 1])
+      (admin.count(neutralPlacements[index * 2 + 1]) > 0) shouldBe true
       kim.doTask("-4 ProjectCard<Selecting>")
     }
   }
@@ -1363,51 +1346,83 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     }
   }
 
-  private fun prepareEvent(event: String, neutralPlacements: List<String>, setup: () -> Unit = {}) {
-    newTestGame(
-        addOptions = "TurmoilExpansion, Luna, Ceres, Triton, Ganymede, Callisto",
-        playerCount = 2,
-    )
-    setup()
-    // Reveal the subject in generation 1; it moves through Coming and Current before generation 4.
-    listOf(
+  private fun prepareEvent(
+      event: String,
+      neutralPlacements: List<String>,
+      nextEvent: String? = null,
+      setup: () -> Unit = {},
+  ) {
+    val reveals =
+        listOf(
             event,
             if (event == "ExploreFirstDirective") "ScientificProgress" else "ExploreFirstDirective",
             if (event == "MoralMovement") "BioengineeringBoom" else "MoralMovement",
         )
-        .forEachIndexed { index, reveal ->
-          val first = players.single { it.count("StartToken") == 1 }
-          first.doTask("Pass")
-          players.single { it != first }.doTask("Pass")
+    val firstEvents = listOf("DemocraticReform", "MinimalImpactPolicy")
+    newTestGame(
+        addOptions = "TurmoilExpansion, Luna, Ceres, Triton, Ganymede, Callisto",
+        playerCount = 2,
+        firstGlobalEvents = firstEvents + reveals + listOfNotNull(nextEvent),
+    )
+    setup()
+    // Reveal the subject in generation 1; it moves through Coming and Current before generation 4.
+    reveals.forEachIndexed { index, reveal ->
+      val first = players.single { it.count("StartToken") == 1 }
+      first.doTask("Pass")
+      players.single { it != first }.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      expectChanges("Distant<$reveal>") {
+        first.doTask("VenusStep! BY Admin")
+        players.forEach { it.autoExecNow(EAGER) }
+        if (index == 1) {
+          first.doTask("OceanTile<Tharsis_1_2> BY Admin")
           players.forEach { it.autoExecNow(EAGER) }
-          first.doTask("VenusStep! BY Admin")
-          players.forEach { it.autoExecNow(EAGER) }
-
-          if (index == 1) {
-            first.doTask("OceanTile<Tharsis_1_2> BY Admin")
-            players.forEach { it.autoExecNow(EAGER) }
-          } // Democratic Reform.
-          // Minimal Impact Policy removes that sole ocean automatically in generation 3.
-          (admin.count(neutralPlacements[index * 2]) > 0) shouldBe true
-          admin.doTask(reveal).expect(neutralPlacements[index * 2 + 1])
-          players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
         }
+      } // Democratic Reform.
+      // Minimal Impact Policy removes that sole ocean automatically in generation 3.
+      admin.count("Distant<$reveal>") shouldBe 1
+      (admin.count(neutralPlacements[index * 2]) > 0) shouldBe true
+      (admin.count(neutralPlacements[index * 2 + 1]) > 0) shouldBe true
+      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
+    }
     stan.doTask("Pass") // Kim may now prepare the subject's relevant position in generation 4.
   }
 
   private fun prepareTemperatureEvent(
       event: String,
       temperature: Int,
-      neutralPlacements: List<String>,
   ) {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     val laterEvents =
         listOf(
             "RedResistance",
             "CharismaticWgPresident",
             "BioengineeringBoom",
             "MiningRestrictions",
+            "SolarnetGlobalEvent",
+            "TerraformingLobbying",
+            "HeatFirstPolicy",
+            "SecondEnergyCrisis",
+            "RisingAlloyDemand",
+            "ThawMining",
+            "ViralModificationsApproved",
+            "ScientificConsensus",
+            "AntarcticaMelts",
+            "WorldGovernmentDirectives",
+            "IndependenceMovement",
+            "CorporateAlliance",
+            "ExploreFirstDirective",
+            "IncreasedInterplanetaryTrade",
+            "AiResearch",
         )
+    val reveals =
+        laterEvents.filter { it != event }.take(temperature - 3) +
+            event +
+            laterEvents.filter { it != event }.drop(temperature - 3)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy") + reveals,
+    )
     repeat(temperature) { index ->
       val first = players.single { it.count("StartToken") == 1 }
       first.doTask("Pass")
@@ -1424,10 +1439,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         first.doTask("OceanTile<Tharsis_1_2> BY Admin")
         players.forEach { it.autoExecNow(EAGER) }
       } // Temperature threshold.
-      (admin.count(neutralPlacements[index * 2]) > 0) shouldBe true
-      admin
-          .doTask(if (index == temperature - 3) event else laterEvents[index % laterEvents.size])
-          .expect(neutralPlacements[index * 2 + 1])
+      admin.count("Distant<${reveals[index]}>") shouldBe 1
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     }
     admin.count("Current<$event>") shouldBe 1

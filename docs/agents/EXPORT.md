@@ -17,7 +17,7 @@ starts the game. Full files also retain the exact event history, including initi
 events, and every event's notes. Playback positions are derived from transaction metadata rather
 than stored separately. An event's transaction is stored
 on the first event that carries it and inherited by the events that follow, so grouping survives
-export and import without enlarging the file; the format identifier is now `solarnet-game-3`.
+export and import without enlarging the file; the format identifier is now `solarnet-game-4`.
 `Document.open(catalog)` checks
 the hashes and creates a passive Game World without `engine`. A short file omits events
 but uses the same premise and input fields; state refuses to open it as an exact recording.
@@ -29,7 +29,8 @@ The Catalog digest covers every authored and executable declaration, Module sele
 availability, custom-class vocabulary dependencies, transform names, display names, and
 Catalog-provided fingerprint metadata. Terraforming Mars contributes bundle selection data and
 map definitions through that metadata. The premise digest covers every resolved signed selection,
-setup adjustment, occupied seat, bootstrap/premise class, and local declaration. Hashes exclude
+setup adjustment, occupied seat, complete game-specific draw order, bootstrap/premise class, and
+local declaration. Hashes exclude
 runtime Kotlin implementations; an equal data hash is not a claim that two different engine builds
 have identical behavior. Strict replay compares the behavior, and the format identifier can be
 advanced when the interpretation of the file changes.

@@ -45,7 +45,8 @@ private fun createGame(playerCount: Int): World {
                   playerNames = (1..playerCount).map { cn("Player$it") },
               )
           )
-  return TfmEngine.newGame(premise).also { game ->
+  val deck = TfmEngine.globalEventDeck(premise).shuffled(kotlin.random.Random(0))
+  return TfmEngine.newGame(premise.copy(drawOrder = deck)).also { game ->
     val agents = Agents(game)
     agents.tfm(ADMIN).startGame()
     val players = game.actors.filterIsInstance<Player>()

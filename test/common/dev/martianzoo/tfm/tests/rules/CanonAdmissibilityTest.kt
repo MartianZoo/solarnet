@@ -85,7 +85,8 @@ internal class CanonAdmissibilityTest {
             WorldGovernmentRule,
         )
 
-    val world = TfmEngine.newGame(canonicalPremise(*selected, colonyTiles = colonies))
+    val world =
+        TfmEngine.newGame(withTestTurmoilDeck(canonicalPremise(*selected, colonyTiles = colonies)))
 
     selected.mapNotNull { it.className }.forEach { world.classTable.isInhabited(it) shouldBe true }
     world.classTable.isInhabited(cn("MonsInsurance")) shouldBe true

@@ -51,17 +51,25 @@ ABSTRACT CLASS GlobalEventPosition<GlobalEvent> {
   CLASS Distant { HAS MAX 1 Distant }
 }
 
-"Requests the first revealed event and then the second setup event"
+"Draws the first revealed event and then the second setup event"
 CLASS RevealComingEvent : Barrier, System {
   HAS MAX 1 This
-  This: GlobalEvent THEN RevealDistantEvent FROM This
+  This: DrawGlobalEvent THEN RevealDistantEvent FROM This
 }
 
-"Requests the next event for the Distant position"
+"Draws the next event for the Distant position"
 CLASS RevealDistantEvent : Barrier, System {
   HAS MAX 1 This
-  This: GlobalEvent THEN -This
+  This: DrawGlobalEvent THEN -This
 }
+
+"Draws the next Global Event from the order fixed in the game premise"
+CLASS DrawGlobalEvent : CustomInstruction, System {
+  This:: GlobalEventDrawn
+}
+
+"Number of Global Events already drawn from the premise order"
+CLASS GlobalEventDrawn : System
 
 "The lower half of a Global Event, resolved separately for each player"
 ABSTRACT CLASS GlobalEffect : Owned<Player>, Signal, System
@@ -74,7 +82,7 @@ CLASS PendingGlobalEffect<Current<GlobalEvent>, Class<@GlobalEffect>> : System {
 "Resolves the active Global Effect"
 CLASS ResolveGlobalEvent : Signal, System
 
-"Moves every revealed Global Event one position and requests the next event"
+"Moves every revealed Global Event one position and draws the next event"
 CLASS ChangingTimes : Signal, System {
   This:: EACH Event@GlobalEvent(HAS Current) { -Event@ }, EACH Event@GlobalEvent(HAS Coming) { Current<Event@> FROM Coming<Event@> }, \
     EACH Event@GlobalEvent(HAS Distant) { Coming<Event@> FROM Distant<Event@> }, RevealDistantEvent

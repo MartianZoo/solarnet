@@ -61,24 +61,35 @@ internal abstract class TfmSandboxTest {
       addOptions: String = "",
       playerCount: Int = 3,
       kimCorporation: ClassName? = null,
-  ) = prepareTestGame(addOptions, playerCount, kimCorporation, playCorporations = true)
+      firstGlobalEvents: List<String> = emptyList(),
+  ) =
+      prepareTestGame(
+          addOptions,
+          playerCount,
+          kimCorporation,
+          playCorporations = true,
+          firstGlobalEvents,
+      )
 
   /** Prepares Kim to choose and play a corporation explicitly. */
   protected fun newTestGameBeforeCorporationPlay(
       addOptions: String = "",
       playerCount: Int = 3,
-  ) = prepareTestGame(addOptions, playerCount, null, playCorporations = false)
+      firstGlobalEvents: List<String> = emptyList(),
+  ) = prepareTestGame(addOptions, playerCount, null, playCorporations = false, firstGlobalEvents)
 
   private fun prepareTestGame(
       addOptions: String,
       playerCount: Int,
       kimCorporation: ClassName?,
       playCorporations: Boolean,
+      firstGlobalEvents: List<String>,
   ) {
-    val key = Triple(addOptions, playerCount, kimCorporation) to playCorporations
+    val key =
+        Triple(addOptions, playerCount, kimCorporation) to (playCorporations to firstGlobalEvents)
     val prepared =
         preparedWorlds.getOrPut(key) {
-          createWorld(addOptions, playerCount)
+          createWorld(addOptions, playerCount, firstGlobalEvents)
           agents.taskLog.gameStarted()
           admin.beginOperation("SetupPhase FROM BootstrapPhase")
           if (
@@ -205,14 +216,17 @@ internal abstract class TfmSandboxTest {
     agents.exMachina(actor, adjustment)
   }
 
-  private fun createWorld(addOptions: String, playerCount: Int) {
+  private fun createWorld(addOptions: String, playerCount: Int, firstGlobalEvents: List<String>) {
     require(playerCount in 1..PLAYER_NAMES.size) {
       "The fixture supports one to ${PLAYER_NAMES.size} players: $playerCount"
     }
     val options = GameConfig(addOptions, *PLAYER_NAMES.take(playerCount).toTypedArray())
     val defaults = GameConfig(BASE_GAME_OPTIONS)
     val config = fixtureConfig(options, defaults)
-    game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
+    game =
+        TfmEngine.newGame(
+            withTestTurmoilDeck(canonicalCatalog(config).gamePremise(config), firstGlobalEvents)
+        )
     bindPlayers()
     players.forEach { it.autoExecPolicy = NONE }
   }
@@ -243,10 +257,6 @@ internal abstract class TfmSandboxTest {
       if (admin.count("PreludeExpansion") > 0) {
         player.doTasks("4 PreludeCard", "-2 PreludeCard")
       }
-    }
-    if (admin.count("RevealComingEvent") > 0) {
-      admin.doTask("DemocraticReform").expect("PartyLeader<MarsFirst, Neutral>")
-      admin.doTask("MinimalImpactPolicy").expect("PartyLeader<Reds, Neutral>")
     }
     if (players.size == 1) {
       val map = Canon.marsMapDefinitions.single { admin.count(it.className.toString()) == 1 }
@@ -289,6 +299,6 @@ internal abstract class TfmSandboxTest {
     private val PLAYER_NAMES = listOf("Kim", "Stan", "Rob", "Maya", "Nadia")
 
     private val preparedWorlds =
-        linkedMapOf<Pair<Triple<String, Int, ClassName?>, Boolean>, World>()
+        linkedMapOf<Pair<Triple<String, Int, ClassName?>, Pair<Boolean, List<String>>>, World>()
   }
 }

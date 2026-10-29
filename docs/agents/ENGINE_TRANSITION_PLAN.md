@@ -61,47 +61,49 @@ selected final task matcher or a general proof of unique transaction success.
 These are implementation gates. Continue independent work when a gate is unresolved; do not
 silently choose an answer.
 
-1. **Task identity and interchangeability.** Confirm the owner's proposed rule: if a submitted
+1. **Task identity and interchangeability.** The owner selected retaining calculated-amount
+   matching when it identifies a unique permission; several distinct permissions with the same
+   calculated result require an explicit task ID. Confirm the owner's proposed rule: if a submitted
    task string intersects exactly a single pending task for the submitting Actor, use the
    intersection as the request. Specify whether “intersects” includes current-world resolution,
    a satisfied gate, a `THEN` first stage, or a currently failed gate matched with possible facts.
    Different continuations make tasks distinct. Define the positive rule for considering other
    task data interchangeable, especially different causes and otherwise identical repeated rewards.
-   Decide whether to retain the existing resolved-value match in the engine: with 3 Foo present,
-   `1 MC / Foo` evaluates to `3 MC`, so may a client submit `3 MC`? (The owner's `3 Foo` wording
-   reverses the result.) Decide what happens when
-   several tasks resolve to the same change.
-2. **Public call shape.** Decide whether to reshape the existing public `ActorEngine.transact`
-   callback coordinator or place the client-facing method in Agent or a thin coordinator. `:agent`
-   depends on `:engine`: an Agent-level caller leaves an engine operation public, while an
-   engine-level caller needs engine-defined callbacks. Define which `Agents` session supplies
+   The existing resolved-value match stays in the engine: with 3 Foo present, `1 MC / Foo`
+   evaluates to `3 MC`, so a client may submit `3 MC` if it is unique. (The owner's earlier `3 Foo`
+   wording reverses the result.)
+2. **Public call shape.** The owner selected Agent for the final client-facing call, since it
+   already owns the shared automatic-execution loop and session. Audit the remaining engine
+   operation surface rather than keeping obsolete public operations for compatibility. Define which `Agents` session supplies
    attached Actors when independent sessions share a World. The owner accepts the existing
    shared `AutoExecLoop`; splitting it is not required now. Admin must be retried before **every**
    automatic Player step when no task is selected. Admin must do everything it can before the
    Player sees the state. A waiting Admin task does not alone block Player selection once Admin
    can make no further progress; Player work may be needed to move the game forward. If the
-   current game model requires an external input, surface that need before Player work. This
-   does not commit Turmoil to its present deck workaround, which is being changed in work4.
+   current game model requires an external input, surface that need before Player work. Turmoil's
+   former caller-supplied Global Event draw has been replaced by a premise-owned deck on this branch.
    The selected P0 task must execute before any other work. Settle how Player work is
    ordered after Admin and whether `World.onTransactionComplete` remains a separate hook. No
    production code assigns that hook; removing it would simplify callback timing but delete the
    tested notification surface. Admin cannot be disabled by Player policy or replay configuration.
-3. **Proof coverage and limits.** Decide how to expose incomplete uniqueness analysis without
-   claiming impossibility or picking the first success. A wall-clock timeout is not approved:
+3. **Proof coverage and limits.** The owner selected a distinct incomplete-analysis result when
+   the engine cannot finish proving uniqueness. A wall-clock timeout is not approved:
    identical game requests must not change answers according to machine speed. Specify finite
    domains, deterministic work limits or another terminating proof strategy, and the observable
    result when no proof is possible. `Repair?` is a concrete counterexample: current raw execution
    takes zero although the explicit `Repair!` branch can succeed after an immediate repair.
-   **Recommendation to validate:** fully examine finite domains derived from instruction shape,
-   with no count cap until measurement shows a need. Return a distinct incomplete-analysis result
-   for forms outside that domain, such as unbound numeric X; use no elapsed-time cutoff.
+   **Coverage recommendation to validate:** fully examine finite domains derived from instruction
+   shape, with no count cap until measurement shows a need. Return the selected incomplete-analysis
+   result for forms outside that domain, such as unbound numeric X; use no elapsed-time cutoff.
    Verify that the Admin driver really exhausts all currently possible work before a Player sees
    the state; a queue-empty check is not the rule. Current code can leave an Admin task pending and
    checks priority through a concrete selection trial. Characterize Canon waiting tasks and
    retained failures before changing that path; a synthetic gate test alone cannot justify it.
-   The current abstract `GlobalEvent` draw is a deck-model workaround, not a reason to leave other
-   runnable Admin work behind. Work4 is changing it; preserve the Turmoil replay tests when that
-   change is integrated, without making the old draw request an engine API requirement.
+   The owner selected a full shuffled Turmoil event order supplied once at game setup and stored
+   in the premise and game files. This branch draws from that order through a custom instruction;
+   Admin resolves the neutral placement through unique narrowing. This removes the old
+   caller-supplied event and delegate inputs. It does not prove that Admin handles every other
+   Canon waiting task.
 4. **Selection, structural edits, and handoff.** Decide whether a voluntary partial narrowing is
    retained by engine or must live in a client draft, especially when a target choice unlocks AMAP
    evaluation. Decide which queue edits are permitted during a
@@ -209,9 +211,9 @@ choosing a target unlocks an AMAP amount. No transaction stays open while a pers
 Apply the same approved proof rule to Admin work and Player P1 priority checks. Retain Admin's
 mandatory priority, FIFO attempts, and retry after progress unless a concrete Canon case proves
 the selected behavior differs. Characterize greenery plant payment, shared research capacity, and
-solo neutral placements before claiming all Admin cases are covered. Recheck Turmoil replay tests
-after integrating work4's deck-model change; the current abstract `GlobalEvent` request does not
-define the engine API.
+solo neutral placements before claiming all Admin cases are covered. The Turmoil replay tests now
+pass with a premise-owned deck and automatic neutral placements; the former abstract `GlobalEvent`
+request does not define the engine API.
 Do not let the engine's task matcher use incidental order to choose among distinct permissions.
 The existing Player EAGER policy has its own queue-order behavior; this project carries it over
 without deciding its final design. Test engine semantics with Player policy `NONE`.
@@ -265,10 +267,10 @@ plan's stale steps as future work after they are completed.
 | Protected Habitats | Removing an unprotected Player's plant can succeed; direct mandatory removal of a protected Player's plant is rejected at the correct point. |
 | Land Claim | An immediate cube removal repairs the temporary limit violation before final checks. |
 | Continuations | Two tasks with the same immediate change but different future work are not interchangeable. |
-| Calculated task | If retained, test `1 MC / Foo` with 3 Foo present against `3 MC`, plus multiple tasks resolving to that same change. |
+| Calculated task | Retain unique resolved matching: test `1 MC / Foo` with 3 Foo present against `3 MC`, plus multiple tasks resolving to that same change. |
 | Delayed failure | A transaction that queues Admin work is judged without executing that work; the public call handles Admin afterward and reports a later failure according to the approved recovery rule. |
 | Selection handoff | A Player selection that assigns concrete work to Admin does not execute as Player; Admin may then execute automatically in the same client-facing call. |
-| Turmoil replay integration | After work4's deck-model change is integrated, the existing Turmoil replay tests still pass; the former abstract event request is not an engine API acceptance case. |
+| Turmoil replay integration | The existing Turmoil replay tests pass with complete premise decks, full and short game files export the order, and replay needs no Admin event-identity input. The former abstract event request is not an engine API acceptance case. |
 | Unknown analysis | A deterministic unfinished result never becomes game-rule rejection or proof of a unique choice. |
 | Optional `Repair?` | Test both zero and positive candidate transactions; do not accept zero as unique when `Repair!` also succeeds. |
 | Return and recovery | Failed trials retain no source changes; direct transaction failure restores its state; whole-call results and later failure match the approved rule. |

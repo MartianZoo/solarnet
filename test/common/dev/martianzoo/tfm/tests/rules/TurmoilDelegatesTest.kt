@@ -92,7 +92,11 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
 
   @Test
   internal fun `The last neutral reserve delegate can take over a player led party`() {
-    newTestGame("TurmoilExpansion")
+    newTestGame(
+        "TurmoilExpansion",
+        firstGlobalEvents =
+            listOf("DemocraticReform", "MinimalImpactPolicy", "ExperimentalLifeforms"),
+    )
     kim.exMachina(
         "-MinimalImpactPolicy, 9 PartyFollower<MarsFirst, Neutral>, " +
             "PartyLeader<Greens>, PartyFollower<Greens, Neutral>"
@@ -100,22 +104,22 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     admin.count("Delegate<Neutral>") shouldBe 13
 
     admin
-        .runOperation("RevealDistantEvent") {
-          doTask("ExperimentalLifeforms")
-        }
+        .runOperation("RevealDistantEvent")
         .expect("Delegate<Neutral>, -PartyLeader<Greens, Kim>, PartyFollower<Greens, Kim>")
     admin.count("Delegate<Neutral>") shouldBe 14
   }
 
   @Test
   internal fun `Changing times skips both neutral placements when the reserve is empty`() {
-    newTestGame("TurmoilExpansion")
+    newTestGame(
+        "TurmoilExpansion",
+        firstGlobalEvents =
+            listOf("DemocraticReform", "MinimalImpactPolicy", "ExperimentalLifeforms"),
+    )
     kim.exMachina("11 PartyFollower<MarsFirst, Neutral>")
     admin.count("Delegate<Neutral>") shouldBe 14
 
-    admin
-        .runOperation("ChangingTimes") { doTask("ExperimentalLifeforms") }
-        .expect("0 Delegate<Neutral>")
+    admin.runOperation("ChangingTimes").expect("0 Delegate<Neutral>")
     admin.count("Current<DemocraticReform>") shouldBe 1
     admin.count("Coming<MinimalImpactPolicy>") shouldBe 1
     admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
@@ -140,7 +144,12 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     internal fun `Returning followers during an election does not let a tied challenger take the chair`() {
       // Exercise both incumbents so the return order cannot conceal an unwanted promotion.
       for (incumbentSeat in 0..1) {
-        newTestGame("TurmoilExpansion", playerCount = 2)
+        newTestGame(
+            "TurmoilExpansion",
+            playerCount = 2,
+            firstGlobalEvents =
+                listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+        )
         val incumbent = players[incumbentSeat]
         val challenger = players[1 - incumbentSeat]
         if (incumbentSeat == 1) {
@@ -188,7 +197,12 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
 
     @Test
     internal fun `A neutral event placement can overtake a player leader`() {
-      newTestGame("TurmoilExpansion", playerCount = 2)
+      newTestGame(
+          "TurmoilExpansion",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf("DemocraticReform", "MinimalImpactPolicy", "ExperimentalLifeforms"),
+      )
       kim.completeOperation {
         doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
       }
@@ -207,11 +221,9 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
 
       // Democratic Reform becoming current ties Kim's delegate in Greens.
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-      admin
-          .doTask("ExperimentalLifeforms")
-          .expect(
-              "PartyLeader<Greens, Neutral>, -PartyLeader<Greens, Kim>, PartyFollower<Greens, Kim>"
-          )
+      admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
+      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
+      kim.count("PartyFollower<Greens>") shouldBe 1
     }
 
     @Test

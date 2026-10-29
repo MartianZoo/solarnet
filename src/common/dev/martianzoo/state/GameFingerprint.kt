@@ -90,6 +90,7 @@ internal object GameFingerprint {
                 },
             )
             put("players", strings(premise.playerNames.map { it.toString() }))
+            put("drawOrder", strings(premise.drawOrder.map { it.toString() }))
             put("bootstrap", nullable(premise.bootstrapClassName?.toString()))
             put("premiseClass", nullable(premise.premiseClassName?.toString()))
             put("localDeclarations", declarations(premise.premiseClassDeclarations))

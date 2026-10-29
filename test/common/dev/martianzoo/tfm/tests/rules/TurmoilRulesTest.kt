@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -211,7 +212,12 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
     @Test
     internal fun `A new government cannot refill a lobby while all seven delegates remain placed`() {
-      newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+      newTestGame(
+          addOptions = "TurmoilExpansion",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+      )
       kim.completeOperation {
         doTask("UseAction<LobbyAction, Action1>")
         doTask("PartyLeader<Unity> FROM LobbyDelegate")
@@ -269,7 +275,8 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
 
-      admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
+      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       admin.count("Ruling<Scientists>") shouldBe 1
@@ -292,7 +299,12 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
 
     @Test
     internal fun `A party leader's sole delegate does not also count as an ordinary delegate`() {
-      newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+      newTestGame(
+          addOptions = "TurmoilExpansion",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+      )
       kim.completeOperation {
         doTask("UseAction<LobbyAction, Action1>")
         doTask("PartyLeader<Scientists> FROM LobbyDelegate")
@@ -306,17 +318,25 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       kim.doTask("Pass")
       stan.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }
+      val beforeSolar = game.events.nextOrdinal
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
 
-      kim.count("Influence") shouldBe 1
-      stan.count("Influence") shouldBe 1
+      influenceGainsSince(kim, beforeSolar) shouldBe 1
+      influenceGainsSince(stan, beforeSolar) shouldBe 1
+      kim.count("Influence") shouldBe 0
+      stan.count("Influence") shouldBe 0
     }
 
     @Test
     internal fun `Influence counts chairman leader and ordinary delegates then expires at Research`() {
-      newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+      newTestGame(
+          addOptions = "TurmoilExpansion",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+      )
       kim.completeOperation {
         doTask("UseAction<LobbyAction, Action1>")
         doTask("PartyLeader<Scientists> FROM LobbyDelegate")
@@ -338,13 +358,15 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       stan.doTask("Pass")
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }
+      val beforeSolar = game.events.nextOrdinal
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
 
-      kim.count("Influence") shouldBe 3
-      stan.count("Influence") shouldBe 1
-      admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
+      influenceGainsSince(kim, beforeSolar) shouldBe 3
+      influenceGainsSince(stan, beforeSolar) shouldBe 1
+      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
       kim.count("Influence") shouldBe 0
       stan.count("Influence") shouldBe 0
@@ -352,7 +374,12 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
 
     @Test
     internal fun `A new government refills the lobby without returning other parties' delegates`() {
-      newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+      newTestGame(
+          addOptions = "TurmoilExpansion",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+      )
       kim.completeOperation {
         doTask("UseAction<LobbyAction, Action1>")
         doTask("PartyLeader<Unity> FROM LobbyDelegate")
@@ -373,7 +400,8 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
 
-      admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
+      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
       stan.doTask("Pass")
 
@@ -384,5 +412,11 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
           }
           .expect("PartyDelegate<Unity>, 0 MC")
     }
+
+    private fun influenceGainsSince(player: Agent, cursor: Int): Int =
+        game.events
+            .changesSince(cursor)
+            .filter { it.change.gaining?.type?.isSubtypeOf(player.resolve("Influence")) == true }
+            .sumOf { it.change.count }
   }
 }

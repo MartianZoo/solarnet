@@ -426,7 +426,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
   @Test
   fun `Solar chairman TR does not consume the following generations skip`() {
-    newProgramGame(extraOptions = "TurmoilExpansion, Unsafe")
+    newProgramGame(
+        extraOptions = "TurmoilExpansion, Unsafe",
+        firstGlobalEvents =
+            listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+    )
     playPreludes()
     kim.completeOperation {
       doTask("UseAction<LobbyAction, Action1>")
@@ -605,7 +609,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
   @Test
   fun `Reds ruling bonus outside the Action phase leaves the next generations skip available`() {
-    newProgramGame(extraOptions = "TurmoilExpansion, Unsafe")
+    newProgramGame(
+        extraOptions = "TurmoilExpansion, Unsafe",
+        firstGlobalEvents =
+            listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+    )
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>")
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>")
@@ -641,7 +649,8 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       players.forEach { it.autoExecNow(EAGER) }
     }
     admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-    admin.doTask("ExploreFirstDirective").expect("PartyLeader<Reds, Neutral>")
+    admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+    (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     stan.doTask("Pass")
 
@@ -704,11 +713,16 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     }
   }
 
-  private fun newProgramGame(kimCorporation: ClassName? = null, extraOptions: String = "") {
+  private fun newProgramGame(
+      kimCorporation: ClassName? = null,
+      extraOptions: String = "",
+      firstGlobalEvents: List<String> = emptyList(),
+  ) {
     newTestGame(
         addOptions = "PreludeExpansion, PreservationProgram, $extraOptions",
         playerCount = 2,
         kimCorporation = kimCorporation,
+        firstGlobalEvents = firstGlobalEvents,
     )
   }
 
@@ -743,7 +757,8 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
     if (nextEvent != null) {
       (admin.count(neutralPlacements[0]) > 0) shouldBe true
-      admin.doTask(nextEvent).expect(neutralPlacements[1])
+      admin.count("Distant<$nextEvent>") shouldBe 1
+      (admin.count(neutralPlacements[1]) > 0) shouldBe true
     }
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
   }
@@ -926,7 +941,12 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       neutralRole: String = "PartyFollower",
   ) {
     val politics = if (rulingParty == null) "" else ", TurmoilExpansion"
-    newProgramGame(extraOptions = "TerraformingDeal, Unsafe$politics")
+    newProgramGame(
+        extraOptions = "TerraformingDeal, Unsafe$politics",
+        firstGlobalEvents =
+            if (rulingParty == null) emptyList()
+            else listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+    )
     playPreludes(PreservationProgram, if (deal) TerraformingDeal else PowerGeneration)
     if (rulingParty != null) {
       kim.completeOperation {

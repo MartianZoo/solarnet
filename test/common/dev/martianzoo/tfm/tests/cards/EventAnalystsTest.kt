@@ -14,6 +14,8 @@ internal class EventAnalystsTest : TfmGameplayTest() {
     newTestGame(
         "PreludeExpansion, HighCircles, TurmoilExpansion, ColonialRepresentation, Luna",
         playerCount = 2,
+        firstGlobalEvents =
+            listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
     )
     kim.completeOperation {
       doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
@@ -41,7 +43,8 @@ internal class EventAnalystsTest : TfmGameplayTest() {
     players.forEach { it.autoExecNow(EAGER) }
 
     admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-    admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
+    admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+    (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
     kim.doTask("-4 ProjectCard<Selecting>")
     stan.doTask("-4 ProjectCard<Selecting>")
     stan.doTask("Pass")

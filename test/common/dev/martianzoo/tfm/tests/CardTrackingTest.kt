@@ -20,7 +20,7 @@ internal class CardTrackingTest : TfmTest() {
       requireSelectingNames: Boolean = false,
   ): Pair<CardTracking, Player> {
     val config = GameConfig(expansions, "Player1")
-    game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
+    game = TfmEngine.newGame(withTestTurmoilDeck(canonicalCatalog(config).gamePremise(config)))
     val player = game.actors.filterIsInstance<Player>().single()
     return CardTracking.start(agents, requireSelectingNames) to player
   }

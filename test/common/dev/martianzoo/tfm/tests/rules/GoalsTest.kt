@@ -198,7 +198,18 @@ internal class GoalsTest : TfmSandboxTest() {
     // https://boardgamegeek.com/thread/3478406/article/47218204#47218204
     @Test
     internal fun `Dry Deserts does not erase Hydrologist credit for a removed ocean`() {
-      newTestGame(addOptions = "TurmoilExpansion, Hydrologist, Builder, Engineer", playerCount = 2)
+      newTestGame(
+          addOptions = "TurmoilExpansion, Hydrologist, Builder, Engineer",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf(
+                  "DemocraticReform",
+                  "MinimalImpactPolicy",
+                  "SolarnetGlobalEvent",
+                  "FreeAcademiaTreaty",
+                  "SelfSufficiencyProgram",
+              ),
+      )
       // Generation 1: Kim earns the credit that Dry Deserts will later test.
       // Revealed events fix delegate placements; none will resolve before the final claim.
       kim.completeOperation {
@@ -214,7 +225,8 @@ internal class GoalsTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.doTask("SolarnetGlobalEvent").expect("PartyLeader<Unity, Neutral>")
+      admin.count("Distant<SolarnetGlobalEvent>") shouldBe 1
+      (admin.count("PartyLeader<Unity, Neutral>") > 0) shouldBe true
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 2: Democratic Reform adds an Admin ocean elsewhere, preserving Kim's ocean.
@@ -228,7 +240,8 @@ internal class GoalsTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
-      admin.doTask("FreeAcademiaTreaty").expect("PartyLeader<Scientists, Neutral>")
+      admin.count("Distant<FreeAcademiaTreaty>") shouldBe 1
+      (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 3: Minimal Impact Policy's Dry Deserts removes Kim's original ocean.
@@ -239,8 +252,10 @@ internal class GoalsTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       kim.doTask("-OceanTile<Tharsis_1_2>")
-      (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-      admin.doTask("SelfSufficiencyProgram").expect("PartyFollower<Greens, Neutral>")
+          .expect(
+              "SelfSufficiencyProgram, Distant<SelfSufficiencyProgram>, PartyFollower<Greens, Neutral>"
+          )
+      admin.count("Distant<SelfSufficiencyProgram>") shouldBe 1
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 4: reusing the emptied area still earns another credit toward four placements.

@@ -1122,7 +1122,18 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     private fun resolveSponsoredProjectsWithHostedCard(): List<Int> {
-      newTestGame(addOptions = "TurmoilExpansion, SelfReplicatingRobots", playerCount = 2)
+      newTestGame(
+          addOptions = "TurmoilExpansion, SelfReplicatingRobots",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf(
+                  "DemocraticReform",
+                  "MinimalImpactPolicy",
+                  "ScienceSummit",
+                  "ExploreFirstDirective",
+                  "MoralMovement",
+              ),
+      )
       kim.completeOperation {
         doTasks(*playCardTasks("$Research"))
         autoExecNow(EAGER)
@@ -1143,7 +1154,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.doTask("ScienceSummit").expect("PartyLeader<Scientists, Neutral>")
+      admin.count("Distant<ScienceSummit>") shouldBe 1
+      (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
 
@@ -1157,7 +1169,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
-      admin.doTask("ExploreFirstDirective").expect("PartyLeader<Reds, Neutral>")
+      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+      (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
 
@@ -1168,7 +1181,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.doTask("MoralMovement").expect("PartyFollower<Reds, Neutral>")
+      admin.count("Distant<MoralMovement>") shouldBe 1
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
 

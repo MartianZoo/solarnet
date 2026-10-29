@@ -59,21 +59,38 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
       addOptions: String = "",
       playerCount: Int = 3,
       kimCorporation: ClassName? = null,
-  ) = prepareTestGame(addOptions, playerCount, kimCorporation, playCorporations = true)
+      firstGlobalEvents: List<String> = emptyList(),
+  ) =
+      prepareTestGame(
+          addOptions,
+          playerCount,
+          kimCorporation,
+          playCorporations = true,
+          firstGlobalEvents = firstGlobalEvents,
+      )
 
   /** Prepares Kim to choose and play a corporation explicitly. */
   protected fun newTestGameBeforeCorporationPlay(
       addOptions: String = "",
       playerCount: Int = 3,
-  ) = prepareTestGame(addOptions, playerCount, null, playCorporations = false)
+      firstGlobalEvents: List<String> = emptyList(),
+  ) =
+      prepareTestGame(
+          addOptions,
+          playerCount,
+          null,
+          playCorporations = false,
+          firstGlobalEvents = firstGlobalEvents,
+      )
 
   private fun prepareTestGame(
       addOptions: String,
       playerCount: Int,
       kimCorporation: ClassName?,
       playCorporations: Boolean,
+      firstGlobalEvents: List<String>,
   ) {
-    createWorld(addOptions, playerCount)
+    createWorld(addOptions, playerCount, firstGlobalEvents)
     admin.beginOperation("SetupPhase FROM BootstrapPhase")
     if (
         playerCount == 1 &&
@@ -86,14 +103,15 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
     if (playCorporations) playStartingCorporations(kimCorporation)
   }
 
-  private fun createWorld(addOptions: String, playerCount: Int) {
+  private fun createWorld(addOptions: String, playerCount: Int, firstGlobalEvents: List<String>) {
     require(playerCount in 1..PLAYER_NAMES.size) {
       "The fixture supports one to ${PLAYER_NAMES.size} players: $playerCount"
     }
     val options = GameConfig(addOptions, *PLAYER_NAMES.take(playerCount).toTypedArray())
     val defaults = GameConfig(BASE_GAME_OPTIONS)
     val config = fixtureConfig(options, defaults)
-    game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
+    val premise = canonicalCatalog(config).gamePremise(config)
+    game = TfmEngine.newGame(withTestTurmoilDeck(premise, firstGlobalEvents))
     agents = Agents(game) { if (it == ADMIN) EAGER else playerPolicy }
     players = game.actors.filterIsInstance<Player>().map { agents[it] }
   }
@@ -109,10 +127,6 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
     }
     players.forEach { it.autoExecNow(EAGER) }
     if (kimCorporation != null || !playCorporations) kim.doTask("-5 ProjectCard<Selecting>")
-    if (admin.count("RevealComingEvent") > 0) {
-      admin.doTask("DemocraticReform").expect("PartyLeader<MarsFirst, Neutral>")
-      admin.doTask("MinimalImpactPolicy").expect("PartyLeader<Reds, Neutral>")
-    }
     if (players.size == 1) {
       val map = Canon.marsMapDefinitions.single { admin.count(it.className.toString()) == 1 }
       // The four most common printed project-card costs in Canon, in frequency order.

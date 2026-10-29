@@ -8,7 +8,9 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
@@ -63,7 +65,27 @@ public object TfmEngine {
    * Builds a live [World] from [premise] with this engine's [customClasses] available. Invalid
    * premises or missing custom declarations fail during world construction.
    */
-  public fun newGame(premise: GamePremise): World = Engine.newGame(premise, customClasses)
+  public fun newGame(premise: GamePremise): World {
+    val available = globalEventDeck(premise)
+    if (premise.drawOrder.size != available.size || premise.drawOrder.toSet() != available) {
+      throw InvalidGameConfigException(
+          "Global Event draw order must contain every available event exactly once: " +
+              "expected $available, found ${premise.drawOrder}"
+      )
+    }
+    return Engine.newGame(premise, customClasses)
+  }
+
+  /** Available Turmoil Global Events that [GamePremise.drawOrder] must contain exactly once. */
+  public fun globalEventDeck(premise: GamePremise): Set<ClassName> {
+    val eventClass = premise.classTable.findClass(cn("GlobalEvent")) ?: return emptySet()
+    return premise.classTable
+        .allSubclasses(eventClass)
+        .filter { !it.abstract && premise.classTable.isInhabited(it) }
+        .map(Class::className)
+        .sortedBy(ClassName::toString)
+        .toCollection(linkedSetOf())
+  }
 
   /** Custom instructions and metrics recognized when constructing a Terraforming Mars world. */
   public val customClasses: Set<CustomClass> =
@@ -71,6 +93,7 @@ public object TfmEngine {
           AllocateCloudTourismWildTags,
           CopyPrelude,
           CopyProductionBox,
+          DrawGlobalEvent,
           GainsOf,
           GpRequirementShortfall,
           Neighbor,
@@ -84,6 +107,18 @@ public object TfmEngine {
           ScoreEventVps,
           TileInLargestGroup,
       )
+
+  private object DrawGlobalEvent : CustomInstruction() {
+    override fun translate(game: GameReader): InstructionTree {
+      val drawIndex = game.count(game.resolve(parse("GlobalEventDrawn"))) - 1
+      val event =
+          game.drawOrder.getOrNull(drawIndex)
+              ?: throw DeadEndException(
+                  "Global Event deck is exhausted after ${game.drawOrder.size} cards"
+              )
+      return parse(event.toString())
+    }
+  }
 
   private object CopyPrelude : CustomInstruction() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): InstructionTree {

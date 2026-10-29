@@ -2,6 +2,7 @@ package dev.martianzoo.state
 
 import dev.martianzoo.catalog.Catalog
 import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -20,6 +21,9 @@ public interface GameReader : TypeInfo {
 
   /** Reusable source catalog from which this world's premise was resolved. */
   public val catalog: Catalog
+
+  /** Complete order supplied at setup for game-specific draws. */
+  public val drawOrder: List<ClassName>
 
   /** The complete class universe selected for this game. */
   override val classTable: ClassTable

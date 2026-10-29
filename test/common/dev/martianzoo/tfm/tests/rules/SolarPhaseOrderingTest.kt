@@ -16,7 +16,17 @@ import kotlin.test.Test
 internal class SolarPhaseOrderingTest : TfmGameplayTest() {
   @Test
   internal fun `Dry Deserts can remove the ocean just placed by the outgoing first player`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents =
+            listOf(
+                "DemocraticReform",
+                "MinimalImpactPolicy",
+                "ExploreFirstDirective",
+                "FreeAcademiaTreaty",
+            ),
+    )
     finishFirstGeneration(
         "ExploreFirstDirective",
         "PartyLeader<Greens, Neutral>",
@@ -42,7 +52,18 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
   @Test
   internal fun `Red Influence charges the lower bracket after TR revision`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents =
+            listOf(
+                "DemocraticReform",
+                "MinimalImpactPolicy",
+                "AntarcticaMelts",
+                "FreeAcademiaTreaty",
+                "MoralMovement",
+            ),
+    )
     reachFourthGeneration(
         "AntarcticaMelts",
         listOf(
@@ -78,7 +99,18 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
   @Test
   internal fun `Kelvinists pays for heat production received from the current global event`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents =
+            listOf(
+                "DemocraticReform",
+                "MinimalImpactPolicy",
+                "PateraBoring",
+                "FreeAcademiaTreaty",
+                "MoralMovement",
+            ),
+    )
     reachFourthGeneration(
         "PateraBoring",
         listOf(
@@ -113,7 +145,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
   @Test
   internal fun `The outgoing chairman and incoming delegation receive their old influence rewards`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy", "FreeAcademiaTreaty"),
+    )
     electKimInFirstGeneration("MarsFirst")
     finishResearch(
         "FreeAcademiaTreaty",
@@ -157,7 +193,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
   @Test
   internal fun `Delegates released by the election supply the next free lobby action`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy", "FreeAcademiaTreaty"),
+    )
     kim.completeOperation {
           doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
         }
@@ -202,7 +242,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
   @Test
   internal fun `The coming event wins a dominance tie before the newly revealed distant event`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy", "RedResistance"),
+    )
     kim.completeOperation {
           doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
         }
@@ -225,7 +269,8 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     // Clearing Mars First leaves Reds and Greens at 1 each. Democratic Reform adds to Greens;
     // Red Resistance then adds to Reds. Both finish at 2, but Greens keeps dominance.
     (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-    admin.doTask("RedResistance").expect("PartyFollower<Reds, Neutral>")
+    admin.count("Distant<RedResistance>") shouldBe 1
+    (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
     admin.count("PartyDelegate<Greens, Anyone>") shouldBe 2
     admin.count("PartyDelegate<Reds, Anyone>") shouldBe 2
     admin.count("Dominant<Greens>") shouldBe 1
@@ -234,7 +279,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
   @Test
   internal fun `The next dominant party earns influence after the elected party is emptied`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy", "FreeAcademiaTreaty"),
+    )
     kim.completeOperation {
           doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
         }
@@ -272,7 +321,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
   @Test
   internal fun `New neutral delegates do not change which party pays this election's bonus`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy", "RedResistance"),
+    )
     kim.doTasks(*playCardTasks("$Mine")).expect("PROD[Steel]")
     kim.selectTask("PassBaton") // Decline the second action.
     stan.doTask("Pass")
@@ -285,7 +338,8 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
       kim.doTask("VenusStep! BY Admin")
       autoExecutePlayers()
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.doTask("RedResistance").expect("PartyFollower<Reds, Neutral>")
+      admin.count("Distant<RedResistance>") shouldBe 1
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
     }
   }
 
@@ -295,6 +349,15 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
         addOptions = "TurmoilExpansion",
         playerCount = 2,
         kimCorporation = UnitedNationsMarsInitiative,
+        firstGlobalEvents =
+            listOf(
+                "DemocraticReform",
+                "MinimalImpactPolicy",
+                "SelfSufficiencyProgram",
+                "FreeAcademiaTreaty",
+                "MoralMovement",
+                "ExploreFirstDirective",
+            ),
     )
     reachFourthGeneration(
         "SelfSufficiencyProgram",
@@ -346,6 +409,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
         addOptions = "TurmoilExpansion",
         playerCount = 2,
         kimCorporation = UnitedNationsMarsInitiative,
+        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy", "FreeAcademiaTreaty"),
     )
     electKimInFirstGeneration("Reds")
     finishResearch(
@@ -372,7 +436,12 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
   @Test
   internal fun `Pristar still preserves after receiving chairman TR in the previous solar phase`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2, kimCorporation = Pristar)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        kimCorporation = Pristar,
+        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy", "FreeAcademiaTreaty"),
+    )
     electKimInFirstGeneration("MarsFirst")
     finishResearch(
         "FreeAcademiaTreaty",
@@ -389,7 +458,17 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
 
   @Test
   internal fun `The former chairman returns the only delegate available for a free lobby action`() {
-    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    newTestGame(
+        addOptions = "TurmoilExpansion",
+        playerCount = 2,
+        firstGlobalEvents =
+            listOf(
+                "DemocraticReform",
+                "MinimalImpactPolicy",
+                "FreeAcademiaTreaty",
+                "RedResistance",
+            ),
+    )
     electKimInFirstGeneration("MarsFirst")
     finishResearch(
         "FreeAcademiaTreaty",
@@ -515,6 +594,15 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
             "TurmoilExpansion, PreludeExpansion, TerraformingDeal, -QuickStartVariant, -ColoniesExpansion",
         playerCount = 1,
         kimCorporation = TerraLabsResearch,
+        firstGlobalEvents =
+            listOf(
+                "DemocraticReform",
+                "MinimalImpactPolicy",
+                "SeparatistMovement",
+                "HeatFirstPolicy",
+                "FreeAcademiaTreaty",
+                "ExploreFirstDirective",
+            ),
     )
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$TerraformingDeal>>")
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$SocietySupport>>")
@@ -560,7 +648,8 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     kim.doTask("VenusStep! BY Admin")
     autoExecutePlayers()
     admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-    admin.doTask("ExploreFirstDirective").expect("PartyLeader<Reds, Neutral>")
+    admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+    (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
     kim.doTasks("Ok") // Buy all four research cards at TerraLabs' price.
     kim.count("MC") shouldBe 20
     kim.completeOperation {
@@ -596,7 +685,8 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
       distantPlacement: String,
   ) {
     (admin.count(currentPlacement) > 0) shouldBe true
-    admin.doTask(distantEvent).expect(distantPlacement)
+    admin.count("Distant<$distantEvent>") shouldBe 1
+    (admin.count(distantPlacement) > 0) shouldBe true
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
   }
 
@@ -608,8 +698,10 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     kim.doTask("Pass")
     stan.doTask("Pass")
     autoExecutePlayers()
-    kim.doTask("VenusStep! BY Admin")
-    autoExecutePlayers()
+    expectChanges("Distant<$distantEvent>") {
+      kim.doTask("VenusStep! BY Admin")
+      autoExecutePlayers()
+    }
     finishResearch(distantEvent, currentPlacement, distantPlacement)
   }
 
@@ -621,10 +713,12 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     stan.doTask("Pass")
     kim.doTask("Pass")
     autoExecutePlayers()
-    stan.doTask("VenusStep! BY Admin")
-    autoExecutePlayers()
-    stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
-    autoExecutePlayers()
+    expectChanges("Distant<$distantEvent>") {
+      stan.doTask("VenusStep! BY Admin")
+      autoExecutePlayers()
+      stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
+      autoExecutePlayers()
+    }
     finishResearch(distantEvent, currentPlacement, distantPlacement)
   }
 
@@ -635,9 +729,11 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     kim.doTask("Pass")
     stan.doTask("Pass")
     autoExecutePlayers()
-    kim.doTask("VenusStep! BY Admin")
-    // Dry Deserts removes the sole ocean without a location choice.
-    autoExecutePlayers()
+    expectChanges("Distant<MoralMovement>") {
+      kim.doTask("VenusStep! BY Admin")
+      // Dry Deserts removes the sole ocean without a location choice.
+      autoExecutePlayers()
+    }
     finishResearch("MoralMovement", neutralPlacements[4], neutralPlacements[5])
   }
 

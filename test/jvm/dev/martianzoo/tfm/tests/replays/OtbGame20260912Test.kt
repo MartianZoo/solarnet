@@ -14,6 +14,19 @@ import kotlin.test.assertEquals
 
 /** Three-player physical game begun Saturday, 2026-09-12. */
 internal class OtbGame20260912Test : AbstractFullGameTest() {
+  override val firstGlobalEvents =
+      listOf(
+          "ThawMining",
+          "MartianProtectionism",
+          "ScienceSummit",
+          "BioengineeringBoom",
+          "FreeAcademiaTreaty",
+          "SecondEnergyCrisis",
+          "WorldGovernmentDirectives",
+          "MoholeLakeGlobalEvent",
+          "ExperimentalLifeforms",
+          "CharismaticWgPresident",
+      )
   // The physical deck included Summit Logistics without Colonies, and the recorded game had no
   // colony board. Name the ordinary card explicitly because its colony count contributes zero,
   // while the Prelude 2 card pack selects it automatically only when Colonies is available.
@@ -50,8 +63,10 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     // "Our coming global event is Mud Slides, and our distant global event is Venus
     // Infrastructure."
-    admin.doTask("ThawMining").expect("PartyLeader<Kelvinists, Neutral>")
-    admin.doTask("MartianProtectionism").expect("PartyLeader<MarsFirst, Neutral>")
+    admin.count("Coming<ThawMining>") shouldBe 1
+    (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
+    admin.count("Distant<MartianProtectionism>") shouldBe 1
+    (admin.count("PartyLeader<MarsFirst, Neutral>") > 0) shouldBe true
 
     // "Septim Triboos [Septem Tribus]. I get 36 money, and then I buy 10 cards. Don't tell me I
     // bought 10."
@@ -221,7 +236,11 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
 
     // "I will world government." "Five, eight." "So just increase oceans by one?"
-    green.wgt("OceanTile<Vastitas_5_8>").expect("0 TerraformRating<Green>")
+    green
+        .wgt("OceanTile<Vastitas_5_8>")
+        .expect(
+            "0 TerraformRating<Green>, ScienceSummit, Distant<ScienceSummit>, PartyLeader<Scientists, Neutral>"
+        )
     // "Oh, turmoil." "Walk us through it." "TR Revision, all players lose one TR." "Boo."
     // "New Government. The dominant party now becomes ruling. Change policy title to Scientists."
     // The Turmoil phase that follows performs TR revision, forms the Scientists government, and
@@ -229,7 +248,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // "Changing times. Got the coming global event. Move a distant global event to coming. Turn the
     // top part of global event face up. It is sponsored projects."
     (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-    admin.doTask("ScienceSummit").expect("PartyLeader<Scientists, Neutral>")
+    admin.count("Distant<ScienceSummit>") shouldBe 1
+    (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
 
     // "Really, because you're the chairman. Oh, did you give yourself TR for being chairman?" "No,
     // because you didn't say it." "Oh, yeah, that is what I skipped. Sorry."
@@ -422,11 +442,16 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     // "Ellie does World Government ... ocean ... five seven." The Admin ocean awards Yellow no TR;
     // the Turmoil phase then begins at once, and its TR revision costs every player one.
-    yellow.wgt("OceanTile<Vastitas_5_7>").expect("-1 TerraformRating<Yellow>")
+    yellow
+        .wgt("OceanTile<Vastitas_5_7>")
+        .expect(
+            "-1 TerraformRating<Yellow>, BioengineeringBoom, Distant<BioengineeringBoom>, PartyLeader<Greens, Neutral>"
+        )
     // Mud Slides charges nobody because influence covers every adjacent owned tile. Greens forms
     // the government and Green becomes chairman.
     (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
-    admin.doTask("BioengineeringBoom").expect("PartyLeader<Greens, Neutral>")
+    admin.count("Distant<BioengineeringBoom>") shouldBe 1
+    (admin.count("PartyLeader<Greens, Neutral>") > 0) shouldBe true
     // "So you're saying this moves to Unity now?" During Changing Times, Venus Infrastructure's
     // neutral delegate raises Unity from three delegates to four, ahead of Reds' three. The engine
     // therefore moves the dominance marker to Unity normally, matching board-12-18-40.jpg.
@@ -568,13 +593,18 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     // "Why not Venus? Venus it is. ... Venus is now at two." The Turmoil phase follows at once:
     // Blue loses one TR to revision and regains it as chairman.
-    blue.wgt("VenusStep").expect("0 TerraformRating<Blue>")
+    blue
+        .wgt("VenusStep")
+        .expect(
+            "0 TerraformRating<Blue>, FreeAcademiaTreaty, Distant<FreeAcademiaTreaty>, PartyFollower<Scientists, Neutral>"
+        )
     // Venus Infrastructure pays Green 6 M€, Yellow 4 M€, and Blue 4 M€ from their recorded
     // Venus tags and influence. Unity then pays 1/3/2 M€ for planetary tags and makes Blue
     // chairman. Diversity—the event headed "Free Academia Treaty"—is revealed with its neutral
     // Scientist delegate.
     (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-    admin.doTask("FreeAcademiaTreaty").expect("PartyFollower<Scientists, Neutral>")
+    admin.count("Distant<FreeAcademiaTreaty>") shouldBe 1
+    (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
 
     // Complete Generation 3 Solar ledgers.
     with(green) {
@@ -738,11 +768,16 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // "World Government ... oxygen." Sponsored Projects resolves before Reds form government;
     // the automatic Turmoil phase then advances Spin-Off Products and Diversity. The newly drawn
     // card is Improved Energy Templates, headed "Second Energy Crisis" in the physical deck.
-    green.wgt("OxygenStep").expect("OxygenStep")
+    green
+        .wgt("OxygenStep")
+        .expect(
+            "OxygenStep, SecondEnergyCrisis, Distant<SecondEnergyCrisis>, 2 PartyFollower<Scientists, Neutral>"
+        )
     // At 6:38:48 pm, the table notes that Search for Life has no science to receive a bonus.
     yellow.assertCardResources(0 to SearchForLife)
     (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
-    admin.doTask("SecondEnergyCrisis").expect("PartyFollower<Scientists, Neutral>")
+    admin.count("Distant<SecondEnergyCrisis>") shouldBe 1
+    (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
 
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 2, venus = 2)
     admin.assertCounts(
@@ -870,11 +905,16 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // sees Yellow's chairman TR from the preceding Solar transition.
     yellow.exMachina("6 MC")
     // The Admin ocean awards Yellow no TR; the Turmoil phase's TR revision then costs one.
-    yellow.wgt("OceanTile<Vastitas_4_3>").expect("-1 TerraformRating<Yellow>")
+    yellow
+        .wgt("OceanTile<Vastitas_4_3>")
+        .expect(
+            "-1 TerraformRating<Yellow>, WorldGovernmentDirectives, Distant<WorldGovernmentDirectives>, PartyFollower<Unity, Neutral>"
+        )
     // Spin-Off Products and the Scientists ruling bonus pay for science tags. Diversity becomes
     // current, Improved Energy Templates becomes coming, and Revolution is revealed.
     admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
-    admin.doTask("WorldGovernmentDirectives").expect("PartyFollower<Unity, Neutral>")
+    admin.count("Distant<WorldGovernmentDirectives>") shouldBe 1
+    (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
     // Blue has two printed Science tags, so Spin-Off Products and the Scientists ruling bonus pay
     // 4 M€ and 2 M€. The transcript instead says, consecutively, "you get four money and you get
     // six money" for Blue's and Yellow's event awards; Blue's lone +10 row is exactly 4 + 6. The
@@ -1071,10 +1111,15 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     assertSidebar(gen = 6, temp = -14, oxygen = 6, oceans = 5, venus = 4)
 
     // The Turmoil phase's TR revision follows World Government at once and costs Blue one TR.
-    blue.wgt("VenusStep").expect("-1 TerraformRating<Blue>")
+    blue
+        .wgt("VenusStep")
+        .expect(
+            "-1 TerraformRating<Blue>, MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyLeader<Kelvinists, Neutral>"
+        )
     // Diversity resolves, Greens takes government, and Snow Cover is revealed.
     (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
-    admin.doTask("MoholeLakeGlobalEvent").expect("PartyLeader<Kelvinists, Neutral>")
+    admin.count("Distant<MoholeLakeGlobalEvent>") shouldBe 1
+    (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
     // The physical Greens delegation makes Yellow chairman; the engine retained the neutral
     // tie-break. The spoken transition awards Yellow the corresponding TR.
     yellow.exMachina("-Chairman<Neutral>, Chairman, TerraformRating")
@@ -1217,9 +1262,14 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 7, temp = -4, oxygen = 12, oceans = 6, venus = 12)
 
-    green.wgt("OxygenStep")
+    green
+        .wgt("OxygenStep")
+        .expect(
+            "ExperimentalLifeforms, Distant<ExperimentalLifeforms>, PartyFollower<Greens, Neutral>"
+        )
     (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
-    admin.doTask("ExperimentalLifeforms").expect("PartyFollower<Greens, Neutral>")
+    admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
+    (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
     // The two wrong-color Envoys cubes make Green Unity leader with a Green non-leader still in the
     // party. Those supply two rules-correct influence; Event Analysts supplies the third. Five
     // Power tags plus three influence produce four Improved Energy Templates steps, after which
@@ -1365,11 +1415,16 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 8, temp = 6, oxygen = 14, oceans = 8, venus = 18)
 
-    yellow.wgt("TemperatureStep")
+    yellow
+        .wgt("TemperatureStep")
+        .expect(
+            "CharismaticWgPresident, Distant<CharismaticWgPresident>, PartyFollower<Unity, Neutral>"
+        )
     // Revolution resolves, Mars First takes government, and the final photograph identifies
     // Interplanetary Trade as the newly revealed distant event.
     (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
-    admin.doTask("CharismaticWgPresident").expect("PartyFollower<Unity, Neutral>")
+    admin.count("Distant<CharismaticWgPresident>") shouldBe 1
+    (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
     // The table announces Green/Yellow counts of eleven/seven; their face-up cards contain
     // twelve/eight Building tags. Yellow's missing tag is most likely Martian Industries, a Prelude
     // separated from the project tableau. Green's omitted card cannot be isolated from the spoken

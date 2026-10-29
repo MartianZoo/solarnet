@@ -70,7 +70,12 @@ internal class HighCirclesTest : TfmSandboxTest() {
   internal class Gameplay : TfmGameplayTest() {
     @Test
     internal fun `Its influence adds to the chairmans Global Event payout`() {
-      newTestGame("PreludeExpansion, HighCircles, TurmoilExpansion", playerCount = 2)
+      newTestGame(
+          "PreludeExpansion, HighCircles, TurmoilExpansion",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+      )
       kim.completeOperation {
         doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
         doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
@@ -91,7 +96,8 @@ internal class HighCirclesTest : TfmSandboxTest() {
 
       kim.count("Chairman") shouldBe 1
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.doTask("ExploreFirstDirective").expect("PartyFollower<Reds, Neutral>")
+      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("Pass")
