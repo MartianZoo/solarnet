@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.catalog.GamePremise
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
@@ -47,7 +48,9 @@ public object Engine {
    * objects.
    *
    * Configuration, unresolved bootstrap choices, or invalid resulting counts cause construction to
-   * fail without returning a partial World. No guard is installed.
+   * fail without returning a partial World. [IncompleteAnalysisException] propagates distinctly
+   * when bootstrap cannot finish its proof; this is not a configuration rejection. No guard is
+   * installed.
    */
   public fun newGame(
       premise: GamePremise,
@@ -175,6 +178,8 @@ public object Engine {
             e,
             e.sourceLocation,
         )
+      } catch (e: IncompleteAnalysisException) {
+        throw e
       } catch (e: NotFullySpecifiedException) {
         throw InvalidGameConfigException(
             "game setup cannot complete: ${e.detail}",

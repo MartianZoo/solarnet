@@ -1,6 +1,7 @@
 package dev.martianzoo.agent
 
 import dev.martianzoo.engine.Exceptions.AbortTransactionException
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
@@ -106,8 +107,9 @@ public interface Agent {
   /**
    * Probes whether this actor can select and finish [taskId] now without another choice or handoff.
    * A missing or unfinished task yields false. The probe uses a disposable World; source listeners
-   * and existing overlays remain unaffected. Gameplay rejection and unresolved instructions yield
-   * false; other failures propagate.
+   * and existing overlays remain unaffected. Gameplay rejection and known missing choices yield
+   * false. [IncompleteAnalysisException] propagates when the engine cannot finish its proof; other
+   * failures also propagate.
    */
   // TODO(ENGINE_CONTRACT): investigate whether callers need this execution probe. If retained,
   // define its answer using this instruction's whole transaction, without checking spawned tasks.
@@ -221,12 +223,14 @@ public interface Agent {
   public fun doTask(taskId: TaskId): TaskResult
 
   /**
-   * Attempts [narrowing], then runs configured task handling. Missing choices or unavailable
+   * Attempts [narrowing], then runs configured task handling. Known missing choices or unavailable
    * execution restore the engine attempt. A task left selected, including a handoff to another
    * Actor, also restores the attempt. Subsequent task handling can still execute that task or
    * reject the call. Invalid selection, invalid narrowing, and other failures propagate, including
    * `Die` and failures encountered while handling Admin work. An unavailable `/` metric is handled
    * like unavailable execution: the attempted request leaves no changes.
+   * [IncompleteAnalysisException] restores the call and propagates; it is not a known missing
+   * choice.
    */
   public fun tryTask(narrowing: String): TaskResult
 
@@ -234,10 +238,12 @@ public interface Agent {
   public fun tryTask(narrowing: String, taskId: TaskId): TaskResult
 
   /**
-   * Attempts to select and execute [taskId], then runs configured task handling. Missing choices,
-   * unavailable execution, or an unfinished handoff restore the engine attempt; subsequent task
-   * handling can still execute that task or reject the call. Invalid selection and other failures
-   * propagate, including `Die` and failures encountered while handling Admin work.
+   * Attempts to select and execute [taskId], then runs configured task handling. Known missing
+   * choices, unavailable execution, or an unfinished handoff restore the engine attempt; subsequent
+   * task handling can still execute that task or reject the call. Invalid selection and other
+   * failures propagate, including `Die` and failures encountered while handling Admin work.
+   * [IncompleteAnalysisException] restores the call and propagates; it is not a known missing
+   * choice.
    */
   public fun tryTask(taskId: TaskId): TaskResult
 
@@ -369,7 +375,7 @@ public interface Agent {
      */
     public fun doTasks(vararg narrowings: String)
 
-    /** Tries [narrowing], leaving incomplete or unavailable work pending. */
+    /** Uses [Agent.tryTask], leaving known missing choices or unavailable work pending. */
     public fun tryTask(narrowing: String)
 
     /** Tries [narrowing] against the pending task identified by [taskId]. */

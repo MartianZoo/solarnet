@@ -4,6 +4,7 @@ import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.Exceptions.AbortTransactionException
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
@@ -528,8 +529,10 @@ internal class AgentImpl(
   private fun tryExecution(block: () -> Unit) {
     try {
       world.timeline.atomic(block)
+    } catch (e: IncompleteAnalysisException) {
+      throw e
     } catch (_: NotFullySpecifiedException) {
-      // The existing try policy leaves unresolved requests pending.
+      // A known missing choice leaves the request pending; unfinished analysis propagates.
     } catch (_: NotNowException) {
       // Currently unavailable work leaves the attempted task and its effects unchanged.
     }

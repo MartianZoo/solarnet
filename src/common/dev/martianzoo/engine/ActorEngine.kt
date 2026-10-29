@@ -490,9 +490,11 @@ internal constructor(
    * before returning. Returns false if further narrowing or a different Actor is needed. Newly
    * queued work is outside this check.
    *
-   * Gameplay rejection or an unresolved instruction returns false; other failures propagate after
-   * restoration. The attempt runs in a disposable World and does not invalidate existing source
-   * overlays or notify source listeners. Unsupported choice forms remain unresolved.
+   * Gameplay rejection or a known missing choice returns false. [IncompleteAnalysisException]
+   * propagates when the engine cannot finish checking the possible narrowings; false never
+   * represents that unfinished proof. Other failures also propagate after restoration. The attempt
+   * runs in a disposable World and does not invalidate existing source overlays or notify source
+   * listeners.
    */
   // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory/optional changes.
   public fun canExecuteTask(taskId: TaskId): Boolean {
@@ -503,6 +505,8 @@ internal constructor(
       taskId !in trial.tasks
     } catch (_: GameplayException) {
       false
+    } catch (e: IncompleteAnalysisException) {
+      throw e
     } catch (_: NotFullySpecifiedException) {
       false
     }

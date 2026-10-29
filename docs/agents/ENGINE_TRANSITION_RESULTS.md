@@ -39,6 +39,24 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
 | 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Evidence for the separate Agent choice project, not a gate for the engine API. |
 
+### Execution queries and try calls preserve incomplete analysis
+
+`canExecuteTask` and every Agent `tryTask` overload now propagate the existing incomplete-analysis
+exception rather than converting it to false or a successful unchanged call. Known missing choices
+retain their previous behavior. The Agent scenario checks each entry point against unbound numeric
+work, verifies unchanged state and history, then supplies a concrete amount successfully.
+
+Opus/high identified initialization as another execution-query caller. Its scan now retains
+incomplete analysis while trying other tasks and retries after progress, including the existing
+Player fallback. A stalled unfinished proof reaches `Engine.newGame` without being relabeled as an
+invalid configuration. Setup scenarios cover later Admin progress, earlier Player progress, and a
+stalled unknown result. This adds no public API, choice representation, or persistent state.
+The full build with replay exports passed before these initialization review fixes. Final JVM
+verification passed 624 engine, 73 Agent, 50 script, 1358 Canon/rule tests (26 existing skips),
+and all 23 active replays with export and reconstruction. The focused setup suite passed again
+after removing an unreachable throw identified by Opus. Admin gameplay scheduling, selection probes, and automatic Player
+policy catches remain separate work in the transition plan.
+
 ### Assertion failures restore transactions and enclosing calls
 
 Both raw transaction restoration and the enclosing timeline block now catch `Throwable`, restore

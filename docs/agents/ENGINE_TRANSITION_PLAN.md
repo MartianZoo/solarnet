@@ -212,9 +212,15 @@ requests across arms count once. Unsupported alternatives retain incomplete anal
 successful concrete requests already prove ambiguity; groups and broader nested forms remain open.
 Other paths still need the same distinction. The Agent Admin loop catches the parent
 `NotFullySpecifiedException` type, so it does not yet surface incomplete analysis separately.
-`ActorEngine.probeSelection` and `canExecuteTask` also catch that parent type and return `false`;
-their Boolean results cannot currently distinguish unfinished proof from an impossible action.
-Agent's `tryTask` carryover also leaves both incomplete analysis and known missing choices pending.
+`ActorEngine.probeSelection` still catches that parent type and returns `false`; its Boolean
+result cannot currently distinguish unfinished proof from an impossible action.
+`canExecuteTask` and Agent's three `tryTask` overloads now propagate incomplete analysis separately,
+while known missing choices retain their false/unchanged result.
+Initialization retains an unfinished proof while trying later executable tasks, retries after
+progress, and propagates the incomplete result if no task can progress. The automatic Player
+policy catches and initial-operation admission also still catch the parent type; review those
+according to their purpose rather than treating them as explicit execution requests. Initial
+operation admission intentionally leaves abstract Player work for the operation body to narrow.
 The raw `Repair?` test now proves that zero and positive count can both complete when its immediate
 effect repairs the limit; the request therefore requires an explicit choice. The Agent menu now
 offers and submits that positive choice. AMAP count semantics remain separate work.

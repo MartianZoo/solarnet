@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -124,6 +125,64 @@ internal class InitializerTest {
     failure.message.orEmpty().shouldInclude("`Marker<Right>` (found 0, expected 1)")
     failure.message.orEmpty().shouldNotInclude("Marker<Left>")
     failure.message.orEmpty().shouldNotInclude("Marker<Absent>")
+  }
+
+  @Test
+  internal fun bootstrapRetriesIncompleteAnalysisAfterOtherWorkProgresses() {
+    val premise =
+        testGamePremise(
+                """
+        CLASS Token
+        CLASS Unit
+        CLASS BootstrapProbe {
+          This: X Token / Unit
+          This: -Unit
+        }
+        """,
+                players = 0,
+            )
+            .withTestSetup("Unit, BootstrapProbe")
+
+    val game = Engine.newGame(premise)
+
+    game.testAgent(ADMIN).count("Unit") shouldBe 0
+    game.testAgent(ADMIN).count("Token") shouldBe 0
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun bootstrapIncompleteAdminAnalysisDoesNotSkipAvailablePlayerWork() {
+    val premise =
+        testGamePremise(
+                """
+            CLASS Token
+            CLASS Unit
+            CLASS BootstrapProbe {
+              This: -Unit BY Player1
+              This: X Token / Unit BY Admin
+            }
+            """
+            )
+            .withTestSetup("Unit, BootstrapProbe")
+
+    val game = Engine.newGame(premise)
+
+    game.testAgent(ADMIN).count("Unit") shouldBe 0
+    game.testAgent(ADMIN).count("Token") shouldBe 0
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun bootstrapReportsIncompleteAnalysisWhenNoOtherWorkCanProgress() {
+    val premise =
+        testGamePremise(
+                "CLASS Token\nCLASS BootstrapProbe { This: X Token }",
+                players = 0,
+            )
+            .withTestSetup("BootstrapProbe")
+
+    // Unbound numeric domains are currently outside the engine's finite proof.
+    shouldThrow<IncompleteAnalysisException> { Engine.newGame(premise) }
   }
 
   @Test

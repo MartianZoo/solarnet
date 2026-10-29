@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.catalog.GamePremise
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.DependencyException
@@ -84,14 +85,23 @@ internal class Initializer(
     )
   }
 
-  /** Runs choice-free queued initialization work in stable insertion order. */
+  /**
+   * Retries choice-free initialization work after progress; reports unfinished proof if stalled.
+   */
   private fun drainBootstrapTasks() {
     val allTasks = gameWorld.tasks
     while (!allTasks.isEmpty()) {
+      var incomplete: IncompleteAnalysisException? = null
       val taskId =
           allTasks.selectedTask()
               ?: allTasks.ids().firstOrNull {
-                allTasks.getTaskData(it).assignee == ADMIN && actorEngines(ADMIN).canExecuteTask(it)
+                allTasks.getTaskData(it).assignee == ADMIN &&
+                    try {
+                      actorEngines(ADMIN).canExecuteTask(it)
+                    } catch (e: IncompleteAnalysisException) {
+                      incomplete = incomplete ?: e
+                      false
+                    }
               }
               ?: allTasks.ids().first()
       val task = allTasks.getTaskData(taskId)
@@ -99,14 +109,17 @@ internal class Initializer(
           task.selected &&
               task.instruction.isAbstract(reader) &&
               task.instruction !is Instruction.Each
-      )
-          break
+      ) {
+        break
+      }
       val assignee = task.assignee
       actorEngines(assignee).selectTask(taskId)
       if (taskId in allTasks) {
         val selected = allTasks.getTaskData(taskId)
-        if (selected.instruction.isAbstract(reader) && selected.instruction !is Instruction.Each)
-            break
+        if (selected.instruction.isAbstract(reader) && selected.instruction !is Instruction.Each) {
+          incomplete?.let { throw it }
+          break
+        }
         actorEngines(selected.assignee).doTask(taskId)
       }
     }

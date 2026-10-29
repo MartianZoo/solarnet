@@ -3,6 +3,7 @@ package dev.martianzoo.agent
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -48,6 +49,36 @@ internal class AgentTest {
     agent.tryTask(taskId)
 
     agent.tasks.getTaskData(taskId) shouldBe taskBefore
+  }
+
+  @Test
+  internal fun incompleteExecutionAnalysisIsReportedByQueriesAndEveryTryOverload() {
+    val game = Engine.newGame(testGamePremise())
+    val agent = Agents(game) { NONE }[PLAYER1]
+    // Unbound numeric domains are currently outside the engine's finite proof.
+    val task = agent.addTasks("X Token").single()
+    val pending = agent.tasks.getTaskData(task)
+    val checkpoint = game.timeline.checkpoint()
+    val events = game.events.nextOrdinal
+
+    val attempts: List<() -> Unit> =
+        listOf(
+            { agent.canExecuteTask(task) },
+            { agent.tryTask(task) },
+            { agent.tryTask("X Token") },
+            { agent.tryTask("X Token", task) },
+        )
+    for (attempt in attempts) {
+      shouldThrow<IncompleteAnalysisException> { attempt() }
+      agent.tasks.getTaskData(task) shouldBe pending
+      game.timeline.checkpoint() shouldBe checkpoint
+      game.events.nextOrdinal shouldBe events
+      agent.count("Token") shouldBe 0
+    }
+
+    agent.doTask("2 Token", task)
+    agent.count("Token") shouldBe 2
+    agent.tasks.isEmpty() shouldBe true
   }
 
   @Test
