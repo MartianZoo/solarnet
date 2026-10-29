@@ -2248,7 +2248,7 @@ internal class PostCatalogDiagnosticsTest {
     val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
     val error =
         assertFailsWith<NotFullySpecifiedException> {
-          agent.sneak("X Water")
+          agent.exMachina("X Water")
         }
 
     assertEquals("instruction is abstract: `X! Water`", error.detail)
@@ -2268,18 +2268,18 @@ internal class PostCatalogDiagnosticsTest {
     val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
     val error =
         assertFailsWith<ExpressionException> {
-          agent.sneak("Water: Seed")
+          agent.exMachina("Water: Seed")
         }
 
     assertEquals(
-        "sneak accepts only elementary changes; found `Water: Seed<Player1>!`",
+        "exMachina accepts only elementary changes; found `Water: Seed<Player1>!`",
         error.detail,
     )
     // Prefer pointing at `:`, which makes this a gated instruction rather than an elementary
     // change.
     assertEquals(
         """
-        |sneak accepts only elementary changes; found `Water: Seed<Player1>!` at 1:1
+        |exMachina accepts only elementary changes; found `Water: Seed<Player1>!` at 1:1
         |Water: Seed
         |^
         """

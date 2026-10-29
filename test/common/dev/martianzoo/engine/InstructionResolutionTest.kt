@@ -40,7 +40,7 @@ internal class InstructionResolutionTest {
       )
 
   init {
-    game.testTfm(PLAYER1).sneak("Plant, 10 ProjectCard, PROD[-1 MC]")
+    game.testTfm(PLAYER1).exMachina("Plant, 10 ProjectCard, PROD[-1 MC]")
   }
 
   private fun preprocess(instr: InstructionTree): InstructionTree {

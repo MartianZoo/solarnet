@@ -49,8 +49,8 @@ internal class AwardsTest : TfmTest() {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
 
-    p1.sneak("Incorporator, $Ecoline, $InterplanetaryCinematics")
-    p2.sneak("$MiningGuild, $Mine")
+    p1.exMachina("Incorporator, $Ecoline, $InterplanetaryCinematics")
+    p2.exMachina("$MiningGuild, $Mine")
 
     admin.runOperation("End FROM Phase")
 
@@ -71,8 +71,8 @@ internal class AwardsTest : TfmTest() {
     val p2 = game.testTfm(PLAYER2)
     val p3 = game.testTfm(PLAYER3)
 
-    p1.sneak("Forecaster, $ArtificialLake")
-    p2.sneak("$Birds, $Algae")
+    p1.exMachina("Forecaster, $ArtificialLake")
+    p2.exMachina("$Birds, $Algae")
     p1.count("CardFront(HAS requirement)") shouldBe 1
     p2.count("CardFront(HAS requirement)") shouldBe 2
 
@@ -94,7 +94,7 @@ internal class AwardsTest : TfmTest() {
   internal fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
     game = TfmEngine.newGame(canonicalPremise(players = 2))
     val p1 = game.testTfm(PLAYER1)
-    p1.sneak("100 MC")
+    p1.exMachina("100 MC")
 
     val first = p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Landlord") }
     first.expect("-8 MC")
@@ -126,7 +126,7 @@ internal class AwardsTest : TfmTest() {
     val p2 = game.testTfm(PLAYER2)
     val p3 = game.testTfm(PLAYER3)
 
-    p1.sneak("Thermalist, Miner, Heat")
+    p1.exMachina("Thermalist, Miner, Heat")
 
     admin.runOperation("End FROM Phase")
 
@@ -157,9 +157,9 @@ internal class AwardsTest : TfmTest() {
     val p2 = game.testTfm(PLAYER2)
     val p3 = game.testTfm(PLAYER3)
 
-    p1.sneak("Banker, PROD[-4 MC]")
-    p2.sneak("PROD[-5 MC]")
-    p3.sneak("PROD[-5 MC]")
+    p1.exMachina("Banker, PROD[-4 MC]")
+    p2.exMachina("PROD[-5 MC]")
+    p3.exMachina("PROD[-5 MC]")
     p1.assertProds(-4 to "MC")
     p2.assertProds(-5 to "MC")
     p3.assertProds(-5 to "MC")
@@ -196,8 +196,8 @@ internal class AwardsTest : TfmTest() {
     game = TfmEngine.newGame(canonicalPremise())
     val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
-    p1.sneak("$CorporateStronghold, $EarthCatapult, 5 TerraformRating")
-    p2.sneak("$EnergyTapping, PlayedEvent<Class<$LargeConvoy>>, 3 TerraformRating")
+    p1.exMachina("$CorporateStronghold, $EarthCatapult, 5 TerraformRating")
+    p2.exMachina("$EnergyTapping, PlayedEvent<Class<$LargeConvoy>>, 3 TerraformRating")
 
     admin.runOperation("End FROM Phase")
 

@@ -38,7 +38,7 @@ internal class TransactionGroupingTest {
     game.events.transactionRange(0) shouldBe null
 
     val setupEnd = game.events.nextOrdinal
-    game.testAgent(PLAYER1).sneak("Coin")
+    game.testAgent(PLAYER1).exMachina("Coin")
 
     game.events.lastTransaction?.serial shouldBe 0
     game.events.transactionStarts.first() shouldBe setupEnd
@@ -79,7 +79,7 @@ internal class TransactionGroupingTest {
     val game = Engine.newGame(premise)
     val agent = game.testAgent(PLAYER1)
     agent.runOperation("Token")
-    agent.sneak("Coin")
+    agent.exMachina("Coin")
 
     val gameplay = game.events.entriesSinceSetup()
     gameplay.isEmpty() shouldBe false
@@ -103,11 +103,11 @@ internal class TransactionGroupingTest {
     val setupEnd = game.events.nextOrdinal
     game.events.transactionStarts shouldBe listOf(setupEnd)
 
-    agent.sneak("Coin")
+    agent.exMachina("Coin")
     val afterFirst = game.events.nextOrdinal
     game.events.transactionStarts shouldBe listOf(setupEnd, afterFirst)
 
-    agent.sneak("Coin")
+    agent.exMachina("Coin")
     game.events.transactionStarts shouldBe listOf(setupEnd, afterFirst, game.events.nextOrdinal)
   }
 
@@ -176,14 +176,14 @@ internal class TransactionGroupingTest {
 
     shouldThrow<IllegalStateException> {
       game.timeline.atomic {
-        agent.sneak("Coin")
+        agent.exMachina("Coin")
         game.events.lastTransaction?.serial shouldBe 1
         error("reject this scope")
       }
     }
 
     game.events.lastTransaction?.serial shouldBe 0
-    agent.sneak("Coin")
+    agent.exMachina("Coin")
     game.events.lastTransaction?.serial shouldBe 1
   }
 }

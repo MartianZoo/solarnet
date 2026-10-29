@@ -108,9 +108,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   with printed and derived English.
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
-- Consolidate correction as the single client-facing `exMachina` feature. The owner explicitly
-  rejected exposing `sneak` as a second feature. Trace and migrate callers, preserve selected-task
-  correction behavior, and keep any required low-level implementation internal.
 - Replace ordering-only `::` protocols in pricing/acceptance, wild-tag preparation, and
   Turmoil/Politician influence measurement. Decompose government formation before judging its
   individual invariant repairs; `THEN` on a signal does not wait for its triggered work.

@@ -24,7 +24,7 @@ internal class WorldTransactionTest {
   internal fun manualTaskEditsPreserveSelectionAndDoNotExecutePlayerWork() {
     val game = Engine.newGame(testGamePremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    agent.sneak("Token")
+    agent.exMachina("Token")
 
     val taskId = agent.addTasks("-Token?").single()
     agent.selectTask(taskId)

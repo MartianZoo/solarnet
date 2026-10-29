@@ -38,7 +38,7 @@ internal class VictoryTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    p1.sneak("MC")
+    p1.exMachina("MC")
 
     admin.runOperation("End FROM Phase")
 

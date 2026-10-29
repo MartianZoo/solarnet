@@ -249,7 +249,7 @@ internal class DoTasksTest {
   fun agentCombinesIncomeWhileEngineStillRequiresIndividualTasks() {
     val game = Engine.newGame(testGamePremise("CLASS Coin\nCLASS Rating"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
-    player.sneak("20 Rating")
+    player.exMachina("20 Rating")
     player.addTasks("-5! Coin, 6! Coin, Coin / Rating")
     val before = game.events.nextOrdinal
 

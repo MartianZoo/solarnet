@@ -77,7 +77,7 @@ internal class ComponentEffectsValidationTest {
         )
     val admin = game.testAgent(ADMIN)
 
-    shouldThrow<ExpressionException> { admin.sneak("Token!, BrokenHolder<Bad>!") }
+    shouldThrow<ExpressionException> { admin.exMachina("Token!, BrokenHolder<Bad>!") }
     admin.runOperation("Marker")
 
     admin.count("Token") shouldBe 0

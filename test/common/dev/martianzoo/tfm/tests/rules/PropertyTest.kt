@@ -46,7 +46,7 @@ internal class PropertyTest {
     val game = TfmEngine.newGame(canonicalPremise(Hellas, players = 2))
     val p1 = game.testTfm(PLAYER1)
 
-    p1.sneak(
+    p1.exMachina(
         "NormalCityTile<Player1, Hellas_7_4>, NormalCityTile<Player1, Hellas_8_4>, " +
             "NormalCityTile<Player1, Hellas_8_5>, NormalCityTile<Player1, Hellas_9_5>"
     )

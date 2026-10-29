@@ -15,7 +15,7 @@ internal sealed class Access private constructor() {
    */
   internal fun doPhase(agent: Agent, phase: String): TaskResult {
     val current = agent.reader.getComponents(agent.resolve("Phase")).elements.single().className
-    return agent.sneak("${phase}Phase FROM $current")
+    return agent.exMachina("${phase}Phase FROM $current")
   }
 
   internal open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
@@ -60,7 +60,7 @@ internal sealed class Access private constructor() {
 
     override fun phase(phase: String): TaskResult = doPhase(agent, phase)
 
-    override fun exec(instruction: String) = agent.sneak(instruction)
+    override fun exec(instruction: String) = agent.exMachina(instruction)
 
     override fun dropTask(id: TaskId) {
       agent.dropTask(id)

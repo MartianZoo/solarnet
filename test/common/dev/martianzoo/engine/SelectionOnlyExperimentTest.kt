@@ -43,7 +43,7 @@ internal class SelectionOnlyExperimentTest {
             )
         )
     val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
-    agent.sneak("3 Foo, 2 Bar")
+    agent.exMachina("3 Foo, 2 Bar")
     val id = agent.addTasks("-5* Resource").single()
 
     agent.selectTask(id)
@@ -96,7 +96,7 @@ internal class SelectionOnlyExperimentTest {
   fun selectingAGatedEachChecksTheGateWithoutExpandingTheFanout() {
     val world = Engine.newGame(testGamePremise("CLASS Foo\nCLASS Bar"))
     val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
-    agent.sneak("Foo")
+    agent.exMachina("Foo")
     val id = agent.addTasks("Foo: EACH Player { Bar }").single()
 
     agent.selectTask(id)

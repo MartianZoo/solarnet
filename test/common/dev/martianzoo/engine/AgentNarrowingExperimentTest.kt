@@ -56,7 +56,7 @@ internal class AgentNarrowingExperimentTest {
   fun automaticDraftReductionCanRemainPartialWithoutChangingWorld() {
     val world = world()
     val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
-    agent.sneak("3 Bar")
+    agent.exMachina("3 Bar")
     val id = agent.addTasks("-X! Resource THEN X! Reward").single()
     val before = world.events.nextOrdinal
     val form = agent.fillInTask(id)
@@ -70,7 +70,7 @@ internal class AgentNarrowingExperimentTest {
   fun typeAndAmountReductionsCanComposeWithoutExecuting() {
     val world = world()
     val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
-    agent.sneak("Bar")
+    agent.exMachina("Bar")
     val id = agent.addTasks("-X! Resource THEN X! Reward").single()
     val before = world.events.nextOrdinal
     val form = agent.fillInTask(id)
@@ -138,7 +138,7 @@ internal class AgentNarrowingExperimentTest {
             )
         )
     val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
-    agent.sneak("Present")
+    agent.exMachina("Present")
     val task = agent.addTasks("Destination FROM Source").single()
 
     world.actorEngine(PLAYER1).doTask(task)
@@ -163,7 +163,7 @@ internal class AgentNarrowingExperimentTest {
             )
         )
     val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
-    agent.sneak("Present")
+    agent.exMachina("Present")
     val task = agent.addTasks("Destination FROM Source").single()
     val before = world.events.nextOrdinal
 
@@ -190,7 +190,7 @@ internal class AgentNarrowingExperimentTest {
             )
         )
     val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
-    agent.sneak("Red, Blue, Source<Red>, Source<Blue>")
+    agent.exMachina("Red, Blue, Source<Red>, Source<Blue>")
     val task = agent.addTasks("Target<@Place> FROM Source<@Place>").single()
 
     shouldThrow<NotFullySpecifiedException> { world.actorEngine(PLAYER1).doTask(task) }
@@ -218,7 +218,7 @@ internal class AgentNarrowingExperimentTest {
         )
     val agents = Agents(world) { NONE }
     val agent = agents[PLAYER1]
-    agent.sneak("Red, Blue, Source<Red>, Source<Blue>")
+    agent.exMachina("Red, Blue, Source<Red>, Source<Blue>")
     agent.addTasks("Pending")
     val task =
         world
@@ -250,7 +250,7 @@ internal class AgentNarrowingExperimentTest {
             )
         )
     val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
-    agent.sneak("2 Source")
+    agent.exMachina("2 Source")
     val task = agent.addTasks("2 Destination FROM Source").single()
 
     world.actorEngine(PLAYER1).doTask(task)

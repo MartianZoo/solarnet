@@ -136,7 +136,11 @@ silently choose an answer.
    The owner selected allowing explicit corrections while preserving selection, and dropping the
    selected task, while ordinary add/drop edits remain excluded. The owner also clarified that
    `exMachina` should be the single correction feature, not a second feature beside `sneak`.
-   Consolidating those client APIs and migrating callers remains active work.
+   The owner approved explicit System edits while retaining the check against additional unfinished
+   MustCleanUp work. `Agent.exMachina` now consolidates those client APIs; callers are migrated and
+   the old extension and `sneak` methods removed. Selected instructions remain unchanged, including
+   their calculated amounts. The owner asked for an expedient consolidation rather than a redesign
+   of correction-time recalculation; arbitrary task restoration is removed.
 
 ## Consequences to validate explicitly
 

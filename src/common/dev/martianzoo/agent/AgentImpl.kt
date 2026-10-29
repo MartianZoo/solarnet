@@ -116,12 +116,23 @@ internal class AgentImpl(
 
   // CHANGES
 
-  // TODO(ENGINE_CONTRACT): decide whether correction calls may deliberately omit required Admin
-  // handling. This path currently returns without checking for eligible Admin tasks.
-  override fun sneak(changes: String, fakeCause: Cause?): TaskResult =
+  override fun exMachina(changes: String): TaskResult =
       world.timeline.atomic {
-        engine.sneak(parseInstructionGroup(changes), fakeCause)
-        validateApplication()
+        taskLog.capture(actor, changes, kind = Kind.EX_MACHINA) {
+          val unfinished = list("MustCleanUp").entries.associate { it.key to it.value }
+          val correction = parseInstructionGroup(changes)
+          val audited =
+              if (actor is Player)
+                  InstructionGroup.of(listOf(parseInstructionGroup("Audit<$actor>"), correction))
+              else correction
+          engine.exMachina(audited)
+          validateApplication()
+          if (
+              list("MustCleanUp").entries.any { (type, count) -> count > (unfinished[type] ?: 0) }
+          ) {
+            throw NotNowException("exMachina cannot leave new unfinished work")
+          }
+        }
       }
 
   // TASKS

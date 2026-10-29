@@ -149,18 +149,17 @@ internal constructor(
   // CHANGES LAYER
 
   /**
-   * Applies [changes] as a failure-atomic correction attributed to [actor], optionally using
-   * [cause] for attribution. Recursive `::` effects and final invariant checks still run; queued
-   * `:` effects and client task handling do not. Returns the correction's component changes and
-   * surviving new tasks.
+   * Applies [changes] as a failure-atomic correction attributed to [actor]. Recursive `::` effects
+   * and final invariant checks still run; queued `:` effects and client task handling do not.
+   * Returns the correction's component changes and surviving new tasks.
    *
-   * This bypasses ordinary task selection. The proposed treatment of corrections while a task is
-   * selected or Admin work remains needs review.
+   * This bypasses ordinary task selection and preserves pending tasks, including any selected
+   * instruction. Agent adds correction recording, application validation, and the unfinished-work
+   * check around this module-level primitive.
    */
-  public fun sneak(changes: InstructionGroup, cause: Cause? = null): TaskResult =
-      worldTransaction.correct {
-        transactions.perform(actor, CLIENT_REQUEST) { instructor.sneak(changes, cause, actor) }
-      }
+  public fun exMachina(changes: InstructionGroup): TaskResult = worldTransaction.correct {
+    transactions.perform(actor, CLIENT_REQUEST) { instructor.exMachina(changes, actor) }
+  }
 
   // TASKS LAYER
 
@@ -200,24 +199,6 @@ internal constructor(
       }
 
   /**
-   * Replaces the stored data of an existing task during an evidenced correction. [task]'s id must
-   * already exist and its current assignee must be [actor]; this does not recreate a removed task.
-   *
-   * Normalization applies to the replacement. Current limitation: replacement can change
-   * instruction, selection, and assignment without ordinary selection checks. Its place in the
-   * public API needs review.
-   */
-  // TODO(ENGINE_CONTRACT): Investigate limiting this arbitrary task replacement to correction
-  // clients.
-  public fun restoreTask(task: Task) {
-    val current = allTasks.getTaskData(task.id)
-    if (actor != current.assignee) {
-      throw TaskException("`$actor` cannot restore a task assigned to `${current.assignee}`")
-    }
-    transactions.perform(actor, CLIENT_REQUEST) { taskQueues.editTask(task) }
-  }
-
-  /**
    * Remove a task because its [Task.instruction] has been handled; any [Task.then] instructions are
    * automatically enqueued.
    */
@@ -246,7 +227,7 @@ internal constructor(
 
   private fun requireNoOtherSelectedTask(taskId: TaskId) {
     // Check the whole task pool: another Actor's selection also excludes this task command.
-    // TODO(ENGINE_CONTRACT): Corrections still bypass this exclusion; queue edits no longer do.
+    // Explicit corrections preserve the selected task; ordinary queue edits respect this exclusion.
     val already = allTasks.selectedTask()
     if (already != null && already != taskId) {
       val instr = allTasks.getTaskData(already).instruction

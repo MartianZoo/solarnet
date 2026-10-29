@@ -16,8 +16,8 @@ import dev.martianzoo.state.Task.TaskId
 /**
  * Opt-in Actor-input capture for engine reconstruction, retaining submitted instruction syntax.
  *
- * Captures task submissions, selections, form commits, successful tries, drops, [exMachina], and
- * policy-executed tasks for every Actor. [RecordedInput.Command.kind] preserves distinct Agent
+ * Captures task submissions, selections, form commits, successful tries, drops, [Agent.exMachina],
+ * and policy-executed tasks for every Actor. [RecordedInput.Command.kind] preserves distinct Agent
  * operations, including task selection, single-task execution, and corrections. A task completed
  * through a handoff records the originating choice separately from the receiving Actor's execution.
  * Failed, no-op, and rolled-back submissions are omitted. Later form commits replace earlier form
@@ -266,7 +266,7 @@ public class TaskLog internal constructor(private val world: World) {
                 agent.dropTask(
                     (target ?: requireNotNull(matchingTask(agent, command.instruction))).id
                 )
-            RecordedInput.Kind.EX_MACHINA -> agents.exMachina(command.actor, command.instruction)
+            RecordedInput.Kind.EX_MACHINA -> agents[command.actor].exMachina(command.instruction)
           }
         } catch (e: Exception) {
           throw IllegalArgumentException("cannot replay game input ${index + 2}: $input", e)

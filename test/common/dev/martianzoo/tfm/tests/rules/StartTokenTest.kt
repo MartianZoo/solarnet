@@ -88,7 +88,7 @@ internal class StartTokenTest : TfmGameplayTest() {
       val p1 = game.testAgent(PLAYER1)
       val p2 = game.testAgent(PLAYER2)
 
-      admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
+      admin.exMachina("StartToken<Player2> FROM StartToken<Player1>")
       admin.beginOperation("SetupPhase FROM BootstrapPhase")
       admin.count("SetupPhase") shouldBe 1
       admin.count("Baton") shouldBe 0
@@ -106,7 +106,7 @@ internal class StartTokenTest : TfmGameplayTest() {
     @Test
     internal fun `Research passes the token according to the explicit seat order`() {
       game = setUpGame(players = 3)
-      admin.sneak(
+      admin.exMachina(
           "NextPlayer<Player1, Player3> FROM NextPlayer<Player1, Player2>, " +
               "NextPlayer<Player3, Player2> FROM NextPlayer<Player3, Player1>, " +
               "NextPlayer<Player2, Player1> FROM NextPlayer<Player2, Player3>"
@@ -118,9 +118,9 @@ internal class StartTokenTest : TfmGameplayTest() {
     @Test
     internal fun `Seat order and start token reject invalid corrections`() {
       game = setUpGame(players = 3)
-      shouldThrow<LimitsException> { admin.sneak("-StartToken<Player1>") }
-      shouldThrow<LimitsException> { admin.sneak("NextPlayer<Player1, Player3>") }
-      shouldThrow<LimitsException> { admin.sneak("NextPlayer<Player3, Player2>") }
+      shouldThrow<LimitsException> { admin.exMachina("-StartToken<Player1>") }
+      shouldThrow<LimitsException> { admin.exMachina("NextPlayer<Player1, Player3>") }
+      shouldThrow<LimitsException> { admin.exMachina("NextPlayer<Player3, Player2>") }
     }
   }
 }

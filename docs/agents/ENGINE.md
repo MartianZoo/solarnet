@@ -387,7 +387,7 @@ invariant templates used for validation.
 Abstract or refined Types, minimum-only bounds, self-counts, and indirect or unrelated requirements
 remain constraints; construction neither chooses their components nor invents missing prerequisites.
 Signals do not reconstruct parts. Ordinary instruction execution and
-`sneak` corrections share this construction rule; corrections suppress queued reactions.
+`exMachina` corrections share this construction rule; corrections suppress queued reactions.
 
 Completed-state validation instantiates a self-count for every inhabited concrete specialization.
 A dependent count containing `This` is instantiated only for live declaring Types, so an absent

@@ -128,7 +128,7 @@ internal class AgentTest {
   internal fun unavailableMetricRequestLeavesItsTaskPending() {
     val game = Engine.newGame(testGamePremise("CLASS Token\nCLASS Unit"))
     val agent = Agents(game) { NONE }[PLAYER1]
-    agent.sneak("Unit")
+    agent.exMachina("Unit")
     val task = agent.addTasks("-Token! / Unit").single()
     val pending = agent.tasks.getTaskData(task)
     val before = game.events.nextOrdinal

@@ -131,7 +131,7 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `doing a gated action still checks its gate`() {
-    agent.sneak("Heat")
+    agent.exMachina("Heat")
     initiate("MAX 0 Heat: Plant")
     val before = game.events.nextOrdinal
 
@@ -143,7 +143,7 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `an unavailable gated task does not hide an ordinary task`() {
-    agent.sneak("Heat")
+    agent.exMachina("Heat")
     val unavailable = initiate("MAX 0 Heat: Plant").single()
     initiate("Plant")
 
@@ -155,7 +155,7 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `an available gated task takes precedence over an unavailable gated task`() {
-    agent.sneak("Heat")
+    agent.exMachina("Heat")
     val unavailable = initiate("MAX 0 Heat: Plant").single()
     initiate("Heat: Plant")
 
@@ -167,7 +167,7 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `doing a scaled action names the calculated amount without its metric`() {
-    agent.sneak("2 Heat")
+    agent.exMachina("2 Heat")
     initiate("Plant / Heat")
 
     agent.doTask("2 Plant")

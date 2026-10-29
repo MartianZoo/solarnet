@@ -93,7 +93,7 @@ internal class TaskIntersectionTest {
       agent.count("Piece<Red, Square>") shouldBe 0
       agent.count("Marker") shouldBe 1
       game.tasks.isEmpty() shouldBe true
-      agent.sneak("-Piece<Red, Circle>, -Marker")
+      agent.exMachina("-Piece<Red, Circle>, -Marker")
     }
   }
 
@@ -165,7 +165,7 @@ internal class TaskIntersectionTest {
 
   @Test
   fun `calculated amount identifies a unique task but not two distinct permissions`() {
-    agent.sneak("3 Foo, 2 Bar")
+    agent.exMachina("3 Foo, 2 Bar")
     val engine = game.actorEngine(PLAYER1)
     val first = agent.addTasks("MC / Foo").single()
     val barTask = agent.addTasks("MC / Bar").single()
@@ -175,7 +175,7 @@ internal class TaskIntersectionTest {
     (first in game.tasks.ids()) shouldBe false
     (barTask in game.tasks.ids()) shouldBe true
 
-    agent.sneak("Bar")
+    agent.exMachina("Bar")
     val fooTask = agent.addTasks("MC / Foo").single()
     val before = game.events.nextOrdinal
     shouldThrow<TaskException> { engine.doTask(agent.parse<InstructionTree>("3 MC")) }
@@ -193,7 +193,7 @@ internal class TaskIntersectionTest {
 
   @Test
   fun `literal and calculated permissions do not silently favor the literal task`() {
-    agent.sneak("3 Foo")
+    agent.exMachina("3 Foo")
     val literal = agent.addTasks("3 MC").single()
     val calculated = agent.addTasks("MC / Foo").single()
     val before = game.events.nextOrdinal

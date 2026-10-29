@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.recording
 import dev.martianzoo.engine.testGamePremise
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.GameRecording
@@ -18,14 +19,14 @@ import kotlinx.coroutines.test.runTest
 
 internal class GameFileImporterTest {
   @Test
-  internal fun exMachinaRetainsItsTransactionsAndRestoresTheSelectedTask() {
+  internal fun exMachinaRetainsItsTransactionsAndPreservesTheSelectedTask() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
     val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val task = player.addTasks("Coin OR Marker").single()
     player.selectTask(task)
     val before = agents.world.timeline.positions
 
-    agents.exMachina(PLAYER1, "Coin")
+    agents[PLAYER1].exMachina("Coin")
 
     agents.world.timeline.positions.take(before.size) shouldBe before
     agents.world.timeline.positions.last() shouldBe agents.world.timeline.checkpoint()
@@ -87,7 +88,7 @@ internal class GameFileImporterTest {
     source.taskLog.gameStarted()
     source[PLAYER1].addTasks("Coin")
     source[PLAYER1].doTask("Coin")
-    source.exMachina(PLAYER1, "Coin")
+    source[PLAYER1].exMachina("Coin")
     source.world.events.changesSinceSetup().last().notes = "manual correction from paper log"
     val inputs = source.taskLog.inputs()
     inputs.last() shouldBe RecordedInput.Command(PLAYER1, RecordedInput.Kind.EX_MACHINA, "Coin")
@@ -165,37 +166,45 @@ internal class GameFileImporterTest {
   }
 
   @Test
-  internal fun selectedGroupsSurviveFullAndShortExportAndCanExecuteAfterReplay() = runTest {
-    val premise = testGamePremise("CLASS Coin\nCLASS Marker\nCLASS Prize")
-    val source = Agents(Engine.newGame(premise))
-    val player = source[PLAYER1].also { it.autoExecPolicy = NONE }
-    source.taskLog.start()
-    source.taskLog.gameStarted()
-    val id = player.addTasks("(Coin, Marker) OR Prize").single()
-    player.selectTask("Coin, Marker")
-    source.world.tasks.ids().toList() shouldBe listOf(id)
-    player.count("Coin") shouldBe 0
+  internal fun selectedGroupsAndCorrectionsSurviveFullAndShortExportAndCanExecuteAfterReplay() =
+      runTest {
+        val premise = testGamePremise("CLASS Coin\nCLASS Marker\nCLASS Prize")
+        val source = Agents(Engine.newGame(premise))
+        val player = source[PLAYER1].also { it.autoExecPolicy = NONE }
+        source.taskLog.start()
+        source.taskLog.gameStarted()
+        val id = player.addTasks("(Coin, Marker) OR Prize").single()
+        player.selectTask("Coin, Marker")
+        player.exMachina("Prize")
+        source[ADMIN].exMachina("Prize")
+        source.world.tasks.ids().toList() shouldBe listOf(id)
+        player.count("Coin") shouldBe 0
 
-    for (short in listOf(false, true)) {
-      val file =
-          GameFileJson.parse(
-              GameFileJson.encode(source.world.recording(), source.taskLog.inputs(), short = short)
-          )
-      val imported =
-          GameFileImporter.replay(
-              file,
-              premise.catalog,
-              newAgents = { Agents(Engine.newGame(it)) },
-              startGame = { it[PLAYER1].addTasks("(Coin, Marker) OR Prize") },
-          )
-      val selected = imported.world.tasks.getTaskData(imported.world.tasks.selectedTask()!!)
-      selected.instruction shouldBe source.world.tasks.getTaskData(id).instruction
-      imported[PLAYER1].doTask(selected.id)
-      imported[PLAYER1].count("Coin") shouldBe 0
-      imported[PLAYER1].doTasks("Marker", "Coin")
-      imported[PLAYER1].count("Coin") shouldBe 1
-      imported[PLAYER1].count("Marker") shouldBe 1
-      imported.world.tasks.isEmpty() shouldBe true
-    }
-  }
+        for (short in listOf(false, true)) {
+          val file =
+              GameFileJson.parse(
+                  GameFileJson.encode(
+                      source.world.recording(),
+                      source.taskLog.inputs(),
+                      short = short,
+                  )
+              )
+          val imported =
+              GameFileImporter.replay(
+                  file,
+                  premise.catalog,
+                  newAgents = { Agents(Engine.newGame(it)) },
+                  startGame = { it[PLAYER1].addTasks("(Coin, Marker) OR Prize") },
+              )
+          val selected = imported.world.tasks.getTaskData(imported.world.tasks.selectedTask()!!)
+          selected.instruction shouldBe source.world.tasks.getTaskData(id).instruction
+          imported[PLAYER1].count("Prize") shouldBe 2
+          imported[PLAYER1].doTask(selected.id)
+          imported[PLAYER1].count("Coin") shouldBe 0
+          imported[PLAYER1].doTasks("Marker", "Coin")
+          imported[PLAYER1].count("Coin") shouldBe 1
+          imported[PLAYER1].count("Marker") shouldBe 1
+          imported.world.tasks.isEmpty() shouldBe true
+        }
+      }
 }

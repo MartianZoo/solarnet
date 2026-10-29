@@ -35,7 +35,7 @@ category, which also includes effects that install persistent rules. The rendere
 alongside the card's direct effect; that placement does not make their purposes identical.
 
 Use **elementary change** for a gain, removal, or transmutation instruction, and **correction** for
-`sneak` or `exMachina` adjustments. Distinguish explicit correction targets from derived changes.
+`exMachina` adjustments. Distinguish explicit correction targets from derived changes.
 Retain established relationship terms such as **direct superclass** and **direct dependency** when
 the contrast with an indirect relationship matters. Avoid other invented uses of “direct”.
 

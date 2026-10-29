@@ -5,7 +5,6 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
-import dev.martianzoo.agent.exMachina
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
@@ -140,7 +139,7 @@ internal abstract class TfmSandboxTest {
   private fun setPhase(phase: String) {
     check(game.tasks.isEmpty()) { "Finish pending choices before changing phase" }
     val current = admin.list("Phase").elements.single()
-    admin.sneak("${phase}Phase FROM $current")
+    admin.exMachina("${phase}Phase FROM $current")
   }
 
   /**
@@ -155,7 +154,7 @@ internal abstract class TfmSandboxTest {
         }
     // The sandbox leaves the baton behind with the game's turn order.
     admin.list("Baton").elements.forEach { baton ->
-      admin.sneak("-${admin.count("$baton")} $baton")
+      admin.exMachina("-${admin.count("$baton")} $baton")
     }
   }
 
@@ -186,12 +185,7 @@ internal abstract class TfmSandboxTest {
     } else {
       val difference = targetCount - count(type)
       if (difference == 0) return
-      // Sandbox setup may place Admin-owned System markers, such as colony tracks.
-      if (actor == ADMIN && resolvedType.isSubtypeOf(resolve("System"))) {
-        sneak("$difference $type")
-      } else {
-        exMachina("$difference $type")
-      }
+      exMachina("$difference $type")
     }
   }
 
@@ -210,10 +204,6 @@ internal abstract class TfmSandboxTest {
       game.timeline.seek(checkpoint)
       game.timeline.truncate()
     }
-  }
-
-  protected fun Agent.exMachina(adjustment: String) {
-    agents.exMachina(actor, adjustment)
   }
 
   private fun createWorld(addOptions: String, playerCount: Int, firstGlobalEvents: List<String>) {

@@ -47,7 +47,7 @@ internal class TilePlacingTest {
     val game = setUpGame()
 
     with(game.testTfm(PLAYER1)) {
-      sneak("100 MC")
+      exMachina("100 MC")
       phase("Action")
       stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_4_3>") }
       assertFailsWith<NarrowingException> {

@@ -56,7 +56,7 @@ internal class ByTriggerCharacterizationTest {
   private fun assertByActor(actor: Actor) {
     val game = newGame()
     val agent = game.testAgent(actor).also { if (actor != ADMIN) it.autoExecPolicy = NONE }
-    agent.sneak("ActorTriggerProbe!")
+    agent.exMachina("ActorTriggerProbe!")
     val before = game.events.nextOrdinal
 
     agent.beginOperation("ActorTriggerSignal!") {}
@@ -76,7 +76,7 @@ internal class ByTriggerCharacterizationTest {
   internal fun byPlayerAcceptsPlayer() {
     val game = newGame()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    p1.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
+    p1.exMachina("ActorTriggerProbe!, ActorTriggerSignal!")
 
     p1.beginOperation("-ActorTriggerSignal!") {
       game.tasks
@@ -90,7 +90,7 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     game.testAgent(PLAYER1).autoExecPolicy = NONE
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    p2.sneak("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
+    p2.exMachina("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
 
     p2.beginOperation("-OwnedActorTrigger<Player1>!") {
       game.tasks
@@ -107,7 +107,7 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = EAGER }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = EAGER }
-    p2.sneak("WrappedActorBindingProbe!, Steel<Player2>!")
+    p2.exMachina("WrappedActorBindingProbe!, Steel<Player2>!")
 
     p2.runOperation("3! OwnedActorTrigger<Player1>")
 
@@ -120,7 +120,7 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = EAGER }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = EAGER }
-    p2.sneak("WrappedActorBindingProbe!, Steel<Player1>!")
+    p2.exMachina("WrappedActorBindingProbe!, Steel<Player1>!")
 
     p2.runOperation("3! OwnedActorTrigger<Player1>")
 
@@ -132,7 +132,7 @@ internal class ByTriggerCharacterizationTest {
   internal fun byPlayerRejectsAdmin() {
     val game = newGame()
     val admin = game.testAgent(ADMIN)
-    admin.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
+    admin.exMachina("ActorTriggerProbe!, ActorTriggerSignal!")
 
     admin.beginOperation("-ActorTriggerSignal!")
 
@@ -144,7 +144,7 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    p1.sneak("OwnedByProbe<Player2>!")
+    p1.exMachina("OwnedByProbe<Player2>!")
 
     p1.runOperation("ActorTriggerSignal!")
     game.tasks.isEmpty() shouldBe true
@@ -165,7 +165,7 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    p1.sneak("RepeatedHolderProbe<Player2>!")
+    p1.exMachina("RepeatedHolderProbe<Player2>!")
     val checkpoint = game.events.nextOrdinal
 
     p1.runOperation("ActorTriggerSignal!")
@@ -194,7 +194,7 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    p1.sneak("OwnedTriggerProbe<Player1>!")
+    p1.exMachina("OwnedTriggerProbe<Player1>!")
 
     p2.beginOperation("OwnedActorTrigger<Player2>!") {
       game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Plant<Player1>!")
@@ -223,7 +223,7 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val admin = game.testAgent(ADMIN)
-    owner.sneak("SystemTriggerProbe<Player1>!")
+    owner.exMachina("SystemTriggerProbe<Player1>!")
 
     admin.beginOperation("SystemTriggerSignal!")
     owner.autoExecPolicy = EAGER
@@ -237,7 +237,7 @@ internal class ByTriggerCharacterizationTest {
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val other = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
     val admin = game.testAgent(ADMIN)
-    owner.sneak("OpponentByProbe<Player1>!")
+    owner.exMachina("OpponentByProbe<Player1>!")
 
     owner.runOperation("ActorTriggerSignal!")
     admin.runOperation("ActorTriggerSignal!")
@@ -253,7 +253,7 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val other = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    owner.sneak("OpponentByProbe<Player1>!, ActorTriggerSignal!")
+    owner.exMachina("OpponentByProbe<Player1>!, ActorTriggerSignal!")
 
     other.beginOperation("-ActorTriggerSignal!") {
       game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Heat<Player1>!")

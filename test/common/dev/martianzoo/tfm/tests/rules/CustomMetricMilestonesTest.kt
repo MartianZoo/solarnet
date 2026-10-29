@@ -19,7 +19,7 @@ internal class CustomMetricMilestonesTest {
   @Test
   internal fun tycoonCanBeClaimedWithFifteenActiveAndAutomatedCards() {
     val p1 = TfmEngine.newGame(canonicalPremise(Elysium, players = 2)).testTfm(PLAYER1)
-    p1.sneak(
+    p1.exMachina(
         "$ColonizerTrainingCamp, $DeepWellHeating, $CloudSeeding, $MartianRails, " +
             "$WaterImportFromEuropa, $EquatorialMagnetizer, $DomedCrater, $NoctisCity, " +
             "$MethaneFromTitan, $ResearchOutpost, $PhobosSpaceHaven, $BlackPolarDust, " +
@@ -29,7 +29,7 @@ internal class CustomMetricMilestonesTest {
     p1.count("ActiveCard OR AutomatedCard") shouldBe 14
     shouldThrow<RequirementException> { p1.runOperation("Tycoon15") }
 
-    p1.sneak("$EosChasmaNationalPark")
+    p1.exMachina("$EosChasmaNationalPark")
     p1.count("ActiveCard OR AutomatedCard") shouldBe 15
     p1.runOperation("Tycoon15")
     p1.count("Tycoon15") shouldBe 1
@@ -79,12 +79,12 @@ internal class CustomMetricMilestonesTest {
                 )
             )
             .testTfm(PLAYER1)
-    p1.sneak("$ArtificialLake, $Birds, $Algae, $AsteroidMiningConsortium")
+    p1.exMachina("$ArtificialLake, $Birds, $Algae, $AsteroidMiningConsortium")
 
     p1.count("CardFront(HAS requirement)") shouldBe 4
     shouldThrow<RequirementException> { p1.runOperation("Tactician5") }
 
-    p1.sneak("$BreathingFilters")
+    p1.exMachina("$BreathingFilters")
     p1.count("CardFront(HAS requirement)") shouldBe 5
     p1.runOperation("Tactician5")
     p1.count("Tactician5") shouldBe 1

@@ -30,8 +30,8 @@ internal class GlobalParameterCompletionTest : TfmTest() {
     val waterAreas = p1.list("WaterArea")
     val landArea = p1.list("LandArea").first()
 
-    p1.sneak("18 TemperatureStep, 13 OxygenStep, 14 VenusStep")
-    p1.sneak(waterAreas.take(8).joinToString { "OceanTile<$it>" })
+    p1.exMachina("18 TemperatureStep, 13 OxygenStep, 14 VenusStep")
+    p1.exMachina(waterAreas.take(8).joinToString { "OceanTile<$it>" })
 
     p1.runOperation("TemperatureStep, OxygenStep, VenusStep")
 
@@ -63,7 +63,7 @@ internal class GlobalParameterCompletionTest : TfmTest() {
     val p1 = game.testTfm(PLAYER1)
     val waterAreas = p1.list("WaterArea")
 
-    p1.sneak(waterAreas.take(10).joinToString { "OceanTile<$it>" })
+    p1.exMachina(waterAreas.take(10).joinToString { "OceanTile<$it>" })
     p1.runOperation("OceanTile<${waterAreas.elementAt(10)}>")
 
     p1.count("OceanTile") shouldBe 11

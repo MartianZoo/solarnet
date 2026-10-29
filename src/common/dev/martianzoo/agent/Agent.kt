@@ -36,8 +36,8 @@ import kotlin.reflect.KClass
  * A returned [TaskResult] covers every retained change during that call, including Admin handling
  * and configured Player work. A [Throwable] escaping the call restores its game changes, including
  * a successful request followed by failing Admin work; see [dev.martianzoo.engine.Timeline.atomic]
- * for the state covered by restoration. [sneak] deliberately omits task handling; [addTasks] and
- * [dropTask] handle Admin work without choosing Player tasks.
+ * for the state covered by restoration. [exMachina] deliberately omits task handling; [addTasks]
+ * and [dropTask] handle Admin work without choosing Player tasks.
  *
  * The operation API groups work across calls: [beginOperation] and [continueOperation] allow tasks
  * to remain, while [runOperation] and [completeOperation] check whether that operation has
@@ -321,9 +321,11 @@ public interface Agent {
   /**
    * Atomically applies concrete corrections, constructs required parts, and removes dependents.
    * Runs `::` effects and checks every applicable count invariant. Queued effects, task handling,
-   * and idle cleanup are omitted.
+   * and idle cleanup are omitted. Explicit System edits are allowed, but no exact MustCleanUp
+   * component may increase. Records a replayable correction input and, for a Player, an Audit.
+   * Pending tasks retain their current instructions and selection, including calculated amounts.
    */
-  public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
+  public fun exMachina(changes: String): TaskResult
 
   /**
    * Commands available inside an [OperationBlock]. They act on the enclosing Agent and contribute

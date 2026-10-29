@@ -51,7 +51,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   @BeforeTest
   fun setUp() {
-    p1.sneak("100 MC, 5 ProjectCard")
+    p1.exMachina("100 MC, 5 ProjectCard")
     admin.phase("Action")
   }
 
@@ -98,7 +98,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     // is any card in play that may collect their respective resources.
 
     admin.phase("Action")
-    p1.sneak("100 MC, 5 ProjectCard")
+    p1.exMachina("100 MC, 5 ProjectCard")
     p1.playProject(Pets, 10).expect("Miranda, ColonyProduction")
     admin.assertCounts(
         4 to "ColonyTile",
@@ -151,7 +151,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val p1 = admin.asPlayer(PLAYER1)
 
     admin.phase("Action")
-    p1.sneak("100 MC, 5 ProjectCard")
+    p1.exMachina("100 MC, 5 ProjectCard")
 
     shouldThrow<DependencyException> {
       p1.stdProject("BuildColonyProject") { doTask("Colony<Miranda>") }
@@ -174,7 +174,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // the Colony Tile track
   @Test
   internal fun `build a colony`() {
-    admin.sneak("-ColonyProduction<Luna>")
+    admin.exMachina("-ColonyProduction<Luna>")
     admin.assertCounts(0 to "ColonyProduction<Luna>")
 
     p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
@@ -212,7 +212,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // your Trade Fleet from the Trade Fleets Tile to an available Colony Tile.
   @Test
   internal fun `basic trading`() {
-    admin.sneak(
+    admin.exMachina(
         "5 ColonyProduction<Luna>, Colony<Player1, Luna>, Colony<Player2, Luna>, 3 Energy<Player1>"
     )
     p1.assertCounts(6 to "ColonyProduction<Luna>")

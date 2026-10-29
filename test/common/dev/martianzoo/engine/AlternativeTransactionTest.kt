@@ -124,7 +124,7 @@ internal class AlternativeTransactionTest {
             )
         )
     val player = Agents(world) { NONE }[PLAYER1]
-    player.sneak("Red, Blue, First<Red>, First<Blue>, Second<Red>, Second<Blue>")
+    player.exMachina("Red, Blue, First<Red>, First<Blue>, Second<Red>, Second<Blue>")
     val task =
         player
             .addTasks("First<@Place> FROM First<@Place>! OR Second<@Place> FROM Second<@Place>!")

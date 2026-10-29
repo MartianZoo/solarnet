@@ -153,7 +153,7 @@ internal class TaskNarrowingTest {
     target.choose(decision, "Plant")
     target.decisions().single().kind shouldBe AMOUNT
 
-    writer.sneak("2 Plant")
+    writer.exMachina("2 Plant")
     val xId = initiate("-X! Plant THEN X! Heat").single()
     val x = writer.fillInTask(xId)
     val amount = x.decisions().single()
@@ -163,12 +163,12 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `mandatory resource options require enough stock and are refreshed after changes`() {
-    writer.sneak("Plant, 2 Steel")
+    writer.exMachina("Plant, 2 Steel")
     val form = writer.fillInTask(initiate("-2! StandardResource").single())
     val decision = form.decisions().single()
     form.options(decision).toList() shouldBe listOf("Steel")
 
-    writer.sneak("Plant")
+    writer.exMachina("Plant")
     form.options(decision).toSet() shouldBe setOf("Plant", "Steel")
     form.choose(decision, "Plant")
     form.commit()
@@ -256,7 +256,7 @@ internal class TaskNarrowingTest {
             )
         )
     val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    agent.sneak("Available<Player1>, OtherPlayers<Player2>")
+    agent.exMachina("Available<Player1>, OtherPlayers<Player2>")
     val form = agent.fillInTask(agent.addTasks("Token<Holder<Player1>>*").single())
     val before = fixture.events.nextOrdinal
     val holder = form.decisions().single()
@@ -295,7 +295,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `a form chooses a source before the destination that excludes it`() {
-    writer.sneak("Steel")
+    writer.exMachina("Steel")
     val form =
         writer.fillInTask(
             initiate("StandardResource(NOT Source@StandardResource) FROM Source@StandardResource!")
@@ -332,7 +332,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `a form can choose a shared X target before its amount`() {
-    writer.sneak("Plant, Heat")
+    writer.exMachina("Plant, Heat")
     val id = initiate("-X! StandardResource THEN X! MC").single()
     val form = writer.fillInTask(id)
     val target = form.decisions().single()
@@ -346,21 +346,21 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `a PER metric bounds an X choice after scaling`() {
-    writer.sneak("2 Heat, 3 Plant")
+    writer.exMachina("2 Heat, 3 Plant")
     val id = initiate("-X! Plant / Heat").single()
     val form = writer.fillInTask(id)
 
     form.decisions().single().kind shouldBe AMOUNT
     form.options(form.decisions().single()).toList() shouldBe listOf("1")
 
-    writer.sneak("2 Plant")
+    writer.exMachina("2 Plant")
     val doubled = writer.fillInTask(initiate("-2X! Plant / Heat").single())
     doubled.options(doubled.decisions().single()).toList() shouldBe listOf("1")
   }
 
   @Test
   internal fun `an optional X choice includes the first amount that reaches the resource limit`() {
-    writer.sneak("3 Plant")
+    writer.exMachina("3 Plant")
     val form = writer.fillInTask(initiate("2X? Heat FROM Plant").single())
     val x = form.decisions().single()
 
@@ -389,7 +389,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `a form reports optional PER amount choices as unsupported`() {
-    writer.sneak("Heat")
+    writer.exMachina("Heat")
     val id = initiate("Plant? / Heat").single()
 
     shouldThrow<UnsupportedOperationException> { writer.fillInTask(id).decisions() }
@@ -407,7 +407,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `a form can choose a transmutation source before its optional count`() {
-    writer.sneak("Plant, Heat")
+    writer.exMachina("Plant, Heat")
     val id = initiate("3? Plant FROM StandardResource").single()
     val form = writer.fillInTask(id)
 

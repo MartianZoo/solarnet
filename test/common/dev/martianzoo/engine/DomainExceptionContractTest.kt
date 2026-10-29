@@ -54,10 +54,10 @@ internal class DomainExceptionContractTest {
   internal fun correctionsRejectAbstractAndNonChangeInstructionsWithDomainExceptions() {
     val agent = agent()
 
-    val incomplete = shouldThrow<NotFullySpecifiedException> { agent.sneak("Plant OR Heat") }
+    val incomplete = shouldThrow<NotFullySpecifiedException> { agent.exMachina("Plant OR Heat") }
     incomplete.message!!.startsWith("instruction is abstract:") shouldBe true
-    shouldThrow<NotFullySpecifiedException> { agent.sneak("X Plant") }
-    shouldThrow<ExpressionException> { agent.sneak("Plant: Heat") }
+    shouldThrow<NotFullySpecifiedException> { agent.exMachina("X Plant") }
+    shouldThrow<ExpressionException> { agent.exMachina("Plant: Heat") }
   }
 
   @Test
@@ -95,7 +95,8 @@ internal class DomainExceptionContractTest {
         .shouldBeInstanceOf<GameplayException>()
     shouldThrow<NotNowException> { agent().runOperation("-Plant") }
         .shouldBeInstanceOf<GameplayException>()
-    val incomplete: Exception = shouldThrow<NotFullySpecifiedException> { agent().sneak("X Plant") }
+    val incomplete: Exception =
+        shouldThrow<NotFullySpecifiedException> { agent().exMachina("X Plant") }
     (incomplete is GameplayException) shouldBe false
     incomplete.shouldNotBeInstanceOf<PetException>()
   }

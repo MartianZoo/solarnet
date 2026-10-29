@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.GameFileImporter
-import dev.martianzoo.agent.exMachina
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
@@ -173,11 +172,6 @@ internal abstract class AbstractFullGameTest : TfmTest() {
             .map { it.className }
             .toSet()
     unusedActionCards shouldBe expectedUnusedActionCards
-  }
-
-  /** Reproduces an evidenced player mistake without leaving a task selected against stale state. */
-  protected fun TfmGameplay.exMachina(adjustment: String) {
-    agents.exMachina(actor, adjustment)
   }
 
   protected fun TfmGameplay.assertDashMiddle(

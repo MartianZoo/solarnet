@@ -804,7 +804,7 @@ public class TfmGameplay(
       throw NotNowException("Finish pending tasks before putting the game in ${phase}Phase")
     }
     val current = reader.getComponents(resolve("Phase")).elements.single().className
-    return asActor(ADMIN).sneak("${phase}Phase FROM $current")
+    return asActor(ADMIN).exMachina("${phase}Phase FROM $current")
   }
 
   /** This actor's printed production of [kind]: live `PROD[kind]` minus `ProdOffset`. */

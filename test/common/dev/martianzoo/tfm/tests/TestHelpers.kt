@@ -71,7 +71,7 @@ internal fun World.startCorporationPhaseOutOfTurn() {
   tasks.extract { it.id to it.assignee }.forEach { (id, assignee) -> agents[assignee].dropTask(id) }
   val admin = agents.tfm(ADMIN)
   admin.list("Baton").elements.forEach { baton ->
-    admin.sneak("-${admin.count("$baton")} $baton")
+    admin.exMachina("-${admin.count("$baton")} $baton")
   }
 }
 

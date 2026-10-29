@@ -66,9 +66,9 @@ public open class TransactionInferenceBenchmark {
           else -> error("unknown scenario: $scenario")
         }
     player = Agents(game) { NONE }[PLAYER1]
-    if (scenario == "optionalCardRemoval") player.sneak("AcquiredCompany")
+    if (scenario == "optionalCardRemoval") player.exMachina("AcquiredCompany")
     // Two present types keep removal abstract, exercising the broader concrete-card domain.
-    if (scenario == "optionalCardRemovalWide") player.sneak("Zeppelins, Worms")
+    if (scenario == "optionalCardRemovalWide") player.exMachina("Zeppelins, Worms")
     task =
         player
             .addTasks(if (scenario == "uniqueGain") "Choice!" else "-1? CardFront<Player1>")

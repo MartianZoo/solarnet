@@ -279,8 +279,8 @@ internal class GameFlowTest {
     agents[PLAYER1].autoExecPolicy = NONE
     agents[PLAYER2].autoExecPolicy = NONE
 
-    game.testTfm(PLAYER1).sneak("20 MC")
-    game.testTfm(PLAYER2).sneak("20 MC")
+    game.testTfm(PLAYER1).exMachina("20 MC")
+    game.testTfm(PLAYER2).exMachina("20 MC")
     agents[ADMIN].beginOperation("ResearchPhase FROM Phase")
 
     agents[PLAYER2].doTask("4 ProjectCard<Selecting>")
@@ -341,7 +341,7 @@ internal class GameFlowTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     game.testTfm(ADMIN).startGame()
-    p1.sneak("PreludeCard")
+    p1.exMachina("PreludeCard")
     p1.keepStartingProjects(0)
     p2.keepStartingProjects(0)
 

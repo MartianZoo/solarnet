@@ -146,7 +146,7 @@ internal class TransactionTrialIsolationTest {
   fun cityInferenceRejectsASecondCapitalAndRepairsLandClaim() {
     val world = TfmEngine.newGame(canonicalPremise())
     val agent = world.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    agent.sneak("Capital, CapitalTile<Tharsis_6_8>, Community<Tharsis_1_1>")
+    agent.exMachina("Capital, CapitalTile<Tharsis_6_8>, Community<Tharsis_1_1>")
     val engine = world.actorEngine(PLAYER1)
     val task = agent.addTasks("CityTile<Tharsis_1_1>!").single()
 

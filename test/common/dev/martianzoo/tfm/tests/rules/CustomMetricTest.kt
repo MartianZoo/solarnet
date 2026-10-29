@@ -32,7 +32,7 @@ internal class CustomMetricTest {
     val p1 = game.testTfm(PLAYER1)
 
     p1.count("BothBehavior") shouldBe 7
-    shouldThrow<ExpressionException> { p1.sneak("BothBehavior") }
+    shouldThrow<ExpressionException> { p1.exMachina("BothBehavior") }
     shouldThrow<ExpressionException> { p1.runOperation("BothBehavior") }
 
     p1.count("SplitBehavior") shouldBe 9
@@ -53,7 +53,7 @@ internal class CustomMetricTest {
 
     p1.count("ConcreteOnlyMetric<Player(HAS Plant)>") shouldBe 0
     ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 3
-    p1.sneak("Plant<Player1>")
+    p1.exMachina("Plant<Player1>")
     p1.count("ConcreteOnlyMetric<Player(HAS Plant)>") shouldBe 17
     ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 4
   }
@@ -75,7 +75,7 @@ internal class CustomMetricTest {
     p1.count("TileMetric<Tile>") shouldBe 0
     TileMetric.invocations shouldBe invocationsBefore
 
-    p1.sneak("NormalCityTile<Player1, Tharsis_4_4>")
+    p1.exMachina("NormalCityTile<Player1, Tharsis_4_4>")
     p1.count("TileMetric<Tile>") shouldBe 17
     TileMetric.invocations shouldBe invocationsBefore + 1
   }
@@ -85,8 +85,8 @@ internal class CustomMetricTest {
     val p1 = customClassGame().testTfm(PLAYER1)
 
     shouldThrow<ExpressionException> { p1.runOperation("ConcreteOnlyMetric<Player1>") }
-    shouldThrow<ExpressionException> { p1.sneak("ConcreteOnlyMetric<Player1>") }
-    shouldThrow<ExpressionException> { p1.sneak("-ConcreteOnlyMetric<Player1>") }
+    shouldThrow<ExpressionException> { p1.exMachina("ConcreteOnlyMetric<Player1>") }
+    shouldThrow<ExpressionException> { p1.exMachina("-ConcreteOnlyMetric<Player1>") }
   }
 
   @Test
@@ -95,7 +95,7 @@ internal class CustomMetricTest {
 
     p1.count("MetricTriggerObserver") shouldBe 1
     p1.count("PlantCount<Player1>") shouldBe 0
-    p1.sneak("Plant<Player1>")
+    p1.exMachina("Plant<Player1>")
     p1.count("PlantCount<Player1>") shouldBe 1
     p1.count("Heat<Player1>") shouldBe 0
   }

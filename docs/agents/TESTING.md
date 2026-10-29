@@ -197,7 +197,7 @@ spell out `public` and their public types; declarations used only within one mod
 
 ## Test design
 
-Do not add tests whose sole purpose is to specify what happens after `exMachina` or `sneak`.
+Do not add card or rule tests whose sole purpose is to specify what happens after `exMachina`.
 Corrections are test setup, not the subject or evidence of a card test. Keep assertions
 focused on the subsequent player action, card behavior, or shared engine behavior. Evidence-backed
 corrections inside whole-game replays remain appropriate; the replay tests the game, not correction
@@ -327,8 +327,7 @@ belongs in player-level scenarios.
 Keep scenarios minimal and legible. Project-card tests that fit the standardized fixture follow the
 migration rules below. Other card tests use the smallest suitable configuration and consistently
 name their gameplay objects. Use `runOperation()` when an operation's resulting setup matters and a
-correction is not suitable. Card and rule scenarios do not call `sneak` directly; eligible
-project-card scenarios use the fixture's explicit `exMachina` setup methods.
+correction is not suitable. Eligible project-card scenarios use the fixture's explicit `exMachina` setup methods.
 Synthetic engine checks can construct a premise from `TfmTest`, using the existing
 `canonicalPremise` and `setUpGame` functions. `ResearchWildTagTest` retains legacy operation-level
 coverage of assigned tags, and `VerminTest.Attribution` supplies a synthetic listener; neither uses
@@ -545,7 +544,7 @@ interaction among independently authored rules. Prefer representative coverage o
 same semantic pattern for another card with different literals.
 
 Every state change in a migrated sandbox test must come from real player-facing gameplay or from
-its explicit fixture methods. Do not use `runOperation`, `beginOperation`, `sneak`, arbitrary manual
+its explicit fixture methods. Do not use `runOperation`, `beginOperation`, arbitrary manual
 phase changes, or other lower-level shortcuts in either fixture's subclasses. The sandbox provides
 `advanceUntilActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
 is irrelevant; finish pending choices first. This is a sandbox shortcut, so other unplayed starting
@@ -555,7 +554,7 @@ to the test and advances through the game's normal flow.
 In sandbox tests, conditions beyond that initial state should normally be visible corrections:
 
 - Use `setToExMachina(targetCount, type)` for a desired absolute count. Admin may use it for
-  System markers such as colony tracks; the fixture contains the required `sneak` call. It calculates the gain or
+  System markers such as colony tracks. It calculates the gain or
   loss from the current count, so the scenario states its intended condition rather than assuming
   the fixture's prior value. Production types such as `PROD[Heat]` work the same way, including negative printed production.
 - Use `exMachina(adjustment)` for a naturally relative change or a known absent-to-present fact.
@@ -823,7 +822,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 - Express a sourced per-player setup rule, such as a starting handicap, on that replay's concrete
   Player Class with a `SetupPhase` effect supplied through `playerClassPets`. It is game
   setup, not a state reconciliation.
-- Never call `sneak` directly in a game test. Use the test's `exMachina` helper for an
+- Use `Agent.exMachina` for an
   evidence-backed player error that requires a state adjustment. Place it as late in the
   timeline as the sourced assertions allow, with a comment saying which later step requires it. Add
   source-backed `.expect()` assertions for the mistake-prone types to preceding actions wherever

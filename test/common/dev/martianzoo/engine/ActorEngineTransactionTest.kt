@@ -20,7 +20,7 @@ internal class ActorEngineTransactionTest {
   @Test
   internal fun directPlacementRepairsLandClaimBeforeReturning() {
     val world = TfmEngine.newGame(canonicalPremise())
-    world.testAgent(PLAYER1).sneak("Community<Tharsis_1_1>")
+    world.testAgent(PLAYER1).exMachina("Community<Tharsis_1_1>")
     val player = world.actorEngine(PLAYER1)
     val task =
         player
@@ -47,9 +47,9 @@ internal class ActorEngineTransactionTest {
         world.testAgent(PLAYER1).also {
           it.autoExecPolicy = dev.martianzoo.agent.AutoExecPolicy.NONE
         }
-    agent.sneak("8 Plant")
+    agent.exMachina("8 Plant")
     // During the action phase, greenery also offers the Player an oxygen increase.
-    world.testAgent(ADMIN).sneak("Photosynthesis")
+    world.testAgent(ADMIN).exMachina("Photosynthesis")
     agent.beginOperation("UseAction<ConvertPlantsAction, Action1>")
     agent.doTask("8 Pay<Class<Plant>> FROM Plant")
     val player = world.actorEngine(PLAYER1)
@@ -84,7 +84,7 @@ internal class ActorEngineTransactionTest {
   @Test
   internal fun directTaskRestoresRejectedProtectedHabitatsRemoval() {
     val world = TfmEngine.newGame(canonicalPremise())
-    world.testAgent(PLAYER2).sneak("ProtectedHabitats, Plant")
+    world.testAgent(PLAYER2).exMachina("ProtectedHabitats, Plant")
     val player = world.actorEngine(PLAYER1)
     val attack =
         player.addTasks(InstructionGroup.of(parse<Instruction>("-Plant<Player2>!"))).single()
@@ -141,7 +141,7 @@ internal class ActorEngineTransactionTest {
     val world = TfmEngine.newGame(canonicalPremise())
     world
         .testAgent(PLAYER1)
-        .sneak("Community<Tharsis_1_1>, ProtectedHabitats<Player2>, Plant<Player2>")
+        .exMachina("Community<Tharsis_1_1>, ProtectedHabitats<Player2>, Plant<Player2>")
     val player = world.actorEngine(PLAYER1)
     val placement =
         player

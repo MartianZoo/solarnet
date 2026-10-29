@@ -2,7 +2,7 @@
 
 > **Agent information:** This is an agent-maintained note for agents.
 >
-> **Read when:** changing `exMachina`, `sneak`, correction validation, effect suppression, or
+> **Read when:** changing `exMachina`, correction validation, effect suppression, or
 > required-part construction.
 >
 > **Status:** current correction contract. Source and tests win if details differ.
@@ -36,22 +36,22 @@ Prefer ordinary `:` effects when a consequence can safely remain normal gameplay
 only when postponing the consequence would expose incoherent state. Do not add a new effect
 category merely to make unrestricted editing convenient.
 
-## Entry points
+## Entry point
 
-`Agent.sneak` is the lower-level engine correction path. It accepts fully concrete changes and
-provides required-part construction, dependent removal, recursive automatic effects, and full
-invariant validation.
+`Agent.exMachina` is the client-facing correction command. It accepts concrete changes, adds an
+internal `Audit` for Player corrections, records every correction for replay (including Admin),
+and checks application invariants. Explicit
+`System` edits are allowed. No exact `MustCleanUp` component may increase, including through
+required parts or immediate effects; existing unfinished work may be removed. This prevents a
+correction from starting work whose ordinary completion effects were suppressed.
 
-`Agents.exMachina` is the client-facing correction path. It adds an internal `Audit` and rejects
-explicit changes to `System` and `MustCleanUp` types on either side of a transmutation.
-Derived changes may still touch those types when required by the corrected state. It also rejects
-any result that leaves additional `MustCleanUp` state, so a correction cannot begin work whose
-ordinary completion effects were suppressed.
+Pending tasks remain unchanged, including selection, explicit choices, and previously calculated
+amounts. For example, a selected `Coin / Foo` that already resolved to `3 Coin` remains `3 Coin`
+after correcting Foo. Corrections do not reselect or automatically execute that task. The owner
+asked to keep this consolidation expedient rather than redesign correction-time recalculation.
 
-When a task is selected, `exMachina` restores its unresolved form, applies the correction, and
-resumes selection. The whole sequence remains failure-atomic.
-Pre-existing gameplay may then proceed normally; queued effects of the correction remain
-suppressed.
+`ActorEngine.exMachina` supplies the elementary correction mechanics across the engine/Agent module
+interface; clients use Agent for the audit, recording, and unfinished-work checks.
 
 ## Required-part construction
 
@@ -79,7 +79,7 @@ explicit game behavior rather than inferred correction machinery.
 
 Inspect these entry points before changing the contract:
 
-- [`exMachina.kt`](../../src/common/dev/martianzoo/agent/exMachina.kt)
+- [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt)
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt)
 - [`Limiter.kt`](../../src/common/dev/martianzoo/engine/Limiter.kt)
 - [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt)

@@ -27,7 +27,7 @@ internal class SoloGenerationCountdownTest {
   internal fun enteringTheFinalSoloGenerationRemovesTheLastGameEndBarrier() {
     val game = setUpGame(players = 1)
     val admin = game.testTfm(ADMIN)
-    admin.sneak("-12 SoloGenerationsLeft")
+    admin.exMachina("-12 SoloGenerationsLeft")
 
     admin.runOperation("-SoloGenerationsLeft")
 

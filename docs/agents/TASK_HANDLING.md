@@ -280,7 +280,8 @@ directly via `narrowSelectedTask`, while `selectTask(id)` takes the explicit sel
 Both routes call `requireNoOtherSelectedTask`, whose Player priority check uses the same finite
 transaction inference as explicit execution. Unsupported forms remain unresolved; the full
 destination is not implemented. Ordinary `addTasks` and `dropTask` now refuse while a task is
-selected, except dropping that selected task; some correction paths still bypass this exclusion.
+selected, except dropping that selected task. `exMachina` preserves the selected instruction while
+correcting components.
 See [ENGINE_CONTRACT's current status](ENGINE_CONTRACT.md#current-implementation-status) rather
 than treating every mutation as an equivalent task command.
 
@@ -461,8 +462,7 @@ Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 | `canSelectTask` | Trial selection, including execution if concrete and still with the original Actor, in a disposable World through transaction completion and deferred promotion. An abstract selection or handoff can return true. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
 | `canExecuteTask` | Trial execution in a disposable World through transaction completion and deferred promotion; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
 | Agent `tryTask` | Call engine `doTask` within an atomic block; restore when choices/unavailability prevent completion, or a selection remains as specified by the overload. Other failures restore and propagate. This includes unavailable outer `PER` evaluation. Incomplete analysis propagates distinctly from a known missing choice. No engine try-policy method remains. |
-| `restoreTask` | Replace an existing task's data and normalize it. Current code can alter instruction, assignee, and selection without ordinary selection checks; it does not recreate a removed task. |
-| `sneak` correction | Execute concrete elementary changes, required parts, dependent removals, and immediate effects, suppressing queued reactions. Check all invariants after the whole correction group, using a failure-restoring wrapper. No ordinary task handling. |
+| `exMachina` correction | Execute concrete elementary changes, required parts, dependent removals, and immediate effects, suppressing queued reactions. Check all invariants after the whole correction group, using a failure-restoring wrapper. No ordinary task handling. |
 | Initialization | Create the Admin seed directly, then admit configured work through ordinary Admin task commands. Retry dependency-blocked component creation; drain choice-free bootstrap tasks, retry incomplete analysis after other tasks progress, report unfinished proof if stalled (before known leftover choices), audit required counts, and establish the history floor. |
 | Event restoration/replay | Apply/reverse saved task and component events, synchronizing derived effect subscriptions. Do not rerun matching, immediate effects, admission rewrites, or autoexecution merely to restore a position. |
 
@@ -504,7 +504,7 @@ These are known implementation observations, not new recommendations competing w
 
 - Ordinary execution checks invariants per elementary change plus its immediate chain; a broad
   multi-change transaction cannot necessarily postpone those checks until its final statement.
-- Direct task edits/corrections bypass some selected-task exclusions. Player priority uses the
+- Explicit corrections preserve selected tasks; ordinary queue edits obey selection exclusion. Player priority uses the
   existing execution probe rather than complete legal-candidate enumeration.
 - Concrete non-System `BY Admin` routing is narrower at admission than the intended general rule.
 
@@ -582,8 +582,8 @@ separate module; public visibility alone does not make a low-level method the cl
 | `canSelectTask`, `canExecuteTask` | Agent queries and existing policy; selection probe also enforces engine Admin priority. Both propagate incomplete analysis rather than treating unfinished proof as a negative result. |
 | `transact` | Agent groups a client call, automatic work, and application checks. Request and automatic work share the restoring block; the unused completion hook is removed. |
 | `transaction` | AutoExecLoop supplies automatic-execution motivation. Retain until transaction attribution can be expressed without a separate public wrapper. |
-| `addTasks`, `dropTask` | Agent operation seeding and explicit queue edits. Ordinary task execution does not need either; correction/selection rules remain open. |
-| `sneak`, `restoreTask` | Agent corrections; `restoreTask` is used only by `exMachina` to restore a task before correcting state. Keep these separate from ordinary gameplay; correction rules remain open. |
+| `addTasks`, `dropTask` | Agent operation seeding and explicit queue edits. Ordinary task execution does not need either. Adding tasks or dropping a competing task is excluded while a task is selected; dropping the selected task is allowed. |
+| `exMachina` | Elementary correction used across modules by Agent, which adds Audit, input recording, application validation, and the unfinished-work check. Pending tasks are unchanged. The former `sneak` and `restoreTask` methods are removed. |
 | `tryTask` | Removed from engine. Agent retains its try policy using `doTask` and existing timeline restoration. |
 
 The unused `Agents.overlay` and `SpeculativeAgents` APIs are also removed. Engine overlays remain

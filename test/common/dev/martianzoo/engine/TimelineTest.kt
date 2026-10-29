@@ -206,10 +206,10 @@ internal class TimelineTest {
     val start = game.timeline.checkpoint()
 
     game.timeline.atomic {
-      agent.sneak("ChoiceA")
+      agent.exMachina("ChoiceA")
       val afterFirstCall = game.timeline.checkpoint()
       game.timeline.positions shouldBe listOf(start, afterFirstCall)
-      agent.sneak("ChoiceB")
+      agent.exMachina("ChoiceB")
       game.timeline.positions shouldBe listOf(start, afterFirstCall, game.timeline.checkpoint())
     }
 

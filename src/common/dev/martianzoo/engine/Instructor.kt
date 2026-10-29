@@ -85,7 +85,7 @@ internal constructor(
    * Applies a correction with required parts and :: effects, but no queued effects. Unlike ordinary
    * execution, this checks all invariants after the complete group of correction changes.
    */
-  internal fun sneak(changes: InstructionGroup, cause: Cause?, actor: Actor) {
+  internal fun exMachina(changes: InstructionGroup, actor: Actor) {
     changes.instructions.forEach {
       if (it.isAbstract(reader)) {
         throw NotFullySpecifiedException("instruction is abstract: `$it`", it.sourceLocation)
@@ -93,10 +93,10 @@ internal constructor(
       val change =
           it as? Change
               ?: throw ExpressionException(
-                  "sneak accepts only elementary changes; found `$it`",
+                  "exMachina accepts only elementary changes; found `$it`",
                   sourceLocation = it.sourceLocation,
               )
-      executeChange(change, cause, mutableListOf(), actor, queuedEffects = false)
+      executeChange(change, null, mutableListOf(), actor, queuedEffects = false)
     }
     limiter.checkAllInvariants()
   }
@@ -233,7 +233,7 @@ internal constructor(
     // Ordinary execution checks each resolved elementary change and its complete :: chain. A
     // later change in the same client call cannot repair a violation found here. Land Claim's
     // immediate cube removal is included. Corrections skip this check and validate their whole
-    // group in sneak; ordinary transaction-wide suspension remains a proposal to evaluate.
+    // group in exMachina; ordinary transaction-wide suspension remains a proposal to evaluate.
     if (queuedEffects && automaticEffectStack.isEmpty()) {
       try {
         limiter.checkInvariantsSince(eventCursor)

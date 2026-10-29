@@ -153,7 +153,7 @@ internal class TaskLogTest {
     agents.taskLog.start()
     val beforeCorrection = agents.world.timeline.checkpoint()
 
-    agents.exMachina(PLAYER1, "Coin")
+    agents[PLAYER1].exMachina("Coin")
 
     agents.taskLog.selectionCheckpoints() shouldBe listOf(beforeCorrection)
   }

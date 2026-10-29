@@ -94,7 +94,7 @@ internal class SimpleAddsRemovesTest {
     val game =
         TfmEngine.newGame(testGamePremise("CLASS Token { HAS MAX 1 This }\nCLASS Holder<Token>"))
     val admin = game.testAgent(ADMIN)
-    admin.sneak("Token!")
+    admin.exMachina("Token!")
 
     shouldThrow<LimitsException> { admin.runOperation("Holder FROM Token!") }
 

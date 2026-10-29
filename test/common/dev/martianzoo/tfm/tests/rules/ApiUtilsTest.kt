@@ -31,7 +31,7 @@ internal class ApiUtilsTest {
             cn("Heat") to 0,
         )
 
-    (game.testAgent(PLAYER1) as Agent).sneak("PROD[2 Plant]")
+    (game.testAgent(PLAYER1) as Agent).exMachina("PROD[2 Plant]")
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game.reader, PLAYER1.expression)
     prods2
         .map { it.key to it.value }

@@ -393,7 +393,7 @@ internal class CardTrackingTest : TfmTest() {
     agent.runOperation("MineralDeposit FROM ProjectCard")
     agent.runOperation("BribedCommittee FROM ProjectCard")
     // Pharmacy Union can become a PlayedEvent, but it is a corporation rather than an EventCard.
-    agent.sneak("PlayedEvent<Class<PharmacyUnion>>")
+    agent.exMachina("PlayedEvent<Class<PharmacyUnion>>")
     val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> {
@@ -694,14 +694,14 @@ internal class CardTrackingTest : TfmTest() {
     tracking.expectDepartures(player, cn("AdaptedLichen"), location = selecting)
     val rejected =
         shouldThrow<NamesRequiredException> {
-          agent.sneak("3 ProjectCard<Selecting>, -2 ProjectCard<Selecting>")
+          agent.exMachina("3 ProjectCard<Selecting>, -2 ProjectCard<Selecting>")
         }
     rejected.arriving shouldBe false
     rejected.count shouldBe 1
     rejected.candidates shouldBe setOf(cn("AcquiredCompany"), cn("MicroMills"))
 
     tracking.expectDepartures(player, cn("MicroMills"), location = selecting)
-    agent.sneak("3 ProjectCard<Selecting>, -2 ProjectCard<Selecting>")
+    agent.exMachina("3 ProjectCard<Selecting>, -2 ProjectCard<Selecting>")
     tracking.hand(player, location = selecting) shouldBe setOf(cn("AcquiredCompany"))
 
     val kept =

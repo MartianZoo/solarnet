@@ -731,3 +731,31 @@ reported 2h 39m elapsed, 12 Canon failures from implicit no-op completion, and a
 failure without test XML. The Canon calls now explicitly execute those empty offers with all original
 outcome assertions retained. The focused retry resolved the browser failure; its original cause is
 unexplained. Do not describe the failed full-build invocation as a passing full build.
+
+## Consolidate corrections as exMachina
+
+The owner approved explicit System edits with structural invariant validation and no additional
+unfinished MustCleanUp components. `Agent.exMachina` now owns the client command, Audit for Players,
+input recording, application validation, and the unfinished-work check. Admin corrections are also
+recorded, without an owned Audit. Elementary correction mechanics remain public across the separate
+engine/Agent modules. All `sneak` callers migrated; the old Agents extension, fixture extensions,
+unused attribution parameter, and arbitrary `restoreTask` command were removed.
+
+The owner asked for an expedient consolidation rather than fixing all correction semantics.
+Corrections preserve selected instructions verbatim, including partial group choices and already
+calculated amounts. They do not reselect or execute pending work. This removes the history-based
+restoration path that failed after further narrowing. Correction-time recalculation is not promised.
+
+Opus/high reviewed the change and the fixes in a follow-up. Admin's owned Audit and shifted source
+positions were reproduced and fixed. The reviewer accepted the cross-module visibility constraint
+and found no remaining correctness blocker. Its suggested additional Player System-edit coverage
+and documentation corrections were applied; moving recording-independent correction checks into
+engine was optional and not needed for this consolidation.
+
+Verification: 633 engine, 80 Agent, 50 script, and 1358 Canon/rule cases (26 existing skips) passed.
+All 23 active replays passed with full/short export and reconstruction. Selected-group export tests
+also perform both Player and Admin corrections before export and execute the preserved task after
+replay. Focused correction checks cover immediate effects, suppressed queued effects, unfinished-work
+rejection and rollback, removal of existing unfinished work, and preservation of partial choices.
+The first broad attempt exposed the Audit/source-location bugs and was stopped; the corrected broad
+run passed in 3m18s. Tests' gameplay assertions were retained.

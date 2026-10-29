@@ -257,8 +257,8 @@ internal class TransactionUniquenessExperimentTest {
   fun protectedHabitatsEliminatesOnlyProtectedVictim() {
     val world = TfmEngine.newGame(canonicalPremise(players = 3))
     val actor = world.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    actor.sneak("Plant<Player3>")
-    world.testAgent(PLAYER2).sneak("ProtectedHabitats, Plant")
+    actor.exMachina("Plant<Player3>")
+    world.testAgent(PLAYER2).exMachina("ProtectedHabitats, Plant")
     val id = actor.addTasks("-Plant<Player>!").single()
     world.actorEngine(PLAYER1).doTask(parse<InstructionTree>("-Plant<Player>!"), taskId = id)
     actor.count("Plant<Player3>") shouldBe 0
