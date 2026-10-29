@@ -17,6 +17,47 @@ import kotlin.test.Test
 
 internal class InitializerTest {
   @Test
+  internal fun bootstrapPreservesIncompleteAnalysisBesideAnAmbiguousTask() {
+    for (tasks in listOf("Choice, X Token", "X Token, Choice")) {
+      val premise =
+          testGamePremise(
+                  """
+                  ABSTRACT CLASS Choice {
+                    CLASS Left
+                    CLASS Right
+                  }
+                  CLASS Token
+                  CLASS BootstrapProbe { This: $tasks }
+                  """,
+                  players = 0,
+              )
+              .withTestSetup("BootstrapProbe")
+      shouldThrow<IncompleteAnalysisException> { Engine.newGame(premise) }
+    }
+  }
+
+  @Test
+  internal fun bootstrapAdmitsAGroupBeforeProvingItsAbstractChild() {
+    val premise =
+        testGamePremise(
+                """
+        ABSTRACT CLASS Choice {
+          CLASS Left { HAS MAX 0 This }
+          CLASS Right
+        }
+        CLASS Marker
+        CLASS BootstrapProbe { This: MAX 0 Marker: (Choice, Marker) }
+        """,
+                players = 0,
+            )
+            .withTestSetup("BootstrapProbe")
+    val game = Engine.newGame(premise)
+    game.testAgent(ADMIN).count("Right") shouldBe 1
+    game.testAgent(ADMIN).count("Marker") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
   internal fun bootstrapLayersAfterAdminUseOrdinaryTasks() {
     val premise =
         testGamePremise("CLASS BootstrapPhase\nCLASS Premise", players = 0)

@@ -163,4 +163,39 @@ internal class GameFileImporterTest {
       )
     }
   }
+
+  @Test
+  internal fun selectedGroupsSurviveFullAndShortExportAndCanExecuteAfterReplay() = runTest {
+    val premise = testGamePremise("CLASS Coin\nCLASS Marker\nCLASS Prize")
+    val source = Agents(Engine.newGame(premise))
+    val player = source[PLAYER1].also { it.autoExecPolicy = NONE }
+    source.taskLog.start()
+    source.taskLog.gameStarted()
+    val id = player.addTasks("(Coin, Marker) OR Prize").single()
+    player.selectTask("Coin, Marker")
+    source.world.tasks.ids().toList() shouldBe listOf(id)
+    player.count("Coin") shouldBe 0
+
+    for (short in listOf(false, true)) {
+      val file =
+          GameFileJson.parse(
+              GameFileJson.encode(source.world.recording(), source.taskLog.inputs(), short = short)
+          )
+      val imported =
+          GameFileImporter.replay(
+              file,
+              premise.catalog,
+              newAgents = { Agents(Engine.newGame(it)) },
+              startGame = { it[PLAYER1].addTasks("(Coin, Marker) OR Prize") },
+          )
+      val selected = imported.world.tasks.getTaskData(imported.world.tasks.selectedTask()!!)
+      selected.instruction shouldBe source.world.tasks.getTaskData(id).instruction
+      imported[PLAYER1].doTask(selected.id)
+      imported[PLAYER1].count("Coin") shouldBe 0
+      imported[PLAYER1].doTasks("Marker", "Coin")
+      imported[PLAYER1].count("Coin") shouldBe 1
+      imported[PLAYER1].count("Marker") shouldBe 1
+      imported.world.tasks.isEmpty() shouldBe true
+    }
+  }
 }

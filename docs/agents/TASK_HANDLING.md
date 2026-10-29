@@ -22,7 +22,7 @@ being resolved and concrete does not prove successful execution or action comple
 | --- | --- | --- |
 | Before admission | Elaborate client input or specialize a triggered effect; calculate its initial assignee. | [AgentImpl](../../src/common/dev/martianzoo/agent/AgentImpl.kt), [LiveEffect](../../src/common/dev/martianzoo/engine/LiveEffect.kt), [PendingTask](../../src/common/dev/martianzoo/engine/PendingTask.kt) |
 | Admission and queue edits | Normalize syntax, split independent work, manage continuations, route concrete work, perform ordinary dispatches. | [newTasks](../../src/common/dev/martianzoo/engine/newTasks.kt), [TaskQueues](../../src/common/dev/martianzoo/engine/TaskQueues.kt) |
-| Matching, selection, narrowing | Identify the task, resolve current-world questions, bind shared choices, record selection or handoff, split exposed groups; component execution requires an execution command. | [ActorEngine](../../src/common/dev/martianzoo/engine/ActorEngine.kt), [Instructor](../../src/common/dev/martianzoo/engine/Instructor.kt) |
+| Matching, selection, narrowing | Identify the task, resolve current-world questions, bind shared choices, record selection or handoff, retain exposed groups; execution requires an execution command. | [ActorEngine](../../src/common/dev/martianzoo/engine/ActorEngine.kt), [Instructor](../../src/common/dev/martianzoo/engine/Instructor.kt) |
 | Execution and consequences | Change components, remove dependents, construct required parts, run immediate effects, collect queued effects, check invariants. | Instructor, [Changer](../../src/common/dev/martianzoo/engine/Changer.kt), [Effector](../../src/common/dev/martianzoo/engine/Effector.kt), [Limiter](../../src/common/dev/martianzoo/engine/Limiter.kt) |
 | Completion and subsequent work | Admit effects and continuation, remove the task, promote deferred work, let drivers handle eligible tasks. | ActorEngine, TaskQueues, [AutoExecLoop](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt), [WorldTransaction](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) |
 
@@ -44,13 +44,13 @@ required when an execution command is actually submitted.
 | --- | --- | --- |
 | Task admission or replacement | Remove no-ops, reject direct mandatory `Die`, simplify alternatives, and separate eligible `THEN` continuations. | No; this can fail before a body executes. |
 | Ordinary pure dispatch admitted or exposed by an edit/promotion path that admits it | Enqueue its body for its recipient and admit its continuation; do not retain a separate ordinary dispatch task. | No. |
-| `selectTask` or `narrowTask` | Resolve and retain concrete or partial instructions; component changes wait for an execution command. Structural expansion and handoff still occur. | No requested component execution; existing priority probes are reviewed separately below. |
-| Selection/narrowing resolves to a retained zero or `Ok` instruction | Keep it selected until execution. Admission or an empty group can still eliminate no-ops structurally. | No. |
-| Selection/narrowing exposes a group other than `EACH`, including a gated group | Admit independent children and the original continuation, then remove the original task. Children are not automatically executed by this structural replacement. | No. |
+| `selectTask` or `narrowTask` | Resolve and retain concrete or partial instructions; component changes wait for an execution command. Actor handoff can still occur; structural expansion waits for execution. | No requested component execution; existing priority probes are reviewed separately below. |
+| Selection/narrowing resolves to a retained zero or `Ok` instruction | Keep it selected until execution. Admission can eliminate no-ops structurally. | No. |
+| Selection/narrowing exposes a group other than `EACH`, including a gated group | Retain the group on the selected task. Execution admits independent children and the continuation, then removes the parent. | No. |
 | Selection/narrowing reaches `EACH` | Retain the parent, selected, without creating children. An explicit execution or applicable Actor policy admits all children and consumes the parent. | No component change from expanding the parent. |
 | Selection produces a concrete `BY` or System handoff | Change the assignee; the receiving Actor executes later. | No in this step. |
 | Any successful outer engine transaction, including queue edits | Promote eligible `LATER`/`FINALLY` batches and perform dispatches exposed by promotion. | No direct component changes; tasks can be created/removed. |
-| `doTask` with an explicit group | Execute only the submitted members after structural selection exposes them; leave their reactions and continuations pending. | Yes, for the submitted members. |
+| `doTask` with an explicit group | Execute only the submitted members after executing their parent admits them; leave their reactions and continuations pending. | Yes, for the submitted members. |
 | Combined scalar totals | Engine has no total command. Agent expands an explicitly submitted total into individual engine calls. | Yes, only after an execution request. |
 | `canSelectTask` or `canExecuteTask` | Try work in a disposable World, including completion and deferred admission. | Only in the copy; source listeners are not notified. |
 | Engine uses a trial internally | Player priority and bootstrap use isolated probes. Finite transaction inference uses disposable Worlds. `selectionHandsOff` still attempts and restores task edits. | No trial component changes in the source. |
@@ -150,7 +150,7 @@ It can return no tasks or several tasks, including dispatch bodies belonging to 
 
 | Input or condition | Automatic handling | When |
 | --- | --- | --- |
-| Independent group, including nested groups | Flatten to independent instructions; omit `Ok`; create separate tasks. Siblings gain no game ordering. | Admission; again when resolution exposes a group. |
+| Independent group, including nested groups | Flatten to independent instructions; omit `Ok`; create separate tasks. Siblings gain no game ordering. | Admission; again when a selected group executes. |
 | Literal zero-count change | Replace with `Ok`, so no task is admitted for it. | Admission's recursive normalization. |
 | `Ok` in a group or sequence | Omit it; collapse an empty sequence to `Ok`, a singleton to its remaining instruction. | Admission and task edits. |
 | `Ok OR A` or `gate: Ok` | Preserve the meaningful choice or gate. Do not erase it merely because its body does nothing. | Admission and edits. |
@@ -168,8 +168,8 @@ transaction legality.
 
 `editTask` normalizes the replacement but does not perform admission, ordinary dispatch execution,
 or System reassignment by itself. If the normalized data equals the stored task, no edit event is
-recorded. Otherwise ID and the supplied lifecycle data survive. An edit cannot store a group where
-a task requires a single instruction; structural replacement belongs to the selection path below.
+recorded. Otherwise ID and the supplied lifecycle data survive. Only a selected task may store a
+group; admitting an unselected group creates independent tasks.
 
 Sources: newTasks `taskInstructions`, `normalizeForTask`, `normalizeTask`;
 [InstructionGroup](../../pets/src/common/dev/martianzoo/pets/ast/InstructionGroup.kt);
@@ -264,16 +264,16 @@ These methods do more than mark an existing task selected:
 5. A single resulting instruction is normalized, marked selected, reassigned if needed, and edited
    in place. Concrete and partial instructions remain selected until an execution command;
    selection/narrowing does not execute component changes.
-6. A group result, even a singleton group, replaces the original with ordinary unselected child
-   tasks. The original's continuation is admitted and the original is removed. An empty result
-   completes it structurally. Children do not inherit selection.
+6. A group result, even a singleton or empty group, remains on the selected task. Executing that
+   task admits ordinary unselected children and the continuation, then removes the parent. Children
+   do not inherit selection.
 7. A concrete handoff records assignment and leaves the task selected for the receiving Actor.
    It does not trial-execute that Actor's instruction; execution occurs in a later transaction.
 
 Supplying a narrowing is checked against the pending instruction and shared-variable bindings;
 independent source/destination deductions cannot pick inconsistent values for the same variable.
 If selection hands the task to another Actor, the original Actor cannot supply that Actor's choice.
-A structural split may require a later submission naming a child.
+After executing a structural task, its children can be submitted independently.
 
 The overloads do not all follow the same route: `doTask(narrowing)` can apply a matched narrowing
 directly via `narrowSelectedTask`, while `selectTask(id)` takes the explicit selection path.
@@ -456,7 +456,7 @@ Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 
 | Entry path | Additional or different handling |
 | --- | --- |
-| `doTask` with an explicit group | Execute the supplied members after structural selection; admission identifies normalized dispatches so their bodies and continuations remain pending too. Do not sweep newly queued reactions or continuations. |
+| `doTask` with an explicit group | Execute the supplied members after executing their parent; admission identifies normalized dispatches so their bodies and continuations remain pending too. Do not sweep newly queued reactions or continuations. |
 | Combined scalar totals | Agent only: a submitted total can consume matching current fixed gains/removals, including amounts calculated with `/`. Gains execute first, each through its own task ID. No subset search; newly queued effects do not join the total. Selected tasks and explicit IDs remain individual requests. See `Agent.doTask` for the full contract. |
 | `canSelectTask` | Trial selection, including execution if concrete and still with the original Actor, in a disposable World through transaction completion and deferred promotion. An abstract selection or handoff can return true. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
 | `canExecuteTask` | Trial execution in a disposable World through transaction completion and deferred promotion; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
@@ -575,8 +575,8 @@ separate module; public visibility alone does not make a low-level method the cl
 | --- | --- |
 | `actor`, `reader`, `tasks` | Agent attribution, queries, forms, and automatic execution. Retain shared read views. |
 | `doTask` by ID or instruction | Agent requests, Admin/Player automatic execution, initialization, and transaction trials. Core execution; matching and structural semantics remain under review. |
-| `selectTask` by ID or instruction | Agent selections and automatic execution. Selection-only behavior is still subject to the structural decisions in the plan. |
-| `narrowTask` for selected or identified task | Agent partial choices and form commit; engine also uses narrowing during explicit execution. Persistent partial choices remain an owner decision. |
+| `selectTask` by ID or instruction | Agent selections and automatic execution. Selected groups and dispatches retain their parent until execution; partial choices remain in engine. |
+| `narrowTask` for selected or identified task | Agent partial choices and form commit; engine also uses narrowing during explicit execution. The owner selected retaining partial choices in engine. |
 | `prepareTaskNarrowing` | Agent form preparation and input recording. Read-only instruction compatibility, not a proof of transaction success. |
 | `changeLimit` | Agent form amount options. Retain the quantity read; it bounds candidates without proving success. |
 | `canSelectTask`, `canExecuteTask` | Agent queries and existing policy; selection probe also enforces engine Admin priority. Both propagate incomplete analysis rather than treating unfinished proof as a negative result. |

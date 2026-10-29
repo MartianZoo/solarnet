@@ -104,7 +104,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     }
   }
 
-  private fun specializeVariableCost(task: Instruction, removal: Instruction): Instruction {
+  private fun specializeVariableCost(task: InstructionTree, removal: Instruction): InstructionTree {
     val suppliedRemoval = removal as Remove
     val matchingVariableCosts =
         task.descendantsOfType<Remove>().filter {
@@ -117,7 +117,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val authoredMultiple = authored.removeSuffix("X").ifEmpty { "1" }.toInt()
     check(supplied % authoredMultiple == 0) { "$supplied isn't a multiple of $authoredMultiple" }
     val x = supplied / authoredMultiple
-    return bindXTo(x).transformInstruction(task)
+    return bindXTo(x).transformInstructionTree(task)
   }
 
   private fun paymentRemovals(payment: String): List<Instruction> {

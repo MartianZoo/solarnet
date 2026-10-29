@@ -94,7 +94,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
               "TerraformRating",
           )
           // Resolve the empty plant attack separately from the pending ocean placements.
-          selectTask("-6? Plant<Anyone>")
+          doTask("-6? Plant<Anyone>")
           val checkpoint = game.events.nextOrdinal
           shouldThrow<IllegalStateException> { victoryPoints() }
           game.events.nextOrdinal shouldBe checkpoint

@@ -213,18 +213,25 @@ removing components is the execution of a gain or removal task. The children the
 priority; the parent does not retain P0 until all children finish. Therefore a Player's selection
 or narrowing call must not expand an `EACH` task without an execution request or a previously
 installed policy authorizing that execution. On the experimental branch, selection retains the
-`EACH` parent without creating children, and execution expands it. Ordinary group splitting still
-needs classification.
+`EACH` parent without creating children, and execution expands it. The owner selected the same
+rule for groups and dispatches exposed by selection: retain the existing task and its choices until
+execution admits children and releases any continuation. Voluntary partial choices remain in engine,
+including a target choice that permits AMAP evaluation.
 Canon's base `SetupPhase: EACH Me@Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }`
-illustrates the task shape. Other structural forms still need their own classification.
+illustrates the task shape.
 
-Start from no automatic execution *by the selecting Actor* and investigate every path in the
-[automatic-actions inventory](TASK_HANDLING.md#automatic-actions-without-a-separate-execute-command),
-including zero/Ok completion, group expansion other than `EACH`, dispatch, reassignment,
-continuation admission, and promotion. Classify those forms individually; the `EACH` rule above
-is settled, while other enqueue-only structural work remains open. The earlier
-[pure-dispatch rule](SEQUENCING.md#decisions-and-open-questions) is current behavior with a reopened
-interaction question, not an exception silently granted to selection.
+Admission is distinct from selecting an existing task. A literal group becomes independent tasks;
+a pure ordinary dispatch delivers its body without becoming a separate task. These intentional
+normalization rules remain. An existing task selected to a group, dispatch, or `Ok` is not consumed
+by selection. A selected group is stored using the existing `InstructionTree` representation;
+execution admits its children at ordinary priority. This does not make commas a sequence or make
+child completion a prerequisite for the parent's continuation.
+
+Resolving `EACH` as soon as work becomes ordinary is a possible alternative. No verified Canon
+outcome currently distinguishes that timing from the selected execution rule. Unlike splitting a
+literal group, enumerating `EACH` reads state, and its branch resolution can read amounts. Earlier
+expansion therefore needs a deliberate decision about which state those reads use; it is not an
+incidental representation cleanup.
 
 ### Task identity, optional queries, and conveniences — items 10, 13–15, and 17
 

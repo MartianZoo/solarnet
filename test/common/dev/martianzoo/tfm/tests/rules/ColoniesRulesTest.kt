@@ -181,7 +181,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
               "Colony<Europa>",
           )
           // Resolve the ocean offer separately from other pending placement effects.
-          selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>*")
+          doTask("OceanTile<WaterArea(HAS MAX 0 Tile)>*")
         }
         .expect("0 OceanTile, 0 TerraformRating")
 
@@ -205,7 +205,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
           doTasks("Trade<Enceladus>")
           // Resolve the trade reward: this player has no card that can hold microbes.
-          selectTask("Microbe")
+          doTask("Microbe")
         }
         .expect("0 Microbe<Anyone>")
 

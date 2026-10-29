@@ -181,6 +181,7 @@ internal class TaskLogTest {
 
     imported.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
     imported[PLAYER1].count("Coin") shouldBe 0
+    imported[PLAYER1].doTask(coinTask)
     imported[PLAYER1].doTasks("Marker")
     imported[PLAYER1].count("Marker") shouldBe 1
     imported.world.tasks.isEmpty() shouldBe true
@@ -506,6 +507,7 @@ internal class TaskLogTest {
       narrow("Coin, Marker")
       commit()
     }
+    source[PLAYER1].doTask(source[PLAYER1].tasks.selectedTask()!!)
     source[PLAYER1].doTasks("Marker")
 
     val imported = newAgents()

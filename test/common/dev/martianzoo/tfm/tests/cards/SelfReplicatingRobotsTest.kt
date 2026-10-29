@@ -767,7 +767,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           doTask("16 Pay<> FROM MC")
           doTasks("ResearchOutpost FROM ProjectCard<StagedProject<Class<ResearchOutpost>>>")
           // Resolve the exchange offer: the empty hand leaves no card to discard.
-          selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
+          doTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
           doTasks("CityTile<Tharsis_4_2>", "Plant")
         }
         .expect("0 ProjectCard, 0 RobotUnit<StagedProject<Class<$Mine>>>")

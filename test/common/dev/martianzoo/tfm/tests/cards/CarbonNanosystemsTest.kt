@@ -21,7 +21,7 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
       doTask("TemperatureStep")
       doTask("2 Titanium")
       // Resolve the optional attack: no unprotected plant target is available.
-      selectTask("-3? Plant<Anyone>")
+      doTask("-3? Plant<Anyone>")
       doTask("TerraformRating")
     }
   }

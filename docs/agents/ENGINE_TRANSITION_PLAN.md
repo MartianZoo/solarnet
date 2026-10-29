@@ -47,8 +47,8 @@ checks. This plan does not authorize any further merge.
 | --- | --- |
 | Application input checks and operation completion moved to Agent sessions. | The owner selected whole-call rollback and removal of the unused completion hook. |
 | Engine combined resource totals removed; Agent translates an explicitly submitted total into separate calls. Existing engine matching can identify an individual task by its calculated amount. | Decide whether to retain calculated-amount matching in the final engine API and settle multiple matches. |
-| Explicit submitted groups execute their admitted member IDs, leaving reactions and continuations queued. | Structural selection and handoff still need a final rule. |
-| Selection/narrowing no longer execute component changes as the selecting Actor; numeric `THEN` bindings are explicit. Ordinary add/drop queue edits now refuse while a task is selected, except dropping that task itself. `EACH` selection retains the parent, and execution admits its children. | Voluntary partial narrowing and structural paths other than `EACH` need review. |
+| Explicit submitted groups execute their admitted member IDs, leaving reactions and continuations queued. | Selected groups now retain their parent until execution; handoff remains under audit. |
+| Selection/narrowing no longer execute component changes as the selecting Actor; numeric `THEN` bindings are explicit. Ordinary add/drop queue edits now refuse while a task is selected, except dropping that task itself. `EACH` selection retains the parent, and execution admits its children. | The owner selected retaining partial choices and holding groups/dispatches exposed by selection until execution. |
 | Finite mandatory gains/removals and full-form transmutations try complete candidate transactions in disposable Worlds; Admin and Player priority use this finite uniqueness rule. | Other forms and deterministic proof limits remain open. |
 | Admin remains mandatory in Agent calls, retries after progress, and preserves retained rule failures. | Stalled passes, waiting cases, and public orchestration need settlement. |
 
@@ -63,10 +63,10 @@ silently choose an answer.
 
 1. **Task identity and interchangeability.** The owner selected retaining calculated-amount
    matching when it identifies a unique permission; several distinct permissions with the same
-   calculated result require an explicit task ID. Confirm the owner's proposed rule: if a submitted
-   task string intersects exactly a single pending task for the submitting Actor, use the
-   intersection as the request. Specify whether “intersects” includes current-world resolution,
-   a satisfied gate, a `THEN` first stage, or a currently failed gate matched with possible facts.
+   calculated result require disambiguation. The owner also selected retaining the context component's
+   class name as a disambiguator; a task ID remains available. Retain the tested intersection rules:
+   omitted gates and metric wrappers still check requirements and current amounts, `THEN` matching
+   preserves shared bindings, and a failed gate can identify the task to report its unmet requirement.
    The owner selected ignoring IDs and originating causes when comparing otherwise identical
    tasks; different continuations make tasks distinct. Compare instructions, continuations,
    assignees, selection, and deferral conservatively.
@@ -110,14 +110,15 @@ silently choose an answer.
    now stores concrete placement instructions in premise-local declarations, updates replay and
    fixture callers, and uses automatic Admin placement. Existing file serialization retains those
    declarations; the focused scenario verifies full and short file replay.
-4. **Selection, structural edits, and handoff.** Decide whether a voluntary partial narrowing is
-   retained by engine or must live in a client draft, especially when a target choice unlocks AMAP
-   evaluation. Decide which queue edits are permitted during a
-   selection-only call: group expansion other than `EACH`, pure dispatch, `Ok` elimination, deferred promotion,
-   and assignment to Admin. Selection does not execute the selecting Player's components. If it
+4. **Selection, structural edits, and handoff.** The owner selected retaining partial narrowing
+   in engine, including a target choice that unlocks AMAP evaluation. The owner also selected
+   retaining groups and dispatches exposed by selection until execution, like `EACH`. Literal
+   groups and pure dispatches still normalize during admission; that earlier intentional rule
+   does not authorize consuming an existing selected task. Selection retains `Ok` too.
+   Deferred promotion and assignment to Admin retain their existing rules. Selection does not execute the selecting Player's components. If it
    reassigns the selected P0 task to Admin, Admin executes that same task before any other work.
-   A separately created Admin task waits until P0 is executed. Reconcile structural replacement
-   of a selected task with this rule before treating it as valid completion. Current
+   A separately created Admin task waits until P0 is executed. Selection now retains structural
+   work; only execution consumes the parent and gives children ordinary priorities. Current
    `dropTask(selectedTaskId)` is an external correction request, outside the in-game priority rule;
    audit it with correction APIs without making it an implementation gate for P0 scheduling.
    The branch now moves `EACH` expansion to execution: enqueuing all children consumes the
@@ -132,8 +133,10 @@ silently choose an answer.
    restoring blocks. Raw transactions and whole calls restore game state on any escaping
    `Throwable`, including assertion failures, then rethrow it. Audit the remaining exclusions
    documented on `Timeline.atomic` against the selected recovery rule.
-   Also decide whether correction methods may edit the queue while a task is selected; the branch
-   now refuses ordinary add/drop edits but still allows some correction paths.
+   The owner selected allowing explicit corrections while preserving selection, and dropping the
+   selected task, while ordinary add/drop edits remain excluded. The owner also clarified that
+   `exMachina` should be the single correction feature, not a second feature beside `sneak`.
+   Consolidating those client APIs and migrating callers remains active work.
 
 ## Consequences to validate explicitly
 
@@ -221,7 +224,8 @@ Initialization likewise retains an unfinished proof while trying later executabl
 after progress, and propagates the incomplete result if no task can progress. The remaining
 automatic Player policy runs only after Admin has finished its pass, so stalled Admin analysis
 propagates before that policy's recoverable-failure catches. Its own execution attempts are limited
-to concrete instructions or `EACH` by `canExecuteWithoutChoice`. Initial-operation admission intentionally
+to concrete instructions, groups, or `EACH` by `canExecuteWithoutChoice`. Structural execution
+admits children without choosing them. Initial-operation admission intentionally
 leaves abstract Player work for the operation body to narrow; it does not promise completed execution.
 The raw `Repair?` test now proves that zero and positive count can both complete when its immediate
 effect repairs the limit; the request therefore requires an explicit choice. The Agent menu now

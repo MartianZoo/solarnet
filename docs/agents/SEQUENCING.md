@@ -237,9 +237,9 @@ See [Canon game flow](../../pets/docs/agents/GAME_FLOW.md#facts-in-components-fu
 
 **Transition note:** the dispatch/promotion mechanics below describe current behavior. The selected
 [separation of selection and execution](ENGINE_CONTRACT.md#selection-must-not-quietly-mean-execution--item-9)
-requires investigating whether structural work exposed by selection needs explicit execution too.
-Do not silently retain enqueue-only work as an exception or remove it without measuring the effect
-on Canon. Deferred priority and continuation meaning must still hold.
+now retains groups and dispatches exposed by selection until execution. Admission and promotion
+still perform pure dispatches as described below. Deferred priority and continuation meaning remain
+unchanged.
 
 The language rules state what deferral means. A task's deferral records which dispatch admitted it:
 `TASK`, `LATER`, or `FINALLY`. A selected task is always ordinary. Beyond those rules:
@@ -302,9 +302,9 @@ with the older restriction on cleanup choices, open; they add no engine completi
 
 - **Dispatch is not a step.** On 2026-10-12 the owner ruled that a pure dispatch should never sit in
   a queue as current work; the engine performs it, as it releases a `THEN` continuation. This
-  replaced the earlier rule that each dispatch was a task of its own. The October 24 selection
-  review reopens how this rule interacts with selection without execution; no structural exception
-  has yet been selected for the destination.
+  replaced the earlier rule that each dispatch was a task of its own. The October 29 review retains
+  that admission/promotion rule, while a dispatch exposed by selecting an existing task waits for
+  that task's execution. Selecting an OR arm or opening a gate is not admission.
 - **`FINALLY` for game flow.** On 2026-10-11 the owner ruled out a band below `LATER`. On
   2026-10-12, once nested `LATER` proved to need either a depth rule or a lowest band, he chose
   `FINALLY`, so that turns and phases can advance through authored rules. Keeping

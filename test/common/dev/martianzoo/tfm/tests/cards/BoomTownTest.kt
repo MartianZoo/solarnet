@@ -54,7 +54,7 @@ internal class BoomTownTest : TfmSandboxTest() {
       )
       doTask("TemperatureStep")
       // Resolve the optional attack: no unprotected plant target is available.
-      selectTask("-2? Plant<Anyone>")
+      doTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
     }
     stan.inTurn {
@@ -96,7 +96,7 @@ internal class BoomTownTest : TfmSandboxTest() {
       )
       doTask("TemperatureStep")
       // Resolve the optional attack: no unprotected plant target is available.
-      selectTask("-2? Plant<Anyone>")
+      doTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
     }
   }

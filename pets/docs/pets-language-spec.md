@@ -448,7 +448,7 @@ while the selector's refinement filters candidates but is not part of that expos
 selector's scope includes nested sequences and full transmutations, which claim only matching
 markers not already supplied by the selector. Other body expressions retain their ordinary
 meanings. Equal occurrences produce equal but independent branches. When a task consists of `EACH`,
-selecting it fulfills the task by admitting those branches as tasks, even when there is exactly one.
+executing it fulfills the task by admitting those branches as tasks, even when there is exactly one.
 The selector may serve only as the repetition source, so the body need not name the selected
 component. The body may not be empty, fanouts do not nest, and a concrete selector is rejected where
 the fanout is resolved against a world.

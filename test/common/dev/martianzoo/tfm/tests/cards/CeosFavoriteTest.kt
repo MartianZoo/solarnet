@@ -38,7 +38,7 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
               "CeosFavoriteProject FROM ProjectCard",
           )
           // Resolve the resource offer: no eligible card already holds a resource.
-          selectTask("CardResource<ResourceHolder(HAS CardResource)>*")
+          doTask("CardResource<ResourceHolder(HAS CardResource)>*")
         }
         .expect("0 Microbe<$Tardigrades>")
   }

@@ -6,6 +6,8 @@ import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import io.kotest.assertions.throwables.shouldThrow
@@ -127,5 +129,23 @@ internal class GameFileJsonTest {
         )
 
     file.inputs(file.premise(premise.catalog)) shouldBe listOf(RecordedInput.StartGame, input)
+  }
+
+  @Test
+  internal fun selectedGroupsKeepTheirStructureInFullFiles() = runTest {
+    val premise = testGamePremise("CLASS Token")
+    for (members in listOf(emptyList(), listOf(parse<Instruction>("Token!")))) {
+      val task =
+          Task(
+              Task.TaskId(0),
+              ADMIN,
+              selected = true,
+              instruction = InstructionGroup(members),
+              cause = null,
+          )
+      val recording = GameRecording(premise, listOf(GameEvent.TaskAddedEvent(0, task)))
+      val file = GameFileJson.parse(GameFileJson.encode(recording, listOf(RecordedInput.StartGame)))
+      file.open(premise.catalog).world.tasks.getTaskData(task.id) shouldBe task
+    }
   }
 }

@@ -28,11 +28,11 @@ import dev.martianzoo.state.Transaction
  * Constructs and edits task data using engine normalization before recording exact state events.
  * Here, `a >> b` is a task whose [Task.instruction] is `a` and whose [Task.then] is `b`.
  * * Removing task `a >> b` first creates task `b >> null`
- * * `Ok >> b` is removed
+ * * Admitting `Ok >> b` omits the no-op; a selected `Ok` waits for execution
  * * Mandatory `Die >> b` or `a >> Die` produces [DeadEndException]; nonmandatory `Die` is `Ok`
  * * `a, b >> null` is split into `a >> null` and `b >> null`
- * * A Task cannot store a group as its instruction. If resolution exposes independent children,
- *   ActorEngine admits those children and the original continuation as ordinary pending work
+ * * Only a selected Task can store a group. ActorEngine retains that group until execution, then
+ *   admits its children and the original continuation as ordinary pending work
  * * `a THEN b >> null` where `a THEN b` is separable is rewritten to `a >> b`
  * * `a THEN b >> c` keeps the two independent variable scopes separate
  * * `a, Ok` becomes `a`

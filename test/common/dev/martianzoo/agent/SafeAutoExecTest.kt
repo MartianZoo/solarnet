@@ -16,6 +16,27 @@ import kotlin.test.Test
 
 internal class SafeAutoExecTest {
   @Test
+  internal fun concretePolicyAdmitsASelectedGroupWithoutChoosingItsAbstractMember() {
+    val game = Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker\nCLASS Prize"))
+    val agent = Agents(game) { CONCRETE }[PLAYER1]
+    val parent = agent.addTasks("MAX 0 Prize: (Coin OR Marker, Prize)").single()
+
+    agent.autoExecNow()
+    (parent in game.tasks) shouldBe false
+    game.tasks.selectedTask() shouldBe null
+    game.tasks.ids().size shouldBe 2
+    agent.count("Coin") shouldBe 0
+    agent.count("Marker") shouldBe 0
+    agent.count("Prize") shouldBe 0
+
+    agent.doTask("Coin")
+    agent.count("Coin") shouldBe 1
+    agent.count("Marker") shouldBe 0
+    agent.count("Prize") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
   internal fun adminHandlingCannotBeDisabledByPolicyOrScopedOverride() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Token"))) { NONE }
     val admin = agents[ADMIN]

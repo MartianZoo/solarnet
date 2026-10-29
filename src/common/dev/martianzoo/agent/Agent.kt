@@ -87,9 +87,9 @@ public interface Agent {
    * submit work according to Player policy; Admin handling remains automatic.
    *
    * @param [narrowing] the new instruction tree; may be abstract or a grouped arm selected from an
-   *   `OR`; a group replaces this one task with one task per member; if identical to the current
-   *   abstract instruction the task remains unchanged; an omitted quantifier retains a stronger
-   *   pending quantifier when the Class default would weaken it
+   *   `OR`; a group stays on the selected task until execution admits its members; if identical to
+   *   the current abstract instruction the task remains unchanged; an omitted quantifier retains a
+   *   stronger pending quantifier when the Class default would weaken it
    * @throws [TaskException] if this Actor has no selected task
    * @throws [NarrowingException] if [narrowing] does not narrow the selected task's instruction
    */
@@ -124,15 +124,13 @@ public interface Agent {
    * assign it to another Actor. The call's task handling then runs, so that Actor's policy decides
    * whether the task finishes before this call returns.
    *
-   * If resolution produces independent instructions, selecting the structural task may admit them
-   * as ordinary pending siblings. `EACH` retains its parent until [doTask] executes it.
+   * Groups, `EACH`, and dispatches exposed by selection retain their parent until [doTask] executes
+   * it. Selection alone creates no child tasks or continuations.
    *
    * @throws [TaskException] if no task with id [taskId] exists, or if any other task is already
    *   selected
    * @throws [NotNowException] if the selected task cannot execute in the current World
    */
-  // TODO(ENGINE_CONTRACT): Investigate
-  // submitting a concrete instruction with selection instead of persisting unfinished choices.
   public fun selectTask(taskId: TaskId): TaskResult
 
   /**
@@ -152,9 +150,9 @@ public interface Agent {
   /**
    * Finds the unique pending task compatible with [instruction], selects it, and commits the
    * supplied narrowing. An unchanged instruction only selects. A nontrivial narrowing fails if
-   * selection alone transfers the task to another Actor or splits it before the narrowing can be
-   * applied. Such failures leave the World unchanged; select the original task first, then narrow
-   * its resulting tasks. Equivalent tasks that differ only by id are interchangeable.
+   * selection alone transfers the task to another Actor before the narrowing can be applied. Such
+   * failures leave the World unchanged. The receiving Actor can narrow the transferred task.
+   * Equivalent tasks that differ only by id or originating cause are interchangeable.
    */
   public fun selectTask(instruction: String): TaskResult
 

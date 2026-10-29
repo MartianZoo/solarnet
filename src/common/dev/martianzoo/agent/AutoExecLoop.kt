@@ -11,6 +11,7 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gated
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Motivation
@@ -55,7 +56,7 @@ internal class AutoExecLoop(
     // Selection probes execute in disposable copies. Probe only when automatic work is possible.
     if (pending.none { policy(it) != NONE }) return false
     // Keep manual tasks among the candidates: they still compete with automatic work.
-    // A sole task has no competing choice. Selection can expose children or hand work off;
+    // A sole task has no competing choice. Selection can hand work off;
     // the enclosing Agent call rolls back any failure that propagates.
     val candidates =
         if (selected != null || pending.size == 1) pending else pending.filter(::canSelectTask)
@@ -94,8 +95,7 @@ internal class AutoExecLoop(
                 engine.transaction(motivationFor(engine.actor)) {
                   command(taskId, Kind.CHOOSE) { engine.selectTask(taskId) }
                   progressed =
-                      taskId !in allTasks ||
-                          allTasks.getTaskData(taskId).assignee != engine.actor ||
+                      allTasks.getTaskData(taskId).assignee != engine.actor ||
                           (canExecuteWithoutChoice(taskId) &&
                               command(taskId, Kind.TRY_SELECTED) {
                                 try {
@@ -148,7 +148,7 @@ internal class AutoExecLoop(
   /** Existing Player policies do not authorize transaction-based choice inference. */
   private fun executeConcretePlayerTask(engine: ActorEngine, taskId: TaskId) {
     engine.selectTask(taskId)
-    if (taskId !in allTasks || allTasks.getTaskData(taskId).assignee != engine.actor) return
+    if (allTasks.getTaskData(taskId).assignee != engine.actor) return
     if (!canExecuteWithoutChoice(taskId)) {
       throw NotFullySpecifiedException("Player policy requires a concrete selected instruction")
     }
@@ -157,7 +157,9 @@ internal class AutoExecLoop(
 
   private fun canExecuteWithoutChoice(taskId: TaskId): Boolean {
     val instruction = allTasks.getTaskData(taskId).instruction
-    return instruction is Each || !instruction.isAbstract(world.reader)
+    return instruction is Each ||
+        instruction is InstructionGroup ||
+        !instruction.isAbstract(world.reader)
   }
 
   /** Automatic handling is mandatory for Admin and configured policy for every other Actor. */

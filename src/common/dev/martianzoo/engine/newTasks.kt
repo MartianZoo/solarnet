@@ -139,11 +139,10 @@ internal fun normalizeTask(
     task: Task,
     isAbstract: ((Expression) -> Boolean)? = null,
 ): Task {
-  val instruction =
-      normalizeForTask(task.instruction) as? Instruction
-          ?: throw TaskException(
-              "task input must be split into individual instructions: `${task.instruction}`"
-          )
+  val instruction = normalizeForTask(task.instruction)
+  check(task.selected || instruction !is InstructionGroup) {
+    "an unselected group must be admitted as independent tasks: `$instruction`"
+  }
   val then =
       task.then?.let { normalizeForTask(it) }?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
   val normalized = task.copy(instruction = instruction, then = then)

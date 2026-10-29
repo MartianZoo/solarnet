@@ -362,11 +362,12 @@ internal constructor(
    * parent. Execution resolves it again against the World at that time.
    */
   internal fun resolve(
-      unresolved: Instruction,
+      unresolved: InstructionTree,
       worldGainNarrowing: Boolean = false,
       expandEach: Boolean = true,
   ): InstructionTree {
     return when (unresolved) {
+      is InstructionGroup -> unresolved
       is NoOp -> NoOp
       is Change -> resolveChange(unresolved, worldGainNarrowing)
       is By -> {
@@ -377,7 +378,7 @@ internal constructor(
       }
       is Instruction.Dispatch -> unresolved.copy(actor = reader.recipientOf(unresolved).expression)
       is Per ->
-          resolveTree(
+          resolve(
               elaborator.atomizeGains(unresolved.inner * reader.count(unresolved.metric)),
               worldGainNarrowing,
               expandEach,
@@ -390,7 +391,7 @@ internal constructor(
                   ?: unresolved.gate.descendantsOfType<Expression>().firstOrNull()?.sourceLocation,
           )
         }
-        resolveTree(unresolved.inner, worldGainNarrowing, expandEach)
+        resolve(unresolved.inner, worldGainNarrowing, expandEach)
       }
       is Each -> if (expandEach) resolveEach(unresolved, worldGainNarrowing) else unresolved
       is Or -> resolveOr(unresolved, worldGainNarrowing, expandEach)
@@ -445,7 +446,7 @@ internal constructor(
           }
         }
         unresolved.withInstructions(
-            listOf(if (openChoice) first else resolveTree(first, worldGainNarrowing, expandEach)) +
+            listOf(if (openChoice) first else resolve(first, worldGainNarrowing, expandEach)) +
                 unresolved.instructions.drop(1)
         )
       }
@@ -472,14 +473,6 @@ internal constructor(
       null
     }
   }
-
-  private fun resolveTree(
-      unresolved: InstructionTree,
-      worldGainNarrowing: Boolean,
-      expandEach: Boolean = true,
-  ): InstructionTree =
-      if (unresolved is InstructionGroup) unresolved
-      else resolve(unresolved as Instruction, worldGainNarrowing, expandEach)
 
   private fun canonicalActorExpression(instruction: By): Expression {
     val type = reader.resolve(instruction.actor)
@@ -767,7 +760,7 @@ internal constructor(
               e.sourceLocation ?: each.body.sourceLocation,
           )
         }
-    return resolveTree(evaluated, worldGainNarrowing)
+    return resolve(evaluated, worldGainNarrowing)
   }
 
   /** Resolves each arm against the same world, discarding the unavailable ones. */
@@ -780,7 +773,7 @@ internal constructor(
     val failures = mutableListOf<GameplayException>()
     unresolved.instructions.forEach {
       try {
-        surviving += resolveTree(it, worldGainNarrowing, expandEach)
+        surviving += resolve(it, worldGainNarrowing, expandEach)
       } catch (e: NotNowException) {
         failures += e
       } catch (e: DeadEndException) {

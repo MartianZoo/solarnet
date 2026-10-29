@@ -4,11 +4,13 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -135,5 +137,51 @@ internal class SelectionOnlyExperimentTest {
       it.selected shouldBe false
       (it.instruction as By).actor shouldBe parse<Expression>("Player1")
     }
+  }
+
+  @Test
+  fun selectingAGroupRetainsItsContinuationAndBlocksCompetingTasksUntilExecution() {
+    val world = Engine.newGame(testGamePremise("CLASS Foo : Atomized\nCLASS Reward"))
+    val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
+    val id = agent.addTasks("Foo / 2 THEN 2 Reward").single()
+    val other = agent.addTasks("3 Reward").single()
+    val engine = world.actorEngine(PLAYER1)
+
+    agent.selectTask(id)
+    world.tasks.ids().toList() shouldBe listOf(id, other)
+    world.tasks.getTaskData(id).selected shouldBe true
+    shouldThrow<TaskException> { engine.doTask(other) }
+    agent.count("Foo") shouldBe 0
+    agent.count("Reward") shouldBe 0
+
+    engine.doTask(id)
+    (id in world.tasks) shouldBe false
+    world.tasks.selectedTask() shouldBe null
+    world.tasks.ids().size shouldBe 4
+    agent.doTasks("Foo", "Foo", "2 Reward", "3 Reward")
+    agent.count("Foo") shouldBe 2
+    agent.count("Reward") shouldBe 5
+  }
+
+  @Test
+  fun selectingADispatchKeepsItsBodyAndContinuationUnadmittedUntilExecution() {
+    val world = Engine.newGame(testGamePremise("CLASS Foo\nCLASS Bar", players = 2))
+    val agents = Agents(world)
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val second = agents[PLAYER2].also { it.autoExecPolicy = NONE }
+    val id = first.addTasks("MAX 0 Foo: (TASK Player2 { Foo } THEN Bar)").single()
+
+    first.selectTask(id)
+    world.tasks.ids().toList() shouldBe listOf(id)
+    world.tasks.getTaskData(id).selected shouldBe true
+    second.tasks.isEmpty() shouldBe true
+    world.actorEngine(PLAYER1).doTask(id)
+    (id in world.tasks) shouldBe false
+    world.tasks.selectedTask() shouldBe null
+    first.count("Foo") shouldBe 0
+    first.count("Bar") shouldBe 0
+    first.doTask("Bar")
+    second.doTask("Foo")
+    world.tasks.isEmpty() shouldBe true
   }
 }

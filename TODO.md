@@ -14,7 +14,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   exact admitted group IDs, and session-owned application checks are implemented on the experiment
   branch. Complete shared type binding and nested THEN representation without adding a second
   continuation slot. `EACH` child admission now happens when its parent is executed on the
-  experiment branch. Define the remaining structural actions permitted during selection.
+  experiment branch. Groups and dispatches exposed by selection now retain their parent too;
+  partial choices remain in engine. Audit remaining correction and handoff paths.
+- Clarify `THEN` after an instruction whose amount resolution atomizes it into a group. The current
+  engine releases the continuation when that group is admitted, while Pets forbids an authored
+  group or `EACH` before `THEN`. No Canon consequence is established; keep this separate from
+  selection timing.
 - Extend transaction-success analysis beyond finite mandatory/optional changes and their `OR`
   alternatives. Complete Agent calls have fixed-state measurements; groups, shared bindings,
   and unsupported nested forms remain. Resolve compact transmutations and a
@@ -103,7 +108,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   with printed and derived English.
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
-- actually plan out how exMachina should work
+- Consolidate correction as the single client-facing `exMachina` feature. The owner explicitly
+  rejected exposing `sneak` as a second feature. Trace and migrate callers, preserve selected-task
+  correction behavior, and keep any required low-level implementation internal.
 - Replace ordering-only `::` protocols in pricing/acceptance, wild-tag preparation, and
   Turmoil/Politician influence measurement. Decompose government formation before judging its
   individual invariant repairs; `THEN` on a signal does not wait for its triggered work.

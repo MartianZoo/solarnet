@@ -2,17 +2,17 @@ package dev.martianzoo.state
 
 import dev.martianzoo.pets.Transforming
 import dev.martianzoo.pets.ast.Deferral
-import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import kotlin.jvm.JvmInline
 
 /**
  * Current or recorded form of a pending instruction. [id] survives edits. [assignee] controls the
  * task. [selected] marks the instruction currently being handled and excludes selection of other
- * tasks. Partial narrowing can currently leave it selected across calls. [instruction] may still
- * require choices or dispatch separate work through `TASK` or `LATER`. A [deferred] task waits for
- * ordinary tasks and any earlier deferral to finish.
+ * tasks. Partial narrowing can leave it selected across calls. [instruction] may still require
+ * choices or dispatch separate work through `TASK` or `LATER`. A [deferred] task waits for ordinary
+ * tasks and any earlier deferral to finish.
  */
 public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
@@ -25,12 +25,14 @@ public data class Task(
      * Whether this is the selected task. In the proposed priorities it is P0, before ordinary Admin
      * and Player work.
      */
-    // TODO(ENGINE_CONTRACT): investigate keeping unfinished choices in the client; a selected task
-    // currently can survive a successful call without its instruction being fully concrete.
     val selected: Boolean = false,
 
-    /** What to do. Can be abstract and is stored exactly as supplied by the engine. */
-    val instruction: Instruction,
+    /**
+     * What to do. Can be abstract and is stored exactly as supplied by the engine. A selected task
+     * may retain a group; executing it admits the members as independent unselected tasks and
+     * releases [then]. Unselected work is admitted as individual instructions.
+     */
+    val instruction: InstructionTree,
 
     /**
      * Independent work admitted immediately before this task's removal is recorded. Used for `THEN`
@@ -65,7 +67,7 @@ public data class Task(
    * Returns a proposed version of this task with its current instruction's linked X set to [value].
    */
   public fun bindXTo(value: Int): Task =
-      copy(instruction = Transforming.bindXTo(value).transformInstruction(instruction))
+      copy(instruction = Transforming.bindXTo(value).transformInstructionTree(instruction))
 
   override fun toString(): String = buildString {
     append(id)

@@ -18,6 +18,9 @@ events, and every event's notes. Playback positions are derived from transaction
 than stored separately. An event's transaction is stored
 on the first event that carries it and inherited by the events that follow, so grouping survives
 export and import without enlarging the file; the format identifier is now `solarnet-game-4`.
+A task's instruction is a string for an individual instruction or an array of member strings for
+a selected group. The array preserves empty and singleton groups, whose printed text alone would
+lose their structure and change execution after import.
 `Document.open(catalog)` checks
 the hashes and creates a passive Game World without `engine`. A short file omits events
 but uses the same premise and input fields; state refuses to open it as an exact recording.

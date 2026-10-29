@@ -602,14 +602,19 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `narrowing an OR can enqueue multiple instructions`() {
+  internal fun `executing a selected OR group enqueues its independent instructions`() {
     initiate("5 Plant OR (4 Heat, 2 Energy)")
 
     selectAndNarrow("5 Plant OR (4 Heat, 2 Energy)", "4 Heat, 2 Energy")
+    tasksAsText().shouldContainExactly("4! Heat<Player1>, 2! Energy<Player1>")
+    writer.count("Heat") shouldBe 0
+    writer.count("Energy") shouldBe 0
+    writer.doTask(tasks.selectedTask()!!)
 
     assertHistoryTypes(
         TaskAddedEvent::class, // full one
         GameEvent.TaskEditedEvent::class, // selected
+        GameEvent.TaskEditedEvent::class, // chosen group
         TaskAddedEvent::class, // heat
         TaskAddedEvent::class, // energy
         TaskRemovedEvent::class, // -full one
@@ -667,6 +672,8 @@ internal class TaskNarrowingTest {
         "4 Heat, 2 Energy",
     )
 
+    tasksAsText().shouldContainExactly("4! Heat<Player1>, 2! Energy<Player1>")
+    writer.doTask(tasks.selectedTask()!!)
     tasksAsText().shouldContainExactlyInAnyOrder("4! Heat<Player1>", "2! Energy<Player1>")
   }
 
@@ -704,11 +711,14 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `resolution that produces siblings completes the selected structural task`() {
+  internal fun `resolution retains siblings until the selected structural task executes`() {
     writer.runOperation("Plant")
     val original = initiate("Plant: (Steel?, Heat?)").single()
 
     writer.selectTask(original)
+    tasks.ids().toList() shouldBe listOf(original)
+    tasks.getTaskData(original).selected shouldBe true
+    writer.doTask(original)
 
     (original in tasks) shouldBe false
     tasksAsText().shouldContainExactlyInAnyOrder("Steel<Player1>?", "Heat<Player1>?")
@@ -733,15 +743,17 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `narrowing to Ok automatically handles the task`() {
+  internal fun `narrowing to Ok retains the task until execution`() {
     initiate("2? Plant")
 
     selectAndNarrow("2? Plant", "Ok")
     assertHistoryTypes(
         TaskAddedEvent::class,
         GameEvent.TaskEditedEvent::class,
-        TaskRemovedEvent::class,
+        GameEvent.TaskEditedEvent::class,
     )
+    tasksAsText().shouldContainExactly("Ok")
+    writer.doTask(tasks.selectedTask()!!)
     tasks.isEmpty() shouldBe true
   }
 
@@ -871,12 +883,14 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `narrowing to NoOp enqueues the THEN instructions`() {
+  internal fun `executing NoOp enqueues the THEN instructions`() {
     initiate("Plant? THEN (Steel, Heat)")
     tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("Plant<Player1>?")
     tasks.extract { "${it.then}" }.shouldContainExactlyInAnyOrder("Steel<Player1>!, Heat<Player1>!")
 
     selectAndNarrow("Plant?", "Ok")
+    tasksAsText().shouldContainExactly("Ok")
+    writer.doTask(tasks.selectedTask()!!)
     tasksAsText().shouldContainExactly("Steel<Player1>!", "Heat<Player1>!")
     tasks.matching { it.then != null }.none() shouldBe true
   }
@@ -886,17 +900,23 @@ internal class TaskNarrowingTest {
     initiate("Plant? THEN Steel? THEN Heat? THEN Energy")
 
     selectAndNarrow("Plant?", "Ok")
+    tasksAsText().shouldContainExactly("Ok")
+    writer.doTask(tasks.selectedTask()!!)
 
     val task1 = tasks.extract { it }.single()
     task1.instruction.toString() shouldBe "Steel<Player1>?"
     task1.then.toString() shouldBe "Heat<Player1>? THEN Energy<Player1>!"
 
     selectAndNarrow("Steel?", "Ok")
+    tasksAsText().shouldContainExactly("Ok")
+    writer.doTask(tasks.selectedTask()!!)
     val task2 = tasks.extract { it }.single()
     task2.instruction.toString() shouldBe "Heat<Player1>?"
     task2.then.toString() shouldBe "Energy<Player1>!"
 
     selectAndNarrow("Heat?", "Ok")
+    tasksAsText().shouldContainExactly("Ok")
+    writer.doTask(tasks.selectedTask()!!)
     val task3 = tasks.extract { it }.single()
     task3.instruction.toString() shouldBe "Energy<Player1>!"
     task3.then shouldBe null

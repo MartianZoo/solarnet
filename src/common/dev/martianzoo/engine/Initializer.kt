@@ -105,23 +105,19 @@ internal class Initializer(
               }
               ?: allTasks.ids().first()
       val task = allTasks.getTaskData(taskId)
-      if (
-          task.selected &&
-              task.instruction.isAbstract(reader) &&
-              task.instruction !is Instruction.Each
-      ) {
-        break
-      }
       val assignee = task.assignee
       actorEngines(assignee).selectTask(taskId)
-      if (taskId in allTasks) {
-        val selected = allTasks.getTaskData(taskId)
-        if (selected.instruction.isAbstract(reader) && selected.instruction !is Instruction.Each) {
-          incomplete?.let { throw it }
-          break
-        }
-        actorEngines(selected.assignee).doTask(taskId)
+      val selected = allTasks.getTaskData(taskId)
+      if (
+          selected.instruction.isAbstract(reader) &&
+              selected.instruction !is Instruction.Each &&
+              selected.instruction !is InstructionGroup &&
+              (selected.assignee != ADMIN || !actorEngines(ADMIN).canExecuteTask(taskId))
+      ) {
+        incomplete?.let { throw it }
+        break
       }
+      actorEngines(selected.assignee).doTask(taskId)
     }
     gameWorld.requireNoPendingTasks()
   }

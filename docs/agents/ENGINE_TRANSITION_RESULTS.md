@@ -688,3 +688,46 @@ against the base, not a sequence to apply. Do not apply them over this dirty wor
 
 Payment TODOs remain: standard-project purchase events and card-play results at payment completion.
 The global authored-action redesign is excluded. Completed ordinal work was not reopened.
+
+
+### Retain selected groups until execution
+
+The owner selected retaining partial engine choices and keeping the parent until execution for
+selected groups and dispatches, matching `EACH`. A follow-up design review explicitly distinguished
+selection from admission: literal groups still split during admission, and pure ordinary dispatches
+still perform immediately at admission/promotion. An attempted removal of that dispatch rule was
+reverted after reviewing the owner's earlier intentional decision and its Canon consequences.
+
+`Task.instruction` now holds the existing `InstructionTree`; only a selected task can store a group.
+Selection and narrowing edit the same task rather than consuming it, admitting children, or releasing
+its continuation. Execution admits the children at ordinary priority. Explicitly submitted groups
+still execute only their admitted members, excluding dispatched bodies, reactions, and continuations.
+Obsolete nullable selection returns and splitting-error branches are removed. Partial target choices
+continue to support AMAP evaluation; `Ok` remains selected until execution too.
+
+Opus/high agreed with that distinction after a follow-up correcting an overstatement about deferred
+`EACH`: expansion before deferral ends is wrong, but no verified Canon outcome currently requires
+execution-time expansion over expansion when work becomes ordinary. The selected execution timing
+remains; earlier expansion is an alternative requiring an explicit state-timing decision.
+
+The event codec stores selected groups as arrays, preserving empty/singleton structure that printed
+Pets alone would lose. Focused tests cover full/short export and replay with a selected group,
+continuation release only at execution, selection priority, and retained dispatch parents.
+
+Opus/high found a Player-policy gap: groups with abstract children must be executable structurally,
+like `EACH`, without choosing their children. The policy and initialization checks now allow that.
+The bootstrap scenario also exposed an older mismatch: Admin's unique-success proof could succeed
+but initialization still stopped merely because the instruction was abstract. Initialization now
+executes abstract Admin work only after a successful proof, while preserving named diagnostics for
+ambiguity and incomplete-analysis reporting in both mixed queue orders. Opus reviewed the fixes and
+reported no remaining blocker.
+
+Verification passed 31 state tests, 75 Agent tests, 50 script tests, 1358 Canon/rule tests (26 existing
+skips), and all 23 active replay exports with full/short reconstruction. The final runtime passed
+all 632 engine tests; the subsequently added mixed-order bootstrap test passed in the focused
+Initializer suite, and `spotlessCheck` passed. Browser history and the selected browser replay both
+passed on a focused retry before the final bootstrap proof refinement. The preceding full build
+reported 2h 39m elapsed, 12 Canon failures from implicit no-op completion, and a browser-process
+failure without test XML. The Canon calls now explicitly execute those empty offers with all original
+outcome assertions retained. The focused retry resolved the browser failure; its original cause is
+unexplained. Do not describe the failed full-build invocation as a passing full build.

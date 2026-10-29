@@ -62,8 +62,8 @@ import dev.martianzoo.state.TaskResult
  * are not undone.
  *
  * Player selection is refused while an ordinary Admin task can complete under the existing
- * selection probe. A selected task retains priority. Complete enumeration of legal Admin choices
- * and persistent partial selection remain under review.
+ * selection probe. A selected task retains priority and can retain partial choices. Complete
+ * enumeration of legal Admin choices remains under review.
  *
  * [transact] groups commands and caller-supplied task handling in a rollback scope. That block may
  * include several transactions under the proposed contract; its current behavior is described
@@ -284,11 +284,10 @@ internal constructor(
   /**
    * Supplies [narrowing] for this Actor's selected task. When [quantifierOmitted] is true, retains
    * the pending task's quantifier where needed. Resolves and stores the resulting instruction
-   * without executing component changes. Structural splitting and Actor reassignment follow
-   * [selectTask]; `EACH` child tasks remain uncreated until execution.
+   * without consuming the task or admitting children. Actor reassignment follows [selectTask].
+   * Partial choices remain on the selected task for further narrowing or execution.
    *
-   * Rejects a missing selection or incompatible narrowing and restores a failed transaction. It can
-   * store a partial choice; keeping such choices in the client is a proposal awaiting review.
+   * Rejects a missing selection or incompatible narrowing and restores a failed transaction.
    */
   public fun narrowTask(narrowing: InstructionTree, quantifierOmitted: Boolean = false) {
     val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
@@ -306,8 +305,6 @@ internal constructor(
    * execute effects or final invariant checks and therefore does not establish legal narrowing
    * under the proposed whole-transaction definition.
    */
-  // TODO(ENGINE_CONTRACT): Investigate making this partial-choice preparation an internal client
-  // detail.
   public fun prepareTaskNarrowing(
       taskId: TaskId,
       narrowing: InstructionTree,
@@ -362,9 +359,8 @@ internal constructor(
    * executing component changes, leaving the task pending for its current assignee.
    *
    * Rejects a competing selection, deferred work, an incompatible narrowing, or narrowing that
-   * belongs to a different Actor after selection. A structural task may split into independent
-   * child tasks, except that `EACH` retains its parent until execution. A failed transaction
-   * restores its changes. Persistent partial choices remain under review.
+   * belongs to a different Actor after selection. Groups and `EACH` retain their parent until
+   * execution. A failed transaction restores its changes.
    */
   public fun narrowTask(
       taskId: TaskId,
@@ -386,13 +382,7 @@ internal constructor(
                     "`$contextualAssignee`"
             )
           }
-          val selected =
-              selectTask(tasks, task)
-                  ?: if (narrowsBeforeHandoff) {
-                    throw TaskException(
-                        "task $taskId splits during selection; select it before narrowing its child tasks"
-                    )
-                  } else return@perform
+          val selected = selectTask(task)
           val selectedTask = allTasks.getTaskData(selected)
           if (selectedTask.assignee != actor) {
             if (narrowsBeforeHandoff) {
@@ -402,6 +392,14 @@ internal constructor(
               )
             }
             return@perform
+          }
+          if (effectiveNarrowing is Gated && selectedTask.instruction !is Gated) {
+            effectiveNarrowing =
+                instructor.resolve(
+                    effectiveNarrowing,
+                    worldGainNarrowing = true,
+                    expandEach = false,
+                )
           }
           if (
               !narrowing.isAbstract(reader) &&
@@ -414,34 +412,24 @@ internal constructor(
         narrowSelectedTask(taskId, effectiveNarrowing, quantifierOmitted)
       }
 
-  // TODO(ENGINE_CONTRACT): Review storing partial choices instead of keeping unfinished forms in
-  // clients.
   private fun narrowSelectedTask(
       taskId: TaskId,
       narrowing: InstructionTree,
       quantifierOmitted: Boolean,
-  ): List<TaskId> {
+  ) {
     val task = tasks.getTaskData(taskId)
     val prepared = prepareNarrowing(taskId, narrowing, quantifierOmitted)
     val effectiveNarrowing = prepared.effective
     if (effectiveNarrowing == task.instruction) {
-      selectTask(tasks, tasks.getTaskData(taskId))
-      return emptyList()
+      selectTask(tasks.getTaskData(taskId))
+      return
     }
     val continuation = prepared.selectedThen?.continuationAfterFirst() ?: task.then
 
-    // A selected group completes structurally before its children resolve against successive
-    // worlds.
+    // Keep the chosen group unresolved; its children resolve against their own execution states.
     val resolved =
-        if (effectiveNarrowing is Instruction)
-            instructor.resolve(
-                effectiveNarrowing,
-                worldGainNarrowing = true,
-                expandEach = false,
-            )
-        else effectiveNarrowing
-    val children = applyResolution(tasks, task, resolved, then = continuation)
-    return children
+        instructor.resolve(effectiveNarrowing, worldGainNarrowing = true, expandEach = false)
+    applyResolution(task, resolved, then = continuation)
   }
 
   /**
@@ -475,15 +463,13 @@ internal constructor(
       try {
         transactions.perform(actor, CLIENT_REQUEST) {
           val original = allTasks.getTaskData(taskId)
-          val selected = selectTask(queueForAnyTask(taskId), original)
-          if (selected != null) {
-            val task = allTasks.getTaskData(selected)
-            if (
-                task.assignee == original.assignee &&
-                    (requireConcrete || !task.instruction.isAbstract(reader))
-            ) {
-              executeSelectedTask(queueForAnyTask(selected), selected, task.assignee)
-            }
+          val selected = selectTask(original)
+          val task = allTasks.getTaskData(selected)
+          if (
+              task.assignee == original.assignee &&
+                  (requireConcrete || !task.instruction.isAbstract(reader))
+          ) {
+            executeSelectedTask(queueForAnyTask(selected), selected, task.assignee)
           }
         }
         true
@@ -524,9 +510,9 @@ internal constructor(
 
   /**
    * Selects this Actor's [taskId] and resolves its instruction against current state. Concrete
-   * component changes remain pending until an execution command. `EACH` also stays selected until
-   * execution, when it admits independent children without passing selection to them. Other
-   * structural splitting can still admit children during selection.
+   * component changes remain pending until an execution command. Groups, `EACH`, and dispatches
+   * exposed by selection retain the same task. Execution admits their independent children without
+   * passing selection to them and releases any continuation.
    *
    * When resolution reassigns the task, this call records the handoff without attempting the
    * receiving Actor's execution. That Actor performs the instruction in a later transaction, which
@@ -543,7 +529,7 @@ internal constructor(
       throw TaskException("`$actor` cannot select a task assigned to `${task.assignee}`")
     }
     transactions.perform(actor, CLIENT_REQUEST) {
-      selectTask(tasks, tasks.getTaskData(taskId))
+      selectTask(tasks.getTaskData(taskId))
     }
   }
 
@@ -585,16 +571,12 @@ internal constructor(
           narrowTask(id, intersection, quantifierOmitted)
           return@perform
         }
-        if (!task.selected && selectionHandsOff(tasks, task)) {
+        if (!task.selected && selectionHandsOff(task)) {
           throw TaskException(
               "`$actor` cannot narrow task $id because selection assigns it to another Actor"
           )
         }
-        val selected =
-            selectTask(tasks, task)
-                ?: throw TaskException(
-                    "task $id splits during selection; select it before narrowing its child tasks"
-                )
+        val selected = selectTask(task)
         val selectedTask = allTasks.getTaskData(selected)
         if (selectedTask.assignee != actor) return@perform
         narrowTask(
@@ -604,7 +586,7 @@ internal constructor(
         )
       }
 
-  private fun selectTask(queue: TaskQueue, task: Task): TaskId? {
+  private fun selectTask(task: Task): TaskId {
     requireNoOtherSelectedTask(task.id)
     if (task.deferred) {
       throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
@@ -612,14 +594,14 @@ internal constructor(
     if (task.selected) return task.id
     val resolved =
         instructor.resolve(task.instruction, worldGainNarrowing = true, expandEach = false)
-    applyResolution(queue, task, resolved, then = task.then)
-    return task.id.takeIf { it in allTasks }
+    applyResolution(task, resolved, then = task.then)
+    return task.id
   }
 
-  private fun selectionHandsOff(queue: TaskQueue, task: Task): Boolean {
+  private fun selectionHandsOff(task: Task): Boolean {
     return try {
       timeline.atomic {
-        val selected = selectTask(queue, task) ?: throw AbortTransactionException()
+        val selected = selectTask(task)
         if (allTasks.getTaskData(selected).assignee != actor) throw SelectionHandoffDetected
         throw AbortTransactionException()
       }
@@ -630,47 +612,32 @@ internal constructor(
   }
 
   private fun applyResolution(
-      queue: TaskQueue,
       original: Task,
       resolved: InstructionTree,
       then: InstructionGroup?,
-  ): List<TaskId> {
-    val group = InstructionGroup.of(resolved)
-    // A group is independent work even when it currently contains only one instruction.
-    if (resolved !is InstructionGroup && group.size == 1) {
-      var updated =
-          taskQueues.normalizeForSelection(
-              original.copy(
-                  selected = true,
-                  instruction = group.instructions.single(),
-                  then = then,
-              )
+  ) {
+    var updated =
+        taskQueues.normalizeForSelection(
+            original.copy(selected = true, instruction = resolved, then = then)
+        )
+    val instruction = updated.instruction
+    if (!instruction.isAbstract(reader) && instruction is By) {
+      updated =
+          updated.copy(
+              assignee = instructor.actorFor(instruction),
+              instruction = instruction.inner,
           )
-      val instruction = updated.instruction
-      if (!instruction.isAbstract(reader) && instruction is By) {
-        updated =
-            updated.copy(
-                assignee = instructor.actorFor(instruction),
-                instruction = instruction.inner,
-            )
-      }
-      taskQueues.editTask(updated)
-      return emptyList()
-    } else {
-      // Structural completion admits ordinary pending work and fulfills the selected task. No child
-      // inherits selection; a later player input must select whichever child comes next.
-      val children =
-          taskQueues
-              .addTasks(
-                  group,
-                  original.assignee,
-                  original.cause,
-                  includeDispatchedTasks = false,
-              )
-              .map { it.task.id }
-      handleTask(queue, original.copy(then = then))
-      return children
     }
+    taskQueues.editTask(updated)
+  }
+
+  private fun admitChildren(queue: TaskQueue, parent: Task, group: InstructionGroup): List<TaskId> {
+    val children =
+        taskQueues
+            .addTasks(group, parent.assignee, parent.cause, includeDispatchedTasks = false)
+            .map { it.task.id }
+    handleTask(queue, parent)
+    return children
   }
 
   /**
@@ -694,7 +661,7 @@ internal constructor(
 
   private fun doTask(queue: TaskQueue, taskId: TaskId): Task {
     val original = queue.getTaskData(taskId)
-    val selected = selectTask(queue, original) ?: return original
+    val selected = selectTask(original)
     val selectedQueue = queueForAnyTask(selected)
     val selectedTask = selectedQueue.getTaskData(selected)
     if (selectedTask.assignee != actor) return selectedTask
@@ -706,32 +673,36 @@ internal constructor(
       queue: TaskQueue,
       taskId: TaskId,
       executingActor: Actor = actor,
-  ) {
+  ): List<TaskId> {
     val selectedTask = queue.getTaskData(taskId)
     check(selectedTask.selected)
     check(selectedTask.assignee == executingActor)
-    val instruction = selectedTask.instruction
+    val instruction =
+        when (val tree = selectedTask.instruction) {
+          is InstructionGroup -> return admitChildren(queue, selectedTask, tree)
+          is Instruction -> tree
+        }
     if (instruction is Each) {
       val children = instructor.resolve(instruction, worldGainNarrowing = true)
-      applyResolution(queue, selectedTask, children, then = selectedTask.then)
-      return
+      return admitChildren(queue, selectedTask, InstructionGroup.of(children))
     }
     if (instruction.isAbstract(reader)) {
       val chosen = successfulNarrowing(taskId, instruction, executingActor)
       narrowSelectedTask(taskId, chosen, quantifierOmitted = false)
-      if (taskId in allTasks && allTasks.getTaskData(taskId).assignee == executingActor) {
-        executeSelectedTask(queueForAnyTask(taskId), taskId, executingActor)
+      if (allTasks.getTaskData(taskId).assignee == executingActor) {
+        return executeSelectedTask(queueForAnyTask(taskId), taskId, executingActor)
       }
-      return
+      return emptyList()
     }
     val newTasks =
         instructor.executeResolved(
-            selectedTask.instruction,
+            instruction,
             selectedTask.cause,
             executingActor,
         )
     newTasks.forEach(taskQueues::addTasks)
     handleTask(queue, selectedTask)
+    return emptyList()
   }
 
   /** Complete finite type domains only; unsupported or unfinished analysis remains unresolved. */
@@ -862,11 +833,11 @@ internal constructor(
    * appropriate. An enclosing gate or `/` metric may be omitted, but the task still checks it
    * against current state.
    *
-   * A submitted group executes its requested members still assigned to this Actor after structural
-   * selection. Members assigned to another Actor remain pending for that Actor. A member that
-   * becomes selected for another Actor stops execution of the remaining members. Reactions and
-   * continuations remain queued. Separate pending tasks must be submitted individually; a net
-   * resource total does not identify their execution order.
+   * A submitted group executes its requested members still assigned to this Actor after executing
+   * the parent to admit them. Members assigned to another Actor remain pending for that Actor. A
+   * member that becomes selected for another Actor stops execution of the remaining members.
+   * Reactions and continuations remain queued. Separate pending tasks must be submitted
+   * individually; a net resource total does not identify their execution order.
    *
    * A change assigned to another Actor stays selected without attempting that Actor's execution.
    * Later queued tasks remain pending. A failed transaction restores all changes made by this
@@ -888,32 +859,28 @@ internal constructor(
         }
         val task = tasks.getTaskData(id)
         val intersection = intersectTask(evaluated, task.instruction, quantifierOmitted)
-        val children =
-            if (intersection != null) {
-              requireNoOtherSelectedTask(id)
-              narrowSelectedTask(id, intersection, quantifierOmitted)
-            } else {
-              val selected = selectTask(tasks, task) ?: return@perform
-              val selectedTask = queueForAnyTask(selected).getTaskData(selected)
-              if (selectedTask.assignee != actor) return@perform
-              val instruction = selectedTask.instruction
-              narrowTask(
-                  intersectTask(evaluated, instruction, quantifierOmitted) ?: evaluated,
-                  quantifierOmitted,
-              )
-              emptyList()
-            }
-        if (id !in tasks) {
-          if (evaluated is InstructionGroup) {
-            for (child in children) {
-              if (allTasks.selectedTask() != null) break
-              if (child in tasks) doTask(child)
-            }
-          }
-          return@perform
+        if (intersection != null) {
+          requireNoOtherSelectedTask(id)
+          narrowSelectedTask(id, intersection, quantifierOmitted)
+        } else {
+          val selected = selectTask(task)
+          val selectedTask = queueForAnyTask(selected).getTaskData(selected)
+          if (selectedTask.assignee != actor) return@perform
+          val instruction = selectedTask.instruction
+          narrowTask(
+              intersectTask(evaluated, instruction, quantifierOmitted) ?: evaluated,
+              quantifierOmitted,
+          )
         }
         val selectedTask = allTasks.getTaskData(id)
-        if (selectedTask.assignee == actor) executeSelectedTask(tasks, id)
+        if (selectedTask.assignee != actor) return@perform
+        val children = executeSelectedTask(tasks, id)
+        if (evaluated is InstructionGroup) {
+          for (child in children) {
+            if (allTasks.selectedTask() != null) break
+            if (child in tasks) doTask(child)
+          }
+        }
       }
 
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =

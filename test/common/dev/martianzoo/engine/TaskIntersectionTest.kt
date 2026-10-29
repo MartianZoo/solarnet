@@ -76,32 +76,25 @@ internal class TaskIntersectionTest {
   }
 
   @Test
-  fun `selection cannot discard a choice when resolving a gate splits the task`() {
-    val task = agent.addTasks("MAX 0 Marker: (Piece<Red, Shape>, Marker)").single()
-    val before = game.events.nextOrdinal
-    val original = game.tasks.getTaskData(task)
-
+  fun `selection retains a narrowed group exposed by a gate`() {
     for (narrowing in
         listOf("Piece<Red, Circle>, Marker", "MAX 0 Marker: (Piece<Red, Circle>, Marker)")) {
-      shouldThrow<TaskException> { agent.selectTask(narrowing) }
-          .message
-          .shouldContain("splits during selection")
-
-      game.events.nextOrdinal shouldBe before
-      game.tasks.getTaskData(task) shouldBe original
+      val task = agent.addTasks("MAX 0 Marker: (Piece<Red, Shape>, Marker)").single()
+      agent.selectTask(narrowing)
+      game.tasks.ids().toList() shouldBe listOf(task)
+      game.tasks.getTaskData(task).selected shouldBe true
       agent.count("Piece") shouldBe 0
       agent.count("Marker") shouldBe 0
+
+      agent.doTask(task)
+      agent.doTask("Piece<Red, Circle>")
+      agent.doTask("Marker")
+      agent.count("Piece<Red, Circle>") shouldBe 1
+      agent.count("Piece<Red, Square>") shouldBe 0
+      agent.count("Marker") shouldBe 1
+      game.tasks.isEmpty() shouldBe true
+      agent.sneak("-Piece<Red, Circle>, -Marker")
     }
-
-    agent.selectTask(task)
-    agent.selectTask("Piece<Red, Circle>")
-    agent.doTask("Piece<Red, Circle>")
-    agent.doTask("Marker")
-
-    agent.count("Piece<Red, Circle>") shouldBe 1
-    agent.count("Piece<Red, Square>") shouldBe 0
-    agent.count("Marker") shouldBe 1
-    game.tasks.isEmpty() shouldBe true
   }
 
   @Test

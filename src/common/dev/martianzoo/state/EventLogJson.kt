@@ -126,7 +126,16 @@ internal object EventLogJson {
     put("id", task.id.ordinal)
     put("assignee", task.assignee.className.toString())
     put("selected", task.selected)
-    put("instruction", task.instruction.toString())
+    put(
+        "instruction",
+        when (val instruction = task.instruction) {
+          is Instruction -> JsonPrimitive(instruction.toString())
+          is InstructionGroup ->
+              buildJsonArray {
+                instruction.instructions.forEach { add(JsonPrimitive(it.toString())) }
+              }
+        },
+    )
     put(
         "then",
         task.then?.instructions?.let { instructions ->
@@ -266,7 +275,12 @@ internal object EventLogJson {
           TaskId(requiredInt(source, "id")),
           assignee = decodeActor(requiredString(source, "assignee")),
           selected = requiredBoolean(source, "selected"),
-          instruction = decodeInstruction(requiredString(source, "instruction")),
+          instruction =
+              when (val encoded = requiredElement(source, "instruction")) {
+                is JsonArray ->
+                    InstructionGroup(encoded.map { decodeInstruction(it.jsonPrimitive.content) })
+                else -> decodeInstruction(encoded.jsonPrimitive.content)
+              },
           then = then,
           cause = decodeCause(requiredElement(source, "cause")),
           deferral = Deferral.valueOf(requiredString(source, "deferral")),
