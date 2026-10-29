@@ -587,3 +587,7 @@ separate module; public visibility alone does not make a low-level method the cl
 
 The unused `Agents.overlay` and `SpeculativeAgents` APIs are also removed. Engine overlays remain
 required by transaction trials. No compatibility wrapper is retained for either removal.
+
+`Timeline.commit` is removed from the public history API. Only initialization and fork/overlay
+construction use the internal implementation, which refuses an active restoring block. Client
+history navigation, truncation, checkpoints, and failure-restoring blocks remain available.

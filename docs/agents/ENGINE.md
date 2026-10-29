@@ -139,8 +139,10 @@ the other, and motivation grants no authority.
 Passive navigation reapplies events without firing effects. Live navigation may stop with Admin
 work pending; after truncating the future, Agent calls give that work its normal priority.
 Checkpoints and exports cannot expose an open transaction. Navigation inside a restoring block
-cannot precede that block's start. Retained results span the
-whole returned call without combining its separate transactions in history.
+cannot precede that block's start. The engine establishes the earliest navigable position during
+initialization and copying; clients cannot advance it. Internal floor changes are refused while
+a restoring block is active. Retained results span the whole returned call without combining its
+separate transactions in history.
 
 See [Transactions](../../src/common/dev/martianzoo/engine/Transactions.kt),
 [EventLog](../../src/common/dev/martianzoo/state/EventLog.kt), and

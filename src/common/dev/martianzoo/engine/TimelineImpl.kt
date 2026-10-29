@@ -56,10 +56,10 @@ internal class TimelineImpl(
     check(atEnd) { "Truncate the future before changing this World" }
   }
 
-  override fun commit() {
+  /** Establishes the initialization or copy point; never allowed during a restoring block. */
+  internal fun commit() {
+    check(atomicStarts.isEmpty()) { "Cannot advance the history floor during an atomic call" }
     requireAtEnd()
-    // TODO(ENGINE_CONTRACT): restrict committing inside a restoration block or restore this field
-    // on failure. Currently a failed block can leave the floor beyond the restored game position.
     floor = checkpoint()
   }
 

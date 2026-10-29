@@ -29,7 +29,8 @@ public interface Timeline {
   public val positions: List<Checkpoint>
 
   /**
-   * Earliest navigable position. Initialization and [Engine.fork] set it to their resulting state.
+   * Earliest navigable position. Initialization, [Engine.fork], and [Engine.overlay] set it to
+   * their resulting state; [SpeculativeWorld.reset] returns an overlay's floor to its source point.
    */
   public val floor: Checkpoint
 
@@ -62,16 +63,6 @@ public interface Timeline {
   public fun truncate()
 
   /**
-   * Sets [floor] to the current transaction position, preventing later navigation to earlier
-   * history. Requires the end of retained history. Earlier events remain readable; this does not
-   * record a position, validate tasks, or establish agreement among Players.
-   *
-   * TODO(ENGINE_CONTRACT): Investigate restricting this to initialization and copy construction.
-   *   Calling it from [atomic] currently changes the floor even if the block later fails.
-   */
-  public fun commit()
-
-  /**
    * Runs [block] and returns the component changes and newly pending tasks recorded during it. On
    * an [Exception], restores the block's starting components, tasks, derived effects, and events
    * before rethrowing. Recorded positions after the start are removed.
@@ -82,9 +73,10 @@ public interface Timeline {
    * exception also escapes an enclosing call. The block must perform any needed invariant checks
    * through the mutation API; this method alone supplies no transaction-completion checks.
    *
+   * The [floor] stays unchanged throughout the block.
+   *
    * Current limits: arbitrary Kotlin side effects, existing event commentary, Agent policies,
-   * guards, listeners, and changes to [floor] are not restored. Non-[Exception] failures are not
-   * caught.
+   * guards, and listeners are not restored. Non-[Exception] failures are not caught.
    *
    * TODO(ENGINE_CONTRACT): Review these limits against the safe rollback clients need when engine
    *   methods leave partial changes. Keep the restored state and excluded metadata explicit.

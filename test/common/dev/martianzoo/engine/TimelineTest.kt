@@ -9,9 +9,37 @@ import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class TimelineTest {
+  @Test
+  internal fun aFailedCallCannotLeaveTheHistoryFloorPastTheRestoredState() {
+    val game = Engine.newGame(testGamePremise("CLASS Token"))
+    val agent = game.testAgent(PLAYER1)
+    val timeline = game.timeline as TimelineImpl
+    val start = timeline.checkpoint()
+    val floor = timeline.floor
+
+    shouldThrow<IllegalStateException> {
+          timeline.atomic {
+            agent.runOperation("Token")
+            timeline.commit()
+          }
+        }
+        .message
+        .shouldContain("during an atomic call")
+
+    agent.count("Token") shouldBe 0
+    timeline.checkpoint() shouldBe start
+    timeline.positions.last() shouldBe start
+    timeline.floor shouldBe floor
+
+    agent.runOperation("Token")
+    timeline.seek(start)
+    agent.count("Token") shouldBe 0
+  }
+
   @Test
   internal fun selectionAndExecutionAreSeparateCompletedPositions() {
     val game = Engine.newGame(testGamePremise("CLASS ChoiceA\nCLASS ChoiceB"))

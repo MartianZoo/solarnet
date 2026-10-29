@@ -39,6 +39,17 @@ order: 7, repaired 1b, 1a, 3 with numeric 2, then 4/5 and further evidence for 6
 | 5 Admin | Uses the same unique-success rule; no later Admin work is executed to justify a candidate. | Keep together with 4. Canon declarations did not need changing for the tested cases. |
 | 6 Agent narrowing | Draft composition tests and a concrete counterexample; no new automatic reduction policy. | Evidence for the separate Agent choice project, not a gate for the engine API. |
 
+### History floor changes are construction-only
+
+The API audit found no production client of `Timeline.commit`: only initialization and
+fork/overlay construction use it. The public method is removed; the internal implementation
+refuses calls inside a restoring block. This removes the path that could advance the history
+floor past the state restored after a failed Agent call. The overlay reset test still checks its
+internal floor reset, and `TimelineTest` verifies restoration and usable navigation after the
+forbidden internal call. No replacement client API or compatibility wrapper was added.
+Opus/high found no blocking issue. All 620 engine tests and 72 Agent tests passed; the focused
+history test was rerun after strengthening its expected failure message during review.
+
 ### Solo neutral locations are part of the resolved premise
 
 Setup now supplies the four fixed locations through `soloTileSetup`. A selected premise-local

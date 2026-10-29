@@ -128,7 +128,8 @@ silently choose an answer.
    subsequent Admin work fails, including a successful initiating Player transaction. The unused
    completion hook is removed; request, automatic work, and completion validation now share the
    restoring block. External application side effects cannot be rolled back by the engine.
-   Audit the remaining `Timeline.atomic` limits against the selected recovery rule.
+   The unused public `Timeline.commit` is removed; internal floor changes are forbidden during
+   restoring blocks. Audit the remaining `Timeline.atomic` limits against the selected recovery rule.
    Also decide whether correction methods may edit the queue while a task is selected; the branch
    now refuses ordinary add/drop edits but still allows some correction paths.
 
