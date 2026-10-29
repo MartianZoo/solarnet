@@ -1,11 +1,13 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -30,6 +32,9 @@ internal class TaskIntersectionTest {
       CLASS Piece<Color, Shape>
       CLASS Notice<Color>
       CLASS Marker
+      CLASS Foo
+      CLASS Bar
+      CLASS MC
       CLASS RedOffer { This: Piece<Red, Shape> }
       CLASS BlueOffer { This: Piece<Blue, Shape> }
       ABSTRACT CLASS LeftChoice
@@ -144,6 +149,52 @@ internal class TaskIntersectionTest {
     agent.count("Piece<Red, Circle>") shouldBe 1
     agent.count("Piece<Blue>") shouldBe 0
     game.tasks.ids().size shouldBe 1
+  }
+
+  @Test
+  fun `calculated amount identifies a unique task but not two distinct permissions`() {
+    agent.sneak("3 Foo, 2 Bar")
+    val engine = game.actorEngine(PLAYER1)
+    val first = agent.addTasks("MC / Foo").single()
+    val barTask = agent.addTasks("MC / Bar").single()
+
+    engine.doTask(agent.parse<InstructionTree>("3 MC"))
+    agent.count("MC") shouldBe 3
+    (first in game.tasks.ids()) shouldBe false
+    (barTask in game.tasks.ids()) shouldBe true
+
+    agent.sneak("Bar")
+    val fooTask = agent.addTasks("MC / Foo").single()
+    val before = game.events.nextOrdinal
+    shouldThrow<TaskException> { engine.doTask(agent.parse<InstructionTree>("3 MC")) }
+        .message
+        .shouldContain("ambiguous")
+    game.events.nextOrdinal shouldBe before
+    (fooTask in game.tasks.ids()) shouldBe true
+    (barTask in game.tasks.ids()) shouldBe true
+
+    engine.doTask(agent.parse<InstructionTree>("3 MC"), taskId = fooTask)
+    agent.count("MC") shouldBe 6
+    (fooTask in game.tasks.ids()) shouldBe false
+    (barTask in game.tasks.ids()) shouldBe true
+  }
+
+  @Test
+  fun `literal and calculated permissions do not silently favor the literal task`() {
+    agent.sneak("3 Foo")
+    val literal = agent.addTasks("3 MC").single()
+    val calculated = agent.addTasks("MC / Foo").single()
+    val before = game.events.nextOrdinal
+
+    shouldThrow<TaskException> {
+          game.actorEngine(PLAYER1).doTask(agent.parse<InstructionTree>("3 MC"))
+        }
+        .message
+        .shouldContain("ambiguous")
+
+    game.events.nextOrdinal shouldBe before
+    (literal in game.tasks.ids()) shouldBe true
+    (calculated in game.tasks.ids()) shouldBe true
   }
 
   @Test

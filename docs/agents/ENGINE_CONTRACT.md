@@ -82,16 +82,17 @@ instruction and finding its sole concrete successful transaction are different s
 may also identify a task by ID. A task string may express a calculated change. The owner's
 illustrative wording was `1 MC / Foo` with 3 Foo present, followed by `3 Foo`; in Pets, that
 expression evaluates to **3 MC**. The analogous task yielding `3 Foo` would be `Foo / MC` with
-3 MC present. This calculated-amount convenience is valuable to sandbox tests and task-log import.
-Whether it belongs in the final engine matcher, and how to handle several tasks resolving to the
-same change, remain open. Exact API signatures remain open.
+3 MC present. The owner selected calculated-amount matching when it identifies a unique pending
+permission. Several distinct permissions yielding the same change require an explicit task ID,
+including a literal task beside a calculated task. Exact API signatures remain open.
 
-**Current-code evidence:** `ActorEngine.matchingTask` already tries intersection with a resolved
-pending instruction when direct intersection fails. `TaskResolutionTest` executes a pending
+**Current-code evidence:** `ActorEngine.matchingTask` tries a resolved instruction for each task
+whose direct intersection fails; direct and resolved matches are considered together.
+`TaskResolutionTest` executes a pending
 `Plant / Heat` task through Agent by submitting its calculated `2 Plant` change. The engine
-fallback is visible in source, but that test does not isolate a raw engine call. Neither the code
-nor the test decides that resolved-value matching belongs in the final contract or establishes the
-multiple-task rule.
+fallback is visible in source. `TaskIntersectionTest` now checks the unique and multiple-task cases
+through raw engine calls. Interchangeability of otherwise identical tasks with different causes
+remains open.
 
 For example, permission to place an ocean on a water area combined with a request to place
 `Tile<Tharsis_5_5>` may identify the full change. The request names a tile at an existing map
