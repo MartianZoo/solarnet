@@ -745,11 +745,15 @@ internal class RecordingStore {
 
   fun chooseTaskArm(option: Prompt.Option, arm: String) = live { chooseTaskArm(option, arm) }
 
-  fun cardActionAvailable(card: String, slot: Int): Boolean =
-      (shown as? Live)?.session?.takeIf { !historyMode }?.cardActionAvailable(card, slot) == true
+  fun cardActionAvailable(card: String, slot: Int): Boolean {
+    val session = (shown as? Live)?.session?.takeIf { !historyMode } ?: return false
+    return session.cardActionAvailable(card, slot).also { problem = session.problem }
+  }
 
-  fun projectCardAvailable(card: String): Boolean =
-      (shown as? Live)?.session?.takeIf { !historyMode }?.projectCardAvailable(card) == true
+  fun projectCardAvailable(card: String): Boolean {
+    val session = (shown as? Live)?.session?.takeIf { !historyMode } ?: return false
+    return session.projectCardAvailable(card).also { problem = session.problem }
+  }
 
   fun playProjectCard(card: String) = live { playProjectCard(card) }
 

@@ -28,6 +28,7 @@ kotlin {
 
   sourceSets {
     wasmJsTest {
+      resources.srcDir(project(":tfm-tests").file("src/jvmTest/resources"))
       kotlin.srcDir(
           rootProject.layout.projectDirectory.dir("test/wasmJs/dev/martianzoo/tfm/web/playground")
       )

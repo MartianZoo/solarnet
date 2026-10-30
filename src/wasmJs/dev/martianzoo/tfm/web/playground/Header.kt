@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 internal fun TitleBar(recording: RecordingStore? = null) {
+  val runPlayAction = LocalRunPlayAction.current
   val palette = LocalPalette.current
   val scope = rememberCoroutineScope()
   Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
@@ -85,9 +86,9 @@ internal fun TitleBar(recording: RecordingStore? = null) {
     }
     if (live && recording.historyMode) {
       Spacer(Modifier.width(palette.spacing * 2.4f))
-      OutlinedAction("RESUME PLAY", palette.accent, recording::resumePlay)
+      OutlinedAction("RESUME PLAY", palette.accent) { runPlayAction(recording::resumePlay) }
       Spacer(Modifier.width(palette.spacing))
-      OutlinedAction("TRUNCATE", palette.mars, recording::truncate)
+      OutlinedAction("TRUNCATE", palette.mars) { runPlayAction(recording::truncate) }
     }
   }
 }

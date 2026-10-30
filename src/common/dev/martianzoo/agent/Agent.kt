@@ -31,7 +31,10 @@ import kotlin.reflect.KClass
  * [runOperation] and [completeOperation] require their operation's work to finish. A successful
  * [TaskResult] reports changes and still-pending tasks created during that call, while later work
  * can change the world again. [autoExecPolicy] controls eligible automatic work during settlement;
- * it does not choose between unresolved player options.
+ * it does not choose between unresolved player options. Automatic settlement checks a 10,000-step
+ * and 30-second limit between tasks. Reaching a limit throws
+ * [dev.martianzoo.pets.api.Exceptions.ResourceLimitException] and rolls back the enclosing command;
+ * it does not establish that the pending work is illegal.
  */
 public interface Agent {
 

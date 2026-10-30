@@ -6,6 +6,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
@@ -14,6 +15,35 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SafeAutoExecTest {
+  @Test
+  internal fun endlesslyRecreatedTasksStopAndRollBack() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Pulse : System
+                CLASS Repeater : System {
+                  Pulse: Pulse!
+                }
+                """
+                    .trimIndent()
+            )
+        )
+    val agents = Agents(game)
+    agents[ADMIN].sneak("Repeater")
+    val before = game.timeline.checkpoint()
+
+    shouldThrow<ResourceLimitException> { agents[ADMIN].beginOperation("Pulse!") }
+
+    game.timeline.checkpoint() shouldBe before
+    agents[ADMIN].count("Pulse") shouldBe 0
+    game.tasks.isEmpty() shouldBe true
+    // The failed automatic loop must not leave a running flag or a damaged transaction behind.
+    agents[ADMIN].sneak("-Repeater")
+    agents[ADMIN].beginOperation("Pulse!")
+    agents[ADMIN].count("Pulse") shouldBe 1
+  }
+
   @Test
   internal fun constructionSetsActorPoliciesWithoutExecutingPendingWork() {
     val game =

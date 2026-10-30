@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
   val palette = LocalPalette.current
   val prompt = recording.prompt ?: return
+  val runPlayAction = LocalRunPlayAction.current
   Column(
       Modifier.fillMaxSize().padding(palette.spacing * 1.6f),
       verticalArrangement = Arrangement.spacedBy(palette.spacing * 0.6f),
@@ -48,14 +49,14 @@ internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
       if (recording.playing) {
         Checkbox(
             recording.safeAutoexec,
-            recording::setSafeAutoexec,
+            { enabled -> runPlayAction { recording.setSafeAutoexec(enabled) } },
             enabled = !recording.historyMode,
             colors = CheckboxDefaults.colors(checkedColor = palette.accent),
         )
         Text(
             "Safe autoexec",
             Modifier.clickable(enabled = !recording.historyMode) {
-              recording.setSafeAutoexec(!recording.safeAutoexec)
+              runPlayAction { recording.setSafeAutoexec(!recording.safeAutoexec) }
             },
             style = palette.label,
         )
@@ -76,14 +77,17 @@ internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
         OutlinedAction(
             "${if (cards.confirmUnproven) "* " else ""}CONFIRM ${if (cards.drawing) "DRAW" else "DISCARD"} (${cards.chosen.size})",
             if (cards.drawing) Color(0xFF4DAA67) else palette.mars,
-            recording::confirmCards,
+            { runPlayAction(recording::confirmCards) },
         )
       }
     }
     if (prompt.enabled && (prompt.retreat != null || prompt.more)) {
       Row(horizontalArrangement = Arrangement.spacedBy(palette.spacing)) {
-        prompt.retreat?.let { OutlinedAction(it, palette.dimText, recording::retreat) }
-        if (prompt.more) OutlinedAction("MORE", palette.dimText, recording::showMore)
+        prompt.retreat?.let {
+          OutlinedAction(it, palette.dimText) { runPlayAction(recording::retreat) }
+        }
+        if (prompt.more)
+            OutlinedAction("MORE", palette.dimText) { runPlayAction(recording::showMore) }
       }
     }
     LazyColumn(Modifier.weight(1f).fillMaxWidth().alpha(if (prompt.enabled) 1f else 0.6f)) {
@@ -119,7 +123,7 @@ internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
               if (parts == null) {
                 if (option.arms.isEmpty()) {
                   TaskText(option.label, color, useIcons, prompt.enabled && option.enabled) {
-                    recording.choose(option)
+                    runPlayAction { recording.choose(option) }
                   }
                 } else {
                   Column {
@@ -130,7 +134,7 @@ internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
                           Text("*", style = palette.mono.copy(color = palette.mars))
                         }
                         TaskText(arm, color, useIcons, prompt.enabled && option.enabled) {
-                          recording.chooseTaskArm(option, arm)
+                          runPlayAction { recording.chooseTaskArm(option, arm) }
                         }
                       }
                     }
@@ -147,7 +151,7 @@ internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
                       Text("*", style = palette.mono.copy(color = palette.mars))
                     }
                     TaskText(text, color, useIcons, prompt.enabled && option.enabled) {
-                      recording.chooseTaskArm(option, arm)
+                      runPlayAction { recording.chooseTaskArm(option, arm) }
                     }
                   }
                 }

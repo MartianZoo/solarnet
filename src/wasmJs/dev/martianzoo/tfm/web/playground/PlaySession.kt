@@ -9,6 +9,7 @@ import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -37,7 +38,6 @@ import dev.martianzoo.tfm.engine.TfmAutoExec
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.cardMatchesFilter
 import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 import kotlinx.serialization.Serializable
@@ -107,7 +107,7 @@ internal constructor(
   private var optionLimit = OPTION_PAGE
   private var safeAutoexecEnabled = false
 
-  /** Receives the search's reasons for dead ends and undecided branches, for diagnosis. */
+  /** Receives search progress and reasons for dead ends and undecided branches, for diagnosis. */
   internal var searchTrace: ((String) -> Unit)? = null
   private var settling = false
 
@@ -116,9 +116,17 @@ internal constructor(
 
   private class Described(val key: List<Any?>, val prompt: Prompt, val forced: (() -> Unit)?)
 
-  /** The most recent refusal, shown until the next successful command. */
-  var problem: String? = null
-    private set
+  // A failed display query is not unfinished player input and must not alter Undo behavior.
+  private var choiceFailure: String? = null
+  private var commandProblem: String? = null
+    set(value) {
+      field = value
+      if (value == null) clearChoiceFailure()
+    }
+
+  /** The current command or choice-check error, displayed by the client. */
+  val problem: String?
+    get() = commandProblem ?: choiceFailure
 
   private class Attempt(
       val command: () -> Unit,
@@ -137,7 +145,7 @@ internal constructor(
   /** Whether the current action has choices that are not yet in a completed World position. */
   internal val hasDraftInput: Boolean
     get() =
-        problem != null ||
+        commandProblem != null ||
             naming != null ||
             pendingCardTask != null ||
             chosenCards.isNotEmpty() ||
@@ -199,11 +207,11 @@ internal constructor(
       dealt +=
           world.timeline.checkpoint() to decks.mapValues { if (it.key == PROJECT_CARD) 4 else 0 }
       attempt { agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase") }
-      problem?.let { throw IllegalStateException("the game could not start: $it") }
+      commandProblem?.let { throw IllegalStateException("the game could not start: $it") }
       areas.forEachIndexed { index, area ->
         val tile = if (index % 2 == 0) "NormalCityTile" else "GreeneryTile"
         attempt { agents[ADMIN].doTask("$tile<SoloOpponent, ${area.className}>") }
-        problem?.let { throw IllegalStateException("neutral tile placement failed: $it") }
+        commandProblem?.let { throw IllegalStateException("neutral tile placement failed: $it") }
       }
       start = world.timeline.checkpoint()
     }
@@ -227,6 +235,7 @@ internal constructor(
    * each sole available choice in the work under way.
    */
   fun setSafeAutoexec(enabled: Boolean) {
+    commandProblem = null
     safeAutoexecEnabled = enabled
     described = null
     lookahead = null
@@ -293,14 +302,12 @@ internal constructor(
     if (cardActionCheckKey != key) {
       cardActionCheckKey = key
       cardActionChecks.clear()
-      cardActionSearch = null
     }
-    return cardActionChecks.getOrPut(card to slot) { checkCardAction(card, slot) }
+    return cardActionChecks.getOrPut(card to slot) { checkChoice { checkCardAction(card, slot) } }
   }
 
   private var projectCheckKey: List<Any?>? = null
   private val projectChecks = mutableMapOf<String, Boolean>()
-  private var projectSearch: DecisionSearch? = null
 
   /** A hand or Selecting card is clickable only after its exact play can finish this action. */
   fun projectCardAvailable(card: String): Boolean {
@@ -308,25 +315,36 @@ internal constructor(
     if (projectCheckKey != key) {
       projectCheckKey = key
       projectChecks.clear()
-      projectSearch = null
     }
     return projectChecks.getOrPut(card) {
-      val task = projectTask() ?: return@getOrPut false
-      if (card !in held(HAND) && card !in held(SELECTING)) return@getOrPut false
-      if (!safeAutoexecEnabled) return@getOrPut true
-      val draft = form?.instruction
-      val search =
-          projectSearch
-              ?: DecisionSearch(
-                      agents,
-                      tracker,
-                      budget = UI_SEARCH_BUDGET,
-                      trace = searchTrace,
-                      maxDuration = UI_SEARCH_DURATION,
-                  )
-                  .also { projectSearch = it }
-      search.verdict { trial -> commitProjectChoice(trial, task.id, card, draft) } != DEAD_END
+      checkChoice {
+        val task = projectTask() ?: return@checkChoice false
+        if (card !in held(HAND) && card !in held(SELECTING)) return@checkChoice false
+        val search = search() ?: return@checkChoice true
+        val draft = form?.instruction
+        search.verdict { trial -> commitProjectChoice(trial, task.id, card, draft) } != DEAD_END
+      }
     }
+  }
+
+  private fun checkChoice(query: () -> Boolean): Boolean =
+      try {
+        query()
+      } catch (failure: Exception) {
+        reportChoiceFailure(failure)
+        false
+      }
+
+  private fun clearChoiceFailure() {
+    if (choiceFailure == null) return
+    choiceFailure = null
+    projectCheckKey = null
+    cardActionCheckKey = null
+  }
+
+  private fun reportChoiceFailure(failure: Exception) {
+    choiceFailure = "Could not check available choices: ${failure.message ?: failure.toString()}"
+    failure.printStackTrace()
   }
 
   /** Submits the clicked card as part of the same command that selects PlayProject. */
@@ -402,68 +420,77 @@ internal constructor(
         world.tasks.selectedTask()?.let(world.tasks::getTaskData)
             ?: shown.options.firstOrNull(offersAction)?.taskId?.let(world.tasks::getTaskData)
             ?: return false
-    return try {
-      val narrowed =
-          if (world.tasks.selectedTask() == null) null
-          else form?.takeIf { it.taskId == task.id }?.instruction
-      val draft =
-          if (narrowed == null) agents[task.assignee].fillInTask(task.id)
-          else agents[task.assignee].fillInTask(task.id, narrowed)
-      if (offered) chooseFormOption(draft, "UseCardAction")
-      val cardDecision = draft.decisions().singleOrNull() ?: return false
-      val cardOption =
-          draft.options(cardDecision).firstOrNull { actionName(it) == card } ?: return false
-      draft.choose(cardDecision, cardOption)
-      val slotDecision = draft.decisions().singleOrNull() ?: return false
-      val slotOption =
-          draft.options(slotDecision).firstOrNull { actionName(it) == "Action$slot" }
-              ?: return false
-      draft.choose(slotDecision, slotOption)
-      val selectedInstruction = draft.instruction
-      if (!safeAutoexecEnabled) return true
-      val search =
-          cardActionSearch
-              ?: DecisionSearch(
-                      agents,
-                      tracker,
-                      budget = UI_SEARCH_BUDGET,
-                      trace = searchTrace,
-                      maxDuration = UI_SEARCH_DURATION,
-                  )
-                  .also { cardActionSearch = it }
-      search.verdict { trial ->
-        if (trial.world.tasks.selectedTask() == null) trial[task.assignee].selectTask(task.id)
-        val candidate = trial[task.assignee].fillInTask(task.id, selectedInstruction)
-        candidate.commit()
-      } != DEAD_END
-    } catch (_: IllegalArgumentException) {
-      false
-    } catch (_: UnsupportedOperationException) {
-      false
-    }
+    val selectedInstruction =
+        try {
+          val narrowed =
+              if (world.tasks.selectedTask() == null) null
+              else form?.takeIf { it.taskId == task.id }?.instruction
+          val draft =
+              if (narrowed == null) agents[task.assignee].fillInTask(task.id)
+              else agents[task.assignee].fillInTask(task.id, narrowed)
+          if (offered) chooseFormOption(draft, "UseCardAction")
+          val cardDecision = draft.decisions().singleOrNull() ?: return false
+          val cardOption =
+              draft.options(cardDecision).firstOrNull { actionName(it) == card } ?: return false
+          draft.choose(cardDecision, cardOption)
+          val slotDecision = draft.decisions().singleOrNull() ?: return false
+          val slotOption =
+              draft.options(slotDecision).firstOrNull { actionName(it) == "Action$slot" }
+                  ?: return false
+          draft.choose(slotDecision, slotOption)
+          draft.instruction
+        } catch (_: UnsupportedOperationException) {
+          return false
+        }
+    val search = search() ?: return true
+    return search.verdict { trial ->
+      if (trial.world.tasks.selectedTask() == null) trial[task.assignee].selectTask(task.id)
+      val candidate = trial[task.assignee].fillInTask(task.id, selectedInstruction)
+      candidate.commit()
+    } != DEAD_END
   }
+
+  private fun promptKey(): List<Any?> =
+      listOf(
+          world.timeline.checkpoint(),
+          form?.instruction,
+          naming,
+          naming?.chosen?.toList(),
+          pendingCardTask,
+          chosenCards.toList(),
+          optionLimit,
+          safeAutoexecEnabled,
+      )
 
   /** The prompt at the tail, computed once for each state of the game and of draft input. */
   private fun current(): Described {
-    val key =
-        listOf(
-            world.timeline.checkpoint(),
-            form?.instruction,
-            naming,
-            naming?.chosen?.toList(),
-            pendingCardTask,
-            chosenCards.toList(),
-            optionLimit,
-            safeAutoexecEnabled,
-        )
+    val key = promptKey()
     described
         ?.takeIf { it.key == key }
         ?.let {
           return it
         }
+    clearChoiceFailure()
     forcedChoice = null
-    val prompt = describe()
-    return Described(key, prompt, forcedChoice.takeIf { prompt.enabled }).also { described = it }
+    val prompt =
+        try {
+          describe()
+        } catch (failure: Exception) {
+          // Rendering must not retry a broken query on every frame or leave the busy banner
+          // painted.
+          forcedChoice = null
+          reportChoiceFailure(failure)
+          Prompt(
+              "Choice checking stopped",
+              if (safeAutoexecEnabled) "Turn off Safe autoexec to continue manually, or use Undo."
+              else "Use Undo to return to an earlier position.",
+              enabled = false,
+          )
+        }
+    // Describing a selected task may initialize its provisional form.
+    return Described(promptKey(), prompt, forcedChoice.takeIf { prompt.enabled }).also {
+      described = it
+    }
   }
 
   /** The action of the single choice able to finish the work under way, while describing it. */
@@ -474,7 +501,6 @@ internal constructor(
   private var lookaheadAt: Checkpoint? = null
   private var cardActionCheckKey: List<Any?>? = null
   private val cardActionChecks = mutableMapOf<Pair<String, Int>, Boolean>()
-  private var cardActionSearch: DecisionSearch? = null
 
   private fun proofScope(): Boolean =
       world.reader.getComponents(cn("TurnBasedPhase").expression).elements.isNotEmpty()
@@ -612,9 +638,17 @@ internal constructor(
           option.arms.mapNotNull { arm ->
             val armResult =
                 search()?.let { trial ->
-                  val draft = agents[world.tasks.getTaskData(taskId).assignee].fillInTask(taskId)
-                  chooseFormOption(draft, arm)
-                  trial.verdictForm(taskId, draft.instruction)
+                  trial.verdict { candidate ->
+                    val actor = candidate[world.tasks.getTaskData(taskId).assignee]
+                    actor.selectTask(taskId)
+                    val selected =
+                        requireNotNull(candidate.world.tasks.selectedTask()) {
+                          "Selecting task $taskId did not leave the displayed alternative available"
+                        }
+                    val draft = actor.fillInTask(selected)
+                    chooseFormOption(draft, arm)
+                    draft.commit()
+                  }
                 }
             if (armResult == UNKNOWN) incompleteSearch = true
             if (armResult == DEAD_END) null else arm to armResult
@@ -653,7 +687,12 @@ internal constructor(
     if (decision.kind == Decision.Kind.ALTERNATIVE) {
       val available = form.options(decision).toList()
       if (option !in available) {
-        form.choose(decision, requireNotNull(standardActionArm(form, available)))
+        val standard =
+            standardActionArm(form, available)
+                ?: error(
+                    "Displayed choice $option is not available; expected ${available.joinToString()}"
+                )
+        form.choose(decision, standard)
       }
     }
     val next =
@@ -806,7 +845,7 @@ internal constructor(
     if (name !in cardPrompt(task, choice).cards!!.available) return
     val card = cn(name)
     if (!chosenCards.add(card)) chosenCards.remove(card)
-    problem = null
+    commandProblem = null
   }
 
   fun confirmCards() {
@@ -824,7 +863,7 @@ internal constructor(
       require(form.decisions().isEmpty()) { "This card task needs another choice" }
     } catch (refused: Exception) {
       this.form = null
-      problem = refused.message ?: refused.toString()
+      commandProblem = refused.message ?: refused.toString()
       return
     }
     chosenCards.clear()
@@ -1012,7 +1051,7 @@ internal constructor(
   private fun chooseOnly(option: Prompt.Option) {
     check(atTail) { "history is read-only" }
     check(ending == null) { "the game has ended" }
-    problem = null
+    commandProblem = null
     val label = option.label
     val open = naming
     if (open != null) {
@@ -1053,7 +1092,7 @@ internal constructor(
       try {
         chooseFormOption(form, label)
       } catch (refused: Exception) {
-        problem = refused.message
+        commandProblem = refused.message
         return
       }
     }
@@ -1075,7 +1114,7 @@ internal constructor(
   fun chooseTaskArm(option: Prompt.Option, arm: String) {
     require(arm in option.arms)
     chooseOnly(option)
-    if (problem == null) chooseOnly(Prompt.Option(arm))
+    if (commandProblem == null) chooseOnly(Prompt.Option(arm))
     settle()
   }
 
@@ -1086,7 +1125,7 @@ internal constructor(
 
   /** Discards draft choices, or the open naming attempt and every name it supplied. */
   fun retreat() {
-    problem = null
+    commandProblem = null
     chosenCards.clear()
     if (pendingCardTask != null) {
       pendingCardTask = null
@@ -1110,7 +1149,7 @@ internal constructor(
     pendingCardTask = null
     chosenCards.clear()
     optionLimit = OPTION_PAGE
-    problem = null
+    commandProblem = null
     described = null
     lookahead = null
     lookaheadAt = null
@@ -1133,7 +1172,7 @@ internal constructor(
     pendingCardTask = null
     chosenCards.clear()
     naming = null
-    problem = null
+    commandProblem = null
     described = null
     lookahead = null
     lookaheadAt = null
@@ -1185,7 +1224,8 @@ internal constructor(
 
   /**
    * Uses the selected project's known card source, then, with safe autoexecution, performs safe
-   * Player tasks and proven forced choices until a real choice, naming request, or problem remains.
+   * Player tasks and proven forced choices until a real choice, naming request, or command failure
+   * remains.
    */
   private fun settle() {
     if (settling) return
@@ -1193,7 +1233,7 @@ internal constructor(
     if (
         atTail &&
             naming == null &&
-            problem == null &&
+            commandProblem == null &&
             ending == null &&
             world.tasks.selectedTask() != null
     ) {
@@ -1211,7 +1251,7 @@ internal constructor(
         // A fresh search can start on every step; its individual deadline is not a deadline for
         // this whole automatic walk. Leave remaining work for the Player when the walk runs long.
         if (started.elapsedNow() >= MAX_SETTLE_DURATION) return
-        if (!atTail || naming != null || problem != null || ending != null) return
+        if (!atTail || naming != null || commandProblem != null || ending != null) return
         val before =
             listOf(
                 world.timeline.checkpoint(),
@@ -1253,9 +1293,16 @@ internal constructor(
 
   private fun run(initial: Attempt) {
     var attempt = initial
+    val started = TimeSource.Monotonic.markNow()
+    var attempts = 0
     while (true) {
       val request =
           try {
+            if (++attempts > MAX_COMMAND_ATTEMPTS || started.elapsedNow() >= MAX_COMMAND_DURATION) {
+              throw ResourceLimitException(
+                  "Automatic continuation stopped after reaching its work limit. Undo or turn off Safe autoexec to continue."
+              )
+            }
             world.timeline.atomic {
               attempt.command()
               tracker.requireComplete()
@@ -1315,7 +1362,7 @@ internal constructor(
               }
           candidates.size < request.count -> {
             abandon(attempt)
-            problem = "${request.message}, but only ${candidates.size} could move"
+            commandProblem = "${request.message}, but only ${candidates.size} could move"
             return
           }
           candidates.size == request.count -> supply(request, candidates.toList(), attempt)
@@ -1338,7 +1385,7 @@ internal constructor(
   private fun fail(attempt: Attempt, refused: Exception) {
     abandon(attempt)
     form = null
-    problem = refused.message ?: refused.toString()
+    commandProblem = refused.message ?: refused.toString()
   }
 
   /** Deals [request]'s cards from its deck, skipping cards its filter rejects; false if empty. */
@@ -1394,10 +1441,12 @@ internal constructor(
     val SELECTING = cn("Selecting")
     val PROJECT_CARD = cn("ProjectCard")
     const val OPTION_PAGE = 200
-    const val UI_SEARCH_BUDGET = 2_000
-    val UI_SEARCH_DURATION = 500.milliseconds
-    val MAX_SETTLE_DURATION = 1.seconds
+    const val UI_SEARCH_BUDGET = 20_000
+    val UI_SEARCH_DURATION = 10.seconds
+    val MAX_SETTLE_DURATION = 10.seconds
     const val MAX_SETTLE_STEPS = 200
+    const val MAX_COMMAND_ATTEMPTS = 10_000
+    val MAX_COMMAND_DURATION = 30.seconds
     const val MAX_CARD_SELECTIONS = 256
     const val MAX_FORCED_SELECTIONS = 16L
 

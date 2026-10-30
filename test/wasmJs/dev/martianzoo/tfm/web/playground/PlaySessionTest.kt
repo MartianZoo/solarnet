@@ -554,6 +554,7 @@ internal class PlaySessionTest {
     session.confirmCards()
 
     assertFalse(session.projectCardAvailable("Birds"))
+    assertNull(session.problem)
     session.setSafeAutoexec(false)
     assertTrue(
         session.projectCardAvailable("Birds"),
@@ -628,6 +629,49 @@ internal class PlaySessionTest {
             .mapNotNull { it.change.gaining }
             .lastOrNull { it.className == cn("UseAction") }
     assertTrue(invocation?.toString()?.contains("Action2") == true)
+  }
+
+  @Test
+  fun cardActionSearchFailureIsReportedAndCached() {
+    val session = session()
+    session.setSafeAutoexec(true)
+    session.choose(session.prompt().options.single { "CorporationCard" in it.label })
+    session.choose(session.prompt().options.first())
+    session.held(cn("Selecting")).forEach(session::toggleCard)
+    session.confirmCards()
+    session.choose(session.prompt().options.first { "DoRequiredActions" in it.label })
+    session.setSafeAutoexec(false)
+    session.agents[session.player].sneak("ElectroCatapult, Steel")
+    var failSearch = false
+    var calls = 0
+    session.searchTrace = {
+      if (failSearch) {
+        calls++
+        throw IllegalArgumentException("injected card-action search failure")
+      }
+    }
+    session.setSafeAutoexec(true)
+    assertNull(session.problem)
+    // The menu succeeds; only its subsequent card shortcut query fails.
+    assertTrue(session.prompt().enabled)
+    failSearch = true
+    assertFalse(session.cardActionAvailable("ElectroCatapult", 2))
+    assertTrue(
+        assertNotNull(session.problem, "Calls: $calls; ${session.prompt()}")
+            .contains("injected card-action search failure")
+    )
+    val failedCalls = calls
+    repeat(5) { assertFalse(session.cardActionAvailable("ElectroCatapult", 2)) }
+    assertEquals(failedCalls, calls)
+
+    failSearch = false
+    // Changing only the menu input must clear failed shortcut checks with their error message.
+    val checkpoint = session.world.timeline.checkpoint()
+    session.showMore()
+    session.prompt()
+    assertEquals(checkpoint, session.world.timeline.checkpoint())
+    assertNull(session.problem)
+    assertTrue(session.cardActionAvailable("ElectroCatapult", 2))
   }
 
   @Test
@@ -774,6 +818,23 @@ internal class PlaySessionTest {
     session.setSafeAutoexec(true)
 
     assertTrue(session.prompt().options.any { it.label == "TradeAction" }, "${session.prompt()}")
+  }
+
+  @Test
+  fun ordinaryOpeningActionMenuHasNoUnprovenChoices() {
+    val session = session()
+    session.setSafeAutoexec(true)
+    session.choose(session.prompt().options.single { "CorporationCard" in it.label })
+    session.choose(session.prompt().options.first())
+    session.held(cn("Selecting")).forEach(session::toggleCard)
+    session.confirmCards()
+
+    assertNull(session.problem)
+    assertEquals(1, session.agents[ADMIN].count("ActionPhase"))
+    val prompt = session.prompt()
+    assertTrue(prompt.options.isNotEmpty(), "$prompt")
+    assertNull(prompt.warning, "$prompt")
+    assertTrue(prompt.options.none { it.unproven || it.unprovenArms.isNotEmpty() }, "$prompt")
   }
 
   @Test

@@ -9,10 +9,37 @@ import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
+import kotlin.test.assertSame
 import kotlin.time.Duration
 
 /** The search finishes card work without naming cards: unplayed cards are anonymous backs. */
 internal class DecisionSearchTest : TfmSandboxTest() {
+  @Test
+  internal fun unexpectedFailuresEscapeTheSearchWithTheirOriginalCause() {
+    newTestGame()
+    val task = kim.addTasks("MC").single()
+    val money = kim.count("MC")
+    val failure = IllegalStateException("broken search branch")
+    val before = agents.world.timeline.checkpoint()
+    val search = DecisionSearch(agents, tracker = null, playerPolicy = AutoExecPolicy.NONE)
+
+    assertSame(
+        failure,
+        assertFailsWith<IllegalStateException> {
+          search.verdict {
+            it[kim.actor].sneak("MC")
+            throw failure
+          }
+        },
+    )
+    agents.world.timeline.checkpoint() shouldBe before
+    search.verdict {
+      it[kim.actor].count("MC") shouldBe money
+      it[kim.actor].doTask(task)
+    } shouldBe COMPLETES
+  }
+
   @Test
   internal fun `Invention Contest completes whatever cards it reveals and keeps`() {
     inventionContestVerdict(money = 2) shouldBe COMPLETES
@@ -52,7 +79,7 @@ internal class DecisionSearchTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
     val gain = kim.addTasks("X MC, -90 MC").first()
 
-    DecisionSearch(agents, tracker = null, budget = 130, playerPolicy = AutoExecPolicy.NONE)
+    DecisionSearch(agents, tracker = null, budget = 20, playerPolicy = AutoExecPolicy.NONE)
         .verdict { it[kim.actor].selectTask(gain) } shouldBe COMPLETES
   }
 

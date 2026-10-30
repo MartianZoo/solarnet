@@ -9,7 +9,9 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -45,10 +47,12 @@ import kotlin.time.TimeSource
  * order and serves as a reference.
  *
  * Verdict calls on the same search share [budget] and optional [maxDuration], so displaying many
- * options cannot multiply its work without limit. Results are exact while the search stays within
- * both limits. Anything the search cannot evaluate, including an exhausted budget, a choice the
- * options API cannot list, a choice with more options than the search lists, or an engine failure
- * that is not a gameplay rejection, makes the answer [Verdict.UNKNOWN] rather than a dead end.
+ * options cannot multiply its work without limit. Only time inside a search call counts; time
+ * between calls does not. Results are exact while the search stays within both limits. Anything the
+ * search cannot evaluate, including an exhausted budget, a choice the options API cannot list, a
+ * choice with more options than the search lists, or an implementation resource limit makes the
+ * answer [Verdict.UNKNOWN] rather than a dead end. Unexpected exceptions propagate immediately; a
+ * programming error must not be silently retried throughout the remaining search tree.
  */
 public class DecisionSearch(
     source: Agents,
@@ -86,6 +90,7 @@ public class DecisionSearch(
 
   private var remaining = budget
   private var started = TimeSource.Monotonic.markNow()
+  private var remainingDuration = maxDuration
   private var requireEveryPath = false
 
   /** Positions already shown to finish (true) or to be dead ends (false). */
@@ -103,7 +108,7 @@ public class DecisionSearch(
   /**
    * Whether the exact provisional [instruction] for [taskId] can finish. Remaining form choices are
    * explored before any form is committed, so a Class default cannot stand in for an open choice.
-   * An invalid or unlistable form is undecided rather than proof that the task cannot finish.
+   * An unlistable form is undecided. Invalid provisional input throws its validation exception.
    */
   public fun verdictForm(taskId: TaskId, instruction: InstructionTree): Verdict = verdictOf {
     val task = world.tasks.getTaskData(taskId)
@@ -111,8 +116,10 @@ public class DecisionSearch(
   }
 
   private fun verdictOf(evaluate: () -> Boolean?): Verdict {
+    started = TimeSource.Monotonic.markNow()
     if (remaining <= 0 || expired()) return Verdict.UNKNOWN
     return try {
+      trace?.invoke("checking completion from ${world.tasks.selectedTask() ?: "pending tasks"}")
       when (evaluate()) {
         true -> Verdict.COMPLETES
         false -> Verdict.DEAD_END
@@ -121,9 +128,15 @@ public class DecisionSearch(
     } catch (_: OutOfBudget) {
       trace?.invoke("unknown: search step or time limit reached")
       Verdict.UNKNOWN
-    } catch (failure: Exception) {
-      trace?.invoke("unknown: ${failure::class.simpleName}: ${failure.message}")
+    } catch (failure: ResourceLimitException) {
+      remaining = 0
+      trace?.invoke("unknown: ${failure.message}")
       Verdict.UNKNOWN
+    } catch (failure: Unsupported) {
+      trace?.invoke("unknown: ${failure.message}")
+      Verdict.UNKNOWN
+    } finally {
+      remainingDuration = remainingDuration?.minus(started.elapsedNow())
     }
   }
 
@@ -134,6 +147,7 @@ public class DecisionSearch(
    */
   public fun outcomes(command: ((Agents) -> Unit)? = null): Set<Outcome>? {
     remaining = budget
+    remainingDuration = maxDuration
     started = TimeSource.Monotonic.markNow()
     requireEveryPath = false
     outcomeCache.clear()
@@ -143,12 +157,17 @@ public class DecisionSearch(
       null
     } catch (_: Unsupported) {
       null
+    } catch (_: ResourceLimitException) {
+      null
+    } finally {
+      remainingDuration = remainingDuration?.minus(started.elapsedNow())
     }
   }
 
   /** The sole completed outcome, only if every explored choice reaches it within [budget]. */
   public fun uniformOutcome(): Outcome? {
     remaining = budget
+    remainingDuration = maxDuration
     started = TimeSource.Monotonic.markNow()
     requireEveryPath = true
     outcomeCache.clear()
@@ -158,7 +177,10 @@ public class DecisionSearch(
       null
     } catch (_: Unsupported) {
       null
+    } catch (_: ResourceLimitException) {
+      null
     } finally {
+      remainingDuration = remainingDuration?.minus(started.elapsedNow())
       requireEveryPath = false
     }
   }
@@ -262,9 +284,15 @@ public class DecisionSearch(
       return it
     }
     val choices = edges() ?: throw Unsupported("unlisted choice at ${world.tasks}")
-    if (choices.unlistedFaces != null) throw Unsupported("unknowable card face")
     val outcomes = mutableSetOf<Outcome>()
-    for (command in choices.commands) outcomes += attemptOutcomes(command)
+    for (command in choices.commands) {
+      if (choices.unlistedFaces != null) throw Unsupported("unknowable card face")
+      if (choices.unlisted != null) throw Unsupported("too many options for ${choices.unlisted}")
+      outcomes += attemptOutcomes(command)
+      if (requireEveryPath && outcomes.size > 1)
+          throw Unsupported("orders reach different outcomes")
+    }
+    if (choices.unlistedFaces != null) throw Unsupported("unknowable card face")
     if (choices.unlisted != null) {
       throw Unsupported("too many options for ${choices.unlisted}")
     }
@@ -276,12 +304,13 @@ public class DecisionSearch(
   /**
    * The Player inputs available at a position. [unlistedFaces] is the task whose card-face choice
    * may also have faces drawn during this line, which no list can name. [unlisted] is the
-   * instruction whose options continue past the ones listed in [commands].
+   * instruction whose options continue past the ones listed in [commands]. These omissions are
+   * recorded while consuming [commands]; inspect them only after exhausting the sequence.
    */
   private class Choices(
-      val commands: List<() -> Unit>,
-      val unlistedFaces: Task? = null,
-      val unlisted: InstructionTree? = null,
+      var commands: Sequence<() -> Unit> = emptySequence(),
+      var unlistedFaces: Task? = null,
+      var unlisted: InstructionTree? = null,
   )
 
   /** An executable Admin task, which Admin performs eagerly in play. */
@@ -313,6 +342,7 @@ public class DecisionSearch(
     // Tasks caused by different components can produce different consequences when they finish.
     return Choices(
         pending
+            .asSequence()
             .distinctBy { listOf(it.assignee, it.instruction, it.then, it.cause?.context) }
             .map { task -> { agents[task.assignee].selectTask(task.id) } }
     )
@@ -320,28 +350,27 @@ public class DecisionSearch(
 
   private fun narrowings(task: Task, initial: InstructionTree = task.instruction): Choices {
     val agent = agents[task.assignee]
-    val commands = mutableListOf<() -> Unit>()
-    var unlisted: InstructionTree? = null
-    var unlistedFaces: Task? = null
-    fun visit(instruction: InstructionTree) {
+    val choices = Choices()
+    var listedCommands = 0
+    // Try each completed form before generating the rest of the choice tree.
+    fun visit(instruction: InstructionTree): Sequence<() -> Unit> = sequence {
       spend()
-      if (commands.size == MAX_LISTED_OPTIONS) {
-        unlisted = instruction
-        return
+      if (listedCommands == MAX_LISTED_OPTIONS) {
+        choices.unlisted = instruction
+        return@sequence
       }
       val form = agent.fillInTask(task.id, instruction)
       val decision =
           try {
             form.decisions().singleOrNull()
           } catch (_: UnsupportedOperationException) {
-            unlisted = instruction
-            return
+            choices.unlisted = instruction
+            return@sequence
           }
       if (decision == null) {
-        commands.add {
-          agent.fillInTask(task.id, instruction).commit()
-        }
-        return
+        listedCommands++
+        yield { agent.fillInTask(task.id, instruction).commit() }
+        return@sequence
       }
       // A named face drawn during this line cannot be known from the starting hand.
       val faces =
@@ -350,7 +379,7 @@ public class DecisionSearch(
           ) {
             "$it"
           }
-      if (faces != null && cardsDrawnSinceRoot()) unlistedFaces = task
+      if (faces != null && cardsDrawnSinceRoot()) choices.unlistedFaces = task
       val passArms =
           (instruction as? Or)
               ?.instructions
@@ -367,10 +396,10 @@ public class DecisionSearch(
                 .take(MAX_LISTED_OPTIONS + 1)
                 .toList()
           } catch (_: UnsupportedOperationException) {
-            unlisted = instruction
-            return
+            choices.unlisted = instruction
+            return@sequence
           }
-      if (listed.size > MAX_LISTED_OPTIONS) unlisted = instruction
+      if (listed.size > MAX_LISTED_OPTIONS) choices.unlisted = instruction
       // The middle and endpoints often witness a completable numeric range without walking up
       // from 1. The remaining amounts must still be tried before declaring a dead end.
       val candidates = listed.take(MAX_LISTED_OPTIONS)
@@ -387,14 +416,14 @@ public class DecisionSearch(
       for (option in ordered) {
         val next = agent.fillInTask(task.id, instruction)
         next.choose(next.decisions().single(), option)
-        visit(next.instruction)
+        yieldAll(visit(next.instruction))
       }
     }
-    visit(initial)
-    return Choices(commands, unlistedFaces, unlisted)
+    choices.commands = visit(initial)
+    return choices
   }
 
-  private fun expired(): Boolean = maxDuration?.let { started.elapsedNow() >= it } == true
+  private fun expired(): Boolean = remainingDuration?.let { started.elapsedNow() >= it } == true
 
   private fun spend() {
     if (--remaining < 0 || expired()) throw OutOfBudget()
@@ -435,11 +464,21 @@ public class DecisionSearch(
       when (failure) {
         is OutOfBudget,
         is Unsupported -> throw failure
-        is AgentInputRequiredException -> false
-        is DeadEndException -> failure.cause == null || failure.cause is GameplayException
+        is AgentInputRequiredException,
+        is NotFullySpecifiedException -> false
+        is DeadEndException ->
+            when (val cause = failure.cause) {
+              null,
+              is GameplayException -> true
+              is AgentInputRequiredException,
+              is NotFullySpecifiedException -> false
+              is Exception -> throw cause
+              else -> throw failure
+            }
         is NotNowException,
         is NarrowingException -> true
-        else -> false
+        is GameplayException -> false
+        else -> throw failure
       }
 
   private companion object {

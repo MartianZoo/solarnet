@@ -3,6 +3,7 @@
 package dev.martianzoo.tfm.web.playground
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -29,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -85,6 +87,28 @@ private fun MarsPlayground() {
   val recording = remember { RecordingStore() }
   val store = remember { LayoutStore() }
   val scope = rememberCoroutineScope()
+  var checkingChoices by remember { mutableStateOf(false) }
+  val runPlayAction: (() -> Unit) -> Unit = { action ->
+    if (!checkingChoices) {
+      checkingChoices = true
+      scope.launch {
+        try {
+          // Let Compose draw the message, then let the browser paint it before synchronous work.
+          withFrameNanos {}
+          withFrameNanos {}
+          action()
+          // Keep input blocked while Compose checks card shortcuts and paints the new menu.
+          withFrameNanos {}
+          withFrameNanos {}
+        } catch (failure: Exception) {
+          recording.reportError("Play stopped: ${failure.message ?: failure.toString()}")
+          failure.printStackTrace()
+        } finally {
+          checkingChoices = false
+        }
+      }
+    }
+  }
   val loadGame: (String) -> Unit = { name -> scope.launch { recording.load(name) } }
   val recoverGame: () -> Unit = { scope.launch { recording.recoverLastGame() } }
   val newGame = remember { NewGameDraft() }
@@ -96,14 +120,35 @@ private fun MarsPlayground() {
   LaunchedEffect(Unit) { recording.discover() }
   LaunchedEffect(Unit) {
     watchHistoryKeys { key ->
-      if (recording.loading) return@watchHistoryKeys true
+      if (recording.loading || checkingChoices) return@watchHistoryKeys true
       if (choosingGame) return@watchHistoryKeys false
       when (key) {
-        "Undo" -> recording.undo()
-        "ArrowUp" -> recording.stepStop(-1)
-        "ArrowDown" -> recording.stepStop(1)
-        "ArrowLeft" -> recording.stepAction(-1)
-        "ArrowRight" -> recording.stepAction(1)
+        "Undo" -> {
+          if (recording.playing && !recording.historyMode) {
+            runPlayAction { recording.undo() }
+            true
+          } else false
+        }
+        "ArrowUp" ->
+            if (recording.playing) {
+              runPlayAction { recording.stepStop(-1) }
+              true
+            } else recording.stepStop(-1)
+        "ArrowDown" ->
+            if (recording.playing) {
+              runPlayAction { recording.stepStop(1) }
+              true
+            } else recording.stepStop(1)
+        "ArrowLeft" ->
+            if (recording.playing) {
+              runPlayAction { recording.stepAction(-1) }
+              true
+            } else recording.stepAction(-1)
+        "ArrowRight" ->
+            if (recording.playing) {
+              runPlayAction { recording.stepAction(1) }
+              true
+            } else recording.stepAction(1)
         else -> false
       }
     }
@@ -115,7 +160,7 @@ private fun MarsPlayground() {
   }
   PlaygroundTheme(style) {
     val palette = LocalPalette.current
-    Box(Modifier.fillMaxSize().onPreviewKeyEvent { recording.loading }) {
+    Box(Modifier.fillMaxSize().onPreviewKeyEvent { recording.loading || checkingChoices }) {
       Column(
           Modifier.fillMaxSize()
               .background(palette.background)
@@ -124,7 +169,9 @@ private fun MarsPlayground() {
         val loaded = recording.specimen
         if (loaded != null) {
           CompositionLocalProvider(LocalSpecimen provides loaded) {
-            Playground(store, recording, loadGame, recoverGame) { choosingGame = true }
+            Playground(store, recording, loadGame, recoverGame, runPlayAction) {
+              choosingGame = true
+            }
           }
           Box(Modifier.fillMaxWidth().height(palette.borderWidth).background(palette.line))
           StyleControls(style) { store.arrange(store.layout.copy(style = it)) }
@@ -151,13 +198,24 @@ private fun MarsPlayground() {
           )
         }
       }
-      if (recording.loading) {
+      if (recording.loading || checkingChoices) {
         Box(
             Modifier.matchParentSize().pointerInput(Unit) {
               awaitPointerEventScope {
                 while (true) awaitPointerEvent().changes.forEach { it.consume() }
               }
             }
+        )
+      }
+      if (checkingChoices) {
+        Text(
+            "Checking available choices…",
+            Modifier.align(Alignment.TopCenter)
+                .padding(16.dp)
+                .background(palette.raised)
+                .border(1.dp, palette.accent)
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            style = palette.body.copy(color = palette.accent),
         )
       }
       if (recording.previewing) {
@@ -206,9 +264,11 @@ private fun MarsPlayground() {
             choosingGame = true
           }
         }
-        startGame()
-        if (logSelection != null) {
-          scope.launch { recording.attachLiveLog(logSelection) }
+        runPlayAction {
+          startGame()
+          if (logSelection != null) {
+            scope.launch { recording.attachLiveLog(logSelection) }
+          }
         }
       }
     }
@@ -222,6 +282,7 @@ private fun Playground(
     recording: RecordingStore,
     onLoad: (String) -> Unit,
     onRecover: () -> Unit,
+    runPlayAction: (() -> Unit) -> Unit,
     onPlay: () -> Unit,
 ) {
   val specimen = LocalSpecimen.current
@@ -270,6 +331,7 @@ private fun Playground(
   }
 
   CompositionLocalProvider(
+      LocalRunPlayAction provides runPlayAction,
       LocalOpenClass provides ::openAlmanacClass,
       LocalClassNames provides classNames,
       LocalPlayChoices provides
@@ -337,8 +399,14 @@ private fun Playground(
                     recording.focusedEvent,
                     recording.navigationRevision,
                     recording::eventInstruction,
-                    recording::seekToEvent,
-                    recording::seekToStop,
+                    { ordinal ->
+                      if (recording.playing) runPlayAction { recording.seekToEvent(ordinal) }
+                      else recording.seekToEvent(ordinal)
+                    },
+                    { ordinal ->
+                      if (recording.playing) runPlayAction { recording.seekToStop(ordinal) }
+                      else recording.seekToStop(ordinal)
+                    },
                 )
               }
               Box(
@@ -375,7 +443,10 @@ private fun Playground(
                     store::save,
                     selectedTask,
                     recording::eventInstruction,
-                    recording::seekToEvent,
+                    { ordinal ->
+                      if (recording.playing) runPlayAction { recording.seekToEvent(ordinal) }
+                      else recording.seekToEvent(ordinal)
+                    },
                 ) {
                   selectedTask = it
                 }
@@ -392,7 +463,7 @@ private fun Playground(
                   handOrders[player.name].orEmpty(),
                   { handOrders[player.name] = it },
                   recording.prompt?.cards?.takeIf { recording.playing && !recording.historyMode },
-                  recording::toggleCard,
+                  { name -> runPlayAction { recording.toggleCard(name) } },
               )
             }
         Region.NextPlayer -> PlayerArrow(">") { viewed.step(1) }

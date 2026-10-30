@@ -128,6 +128,12 @@ internal fun actionName(label: String): String =
 
 internal val LocalPlayChoices = compositionLocalOf<PlayChoices?> { null }
 
+/**
+ * Runs a whole UI choice, including chained card/slot selections, after showing its wait message.
+ */
+internal val LocalRunPlayAction =
+    compositionLocalOf<(() -> Unit) -> Unit> { { action -> action() } }
+
 /** A physical widget accepts the same exact option text as the Play list. */
 @Composable
 internal fun choiceModifier(
@@ -138,6 +144,7 @@ internal fun choiceModifier(
     onOtherClick: (() -> Unit)? = null,
 ): Modifier {
   val choices = LocalPlayChoices.current
+  val runPlayAction = LocalRunPlayAction.current
   val select =
       onChoice
           ?: choices?.let { menu ->
@@ -162,5 +169,5 @@ internal fun choiceModifier(
       )
       .hoverable(source)
       .pointerHoverIcon(PointerIcon.Hand)
-      .clickable(onClick = select)
+      .clickable { runPlayAction(select) }
 }

@@ -168,9 +168,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Safe autoexecution
 
-- If a single speculative engine step can still block the browser, move the completion search off
-  the browser thread. The current 500 ms stop is checked between steps and cannot interrupt work
-  already running inside a step.
+- Move completion searches off the browser thread so scrolling remains responsive while waiting.
+  Play clicks paint a wait message before running, but the search itself is still synchronous.
+  Search and automatic-loop limits are checked between steps; neither can preempt a stalled
+  engine call. A terminable worker is still needed for that stronger guarantee.
 - When adding a game mode that forbids undo back through a card draw, disable SAFE's temporary
   early-draw rule for that mode. The reported Business Empire follow-up still needs its own live
   queue check.

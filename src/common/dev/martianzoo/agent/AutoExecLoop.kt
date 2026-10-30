@@ -9,6 +9,7 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
@@ -16,6 +17,8 @@ import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 /** Shared Agent-policy queue drain above the policy-free engine. */
 internal class AutoExecLoop(
@@ -39,7 +42,18 @@ internal class AutoExecLoop(
   }
 
   internal fun run() {
-    while (actOnce() || claimSafeTask()) {}
+    val started = TimeSource.Monotonic.markNow()
+    repeat(MAX_STEPS) {
+      if (started.elapsedNow() >= MAX_DURATION) {
+        throw ResourceLimitException(
+            "Automatic execution exceeded $MAX_DURATION; the command was rolled back"
+        )
+      }
+      if (!actOnce() && !claimSafeTask()) return
+    }
+    throw ResourceLimitException(
+        "Automatic execution exceeded $MAX_STEPS steps; the command was rolled back"
+    )
   }
 
   /**
@@ -177,6 +191,9 @@ internal class AutoExecLoop(
       world.actorEngine(allTasks.getTaskData(taskId).assignee)
 
   private companion object {
+    const val MAX_STEPS = 10_000
+    val MAX_DURATION = 30.seconds
+
     /** Policies that never offer an option to the shared competition below. */
     val MANUAL_HERE = setOf(NONE, SAFE)
   }

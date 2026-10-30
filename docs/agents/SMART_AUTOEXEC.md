@@ -49,7 +49,7 @@ the claim finishes without Player input. The register is checked again after eve
 departures that ask which named card leaves Hand or Selecting remain manual in the Playground.
 When two or three ordinary Player tasks remain and the first is concrete, the Playground also
 tries the short queue through `DecisionSearch`. It takes that first task only if every searched
-continuation finishes in the same complete state within 100 search steps. The search applies
+continuation finishes in the same complete state within the UI search allowance. The search applies
 the SAFE predicate after every step, so it does not try orders that postpone an eagerly safe task.
 An unlisted choice, failed path, different outcome, or exhausted limit leaves the tasks for manual
 selection. Giant Solar Collector's Energy production and Venus step exercise this case.
@@ -62,19 +62,45 @@ search that establishes no completion path hides a choice. Exhausting the node b
 an unsupported branch leaves the choice visible and reports that the search could not decide.
 The same applies when a numeric choice has more options than the search lists: failure at a smaller
 amount does not prove every larger amount fails.
-Each Playground search for a prompt or card shortcut gets 2,000 steps and 500 milliseconds shared
-across its verdict calls, including steps spent listing unfinished form choices. Once either limit
+Each Playground search for a prompt or card shortcut gets 20,000 steps and ten seconds of search
+time shared across its verdict calls, including steps spent listing unfinished form choices. These
+limits stop runaway searches; ordinary searches may take several seconds. Time spent between calls
+does not consume this allowance. Completed forms are tried as they are generated, so finding a
+successful continuation does not require enumerating the rest of that form tree. Once either limit
 is reached, the remaining choices stay visible as undecided. The browser lists numeric choices and
 alternatives that open a numeric choice directly from the TaskForm, without completion searches or
 uncertainty marks. It leaves those choices to the Player instead of making a provisional amount
-selection on the browser thread. The Playground also checks a one-second limit between steps of an
+selection on the browser thread. The Playground also checks a ten-second limit between steps of an
 automatic settlement walk, because each step can create a fresh completion search; remaining tasks
 stay available for manual selection. A single engine step still runs synchronously, so this limit
-cannot interrupt it.
+cannot interrupt it. The Agent queue drain independently stops after 10,000 steps or 30 seconds,
+checked between steps, using `ResourceLimitException` so the enclosing command rolls back. The Playground's naming/Admin continuation loop also stops after 10,000
+attempts or 30 seconds between attempts. These checks are cooperative, not preemption of an
+arbitrary stalled engine call. Menu and card-shortcut verdicts share the same search allowance.
+Uniform-outcome checks stop as soon as two different completed outcomes are found; further
+enumeration cannot restore uniformity.
+
+Unexpected exceptions propagate out of `DecisionSearch` immediately. Gameplay rejections and
+missing input retain their dead-end/undecided meanings. A resource limit stops the shared search
+with undecided results, so other choices do not retry the same excessive work. Play menu
+construction catches unexpected exceptions, displays the error, and caches the stopped prompt so
+rendering does not retry it. Card-shortcut queries likewise cache failures, and the click handler
+clears its busy state even when an action throws. Turning off autoexec or undoing remains available. Choice-check errors are separate from failed
+game commands: they neither count as draft player input for Undo nor block manual continuation.
+
+Displayed task alternatives are checked after selecting the task in the trial, just as the menu
+preview selected it. Nitrogen-Rich Asteroid reveals why: its `PROD[Plant OR (3 PlantTag: 4 Plant)]`
+resolves into concrete production alternatives. Applying those displayed alternatives to the
+unresolved form would not describe those choices.
+
 The Playground also saves completed live positions to browser storage. After a stalled click, a
 reload and RECOVER GAME reconstruct the named cards and deck positions and open with Player
 autoexec off. This resumes at the last saved position; it does not interrupt work in the old tab.
-Moving search off the browser thread remains open.
+Live play and live-game history-navigation clicks show “Checking available choices…” and yield two animation
+frames before running the command, so the browser can paint the message. Input remains blocked
+until the resulting menu and card shortcuts have been drawn. The message stays visible during synchronous
+search work; scrolling and animation still wait for that work to return. Moving search off the
+browser thread remains open.
 With the checkbox off, hand-card shortcuts require a held card and an offered PlayProject; printed
 card-action shortcuts check their local form choices. Neither runs a completion search. A clicked
 choice may still fail during actual play and be undone or changed manually.

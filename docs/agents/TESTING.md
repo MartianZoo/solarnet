@@ -66,6 +66,9 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew :playground:wasmJsBrowserTest` checks Play task previews in headless Chrome, including
   evaluated labels, unavailable tasks, and restoration of state and history after each preview.
   It also checks event balances across gains, removals, transfers, and history navigation.
+  Karma also serves the original compressed replay fixtures from `tfm-tests` resources.
+  `NitrogenRichAsteroidPlayTest` checks titanium payments and resolved production choices against
+  the recorded failure position, plus error display and recovery through manual play.
   Explorer coverage checks that hiding aspect categories preserves concrete components and counts.
   `PlaySessionTest` checks repeatable opening cards and neutral tiles, cancellation of card naming,
   and history truncation before an automatic deal, including explicit continuation with the same cards.
