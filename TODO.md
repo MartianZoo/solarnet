@@ -30,16 +30,15 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   before ambiguity, about 1.95 ms through Agent on the measured machine. Larger counts and domains
   remain unmeasured. If those become costly, physical availability could exclude absent sources
   before trial without consulting invariant room; no optimization or search cap is justified yet.
-- Decide whether to adopt the strict ordinary Admin pass rule explored in
-  [the October 30 report](docs/agents/ENGINE_TRANSITION_RESULTS.md#strict-ordinary-admin-experiment--october-30).
-  A pass with no success would throw even with Player work pending. The experiment found two Canon
-  conflicts: simultaneous research payments share a global limit, and repeated Pluto bonuses try
-  to start before the previous discard. The owner chose to retain the global payment limit for now:
-  research tests should complete each Player's choice and payment together. Pluto now waits inside
-  NOW until the active Player starts its selected handoff; the lock is acquired then. Reevaluate
-  strict ordinary Admin scheduling separately from this completed handoff fix.
-  `LATER` around all competing starts was tested and does not resolve either conflict. Update the
-  seven synthetic tests if the rule is selected; preserve their choice and restoration coverage.
+- Decide whether to adopt the strict ordinary Admin pass rule, reevaluated
+  [after NOW/SOON](docs/agents/ENGINE_TRANSITION_RESULTS.md#strict-admin-after-nowsoon--october-30).
+  With Pluto's lock acquired after the active Player starts its handoff and each research choice
+  and payment completed together, no Canon/rule or active replay test fails under strict Admin.
+  Eleven artificial tests still rely on Admin waiting: eight assign manual choices to Admin
+  (including four script tests), and three wait for a Player prerequisite. If the rule is selected,
+  move the choice fixtures to Players and update the waiting-policy expectations while preserving
+  choice, matching, recording/replay, and failed-trial restoration coverage. No further Canon LATER
+  wrapper was needed by this run; the runtime experiment was temporary.
 - Review whether a NOW recipient needs a separate undo checkpoint before their choice. Current
   selection checkpoints restore to before the active Player's handoff, as earlier BY handoffs did.
   The focused NOW/SOON fix preserves that behavior; no separate per-recipient undo policy is selected.

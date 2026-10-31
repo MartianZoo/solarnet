@@ -1101,3 +1101,78 @@ changes add no per-task recipient field, no second action-scope component, no ga
 and no THEN/AND replacement. The earlier research choose/pay edit in GameFlowTest is unchanged
 and is kept separate from this handoff commit. The broader engine-contract open questions remain
 in TODO; this result establishes the focused handoff rule, not general completion analysis.
+
+
+### Strict Admin after NOW/SOON — October 30
+
+Repeated the strict-pass experiment at `9835f0210`, with the existing uncommitted research test
+completing each Player's choice and payment together. No Canon or test changes were made during
+this experiment. The temporary AutoExecLoop patch removed the exceptions for unresolved choices,
+unmet gates, and unavailable work with Player tasks pending. A successful task restarts the pass;
+a complete unsuccessful pass throws. Selected Player priority, deferred-task promotion, whole-call
+restoration, and distinct incomplete-analysis/application-input errors remain unchanged.
+
+Verification under the strict rule:
+
+| Suite | Cases | Failures | Existing skips |
+| --- | ---: | ---: | ---: |
+| Engine | 644 | 5 | 0 |
+| Agent | 87 | 2 | 0 |
+| Canon/rules | 1358 | 0 | 26 |
+| Active replay export/reconstruction | 23 | 0 | 0 |
+| Script | 50 | 4 | 0 |
+| Terminal | 4 | 0 | 0 |
+| Web browser | 2 | 0 | 0 |
+
+Commands: `./gradlew :engine:jvmTest :agent:jvmTest :tfm-tests:jvmTest :tfm-tests:replayTest
+-PreplayExports --continue`, then `./gradlew :script:jvmTest :repl:test :web:jsBrowserTest --continue`.
+
+The eleven failures are artificial scenarios with expectations incompatible with strict Admin:
+
+- Eight assign manual choices to Admin. The same four engine/Agent failures from the earlier
+  experiment remain: `ReflexiveTransmutationTest.independentAbstractChoicesMustNarrowToDifferentTypes`,
+  the queued-choice `EffectAtomizationTest`, the computed-choice `PerAtomizationTest`, and
+  `SafeAutoExecTest.adminDoesNotLockAnAbstractTaskWhileAManualPlayerCanAct`.
+  For example, Admin receives three Item tasks and the test intends to answer Red, Blue, Red.
+  Under the proposed rule, Admin throws because it cannot choose uniquely. Preserve these choice
+  checks using a Player, and separately assert that unresolved Admin choices throw.
+  The four additional failures are in `ScriptCompletionEngineTest`:
+  `completesTaskInstructionsAndSingletonTaskActions`, `selectAndDropRejectMultipleTasks`,
+  `treatsAnUnassignedUppercaseTokenAsAnInstruction`, and `rejectsAnInstructionMatchingDistinctTasks`.
+  They queue optional Plant/Heat choices through a session still acting as Admin. Strict Admin
+  rejects that setup before completion or matching is tested; those tests should use a Player.
+- Three deliberately let Admin wait for a Player prerequisite:
+  `TaskLogTest.adminWaitsForTheNextRecordedPlayerTask`,
+  `TaskAssignmentCharacterizationTest.eagerAdminWaitsForTheGateThenReturnsThePlayersChoice`, and
+  `TransactionTrialIsolationTest.mixedFailuresWaitForPlayerWorkRegardlessOfCandidateOrder`.
+  For example, Admin has `Token: Reward!` while a Player still needs to create Token. The strict
+  rule throws instead of returning control to that Player. These waiting-policy expectations must
+  change if the rule is adopted. Preserve recording/replay and failed-trial restoration coverage;
+  create automatic work after its prerequisite, or assert the rejected call where that is the
+  behavior being tested.
+
+No additional Canon conflict was observed. Pluto's restored active-Player handoffs, owner's own
+execution, and per-owner lock checks pass. Batched research retains the global payment limit and
+passes its card-count and cash assertions. All 23 active replays pass with 46 full/short exported
+game files and fresh reconstruction. A failed Admin removal followed by an enabling Admin gain
+still passes: this rule rejects a wholly unsuccessful pass, not the first unsuccessful attempt.
+No additional LATER wrapper or THEN/AND redesign was needed for these tested game scenarios.
+This is evidence for the active suites, not exhaustive proof for all possible game states.
+
+The temporary runtime patch was reversed exactly; byte comparisons confirmed AutoExecLoop and the
+pre-existing research test match their saved inputs. Repeating all seven suites with the restored
+runtime and `-PreplayExports` passed: 2,168 cases, zero failures, and the same 26 existing skips.
+The eleven incompatible cases were not changed or skipped. The strict rule remains an experiment;
+this report and TODO record the remaining adoption work.
+
+Opus/high reviewed the patch and confirmed the strict-pass implementation. It noted that the rule
+also rejects waiting for an automatic Player: Admin runs before Player policies. That is the
+proposed P1 priority, while selected Player work retains P0. After receiving the complete results,
+Opus withdrew its suggestion to test separate choice-only and prerequisite-only strict variants;
+the combined run already explains every failure and reveals no tested Canon dependency on either
+exception. It agreed to keep the experiment restored and emphasized retaining the TaskLog replay
+and provenance comparison when adapting that test. Its suggestion that the four script failures
+establish a production-client routing defect is not supported by the source: the failing addTasks
+calls are directly in ScriptCompletionEngineTest setup. No production-client change is justified
+by those failures alone. Existing last-failure diagnostic selection was outside this experiment.
+Final-diff review found no new runtime concept, test weakening, or unrelated change in the report.
