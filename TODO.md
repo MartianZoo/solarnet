@@ -30,6 +30,19 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   before ambiguity, about 1.95 ms through Agent on the measured machine. Larger counts and domains
   remain unmeasured. If those become costly, physical availability could exclude absent sources
   before trial without consulting invariant room; no optimization or search cap is justified yet.
+- Decide whether to adopt the strict ordinary Admin pass rule explored in
+  [the October 30 report](docs/agents/ENGINE_TRANSITION_RESULTS.md#strict-ordinary-admin-experiment--october-30).
+  A pass with no success would throw even with Player work pending. The experiment found two Canon
+  conflicts: simultaneous research payments share a global limit, and repeated Pluto bonuses try
+  to start before the previous discard. The owner chose to retain the global payment limit for now:
+  research tests should complete each Player's choice and payment together. Pluto now waits inside
+  NOW until the active Player starts its selected handoff; the lock is acquired then. Reevaluate
+  strict ordinary Admin scheduling separately from this completed handoff fix.
+  `LATER` around all competing starts was tested and does not resolve either conflict. Update the
+  seven synthetic tests if the rule is selected; preserve their choice and restoration coverage.
+- Review whether a NOW recipient needs a separate undo checkpoint before their choice. Current
+  selection checkpoints restore to before the active Player's handoff, as earlier BY handoffs did.
+  The focused NOW/SOON fix preserves that behavior; no separate per-recipient undo policy is selected.
 - Complete Agent choice analysis before adopting automatic form reduction. `Repair?` now offers
   both `Ok` and its positive amount, and form submission can execute the immediate repair.
   Menus still list candidates without proving their complete transactions. `Repair*`
@@ -202,8 +215,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Engine contract investigations
 
-[ENGINE_TRANSITION_PLAN.md](docs/agents/ENGINE_TRANSITION_PLAN.md) records the completed selected
-transition and its evidence. [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md) owns the destination.
+[ENGINE_TRANSITION_PLAN.md](docs/agents/ENGINE_TRANSITION_PLAN.md) records the selected API
+transition and its evidence, including the completed NOW/SOON active-Player handoff fix.
+[ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md) owns the destination.
 Finite uniqueness proof is implemented; unsupported forms report incomplete analysis. General
 Player exploration, installed-policy design, replacement of operation lifecycle conventions, and
 correction-time recalculation remain outside this increment.

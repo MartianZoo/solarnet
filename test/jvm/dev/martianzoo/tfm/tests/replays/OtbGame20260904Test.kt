@@ -1156,7 +1156,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
         rainbow.selectTask("OceanTile<Amazonis_02_01> BY Green")
         green.doTask("OceanTile<Amazonis_02_01>")
         green.doTask("TerraformRating")
-        blue.selectTask("UseAction<NeptunianOption>?")
+        // Green chooses when Blue receives the optional Neptunian bonus.
+        green.doTask("NOW Blue { UseAction<Blue, NeptunianOption>? }")
         blue.narrowTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
       }
     }

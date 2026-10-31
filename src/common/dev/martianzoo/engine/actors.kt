@@ -2,10 +2,12 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
+import dev.martianzoo.pets.api.SystemClasses.TASK_SCOPE
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Dispatch
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
 
@@ -40,3 +42,9 @@ internal fun GameReader.recipientOf(dispatch: Dispatch): Actor {
   }
   return actorNamed(recipient, keyword)
 }
+
+/** The owner of the game-authored scope that currently orders player consequences. */
+internal fun taskController(reader: GameReader): Player? =
+    reader.getComponents(TASK_SCOPE.expression).elements.singleOrNull()?.let {
+      Component(it).owningPlayer
+    }

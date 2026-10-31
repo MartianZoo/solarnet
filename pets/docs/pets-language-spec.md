@@ -386,8 +386,8 @@ nested pairs. Every stage before the last must be a single instruction: a group 
 on the left is rejected. A group is only an envelope around independent instructions (L2-9) — there
 is no shell around `(A, B)` for a `THEN` to relate to, and nothing that "before" could name.
 A direct `EACH` stage may not be followed by `THEN`: completing its fanout admits independent
-tasks, and `THEN` would not wait for those tasks to finish. `TASK { EACH ... } THEN B` is allowed;
-the `TASK` stage finishes when it enqueues the fanout.
+tasks, and `THEN` would not wait for those tasks to finish. `SOON { EACH ... } THEN B` is allowed;
+the `SOON` stage finishes when it enqueues the fanout.
 
 ```ebnf
 InstructionSequence ::= GatedInstruction ( "THEN" GatedInstruction )*
@@ -504,30 +504,40 @@ PrimaryInstruction ::= Change
 > parentheses—keeps “spend a disease for TR” separate from “if none remain, archive the corporation
 > and gain three TR.”
 
-**L2-17. `TASK Recipient { body }` dispatches unresolved work.** The recipient is optional and
-must identify a fixed participating Actor when the dispatch is performed: a concrete Actor, or a
-marker already bound by an enclosing `EACH` or trigger-side `BY @Player`. An open expression,
-including a refined `Player(HAS StartToken)` that currently matches just one Player, is not a
-recipient. Write `EACH @Player(HAS StartToken) { TASK @Player { body } }` to bind that Player first.
+**L2-17. `NOW Recipient { body }` and `SOON Recipient { body }` give work to an Actor.**
+The recipient is optional and must identify a fixed participating Actor when the instruction
+executes: a concrete Actor, or a marker already bound by an enclosing `EACH` or trigger-side
+`BY @Player`. An open expression, including `Player(HAS StartToken)` that currently matches
+just a single Player, is not a recipient. Use `EACH` to bind that Player first.
 
-A dispatch is performed as soon as the work containing it is ordinary, the way a finished `THEN`
-stage releases the next one: `TASK` admits `body` as unresolved ordinary tasks for the recipient.
-Since nothing about a dispatch is left to choose, it is never a task of its own. The recipient
-selects and narrows the admitted tasks later. Narrowing a dispatch that sits in an open choice
-cannot change its recipient or any part of its body. When the recipient is omitted, it is the rule's
-lexical `Me`: its owner, an enclosing `EACH Me@…` selection, or the submitting player. With no
-lexical `Me`, it is Admin. The recipient supplies `Me` inside the body. Thus
-`EACH @Player { TASK @Player { Choice } }` and `EACH Me@Player { TASK { Choice } }` each dispatch
-one choice to every Player. `EACH` itself gives every match more work to the current assignee;
-`TASK` gives a piece of work to its recipient. `TASK` cannot occur in an automatic `::` effect,
-which creates no tasks (L2-15).
+Selecting either instruction does not enqueue its body. Executing `SOON` admits ordinary,
+unselected work; executing `NOW` gives its recipient a selected task. The recipient supplies the
+remaining choices and executes that task. A competing task cannot take selection meanwhile.
+A direct independent group is not a `NOW` body; use `SOON` for independent tasks.
+An existing `THEN` sequence may be the body of either form.
+
+Narrowing cannot change a dispatch's recipient or body. A request may identify a `NOW` by its
+unchanged first step, including a calculated amount, without changing any of the recipient's
+choices or its continuation. A handoff checks whether that step can be selected; it does not
+perform the recipient's component changes.
+
+When omitted, the recipient is the rule's lexical `Me`: its owner, an enclosing `EACH Me@…`
+selection, or the submitting player. With no lexical `Me`, it is Admin. The recipient supplies
+`Me` inside the body. `EACH` creates further work for its current assignee; a dispatch names
+who receives that work. Dispatch cannot occur in an automatic `::` effect (L2-15).
+
+The engine may wrap ordinary Player work in `NOW` when the game has an active `TaskScope`:
+that scope's Player owner orders when another Player receives their selected work. The effect's
+ownership and the named recipient remain unchanged. The game supplies the scope's lifetime.
 
 ```ebnf
-TaskDispatch ::= ( "TASK" | "LATER" | "FINALLY" ) Expression? "{" InstructionGroup "}"
+TaskDispatch ::= ( "NOW" | "SOON" | "LATER" | "FINALLY" ) Expression? "{" InstructionGroup "}"
 ```
 
-**L2-18. `LATER Recipient { body }` dispatches deferred work.** It is `TASK` (L2-17) in every
-respect but one: the work it admits is deferred. No actor may carry out deferred work while ordinary
+**L2-18. `LATER Recipient { body }` dispatches deferred work.** It uses SOON's recipient rules
+(L2-17), but schedules its body as deferred work immediately when its containing work becomes
+ordinary, at admission or promotion. If NOW gives an Actor a selected LATER instruction, that Actor
+must execute it before its body is scheduled. No actor may carry out deferred work while ordinary
 work is pending, whichever actor that work belongs to. When no ordinary task remains, all `LATER`
 work becomes ordinary at once, unordered among itself; work deferred after that moment, including by
 that work, waits for the next such moment. Deferred work is still pending work, so anything that
@@ -1457,14 +1467,14 @@ Thus `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC`, and `TOOLO
 > lowercase identifiers and prose labels out.
 
 **L10-2. Keywords are reserved and case-sensitive.** `ABSTRACT`, `BY`, `CLASS`, `COUNT`,
-`DEFAULT`, `EACH`, `EVAL`, `FINALLY`, `FROM`, `HAS`, `IF`, `LATER`, `MAX`, `NOT`, `OR`, `RANK`,
-`TASK`, `THEN` and `X`, together with the property-value words `Metric`, `Number` and `Requirement`, are the words the grammar itself
+`DEFAULT`, `EACH`, `EVAL`, `FINALLY`, `FROM`, `HAS`, `IF`, `LATER`, `MAX`, `NOT`, `NOW`, `OR`, `RANK`,
+`SOON`, `THEN` and `X`, together with the property-value words `Metric`, `Number` and `Requirement`, are the words the grammar itself
 uses, and none of them may be a class name. Because the reserved spellings are exact, `Max`, `By`
 and `Has` are perfectly good class names.
 
 ```ebnf
 Keyword ::= "ABSTRACT" | "BY" | "CLASS" | "COUNT" | "DEFAULT" | "EACH" | "EVAL" | "FINALLY"
-          | "FROM" | "HAS" | "IF" | "LATER" | "MAX" | "NOT" | "OR" | "RANK" | "TASK" | "THEN"
+          | "FROM" | "HAS" | "IF" | "LATER" | "MAX" | "NOT" | "NOW" | "OR" | "RANK" | "SOON" | "THEN"
           | "X" | "Metric" | "Number" | "Requirement"
 ```
 
@@ -1832,7 +1842,7 @@ PrimaryInstruction    ::= Change                                                
                         | "(" InstructionGroup ")"
 
 Each                  ::= "EACH" PlainExpression "{" InstructionGroup "}"        /* L2-14 */
-TaskDispatch          ::= ( "TASK" | "LATER" | "FINALLY" ) Expression?
+TaskDispatch          ::= ( "NOW" | "SOON" | "LATER" | "FINALLY" ) Expression?
                           "{" InstructionGroup "}"                      /* L2-17 to L2-19 */
 
 Change                ::= ElementaryChange ( "/" MetricDifference )?             /* L2-6 */
@@ -1949,8 +1959,8 @@ ClassName     ::= ( [A-Z] [A-Za-z0-9_]* ) - Keyword                             
 TransformKind ::= ( [A-Z] [A-Z0-9_]* ) - Keyword                                       /* L10-4 */
 PropertyName  ::= [a-z] [A-Za-z0-9]*                                                   /* L10-3 */
 Keyword       ::= "ABSTRACT" | "BY" | "CLASS" | "COUNT" | "DEFAULT" | "EACH" | "EVAL"  /* L10-2 */
-                | "FINALLY" | "FROM" | "HAS" | "IF" | "LATER" | "MAX" | "NOT" | "OR" | "RANK"
-                | "TASK" | "THEN" | "X" | "Metric" | "Number" | "Requirement"
+                | "FINALLY" | "FROM" | "HAS" | "IF" | "LATER" | "MAX" | "NOT" | "NOW" | "OR" | "RANK"
+                | "SOON" | "THEN" | "X" | "Metric" | "Number" | "Requirement"
 Integer       ::= "0" | [1-9] [0-9]*                                                   /* L11-9 */
 QuotedText    ::= '"' [^"]* '"'                                                        /* L11-7 */
 

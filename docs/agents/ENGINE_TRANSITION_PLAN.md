@@ -293,6 +293,12 @@ Do not let the engine's task matcher use incidental order to choose among distin
 The existing Player EAGER policy has its own queue-order behavior; this project carries it over
 without deciding its final design. Test engine semantics with Player policy `NONE`.
 
+The October 30 owner clarification requires active-Player timing followed by the recipient's own
+narrowing and execution. The focused NOW/SOON implementation and Pluto lock timing are tracked in
+[the results](ENGINE_TRANSITION_RESULTS.md#focused-nowsoon-handoff-implementation--october-30)
+and the [acceptance checklist](IDENTITY.md#required-active-player-handoff). This does not select
+the separate strict ordinary-Admin-pass rule or a wholesale THEN/AND rewrite.
+
 ### 4. Simplify the client-facing call
 
 Implement the selected public shape around an operation that performs zero or a single engine

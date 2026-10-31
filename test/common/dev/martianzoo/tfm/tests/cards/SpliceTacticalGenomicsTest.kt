@@ -54,6 +54,8 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
           doTask("Microbe<Decomposers>!")
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Kim { 2 MC<Kim> }")
           kim.doTask("2 MC")
           doTask("2 MC")
         }
@@ -89,6 +91,8 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
           doTask("Microbe<Decomposers>!")
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Kim { 2 MC<Kim> }")
           kim.doTask("2 MC")
           doTask("Microbe<Decomposers>!")
         }
@@ -124,6 +128,8 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
           doTask("Microbe<Decomposers>!")
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Kim { 2 MC<Kim> }")
           kim.doTask("2 MC")
           shouldThrow<TaskException> { doTask("Microbe<$RegolithEaters>!") }
           doTask("Microbe<Decomposers>")
@@ -157,6 +163,8 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
               "PROD[Energy]",
               "PROD[Steel]",
           )
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Kim { 2 MC<Kim> }")
           kim.doTask("2 MC")
           doTask("Ok")
         }

@@ -91,6 +91,8 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Kim { 3* MC<Rob FROM Kim> }")
       kim.doTask("3 MC<Rob FROM Kim>")
     }
   }
@@ -173,6 +175,8 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "$HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Kim { 3* MC<Rob FROM Kim> }")
       kim.doTask("2 MC<Rob FROM Kim>")
     }
   }
@@ -190,7 +194,11 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
               "PROD[Energy]",
               "PROD[Steel]",
           )
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Stan { Disease<PharmacyUnion<Stan>>! OR (MAX 0 PharmacyUnion<Stan>: Ok) }")
           stan.doTask("Disease<PharmacyUnion<Stan>>")
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Stan { -4* MC<Stan> }")
           stan.doTask("-4 MC")
         }
         .expect("-4 MC<Stan>, Disease<$PharmacyUnion<Stan>>")
@@ -274,13 +282,19 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
       doTask(tasks.matching { !it.deferred }.single())
       if (compensateFirst) {
         doTask("-5 MC<Rob>")
+        // The active player chooses when to hand this task to its owner.
+        doTask("NOW Kim { 3* MC<Rob FROM Kim> }")
         kim.doTask("3* MC<Rob FROM Kim>")
         doTask("-5* MC<Kim>")
       } else {
         doTasks("-5 MC<Kim>", "-5 MC<Rob>")
+        // The active player chooses when to hand this task to its owner.
+        doTask("NOW Kim { 3* MC<Rob FROM Kim> }")
         kim.doTask("3* MC<Rob FROM Kim>")
       }
       doTasks("PROD[-MC<Kim>]", "PROD[-MC<Rob>]")
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Kim { 3* MC<Rob FROM Kim> }")
       kim.doTask("3* MC<Rob FROM Kim>")
     }
 

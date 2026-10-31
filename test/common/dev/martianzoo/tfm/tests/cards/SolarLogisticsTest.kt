@@ -36,6 +36,8 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
           "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
       )
+      // Stan hands the reaction to Solar Logistics' owner.
+      doTask("NOW Kim { ProjectCard<Kim> }")
       kim.doTask("ProjectCard")
     }
   }

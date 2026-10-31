@@ -11,7 +11,7 @@ import kotlin.jvm.JvmInline
  * Current or recorded form of a pending instruction. [id] survives edits. [assignee] controls the
  * task. [selected] marks the instruction currently being handled and excludes selection of other
  * tasks. Partial narrowing can leave it selected across calls. [instruction] may still require
- * choices or dispatch separate work through `TASK` or `LATER`. A [deferred] task waits for ordinary
+ * choices or dispatch separate work through `SOON` or `LATER`. A [deferred] task waits for ordinary
  * tasks and any earlier deferral to finish.
  */
 public data class Task(
@@ -56,6 +56,7 @@ public data class Task(
     val deferral: Deferral = Deferral.NONE,
 ) {
   init {
+    require(deferral != Deferral.NOW) { "NOW is stored as selected ordinary work" }
     require(!deferred || !selected) { "a deferred task cannot be selected: $this" }
   }
 

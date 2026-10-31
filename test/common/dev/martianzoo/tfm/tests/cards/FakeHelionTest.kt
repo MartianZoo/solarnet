@@ -443,6 +443,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
           "HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
+      doTask("NOW Kim { 3* MC<Rob FROM Kim> }")
       kim.doTask("$payout MC<Rob FROM Kim>")
     }
   }

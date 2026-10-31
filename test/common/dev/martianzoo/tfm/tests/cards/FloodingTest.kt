@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -458,13 +459,16 @@ internal class FloodingTest : TfmSandboxTest() {
       )
 
       doTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
-      // Select this offer so the rejected choice is checked against that specific task.
-      stan.selectTask("UseAction<NeptunianOption>?")
+      // Kim offers the choice to Stan before Stan can accept or decline it.
+      doTask("NOW Stan { UseAction<Stan, NeptunianOption>? }")
       shouldThrow<TaskException> { doTask("-4! MC<Stan>") }
       stan.doTask("UseAction<NeptunianOption, Action1>")
       kim.selectTask("-4? MC<Stan>")
       kim.doTask("-4! MC<Stan>")
       autoExecNow() // Let Admin open the bill before attempting the cash payment.
+      // Kim cannot offer a payment that the attack has made unaffordable.
+      shouldThrow<NotNowException> { doTask("NOW Stan { 5 Pay<Stan> FROM MC<Stan> }") }
+      // The rejected handoff gives Stan no permission to start this payment.
       shouldThrow<TaskException> { stan.doTask("5 Pay<> FROM MC") }
       stan.assertCounts(1 to "MC", 5 to "Owed", 0 to "Hydroelectric")
       stan.assertProds(0 to "Energy")
@@ -490,17 +494,20 @@ internal class FloodingTest : TfmSandboxTest() {
       )
 
       doTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
-      // Select the optional bonus before accepting it while the other player's attack is pending.
-      stan.selectTask("UseAction<NeptunianOption>?")
+      // Kim offers the choice to Stan before Stan can accept or decline it.
+      doTask("NOW Stan { UseAction<Stan, NeptunianOption>? }")
       stan.doTask("UseAction<NeptunianOption, Action1>")
       // Handle Admin's bill after Stan's cross-player action, before choosing payment.
       autoExecNow()
-      // Stan selects his payment choice after Admin opens the bill.
-      stan.selectTask("X Pay<Stan, Class<Steel>> FROM Steel<Stan>")
+      // Kim offers the steel-payment task; Stan decides how much steel to spend.
+      doTask("NOW Stan { (X Pay<Stan, Class<Steel>> FROM Steel<Stan>) OR Ok }")
       stan.doTask("2 Pay<Class<Steel>> FROM Steel")
       kim.selectTask("-4? MC<Stan>")
       kim.doTask("-1! MC<Stan>")
       autoExecNow() // Finish removing the steel acceptance before testing the cash remainder.
+      // Kim offers the remaining payment, which Stan can no longer afford.
+      shouldThrow<NotNowException> { doTask("NOW Stan { Pay<Stan> FROM MC<Stan> }") }
+      // The rejected handoff gives Stan no permission to start this payment.
       shouldThrow<TaskException> { stan.doTask("Pay<> FROM MC") }
       stan.assertCounts(0 to "Steel", 0 to "MC", 1 to "Owed", 0 to "Hydroelectric")
       stan.assertProds(0 to "Energy")

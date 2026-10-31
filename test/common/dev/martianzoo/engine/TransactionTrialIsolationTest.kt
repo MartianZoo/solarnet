@@ -126,7 +126,7 @@ internal class TransactionTrialIsolationTest {
         engine
             .addTasks(
                 InstructionGroup.of(
-                    parse<InstructionTree>("Choice!, FINALLY Admin { TASK Player { Token! } }")
+                    parse<InstructionTree>("Choice!, FINALLY Admin { LATER Player { Token! } }")
                 )
             )
             .first()

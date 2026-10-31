@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.ExtractorBalloons
@@ -68,6 +69,10 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC")
       run {
         doTasks("Trade<Enceladus>", "Microbe<$RegolithEaters>")
+        shouldThrow<TaskException> { kim.doTask("Microbe<$NitriteReducingBacteria>") }
+        // Stan chooses the timing; Kim chooses which card receives her colony bonus.
+        doTask("NOW Kim { Microbe<Kim>* }")
+        shouldThrow<TaskException> { doTask("Microbe<$NitriteReducingBacteria<Kim>>") }
         kim.doTask("Microbe<$NitriteReducingBacteria>")
       }
     }
@@ -95,7 +100,12 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
       doTasks("Trade<Pluto>")
       doTask("ProjectCard<Stan, Hand>")
+      kim.count("PlutoLock") shouldBe 0
+      // Stan chooses when Kim handles this colony task.
+      doTask("NOW Kim { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }")
       kim.doTask("ProjectCard<Kim, Hand>")
+      // Stan chooses when Kim handles this colony task.
+      doTask("NOW Kim { -ProjectCard THEN -PlutoLock! }")
       kim.doTask("-ProjectCard<Kim, Hand>")
     }
 
@@ -140,17 +150,31 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           "Trade<Pluto>",
           "2 ProjectCard",
       )
+      // Stan chooses when Kim handles this colony task.
+      doTask("NOW Kim { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }")
       kim.doTask("ProjectCard<Kim>")
       shouldThrow<TaskException> { doTask("ProjectCard<Kim>") }
       kim.count("ProjectCard") shouldBe 1
+      kim.count("PlutoLock") shouldBe 1
+      shouldThrow<NotNowException> {
+        doTask("NOW Kim { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }")
+      }
+      kim.count("ProjectCard") shouldBe 1
+      kim.count("PlutoLock") shouldBe 1
+      doTask("NOW Stan { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }")
       doTask("ProjectCard<Stan>")
       stan.count("ProjectCard") shouldBe 3
       doTask("-ProjectCard<Stan>")
+      // Stan chooses when Kim handles this colony task.
+      doTask("NOW Kim { -ProjectCard THEN -PlutoLock! }")
       kim.doTask("-ProjectCard<Kim>")
-      // Release Kim's Pluto lock after her cross-player discard.
-      autoExecNow()
+      kim.count("PlutoLock") shouldBe 0
+      // Stan chooses when Kim handles this colony task.
+      doTask("NOW Kim { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }")
       kim.doTask("ProjectCard<Kim>")
       kim.count("ProjectCard") shouldBe 1
+      // Stan chooses when Kim handles this colony task.
+      doTask("NOW Kim { -ProjectCard THEN -PlutoLock! }")
       kim.doTask("-ProjectCard<Kim>")
     }
 
@@ -259,7 +283,11 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
         .inTurn {
           doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
           doTasks("Trade<Titan>", "Floater<Dirigibles>")
+          // Stan chooses when Kim handles this colony task.
+          doTask("NOW Kim { Floater<Kim>* }")
           kim.doTask("Floater<ForcedPrecipitation>*")
+          // Stan chooses when Kim handles this colony task.
+          doTask("NOW Kim { Floater<Kim>* }")
           kim.doTask("Floater<ExtractorBalloons>*")
         }
         .expect("Floater<$ForcedPrecipitation<Kim>>, Floater<$ExtractorBalloons<Kim>>")

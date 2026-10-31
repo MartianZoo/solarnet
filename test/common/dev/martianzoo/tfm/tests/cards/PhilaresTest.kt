@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -27,6 +30,17 @@ internal class PhilaresTest : TfmSandboxTest() {
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_3_2>",
           )
+          shouldThrow<TaskException> { kim.selectTask("StandardResource") }
+          shouldThrow<TaskException> { kim.doTask("Titanium") }
+          shouldThrow<TaskException> { selectTask("Titanium<Kim>") }
+          shouldThrow<TaskException> { doTask("Titanium<Kim>") }
+          // Stan chooses the timing; Kim alone chooses and takes the resource.
+          doTask("NOW Kim { StandardResource<Kim>! }")
+          shouldThrow<TaskException> { doTask("OxygenStep") }
+          shouldThrow<TaskException> { narrowTask("Titanium<Kim>") }
+          kim.narrowTask("Titanium")
+          kim.count("Titanium") shouldBe 0
+          shouldThrow<TaskException> { doTask("Titanium<Kim>") }
           kim.doTask("Titanium")
           doTask("OxygenStep")
           doTask("TerraformRating")
@@ -101,6 +115,8 @@ internal class PhilaresTest : TfmSandboxTest() {
           )
           doTask("ProjectCard<Stan, Hand>")
           doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_3>")
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Kim { StandardResource<Kim>! }")
           kim.doTask("Titanium")
           doTask("Plant")
         }

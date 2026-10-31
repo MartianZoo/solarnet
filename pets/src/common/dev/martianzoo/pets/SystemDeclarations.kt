@@ -75,6 +75,9 @@ private val systemDeclarationsSource =
     "A Component whose Type carries an ownership dependency"
     ABSTRACT CLASS Owned<Me@Owner>
 
+    "An existing game scope whose owner orders ordinary player work"
+    ABSTRACT CLASS TaskScope : Owned { HAS MAX 1 TaskScope }
+
     "The neutral table administrator created first to perform system operations"
     CLASS Admin : System, Actor { HAS =1 This }
 

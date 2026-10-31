@@ -85,17 +85,19 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun taskListingsHaveNoIdsAndSingletonActionsNeedNoPosition() {
+    repl.command("become Player1")
+    repl.command("auto none")
     val taskLayer = repl.agent as Agent
     taskLayer.addTasks("2? Plant")
-    assertTrue(repl.command("tasks").single().startsWith("[Admin] "))
-    assertTrue(repl.command("task select").single().startsWith("* [Admin] "))
+    assertTrue(repl.command("tasks").single().startsWith("[Player1] "))
+    assertTrue(repl.command("task select").single().startsWith("* [Player1] "))
 
     repl.command("mode yellow")
     repl.command("task drop")
     taskLayer.addTasks("3? Heat")
 
     val remaining = repl.command("tasks").single()
-    assertTrue(remaining.startsWith("[Admin] "), remaining)
+    assertTrue(remaining.startsWith("[Player1] "), remaining)
     assertTrue("3? Heat" in remaining, remaining)
   }
 

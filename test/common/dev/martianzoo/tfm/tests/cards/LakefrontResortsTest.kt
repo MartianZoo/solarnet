@@ -18,6 +18,8 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
           )
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Kim { PROD[MC<Kim>] }")
           kim.doTask("PROD[MC]")
           doTask("2 Steel")
         }

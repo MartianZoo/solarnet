@@ -223,26 +223,32 @@ evaluated. “Concrete” does not by itself mean “resolved,” “legal,” o
 Sources: TaskQueues `assignConcreteChangeToAdmin`; ActorEngine `applyResolution`;
 Instructor `canonicalActorExpression`; [actors](../../src/common/dev/martianzoo/engine/actors.kt).
 
-### Dispatch: `TASK`, `LATER`, `FINALLY`
+### Dispatch: `NOW`, `SOON`, `LATER`, `FINALLY`
 
 A dispatch is concrete when its recipient is fixed; its body can still contain choices.
 
-- When the normalized current instruction is a dispatch and the containing task is ordinary,
-  perform it during admission without inserting a task for the dispatcher.
-- Admit the body for its fixed recipient with the dispatch's deferral. Admit the dispatcher's
-  continuation immediately for the dispatcher's assignee, as ordinary work.
-- A recipient must resolve to a fixed, participating Actor. The engine does not choose an Actor
-  merely because an open selector currently happens to match a single component.
-- If the containing task itself is deferred, retain the dispatch until promotion. Promotion then
-  performs it and removes the dispatcher. An inner `LATER` can therefore defer its body again.
-- A dispatch exposed only after selection follows execution's pending-work path. It still gives
-  the recipient a task rather than executing the recipient's body inside the dispatcher.
+- NOW and SOON remain tasks until execution. Selection does not admit the body. Executing NOW
+  removes the dispatcher and admits a selected recipient task; SOON admits ordinary recipient work.
+  The recipient narrows and executes through its own Agent. NOW cannot contain an independent group.
+- The dispatcher cannot narrow the recipient's body. Matching may identify its unchanged first step,
+  including a calculated amount, but retains the entire original instruction and continuation.
+- A recipient must resolve to a fixed, participating Actor. An open selector is not a recipient
+  merely because it currently matches a single component.
+- LATER and FINALLY retain immediate scheduling when their containing task is ordinary, including
+  at promotion. NOW's selected recipient executes even a LATER/FINALLY first step. Their bodies
+  enter the corresponding deferred batch. An inner LATER can defer again.
+- A TaskScope owner orders another Player's ordinary work through a NOW wrapper. The wrapper holds
+  the original instruction, before its first step and continuation were separated. Already-authored
+  dispatches retain their explicit recipients. Admin work keeps its automatic scheduling.
+- A completed dispatch releases any outside continuation for its own assignee. It does not wait
+  for the recipient's subsequently queued effects.
 
-For example, `TASK Player2 { Choice } THEN Marker` admits Player2's choice and the continuation;
-Marker does not wait for Player2 to finish choosing. `LATER { A }` admits deferred A now, but
-A's world-dependent resolution waits until it is selected after promotion.
+Pluto explicitly wraps its lock/draw/discard/unlock sequence in NOW, so admission cannot start its
+System lock early. NOW's selected System prefix returns the next step through NOW; ordinary System
+continuations return through SOON. A failed selected Admin task rejects the entire Agent call.
 
-Sources: TaskQueues `admit`, `perform`; Instructor `admitted`, `doExecuteResolved`.
+Sources: TaskQueues `admit`, `orderPlayerWork`, `perform`; ActorEngine `executeSelectedTask`;
+Instructor `admitted`, `doExecuteResolved`; [language rules L2-17–L2-19](../../pets/docs/pets-language-spec.md#2-instructions).
 
 ## 3. Matching, selection, and supplied narrowing
 
@@ -523,7 +529,7 @@ tests were run and no claim of complete test coverage is made.
 | Area | Existing scenarios |
 | --- | --- |
 | Normalization and variable scopes | [TaskNormalizationTest](../../test/common/dev/martianzoo/engine/TaskNormalizationTest.kt): terminal rewrites, meaningful gated/no-op choices, edits preserving continuation scope. |
-| Dispatch and handoff | [TaskDispatchTest](../../test/common/dev/martianzoo/engine/TaskDispatchTest.kt): immediate admission of recipient choices and continuations; [TaskAssignmentCharacterizationTest](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt): System routing, abstract choices, performer wrappers. |
+| Dispatch and handoff | [TaskDispatchTest](../../test/common/dev/martianzoo/engine/TaskDispatchTest.kt): explicit NOW/SOON handoff, recipient choice, and deferred dispatch; [TaskAssignmentCharacterizationTest](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt): System routing, abstract choices, performer wrappers. |
 | Selection and quantities | [TaskResolutionTest](../../test/common/dev/martianzoo/engine/TaskResolutionTest.kt), [TaskNarrowingTest](../../test/common/dev/martianzoo/engine/TaskNarrowingTest.kt), [ZeroCountTaskTest](../../test/common/dev/martianzoo/engine/ZeroCountTaskTest.kt): current-world resolution, chosen-target AMAP, typed zero. |
 | Deferred work | [DeferredWorkTest](../../test/common/dev/martianzoo/engine/DeferredWorkTest.kt): whole-World batches, nested deferrals, delayed metric/fanout evaluation, restoration. |
 | Effects and construction | [TriggerScalingTest](../../test/common/dev/martianzoo/engine/TriggerScalingTest.kt), [AutomaticEffectOrderTest](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt), [InvariantCompletionTest](../../test/common/dev/martianzoo/engine/InvariantCompletionTest.kt): multiplicity, shared trigger snapshots, required parts, immediate repairs, per-change checks. |

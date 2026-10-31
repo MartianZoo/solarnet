@@ -213,7 +213,7 @@ CLASS Baton : Owned<Player>, System {
 }
 
 "An accepted action and all of its consequences, including responses by other players"
-CLASS ActionScope<Player> : Scope, System {
+CLASS ActionScope<@Player> : Scope, TaskScope<@Player>, System {
   HAS MAX 1 ActionScope
   This:: EACH @WildTag<Player> { WildTagElection<@WildTag, This> }
   @WildTag<Player>:: WildTagElection<@WildTag, This>

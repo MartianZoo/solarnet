@@ -49,8 +49,11 @@ import dev.martianzoo.state.Transaction
  *   Selected tasks cannot be replaced by independent siblings
  * * Once a completed transaction leaves no ordinary task, every task with the earliest remaining
  *   [Task.deferral] becomes ordinary at once
- * * An ordinary task whose instruction is a dispatch is performed at once: `TASK R { b } >> c`
- *   becomes task `b` for R, with the dispatch's deferral, and task `c`
+ * * NOW and SOON stay queued until executed. Unselected LATER and FINALLY retain their immediate
+ *   scheduling behavior. A NOW recipient must execute even a LATER/FINALLY first step. NOW admits a
+ *   selected child and SOON admits ordinary work.
+ * * A game-authored TaskScope orders ordinary Player work through NOW. Explicit NOW bodies remain
+ *   closed until execution, including a System first step such as Pluto's lock.
  */
 internal class TaskQueues(
     private val gameWorld: GameWorld,
@@ -79,9 +82,10 @@ internal class TaskQueues(
 
   /**
    * Adds [instruction]'s tasks without promoting deferred work, so that a whole group is admitted
-   * before promotion is considered. An ordinary task that is only a dispatch is never added: the
-   * dispatch is performed instead. When [includeDispatchedTasks] is false, its resulting tasks are
-   * excluded from the return value so group execution does not consume later work.
+   * before promotion is considered. Unselected LATER and FINALLY schedule their bodies at
+   * admission; NOW and SOON remain tasks until execution. When [includeDispatchedTasks] is false,
+   * its resulting tasks are excluded from the return value so group execution does not consume
+   * later work.
    */
   private fun admit(
       instruction: InstructionGroup,
@@ -91,15 +95,22 @@ internal class TaskQueues(
       includeDispatchedTasks: Boolean = true,
   ): List<TaskAddedEvent> =
       taskInstructions(instruction).flatMap {
-        val task =
+        val prepared =
             assignConcreteChangeToAdmin(
-                newTask(TaskId(gameWorld.nextOrdinal), assignee, it, cause, isAbstract, deferral)
+                newTask(TaskId(gameWorld.nextOrdinal), assignee, it, cause, isAbstract, deferral),
+                continueSelected = deferral == Deferral.NOW,
             )
-        val dispatch = task.instruction as? Instruction.Dispatch
-        if (dispatch != null && !task.deferred) {
-          val dispatched = perform(dispatch, task)
+        val dispatch = prepared.instruction as? Instruction.Dispatch
+        if (
+            dispatch != null &&
+                dispatch.deferral in setOf(Deferral.LATER, Deferral.FINALLY) &&
+                !prepared.deferred &&
+                !prepared.selected
+        ) {
+          val dispatched = perform(dispatch, prepared)
           if (includeDispatchedTasks) dispatched else emptyList()
         } else {
+          val task = orderPlayerWork(prepared, it)
           listOf(
               gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
           )
@@ -147,7 +158,10 @@ internal class TaskQueues(
       val dispatches =
           batch
               .map { gameWorld.tasks.getTaskData(it.id) }
-              .filter { it.instruction is Instruction.Dispatch }
+              .filter {
+                (it.instruction as? Instruction.Dispatch)?.deferral in
+                    setOf(Deferral.LATER, Deferral.FINALLY)
+              }
       if (dispatches.isEmpty()) return
       for (task in dispatches) {
         perform(task.instruction as Instruction.Dispatch, task)
@@ -179,7 +193,22 @@ internal class TaskQueues(
     return normalizeForSelection(selected).assignee
   }
 
-  private fun assignConcreteChangeToAdmin(task: Task): Task {
+  /** The existing game scope supplies timing; the NOW body retains its recipient and choices. */
+  private fun orderPlayerWork(task: Task, original: Instruction): Task {
+    if (task.selected || task.assignee == ADMIN) return task
+    val controller = taskController(gameWorld.reader) ?: return task
+    if (controller == task.assignee) return task
+    if (original is Instruction.Dispatch) return task.copy(assignee = controller)
+    // Wrap the original instruction before its first step and continuation were separated.
+    // Reconstructing a THEN from task data would conflate independent variable scopes.
+    return task.copy(
+        assignee = controller,
+        instruction = Instruction.Dispatch(task.assignee.expression, original, Deferral.NOW),
+        then = null,
+    )
+  }
+
+  private fun assignConcreteChangeToAdmin(task: Task, continueSelected: Boolean = false): Task {
     if (task.assignee == ADMIN) return task
     if (task.instruction.isAbstract(gameWorld.reader)) return task
     fun change(instruction: InstructionTree): Change? =
@@ -219,6 +248,7 @@ internal class TaskQueues(
                   Instruction.Dispatch(
                       task.assignee.expression,
                       InstructionGroup.createTree(it.instructions),
+                      if (continueSelected && it.size == 1) Deferral.NOW else Deferral.NONE,
                   )
               )
             },

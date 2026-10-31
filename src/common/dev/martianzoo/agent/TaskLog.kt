@@ -35,9 +35,9 @@ import dev.martianzoo.state.Task.TaskId
 public class TaskLog internal constructor(private val world: World) {
   private class Submission(
       val actor: Actor,
-      var kind: RecordedInput.Kind,
+      val kind: RecordedInput.Kind,
       val instruction: String,
-      var taskSelector: RecordedInput.TaskSelector?,
+      val taskSelector: RecordedInput.TaskSelector?,
       val formTask: TaskId?,
       val automatic: Boolean = false,
       val contextClass: ClassName? = null,
@@ -122,15 +122,6 @@ public class TaskLog internal constructor(private val world: World) {
   ): T {
     if (!recording) return block()
     val eventCursor = world.events.nextOrdinal
-    // A context-filtered request may hand its task to another Actor. Replay records that as
-    // selection, so retain the task's selector before its instruction/assignee changes.
-    val contextSelectors =
-        if (contextClass == null) emptyMap()
-        else
-            world.tasks
-                .extract { it }
-                .filter { it.assignee == actor }
-                .associate { it.id to taskSelectorFor(actor, it.id) }
     val submission =
         Submission(
             actor,
@@ -146,21 +137,6 @@ public class TaskLog internal constructor(private val world: World) {
       block().also {
         val events = world.events.entriesSince(eventCursor)
         submission.anchor = events.firstOrNull()
-        // Record the choice separately from the receiving Actor's policy execution. Import runs
-        // with autoexecution disabled, so replaying a completion-demanding doTask would fail here.
-        if (
-            kind in
-                setOf(
-                    RecordedInput.Kind.DO_TASK,
-                    RecordedInput.Kind.DO_TASKS,
-                    RecordedInput.Kind.DO_TASK_ID,
-                ) &&
-                world.tasks.selectedTask()?.let { world.tasks.getTaskData(it).assignee != actor } ==
-                    true
-        ) {
-          submission.kind = RecordedInput.Kind.CHOOSE
-          contextSelectors[world.tasks.selectedTask()]?.let { submission.taskSelector = it }
-        }
         submission.selectsTask = events.any { event ->
           when (event) {
             is GameEvent.TaskEditedEvent -> !event.oldTask.selected && event.task.selected

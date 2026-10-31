@@ -17,6 +17,8 @@ internal class AphroditeTest : TfmSandboxTest() {
       doTasks(*standardProjectTasks("AirScrappingProject"), "15 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Kim { 2 MC<Kim> }")
       kim.doTask("2 MC")
     }
   }

@@ -94,7 +94,11 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "Decomposers FROM ProjectCard",
           )
           doTask("Microbe<Decomposers>*")
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Kim { Disease<PharmacyUnion<Kim>>! OR (MAX 0 PharmacyUnion<Kim>: Ok) }")
           kim.doTask("Disease<PharmacyUnion<Kim>>")
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Kim { -4* MC<Kim> }")
           kim.doTask("-4 MC")
         }
         .expect("Disease<$PharmacyUnion<Kim>>, -4 MC<Kim>")

@@ -140,9 +140,9 @@ internal class GroupSubmissionTest {
   @Test
   fun aDispatchMemberOnlyQueuesItsBody() {
     engine.addTasks(
-        InstructionGroup.of(parse<InstructionTree>("(TASK Player1 { First! }, Second!) OR Other!"))
+        InstructionGroup.of(parse<InstructionTree>("(SOON Player1 { First! }, Second!) OR Other!"))
     )
-    engine.doTask(parse<InstructionTree>("TASK Player1 { First! }, Second!"))
+    engine.doTask(parse<InstructionTree>("SOON Player1 { First! }, Second!"))
     world.reader.count(parse<Metric>("First")) shouldBe 0
     world.reader.count(parse<Metric>("Second")) shouldBe 1
   }
@@ -151,11 +151,11 @@ internal class GroupSubmissionTest {
   fun aDispatchThenMemberLeavesItsBodyAndContinuationPending() {
     engine.addTasks(
         InstructionGroup.of(
-            parse<InstructionTree>("((TASK Player1 { First! } THEN Following!), Second!) OR Other!")
+            parse<InstructionTree>("((SOON Player1 { First! } THEN Following!), Second!) OR Other!")
         )
     )
 
-    engine.doTask(parse<InstructionTree>("(TASK Player1 { First! } THEN Following!), Second!"))
+    engine.doTask(parse<InstructionTree>("(SOON Player1 { First! } THEN Following!), Second!"))
 
     world.reader.count(parse<Metric>("First")) shouldBe 0
     world.reader.count(parse<Metric>("Following")) shouldBe 0

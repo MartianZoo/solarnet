@@ -222,8 +222,8 @@ internal class Lang02InstructionsTest {
     }
     roundTrip<Instruction>("Plant THEN EACH Player { Heat }")
     roundTrip<Instruction>("EACH Player { Plant THEN Heat }")
-    roundTrip<Instruction>("TASK Player1 { EACH Player { Plant } } THEN Heat")
-    shouldThrow<PetSyntaxException> { parse<Instruction>("TASK<Player1> { Plant }") }
+    roundTrip<Instruction>("SOON Player1 { EACH Player { Plant } } THEN Heat")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("SOON<Player1> { Plant }") }
   }
 
   // L2-11 X across one instruction
@@ -549,10 +549,20 @@ internal class Lang02InstructionsTest {
     )
   }
 
+  @Test
+  internal fun `L2-17 NOW selects a single recipient task and SOON admits ordinary work`() {
+    roundTrip<Instruction>("NOW Player2 { Plant OR Heat }")
+    roundTrip<Instruction>("NOW Player2 { Plant THEN -Heat }")
+    roundTrip<Instruction>("SOON Player2 { Plant, Heat }")
+    roundTrip<Instruction>("NOW { SOON Player2 { Plant, Heat } }")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("NOW Player2 { Plant, Heat }") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("NOW Player2 { Ok }") }
+  }
+
   // L2-18 LATER and L2-19 FINALLY
 
   @Test
-  internal fun `L2-18 LATER and L2-19 FINALLY dispatch like TASK`() {
+  internal fun `L2-18 LATER and L2-19 FINALLY dispatch like SOON`() {
     roundTrip<Instruction>("LATER { Plant }")
     roundTrip<Instruction>("LATER Player1 { Plant, Heat }")
     roundTrip<Instruction>("FINALLY { Plant }")

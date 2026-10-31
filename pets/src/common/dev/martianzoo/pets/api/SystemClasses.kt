@@ -30,6 +30,7 @@ public object SystemClasses {
   public val OK: ClassName = cn("Ok")
   public val SIGNAL: ClassName = cn("Signal")
   public val SYSTEM: ClassName = cn("System")
+  public val TASK_SCOPE: ClassName = cn("TaskScope")
   public val MUST_CLEAN_UP: ClassName = cn("MustCleanUp")
   public val OWNER: ClassName = cn("Owner")
   public val OWNED: ClassName = cn("Owned")

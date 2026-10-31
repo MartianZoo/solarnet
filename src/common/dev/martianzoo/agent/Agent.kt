@@ -192,10 +192,10 @@ public interface Agent {
    * zero count emits no component changes unless it names offsetting nonzero tasks as above.
    *
    * Selection or narrowing may hand the task to another Actor, including Admin for a concrete
-   * `System` change. Runs configured autoexecution and succeeds only if that task finishes; a
-   * pending handoff fails and rolls back this call. Use [selectTask], [narrowTask], or [fillInTask]
-   * when the receiving Actor must finish it later. Consequences may remain as ordinary pending
-   * work.
+   * `System` change. Executing NOW consumes the dispatcher and gives its recipient selected work;
+   * the recipient supplies remaining choices and executes through its own Agent. Configured
+   * autoexecution runs, but a successful handoff may leave that recipient's task selected. Admin
+   * failures restore the whole call. SOON and other consequences may leave ordinary pending work.
    *
    * @throws [NotFullySpecifiedException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved
@@ -218,8 +218,9 @@ public interface Agent {
   public fun doTask(narrowing: String, taskId: TaskId): TaskResult
 
   /**
-   * Selects and finishes [taskId], including configured autoexecution after an Actor handoff. Fails
-   * and rolls back this call if the selected task remains incomplete.
+   * Selects and executes [taskId], including configured autoexecution after an Actor handoff. As
+   * with [doTask], a successful handoff may leave selected work for the receiving Actor. A failed
+   * execution restores this call.
    */
   public fun doTask(taskId: TaskId): TaskResult
 
@@ -240,9 +241,10 @@ public interface Agent {
 
   /**
    * Attempts to select and execute [taskId], then runs configured task handling. Known missing
-   * choices, unavailable execution, or an unfinished handoff restore the engine attempt; subsequent
-   * task handling can still execute that task or reject the call. Invalid selection and other
-   * failures propagate, including `Die` and failures encountered while handling Admin work.
+   * choices, unavailable execution, or that same task remaining pending restore the engine attempt.
+   * A completed NOW dispatcher can leave its newly created recipient task selected. Subsequent task
+   * handling can execute pending work or reject the call. Invalid selection and other failures
+   * propagate, including `Die` and failures encountered while handling Admin work.
    * [IncompleteAnalysisException] restores the call and propagates; it is not a known missing
    * choice.
    */

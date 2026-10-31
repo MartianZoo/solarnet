@@ -126,7 +126,7 @@ CLASS Miranda : ColonyTile {
 
 CLASS Pluto : ColonyTile, ColonyTileSelection<Class<Pluto>> {
   Colony<This>: 2 ProjectCard
-  GainColonyBonus<This>: PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock!
+  GainColonyBonus<This, @Player>: NOW @Player { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: ProjectCard

@@ -96,6 +96,8 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
           "EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
       )
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Stan { 2 MC<Stan> }")
       stan.doTask("2 MC")
       doTasks("2 MC", "PlayCard<Class<ProjectCard>, Class<Decomposers>>")
       // Execute the requirement waiver before playing the project.
@@ -104,6 +106,8 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
       selectTask("Microbe<Decomposers>*")
       doTask("Microbe<Decomposers>")
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Stan { 2 MC<Stan> }")
       stan.doTask("2 MC")
       doTask("2 MC")
     }

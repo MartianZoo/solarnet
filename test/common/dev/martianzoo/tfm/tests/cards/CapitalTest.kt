@@ -63,6 +63,8 @@ internal class CapitalTest : TfmSandboxTest() {
               "PROD[5 MC]",
               "CapitalTile<Tharsis_3_3>",
           )
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Kim { PROD[MC<Kim>] }")
           kim.doTask("PROD[MC]")
         }
         .expect("PROD[MC<Kim>]")

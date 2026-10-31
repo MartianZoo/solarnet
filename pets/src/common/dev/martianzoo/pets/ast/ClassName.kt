@@ -41,7 +41,8 @@ public data class ClassName private constructor(public val asString: String) :
             "NOT",
             "OR",
             "RANK",
-            "TASK",
+            "NOW",
+            "SOON",
             "THEN",
             "X",
             // Property-value keywords; the tokenizer takes these too.

@@ -20,8 +20,9 @@ meaning for Player choices. Admin handling follows [ENGINE_CONTRACT.md](ENGINE_C
 - `A THEN B` admits B after A's task finishes, without waiting for A's queued reactions.
 - `A:: B` executes B inline before queued effects of A are evaluated.
 - A component gate can make an instruction unavailable until its prerequisites hold.
-- `TASK R { B }` dispatches B as R's work; `LATER { B }` and `FINALLY { B }` dispatch B as work
-  that waits until no ordinary work, or no ordinary and `LATER` work, remains in the World.
+- Executing `NOW R { B }` gives R selected work; `SOON R { B }` gives R ordinary work.
+  `LATER { B }` and `FINALLY { B }` schedule work that waits until no ordinary work, or no
+  ordinary and `LATER` work, remains in the World.
 
 The intended task priorities are owned by [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
 Current task data has no exclusive interaction spanning several tasks.
@@ -221,7 +222,7 @@ See [Canon game flow](../../pets/docs/agents/GAME_FLOW.md#cleanup).
 ## Deferred work
 
 `LATER` and `FINALLY` ([language rules L2-18 and L2-19](../../pets/docs/pets-language-spec.md#2-instructions))
-are the task priorities. Like `TASK` (L2-17), each dispatches its body as separate work, but that
+are the task priorities. Like `SOON` (L2-17), each dispatches its body as separate work, but that
 work waits: `LATER` work until no ordinary work remains in the World, and `FINALLY` work until no
 ordinary or `LATER` work remains. An August 2026 priority
 design (commit `b074f54dd`) was replaced within days by `Idle<Player>` and `Yield<Player>` signal
@@ -238,16 +239,15 @@ See [Canon game flow](../../pets/docs/agents/GAME_FLOW.md#facts-in-components-fu
 **Transition note:** the dispatch/promotion mechanics below describe current behavior. The selected
 [separation of selection and execution](ENGINE_CONTRACT.md#selection-must-not-quietly-mean-execution--item-9)
 now retains groups and dispatches exposed by selection until execution. Admission and promotion
-still perform pure dispatches as described below. Deferred priority and continuation meaning remain
+still perform LATER/FINALLY dispatches as described below; NOW/SOON wait for execution. Deferred priority and continuation meaning remain
 unchanged.
 
 The language rules state what deferral means. A task's deferral records which dispatch admitted it:
-`TASK`, `LATER`, or `FINALLY`. A selected task is always ordinary. Beyond those rules:
+`SOON`, `LATER`, or `FINALLY`. NOW gives selected ordinary work. A selected task is always ordinary. Beyond those rules:
 
-- The engine performs a dispatch as soon as the work holding it is ordinary, as it releases a
-  `THEN` continuation: the body is admitted with the dispatch's deferral, and no task ever consists
-  of a dispatch alone. A dispatch in deferred work is performed when that work is promoted, before
-  any later deferral could be. Only promotion changes a task's deferral afterward; authored Pets
+- The engine performs LATER/FINALLY as soon as the work holding it is ordinary, as it releases a
+  `THEN` continuation: the body is admitted with that deferral. A deferred LATER/FINALLY dispatch
+  is performed when its containing work is promoted. NOW/SOON remain tasks until execution. Only promotion changes a task's deferral afterward; authored Pets
   cannot defer or promote another task.
 - Deferral restricts selection only. It does not order Player tasks with the same deferral:
   legal sibling orders stay available.

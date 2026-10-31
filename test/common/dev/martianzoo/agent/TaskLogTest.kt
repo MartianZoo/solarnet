@@ -84,6 +84,26 @@ internal class TaskLogTest {
     imported.world.tasks.isEmpty() shouldBe true
   }
 
+  @Test
+  internal fun nowExecutionReplaysBeforeTheRecipientsAutomaticExecution() {
+    val premise = testGamePremise("CLASS Coin", players = 2)
+    fun newAgents(): Agents =
+        Agents(Engine.newGame(premise)) { NONE }
+            .also {
+              it[PLAYER1].addTasks("NOW Player2 { Coin }")
+            }
+    val source = newAgents()
+    source[PLAYER2].autoExecPolicy = EAGER
+    start(source)
+    source[PLAYER1].doTask("NOW Player2 { Coin }")
+    source[PLAYER1].count("Coin") shouldBe 1
+
+    val imported = newAgents()
+    replay(source, imported)
+    imported[PLAYER1].count("Coin") shouldBe 1
+    imported.world.tasks.isEmpty() shouldBe true
+  }
+
   private fun start(agents: Agents) {
     agents.taskLog.start()
     agents.taskLog.gameStarted()
@@ -516,21 +536,27 @@ internal class TaskLogTest {
   }
 
   @Test
-  internal fun idOnlyTaskCommandRestoresAnUnfinishedPlayerHandoff() {
-    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin", players = 2)))
-    agents[PLAYER1].autoExecPolicy = NONE
-    agents[PLAYER2].autoExecPolicy = NONE
-    agents[PLAYER1].runOperation("Coin")
-    val task = agents[PLAYER1].addTasks("-Coin BY Player2").single()
+  internal fun idOnlyTaskCommandRecordsTheHandoffBeforeItsRecipientsExecution() {
+    val premise = testGamePremise("CLASS Coin", players = 2)
+    fun newAgents(): Agents =
+        Agents(Engine.newGame(premise)) { NONE }
+            .also {
+              it[PLAYER1].runOperation("Coin")
+              it[PLAYER1].addTasks("-Coin BY Player2")
+            }
+    val agents = newAgents()
+    val task = agents[PLAYER1].tasks.extract { it.id }.single()
     start(agents)
-    val before = agents.world.events.nextOrdinal
+    agents[PLAYER1].doTask(task)
 
-    shouldThrow<TaskException> { agents[PLAYER1].doTask(task) }
-
-    agents[PLAYER1].count("Coin") shouldBe 1
-    agents.world.tasks.selectedTask() shouldBe null
-    agents.world.events.nextOrdinal shouldBe before
-    agents.taskLog.inputs() shouldBe listOf(RecordedInput.StartGame)
+    val imported = newAgents()
+    replay(agents, imported)
+    imported[PLAYER1].count("Coin") shouldBe 1
+    imported.world.tasks.selectedTask() shouldBe task
+    imported.world.tasks.getTaskData(task).assignee shouldBe PLAYER2
+    imported[PLAYER2].doTask(task)
+    imported[PLAYER1].count("Coin") shouldBe 0
+    imported.world.tasks.isEmpty() shouldBe true
   }
 
   @Test

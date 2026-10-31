@@ -1297,6 +1297,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TerraformRating",
           "TerraformRating",
       )
+      // Player 1 hands the Arctic Algae reward to Player 2.
+      doTask("NOW Player2 { 2 Plant<Player2> }")
       p2.doTasks("2 Plant")
 
       doTasks(

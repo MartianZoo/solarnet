@@ -1840,12 +1840,12 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
     assertEquals(
-        "expected `(` or `-` or `=` or `@` or `EACH` or `EVAL` or `FINALLY` or `LATER` or `MAX` or `TASK` or `X` or a class name or a non-negative integer or a property name; found `}`",
+        "expected `(` or `-` or `=` or `@` or `EACH` or `EVAL` or `FINALLY` or `LATER` or `MAX` or `NOW` or `SOON` or `X` or a class name or a non-negative integer or a property name; found `}`",
         error.detail,
     )
     assertEquals(
         """
-        |expected `(` or `-` or `=` or `@` or `EACH` or `EVAL` or `FINALLY` or `LATER` or `MAX` or `TASK` or `X` or a class name or a non-negative integer or a property name; found `}` at 1:25
+        |expected `(` or `-` or `=` or `@` or `EACH` or `EVAL` or `FINALLY` or `LATER` or `MAX` or `NOW` or `SOON` or `X` or a class name or a non-negative integer or a property name; found `}` at 1:25
         |CLASS Garden { Plant -> }
         |                        ^
         """
@@ -1860,12 +1860,12 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
     assertEquals(
-        "expected `(` or `-` or `@` or `EACH` or `FINALLY` or `LATER` or `TASK` or `X` or a class name or a non-negative integer; found `}`",
+        "expected `(` or `-` or `@` or `EACH` or `FINALLY` or `LATER` or `NOW` or `SOON` or `X` or a class name or a non-negative integer; found `}`",
         error.detail,
     )
     assertEquals(
         """
-        |expected `(` or `-` or `@` or `EACH` or `FINALLY` or `LATER` or `TASK` or `X` or a class name or a non-negative integer; found `}` at 1:31
+        |expected `(` or `-` or `@` or `EACH` or `FINALLY` or `LATER` or `NOW` or `SOON` or `X` or a class name or a non-negative integer; found `}` at 1:31
         |CLASS Garden { This: Plant OR }
         |                              ^
         """

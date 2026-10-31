@@ -39,8 +39,8 @@ internal class DeferredWorkTest {
               }
               CLASS WorkScope<Player> : Scope, System {
                 HAS MAX 1 This, =1 Allocation<This>
-                This: TASK Player2 { Choice }, FINALLY { -This }
-                -This: TASK Player1 { Cleanup, LATER { Second } }
+                This: SOON Player2 { Choice }, FINALLY { -This }
+                -This: SOON Player1 { Cleanup, LATER { Second } }
               }
               CLASS Allocation<WorkScope> : System
               """,

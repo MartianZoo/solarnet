@@ -68,7 +68,7 @@ internal class TaskProbeTest {
         engine
             .addTasks(
                 InstructionGroup.of(
-                    parse<InstructionTree>("Token!, FINALLY Admin { TASK Player { Token! } }")
+                    parse<InstructionTree>("Token!, FINALLY Admin { LATER Player { Token! } }")
                 )
             )
             .first()

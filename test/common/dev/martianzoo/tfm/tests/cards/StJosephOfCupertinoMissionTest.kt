@@ -17,8 +17,14 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
       doTasks(*cardActionTasks("StJosephOfCupertinoMission"), "5 Pay<> FROM MC")
       doTasks("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
       doTask("CathedralOffer<Stan>")
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Stan { UseAction<Stan, CathedralOption>? }")
       stan.doTasks("UseAction<CathedralOption, Action1>")
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Stan { 2 Pay<Stan> FROM MC<Stan> }")
       stan.doTasks("2 Pay<> FROM MC")
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Stan { ProjectCard<Stan> }")
       stan.doTasks("ProjectCard")
     }
   }
@@ -34,6 +40,8 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
       doTasks(*cardActionTasks("StJosephOfCupertinoMission"), "5 Pay<> FROM MC")
       doTasks("Cathedral<CityTile<Anyone, Tharsis_2_5>>")
       doTask("CathedralOffer<Stan>")
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Stan { UseAction<Stan, CathedralOption>? }")
       stan.doTask("0 UseAction<CathedralOption>")
     }
   }

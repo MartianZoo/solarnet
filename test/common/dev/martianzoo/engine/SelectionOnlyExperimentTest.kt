@@ -169,7 +169,7 @@ internal class SelectionOnlyExperimentTest {
     val agents = Agents(world)
     val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val second = agents[PLAYER2].also { it.autoExecPolicy = NONE }
-    val id = first.addTasks("MAX 0 Foo: (TASK Player2 { Foo } THEN Bar)").single()
+    val id = first.addTasks("MAX 0 Foo: (SOON Player2 { Foo } THEN Bar)").single()
 
     first.selectTask(id)
     world.tasks.ids().toList() shouldBe listOf(id)

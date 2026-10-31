@@ -23,6 +23,8 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
       )
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Kim { 2 Plant<Kim> }")
       kim.doTask("2 Plant")
       doTask("2 Steel")
     }
@@ -45,9 +47,13 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       shouldThrow<TaskException> { stan.doTask("2 Plant") }
       doTask("OceanTile<Tharsis_1_2>")
       doTasks("TerraformRating", "2 Steel")
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Stan { 2 Plant<Stan> }")
       stan.doTask("2 Plant")
       doTask("OceanTile<Tharsis_1_4>")
       doTasks("TerraformRating", "ProjectCard")
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Stan { 2 Plant<Stan> }")
       stan.doTask("2 Plant")
       doTask("-6 Plant<Stan>")
     }
@@ -71,8 +77,12 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
       )
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Stan { 2 Plant<Stan> }")
       stan.doTask("2 Plant")
       doTasks("2 Steel", "OceanTile<Tharsis_1_4>", "TerraformRating")
+      // The active player chooses when to hand this task to its owner.
+      doTask("NOW Stan { 2 Plant<Stan> }")
       stan.doTask("2 Plant")
       doTask("ProjectCard<Kim, Hand>")
     }

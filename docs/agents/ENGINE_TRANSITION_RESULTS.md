@@ -823,9 +823,13 @@ that strengthened scenario passed. Optional Player policy still leaves its own i
 pending, as existing carryover; the new reporting requirement applies to Admin.
 
 
-## Final acceptance — October 29
+## Scoped verification — October 29
 
-The approved transition checklist is complete within the documented finite proof domain.
+**Status correction, October 30:** this verification established the implemented coverage below;
+it did not establish completion of the full selected contract. The previous final-acceptance wording
+was too strong. Unsupported analysis and Admin waiting semantics still require explicit assessment.
+
+The implementation checklist was verified within the documented finite proof domain.
 `./gradlew spotlessApply build -PreplayExports` passed in 3m37s on the final runtime and replay code.
 Verification includes 86 Agent tests, 31 state tests, 633 engine tests, 50 script tests, 1358
 Canon/rule cases (26 existing skips), all 23 active full/short replay exports/reconstructions, and
@@ -838,3 +842,262 @@ The completed transition does not claim general inference or general action-comp
 Unsupported proof forms still return distinct incomplete analysis. Player-policy redesign,
 engine-installed policies, operation-lifecycle replacement, broader waiting-case classification,
 and correction-time recalculation remain documented future work. No merge or push is implied.
+
+
+## Strict ordinary Admin experiment — October 30
+
+**Status: investigated, not adopted.** The owner asked to explore requiring every nonempty pass
+through ordinary Admin tasks to make progress, throwing when none succeeds. Experiments below
+started at `51ab64824`. All runtime, Canon, and test changes were temporary and restored exactly.
+The selected Player task still has priority; deferred Admin tasks join this rule only after promotion.
+
+### Rule tested and observed failures
+
+The runtime experiment removed the three exceptions that allowed unsuccessful Admin work to remain:
+abstract choices, unmet gates with Player work pending, and other unavailable work with Player tasks
+pending. Each failure was retained; success restarted the pass. Incomplete-analysis and missing-input
+errors retained their distinct reporting. Whole-call restoration remained in place.
+
+Command: `./gradlew :engine:jvmTest :agent:jvmTest :tfm-tests:jvmTest :tfm-tests:replayTest -PreplayExports --continue`.
+
+| Suite | Cases | Failures | Existing skips |
+| --- | ---: | ---: | ---: |
+| Engine | 633 | 5 | 0 |
+| Agent | 86 | 2 | 0 |
+| Canon/rules | 1358 | 2 | 26 |
+| Active replay export/reconstruction | 23 | 0 | 0 |
+
+The seven synthetic failures fall into two groups:
+
+- Admin was used as a stand-in for a Player choosing among alternatives:
+  `ReflexiveTransmutationTest.independentAbstractChoicesMustNarrowToDifferentTypes`,
+  `EffectAtomizationTest` queued item choices, `PerAtomizationTest` computed item choices, and
+  `SafeAutoExecTest.adminDoesNotLockAnAbstractTaskWhileAManualPlayerCanAct`.
+  Keep genuine choices on a Player; explicitly test that an unresolved Admin choice throws.
+- Tests deliberately allowed Admin to wait for a Player prerequisite:
+  `TaskLogTest.adminWaitsForTheNextRecordedPlayerTask`,
+  `TaskAssignmentCharacterizationTest.eagerAdminWaitsForTheGateThenReturnsThePlayersChoice`, and
+  `TransactionTrialIsolationTest.mixedFailuresWaitForPlayerWorkRegardlessOfCandidateOrder`.
+  A prerequisite followed by `THEN` can create the System work after the prerequisite completes;
+  raw-engine failure/isolation assertions remain useful independently of the Agent waiting policy.
+
+Negative System amounts that wait for another Admin gain still pass: success elsewhere in the same
+pass permits a retry. No change to scoring or general retry order was needed by this run.
+
+### Research purchases: a global capacity limit
+
+`GameFlowTest.researchMakesEveryPlayerQueueAvailableTogether` fails when the second Player finishes
+choosing cards. Player 2 already has a payment open; Player 1's fixed System work tries to create
+another `PaymentScope`. Its existing `HAS MAX 1 PaymentScope` limit applies across the whole table.
+The old Admin loop leaves that start waiting while Player 2 pays. Strict Admin instead rejects the
+call that creates the conflicting work.
+
+Putting the research payment start in `LATER` was tested and still failed: both starts become
+ordinary together. The first opens a Player payment task; the other start then has no successful
+Admin action available to release the occupied capacity.
+
+A second prototype removed the global limit from `PaymentScope` and added
+`HAS MAX 1 PaymentScope<This>` to `Player`. The focused scenario passed under strict Admin:
+Player 1 pays while Player 2's bill is still open, then Player 2 pays. From 20 MC each, their ending
+cash is 17 and 14, and their card counts are 1 and 2. This demonstrates independent research
+payments; it does not verify every cross-Player discount, alternative resource, or payment listener.
+
+### Pluto: repeated draw-and-discard bonuses
+
+`ColoniesRulesTest`'s repeated-Pluto scenario gives Kim two colony bonuses. Current Pets creates
+`PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock!` for each bonus. Admin starts the
+first but cannot acquire Kim's second lock until Kim discards for the first. Strict Admin throws
+before returning to her draw/discard work.
+
+An owner-explicit `LATER` around each sequence was tested and still failed on `PlutoLock<Kim>`:
+both sequences are promoted together. Delaying all starts does not serialize them.
+
+A second prototype kept `PlutoLock` as System bookkeeping and removed `System` from the existing
+`GainColonyBonus` signal. Each Player explicitly starts a bonus; only then does Admin acquire its
+lock. The focused scenario passed under strict Admin. It additionally rejected Kim's attempt to
+start her second bonus before completing the first, then allowed that start after her discard.
+The original draw/discard, owner, final card-count, and lock-cleanup assertions remained.
+
+This prototype changes all colony bonus starts and adds a Player command. `GainColonyBonus` is
+currently documented as an internal signal; turning it into a Player action changes its intended
+meaning as well as its assignment. It has not been validated against other colony interactions
+or automatic Player policies. A Player-owned lock would expose
+lock/unlock machinery directly, so it is not the preferred client interaction. The demonstrated
+direction is Player control over taking a bonus, with Admin bookkeeping created after that choice;
+the smallest satisfactory final interaction remains to be settled.
+
+### Where LATER fits
+
+Use `LATER` for work that genuinely belongs after all ordinary work, such as the existing research
+cleanup of cards left in Selecting. Do not automatically defer a failed Admin task. A deferred task
+may be needed by ordinary work that prevents its promotion; alternatively, several deferred tasks
+may conflict as soon as their batch is promoted. Create work after its actual prerequisite when
+that expresses the rule more accurately.
+
+### Review and restoration
+
+Opus/high confirmed that the runtime experiment implements the proposed strict-pass rule and
+independently identified the two Canon capacity conflicts and the same-batch problem with `LATER`.
+In the follow-up, Opus agreed to prefer exploring Player-controlled bonus starts over exposing
+lock/unlock commands. It emphasized that the existing internal bonus signal would acquire a new
+Player-facing meaning. It supported the per-Player payment limit as a candidate, while noting that
+the focused cash-payment case does not cover alternative resources, pricing listeners, or every
+setup path. Neither prototype has had full-suite verification or is ready for adoption.
+
+The exact original runtime, Canon, and tests were restored before concluding the exploration;
+`git diff --exit-code` confirmed restoration before this report was added. The original four-suite
+verification then passed, reusing Gradle's cached results for the restored unchanged test inputs.
+No new skip, weakened gameplay assertion, committed runtime change, or full-contract completion
+claim follows from this experiment.
+
+
+### Owner clarification: payment scope and the remembered Pluto handoff
+
+The owner chose to retain the global payment limit for the current single-client workflow. Research
+coverage now completes each Player's choice and payment as a batch before starting the next purchase,
+retaining card counts and checking the respective 3 MC and 6 MC charges. Per-Player payment capacity
+remains an unadopted prototype, not required follow-up work.
+
+The owner expects colony response sequences to await the active Player's selection, then hand the
+selected work to the colony owner before further work can proceed. Current code differs:
+`PendingTask.fromEffect` routes to the effect owner or changed component owner directly, and
+`TaskQueues.assignConcreteChangeToAdmin` assigns a concrete System first step to Admin at admission.
+The lock gain is therefore already Admin work before any Player selects a bonus. Finishing that
+step admits the draw as a new, unselected task for Kim; selection does not span a `THEN` continuation.
+`PlutoLock` still prevents Kim's second draw from being offered before her first discard.
+
+History explains the discrepancy. Commit `08ee7dcd5` (October 3) added the per-owner Pluto lock.
+Commit `92f4ee520` (October 10) made `PlutoLock` System bookkeeping and removed explicit lock calls.
+Commit `4847065e0` (October 12) removed the separate task controller and selection recipient,
+replaced that arrangement with direct assignment/`TASK`, and removed Stan's selection before Kim's
+Pluto draws and discards from the test. The intended active-Player-first arrangement remains labeled
+unimplemented in `IDENTITY.md`. The earlier exploration should have surfaced this discrepancy
+before recommending a new colony-bonus start interaction. The October 30 log audit found that the
+owner had explicitly objected to losing the active Player's timing decision before that commit.
+The required behavior is settled; the implementation remains to be chosen. No Pluto runtime change
+is made by this clarification.
+
+
+### Active-Player handoff test restoration — October 30
+
+The owner requested restoring the tests before outlining implementation options. This is an
+intentionally failing acceptance-test change; no runtime workaround, ignored test, expected-failure
+wrapper, or test helper supplies the missing behavior. The required behavior and design options
+are in [IDENTITY.md](IDENTITY.md#required-active-player-handoff).
+
+Audit against 4847065e0 and its parent:
+
+| Removed coverage | Restored location |
+| --- | --- |
+| Concrete/abstract owner responses, rejection of the active Player's choices, TaskForm handoff, impossible owner execution | TaskDelegationTest (four restored scenarios, without assignee-field transition assertions) |
+| Owner automatic policy waits until the active Player releases its task | TaskDelegationTest.theOwnersAutomaticPolicyWaitsForTheActivePlayersHandoff |
+| Original Player and different recipient survive System work | TaskDelegationTest (two scenarios formerly in TaskAssignmentCharacterizationTest) |
+| Recipient survives System removal without an authored TASK workaround | TaskAssignmentCharacterizationTest.playerChoosesWhetherAndWhatToRemoveBeforeAdminExecutesIt |
+| Active Player orders a later explicit BY stage | TaskAssignmentCharacterizationTest.resolvedOuterByRemainsOnEverySeparableThenStage |
+| Owner resources and production after another Player's action | AphroditeTest, ArcticAlgaeTest, CapitalTest, EcologyExpertsTest, LakefrontResortsTest, SpliceTacticalGenomicsTest, SolarLogisticsTest, VerminTest |
+| Compensation, disease, and disease losses | MonsInsuranceTest, PharmacyUnionTest |
+| Active Player offers an abstract resource; owner chooses and executes it | Both affected PhilaresTest scenarios; the greenery scenario also rejects premature owner work and active-Player narrowing |
+| Optional responses, payment, and later rewards | NeptunianPowerConsultantsTest, StJosephOfCupertinoMissionTest, the two retained interrupted-payment FloodingTest scenarios |
+| Active Player orders the area-choice handoff, then the first Player chooses for the card owner | IcyImpactorsTest |
+| Active Player retains the timing choice after Admin performs a global change | WorldGovernmentAdvisorTest |
+| Premature Enceladus claim, Pluto draws/discards, Titan resource targets | ColoniesRulesTest |
+| Recorded Arctic Algae, Neptunian, Pets, and city-production handoffs | Game20230521Test, OtbGame20260904Test, OtbGame20261009Test |
+
+The old computed/raw-resource payment calls were adapted to the current explicit Pay API.
+The former optional remaining-cash payment in the Flooding scenario is now mandatory; after the
+attack makes it unaffordable, the restored handoff attempt itself must be rejected.
+Removed field assertions and manual Admin execution were not restored. In particular, the old
+Player1 selection of a concrete BY Admin continuation stays removed under the selected automatic
+Admin rule. Own-player concrete selections and obsolete payment/corporation machinery in that commit are unrelated to the lost
+handoff and retain today's explicit execution calls.
+
+Verification compiled the restored tests and ran 39 engine checks, 103 card/rule scenarios,
+and three replays: nine engine failures, 34 card/rule failures, and all three replay failures,
+with two existing card/rule skips. The Icy Impactors handoff now uses the current ocean dependency
+syntax; a focused rerun confirms its failure is the active Player's missing task. The impossible-owner
+generic fixture explicitly disables Player2's automatic policy so its failure identifies the missing
+handoff access rather than automatic execution. Formatting and diff whitespace checks pass.
+Runtime behavior remains unchanged.
+No successful export/reconstruction claim is made while the three restored replays fail.
+
+The former ignored Flooding tests demanding a lock through an entire payment are not reinstated:
+that is a separate completion rule from the current-step handoff. Their two present-day scenarios
+retain the known interrupted-payment behavior and now restore the active Player's initial handoff.
+
+Opus/high's first review found additional System-removal coverage and representation-specific
+assertions that would prematurely exclude the owner-assigned design option. The SystemChoiceA
+workaround was removed, tests now assert who can act instead of assignee transitions, and a new
+scenario checks that the owner's EAGER policy waits for the active Player's handoff. The review also
+tightened the unaffordable-payment error to NotNowException and made the Enceladus rejection name
+Kim's card explicitly. Solar Logistics and World Government Advisor were restored during the audit.
+
+Opus's follow-up agreed with retaining numeric identification of fixed payments, leaving unrelated
+exception-type changes alone, and distinguishing Pluto's early lock acquisition from the restored
+draw/discard checks. The second unaffordable-payment handoff was tightened too; the abstract
+reaction now rejects premature owner execution of its follow-up, and TaskForm handoff explicitly
+checks selected state. The suggestion to remove the EAGER-policy test was rejected: the live test
+already observed the owner's policy executing before release, and AutoExecLoop runs the configured
+Players' policies from the shared session after a top-level Agent call. This synthetic game has
+no persistent action component or deferred cleanup keeping it non-idle.
+
+
+### Focused NOW/SOON handoff implementation — October 30
+
+The owner selected the instruction-based option after rereading the October 13 proposal. This
+increment keeps THEN, Task.then, LATER/FINALLY batching, and BY. It adds NOW for a selected recipient
+task and renames TASK to SOON for ordinary recipient work. Both require execution; selection alone
+does not admit their body. There is no compatibility keyword or new per-task recipient field.
+
+The existing ActionScope implements generic TaskScope. Admission gives its owner a NOW wrapper for
+another Player's work. The original complete instruction goes inside that wrapper; it is not rebuilt
+from a separated first step and continuation. Matching can identify an unchanged current step or a
+fixed calculated payment, but cannot choose the receiving Player's resource, target, or amount.
+
+Pluto explicitly encloses lock/draw/discard/unlock in NOW. The active Player starts the bonus;
+Admin acquires its lock and returns a selected draw to the colony owner. After the draw the active
+Player schedules the discard, then Admin unlocks. A second bonus for the same owner fails and rolls
+back while the first lock remains; another owner's bonus can run meanwhile. The focused scenario
+checks these states directly. Selected Admin failures reject the Agent call; ordinary Admin waiting
+exceptions remain as before. The separate strict ordinary-Admin-pass proposal is not adopted here.
+
+Restored card and replay handoffs now use explicit NOW execution in place of selection. Generic
+fixtures declare a TaskScope to represent the active action. Synthetic unowned System fixtures now
+name their recipient with NOW, or use an owned System context: the chosen design does not restore a
+hidden initiating-Player field for ownerless effects. Their tests still check recipient authority,
+selected handoff, and execution attribution. This adapts the earlier restoration's System fixture;
+it is not a claim that an unowned effect infers a lost recipient automatically.
+
+Opus/high's first review identified a continuation-owner risk. Admission now performs LATER/FINALLY
+before reassigning work, and wraps the original full instruction for other sequences. A focused
+SOON-followed-by-reward test verifies the continuation still belongs to the original recipient.
+The suggested return to automatic SOON admission was rejected because execution is the chosen
+handoff point. Opus's follow-up agreed and found no remaining concrete issue. Its calculated-metric
+question was checked against Instructor and covered by five items yielding two rewards under a
+per-two metric, with the receiving Player choosing the reward through TaskForm.
+
+NOW's selected recipient also retains a LATER/FINALLY first step until execution. A focused test
+checks the recipient acts before competing work, then the deferred body waits normally. That test
+exposed a pre-existing path that attempted to create a selected deferred Task during narrowing;
+that path now rejects with TaskException before constructing invalid task data.
+
+Replay/export verification exposed the obsolete TaskLog conversion of an executed handoff to a
+CHOOSE input. It is removed: replay must execute NOW to create the recipient's selected task. The
+recorder now retains the original command kind and context-class filter, while recording the
+recipient's execution separately. A focused NOW/EAGER-owner recording test reconstructs with Player
+policies disabled; id-based BY and context-class recording coverage remains. Opus reviewed and
+accepted both this removal and the deferred-narrowing guard. ActiveProtonFlowTest and Wsbg2025Test,
+plus later points in OtbGame20261009Test, also needed explicit handoffs at existing reward points.
+No game facts, outcome assertions, or test helpers were changed to supply missing engine behavior.
+
+Final verification: `./gradlew build -PreplayExports` passed. The complete engine suite has 644
+passing checks; Agent has 87; card/rule verification has 1,332 passing scenarios and the same 26
+existing skips. All 23 active replay tests pass with full and short exports and reconstruction
+(46 generated game files), including all restored replay handoffs. Both Web browser checks pass;
+the root build also completed the included Pets build and browser checks. No new skip or weakened
+outcome assertion was introduced.
+
+Final-diff review against REVIEW_CRITERIA found no outstanding rejection criterion. Production
+changes add no per-task recipient field, no second action-scope component, no gameplay helper,
+and no THEN/AND replacement. The earlier research choose/pay edit in GameFlowTest is unchanged
+and is kept separate from this handoff commit. The broader engine-contract open questions remain
+in TODO; this result establishes the focused handoff rule, not general completion analysis.

@@ -48,6 +48,7 @@ internal class TaskAssignmentCharacterizationTest {
       Engine.newGame(
           testGamePremise(
               """
+              CLASS Turn<@Player> : TaskScope<@Player>
               CLASS Token<Owner>
               CLASS Marker<Owner>
               CLASS PlayerStep<Owner> { This: SystemToken }
@@ -65,10 +66,10 @@ internal class TaskAssignmentCharacterizationTest {
                 This:: SystemRequest, Token<Player1>
               }
               CLASS UnownedSystemRequest<@Player> : System {
-                This: TASK @Player { Reward<@Player> }
+                This: SOON @Player { Reward<@Player> }
               }
               ABSTRACT CLASS SystemChoice : System {
-                CLASS SystemChoiceA { -This: TASK Player1 { Reward<Player1> } }
+                CLASS SystemChoiceA { -This: NOW Player1 { Reward<Player1> } }
                 CLASS SystemChoiceB
               }
               CLASS AutomaticBy { This:: Token<Player1> BY Admin }
@@ -239,6 +240,7 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun playerChoosesWhetherAndWhatToRemoveBeforeAdminExecutesIt() {
     val game = game()
+    game.testAgent(ADMIN).exMachina("Turn<Player1>")
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     game.testAgent(ADMIN)
     p1.runOperation("SystemChoiceA, SystemChoiceB")
@@ -590,6 +592,7 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun resolvedOuterByRemainsOnEverySeparableThenStage() {
     val game = game()
+    game.testAgent(ADMIN).exMachina("Turn<Player1>")
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
     val task =
@@ -606,8 +609,9 @@ internal class TaskAssignmentCharacterizationTest {
     p2.doTask(task)
 
     val marker = game.tasks.ids().single()
-    p2.selectTask(marker)
-    p2.doTask(marker)
+    // The continuation returns to Player1 for ordering before Player2 executes it.
+    p1.doTask(marker)
+    p2.doTask("Marker<Player1>")
     p1.count("Token<Player1>") shouldBe 1
     p1.count("Marker<Player1>") shouldBe 1
   }

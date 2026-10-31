@@ -323,6 +323,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
       assertCounts(20 to "MC") // visual confirmation
       doTasks("2 MC")
+      doTask("NOW Blue { 2 Plant<Blue> }")
       blue.doTasks("2 Plant") // Arctic Algae
     }
     blue.turn {
@@ -660,6 +661,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 MC",
           "2 MC",
       )
+      doTask("NOW Blue { 2 Plant<Blue> }")
       blue.doTasks("2 Plant")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -863,6 +865,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 MC",
           "2 MC",
       )
+      doTask("NOW Blue { 2 Plant<Blue> }")
       blue.doTasks("2 Plant")
       doTasks(
           *playCardTasks("$NuclearZone"),
@@ -1038,6 +1041,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
       doTasks(*playCardTasks("$CupolaCity"), "14 Pay<> FROM MC", "$CupolaCity FROM ProjectCard")
       doTasks("NormalCityTile<Elysium_6_5>", "Plant", "2 MC", "PROD[-Energy]", "PROD[3 MC]")
+      doTask("NOW Red { 2 MC<Red> }")
       red.doTasks("2 MC")
     }
     red.turn {
@@ -1274,6 +1278,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[2 Steel]",
       )
       assertCounts(7 to "MC", 0 to "Steel") // visual confirmation
+      doTask("NOW Red { 2 MC<Red> }")
       red.doTasks("2 MC")
     }
     black.turn {
@@ -1613,7 +1618,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 Plant",
           "NormalCityTile<Elysium_8_6>",
       )
-      red.doTasks("2 MC", "PROD[MC]")
+      doTask("NOW Red { 2 MC<Red> }")
+      red.doTask("2 MC")
+      doTask("NOW Red { PROD[MC<Red>] }")
+      red.doTask("PROD[MC]")
     }
     black.turn {
       doTasks(
@@ -1679,6 +1687,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 MC",
           "2 MC",
       )
+      doTask("NOW Blue { 2 Plant<Blue> }")
       blue.doTasks("2 Plant")
     }
     green.turn {

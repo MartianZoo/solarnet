@@ -558,11 +558,8 @@ internal class AgentImpl(
   }
 
   private fun finishTaskHandoff() {
-    val pending = world.tasks.selectedTask() ?: return
+    if (world.tasks.selectedTask() == null) return
     autoExecLoop.run()
-    if (pending in world.tasks) {
-      throw TaskException("task $pending did not finish after its Actor handoff")
-    }
   }
 
   private fun markDecision() {

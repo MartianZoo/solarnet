@@ -40,7 +40,7 @@ public data class Effect(
   init {
     if (automatic && (instruction is Dispatch || instruction.descendantsOfType<Dispatch>().any())) {
       throw PetSyntaxException(
-          "`TASK`, `LATER`, and `FINALLY` cannot occur inside an automatic `::` effect"
+          "`NOW`, `SOON`, `LATER`, and `FINALLY` cannot occur inside an automatic `::` effect"
       )
     }
     // A bare Component subscription watches everything and states nothing; rule L6-11 requires it

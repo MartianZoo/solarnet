@@ -181,6 +181,7 @@ internal class AutoExecLoop(
     val waiting = mutableListOf<TaskId>()
     while (true) {
       val selected = allTasks.selectedTask()
+      // A failing selected Admin task cannot wait for competing Player work: selection blocks it.
       if (selected != null && !isAdmin(selected)) return
       val pending =
           (selected?.let(::listOf) ?: allTasks.ids().toList()).filter {
@@ -213,19 +214,25 @@ internal class AutoExecLoop(
             incomplete = incomplete ?: e
           } catch (e: NotFullySpecifiedException) {
             waiting += taskId
-            if (!allTasks.getTaskData(taskId).instruction.isAbstract(world.reader)) rejection = e
+            if (
+                selected != null ||
+                    !allTasks.getTaskData(taskId).instruction.isAbstract(world.reader)
+            )
+                rejection = e
           } catch (e: RequirementException) {
             waiting += taskId
             val instruction = allTasks.getTaskData(taskId).instruction
             if (
-                instruction !is Gated ||
+                selected != null ||
+                    instruction !is Gated ||
                     world.reader.has(instruction.gate) ||
                     allTasks.ids().none { !isAdmin(it) && !isDeferred(it) }
             )
                 rejection = e
           } catch (e: NotNowException) {
             waiting += taskId
-            if (allTasks.ids().none { !isAdmin(it) && !isDeferred(it) }) rejection = e
+            if (selected != null || allTasks.ids().none { !isAdmin(it) && !isDeferred(it) })
+                rejection = e
           } catch (e: DeadEndException) {
             waiting += taskId
             rejection = e

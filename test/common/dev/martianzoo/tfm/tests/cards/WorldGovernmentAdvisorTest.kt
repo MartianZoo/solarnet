@@ -46,6 +46,8 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
           doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("VenusStep BY Admin")
+          // Kim retains the timing choice after Admin performs the global change.
+          doTask("NOW Stan { 2 MC<Stan> }")
           stan.doTask("2 MC")
         }
         .expect("0 TerraformRating")
@@ -61,7 +63,11 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
           doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
 
           doTask("OceanTile<Tharsis_1_2> BY Admin")
+          // Kim retains the timing choice after Admin performs the global change.
+          doTask("NOW Stan { 2 Plant<Stan> }")
           stan.doTask("2 Plant")
+          // Kim retains the timing choice after Admin performs the global change.
+          doTask("NOW Stan { PROD[MC<Stan>] }")
           stan.doTask("PROD[MC]")
         }
         .expect("PROD[MC<Stan>], 0 HydrologistCredit, 0 TerraformRating")

@@ -28,6 +28,8 @@ internal class VerminTest : TfmSandboxTest() {
               "PROD[MC]",
               "CityTile<Tharsis_2_1>",
           )
+          // The active player chooses when to hand this task to its owner.
+          doTask("NOW Kim { Animal<Vermin<Kim>> }")
           kim.doTask("Animal<Vermin>")
         }
         .expect("Animal<$Vermin<Kim>>")

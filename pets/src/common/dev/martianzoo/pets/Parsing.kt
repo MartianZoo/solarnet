@@ -613,7 +613,8 @@ public object Parsing {
     private val notKeyword by keyword("NOT")
     private val orKeyword by keyword("OR")
     private val rankKeyword by keyword("RANK")
-    private val taskKeyword by keyword("TASK")
+    private val nowKeyword by keyword("NOW")
+    private val soonKeyword by keyword("SOON")
     private val thenKeyword by keyword("THEN")
     private val xKeyword by keyword("X")
     private val abstractKeyword by keyword("ABSTRACT")
@@ -963,7 +964,8 @@ public object Parsing {
               Instruction.Each(selector, body)
             }
     private val dispatchInstruction by
-        ((taskKeyword asJust Deferral.NONE) or
+        ((nowKeyword asJust Deferral.NOW) or
+            (soonKeyword asJust Deferral.NONE) or
             (laterKeyword asJust Deferral.LATER) or
             (finallyKeyword asJust Deferral.FINALLY)) and
             optional(expression) and

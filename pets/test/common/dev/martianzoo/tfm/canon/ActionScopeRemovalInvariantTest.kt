@@ -136,7 +136,7 @@ internal class ActionScopeRemovalInvariantTest {
                 -ActionScope<This>: FINALLY { -Baton<This> }
                 -Baton<This>: UseAction<This, StandardAction> OR PassBaton<This>
                 -ActionScope<This>: FINALLY { \
-                  TASK This { \
+                  SOON This { \
                     UseAction<This, StandardAction> OR DoRequiredActions<This> \
                   } \
                 }

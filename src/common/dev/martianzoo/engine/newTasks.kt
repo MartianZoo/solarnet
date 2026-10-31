@@ -49,7 +49,8 @@ internal fun newTask(
             assignee = assignee,
             instruction = instruction,
             cause = cause,
-            deferral = deferral,
+            selected = deferral == Deferral.NOW,
+            deferral = if (deferral == Deferral.NOW) Deferral.NONE else deferral,
         ),
         isAbstract,
     )

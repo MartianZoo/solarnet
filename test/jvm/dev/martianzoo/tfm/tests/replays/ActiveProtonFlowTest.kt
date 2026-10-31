@@ -213,6 +213,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       doTask("OceanTile<Tharsis_2_6>")
       doTask("TerraformRating")
     }
+    green.doTask("NOW ER { 2 Plant<ER> }")
     pink.doTask("2 Plant")
     green.doTask("2 ProjectCard")
     pink.turn {

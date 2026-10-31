@@ -176,10 +176,11 @@ An unselected task normally starts assigned to the Actor that admitted it. A nor
 containing an elementary gain of a `System` Component, alone or under top-level instruction-side
 `BY`, instead starts assigned to Admin. Contextual selection reapplies that rule before a concrete
 `BY` performs its later handoff. If that Admin assignment interrupts a `THEN` sequence, the engine
-encodes the previous assignee in a `TASK Actor { body }` continuation. Admin executes the System
-step, then dispatches the remaining work back to that Actor. An authored `TASK Actor { body }`
-likewise admits unresolved body instructions for its named Actor as soon as the work holding it is
-ordinary; a dispatch is never a task of its own.
+encodes the previous assignee in a `SOON Actor { body }` continuation. A selected NOW prefix
+instead returns its next single step through NOW. Admin executes the System step, then dispatches
+the remaining work back to that Actor. NOW and SOON remain tasks until executed; NOW admits selected
+work and SOON admits ordinary work. With a game-authored TaskScope, its owner orders another Player's
+work by executing a NOW wrapper, preserving all of the recipient's choices.
 See [IDENTITY.md](IDENTITY.md).
 
 Queue admission normalizes an `InstructionGroup` into one Task per independent member. `A THEN B`
@@ -264,7 +265,7 @@ state for changing assignee midway through such a Task, and Canon has no use req
 
 The finishing task's assignee receives structural children and continuations. A System handoff
 encodes the former assignee in its continuation, so Admin executes the System step and returns later
-work to that Actor. Authored `TASK` dispatch can also give work to another Actor. Queued reactions
+work to that Actor. Authored `NOW` or `SOON` dispatch can also give work to another Actor. Queued reactions
 use ownership and event attribution as described in [IDENTITY.md](IDENTITY.md). Deferral by `LATER` and `FINALLY` is described in
 [SEQUENCING.md](SEQUENCING.md#deferred-work). The intended priority model is owned by
 [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md). There is no persistent delegated operation in current

@@ -264,6 +264,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Steel",
           "PROD[MC]",
       )
+      // Aqua hands Pink the Pets reward before Pink takes it.
+      doTask("NOW Pink { Animal<$Pets<Pink>> }")
       p2.doTasks("Animal<$Pets>")
     }
     p2.turn {
@@ -638,6 +640,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "2 Plant",
           "Animal<$Pets>",
       )
+      // Pink hands Aqua the city-triggered production reward.
+      doTask("NOW Aqua { PROD[MC<Aqua>] }")
       p1.doTasks("PROD[MC]")
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
@@ -1945,6 +1949,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       )
       // Pink records only the two placement plants, missing Viral Enhancers' optional plant.
       declineTask("Plant<Pink>! OR Ok")
+      doTask("NOW Aqua { PROD[MC<Aqua>] }")
       p1.doTasks("PROD[MC]")
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Vastitas_3_5>", "Plant")
@@ -2148,6 +2153,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "3 MC", // Arcadian community
           "PROD[MC]", // Immigrant City
       )
+      doTask("NOW Pink { Animal<$Pets<Pink>> }")
       p2.doTasks("Animal<$Pets>")
       doTasks("PROD[MC]") // the city's own production, in addition to Immigrant City
     }

@@ -167,7 +167,8 @@ internal constructor(
    * Adds [instructions] as work initially assigned to [actor], recording [firstCause] when
    * supplied. This attributes the initial work; triggered effects record their own causes. Returns
    * the ids of tasks actually added in creation order. Normalization can discard no-ops, split
-   * groups, perform dispatches, and assign concrete System changes to Admin.
+   * groups, schedule LATER/FINALLY, and assign concrete System changes to Admin. NOW/SOON wait for
+   * execution; a TaskScope can wrap another Player's work for its owner to schedule.
    *
    * Refused while any task is selected: that task must finish before the queue changes around it.
    *
@@ -399,6 +400,9 @@ internal constructor(
       quantifierOmitted: Boolean,
   ) {
     val task = tasks.getTaskData(taskId)
+    if (task.deferred) {
+      throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
+    }
     val prepared = prepareNarrowing(taskId, narrowing, quantifierOmitted)
     val effectiveNarrowing = prepared.effective
     if (effectiveNarrowing == task.instruction) {
@@ -572,9 +576,14 @@ internal constructor(
     if (task.deferred) {
       throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
     }
-    if (task.selected) return task.id
     val resolved =
         instructor.resolve(task.instruction, worldGainNarrowing = true, expandEach = false)
+    if (
+        task.selected &&
+            resolved == task.instruction &&
+            !(resolved is By && !resolved.isAbstract(reader))
+    )
+        return task.id
     applyResolution(task, resolved, then = task.then)
     return task.id
   }
@@ -663,6 +672,21 @@ internal constructor(
           is InstructionGroup -> return admitChildren(queue, selectedTask, tree)
           is Instruction -> tree
         }
+    if (instruction is Instruction.Dispatch) {
+      val children = instructor.executeResolved(instruction, selectedTask.cause, executingActor)
+      handleTask(queue, selectedTask)
+      children
+          .flatMap(taskQueues::addTasks)
+          .filter { it.task.selected }
+          .forEach {
+            val child = it.task
+            // Check that its first step can be selected, but leave the recipient's live instruction
+            // intact. In particular, do not freeze an AMAP amount before the recipient's request.
+            // Admin execution can still fail; Agent then restores the whole handoff call.
+            instructor.resolve(child.instruction, worldGainNarrowing = true, expandEach = false)
+          }
+      return emptyList()
+    }
     if (instruction is Each) {
       val children = instructor.resolve(instruction, worldGainNarrowing = true)
       return admitChildren(queue, selectedTask, InstructionGroup.of(children))
@@ -942,6 +966,22 @@ internal constructor(
       quantifierOmitted: Boolean,
       info: TypeInfo = reader,
   ): InstructionTree? {
+    if (narrowing is Instruction.Dispatch && existing is Instruction.Dispatch) {
+      if (narrowing.actor != existing.actor || narrowing.deferral != existing.deferral) return null
+      if (narrowing.body == existing.body) return existing
+      val first = (existing.body as? Then)?.first ?: existing.body
+      // A handoff may identify the current step, including its calculated amount. It may not
+      // remove any choice from the recipient: the whole pending step must fit the request.
+      if (first.narrows(narrowing.body, reader)) return existing
+      fun calculatedHead(tree: InstructionTree): InstructionTree =
+          when (tree) {
+            is Gated -> calculatedHead(tree.inner)
+            is Per -> calculatedHead(tree.inner * reader.count(tree.metric))
+            else -> tree
+          }
+      val calculated = calculatedHead(first)
+      return existing.takeIf { calculated != NoOp && calculated.narrows(narrowing.body, reader) }
+    }
     val typedZero = narrowing is Change && narrowing.count == ActualScalar(0)
     val effective =
         effectiveNarrowing(narrowing, existing, quantifierOmitted, info, intersect = true)

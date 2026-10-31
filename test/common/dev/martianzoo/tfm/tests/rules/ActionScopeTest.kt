@@ -217,6 +217,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     admin.count("ActionScope<Kim>") shouldBe 0
     shouldThrow<TaskException> { stan.doTasks(*standardProjectTasks("PowerPlantProject")) }
 
+    stan.doTask("NOW Kim { StandardResource }")
     kim.doTask("Titanium").expect("Titanium")
     admin.count("ActionScope") shouldBe 0
     stan.doTasks(*standardProjectTasks("PowerPlantProject"))
