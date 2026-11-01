@@ -11,7 +11,6 @@ import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.testsupport.eventContent
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -444,32 +443,6 @@ internal class TaskLogTest {
         source.world.events.entriesSinceSetup().filterIsInstance<ChangeEvent>().map {
           it.change to it.actor
         }
-  }
-
-  @Test
-  internal fun adminWaitsForTheNextRecordedPlayerTask() {
-    val premise = testGamePremise("CLASS Coin\nCLASS Token\nCLASS Reward : System")
-    fun newAgents(): Agents =
-        Agents(Engine.newGame(premise)).also {
-          it[PLAYER1].autoExecPolicy = NONE
-          it[PLAYER1].addTasks("Coin!, Token!")
-          it[ADMIN].addTasks("Token: Reward!")
-        }
-    val source = newAgents()
-    start(source)
-    source[PLAYER1].autoExecPolicy = EAGER
-    source[ADMIN].count("Reward") shouldBe 1
-
-    val imported = newAgents()
-    replay(source, imported)
-
-    imported[ADMIN].count("Reward") shouldBe 1
-    imported.world.tasks.isEmpty() shouldBe true
-    imported[PLAYER1].autoExecPolicy shouldBe NONE
-    // The source performed this work through EAGER policies; the replay submits it. Identical
-    // changes, different provenance.
-    imported.world.events.entriesSinceSetup().eventContent() shouldBe
-        source.world.events.entriesSinceSetup().eventContent()
   }
 
   @Test

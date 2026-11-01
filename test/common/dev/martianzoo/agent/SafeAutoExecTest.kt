@@ -91,37 +91,6 @@ internal class SafeAutoExecTest {
   }
 
   @Test
-  internal fun adminDoesNotLockAnAbstractTaskWhileAManualPlayerCanAct() {
-    val game =
-        Engine.newGame(
-            testGamePremise(
-                """
-                CLASS Token
-                ABSTRACT CLASS Choice : System {
-                  CLASS Left
-                  CLASS Right
-                }
-                """
-                    .trimIndent()
-            )
-        )
-    val agents = Agents(game)
-    val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
-    val admin = agents[ADMIN]
-    player.addTasks("Token!")
-    admin.addTasks("Choice!")
-
-    player.autoExecNow()
-
-    game.tasks.selectedTask() shouldBe null
-    player.doTasks("Token")
-    player.count("Token") shouldBe 1
-    admin.doTasks("Left")
-    admin.count("Left") shouldBe 1
-    game.isIdle() shouldBe true
-  }
-
-  @Test
   internal fun adminRetriesANegativeSystemAmountAfterTheLaterGain() {
     val game = Engine.newGame(testGamePremise("CLASS Point : System"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }

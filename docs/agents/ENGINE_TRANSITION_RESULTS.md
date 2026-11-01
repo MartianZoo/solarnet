@@ -1112,7 +1112,12 @@ unmet gates, and unavailable work with Player tasks pending. A successful task r
 a complete unsuccessful pass throws. Selected Player priority, deferred-task promotion, whole-call
 restoration, and distinct incomplete-analysis/application-input errors remain unchanged.
 
-Verification under the strict rule:
+**Functional conclusion:** no remaining game-rule or replay failure was found. Pluto's active
+Player controls the handoff, the owner executes through their own Agent, the lock prevents a second
+unfinished bonus for that owner, and research purchases finish with the correct cards and money.
+All active recorded games export and reconstruct successfully under strict Admin.
+
+Verification under the strict rule (historical counts before the November 1 deletions):
 
 | Suite | Cases | Failures | Existing skips |
 | --- | ---: | ---: | ---: |
@@ -1127,52 +1132,44 @@ Verification under the strict rule:
 Commands: `./gradlew :engine:jvmTest :agent:jvmTest :tfm-tests:jvmTest :tfm-tests:replayTest
 -PreplayExports --continue`, then `./gradlew :script:jvmTest :repl:test :web:jsBrowserTest --continue`.
 
-The eleven failures are artificial scenarios with expectations incompatible with strict Admin:
-
-- Eight assign manual choices to Admin. The same four engine/Agent failures from the earlier
-  experiment remain: `ReflexiveTransmutationTest.independentAbstractChoicesMustNarrowToDifferentTypes`,
-  the queued-choice `EffectAtomizationTest`, the computed-choice `PerAtomizationTest`, and
-  `SafeAutoExecTest.adminDoesNotLockAnAbstractTaskWhileAManualPlayerCanAct`.
-  For example, Admin receives three Item tasks and the test intends to answer Red, Blue, Red.
-  Under the proposed rule, Admin throws because it cannot choose uniquely. Preserve these choice
-  checks using a Player, and separately assert that unresolved Admin choices throw.
-  The four additional failures are in `ScriptCompletionEngineTest`:
-  `completesTaskInstructionsAndSingletonTaskActions`, `selectAndDropRejectMultipleTasks`,
-  `treatsAnUnassignedUppercaseTokenAsAnInstruction`, and `rejectsAnInstructionMatchingDistinctTasks`.
-  They queue optional Plant/Heat choices through a session still acting as Admin. Strict Admin
-  rejects that setup before completion or matching is tested; those tests should use a Player.
-- Three deliberately let Admin wait for a Player prerequisite:
-  `TaskLogTest.adminWaitsForTheNextRecordedPlayerTask`,
-  `TaskAssignmentCharacterizationTest.eagerAdminWaitsForTheGateThenReturnsThePlayersChoice`, and
-  `TransactionTrialIsolationTest.mixedFailuresWaitForPlayerWorkRegardlessOfCandidateOrder`.
-  For example, Admin has `Token: Reward!` while a Player still needs to create Token. The strict
-  rule throws instead of returning control to that Player. These waiting-policy expectations must
-  change if the rule is adopted. Preserve recording/replay and failed-trial restoration coverage;
-  create automatic work after its prerequisite, or assert the rejected call where that is the
-  behavior being tested.
+Eleven additional engine, Agent, and script checks failed because they encoded the previous Admin
+behavior. They established no broken Canon rule or required client feature. The November 1 owner
+clarification rejects using those checks as design constraints and directs their deletion. The
+previous recommendation to preserve or rewrite every such test is withdrawn. Retain or add tests
+only for a concrete functional requirement; do not recreate obsolete mechanics in replacement
+fixtures merely to retain their test counts.
 
 No additional Canon conflict was observed. Pluto's restored active-Player handoffs, owner's own
 execution, and per-owner lock checks pass. Batched research retains the global payment limit and
 passes its card-count and cash assertions. All 23 active replays pass with 46 full/short exported
-game files and fresh reconstruction. A failed Admin removal followed by an enabling Admin gain
-still passes: this rule rejects a wholly unsuccessful pass, not the first unsuccessful attempt.
+game files and fresh reconstruction.
 No additional LATER wrapper or THEN/AND redesign was needed for these tested game scenarios.
 This is evidence for the active suites, not exhaustive proof for all possible game states.
 
 The temporary runtime patch was reversed exactly; byte comparisons confirmed AutoExecLoop and the
 pre-existing research test match their saved inputs. Repeating all seven suites with the restored
 runtime and `-PreplayExports` passed: 2,168 cases, zero failures, and the same 26 existing skips.
-The eleven incompatible cases were not changed or skipped. The strict rule remains an experiment;
-this report and TODO record the remaining adoption work.
+At the time of that experiment, the eleven incompatible cases were not changed or skipped.
+The strict rule remains an experiment; its functional results support adoption without additional
+game-model changes in the tested scenarios.
 
 Opus/high reviewed the patch and confirmed the strict-pass implementation. It noted that the rule
 also rejects waiting for an automatic Player: Admin runs before Player policies. That is the
 proposed P1 priority, while selected Player work retains P0. After receiving the complete results,
 Opus withdrew its suggestion to test separate choice-only and prerequisite-only strict variants;
-the combined run already explains every failure and reveals no tested Canon dependency on either
-exception. It agreed to keep the experiment restored and emphasized retaining the TaskLog replay
-and provenance comparison when adapting that test. Its suggestion that the four script failures
-establish a production-client routing defect is not supported by the source: the failing addTasks
-calls are directly in ScriptCompletionEngineTest setup. No production-client change is justified
-by those failures alone. Existing last-failure diagnostic selection was outside this experiment.
-Final-diff review found no new runtime concept, test weakening, or unrelated change in the report.
+the combined run had already identified no remaining functional failure.
+
+### Owner-directed test deletion — November 1
+
+Deleted the eleven cases identified by the strict Admin experiment, plus setup declarations and
+imports used only by those cases. This follows the owner's instruction that functional tests
+establish the requirements and that obsolete implementation expectations should be deleted.
+No replacement synthetic cases were added. The existing research batching edit remains separate.
+The runtime is unchanged by this deletion.
+
+Verification: affected engine, Agent, and script suites and formatting checks pass. The unchanged
+functional suites also pass: 1,332 card/rule scenarios with the same 26 existing skips, plus all
+23 active replay export/reconstruction checks and 46 generated game files. Gradle reused the
+unchanged card/rule and replay results. Opus/high confirmed that the diff deletes exactly the
+requested eleven cases and their unused setup; its formatting finding was fixed before the
+successful verification. Final review found no production change or unrelated test deletion.

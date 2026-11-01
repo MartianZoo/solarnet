@@ -56,39 +56,6 @@ internal class TransactionTrialIsolationTest {
   }
 
   @Test
-  fun mixedFailuresWaitForPlayerWorkRegardlessOfCandidateOrder() {
-    for (deadFirst in listOf(false, true)) {
-      val dead = "This: Die"
-      val waiting = "This:: -Supply"
-      val world =
-          Engine.newGame(
-              testGamePremise(
-                  """
-          ABSTRACT CLASS Choice
-          CLASS First : Choice { ${if (deadFirst) dead else waiting} }
-          CLASS Second : Choice { ${if (deadFirst) waiting else dead} }
-          CLASS Supply { HAS MAX 1 This }
-          """
-              )
-          )
-      val admin = world.actorEngine(ADMIN)
-      val player = world.actorEngine(PLAYER1)
-      val id = admin.addTasks(InstructionGroup.of(parse<InstructionTree>("Choice!"))).single()
-      player.addTasks(InstructionGroup.of(parse<InstructionTree>("Supply!")))
-      val before = world.events.nextOrdinal
-      shouldThrow<NotNowException> { admin.doTask(id) }
-      world.events.nextOrdinal shouldBe before
-      val agents = Agents(world) { NONE }
-      agents[PLAYER1].autoExecNow()
-      world.tasks.selectedTask() shouldBe null
-      agents[PLAYER1].doTask("Supply")
-      agents[PLAYER1].count("Choice") shouldBe 1
-      agents[PLAYER1].count("Supply") shouldBe 0
-      world.tasks.isEmpty() shouldBe true
-    }
-  }
-
-  @Test
   fun failedAbstractAdminWorkWithoutPlayerWorkIsReported() {
     val world =
         Engine.newGame(

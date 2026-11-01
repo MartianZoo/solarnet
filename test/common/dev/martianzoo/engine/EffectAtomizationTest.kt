@@ -17,20 +17,6 @@ internal class EffectAtomizationTest {
     admin.count("Batch") shouldBe 6
   }
 
-  @Test
-  fun `queued self effects allow separate choices after scaling by trigger count`() {
-    val admin = Engine.newGame(premise).testAgent(ADMIN)
-
-    admin.runOperation("3 ChoiceProducer") {
-      doTask("RedItem")
-      doTask("BlueItem")
-      doTask("RedItem")
-    }
-
-    admin.count("RedItem") shouldBe 2
-    admin.count("BlueItem") shouldBe 1
-  }
-
   private companion object {
     val premise =
         testGamePremise(
@@ -41,10 +27,6 @@ internal class EffectAtomizationTest {
             CLASS Listener { X CountedSignal:: Batch }
             CLASS Award
             CLASS Batch
-            CLASS ChoiceProducer { This: Item }
-            ABSTRACT CLASS Item : Atomized
-            CLASS RedItem : Item
-            CLASS BlueItem : Item
             """,
             players = 0,
         )

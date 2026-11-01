@@ -55,16 +55,4 @@ internal class ReflexiveTransmutationTest {
   internal fun sharedAbstractVariableCannotTransmuteIntoItself() {
     shouldThrow<ExpressionException> { admin.runOperation("@Thing FROM @Thing") }
   }
-
-  @Test
-  internal fun independentAbstractChoicesMustNarrowToDifferentTypes() {
-    admin.runOperation("Token, Other")
-    admin.runOperation("Thing FROM Thing") {
-      shouldThrow<ExpressionException> { doTask("Token FROM Token") }
-      doTask("Other FROM Token")
-    }
-    admin.count("Token") shouldBe 0
-    admin.count("Other") shouldBe 2
-    admin.count("Removed") shouldBe 1
-  }
 }

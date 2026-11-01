@@ -73,17 +73,6 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  internal fun completesTaskInstructionsAndSingletonTaskActions() {
-    (repl.agent as Agent).addTasks("2? Plant")
-    (repl.agent as Agent).addTasks("3? Heat")
-
-    assertFalse(values("task ").any { it == "A" || it == "B" })
-    assertContainsAll(values("task Pl"), "Plant", "PlantTag")
-    assertTrue("select" in values("task se"))
-    assertContainsAll(values("task 1 Play"), "PlayCardAction", "Player1")
-  }
-
-  @Test
   internal fun taskListingsHaveNoIdsAndSingletonActionsNeedNoPosition() {
     repl.command("become Player1")
     repl.command("auto none")
@@ -99,52 +88,6 @@ internal class ScriptCompletionEngineTest {
     val remaining = repl.command("tasks").single()
     assertTrue(remaining.startsWith("[Player1] "), remaining)
     assertTrue("3? Heat" in remaining, remaining)
-  }
-
-  @Test
-  internal fun selectAndDropRejectMultipleTasks() {
-    val taskLayer = repl.agent as Agent
-    taskLayer.addTasks("2? Plant")
-    taskLayer.addTasks("3? Heat")
-    repl.command("mode yellow")
-
-    assertEquals(
-        listOf(
-            "this requires exactly one pending task",
-            "Usage: task <Instruction> | task <select | drop>",
-        ),
-        repl.command("task select"),
-    )
-    assertEquals(
-        listOf(
-            "this requires exactly one pending task",
-            "Usage: task <Instruction> | task <select | drop>",
-        ),
-        repl.command("task drop"),
-    )
-  }
-
-  @Test
-  internal fun treatsAnUnassignedUppercaseTokenAsAnInstruction() {
-    (repl.agent as Agent).addTasks("Plant? OR Ok")
-    assertEquals(1, repl.game.tasks.ids().size)
-
-    val output = repl.command("task Ok")
-
-    assertEquals(listOf("um, nothing happened"), output)
-    assertTrue(repl.game.tasks.isEmpty())
-  }
-
-  @Test
-  internal fun rejectsAnInstructionMatchingDistinctTasks() {
-    val taskLayer = repl.agent as Agent
-    taskLayer.addTasks("Plant? OR Ok")
-    taskLayer.addTasks("Heat? OR Ok")
-
-    val output = repl.command("task Ok")
-
-    assertTrue(output.single().contains("2 matching tasks are ambiguous"))
-    assertEquals(2, repl.game.tasks.ids().size)
   }
 
   @Test

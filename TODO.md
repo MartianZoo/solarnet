@@ -32,13 +32,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   before trial without consulting invariant room; no optimization or search cap is justified yet.
 - Decide whether to adopt the strict ordinary Admin pass rule, reevaluated
   [after NOW/SOON](docs/agents/ENGINE_TRANSITION_RESULTS.md#strict-admin-after-nowsoon--october-30).
-  With Pluto's lock acquired after the active Player starts its handoff and each research choice
-  and payment completed together, no Canon/rule or active replay test fails under strict Admin.
-  Eleven artificial tests still rely on Admin waiting: eight assign manual choices to Admin
-  (including four script tests), and three wait for a Player prerequisite. If the rule is selected,
-  move the choice fixtures to Players and update the waiting-policy expectations while preserving
-  choice, matching, recording/replay, and failed-trial restoration coverage. No further Canon LATER
-  wrapper was needed by this run; the runtime experiment was temporary.
+  No remaining functional failure was found: Pluto's active-Player handoff and owner execution,
+  lock timing, batched research purchases, and all active game replays pass under strict Admin.
+  The owner directed deletion of the eleven tests encoding obsolete Admin expectations; they are
+  not requirements to preserve or replace. Judge further work by actual game rules and observable
+  client behavior. No further Canon LATER wrapper was needed by the experiment; its runtime patch
+  remains restored pending adoption.
 - Review whether a NOW recipient needs a separate undo checkpoint before their choice. Current
   selection checkpoints restore to before the active Player's handoff, as earlier BY handoffs did.
   The focused NOW/SOON fix preserves that behavior; no separate per-recipient undo policy is selected.

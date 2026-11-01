@@ -168,28 +168,6 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun eagerAdminWaitsForTheGateThenReturnsThePlayersChoice() {
-    val game = game()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN)
-    p1.addTasks("Marker<Player1>")
-    val taskId = p1.addTasks("Marker<Player1>: SystemToken THEN Reward<Player1>").single()
-
-    admin.tasks.ids().shouldContainExactly(taskId)
-    admin.autoExecNow(EAGER)
-    p1.count("SystemToken") shouldBe 0
-    game.tasks.getTaskData(taskId).selected shouldBe false
-
-    p1.doTask("Marker<Player1>")
-
-    p1.count("SystemToken") shouldBe 1
-    admin.tasks.isEmpty() shouldBe true
-    p1.doTask("RewardA")
-    p1.count("RewardA") shouldBe 1
-    game.isIdle() shouldBe true
-  }
-
-  @Test
   internal fun eagerAdminResolvesAScaledSystemGainWithoutPlayerAutoexecution() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
