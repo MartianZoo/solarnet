@@ -235,38 +235,6 @@ internal class Lang03NarrowingTest {
   }
 
   @Test
-  internal fun `L3-8 first-stage selection requires its shared choices and a met gate`() {
-    val unbound = elaborate("Plant THEN Heat") as dev.martianzoo.pets.ast.Instruction.Then
-    unbound
-        .selectFirstStage(elaborate("Plant") as dev.martianzoo.pets.ast.Instruction, langWorld)
-        .toString() shouldBe elaborate("Plant THEN Heat").toString()
-
-    val named = elaborate("@Token THEN @Token") as dev.martianzoo.pets.ast.Instruction.Then
-    shouldThrow<NarrowingException> {
-      named.selectFirstStage(elaborate("Token") as dev.martianzoo.pets.ast.Instruction, langWorld)
-    }
-
-    val gated =
-        elaborate("MAX 0 Heat: Plant THEN Steel") as dev.martianzoo.pets.ast.Instruction.Then
-    shouldThrow<NarrowingException> {
-      gated.selectFirstStage(
-          elaborate("Plant") as dev.martianzoo.pets.ast.Instruction,
-          TableWorld(langTable, answer = false),
-      )
-    }
-  }
-
-  @Test
-  internal fun `L3-8 selecting an OR arm binds later THEN stages`() {
-    val sequence =
-        elaborate("(@Token OR Plant) THEN @Token") as dev.martianzoo.pets.ast.Instruction.Then
-    val proposal = elaborate("RedToken") as dev.martianzoo.pets.ast.Instruction
-
-    sequence.selectFirstStage(proposal, langWorld).toString() shouldBe
-        elaborate("RedToken THEN RedToken").toString()
-  }
-
-  @Test
   internal fun `L3-8 expansion matching ignores an occurrence unavailable in its universe`() {
     val table = loadTypes("ABSTRACT CLASS Shade\nCLASS Token<Shade>")
     val expanded = parse<Expression>("Token<Shade>")
@@ -318,10 +286,6 @@ internal class Lang03NarrowingTest {
         "(Plant: (Heat<Chosen@Player> OR Heat<Player1>)) THEN Steel<Chosen@Player>",
         "(Plant: Heat<Player1>) THEN Steel<Player2>",
     ) shouldBe true
-    val sequence = elaborate(source) as Then
-    shouldThrow<NarrowingException> {
-      sequence.selectFirstStage(elaborate("Heat<Player1>") as Instruction, langWorld)
-    }
   }
 
   @Test

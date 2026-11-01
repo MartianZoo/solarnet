@@ -28,11 +28,11 @@ generated recording.
 
 ## Always apply these principles
 
-The intended engine interaction contract is in
-[ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md). It records the selected destination, not a
-completed transition; experiments and remaining decisions are tracked in
-[ENGINE_TRANSITION_PLAN.md](docs/agents/ENGINE_TRANSITION_PLAN.md). Material under
-`docs/agents/obsolete/` is historical evidence, not current guidance.
+The current engine interaction contract is in
+[ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md), with further ideas in its appendix.
+[ENGINE_TRANSITION_RESULTS.md](docs/agents/ENGINE_TRANSITION_RESULTS.md) preserves historical
+experiments and decisions. Material under `docs/agents/obsolete/` is historical evidence, not
+current guidance.
 
 ### Interpret the request before acting
 

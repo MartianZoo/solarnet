@@ -60,7 +60,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTask("20 MC")
       doTasks(*cardActionTasks("BoardOfDirectors"))
       doTask("PreludeCard<Kim, Hand>")
-      doTask("-12 MC")
+      doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
       doTask("-Director<BoardOfDirectors>")
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
       doTask("4 CorporationCard<Kim, Selecting>")
@@ -193,7 +193,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
       )
-      doTask("CopyProductionBox<GhgFactories>")
+      doTask("CopyProductionBox<GhgFactories> THEN CopyProductionBox<CardFront>")
       doTask("PROD[4 Heat]")
       doTask("CopyProductionBox<HeatTrappers>")
       doTasks("PROD[Energy]", "PROD[-2 Heat]", "PROD[-Energy]")
@@ -214,7 +214,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks(
           *cardActionTasks("BoardOfDirectors"),
           "PreludeCard<Hand>",
-          "-12 MC",
+          "-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>",
           "-Director<BoardOfDirectors>",
       )
       doTasks(
@@ -247,7 +247,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks(
           *cardActionTasks("BoardOfDirectors"),
           "PreludeCard<Hand>",
-          "-12 MC",
+          "-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>",
           "-Director<BoardOfDirectors>",
       )
       doTasks(
@@ -312,7 +312,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks(
           *cardActionTasks("BoardOfDirectors"),
           "PreludeCard<Hand>",
-          "-12 MC",
+          "-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>",
           "-Director<BoardOfDirectors>",
       )
       doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")

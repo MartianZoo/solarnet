@@ -21,7 +21,7 @@ immediate effect repairs the limit. Fixed optional counts use the same transacti
 mandatory changes, including a single `Ok` candidate and every positive count up to the requested
 amount. Agent optional amount menus use the same physical bounds but do not prove transaction
 success. AMAP still uses current invariant room; its remaining work is tracked in the
-[transition plan](ENGINE_TRANSITION_PLAN.md). A quantity-limit read can bound
+[contract appendix](ENGINE_CONTRACT.md#appendix-further-work-under-consideration). A quantity-limit read can bound
 candidates without proving their transactions succeed; temporary invariant violations repaired
 by immediate effects must not be rejected by an over-eager filter.
 

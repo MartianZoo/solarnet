@@ -53,8 +53,8 @@ internal class TaskNormalizationTest {
     queues.editTask(original.copy(instruction = parse<Instruction>("X Steel THEN Energy")))
 
     val edited = world.tasks.getTaskData(original.id)
-    edited.instruction shouldBe parse<Instruction>("X Steel THEN Energy")
-    edited.then shouldBe instructionGroup("X Heat")
+    edited.instruction shouldBe parse<Instruction>("X Steel")
+    edited.then shouldBe instructionGroup("Energy THEN X Heat")
   }
 
   @Test

@@ -89,7 +89,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("GreeneryTile<Tharsis_4_7>")
       }
       cardAction1(BoardOfDirectors) {
-        doTask("-12 MC")
+        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
         playPrelude(AppliedScience)
       }
       playProject(BribedCommittee, 7)
@@ -109,7 +109,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       buyCards(0)
       stdAction("UseAction<ScientistsPolicy, Action1>")
       cardAction1(BoardOfDirectors) {
-        doTask("-12 MC")
+        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
         playPrelude(CorporateArchives)
       }
       cardAction1(AppliedScience) { doTask("Steel") }
@@ -131,7 +131,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
     with(me) {
       buyCards(2)
       cardAction1(BoardOfDirectors) {
-        doTask("-12 MC")
+        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
         playPrelude(RiseToPower) {
           doTask("PartyLeader<Reds>")
           doTask("PartyLeader<Unity>")
@@ -159,7 +159,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(MediaGroup, 6)
       playProject(InventionContest, 2)
       cardAction1(BoardOfDirectors) {
-        doTask("-12 MC")
+        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
         playPrelude(AntiDesertificationTechniques)
       }
       stdAction("UseAction<LobbyAction, Action1>") {
@@ -221,7 +221,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
     with(me) {
       buyCards(2)
       cardAction1(BoardOfDirectors) {
-        doTask("-12 MC")
+        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
         playPrelude(Merger) { playCorp(LakefrontResorts) }
       }
       cardAction1(AppliedScience) { addCardResources(BoardOfDirectors) }
@@ -258,7 +258,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertHeat()
       cardAction1(RestrictedArea)
       cardAction1(BoardOfDirectors) {
-        doTask("-12 MC")
+        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
         playPrelude(TerraformingDeal)
       }
       convertPlants { placeTile(3, 5) }
@@ -314,7 +314,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(MineralDeposit, 5)
       playProject(CulturalMetropolis, mc = 2, steel = 6) {
         placeTile(7, 5)
-        doTask("PartyFollower<Greens>")
+        doTask("PartyFollower<Greens> THEN PartyDelegate<Greens>")
         doTask("PartyLeader<Greens>")
       }
       stdAction(
@@ -325,7 +325,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         useStdAction("UseAction<CathedralOption, Action1>", payment = { pay(2) })
       }
       cardAction1(BoardOfDirectors) {
-        doTask("-12 MC")
+        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
         playPrelude(FocusedOrganization) {
           doTask("Titanium")
         }
@@ -429,7 +429,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(NoctisCity, 18) { doTask("NormalCityTile<NoctisArea>") }
       // Applied Science's wild tag supplies the second Jovian tag for this play.
       playProject(JovianEnvoys, 2) {
-        doTask("PartyFollower<Greens>")
+        doTask("PartyFollower<Greens> THEN PartyDelegate<Greens>")
         doTask("PartyLeader<Greens>")
       }
       sellPatents(3)

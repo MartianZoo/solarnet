@@ -103,7 +103,7 @@ internal class StandardActionTest : TfmTest() {
     p1.beginOperation("OfferAction")
     p1.doTasks(
         "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<DevelopmentCenter, Action1>",
+        "UseAction<DevelopmentCenter, Action1> THEN ActionUsedMarker<DevelopmentCenter>",
         "Pay<Class<Energy>> FROM Energy",
         "ProjectCard",
     )
@@ -112,7 +112,7 @@ internal class StandardActionTest : TfmTest() {
     shouldThrow<LimitsException> {
       p1.doTasks(
           "UseAction<UseActionOnCardAction, Action1>",
-          "UseAction<DevelopmentCenter, Action1>",
+          "UseAction<DevelopmentCenter, Action1> THEN ActionUsedMarker<DevelopmentCenter>",
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )

@@ -1903,7 +1903,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 9:17:24 PM — Yellow: "Okay. And I add a graphene."
       // The app never logs this four-steel payment. It therefore shows 4 steel both before this
       // play and after production; the replay additionally visits the evidenced intervening zero.
-      playProject(MarsUniversity, steel = 4) { doTask("-ProjectCard") }
+      playProject(MarsUniversity, steel = 4) { doTask("-ProjectCard THEN ProjectCard") }
           .expect("-4 Steel, Graphene<$CarbonNanosystems>")
     }
     rainbow.turn {
@@ -1950,7 +1950,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
                 pay(2)
               },
           ) {
-            doTask("-ProjectCard")
+            doTask("-ProjectCard THEN ProjectCard")
           }
           .expect("-2 MC")
       // Yellow's app posts -3 M€ for this otherwise fully narrated 2 M€ payment.

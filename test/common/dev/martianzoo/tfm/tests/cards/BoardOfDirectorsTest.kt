@@ -25,7 +25,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*cardActionTasks("BoardOfDirectors"))
           doTask("PreludeCard<Kim, Hand>")
-          doTask("-12 MC")
+          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
           doTask("-Director<BoardOfDirectors>")
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<Donation>>",
@@ -53,7 +53,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(*cardActionTasks("BoardOfDirectors"))
         doTask("PreludeCard<Kim, Hand>")
-        doTask("-12 MC")
+        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
         doTask("-Director<BoardOfDirectors>")
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
@@ -65,9 +65,9 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*cardActionTasks("BoardOfDirectors"))
           doTask("PreludeCard<Kim, Hand>")
-          doTask("-12 MC")
+          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
           doTask("-Director<BoardOfDirectors>")
-          doTask("-PreludeCard")
+          doTask("-PreludeCard THEN Audit THEN 15 MC")
           // Execute the fizzle audit before receiving compensation.
           doTask("Audit!")
           doTask("15 MC")
@@ -90,7 +90,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*cardActionTasks("BoardOfDirectors"))
           doTask("PreludeCard<Kim, Hand>")
-          doTask("-12 MC")
+          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
           doTask("-Director<BoardOfDirectors>")
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
           doTask("4 CorporationCard<Kim, Selecting>")
@@ -130,7 +130,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(*cardActionTasks("BoardOfDirectors"))
       doTask("PreludeCard<Kim, Hand>")
-      doTask("-12 MC")
+      doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
       doTask("-Director<BoardOfDirectors>")
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",

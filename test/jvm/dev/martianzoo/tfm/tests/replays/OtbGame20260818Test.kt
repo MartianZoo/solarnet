@@ -293,7 +293,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "Then I play Mars University for eight... discard one and draw one."
-      playProject(MarsUniversity, 8) { doTask("-ProjectCard") }
+      playProject(MarsUniversity, 8) { doTask("-ProjectCard THEN ProjectCard") }
     }
 
     yellow.turn {
@@ -1041,7 +1041,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "I'm gonna play advanced alloys." "It costs me nine." "No discounts."
-      playProject(AdvancedAlloys, 9) { doTask("-ProjectCard") }.expect("-ProjectCard")
+      playProject(AdvancedAlloys, 9) { doTask("-ProjectCard THEN ProjectCard") }
+          .expect("-ProjectCard")
       // "I am gonna go ahead and play Solar Logistics." "But I spend four titanium on that." "I get
       // two titanium from it. I get a minimal on Martian Zoo. I get a card."
       playProject(SolarLogistics, titanium = 4).expect("-2 Titanium, Animal<$MartianZoo>")
@@ -1347,7 +1348,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // they were in that order."
       sellPatents(1).expect("1 MC, -ProjectCard")
       playProject(RoboticWorkforce, 9) {
-            doTask("-ProjectCard")
+            doTask("-ProjectCard THEN ProjectCard")
             doTask("0 BuildingTag<WildTagElection<WildTag<ResearchCoordination>>>")
             doTask("CopyProductionBox<$IndustrialMicrobes>")
           }

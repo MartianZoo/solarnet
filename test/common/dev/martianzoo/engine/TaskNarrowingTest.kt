@@ -8,6 +8,7 @@ import dev.martianzoo.agent.TaskForm.Decision.Kind.TARGET
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
@@ -682,7 +683,7 @@ internal class TaskNarrowingTest {
     writer.runOperation("ProjectCard")
     initiate("(-ProjectCard THEN ProjectCard) OR Ok")
 
-    selectAndNarrow("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
+    selectAndNarrow("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard THEN ProjectCard")
     writer.doTask(tasks.selectedTask()!!)
 
     tasksAsText().shouldContainExactly("ProjectCard<Player1, Hand>!")
@@ -946,7 +947,7 @@ internal class TaskNarrowingTest {
     writer.runOperation("Plant, Heat")
     initiate("Selected@StandardResource THEN -StandardResource(NOT Selected@StandardResource)")
 
-    writer.doTask("Steel")
+    writer.doTask("Steel THEN -StandardResource(NOT Steel)")
 
     tasksAsText().shouldContainExactly("-StandardResource<Player1>(NOT Steel<Player1>)!")
     writer.doTask("-Plant")
@@ -962,8 +963,8 @@ internal class TaskNarrowingTest {
         "(Selected@StandardResource: Selected@StandardResource) THEN Selected@StandardResource"
     )
 
-    shouldThrow<TaskException> { writer.doTask("Heat") }
-    writer.doTask("Plant")
+    shouldThrow<RequirementException> { writer.doTask("(Heat: Heat) THEN Heat") }
+    writer.doTask("(Plant: Plant) THEN Plant")
 
     writer.count("Plant") shouldBe 2
     tasksAsText().shouldContainExactly("Plant<Player1>!")
@@ -1040,7 +1041,7 @@ internal class TaskNarrowingTest {
     writer.autoExecNow()
     writer.autoExecPolicy = NONE
 
-    writer.doTask("3* MC FROM MC<Player2>")
+    writer.doTask("3* MC FROM MC<Player2> THEN Plant<Player2>")
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
@@ -1053,7 +1054,7 @@ internal class TaskNarrowingTest {
     writer.autoExecPolicy = NONE
     initiate("3* MC FROM MC<@Player> THEN Plant<@Player>")
 
-    writer.doTask("3* MC FROM MC<Player2>")
+    writer.doTask("3* MC FROM MC<Player2> THEN Plant<Player2>")
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
@@ -1065,7 +1066,7 @@ internal class TaskNarrowingTest {
     game.testAgent(PLAYER2).runOperation("Plant, 3 MC")
     initiate("(Plant<@Player>: 3 MC FROM MC<@Player>) THEN Heat<@Player>")
 
-    writer.doTask("3 MC FROM MC<Player2>")
+    writer.doTask("(Plant<Player2>: 3 MC FROM MC<Player2>) THEN Heat<Player2>")
 
     tasksAsText().shouldContainExactly("Heat<Player2>!")
     writer.count("MC") shouldBe 3
@@ -1368,17 +1369,6 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `Declining the only supplier leaves an aggregate observer`() {
-    writer.runOperation("Heat")
-    initiate("Chosen@StandardResource? THEN MC<Player(HAS Chosen@StandardResource)>")
-    writer.doTask("Ok")
-    writer.doTask("MC<Player1>")
-    writer.count("MC") shouldBe 1
-    writer.count("Heat") shouldBe 1
-    tasks.isEmpty() shouldBe true
-  }
-
-  @Test
   internal fun `A first-stage gate can observe a value supplied by a later stage`() {
     writer.runOperation("Heat")
     val id = initiate("(Selected@StandardResource: MC) THEN Selected@StandardResource").single()
@@ -1392,7 +1382,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `A first-stage alias captures a uniquely determined concrete subtype`() {
+  internal fun `An explicit shared subtype is retained in the continuation`() {
     val fixture =
         TfmEngine.newGame(
             testGamePremise(
@@ -1410,7 +1400,7 @@ internal class TaskNarrowingTest {
     val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.runOperation("Other")
     agent.addTasks("Chosen@Shape THEN Notice<Chosen@Shape>")
-    agent.doTask("Shape")
+    agent.doTask("Only THEN Notice<Only>")
 
     agent.count("Only") shouldBe 1
     shouldThrow<TaskException> { agent.doTask("Notice<Other>") }

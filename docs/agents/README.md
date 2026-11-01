@@ -27,7 +27,7 @@ architecture change. Then choose the narrowest relevant note:
 | Game flow, turns and offers, Head Start timing, task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
 | Payment choices, accepted resources, billing, or payment completion | [`PAYMENTS.md`](PAYMENTS.md) |
 | Client interaction, engine versus agent deduction, transactions, task priorities, or mandatory Admin handling | [`ENGINE_CONTRACT.md`](ENGINE_CONTRACT.md) |
-| Remaining engine API transition work | [`ENGINE_TRANSITION_PLAN.md`](ENGINE_TRANSITION_PLAN.md) — branch status, owner decisions, order, and acceptance cases; [results](ENGINE_TRANSITION_RESULTS.md) — measured attempts and merge recommendations |
+| Engine implementation history and further work | [Results](ENGINE_TRANSITION_RESULTS.md) — historical decisions, experiments, and verification; [contract appendix](ENGINE_CONTRACT.md#appendix-further-work-under-consideration) — ideas still under consideration |
 | Transaction grouping, execution motivation, event ordinals, or transaction-based checkpoints | [`ENGINE.md`](ENGINE.md#transaction-history-and-checkpoints) — completed implementation; [`EXPORT.md`](EXPORT.md) for files |
 | Inventory of automatic task revisions, admission, resolution, execution, and their timing | [`TASK_HANDLING.md`](TASK_HANDLING.md) — current behavior and automatic-actions inventory |
 | Single-action decision graphs, agent pruning, or speculative card choices | [`DECISION_GRAPH.md`](DECISION_GRAPH.md) — selected agent rules and candidate strategies |

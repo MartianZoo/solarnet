@@ -612,7 +612,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       cardAction1(VenusShuttles)
       convertHeat()
       playProject(MarsUniversity, 6) {
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
         vin.discard(PhysicsComplex)
         vin.draw(VenusGovernor)
       }
@@ -813,7 +813,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.turn { playProject(LandClaim, 0) { doTask("Community<Tharsis_2_2>") } }
     vin.turn {
       playProject(VenusianAnimals, 15) {
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
         vin.discard(CloudSeeding)
         vin.draw(Gyropolis)
       }
@@ -825,7 +825,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       playProject(AtalantaPlanitiaLab, 10) {
         vin.draw(WaterSplittingPlant, Algae)
         doTask("2 ProjectCard")
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
         vin.discard(WaterSplittingPlant)
         vin.draw(NoctisCity)
       }
@@ -952,7 +952,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn {
       playProject(RestrictedArea, 11) {
         placeTile(7, 8)
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
         vin.discard(TundraFarming)
         vin.draw(CorporateStronghold)
       }
@@ -968,7 +968,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.pass()
     vin.turn {
       playProject(GeneRepair, 12) {
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
         vin.discard(MagneticFieldDome)
         vin.draw(Teslaract)
       }

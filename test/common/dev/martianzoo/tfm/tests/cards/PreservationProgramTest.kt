@@ -123,7 +123,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     }
     kim.completeOperation {
           doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
+          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
           autoExecNow(EAGER)
@@ -139,7 +139,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     kim.doTasks(*standardProjectTasks("PowerPlantProject"))
     kim.completeOperation {
           doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
+          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
           autoExecNow(EAGER)
@@ -387,7 +387,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
     kim.completeOperation {
           doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
+          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")
           doTask("CopyPrelude<PreservationProgram>")
@@ -473,7 +473,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.doTask("Pass")
     kim.completeOperation {
           doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
+          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
           doTask("PlayCard<Class<CorporationCard>, Class<$Pristar>>")
@@ -484,7 +484,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     kim.completeOperation {
           doTasks(*playCardTasks("$ProjectInspection"))
           doTask("UseAction<$BoardOfDirectors, Action1>")
-          doTask("-12 MC")
+          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
           autoExecNow(EAGER)
@@ -508,7 +508,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     }
     kim.completeOperation {
           doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
+          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
           doTask("PlayCard<Class<CorporationCard>, Class<$Pristar>>")
@@ -578,7 +578,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
           doTasks(*playCardTasks("$PhysicsComplex"))
           doTask("Ok") // Keep the steel before paying the exact MC remainder.
           autoExecNow(EAGER)
-          selectTask("PlayedEvent FROM $PharmacyUnion")
+          selectTask("PlayedEvent FROM $PharmacyUnion THEN 3 TerraformRating")
           autoExecNow(EAGER)
         }
         .expect("2 TerraformRating")
@@ -599,7 +599,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
     kim.completeOperation {
           doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
+          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
           autoExecNow(EAGER)

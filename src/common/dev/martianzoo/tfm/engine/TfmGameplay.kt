@@ -748,7 +748,7 @@ public class TfmGameplay(
       x: Int? = null,
       body: OperationBlock = {},
   ) {
-    if (
+    val standardActionOffered =
         tasks
             .matching {
               it.instruction.descendantsOfType<ClassName>().any { name ->
@@ -756,10 +756,13 @@ public class TfmGameplay(
               }
             }
             .isNotEmpty()
-    ) {
+    if (standardActionOffered) {
       doTask("UseAction<UseActionOnCardAction, Action1>")
     }
-    doTask("UseAction<$cardName, ${whichAction(which)}>")
+    doTask(
+        "UseAction<$cardName, ${whichAction(which)}>" +
+            if (standardActionOffered) " THEN ActionUsedMarker<$cardName>" else ""
+    )
     x?.let { chooseVariableAmount(this, it) }
     payInvoiceFromItsResourceIfOffered()
     body()

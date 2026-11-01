@@ -3,7 +3,6 @@ package dev.martianzoo.pets.ast
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
-import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
@@ -723,7 +722,6 @@ public sealed class Instruction : InstructionTree() {
     private fun bindTypeVariablesFrom(
         proposed: Then,
         info: TypeInfo,
-        fallback: PetTransformer? = null,
     ): Then {
       val variables = typeVariablesFor(info)
       val captures = mutableMapOf<TypeVariable, GroundType>()
@@ -750,10 +748,7 @@ public sealed class Instruction : InstructionTree() {
               "type variable `$variable` has conflicting bindings: `$bindings`"
           )
         }
-        val lowered = fallback?.transformExpression(declaration)?.takeIf { it != declaration }
-        val binding =
-            lowered?.takeIf { candidate -> bindings.all { candidate.narrows(it, info) } }
-                ?: bindings.singleOrNull()
+        val binding = bindings.singleOrNull()
         binding?.let {
           val captured = info.classTable.resolve(binding).groundType
           captures[variable] = captured
@@ -780,66 +775,6 @@ public sealed class Instruction : InstructionTree() {
 
     private fun sameAfterNameConsumption(left: Expression, right: Expression): Boolean =
         left.copy(typeVariableName = null) == right.copy(typeVariableName = null)
-
-    /** Selects the first stage after every shared Type it uses has been chosen. */
-    public fun selectFirstStage(
-        proposed: Instruction,
-        info: TypeInfo,
-        loweredBinding: PetTransformer? = null,
-    ): Then {
-      val firstStage = first
-      val selectableFirst =
-          if (firstStage is Gated) {
-            firstStage.inner as Instruction
-          } else {
-            firstStage
-          }
-      if (
-          proposed.descendantsOfType<Then>().isNotEmpty() ||
-              proposed.descendantsOfType<InstructionGroup>().isNotEmpty()
-      ) {
-        throw NarrowingException("a first-stage selection cannot contain a sequence or group")
-      }
-      val proposedFirst = if (firstStage is Gated) firstStage.copy(inner = proposed) else proposed
-      val partial = withParts(listOf(proposedFirst) + stages.drop(1), continuation)
-      val specialized = bindTypeVariablesFrom(partial, info, loweredBinding)
-      val selectedFirstStage = specialized.first
-      val selectable =
-          if (selectedFirstStage is Gated) selectedFirstStage.inner else selectedFirstStage
-      proposed.ensureNarrows(selectable, info)
-      if (selectedFirstStage is Gated && !info.has(selectedFirstStage.gate)) {
-        throw NarrowingException("condition is not met: `${selectedFirstStage.gate}`")
-      }
-      val selectedX = if (hasSharedX()) sharedXValue(selectableFirst, proposed, info) else null
-      val fullySpecialized =
-          selectedX?.let { bindXTo(it).transformInstruction(specialized) as Then } ?: specialized
-      val variables = typeVariablesFor(info)
-      val table = info.classTable
-      val live =
-          variables.variables
-              .filter { variable ->
-                variables.bindings(this, partial, variable, info, table).isNotEmpty()
-              }
-              .toSet()
-      fullySpecialized.typeVariables.ensureChoicesRetained(
-          fullySpecialized,
-          partial,
-          info,
-          table,
-          live,
-      )
-      val selected =
-          fullySpecialized
-              .withParts(
-                  listOf(proposed) + fullySpecialized.stages.drop(1),
-                  fullySpecialized.continuation,
-              )
-              .withTypeVariables(fullySpecialized.typeVariables.retaining(live))
-      if (selected.mustRemainOneTask(info::isAbstract)) {
-        throw NarrowingException("first stage still uses an abstract shared choice")
-      }
-      return selected
-    }
 
     private fun sharedXValue(
         wide: InstructionTree,

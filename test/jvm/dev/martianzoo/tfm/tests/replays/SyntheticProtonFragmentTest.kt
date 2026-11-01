@@ -466,7 +466,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
     purple
         .playProject(Supercapacitors, 4) {
-          doTask("-2 Microbe<$Recyclon>")
+          doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
         }
         .expect("PROD[1 MC, Plant]")
     purple.cardAction1(Hospitals)

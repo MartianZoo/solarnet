@@ -132,9 +132,11 @@ private fun normalizeForTask(tree: InstructionTree, discardZero: Boolean = false
     }
 
 /**
- * Applies engine-owned normalization while preserving this task's identity and lifecycle. A
- * separable sequence moves into [Task.then] only when that continuation slot is free; otherwise
- * both sequence boundaries remain intact so their local Type-variable scopes stay independent.
+ * Applies engine-owned normalization while preserving this task's identity and lifecycle. Bound
+ * sequences expose their first instruction and retain the rest in [Task.then]. An existing
+ * continuation follows the sequence; it stays grouped to preserve its independent X and
+ * Type-variable scopes. Binding the current instruction does not bind an already separated
+ * continuation.
  */
 internal fun normalizeTask(
     task: Task,
@@ -151,7 +153,7 @@ internal fun normalizeTask(
   val runtimeSequence =
       sequence.typeVariables.expandNames().transformInstruction(sequence) as Instruction.Then
   val runtime = normalized.copy(instruction = runtimeSequence)
-  if (runtime.then != null || runtimeSequence.mustRemainOneTask(isAbstract)) {
+  if (runtimeSequence.mustRemainOneTask(isAbstract)) {
     if (runtimeSequence.descendantsOfType<By>().isNotEmpty()) {
       throw TaskException(
           "`BY` cannot occur inside a `THEN` that must remain a single task: `$runtimeSequence`"
@@ -159,8 +161,11 @@ internal fun normalizeTask(
     }
     return runtime
   }
+  val completeSequence =
+      if (then == null) runtimeSequence
+      else runtimeSequence.withInstructions(runtimeSequence.instructions + then)
   return runtime.copy(
-      instruction = runtimeSequence.first,
-      then = runtimeSequence.continuationAfterFirst(),
+      instruction = completeSequence.first,
+      then = completeSequence.continuationAfterFirst(),
   )
 }

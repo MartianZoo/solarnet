@@ -8,28 +8,14 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   `HellasPromoWithoutPreludeTest` is a verified small example; `OtbGame20260828Test` has a
   deliberate TaskForm interaction style and should be assessed separately.
 
-- Continue from [the engine experiment report](docs/agents/ENGINE_TRANSITION_RESULTS.md).
-  Explicit numeric THEN bindings, separate selection/execution, Agent translation of submitted
-  scalar totals into individual engine calls,
-  exact admitted group IDs, and session-owned application checks are implemented on the experiment
-  branch. Complete shared type binding and nested THEN representation without adding a second
-  continuation slot. `EACH` child admission now happens when its parent is executed on the
-  experiment branch. Groups and dispatches exposed by selection now retain their parent too;
-  partial choices remain in engine. Audit remaining correction and handoff paths.
 - Clarify `THEN` after an instruction whose amount resolution atomizes it into a group. The current
   engine releases the continuation when that group is admitted, while Pets forbids an authored
   group or `EACH` before `THEN`. No Canon consequence is established; keep this separate from
   selection timing.
-- Extend transaction-success analysis beyond finite mandatory/optional changes and their `OR`
-  alternatives. Complete Agent calls have fixed-state measurements; groups, shared bindings,
-  and unsupported nested forms remain. Resolve compact transmutations and a
-  search resource limit without treating incomplete analysis as a failed transaction. Keep
-  unsupported forms and unresolved immediate effects unknown. Review whole-call recovery limits
-  and custom Kotlin effects separately.
-  The fixed optional card-removal benchmark measures 220 candidates and an expected 146 trials
-  before ambiguity, about 1.95 ms through Agent on the measured machine. Larger counts and domains
-  remain unmeasured. If those become costly, physical availability could exclude absent sources
-  before trial without consulting invariant room; no optimization or search cap is justified yet.
+- Extend transaction analysis only for an actual supported Canon Admin task that cannot complete
+  without client choices. Player inference remains a limited convenience and may be reduced.
+  Preserve the distinct incomplete-analysis result; unsupported hypothetical forms are not a
+  general completeness backlog. Measure actual expensive cases before adding search limits.
 - Review whether a NOW recipient needs a separate undo checkpoint before their choice. Current
   selection checkpoints restore to before the active Player's handoff, as earlier BY handoffs did.
   The focused NOW/SOON fix preserves that behavior; no separate per-recipient undo policy is selected.
@@ -136,7 +122,7 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Cover AMAP target selection leaving the task open until its amount is evaluated, and
   evaluation followed by further narrowing. This TODO records the migration, not its completion.
 - Extend transaction inference beyond the finite mandatory/optional changes, OR alternatives, and
-  full-form transmutation pairs implemented by the [transition record](docs/agents/ENGINE_TRANSITION_PLAN.md).
+  full-form transmutation pairs implemented by the [implementation evidence](docs/agents/ENGINE_TRANSITION_RESULTS.md).
   Preserve distinct incomplete-analysis results for unsupported groups, AMAP, unbound numeric X,
   and broader nested forms; no wall-clock cutoff. Broader Admin waiting-case classification and
   general Player completion search remain separate work. The approved matching, selection, Agent
@@ -173,13 +159,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   and card-movement naming are separate. Preserve class-before-dependency ordering within TYPE,
   including dependencies revealed by a narrower class. Distinguish guided prompts from
   unrestricted draft narrowing. This records the requested evolution, not an implementation.
-- Investigate moving the code that runs several engine calls, checks supplied card identities,
-  reports completion to application code, and decides whether an action has finished out of the
-  engine package. Application checks and operation completion have moved to Agent on the branch;
-  the public call coordinator and remaining recovery limits need review. The unused completion hook
-  is removed and whole-call rollback is selected. Preserve transaction validity and
-  complete returned results. The [transition plan](docs/agents/ENGINE_TRANSITION_PLAN.md#4-simplify-the-client-facing-call)
-  gives the implementation order and unresolved recovery questions.
+- Reconsider the remaining engine callback coordinator and Agent decision/FINALLY operation
+  lifecycle only against concrete callers. Session-owned checks, full-call results, and rollback
+  are implemented; external application side effects are outside restoration. See the
+  [contract appendix](docs/agents/ENGINE_CONTRACT.md#appendix-further-work-under-consideration).
 - Clarify System classification versus non-Iconic presentation separately. Review when concrete
   System work and explicit BY Admin work change assignee.
 
@@ -205,9 +188,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Engine contract investigations
 
-[ENGINE_TRANSITION_PLAN.md](docs/agents/ENGINE_TRANSITION_PLAN.md) records the selected API
-transition and its evidence, including the completed NOW/SOON active-Player handoff fix.
-[ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md) owns the destination.
-Finite uniqueness proof is implemented; unsupported forms report incomplete analysis. General
-Player exploration, installed-policy design, replacement of operation lifecycle conventions, and
-correction-time recalculation remain outside this increment.
+[ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md) describes current behavior and keeps potential
+further work in its appendix. [Implementation evidence](docs/agents/ENGINE_TRANSITION_RESULTS.md)
+preserves the retired transition plan's useful decisions and experiments. Whole-action planning,
+general Player exploration, installed-policy design, operation lifecycle redesign, and
+correction-time recalculation remain separate work.

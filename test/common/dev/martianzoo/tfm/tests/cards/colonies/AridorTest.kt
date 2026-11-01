@@ -95,7 +95,7 @@ internal class AridorTest : TfmSandboxTest() {
           "CryoSleep FROM ProjectCard",
           "PROD[MC]",
       )
-      selectTask("PlayedEvent FROM PharmacyUnion")
+      selectTask("PlayedEvent FROM PharmacyUnion THEN 3 TerraformRating")
       doTask("3 TerraformRating")
     }
 
@@ -131,7 +131,7 @@ internal class AridorTest : TfmSandboxTest() {
           "CryoSleep FROM ProjectCard",
           "PROD[MC]",
       )
-      selectTask("PlayedEvent FROM PharmacyUnion")
+      selectTask("PlayedEvent FROM PharmacyUnion THEN 3 TerraformRating")
       doTask("3 TerraformRating")
     }
 

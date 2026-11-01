@@ -201,7 +201,7 @@ internal class HeadStartTest : TfmSandboxTest() {
       doTask("0 MC")
       doTasks(*cardActionTasks("BoardOfDirectors"))
       doTask("PreludeCard<Kim, Hand>")
-      doTask("-12 MC")
+      doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
       doTask("-Director<BoardOfDirectors>")
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
       doTask("4 CorporationCard<Kim, Selecting>")
@@ -302,7 +302,7 @@ internal class HeadStartTest : TfmSandboxTest() {
       expectChanges("2 Steel<Kim>, 8 MC<Kim>, -Director<BoardOfDirectors<Kim>>") {
         kim.doTasks(*cardActionTasks("BoardOfDirectors"))
         kim.doTask("PreludeCard")
-        kim.doTask("-12 MC")
+        kim.doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
         kim.doTask("PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>")
         kim.autoExecNow(EAGER)
       }

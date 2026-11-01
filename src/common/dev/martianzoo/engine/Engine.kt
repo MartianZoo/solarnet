@@ -332,7 +332,6 @@ public object Engine {
             actor,
             instructor,
             worldTransaction,
-            elaborator,
             transactions,
             // Internal trials may begin inside a request after its task has been selected.
             // They get their own transaction completion and no source listeners.

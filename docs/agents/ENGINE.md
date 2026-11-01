@@ -151,13 +151,11 @@ questions belong to the engine transition; they do not reopen completed history 
 
 ## Tasks express permission
 
-**Intended interaction:** the engine accepts an explicit request when the identified task and
-request admit exactly a single narrowing whose transaction succeeds. Finding that task need not
-try consequences; proving uniqueness within it may. Subsequent tasks, including Admin work, are
-outside that proof. Selection alone supplies no execution permission; a future installed policy may
-supply it in advance. The details below describe today's
-implementation, including differences from that destination; see the
-[transition plan](ENGINE_TRANSITION_PLAN.md).
+The engine matches requests to permissions without trying competing tasks' consequences. Its
+supported finite analysis can determine a unique successful instruction within an identified task.
+Subsequent tasks, including Admin work, are outside that proof. Player inference is a limited
+convenience; mandatory Admin processing covers supported Canon work without a choosing client.
+Selection alone supplies no execution permission. See the current [contract](ENGINE_CONTRACT.md).
 
 There is one semantic Task pool. Actor-specific queues are filtered views. Iteration is stable for
 reproducibility; Player clients choose among their available tasks. Admin handling follows

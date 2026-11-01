@@ -1,18 +1,16 @@
 # Automatic task revisions and handling
 
-> **Source-based inventory — branch status reviewed October 28, 2026.** This inventories the
-> experimental branch implementation. It is an account for review, not approval of every
-> behavior. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the selected destination and open details.
-> [ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) orders remaining work. This inventory
-> describes current code, including behavior to remove or reevaluate during that transition.
+> **Source-based inventory — current experimental checkout.**
+> [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) describes the current interaction contract;
+> its appendix distinguishes possible further work. Historical evidence is in the
+> [results](ENGINE_TRANSITION_RESULTS.md).
 
 ## Scope and reading order
 
-The destination is to identify a permitting task, combine it with an explicit execution request,
-establish the unique narrowing whose transaction succeeds, and execute that transaction. Today's
-paths below do not yet implement that general rule. In particular, they contain structural task
-edits during selection and special inference rules; this inventory explains when those paths run,
-what they change, and what can fail. It does not require callers to supply every concrete detail.
+The engine identifies a permitting task, combines it with the request, and executes the result.
+Supported finite analysis can resolve a unique successful interpretation. Admin must handle the
+work supported Canon creates; Player inference remains limited. This inventory explains automatic
+rewrites, their timing, and their failure behavior.
 
 “Automatic” here means performed without a separate client instruction for that step. It includes
 rewrites and bookkeeping, not just double-colon effects or agent autoexecution. An instruction
@@ -181,21 +179,20 @@ Sources: newTasks `taskInstructions`, `normalizeForTask`, `normalizeTask`;
 - If the sequence has an unresolved shared X originating in its first stage, or that stage uses
   an unresolved shared type variable, retain the sequence as a single task. It needs the first
   choice to bind the later stage.
-- Otherwise, when `Task.then` is empty, store the first stage as the current instruction and
-  the remainder in `Task.then`. That remainder is admitted after the current task is handled.
-- If an outer continuation already occupies `Task.then`, preserve the inner sequence and outer
-  continuation separately. Merging them would merge independent variable scopes.
+- Otherwise, expose the first stage and store the remainder in `Task.then`. An existing outer
+  continuation follows that remainder and retains its scope in a group. This uses the ordinary
+  Pets sequence composition rule, including the prohibition on a group before `THEN`.
 - A retained sequence containing instruction-side `BY` is rejected. This includes a `BY`
   distributed over a sequence that must remain together.
-- Choosing a first stage can bind type variables and X throughout its sequence, making separation
-  possible on the next normalization. A nonmandatory zero result can still carry a binding into
-  the continuation.
+- Callers supply shared bindings throughout the complete sequence, or substitute X explicitly.
+  The engine does not reconstruct the remainder from a first-stage request. A nonmandatory zero
+  result can still carry an explicitly supplied binding into the continuation.
 - Separable `A THEN B` means B becomes pending after A's task, not after every queued reaction
-  caused by A. When selection exposes independent children, the old continuation is also admitted;
+  caused by A. When execution admits independent children, the old continuation is also admitted;
   it does not wait for those children.
 
 Sources: newTasks `normalizeTask`; Instruction.Then `mustRemainOneTask`,
-`selectFirstStage`, `continuationAfterFirst`; ActorEngine `prepareNarrowing`, `handleTask`.
+`continuationAfterFirst`; ActorEngine `prepareNarrowing`, `handleTask`.
 
 ### Assignment to Admin and explicit performers
 
@@ -284,15 +281,14 @@ After executing a structural task, its children can be submitted independently.
 The overloads do not all follow the same route: `doTask(narrowing)` can apply a matched narrowing
 directly via `narrowSelectedTask`, while `selectTask(id)` takes the explicit selection path.
 Both routes call `requireNoOtherSelectedTask`, whose Player priority check uses the same finite
-transaction inference as explicit execution. Unsupported forms remain unresolved; the full
-destination is not implemented. Ordinary `addTasks` and `dropTask` now refuse while a task is
+transaction inference as explicit execution. Unsupported forms remain unresolved; Player inference is a limited convenience. Ordinary `addTasks` and `dropTask` now refuse while a task is
 selected, except dropping that selected task. `exMachina` preserves the selected instruction while
 correcting components.
-See [ENGINE_CONTRACT's current status](ENGINE_CONTRACT.md#current-implementation-status) rather
+See [ENGINE_CONTRACT](ENGINE_CONTRACT.md) rather
 than treating every mutation as an equivalent task command.
 
 Sources: ActorEngine `matchingTask`, `effectiveNarrowing`, `intersectTask`,
-`selectFirstStageOrNull`, `selectTask`, `narrowSelectedTask`, `applyResolution`,
+`selectTask`, `narrowSelectedTask`, `applyResolution`,
 `executeSelectedIfConcrete`.
 
 ## 4. Resolution against the World

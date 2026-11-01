@@ -288,10 +288,10 @@ internal class TaskIntersectionTest {
   }
 
   @Test
-  fun `a THEN head intersection retains the shared choice in its continuation`() {
+  fun `a joined THEN intersection retains the shared choice in its continuation`() {
     agent.addTasks("Piece<Chosen@Color, Circle> THEN Notice<Chosen@Color>")
 
-    agent.doTask("Piece<Red, Shape>")
+    agent.doTask("Piece<Red, Shape> THEN Notice<Red>")
     agent.doTask("Notice<Color>")
 
     agent.count("Piece<Red, Circle>") shouldBe 1

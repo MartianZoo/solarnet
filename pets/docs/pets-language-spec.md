@@ -672,17 +672,15 @@ domain rather than a selected member.
 
 A full-sequence proposal tests matching `OR` arms together with its other stages; each proposed arm
 must have a consistent realization of the complete sequence. Captures within that realization must
-agree. Selecting only the first stage uses structural compatibility before querying `HAS`
-predicates. Its compatible arms must agree on every shared binding, including whether one is
-captured; otherwise a full-sequence proposal is required to distinguish them. No binding is
-inferred from an unselected or unrelated expression. Shared `X` must have one consistent value
-across all accepted realizations.
+agree. A proposal that binds shared choices must describe the complete linked sequence; a first
+stage alone does not select the remaining stages. No binding is inferred from an unselected or
+unrelated expression. Shared `X` must have one consistent value across all accepted realizations.
 
 A stage is permitted only after every shared variable it uses has a concrete selected value,
 including variables in its requirements, metrics, or refinements. The supplying change may occur
 later than an observation of its selected value. A stage that uses none of those variables places no such requirement on them.
-A first-stage selection constrains the remaining sequence to the same shared values; later
-independent choices may remain open. Shared `X` obeys the same availability rule. Predicates
+Narrowing a linked sequence constrains its stages to the same shared values; later independent
+choices may remain open. Shared `X` obeys the same availability rule. Predicates
 discharged by selecting a value describe the selection world (T13-10).
 
 > **Non-normative example — Utopia Invest.**

@@ -1,8 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -33,8 +32,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan>")
-          selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -57,8 +55,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan>")
-          selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
         }
         .expect("0 PlayedEvent<Kim, Class<$LawSuit>>, PlayedEvent<Stan, Class<$LawSuit>>")
   }
@@ -81,8 +78,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan>")
-          selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -106,8 +102,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan>")
-          selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -132,8 +127,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "LawSuit FROM ProjectCard",
               "3 MC",
           )
-          doTask("3 MC<Kim FROM Stan>")
-          selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
         }
         .expect("4 MC<Kim>, -3 MC<Stan>")
   }
@@ -157,8 +151,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan>")
-          selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -175,7 +168,7 @@ internal class LawSuitTest : TfmSandboxTest() {
       )
     }
 
-    shouldThrow<TaskException> {
+    shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks(*playCardTasks("LawSuit"))
 
@@ -183,7 +176,7 @@ internal class LawSuitTest : TfmSandboxTest() {
             "2 Pay<> FROM MC",
             "LawSuit FROM ProjectCard",
         )
-        doTask("3 MC<Kim FROM Stan>")
+        doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
       }
     }
     kim.assertCounts(36 to "MC", 9 to "ProjectCard")
@@ -203,7 +196,7 @@ internal class LawSuitTest : TfmSandboxTest() {
     advanceUntilActionPhase()
     kim.setToExMachina(20, "MC")
 
-    shouldThrow<TaskException> {
+    shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks(*playCardTasks("LawSuit"))
 
@@ -211,7 +204,7 @@ internal class LawSuitTest : TfmSandboxTest() {
             "2 Pay<> FROM MC",
             "LawSuit FROM ProjectCard",
         )
-        doTask("3 MC<Kim FROM Stan>")
+        doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
       }
     }
     kim.assertCounts(20 to "MC", 10 to "ProjectCard")
@@ -247,7 +240,7 @@ internal class LawSuitTest : TfmSandboxTest() {
             "2 Pay<> FROM MC",
             "LawSuit FROM ProjectCard",
         )
-        doTask("3 MC<Kim FROM Stan>")
+        doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
       }
     }
     kim.assertCounts(42 to "MC", 10 to "ProjectCard")
@@ -281,8 +274,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan>")
-          selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
         }
         .expect("MC<Kim>, -3 MC<Stan>, 0 MC<Rob>")
   }
@@ -299,16 +291,15 @@ internal class LawSuitTest : TfmSandboxTest() {
       )
     }
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks(
             *playCardTasks("LawSuit"),
             "2 Pay<> FROM MC",
             "LawSuit FROM ProjectCard",
         )
-        // Select the linked transfer before testing an incompatible victim and card owner.
-        selectOnlyTask()
-        narrowTask("3 MC<Kim FROM Rob> THEN PlayedEvent<Rob, Class<LawSuit>> FROM LawSuit")
+        // Stan attacked, but the omitted gate must still reject charging uninvolved Rob.
+        doTask("3 MC<Kim FROM Rob> THEN PlayedEvent<Rob, Class<LawSuit>> FROM LawSuit")
       }
     }
     kim.assertCounts(42 to "MC", 10 to "ProjectCard")
@@ -333,8 +324,7 @@ internal class LawSuitTest : TfmSandboxTest() {
           "2 Pay<> FROM MC",
           "LawSuit FROM ProjectCard",
       )
-      doTask("3 MC<Kim FROM Stan>")
-      selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+      doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
     }
 
     // Energy Tapping and Law Suit each cost Stan a point.

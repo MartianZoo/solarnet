@@ -31,7 +31,7 @@ internal class TerraformingDealTest : TfmGameplayTest() {
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$TerraformingDeal>>")
     kim.completeOperation {
       doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
-      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
+      doTasks("PartyLeader<Scientists> THEN PartyDelegate<Scientists>", "PartyFollower<Scientists>")
       autoExecNow(EAGER)
     }
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")

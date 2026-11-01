@@ -234,7 +234,7 @@ uniqueness, and distinguish selection from execution. Agent tests include subseq
 Admin work; raw engine uniqueness tests must exclude those later transactions. Combined
 resource-total submission belongs in Agent, not engine. Restore the single production money amount;
 keep unrelated card rewards written separately. See
-[the engine review](ENGINE_CONTRACT.md#task-identity-optional-queries-and-conveniences--items-10-1315-and-17).
+[the engine review](ENGINE_CONTRACT.md#identifying-the-permitted-task).
 
 ### Test categories we care about
 

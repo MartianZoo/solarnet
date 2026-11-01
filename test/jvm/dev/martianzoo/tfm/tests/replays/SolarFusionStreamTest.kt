@@ -353,7 +353,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
       ER.buyCards(0)
     }
     ER.playProject(MarsUniversity, 2, steel = 2) {
-      doTask("-ProjectCard")
+      doTask("-ProjectCard THEN ProjectCard")
     }
     JR.playProject(RobotPollinators, 9)
     JR.playProject(MedicalLab, 13)
@@ -368,7 +368,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     // Repair payment and final dashboard can both be reproduced.
     ER.playProject(GhgFactories, steel = 4)
     ER.playProject(RoboticWorkforce, 9) {
-      doTask("-ProjectCard")
+      doTask("-ProjectCard THEN ProjectCard")
       doTask("CopyProductionBox<$GhgFactories>")
     }
     JR.playProject(PhobosSpaceHaven, 22, titanium = 1)
@@ -376,7 +376,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.sellPatents(1)
     KB.playProject(Tardigrades, 1)
     ER.playProject(GeneRepair, 12) {
-      doTask("-ProjectCard")
+      doTask("-ProjectCard THEN ProjectCard")
     }
     ER.cardAction1(RedShips)
     JR.sellPatents(2)

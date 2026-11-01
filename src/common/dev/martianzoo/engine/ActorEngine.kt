@@ -2,8 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.engine.Exceptions.AbortTransactionException
 import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
-import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
@@ -32,7 +30,6 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
@@ -62,12 +59,11 @@ import dev.martianzoo.state.TaskResult
  * are not undone.
  *
  * Player selection is refused while an ordinary Admin task can complete under the existing
- * selection probe. A selected task retains priority and can retain partial choices. Complete
- * enumeration of legal Admin choices remains under review.
+ * selection probe. A selected task retains priority and can retain partial choices. Agent's
+ * mandatory Admin loop throws after a complete unsuccessful pass; Player inference is limited.
  *
  * [transact] groups commands and caller-supplied task handling in a rollback scope. That block may
- * include several transactions under the proposed contract; its current behavior is described
- * below.
+ * include several transactions; its behavior is described below.
  */
 public class ActorEngine
 internal constructor(
@@ -88,7 +84,6 @@ internal constructor(
     public val actor: Actor,
     private val instructor: Instructor,
     private val worldTransaction: WorldTransaction,
-    private val elaborator: PetElaborator,
     private val transactions: Transactions,
     private val trialWorld: () -> SpeculativeWorld,
 ) {
@@ -283,18 +278,15 @@ internal constructor(
    * or changing the task. [quantifierOmitted] allows the pending quantifier to fill an omitted
    * amount rule. The task must belong to [actor]; an incompatible narrowing throws.
    *
-   * This checks instruction compatibility, including a chosen first `THEN` stage. It does not
-   * execute effects or final invariant checks and therefore does not establish legal narrowing
-   * under the proposed whole-transaction definition.
+   * This checks instruction compatibility, including consistent choices across `THEN`. It does not
+   * execute effects or final invariant checks and therefore does not establish legal narrowing by
+   * the transaction analysis used for execution.
    */
   public fun prepareTaskNarrowing(
       taskId: TaskId,
       narrowing: InstructionTree,
       quantifierOmitted: Boolean = false,
-  ): InstructionTree =
-      prepareNarrowing(taskId, narrowing, quantifierOmitted).let {
-        it.selectedThen ?: it.effective
-      }
+  ): InstructionTree = prepareNarrowing(taskId, narrowing, quantifierOmitted)
 
   /**
    * Returns the immediate quantity bound for a change with concrete gain/removal targets, or null
@@ -308,31 +300,18 @@ internal constructor(
   // TODO(ENGINE_CONTRACT): Review exposing this incomplete capacity check outside the engine.
   public fun changeLimit(change: Change): Int? = instructor.changeLimit(change)
 
-  private data class PreparedNarrowing(
-      val effective: InstructionTree,
-      val selectedThen: Then?,
-  )
-
   private fun prepareNarrowing(
       taskId: TaskId,
       narrowing: InstructionTree,
       quantifierOmitted: Boolean,
-  ): PreparedNarrowing {
+  ): InstructionTree {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
       throw TaskException("`$actor` cannot narrow a task assigned to `${task.assignee}`")
     }
     val effective = effectiveNarrowing(narrowing, task.instruction, quantifierOmitted)
-    if (effective.narrows(task.instruction, reader)) return PreparedNarrowing(effective, null)
-    val selectedThen = selectFirstStageOrNull(task.instruction, effective)
-    if (selectedThen != null) {
-      if (task.then != null) {
-        throw TaskException("cannot select the first stage of a `THEN` with an outer continuation")
-      }
-      return PreparedNarrowing(effective, selectedThen)
-    }
     effective.ensureNarrows(task.instruction, reader)
-    return PreparedNarrowing(effective, null)
+    return effective
   }
 
   /**
@@ -355,8 +334,7 @@ internal constructor(
         var effectiveNarrowing = narrowing
         if (!task.selected) {
           val prepared = prepareNarrowing(taskId, narrowing, quantifierOmitted)
-          val narrowsBeforeHandoff =
-              prepared.selectedThen != null || prepared.effective != task.instruction
+          val narrowsBeforeHandoff = prepared != task.instruction
           val contextualAssignee = taskQueues.assigneeAfterContextualSelection(task)
           if (contextualAssignee != actor && narrowsBeforeHandoff) {
             throw TaskException(
@@ -403,18 +381,16 @@ internal constructor(
     if (task.deferred) {
       throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
     }
-    val prepared = prepareNarrowing(taskId, narrowing, quantifierOmitted)
-    val effectiveNarrowing = prepared.effective
+    val effectiveNarrowing = prepareNarrowing(taskId, narrowing, quantifierOmitted)
     if (effectiveNarrowing == task.instruction) {
       selectTask(tasks.getTaskData(taskId))
       return
     }
-    val continuation = prepared.selectedThen?.continuationAfterFirst() ?: task.then
 
     // Keep the chosen group unresolved; its children resolve against their own execution states.
     val resolved =
         instructor.resolve(effectiveNarrowing, worldGainNarrowing = true, expandEach = false)
-    applyResolution(task, resolved, then = continuation)
+    applyResolution(task, resolved, then = task.then)
   }
 
   /**
@@ -428,7 +404,7 @@ internal constructor(
    * This is not a count of legal concrete narrowings. The attempt uses a disposable World; source
    * listeners, callbacks, and application checks do not observe trial events.
    */
-  // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory/optional changes.
+  // Extend inference only for a concrete Canon Admin need; Player inference remains limited.
   public fun canSelectTask(taskId: TaskId): Boolean = canSelectTask(taskId, tasks)
 
   private fun canSelectTask(
@@ -477,7 +453,7 @@ internal constructor(
    * runs in a disposable World and does not invalidate existing source overlays or notify source
    * listeners.
    */
-  // TODO(ENGINE_CONTRACT): Complete inference beyond fixed mandatory/optional changes.
+  // Extend inference only for a concrete Canon Admin need; Player inference remains limited.
   public fun canExecuteTask(taskId: TaskId): Boolean {
     timeline.requireAtEnd()
     val trial = trialWorld()
@@ -910,7 +886,6 @@ internal constructor(
       if (taskData.assignee != actor) return false
       val instruction = taskData.instruction
       if (intersectTask(narrowing, instruction, quantifierOmitted) != null) return true
-      if (targetsThenFirstStage(narrowing, instruction, quantifierOmitted)) return false
       return try {
         intersectTask(narrowing, instructor.resolve(instruction), quantifierOmitted) != null
       } catch (_: NotNowException) {
@@ -937,26 +912,6 @@ internal constructor(
       return if (possibleMatches.isEmpty()) null else uniqueMatchingTask(possibleMatches)
     } catch (e: NarrowingException) {
       throw TaskException("cannot identify a task for `$narrowing`: ${e.message}", e)
-    }
-  }
-
-  private fun targetsThenFirstStage(
-      narrowing: InstructionTree,
-      existing: InstructionTree,
-      quantifierOmitted: Boolean,
-  ): Boolean {
-    val effective = effectiveNarrowing(narrowing, existing, quantifierOmitted)
-    if (effective !is Instruction || effective is Then) return false
-    val candidates =
-        when (existing) {
-          is Then -> listOf(existing)
-          is Or -> existing.instructions.filterIsInstance<Then>()
-          else -> emptyList()
-        }
-    return candidates.any { then ->
-      val first = then.first
-      val selectable = if (first is Gated) first.inner as Instruction else first
-      effective.narrows(selectable, reader)
     }
   }
 
@@ -994,26 +949,7 @@ internal constructor(
         return Gated.createTree(existing.gate, it)
       }
     }
-    if (selectFirstStageOrNull(existing, effective) != null) return effective
-    val sequences =
-        when (existing) {
-          is Then -> listOf(existing)
-          is Or -> existing.instructions.filterIsInstance<Then>()
-          else -> emptyList()
-        }
-    return sequences
-        .mapNotNull { then ->
-          val first = then.first
-          val selectable = if (first is Gated) first.inner else first
-          val head =
-              effectiveNarrowing(narrowing, selectable, quantifierOmitted, info, intersect = true)
-                  .intersect(selectable, reader.classTable, info)
-          head
-              ?.takeUnless { typedZero && it == NoOp }
-              ?.takeIf { selectFirstStageOrNull(existing, it) != null }
-        }
-        .distinct()
-        .singleOrNull()
+    return null
   }
 
   private fun effectiveNarrowing(
@@ -1023,6 +959,20 @@ internal constructor(
       info: TypeInfo = reader,
       intersect: Boolean = false,
   ): InstructionTree {
+    // A complete sequence may omit its current step's gate, just as a standalone request may.
+    // Restore that condition before intersecting shared choices; the caller still supplies every
+    // stage and the normal evaluator checks the bound gate before execution.
+    if (
+        narrowing is Then &&
+            existing is Then &&
+            existing.first is Gated &&
+            narrowing.first !is Gated
+    ) {
+      val gated = existing.first as Gated
+      return existing.withInstructions(
+          listOf(Gated.createTree(gated.gate, narrowing.first)) + narrowing.instructions.drop(1)
+      )
+    }
     if (!quantifierOmitted || narrowing !is Change) return narrowing
     fun matches(proposed: InstructionTree, instruction: InstructionTree): Boolean =
         if (intersect) proposed.intersect(instruction, reader.classTable, info) != null
@@ -1053,60 +1003,6 @@ internal constructor(
         }
         .distinct()
         .singleOrNull() ?: narrowing
-  }
-
-  private fun selectFirstStageOrNull(
-      instruction: InstructionTree,
-      narrowing: InstructionTree,
-  ): Then? {
-    if (narrowing is Then) return null
-    val revisedInstruction = narrowing as? Instruction ?: return null
-    val candidates: List<Then> =
-        when (instruction) {
-          is Then -> listOf(instruction)
-          is Or -> instruction.instructions.filterIsInstance<Then>()
-          else -> emptyList()
-        }
-    val firstStageInfo =
-        object : TypeInfo by reader {
-          override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) {
-            val type = reader.resolve(narrow)
-            val selected = reader.classTable.singleConcreteSubtype(type, reader) ?: type
-            selected.groundType.ensureSelectionNarrows(reader.resolve(wide), this)
-          }
-        }
-    return candidates
-        .mapNotNull { then ->
-          // Shared numeric choices must be supplied as X, not inferred from a stage total.
-          if (then.descendantsOfType<XScalar>().isNotEmpty()) return@mapNotNull null
-          try {
-            val loweredBinding = loweredTypeBinding(then, revisedInstruction)
-            then.selectFirstStage(revisedInstruction, firstStageInfo, loweredBinding)
-          } catch (_: NarrowingException) {
-            null
-          }
-        }
-        .singleOrNull()
-  }
-
-  private fun loweredTypeBinding(then: Then, narrow: Instruction): PetTransformer? {
-    val general = then.first as? Change ?: return null
-    val specific = narrow as? Change ?: return null
-    return PetTransformer.chain(
-        listOf(general.gaining to specific.gaining, general.removing to specific.removing)
-            .mapNotNull { (authored, proposed) ->
-              if (authored == null || proposed == null) return@mapNotNull null
-              val proposedType = reader.resolve(proposed)
-              val selected =
-                  reader.classTable.singleConcreteSubtype(proposedType, reader) ?: proposedType
-              elaborator.specializeVariables(
-                  reader.resolve(authored),
-                  selected,
-                  authored,
-                  then.typeVariables,
-              )
-            }
-    )
   }
 
   private fun uniqueMatchingTask(matches: List<Task>): TaskId {

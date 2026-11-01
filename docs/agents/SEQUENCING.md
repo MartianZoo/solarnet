@@ -95,26 +95,18 @@ A's reactions is deferred instead; it waits for all other work in the World
 `EACH Player { A THEN B }` gives each branch a continuation. `EACH Player { A } THEN B` is invalid:
 completing the `EACH` task admits independent branches and does not wait for them to finish.
 
-### Reviewed client view of THEN
+### Client view of THEN
 
-**Human direction, October 24, 2026; not fully implemented:** a client should see a joined `THEN`
-only while a type variable or X used across its stages remains unbound. Prefer explicit client
-substitution of that shared type or number. After binding, or when no shared binding is needed,
-show a single task with its current instruction and a separate continuation: the continuation is
-work that will be enqueued when this task finishes. In that split form, the client absolutely may
-submit only a narrowing of the current instruction; it need not repeat the continuation.
+A task retains a joined `THEN` while a shared type or X required by its first stage is unbound.
+Callers supply a complete compatible sequence or explicitly substitute X with `Task.bindXTo`.
+TaskForm can supply a shared type choice across the whole sequence. Supplying only a first-stage
+change does not reconstruct the other stages. Full proposals must retain consistent shared choices.
 
-**Selected destination, implementation to investigate:** remove accepting `3 Foo` for joined
-`X Foo THEN X Bar` by reconstructing X and then creating `3 Bar`. Do not move that convenience into the agent. Requiring
-divisibility for a first stage `3X Foo` illustrates why inferring a binding backward from its result
-is the wrong interaction. Explicitly supplying `X = 3` is different: it determines `9 Foo` and
-`3 Bar` for `3X Foo THEN X Bar`. The engine must still preserve and validate the supplied binding.
-The exact API for explicit substitution remains to be reviewed.
-
-Current `normalizeTask` can also retain a joined sequence because an outer continuation already
-occupies `Task.then`; current `selectFirstStageOrNull` accepts first-stage inference. These are
-implementation differences to investigate, not reasons to weaken the desired client description.
-Keep nested variable scopes distinct when changing the representation.
+Once those choices are bound, `normalizeTask` exposes the first instruction and stores its
+continuation separately. A later narrowing of that current instruction need not repeat the
+continuation. If the task already has a continuation, it follows the inner sequence, preserving
+its own scope in a group. The ordinary Pets prohibition on a group before `THEN` still applies;
+this does not add another continuation field or change the language's composition rules.
 
 ## Automatic effects
 
@@ -206,7 +198,7 @@ their success alone does not establish that the task routing or calculated outco
 
 Completion and cleanup still need coherent game semantics. A smaller model should remove client
 searches and overlapping lifecycle machinery rather than assume exclusive control across an entire
-operation is required. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#failure-and-recovery) selects
+operation is required. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#state-transactions-and-calls) selects
 failure-atomic engine transactions; larger rollback scopes remain a separate question. Agreement
 to retract already shared decisions or proceed after a disclosure belongs to
 [ADVERSARIAL.md](ADVERSARIAL.md).
@@ -237,7 +229,7 @@ See [Canon game flow](../../pets/docs/agents/GAME_FLOW.md#facts-in-components-fu
 ### Engine obligations
 
 **Transition note:** the dispatch/promotion mechanics below describe current behavior. The selected
-[separation of selection and execution](ENGINE_CONTRACT.md#selection-must-not-quietly-mean-execution--item-9)
+[separation of selection and execution](ENGINE_CONTRACT.md#selection-narrowing-and-execution)
 now retains groups and dispatches exposed by selection until execution. Admission and promotion
 still perform LATER/FINALLY dispatches as described below; NOW/SOON wait for execution. Deferred priority and continuation meaning remain
 unchanged.

@@ -52,7 +52,7 @@ internal class RecessionTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(*cardActionTasks("BoardOfDirectors"))
         doTask("PreludeCard<Kim, Hand>")
-        doTask("-12 MC")
+        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
         doTask("-Director<BoardOfDirectors>")
         doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
         doTask("10 MC")
@@ -86,7 +86,7 @@ internal class RecessionTest : TfmSandboxTest() {
         doTask("PROD[-MC<Stan>]")
       }
     }
-    kim.inTurn { doTasks("-PreludeCard", "Audit", "15 MC") }
+    kim.inTurn { doTasks("-PreludeCard THEN Audit THEN 15 MC", "Audit", "15 MC") }
         .expect("0 MC<Stan>, 0 MC<Rob>, PROD[0 MC<Stan>, 0 MC<Rob>]")
   }
 }

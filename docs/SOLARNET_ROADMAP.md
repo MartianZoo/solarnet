@@ -23,11 +23,10 @@ after review. **Selected** means the direction is chosen while some design remai
 
 ## Internal design and game execution
 
-[ENGINE_CONTRACT.md](agents/ENGINE_CONTRACT.md) owns client interaction requirements, distinguishing
-the selected destination from current behavior and remaining details, including Admin handling.
-The engine establishes unique execution within the requested transaction; the agent explores later
-tasks and supplies automatic choices. [ENGINE_TRANSITION_PLAN.md](agents/ENGINE_TRANSITION_PLAN.md)
-orders experiments and their evaluation; the destination may be refined as those costs become known.
+[ENGINE_CONTRACT.md](agents/ENGINE_CONTRACT.md) describes current client interaction and Admin
+handling, with possible further work in its appendix. Admin automatically handles supported Canon
+work; Player inference is a limited convenience. [Results](agents/ENGINE_TRANSITION_RESULTS.md)
+preserve the implementation experiments and decisions.
 [AGENT_CONTRACT.md](agents/AGENT_CONTRACT.md) owns the four-bucket agent responsibility inventory,
 including policies installed in the engine and remaining design questions.
 [DECISION_GRAPH.md](agents/DECISION_GRAPH.md) owns agent exploration rules and candidate strategies.

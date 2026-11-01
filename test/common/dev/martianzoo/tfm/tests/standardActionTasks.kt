@@ -8,7 +8,10 @@ internal fun playCardTasks(card: String, source: String = "Hand"): Array<String>
     )
 
 internal fun cardActionTasks(card: String, action: String = "Action1"): Array<String> =
-    arrayOf("UseAction<UseActionOnCardAction, Action1>", "UseAction<$card, $action>")
+    arrayOf(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$card, $action> THEN ActionUsedMarker<$card>",
+    )
 
 internal fun standardProjectTasks(project: String): Array<String> =
     arrayOf("UseAction<UseStandardProjectAction, Action1>", "UseAction<$project, Action1>")

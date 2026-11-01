@@ -287,11 +287,11 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       stdAction("UseAction<KelvinistsPolicy, Action1>")
       convertPlants { placeTile(6, 6) }
       playProject(MarsUniversity, 8) {
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
       }
       playProject(ResearchOutpost, 18) {
         placeTile(8, 6)
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
       }
       cardAction2(LocalShading)
       playProject(MethaneFromTitan, mc = 2, titanium = 5)
@@ -337,7 +337,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
         doTask("PartyLeader<Reds> FROM LobbyDelegate")
       }
       playProject(AtalantaPlanitiaLab, 9) {
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
       }
       playProject(RedTourismWave, 0)
       playProject(ExtractorBalloons, 20)
@@ -389,7 +389,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       playProject(CallistoPenalMines, mc = 3, titanium = 4)
       playProject(EnvoysFromVenus, 0) {
-        doTask("PartyFollower<Kelvinists>")
+        doTask("PartyFollower<Kelvinists> THEN PartyDelegate<Kelvinists>")
         doTask("PartyLeader<Kelvinists>")
       }
       playProject(Sabotage, 0) { declineTask() }
@@ -456,7 +456,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           doTask("ProjectCard FROM PlayedEvent<Class<$BribedCommittee>>")
           doTask("ProjectCard FROM PlayedEvent<Class<$Comet>>")
         }
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
       }
       playProject(CeosFavoriteProject, 0) { addCardResources(ExtractorBalloons) }
       playProject(SmallAnimals, 5) { doTask("PROD[-Plant<SoloOpponent>]") }
@@ -508,12 +508,12 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(Omnicourt, mc = 2, steel = 2)
       playProject(GhgFactories, mc = 2, steel = 2)
       playProject(AiCentral, mc = 4, steel = 4) {
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
       }
       cardAction1(AiCentral)
       cardAction2(LocalShading)
       playProject(OlympusConference, 7) {
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
       }
       stdAction("UseAction<LobbyAction, Action1>") {
         doTask("PartyLeader<Kelvinists> FROM LobbyDelegate")
@@ -569,7 +569,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction2(ExtractorBalloons)
       playProject(AntiGravityTechnology, 13) {
         doTask("ProjectCard FROM Science")
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
       }
       cardAction1(Tardigrades)
       playProject(SpecialPermit, 2) {
@@ -581,7 +581,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(SmallAnimals)
       playProject(RoverConstruction, mc = 1, steel = 1)
       playProject(BactoviralResearch, 7) {
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
         addCardResources(NitriteReducingBacteria, 9)
       }
       cardAction2(NitriteReducingBacteria)

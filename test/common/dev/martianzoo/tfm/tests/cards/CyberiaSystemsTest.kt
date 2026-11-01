@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -22,7 +23,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
         "16 Pay<> FROM MC",
         "CyberiaSystems FROM ProjectCard",
         "PROD[Steel]",
-        "CopyProductionBox<Mine>",
+        "CopyProductionBox<Mine> THEN CopyProductionBox<CardFront>",
         "PROD[Steel]",
     )
     doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
@@ -45,7 +46,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
           doTask("BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
           doTasks(
-              "CopyProductionBox<ResearchNetwork>",
+              "CopyProductionBox<ResearchNetwork> THEN CopyProductionBox<CardFront>",
               "PROD[MC]",
               "CopyProductionBox<MedicalLab>",
               "PROD[1 MC]",
@@ -70,7 +71,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
           doTask("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
           doTasks(
-              "CopyProductionBox<Mine>",
+              "CopyProductionBox<Mine> THEN CopyProductionBox<CardFront>",
               "PROD[Steel]",
               "CopyProductionBox<Gyropolis>",
               "PROD[-2 Energy]",
@@ -95,7 +96,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           "16 Pay<> FROM MC",
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
-          "CopyProductionBox<Mine>",
+          "CopyProductionBox<Mine> THEN CopyProductionBox<CardFront>",
           "PROD[Steel]",
           "CopyProductionBox<IndustrialMicrobes>",
           "PROD[Energy]",
@@ -112,7 +113,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
         doTasks(*playCardTasks("CyberiaSystems"))
         doTasks("16 Pay<> FROM MC", "CyberiaSystems FROM ProjectCard")
         doTask("PROD[Steel]")
-        doTask("CopyProductionBox<Mine>")
+        doTask("CopyProductionBox<Mine> THEN CopyProductionBox<CardFront>")
         doTask("PROD[Steel]")
         doTask("CopyProductionBox<Mine>")
       }
@@ -122,7 +123,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot copy itself`() {
     initializeGame()
-    shouldThrow<TaskException> {
+    shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks(
             *playCardTasks("CyberiaSystems"),
@@ -130,7 +131,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
             "CyberiaSystems FROM ProjectCard",
             "PROD[Steel]",
         )
-        doTask("CopyProductionBox<CyberiaSystems>")
+        doTask("CopyProductionBox<CyberiaSystems> THEN CopyProductionBox<CardFront>")
       }
     }
   }
@@ -150,7 +151,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
           "Steel",
-          "CopyProductionBox<MagneticFieldGeneratorsPromo>",
+          "CopyProductionBox<MagneticFieldGeneratorsPromo> THEN CopyProductionBox<CardFront>",
           "PROD[-4 Energy]",
           "PROD[2 Plant]",
           "2 Plant",

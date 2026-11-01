@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -47,6 +49,23 @@ internal class AiCentralTest : TfmSandboxTest() {
   internal fun `Cannot use a second action that AI Central does not have`() {
     shouldThrow<DeadEndException> { useSecondAction() }
     kim.inTurn { doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard") }
+  }
+
+  @Test
+  internal fun `Using AI Central cannot mark Inventors Guild as used instead`() {
+    kim.exMachina("$AiCentral, $InventorsGuild")
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTasks(
+            "UseAction<UseActionOnCardAction, Action1>",
+            "UseAction<AiCentral, Action1> THEN ActionUsedMarker<InventorsGuild>",
+        )
+      }
+    }
+    kim.assertCounts(0 to "ActionUsedMarker")
+
+    kim.inTurn { doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard") }.expect("2 ProjectCard")
+    kim.assertCounts(1 to "ActionUsedMarker<AiCentral>", 0 to "ActionUsedMarker<InventorsGuild>")
   }
 
   private fun useSecondAction() {

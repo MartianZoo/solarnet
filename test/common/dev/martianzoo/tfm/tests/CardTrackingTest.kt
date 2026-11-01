@@ -41,7 +41,9 @@ internal class CardTrackingTest : TfmTest() {
     agent.runOperation("ProjectCard")
 
     agent.runOperation("UseAction<UseActionOnCardAction, Action1>") {
-      doTask("UseAction<SelfReplicatingRobots, Action1>")
+      doTask(
+          "UseAction<SelfReplicatingRobots, Action1> THEN ActionUsedMarker<SelfReplicatingRobots>"
+      )
 
       doTask("StageForReplicatedProject<Class<Mine>>")
       autoExecNow(EAGER)
@@ -78,7 +80,9 @@ internal class CardTrackingTest : TfmTest() {
     agent.runOperation("ProjectCard")
 
     agent.runOperation("UseAction<UseActionOnCardAction, Action1>") {
-      doTask("UseAction<SelfReplicatingRobots, Action1>")
+      doTask(
+          "UseAction<SelfReplicatingRobots, Action1> THEN ActionUsedMarker<SelfReplicatingRobots>"
+      )
 
       doTask("StageForReplicatedProject<Class<Mine>>")
       autoExecNow(EAGER)
@@ -354,8 +358,9 @@ internal class CardTrackingTest : TfmTest() {
 
     agents[holder].runOperation("LawSuit FROM ProjectCard") {
       selectOnlyTask()
-      doTask("3 MC<$holder FROM $attacker>")
-      selectTask("PlayedEvent<$attacker, Class<LawSuit>> FROM LawSuit!")
+      doTask(
+          "3 MC<$holder FROM $attacker> THEN PlayedEvent<$attacker, Class<LawSuit>> FROM LawSuit"
+      )
     }
 
     game.events.changesSince(before).mapNotNull { it.notes } shouldBe listOf("Cards: LawSuit")

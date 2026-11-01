@@ -22,7 +22,7 @@ internal class MarsUniversityTest : TfmSandboxTest() {
               "Research FROM ProjectCard",
           )
           doTask("2 ProjectCard<Kim, Hand>")
-          doTasks("-ProjectCard", "-ProjectCard")
+          doTasks("-ProjectCard THEN ProjectCard", "-ProjectCard THEN ProjectCard")
           doTask("ProjectCard<Kim, Hand>")
           doTask("ProjectCard<Kim, Hand>")
         }

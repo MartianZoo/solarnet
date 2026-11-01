@@ -642,7 +642,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // supplies the recorded two titanium and two M€ placement bonuses.
       playProject(CulturalMetropolis, 20) {
         placeTile(6, 9)
-        doTask("PartyFollower<Reds>")
+        doTask("PartyFollower<Reds> THEN PartyDelegate<Reds>")
         doTask("PartyLeader<Reds>")
       }
     }
@@ -972,7 +972,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn {
       // "I'm going to envoys from Venus ... put two delegates in one party ... unity."
       playProject(EnvoysFromVenus, 1) {
-        doTask("PartyFollower<Unity>")
+        doTask("PartyFollower<Unity> THEN PartyDelegate<Unity>")
         doTask("PartyFollower<Unity>")
       }
       // board-21-13-22.jpg shows Yellow leading an otherwise empty player delegation in Unity

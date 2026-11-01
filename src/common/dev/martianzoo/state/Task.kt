@@ -21,10 +21,7 @@ public data class Task(
     /** Who currently has exclusive authority to advance this task. */
     val assignee: Actor,
 
-    /**
-     * Whether this is the selected task. In the proposed priorities it is P0, before ordinary Admin
-     * and Player work.
-     */
+    /** Whether this is the selected task. It is P0, before ordinary Admin and Player work. */
     val selected: Boolean = false,
 
     /**
@@ -50,9 +47,6 @@ public data class Task(
      * No task may be selected while a task with an earlier [Deferral] remains. When no ordinary
      * task remains, every task with the earliest remaining deferral becomes ordinary at once.
      */
-    // TODO(ENGINE_CONTRACT): deferral alone omits the proposed P1 Admin / P2 Player distinction.
-    // Whole-batch promotion is proposed; checking only after a transaction is a further timing
-    // recommendation. Both remain subject to human review.
     val deferral: Deferral = Deferral.NONE,
 ) {
   init {

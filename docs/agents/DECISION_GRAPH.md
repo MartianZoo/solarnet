@@ -13,8 +13,8 @@
 > responsibility inventory and the separate standing-policy direction.
 
 This is a separate Agent project, not an acceptance checklist for the current
-[engine API transition](ENGINE_TRANSITION_PLAN.md). During that transition, Agent only needs to
-carry over useful behavior removed from engine so existing clients keep working.
+[engine contract](ENGINE_CONTRACT.md). Player inference remains a limited convenience; supported
+Canon Admin tasks must complete without incoming client choices.
 
 ## Purpose and governing rule
 
@@ -45,7 +45,7 @@ explicit request within an identified permitting task. It combines the task and 
 and can examine the entire requested transaction to establish that exactly a single concrete
 narrowing succeeds. It does not execute subsequently queued tasks to decide this, including Admin
 work. Task finding itself may remain a simple descriptive comparison, without trying consequences
-to choose between different tasks. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#execute-the-clients-intended-request)
+to choose between different tasks. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#identifying-the-permitted-task)
 owns the precise rule and remaining implementation questions.
 
 The agent answers different questions: what to ask when the client has not supplied a complete
@@ -67,7 +67,7 @@ exposing the separate current instruction and continuation. Do not reconstruct X
 submitted first-stage result in either module. On the experimental branch, Agent translates an
 explicitly submitted resource total into individual engine calls; production tests use this for
 their three money sources, while unrelated rewards stay separate. See
-[the contract](ENGINE_CONTRACT.md#task-identity-optional-queries-and-conveniences--items-10-1315-and-17).
+[the contract](ENGINE_CONTRACT.md#identifying-the-permitted-task).
 Optional transaction trials and quantity-limit reads are reasonable engine services; neither
 certifies completion of later work.
 
@@ -79,9 +79,8 @@ stops before subsequent task execution. Outcome comparison below also includes s
 and therefore must not be reused as the engine's
 rule for accepting an ambiguous request.
 
-[ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) describes the autonomous experiment sequence.
-The remainder of this document governs agent exploration, not a requirement to build the whole
-search system before trying the engine changes.
+[ENGINE_TRANSITION_RESULTS.md](ENGINE_TRANSITION_RESULTS.md) retains the engine experiments.
+The remainder of this document governs future Agent exploration.
 
 ## What the graph describes
 

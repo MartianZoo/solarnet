@@ -1295,7 +1295,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm going to discard this one to draw a new card because of my Mars University effect.
       // Thanks. That is better."
       playProject(RedSpotObservatory, 17) {
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
       }
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
@@ -1992,7 +1992,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "For 10 money, I'm going to play Bacto Viral Research. ... discard a card from hand to draw
       // a card. ... add all six of mine to my nitrate reducing bacteria."
       playProject(BactoviralResearch, 10) {
-        doTask("-ProjectCard")
+        doTask("-ProjectCard THEN ProjectCard")
         fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria").done()
       }
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()

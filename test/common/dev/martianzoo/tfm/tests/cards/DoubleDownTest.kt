@@ -177,7 +177,8 @@ internal class DoubleDownTest : TfmSandboxTest() {
         doTask("-42 MC")
       }
     }
-    kim.inTurn { doTasks("-PreludeCard", "Audit", "15 MC") }.expect("0 $Merger")
+    kim.inTurn { doTasks("-PreludeCard THEN Audit THEN 15 MC", "Audit", "15 MC") }
+        .expect("0 $Merger")
 
     shouldThrow<DependencyException> {
       kim.inTurn {
@@ -185,7 +186,8 @@ internal class DoubleDownTest : TfmSandboxTest() {
         doTask("CopyPrelude<Merger>")
       }
     }
-    kim.inTurn { doTasks("-PreludeCard", "Audit", "15 MC") }.expect("0 $DoubleDown")
+    kim.inTurn { doTasks("-PreludeCard THEN Audit THEN 15 MC", "Audit", "15 MC") }
+        .expect("0 $DoubleDown")
   }
 
   @Test

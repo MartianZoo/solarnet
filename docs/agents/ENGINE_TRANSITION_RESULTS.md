@@ -1,7 +1,7 @@
 # Engine transition experiment results
 
-This report is maintained in work1 and describes the experimental branch, not work1's current
-implementation. Source names and test results below refer to that branch at the stated revision;
+This report records work in the experimental checkout. Earlier sections also describe the original
+work1 documentation process; they are historical, not a claim about a sibling checkout's current state. Source names and test results below refer to that branch at the stated revision;
 local evidence files remain in `/Users/dev/solarnet/engine-transition-experiments/_local/`.
 
 The initial retained experiments were committed through `8ceb7706b`; `main` at `f1055a08b`
@@ -15,9 +15,9 @@ here. During review, the user requested integrating main and committing those de
 work1; that documentation commit is `2b3ad9c8a`, based on main `4974858d2`. The code and its review
 fixes belong to the experiment checkout; work1's commit contains documentation only.
 
-[ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns the destination;
-[ENGINE_TRANSITION_PLAN.md](ENGINE_TRANSITION_PLAN.md) records the implementation checklist,
-settled owner decisions, and scope limits. General Player choice search in
+[ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) describes the current implementation, with further work
+in its appendix. This report preserves historical evidence; earlier open decisions below are not
+current requirements. The retired transition plan's information is accounted for at the end. General Player choice search in
 [DECISION_GRAPH.md](DECISION_GRAPH.md) is outside this engine API miniproject.
 Evidence is in the experimental checkout's `_local/engine-transition-evidence/`. The original
 report is preserved there as
@@ -1203,3 +1203,72 @@ research batching replaces the previous interleaving expectation; no additional 
 no new skips were added, and no further Canon or replay changes were needed for this adoption.
 Final review against REVIEW_CRITERIA found no outstanding rejection criterion. The strict rule is
 now implemented rather than left as a restored experiment.
+
+
+## Transition plan retirement and retained information — November 1
+
+The transition plan was retired after the linked-choice simplification. Its useful information is
+retained as follows; completed instructions and superseded questions are not carried forward as TODOs.
+The exact former document remains available in Git history at `238b210da`.
+
+| Former plan content | Current home |
+| --- | --- |
+| Task matching, calculated amounts, context-class disambiguation, equivalence ignoring IDs/causes but preserving continuations | ENGINE_CONTRACT, identifying the permitted task |
+| Selection without execution, partial choices, group/EACH/dispatch admission, NOW/SOON owner handoffs | ENGINE_CONTRACT, selection and active-player handoffs; SEQUENCING |
+| Strict Admin passes, FIFO retries, selected-task priority, deferred promotion, and distinct missing-input/analysis failures | ENGINE_CONTRACT, which task acts next; strict Admin adoption evidence above |
+| Agent client call, session-owned policies/checks, nested callbacks, full-call results and rollback, external-state exclusions | ENGINE_CONTRACT, state/transactions/calls and Agent policies |
+| Premise-owned Turmoil deck and solo locations, export and replay acceptance | ENGINE_CONTRACT scope; integration evidence above |
+| Single exMachina correction operation, System edits, unfinished-work check, retained selections, removed hook | EX_MACHINA; ENGINE_CONTRACT corrections |
+| Finite candidate analysis, no later-task execution, distinct incomplete analysis, measurements and unsupported forms | ENGINE_CONTRACT executable-instruction section; measurements and trial-isolation results above |
+| API deletions and retained module clients | TASK_HANDLING public API inventory; implementation evidence above |
+| City placement, Protected Habitats, Land Claim, calculated matching, delayed failure and restoration acceptance cases | Earlier Canon evidence and verification results in this report; corresponding functional suites |
+| General Player search/policies, operation lifecycle, correction recalculation, amount/sequence questions | ENGINE_CONTRACT further-work appendix; bounded TODO entries |
+| Worktree baseline, original evidence paths, reviews, experimental order | Historical sections above and the original first-pass report |
+| Generic execution procedure and final review gates | TESTING and REVIEW_CRITERIA |
+
+The owner's November 1 clarification limits required inference to actual supported Canon Admin
+work. Player inference is a reasonable-effort convenience and may be reduced; the former general
+inference ambition is not an outstanding transition requirement. Whole-action planning remains a
+separate, deliberate Agent project.
+
+## Explicit linked choices and descriptive contract — November 1
+
+Removed `selectFirstStage`, ActorEngine's first-stage matching/binding fallback, its temporary
+PreparedNarrowing representation, and the now-unused elaborator dependency. Callers supply a
+complete compatible sequence for linked choices; after binding, ordinary normalization exposes the
+current instruction and its continuation. Existing outer continuations compose through the current
+Pets sequence representation, retaining their independent X and type-variable scopes. No additional
+continuation slot, task stage, or game-specific engine handler was added. A group before THEN still
+fails under the existing Pets rule.
+
+Complete linked requests may omit their current step's gate. Restoring that gate preserves the
+offered sequence's variable scope so the chosen type also specializes the condition. Law Suit's
+existing uninvolved-opponent scenario now submits this exact form: Stan attacked Kim, but a request
+to charge funded Rob must fail with RequirementException and restore all three players' counts.
+Cyberia still permits its later production-box choice, including wild-tag composition. AI Central
+has a focused scenario rejecting a different card's used marker and then successfully using the
+proper action. Granted reuse such as Viron's remains distinct from a normal action's used marker.
+
+Migrated Canon scenarios, sample commands, and active replay inputs without changing their resource,
+production, ownership, card-tracking, or final-state assertions. Law Suit's now fully specified
+transfer runs as queued Admin work, so its redundant manual completion was removed. Updated rejection
+types distinguish a found task's unmet gate/location constraint from failure to identify a task.
+Removed the obsolete first-stage API checks, including the synthetic optional-head aggregate-observer
+case; this does not claim to preserve its first-stage-only input convention, and no supported Canon
+Admin need for that case has been identified. This work adds no general inference requirement.
+
+Verification:
+
+- Engine: 638 passed; Agent: 85 passed; script: 46 passed.
+- Card/rule suite: 1,359 total, 1,333 passed, 26 existing skips, no failures.
+- All 23 active replays passed. All 46 full/short JSON exports reconstructed successfully.
+- Pets `Lang03NarrowingTest` passed; both Web browser tests passed.
+- `spotlessCheck` and `git diff --check` passed.
+- After the final review strengthened the existing Law Suit negative, the complete Law Suit suite
+  passed again, with formatting checked. No game assertions were weakened.
+
+Opus/high reviewed the code and final caller diff. Its granted-action finding was fixed. Follow-up
+review confirmed independent continuation scopes, withdrew unsupported dead-code/group claims, and
+requested the stronger Canon attacker-gate check above. Final consensus was to land after that check
+passed. The retired plan's information disposition is recorded in the preceding section; the
+contract now describes current behavior and isolates further ideas in its appendix.

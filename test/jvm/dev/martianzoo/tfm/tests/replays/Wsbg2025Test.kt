@@ -596,7 +596,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           *playCardTasks("$MarsUniversity"),
           "6 Pay<> FROM MC",
           "$MarsUniversity FROM ProjectCard",
-          "-ProjectCard",
+          "-ProjectCard THEN ProjectCard",
           "ProjectCard",
       )
     }
@@ -639,7 +639,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$CheungShingMars>",
           "PROD[3 MC]",
-          "-ProjectCard",
+          "-ProjectCard THEN ProjectCard",
           "ProjectCard",
       )
     }
@@ -886,7 +886,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           *playCardTasks("$InventorsGuild"),
           "9 Pay<> FROM MC",
           "$InventorsGuild FROM ProjectCard",
-          "-ProjectCard",
+          "-ProjectCard THEN ProjectCard",
           "ProjectCard",
       )
       doTasks(
@@ -927,7 +927,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "16 Pay<> FROM MC",
           "$DesignedMicroorganisms FROM ProjectCard",
           "PROD[2 Plant]",
-          "-ProjectCard",
+          "-ProjectCard THEN ProjectCard",
           "ProjectCard",
       )
       doTasks(
@@ -1028,7 +1028,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           *playCardTasks("$DevelopmentCenter"),
           "9 Pay<> FROM MC",
           "$DevelopmentCenter FROM ProjectCard",
-          "-ProjectCard",
+          "-ProjectCard THEN ProjectCard",
           "ProjectCard",
       )
     }
@@ -1103,7 +1103,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "8 Pay<> FROM MC",
           "$MassConverter FROM ProjectCard",
           "PROD[6 Energy]",
-          "-ProjectCard",
+          "-ProjectCard THEN ProjectCard",
           "ProjectCard",
       )
     }
@@ -1413,7 +1413,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "11 Pay<> FROM MC",
           "$MedicalLab FROM ProjectCard",
           "PROD[5 MC]",
-          "-ProjectCard",
+          "-ProjectCard THEN ProjectCard",
           "ProjectCard",
       )
       // Development Center timing is provisional.
