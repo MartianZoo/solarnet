@@ -1173,3 +1173,33 @@ functional suites also pass: 1,332 card/rule scenarios with the same 26 existing
 unchanged card/rule and replay results. Opus/high confirmed that the diff deletes exactly the
 requested eleven cases and their unused setup; its formatting finding was fixed before the
 successful verification. Final review found no production change or unrelated test deletion.
+
+
+### Strict Admin adoption — November 1
+
+The owner selected enforcement after the functional experiment and deletion of obsolete tests.
+AutoExecLoop now retains every rejected ordinary Admin task and retries after any success. A
+complete nonempty pass with no successful task throws, even when Player work could enable it.
+Selected Player work retains P0 priority; deferred Admin work enters these passes after promotion.
+Missing input, incomplete analysis, and ordinary rule failures retain their distinct reporting.
+An escaping failure restores the whole Agent call. No new scheduling phase or gameplay helper was
+introduced, and no general completion-proof claim follows from this rule.
+
+The previously approved research scenario now completes each Player's card choices and payment
+together and retains both card-count and cash assertions. That existing edit is included with
+this adoption. Pluto's active-Player handoff, recipient execution, and lock timing remain unchanged.
+
+Verification with strict Admin enabled passed: 1,332 active card/rule scenarios, including Pluto
+and batched research, with the same 26 existing skips. All 23 active replays passed with full and
+short exports and fresh reconstruction (46 game files). Engine, Agent, script, terminal, and Web
+browser checks also passed. The functional suites ran against the changed runtime; a final run
+after correcting KDoc wrapping passed all checks including formatting. Command:
+`./gradlew :tfm-tests:jvmTest :tfm-tests:replayTest :engine:jvmTest :agent:jvmTest :script:jvmTest :repl:test :web:jsBrowserTest -PreplayExports spotlessCheck`.
+
+Opus/high confirmed the strict-pass implementation and rollback behavior. Its KDoc formatting
+finding was fixed. On follow-up with the functional results, it withdrew speculative import and
+saved-game concerns and confirmed no remaining functional issue or required change. The approved
+research batching replaces the previous interleaving expectation; no additional tests were deleted,
+no new skips were added, and no further Canon or replay changes were needed for this adoption.
+Final review against REVIEW_CRITERIA found no outstanding rejection criterion. The strict rule is
+now implemented rather than left as a restored experiment.

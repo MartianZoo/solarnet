@@ -439,32 +439,31 @@ Lower numbers take precedence.
 | P3 | `LATER` tasks |
 | P4 | `FINALLY` tasks |
 
-A Player cannot select a P2 task while Admin can still perform P1 work. There is no separate
-requirement for Admin's queue to be empty: if Admin has exhausted what it can do and pending work
-needs a game-state change from a Player, the Player may select a task. If Admin is waiting for a
-required external input under the current game model, surface that need before the Player acts.
-This does not require any particular Canon card to keep using such an input. A selected P0 task
-must execute before any other task or transaction. An Admin task created separately waits. If the
-selected task itself is reassigned to Admin, Admin executes that same P0 task before any other work.
-`dropTask(selectedTaskId)` is an external correction request with acknowledged risk, outside the
-coherent in-game model. Its existence is not a gameplay exception to selected-task priority.
-Admin tasks its execution creates wait until that transaction finishes.
-The synchronous client-facing call returns only after all currently executable Admin work finishes;
-waiting and deferred Admin tasks may remain. This also rules out a callback inviting another
-Player command while executable P1 work remains.
+A Player cannot select a P2 task while Admin can still perform P1 work. Agent attempts ordinary
+Admin work in FIFO order, retrying failed tasks after any task succeeds. A complete nonempty pass
+with no successful task throws, even if a manual or automatic Player could unblock the work.
+A failure escaping the Agent call restores the whole call, including the initiating Player action.
+An unresolved Admin choice, unmet gate, or unavailable change does not authorize returning control
+to Player work. Missing application input and incomplete analysis retain their distinct errors;
+on a stalled pass, missing input takes precedence, followed by incomplete analysis, then a retained
+rule failure. Deferred Admin tasks join these passes only after promotion.
 
-**Human clarification:** retrying an earlier failed task after later tasks succeed is existing
-behavior, as when negative victory points wait for positive scoring. It does not authorize
-silently returning after a completely unsuccessful pass. Existing gate, unavailable input, and
-Player-task waiting cases are described in [the experiment results](ENGINE_TRANSITION_RESULTS.md)
-and [the source inventory](TASK_HANDLING.md); their final classification remains open.
-The experimental loop can retain unresolved Admin tasks, and its priority check uses a concrete
-selection trial. That is implementation evidence, not proof that the driver has exhausted every
-Canon task it could perform. Audit actual Canon waiting cases and retained failures against the
-selected rule above. The experimental branch now supplies Turmoil's complete Global Event order
-in the premise and draws events without caller commands; Admin places neutral delegates through
-unique narrowing. This contract does not derive a general engine rule from the old caller-supplied
-draw workaround.
+A selected P0 task must execute before any other task or transaction. An Admin task created
+separately waits. If the selected task itself is reassigned to Admin, Admin executes that same P0
+task before any other work. `dropTask(selectedTaskId)` is an external correction request with
+acknowledged risk, outside the coherent in-game model. Its existence is not a gameplay exception
+to selected-task priority. Admin tasks its execution creates wait until that transaction finishes.
+Mandatory Admin handling finishes only when no ordinary Admin work remains or a selected Player
+task takes priority. Deferred Admin tasks may remain.
+
+**Human decision — November 1:** adopt the strict unsuccessful-pass rule after the functional
+experiment passed Pluto's handoffs and lock timing, batched research purchases, and all active
+replays. Retrying an earlier failed task after later tasks succeed remains required, as when
+negative victory points wait for positive scoring. No additional LATER wrapper is required by those
+verified scenarios. See [the results](ENGINE_TRANSITION_RESULTS.md#strict-admin-adoption--november-1).
+Complete enumeration of successful narrowings remains outside the implemented finite domain;
+this scheduling rule does not claim a general completion proof. Turmoil's premise-owned event
+order and automatic neutral placement remain independent of incoming Admin commands.
 
 **Open after the October 24 review:** client-held drafts are useful, but do not yet remove
 engine-level partial narrowing. A voluntary narrowing can enable more deductions or evaluations;

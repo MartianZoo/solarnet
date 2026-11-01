@@ -273,7 +273,7 @@ internal class GameFlowTest {
   }
 
   @Test
-  internal fun researchMakesEveryPlayerQueueAvailableTogether() {
+  internal fun researchPlayersChooseAndPayInSeparateBatches() {
     val game = TfmEngine.newGame(canonicalPremise(players = 2))
     val agents = game.testAgents()
     agents[PLAYER1].autoExecPolicy = NONE
@@ -283,17 +283,24 @@ internal class GameFlowTest {
     game.testTfm(PLAYER2).exMachina("20 MC")
     agents[ADMIN].beginOperation("ResearchPhase FROM Phase")
 
-    agents[PLAYER2].doTask("4 ProjectCard<Selecting>")
-    agents[PLAYER2].doTask("-2 ProjectCard<Selecting>")
-    agents[PLAYER1].doTask("4 ProjectCard<Selecting>")
-    agents[PLAYER1].doTask("-3 ProjectCard<Selecting>")
-    // The shared payment capacity still belongs to Player 2; Player 1's choices remain usable.
-    shouldThrow<TaskException> { agents[PLAYER1].doTask("3 Pay<> FROM MC") }
-    agents[PLAYER2].doTasks("6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
-    agents[PLAYER1].doTasks("3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+    // The client finishes each Player's choice and payment before starting the next purchase.
+    agents[PLAYER2].doTasks(
+        "4 ProjectCard<Selecting>",
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    agents[PLAYER1].doTasks(
+        "4 ProjectCard<Selecting>",
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "ProjectCard<Hand FROM Selecting>",
+    )
 
     agents[PLAYER1].count("ProjectCard") shouldBe 1
     agents[PLAYER2].count("ProjectCard") shouldBe 2
+    agents[PLAYER1].count("MC") shouldBe 17
+    agents[PLAYER2].count("MC") shouldBe 14
   }
 
   @Test

@@ -28,10 +28,12 @@ import kotlin.reflect.KClass
  *
  * A gameplay call may make several engine calls. Mandatory Admin handling runs before and after
  * Player decisions, including nested calls, while [autoExecPolicy] controls Player work. A selected
- * task retains priority; an Admin task waiting on Player payment can remain pending. Complete
- * enumeration of legal Admin choices is not implemented. Admin retries unfinished analysis after
- * other work progresses; if a pass stalls with an unfinished proof, [IncompleteAnalysisException]
- * fails the whole call and restores its game changes.
+ * task retains priority. A nonempty pass through ordinary Admin work must succeed at a task;
+ * otherwise the call throws and restores its game changes, even if Player work could unblock it.
+ * Deferred Admin work is handled after promotion. Complete enumeration of legal Admin choices is
+ * not implemented. Admin retries unfinished analysis after other work progresses; if a pass stalls
+ * with an unfinished proof, [IncompleteAnalysisException] fails the whole call and restores its
+ * game changes.
  *
  * A returned [TaskResult] covers every retained change during that call, including Admin handling
  * and configured Player work. A [Throwable] escaping the call restores its game changes, including

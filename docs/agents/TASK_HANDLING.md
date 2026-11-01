@@ -487,13 +487,13 @@ These explain behavior seen through agent calls; they are not additional engine 
   until committed.
 - AutoExecLoop respects selected-task priority and runs mandatory Admin handling before optional
   Player policies. It retries waiting Admin tasks after progress and throws a retained rejection
-  after an unsuccessful pass, subject to the existing waiting exceptions. Incomplete analysis is
-  retried after progress and reported before a retained gameplay rejection when the pass stalls.
+  after any complete nonempty unsuccessful pass, even if Player work could enable it. Incomplete
+  analysis is retried after progress and reported before a retained gameplay rejection when the pass stalls.
   Missing application input is likewise retried, then reported first on a stalled pass. Optional
   Player policy still leaves its own input-dependent work pending; that carryover is separate from
   mandatory Admin reporting.
   The existing probe remains an approximation; [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries)
-  records the intended priority and open stalled-pass rule, while
+  records the selected priority and strict stalled-pass rule, while
   [the results](ENGINE_TRANSITION_RESULTS.md) record the finite choice-analysis coverage.
 - WorldTransaction runs finishing work and validation for outermost calls inside the same restoring
   block as the request. Agent decisions and queue edits also run Admin handling before returning
@@ -562,7 +562,7 @@ A second successful candidate means ambiguity, even if other candidates remain u
 fewer successes, unresolved candidate work reports `IncompleteAnalysisException`; implementation
 errors propagate. When all attempts fail, failures all reported as `DeadEndException` remain dead ends;
 other failures report current unavailability with sorted diagnostics, so candidate order cannot
-decide Admin waiting behavior.
+change this failure classification.
 Priority checks require the same unique successful choice as Admin execution. Merely having some
 successful choice is insufficient. Turmoil now draws from its premise deck and Admin completes the
 uniquely determined neutral placement without caller-supplied event or delegate choices.

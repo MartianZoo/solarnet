@@ -31,7 +31,7 @@ standing policies installed in engine. That mechanism is not an acceptance condi
 selection tests in this plan assume no applicable installed policy. `TfmGameplay` is
 for deletion; its current helpers do not set the API design.
 
-## Implementation checklist — October 29
+## Implementation checklist — November 1
 
 The owner decisions below are settled and implemented on this branch. The final verification and
 Opus review are recorded in [the results](ENGINE_TRANSITION_RESULTS.md); this checklist does not
@@ -56,6 +56,10 @@ claim a general proof for unsupported instruction forms.
   sessions sharing a World do not acquire each other's settings. Nested calls share World rollback
   depth; only the outermost call runs the `afterChanges` and completion callbacks, as documented on
   the operation API. No policy-installation framework is introduced.
+- [x] Enforce strict ordinary Admin passes: retry after success and throw after a complete pass
+  with no success, including work that could be enabled by a Player. Preserve selected-task priority,
+  deferred promotion, distinct input/analysis errors, and whole-call restoration. Functional
+  acceptance is Pluto handoff/lock behavior, batched research, and active game replay/export.
 - [x] Put Turmoil deck order and solo neutral locations in the resolved premise and exports. Admin
   performs those draws/placements without incoming client choices; focused scenarios and active
   full/short replays cover both.
@@ -117,9 +121,9 @@ These were implementation gates; the following records the owner's answers and t
    the policies and application checks when independent sessions share a World. The owner accepts the existing
    shared `AutoExecLoop`; splitting it is not required now. Admin must be retried before **every**
    automatic Player step when no task is selected. Admin must do everything it can before the
-   Player sees the state. A waiting Admin task does not alone block Player selection once Admin
-   can make no further progress; Player work may be needed to move the game forward. If the
-   current game model requires an external input, surface that need before Player work. Turmoil's
+   Player sees the state. The November 1 decision requires a complete unsuccessful ordinary
+   Admin pass to throw, even when Player work could enable it. Missing application input and
+   incomplete analysis retain their distinct errors. Turmoil's
    former caller-supplied Global Event draw has been replaced by a premise-owned deck on this branch.
    The selected P0 task must execute before any other work. Existing Player policy orders its work
    after Admin; its redesign is outside this transition. The owner selected removing `World.onTransactionComplete`; no production
@@ -296,8 +300,10 @@ without deciding its final design. Test engine semantics with Player policy `NON
 The October 30 owner clarification requires active-Player timing followed by the recipient's own
 narrowing and execution. The focused NOW/SOON implementation and Pluto lock timing are tracked in
 [the results](ENGINE_TRANSITION_RESULTS.md#focused-nowsoon-handoff-implementation--october-30)
-and the [acceptance checklist](IDENTITY.md#required-active-player-handoff). This does not select
-the separate strict ordinary-Admin-pass rule or a wholesale THEN/AND rewrite.
+and the [acceptance checklist](IDENTITY.md#required-active-player-handoff). On November 1 the owner
+also selected the strict ordinary-Admin-pass rule; its implementation is recorded in
+[the results](ENGINE_TRANSITION_RESULTS.md#strict-admin-adoption--november-1). A wholesale THEN/AND
+rewrite remains outside this increment.
 
 ### 4. Simplify the client-facing call
 

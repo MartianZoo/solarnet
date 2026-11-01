@@ -10,7 +10,6 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.Instruction.Each
-import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -170,10 +169,11 @@ internal class AutoExecLoop(
 
   /**
    * Attempts Admin work in FIFO order, retrying waiting tasks after each success. A selected Player
-   * task retains priority. Unresolved choices and explicit gates waiting on Player work can remain;
-   * a retained rejection is thrown after a pass with no progress. An unfinished proof is retried
-   * after progress and takes precedence over gameplay rejection when the pass stalls. Missing
-   * application input is also retried after progress and reported before returning to Player work.
+   * task retains priority. Every nonempty pass must succeed at a task; otherwise its retained
+   * failure is thrown, including unresolved choices and work waiting on a Player. An unfinished
+   * proof is retried after progress and takes precedence over gameplay rejection when the pass
+   * stalls. Missing application input is also retried after progress and reported before returning
+   * to Player work.
    *
    * Complete enumeration of legal narrowings remains outside this implementation.
    */
@@ -214,25 +214,13 @@ internal class AutoExecLoop(
             incomplete = incomplete ?: e
           } catch (e: NotFullySpecifiedException) {
             waiting += taskId
-            if (
-                selected != null ||
-                    !allTasks.getTaskData(taskId).instruction.isAbstract(world.reader)
-            )
-                rejection = e
+            rejection = e
           } catch (e: RequirementException) {
             waiting += taskId
-            val instruction = allTasks.getTaskData(taskId).instruction
-            if (
-                selected != null ||
-                    instruction !is Gated ||
-                    world.reader.has(instruction.gate) ||
-                    allTasks.ids().none { !isAdmin(it) && !isDeferred(it) }
-            )
-                rejection = e
+            rejection = e
           } catch (e: NotNowException) {
             waiting += taskId
-            if (selected != null || allTasks.ids().none { !isAdmin(it) && !isDeferred(it) })
-                rejection = e
+            rejection = e
           } catch (e: DeadEndException) {
             waiting += taskId
             rejection = e
@@ -242,8 +230,7 @@ internal class AutoExecLoop(
       if (!progressed) {
         inputRequired?.let { throw it }
         incomplete?.let { throw it }
-        rejection?.let { throw it }
-        return
+        throw checkNotNull(rejection) { "Admin made no progress without retaining a failure" }
       }
     }
   }

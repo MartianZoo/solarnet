@@ -24,20 +24,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   alternatives. Complete Agent calls have fixed-state measurements; groups, shared bindings,
   and unsupported nested forms remain. Resolve compact transmutations and a
   search resource limit without treating incomplete analysis as a failed transaction. Keep
-  unsupported forms and unresolved immediate effects unknown. Review Admin waiting behavior,
-  whole-call recovery limits, and custom Kotlin effects separately.
+  unsupported forms and unresolved immediate effects unknown. Review whole-call recovery limits
+  and custom Kotlin effects separately.
   The fixed optional card-removal benchmark measures 220 candidates and an expected 146 trials
   before ambiguity, about 1.95 ms through Agent on the measured machine. Larger counts and domains
   remain unmeasured. If those become costly, physical availability could exclude absent sources
   before trial without consulting invariant room; no optimization or search cap is justified yet.
-- Decide whether to adopt the strict ordinary Admin pass rule, reevaluated
-  [after NOW/SOON](docs/agents/ENGINE_TRANSITION_RESULTS.md#strict-admin-after-nowsoon--october-30).
-  No remaining functional failure was found: Pluto's active-Player handoff and owner execution,
-  lock timing, batched research purchases, and all active game replays pass under strict Admin.
-  The owner directed deletion of the eleven tests encoding obsolete Admin expectations; they are
-  not requirements to preserve or replace. Judge further work by actual game rules and observable
-  client behavior. No further Canon LATER wrapper was needed by the experiment; its runtime patch
-  remains restored pending adoption.
 - Review whether a NOW recipient needs a separate undo checkpoint before their choice. Current
   selection checkpoints restore to before the active Player's handoff, as earlier BY handoffs did.
   The focused NOW/SOON fix preserves that behavior; no separate per-recipient undo policy is selected.
