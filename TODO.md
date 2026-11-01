@@ -2,6 +2,30 @@
 
 Delete entries when they are done. Static-language and English work lives in [Pets TODO](pets/TODO.md).
 
+- New Holland's combined city/ocean tile remains unsupported. `RemoteVacuumFlowTest`
+  uses an identity-only declaration for drawing/discarding; `LatentGammaFieldTest` uses
+  the user-authorized `FakeNewHolland`, which places no city, plus explicit corrections.
+  Both exported games need their test catalogs. Preserve these limitations when reusing
+  either replay; neither demonstrates canonical New Holland support. Source and correction
+  inventory: `_local/replays/Game20261031/p9a4445506f19/README.md`.
+
+- Decide whether to expose a final score for lost solo games. `KineticCarbonStateTest` preserves
+  the archived loss at 60 TR and final resources; the website displays 90 VP, but Solarnet
+  intentionally skips its scoring phase on a solo loss. Source: `_local/replays/Game20261030/`.
+  Do not inject a scoring phase into the replay to manufacture the website's displayed total.
+
+- Preserve task disambiguation when recording `doTask(instruction, contextClass)`.
+  `AgentImpl` passes the context to the engine but omits it from the recorded command.
+  Reproduction: Sponsored Academies and Mars University offer discards together in
+  `RemoteVacuumFlowTest` generation 12; a context-qualified discard plays successfully
+  but its export fails to re-import with an ambiguous task. The replay currently uses
+  exact `selectTask` instead.
+
+- Retire `AbstractFullGameTest`, `LegacyCardTrackingFullGameTest`, and
+  `LegacyTfmTestSupport` as their remaining helper-based tests migrate. Existing explicit-task
+  replays now use `FullGameTest` / `CardTrackingFullGameTest` on `TfmGameplayTest`, with
+  plain Agents and Player autoexecution disabled.
+
 - Continue converting replay tests that use Player autoexecution or `TfmGameplay` actions to
   explicit Player `doTask`/`doTasks` submissions. Keep source-backed state checkpoints and
   expectations for effects that are not evident from those submissions. The archived

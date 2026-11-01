@@ -12,12 +12,21 @@
 >
 > **Status:** replay procedure. It intentionally contains no game-specific answers.
 
+New explicit-task conversions extend `CardTrackingFullGameTest`, which uses plain
+Agents through `FullGameTest` and `TfmGameplayTest`. Player autoexecution is disabled
+by the fixture. Use private `Agent` receiver methods for generation sections and
+`startGame()` to preserve the recording's start marker. Named card queues, state
+assertions, endpoint checks, and fresh-game export verification remain shared.
+`AbstractFullGameTest` and `LegacyCardTrackingFullGameTest` retain the older
+`TfmGameplay` helpers only for existing tests that still use them.
+
 ## Code entry points
 
-- [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
-  — search for `abstract class AbstractFullGameTest` for shared replay chronology and assertions.
-- [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
-  search for `exMachina` only when evidence proves a reconciliation is required.
+- [`FullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/FullGameTest.kt) —
+  shared replay setup, assertions, endpoint checks, and export verification. Its `exMachina`
+  helper is only for evidence-backed reconciliations.
+- [`CardTrackingFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt)
+  — named card arrivals, departures, and hand checks.
 - [`game.pets`](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/base/game.pets) — search for
   `ABSTRACT CLASS Phase` only when the archive chronology crosses setup, phase, or endgame
   transitions that the replay helper does not explain; the turn order and phase handoffs are rules
@@ -39,7 +48,11 @@ Given any player ID from an endgame or player URL, collect the machine-readable 
 1. Fetch `/api/player?id=<player-id>`. It contains the game options, selected milestones and awards,
    map state, final values and scoring for every player, and the selected player's initial and final
    details. Record every player ID and the internal game ID it reveals.
-2. Fetch `/api/game/logs?id=<player-id>&full=true` for the complete plain-text log.
+2. Download `/end_game_log?id=<player-id>` for the complete plain-text log. Preserve
+   `/api/game/logs?id=<player-id>&generation=<n>` for every generation as well: these JSON
+   entries retain timestamps and typed resource data. Do not rely on `full=true`; the current
+   API ignores it and returns only the most recent 50 entries when no generation is supplied.
+   Verify completeness by decoding the generation entries and comparing them with the download.
 3. Capture the rendered `/the-end?id=<player-id>` page. It provides a useful visual record of the
    score table, score progression, global-parameter contributions, final log entries, and final board.
 4. Inspect every supplied screenshot at original resolution and determine its exact phase from the UI,
@@ -84,8 +97,14 @@ line in the preserved log. Label deductions and assignments explicitly as test i
 recollection, screenshot evidence, or player-record evidence, and state uncertainty instead of making
 an inference masquerade as archived text.
 
-The log is intentionally incomplete in several respects. It commonly omits payment composition,
-discount arithmetic, some automatic effects, and the internal details of an undo. Screenshots and player
+The log is intentionally incomplete in several respects. Newer archives record project payments
+in brackets, for example `-2:r:steel: -6:r:mc:` means two steel and six MC spent. Resource
+stock (`:r:`), production (`:p:`), and resources on cards (`:cr:`) are distinct. Structured
+data types 15, 16, 17, and 18 represent those three categories and preformatted notation,
+respectively; type 14 contains an array of card names. Preserve the original notation and
+prefer recorded payments over inferred allocations. Older archives, standard projects, and
+some action costs still omit payment composition. Discount arithmetic, some automatic effects,
+and the internal details of an undo may also be absent. Screenshots and player
 records are authoritative point-in-time state, but only at their exact phase. The final player record is
 authoritative for final resources, production, tableau, scoring, and board state.
 
@@ -102,19 +121,18 @@ can leave the replay in the action phase and make every later production or fina
 wrong. Verify phase transitions before adding resources to compensate.
 
 Check whether the archived game used fast mode. In fast-mode multiplayer games, a player must take two
-actions on every turn unless passing, so translate the actions and do not use `player.turn {
-... }` to auto-decline a second action. In games without that restriction, use `player.turn { ... }`
-consistently for routine turns instead of scattering many `declineSecondAction()` calls through the
-test. Once every other player has passed, keep the remaining player's actions through `pass()` in one
-turn block when the turn order permits. Play both of a player's Preludes in the same turn block.
+actions on every turn unless passing. Group each player's turn in `with(player) { ... }` and
+submit `doTask("PassBaton")` only when the player declines their second action. The scope itself
+performs no gameplay. Once every other player has passed, the remaining player's actions through
+`doTask("Pass")` may share a scope block. Group both of a player's Preludes in the same scope.
 
 A Herokuapp `Player passed` log line does not always mean that the pass happened at that point in turn
 order. After taking one action, a player can combine three declarations in one request: forgo the
 second action, end the current turn, and commit to passing when their next turn arrives. Herokuapp logs
 the pass immediately to save a later client/server round trip. When such a line follows a player's
 first action, determine whether it is this early declaration before translating it. In Solarnet, let
-the one-action turn end normally and call `pass()` only when that player's next turn is actually
-selected; the executable pass-call order can therefore differ from the source log order. Preserve the
+the player decline their second action with `doTask("PassBaton")`, then submit `doTask("Pass")`
+only when that player's next turn is actually selected; the executable pass-call order can therefore differ from the source log order. Preserve the
 verbatim log lines in their source order near the relevant scope, but do not treat every logged
 pass as a gameplay event at that point.
 
@@ -137,14 +155,14 @@ Terraform Rating, Victory Points, then winner.
 
 Research screenshots need special care. The UI state—not a filename timestamp—determines whether a
 dashboard was captured before card purchases, after drafting choices, or after payment. Put the entire
-checkpoint at that exact point. Do not shift it past `buyCards()` and compensate only M€ or hand size;
+checkpoint at that exact point. Do not shift it past the card purchase and compensate only M€ or hand size;
 that loses the screenshot's power to validate the complete state.
 
 ## Reconstruct payments before inventing discrepancies
 
-Herokuapp logs usually identify a card and its consequences but not how it was paid for. The first
-assumption is that the player spent as many eligible non-money resources as possible while receiving
-full value from every unit, then paid the remainder in M€.
+Use explicit payment brackets when the source provides them. When payment composition is absent,
+the first assumption is that the player spent as many eligible non-money resources as possible while
+receiving full value from every unit, then paid the remainder in M€.
 
 Apply that assumption across the player's upcoming purchases, not blindly to one card in isolation. A
 later Building or Space card may prove that some steel or titanium was preserved. Discounts change which
@@ -250,8 +268,9 @@ explicit in the canon data and cover every opponent in a focused multiplayer reg
 
 Confirm that every player has actually passed and that final production completed before translating
 final greenery. Preserve final-generation player order. After each player's last greenery, explicitly
-submit `Ok` before advancing to the next player. Do not try to predict whether bonuses could enable one
-more greenery; the game intentionally asks the player to decline.
+decline the remaining final-greenery choice with `doTask("PassBaton")` before advancing to the
+next player. Do not try
+to predict whether bonuses could enable another greenery; the game asks the player to decline.
 
 Use the end page and player records to assert the score table by category: TR, milestones, first- and
 second-place awards, greenery, cities, aggregate card VP, selected variable-card VP, totals, ties, and the
@@ -306,7 +325,7 @@ Before handoff:
 3. recheck screenshot phase placement and all six values in every dashboard stanza;
 4. justify every `exMachina()` and search once more for chronology, payment, ownership, or
    game-flow explanations;
-5. confirm final passes, production, greenery `Ok`s, full final state, scoring categories, and winner;
+5. confirm final passes, production, greenery declines, full final state, scoring categories, and winner;
 6. run formatting, the documented engine or repository-wide suite appropriate to the changes, and
    `git diff --check`;
 7. inspect the final diff for game-specific APIs, accidental production changes, stale repairs, and

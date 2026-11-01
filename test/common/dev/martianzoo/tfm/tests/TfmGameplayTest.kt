@@ -6,6 +6,7 @@ import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -21,13 +22,13 @@ import dev.martianzoo.tfm.engine.TfmEngine
  * autoExecNow calls handle competing consequences when their order is not the subject.
  */
 internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy = CONCRETE) {
-  protected lateinit var game: World
+  lateinit var game: World
     private set
 
-  protected lateinit var agents: Agents
+  lateinit var agents: Agents
     private set
 
-  protected val admin: Agent
+  protected open val admin: Agent
     get() = agents[ADMIN]
 
   protected fun TaskResult.expect(expected: String) =
@@ -93,7 +94,12 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
     val options = GameConfig(addOptions, *PLAYER_NAMES.take(playerCount).toTypedArray())
     val defaults = GameConfig(BASE_GAME_OPTIONS)
     val config = fixtureConfig(options, defaults)
-    game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
+    initializeGame(canonicalCatalog(config).gamePremise(config))
+  }
+
+  /** Creates the supplied game before setup choices or card selection. */
+  protected fun initializeGame(premise: GamePremise) {
+    game = TfmEngine.newGame(premise)
     agents = Agents(game) { if (it == ADMIN) EAGER else playerPolicy }
     players = game.actors.filterIsInstance<Player>().map { agents[it] }
   }

@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -10,7 +9,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
 
-internal class FirstPartialGameTest : AbstractFullGameTest() {
+internal class FirstPartialGameTest : FullGameTest() {
   override val config =
       GameConfig(
           "ElysiumMap, PreludeExpansion, LakefrontResorts",
@@ -20,9 +19,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun fourWholeGenerations() {
-    p1.autoExecPolicy = NONE
-    p2.autoExecPolicy = NONE
-    admin.startGame()
+    startGame()
     p1.doTask("20 TerraformRating")
     p2.doTask("20 TerraformRating")
     p1.doTasks(
@@ -41,7 +38,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
         "-2 PreludeCard",
         "-2 ProjectCard<Selecting>",
     )
-    p1.turn {
+    with(p1) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$LakefrontResorts>>",
           "$LakefrontResorts FROM CorporationCard",
@@ -50,7 +47,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
           "3 ProjectCard<Hand FROM Selecting>",
       )
     }
-    p2.turn {
+    with(p2) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
           "$InterplanetaryCinematics FROM CorporationCard",
@@ -61,7 +58,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>",
           "$MartianIndustries FROM PreludeCard",
@@ -76,7 +73,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
           "-5 MC",
       )
     }
-    p2.turn {
+    with(p2) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MiningOperations>>",
           "$MiningOperations FROM PreludeCard",
@@ -92,15 +89,16 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
     }
 
     // Generation 1 (Player1 first)
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$AsteroidMining"),
           "30 Pay<> FROM MC",
           "$AsteroidMining FROM ProjectCard",
           "PROD[2 Titanium]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$NaturalPreserve"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -110,9 +108,10 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
           "NaturalPreserve_SpecialTile<Elysium_3_7>",
           "3 ProjectCard",
       )
+      doTask("PassBaton") // decline the second action
     }
     p1.doTask("Pass")
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$SpaceElevator"),
           "13 Pay<Class<Steel>> FROM Steel",
@@ -155,7 +154,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
         "ProjectCard<Hand FROM Selecting>",
     )
 
-    p2.turn {
+    with(p2) {
       doTasks(*cardActionTasks("$SpaceElevator"), "1 Pay<Class<Steel>> FROM Steel", "5 MC")
       doTasks(
           *playCardTasks("$EarthCatapult"),
@@ -164,7 +163,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$TitaniumMine"),
           "7 Pay<> FROM MC",
@@ -181,7 +180,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$IndustrialMicrobes"),
           "5 Pay<Class<Steel>> FROM Steel",
@@ -200,16 +199,17 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$Sponsors"),
           "6 Pay<> FROM MC",
           "$Sponsors FROM ProjectCard",
           "PROD[2 MC]",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "1 Pay<> FROM MC",
@@ -246,7 +246,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$Mine"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -254,9 +254,10 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
           "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(*cardActionTasks("$SpaceElevator"), "1 Pay<Class<Steel>> FROM Steel", "5 MC")
       doTasks(
           *playCardTasks("$ElectroCatapult"),
@@ -269,7 +270,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
 
     p1.doTask("Pass")
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$ElectroCatapult", "Action2"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -323,7 +324,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$ElectroCatapult", "Action2"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -332,7 +333,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       doTasks(*cardActionTasks("$SpaceElevator"), "1 Pay<Class<Steel>> FROM Steel", "5 MC")
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$ResearchOutpost"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -352,7 +353,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$TransNeptuneProbe"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -370,9 +371,12 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       )
     }
 
-    p1.turn { doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard") }
+    with(p1) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
+      doTask("PassBaton") // decline the second action
+    }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$SolarPower"),
           "4 Pay<Class<Steel>> FROM Steel",

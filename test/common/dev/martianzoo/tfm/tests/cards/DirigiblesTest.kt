@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
@@ -22,6 +23,23 @@ internal class DirigiblesTest : TfmSandboxTest() {
           "AerialMappers FROM ProjectCard",
       )
     }
+  }
+
+  @Test
+  internal fun `A card with two Venus tags accepts floaters only once`() {
+    kim.exMachina("$Dirigibles, $AerialMappers, Floater<$Dirigibles>")
+    kim.setToExMachina(1, "MC")
+
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("VenusGovernor"),
+          "PayFromCard<Dirigibles> FROM Floater<Dirigibles>",
+          "Pay<> FROM MC",
+          "VenusGovernor FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+    }
+    kim.assertCounts(1 to "$VenusGovernor", 0 to "Floater<$Dirigibles>", 0 to "MC")
   }
 
   @Test

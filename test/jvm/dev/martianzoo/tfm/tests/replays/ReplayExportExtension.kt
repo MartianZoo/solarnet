@@ -10,13 +10,13 @@ import org.junit.jupiter.api.extension.ExtensionContext
 /** Checks replay endpoints and optionally exports and verifies recorded inputs. */
 internal class ReplayExportExtension : BeforeEachCallback, AfterTestExecutionCallback {
   override fun beforeEach(context: ExtensionContext) {
-    val replay = context.requiredTestInstance as? AbstractFullGameTest ?: return
+    val replay = context.requiredTestInstance as? FullGameTest ?: return
     replay.exportReplay = java.lang.Boolean.getBoolean("solarnet.replayExports")
   }
 
   override fun afterTestExecution(context: ExtensionContext) = runBlocking {
     if (context.executionException.isPresent) return@runBlocking
-    val replay = context.requiredTestInstance as? AbstractFullGameTest ?: return@runBlocking
+    val replay = context.requiredTestInstance as? FullGameTest ?: return@runBlocking
     replay.assertPendingTasksAtEnd()
     if (!replay.exportReplay) return@runBlocking
     val directory =

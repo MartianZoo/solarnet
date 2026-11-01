@@ -1,15 +1,17 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.AutoExecPolicy
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
-import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.engine.CardTracking
-import dev.martianzoo.tfm.engine.TfmGameplay
 import kotlin.test.BeforeTest
 
 /** Replay conveniences for the production card-tracked Agent mode. */
-internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
+internal abstract class CardTrackingFullGameTest(playerPolicy: AutoExecPolicy = NONE) :
+    FullGameTest(playerPolicy) {
   protected open val cardArrivalOrder: Map<ClassName, Map<ClassName, List<ClassName>>> = emptyMap()
   protected open val cardDepartureOrder: Map<ClassName, Map<ClassName, List<ClassName>>> =
       emptyMap()
@@ -63,26 +65,16 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   }
 
   /** Names an upcoming hand gain before the operation that draws those cards. */
-  protected fun TfmGameplay.draw(vararg cardClasses: ClassName) {
+  protected fun Agent.draw(vararg cardClasses: ClassName) {
     cards.expectArrivals(actor as Player, *cardClasses)
   }
 
   /** Names an upcoming anonymous hand removal before the operation that discards those cards. */
-  protected fun TfmGameplay.discard(vararg cardClasses: ClassName) {
+  protected fun Agent.discard(vararg cardClasses: ClassName) {
     cards.expectDepartures(actor as Player, *cardClasses)
   }
 
-  protected fun TfmGameplay.buyCards(vararg cardClasses: ClassName): TaskResult {
-    draw(*cardClasses)
-    return buyCards(cardClasses.size)
-  }
-
-  protected fun TfmGameplay.sellPatents(vararg cardClasses: ClassName): TaskResult {
-    discard(*cardClasses)
-    return sellPatents(cardClasses.size)
-  }
-
-  protected val TfmGameplay.cardsHand: Set<ClassName>
+  protected val Agent.cardsHand: Set<ClassName>
     get() = cards.hand(actor as Player)
 
   protected fun assertCardTrackingComplete() {

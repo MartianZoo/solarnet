@@ -1,206 +1,39 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.Agent.Companion.parse
-import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.Agents
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgents as retainedTestAgents
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.NoOp
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.Task
-import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
-import dev.martianzoo.tfm.canon.TfmClasses.TILE
-import dev.martianzoo.tfm.canon.cardResourceType
-import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.state.tfmCatalog
 
-internal abstract class TfmTest {
-  protected var game: World
+internal abstract class TfmTest : LegacyTfmTestSupport {
+  final override var game: World
     get() = agents.world
     set(value) {
       agents = Agents(value)
     }
 
-  protected lateinit var agents: Agents
+  final override lateinit var agents: Agents
     private set
 
-  protected fun World.testAgents(): Agents =
+  override fun World.testAgents(): Agents =
       if (this@TfmTest::agents.isInitialized && this === agents.world) agents
       else retainedTestAgents()
 
-  // Must remain protected: subclass calls need this member extension to shadow the imported
-  // tfm.engine.testAgent; making it private silently rebinds those calls and changes behavior.
-  protected fun World.testAgent(actor: Actor): dev.martianzoo.agent.Agent = testAgents()[actor]
+  // These member extensions must shadow imported helpers and retain this fixture's Agents.
+  override fun World.testAgent(actor: Actor): dev.martianzoo.agent.Agent = testAgents()[actor]
 
-  protected fun World.testTfm(actor: Actor): TfmGameplay = testAgents().tfm(actor)
+  override fun World.testTfm(actor: Actor): TfmGameplay = testAgents().tfm(actor)
 
   protected val admin: TfmGameplay
     get() = agents.tfm(ADMIN)
-
-  protected fun keepStartingProjects(vararg counts: Int) {
-    val players = game.actors.filterIsInstance<dev.martianzoo.state.Player>()
-    require(counts.size == players.size) { "Provide a project count per player" }
-    players.zip(counts.toList()).forEach { (player, count) ->
-      game.testTfm(player).keepStartingProjects(count)
-    }
-  }
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
   protected fun Agent.auditGainsSince(eventCursor: Int): Int =
       game.events.changesSince(eventCursor).count { it.change.gaining?.type == resolve("Audit") }
-
-  protected fun <T> OperationScope.doWithoutAutoExec(
-      agent: Agent,
-      body: OperationScope.() -> T,
-  ): T {
-    val previousAutoExecPolicy = agent.autoExecPolicy
-    if (agent.actor != ADMIN) agent.autoExecPolicy = NONE
-    return try {
-      body()
-    } finally {
-      agent.autoExecPolicy = previousAutoExecPolicy
-    }
-  }
-
-  protected fun Agent.placeTile(row: Int, column: Int): TaskResult =
-      doTask(tilePlacement(reader, pendingTasks(), row, column))
-
-  protected fun OperationScope.placeTile(row: Int, column: Int) {
-    doTask(tilePlacement(reader, tasks.extract { it }, row, column))
-  }
-
-  protected fun Agent.addCardResources(card: ClassName, count: Int? = null): TaskResult =
-      doTask(cardResources(reader, pendingTasks(), card, count))
-
-  protected fun OperationScope.addCardResources(card: ClassName, count: Int? = null) {
-    doTask(cardResources(reader, tasks.extract { it }, card, count))
-  }
-
-  protected fun Agent.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
-
-  protected fun OperationScope.wgt(choice: String) {
-    doTask("$choice! BY Admin")
-  }
-
-  /**
-   * Declines this actor's offered task by passing the baton when offered, as final greenery does,
-   * and otherwise with `Ok`.
-   */
-  protected fun Agent.declineTask(): TaskResult {
-    val batonPass =
-        pendingTasks().firstNotNullOfOrNull { task ->
-          task.instruction
-              .descendantsOfType<Instruction.Gain>()
-              .firstOrNull { it.gaining.className == cn("PassBaton") }
-              ?.let { task.copy(instruction = it) }
-        }
-    return if (batonPass != null) selectTask(batonPass) else doTask("Ok")
-  }
-
-  protected fun Agent.declineTask(instruction: String): TaskResult {
-    val taskId = singleDeclinableTaskId(pendingTasks(), reader, instruction)
-    return doTask("Ok", taskId)
-  }
-
-  protected fun OperationScope.declineTask() {
-    doTask("Ok")
-  }
-
-  protected fun OperationScope.declineTask(instruction: String) {
-    val taskId = singleDeclinableTaskId(tasks.extract { it }, reader, instruction)
-    doTask("Ok", taskId)
-  }
-
-  protected fun TfmGameplay.playCorp(
-      cardName: ClassName,
-      body: TfmGameplay.() -> Unit = {},
-  ): TaskResult {
-    val player = this
-    return inTurn {
-      playCorp(cardName)
-      player.body()
-    }
-  }
-
-  private fun tilePlacement(
-      reader: dev.martianzoo.state.GameReader,
-      tasks: List<Task>,
-      row: Int,
-      column: Int,
-  ): String {
-    val area =
-        mapDefinition(reader).areas.singleOrNull { it.row == row && it.column == column }
-            ?: throw IllegalArgumentException("No map area at row $row, column $column")
-    val tileType = reader.resolve(TILE.expression)
-    return tasks
-        .mapNotNull { task ->
-          task.instruction.descendantsOfType<Gain>().firstOrNull { gain ->
-            reader.resolve(gain.gaining).narrows(tileType, reader)
-          }
-        }
-        .map { "${it.gaining.className}<${area.className}>" }
-        .distinct()
-        .single()
-  }
-
-  private fun cardResources(
-      reader: dev.martianzoo.state.GameReader,
-      tasks: List<Task>,
-      card: ClassName,
-      count: Int?,
-  ): String {
-    require(count == null || count > 0) { "Card-resource count must be positive" }
-    val resourceType =
-        requireNotNull(cardResourceType(reader.tfmCatalog.card(card))) {
-          "$card does not hold card resources"
-        }
-    val resourceClass = reader.resolve(resourceType.expression).rootClass
-    val cardClass = reader.resolve(card.expression).rootClass
-    val gain =
-        tasks
-            .flatMap { it.instruction.descendantsOfType<Gain>() }
-            .single {
-              val gaining = reader.resolve(it.gaining)
-              (count == null || it.count == ActualScalar(count)) &&
-                  resourceClass.isSubtypeOf(gaining.rootClass) &&
-                  cardClass.isSubtypeOf(gaining.typeDependencies.last().boundType.rootClass)
-            }
-    val arguments = gain.gaining.arguments.toMutableList()
-    if (arguments.isEmpty()) arguments += card.expression
-    else arguments[arguments.lastIndex] = card.expression
-    val revisedExpression = Expression(resourceType, arguments, argumentsSpecified = true)
-    return "$gain".replace("${gain.gaining}", "$revisedExpression").removeSuffix("?")
-  }
-
-  private fun singleDeclinableTaskId(
-      tasks: List<Task>,
-      reader: dev.martianzoo.state.GameReader,
-      instruction: String,
-  ): TaskId {
-    val matches = tasks.filter { task ->
-      task.instruction == game.testAgent(task.assignee).parse<Instruction>(instruction) &&
-          (NoOp.narrows(task.instruction, reader) ||
-              task.instruction.descendantsOfType<NoOp>().isNotEmpty())
-    }
-    require(matches.size == 1) {
-      "Expected exactly one task narrowable to Ok matching `$instruction`, found ${matches.size}"
-    }
-    return matches.single().id
-  }
-
-  private fun Agent.pendingTasks(): List<Task> =
-      game.tasks.extract { it }.filter { it.assignee == actor }
 }
