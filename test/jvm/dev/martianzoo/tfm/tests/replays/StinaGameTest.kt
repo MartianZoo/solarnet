@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -68,8 +67,7 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
   @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
-    p1.autoExecPolicy = NONE
-    admin.startGame()
+    startGame()
   }
 
   @Test
@@ -97,34 +95,30 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
           MineralDeposit,
           ResearchOutpost,
       )
-      turn {
-        doTasks(
-            "PlayCard<Class<CorporationCard>, Class<$SaturnSystems>>",
-            "$SaturnSystems FROM CorporationCard",
-            "42 MC",
-            "PROD[Titanium]",
-            "PROD[MC]",
-            "30 Pay<> FROM MC",
-            "10 ProjectCard<Hand FROM Selecting>",
-        )
-      }
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$SaturnSystems>>",
+          "$SaturnSystems FROM CorporationCard",
+          "42 MC",
+          "PROD[Titanium]",
+          "PROD[MC]",
+          "30 Pay<> FROM MC",
+          "10 ProjectCard<Hand FROM Selecting>",
+      )
 
-      turn {
-        draw(InventionContest, BusinessContacts, QuantumExtractor)
-        doTasks(
-            "PlayCard<Class<PreludeCard>, Class<$Biolab>>",
-            "$Biolab FROM PreludeCard",
-            "PROD[Plant]",
-            "3 ProjectCard",
-        )
-        draw(SpaceStation, OptimalAerobraking)
-        doTasks(
-            "PlayCard<Class<PreludeCard>, Class<$AcquiredSpaceAgency>>",
-            "$AcquiredSpaceAgency FROM PreludeCard",
-            "6 Titanium",
-            "2 SearchForCard<TagFilter<Class<SpaceTag>>>",
-        )
-      }
+      draw(InventionContest, BusinessContacts, QuantumExtractor)
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Biolab>>",
+          "$Biolab FROM PreludeCard",
+          "PROD[Plant]",
+          "3 ProjectCard",
+      )
+      draw(SpaceStation, OptimalAerobraking)
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$AcquiredSpaceAgency>>",
+          "$AcquiredSpaceAgency FROM PreludeCard",
+          "6 Titanium",
+          "2 SearchForCard<TagFilter<Class<SpaceTag>>>",
+      )
 
       doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
       doTasks(*playCardTasks("$MediaGroup"), "3 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")

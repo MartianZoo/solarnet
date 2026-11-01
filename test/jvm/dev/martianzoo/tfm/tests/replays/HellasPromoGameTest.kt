@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
@@ -10,7 +9,7 @@ import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class HellasPromoGameTest : AbstractFullGameTest() {
+internal class HellasPromoGameTest : FullGameTest() {
   override val config =
       GameConfig(
           """
@@ -23,9 +22,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun hellasPromoGame() {
-    p1.autoExecPolicy = NONE
-    p2.autoExecPolicy = NONE
-    admin.startGame()
+    startGame()
     p1.doTask("20 TerraformRating")
     p2.doTask("20 TerraformRating")
     p1.doTasks(
@@ -45,7 +42,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
         "-5 ProjectCard<Selecting>",
     )
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
           "$InterplanetaryCinematics FROM CorporationCard",
@@ -55,7 +52,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
           "7 ProjectCard<Hand FROM Selecting>",
       )
     }
-    p2.turn {
+    with(p2) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
           "$PharmacyUnion FROM CorporationCard",
@@ -69,7 +66,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
           "$UnmiContractor FROM PreludeCard",
@@ -84,7 +81,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
           "2 ProjectCard<Hand FROM Selecting>",
       )
     }
-    p2.turn {
+    with(p2) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BiosphereSupport>>",
           "$BiosphereSupport FROM PreludeCard",
@@ -103,7 +100,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
     // Generation 1 (Player1 first)
 
-    p1.turn {
+    with(p1) {
       doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
       doTasks(
           *playCardTasks("$Sabotage"),
@@ -114,7 +111,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
           "-7 MC<Player2>",
       )
     }
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
@@ -132,7 +129,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       )
     }
     p1.doTask("Pass")
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$SearchForLife"),
           "3 Pay<> FROM MC",
@@ -167,7 +164,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    p2.turn {
+    with(p2) {
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$VestaShipyard"),
@@ -176,7 +173,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
           "PROD[Titanium]",
       )
     }
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
@@ -192,7 +189,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     }
     p2.doTask("Pass")
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$DevelopmentCenter"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -247,7 +244,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
         "ProjectCard<Hand FROM Selecting>",
     )
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "1 Pay<Class<Energy>> FROM Energy",

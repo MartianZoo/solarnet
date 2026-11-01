@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -82,9 +81,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun activeProtonFlowThroughGeneration2() {
-    green.autoExecPolicy = NONE
-    pink.autoExecPolicy = NONE
-    admin.startGame()
+    startGame()
     pink.selectTask("BeginnerOption OR StandardOption")
     pink.narrowTask("StandardOption")
     green.selectTask("BeginnerOption OR StandardOption")
@@ -155,7 +152,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
         SpaceMirrors,
         PermafrostExtraction,
     )
-    green.inTurn {
+    green.completeOperation {
       doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
       doTask("BeginnerCorporation1 FROM BeginnerCard")
       doTask("42 MC")
@@ -168,7 +165,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
         LavaFlows,
         CupolaCity,
     )
-    pink.turn {
+    with(pink) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$MiningGuild>>",
           "$MiningGuild FROM CorporationCard",
@@ -180,18 +177,20 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       )
     }
 
-    green.turn {
+    with(green) {
       doTasks(*playCardTasks("$SpaceMirrors"), "3 Pay<> FROM MC", "$SpaceMirrors FROM ProjectCard")
+      doTask("PassBaton") // decline the second action
     }
-    pink.turn {
+    with(pink) {
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "12 Pay<> FROM MC",
           "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
+      doTask("PassBaton") // decline the second action
     }
-    green.turn {
+    with(green) {
       doTasks(
           *playCardTasks("$OptimalAerobraking"),
           "7 Pay<> FROM MC",
@@ -216,7 +215,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     green.doTask("NOW ER { 2 Plant<ER> }")
     pink.doTask("2 Plant")
     green.doTask("2 ProjectCard")
-    pink.turn {
+    with(pink) {
       doTasks(
           *playCardTasks("$PowerPlant"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -224,17 +223,19 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
           "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    green.turn {
+    with(green) {
       doTasks(
           *playCardTasks("$GeothermalPower"),
           "11 Pay<> FROM MC",
           "$GeothermalPower FROM ProjectCard",
           "PROD[2 Energy]",
       )
+      doTask("PassBaton") // decline the second action
     }
     pink.doTask("Pass")
-    green.turn {
+    with(green) {
       doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
       doTask("Pass")
     }
@@ -262,7 +263,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 2, t = 1, p = 1, e = 2, h = 1)
     pink.assertCounts(20 to "TerraformRating", 6 to "ProjectCard")
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 1)
-    pink.turn {
+    with(pink) {
       doTasks(
           *playCardTasks("$BlackPolarDust"),
           "15 Pay<> FROM MC",
@@ -276,7 +277,10 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     }
     pink.doTasks("PROD[Steel]", "2 Titanium")
     pink.doTask("PassBaton")
-    green.turn { doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]") }
+    with(green) {
+      doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
+      doTask("PassBaton") // decline the second action
+    }
     pink.doTask("Pass")
   }
 }

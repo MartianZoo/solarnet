@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
@@ -24,5 +25,22 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
       doTask("-3? Plant<Anyone>")
       doTask("TerraformRating")
     }
+  }
+
+  @Test
+  internal fun `A card with both city and space tags accepts graphene only once`() {
+    newTestGame(addOptions = "CarbonNanosystems, StanfordTorus")
+    kim.setToExMachina(4, "MC")
+    kim.exMachina("$CarbonNanosystems, 2 Graphene<$CarbonNanosystems>")
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("StanfordTorus"),
+          "2 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          "4 Pay<> FROM MC",
+          "StanfordTorus FROM ProjectCard",
+          "NormalCityTile<StanfordTorus_RemoteArea>",
+      )
+    }
+    kim.assertCounts(1 to "CityTile", 0 to "Graphene<CarbonNanosystems>", 0 to "MC")
   }
 }

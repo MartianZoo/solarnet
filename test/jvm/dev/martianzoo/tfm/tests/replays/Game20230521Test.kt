@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -13,7 +12,7 @@ import kotlin.test.Test
 
 // Explicit player-task replay; Admin keeps its normal autoexecution.
 // Source: _local/replays/Game20230521/game-replay.rego (game gf386a4cd5de1).
-internal class Game20230521Test : AbstractFullGameTest() {
+internal class Game20230521Test : FullGameTest() {
 
   override val config =
       GameConfig(
@@ -27,8 +26,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
   @Test
   internal fun game20230521() {
-    listOf(p1, p2).forEach { it.autoExecPolicy = NONE }
-    admin.startGame()
+    startGame()
     p1.doTasks("20 TerraformRating")
     p2.doTasks("20 TerraformRating")
     p1.doTasks(
@@ -49,7 +47,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("-6 ProjectCard<Selecting>")
     // Generation 1
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Manutech>>",
           "$Manutech FROM CorporationCard",
@@ -61,7 +59,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Factorum>>",
           "$Factorum FROM CorporationCard",
@@ -72,7 +70,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
           "$NewPartner FROM PreludeCard",
@@ -86,7 +84,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
           "$AlliedBank FROM PreludeCard",
@@ -96,7 +94,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AcquiredSpaceAgency>>",
           "$AcquiredSpaceAgency FROM PreludeCard",
@@ -105,7 +103,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$IoResearchOutpost>>",
           "$IoResearchOutpost FROM PreludeCard",
@@ -114,24 +112,26 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$InventorsGuild"),
           "9 Pay<> FROM MC",
           "$InventorsGuild FROM ProjectCard",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "12 Pay<> FROM MC",
           "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
@@ -139,16 +139,18 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$Factorum"),
           "PROD[Energy]",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *standardProjectTasks("PowerPlantProject"),
           "11 Pay<> FROM MC",
@@ -166,7 +168,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$RotatorImpacts"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -181,11 +183,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks("Pass")
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$CarbonateProcessing"),
           "6 Pay<> FROM MC",
@@ -232,7 +234,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 0)
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$Factorum", "Action2"),
           "3 Pay<> FROM MC",
@@ -248,7 +250,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
@@ -263,16 +265,17 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$RotatorImpacts", "Action2"),
           "-Asteroid<$RotatorImpacts>",
           "VenusStep",
           "TerraformRating",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$DevelopmentCenter"),
           "5 Pay<Class<Steel>> FROM Steel",
@@ -287,11 +290,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("Pass")
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
@@ -347,7 +350,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 0, venus = 2)
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
@@ -360,7 +363,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$Factorum"),
           "PROD[Energy]",
@@ -378,7 +381,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$CorporateStronghold"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -398,7 +401,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$TransNeptuneProbe"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -414,7 +417,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DeuteriumExport", "Action2"),
           "-Floater<$DeuteriumExport>",
@@ -434,11 +437,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("Pass")
     }
 
-    p1.turn {
+    with(p1) {
       doTasks("Pass")
     }
 
@@ -472,7 +475,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 0, venus = 2)
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$Factorum", "Action2"),
           "3 Pay<> FROM MC",
@@ -486,7 +489,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
@@ -501,7 +504,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "8 Pay<> FROM MC",
@@ -519,7 +522,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DeuteriumExport"),
           "Floater<$DeuteriumExport>",
@@ -534,7 +537,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$RotatorImpacts", "Action2"),
           "-Asteroid<$RotatorImpacts>",
@@ -550,7 +553,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -567,11 +570,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("Pass")
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *standardProjectTasks("SellPatentsProject"),
           "1 MC FROM ProjectCard",
@@ -624,7 +627,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     checkSummaryAfterGen4(game)
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -645,7 +648,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$Factorum", "Action2"),
           "3 Pay<> FROM MC",
@@ -659,7 +662,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
@@ -672,7 +675,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *standardProjectTasks("SellPatentsProject"),
           "1 MC FROM ProjectCard",
@@ -683,7 +686,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DeuteriumExport", "Action2"),
           "-Floater<$DeuteriumExport>",
@@ -703,7 +706,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$DirectedImpactors"),
           "6 Pay<> FROM MC",
@@ -717,7 +720,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$FueledGenerators"),
           "1 Pay<> FROM MC",
@@ -726,9 +729,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PROD[Energy]",
           "Energy",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -747,11 +751,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks("Pass")
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("Pass")
     }
 
@@ -785,7 +789,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 6, temp = -18, oxygen = 0, oceans = 2, venus = 10)
 
-    p2.turn {
+    with(p2) {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
           "GreeneryTile<Tharsis_8_7>",
@@ -800,7 +804,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
@@ -816,7 +820,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$PowerPlant"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -835,7 +839,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$OlympusConference"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -853,7 +857,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$DirectedImpactors"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -868,7 +872,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$DuskLaserMining"),
           "8 Pay<> FROM MC",
@@ -889,7 +893,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$Mine"),
           "4 Pay<> FROM MC",
@@ -905,7 +909,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$Solarnet"),
           "7 Pay<> FROM MC",
@@ -922,16 +926,17 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -944,11 +949,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("Pass")
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$LagrangeObservatory"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -1011,7 +1016,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 7, temp = -14, oxygen = 1, oceans = 3, venus = 12)
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "UseAction<ClaimMilestoneAction, Action1>",
           "8 Pay<> FROM MC",
@@ -1025,7 +1030,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
@@ -1041,7 +1046,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
@@ -1057,7 +1062,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$BioPrintingFacility"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -1071,7 +1076,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DeuteriumExport", "Action2"),
           "-Floater<$DeuteriumExport>",
@@ -1087,7 +1092,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$Factorum"),
           "PROD[Energy]",
@@ -1102,7 +1107,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$FloatingHabs"),
           "5 Pay<> FROM MC",
@@ -1115,16 +1120,17 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$TitaniumMine"),
           "5 Pay<> FROM MC",
           "$TitaniumMine FROM ProjectCard",
           "PROD[Titanium]",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1140,11 +1146,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("Pass")
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$StratosphericBirds"),
           "Animal<$StratosphericBirds>",
@@ -1194,7 +1200,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 8, temp = -12, oxygen = 1, oceans = 3, venus = 12)
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$AdvancedAlloys"),
           "7 Pay<> FROM MC",
@@ -1214,7 +1220,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$ExtractorBalloons"),
           "21 Pay<> FROM MC",
@@ -1231,7 +1237,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.assertCounts(23 to "MC")
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$AiCentral"),
           "2 ProjectCard",
@@ -1247,7 +1253,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     admin.assertCounts(6 to "VenusStep")
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$SulphurExports"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1268,7 +1274,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$RotatorImpacts", "Action2"),
           "-Asteroid<$RotatorImpacts>",
@@ -1284,7 +1290,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$MoholeLake"),
           "12 Pay<Class<Steel>> FROM Steel",
@@ -1308,7 +1314,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1324,7 +1330,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
@@ -1338,15 +1344,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$BioPrintingFacility"),
           "2 Pay<Class<Energy>> FROM Energy",
           "2 Plant",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1361,11 +1368,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("Pass")
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$StratosphericBirds"),
           "Animal<$StratosphericBirds>",
@@ -1416,7 +1423,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 9, temp = -6, oxygen = 3, oceans = 4, venus = 18)
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
@@ -1431,7 +1438,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$DeimosDownPromo"),
           "5 Pay<Class<Titanium>> FROM Titanium",
@@ -1460,7 +1467,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1475,7 +1482,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -1495,7 +1502,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$RegoPlastics"),
           "Ok", // no steel paid
@@ -1511,7 +1518,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           "UseAction<ClaimMilestoneAction, Action1>",
           "8 Pay<> FROM MC",
@@ -1524,7 +1531,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$FloatingHabs"),
           "2 Pay<> FROM MC",
@@ -1538,7 +1545,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "10 Pay<> FROM MC",
@@ -1560,7 +1567,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$NoctisFarming"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -1579,7 +1586,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$BioPrintingFacility"),
           "2 Pay<Class<Energy>> FROM Energy",
@@ -1593,7 +1600,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$MoholeLake"),
           "Animal<$StratosphericBirds>",
@@ -1605,7 +1612,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$Factorum", "Action2"),
           "3 Pay<> FROM MC",
@@ -1625,7 +1632,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *standardProjectTasks("SellPatentsProject"),
           "3 MC FROM ProjectCard",
@@ -1642,7 +1649,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *standardProjectTasks("SellPatentsProject"),
           "2 MC FROM ProjectCard",
@@ -1658,7 +1665,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$Trees"),
           "13 Pay<> FROM MC",
@@ -1670,7 +1677,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Banker")
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
@@ -1678,9 +1685,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$VenusianInsects"),
           "5 Pay<> FROM MC",
@@ -1692,11 +1700,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("Pass")
     }
 
-    p1.turn {
+    with(p1) {
       doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Venuphile")
       doTasks("Pass")
     }
@@ -1747,7 +1755,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 10, temp = 4, oxygen = 4, oceans = 6, venus = 24)
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$HiredRaiders"),
           "$HiredRaiders FROM ProjectCard",
@@ -1761,7 +1769,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1777,7 +1785,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
           "GreeneryTile<Tharsis_9_6>",
@@ -1792,7 +1800,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
@@ -1805,7 +1813,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$MercurianAlloys"),
           "Ok", // no titanium paid
@@ -1819,7 +1827,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$LavaTubeSettlement"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -1844,7 +1852,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$Atmoscoop"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -1863,7 +1871,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$NitrogenRichAsteroid"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -1885,7 +1893,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$BioPrintingFacility"),
           "2 Pay<Class<Energy>> FROM Energy",
@@ -1898,7 +1906,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$VenusianInsects"),
           "Microbe<$VenusianInsects>",
@@ -1909,7 +1917,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$RotatorImpacts", "Action2"),
           "-Asteroid<$RotatorImpacts>",
@@ -1928,7 +1936,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$PowerInfrastructure"),
           "4 Pay<> FROM MC",
@@ -1940,7 +1948,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTask("8 MC")
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$Factorum", "Action2"),
           "3 Pay<> FROM MC",
@@ -1952,7 +1960,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DeuteriumExport"),
           "Floater<$DeuteriumExport>",
@@ -1963,7 +1971,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$Bushes"),
           "8 Pay<> FROM MC",
@@ -1981,7 +1989,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$FloatingHabs"),
           "2 Pay<> FROM MC",
@@ -1993,7 +2001,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$NuclearPower"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -2012,11 +2020,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks("Pass")
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
@@ -2049,7 +2057,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "3 Pay<> FROM MC",
         "ProjectCard<Hand FROM Selecting>",
     )
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$ImportedNitrogen"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -2069,7 +2077,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$AiCentral"),
           "2 ProjectCard",
@@ -2081,7 +2089,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
           "GreeneryTile<Tharsis_2_4>",
@@ -2096,7 +2104,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$MediaGroup"),
           "4 Pay<> FROM MC",
@@ -2115,7 +2123,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(*cardActionTasks("$PowerInfrastructure"))
       selectTask(p1.tasks.extract { it }.single().bindXTo(5))
       doTask("-5 Energy")
@@ -2126,7 +2134,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$BioPrintingFacility"),
           "2 Pay<Class<Energy>> FROM Energy",
@@ -2144,7 +2152,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$BusinessNetwork"),
           "1 Pay<> FROM MC",
@@ -2161,7 +2169,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -2177,7 +2185,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$DeuteriumExport", "Action2"),
           "-Floater<$DeuteriumExport>",
@@ -2192,7 +2200,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
           "GreeneryTile<Tharsis_9_5>",
@@ -2208,7 +2216,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$StratosphericBirds"),
           "Animal<$StratosphericBirds>",
@@ -2219,7 +2227,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$MagneticFieldGeneratorsPromo"),
           "6 Pay<Class<Steel>> FROM Steel",
@@ -2252,7 +2260,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *cardActionTasks("$VenusianInsects"),
           "Microbe<$VenusianInsects>",
@@ -2265,7 +2273,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$AtalantaPlanitiaLab"),
           "8 Pay<> FROM MC",
@@ -2280,7 +2288,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
     admin.assertCounts(9 to "OceanTile")
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$LargeConvoy"),
           "31 Pay<> FROM MC",
@@ -2300,7 +2308,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$RobotPollinators"),
           "7 Pay<> FROM MC",
@@ -2317,7 +2325,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$MediaArchives"),
           "5 Pay<> FROM MC",
@@ -2338,7 +2346,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *playCardTasks("$Greenhouses"),
           "4 Pay<> FROM MC",
@@ -2356,7 +2364,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Thermalist")
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
@@ -2368,7 +2376,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *standardProjectTasks("SellPatentsProject"),
           "3 MC FROM ProjectCard",
@@ -2381,7 +2389,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$AdvancedEcosystems"),
           "11 Pay<> FROM MC",
@@ -2393,14 +2401,15 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
     }
 
-    p2.turn {
+    with(p2) {
       doTasks(
           *cardActionTasks("$Penguins"),
           "Animal<$Penguins>",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p1.turn {
+    with(p1) {
       doTasks(
           *playCardTasks("$GeneRepair"),
           "12 Pay<> FROM MC",
@@ -2409,13 +2418,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "Science",
           "2 MC",
       )
+      doTask("PassBaton") // decline the second action
     }
 
-    p2.turn {
+    with(p2) {
       doTasks("Pass")
     }
 
-    p1.turn {
+    with(p1) {
       doTasks("Pass")
     }
 

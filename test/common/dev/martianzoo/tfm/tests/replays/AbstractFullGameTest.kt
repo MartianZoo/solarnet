@@ -1,249 +1,38 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.Agents
-import dev.martianzoo.agent.GameFileImporter
-import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.agenttestsupport.withTestSoloSetup
-import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.catalog.GamePremise
-import dev.martianzoo.engine.recording
-import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameFileJson
-import dev.martianzoo.state.Player
-import dev.martianzoo.state.RecordedInput
-import dev.martianzoo.tfm.canon.TfmCatalog
-import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestHelpers.assertProds
-import dev.martianzoo.tfm.tests.TfmTest
-import dev.martianzoo.tfm.tests.canonicalCatalog
-import dev.martianzoo.tfm.tests.withTestTurmoilDeck
-import io.kotest.matchers.shouldBe
+import dev.martianzoo.tfm.tests.LegacyTfmTestSupport
 import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
 
-internal abstract class AbstractFullGameTest : TfmTest() {
-  protected lateinit var p1: TfmGameplay
-    private set
-
-  protected lateinit var p2: TfmGameplay
-    private set
-
-  protected lateinit var p3: TfmGameplay
-    private set
-
-  protected lateinit var gamePremise: GamePremise
-    private set
-
-  protected abstract val config: GameConfig
+/** Retains the old action helpers for replays that have not migrated to plain Agents. */
+internal abstract class AbstractFullGameTest : FullGameTest(EAGER), LegacyTfmTestSupport {
   protected open val requireExplicitPaymentChoices: Boolean = true
-  internal var exportReplay: Boolean = false
-  private var expectedPendingTasksAtEnd: Int = 0
+  override val admin: TfmGameplay
+    get() = agents.tfm(ADMIN)
 
-  /** States how many tasks the source position intentionally leaves pending. */
-  protected fun expectPendingTasksAtEnd(count: Int) {
-    require(count > 0) { "Use the default check when no tasks should remain" }
-    expectedPendingTasksAtEnd = count
-  }
+  final override lateinit var p1: TfmGameplay
+    private set
 
-  internal fun assertPendingTasksAtEnd() {
-    val pending = game.tasks.extract { it }
-    assertEquals(
-        expectedPendingTasksAtEnd,
-        pending.size,
-        "Unexpected pending tasks at replay end:\n${pending.joinToString("\n")}",
-    )
-  }
+  final override lateinit var p2: TfmGameplay
+    private set
 
-  internal suspend fun verifyGameFileRoundTrip(json: String) {
-    val document = GameFileJson.parse(json)
-    val orderedEvents = gamePremise.drawOrder.map { it.toString() }.toSet()
-    val suppliedEventsOrNeutralDelegates =
-        document.inputs(gamePremise).filterIsInstance<RecordedInput.Command>().filter { command ->
-          command.actor == ADMIN &&
-              (command.instruction in orderedEvents ||
-                  command.instruction.startsWith("PartyLeader<") ||
-                  command.instruction.startsWith("PartyFollower<"))
-        }
-    assertEquals(emptyList(), suppliedEventsOrNeutralDelegates)
-    val importedAgents =
-        GameFileImporter.replay(
-            document,
-            catalog,
-            newAgents = { Agents(TfmEngine.newGame(it)) },
-            startGame = { agents -> agents.tfm(ADMIN).startGame() },
-        )
-    importedAgents[p1.actor].list("Component").entries shouldBe p1.list("Component").entries
-  }
-
-  /** Pets declarations for concrete Players with sourced per-seat setup rules. */
-  protected open val playerClassPets: String = ""
-  /** Neutral solo locations in city, greenery, city, greenery order. */
-  protected open val soloTileLocations: List<String> = emptyList()
-  /** Ordered events observed by a replay; the fixture adds the remaining unused cards. */
-  protected open val firstGlobalEvents: List<String> = emptyList()
-  protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
-
-  internal suspend fun completedGameFileJson(short: Boolean = false): String? {
-    if (game.events.entriesSinceSetup().isEmpty()) return null
-    val completed = game.recording()
-    return GameFileJson.encode(completed, agents.taskLog.inputs(), short)
-  }
+  final override lateinit var p3: TfmGameplay
+    private set
 
   @BeforeTest
-  open fun commonSetup() {
-    gamePremise =
-        withTestTurmoilDeck(
-            withTestSoloSetup(
-                catalog.gamePremise(config, parseClasses(playerClassPets)),
-                soloTileLocations.map(::cn),
-            ),
-            firstGlobalEvents,
-        )
-    game = TfmEngine.newGame(gamePremise)
-    if (exportReplay) agents.taskLog.start()
-    val players = game.actors.filterIsInstance<Player>()
-    fun gameplay(player: Player): TfmGameplay =
-        game.testTfm(player).let {
-          if (requireExplicitPaymentChoices) it.requireExplicitPaymentChoices() else it
+  override fun commonSetup() {
+    super.commonSetup()
+    fun gameplay(seat: Int) =
+        player(seat).also {
+          if (requireExplicitPaymentChoices) it.requireExplicitPaymentChoices()
         }
-    p1 = gameplay(players[0])
-    if (players.size > 1) p2 = gameplay(players[1])
-    if (players.size > 2) p3 = gameplay(players[2])
+    p1 = gameplay(1)
+    if (players.size > 1) p2 = gameplay(2)
+    if (players.size > 2) p3 = gameplay(3)
   }
 
-  /** Returns fresh gameplay for the Player occupying the one-based [seat]. */
-  protected fun player(seat: Int): TfmGameplay {
-    require(seat > 0) { "seat numbers begin at 1" }
-    val player = game.actors.filterIsInstance<Player>().getOrNull(seat - 1)
-    requireNotNull(player) { "no Player occupies seat $seat" }
-    return game.testTfm(player)
-  }
-
-  private fun copyThis() {
-    p1.assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
-    p1.assertResources(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
-    p1.assertDashMiddle(played = 0, actions = 0, tr = 0, hand = 0)
-    p1.assertTags(but = 0, spt = 0) // ...
-    p1.assertDashRight(events = 0, tagless = 0, cities = 0, colonies = 0)
-    assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
-  }
-
-  // Script-local counterparts live in
-  // test/common/dev/martianzoo/tfm/script/StinaScriptTest.kt.
-  protected fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
-    assertProds(
-        m to "MC",
-        s to "Steel",
-        t to "Titanium",
-        p to "Plant",
-        e to "Energy",
-        h to "Heat",
-    )
-  }
-
-  protected fun TfmGameplay.assertResources(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
-    assertCounts(
-        m to "MC",
-        s to "Steel",
-        t to "Titanium",
-        p to "Plant",
-        e to "Energy",
-        h to "Heat",
-    )
-  }
-
-  protected fun TfmGameplay.assertCardResources(vararg resources: Pair<Int, ClassName>) {
-    assertCounts(*resources.map { (count, card) -> count to "CardResource<$card>" }.toTypedArray())
-  }
-
-  protected fun TfmGameplay.assertUnusedActionCards(vararg cardNames: ClassName) {
-    val expectedUnusedActionCards = cardNames.toSet()
-    val unusedActionCards =
-        reader
-            .getComponents(resolve("ActionCard"))
-            .elements
-            .filter { count("ActionUsedMarker<${it.className}>") == 0 }
-            .map { it.className }
-            .toSet()
-    unusedActionCards shouldBe expectedUnusedActionCards
-  }
-
-  protected fun TfmGameplay.assertDashMiddle(
-      played: Int,
-      actions: Int? = null,
-      tr: Int,
-      hand: Int,
-  ) {
-    assertCounts(
-        hand to "ProjectCard",
-        tr to "TerraformRating",
-        played to "CardFront OR PlayedEvent",
-    )
-    if (actions != null) {
-      count("ActionCard") - count("ActionUsedMarker") shouldBe actions
-    }
-  }
-
-  protected fun TfmGameplay.assertDashRight(
-      events: Int,
-      tagless: Int,
-      cities: Int,
-      colonies: Int = 0,
-  ) {
-    assertCounts(
-        events to "PlayedEvent",
-        tagless to "CardFront(HAS MAX 0 Tag)",
-        cities to "CityTile",
-    )
-    if (
-        game.classTable.isInhabited(cn("ColoniesExpansion")) &&
-            game.reader.getComponents(cn("ColoniesExpansion").expression).isNotEmpty()
-    ) {
-      assertCounts(colonies to "Colony")
-    }
-  }
-
-  protected fun assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int = -1) {
-    admin.assertCounts(gen to "Generation")
-    admin.temperatureC() shouldBe temp
-    admin.oxygenPercent() shouldBe oxygen
-    admin.assertCounts(oceans to "OceanTile")
-    if (venus != -1) {
-      admin.venusPercent() shouldBe venus
-    }
-  }
-}
-
-internal fun TfmGameplay.assertTags(
-    but: Int = 0,
-    spt: Int = 0,
-    sct: Int = 0,
-    pot: Int = 0,
-    eat: Int = 0,
-    jot: Int = 0,
-    vet: Int = 0,
-    plt: Int = 0,
-    mit: Int = 0,
-    ant: Int = 0,
-    cit: Int = 0,
-) {
-  assertCounts(
-      but to "BuildingTag",
-      spt to "SpaceTag",
-      sct to "ScienceTag",
-      pot to "PowerTag",
-      eat to "EarthTag",
-      jot to "JovianTag",
-      plt to "PlantTag",
-      mit to "MicrobeTag",
-      ant to "AnimalTag",
-      cit to "CityTag",
-      vet to "VenusTag",
-  )
+  override fun player(seat: Int): TfmGameplay = agents.tfm(super.player(seat).actor)
 }

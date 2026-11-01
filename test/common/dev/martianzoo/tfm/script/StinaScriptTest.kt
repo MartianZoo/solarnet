@@ -118,7 +118,7 @@ internal class StinaScriptTest {
   }
 
   // Full-game counterparts live in
-  // test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt.
+  // test/common/dev/martianzoo/tfm/tests/replays/FullGameTest.kt.
   private fun Agent.assertCounts(vararg expected: Pair<Int, String>) {
     expected.forEach { (count, metric) -> assertEquals(count, count(metric), metric) }
   }

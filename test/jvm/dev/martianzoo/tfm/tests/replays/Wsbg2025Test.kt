@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.script.TfmMapRenderer
@@ -25,7 +24,7 @@ import kotlin.test.assertEquals
  * - Corroborating commentary: https://www.youtube.com/watch?v=RbTR59QRVEc
  * - Local evidence inventory: _local/replays/Game20250919/sources.md
  */
-internal class Wsbg2025Test : AbstractFullGameTest() {
+internal class Wsbg2025Test : FullGameTest() {
   override val config =
       GameConfig(
           """
@@ -47,8 +46,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     val green = player(3)
     val black = player(4)
     val players = listOf(blue, red, green, black)
-    players.forEach { it.autoExecPolicy = NONE }
-    admin.startGame()
+    startGame()
     players.forEach { it.doTasks("20 TerraformRating") }
     players.forEach {
       it.doTasks(
@@ -65,7 +63,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     black.doTasks("-3 ProjectCard<Selecting>")
 
     // Generation 1
-    blue.turn {
+    with(blue) {
       doTasks(
           "PlayCard<Class<$CrediCor>>",
           "$CrediCor FROM CorporationCard",
@@ -74,7 +72,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "6 ProjectCard<Hand FROM Selecting>",
       )
     }
-    red.turn {
+    with(red) {
       doTasks(
           "PlayCard<Class<$ValleyTrust>>",
           "$ValleyTrust FROM CorporationCard",
@@ -83,7 +81,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "7 ProjectCard<Hand FROM Selecting>",
       )
     }
-    green.turn {
+    with(green) {
       doTasks(
           "PlayCard<Class<$RobinsonIndustries>>",
           "$RobinsonIndustries FROM CorporationCard",
@@ -92,7 +90,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "8 ProjectCard<Hand FROM Selecting>",
       )
     }
-    black.turn {
+    with(black) {
       doTasks(
           "PlayCard<Class<$CheungShingMars>>",
           "$CheungShingMars FROM CorporationCard",
@@ -102,7 +100,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "7 ProjectCard<Hand FROM Selecting>",
       )
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           "PlayCard<Class<$UnmiContractor>>",
           "$UnmiContractor FROM PreludeCard",
@@ -118,7 +116,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
       assertCounts(1 to "$EarlySettlement") // visual confirmation
     }
-    red.turn {
+    with(red) {
       doTasks(
           "PlayCard<Class<$Biofuels>>",
           "$Biofuels FROM PreludeCard",
@@ -133,7 +131,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "3 ProjectCard",
       )
     }
-    green.turn {
+    with(green) {
       doTasks(
           "PlayCard<Class<$SelfSufficientSettlement>>",
           "$SelfSufficientSettlement FROM PreludeCard",
@@ -151,7 +149,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTask("-Required* / Required")
       doTasks("14 Pay<> FROM MC", "$Predators FROM ProjectCard")
     }
-    black.turn {
+    with(black) {
       doTasks(
           "PlayCard<Class<$AlliedBank>>",
           "$AlliedBank FROM PreludeCard",
@@ -168,7 +166,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 Plant",
       )
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
@@ -182,7 +180,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "Plant",
       )
     }
-    red.turn {
+    with(red) {
       doTasks(
           "DoRequiredActions",
           "3 PreludeCard<Selecting>",
@@ -199,10 +197,11 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "Community<Elysium_5_6>",
       )
     }
-    green.turn {
+    with(green) {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Titanium]")
+      doTask("PassBaton") // decline the second action
     }
-    black.turn {
+    with(black) {
       doTasks(
           *playCardTasks("$GhgFactories"),
           "9 Pay<> FROM MC",
@@ -210,8 +209,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[-Energy]",
           "PROD[4 Heat]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "1 Pay<> FROM MC",
@@ -219,8 +219,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[Energy]",
           "PROD[-Energy<Red>]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    red.turn {
+    with(red) {
       // Provisional Sabotage target/payment: Blue loses 7 MC.
       doTasks(
           *playCardTasks("$Sabotage"),
@@ -234,10 +235,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "$ResearchCoordination FROM ProjectCard",
       )
     }
-    green.turn { doTasks("Pass") }
-    black.turn { doTasks("Pass") }
-    blue.turn { doTasks("Pass") }
-    red.turn { doTasks("Pass") }
+    with(green) { doTasks("Pass") }
+    with(black) { doTasks("Pass") }
+    with(blue) { doTasks("Pass") }
+    with(red) { doTasks("Pass") }
 
     // Generation 2
     blue.doTasks("23 MC", "Plant", "Energy")
@@ -280,7 +281,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    red.turn {
+    with(red) {
       doTasks(
           *playCardTasks("$Archaebacteria"),
           "6 Pay<> FROM MC",
@@ -289,7 +290,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Ecologist")
     }
-    green.turn {
+    with(green) {
       doTasks(
           *playCardTasks("$IndustrialCenter"),
           "Ok", // no steel paid; payment allocation is provisional
@@ -308,7 +309,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[Steel]",
       )
     }
-    black.turn {
+    with(black) {
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$TowingAComet"),
@@ -326,7 +327,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTask("NOW Blue { 2 Plant<Blue> }")
       blue.doTasks("2 Plant") // Arctic Algae
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$ElectroCatapult"),
           "15 Pay<> FROM MC",
@@ -335,11 +336,12 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
       doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
     }
-    red.turn { doTasks("Pass") }
-    green.turn {
+    with(red) { doTasks("Pass") }
+    with(green) {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Heat]")
+      doTask("PassBaton") // decline the second action
     }
-    black.turn {
+    with(black) {
       doTasks(
           *playCardTasks("$DomedCrater"),
           "22 Pay<> FROM MC",
@@ -351,10 +353,11 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 Plant",
           "2 MC",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn { doTasks("Pass") }
-    green.turn { doTasks("Pass") }
-    black.turn {
+    with(blue) { doTasks("Pass") }
+    with(green) { doTasks("Pass") }
+    with(black) {
       // Greenery timing inferred between 00:38:30 and 00:43:30.
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Elysium_4_3>", "OxygenStep", "TerraformRating", "Plant", "2 MC", "2 MC")
@@ -402,12 +405,12 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    green.turn {
+    with(green) {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Generalist")
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Titanium]")
       assertCounts(1 to "Generalist", 2 to "PROD[Titanium]") // visual confirmation
     }
-    black.turn {
+    with(black) {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Specialist")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -416,7 +419,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "TerraformRating",
       )
     }
-    blue.turn {
+    with(blue) {
       doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
       doTasks(
           *playCardTasks("$OptimalAerobraking"),
@@ -424,7 +427,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "$OptimalAerobraking FROM ProjectCard",
       )
     }
-    red.turn {
+    with(red) {
       // Provisional patent count: two.
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
       doTasks(
@@ -435,7 +438,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "3 Plant",
       )
     }
-    green.turn {
+    with(green) {
       doTasks(
           *playCardTasks("$MartianSurvey"),
           "9 Pay<> FROM MC",
@@ -454,7 +457,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
       // Secondary 00:27:48 identifies Mining Area; the primary commentary calls it Mining Rights.
     }
-    black.turn {
+    with(black) {
       doTasks(
           *playCardTasks("$LunarBeam"),
           "13 Pay<> FROM MC",
@@ -463,8 +466,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[2 Heat]",
           "PROD[2 Energy]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$ConvoyFromEuropa"),
           "13 Pay<> FROM MC",
@@ -489,7 +493,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 MC",
       )
     }
-    red.turn {
+    with(red) {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
           "GreeneryTile<Elysium_5_5>",
@@ -499,8 +503,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 MC",
           "TerraformRating",
       )
+      doTask("PassBaton") // decline the second action
     }
-    green.turn {
+    with(green) {
       doTasks(
           *playCardTasks("$LagrangeObservatory"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -508,9 +513,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "$LagrangeObservatory FROM ProjectCard",
           "ProjectCard",
       )
+      doTask("PassBaton") // decline the second action
     }
-    black.turn { doTasks("Pass") }
-    blue.turn {
+    with(black) { doTasks("Pass") }
+    with(blue) {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
           "GreeneryTile<Elysium_2_6>",
@@ -528,9 +534,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "-2 Plant",
       )
     }
-    red.turn { doTasks("Pass") }
-    green.turn { doTasks("Pass") }
-    blue.turn { doTasks("Pass") }
+    with(red) { doTasks("Pass") }
+    with(green) { doTasks("Pass") }
+    with(blue) { doTasks("Pass") }
 
     // Generation 4
     blue.doTasks("26 MC", "3 Plant")
@@ -591,7 +597,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    black.turn {
+    with(black) {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "6 Pay<> FROM MC",
@@ -599,17 +605,19 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "-ProjectCard THEN ProjectCard",
           "ProjectCard",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn {
+    with(blue) {
       assertCounts(26 to "MC") // visual confirmation
       doTasks(
           *cardActionTasks("$ElectroCatapult", "Action2"),
           "Pay<Class<Steel>> FROM Steel",
           "7 MC",
       )
+      doTask("PassBaton") // decline the second action
     }
     blue.assertCounts(33 to "MC") // visual confirmation
-    red.turn {
+    with(red) {
       doTasks(
           *playCardTasks("$ProtectedHabitats"),
           "5 Pay<> FROM MC",
@@ -622,7 +630,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "Microbe<$Decomposers>",
       )
     }
-    green.turn {
+    with(green) {
       doTasks(
           *playCardTasks("$ColonizerTrainingCamp"),
           "Pay<Class<Steel>> FROM Steel",
@@ -631,7 +639,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Steel]")
     }
-    black.turn {
+    with(black) {
       // Robotic Workforce copies Cheung Shing Mars; commentary misidentifies it as Dome Farming.
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
@@ -642,14 +650,16 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "-ProjectCard THEN ProjectCard",
           "ProjectCard",
       )
+      doTask("PassBaton") // decline the second action
     }
     black.assertProduction(m = 11, s = 0, t = 0, p = 0, e = 2, h = 6)
-    blue.turn {
+    with(blue) {
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
+      doTask("PassBaton") // decline the second action
     }
     blue.assertCounts(34 to "MC") // visual confirmation
 
-    red.turn {
+    with(red) {
       // Provisional grouping: Reservoir followed by heat conversion.
       doTasks(
           *playCardTasks("$SubterraneanReservoir"),
@@ -670,8 +680,8 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "TerraformRating",
       )
     }
-    green.turn { doTasks("Pass") }
-    black.turn {
+    with(green) { doTasks("Pass") }
+    with(black) {
       doTasks(
           *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
@@ -679,8 +689,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "Plant",
           "PROD[2 Plant]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn {
+    with(blue) {
       // 01:00:30: ocean order is inferred.
       doTasks(
           *playCardTasks("$GiantIceAsteroid"),
@@ -718,7 +729,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
     }
     blue.assertCounts(31 to "TerraformRating") // 01:01:50 track
-    red.turn {
+    with(red) {
       doTasks(
           *playCardTasks("$Greenhouses"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -730,15 +741,16 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Elysium_4_5>", "OxygenStep", "TerraformRating", "Plant", "2 MC", "2 MC")
     }
-    black.turn {
+    with(black) {
       doTasks(
           *playCardTasks("$Sponsors"),
           "6 Pay<> FROM MC",
           "$Sponsors FROM ProjectCard",
           "PROD[2 MC]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn {
+    with(blue) {
       // Steel allocation inferred.
       doTasks(
           *playCardTasks("$GeothermalPower"),
@@ -747,8 +759,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "$GeothermalPower FROM ProjectCard",
           "PROD[2 Energy]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    red.turn {
+    with(red) {
       doTasks(
           *playCardTasks("$SmallAnimals"),
           "6 Pay<> FROM MC",
@@ -758,7 +771,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
     }
-    black.turn {
+    with(black) {
       // Search reveal unidentified; declining Mars University is provisional.
       doTasks(
           *playCardTasks("$SearchForLife"),
@@ -774,9 +787,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "-ProjectCard<Revealed>",
       )
     }
-    blue.turn { doTasks("Pass") }
-    red.turn { doTasks("Pass") }
-    black.turn { doTasks("Pass") }
+    with(blue) { doTasks("Pass") }
+    with(red) { doTasks("Pass") }
+    with(black) { doTasks("Pass") }
 
     // Production, about 01:03:30.
     blue.doTasks("31 MC", "2 Plant", "2 Energy", "Heat")
@@ -819,7 +832,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
         "12 Pay<> FROM MC",
         "4 ProjectCard<Hand FROM Selecting>",
     )
-    blue.turn {
+    with(blue) {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -840,7 +853,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[5 MC]",
       )
     }
-    red.turn {
+    with(red) {
       doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "DesertSettler")
       doTasks(
           *playCardTasks("$Worms"),
@@ -851,7 +864,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
     }
     // Large Convoy payment inferred: six titanium and 18 MC.
-    green.turn {
+    with(green) {
       doTasks(
           *playCardTasks("$LargeConvoy"),
           "6 Pay<Class<Titanium>> FROM Titanium",
@@ -880,7 +893,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "TerraformRating",
       )
     }
-    black.turn {
+    with(black) {
       // Guild discard and Mars University exchanges are provisional.
       doTasks(
           *playCardTasks("$InventorsGuild"),
@@ -895,7 +908,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "-ProjectCard<Selecting>",
       )
     }
-    blue.turn {
+    with(blue) {
       // Catapult timing and plant payment inferred.
       doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
       doTasks(
@@ -906,7 +919,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[2 Titanium]",
       )
     }
-    red.turn {
+    with(red) {
       // Steel allocation and animal-action timing are provisional.
       doTasks(
           *playCardTasks("$RoverConstruction"),
@@ -916,11 +929,12 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
     }
-    green.turn {
+    with(green) {
       // Robinson timing inferred from later plant production.
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Plant]")
+      doTask("PassBaton") // decline the second action
     }
-    black.turn {
+    with(black) {
       // Heat-conversion timing inferred from later 26 TR.
       doTasks(
           *playCardTasks("$DesignedMicroorganisms"),
@@ -937,10 +951,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "TerraformRating",
       )
     }
-    blue.turn { doTasks("Pass") }
-    red.turn { doTasks("Pass") }
-    green.turn { doTasks("Pass") }
-    black.turn {
+    with(blue) { doTasks("Pass") }
+    with(red) { doTasks("Pass") }
+    with(green) { doTasks("Pass") }
+    with(black) {
       // Search outcome provisionally a miss.
       doTasks(
           *cardActionTasks("$SearchForLife"),
@@ -983,7 +997,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
         "9 Pay<> FROM MC",
         "3 ProjectCard<Hand FROM Selecting>",
     )
-    red.turn {
+    with(red) {
       // Southern greenery placement order is provisional.
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Elysium_6_6>", "OxygenStep", "TerraformRating", "Plant")
@@ -998,7 +1012,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "TerraformRating",
       )
     }
-    green.turn {
+    with(green) {
       doTasks(
           *playCardTasks("$Herbivores"),
           "12 Pay<> FROM MC",
@@ -1015,7 +1029,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "Animal<$Herbivores>",
       )
     }
-    black.turn {
+    with(black) {
       // Guild purchase and Mars University card identities remain unknown.
       doTasks(
           *cardActionTasks("$InventorsGuild"),
@@ -1032,7 +1046,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "ProjectCard",
       )
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$ArtificialPhotosynthesis"),
           "10 Pay<> FROM MC",
@@ -1044,11 +1058,12 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTask("NOW Red { 2 MC<Red> }")
       red.doTasks("2 MC")
     }
-    red.turn {
+    with(red) {
       // Small Animals turn grouping is provisional.
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTask("PassBaton") // decline the second action
     }
-    green.turn {
+    with(green) {
       assertCounts(6 to "Steel") // visual confirmation
       doTasks(
           *playCardTasks("$HousePrinting"),
@@ -1058,15 +1073,17 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[Steel]",
       )
       assertCounts(1 to "Steel")
+      doTask("PassBaton") // decline the second action
     }
-    black.turn {
+    with(black) {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$KelpFarming"),
           "15 Pay<> FROM MC",
@@ -1078,7 +1095,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Elysium_3_3>", "OxygenStep", "TerraformRating", "ProjectCard", "2 MC")
     }
-    red.turn {
+    with(red) {
       // Investment Loan / Noctis Farming turn grouping is provisional.
       doTasks(
           *playCardTasks("$InvestmentLoan"),
@@ -1087,8 +1104,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "10 MC",
           "PROD[-MC]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    green.turn {
+    with(green) {
       doTasks(
           *playCardTasks("$SfMemorial"),
           "Pay<Class<Steel>> FROM Steel",
@@ -1096,8 +1114,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "$SfMemorial FROM ProjectCard",
           "ProjectCard",
       )
+      doTask("PassBaton") // decline the second action
     }
-    black.turn {
+    with(black) {
       doTasks(
           *playCardTasks("$MassConverter"),
           "8 Pay<> FROM MC",
@@ -1106,8 +1125,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "-ProjectCard THEN ProjectCard",
           "ProjectCard",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$Shuttles"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1119,7 +1139,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       // Catapult plant payment inferred.
       doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
     }
-    red.turn {
+    with(red) {
       doTasks(
           *playCardTasks("$NoctisFarming"),
           "Pay<Class<Steel>> FROM Steel",
@@ -1129,14 +1149,15 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 Plant",
           "Microbe<$Decomposers>",
       )
+      doTask("PassBaton") // decline the second action
     }
-    green.turn {
+    with(green) {
       assertCounts(3 to "MC")
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Energy]")
       assertCounts(0 to "MC")
     }
-    black.turn {
+    with(black) {
       doTasks(
           *playCardTasks("$Mine"),
           "2 Pay<> FROM MC",
@@ -1150,20 +1171,22 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[Titanium]",
       )
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$Satellites"),
           "6 Pay<> FROM MC",
           "$Satellites FROM ProjectCard",
           "PROD[4 MC]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    red.turn { doTasks("Pass") }
-    green.turn {
+    with(red) { doTasks("Pass") }
+    with(green) {
       // Predators target inferred: his own Herbivores.
       doTasks(*cardActionTasks("$Predators"), "-Animal<$Herbivores>", "Animal<$Predators>")
+      doTask("PassBaton") // decline the second action
     }
-    black.turn {
+    with(black) {
       doTasks(
           *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
@@ -1171,9 +1194,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, $SearchForLife>",
           "-ProjectCard<Revealed>",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn { doTasks("Pass") }
-    green.turn { doTasks("Pass") }
+    with(blue) { doTasks("Pass") }
+    with(green) { doTasks("Pass") }
     blue.assertCounts(33 to "TerraformRating")
     blue.assertCounts(6 to "MC", 0 to "Plant") // visual confirmation
     red.assertCounts(27 to "TerraformRating")
@@ -1183,7 +1207,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     black.assertCounts(26 to "TerraformRating")
     black.assertCounts(7 to "MC") // visual confirmation
 
-    black.turn { doTasks("Pass") }
+    with(black) { doTasks("Pass") }
 
     // Generation 7 production, about 01:31:24.
     blue.assertCounts(
@@ -1259,7 +1283,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
         "12 Pay<> FROM MC",
         "4 ProjectCard<Hand FROM Selecting>",
     )
-    green.turn {
+    with(green) {
       doTasks(
           *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
@@ -1281,7 +1305,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTask("NOW Red { 2 MC<Red> }")
       red.doTasks("2 MC")
     }
-    black.turn {
+    with(black) {
       // 01:40:05 shows a greenery, despite commentary calling it a city spot.
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Elysium_6_4>", "OxygenStep", "TerraformRating", "Plant", "2 MC")
@@ -1293,11 +1317,11 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "ProjectCard<Hand FROM Selecting>",
       )
     }
-    blue.turn {
+    with(blue) {
       doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Celebrity")
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "EstateDealer")
     }
-    red.turn {
+    with(red) {
       // Immigrant City, corrected by primary commentary at 01:43:40.
       doTasks(
           *playCardTasks("$PeroxidePower"),
@@ -1319,7 +1343,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[MC]",
       )
     }
-    green.turn {
+    with(green) {
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$MiningRights"),
@@ -1330,7 +1354,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[Titanium]",
       )
     }
-    black.turn {
+    with(black) {
       doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
       doTasks(
           *playCardTasks("$IndenturedWorkers"),
@@ -1339,7 +1363,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "3 MC",
       )
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$CallistoPenalMines"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1356,16 +1380,17 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "TerraformRating",
       )
     }
-    red.turn {
+    with(red) {
       // Small Animals timing inferred.
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Elysium_8_4>", "OxygenStep", "TerraformRating", "2 Steel")
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
     }
-    green.turn {
+    with(green) {
       doTasks(*cardActionTasks("$Predators"), "-Animal<$Herbivores>", "Animal<$Predators>")
+      doTask("PassBaton") // decline the second action
     }
-    black.turn {
+    with(black) {
       // Power Plant timing inferred before Medical Lab from building tags and energy production.
       doTasks(
           *playCardTasks("$ProtectedValley"),
@@ -1386,7 +1411,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[Energy]",
       )
     }
-    blue.turn {
+    with(blue) {
       // Catapult plant payment inferred.
       doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
       doTasks(
@@ -1397,7 +1422,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "2 Plant",
       )
     }
-    red.turn {
+    with(red) {
       doTasks(
           *playCardTasks("$Insects"),
           "9 Pay<> FROM MC",
@@ -1405,9 +1430,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[4 Plant]",
           "Microbe<$Decomposers>",
       )
+      doTask("PassBaton") // decline the second action
     }
-    green.turn { doTasks("Pass") }
-    black.turn {
+    with(green) { doTasks("Pass") }
+    with(black) {
       doTasks(
           *playCardTasks("$MedicalLab"),
           "11 Pay<> FROM MC",
@@ -1423,9 +1449,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "ProjectCard",
       )
     }
-    blue.turn { doTasks("Pass") }
-    red.turn { doTasks("Pass") }
-    black.turn {
+    with(blue) { doTasks("Pass") }
+    with(red) { doTasks("Pass") }
+    with(black) {
       // Both heat conversions grouped here provisionally.
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -1463,7 +1489,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     black.assertCounts(30 to "TerraformRating")
     black.assertCounts(1 to "MC") // visual confirmation
     green.assertCounts(0 to "MC") // visual confirmation
-    black.turn { doTasks("Pass") }
+    with(black) { doTasks("Pass") }
 
     // Generation 8 production. Secondary 01:10:51 corrects Black to 24 MC / 1 steel production.
     blue.doTasks("53 MC", "2 Titanium", "6 Plant", "2 Heat")
@@ -1568,7 +1594,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
         "ProjectCard<Hand FROM Selecting>",
     )
 
-    black.turn {
+    with(black) {
       // Mars University exchange unknown; retaining the hand is provisional.
       doTasks(
           *playCardTasks("$ViralEnhancers"),
@@ -1580,13 +1606,13 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Elysium_5_2>", "2 Plant", "OxygenStep", "TerraformRating")
     }
-    blue.turn {
+    with(blue) {
       // Catapult timing/payment inferred.
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Elysium_7_6>", "0 OxygenStep")
       doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
     }
-    red.turn {
+    with(red) {
       doTasks(
           *playCardTasks("$HiredRaiders"),
           "Pay<> FROM MC",
@@ -1605,7 +1631,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "CommercialDistrict_SpecialTile<Elysium_7_8>",
       )
     }
-    green.turn {
+    with(green) {
       // Robinson energy increase inferred to fund Open City.
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Energy]")
       doTasks(
@@ -1623,25 +1649,28 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTask("NOW Red { PROD[MC<Red>] }")
       red.doTask("PROD[MC]")
     }
-    black.turn {
+    with(black) {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$StandardTechnology"),
           "4 Pay<> FROM MC",
           "$StandardTechnology FROM ProjectCard",
       )
+      doTask("PassBaton") // decline the second action
     }
-    red.turn {
+    with(red) {
       // Final Small Animals activation timing inferred.
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTask("PassBaton") // decline the second action
     }
-    green.turn {
+    with(green) {
       // Immigration Shuttles titanium payment inferred.
       doTasks(
           *playCardTasks("$ImmigrationShuttles"),
@@ -1650,16 +1679,18 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "$ImmigrationShuttles FROM ProjectCard",
           "PROD[5 MC]",
       )
+      doTask("PassBaton") // decline the second action
     }
-    black.turn {
+    with(black) {
       // Guild discard is provisional.
       doTasks(
           *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
           "-ProjectCard<Selecting>",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *standardProjectTasks("AsteroidProject"),
           "14 Pay<> FROM MC",
@@ -1667,8 +1698,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
+      doTask("PassBaton") // decline the second action
     }
-    red.turn {
+    with(red) {
       // 02:00:06: heat conversion then paid asteroid inferred from audio and bonus ocean.
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -1690,7 +1722,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTask("NOW Blue { 2 Plant<Blue> }")
       blue.doTasks("2 Plant")
     }
-    green.turn {
+    with(green) {
       // Heat conversion evidenced by 24 -> 25 TR; grouping with patent sale is provisional.
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -1700,7 +1732,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       )
       doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
     }
-    black.turn {
+    with(black) {
       // Two heat conversions; turn grouping provisional.
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -1715,7 +1747,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "TerraformRating",
       )
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *standardProjectTasks("AsteroidProject"),
           "14 Pay<> FROM MC",
@@ -1723,13 +1755,15 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
+      doTask("PassBaton") // decline the second action
     }
-    red.turn {
+    with(red) {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Elysium_5_7>", "2 Plant", "2 MC", "0 OxygenStep")
+      doTask("PassBaton") // decline the second action
     }
-    green.turn { doTasks("Pass") }
-    black.turn {
+    with(green) { doTasks("Pass") }
+    with(black) {
       // Search for Life timing inferred.
       doTasks(
           *cardActionTasks("$SearchForLife"),
@@ -1738,8 +1772,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, $SearchForLife>",
           "-ProjectCard<Revealed>",
       )
+      doTask("PassBaton") // decline the second action
     }
-    blue.turn {
+    with(blue) {
       doTasks(
           *playCardTasks("$TerraformingGanymede"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1748,8 +1783,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "4 MC",
           "3 TerraformRating",
       )
+      doTask("PassBaton") // decline the second action
     }
-    red.turn {
+    with(red) {
       green.assertCounts(3 to "PlayedEvent") // visual confirmation
       black.assertCounts(2 to "PlayedEvent") // visual confirmation
       blue.assertCounts(3 to "PlayedEvent") // visual confirmation
@@ -1769,7 +1805,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "Microbe<$Decomposers>",
       )
     }
-    black.turn {
+    with(black) {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "12 Pay<> FROM MC",
@@ -1795,7 +1831,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "Animal<$EcologicalZone>",
       )
     }
-    blue.turn {
+    with(blue) {
       assertCounts(19 to "MC") // visual confirmation
       doTasks(
           *playCardTasks("$ImportedNitrogen"),
@@ -1816,8 +1852,8 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Elysium_7_5>", "0 OxygenStep")
     }
-    red.turn { doTasks("Pass") }
-    black.turn {
+    with(red) { doTasks("Pass") }
+    with(black) {
       // Virus removes no animals; missed Viral Enhancers rebate recovered at 02:08:38.
       doTasks(
           *playCardTasks("$Virus"),
@@ -1834,7 +1870,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "PROD[9 MC]",
       )
     }
-    blue.turn {
+    with(blue) {
       // Patent sale before Probe is provisional.
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
       doTasks(
@@ -1843,8 +1879,8 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           "$TransNeptuneProbe FROM ProjectCard",
       )
     }
-    black.turn { doTasks("Pass") }
-    blue.turn { doTasks("Pass") }
+    with(black) { doTasks("Pass") }
+    with(blue) { doTasks("Pass") }
     blue.assertCounts(
         40 to "TerraformRating",
         9 to "OceanTile",

@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 // Complete database replay: Erratic Carbon Current (gbf986ef543f0)
 // https://terraforming-mars.herokuapp.com/the-end?id=p6674c4a1893d
-internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
+internal class ErraticCarbonCurrentTest : LegacyCardTrackingFullGameTest() {
   override val config =
       GameConfig(
           """

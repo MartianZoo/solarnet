@@ -34,7 +34,9 @@
 - [`TfmGameplayTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmGameplayTest.kt) —
   scenarios reached through play, with the game's own rules offering turns and beginning phases.
 - [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
-  — read only for whole-game chronology.
+  — legacy helper-based replays. Plain-Agent replays use
+  [`FullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/FullGameTest.kt),
+  which extends `TfmGameplayTest` and retains endpoint and export/import checks.
 
 ## Standard verification
 
@@ -77,7 +79,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `archivedReplayTest` task registration is commented out and unavailable. The optional, also
   commented-out `allBrowserTests` task still runs every portable replay when restored.
   Add `-PreplayExports` to record inputs, write full `.json` and short `.short.json` game files
-  per successful `AbstractFullGameTest` subclass, and verify reconstruction in a fresh game.
+  per successful `FullGameTest` subclass, and verify reconstruction in a fresh game.
   Files go under that module's `generated/replay-event-logs` build directory. Export runs remove
   JSON files for archived games. Ordinary runs
   leave existing exports untouched. Direct JUnit runs need `-Dsolarnet.replayExports=true` and
@@ -692,14 +694,19 @@ Loan's 10 MC and Media Group's 3 MC. Agent translates the production total into 
 calls, with gains before removals and each task's effects preserved; engine has no combined-total
 command. See `Agent.doTask` for exact matching rules. Explicit `doTasks(...)` calls are atomic,
 resumable batches.
-In explicit setup, have each player take their starting TR before either player handles starting
-cards. Group each corporation, Prelude, and action-phase turn in `player.turn { ... }`; the wrapper
-declines an unused second action. Keep the task submissions inside each section as raw `doTasks`
-calls.
+Explicit-task replays extend `FullGameTest` or `CardTrackingFullGameTest`, both based on
+`TfmGameplayTest` with plain Agents and Player autoexecution disabled. Call the fixture's
+`startGame()` to begin setup. Have each player take their starting TR before either player handles
+starting cards. Group each corporation, Prelude, and action-phase turn in `with(player) { ... }`.
+When a player declines their second action, submit `doTask("PassBaton")` explicitly at the end of
+that turn. A scope block itself performs no gameplay. Keep the task submissions inside each section
+as raw `doTask`/`doTasks` calls.
 Use the shared card-name constants, give every `Ok` a short inline comment to its right naming
-the task it dismisses (for example, `// no steel paid`). Keep the replay free of `.expect()`
-calls; retain its state checkpoints and final score/winner assertions. Purchase transfers into
-`Hand` are explicit tasks from `Selecting`. Keep the replay's task calls instead of introducing
+the task it dismisses (for example, `// no steel paid`). Use `.expect()` for consequences not
+already evident from the preceding task submissions, including automatic resource changes and
+checks that a quantity stayed unchanged. Do not repeat explicit gains/removals or their arithmetic
+totals. Retain state checkpoints and final score/winner assertions. Purchase transfers into `Hand`
+are explicit tasks from `Selecting`. Keep the replay's task calls instead of introducing
 `TfmGameplay` action or payment helpers.
 
 Replay tests assert victory points only after the game's actual final scoring. Mid-game
@@ -713,7 +720,7 @@ offered turn or phase in a short comment. The count includes deferred Admin task
 action that should finish before the saved position, `completeOperation { ... }` checks its effects
 before the replay accepts the next turn or phase offer.
 With `-PreplayExports`, `ReplayExportExtension` enables recording before test setup, so
-`AbstractFullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
+`FullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
 replay, the extension writes full and short game files and reexecutes the full file in a
 fresh game using its checked premise and recorded inputs. The check compares the component changes with their Actors and causal ancestry,
 the final components, and pending tasks. Incidental ids, event ordinals, and the order of independent
@@ -740,12 +747,13 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   [CardTrackingFullGameTest](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt),
   which starts production [CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt)
   before gameplay. Use `cardArrivalOrder` and `cardDepartureOrder` for automatically dealt setup
-  cards. Name project hand movements beside their actions with `draw`, `discard`,
-  `buyCards(cardNames)`, and `sellPatents(cardNames)` before the relevant Agent operation completes.
+  cards. Name project hand movements beside their actions with `draw` and `discard` before the
+  relevant Agent operation completes, including purchased and sold cards. The legacy fixture also
+  provides `buyCards(cardNames)` and `sellPatents(cardNames)` wrappers.
   `assertCardTrackingComplete` checks unused supplied names. `cardArrivalOrder` describes hand
   entry, not offers or deck order. When a replay has names for every `Selecting` movement,
   `selectingArrivalOrder` and `selectingDepartureOrder` enable game-wide Selecting tracking.
-  All five card-tracked replays exercise this option. The four database replays use sourced setup
+  The four database replays and `StinaGameTest` exercise this option. The database replays use sourced setup
   and Research offers; `ErraticCarbonCurrentTest` labels two invented Invention Contest rejects.
   `StinaGameTest` also labels its invented offer assignments. If even a single modeled Selecting
   movement lacks identities, leave the option off or label a few invented assignments explicitly.
@@ -772,14 +780,12 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 - Do not inspect an existing dated test, Git history, or previous agent summary to learn what
   happened when the task calls for an independent reconstruction. Repository code and other tests
   may teach the Solarnet API only.
-- In multiplayer action phases, express each player's actions as `player.turn { ... }`. A normal
-  turn block contains up to two actions and automatically declines an unused second action. The
-  exception is a sourced fast-mode game, where players must take two actions unless passing; translate
-  those actions instead of using `turn {}`, and preserve explicit passes or declined second
-  actions when the source records them.
-  Once every other player has passed, keep the remaining player's actions through `pass()` in one
-  turn block; the `OfferAction` tasks the game keeps offering let that block continue across the
-  remaining nominal turns.
+- In multiplayer action phases, group each player's turn in `with(player) { ... }` and submit
+  `PassBaton` when the player declines their second action. Preserve sourced fast-mode choices,
+  including explicit passes and declined second actions. Once every other player has passed, the
+  remaining player's actions through `Pass` may share a scope block; the game keeps offering actions.
+  Legacy helper-based replays still use `player.turn { ... }`, which automatically declines an
+  unused second action.
 - When an Event card's sibling tasks require explicit replay ordering, record only the gameplay
   consequences. The card's `LATER` dispatch defers its flip, and the owner performs the flip once
   no ordinary work remains. The engine performs the dispatch itself; the replay records the explicit

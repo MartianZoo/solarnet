@@ -51,6 +51,9 @@ There is no optional quantifier on `X`:
 choosing an amount must not leave another choice to spend less than that amount.
 Empty alternatives, including card-held resources, are removed by Admin without an explicit decline.
 Acceptance also removes itself when no debt remains.
+Both acceptance classes default to capped gains and allow at most one instance for the same
+resource or card holder and payment scope. Multiple matching tags therefore open a single offer;
+Carbon Nanosystems accepts graphene once when a card has both city and space tags.
 Spending or declining an alternative finishes its acceptance through `THEN -This`; card-held
 payment offers do the same.
 

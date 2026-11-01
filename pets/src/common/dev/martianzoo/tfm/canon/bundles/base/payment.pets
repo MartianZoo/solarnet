@@ -35,6 +35,7 @@ CLASS Pay<@Class<StandardResource>> : Owned<Player>, Signal {
 "Offers payment using the resource held by a specific card"
 CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>, @PaymentScope<@Player>> : Owned<@Player>, MustCleanUp, System {
   HAS MAX 1 This
+  DEFAULT +AcceptingFromCard*
   This IF MAX 0 Owed:: -This
   @PaymentScope IF Owed, MAX 0 @CardResource<@ResourceCard>: -This
   @PaymentScope IF Owed, @CardResource<@ResourceCard>: \
