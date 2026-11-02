@@ -330,12 +330,6 @@ internal constructor(
     get() = declaration.abstract
 
   /**
-   * Returns [abstract]; class abstractness does not depend on [info] ([rule
-   * T2-1](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#2-classes)).
-   */
-  override fun isAbstract(info: TypeInfo): Boolean = abstract
-
-  /**
    * Tests the reflexive, transitive nominal subclass relation specified by
    * [rule T2-4](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#2-classes).
    *

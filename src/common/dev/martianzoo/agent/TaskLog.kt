@@ -3,7 +3,6 @@ package dev.martianzoo.agent
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -99,7 +98,7 @@ public class TaskLog internal constructor(private val world: World) {
 
   /**
    * Positions before Player task selections and replay corrections. An automatic selection that
-   * leaves an abstract task awaiting input also exposes a choice; automatic execution does not.
+   * leaves an open task awaiting input also exposes a choice; automatic execution does not.
    */
   public fun selectionCheckpoints(): List<Checkpoint> =
       survivingSubmissions()
@@ -147,7 +146,7 @@ public class TaskLog internal constructor(private val world: World) {
         submission.awaitsInput =
             world.tasks.selectedTask()?.let {
               val instruction = world.tasks.getTaskData(it).instruction
-              instruction !is Each && instruction.isAbstract(world.reader)
+              instruction.needsNarrowing(world.reader)
             } == true
         // A later full form instruction includes provisional instruction choices. Keep selection,
         // structural changes, continuations and Actor handoffs, which have independent effects.

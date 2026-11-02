@@ -244,7 +244,7 @@ Card and game-rule scenarios use the `TfmSandboxTest` and `TfmGameplayTest` fixt
 below. Choose the authentic game flow where the claim depends on it; focused sandbox scenarios remain
 an intended style.
 Dedicated REPL mode tests and lower-level engine or bootstrap tests retain their distinct subjects.
-Do not replace manual phase calls with helpers that recreate the game flow in Kotlin.
+Do not replace direct phase calls with helpers that recreate the game flow in Kotlin.
 
 These are the repository's protected test categories. Test placement may evolve, but preserving
 clear coverage of these contracts matters more than preserving every current test class:
@@ -304,7 +304,7 @@ Exercise separate Agent commands when needed to expose the selections and choice
 and test intervening work against the intended game outcome. Do not require the engine to identify
 who operates an Agent or reject a program merely
 because it calls another Player's Agent. [ADVERSARIAL.md](ADVERSARIAL.md) assigns that submission
-check to the external game arrangement. [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
+check to the external game arrangement. [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-initiated-work-has-finished)
 records the remaining operation-level questions. Do not preserve former routing fields merely to
 keep synthetic characterizations passing.
 
@@ -471,7 +471,7 @@ purchase in the test. Scenario payments finish or decline
 alternative resources before submitting the exact remainder in the bill's denomination. If those
 alternatives or a pending discount cover the full cost, submit `Ok` before the purchased result.
 Pharmacy Union's initial-play scenarios explicitly take the gated 54 MC, place each disease and
-resolve its loss, then pay the full starting-card bill. Ordinary losses do not credit a bill;
+handle its loss, then pay the full starting-card bill. Ordinary losses do not credit a bill;
 see [PAYMENTS.md](PAYMENTS.md#ordinary-resource-losses).
 In this style, omit `.expect()` assertions that merely repeat the submitted tasks; retain assertions
 for automatic consequences, excluded outcomes, and state after rejected actions. Continue using
@@ -481,7 +481,7 @@ Prefer compact `FROM` expressions, such as `Steel<Kim FROM Rob>` and
 Do not retain Terraforming Mars gameplay helpers in sandbox scenarios, including indirect calls
 through helpers. Preserve payment and card rules through explicit tasks.
 Nested `TfmGameplayTest` suites follow the real game flow.
-Use `selectTask` and `selectOnlyTask` only for an unresolved choice, structural expansion, or
+Use `selectTask` and `selectOnlyTask` only for a choice still needing narrowing, structural expansion, or
 handoff, never to carry out concrete player work. Every retained selection must have a local
 comment explaining why it is necessary. Prefer a short named selection, such as
 `selectTask("PlaceGreeneryTile")`, to an anonymous selection. String selection also narrows the
@@ -498,7 +498,7 @@ Inside that block, helpers on its operation receiver do not repeat `kim.`; anoth
 `TfmSandboxTest` supplies its own `Agent.inTurn` member extension: it uses `runOperation("OfferAction")`
 when no task is pending, and otherwise `completeOperation`. This keeps the generic Agent free of
 Terraforming Mars rules while sandbox scenarios retain their explicit operation scripts.
-Use `doTasks` for consecutive concrete instructions. Preserve order when it matters to the scenario.
+Use `doTasks` for consecutive fully specified instructions. Preserve order when it matters to the scenario.
 Comment an ambiguous `Ok` to identify what is being declined.
 Write scenario actions in sequence rather than loops. Small private scenario helpers may factor
 repeated explicit task sequences, with varying bonuses passed at each written-out call.
@@ -546,11 +546,11 @@ interaction among independently authored rules. Prefer representative coverage o
 same semantic pattern for another card with different literals.
 
 Every state change in a migrated sandbox test must come from real player-facing gameplay or from
-its explicit fixture methods. Do not use `runOperation`, `beginOperation`, arbitrary manual
+its explicit fixture methods. Do not use `runOperation`, `beginOperation`, arbitrary direct
 phase changes, or other lower-level shortcuts in either fixture's subclasses. The sandbox provides
 `advanceUntilActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
 is irrelevant; finish pending choices first. This is a sandbox shortcut, so other unplayed starting
-cards need not be resolved when they are irrelevant to the scenario. Gameplay leaves those choices
+cards need not be handled when they are irrelevant to the scenario. Gameplay leaves those choices
 to the test and advances through the game's normal flow.
 
 In sandbox tests, conditions beyond that initial state should normally be visible corrections:
@@ -685,9 +685,9 @@ Players submit their tasks explicitly. Admin handles fixed payment bookkeeping a
 `VictoryPoint` and `ScoreEventVps` are `System`;
 players do not submit scoring tasks. A pending negative score can wait for a positive score to supply the points.
 Follow the game's flow through the last passes, production, final greenery, and scoring; do not
-manually supply turns or phase transitions. Omit copied game-log
+directly supply turns or phase transitions. Omit copied game-log
 comments that only restate the submitted tasks.
-Use resolved, concrete instructions and `PROD[...]` in these `doTasks` calls, without AMAP dots or
+Use fully specified instructions and `PROD[...]` in these `doTasks` calls, without AMAP dots or
 unevaluated metrics. Combine the three production money amounts into their net income when those
 tasks are already pending. Keep amounts from unrelated reasons separate, for example Investment
 Loan's 10 MC and Media Group's 3 MC. Agent translates the production total into individual engine
@@ -834,8 +834,8 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   source-backed `.expect()` assertions for the mistake-prone types to preceding actions wherever
   practical so the remaining unexplained gap is bounded as narrowly as possible.
   Keep unexplained state reconciliations as standalone timeline statements.
-  Never place a manual or other raw adjustment inside an unrelated action body to evade a selected-task or
-  operation-scope restriction; use an explicit test mechanism or fix the helper/API instead.
+  Never place an ex machina adjustment inside an unrelated action body to evade a selected-task or
+  Agent-call completion restriction; use an explicit test mechanism or fix the helper/API instead.
   Nest a missing consequence only when the enclosing action caused it.
 
 ## Multiplatform tests

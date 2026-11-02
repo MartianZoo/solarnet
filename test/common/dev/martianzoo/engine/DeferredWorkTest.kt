@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -76,7 +76,7 @@ internal class DeferredWorkTest {
 
   @Test
   internal fun `automatic execution waits to perform deferred work`() {
-    p1.autoExecPolicy = CONCRETE
+    p1.autoExecPolicy = SOLE_TASK
     p1.addTasks("Choice, LATER { Cleanup }")
 
     p1.autoExecNow()
@@ -126,7 +126,7 @@ internal class DeferredWorkTest {
     p1.addTasks("Start, LATER { Done / Flag }")
     p1.doTask("Start")
     p1.doTask("ChoiceA")
-    p1.autoExecNow(CONCRETE)
+    p1.autoExecNow(SOLE_TASK)
 
     p1.count("Done") shouldBe 2
   }

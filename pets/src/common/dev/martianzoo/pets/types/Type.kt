@@ -120,7 +120,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
    * [T5-3](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#5-types);
    * [info] is not consulted.
    */
-  override fun isAbstract(info: TypeInfo): Boolean = groundType.isAbstract(info)
+  public fun isAbstract(info: TypeInfo): Boolean = groundType.isAbstract(info)
 
   /**
    * Asserts the contextual narrowing relation of

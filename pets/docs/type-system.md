@@ -130,13 +130,13 @@ One possible way to think of this is that `PlantProduction<Player>` both specifi
 
 The effects inside a class declaration can use the special class name `This`. It is a placeholder for the *specific concrete type* of whatever component inherits it.
 
-### Invariants and operation completion
+### Invariants after an immediate change cascade
 
-A class-declared count invariant states what must be true when a full operation completes. For this
-check, an operation includes one initiating component change and all its recursive automatic (`::`)
+A class-declared count invariant states what must be true after an immediate change cascade. For this
+check, the cascade includes one initiating component change and all its recursive automatic (`::`)
 consequences. Intermediate counts may be outside the declared bounds. For example, a mandatory gain
 can add a new member of a maximum-one family whose automatic effect removes the old member. The
-engine validates the resulting counts before completing the operation; if they still violate an
+engine validates the resulting counts before completing the cascade; if they still violate an
 invariant, validation fails.
 
 A positive exact-count invariant constructs missing concrete parts directly dependent on a newly
@@ -144,8 +144,8 @@ gained component, recursively and in dependency order before any of their gain r
 automatic reactions then run before their owners' automatic reactions. Abstract
 requirements, minimum-only bounds, self-counts, and unrelated prerequisites remain constraints;
 authors supply any consequences needed to satisfy them. Queued (`:`) work and separate initiating
-changes must satisfy invariants at their own completion boundaries; a later task cannot repair an earlier operation.
-`THEN` stages inside automatic consequences belong to the same operation, but `THEN` between queued
+changes must satisfy invariants after their own immediate cascades; a later task cannot repair an earlier cascade.
+`THEN` stages inside automatic consequences belong to the same cascade, but `THEN` between queued
 tasks does not combine their invariant checks. Bootstrap validates required counts after constructing
 the initial world.
 
@@ -154,13 +154,13 @@ source components, and a gain needs its dependency components to exist already. 
 quantities still use the current invariant bounds, with negative headroom or footroom clamped to
 zero. Effects can observe intermediate states. Automatic listeners in each trigger batch match
 against the same post-change snapshot. See the
-[quantifier contract](../../docs/agents/QUANTIFIERS.md#invariants-at-operation-completion) for resolution details.
+[quantifier contract](../../docs/agents/QUANTIFIERS.md#invariants-after-an-immediate-change-cascade) for quantity-evaluation details.
 
 ### Singleton types
 
-A class invariant such as `HAS =1 This` constrains every inhabited concrete type rooted in that class or its subclasses to exactly one occurrence at operation completion. It does not create that occurrence. A component that must exist needs an explicit creator, such as the premise, a Module, or another component's instruction.
+A class invariant such as `HAS =1 This` constrains every inhabited concrete type rooted in that class or its subclasses to exactly one occurrence after each immediate change cascade. It does not create that occurrence. A component that must exist needs an explicit creator, such as the premise, a Module, or another component's instruction.
 
-For example, `Area` has an exact-one invariant. The selected `MarsMap` uses `EACH Class<Area> { Area }` to create every inhabited concrete Area. Each subsequent operation must leave exactly one of each, including when its automatic consequences change intermediate counts.
+For example, `Area` has an exact-one invariant. The selected `MarsMap` uses `EACH Class<Area> { Area }` to create every inhabited concrete Area. Each subsequent immediate change cascade must leave exactly one of each, including when its automatic consequences change intermediate counts.
 
 ### Class types
 

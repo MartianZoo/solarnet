@@ -22,7 +22,7 @@ compose with quantification but have their own rules.
 
 | Syntax | Name | Contract |
 | --- | --- | --- |
-| `!` | mandatory | Execute exactly `n`: require sources and dependencies immediately, validate count bounds at operation completion. |
+| `!` | mandatory | Execute exactly `n`: require sources and dependencies immediately, validate count bounds after the immediate change cascade. |
 | `?` | optional | Let the player choose a count from zero through `n` whose complete transaction succeeds. Positive counts require sources and dependencies; a missing dependency can reduce a pure gain to `Ok`. |
 | `*` | AMAP | Execute `min(n, m)`; the engine, not the player, chooses the count. |
 

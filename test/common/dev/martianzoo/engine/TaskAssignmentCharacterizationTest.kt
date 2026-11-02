@@ -325,7 +325,7 @@ internal class TaskAssignmentCharacterizationTest {
 
     p1.doTask("SystemChoiceA")
 
-    // The Player supplies the narrowing and Admin performs the resulting concrete System gain,
+    // The Player supplies the narrowing and Admin performs the resulting System gain,
     // so the Player's submission is accepted without the Player ever executing System work.
     p1.count("SystemChoiceA") shouldBe 1
     game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
@@ -531,7 +531,7 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun performerOverridePreservesThenTaskSequencing() {
+  internal fun byActorOverridePreservesThenTaskSequencing() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     game.testAgent(ADMIN)

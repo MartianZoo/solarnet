@@ -51,17 +51,17 @@ internal class DomainExceptionContractTest {
   }
 
   @Test
-  internal fun correctionsRejectAbstractAndNonChangeInstructionsWithDomainExceptions() {
+  internal fun correctionsRejectInstructionsNeedingNarrowingAndNonChangesWithDomainExceptions() {
     val agent = agent()
 
     val incomplete = shouldThrow<NotFullySpecifiedException> { agent.exMachina("Plant OR Heat") }
-    incomplete.message!!.startsWith("instruction is abstract:") shouldBe true
+    incomplete.message!!.startsWith("instruction needs narrowing:") shouldBe true
     shouldThrow<NotFullySpecifiedException> { agent.exMachina("X Plant") }
     shouldThrow<ExpressionException> { agent.exMachina("Plant: Heat") }
   }
 
   @Test
-  internal fun abstractPetsInputReachesTaskExecutionAndCompletionBoundaries() {
+  internal fun unfixedPetsInputReachesTaskExecutionAndCompletionChecks() {
     val agent = agent()
     agent.beginOperation("X Plant")
 
@@ -69,7 +69,7 @@ internal class DomainExceptionContractTest {
     execution.message!!.startsWith("transaction analysis does not cover") shouldBe true
 
     val completion = shouldThrow<NotFullySpecifiedException> { agent.completeOperation() }
-    completion.message!!.startsWith("pending abstract tasks:") shouldBe true
+    completion.message!!.startsWith("pending tasks need narrowing:") shouldBe true
   }
 
   @Test

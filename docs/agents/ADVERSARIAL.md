@@ -107,7 +107,7 @@ rule consequences remain independently checkable. Admin's permitted handling of 
 defined in [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md). Whoever keeps the deck secret has a separate
 job from the engine's Admin Actor.
 
-A determined result is not necessarily work that may be performed immediately: choosing when to
+A closed instruction is not necessarily work that may be performed immediately: choosing when to
 execute it can affect other available choices. For acceptance as shared play, batching another
 Actor's work needs that Actor's authorization or an agreed rule that preserves those choices;
 this adds no permission check to local Agent calls. Likewise,

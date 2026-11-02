@@ -74,10 +74,11 @@ An existing implementation or conformance test is evidence of behavior, not of i
   dependency bound, recursively.
 - A **ground type** is any type that is not a type variable (section 13). A ground type may carry
   refinements.
-- A **component** is one occurrence of a concrete type (T5-3) in a game state, and a **state** is a
-  multiset of components. This specification is about types; it mentions components only to say what
-  a type means.
-- A **world** is whatever can answer whether a requirement holds in one state. Most of the type
+- A **component** is one occurrence of a concrete type (T5-3). A **component state** is a multiset
+  of components, the projection of game state relevant to this type specification; the full game
+  state also contains pending tasks. This specification mentions components only to say what a type
+  means.
+- A **world** is whatever can answer whether a requirement holds in a component state. Most of the type
   system never consults a world. A rule that does says so.
 
 ### The examples
@@ -177,7 +178,7 @@ restrictions do not make refinement types a separate kind of expression.
   decided when the premise is constructed, not by the type system.
 - **Component-count invariants**, except for the one rule the type system leans on (T3-9): a
   dependency may only target a type limited to a single copy. Runtime enforcement at
-  [operation completion](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system.md#invariants-and-operation-completion) belongs to the engine.
+  [validation after an immediate change cascade](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system.md#invariants-after-an-immediate-change-cascade) belongs to the engine.
 - **What the rest of Pets means.** Instructions, requirements, metrics, triggers and declarations
   are the subject of [the Pets language specification](pets-language-spec.md), whose rules are cited
   here as `L2-10`. How an engine brings a change about is outside both documents.

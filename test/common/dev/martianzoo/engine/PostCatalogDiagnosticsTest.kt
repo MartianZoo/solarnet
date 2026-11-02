@@ -2251,10 +2251,10 @@ internal class PostCatalogDiagnosticsTest {
           agent.exMachina("X Water")
         }
 
-    assertEquals("instruction is abstract: `X! Water`", error.detail)
+    assertEquals("instruction needs narrowing: `X! Water`", error.detail)
     assertEquals(
         """
-        |instruction is abstract: `X! Water` at 1:1
+        |instruction needs narrowing: `X! Water` at 1:1
         |X Water
         |^
         """
@@ -2336,11 +2336,11 @@ internal class PostCatalogDiagnosticsTest {
           agent.completeOperation()
         }
 
-    assertEquals("pending abstract tasks:\n9* [Player1] X! Water", error.detail)
+    assertEquals("pending tasks need narrowing:\n9* [Player1] X! Water", error.detail)
     // Prefer a caret on `X` in the pending authored instruction `X Water`.
     assertEquals(
         """
-        |pending abstract tasks:
+        |pending tasks need narrowing:
         |9* [Player1] X! Water
         """
             .trimMargin(),

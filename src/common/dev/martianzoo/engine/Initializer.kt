@@ -109,8 +109,7 @@ internal class Initializer(
       actorEngines(assignee).selectTask(taskId)
       val selected = allTasks.getTaskData(taskId)
       if (
-          selected.instruction.isAbstract(reader) &&
-              selected.instruction !is Instruction.Each &&
+          selected.instruction.needsNarrowing(reader) &&
               selected.instruction !is InstructionGroup &&
               (selected.assignee != ADMIN || !actorEngines(ADMIN).canExecuteTask(taskId))
       ) {

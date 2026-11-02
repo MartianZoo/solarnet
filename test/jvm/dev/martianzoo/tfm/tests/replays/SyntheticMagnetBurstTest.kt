@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
@@ -337,7 +337,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Nobel Prize's wild icon counts as Green's eighth distinct tag.
       // Green claimed Diversifier milestone
       inTurn {
-        doWithAutoExecPolicy(CONCRETE) {
+        doWithAutoExecPolicy(SOLE_TASK) {
           useStdAction("UseAction<ClaimMilestoneAction, Action1>") {
             doTask("Diversifier")
           }

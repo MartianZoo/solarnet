@@ -26,8 +26,6 @@ import kotlin.test.Test
 internal class Lang03NarrowingTest {
 
   private object BrokenSpecification : Specification<BrokenSpecification> {
-    override fun isAbstract(info: TypeInfo): Boolean = false
-
     override fun ensureNarrows(that: BrokenSpecification, info: TypeInfo): Unit =
         error("not a narrowing refusal")
   }
@@ -39,27 +37,29 @@ internal class Lang03NarrowingTest {
     elaborate(narrow).ensureNarrows(elaborate(wide), langWorld)
   }
 
-  private fun abstract(source: String): Boolean = elaborate(source).isAbstract(langWorld)
+  private fun needsNarrowing(source: String): Boolean = elaborate(source).needsNarrowing(langWorld)
 
-  // L3-1 What counts as open
+  // L3-1 What needs narrowing
 
   @Test
-  internal fun `L3-1 an instruction is abstract when something is still open`() {
-    abstract("2! Plant") shouldBe false
-    abstract("2? Plant") shouldBe true
-    abstract("X! Plant") shouldBe true
-    abstract("Plant! OR Heat!") shouldBe true
-    abstract("Tile<>") shouldBe true
-    abstract("GreeneryTile<Land1>") shouldBe false
-    abstract("Ok") shouldBe false
+  internal fun `L3-1 an instruction needs narrowing when a choice remains`() {
+    needsNarrowing("2! Plant") shouldBe false
+    needsNarrowing("2? Plant") shouldBe true
+    needsNarrowing("X! Plant") shouldBe true
+    needsNarrowing("Plant! OR Heat!") shouldBe true
+    needsNarrowing("Tile<>") shouldBe true
+    needsNarrowing("GreeneryTile<Land1>") shouldBe false
+    needsNarrowing("Ok") shouldBe false
   }
 
   @Test
-  internal fun `L3-1 an abstract part anywhere makes the whole thing abstract`() {
-    abstract("Plant, Tile<>") shouldBe true
-    abstract("Plant THEN Tile<>") shouldBe true
-    abstract("MAX 0 Heat: Tile<>") shouldBe true
-    abstract("Plant / Heat") shouldBe false
+  internal fun `L3-1 an immediate choice requires narrowing but carried work does not`() {
+    needsNarrowing("Plant, Tile<>") shouldBe true
+    needsNarrowing("Plant THEN Tile<>") shouldBe true
+    needsNarrowing("MAX 0 Heat: Tile<>") shouldBe true
+    needsNarrowing("Plant / Heat") shouldBe false
+    needsNarrowing("EACH Player { X Plant }") shouldBe false
+    needsNarrowing("SOON Player1 { X Plant }") shouldBe false
   }
 
   // L3-2 Shape
@@ -133,7 +133,7 @@ internal class Lang03NarrowingTest {
   }
 
   @Test
-  internal fun `L3-4 an abstract instruction choice must retain its HAS predicates`() {
+  internal fun `L3-4 an open instruction choice must retain its HAS predicates`() {
     refuses("GreeneryTile<LandArea(HAS Marker)>!", "GreeneryTile<LandArea>!")
     narrows("GreeneryTile<LandArea(HAS Marker)>!", "GreeneryTile<Land1>!") shouldBe true
     narrows("GreeneryTile<LandArea(HAS Marker)>!", "GreeneryTile<LandArea(HAS Marker)>!") shouldBe
@@ -410,7 +410,7 @@ internal class Lang03NarrowingTest {
   }
 
   @Test
-  internal fun `L3-8 transmutation permits independent abstract choices but rejects self narrowing`() {
+  internal fun `L3-8 transmutation permits independent Type choices but rejects self narrowing`() {
     narrows("Token FROM Token", "RedToken FROM BlueToken") shouldBe true
     shouldThrow<ExpressionException> { elaborate("Chosen@Token FROM Chosen@Token") }
     val independent = elaborate("Token FROM Token")
@@ -437,7 +437,7 @@ internal class Lang03NarrowingTest {
   }
 
   @Test
-  internal fun `L3-8 nested abstract choices must retain their shared marker in either kind of box`() {
+  internal fun `L3-8 nested Type choices must retain their shared marker in either kind of box`() {
     for (boxModifier in listOf("", "ABSTRACT ")) {
       val table =
           loadTypes(

@@ -43,7 +43,7 @@ with timing and current differences from the interaction contract.
    [turns and turn offers](../pets/docs/agents/GAME_FLOW.md#turns-and-turn-offers), including
    the Head Start variant, [on-turn identity and routing](agents/IDENTITY.md#who-is-on-turn-and-who-decides),
    and [deferred work](agents/SEQUENCING.md#deferred-work). Ordering delegated
-   responses and their payments remains open; see [completion](agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
+   responses and their payments remains open; see [completion](agents/SEQUENCING.md#the-missing-rule-when-initiated-work-has-finished)
    and [payment gaps](agents/PAYMENTS.md#allocation-validation).
 
 2. **Make the game advance through authored rules instead of a mirrored Kotlin workflow.**

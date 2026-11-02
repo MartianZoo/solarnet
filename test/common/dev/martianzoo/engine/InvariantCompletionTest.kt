@@ -984,7 +984,7 @@ internal class InvariantCompletionTest {
 
   @Test
   internal fun theWrongPerformerDoesNotTriggerTheRepair() {
-    val world = performerDependentWorld()
+    val world = actorDependentWorld()
     val before = world.events.nextOrdinal
     val admin = world.testAgent(ADMIN)
 
@@ -996,7 +996,7 @@ internal class InvariantCompletionTest {
   }
 
   private fun checkPerformerDependentRepair(overrideActor: Boolean) {
-    val world = performerDependentWorld()
+    val world = actorDependentWorld()
     val actor = world.testAgent(if (overrideActor) ADMIN else PLAYER1)
 
     actor.runOperation(if (overrideActor) "(Passed! BY Player1) OR Die!" else "Passed! OR Die!")
@@ -1005,7 +1005,7 @@ internal class InvariantCompletionTest {
     actor.count("Ready") shouldBe 0
   }
 
-  private fun performerDependentWorld(): World {
+  private fun actorDependentWorld(): World {
     val source =
         """
         ABSTRACT CLASS Status { HAS =1 Status }

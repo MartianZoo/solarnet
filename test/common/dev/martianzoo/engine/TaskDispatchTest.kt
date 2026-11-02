@@ -16,7 +16,7 @@ import kotlin.test.Test
 
 internal class TaskDispatchTest {
   @Test
-  internal fun `a concrete task instruction admits an abstract choice for its recipient`() {
+  internal fun `a closed dispatch admits an open choice for its recipient`() {
     val game = game()
     val admin = game.testAgent(ADMIN)
     val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
@@ -25,7 +25,7 @@ internal class TaskDispatchTest {
 
     val choice = game.tasks.extract { it }.single()
     choice.assignee shouldBe PLAYER2
-    choice.instruction.isAbstract(game.reader) shouldBe true
+    choice.instruction.needsNarrowing(game.reader) shouldBe true
     game.tasks.selectedTask() shouldBe null
     blue.doTask("ChoiceA<Player2>")
     blue.count("ChoiceA<Player2>") shouldBe 1

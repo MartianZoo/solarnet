@@ -108,7 +108,7 @@ internal class Limiter(
 
     val headroom = gainInvars.map { it.range.last - count(it.type) }
     val footroom = removeInvars.map { count(it.type) - it.range.first }
-    // Predict GameWorld's dependency invariant so a concrete selected transmutation cannot fail
+    // Predict GameWorld's dependency invariant so a closed selected transmutation cannot fail
     // only when it reaches passive state application.
     val dependencyFootroom =
         gaining

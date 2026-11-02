@@ -7,8 +7,8 @@
 > that the proposed behavior is implemented.
 >
 > [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md) owns engine transactions, task priorities, and
-> mandatory Admin handling. This document owns agent decision decomposition, completion analysis,
-> pruning, collapsing, and automatic walking.
+> mandatory Admin handling. This document owns agent decision decomposition, viability analysis,
+> pruning, collapsing, and automatic advancement.
 > The [Agent contract](AGENT_CONTRACT.md#agent-responsibilities-four-buckets) owns the broader
 > responsibility inventory and the separate standing-policy direction.
 
@@ -19,31 +19,31 @@ Canon Admin tasks must complete without incoming client choices.
 ## Purpose and governing rule
 
 **Selected:** never close off an option that a Player might have a legitimate reason to want.
-A strategy may remove an option proved unable to complete the action, or replace alternatives
+A strategy may prune an option proved nonviable, or collapse alternatives
 proved to have the same outcome. It may not discard an alternative because it seems inefficient,
 unlikely, strategically inferior, or expensive to analyze. An unknown result is not permission
 to remove an option.
 
-**Selected:** the first practical requirement is a finite set of candidate options. An abstract
+**Selected:** the first practical requirement is a finite set of candidate options. An open
 task's other choices can be enumerable while an unbounded `X` prevents finite enumeration.
-A finite candidate set may still contain choices that cannot complete; obtaining that set is
+A finite candidate set may still contain nonviable choices; obtaining that set is
 useful before those choices can be filtered further. This is a practical concern: the owner
 reported a recent UI incident that attempted to copy the entire integer domain into a List.
 
 A stronger goal is to prevent a client from starting down a path that later forces it to back
-out. That is the goal of completion analysis, not an unconditional guarantee when information or
-computation is insufficient. In those cases, preserve the option and report completion as unknown.
+out. That is the goal of viability analysis, not an unconditional guarantee when information or
+computation is insufficient. In those cases, preserve the option and report viability as unknown.
 
 The agent also removes questions whose answers cannot affect the outcome. This helps the Player,
 but it also reduces the work needed to analyze the remaining decisions. Simplification is part of
-making completion analysis practical, not merely presentation work after analysis has finished.
+making viability analysis practical, not merely presentation work after analysis has finished.
 
 ## Division of responsibility
 
 **Selected destination, October 24, 2026; not yet implemented in full:** the engine interprets an
 explicit request within an identified permitting task. It combines the task and submitted input,
-and can examine the entire requested transaction to establish that exactly a single concrete
-narrowing succeeds. It does not execute subsequently queued tasks to decide this, including Admin
+and can examine the entire requested transaction to establish that exactly a single fully specified
+instruction succeeds. It does not execute subsequently queued tasks to decide this, including Admin
 work. Task finding itself may remain a simple descriptive comparison, without trying consequences
 to choose between different tasks. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#identifying-the-permitted-task)
 owns the precise rule and remaining implementation questions.
@@ -51,14 +51,14 @@ owns the precise rule and remaining implementation questions.
 The agent answers different questions: what to ask when the client has not supplied a complete
 request, whether to execute automatically, and whether choices can finish the later action. It can
 reduce an unanswered menu partway, compose partial deductions, and investigate later tasks. The
-engine's successful transaction is the beginning of that later analysis, not proof of completion.
+engine's successful transaction is the beginning of that later analysis, not proof of viability.
 The agent must not duplicate the engine's legality rules in a separate game interpreter.
 
 The earlier plan to move every unique-subtype or present-dependency gain deduction into the agent
 is superseded. Deductions used to interpret an explicit execution request can remain in the engine;
 unsolicited narrowing and authorization of automatic execution are agent policy. An installed
 policy can let the engine finish a covered selected task without consulting Agent again; this does
-not move completion analysis into engine. Partial reductions remain useful even when they do not
+not move viability analysis into engine. Partial reductions remain useful even when they do not
 immediately permit execution. Voluntarily retained engine narrowing remains
 open because supplied information can unlock both further narrowing and evaluation.
 
@@ -69,7 +69,7 @@ explicitly submitted resource total into individual engine calls; production tes
 their three money sources, while unrelated rewards stay separate. See
 [the contract](ENGINE_CONTRACT.md#identifying-the-permitted-task).
 Optional transaction trials and quantity-limit reads are reasonable engine services; neither
-certifies completion of later work.
+certifies viability of later work.
 
 Admin remains permanently automatic in the agent, through separate engine transactions. Its
 scheduling follows [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries). Player
@@ -85,8 +85,9 @@ The remainder of this document governs future Agent exploration.
 ## What the graph describes
 
 **Selected:** the Single-Action Decision Graph (SADG) describes decisions and resulting states
-involved in completing an action. An action can require several tasks, several calls, and decisions
-by several Actors. An empty queue for its initiating Player does not establish completion.
+involved in completing a game-flow [action](../glossary.md) through its
+[clearance](../glossary.md). An action can require several tasks, several calls, and decisions
+by several Actors. An empty queue for its initiating Player does not establish clearance.
 
 The graph is implicit. We can reason about its nodes and edges without constructing or retaining
 the entire graph. No graph storage model, cache, or new engine representation is selected.
@@ -96,7 +97,10 @@ to handle. Edges include task selection, individual narrowings, and execution wi
 A view may combine several such steps for presentation or analysis, provided it preserves the
 decisions that can still matter.
 
-The selected guided decision order is:
+Choosing which eligible task to handle next is itself a decision. For every decision, an **option**
+is a possible answer regardless of whether analysis has proved it viable, proved it nonviable,
+returned unknown, or not examined it yet. A **choice** is the answer supplied by the client or an
+authorized policy. The selected guided decision order is:
 
 | Kind | Question |
 | --- | --- |
@@ -117,35 +121,36 @@ or discards is the CARD concern. The precise API composition remains to be desig
 
 These concerns have different proof requirements and cooperate throughout exploration:
 
-1. **Finite candidates:** establish a finite set containing every potentially completing choice.
+1. **Finite candidates:** establish a finite set containing every potentially viable option.
    This is already useful even if many candidates remain invalid or unanalyzed.
-2. **Completion:** establish whether an action can finish from a candidate decision. Remove
-   decisions proved to lead only to dead ends.
-3. **Equivalent outcomes:** remove distinctions whose alternatives cannot change the result.
-   This includes task orders proved equivalent, even when every order can complete.
+2. **Viability:** establish whether an option can lead to action clearance. Prune options proved
+   to lead only to dead ends; retain options whose viability remains unknown.
+3. **Equivalent outcomes:** collapse distinctions whose alternatives cannot change the result.
+   This includes task orders proved equivalent, even when every order is viable.
 4. **Cost of analysis:** avoid exploring equivalent paths repeatedly, and try inexpensive
    simplifications before expensive searches. Execution proved harmless can reduce the remaining
    problem before its full graph has been explored.
-5. **Automatic walking:** when the reduced graph leaves no meaningful choice at the current node,
+5. **Automatic advancement:** when the reduced graph leaves no meaningful choice at the current node,
    advance without asking the Player.
 
 These are not mandatory sequential processing phases. In particular, constructing the whole SADG
 before applying reductions would defeat an important reason for having them. Pruning and
-collapsing remain useful even when a client has disabled automatic walking.
+collapsing remain useful even when a client has disabled automatic advancement.
 
-## Completion and its three possible results
+## Viability and its three possible results
 
-**Selected:** completion analysis uses `TRUE`, `FALSE`, and `UNKNOWN` throughout its decisions.
+**Selected:** viability analysis uses `TRUE`, `FALSE`, and `UNKNOWN` for an option's remaining path.
 
 | Result | Meaning |
 | --- | --- |
-| TRUE | A continuation reaching action completion has been established. |
-| FALSE | No continuation can complete, established by exhaustive analysis or a sound proof. |
+| TRUE | A continuation reaching action clearance has been established. |
+| FALSE | No continuation can reach clearance, established by exhaustive analysis or a sound proof. |
 | UNKNOWN | Neither conclusion has been established with the available information and work. |
 
 For alternative continuations, combine results with ternary OR: a successful continuation proves
-existence; all alternatives must be false to prove impossibility. An unexamined alternative remains
-unknown. A successful branch does not turn its unknown siblings into false.
+existence; all alternatives must be false to prove impossibility. An unexamined option remains an
+option and has no analysis result yet; it must be treated as unknown for a viability proof. A
+successful branch does not turn its unknown siblings into false.
 
 The ordinary ternary operations are:
 
@@ -164,20 +169,21 @@ two tasks independently in the initial state and ANDing their results does not p
 sequence can complete: the first task may change what the second task can do.
 
 A transaction succeeding proves only that step succeeded. A closed instruction, an executable
-task, or a successful Admin pass does not by itself establish action completion.
+task, or a successful Admin pass does not by itself establish action clearance.
 
 ### Other Players and the endpoint
 
 **Selected:** a response owed by another Player is part of the action's analysis. If Stan's
 greenery opens Kim's Philares choice, Kim still has a decision to make. Apply the same rule to
-her alternatives: exclude a response proved to make completion impossible; retain responses that
-can complete or remain unknown. This does not authorize Stan's agent to choose Kim's meaningful
+her alternatives: prune a response proved nonviable; retain responses that are viable or remain
+unknown. This does not authorize Stan's agent to choose Kim's meaningful
 answer. No Canon example of Philares dead-ending Stan's action has been established in this
 discussion; it illustrates who owns the remaining decision.
 
-**Proposal for endpoint recognition:** an action is complete when its obligations and consequences
-have finished, including removal of its `ActionScope`, dependent cleanup, and work caused by that
-removal. Continue automatic game progression to the next independent decision or game end.
+**Selected meaning; recognition remains open:** an action reaches clearance when its obligations
+and consequences have finished, including other Players' responses, removal of its `ActionScope`,
+dependent cleanup, and work caused by that removal. Continue automatic game progression to the
+next independent decision or game end.
 A new action offer may already be pending, including the same Player's second action. Executing
 that new action is outside the current SADG.
 
@@ -186,10 +192,11 @@ insufficient because removal can enqueue work. Reaching `FINALLY` is earlier sti
 [scope and Baton rules](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/base/game.pets)
 also show why following every recursively caused task would absorb subsequent actions indefinitely.
 
-**Open:** recognize the endpoint from existing facts, distinguish an outstanding response from
-a new independent decision, and define the corresponding scope for setup, production, and other
-interactions without `ActionScope`. Do not add engine task ancestry or completion machinery merely
-to make this convenient. [Sequencing's current completion convention](SEQUENCING.md#operation-completion)
+**Open:** recognize clearance from existing facts, distinguish an outstanding response from
+a new independent decision, and determine how to analyze completion of setup, research, production,
+and other interactions without `ActionScope`. Those decisions are not actions or turns merely because
+a Player must answer. Do not add engine task ancestry or completion machinery merely
+to make this convenient. [Sequencing's current Agent completion check](SEQUENCING.md#current-agent-completion-check)
 can accept earlier and assumes scope removal cannot require further action choices; reconciling
 that convention remains future work.
 
@@ -209,7 +216,7 @@ The initial inventory is:
   and an unknown alternative remains.
 
 **Open:** enumerate further genuine sources and choose work allowances and diagnostic details.
-An unexpected implementation error is not a completion verdict and must not silently become
+An unexpected implementation error is not a viability result and must not silently become
 UNKNOWN or FALSE. Recognizing unfinished exploration does not require choosing a logging API here.
 
 [Project Eden's declaration](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/prelude2/cards.json5)
@@ -227,7 +234,7 @@ names for anonymous draws, moves, purchases, or discards. Actual execution suppl
 identities. Identities already known when speculation begins remain known.
 
 Stop analysis at a card play that could use a card without an assigned identity at the start of
-that exploration. Mark its completability UNKNOWN; do not invent a name or continue through the
+that exploration. Mark its viability UNKNOWN; do not invent a name or continue through the
 invented card's consequences. The criterion is starting knowledge, not current location: drawing
 an anonymous card and then moving it to `Hand` does not make its play predictable.
 
@@ -236,17 +243,22 @@ Faceless speculation does not establish that discarding different known cards is
 It also does not excuse omitting identities needed to perform an actual move.
 
 Merger motivated the unknown-play case. A separate fizzle alternative, discussed using WG Project,
-may establish TRUE for the existence of a continuation without resolving an unknown card play.
+may establish TRUE for the existence of a continuation without answering an unknown card play.
 That can end an existence search, but cannot justify hiding or walking past the unknown alternative.
 These examples, and the expected correspondence with playing from `Selecting`, still need focused
 verification; they do not select card-specific engine exceptions.
 
 ## Equality of outcomes
 
-**Selected criterion:** compare alternatives from the same starting state after their transactions
-and the consequent Admin transactions have settled. Outcomes are equal when their component deltas
-are equal and their task changes are equal, ignoring ordinals. The order in which those changes
-occurred does not matter.
+**Selected criterion:** compare alternatives from the same starting game state after their
+transactions and the consequent Admin transactions have settled. Settled outcomes are equivalent
+when their component deltas and actionable task changes match. Task ids, cause-event ordinals, and
+different event order alone do not distinguish them. The event log is part of the game world, but
+not the current game state being compared.
+
+**Selected agency rule:** pruning, collapsing, and automatic advancement must preserve every
+distinct reachable end-of-action state. Whether an additional guarantee is needed at an
+intra-action handoff, such as Kim's Philares response during Stan's action, remains open.
 
 This comparison applies both to complete continuations and to shorter alternatives such as AB
 versus BA before the rest of the action. At the shorter comparison point, ordinary Player tasks
@@ -256,7 +268,11 @@ Compare the resulting component and task differences from the common start, not 
 events used to produce them. Task comparison retains meaningful instruction content, multiplicity,
 assignee, selection, continuation, and deferral. Incidental task IDs derived from event ordinals
 do not make outcomes different. The mechanical comparison of references and cause metadata still
-needs specification; ignoring ordinals does not mean ignoring meaningful task content.
+needs specification. If two cards each create the same `Foo?` task, accepting the first and
+declining the second should be equivalent to the reverse when resulting components, pending tasks,
+and future gameplay possibilities agree. The origin labels alone do not make two end-of-action
+states different. Current card tracking and legacy gameplay helpers do inspect causes in some
+situations, so a mechanical comparison cannot discard every cause without checking its consequences.
 
 The actual route still has its actual recorded history. Equivalence for analysis does not rewrite
 or suppress that history. Intermediate effects must first run: equal direct gains are insufficient
@@ -266,11 +282,11 @@ This rule compares execution outcomes. Two unfinished client drafts are not inte
 because neither has mutated the World; their supplied choices and remaining questions can differ.
 Likewise, unknown card consequences cannot establish equality by their absence from a partial trace.
 
-## Safe eager execution and automatic walking
+## Safe eager execution and automatic advancement
 
 This section concerns Agent decisions during an interaction. The separate
 [standing-policy direction](AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine) can
-authorize engine execution in advance for covered selected tasks; preference storage and policy
+authorize engine execution in advance for covered selected tasks; storing such instructions and policy
 mechanics remain future work. That authorization does not prove other outcomes equivalent.
 
 ### Doing harmless work early
@@ -306,8 +322,9 @@ Admin scheduling continues to follow its separate contract.
 
 ### Walking the reduced graph
 
-**Selected:** autoexec walks the sole remaining edge after justified pruning and collapsing.
-Apart from alternatives proved equivalent, every competing path must be known uncompletable.
+**Selected:** automatic advancement follows the sole remaining meaningful edge after justified
+pruning and collapsing. This is distinct from execution of a closed task.
+Apart from alternatives proved equivalent, every competing path must be proved nonviable.
 Finding the first successful path is not sufficient.
 
 | Remaining alternatives | Consequence |
@@ -318,7 +335,7 @@ Finding the first successful path is not sufficient.
 | UNKNOWN and FALSE | The false alternative can be removed. The survivor is still unknown. |
 | Several proved equivalent alternatives | Choose a representative under the ordering rules above. |
 
-A sole unknown survivor does not prove completion. Walking never supplies missing card names or
+A sole unknown survivor does not prove viability. Automatic advancement never supplies missing card names or
 other unknown required input: the agent must obtain that input when execution needs it.
 A successful existence check also does not authorize running the entire witness path; later
 nodes may still contain meaningful choices.
@@ -335,21 +352,21 @@ representation.
 
 ### 1. Bound X to a finite candidate range
 
-**Candidate for exploration:** investigate whether the fully valid, action-completing values of
+**Candidate for exploration:** investigate whether the fully valid, viable values of
 `X` always form a contiguous integer range in Canon. The stronger hypothesis for printed game
 content is that the set is empty or `1..max`; payment allocations may instead require `min..max`.
-These concern completion of the whole action, not merely immediate resource availability.
+These concern viability through the whole action, not merely immediate resource availability.
 
-Under the `1..max` hypothesis, proving that `X = x` cannot complete immediately gives the finite
+Under the `1..max` hypothesis, proving that `X = x` is nonviable gives the finite
 candidate range `1..x-1`. It need not be the exact valid range: smaller candidates may still fail.
 Finding any such upper limit therefore solves the initial enumeration problem without first
 finding the actual maximum or classifying every interior amount.
 
-For payment ranges, a failing value below the minimum gives no upper limit. A known completing
+For payment ranges, a failing value below the minimum gives no upper limit. A known viable
 value `y` followed by a proved failing value `x > y` does establish the upper limit `x-1` under
-contiguity. A sound resource bound can also make candidates finite without a completion search.
+contiguity. A sound resource bound can also make candidates finite without a viability search.
 
-Once the exact endpoints are known, the interval describes every valid amount; proved completable
+Once the exact endpoints are known, the interval describes every valid amount; proved viable
 endpoints also establish intervening values without individual searches. Validate the hypotheses
 against Canon interactions before adopting them. UNKNOWN is not failure, and a work cutoff is not
 an upper limit. If no finite bound has been established, do not materialize the entire integer
@@ -373,7 +390,7 @@ Failure now does not establish that the task can never be performed. Another tas
 its resources first. Rejecting “do A now” must retain “do B, then A” when that remains possible.
 Incomplete capacity checks and syntactic concreteness are not full transaction proofs.
 
-### 4. Search for completion or prove its absence
+### 4. Search for a viable continuation or prove its absence
 
 **Selected objective; search mechanism open:** explore continuations until a successful endpoint
 is found, all continuations are proved impossible, or analysis returns UNKNOWN. A successful
@@ -382,9 +399,9 @@ alternative, directly or through sound reductions.
 
 This is the principal protection against delayed dead ends. It can be expensive, so apply the
 other strategies during the search. A witness alone cannot classify all sibling choices or
-authorize automatic walking.
+authorize automatic advancement.
 
-### 5. Merge equal settled outcomes
+### 5. Collapse equal settled outcomes
 
 **Selected criterion; comparison mechanism open:** apply the component-delta/task-change rule
 above to alternative executions and share their remaining analysis. Keep a representative route
@@ -405,7 +422,7 @@ analysis. Different resource names are not a proof of independence: effects, gat
 limits, and spawned tasks can connect them. Enumerating the useful cheap proofs is central future
 work, starting with concrete Canon scenarios.
 
-### 7. Resolve a forced narrowing
+### 7. Advance through a forced narrowing
 
 **Selected direction; enumeration mechanism open:** supply a choice when every competing answer is
 proved impossible, or all retained answers are proved equivalent. This includes choosing a forced
@@ -465,7 +482,7 @@ The current implementation is not this design:
 - [AutoExecPolicy](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) and
   [AutoExecLoop](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt) use existing task policies.
   EAGER can try competing tasks in queue order without proving outcome equivalence. That behavior
-  does not implement the Player walking rule above.
+  does not implement the Player automatic-advancement rule above.
 - [DeadEndsTest](../../test/common/dev/martianzoo/tfm/tests/rules/DeadEndsTest.kt) supplies Canon
   scenarios for delayed failure, including Project Eden's competing placements and Old Mining
   Colony needing Pluto's cards. These characterize game consequences; they do not prove a pruner

@@ -34,12 +34,6 @@ public sealed class Dependency private constructor() :
   public abstract val abstract: Boolean
 
   /**
-   * Returns [abstract]; dependency abstractness is structural and does not consult [info] ([rule
-   * T5-3](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#5-types)).
-   */
-  override fun isAbstract(info: TypeInfo): Boolean = abstract
-
-  /**
    * Tests covariant narrowing of this dependency's bound against [that], following
    * [rules T6-2 and T6-3](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */

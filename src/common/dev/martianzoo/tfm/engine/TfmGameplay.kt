@@ -14,6 +14,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -100,10 +101,10 @@ public class TfmGameplay(
     return try {
       inTurn {
         doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
-        chooseConcreteCorporationEffectsBeforePurchase()
+        executeChoiceFreeCorporationEffectsBeforePurchase()
         payAllMc()
         body()
-        chooseConcreteCorporationEffectsBeforePurchase()
+        executeChoiceFreeCorporationEffectsBeforePurchase()
         buySelectedCards()
       }
     } finally {
@@ -140,7 +141,7 @@ public class TfmGameplay(
     if (purchased > 0) doTask("$purchased ProjectCard<Hand FROM Selecting>")
   }
 
-  private fun OperationScope.chooseConcreteCorporationEffectsBeforePurchase() {
+  private fun OperationScope.executeChoiceFreeCorporationEffectsBeforePurchase() {
     while (true) {
       val next =
           tasks
@@ -148,7 +149,9 @@ public class TfmGameplay(
               .filter { task ->
                 task.assignee == actor && asActor(task.assignee).canSelectTask(task.id)
               }
-              .firstOrNull { task -> !task.instruction.isAbstract(reader) } ?: return
+              .firstOrNull { task ->
+                task.instruction !is Each && !task.instruction.needsNarrowing(reader)
+              } ?: return
       this@TfmGameplay.doTask(next.id)
     }
   }
@@ -590,7 +593,7 @@ public class TfmGameplay(
               .filter { task ->
                 task.assignee == actor &&
                     task.cause == cause &&
-                    !task.instruction.isAbstract(reader) &&
+                    !task.instruction.needsNarrowing(reader) &&
                     asActor(task.assignee).canSelectTask(task.id)
               }
               .singleOrNull() ?: return
@@ -775,7 +778,7 @@ public class TfmGameplay(
             .extract { it }
             .filter { task ->
               task.assignee == actor &&
-                  task.instruction.descendantsOfType<Scalar>().any(Scalar::abstract)
+                  task.instruction.descendantsOfType<Scalar>().any(Scalar::needsNarrowing)
             }
     val variableTask = variableTasks.single()
     selectTask(variableTask.bindXTo(x))

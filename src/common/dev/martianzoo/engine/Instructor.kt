@@ -53,13 +53,13 @@ import dev.martianzoo.state.toComponent
 import kotlin.math.min
 
 /**
- * Resolves instructions and executes their concrete changes.
+ * Evaluates instructions against the current World and executes their closed changes.
  *
  * A gained component's exact concrete required parts are constructed in dependency order before
  * reactions to any of their gains. Parts' automatic reactions run before their owners'. Each
  * recorded change executes matching double-colon (`::`) effects recursively before evaluating and
  * admitting its queued effects. A `::` instruction can produce queued work, but that immediate
- * instruction itself never enters the task pool. [Effector.fire] chooses each effect batch; this
+ * instruction itself never enters the task queue. [Effector.fire] chooses each effect batch; this
  * class constructs required parts and runs immediate effects before admitting queued work.
  */
 internal class Instructor
@@ -87,8 +87,8 @@ internal constructor(
    */
   internal fun exMachina(changes: InstructionGroup, actor: Actor) {
     changes.instructions.forEach {
-      if (it.isAbstract(reader)) {
-        throw NotFullySpecifiedException("instruction is abstract: `$it`", it.sourceLocation)
+      if (it.needsNarrowing(reader)) {
+        throw NotFullySpecifiedException("instruction needs narrowing: `$it`", it.sourceLocation)
       }
       val change =
           it as? Change
@@ -110,14 +110,14 @@ internal constructor(
   }
 
   /**
-   * Executes a resolved first stage; later shared stages resolve against the state they inherit.
+   * Executes an evaluated first stage; later shared stages evaluate against the state they inherit.
    */
-  internal fun executeResolved(
+  internal fun executeEvaluated(
       instruction: Instruction,
       cause: Cause?,
       actor: Actor,
   ): List<PendingTask> = buildList {
-    doExecuteResolved(instruction, cause, this, actor)
+    doExecuteEvaluated(instruction, cause, this, actor)
   }
 
   private fun doExecute(
@@ -127,10 +127,10 @@ internal constructor(
       actor: Actor,
       queuedEffects: Boolean = true,
   ) {
-    when (val resolved = resolve(instruction)) {
+    when (val evaluated = evaluate(instruction)) {
       is Instruction ->
-          doExecuteResolved(
-              resolved,
+          doExecuteEvaluated(
+              evaluated,
               cause,
               spawned,
               actor,
@@ -139,34 +139,34 @@ internal constructor(
       // Independent siblings, such as the branches of a fanout, execute in place here; only an
       // enqueued task turns them into separately selectable work.
       is InstructionGroup ->
-          resolved.instructions.forEach {
+          evaluated.instructions.forEach {
             doExecute(it, cause, spawned, actor, queuedEffects)
           }
     }
   }
 
-  private fun doExecuteResolved(
-      resolved: Instruction,
+  private fun doExecuteEvaluated(
+      evaluated: Instruction,
       cause: Cause?,
       spawned: MutableList<PendingTask>,
       actor: Actor,
       queuedEffects: Boolean = true,
   ) {
-    if (resolved !is Then && resolved.isAbstract(reader)) {
+    if (evaluated !is Then && evaluated.needsNarrowing(reader)) {
       throw NotFullySpecifiedException(
-          "instruction is abstract: `$resolved`",
-          resolved.sourceLocation,
+          "instruction needs narrowing: `$evaluated`",
+          evaluated.sourceLocation,
       )
     }
-    when (resolved) {
+    when (evaluated) {
       is Change ->
           executeChange(
-              resolved,
+              evaluated,
               cause,
               spawned,
               if (
                   automaticEffectStack.isNotEmpty() &&
-                      (resolved.gaining ?: resolved.removing)?.let {
+                      (evaluated.gaining ?: evaluated.removing)?.let {
                         reader.resolve(it).rootClass.isSubtypeOf(systemClass)
                       } == true
               )
@@ -174,30 +174,29 @@ internal constructor(
               else actor,
               queuedEffects,
           )
-      is Instruction.Dispatch -> spawned += admitted(resolved, cause)
+      is Instruction.Dispatch -> spawned += admitted(evaluated, cause)
       is By ->
           throw ExpressionException(
-              "instruction-side `BY` reached execution without a task-assignment handoff: " +
-                  resolved,
-              sourceLocation = resolved.sourceLocation,
+              "instruction-side `BY` reached execution without an assignee transfer: " + evaluated,
+              sourceLocation = evaluated.sourceLocation,
           )
       is Then -> {
-        doExecuteResolved(
-            resolved.first,
+        doExecuteEvaluated(
+            evaluated.first,
             cause,
             spawned,
             actor,
             queuedEffects,
         )
-        resolved.instructions.drop(1).forEach { tree ->
+        evaluated.instructions.drop(1).forEach { tree ->
           InstructionGroup.of(tree).instructions.forEach {
             doExecute(it, cause, spawned, actor, queuedEffects)
           }
         }
       }
-      is Or -> {} // Every surviving arm is a zero change; abstraction was checked above.
+      is Or -> {} // Every surviving arm is a zero change; narrowing was checked above.
       is NoOp -> {}
-      else -> error("somehow a ${resolved::class.simpleName} was enqueued: $resolved")
+      else -> error("somehow a ${evaluated::class.simpleName} was enqueued: $evaluated")
     }
   }
 
@@ -230,7 +229,7 @@ internal constructor(
       if (done) break
     }
     // TODO(ENGINE_CONTRACT): review invariant timing for client calls containing several changes.
-    // Ordinary execution checks each resolved elementary change and its complete :: chain. A
+    // Ordinary execution checks each evaluated elementary change and its complete :: chain. A
     // later change in the same client call cannot repair a violation found here. Land Claim's
     // immediate cube removal is included. Corrections skip this check and validate their whole
     // group in exMachina; ordinary transaction-wide suspension remains a proposal to evaluate.
@@ -281,7 +280,7 @@ internal constructor(
         val ready = pending.indexOfFirst { (part, _) ->
           part.type.typeDependencies.all { reader.countComponent(it.boundType) > 0 }
         }
-        // If none can proceed, ordinary gain resolution reports the missing dependencies.
+        // If none can proceed, ordinary gain evaluation reports the missing dependencies.
         val (part, origin) = pending.removeAt(ready.takeIf { it >= 0 } ?: 0)
         val owner = checkNotNull(origin.event.change.gaining)
         val missing = part.range.first - reader.countComponent(part.type)
@@ -345,62 +344,63 @@ internal constructor(
   }
 
   /**
-   * Returns a narrowed form of [unresolved] based on the current world (but does not change the
-   * world itself). The returned instruction tree *must* be executed against this very same world
-   * (i.e., must be the next one executed). The returned instruction tree might still be abstract.
+   * Returns an evaluated form of [instruction] based on the current world (but does not change the
+   * world itself). A closed result used for execution must be executed against this same world; an
+   * open result can be narrowed and evaluated again.
    *
-   * Resolution iterates to a fixed point. Examples include:
+   * Evaluation iterates to a fixed point. Examples include:
    * * Replaces inert instructions with `Ok`
    * * Auto-narrows gained and removed types to the extent possible
    * * Bounds `?` by physical availability and `*` by current invariants (upgrading `*` to `!`)
    * * Validates and removes "gates"
    * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
-   * * Resolves each option of an [Or]
+   * * Evaluates each option of an [Or]
    *
    * [worldGainNarrowing] permits current-World gain narrowing after a Task is selected.
    * [expandEach] is false during selection because creating an `EACH` task's children executes its
-   * parent. Execution resolves it again against the World at that time.
+   * parent. Execution evaluates it again against the World at that time.
    */
-  internal fun resolve(
-      unresolved: InstructionTree,
+  internal fun evaluate(
+      instruction: InstructionTree,
       worldGainNarrowing: Boolean = false,
       expandEach: Boolean = true,
   ): InstructionTree {
-    return when (unresolved) {
-      is InstructionGroup -> unresolved
+    return when (instruction) {
+      is InstructionGroup -> instruction
       is NoOp -> NoOp
-      is Change -> resolveChange(unresolved, worldGainNarrowing)
+      is Change -> evaluateChange(instruction, worldGainNarrowing)
       is By -> {
-        val actor = canonicalActorExpression(unresolved)
-        val inner = resolve(unresolved.inner, worldGainNarrowing, expandEach)
+        val actor = canonicalActorExpression(instruction)
+        val inner = evaluate(instruction.inner, worldGainNarrowing, expandEach)
         if (!expandEach && inner is Each) inner.copy(body = By.createTree(inner.body, actor))
         else By.createTree(inner, actor)
       }
-      is Instruction.Dispatch -> unresolved.copy(actor = reader.recipientOf(unresolved).expression)
+      is Instruction.Dispatch ->
+          instruction.copy(actor = reader.recipientOf(instruction).expression)
       is Per ->
-          resolve(
-              elaborator.atomizeGains(unresolved.inner * reader.count(unresolved.metric)),
+          evaluate(
+              elaborator.atomizeGains(instruction.inner * reader.count(instruction.metric)),
               worldGainNarrowing,
               expandEach,
           )
       is Gated -> {
-        if (!reader.has(unresolved.gate)) {
+        if (!reader.has(instruction.gate)) {
           throw RequirementException(
-              "requirement `${unresolved.gate}` is not met for `${unresolved.inner}`",
-              unresolved.gate.sourceLocation
-                  ?: unresolved.gate.descendantsOfType<Expression>().firstOrNull()?.sourceLocation,
+              "requirement `${instruction.gate}` is not met for `${instruction.inner}`",
+              instruction.gate.sourceLocation
+                  ?: instruction.gate.descendantsOfType<Expression>().firstOrNull()?.sourceLocation,
           )
         }
-        resolve(unresolved.inner, worldGainNarrowing, expandEach)
+        evaluate(instruction.inner, worldGainNarrowing, expandEach)
       }
-      is Each -> if (expandEach) resolveEach(unresolved, worldGainNarrowing) else unresolved
-      is Or -> resolveOr(unresolved, worldGainNarrowing, expandEach)
+      is Each -> if (expandEach) evaluateEach(instruction, worldGainNarrowing) else instruction
+      is Or -> evaluateOr(instruction, worldGainNarrowing, expandEach)
       is Then -> {
-        val first = unresolved.first
+        val first = instruction.first
         val openChoice =
             first.descendantsOfType<Expression>().any { expression ->
-              unresolved.typeVariables.variableAt(expression)?.let { variable ->
-                reader.isAbstract(unresolved.typeVariables.expressionOf(variable.declaration))
+              instruction.typeVariables.variableAt(expression)?.let { variable ->
+                reader.isAbstract(instruction.typeVariables.expressionOf(variable.declaration))
               } == true
             }
         if (
@@ -442,18 +442,18 @@ internal constructor(
           if (!possible) {
             if (first.quantifier == MANDATORY)
                 throw LimitsException("no concrete narrowing of `$first` can execute")
-            return unresolved.withInstructions(listOf(NoOp) + unresolved.instructions.drop(1))
+            return instruction.withInstructions(listOf(NoOp) + instruction.instructions.drop(1))
           }
         }
-        unresolved.withInstructions(
-            listOf(if (openChoice) first else resolve(first, worldGainNarrowing, expandEach)) +
-                unresolved.instructions.drop(1)
+        instruction.withInstructions(
+            listOf(if (openChoice) first else evaluate(first, worldGainNarrowing, expandEach)) +
+                instruction.instructions.drop(1)
         )
       }
       is Transform ->
           throw ExpressionException(
-              "unhandled instruction transform: `$unresolved`",
-              sourceLocation = unresolved.sourceLocation,
+              "unhandled instruction transform: `$instruction`",
+              sourceLocation = instruction.sourceLocation,
           )
     }
   }
@@ -504,10 +504,10 @@ internal constructor(
           deferral = dispatch.deferral,
       )
 
-  private fun resolveChange(change: Change, worldGainNarrowing: Boolean): InstructionTree {
+  private fun evaluateChange(change: Change, worldGainNarrowing: Boolean): InstructionTree {
     val quantifier = change.quantifier ?: error("missing quantifier: $change")
     return try {
-      resolveChangeWithoutDependencyFallback(change, quantifier, worldGainNarrowing)
+      evaluateChangeWithoutDependencyFallback(change, quantifier, worldGainNarrowing)
     } catch (e: DependencyException) {
       val gaining = change.gaining
       val canFallBackToZero =
@@ -520,12 +520,12 @@ internal constructor(
     }
   }
 
-  private fun resolveChangeWithoutDependencyFallback(
+  private fun evaluateChangeWithoutDependencyFallback(
       change: Change,
       intens: Instruction.Quantifier,
       worldGainNarrowing: Boolean,
   ): InstructionTree {
-    // can't resolve at all if we still have an X?
+    // An unfixed X still needs narrowing before this amount can be evaluated.
     val count = (change.count as? ActualScalar)?.value ?: return change
     if (count == 0) return change
     if (change is Transmute) {
@@ -604,7 +604,7 @@ internal constructor(
         if (!canRemove) return unavailable("maximum available is 0")
       }
       if (change is Transmute && change.fromEx is Compact) return change
-      // Still abstract, don't check limits yet
+      // Target Type is still abstract; do not check its limits yet.
       return Change.change(
           retainedExpression(g, change.gaining),
           retainedExpression(r, change.removing),
@@ -647,7 +647,7 @@ internal constructor(
           sourceLocation = change.gaining?.sourceLocation,
       )
     }
-    // Preserve the uninhabited-type diagnosis made by the normal resolver below.
+    // Preserve the uninhabited-type diagnosis made by normal evaluation below.
     if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) return
     val atomized = classTable.findClass(ATOMIZED)
     if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
@@ -731,7 +731,7 @@ internal constructor(
    * candidate like any other refinement — is how "each player who..." is expressed. The resulting
    * siblings carry no game order.
    */
-  private fun resolveEach(each: Each, worldGainNarrowing: Boolean): InstructionTree {
+  private fun evaluateEach(each: Each, worldGainNarrowing: Boolean): InstructionTree {
     val selectorType = reader.resolve(each.selector)
     if (!selectorType.abstract) {
       throw ExpressionException(
@@ -760,20 +760,20 @@ internal constructor(
               e.sourceLocation ?: each.body.sourceLocation,
           )
         }
-    return resolve(evaluated, worldGainNarrowing)
+    return evaluate(evaluated, worldGainNarrowing)
   }
 
-  /** Resolves each arm against the same world, discarding the unavailable ones. */
-  private fun resolveOr(
-      unresolved: Or,
+  /** Evaluates each arm against the same world, discarding the unavailable ones. */
+  private fun evaluateOr(
+      instruction: Or,
       worldGainNarrowing: Boolean,
       expandEach: Boolean,
   ): InstructionTree {
     val surviving = mutableListOf<InstructionTree>()
     val failures = mutableListOf<GameplayException>()
-    unresolved.instructions.forEach {
+    instruction.instructions.forEach {
       try {
-        surviving += resolve(it, worldGainNarrowing, expandEach)
+        surviving += evaluate(it, worldGainNarrowing, expandEach)
       } catch (e: NotNowException) {
         failures += e
       } catch (e: DeadEndException) {
@@ -784,7 +784,7 @@ internal constructor(
 
     // No arm survived, so report the strongest applicable failure rather than becoming `Ok`.
     val why = failures.joinToString { it.detail }
-    val location = unresolved.sourceLocation ?: failures.firstOrNull()?.sourceLocation
+    val location = instruction.sourceLocation ?: failures.firstOrNull()?.sourceLocation
     if (failures.any { it is DeadEndException })
         throw DeadEndException("no choice remains: $why", sourceLocation = location)
     val unmet = failures.filterIsInstance<RequirementException>()

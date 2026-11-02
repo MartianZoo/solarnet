@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptCompletion
 import dev.martianzoo.tfm.script.ScriptCompletionContext
@@ -23,13 +23,13 @@ internal class AutoCommand(private val repl: ScriptSession) : ScriptCommand("aut
   override fun noArgs() = listOf("Autoexec policy is: ${repl.agent.autoExecPolicy}")
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
-      context.completions("none", "concrete", "eager", group = "auto policies")
+      context.completions("none", "sole", "eager", group = "auto policies")
 
   override fun withArgs(args: String): List<String> {
     val policy =
         when (args) {
           "none" -> NONE
-          "concrete" -> CONCRETE
+          "sole" -> SOLE_TASK
           "eager" -> EAGER
           else -> throw UsageException()
         }

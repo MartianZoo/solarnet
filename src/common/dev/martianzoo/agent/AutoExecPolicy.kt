@@ -14,10 +14,10 @@ public enum class AutoExecPolicy {
 
   /**
    * Considers this actor's task only when it is the sole currently selectable candidate assigned to
-   * that actor. The task must still complete without an unresolved choice, and another actor's
-   * offered option can prevent the loop from taking it.
+   * that actor. The task must still complete without a choice needing narrowing, and another
+   * actor's offered option can prevent the loop from taking it.
    */
-  CONCRETE,
+  SOLE_TASK,
 
   /**
    * Allows the loop to try this actor's selectable tasks even when several compete. It takes the

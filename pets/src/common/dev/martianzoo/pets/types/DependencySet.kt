@@ -125,13 +125,6 @@ private constructor(
   }
 
   /**
-   * Returns [abstract]; dependency-set abstractness is structural and does not consult [info]
-   * ([rule
-   * T5-3](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#5-types)).
-   */
-  override fun isAbstract(info: TypeInfo): Boolean = abstract
-
-  /**
    * Tests componentwise context-free covariance against [that] according to
    * [rules T6-2 and T6-3](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */

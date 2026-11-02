@@ -87,7 +87,7 @@ private fun isScopeRemovalHandoff(
         change.quantifier
             ?: if (change.gaining != null) defaults.gainOnly.quantifier
             else defaults.removalQuantifier
-    return !change.count.abstract && quantifier?.abstract != true
+    return !change.count.needsNarrowing && quantifier?.needsNarrowing != true
   }
 
   fun phase(expression: Expression): Boolean {

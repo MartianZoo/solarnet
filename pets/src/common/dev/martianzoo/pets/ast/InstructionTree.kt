@@ -17,20 +17,22 @@ public sealed class InstructionTree : PetElement(), Specification<InstructionTre
   public abstract operator fun times(factor: Int): InstructionTree
 
   /**
-   * Whether this tree still requires a gameplay choice or other narrowing. Per
+   * Whether this tree still has an unfixed elective part. Per
    * [rule L3-1](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#3-narrowing)
-   * that means an unfixed `X`, an absent or optional quantifier, an abstract expression, or an
-   * `OR`. Zero-count changes and alternatives consisting entirely of zero changes or [NoOp] require
-   * no gameplay choice. This judgment is about *elaborated* instructions: an authored change
-   * carries no quantifier until elaboration supplies one.
+   * this includes an unfixed `X`, an absent or optional quantifier, an abstract expression, or an
+   * `OR`. Zero-count changes and alternatives consisting entirely of zero changes or [NoOp] need no
+   * narrowing. Work carried inside braces or quotes is assessed when that work becomes current.
+   * This check is narrower than open/closed: an instruction can need evaluation without needing
+   * narrowing. This judgment is about *elaborated* instructions: an authored change carries no
+   * quantifier until elaboration supplies one.
    */
-  public abstract override fun isAbstract(info: TypeInfo): Boolean
+  public abstract fun needsNarrowing(info: TypeInfo): Boolean
 
   /**
    * Combines the choices constrained by both trees, using [table] for Type intersections. Returns
    * null when no common narrowing can be represented. Fixed structure (including gates, metrics,
-   * performers and stage counts) must agree; this does not resolve instructions or choose among the
-   * remaining alternatives. Surviving alternatives are checked against both operands' narrowing
+   * `BY` Actors and stage counts) must agree; this does not evaluate instructions or choose among
+   * the remaining alternatives. Surviving alternatives are checked against both operands' narrowing
    * rules, including shared choices within sequences and transmutations. Two changes must intersect
    * in their Types; a shared ability to decline does not supply that intersection. An overlapping
    * Type domain without a single expressible bound, or a combined tree unable to retain shared

@@ -16,7 +16,7 @@ processing, and configured Player automatic behavior. The engine does not authen
 Admin has no client to supply choices. The required automatic behavior is the work that supported
 Canon rules actually assign to Admin. Setup supplies information that rules cannot determine:
 Turmoil's complete shuffled event order and solo neutral tile locations are in the resolved premise
-and exported game files. Admin draws the next event and resolves neutral delegate placement without
+and exported game files. Admin draws the next event and handles neutral delegate placement without
 incoming event identities or delegate choices.
 
 Player inference is a limited convenience, not a promise to solve every underspecified request.
@@ -79,7 +79,7 @@ permissions by trying their outcomes.
 Selection chooses pending work; narrowing supplies a compatible choice. Both can retain partial
 choices in the selected task without executing its component changes. Choosing a target can permit
 further evaluation, including its AMAP amount. No transaction stays open while a person chooses.
-Resolved and fully specified instructions can still fail when executed.
+Evaluated and closed instructions can still fail when executed.
 
 Groups, `EACH`, and dispatches exposed by selection retain their parent until execution. Executing
 that parent admits its children and consumes it. Ordinary initial admission still normalizes literal
@@ -115,7 +115,7 @@ for the automatic normalization inventory.
 ## Determining an executable instruction
 
 After identifying a task, the engine combines its restrictions with the request and evaluates gates,
-metrics, dependencies, and supported forced deductions. When abstract choices remain, its finite
+metrics, dependencies, and supported forced deductions. When choices still need narrowing, its finite
 transaction analysis covers fixed mandatory/optional gains and removals, full-form transmutation
 pairs, and OR alternatives composed of those changes. Optional changes include zero and every
 positive amount through the authored count. Unbound X and unsupported forms are not searched by
@@ -126,14 +126,14 @@ includes immediate effects, required/dependent parts, final checks, continuation
 transaction-completion promotion. Trials leave the source World and its listeners untouched.
 Custom Kotlin effect objects and their external side effects are not copied.
 
-- A complete analysis with exactly a single successful concrete instruction permits execution.
+- A complete analysis with exactly a single successful closed instruction permits execution.
 - Multiple distinct successes require a more specific request, even if their resulting counts agree.
 - No successful candidate in a complete analysis rejects the request.
 - Unsupported or unfinished analysis reports `IncompleteAnalysisException`; it is not proof of
   impossibility or uniqueness. This is a subtype of `NotFullySpecifiedException`, so callers that
   distinguish incomplete analysis check the subtype. There is no elapsed-time cutoff.
 
-For example, a city request may resolve to Normal City when Capital cannot complete the requested
+For example, a city request may evaluate to Normal City when Capital cannot complete the requested
 transaction. Land Claim's immediate cube removal participates in tile-placement validation.
 Protected Habitats' direct rejection participates when its task is admitted.
 
@@ -157,7 +157,7 @@ immediate effects that repair a temporary violation.
 | P3 | LATER tasks |
 | P4 | FINALLY tasks |
 
-Selected work excludes competing tasks. If the selected task becomes concrete System work or has
+Selected work excludes competing tasks. If the selected task becomes System work needing no narrowing or has
 an explicit Admin assignment, Admin executes that same selected task. Separately created Admin
 work waits for it to finish. A selected Player task takes precedence over ordinary Admin work.
 
@@ -165,7 +165,7 @@ work waits for it to finish. A selected Player task takes precedence over ordina
 
 Agent always runs Admin; Player policy and replay settings cannot disable it. Admin attempts
 ordinary tasks FIFO. After a success it starts a fresh pass, retrying earlier failures. A complete
-nonempty pass with no success throws, even if Player work could make a task executable. An unresolved
+nonempty pass with no success throws, even if Player work could make a task executable. An unfixed
 choice, false gate, or unavailable change does not authorize returning control to ordinary Player
 work. On a stalled pass, missing application input takes precedence, then incomplete analysis,
 then a retained rule failure. Escaping failure restores the whole Agent call.
@@ -180,34 +180,38 @@ When ordinary and LATER work are empty, all FINALLY tasks promote together. Prom
 transaction completion; new deferred work waits for a later promotion. Solar Probe's deferred flip,
 for example, waits for its draw and other ordinary work.
 
-### Active-player handoffs
+### Task handoffs during an active Player's turn
 
 NOW and SOON distinguish immediately selected recipient work from ordinary queued recipient work.
-The active Player chooses when to execute the offered handoff. Its owner then narrows and executes
-through their own Agent. The active Player cannot supply the recipient's choice during handoff.
+The active Player chooses when to release each selected task to its recipient. That Player then
+narrows and executes through their own Agent while the active Player retains the baton. Each
+release is a separate task handoff, even when a later task belongs to the same bonus. An
+instruction-side `BY` change of assignee is not, by itself, this kind of handoff. The active Player
+cannot supply the recipient's choice.
 
 Pluto colony bonuses use this ordering: the active Player starts the owner's draw/discard chain;
 PlutoLock protects that owner's unfinished bonus. Another bonus for the same owner cannot begin
 until the first is completed. Another owner's bonus has its own lock. The active Player also
 schedules the later offered handoff. Philares resource choices likewise belong to its owner.
 
-## Agent policies, operations, and corrections
+## Agent policies, call helpers, and corrections
 
 Each Agent belongs to an Agents session. That session supplies Player policies and application
 validation; separate sessions sharing a World do not inherit each other's settings. The shared
-AutoExecLoop runs Admin before each optional Player step. NONE, CONCRETE, and EAGER retain their
+AutoExecLoop runs Admin before each optional Player step. NONE, SOLE_TASK, and EAGER retain their
 current behavior; EAGER can choose successful Player work in queue order. This is configurable
 existing behavior, not a guarantee that Player choices are strategically equivalent.
 
-Operation helpers retain the existing decision marker and FINALLY-based lifecycle conventions.
-They group calls and check completion; they are not whole-action planning. Nested calls share the
+The current `runOperation`/`beginOperation`/`continueOperation`/`completeOperation` helpers retain
+the existing decision marker and FINALLY-based completion convention. Their grouping remains under
+API review; it is not a separate game lifecycle. Nested calls share the
 World's restoration depth, with outermost completion/application callbacks. Missing application
 card information remains distinct from an engine choice.
 
 `Agent.exMachina` is the correction entry point. It allows System edits, runs required construction,
 dependent removal and immediate effects, suppresses queued effects, and checks final structural
 validity. It rejects added unfinished MustCleanUp work. It preserves pending tasks, their selected
-choices, and previously calculated amounts. There is no separate `sneak` operation or completion
+choices, and previously calculated amounts. There is no separate `sneak` command or completion
 hook that leaves earlier changes committed after callback failure. See [EX_MACHINA.md](EX_MACHINA.md).
 
 ## Appendix: further work under consideration
@@ -221,8 +225,8 @@ These items are not claims of implemented behavior or requirements to build a ge
   completion search, and outcome comparison belong to [DECISION_GRAPH.md](DECISION_GRAPH.md) and
   [AGENT_CONTRACT.md](AGENT_CONTRACT.md). Project Eden can place greenery on the only remaining
   legal city space and fail later; avoiding that choice requires looking at later tasks.
-- **Operation lifecycle:** reconsider the existing decision/FINALLY conventions and the remaining
-  engine callback coordinator only against concrete callers; no new operation framework is selected.
+- **Legacy Agent call grouping:** reconsider the existing decision/FINALLY conventions and the
+  remaining engine callback coordinator only against concrete callers; no replacement framework is selected.
 - **Corrections and undo:** correction-time recalculation and a separate undo checkpoint for a NOW
   recipient remain open. Current recipient undo can return to before the active Player's handoff.
 - **Model sequencing:** audit ordering-only immediate effects in payments, wild-tag setup, and

@@ -109,7 +109,7 @@ internal class Lang08TransformsTest {
     }
 
     val instruction = parse<Instruction>("DELAY[Plant]")
-    shouldThrow<ExpressionException> { instruction.isAbstract(langWorld) }
+    shouldThrow<ExpressionException> { instruction.needsNarrowing(langWorld) }
     shouldThrow<ExpressionException> { instruction.ensureNarrows(instruction, langWorld) }
   }
 

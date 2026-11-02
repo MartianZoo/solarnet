@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
@@ -696,7 +696,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // brings Yellow's M€ production from nine to the photographed 18.
       playProject(ResearchCoordination, 4)
       inTurn {
-            doWithAutoExecPolicy(CONCRETE) {
+            doWithAutoExecPolicy(SOLE_TASK) {
               playProject(InterplanetaryTrade, 27) {
                 doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
                 doTask("JovianTag<WildTagElection<WildTag<AppliedScience>>>")

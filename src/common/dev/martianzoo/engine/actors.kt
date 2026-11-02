@@ -44,7 +44,7 @@ internal fun GameReader.recipientOf(dispatch: Dispatch): Actor {
 }
 
 /** The owner of the game-authored scope that currently orders player consequences. */
-internal fun taskController(reader: GameReader): Player? =
+internal fun taskScopeOwner(reader: GameReader): Player? =
     reader.getComponents(TASK_SCOPE.expression).elements.singleOrNull()?.let {
       Component(it).owningPlayer
     }

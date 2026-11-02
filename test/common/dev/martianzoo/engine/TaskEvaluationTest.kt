@@ -20,7 +20,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 import kotlin.test.Test
 
-internal class TaskResolutionTest {
+internal class TaskEvaluationTest {
   private val game = setUpGame()
   private val tasks = game.tasks
   private val events = game.events
@@ -28,7 +28,7 @@ internal class TaskResolutionTest {
   private val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = AutoExecPolicy.NONE }
 
   @Test
-  internal fun `selecting resolves an abstract task and records the selection`() {
+  internal fun `selecting evaluates an open task and records the selection`() {
     initiate("2? Plant")
     agent.selectTask("2? Plant")
 
@@ -42,7 +42,7 @@ internal class TaskResolutionTest {
   }
 
   @Test
-  internal fun `selection that resolves to zero leaves the task pending`() {
+  internal fun `selection that evaluates to zero leaves the task pending`() {
     initiate("-2? Plant")
     agent.selectTask("-2? Plant")
     tasks.isEmpty() shouldBe false
@@ -57,7 +57,7 @@ internal class TaskResolutionTest {
   }
 
   @Test
-  internal fun `selection leaves a concrete task pending until execution`() {
+  internal fun `selection leaves a closed task pending until execution`() {
     initiate("Plant!")
     agent.selectTask("Plant!")
     agent.count("Plant") shouldBe 0
@@ -75,7 +75,7 @@ internal class TaskResolutionTest {
   }
 
   @Test
-  internal fun `selection resolves limits before narrowing`() {
+  internal fun `selection evaluates limits before narrowing`() {
     initiate("-30? TerraformRating")
     agent.selectTask("-30? TerraformRating")
     tasksAsText().shouldContainExactlyInAnyOrder("-20? TerraformRating<Player1>")

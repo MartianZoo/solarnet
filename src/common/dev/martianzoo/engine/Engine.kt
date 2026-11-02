@@ -47,10 +47,10 @@ public object Engine {
    * validation. The World retains the supplied implementations; it does not copy their Kotlin
    * objects.
    *
-   * Configuration, unresolved bootstrap choices, or invalid resulting counts cause construction to
-   * fail without returning a partial World. [IncompleteAnalysisException] propagates distinctly
-   * when bootstrap cannot finish its proof; this is not a configuration rejection. No guard is
-   * installed.
+   * Configuration, bootstrap choices still needing narrowing, or invalid resulting counts cause
+   * construction to fail without returning a partial World. [IncompleteAnalysisException]
+   * propagates distinctly when bootstrap cannot finish its proof; this is not a configuration
+   * rejection. No guard is installed.
    */
   public fun newGame(
       premise: GamePremise,

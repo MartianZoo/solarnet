@@ -11,7 +11,7 @@
 
 ## Current model
 
-There is a global task pool; Actor queues are filtered views. A comma-separated group becomes
+There is a global task queue; Actor queues are filtered views. A comma-separated group becomes
 independent tasks. Stable iteration order supports reproducibility and display but carries no game
 meaning for Player choices. Admin handling follows [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
 
@@ -63,7 +63,7 @@ component's own automatic effects retain authored declaration order.
 ## Before adding order
 
 Identify the game rule that makes a result or task order invalid. A caller using another Player's
-Agent is not itself an invalid engine operation: attribution through the assigned Agent is enough.
+Agent is not itself an invalid engine request: attribution through the assigned Agent is enough.
 Authentication and acceptance of that caller's submission belong to
 [ADVERSARIAL.md](ADVERSARIAL.md), not to task locks or a new delegated-session mechanism.
 
@@ -80,14 +80,14 @@ Distinguish precedence, synchronous consequences, exclusive control, completion,
 | Specific latch | Known prerequisites must finish before later work becomes legal. |
 
 A fixed outcome does not imply Admin ownership. Do not repair ordering through
-`TfmGameplay`, rendered-task matching, or incidental pool order.
+`TfmGameplay`, rendered-task matching, or incidental queue iteration order.
 
 ## What `THEN` does
 
-Task normalization stores A as current work and B as its continuation. Shared unresolved Type
+Task normalization stores A as current work and B as its continuation. Shared unbound Type
 variables can keep the stages together until narrowing supplies their value. When A finishes, B
 becomes ordinary pending work with no priority over siblings or A's reactions. The selected-task
-lock ends with A. If A is transferred to Admin because it is a concrete System change, the engine
+lock ends with A. If A is transferred to Admin because it is a System change with a concrete Type, the engine
 dispatches B back to the Actor who had the task before that transfer. Work that must also wait for
 A's reactions is deferred instead; it waits for all other work in the World
 ([deferred work](#deferred-work)).
@@ -135,7 +135,7 @@ procedure. `THEN` waits for its current task, not the reactions that task trigge
 immediate preparation signal with `Preparation THEN Consumer` does not by itself establish that
 preparation has completed.
 
-Fixed bookkeeping can use concrete System tasks without another player choice. Initial offer
+Fixed bookkeeping can use System tasks needing no Player choice. Initial offer
 counts preceding signed premise adjustments, generic requirement removals needing live narrowing,
 and card-claim effects retained for their client task shape are implementation limitations, not
 semantic justifications. Earlier failure of an invalid choice is also insufficient; judge completed
@@ -146,9 +146,9 @@ instead of batch order or retries. Use trigger-side `IF` for a condition decided
 event; put a gate in queued work when intervening changes should decide availability.
 
 An automatic `Die` can reject a forbidden component change. It cannot generally
-police task selection because selecting or narrowing an abstract task can change task state without
+police task selection because selecting or narrowing an open task can change task state without
 producing a component event. Trigger-side `BY` matches the event Actor; instruction-side `BY`
-reassigns concrete queued work.
+transfers queued work needing no further narrowing to a new assignee.
 
 ### Investigating inferred immediate work
 
@@ -175,7 +175,7 @@ contains `New@Player IF MultiplayerMode` and the `ModulesReady` closing effect.
 final component. A precursor represents commitment to that result, carries required context, and
 precedes payment completion. Ordinary reactions still belong on the final event.
 
-## The missing rule: when an operation is over
+## The missing rule: when initiated work has finished
 
 The engine has no general completion rule for an interaction that spans queued work.
 
@@ -198,14 +198,14 @@ their success alone does not establish that the task routing or calculated outco
 
 Completion and cleanup still need coherent game semantics. A smaller model should remove client
 searches and overlapping lifecycle machinery rather than assume exclusive control across an entire
-operation is required. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#state-transactions-and-calls) selects
+interaction is required. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#state-transactions-and-calls) selects
 failure-atomic engine transactions; larger rollback scopes remain a separate question. Agreement
 to retract already shared decisions or proceed after a disclosure belongs to
 [ADVERSARIAL.md](ADVERSARIAL.md).
 The external arrangement handles that agreement without making incorrect payment or cleanup
 calculations acceptable. The [turn design](../../pets/docs/agents/GAME_FLOW.md#turns-and-turn-offers) records the intended enclosing
-lifecycle; [operation completion](#operation-completion) states the whole-World rule that ends an
-operation.
+lifecycle; [the current Agent completion check](#current-agent-completion-check) records the
+existing whole-World heuristic without making it a game-flow endpoint.
 
 ## Cleanup
 
@@ -258,8 +258,8 @@ the simpler statement.
 
 Deferral is neither `THEN` nor a gate. `A THEN B` admits B when A's own task finishes, without
 waiting for A's reactions; deferred work waits for all ordinary work in the World. `Owed` and
-`Required` remain components because they record quantities, and their survival still makes an
-operation incomplete.
+`Required` remain components because they record quantities, and their survival can leave the
+initiated work incomplete.
 
 ### Why `FINALLY`
 
@@ -270,12 +270,12 @@ a nested `LATER` mean "later than later" would need a depth rule. `FINALLY` stat
 directly: final work follows every consequence of the work before it, including work that `LATER`
 work defers. It exists for turn and phase handoffs.
 
-### Operation completion
+### Current Agent completion check
 
-`AgentImpl.requireComplete` currently accepts an operation when no new task remains, or when
-World `FINALLY` work has begun since the operation's last decision. The first final promotion
+`AgentImpl.requireComplete` currently accepts the work started by a call when no new task remains,
+or when World `FINALLY` work has begun since that call's last decision. The first final promotion
 occurs after all preceding ordinary and `LATER` work, and the cleanup-component check uses that
-same point in the event log. Agents record each operation's beginning and decisions.
+same point in the event log. Agents record each call's beginning and decisions.
 
 This check precedes `ActionScope` removal, which runs as final work. Canon's
 [scope-removal rule](../../pets/docs/agents/GAME_FLOW.md#scope-removal-must-not-require-choices)
@@ -285,10 +285,10 @@ they must not generate further choices for the completed action. This is an auth
 not a new engine completion rule. Do not mark the finally-removed scope `MustCleanUp`, since that
 check runs before removal.
 
-The proposed [action-completion endpoint](DECISION_GRAPH.md#other-players-and-the-endpoint) includes
-scope removal and its consequences. The current check above is therefore insufficient for that
-agent exploration endpoint. Those rough notes leave recognition of the endpoint, and reconciliation
-with the older restriction on cleanup choices, open; they add no engine completion requirement.
+The selected [action clearance](DECISION_GRAPH.md#other-players-and-the-endpoint) includes scope
+removal and its consequences. The current check above is therefore insufficient for that agent
+exploration endpoint. Recognition of clearance, and reconciliation with the older restriction on
+cleanup choices, remain open; they add no engine completion requirement.
 
 ### Decisions and open questions
 

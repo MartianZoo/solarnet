@@ -6,7 +6,7 @@ import dev.martianzoo.pets.api.SourceLocation
 /** Engine-specific exceptions; game-rule failures use the shared Pets exception types. */
 public object Exceptions {
   /**
-   * The engine could not finish proving whether an abstract task has a unique legal completion.
+   * The engine could not finish proving whether an open task has a unique executable narrowing.
    * This does not establish that the request is impossible or that several completions succeed.
    * Failed task transactions restore their game state. Callers can distinguish this result from a
    * known missing choice by checking this subtype of [NotFullySpecifiedException].

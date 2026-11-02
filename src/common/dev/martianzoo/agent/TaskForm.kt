@@ -28,7 +28,7 @@ import dev.martianzoo.state.TaskResult
 /**
  * A caller-held draft of a task's instruction. Choosing a card and then an amount can update this
  * draft without changing the World. Discarding it changes no game state. Its partial choices are
- * useful for the client; they are not fully concrete legal narrowings to count.
+ * useful for the client; they are not necessarily fully specified legal narrowings to count.
  */
 public class TaskForm
 internal constructor(
@@ -92,7 +92,7 @@ internal constructor(
     return proposed
   }
 
-  /** The next voluntary decision. Unsupported abstract shapes fail explicitly. */
+  /** The next voluntary decision. Unsupported open shapes fail explicitly. */
   public fun decisions(): List<Decision> {
     val current = instruction
     val head = choiceHead(current)
@@ -102,7 +102,7 @@ internal constructor(
             current.descendantsOfType<Per>().isNotEmpty()
     ) {
       throw UnsupportedOperationException(
-          "optional choices inside `PER` need task resolution first"
+          "optional choices inside `PER` need task evaluation first"
       )
     }
     val focus =
@@ -115,7 +115,7 @@ internal constructor(
             (head.count is XScalar || head.quantifier == OPTIONAL) &&
             listOfNotNull(head.gaining, head.removing).any { agent.reader.resolve(it).abstract }
     ) {
-      throw UnsupportedOperationException("state-dependent target resolution is still pending")
+      throw UnsupportedOperationException("state-dependent target evaluation is still pending")
     }
     val kind =
         when (head) {
@@ -130,7 +130,7 @@ internal constructor(
         }
     if (kind != null) return listOf(Decision(kind, focus, current))
     if (head is Change) return emptyList()
-    if (head.isAbstract(agent.reader)) {
+    if (head.needsNarrowing(agent.reader)) {
       throw UnsupportedOperationException("cannot enumerate a choice in `$current` yet")
     }
     return emptyList()
@@ -141,11 +141,11 @@ internal constructor(
    * subclass, without intermediate abstract classes. Component dependencies of nonoptional changes
    * are restricted to existing components, ignoring refinements for that check. Optional changes
    * retain absent dependencies because a later zero choice can still be legal. Uninhabited Types,
-   * invalid narrowings, unmet concrete gates, and insufficient concrete source quantities also
-   * remove options. These are candidates for a client choice, not a list of legal fully concrete
-   * narrowings: the checks do not execute the proposed instruction's entire transaction, including
-   * effects and final invariants. An offered option can still fail when submitted. `X` can have a
-   * large domain, so consume the sequence lazily. Re-query after the World changes.
+   * invalid narrowings, unmet gates, and insufficient source quantities also remove options. These
+   * are candidates for a client choice, not a list of legal fully specified narrowings: the checks
+   * do not execute the proposed instruction's entire transaction, including effects and final
+   * invariants. An offered option can still fail when submitted. `X` can have a large domain, so
+   * consume the sequence lazily. Re-query after the World changes.
    */
   public fun options(decision: Decision): Sequence<String> =
       optionCandidates(decision).map { it.first }
@@ -433,7 +433,7 @@ internal constructor(
    * Submits the accumulated narrowing, selecting this task if necessary. A form containing a choice
    * fails if selection assigns the task to another Actor; that Actor must choose instead.
    */
-  // TODO(ENGINE_CONTRACT): consider requiring a fully concrete draft at commit. Currently this
+  // TODO(ENGINE_CONTRACT): consider requiring a closed draft at commit. Currently this
   // may leave an unfinished selection in the World instead of keeping that choice in the client.
   public fun commit(): TaskResult = agent.commitForm(taskId, instruction)
 }

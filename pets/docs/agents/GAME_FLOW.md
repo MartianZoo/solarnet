@@ -7,10 +7,17 @@
 
 ## Turns and turn offers
 
-`ActionScope<Player>` records an accepted action and its resolution. It is globally unique and
-identifies the active player. A published action-phase turn of up to two actions contains up to
-two consecutive scopes, even when both belong to the same player. `TfmGameplay.turn { }` groups
-that published turn and declines an unused second opportunity.
+An **action** is a corporation play, a Prelude play, an accepted action-phase choice, or a final
+greenery placement. A **turn** lasts while the same Player holds `Baton<Player>`: it contains the
+corporation action, that Player's Prelude actions, zero to two action-phase actions (or more while
+the last Player continues before passing), or all their final greenery placements. Passing without
+acting creates no action. Setup, research, production, and solar-phase decisions outside these
+scopes are not actions. These terms are defined in the [Solarnet glossary](../../../docs/glossary.md).
+
+`ActionScope<Player>` records an accepted action until its clearance. It is globally unique and
+identifies the active player. Each action in a turn has its own scope, even when consecutive
+actions belong to the same player. `TfmGameplay.turn { }` groups the ordinary published action-phase
+turn and declines an unused second opportunity; it does not define the full turn concept.
 
 ### Offering, taking, and finishing an action
 
@@ -18,9 +25,9 @@ that published turn and declines an unused second opportunity.
   Passing creates no scope and ends that player's participation for the generation.
 - Invoking a `StandardAction` through `UseAction`, or accepting `DoRequiredActions` or `PlayCard`,
   creates a scope only when none exists. Invoking other `HasActions` providers does not create
-  a scope: reactive abilities and nested card plays resolve within the current action.
-- `PlayCard` and `UseAction` are System signals. The player supplies any unresolved card or
-  action choice; Admin executes the fully specified dispatch. Standard-action forwarding uses
+  a scope: reactive abilities and nested card plays finish within the current action.
+- `PlayCard` and `UseAction` are System signals. The player supplies any unfixed card or
+  action choice; Admin executes the resulting dispatch. Standard-action forwarding uses
   ordinary queued effects. Playing a card or using a project/card action first selects the standard
   action, then the specific card, project or printed action it offers.
 - The scope remains through payment, effects, placement bonuses, other players' responses, and
@@ -67,12 +74,12 @@ declarations, and is not a general analysis of all downstream effects after a fl
 
 Check indirect effects as well as direct removal listeners; an Agent automatically selecting a
 choice does not make the declaration comply. Do not extend the old action past scope removal to
-accommodate a new choice. See [operation completion](../../../docs/agents/SEQUENCING.md#operation-completion)
-for the engine's separate operation check.
+accommodate a new choice. See [the current Agent completion check](../../../docs/agents/SEQUENCING.md#current-agent-completion-check)
+for the current Agent completion check.
 
 ### Baton, action offers, and rotation
 
-`Baton<Player>` records whose table turn is in progress. It stays with the player across both
+`Baton<Player>` records whose turn is in progress. It stays with the player across both
 ordinary actions, across all their Preludes, or across repeated final greeneries. `ActionScope`
 records the shorter lifetime of an accepted action. There is no baton during setup, research,
 production, or solar work. Baton needs no phase dependency: the current phase supplies the rules,
@@ -98,7 +105,7 @@ baton-dependent `SecondAction` allowance when another player remains. After the 
 `OfferAction` consumes that allowance and its removal offers `UseAction<StandardAction> OR PassBaton`, or
 the required-action equivalent. After the second action, `OfferAction` requests `PassBaton`.
 A player carrying `Pass` passes a received baton onward without opening a scope; the same
-`OfferAction` response hands over play after a pass made during an action finishes resolving.
+`OfferAction` response hands over play after a pass made during an action reaches clearance.
 
 When only a single player remains, `OfferAction` supplies a fresh first offer after every action,
 including the option to pass. The player retains the baton. Solo play uses this same rule;
@@ -115,18 +122,18 @@ is no longer needed.
 
 Red Appeasement's pass removes `InRound` immediately, but passes the baton only after the current
 action finishes. Its event flip and rewards therefore finish before
-the next player receives an offer. A pass during Prelude resolution does not interrupt that
+the next player receives an offer. A pass during a Prelude action does not interrupt that
 player's remaining Preludes, and generation-scoped `Pass` does not skip final greenery.
 
 `OfferAction` requests the phase's next activity after an action finishes, or an initial activity
 for standalone play. It does not record the turn holder. The phase or `InRound` supplies the choice
 or hands over play when no further activity is due. A request submitted without a baton still opens
 an accepted action's scope and cleanup, but finishing it does not rotate seats. Sandbox scenarios
-and manual REPL modes use this distinction without changing the game's rules. The script's `turn`
+and direct REPL mode use this distinction without changing the game's rules. The script's `turn`
 command calls `beginOperation("OfferAction")` directly outside purple mode. `TfmGameplay.inTurn`
-requests an offer only when its actor has no pending task; generic Agent APIs know only operations.
+requests an offer only when its actor has no pending task; the generic Agent API has no turn concept.
 This signal was previously called `NewTurn`; the new name distinguishes a single offer from the full
-baton turn.
+turn.
 
 The two remaining flow signals have separate purposes: `OfferAction` requests the next activity, while
 `PassBaton` requests a handoff or the final removal. Modules select the next phase when no baton
@@ -217,7 +224,7 @@ the game with `TfmGameplay.startGame`, which performs `SetupPhase FROM Bootstrap
 
 | Class | Current meaning |
 | --- | --- |
-| `MustCleanUp` | State forbidden by operations that declare themselves complete |
+| `MustCleanUp` | State forbidden when an Agent call requires initiated work to finish |
 | `Barrier` | `MustCleanUp` state removed by its owning game rule |
 | `Signal` | An unscoped point event that removes itself automatically |
 | `Scope` | A lifetime anchor whose removal also removes dependent components |
@@ -230,7 +237,7 @@ helpers. `ActionScope` is not `MustCleanUp`: the current completion check runs b
 ## Facts in components, future work in tasks
 
 Components record what exists or is happening. `ActionScope` records the current accepted action;
-`Baton` records the current table turn and `SecondAction` its remaining second-action allowance.
+`Baton` records the current turn and `SecondAction` its remaining second-action allowance.
 Deferred tasks determine when those facts change. Do not add a component whose only meaning is
 an arbitrary continuation waiting to run.
 

@@ -39,14 +39,15 @@ import dev.martianzoo.state.Transaction
  * * `a, Die!` becomes `Die!`
  * * `a OR Die!` becomes `a`; if every option is mandatory `Die`, the task produces
  *   [DeadEndException]
- * * A concrete selected task has no remaining choices, but its effects or invariant checks can
- *   still fail. Normalization does not establish transaction legality
+ * * A selected task needing no narrowing has no remaining choices, but its effects or invariant
+ *   checks can still fail. Normalization does not establish transaction legality
  * * Normalization retains task identity, current assignee, selection, and cause. Admission and
- *   contextual selection assign concrete System gains and removals to Admin, including changes
- *   scaled by `Per` or waiting behind a gate. Concrete gains explicitly `BY Admin` also begin with
- *   Admin. System assignment dispatches a continuation back to the former assignee; explicit `BY`
- *   retains its own continuation scope. Abstract changes remain for the current assignee to choose.
- *   Selected tasks cannot be replaced by independent siblings
+ *   contextual selection assign System gains and removals needing no narrowing to Admin, including
+ *   changes scaled by `Per` or waiting behind a gate. Gains explicitly `BY Admin` also begin with
+ *   Admin when they need no narrowing. System assignment dispatches a continuation back to the
+ *   former assignee; explicit `BY` retains its own continuation scope. Changes still needing
+ *   narrowing remain for the current assignee to choose. Selected tasks cannot be replaced by
+ *   independent siblings
  * * Once a completed transaction leaves no ordinary task, every task with the earliest remaining
  *   [Task.deferral] becomes ordinary at once
  * * NOW and SOON stay queued until executed. Unselected LATER and FINALLY retain their immediate
@@ -96,7 +97,7 @@ internal class TaskQueues(
   ): List<TaskAddedEvent> =
       taskInstructions(instruction).flatMap {
         val prepared =
-            assignConcreteChangeToAdmin(
+            assignChangeNeedingNoNarrowingToAdmin(
                 newTask(TaskId(gameWorld.nextOrdinal), assignee, it, cause, isAbstract, deferral),
                 continueSelected = deferral == Deferral.NOW,
             )
@@ -186,7 +187,7 @@ internal class TaskQueues(
   }
 
   internal fun normalizeForSelection(task: Task): Task =
-      assignConcreteChangeToAdmin(normalizeTask(task, isAbstract))
+      assignChangeNeedingNoNarrowingToAdmin(normalizeTask(task, isAbstract))
 
   internal fun assigneeAfterContextualSelection(task: Task): Actor {
     val selected = task.copy(selected = true)
@@ -196,21 +197,24 @@ internal class TaskQueues(
   /** The existing game scope supplies timing; the NOW body retains its recipient and choices. */
   private fun orderPlayerWork(task: Task, original: Instruction): Task {
     if (task.selected || task.assignee == ADMIN) return task
-    val controller = taskController(gameWorld.reader) ?: return task
-    if (controller == task.assignee) return task
-    if (original is Instruction.Dispatch) return task.copy(assignee = controller)
+    val scopeOwner = taskScopeOwner(gameWorld.reader) ?: return task
+    if (scopeOwner == task.assignee) return task
+    if (original is Instruction.Dispatch) return task.copy(assignee = scopeOwner)
     // Wrap the original instruction before its first step and continuation were separated.
     // Reconstructing a THEN from task data would conflate independent variable scopes.
     return task.copy(
-        assignee = controller,
+        assignee = scopeOwner,
         instruction = Instruction.Dispatch(task.assignee.expression, original, Deferral.NOW),
         then = null,
     )
   }
 
-  private fun assignConcreteChangeToAdmin(task: Task, continueSelected: Boolean = false): Task {
+  private fun assignChangeNeedingNoNarrowingToAdmin(
+      task: Task,
+      continueSelected: Boolean = false,
+  ): Task {
     if (task.assignee == ADMIN) return task
-    if (task.instruction.isAbstract(gameWorld.reader)) return task
+    if (task.instruction.needsNarrowing(gameWorld.reader)) return task
     fun change(instruction: InstructionTree): Change? =
         when (instruction) {
           is Change -> instruction
@@ -230,7 +234,7 @@ internal class TaskQueues(
             is Gated -> explicitlyByAdmin(instruction.inner)
             else -> false
           }
-      // TODO(ENGINE_CONTRACT): review concrete BY Admin routing for removals, transmutations, and
+      // TODO(ENGINE_CONTRACT): review explicit BY Admin routing for removals, transmutations, and
       // wrappers too. Admission currently recognizes only pure non-System gains through BY/Gated;
       // other explicit Admin work can stay assigned to the Player until selection.
       if (change.removing == null && explicitlyByAdmin(task.instruction)) {
@@ -239,7 +243,7 @@ internal class TaskQueues(
       return task
     }
     // The System step belongs to Admin, but completing it must return later work to the actor
-    // who had the sequence before this handoff. Encode that recipient in the continuation itself.
+    // who had the sequence before this transfer. Encode that recipient in the continuation itself.
     return task.copy(
         assignee = ADMIN,
         then =

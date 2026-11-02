@@ -34,14 +34,15 @@ Player automatic decisions must not disable guidance, filtering, or analysis.
 - **Identify pending decisions.** Explain which tasks need attention and which Actor must answer.
   Stan's greenery placement can succeed while Kim's Philares resource choice remains pending.
   Distinguish that outstanding response from a new independent action.
-- **Guide construction of a request.** Break an abstract task into useful questions about an
-  alternative, class, dependencies, amount, and card identities. Retain partial answers and allow
+- **Guide construction of a request.** Identify the decisions within an open task: an
+  alternative, class, dependencies, amount, or card identities. Retain partial choices and allow
   revision without requiring live game changes. A client that already knows its answer can submit
   it directly; a form or an enumeration of options must never be mandatory.
-- **Provide useful candidates.** Reduce unanswered questions and combine partial deductions while
-  preserving every potentially completing choice. Choosing a target may establish a useful amount
-  range. Represent large ranges without materializing every integer. A candidate menu need not
-  certify that each option can complete, and an incomplete menu cannot prove its sole answer forced.
+- **Provide useful options.** Reduce unanswered questions and combine partial deductions while
+  preserving every potentially viable choice. Choosing a target may establish a useful amount
+  range. Represent large ranges without materializing every integer. An option remains an option
+  whether its viability is proved, unknown, or unexamined; an incomplete offered set cannot prove
+  its sole answer forced. The rules for presenting unexamined options remain open.
 - **Analyze later consequences.** Investigate whether the action can finish after the requested
   transaction and its subsequent tasks. Project Eden must leave space for its required city.
   Preserve TRUE/FALSE/UNKNOWN; missing card information or unfinished analysis is not proof of
@@ -56,9 +57,9 @@ and reasons for rejection or uncertainty afterward. Distinguish established resu
 dependent on later answers.
 The exact information and presentation contract remains **open**; no new explanation API is selected.
 
-**Open:** complete candidate generation, work limits, action-completion recognition across Actors,
+**Open:** complete candidate generation, work limits, action-clearance recognition across Actors,
 and the relationship between local drafts and voluntarily retained engine narrowing. The existing
-ordered-decision and completion discussions remain in DECISION_GRAPH; this inventory does not
+ordered-decision and viability discussions remain in DECISION_GRAPH; this inventory does not
 resolve them merely by assigning the work to Agent.
 
 ### 2. Choose for the client during the current interaction
@@ -67,8 +68,9 @@ resolve them merely by assigning the work to Agent.
 an answer while handling the current situation. Establishing an answer and being authorized to act
 on it are separate requirements.
 
-- **Advance through forced decisions.** After sound pruning leaves no meaningful choice, an
-  authorized agent can submit the remaining answer and continue to the next decision. Finding a
+- **Advance through forced decisions.** After sound pruning and collapsing leave no meaningful
+  choice, an authorized agent can apply the remaining answer and continue to the next decision.
+  This automatic advancement is distinct from executing the resulting task. Finding a
   successful continuation does not authorize executing all of its later choices.
 - **Choose among proved equivalent alternatives.** The agent can select a representative or an
   interchangeable task order under the decision-graph rules. Executability of both tasks alone
@@ -111,19 +113,19 @@ meaningful answer.
   needs its own explicit decision below.
 
 The owner selected whole-call restoration after a subsequent Admin failure, and removal of the
-unused completion hook. **Open:** recovery across already-returned calls; recognition of action completion;
+unused completion hook. **Open:** recovery across already-returned calls; recognition of action clearance;
 and the precise client contracts for previews and diagnostics. Arbitrary external application
-side effects are not covered by engine rollback. Existing operation helpers are implementation
+side effects are not covered by engine rollback. Existing `*Operation` helpers are implementation
 evidence, not a requirement to retain their lifecycle or completion assumptions.
 
 ### 4. Configure autoexec policies in the engine
 
-**Selected direction:** an agent installs policies directly in the engine for selected tasks
+**Selected direction:** an agent installs standing policies directly in the engine for selected tasks
 assigned to its Actor. When such a task matches a policy, the engine can completely handle it
 without consulting that agent or its client again. The agent decides what to authorize in advance;
 the engine carries out that standing instruction under the ordinary game rules.
 
-**Selected example:** Kim's agent installs a policy saying to take her Arctic Algae plants. Stan
+**Selected example:** Kim's agent installs a standing policy saying to take her Arctic Algae plants. Stan
 places an ocean and selects the resulting plant task assigned to Kim. The engine completes that
 task using Kim's installed policy, so Stan does not have to wait for Kim or her agent to respond.
 This example selects the interaction to support; it does not prescribe a card-specific engine
@@ -142,11 +144,12 @@ earlier transaction, and it does not move whole-action search or outcome compari
 Mandatory Admin handling remains automatic independently of Player settings; this decision does
 not select a new placement or configurable policy for the Admin driver.
 
-**Deferred preference example:** a client tells its agent, "For my Philares bonuses, always take
-titanium." The agent would translate that preference into a standing engine policy, authorizing
+**Deferred example:** a client tells its agent, "For my Philares bonuses, always take
+titanium." The agent would translate that instruction into a standing policy, authorizing
 a meaningful choice in advance. This belongs in bucket 4 when the engine applies the installed
 answer, whereas an agent evaluating the current bonus and submitting an answer uses bucket 2.
-Preference storage, editing, and conflict resolution are future work, not current requirements.
+Storing, editing, and resolving conflicts between such instructions are future work, not current
+requirements.
 
 **Open implementation questions:**
 

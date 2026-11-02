@@ -101,10 +101,10 @@ history navigation still needs design; do not assume Compose provides that mappi
   remain unidentified. Earlier declaration is optional and low priority.
 - Gameplay mode applies normal game rules and exposes the Solarnet task queue. Selecting a task shows
   the available ways to narrow it.
-- Player task execution is manual, including concrete tasks, so the user can follow resolution
-  step by step. Admin handling follows [ENGINE_CONTRACT.md](agents/ENGINE_CONTRACT.md).
+- Player task choices and execution can be followed step by step; configured Player policy may
+  also execute eligible tasks. Admin handling follows [ENGINE_CONTRACT.md](agents/ENGINE_CONTRACT.md).
   Effects accumulate in a log viewer panel.
-- Separate explanations of why a rule applies are not required. Watching the task queue resolve
+- Separate explanations of why a rule applies are not required. Watching task evaluation and execution
   is the intended way to understand the result.
 
 ## History and restarting

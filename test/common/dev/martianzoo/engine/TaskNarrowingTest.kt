@@ -64,7 +64,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `initiating an abstract task works as expected`() {
+  internal fun `initiating an open task works as expected`() {
     initiate("2? Plant")
 
     tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("2? Plant<Player1>")
@@ -546,7 +546,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `id-based narrowing retains a concrete task until execution`() {
+  internal fun `id-based narrowing retains a closed task until execution`() {
     val taskId = initiate("2? Plant").single()
     writer.selectTask(taskId)
 
@@ -559,7 +559,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `a concrete narrowing waits for explicit execution`() {
+  internal fun `a closed narrowing waits for explicit execution`() {
     initiate("2? Plant")
 
     selectAndNarrow("2? Plant", "Plant!")
@@ -759,7 +759,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `selection resolves a limited amount for explicit execution`() {
+  internal fun `selection evaluates a limited amount for explicit execution`() {
     initiate("-30? TerraformRating")
 
     writer.selectTask("-30? TerraformRating")
@@ -786,7 +786,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `selecting a task resolves a city already identified by area`() {
+  internal fun `selecting a task evaluates a city already identified by area`() {
     val game = TfmEngine.newGame(canonicalPremise(cn("StJosephOfCupertinoMission")))
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
@@ -850,7 +850,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `selection resolves PER before its AMAP target is narrowed`() {
+  internal fun `selection evaluates PER before its AMAP target is narrowed`() {
     writer.runOperation("Plant")
     initiate("OceanTile<> / Plant")
 
@@ -982,7 +982,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `narrowing a variable-sharing THEN to a concrete sequence splits its first stage`() {
+  internal fun `narrowing a variable-sharing THEN to a closed sequence splits its first stage`() {
     initiate("X? Plant THEN X? Heat")
 
     selectAndNarrow("X? Plant THEN X? Heat", "3 Plant THEN 3 Heat")
@@ -995,7 +995,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `executing a THEN head creates independent abstract tail tasks`() {
+  internal fun `executing a THEN head creates independent open tail tasks`() {
     initiate("Plant! THEN (Steel?, Heat?)")
 
     writer.doTask("Plant!")
@@ -1024,7 +1024,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `autoexec does not infer an abstract AMAP actor from the sole existing component`() {
+  internal fun `autoexec does not infer an AMAP task Actor from the sole existing component`() {
     game.testAgent(PLAYER2).runOperation("3 MC")
     initiate("3* MC FROM MC<Player>")
 

@@ -25,7 +25,7 @@ public data class Task(
     val selected: Boolean = false,
 
     /**
-     * What to do. Can be abstract and is stored exactly as supplied by the engine. A selected task
+     * What to do. Can remain open and is stored exactly as supplied by the engine. A selected task
      * may retain a group; executing it admits the members as independent unselected tasks and
      * releases [then]. Unselected work is admitted as individual instructions.
      */

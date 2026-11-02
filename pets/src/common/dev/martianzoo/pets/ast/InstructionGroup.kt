@@ -31,7 +31,9 @@ public data class InstructionGroup(val instructions: List<Instruction>) : Instru
 
   override fun times(factor: Int): InstructionGroup = of(instructions.map { it * factor })
 
-  override fun isAbstract(info: TypeInfo): Boolean = instructions.any { it.isAbstract(info) }
+  override fun needsNarrowing(info: TypeInfo): Boolean = instructions.any {
+    it.needsNarrowing(info)
+  }
 
   override fun visitChildren(visitor: Visitor): Unit = visitor.visit(instructions)
 

@@ -1,7 +1,7 @@
 package dev.martianzoo.agent
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.engine.World
@@ -9,7 +9,6 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -54,7 +53,7 @@ internal class AutoExecLoop(
 
     // Selection probes execute in disposable copies. Probe only when automatic work is possible.
     if (pending.none { policy(it) != NONE }) return false
-    // Keep manual tasks among the candidates: they still compete with automatic work.
+    // Keep tasks awaiting a client choice among the candidates: they compete with automatic work.
     // A sole task has no competing choice. Selection can hand work off;
     // the enclosing Agent call rolls back any failure that propagates.
     val candidates =
@@ -65,7 +64,7 @@ internal class AutoExecLoop(
       val actor = allTasks.getTaskData(taskId).assignee
       when (policy(taskId)) {
         NONE -> false
-        CONCRETE -> candidateCounts.getValue(actor) == 1
+        SOLE_TASK -> candidateCounts.getValue(actor) == 1
         else -> true
       }
     }
@@ -82,8 +81,8 @@ internal class AutoExecLoop(
         }
         error("that should've completed")
       }
-      // A manual Actor's available task still competes with this option. Do not acquire an
-      // abstract task selection merely because the other Actor has autoexecution disabled.
+      // A task awaiting a client choice still competes with this option. Do not acquire an
+      // open task selection merely because the other Actor has autoexecution disabled.
       1 ->
           if (candidates.size == 1) {
             val taskId = options.single()
@@ -135,7 +134,7 @@ internal class AutoExecLoop(
       } catch (_: NotFullySpecifiedException) {
         recoverable = true
       } catch (_: NotNowException) {
-        if (allTasks.getTaskData(taskId).instruction.isAbstract(world.reader)) {
+        if (allTasks.getTaskData(taskId).instruction.needsNarrowing(world.reader)) {
           recoverable = true
         }
       }
@@ -149,16 +148,16 @@ internal class AutoExecLoop(
     engine.selectTask(taskId)
     if (allTasks.getTaskData(taskId).assignee != engine.actor) return
     if (!canExecuteWithoutChoice(taskId)) {
-      throw NotFullySpecifiedException("Player policy requires a concrete selected instruction")
+      throw NotFullySpecifiedException(
+          "Player policy requires a selected instruction needing no further narrowing"
+      )
     }
     engine.doTask(taskId)
   }
 
   private fun canExecuteWithoutChoice(taskId: TaskId): Boolean {
     val instruction = allTasks.getTaskData(taskId).instruction
-    return instruction is Each ||
-        instruction is InstructionGroup ||
-        !instruction.isAbstract(world.reader)
+    return instruction is InstructionGroup || !instruction.needsNarrowing(world.reader)
   }
 
   /** Automatic handling is mandatory for Admin and configured policy for every other Actor. */
@@ -170,10 +169,10 @@ internal class AutoExecLoop(
   /**
    * Attempts Admin work in FIFO order, retrying waiting tasks after each success. A selected Player
    * task retains priority. Every nonempty pass must succeed at a task; otherwise its retained
-   * failure is thrown, including unresolved choices and work waiting on a Player. An unfinished
-   * proof is retried after progress and takes precedence over gameplay rejection when the pass
-   * stalls. Missing application input is also retried after progress and reported before returning
-   * to Player work.
+   * failure is thrown, including choices still needing narrowing and work waiting on a Player. An
+   * unfinished proof is retried after progress and takes precedence over gameplay rejection when
+   * the pass stalls. Missing application input is also retried after progress and reported before
+   * returning to Player work.
    *
    * Complete enumeration of legal narrowings remains outside this implementation.
    */

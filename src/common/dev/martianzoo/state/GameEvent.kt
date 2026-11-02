@@ -89,18 +89,18 @@ public sealed class GameEvent private constructor() {
 
     override fun toString(): String = buildString {
       append("$ordinal: $change BY $actor")
-      append(" ${cause ?: "(manual)"}")
+      append(" ${cause ?: "(no effect cause)"}")
     }
 
-    /** Why a (non-manual) `ChangeEvent` happened. */
+    /** Effect attribution for a `ChangeEvent` caused by an earlier change. */
     public data class Cause(
         /** The type of the existing component the activated effect belonged to. */
         val context: Expression,
 
         /**
          * The ordinal of the change event that activated the effect. Following this field through
-         * earlier [ChangeEvent.cause] values reconstructs causal event ancestry until a manual
-         * change with no cause is reached.
+         * earlier [ChangeEvent.cause] values reconstructs causal event ancestry until a change with
+         * no effect cause is reached.
          */
         val triggerEvent: Int,
     ) {

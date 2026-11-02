@@ -8,7 +8,7 @@
 `Anyone` is the common supertype of `Owner` and `Actor`. `Player` is both; Admin is only an Actor;
 SoloOpponent and Neutral are only Owners. Use bare `Owned` in subclass declarations unless
 narrowing its bound or linking a variable. Use literal `<Anyone>` for unrestricted ownership and
-trigger-side `BY Anyone` for every performer.
+trigger-side `BY Anyone` for every Actor.
 
 `Owned<Me@Owner>` gives the owner dependency an inherited lexical name. Subclasses can narrow that
 same binding, such as `Me@Player`. Independently inherited bindings with the same name are

@@ -32,10 +32,10 @@ by immediate effects must not be rejected by an over-eager filter.
 - [`Limiter.kt`](../../src/common/dev/martianzoo/engine/Limiter.kt) — inspect for
   concrete limits and invariant headroom.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
-  for `Quantifier` and `abstract` to see resolution of quantified changes.
-- [`InstructionResolutionTest.kt`](../../test/common/dev/martianzoo/engine/InstructionResolutionTest.kt) and
-  [`TaskResolutionTest.kt`](../../test/common/dev/martianzoo/engine/TaskResolutionTest.kt)
-  — select scenarios matching the changed resolution phase.
+  for `Quantifier` and `abstract` to see evaluation of quantified changes.
+- [`InstructionEvaluationTest.kt`](../../test/common/dev/martianzoo/engine/InstructionEvaluationTest.kt) and
+  [`TaskEvaluationTest.kt`](../../test/common/dev/martianzoo/engine/TaskEvaluationTest.kt)
+  — select scenarios matching the changed evaluation behavior.
 
 ## Before writing an explicit quantifier
 
@@ -46,7 +46,7 @@ See [Pets quantifier guidance](../../pets/docs/agents/QUANTIFIERS.md#before-writ
 | Task | Read |
 | --- | --- |
 | Establish terminology, evaluation time, or syntax | Vocabulary and evaluation time; Syntax and defaults |
-| Change when count invariants are enforced | Invariants at operation completion |
+| Change when count invariants are enforced | Invariants after an immediate change cascade |
 | Change a concrete target | The matching concrete gain/removal/transmutation section |
 | Change an abstract target or AMAP choice | Abstract pure gains and removals; Abstract transmutations |
 | Handle absent dependencies, uninhabited types, or zero | Uninhabited and computed-zero changes |
@@ -66,19 +66,19 @@ See [Pets quantifier guidance](../../pets/docs/agents/QUANTIFIERS.md#before-writ
   physical source count. AMAP uses it to choose its count. Mandatory and optional quantities require
   physical sources immediately and satisfy count bounds at transaction completion. Negative
   capacity is clamped to zero.
-- Zero-count changes retain their gained/removed Types through resolution and task matching.
+- Zero-count changes retain their gained/removed Types through evaluation and task matching.
   Execution emits no component changes. `Ok` remains an untyped no-op and can narrow a zero change.
 
-Instructions normally resolve against the World in which their task is selected, not the World in
-which an effect originally created the task. The resolved instruction must execute next against that
+Instructions are normally evaluated against the World in which their task is selected, not the World in
+which an effect originally created the task. The evaluated instruction must execute next against that
 same World. Quantifiers do not preserve trigger-time target existence.
 
-## Invariants at operation completion
+## Invariants after an immediate change cascade
 
-Declared component-count invariants must hold when a full operation completes. For this check, an
-operation consists of one initiating component change and its entire recursive `::` cascade,
+Declared component-count invariants must hold after an immediate change cascade. For this check, the
+cascade consists of one initiating component change and its entire recursive `::` work,
 including `THEN` stages within that automatic work. Mandatory changes may cross count bounds in
-intermediate states. Before completing the operation, the engine validates affected bounds,
+intermediate states. Before completing the cascade, the engine validates affected bounds,
 including positive minimums activated by newly gained components. Bootstrap audits all required counts
 after constructing its initial world.
 
@@ -89,7 +89,7 @@ construct anything. A correction group instead validates all applicable invarian
 explicit changes, required construction, and automatic effects, with queued effects suppressed; see [EX_MACHINA.md](EX_MACHINA.md).
 
 Physical source availability and dependency integrity are checked immediately. AMAP quantity
-resolution also consults invariant bounds in the current World; negative headroom or footroom
+evaluation also consults invariant bounds in the current World; negative headroom or footroom
 becomes zero. Optional task inference tries complete transactions, allowing an immediate effect
 to repair an intermediate count violation.
 
@@ -98,8 +98,8 @@ Trigger batches keep their existing snapshots, and nested effects can observe in
 Authors must express causal dependencies through the events that actually cause their consequences.
 
 Queued tasks, `THEN` stages outside the initiating automatic cascade, and separate initiating changes
-each belong to separate operations for this check. They cannot repair an earlier operation. A game
-action can contain several such operations; its completion does not postpone their invariant checks.
+each start a separate cascade for this check. They cannot repair an earlier cascade. A game-flow
+action can contain several such cascades; its clearance does not postpone their invariant checks.
 
 A family can own replacement with `This:: -Family(NOT This).` and a family-wide maximum of one.
 The initiating gain must be mandatory to cross that maximum. Repeating the same concrete value
@@ -128,8 +128,8 @@ For positive requested count `n`, the destination dependency is checked before i
 | Current World | mandatory | optional | AMAP |
 | --- | --- | --- | --- |
 | Destination dependency is missing | `DependencyException` | `Ok` | `DependencyException` |
-| Dependency exists and `m = 0` | `n!`, validated at operation completion | `n?`, validated by transaction trials | `0!` |
-| `0 < m < n` | `n!`, validated at operation completion | `n?`, validated by transaction trials | `m!` |
+| Dependency exists and `m = 0` | `n!`, validated after its immediate cascade | `n?`, validated by transaction trials | `0!` |
+| `0 < m < n` | `n!`, validated after its immediate cascade | `n?`, validated by transaction trials | `m!` |
 | `m >= n` | `n!` | `n?` | `n!` |
 
 Thus concrete AMAP is strict about the identity of its target but forgiving about the target's
@@ -145,14 +145,14 @@ quantifiers.
 For a positive requested count, a removal does not require the removed Type's dependency component
 to exist separately: if no
 matching removable component exists, its footroom is zero. A mandatory removal requires all `n`
-physical copies immediately and validates declared minimums at operation completion. Optional and
+physical copies immediately and validates declared minimums after the immediate cascade. Optional and
 AMAP removals use the invariant-limited footroom. Optional removals are bounded by physical source
 count first, then their candidate transactions check the minimum invariants:
 
 | Limit | mandatory | optional | AMAP |
 | --- | --- | --- | --- |
-| `m = 0` | `n!` if physically available, validated at operation completion | Up to physically available `n?` | `0!` |
-| `0 < m < n` | `n!` if physically available, validated at operation completion | Up to physically available `n?` | `m!` |
+| `m = 0` | `n!` if physically available, validated after its immediate cascade | Up to physically available `n?` | `0!` |
+| `0 < m < n` | `n!` if physically available, validated after its immediate cascade | Up to physically available `n?` | `m!` |
 | `m >= n` | `n!` | `n?` | `n!` |
 
 The AMAP limit includes every applicable minimum invariant. A mandatory or optional removal may
@@ -172,7 +172,7 @@ zero-count transmutation.
 Transmuting a concrete Type into itself is invalid for every quantifier, including when a trigger,
 class header, or `EACH` binding makes the Types equal. Content must exclude those bindings, as Mons
 Insurance and StartToken do. A self-target selected by automatic narrowing of an open transfer has
-zero capacity instead: mandatory resolution fails, while optional and AMAP can become `Ok`.
+zero capacity instead: mandatory evaluation fails, while optional and AMAP can become `Ok`.
 Signal gains without transmutation remain valid point events (L2-1), not self-transmutation instructions.
 
 A zero AMAP transmutation can still bind Type Variables in a
@@ -180,7 +180,7 @@ following `THEN`; target selection and component movement are separate consequen
 
 ## Abstract pure gains and removals
 
-Resolution first performs unique-Type narrowing. If the target remains abstract, the
+Evaluation first performs unique-Type narrowing. If the target remains abstract, the
 following rules apply.
 
 For mandatory and AMAP, the engine searches the concrete domain using current prerequisites. A gain
@@ -188,11 +188,11 @@ candidate must be active, narrow the authored Type, and have all destination dep
 candidate must be a matching existing component with enough physical copies. Mandatory availability
 search ignores declared count bounds; AMAP requires at least one candidate with positive capacity
 under those bounds. Target narrowing uses identity and present dependencies, without filtering by
-capacity. Neither search executes consequences or predicts the result of an operation.
+capacity. Neither search executes consequences or predicts the result of a later change cascade.
 
 - Mandatory uses required count `n`. If no candidate meets the execution prerequisites for all `n`,
-  resolution throws `LimitsException`. A selected candidate must execute all `n` and satisfy
-  invariants at operation completion. It can fail then even when resolution left it available.
+  evaluation throws `LimitsException`. A selected candidate must execute all `n` and satisfy
+  invariants after the immediate cascade. It can fail then even when evaluation left it available.
 - AMAP uses required count one when deciding whether a useful target exists. If no candidate can
   execute one, the whole abstract change becomes `Ok` rather than presenting a meaningless choice.
   Otherwise Type narrowing chooses the target. Capacity does not filter that Type domain.
@@ -207,7 +207,7 @@ capacity. Neither search executes consequences or predicts the result of an oper
 Target eligibility belongs to the authored Type and its refinements. AMAP does not require selection
 of the candidate with the largest limit and does not distribute one count among several targets.
 A missing concrete dependency remains unavailable because it does not name an existing target;
-zero capacity on an existing eligible target is different and resolves to `Ok`.
+zero capacity on an existing eligible target is different and evaluates to `Ok`.
 
 Abstract `CustomInstruction` gains use ordinary pure-gain feasibility. After a concrete target is
 gained, its event queues the Kotlin-produced instruction tree. Virtual `CustomMetric` types cannot
@@ -220,7 +220,7 @@ destination Types can use the same variable, so narrowing must choose one compat
 before its limit is known. Once concrete, the pair follows the concrete transmutation rules.
 On the engine-transition branch, an explicit fixed mandatory full-form request can try finite
 concrete pairs through complete transactions after task selection. This does not add independent
-source and destination preflight to pure-change resolution. Compact transmutation inference remains
+source and destination preflight to pure-change evaluation. Compact transmutation inference remains
 unresolved.
 
 This permits a selected nonmandatory pair to execute zero and still supply its Type Variable to a
@@ -233,13 +233,13 @@ An uninhabited Type has a provably empty domain in the current premise. A change
 uninhabited target is `Ok` when optional or AMAP and fails when mandatory. It does
 not auto-narrow, fire triggers, or participate in abstract feasibility.
 
-When a `PER` metric or other scalar calculation makes the requested count zero, resolution retains
+When a `PER` metric or other scalar calculation makes the requested count zero, evaluation retains
 the zero-count change before positive-count quantifier behavior is needed. Concrete limit
 calculations likewise retain the Types at zero. Such changes need no target selection, existing
-dependency, or System handoff to execute; they emit no change events. `0 Foo` can therefore identify
+dependency, or System assignee transfer to execute; they emit no change events. `0 Foo` can therefore identify
 a zero-valued `Foo / metric` task without identifying a zero-valued `Bar / metric` task.
 Task matching also rejects an intersection consisting only of `Ok` for a typed-zero submission:
-`0 Foo` cannot identify unrelated work through an explicit or resolved `Ok` alternative.
+`0 Foo` cannot identify unrelated work through an explicit or evaluated `Ok` alternative.
 This is a task-identification rule; Pets intersection remains symmetric, and a submitted `Ok` can
 still complete a zero-count task. Batch submissions through `doTasks` retain their signed-total
 semantics: a zero total may execute offsetting positive gains and removals, including their effects.
@@ -248,30 +248,30 @@ typed until the submitted narrowing has been checked and the selected task execu
 
 Unavailable abstract targets, uninhabited Types, and optional missing-dependency fallbacks still
 produce `Ok`. Extending retained counts to those paths remains open; their lost Type information
-means a typed zero cannot identify those resolved outcomes. They still require `Ok`.
+means a typed zero cannot identify those evaluated forms. They still require `Ok`.
 
 ## Composition
 
-- `A OR B`: each arm resolves independently against the same current World. Failed gates, missing
+- `A OR B`: each arm is evaluated independently against the same current World. Failed gates, missing
   physical sources or dependencies, and mandatory uninhabited changes can eliminate arms. Declared
   count bounds do not eliminate mandatory arms, even when no automatic consequence will repair
   them. A surviving arm still has to satisfy the execution checks. `Ok` is a real
   surviving arm, and equal surviving arms are deduplicated. An alternative containing only zero
   changes and `Ok` requires no decision, while retaining its Types for matching. If no arm survives,
   the `OR` reports the strongest applicable failure rather than becoming `Ok`. An automatic effect
-  must still resolve without a choice: use an authored condition if one arm is intended, or queued work if an Actor
+  must still evaluate without a choice: use an authored condition if one arm is intended, or queued work if an Actor
   should choose. Admin can make such ordinary queued choices too.
-- `A THEN B`: only `A` resolves initially. `B` resolves against the World produced by `A`, after
+- `A THEN B`: only `A` is evaluated initially. `B` is evaluated against the World produced by `A`, after
   Type Variables selected by `A` have been substituted. `B` still follows when nonmandatory `A`
-  resolves to `Ok`; author `A` as mandatory when the continuation requires a positive change.
-- `A, B`: the instructions become independent sibling tasks. Each resolves against the World in
+  evaluates to `Ok`; author `A` as mandatory when the continuation requires a positive change.
+- `A, B`: the instructions become independent sibling tasks. Each is evaluated against the World in
   which it is selected, and either may be selected first unless another mechanism orders them.
 - `requirement: A`: the requirement is checked before `A`. Failure makes that arm unavailable; it
   does not change `A`'s quantifier.
 - `A / metric`: the metric is evaluated first and multiplies `A`'s requested count. Zero retains
   the change and its Types; a positive gain of an `Atomized` type splits into independent gains of
-  one before resolving their choices and limits. Other changes follow the normal rules.
-- `A BY actor`: `BY` changes the performer, not the target domain, count, or limit.
+  one before evaluating their choices and limits. Other changes follow the normal rules.
+- `A BY actor`: `BY` changes the Actor recorded on the resulting change events, not the target domain, count, or limit.
 - `PROD[A]`: production lowering changes the component Types first; the resulting changes
   then follow this specification.
 

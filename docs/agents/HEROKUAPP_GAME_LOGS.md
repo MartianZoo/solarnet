@@ -138,7 +138,7 @@ pass as a gameplay event at that point.
 
 While copied log comments remain, keep each one just above its representing statement. Put a
 consequence inside an action lambda only when that action causes it. Do not use an unrelated
-executable context as a place to hide a manual adjustment.
+executable context as a place to hide an ex machina adjustment.
 
 ## Keep archive replays visually consistent
 

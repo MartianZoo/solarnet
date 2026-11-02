@@ -58,7 +58,7 @@ Opus/high identified an order-dependent raw Admin-priority check: an unfinished 
 a later proven-executable Admin task. The scan now retains incomplete analysis until it has looked
 for a definite priority blocker, with both orders tested. Agent and selection KDoc now describe the
 propagated failure. Automatic Player policy begins only after Admin has completed its pass and
-limits its own attempts to concrete instructions or `EACH`; initial-operation admission deliberately
+limits its own attempts to closed instructions or `EACH`; initial-operation admission deliberately
 retains choices for the operation body.
 
 ### Execution queries and try calls preserve incomplete analysis
@@ -199,7 +199,7 @@ stage was introduced.
 After base `661cc1eb2`, selection resolves wrappers around `EACH` but retains the parent task.
 Executing that selected parent resolves its selector against the current World, admits every
 child, consumes the parent, and leaves the children unselected at their ordinary priorities.
-Bootstrap and the existing Player EAGER and CONCRETE policies explicitly execute a selected
+Bootstrap and the existing Player EAGER and SOLE_TASK policies explicitly execute a selected
 `EACH`; policy `NONE` leaves it pending. The Agent operation scope now accepts a task ID for
 execution, matching the existing top-level Agent call. No second fanout representation or task
 queue was added.
@@ -213,8 +213,8 @@ Opus review fixes for `BY` fanout and automatic selection checkpoints. These che
 other structural selection paths or general transaction uniqueness.
 
 The current `ActorEngine.matchingTask` already compares a request with a pending instruction and,
-when direct intersection fails, with that instruction resolved against the current World.
-`TaskResolutionTest` proves `2 Plant` executes an individual `Plant / Heat` task through Agent
+when direct intersection fails, with that instruction evaluated against the current World.
+`TaskEvaluationTest` proves `2 Plant` executes an individual `Plant / Heat` task through Agent
 when 2 Heat are present; it does not isolate a raw engine call. `uniqueMatchingTask` currently
 treats tasks as interchangeable when their task data matches after replacing ID and cause. Whether
 resolved-value matching belongs in the final engine
@@ -291,7 +291,7 @@ only production submissions were recombined in Canon scenarios. `git diff --chec
 ## 3 and numeric 2: choose, then execute
 
 `selectTask` and `narrowTask` retain concrete work until execution is explicitly requested.
-Bootstrap was adapted to execute its concrete tasks. Minimal TfmGameplay changes replace the
+Bootstrap was adapted to execute its closed tasks. Minimal TfmGameplay changes replace the
 selection loops that otherwise repeat forever, explicitly finish concrete payment/corporation
 work, and explicitly submit PassBaton/Ok. No new gameplay abstraction was added; these changes do
 not make preserving TfmGameplay a goal.
@@ -351,7 +351,7 @@ Admin priority uses unique success, not merely existence of a successful candida
 existential implementation caused 211 card/rule failures and was removed. Admin retries waiting
 work after progress. All-failed abstract work without ordinary Player work now reports failure;
 unknown choices can remain pending. Existing gate/waiting semantics still need broader review.
-Player NONE/CONCRETE/EAGER retain their prior inference scope; explicit Player execution can invoke
+Player NONE/SOLE_TASK/EAGER retain their prior inference scope; explicit Player execution can invoke
 the new engine inference. A broader Player policy is not silently enabled by this experiment.
 
 Transmutation, compound alternatives, numeric-domain search, and unresolved immediate choices
@@ -453,7 +453,7 @@ failed 7 of 16 tests. The exact failing cases and messages are saved in
 `_local/engine-transition-evidence/strict-cause-reconstructed-failures.tsv`. The patch was then
 reversed, leaving the conservative comparison in place.
 
-The retained code change sends a uniquely proven concrete instruction through
+The retained code change sends a uniquely proven closed instruction through
 `narrowSelectedTask` instead of applying a separate direct resolution. Its disposable trial reaches
 that same step through `doTask(candidate, taskId)` and `intersectTask`. The Admin priority probe now
 uses the probed task's assignee engine, so the shared narrowing step also works when a Player engine
@@ -854,7 +854,7 @@ The selected Player task still has priority; deferred Admin tasks join this rule
 ### Rule tested and observed failures
 
 The runtime experiment removed the three exceptions that allowed unsuccessful Admin work to remain:
-abstract choices, unmet gates with Player work pending, and other unavailable work with Player tasks
+choices needing narrowing, unmet gates with Player work pending, and other unavailable work with Player tasks
 pending. Each failure was retained; success restarted the pass. Incomplete-analysis and missing-input
 errors retained their distinct reporting. Whole-call restoration remained in place.
 
@@ -961,7 +961,7 @@ remains an unadopted prototype, not required follow-up work.
 The owner expects colony response sequences to await the active Player's selection, then hand the
 selected work to the colony owner before further work can proceed. Current code differs:
 `PendingTask.fromEffect` routes to the effect owner or changed component owner directly, and
-`TaskQueues.assignConcreteChangeToAdmin` assigns a concrete System first step to Admin at admission.
+`TaskQueues.assignChangeNeedingNoNarrowingToAdmin` assigns a System first step needing no narrowing to Admin at admission.
 The lock gain is therefore already Admin work before any Player selects a bonus. Finishing that
 step admits the draw as a new, unselected task for Kim; selection does not span a `THEN` continuation.
 `PlutoLock` still prevents Kim's second draw from being offered before her first discard.
@@ -983,7 +983,7 @@ is made by this clarification.
 The owner requested restoring the tests before outlining implementation options. This is an
 intentionally failing acceptance-test change; no runtime workaround, ignored test, expected-failure
 wrapper, or test helper supplies the missing behavior. The required behavior and design options
-are in [IDENTITY.md](IDENTITY.md#required-active-player-handoff).
+are in [IDENTITY.md](IDENTITY.md#required-task-handoff-during-an-active-players-turn).
 
 Audit against 4847065e0 and its parent:
 

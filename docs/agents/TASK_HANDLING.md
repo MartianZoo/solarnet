@@ -8,24 +8,24 @@
 ## Scope and reading order
 
 The engine identifies a permitting task, combines it with the request, and executes the result.
-Supported finite analysis can resolve a unique successful interpretation. Admin must handle the
+Supported finite analysis can evaluate a unique successful interpretation. Admin must handle the
 work supported Canon creates; Player inference remains limited. This inventory explains automatic
 rewrites, their timing, and their failure behavior.
 
 “Automatic” here means performed without a separate client instruction for that step. It includes
 rewrites and bookkeeping, not just double-colon effects or agent autoexecution. An instruction
-being resolved and concrete does not prove successful execution or action completion.
+being evaluated and closed does not prove successful execution or action clearance.
 
 | Moment | Work performed | Principal source |
 | --- | --- | --- |
 | Before admission | Elaborate client input or specialize a triggered effect; calculate its initial assignee. | [AgentImpl](../../src/common/dev/martianzoo/agent/AgentImpl.kt), [LiveEffect](../../src/common/dev/martianzoo/engine/LiveEffect.kt), [PendingTask](../../src/common/dev/martianzoo/engine/PendingTask.kt) |
 | Admission and queue edits | Normalize syntax, split independent work, manage continuations, route concrete work, perform ordinary dispatches. | [newTasks](../../src/common/dev/martianzoo/engine/newTasks.kt), [TaskQueues](../../src/common/dev/martianzoo/engine/TaskQueues.kt) |
-| Matching, selection, narrowing | Identify the task, resolve current-world questions, bind shared choices, record selection or handoff, retain exposed groups; execution requires an execution command. | [ActorEngine](../../src/common/dev/martianzoo/engine/ActorEngine.kt), [Instructor](../../src/common/dev/martianzoo/engine/Instructor.kt) |
+| Matching, selection, narrowing | Identify the task, evaluate current-world questions, bind shared choices, record selection or assignee transfer, retain exposed groups; execution requires an execution command. | [ActorEngine](../../src/common/dev/martianzoo/engine/ActorEngine.kt), [Instructor](../../src/common/dev/martianzoo/engine/Instructor.kt) |
 | Execution and consequences | Change components, remove dependents, construct required parts, run immediate effects, collect queued effects, check invariants. | Instructor, [Changer](../../src/common/dev/martianzoo/engine/Changer.kt), [Effector](../../src/common/dev/martianzoo/engine/Effector.kt), [Limiter](../../src/common/dev/martianzoo/engine/Limiter.kt) |
 | Completion and subsequent work | Admit effects and continuation, remove the task, promote deferred work, let drivers handle eligible tasks. | ActorEngine, TaskQueues, [AutoExecLoop](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt), [WorldTransaction](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) |
 
-The inventory follows every case in `normalizeForTask`, `normalizeTask`, `Instructor.resolve`,
-and `doExecuteResolved`, plus the paths that create, edit, remove, dispatch, or promote tasks.
+The inventory follows every case in `normalizeForTask`, `normalizeTask`, `Instructor.evaluate`,
+and `doExecuteEvaluated`, plus the paths that create, edit, remove, dispatch, or promote tasks.
 Initialization, corrections, probes, and history restoration are included separately because they
 do not all take the ordinary path. Static language lowering is owned by Pets; its runtime entry
 points are identified here rather than redefined as another engine processing stage.
@@ -42,16 +42,16 @@ required when an execution command is actually submitted.
 | --- | --- | --- |
 | Task admission or replacement | Remove no-ops, reject direct mandatory `Die`, simplify alternatives, and separate eligible `THEN` continuations. | No; this can fail before a body executes. |
 | Ordinary pure dispatch admitted or exposed by an edit/promotion path that admits it | Enqueue its body for its recipient and admit its continuation; do not retain a separate ordinary dispatch task. | No. |
-| `selectTask` or `narrowTask` | Resolve and retain concrete or partial instructions; component changes wait for an execution command. Actor handoff can still occur; structural expansion waits for execution. | No requested component execution; existing priority probes are reviewed separately below. |
-| Selection/narrowing resolves to a retained zero or `Ok` instruction | Keep it selected until execution. Admission can eliminate no-ops structurally. | No. |
+| `selectTask` or `narrowTask` | Evaluate and retain closed or open instructions; component changes wait for an execution command. Assignee transfer can still occur; structural expansion waits for execution. | No requested component execution; existing priority probes are reviewed separately below. |
+| Selection/narrowing evaluates to a retained zero or `Ok` instruction | Keep it selected until execution. Admission can eliminate no-ops structurally. | No. |
 | Selection/narrowing exposes a group other than `EACH`, including a gated group | Retain the group on the selected task. Execution admits independent children and the continuation, then removes the parent. | No. |
 | Selection/narrowing reaches `EACH` | Retain the parent, selected, without creating children. An explicit execution or applicable Actor policy admits all children and consumes the parent. | No component change from expanding the parent. |
-| Selection produces a concrete `BY` or System handoff | Change the assignee; the receiving Actor executes later. | No in this step. |
+| Selection produces a `BY` or System assignee transfer after narrowing is complete | Change the assignee; the receiving Actor executes later. | No in this step. |
 | Any successful outer engine transaction, including queue edits | Promote eligible `LATER`/`FINALLY` batches and perform dispatches exposed by promotion. | No direct component changes; tasks can be created/removed. |
 | `doTask` with an explicit group | Execute only the submitted members after executing their parent admits them; leave their reactions and continuations pending. | Yes, for the submitted members. |
 | Combined scalar totals | Engine has no total command. Agent expands an explicitly submitted total into individual engine calls. | Yes, only after an execution request. |
 | `canSelectTask` or `canExecuteTask` | Try work in a disposable World, including completion and deferred admission. | Only in the copy; source listeners are not notified. |
-| Engine uses a trial internally | Player priority and bootstrap use isolated probes. Finite transaction inference uses disposable Worlds. `selectionHandsOff` still attempts and restores task edits. | No trial component changes in the source. |
+| Engine uses a trial internally | Player priority and bootstrap use isolated probes. Finite transaction inference uses disposable Worlds. `selectionTransfersTask` still attempts and restores task edits. | No trial component changes in the source. |
 | Engine construction | Execute configured creation work and pending bootstrap tasks before returning the World. | Yes. |
 | Agent call after an engine selection/narrowing | `AutoExecLoop` may submit Admin and configured Player work; the agent owns those choices. | Yes, but separate engine calls are made. |
 
@@ -64,11 +64,11 @@ components or tasks. They must not be confused with the engine trials above. Sim
 an expression in a client-held `TaskForm` does not execute the task until submission. The last row
 must remain separate from engine selection behavior when testing: Player `NONE` disables Player
 agent automation, not mandatory Admin work. On the experiment branch, engine selection and
-narrowing retain concrete instructions until explicitly executed. Form commit also retains the
+narrowing retain closed instructions until explicitly executed. Form commit also retains the
 choice; it does not authorize execution. Agent policy can submit a separate execution command.
 
-Sources: ActorEngine `selectTask`, `narrowSelectedTask`, `applyResolution`,
-`selectionHandsOff`, `requireNoOtherSelectedTask`, and `doTask`; TaskQueues `admit`, `perform`,
+Sources: ActorEngine `selectTask`, `narrowSelectedTask`, `applyEvaluation`,
+`selectionTransfersTask`, `requireNoOtherSelectedTask`, and `doTask`; TaskQueues `admit`, `perform`,
 `promoteDeferredWork`; Transactions `perform`; Initializer `drainBootstrapTasks`; AutoExecLoop.
 The sections below describe each path and the remaining direct execution and correction paths.
 
@@ -83,7 +83,7 @@ permissions are not consumed. Members already assigned to another Actor remain p
 and the original permission.
 
 [GroupSubmissionTest](../../test/common/dev/martianzoo/engine/GroupSubmissionTest.kt) verifies
-the raw and manual-Agent paths. [Experiment results](ENGINE_TRANSITION_RESULTS.md) preserve the
+the raw and direct-Agent paths. [Experiment results](ENGINE_TRANSITION_RESULTS.md) preserve the
 removed behavior and the broader attempts which are not retained in this working tree.
 
 ## 1. Before a task reaches the queue
@@ -96,7 +96,7 @@ removed behavior and the broader attempts which are not retained in this working
   sees it. Session instruction input rejects explicit property evaluation; triggered/custom
   instruction paths have their own elaboration context. Direct engine calls receive instruction
   trees; queue admission is not a second full source-language compiler.
-- A surviving instruction `Transform` is an error in both queue normalization and resolution.
+- A surviving instruction `Transform` is an error in both queue normalization and evaluation.
   Constructs lowered by Pets, such as production instructions, must already have runtime meaning.
 - A gained `CustomInstruction` produces an additional queued self-effect. During queued-effect
   collection, its registered Kotlin implementation is invoked with the current reader and its
@@ -107,7 +107,7 @@ removed behavior and the broader attempts which are not retained in this working
 - `PetElaborator.atomizeGains` splits an actual gain count greater than 1 for an `Atomized`
   class into independent gains of 1. Runtime call sites include effect output, computed `PER`,
   and required-part construction. A multi-count transmutation into an Atomized type is instead
-  rejected during change resolution; it is not silently split.
+  rejected during change evaluation; it is not silently split.
 
 Sources: AgentImpl `parseTaskNarrowing`/`parseInstructionGroup`,
 [PetElaborator](../../pets/src/common/dev/martianzoo/pets/PetElaborator.kt),
@@ -127,7 +127,7 @@ Effects are compiled and specialized to their owning component before use. At a 
 - Ordinary triggers multiply their result by the event's change count. An `X` trigger instead
   binds X to that count and uses multiplier 1. Repeated copies of another listening component
   additionally multiply its effect output.
-- Player-owned listeners to otherwise unowned, non-System changes receive an implicit performer
+- Player-owned listeners to otherwise unowned, non-System changes receive an implicit Actor
   restriction during effect compilation. Passive non-Player owners can lose inherited effects
   whose Player-bound output cannot validly specialize to them.
 - Initial queued-effect assignment is: effect context's Player owner, otherwise changed component's
@@ -155,7 +155,7 @@ It can return no tasks or several tasks, including dispatch bodies belonging to 
 | Direct gain of `Die!` | Throw immediately, including inside normalized sequence/continuation bodies. | Admission and edits, before ordinary execution. |
 | Direct `Die?` or `Die*` | Replace with `Ok`; surrounding structure then normalizes. | Admission and edits. |
 | An `OR` arm whose normalization throws `DeadEndException` | Omit that arm. If all arms fail, throw; otherwise deduplicate equal arms and collapse a sole survivor. | Admission and edits. |
-| `BY` around a normalized sequence | Put the performer wrapper on each stage. Wrapped `Ok` disappears. | Admission and edits. |
+| `BY` around a normalized sequence | Put the `BY` Actor wrapper on each stage. Wrapped `Ok` disappears. | Admission and edits. |
 | `EACH` or dispatch with an `Ok` body | Omit the whole construct. | Admission and edits; no target enumeration needed. |
 | `PER` whose normalized body is `Ok` | Omit it. If its body becomes an independent group, reject that shape. | Admission and edits. |
 
@@ -176,8 +176,8 @@ Sources: newTasks `taskInstructions`, `normalizeForTask`, `normalizeTask`;
 ### `THEN`: retaining or separating stages
 
 - Normalize stages and expand named type-variable references first.
-- If the sequence has an unresolved shared X originating in its first stage, or that stage uses
-  an unresolved shared type variable, retain the sequence as a single task. It needs the first
+- If the sequence has an unbound shared X originating in its first stage, or that stage uses
+  an unbound shared type variable, retain the sequence as a single task. It needs the first
   choice to bind the later stage.
 - Otherwise, expose the first stage and store the remainder in `Task.then`. An existing outer
   continuation follows that remainder and retains its scope in a group. This uses the ordinary
@@ -194,42 +194,43 @@ Sources: newTasks `taskInstructions`, `normalizeForTask`, `normalizeTask`;
 Sources: newTasks `normalizeTask`; Instruction.Then `mustRemainOneTask`,
 `continuationAfterFirst`; ActorEngine `prepareNarrowing`, `handleTask`.
 
-### Assignment to Admin and explicit performers
+### Assignment to Admin and explicit `BY` Actors
 
-`assignConcreteChangeToAdmin` runs at admission and contextual selection. It does not operate on
+`assignChangeNeedingNoNarrowingToAdmin` runs at admission and contextual selection. It does not operate on
 every arbitrary task edit.
 
 - Leave work already assigned to Admin alone.
-- Leave an abstract current instruction with its existing assignee. Optional counts, X, alternatives,
-  or unresolved targets can therefore preserve a Player's choice.
+- Leave an instruction that still needs narrowing with its existing assignee. Optional counts, X,
+  alternatives, or abstract target Types can therefore preserve a Player's choice.
 - Look through `BY`, `PER`, and gates for a change; ignore an actual zero count.
 - Inspect the gained type, or the removed type for a pure removal. If it is System, assign the
   task to Admin. For transmutations this means the destination determines this check.
 - Wrap a System task's existing continuation in a dispatch back to the former assignee. Admin's
   execution of the System step must not silently take the Player's later choice.
-- For non-System work, admission recognizes a concrete pure gain explicitly `BY Admin` through
+- For non-System work, admission recognizes a pure gain explicitly `BY Admin` when it needs no narrowing, through
   `BY`/gate wrappers. It does not apply that shortcut uniformly to removals, transmutations,
   or `PER` wrappers.
-- After resolution, a concrete outer `BY actor` assigns the task to that participating Actor
-  and strips the wrapper. Its continuation retains the explicit performer's scope. A leftover
+- After evaluation, an outer `BY actor` needing no further narrowing assigns the task to that participating Actor
+  and strips the wrapper. Its continuation retains the explicit Actor's scope. A leftover
   `BY` that reaches Instructor execution is an error.
 
-A concrete gated or scaled System change can be assigned before its gate or metric has been
-evaluated. “Concrete” does not by itself mean “resolved,” “legal,” or “executed.”
+A System change with a concrete Type can be assigned before its gate or metric has been
+evaluated. A concrete Type does not make its containing task closed, legal, or executed.
 
-Sources: TaskQueues `assignConcreteChangeToAdmin`; ActorEngine `applyResolution`;
+Sources: TaskQueues `assignChangeNeedingNoNarrowingToAdmin`; ActorEngine `applyEvaluation`;
 Instructor `canonicalActorExpression`; [actors](../../src/common/dev/martianzoo/engine/actors.kt).
 
 ### Dispatch: `NOW`, `SOON`, `LATER`, `FINALLY`
 
-A dispatch is concrete when its recipient is fixed; its body can still contain choices.
+A dispatch needs no narrowing once its recipient is fixed; its body can still contain choices and
+does not keep the dispatch open. Recipient validation is evaluation of the dispatch itself.
 
 - NOW and SOON remain tasks until execution. Selection does not admit the body. Executing NOW
   removes the dispatcher and admits a selected recipient task; SOON admits ordinary recipient work.
   The recipient narrows and executes through its own Agent. NOW cannot contain an independent group.
 - The dispatcher cannot narrow the recipient's body. Matching may identify its unchanged first step,
   including a calculated amount, but retains the entire original instruction and continuation.
-- A recipient must resolve to a fixed, participating Actor. An open selector is not a recipient
+- A recipient must identify a fixed, participating Actor. An abstract selector is not a recipient
   merely because it currently matches a single component.
 - LATER and FINALLY retain immediate scheduling when their containing task is ordinary, including
   at promotion. NOW's selected recipient executes even a LATER/FINALLY first step. Their bodies
@@ -245,14 +246,14 @@ System lock early. NOW's selected System prefix returns the next step through NO
 continuations return through SOON. A failed selected Admin task rejects the entire Agent call.
 
 Sources: TaskQueues `admit`, `orderPlayerWork`, `perform`; ActorEngine `executeSelectedTask`;
-Instructor `admitted`, `doExecuteResolved`; [language rules L2-17–L2-19](../../pets/docs/pets-language-spec.md#2-instructions).
+Instructor `admitted`, `doExecuteEvaluated`; [language rules L2-17–L2-19](../../pets/docs/pets-language-spec.md#2-instructions).
 
 ## 3. Matching, selection, and supplied narrowing
 
 These methods do more than mark an existing task selected:
 
 1. A submission can identify work by task ID or by instruction compatibility. An existing selection
-   takes precedence. Matching can resolve candidate instructions without changing their stored data,
+   takes precedence. Matching can evaluate candidate instructions without changing their stored data,
    or provisionally ignore failed world conditions to identify the intended task and report its
    actual rejection. It does not execute all candidates.
 2. Matching can inherit an omitted quantifier from compatible pending work, intersect the supplied
@@ -261,16 +262,16 @@ These methods do more than mark an existing task selected:
 3. A typed zero submission cannot identify unrelated work merely through a shared `Ok`
    intersection. Otherwise equivalent tasks differing only in ID/cause use the first match;
    distinct compatible tasks require explicit disambiguation.
-4. Ordinary selection checks competing selections globally and rejects deferred work, resolves
+4. Ordinary selection checks competing selections globally and rejects deferred work, evaluates
    against the current World with contextual gain narrowing enabled, then applies that result.
-   Already-selected tasks skip the initial resolution step; supplied narrowing can resolve again.
-5. A single resulting instruction is normalized, marked selected, reassigned if needed, and edited
-   in place. Concrete and partial instructions remain selected until an execution command;
+   Already-selected tasks skip the initial evaluation step; supplied narrowing can evaluate again.
+5. A single resulting instruction is normalized, marked selected, transferred to a new assignee if needed, and edited
+   in place. Closed and open instructions remain selected until an execution command;
    selection/narrowing does not execute component changes.
 6. A group result, even a singleton or empty group, remains on the selected task. Executing that
    task admits ordinary unselected children and the continuation, then removes the parent. Children
    do not inherit selection.
-7. A concrete handoff records assignment and leaves the task selected for the receiving Actor.
+7. An assignee transfer after narrowing records assignment and leaves the task selected for the receiving Actor.
    It does not trial-execute that Actor's instruction; execution occurs in a later transaction.
 
 Supplying a narrowing is checked against the pending instruction and shared-variable bindings;
@@ -281,44 +282,44 @@ After executing a structural task, its children can be submitted independently.
 The overloads do not all follow the same route: `doTask(narrowing)` can apply a matched narrowing
 directly via `narrowSelectedTask`, while `selectTask(id)` takes the explicit selection path.
 Both routes call `requireNoOtherSelectedTask`, whose Player priority check uses the same finite
-transaction inference as explicit execution. Unsupported forms remain unresolved; Player inference is a limited convenience. Ordinary `addTasks` and `dropTask` now refuse while a task is
+transaction inference as explicit execution. Unsupported forms remain open; Player inference is a limited convenience. Ordinary `addTasks` and `dropTask` now refuse while a task is
 selected, except dropping that selected task. `exMachina` preserves the selected instruction while
 correcting components.
 See [ENGINE_CONTRACT](ENGINE_CONTRACT.md) rather
 than treating every mutation as an equivalent task command.
 
 Sources: ActorEngine `matchingTask`, `effectiveNarrowing`, `intersectTask`,
-`selectTask`, `narrowSelectedTask`, `applyResolution`,
+`selectTask`, `narrowSelectedTask`, `applyEvaluation`,
 `executeSelectedIfConcrete`.
 
-## 4. Resolution against the World
+## 4. Evaluation against the World
 
-Resolution returns a revised instruction tree without itself mutating the World. It can occur
+Evaluation returns a revised instruction tree without itself mutating the World. It can occur
 during matching/probes, selection, narrowing, immediate execution, and later stages of a retained
 sequence. Different entry points enable different deductions; it is not a background process
 continually rewriting every pending task.
 
-| Instruction | Resolution behavior |
+| Instruction | Evaluation behavior |
 | --- | --- |
 | `Ok` | Remains `Ok`. |
-| Change | Resolve types and quantity using the rules below; retain an unresolved choice or throw if necessary. |
-| `BY` | Resolve its body; canonicalize and validate its concrete Actor expression. Actual participating-Actor lookup occurs when handing it off. |
-| Dispatch | Validate/canonicalize its recipient; do not resolve its body yet. |
-| `PER` | Count the metric now, multiply the inner instruction, atomize computed gains, and resolve the resulting instruction. A group remains independent work. |
-| Gate | Check the requirement now; fail if false, otherwise remove the gate and resolve its body. |
-| `EACH` | Selection retains the fanout without enumerating targets. On execution, require an abstract selector; enumerate matching component types, bind each target, evaluate body properties, and resolve each branch. Return a group even for a sole branch; no matches yields an empty group. |
-| `OR` | Resolve arms against the same current World; discard arms throwing `NotNowException` or `DeadEndException`. Collapse equal/sole surviving alternatives. If none survives, report dead end, all-gates failure, or other unavailability as appropriate. |
-| `THEN` | Resolve only the first stage; preserve later stages for the later World. If an open shared type choice prevents resolving the first stage, retain it, with the feasibility check below. |
+| Change | Resolve its Type expressions and evaluate its quantity using the rules below; retain an unfixed choice or throw if necessary. |
+| `BY` | Evaluate its body; canonicalize and validate its concrete Actor expression. Participating-Actor lookup occurs on assignee transfer. |
+| Dispatch | Validate/canonicalize its recipient; do not evaluate its body yet. |
+| `PER` | Count the metric now, multiply the inner instruction, atomize computed gains, and evaluate the resulting instruction. A group remains independent work. |
+| Gate | Check the requirement now; fail if false, otherwise remove the gate and evaluate its body. |
+| `EACH` | Selection retains the fanout without enumerating targets. On execution, require an abstract selector; enumerate matching component types, bind each target, evaluate body properties, and evaluate each branch. Return a group even for a sole branch; no matches yields an empty group. |
+| `OR` | Evaluate arms against the same current World; discard arms throwing `NotNowException` or `DeadEndException`. Collapse equal/sole surviving alternatives. If none survives, report dead end, all-gates failure, or other unavailability as appropriate. |
+| `THEN` | Evaluate only the first stage; preserve later stages for the later World. If an open shared type choice prevents evaluating the first stage, retain it, with the feasibility check below. |
 | Unlowered transform | Throw an expression error. |
 
 `EACH` preserves matching-component multiplicity: two copies of the same matched component
 produce two copies of its branch. The multiset maps can compute that branch once and retain its
 count; group admission then exposes the repeated instructions. For queued work, the resulting
 children are separate tasks. During immediate execution, an exposed group executes in place instead.
-Resolution leaves grouped branches independent rather than recursively treating the group as a
+Evaluation leaves grouped branches independent rather than recursively treating the group as a
 sequential instruction.
 
-For an open shared type choice in a first `THEN` change with a known nonoptional count, resolution
+For an open shared type choice in a first `THEN` change with a known nonoptional count, evaluation
 can test a broad domain with refinements stripped: if even that domain cannot supply the mandatory
 amount, it throws; if an AMAP first stage has no useful target, it substitutes `Ok`. The later
 stages survive. This is immediate feasibility, not prediction of their consequences.
@@ -334,7 +335,7 @@ stages survive. This is immediate feasibility, not prediction of their consequen
   abstract dependency with a declared maximum of 1 identifies a unique present component.
   Ordinary target selection does not filter alternatives by positive count capacity.
 - Inside a recursive immediate effect, also allow a unique gain with positive capacity under
-  current bounds. An unresolved immediate-effect choice fails rather than asking a Player.
+  current bounds. An unfixed immediate-effect choice fails rather than asking a Player.
 - For abstract removal, infer the target if the matching component multiset has a sole distinct
   element. Preserve an abstract Actor dependency for AMAP instead of inferring the Actor from
   the sole existing resource.
@@ -345,22 +346,22 @@ stages survive. This is immediate feasibility, not prediction of their consequen
 
 [QUANTIFIERS.md](QUANTIFIERS.md) owns the detailed quantifier contract. The runtime decisions are:
 
-- Unbound X prevents change resolution. An actual zero returns early with its types preserved.
-  Such a selected task can finish without a target, dependency, change event, or System handoff.
+- Unbound X prevents change evaluation. An actual zero returns early with its types preserved.
+  Such a selected task can finish without a target, dependency, change event, or System assignee transfer.
 - Uninhabited targets fail when mandatory and become `Ok` otherwise. Virtual custom metrics
-  cannot be gained or removed. A resolved mandatory `Die` gain throws.
-- For abstract pure gains/removals, mandatory requires a candidate able to supply the full count;
+  cannot be gained or removed. An evaluated mandatory `Die` gain throws.
+- For pure gains/removals with abstract target Types, mandatory requires a candidate able to supply the full count;
   AMAP requires a candidate with positive capacity. No candidate means mandatory failure or AMAP
   `Ok`. Optional removals become `Ok` when no matching component exists. Optional gains do not
   discard their choice merely because all capacities are zero.
-- Abstract transmutations do not run that independent candidate search; source and destination
+- Transmutations with abstract source or destination Types do not run that independent candidate search; source and destination
   may share a binding.
-- For concrete changes, require destination dependencies and enough physical source copies.
+- For changes with concrete target Types, require destination dependencies and enough physical source copies.
   AMAP also uses current invariant headroom/footroom; mandatory and optional changes defer those
   declared count checks so immediate effects can repair them.
 - AMAP clamps to the selected target's available count and becomes mandatory. Optional clamps
   its upper bound to physical availability but remains optional. Explicit task execution tests its
-  zero and positive candidates as complete transactions. Player EAGER waits on an unresolved
+  zero and positive candidates as complete transactions. Player EAGER waits on an open
   optional, including a capped optional that the raw engine can prove has only a zero result.
   Mandatory rejects an unavailable requested count.
   Limits shared by both sides of a transmutation cancel; dependency survival still limits removal.
@@ -369,18 +370,18 @@ stages survive. This is immediate feasibility, not prediction of their consequen
   or still abstract, excluding custom metrics. It does not make a concrete AMAP gain or a
   transmutation into a missing destination legal.
 
-Sources: Instructor `resolve`, `resolveEach`, `resolveOr`, `resolveChange`,
+Sources: Instructor `evaluate`, `evaluateEach`, `evaluateOr`, `evaluateChange`,
 `autoNarrowTypes`; Limiter `findLimit`, candidate searches.
 
 ## 5. Execution, immediate consequences, and queued reactions
 
 ### The current instruction
 
-`executeSelectedTask` passes the resolved instruction to Instructor. A remaining abstract
+`executeSelectedTask` passes the evaluated instruction to Instructor. An instruction still needing narrowing
 instruction fails; retained `THEN` is handled stage by stage. `Ok` and an `OR` containing only
 zero/no-op alternatives do nothing. A dispatch creates pending work. A leftover `BY` is rejected.
 
-A retained sequence executes its resolved first stage, then resolves and executes each later stage
+A retained sequence executes its evaluated first stage, then evaluates and executes each later stage
 against the World produced so far. This is different from a separated `Task.then`, which creates
 later pending work. Neither form waits for newly queued reactions to execute.
 
@@ -414,7 +415,7 @@ later pending work. Neither form waits for newly queued reactions to execute.
 For each event and effect kind, `Effector.fire` materializes the complete matching batch before
 executing any member. Trigger conditions in that batch see the same post-event World; execution
 of an earlier member does not retract a later member already matched. Immediate instruction
-resolution can still inspect the World produced by earlier effects.
+evaluation can still inspect the World produced by earlier effects.
 
 A changed component's own immediate effects retain declaration order and complete before the
 other immediate listeners. Independent listeners have a stable diagnostic order, or a randomized
@@ -461,10 +462,10 @@ Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 | --- | --- |
 | `doTask` with an explicit group | Execute the supplied members after executing their parent; admission identifies normalized dispatches so their bodies and continuations remain pending too. Do not sweep newly queued reactions or continuations. |
 | Combined scalar totals | Agent only: a submitted total can consume matching current fixed gains/removals, including amounts calculated with `/`. Gains execute first, each through its own task ID. No subset search; newly queued effects do not join the total. Selected tasks and explicit IDs remain individual requests. See `Agent.doTask` for the full contract. |
-| `canSelectTask` | Trial selection, including execution if concrete and still with the original Actor, in a disposable World through transaction completion and deferred promotion. An abstract selection or handoff can return true. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
+| `canSelectTask` | Trial selection, including execution if the instruction closes and stays with the original Actor, in a disposable World through transaction completion and deferred promotion. A selection needing narrowing or an assignee transfer can return true. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
 | `canExecuteTask` | Trial execution in a disposable World through transaction completion and deferred promotion; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
 | Agent `tryTask` | Call engine `doTask` within an atomic block; restore when choices/unavailability prevent completion, or a selection remains as specified by the overload. Other failures restore and propagate. This includes unavailable outer `PER` evaluation. Incomplete analysis propagates distinctly from a known missing choice. No engine try-policy method remains. |
-| `exMachina` correction | Execute concrete elementary changes, required parts, dependent removals, and immediate effects, suppressing queued reactions. Check all invariants after the whole correction group, using a failure-restoring wrapper. No ordinary task handling. |
+| `exMachina` correction | Execute closed elementary changes, required parts, dependent removals, and immediate effects, suppressing queued reactions. Check all invariants after the whole correction group, using a failure-restoring wrapper. No ordinary task handling. |
 | Initialization | Create the Admin seed directly, then admit configured work through ordinary Admin task commands. Retry dependency-blocked component creation; drain choice-free bootstrap tasks, retry incomplete analysis after other tasks progress, report unfinished proof if stalled (before known leftover choices), audit required counts, and establish the history floor. |
 | Event restoration/replay | Apply/reverse saved task and component events, synchronizing derived effect subscriptions. Do not rerun matching, immediate effects, admission rewrites, or autoexecution merely to restore a position. |
 
@@ -478,8 +479,8 @@ state. Public restoring blocks remain distinct and do not undo arbitrary externa
 
 These explain behavior seen through agent calls; they are not additional engine task rewrites.
 
-- Agent input helpers elaborate instructions, initially attempt operation tasks, and invoke the
-  shared AutoExecLoop at command/operation finishing points. TaskForm edits remain client-held
+- Agent input helpers elaborate instructions, initially attempt admitted tasks, and invoke the
+  shared AutoExecLoop at Agent call finishing points. TaskForm edits remain client-held
   until committed.
 - AutoExecLoop respects selected-task priority and runs mandatory Admin handling before optional
   Player policies. It retries waiting Admin tasks after progress and throws a retained rejection
@@ -519,14 +520,14 @@ or expanding the partial-narrowing investigation.
 ## Evidence and maintenance
 
 The source map and named methods above support this inventory. Representative existing tests below
-identify concrete scenarios; source and selected assertions were inspected for this draft, but no
-tests were run and no claim of complete test coverage is made.
+identify concrete scenarios. The terminology migration's test evidence belongs in
+[ENGINE_TRANSITION_RESULTS.md](ENGINE_TRANSITION_RESULTS.md); this inventory does not claim complete test coverage.
 
 | Area | Existing scenarios |
 | --- | --- |
 | Normalization and variable scopes | [TaskNormalizationTest](../../test/common/dev/martianzoo/engine/TaskNormalizationTest.kt): terminal rewrites, meaningful gated/no-op choices, edits preserving continuation scope. |
-| Dispatch and handoff | [TaskDispatchTest](../../test/common/dev/martianzoo/engine/TaskDispatchTest.kt): explicit NOW/SOON handoff, recipient choice, and deferred dispatch; [TaskAssignmentCharacterizationTest](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt): System routing, abstract choices, performer wrappers. |
-| Selection and quantities | [TaskResolutionTest](../../test/common/dev/martianzoo/engine/TaskResolutionTest.kt), [TaskNarrowingTest](../../test/common/dev/martianzoo/engine/TaskNarrowingTest.kt), [ZeroCountTaskTest](../../test/common/dev/martianzoo/engine/ZeroCountTaskTest.kt): current-world resolution, chosen-target AMAP, typed zero. |
+| Dispatch and assignee transfer | [TaskDispatchTest](../../test/common/dev/martianzoo/engine/TaskDispatchTest.kt): explicit NOW/SOON transfer, recipient choice, and deferred dispatch; [TaskAssignmentCharacterizationTest](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt): System routing, choices requiring narrowing, `BY` Actor wrappers. |
+| Selection and quantities | [TaskEvaluationTest](../../test/common/dev/martianzoo/engine/TaskEvaluationTest.kt), [TaskNarrowingTest](../../test/common/dev/martianzoo/engine/TaskNarrowingTest.kt), [ZeroCountTaskTest](../../test/common/dev/martianzoo/engine/ZeroCountTaskTest.kt): current-world evaluation, chosen-target AMAP, typed zero. |
 | Deferred work | [DeferredWorkTest](../../test/common/dev/martianzoo/engine/DeferredWorkTest.kt): whole-World batches, nested deferrals, delayed metric/fanout evaluation, restoration. |
 | Effects and construction | [TriggerScalingTest](../../test/common/dev/martianzoo/engine/TriggerScalingTest.kt), [AutomaticEffectOrderTest](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt), [InvariantCompletionTest](../../test/common/dev/martianzoo/engine/InvariantCompletionTest.kt): multiplicity, shared trigger snapshots, required parts, immediate repairs, per-change checks. |
 | Computed gains | [PerAtomizationTest](../../test/common/dev/martianzoo/engine/PerAtomizationTest.kt), [EffectAtomizationTest](../../test/common/dev/martianzoo/engine/EffectAtomizationTest.kt): separate gains and choices. |
@@ -538,12 +539,12 @@ section and its entry-path distinctions, especially any claim about when state i
 
 ## Finite transaction inference on the experiment branch
 
-After identifying and selecting a task, a fixed mandatory/optional gain or removal with an unresolved
+After identifying and selecting a task, a fixed mandatory/optional gain or removal with an abstract
 type can use all included concrete structural subtypes as its candidate domain. Optional requests
 also try zero and each positive count through the authored maximum. A fixed mandatory/optional
 full-form transmutation uses concrete source/destination pairs, excluding equal types and pairs
 incompatible with the original instruction's shared bindings. Compact transmutations remain
-unresolved. Malformed concrete changes are excluded before trial. Each remaining candidate is
+open. Malformed closed changes are excluded before trial. Each remaining candidate is
 submitted through the ordinary engine in a reusable disposable World. That copy completes its
 transaction, including deferred admission, even when the source call is inside an enclosing
 transaction. No queued Admin or Player instruction is executed to prove the candidate.
@@ -555,15 +556,15 @@ examined. Two successful concrete requests still prove ambiguity; fewer successe
 uniqueness while any arm remains incomplete.
 
 A second successful candidate means ambiguity, even if other candidates remain unexamined. With
-fewer successes, unresolved candidate work reports `IncompleteAnalysisException`; implementation
+fewer successes, unexamined candidate work reports `IncompleteAnalysisException`; implementation
 errors propagate. When all attempts fail, failures all reported as `DeadEndException` remain dead ends;
 other failures report current unavailability with sorted diagnostics, so candidate order cannot
 change this failure classification.
 Priority checks require the same unique successful choice as Admin execution. Merely having some
 successful choice is insufficient. Turmoil now draws from its premise deck and Admin completes the
-uniquely determined neutral placement without caller-supplied event or delegate choices.
+unique neutral placement without caller-supplied event or delegate choices.
 
-Existing Player CONCRETE/EAGER policies only execute work that becomes concrete during selection.
+Existing Player SOLE_TASK/EAGER policies only execute work that needs no further narrowing after selection.
 They do not silently acquire the new transaction-inference policy. Explicit Player requests and
 Admin handling use finite inference. TaskForm's optional amount menu now retains physically
 available counts, including an immediately repaired gain. Those entries are candidates rather than
@@ -586,7 +587,7 @@ separate module; public visibility alone does not make a low-level method the cl
 | `canSelectTask`, `canExecuteTask` | Agent queries and existing policy; selection probe also enforces engine Admin priority. Both propagate incomplete analysis rather than treating unfinished proof as a negative result. |
 | `transact` | Agent groups a client call, automatic work, and application checks. Request and automatic work share the restoring block; the unused completion hook is removed. |
 | `transaction` | AutoExecLoop supplies automatic-execution motivation. Retain until transaction attribution can be expressed without a separate public wrapper. |
-| `addTasks`, `dropTask` | Agent operation seeding and explicit queue edits. Ordinary task execution does not need either. Adding tasks or dropping a competing task is excluded while a task is selected; dropping the selected task is allowed. |
+| `addTasks`, `dropTask` | Legacy Agent call seeding and explicit queue edits. Ordinary task execution does not need either. Adding tasks or dropping a competing task is excluded while a task is selected; dropping the selected task is allowed. |
 | `exMachina` | Elementary correction used across modules by Agent, which adds Audit, input recording, application validation, and the unfinished-work check. Pending tasks are unchanged. The former `sneak` and `restoreTask` methods are removed. |
 | `tryTask` | Removed from engine. Agent retains its try policy using `doTask` and existing timeline restoration. |
 

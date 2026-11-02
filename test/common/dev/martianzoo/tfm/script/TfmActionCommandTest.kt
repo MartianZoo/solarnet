@@ -35,7 +35,7 @@ internal class TfmActionCommandTest {
     repl.agent.runOperation("PROD[Energy], AiCentral")
     repl.command("auto none")
     repl.agent.beginOperation("UseAction<ActionCard>")
-    repl.command("auto concrete")
+    repl.command("auto sole")
 
     val output = repl.command("tfm_action AiCentral 1")
 

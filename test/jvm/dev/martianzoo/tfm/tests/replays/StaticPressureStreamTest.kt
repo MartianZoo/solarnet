@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
@@ -594,7 +594,7 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     // Research Coordination supplies Interplanetary Trade's tenth distinct tag.
     nor.turn {
       inTurn {
-        doWithAutoExecPolicy(CONCRETE) {
+        doWithAutoExecPolicy(SOLE_TASK) {
           playProject(InterplanetaryTrade, 24, titanium = 1) {
             doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
             doTask("JovianTag<WildTagElection<WildTag<ResearchCoordination>>>")

@@ -41,13 +41,14 @@ import kotlin.reflect.KClass
  * for the state covered by restoration. [exMachina] deliberately omits task handling; [addTasks]
  * and [dropTask] handle Admin work without choosing Player tasks.
  *
- * The operation API groups work across calls: [beginOperation] and [continueOperation] allow tasks
- * to remain, while [runOperation] and [completeOperation] check whether that operation has
- * finished. An operation in those APIs is not the intended engine transaction.
+ * The current `*Operation` helpers group work across calls: [beginOperation] and
+ * [continueOperation] allow tasks to remain, while [runOperation] and [completeOperation] check
+ * whether the initiated work has finished. Whether this API grouping should survive is under
+ * review.
  */
 public interface Agent {
 
-  // READ OPERATIONS
+  // READ CALLS
 
   /** Actor to whom this Agent attributes queries and submitted choices. */
   public val actor: Actor
@@ -84,47 +85,47 @@ public interface Agent {
   public fun fillInTask(taskId: TaskId): TaskForm
 
   /**
-   * Narrows this Actor's selected task and resolves it again without executing component changes.
-   * Concrete and partial instructions remain pending. The surrounding Agent call may separately
-   * submit work according to Player policy; Admin handling remains automatic.
+   * Narrows this Actor's selected task and evaluates it again without executing component changes.
+   * Closed and open instructions remain pending. The surrounding Agent call may separately submit
+   * work according to Player policy; Admin handling remains automatic.
    *
-   * @param [narrowing] the new instruction tree; may be abstract or a grouped arm selected from an
-   *   `OR`; a group stays on the selected task until execution admits its members; if identical to
-   *   the current abstract instruction the task remains unchanged; an omitted quantifier retains a
-   *   stronger pending quantifier when the Class default would weaken it
+   * @param [narrowing] the new instruction tree; may still need narrowing or be a grouped arm
+   *   selected from an `OR`; a group stays on the selected task until execution admits its members;
+   *   if identical to the current instruction the task remains unchanged; an omitted quantifier
+   *   retains a stronger pending quantifier when the Class default would weaken it
    * @throws [TaskException] if this Actor has no selected task
    * @throws [NarrowingException] if [narrowing] does not narrow the selected task's instruction
    */
   public fun narrowTask(narrowing: String): TaskResult
 
   /**
-   * Tries selection and, when concrete, execution of [taskId] in a disposable World. A missing or
-   * rejected task yields false; an abstract selection can succeed without execution. A handoff does
-   * not attempt the receiving Actor's execution. Gameplay rejection and known missing choices yield
-   * false. [IncompleteAnalysisException] propagates when a required execution proof cannot finish,
-   * including the Admin priority check. Other failures also propagate. Source listeners and
-   * existing overlays remain unaffected.
+   * Tries selection and, when the instruction closes, execution of [taskId] in a disposable World.
+   * A missing or rejected task yields false; selection needing narrowing can succeed without
+   * execution. An assignee transfer does not attempt the receiving Actor's execution. Gameplay
+   * rejection and known missing choices yield false. [IncompleteAnalysisException] propagates when
+   * a required execution proof cannot finish, including the Admin priority check. Other failures
+   * also propagate. Source listeners and existing overlays remain unaffected.
    */
   // TODO(ENGINE_CONTRACT): investigate removing speculative probes from this API. A successful
-  // selection can remain abstract and must not be called a legal fully concrete narrowing.
+  // selection can still need narrowing and must not be called a legal complete narrowing.
   public fun canSelectTask(taskId: TaskId): Boolean
 
   /**
-   * Probes whether this actor can select and finish [taskId] now without another choice or handoff.
-   * A missing or unfinished task yields false. The probe uses a disposable World; source listeners
-   * and existing overlays remain unaffected. Gameplay rejection and known missing choices yield
-   * false. [IncompleteAnalysisException] propagates when the engine cannot finish its proof; other
-   * failures also propagate.
+   * Probes whether this actor can select and finish [taskId] now without another choice or assignee
+   * transfer. A missing or unfinished task yields false. The probe uses a disposable World; source
+   * listeners and existing overlays remain unaffected. Gameplay rejection and known missing choices
+   * yield false. [IncompleteAnalysisException] propagates when the engine cannot finish its proof;
+   * other failures also propagate.
    */
   // TODO(ENGINE_CONTRACT): investigate whether callers need this execution probe. If retained,
   // define its answer using this instruction's whole transaction, without checking spawned tasks.
   public fun canExecuteTask(taskId: TaskId): Boolean
 
   /**
-   * Selects a pending task and resolves its instruction against the current World. Concrete and
-   * abstract results remain pending for an execution command. Concrete `BY` or System routing may
-   * assign it to another Actor. The call's task handling then runs, so that Actor's policy decides
-   * whether the task finishes before this call returns.
+   * Selects a pending task and evaluates its instruction against the current World. Closed and open
+   * results remain pending for an execution command. A `BY` whose Actor needs no further narrowing
+   * or System routing may assign it to another Actor. The call's task handling then runs, so that
+   * Actor's policy decides whether the task finishes before this call returns.
    *
    * Groups, `EACH`, and dispatches exposed by selection retain their parent until [doTask] executes
    * it. Selection alone creates no child tasks or continuations.
@@ -137,10 +138,10 @@ public interface Agent {
 
   /**
    * Selects this Actor's sole pending task that is not [deferred][Task.deferred], using
-   * [selectTask]'s resolution and handoff rules. When [x] is supplied, binds the task's X scalars
-   * to that value before selection, using [Task.bindXTo] and [selectTask]'s narrowing rules.
-   * Otherwise selects without narrowing. Throws [TaskException] without changing the World if this
-   * Actor has no such task or more than one.
+   * [selectTask]'s evaluation and assignee transfer rules. When [x] is supplied, binds the task's X
+   * scalars to that value before selection, using [Task.bindXTo] and [selectTask]'s narrowing
+   * rules. Otherwise selects without narrowing. Throws [TaskException] without changing the World
+   * if this Actor has no such task or more than one.
    */
   public fun selectOnlyTask(x: Int? = null): TaskResult {
     val id =
@@ -166,10 +167,11 @@ public interface Agent {
    * can select a grouped choice and replace the matched task with independent tasks; preprocessing
    * can produce the same replacement, for example when atomizing a multi-step global parameter
    * gain. Explicitly submitted grouped instructions execute as one bundled command; siblings
-   * exposed only by preprocessing or resolution remain ordinary pending tasks. Selects and resolves
-   * the matched task first if necessary. As part of this, executes triggered instructions from
-   * *automatic* effects, enqueues tasks for queued effects and any contents of [Task.then], and
-   * removes the original task from the game's task queue. Throws an exception if any of this fails.
+   * exposed only by preprocessing or evaluation remain ordinary pending tasks. Selects and
+   * evaluates the matched task first if necessary. As part of this, executes triggered instructions
+   * from *automatic* effects, enqueues tasks for queued effects and any contents of [Task.then],
+   * and removes the original task from the game's task queue. Throws an exception if any of this
+   * fails.
    *
    * The submitted constraints are intersected with the task: each can supply choices left open by
    * the other. A selected task always wins. Otherwise, exactly one distinct task must intersect,
@@ -193,14 +195,15 @@ public interface Agent {
    * metric evaluates to zero. An unrelated `Ok` alternative does not identify a matching task. A
    * zero count emits no component changes unless it names offsetting nonzero tasks as above.
    *
-   * Selection or narrowing may hand the task to another Actor, including Admin for a concrete
+   * Selection or narrowing may transfer the task to another Actor, including Admin for a System
    * `System` change. Executing NOW consumes the dispatcher and gives its recipient selected work;
    * the recipient supplies remaining choices and executes through its own Agent. Configured
-   * autoexecution runs, but a successful handoff may leave that recipient's task selected. Admin
-   * failures restore the whole call. SOON and other consequences may leave ordinary pending work.
+   * autoexecution runs, but a successful assignee transfer may leave that recipient's task
+   * selected. Admin failures restore the whole call. SOON and other consequences may leave ordinary
+   * pending work.
    *
-   * @throws [NotFullySpecifiedException] if the task is abstract
-   * @throws [NotNowException] if the task can't currently be resolved
+   * @throws [NotFullySpecifiedException] if the task still needs narrowing
+   * @throws [NotNowException] if the task cannot currently be evaluated or executed
    */
   public fun doTask(narrowing: String): TaskResult
 
@@ -209,7 +212,7 @@ public interface Agent {
    * matching, including the combined-total convenience described by [doTask]. Runs configured
    * autoexecution before, between, and after submitted instructions. Returns the whole batch's
    * changes; any failure rolls the entire batch back. This may leave work pending, so callers can
-   * split an operation across multiple batches.
+   * split initiated work across multiple batches.
    */
   public fun doTasks(vararg narrowings: String): TaskResult
 
@@ -220,15 +223,15 @@ public interface Agent {
   public fun doTask(narrowing: String, taskId: TaskId): TaskResult
 
   /**
-   * Selects and executes [taskId], including configured autoexecution after an Actor handoff. As
-   * with [doTask], a successful handoff may leave selected work for the receiving Actor. A failed
-   * execution restores this call.
+   * Selects and executes [taskId], including configured autoexecution after an assignee transfer.
+   * As with [doTask], a successful transfer may leave selected work for the receiving Actor. A
+   * failed execution restores this call.
    */
   public fun doTask(taskId: TaskId): TaskResult
 
   /**
    * Attempts [narrowing], then runs configured task handling. Known missing choices or unavailable
-   * execution restore the engine attempt. A task left selected, including a handoff to another
+   * execution restore the engine attempt. A task left selected, including a transfer to another
    * Actor, also restores the attempt. Subsequent task handling can still execute that task or
    * reject the call. Invalid selection, invalid narrowing, and other failures propagate, including
    * `Die` and failures encountered while handling Admin work. An unavailable `/` metric is handled
@@ -273,24 +276,24 @@ public interface Agent {
   public var autoExecPolicy: AutoExecPolicy
 
   /**
-   * Seeds an operation with [initialInstructions] and requires it to complete after `body` and
-   * configured task handling. Other already-pending tasks may remain, but a selected task prevents
-   * the new operation from starting. Any failure or remaining work created by this operation rolls
+   * Seeds a legacy call group with [initialInstructions] and requires it to complete after `body`
+   * and configured task handling. Other already-pending tasks may remain, but a selected task
+   * prevents the new group from starting. Any failure or remaining work created by this group rolls
    * back the whole call.
    *
    * Current limitation: an ordinary nested call checks completion inside its body, but the shared
    * coordinator skips its separate validator after subsequent task handling. The outer call
    * controls that later work and validation.
    */
-  // TODO(ENGINE_CONTRACT): investigate removing this operation lifecycle and its completion
-  // requirements. Running to quiescence does not establish that a whole operation is complete;
+  // TODO(ENGINE_CONTRACT): investigate removing this legacy call grouping and its completion
+  // requirements. Running to quiescence does not establish that all initiated work is complete;
   // these methods additionally infer completion from pending cleanup work across multiple calls.
   public fun runOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
 
   /**
-   * Starts a resumable operation seeded by one or more independent instructions. For example,
+   * Starts a resumable group of calls seeded by independent instructions. For example,
    * `beginOperation("X Plant")` may return with the quantity choice still pending; a later call can
-   * narrow that task before [completeOperation] finishes the operation. The world must have no
+   * narrow that task before [completeOperation] finishes the initiated work. The world must have no
    * pending tasks when this call starts.
    */
   public fun beginOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
@@ -302,9 +305,9 @@ public interface Agent {
   public fun continueOperation(body: OperationBlock = {}): TaskResult
 
   /**
-   * Runs `body` atomically and requires the world's operation work to be complete afterward. An
-   * incomplete or failed operation rolls back this call. Nested calls have the same limitation on
-   * final completion validation described by [runOperation].
+   * Runs `body` atomically and requires the initiated work to be complete afterward. An incomplete
+   * or failed call rolls back this call. Nested calls have the same limitation on final completion
+   * validation described by [runOperation].
    */
   public fun completeOperation(body: OperationBlock = {}): TaskResult
 
@@ -323,11 +326,12 @@ public interface Agent {
   public fun dropTask(taskId: TaskId): TaskRemovedEvent
 
   /**
-   * Atomically applies concrete corrections, constructs required parts, and removes dependents.
-   * Runs `::` effects and checks every applicable count invariant. Queued effects, task handling,
-   * and idle cleanup are omitted. Explicit System edits are allowed, but no exact MustCleanUp
-   * component may increase. Records a replayable correction input and, for a Player, an Audit.
-   * Pending tasks retain their current instructions and selection, including calculated amounts.
+   * Atomically applies fully specified elementary corrections, constructs required parts, and
+   * removes dependents. Runs `::` effects and checks every applicable count invariant. Queued
+   * effects, task handling, and idle cleanup are omitted. Explicit System edits are allowed, but no
+   * exact MustCleanUp component may increase. Records a replayable correction input and, for a
+   * Player, an Audit. Pending tasks retain their current instructions and selection, including
+   * calculated amounts.
    */
   public fun exMachina(changes: String): TaskResult
 
@@ -344,8 +348,8 @@ public interface Agent {
 
     /**
      * Selects and narrows a pending task compatible with [instruction], then runs automatic work.
-     * An abstract result remains selected for [narrowTask]; a concrete result may execute or hand
-     * off. See [Agent.selectTask] for selection and failure rules.
+     * An open result remains selected for [narrowTask]; a closed result may execute or transfer to
+     * its assignee. See [Agent.selectTask] for selection and failure rules.
      */
     public fun selectTask(instruction: String)
 
@@ -358,8 +362,8 @@ public interface Agent {
     public fun selectOnlyTask(x: Int? = null)
 
     /**
-     * Narrows this Actor's selected task and runs automatic work. A concrete `System` result passes
-     * to Admin for execution. See [Agent.narrowTask].
+     * Narrows this Actor's selected task and runs automatic work. A System result needing no
+     * narrowing passes to Admin for execution. See [Agent.narrowTask].
      */
     public fun narrowTask(narrowing: String)
 
@@ -378,7 +382,7 @@ public interface Agent {
     /**
      * Submits each instruction in order, including all component changes when a chosen amount
      * expands into a group. Uses [Agent.doTask]'s matching and combined-total rules. Failure rolls
-     * back the enclosing operation.
+     * back the enclosing Agent call.
      */
     public fun doTasks(vararg narrowings: String)
 
@@ -399,7 +403,7 @@ public interface Agent {
     /**
      * Runs automatic work before, between, and after [body]'s commands under [policy]. The
      * configured [Agent.autoExecPolicy] is never changed, including while [body] runs. The scope
-     * shares its enclosing call's rollback scope and operation-completion requirement.
+     * shares its enclosing call's rollback scope and completion requirement.
      */
     public fun doWithAutoExecPolicy(policy: AutoExecPolicy, body: OperationBlock)
 

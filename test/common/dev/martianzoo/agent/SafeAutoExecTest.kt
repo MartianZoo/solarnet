@@ -1,8 +1,8 @@
 package dev.martianzoo.agent
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -18,7 +18,7 @@ internal class SafeAutoExecTest {
   @Test
   internal fun concretePolicyAdmitsASelectedGroupWithoutChoosingItsAbstractMember() {
     val game = Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker\nCLASS Prize"))
-    val agent = Agents(game) { CONCRETE }[PLAYER1]
+    val agent = Agents(game) { SOLE_TASK }[PLAYER1]
     val parent = agent.addTasks("MAX 0 Prize: (Coin OR Marker, Prize)").single()
 
     agent.autoExecNow()
@@ -56,7 +56,7 @@ internal class SafeAutoExecTest {
     manual[PLAYER2].addTasks("Token<Player2>!")
     val before = game.events.nextOrdinal
 
-    val agents = Agents(game) { if (it == ADMIN) EAGER else CONCRETE }
+    val agents = Agents(game) { if (it == ADMIN) EAGER else SOLE_TASK }
 
     game.events.nextOrdinal shouldBe before
     agents[PLAYER1].autoExecNow()
@@ -66,7 +66,7 @@ internal class SafeAutoExecTest {
 
     agents[PLAYER1].autoExecNow(EAGER)
     agents[PLAYER1].count("Token<Player1>") shouldBe 3
-    agents[PLAYER1].autoExecPolicy shouldBe CONCRETE
+    agents[PLAYER1].autoExecPolicy shouldBe SOLE_TASK
     game.isIdle() shouldBe true
   }
 
@@ -168,7 +168,7 @@ internal class SafeAutoExecTest {
     player.autoExecNow()
     game.events.nextOrdinal shouldBe before
 
-    shouldThrow<LimitsException> { player.autoExecNow(CONCRETE) }
+    shouldThrow<LimitsException> { player.autoExecNow(SOLE_TASK) }
 
     game.events.nextOrdinal shouldBe before
     game.tasks.getTaskData(taskId) shouldBe task
@@ -183,7 +183,7 @@ internal class SafeAutoExecTest {
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("Token!")
 
-    player.autoExecNow(CONCRETE)
+    player.autoExecNow(SOLE_TASK)
 
     player.count("Token") shouldBe 1
     game.tasks.isEmpty() shouldBe true
@@ -224,7 +224,7 @@ internal class SafeAutoExecTest {
     player.addTasks("Token: Reward!")
     player.addTasks("Token!")
 
-    player.autoExecPolicy = CONCRETE
+    player.autoExecPolicy = SOLE_TASK
 
     player.count("Token") shouldBe 1
     player.count("Reward") shouldBe 1
@@ -240,7 +240,7 @@ internal class SafeAutoExecTest {
     val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     val taskIds = p1.addTasks("Token<Player1>") + p2.addTasks("Marker<Player2>")
 
-    p1.autoExecPolicy = CONCRETE
+    p1.autoExecPolicy = SOLE_TASK
 
     p1.count("Token<Player1>") shouldBe 1
     p2.count("Marker<Player2>") shouldBe 0
@@ -265,13 +265,13 @@ internal class SafeAutoExecTest {
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     val taskId = player.addTasks("Choice").single()
 
-    player.autoExecPolicy = CONCRETE
+    player.autoExecPolicy = SOLE_TASK
 
     player.count("Left") shouldBe 0
     player.count("Right") shouldBe 0
     val task = game.tasks.extract { it }.single()
     task.id shouldBe taskId
     task.selected shouldBe true
-    task.instruction.isAbstract(player.reader) shouldBe true
+    task.instruction.needsNarrowing(player.reader) shouldBe true
   }
 }

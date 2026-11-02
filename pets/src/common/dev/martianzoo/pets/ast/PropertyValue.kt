@@ -23,8 +23,6 @@ public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
             this === RequirementType ||
             this === OptionalRequirementType
 
-  override fun isAbstract(info: TypeInfo): Boolean = abstract
-
   /** The abstract type of any numeric property. */
   public data object MetricType : PropertyValue() {
     override fun toString(): String = "Metric"

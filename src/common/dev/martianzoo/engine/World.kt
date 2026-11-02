@@ -9,9 +9,10 @@ import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.TaskQueue
 
 /**
- * Live game state and the engines that interpret Actor commands. [components], [events], [tasks],
- * and [reader] are read surfaces over this same World; retaining them does not capture a snapshot.
- * Later gameplay and history navigation change what those views report. Use [recording] for an
+ * Live game world and the engines that interpret Actor commands. Current game state consists of
+ * components and pending tasks; [events] is history. [components], [events], [tasks], and [reader]
+ * are read surfaces over this same World; retaining them does not capture a snapshot. Later
+ * gameplay and history navigation change what those views report. Use [recording] for an
  * independent record and [actorEngine] for Actor-attributed gameplay.
  *
  * The [intended interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md) assigns each

@@ -42,7 +42,7 @@ Area, by the way, was declared with `HAS MAX 1 Occupant<This>`. That's our first
 *invariant*: a completed operation may leave at most one occupant (a tile or a claim) on each Area.
 The engine checks the initiating change together with all its recursive automatic consequences;
 effects can still observe intermediate counts. See
-[invariants and operation completion](type-system.md#invariants-and-operation-completion).
+[invariants after an immediate change cascade](type-system.md#invariants-after-an-immediate-change-cascade).
 
 As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the player-specific section below.
 

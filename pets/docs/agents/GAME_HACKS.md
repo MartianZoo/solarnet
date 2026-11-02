@@ -263,7 +263,7 @@ oxygen action. That action should be unavailable; the refund should arrive only 
 
 **Source:** `actionToEffect` in [Transforming.kt](../../src/common/dev/martianzoo/pets/Transforming.kt),
 `RegolithEaters` in [base cards](../../src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5),
-and the current-divergence account in [SEQUENCING.md](../../../docs/agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over).
+and the current-divergence account in [SEQUENCING.md](../../../docs/agents/SEQUENCING.md#the-missing-rule-when-initiated-work-has-finished).
 
 ## Inferring printed rules from a limited Pets spelling
 

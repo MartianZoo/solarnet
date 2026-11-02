@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
@@ -21,7 +21,7 @@ import dev.martianzoo.tfm.engine.TfmEngine
  * phase. Players submit offered tasks through plain Agents with a fixed policy. Explicit
  * autoExecNow calls handle competing consequences when their order is not the subject.
  */
-internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy = CONCRETE) {
+internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy = SOLE_TASK) {
   lateinit var game: World
     private set
 

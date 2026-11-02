@@ -62,7 +62,7 @@ public sealed class Instruction : InstructionTree() {
   public object NoOp : Instruction() {
     override fun scale(factor: Int): Instruction = this
 
-    override fun isAbstract(info: TypeInfo): Boolean = false
+    override fun needsNarrowing(info: TypeInfo): Boolean = false
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       if (proposed != NoOp) throw NarrowingException("`$proposed` does not narrow `Ok`")
@@ -122,10 +122,10 @@ public sealed class Instruction : InstructionTree() {
      */
     public abstract val quantifier: Quantifier?
 
-    override fun isAbstract(info: TypeInfo): Boolean {
+    override fun needsNarrowing(info: TypeInfo): Boolean {
       if (count == ActualScalar(0)) return false
-      return count.isAbstract(info) ||
-          quantifier?.isAbstract(info) != false ||
+      return count.needsNarrowing ||
+          quantifier?.needsNarrowing != false ||
           (gaining?.isAbstract(info) == true) ||
           (removing?.isAbstract(info) == true)
     }
@@ -373,7 +373,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun precedence(): Int = 8
 
-    override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
+    override fun needsNarrowing(info: TypeInfo): Boolean = inner.needsNarrowing(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       proposed as? Per ?: throw NarrowingException("`$proposed` does not preserve metric `$metric`")
@@ -414,14 +414,14 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = create(inner * factor, actor)
 
-    override fun isAbstract(info: TypeInfo): Boolean =
-        inner.isAbstract(info) || actor.isAbstract(info)
+    override fun needsNarrowing(info: TypeInfo): Boolean =
+        inner.needsNarrowing(info) || actor.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       proposed as? By
-          ?: throw NarrowingException("`$proposed` does not preserve performer `$actor`")
+          ?: throw NarrowingException("`$proposed` does not preserve `BY` Actor `$actor`")
       if (proposed.actor != actor) {
-        throw NarrowingException("cannot change performer `$actor` to `${proposed.actor}`")
+        throw NarrowingException("cannot change `BY` Actor `$actor` to `${proposed.actor}`")
       }
       proposed.inner.ensureNarrows(inner, info)
     }
@@ -432,10 +432,10 @@ public sealed class Instruction : InstructionTree() {
   }
 
   /**
-   * `NOW`, `SOON`, `LATER`, or `FINALLY`: dispatches [body] as unresolved work for a fixed [actor],
+   * `NOW`, `SOON`, `LATER`, or `FINALLY`: dispatches [body] as pending work for a fixed [actor],
    * with the given [deferral] ([rules L2-17 to
    * L2-19](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#2-instructions)).
-   * The body may stay abstract. A missing recipient is filled from lexical `Me`, or Admin, during
+   * The body may stay open. A missing recipient is filled from lexical `Me`, or Admin, during
    * elaboration. Executing NOW creates selected work and executing SOON creates ordinary work;
    * merely selecting either dispatch does not admit its body. LATER/FINALLY schedule deferred work
    * as soon as their containing work becomes ordinary.
@@ -459,7 +459,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = copy(body = body * factor)
 
-    override fun isAbstract(info: TypeInfo): Boolean = actor?.isAbstract(info) != false
+    override fun needsNarrowing(info: TypeInfo): Boolean = actor?.isAbstract(info) != false
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       if (proposed !is Dispatch || proposed.deferral != deferral) {
@@ -509,7 +509,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = copy(inner = inner * factor)
 
-    override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
+    override fun needsNarrowing(info: TypeInfo): Boolean = inner.needsNarrowing(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       proposed as? Gated
@@ -560,7 +560,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = copy(body = body * factor)
 
-    override fun isAbstract(info: TypeInfo): Boolean = body.isAbstract(info)
+    override fun needsNarrowing(info: TypeInfo): Boolean = false
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       proposed as? Each
@@ -647,7 +647,9 @@ public sealed class Instruction : InstructionTree() {
 
     override fun precedence(): Int = 2
 
-    override fun isAbstract(info: TypeInfo): Boolean = instructions.any { it.isAbstract(info) }
+    override fun needsNarrowing(info: TypeInfo): Boolean = instructions.any {
+      it.needsNarrowing(info)
+    }
 
     internal val hasSharedX: Lazy<Boolean> = lazy {
       instructions.count { it.descendantsOfType<XScalar>().isNotEmpty() } >= 2
@@ -968,7 +970,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun precedence(): Int = 6
 
-    override fun isAbstract(info: TypeInfo): Boolean = instructions.any {
+    override fun needsNarrowing(info: TypeInfo): Boolean = instructions.any {
       it != NoOp && (it !is Change || it.count != ActualScalar(0))
     }
 
@@ -1050,7 +1052,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = copy(instruction = instruction * factor)
 
-    override fun isAbstract(info: TypeInfo): Boolean =
+    override fun needsNarrowing(info: TypeInfo): Boolean =
         throw ExpressionException("unhandled instruction transform: `$this`")
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo): Unit =
@@ -1072,13 +1074,13 @@ public sealed class Instruction : InstructionTree() {
       /** Pets punctuation emitted for this quantifier. */
       public val symbol: String,
       /** Whether this quantifier still requires a narrowing choice. */
-      public val abstract: Boolean = false,
+      public val needsNarrowing: Boolean = false,
   ) : Specification<Quantifier> {
     /** The full amount must be gained/removed/transmuted. */
     MANDATORY("!"),
 
     /**
-     * Do "as much as possible" of the amount. What that resolves to against a real state is
+     * Do "as much as possible" of the amount. What that evaluates to against a real state is
      * `QUANTIFIERS.md`'s subject.
      */
     AMAP("*"),
@@ -1086,8 +1088,6 @@ public sealed class Instruction : InstructionTree() {
     /** The player can choose how much of the amount to do, including none of it. */
     OPTIONAL("?", true),
     ;
-
-    override fun isAbstract(info: TypeInfo): Boolean = abstract
 
     override fun ensureNarrows(that: Quantifier, info: TypeInfo) {
       if (that != this && that != OPTIONAL) {

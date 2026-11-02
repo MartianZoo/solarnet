@@ -46,10 +46,11 @@ import dev.martianzoo.state.TaskResult
  * Executes task and correction commands attributed to [actor] in a shared game world.
  *
  * A task command applies its requested change, dependent removals, recursive `::` effects, and
- * invariant checks. Resulting tasks remain queued for their assigned Actors. Concrete System
- * changes are assigned to Admin; Player choices remain with the Player until the change is
- * concrete. At selection, a concrete instruction with explicit `BY` goes to the named Actor. The
- * engine calculates consequences; the clients decide which tasks to submit.
+ * invariant checks. Resulting tasks remain queued for their assigned Actors. System changes needing
+ * no narrowing are assigned to Admin; Player choices remain with the Player until those choices are
+ * supplied. At selection, an instruction with explicit `BY` goes to the named Actor when it needs
+ * no further narrowing. The engine calculates consequences; the clients decide which tasks to
+ * submit.
  *
  * For example, placing greenery on a Land Claim cube removes the cube through `::` before
  * returning; the placement bonus remains queued for Admin.
@@ -89,7 +90,7 @@ internal constructor(
 ) {
   private val allTasks: TaskQueue = gameWorld.tasks
 
-  private object SelectionHandoffDetected : RuntimeException()
+  private object SelectionTransferDetected : RuntimeException()
 
   private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
 
@@ -162,8 +163,9 @@ internal constructor(
    * Adds [instructions] as work initially assigned to [actor], recording [firstCause] when
    * supplied. This attributes the initial work; triggered effects record their own causes. Returns
    * the ids of tasks actually added in creation order. Normalization can discard no-ops, split
-   * groups, schedule LATER/FINALLY, and assign concrete System changes to Admin. NOW/SOON wait for
-   * execution; a TaskScope can wrap another Player's work for its owner to schedule.
+   * groups, schedule LATER/FINALLY, and assign System changes needing no narrowing to Admin.
+   * NOW/SOON wait for execution; a TaskScope can wrap another Player's work for its owner to
+   * schedule.
    *
    * Refused while any task is selected: that task must finish before the queue changes around it.
    *
@@ -222,7 +224,7 @@ internal constructor(
   }
 
   private fun requireNoOtherSelectedTask(taskId: TaskId) {
-    // Check the whole task pool: another Actor's selection also excludes this task command.
+    // Check the whole task queue: another Actor's selection also excludes this task command.
     // Explicit corrections preserve the selected task; ordinary queue edits respect this exclusion.
     val already = allTasks.selectedTask()
     if (already != null && already != taskId) {
@@ -260,8 +262,8 @@ internal constructor(
 
   /**
    * Supplies [narrowing] for this Actor's selected task. When [quantifierOmitted] is true, retains
-   * the pending task's quantifier where needed. Resolves and stores the resulting instruction
-   * without consuming the task or admitting children. Actor reassignment follows [selectTask].
+   * the pending task's quantifier where needed. Evaluates and stores the resulting instruction
+   * without consuming the task or admitting children. Assignee transfer follows [selectTask].
    * Partial choices remain on the selected task for further narrowing or execution.
    *
    * Rejects a missing selection or incompatible narrowing and restores a failed transaction.
@@ -316,7 +318,7 @@ internal constructor(
 
   /**
    * Selects this Actor's [taskId] as [selectTask] does and supplies [narrowing], retaining an
-   * omitted quantifier when [quantifierOmitted] is true. Resolves and stores the result without
+   * omitted quantifier when [quantifierOmitted] is true. Evaluates and stores the result without
    * executing component changes, leaving the task pending for its current assignee.
    *
    * Rejects a competing selection, deferred work, an incompatible narrowing, or narrowing that
@@ -355,14 +357,14 @@ internal constructor(
           }
           if (effectiveNarrowing is Gated && selectedTask.instruction !is Gated) {
             effectiveNarrowing =
-                instructor.resolve(
+                instructor.evaluate(
                     effectiveNarrowing,
                     worldGainNarrowing = true,
                     expandEach = false,
                 )
           }
           if (
-              !narrowing.isAbstract(reader) &&
+              !narrowing.needsNarrowing(reader) &&
                   narrowing is By &&
                   instructor.actorFor(narrowing) == actor
           ) {
@@ -387,19 +389,20 @@ internal constructor(
       return
     }
 
-    // Keep the chosen group unresolved; its children resolve against their own execution states.
-    val resolved =
-        instructor.resolve(effectiveNarrowing, worldGainNarrowing = true, expandEach = false)
-    applyResolution(task, resolved, then = task.then)
+    // Keep the chosen group intact; its children evaluate against their own execution states.
+    val evaluated =
+        instructor.evaluate(effectiveNarrowing, worldGainNarrowing = true, expandEach = false)
+    applyEvaluation(task, evaluated, then = task.then)
   }
 
   /**
    * Checks whether this task can be selected against the current world, restoring attempted changes
-   * before returning. A concrete selection also attempts execution if it stays with its current
-   * Actor; a handoff or abstract selection can return true without executing. This does not handle
-   * later queued tasks. Gameplay rejection or a known missing choice returns false.
-   * [IncompleteAnalysisException] propagates when a required execution proof cannot finish,
-   * including the Admin priority check. Other failures also propagate after restoration.
+   * before returning. A selection needing no further narrowing also attempts execution if it stays
+   * with its current Actor; an assignee transfer or selection needing narrowing can return true
+   * without executing. This does not handle later queued tasks. Gameplay rejection or a known
+   * missing choice returns false. [IncompleteAnalysisException] propagates when a required
+   * execution proof cannot finish, including the Admin priority check. Other failures also
+   * propagate after restoration.
    *
    * This is not a count of legal concrete narrowings. The attempt uses a disposable World; source
    * listeners, callbacks, and application checks do not observe trial events.
@@ -428,7 +431,7 @@ internal constructor(
           val task = allTasks.getTaskData(selected)
           if (
               task.assignee == original.assignee &&
-                  (requireConcrete || !task.instruction.isAbstract(reader))
+                  (requireConcrete || !task.instruction.needsNarrowing(reader))
           ) {
             executeSelectedTask(queueForAnyTask(selected), selected, task.assignee)
           }
@@ -470,14 +473,14 @@ internal constructor(
   }
 
   /**
-   * Selects this Actor's [taskId] and resolves its instruction against current state. Concrete
+   * Selects this Actor's [taskId] and evaluates its instruction against current state. Determined
    * component changes remain pending until an execution command. Groups, `EACH`, and dispatches
    * exposed by selection retain the same task. Execution admits their independent children without
    * passing selection to them and releases any continuation.
    *
-   * When resolution reassigns the task, this call records the handoff without attempting the
-   * receiving Actor's execution. That Actor performs the instruction in a later transaction, which
-   * may fail independently of this selection.
+   * When evaluation changes the task's assignee, this call records that change without attempting
+   * the receiving Actor's execution. That Actor performs the instruction in a later transaction,
+   * which may fail independently of this selection.
    *
    * Rejects deferred work, a different selected task, and Player selection while the existing probe
    * finds an executable ordinary Admin task. If no Admin task is proven executable but an Admin
@@ -500,7 +503,7 @@ internal constructor(
    * Distinct matching tasks are rejected as ambiguous; identical tasks differing only in identity
    * and cause currently use the first match.
    *
-   * Resolves and stores work as [selectTask] does, with the same priority and failure restoration.
+   * Evaluates and stores work as [selectTask] does, with the same priority and failure restoration.
    * Partial selection can still persist.
    */
   public fun selectTask(
@@ -532,7 +535,7 @@ internal constructor(
           narrowTask(id, intersection, quantifierOmitted)
           return@perform
         }
-        if (!task.selected && selectionHandsOff(task)) {
+        if (!task.selected && selectionTransfersTask(task)) {
           throw TaskException(
               "`$actor` cannot narrow task $id because selection assigns it to another Actor"
           )
@@ -552,42 +555,42 @@ internal constructor(
     if (task.deferred) {
       throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
     }
-    val resolved =
-        instructor.resolve(task.instruction, worldGainNarrowing = true, expandEach = false)
+    val evaluated =
+        instructor.evaluate(task.instruction, worldGainNarrowing = true, expandEach = false)
     if (
         task.selected &&
-            resolved == task.instruction &&
-            !(resolved is By && !resolved.isAbstract(reader))
+            evaluated == task.instruction &&
+            !(evaluated is By && !evaluated.needsNarrowing(reader))
     )
         return task.id
-    applyResolution(task, resolved, then = task.then)
+    applyEvaluation(task, evaluated, then = task.then)
     return task.id
   }
 
-  private fun selectionHandsOff(task: Task): Boolean {
+  private fun selectionTransfersTask(task: Task): Boolean {
     return try {
       timeline.atomic {
         val selected = selectTask(task)
-        if (allTasks.getTaskData(selected).assignee != actor) throw SelectionHandoffDetected
+        if (allTasks.getTaskData(selected).assignee != actor) throw SelectionTransferDetected
         throw AbortTransactionException()
       }
       false
-    } catch (_: SelectionHandoffDetected) {
+    } catch (_: SelectionTransferDetected) {
       true
     }
   }
 
-  private fun applyResolution(
+  private fun applyEvaluation(
       original: Task,
-      resolved: InstructionTree,
+      evaluated: InstructionTree,
       then: InstructionGroup?,
   ) {
     var updated =
         taskQueues.normalizeForSelection(
-            original.copy(selected = true, instruction = resolved, then = then)
+            original.copy(selected = true, instruction = evaluated, then = then)
         )
     val instruction = updated.instruction
-    if (!instruction.isAbstract(reader) && instruction is By) {
+    if (!instruction.needsNarrowing(reader) && instruction is By) {
       updated =
           updated.copy(
               assignee = instructor.actorFor(instruction),
@@ -649,7 +652,7 @@ internal constructor(
           is Instruction -> tree
         }
     if (instruction is Instruction.Dispatch) {
-      val children = instructor.executeResolved(instruction, selectedTask.cause, executingActor)
+      val children = instructor.executeEvaluated(instruction, selectedTask.cause, executingActor)
       handleTask(queue, selectedTask)
       children
           .flatMap(taskQueues::addTasks)
@@ -658,16 +661,16 @@ internal constructor(
             val child = it.task
             // Check that its first step can be selected, but leave the recipient's live instruction
             // intact. In particular, do not freeze an AMAP amount before the recipient's request.
-            // Admin execution can still fail; Agent then restores the whole handoff call.
-            instructor.resolve(child.instruction, worldGainNarrowing = true, expandEach = false)
+            // Admin execution can still fail; Agent then restores the whole dispatch call.
+            instructor.evaluate(child.instruction, worldGainNarrowing = true, expandEach = false)
           }
       return emptyList()
     }
     if (instruction is Each) {
-      val children = instructor.resolve(instruction, worldGainNarrowing = true)
+      val children = instructor.evaluate(instruction, worldGainNarrowing = true)
       return admitChildren(queue, selectedTask, InstructionGroup.of(children))
     }
-    if (instruction.isAbstract(reader)) {
+    if (instruction.needsNarrowing(reader)) {
       val chosen = successfulNarrowing(taskId, instruction, executingActor)
       narrowSelectedTask(taskId, chosen, quantifierOmitted = false)
       if (allTasks.getTaskData(taskId).assignee == executingActor) {
@@ -676,7 +679,7 @@ internal constructor(
       return emptyList()
     }
     val newTasks =
-        instructor.executeResolved(
+        instructor.executeEvaluated(
             instruction,
             selectedTask.cause,
             executingActor,
@@ -686,7 +689,7 @@ internal constructor(
     return emptyList()
   }
 
-  /** Complete finite type domains only; unsupported or unfinished analysis remains unresolved. */
+  /** Complete finite type domains only; unsupported or unfinished analysis remains open. */
   private fun successfulNarrowing(
       taskId: TaskId,
       instruction: Instruction,
@@ -753,7 +756,8 @@ internal constructor(
     var winner: Instruction? = null
     var invalidCandidate: ExpressionException? = null
     val rejections = mutableListOf<GameplayException>()
-    // An OR may reach the same concrete instruction through multiple arms (notably optional zero).
+    // An OR may reach the same instruction through multiple arms (notably optional
+    // zero).
     for (candidate in candidates(instruction).distinct()) {
       if (candidate is Change) {
         try {
@@ -796,7 +800,7 @@ internal constructor(
     }
     if (rejections.isEmpty()) {
       invalidCandidate?.let { throw it }
-      instructor.resolve(instruction) // Retain the existing uninhabited-type diagnostic.
+      instructor.evaluate(instruction) // Retain the existing uninhabited-type diagnostic.
       throw DeadEndException("no compatible concrete narrowing for `$instruction`")
     }
     val detail = rejections.map { it.detail }.distinct().sorted().joinToString("; ")
@@ -865,7 +869,7 @@ internal constructor(
       }
 
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =
-      if (instruction is Per) instructor.resolve(instruction) else instruction
+      if (instruction is Per) instructor.evaluate(instruction) else instruction
 
   private fun matchingTask(
       narrowing: InstructionTree,
@@ -887,7 +891,7 @@ internal constructor(
       val instruction = taskData.instruction
       if (intersectTask(narrowing, instruction, quantifierOmitted) != null) return true
       return try {
-        intersectTask(narrowing, instructor.resolve(instruction), quantifierOmitted) != null
+        intersectTask(narrowing, instructor.evaluate(instruction), quantifierOmitted) != null
       } catch (_: NotNowException) {
         false
       }
@@ -925,7 +929,7 @@ internal constructor(
       if (narrowing.actor != existing.actor || narrowing.deferral != existing.deferral) return null
       if (narrowing.body == existing.body) return existing
       val first = (existing.body as? Then)?.first ?: existing.body
-      // A handoff may identify the current step, including its calculated amount. It may not
+      // A dispatch may identify the current step, including its calculated amount. It may not
       // remove any choice from the recipient: the whole pending step must fit the request.
       if (first.narrows(narrowing.body, reader)) return existing
       fun calculatedHead(tree: InstructionTree): InstructionTree =

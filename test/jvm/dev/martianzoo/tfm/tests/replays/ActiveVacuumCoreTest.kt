@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -254,7 +254,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     }
     green.turn {
       inTurn {
-        doWithAutoExecPolicy(CONCRETE) {
+        doWithAutoExecPolicy(SOLE_TASK) {
           useStdAction("UseAction<ClaimMilestoneAction, Action1>") {
             doTask("Diversifier")
           }

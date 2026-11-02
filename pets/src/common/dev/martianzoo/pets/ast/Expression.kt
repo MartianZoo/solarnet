@@ -94,7 +94,7 @@ public open class Expression(
   final override val expression: Expression
     get() = this
 
-  final override fun isAbstract(info: TypeInfo): Boolean = info.isAbstract(this)
+  public fun isAbstract(info: TypeInfo): Boolean = info.isAbstract(this)
 
   final override fun ensureNarrows(that: Expression, info: TypeInfo): Unit =
       info.ensureNarrows(that, this)

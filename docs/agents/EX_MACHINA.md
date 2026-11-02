@@ -1,4 +1,4 @@
-# Corrections
+# Ex machina corrections
 
 > **Agent information:** This is an agent-maintained note for agents.
 >
@@ -6,6 +6,12 @@
 > required-part construction.
 >
 > **Status:** current correction contract. Source and tests win if details differ.
+
+**Ex machina** names any direct change to game state outside ordinary handling of pending tasks.
+Ordinary handling includes selection, narrowing, and execution.
+Direct task admission and removal are examples alongside component corrections. This document
+describes the narrower `exMachina` correction API and its effect rules. History seeking and replay
+restore an earlier state rather than submit a new game change.
 
 ## Contract
 
@@ -46,7 +52,7 @@ required parts or immediate effects; existing unfinished work may be removed. Th
 correction from starting work whose ordinary completion effects were suppressed.
 
 Pending tasks remain unchanged, including selection, explicit choices, and previously calculated
-amounts. For example, a selected `Coin / Foo` that already resolved to `3 Coin` remains `3 Coin`
+amounts. For example, a selected `Coin / Foo` that already evaluated to `3 Coin` remains `3 Coin`
 after correcting Foo. Corrections do not reselect or automatically execute that task. The owner
 asked to keep this consolidation expedient rather than redesign correction-time recalculation.
 

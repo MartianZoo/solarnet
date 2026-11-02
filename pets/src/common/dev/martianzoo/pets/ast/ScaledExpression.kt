@@ -59,10 +59,8 @@ private constructor(
 
     internal abstract operator fun times(multiple: Int): Scalar
 
-    override fun isAbstract(info: TypeInfo): Boolean = abstract
-
     /** Whether this scalar leaves the amount open. */
-    public abstract val abstract: Boolean
+    public abstract val needsNarrowing: Boolean
 
     /** Replaces an authored X with [value], retaining its written coefficient. */
     internal fun bindX(value: Int): Scalar =
@@ -91,7 +89,7 @@ private constructor(
         require(value >= 0)
       }
 
-      override val abstract: Boolean = false
+      override val needsNarrowing: Boolean = false
 
       override fun times(multiple: Int) = copy(value = value * multiple)
 
@@ -121,7 +119,7 @@ private constructor(
         require(multiple > 0)
       }
 
-      override val abstract: Boolean = true
+      override val needsNarrowing: Boolean = true
 
       override fun ensureNarrows(that: Scalar, info: TypeInfo) {
         if (this != that) throw NarrowingException("`$this` does not narrow `$that`")

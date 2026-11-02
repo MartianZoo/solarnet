@@ -374,7 +374,7 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   additional `HAS` filters remain attached and bracket individually when unsupported. This keeps
   Philantropist's class-token gameplay requirement while saying `cards in play with [GainsOf<...>]`.
 - Preserve shared implicit player identity across a trigger and its result as `that player`.
-  An unrestricted `BY Anyone` or `BY Actor` constrains the performer of the event; it does not
+  An unrestricted `BY Anyone` or `BY Actor` constrains the Actor of the event; it does not
   establish the owner of resources mentioned independently in the result.
 - Make optional maxima explicit as `you may ... up to`, including above one.
 - Express an operation with an unconditional option to do nothing as `you may ...`. Keep the

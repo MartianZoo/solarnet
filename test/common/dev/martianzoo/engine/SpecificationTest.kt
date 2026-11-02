@@ -54,15 +54,15 @@ internal class SpecificationTest {
   }
 
   @Test
-  internal fun noOpDoesNotNarrowAnUnresolvedPerInstruction() {
+  internal fun noOpDoesNotNarrowAnUnevaluatedPerInstruction() {
     testInvalid("2! Plant / Player", "Ok")
   }
 
   @Test
-  internal fun unresolvedInstructionsCanAlreadyBeNonAbstract() {
-    parse<Instruction>("5* OxygenStep").isAbstract(game.reader) shouldBe false
-    parse<Instruction>("Plant: 5! OxygenStep").isAbstract(game.reader) shouldBe false
-    parse<Instruction>("5! OxygenStep / Plant<Player1>").isAbstract(game.reader) shouldBe false
+  internal fun instructionCanNeedEvaluationWithoutNarrowing() {
+    parse<Instruction>("5* OxygenStep").needsNarrowing(game.reader) shouldBe false
+    parse<Instruction>("Plant: 5! OxygenStep").needsNarrowing(game.reader) shouldBe false
+    parse<Instruction>("5! OxygenStep / Plant<Player1>").needsNarrowing(game.reader) shouldBe false
   }
 
   @Test

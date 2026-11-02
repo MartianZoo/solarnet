@@ -312,7 +312,7 @@ internal class Lang02InstructionsTest {
    * This module can pin the fanout's syntax and scope. Enumerating a live world and rejecting a
    * concrete selector happen where the fanout is resolved:
    * `test/common/dev/martianzoo/engine/EachSelectorBindingTest.kt` and
-   * `InstructionResolutionTest.kt`.
+   * `InstructionEvaluationTest.kt`.
    */
   @Test
   internal fun `L2-14 EACH names a selector and a body`() {
@@ -421,7 +421,7 @@ internal class Lang02InstructionsTest {
   // L2-15 BY
 
   @Test
-  internal fun `L2-15 BY names the performer and distributes over a group`() {
+  internal fun `L2-15 BY names the Actor and distributes over a group`() {
     (parse<Instruction>("Plant BY Player1") as Instruction.By).actor shouldBe
         parse<Expression>("Player1")
     parse<InstructionTree>("(Plant, Heat) BY Player1").toString() shouldBe

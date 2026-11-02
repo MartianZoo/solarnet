@@ -130,21 +130,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 - Revisit ownership of `Selecting`, `Hand`, and played events together, including per-player
   cleanup of shared `Selecting` while other players' starting offers remain there.
-- Fully migrate task/instruction preparation terminology across Pets and Solarnet APIs,
-  implementation names, diagnostics, tests, specifications, glossary, and agent documentation.
-  Use the abandoned `codex/pets-open-closed-lexicon` branch (terminology commit `3c89d711c`)
-  as a scope reference, adapting it to this agreement rather than restoring it wholesale.
-  **Open** means narrowing or evaluation remains before the immediate instruction is fully
-  determined; **closed** means neither remains. Narrowing supplies a permitted choice;
-  evaluation interprets against the current World (gates, metrics, amounts, forced deductions)
-  without executing, and can leave the task open. Multiple narrowings and evaluations may
-  interleave before closure. **Execution** performs the instruction and its consequences;
-  closed does not mean executed or guaranteed to succeed. Use this preparation terminology
-  consistently, including in ENGINE_CONTRACT.md. Preserve **abstract/concrete for classes**, including their declarations and classification APIs, for now. Both evaluation
-  results and the validity of narrowings involving refinements can depend on the World;
-  distinguish a fully specified instruction becoming invalid from an unresolved choice.
-  Cover AMAP target selection leaving the task open until its amount is evaluated, and
-  evaluation followed by further narrowing. This TODO records the migration, not its completion.
+- Decide whether callers need a public `isOpen` check for tasks or instructions. The current
+  `needsNarrowing` check answers only whether an immediate elective part is unfixed; it does not
+  inspect World-dependent evaluation. A task with `PER`, a gate, or an AMAP amount may therefore
+  need evaluation after `needsNarrowing` becomes false. Define the evaluation state and the
+  caller's use before adding a second predicate. Preserve abstract/concrete for Types.
 - Extend transaction inference beyond the finite mandatory/optional changes, OR alternatives, and
   full-form transmutation pairs implemented by the [implementation evidence](docs/agents/ENGINE_TRANSITION_RESULTS.md).
   Preserve distinct incomplete-analysis results for unsupported groups, AMAP, unbound numeric X,
@@ -157,7 +147,7 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   the acceptance example. Resolve matching, lifetime, selection and priority, failure, transaction,
   replay, and speculation details in the
   [Agent contract](docs/agents/AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
-  Keep preference features such as "always take titanium for Philares" deferred; no policy API,
+  Keep instructions such as "always take titanium for Philares" deferred; no policy API,
   implementation, or default migration is selected by this documentation work.
 - Migrate Players away from the EAGER default, which can close legitimate gameplay choices.
   The user deliberately deferred the migration cleanup for now, hoping to move to a suitable smart
@@ -172,10 +162,16 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   randomized independent `::` listeners. Use it to expose accidental ordering dependencies; retain
   FIFO in ordinary execution. See [Admin handling](docs/agents/ENGINE_CONTRACT.md#admins-choices-and-retries).
 - Refine and verify the strategy catalogue in [DECISION_GRAPH.md](docs/agents/DECISION_GRAPH.md).
-  Settle action-completion recognition and task comparison ignoring ordinals; inventory which
+  Settle action-clearance recognition and task comparison ignoring ordinals. Use the two-identical-
+  `Foo?`-tasks case to specify when different task causes can be ignored; card tracking and legacy
+  gameplay helpers currently inspect some causes. Decide what, if anything, must be preserved at
+  intra-action handoffs. Inventory which
   existing forced deductions belong in Player and Admin agents. Measure pruning and safe eager
   execution on Canon scenarios such as Project Eden, retaining UNKNOWN when analysis runs out
   of information or work. The document selects semantic rules, not an implementation.
+- Design the planned interaction API as a Platonic UI for information, decisions, navigation, and
+  undo. Specify shared interaction scripts with a direct driver and a UI driver, and research
+  established test patterns before choosing interfaces. No UI or driver implementation is selected.
 - Evolve `TaskForm` and the other agent choice surfaces to the ordered decision kinds
   **TASK, OR, TYPE, NUMBER, CARD**. TASK chooses pending work; OR chooses an alternative;
   TYPE narrows classes and dependencies; NUMBER supplies `?` amounts or `X`; CARD supplies
@@ -183,8 +179,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   and card-movement naming are separate. Preserve class-before-dependency ordering within TYPE,
   including dependencies revealed by a narrower class. Distinguish guided prompts from
   unrestricted draft narrowing. This records the requested evolution, not an implementation.
-- Reconsider the remaining engine callback coordinator and Agent decision/FINALLY operation
-  lifecycle only against concrete callers. Session-owned checks, full-call results, and rollback
+- Reconsider the remaining engine callback coordinator and legacy Agent `*Operation` helpers
+  only against actual callers. Session-owned checks, full-call results, and rollback
   are implemented; external application side effects are outside restoration. See the
   [contract appendix](docs/agents/ENGINE_CONTRACT.md#appendix-further-work-under-consideration).
 - Clarify System classification versus non-Iconic presentation separately. Review when concrete

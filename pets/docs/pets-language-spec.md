@@ -140,7 +140,7 @@ transmutation still takes precedence.
 > that pending `RequiredAction` component, rather than some other pending required action.
 
 **L1-6. `Anyone` is an ordinary class.** It is the common supertype of `Owner` and `Actor`, the
-identities that can own components or perform operations. `Player` is both; Admin is only an Actor; passive owners are only Owners.
+identities that can own components or perform changes. `Player` is both; Admin is only an Actor; passive owners are only Owners.
 It is never replaced with the current player. A bare expression of an `Owned` class instead gets
 its owner argument from lexical `Me` or the supplied input context (L9-3). Write an explicit
 `<Anyone>` when the type should accept every eligible owner: it intersects the declared ownership
@@ -277,9 +277,9 @@ differently:
 | `?` | an open choice | whoever narrows the instruction, who may choose none (L3-1) |
 | `*` | fixed, but not yet known | the state the change is carried out against |
 
-So `!` is concrete, `?` is abstract, and `*` is neither: it leaves no choice, but its amount is
+So `!` is fixed, `?` leaves an elective choice, and `*` is fixed but unevaluated: its amount is
 read off a state rather than written down. Narrowing can fix a choice (L3); only
-resolution against a state can determine the amount of a `*`.
+evaluation against a state can determine the amount of a `*`.
 
 A transmutation must change its concrete Type. Equal concrete Types (T5-1) on both sides are
 invalid regardless of spelling, source count, or quantifier. A shared variable such as
@@ -299,7 +299,7 @@ transmutation are point events, not self-transmutation instructions, and remain 
 argument may change. The compact form remains one `FROM` expression while it is open: each
 unchanged argument occurs once, and the gained and removed Types are projections of that one tree.
 Narrowing replaces a retained argument once, so the two projections cannot acquire different
-values. Execution reads the two Types only after the instruction is concrete.
+values. Execution reads the two Types only after the instruction is closed.
 
 ```ebnf
 FromExpression ::= Expression "FROM" Expression
@@ -451,7 +451,7 @@ meanings. Equal occurrences produce equal but independent branches. When a task 
 executing it fulfills the task by admitting those branches as tasks, even when there is exactly one.
 The selector may serve only as the repetition source, so the body need not name the selected
 component. The body may not be empty, fanouts do not nest, and a concrete selector is rejected where
-the fanout is resolved against a world.
+the fanout is evaluated against a world.
 
 ```ebnf
 Each ::= "EACH" PlainExpression "{" InstructionGroup "}"
@@ -466,9 +466,9 @@ Each ::= "EACH" PlainExpression "{" InstructionGroup "}"
 > three different resource kinds, so neither deduplicating the selector's occurrences nor choosing
 > the body once and multiplying its count is correct. The body needs no reference to the influence.
 
-**L2-15. `I BY Actor` assigns concrete queued work to that Actor.** It distributes over a group, so
-`(A, B) BY Player1` is `A BY Player1, B BY Player1`. While the instruction is abstract, its current
-assignee still supplies the choices inside `I`. Once `I` is concrete, the task is assigned to the
+**L2-15. `I BY Actor` assigns queued work needing no further narrowing to that Actor.** It distributes over a group, so
+`(A, B) BY Player1` is `A BY Player1, B BY Player1`. While the instruction needs narrowing, its current
+assignee still supplies the choices inside `I`. Once `I` needs no further narrowing, the task is assigned to the
 single participating Actor, the `BY` wrapper is removed, and that Actor's agent executes it. The
 resulting event therefore records the Actor that actually performed the change; `BY` does not
 merely substitute an attribution label. An automatic `::` effect creates no task and cannot use
@@ -481,7 +481,7 @@ AttributedInstruction ::= PrimaryInstruction ( "BY" Expression )?
 ```
 
 > **Non-normative example — solo reserve mirroring.** When a player gains or loses a resource, a
-> queued effect creates its matching reserve change `BY Admin`. Selection hands that concrete task
+> queued effect creates its matching reserve change `BY Admin`. Selection transfers that task
 > to Admin, whose agent performs it. The resulting Admin event is not mistaken for another player
 > action and recursively mirrored; canonical source does not currently need the group-distribution
 > shorthand.
@@ -545,7 +545,7 @@ waits for all pending work also waits for it. A `LATER` nested in another is per
 work containing it becomes ordinary: it defers its body again, behind the ordinary work pending
 then.
 
-Deferral resolves nothing early. Admitted work is resolved when it is carried out, like any task, so
+Deferral evaluates nothing early. Admitted work is evaluated when it is carried out, like any task, so
 `LATER { Done / Flag }` counts the flags present then.
 
 > **Non-normative example — played events.** `EventCard`'s
@@ -577,24 +577,27 @@ could have brought about, and every choice P still leaves open retains Q's const
 relationships. The rules below define that relation; discharging a `HAS` condition also consults
 the world in which the choice is made.
 
-**Narrowing is not resolution.** Resolving `3* Plant` against a state with room for two yields
+**Narrowing is not evaluation.** Evaluating `3* Plant` against a state with room for two yields
 `2! Plant`, and that is not a narrowing: nothing in the two instructions says so, and in another
-state the same `*` resolves differently. Narrowing restricts an open choice; resolution determines
+state the same `*` evaluates differently. Narrowing restricts an open choice; evaluation determines
 the change permitted by a state. Every narrowing rule here is state-independent, except where a
 `HAS` refinement asks a world about a candidate (T8-8).
 
 This section is about *elaborated* instructions. An authored change carries no quantifier until
 elaboration supplies one (L2-3), and narrowing has nothing to compare until it does.
 
-**L3-1. An instruction is abstract when something is still open:** an unfixed
+**L3-1. An instruction needs narrowing when an elective part remains unfixed:** an unfixed
 `X`, an absent or optional quantifier, an abstract expression (T5-3), or an `OR`. `2! Plant<Player1>`
-is not abstract; `2? Plant<Player1>` is, because doing less is permitted and nothing has said how
-much less. A zero-count change is not abstract, even when its Type or quantifier is open. An `OR`
-whose arms are all zero-count changes or `Ok` likewise requires no decision.
+does not need narrowing; `2? Plant<Player1>` does, because doing less is permitted and nothing has
+said how much less. A zero-count change needs no narrowing, even when its Type or quantifier is
+unfixed. An `OR` whose arms are all zero-count changes or `Ok` likewise needs no choice. Carried
+work inside braces or quotes does not make the containing instruction need narrowing; it is
+examined when that work becomes current. An instruction can still be open for evaluation even when
+it needs no narrowing.
 
 > **Non-normative example — Virus.** Its `-2? Animal<Anyone> OR -5? Plant<Anyone>` remains open even
 > after one arm is selected: the target player and how much optional loss actually occurs still need
-> to be chosen. Calling the authored card concrete would skip choices printed on it.
+> to be chosen. Calling the authored instruction closed would skip choices printed on it.
 
 **L3-2. A proposal must have the same shape.** A narrowing preserves the kind of node, the number of
 `THEN` stages and the size of a group. Two exceptions, and only two: any instruction may narrow an
@@ -622,7 +625,7 @@ a later choice would otherwise be free to select an unmarked place.
 Only `?` leaves a choice, so only `?` narrows: it may become `!`, `*` or a smaller count. `!` and
 `*` leave no choice at all, so neither narrows to the other (L2-3). In particular a proposal may not
 turn `3* Plant` into `3! Plant`: as much as possible is not the same claim as all of it, and which
-amount `*` means is for resolution, not for the player, to decide.
+amount `*` means is for evaluation, not for the player, to decide.
 
 > **Non-normative example — Comet.** Its optional loss of up to three plants may narrow to one, two,
 > three, or none, but its mandatory temperature and ocean gains may not shrink. The quantifier—not
@@ -1580,11 +1583,11 @@ CLASS GreeneryTile : Tile { HAS MAX 1 This; This: OxygenStep }
 ```
 
 > **Non-normative note — invariant enforcement.** A counting invariant constrains the result of a
-> full operation: one initiating change and all its recursive automatic (`::`) consequences. It
+> immediate change cascade: one initiating change and all its recursive automatic (`::`) consequences. It
 > also constructs missing concrete parts for positive exact counts directly dependent on the gained
 > Component. Other invariants only constrain counts. Intermediate counts may cross their bounds,
 > while source availability and dependency integrity are checked immediately. See
-> [invariants and operation completion](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system.md#invariants-and-operation-completion) for the
+> [invariants after an immediate change cascade](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system.md#invariants-after-an-immediate-change-cascade) for the
 > runtime contract.
 
 > **Non-normative example — map spaces.** Generated map declarations such as `Hellas_1_4` keep row,

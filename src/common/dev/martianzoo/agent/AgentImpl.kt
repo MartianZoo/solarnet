@@ -168,7 +168,7 @@ internal class AgentImpl(
         block = {
           allowedPendingTasks = allTasks.ids()
           allTasks.selectedTask()?.let {
-            throw TaskException("cannot start a manual operation while task $it is selected")
+            throw TaskException("cannot start a new call group while task $it is selected")
           }
           markDecision()
           addInitialTasks(parseInstructionGroup(initialInstructions))
@@ -408,7 +408,7 @@ internal class AgentImpl(
         InstructionGroup.of(parsed.instruction).instructions.map { it as? Change ?: return false }
     val first = requested.firstOrNull() ?: return false
     if (first.gaining != null && first.removing != null) return false
-    if (requested.any { it.isAbstract(reader) || it.count !is ActualScalar }) return false
+    if (requested.any { it.needsNarrowing(reader) || it.count !is ActualScalar }) return false
     if (
         requested.any {
           it.gaining != first.gaining ||
@@ -567,16 +567,18 @@ internal class AgentImpl(
   }
 
   /**
-   * Checks pending work after this Agent operation. Once `FINALLY` work begins, later tasks belong
-   * to the next operation; cleanup is checked at the first such promotion, not at the current World
+   * Checks pending work after this Agent call. Once `FINALLY` work begins, later tasks belong to
+   * subsequent work; cleanup is checked at the first such promotion, not at the current World
    * state. Whether that promotion is always the right completion point remains open.
    */
   private fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) {
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
     val workOver = autoExecLoop.lastDecision?.let(::finalWorkBegan)
     if (pending.isNotEmpty() && workOver == null) {
-      if (pending.any { it.instruction.isAbstract(reader) }) {
-        throw NotFullySpecifiedException("pending abstract tasks:\n${pending.joinToString("\n")}")
+      if (pending.any { it.instruction.needsNarrowing(reader) }) {
+        throw NotFullySpecifiedException(
+            "pending tasks need narrowing:\n${pending.joinToString("\n")}"
+        )
       }
       throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
     }
@@ -586,7 +588,7 @@ internal class AgentImpl(
         else cleanupComponentsAt(workOver) > 0
     if (cleanupLeft) {
       throw DeadEndException(
-          "components requiring cleanup remained after the operation: " +
+          "components requiring cleanup remained after this call: " +
               reader.getComponents(MUST_CLEAN_UP.expression).elements
       )
     }

@@ -118,7 +118,7 @@ internal class TransactionTrialIsolationTest {
     val task = agent.addTasks("CityTile<Tharsis_1_1>!").single()
 
     engine.selectTask(task)
-    world.tasks.getTaskData(task).instruction.isAbstract(world.reader) shouldBe true
+    world.tasks.getTaskData(task).instruction.needsNarrowing(world.reader) shouldBe true
     engine.doTask(parse<InstructionTree>("CityTile<Player1, Tharsis_1_1>!"), taskId = task)
 
     agent.count("NormalCityTile<Tharsis_1_1>") shouldBe 1

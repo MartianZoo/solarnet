@@ -111,7 +111,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val suppliedRemoval = removal as Remove
     val matchingVariableCosts =
         task.descendantsOfType<Remove>().filter {
-          it.scaledEx.scalar.abstract &&
+          it.scaledEx.scalar.needsNarrowing &&
               suppliedRemoval.scaledEx.expression.className == it.scaledEx.expression.className
         }
     val variableCost = matchingVariableCosts.singleOrNull() ?: return removal

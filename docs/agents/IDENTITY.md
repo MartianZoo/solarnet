@@ -10,7 +10,7 @@
 
 ## Source map
 
-- [`Actor.kt`](../../src/common/dev/martianzoo/state/Actor.kt): operation identities.
+- [`Actor.kt`](../../src/common/dev/martianzoo/state/Actor.kt): Actor identities.
 - [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): current `assignee` and `selected`.
 - [`PendingTask.kt`](../../src/common/dev/martianzoo/engine/PendingTask.kt): trigger-time routing;
   search for `fromEffect`.
@@ -29,12 +29,10 @@ Keep these roles independent:
   instruction entered the engine.
 - **Current assignee:** the Actor through whose Agent the task may now be selected, narrowed, or
   executed.
-- **Executing Actor:** the Actor attributed to the concrete change and recorded on its
-  `ChangeEvent`.
-
 A Task stores only its current `assignee` as an Actor identity. That Actor supplies remaining
-choices and performs the concrete instruction. `SOON Actor { body }` explicitly admits new work to
-another Actor; `BY Actor` hands concrete execution to its named Actor.
+choices and performs the closed instruction; the resulting `ChangeEvent` records that Actor.
+`SOON Actor { body }` explicitly admits new work to
+another Actor; `BY Actor` transfers a task to its named Actor once it needs no further narrowing.
 
 ## Who is on-turn, and who decides
 
@@ -45,7 +43,7 @@ accepted action's payment, effects, delegated responses, and cleanup. Passing, d
 optional second action, and decisions outside an action do not create a scope. This replaces the
 proposed separate `OnTurn` fact; do not maintain another active-player representation. Offers
 remain addressed to their recipients while no scope exists. `Baton<Player>` records the longer
-table turn, including the interval between its two actions. It does not replace the scope's
+turn, including the interval between its two actions. It does not replace the scope's
 active-action identity or change task routing, and it is absent during setup and research.
 
 **Current routing through NOW/SOON.** During an action, the active
@@ -59,12 +57,12 @@ scope component or per-task recipient field. The owner reaffirmed this game rule
 
 Initial-research discards and Supercapacitors' production choice need no turn of their own. Icy
 Impactors, Philares, Neptunian Power Consultants, St. Joseph of Cupertino Mission, and the colony
-responses likewise do not grant their recipients turns: they resolve within the existing turn,
+responses likewise do not grant their recipients turns: they are handled within the existing turn,
 or outside all turns when none is active. Pristar's production effect illustrates that doing work
 for a player does not even require a decision, much less an on-turn player. Outside turns, retain
 the appropriate recipients rather than inventing an on-turn player.
 
-## Required active-Player handoff
+## Required task handoff during an active Player's turn
 
 Acceptance checklist for another Player's task during an active action:
 
@@ -72,12 +70,12 @@ Acceptance checklist for another Player's task during an active action:
   Agent. The active Player can perform other eligible work and choose when to offer this task.
 - The active Player cannot supply the owner's resource, target, amount, or optional acceptance.
   Task IDs, string requests, and TaskForm submission must all preserve that restriction.
-  Identifying a fixed payment by its already-determined amount is not choosing an amount: retain
+  Identifying a fixed payment by its already-calculated amount is not choosing an amount: retain
   unique calculated matching without requiring callers to copy the pending metric expression.
 - Handing over a task leaves it selected. Other tasks cannot interrupt before the receiving Player
   takes the current step. Narrowing alone does not execute that step.
-- The owner executes through their own Agent, including already-concrete rewards. A printed BY
-  can still distinguish the chooser from the final performer, as Icy Impactors requires.
+- The owner executes through their own Agent, including rewards that need no further narrowing. A printed BY
+  can still distinguish the chooser from the Actor recorded on the final change, as Icy Impactors requires.
 - Newly queued reactions and continuations return to the active Player for ordering when the
   action is still open. The restored historical tests retain the repeated handoffs between Pluto
   draws/discards and Neptunian payment/rewards; they do not demand a lock across an entire action.
@@ -125,7 +123,7 @@ These were the alternatives compared before the owner selected option 2 using NO
 All three require a game-neutral way for the engine to obtain the game's existing active-action
 identity. Reading the concrete TFM class ActionScope directly in generic engine code is not the
 solution. Nor is treating the most recent executing Player as active: Kim's response must not
-replace Stan's ordering authority. Repeated Pluto bonuses also require resolving when the
+replace Stan's ordering authority. Repeated Pluto bonuses also require deciding when the
 lock-protected sequence starts; assigning its final draw correctly is insufficient. The restored
 historical scenarios check the draw/discard handoffs and per-owner exclusion. The focused Pluto
 scenario now also checks no lock before the start, a held lock after the draw, rejection and rollback
@@ -141,14 +139,14 @@ checks, and Opus/high review passed; see the October 30 implementation results.
 ## Admin and engine
 
 `Admin` is the non-Player Actor and Component that performs neutral table activity. Admin may
-control, receive, select, and narrow tasks. Its scheduling and requirement for a unique concrete
+receive, select, and narrow tasks. Its scheduling and requirement for a unique
 instruction are defined in [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md).
 
 Kotlin `Engine` is different: it validates an Actor mutation and calculates the resulting state
-transition. It is not an Actor, Component, assignee, narrower, or event performer.
+transition. It is not an Actor, Component, assignee, narrower, or change-event Actor.
 
 An Actor's Agent binds normal client calls to that Actor and presents a filtered view of the global
-task pool. If a request arrives through FooPlayer's Agent for work currently assigned to FooPlayer,
+task queue. If a request arrives through FooPlayer's Agent for work currently assigned to FooPlayer,
 that establishes the Actor for the calculation. Solarnet does not authenticate the caller or demand
 proof that FooPlayer's human or bot approved it. The same program may use every Actor's Agent.
 Lower-level engine mutation also remains available for exploration, replay, and correction.
@@ -169,12 +167,12 @@ A queued effect is assigned to the effect component's Player owner, then the cha
 Player owner, then the triggering Actor. Automatic effects use the effect owner or triggering Actor;
 their instructions execute inline. A `System` gain or pure removal itself executes as Admin.
 Consequences are assigned from their own effect context and event, rather than a remembered
-operation Actor. An author can use `SOON Actor { body }` to give subsequent choices explicitly to
+initiating Actor. An author can use `SOON Actor { body }` to give subsequent choices explicitly to
 an Actor when those sources do not identify the intended recipient.
 
-Instruction-side `BY` remains in an abstract task until its Actor becomes concrete. It then changes
+Instruction-side `BY` remains in an open task until its Actor needs no further narrowing. It then changes
 the current assignee and is removed from the executable instruction. That Actor's engine must
-perform the change. Automatic effects have no task to hand off, so they cannot use instruction-side
+perform the change. Automatic effects have no task whose assignee could transfer, so they cannot use instruction-side
 `BY`.
 
 A `ChangeEvent` records the Actor that performed the change. Trigger-side `BY` inspects only
@@ -186,28 +184,28 @@ its owner dependency to select whose components match.
 
 ## Task assignment and delegation
 
-A manually added task starts assigned to its gameplay Actor; during a TaskScope, another Player's
+A directly admitted task starts assigned to its gameplay Actor; during a TaskScope, another Player's
 ordinary task is wrapped for the scope owner to schedule. Queued effects use the ownership and
 event routing described above. Executing `SOON Blue { Choice }` completes that dispatch
-instruction and admits `Choice` as an unresolved task for Blue.
+instruction and admits `Choice` as an open task for Blue.
 
-A normalized concrete task that gains or removes a `System` type, including changes scaled by `/` or
-wrapped in instruction-side `BY`, begins assigned to Admin. Abstract targets, amounts, and optional
-gains or removals remain with the current Actor until narrowed; contextual selection reapplies the
+A normalized task with a gain or removal of a `System` type needing no further narrowing, including changes scaled by `/` or
+wrapped in instruction-side `BY`, begins assigned to Admin. Targets, amounts, and optional
+gains or removals still needing narrowing remain with the current Actor; contextual selection reapplies the
 assignment rule. Transmutations use the gained type for this classification after any abstract
-source is selected. Gated concrete System changes also belong to Admin; their gates still have to
-be satisfied before execution. A concrete `BY` remains
-authoritative: naming a non-Admin performer for a gain reaches the existing `System` creation guard
+source is selected. Gated System changes with concrete Types also belong to Admin; their gates still have to
+be satisfied before execution. A `BY` naming an Actor without further narrowing remains
+authoritative: naming a non-Admin Actor for a gain reaches the existing `System` creation guard
 and fails. Admin assignment does not determine whether the component is presented as `Iconic`.
 
-A concrete non-System gain explicitly `BY Admin` also begins assigned to Admin. This moves the
+A non-System gain explicitly `BY Admin` that needs no narrowing also begins assigned to Admin. This moves the
 assignment earlier; `BY` is still removed when Admin selects the task, and any continuation keeps
-the usual `BY` scope. Abstract gains remain with the current Actor until narrowed.
+the usual `BY` scope. Gains still needing narrowing remain with the current Actor.
 
 When System assignment changes a task's assignee and it has a `THEN` continuation, the engine encodes
 the former assignee in an internal `SOON Actor { ... }` continuation. For a selected NOW prefix,
 a single next step instead returns through NOW and stays selected. Admin completes the System
-change and dispatches the remaining work back to that Actor. Each later concrete System step
+change and dispatches the remaining work back to that Actor. Each later System step needing no narrowing
 follows the same rule.
 
 Use `System` for neutral table bookkeeping rather than a Player's game action. Fixed gains and
@@ -215,14 +213,14 @@ concrete removals must themselves be safe for eager Admin execution. A following
 returns to the prior assignee without an authored dispatch. An authored `SOON Actor { ... }` can
 dispatch work to a different recipient. This classification is
 independent of `Iconic`, which controls presentation, and `::`, which preserves an invariant within
-the initiating operation.
+the initiating change cascade.
 
 Played-event cleanup, card-purchase, requirement, global-parameter-status, solo-countdown, and
 dominance bookkeeping use `System` for their concrete changes.
 
 `RequiredAction` is also `System`: Admin creates and removes the pending corporation-action
 marker. Its Player owner still chooses `DoRequiredActions`, which remains non-System.
-`PlayCard` and `UseAction` are System signals: the Player supplies unresolved choices, and Admin
+`PlayCard` and `UseAction` are System signals: the Player supplies choices, and Admin
 executes the concrete dispatch.
 
 ### Deferred System classifications
@@ -231,19 +229,19 @@ executes the concrete dispatch.
 internal task and commit a form just to choose the required action. Revisit it only if that choice
 can remain a natural standard-action call.
 
-Selecting a task resolves it and marks it selected. Its assignee supplies any remaining choices.
+Selecting a task evaluates it and marks it selected. Its assignee supplies any remaining choices.
 The global select lock blocks competing work until this selected task completes.
 
-If selection or narrowing makes a top-level `BY` concrete, the engine removes the wrapper, assigns
-the named Actor, and stops again at the handoff. The final assignee performs the stripped
+If selection or narrowing determines a top-level `BY`, the engine removes the wrapper, assigns
+the named Actor, and stops again at the assignee transfer. The final assignee performs the stripped
 instruction.
 
-If resolution exposes independent children, execution completes the selected task and admits them as
+If evaluation exposes independent children, execution completes the selected task and admits them as
 unselected work for its assignee. `THEN` continuations normally go to the finishing task's
-assignee; a System handoff has already encoded a return to the preceding assignee. An authored
+assignee; a System assignee transfer has already encoded a return to the preceding assignee. An authored
 `SOON Actor { ... }` gives the admitted work a different recipient. The lock
 ends with the selected task; it does not cover later payment. See
-[`SEQUENCING.md`](SEQUENCING.md#the-missing-rule-when-an-operation-is-over).
+[`SEQUENCING.md`](SEQUENCING.md#the-missing-rule-when-initiated-work-has-finished).
 
 Philares routes its reward to the card owner through effect ownership. Icy Impactors assigns the
 area choice to the Start Token owner through its effect context, then uses instruction-side `BY`

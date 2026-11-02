@@ -3,15 +3,14 @@
 Language, type, catalog, and Canon terms. Live execution and task terms are in the
 [Solarnet glossary](../../docs/glossary.md).
 
-- **abstract instruction:** An instruction that is not yet executable because it still requires an externally supplied choice. Examples include a live `OR`, a change instruction involving an abstract type, and an optional quantity. An unresolved metric or gate is not by itself abstract, because resolution rather than narrowing determines it.
 - **abstract type:** A type that is not fully specified. It can be counted or queried but cannot be the exact type of a Component gained or removed. Antonym: concrete type.
-- **action:** A Pets element, written with `->`, that combines an optional cost with an instruction and usually belongs to a card or `StandardProject`.
+- **action (authored):** A Pets element, written with `->` and shown as a red-arrow action, that combines an optional cost with an instruction and usually belongs to a card or `StandardProject`. Using it may take place within a game-flow [action](../../docs/glossary.md); it does not necessarily start a new action of that kind.
 - **Actor:** An entity whose agent can perform a state change. A change event records the Actor whose engine executed it. A game with N Players also has the administrative Admin Actor.
 - **Admin:** The non-Player Actor and Component that performs neutral table activity. Admin may receive, select, and narrow ordinary tasks, including real choices made by an installed policy.
-- **AMAP:** The `*` quantifier, meaning “as much as possible.” Resolution caps the requested amount by current invariant bounds and source availability, clamps negative capacity to zero, and makes that amount mandatory.
+- **AMAP:** The `*` quantifier, meaning “as much as possible.” Evaluation caps the requested amount by current invariant bounds and source availability, clamps negative capacity to zero, and makes that amount mandatory.
 - **Anyone:** The ordinary common supertype of `Owner` and `Actor`. `<Anyone>` accepts every eligible owner through the dependency’s bound; trigger-side `BY Anyone` accepts every Actor, including Admin.
 - **atomize:** To split one counted instruction into one instruction per unit so that each unit is handled and triggers effects separately. For example, `3 TemperatureStep` is atomized, while `3 Plant` is not. Unrelated to atomicity, which is about indivisibility.
-- **automatic effect:** An effect written with `::`. Its triggered instruction executes inline instead of becoming a queued task, so its instruction cannot request a task handoff with instruction-side `BY`. Antonym: queued effect.
+- **automatic effect:** An effect written with `::`. Its triggered instruction executes inline instead of becoming a queued task, so instruction-side `BY` cannot transfer its assignee. Antonym: queued effect.
 - **BootstrapPhase:** The first Terraforming Mars `Phase`, created by Admin before the generated `Premise`. Its presence names the initialization interval in which Modules, Players, and their minimum runtime machinery are established. `SetupPhase FROM Phase` transmutes it away to begin effectful game setup.
 - **bundle:** An internal grouping of catalog declarations, structured data, and metadata for file ownership, provenance, distribution, and loading. Its short lowercase name matches its resource directory, independently of any game Class it declares. A bundle may provide Modules, Content, or both. A configuration can request its compatible cards with a `name:cards` selector, without selecting the bundle itself as a game Class.
 - **Canon:** The catalog implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data bundles.
@@ -25,6 +24,7 @@ Language, type, catalog, and Canon terms. Live execution and task terms are in t
 - **class header:** The class name, declared supertypes, and newly introduced dependencies, excluding body elements such as defaults, invariants, and effects.
 - **class literal:** A type such as `Class<Steel>` that denotes the class `Steel` without depending on a `Steel` Component; its angle-bracketed argument is represented data, not a dependency target.
 - **class name:** A class's sole stable engine identity within one compatible class table. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer`. A premise-local name cannot replace a master name.
+- **closed instruction:** During task preparation, an instruction that needs neither further game-state evaluation nor elective narrowing for its immediate work. Work carried inside braces or as quoted content does not keep its containing instruction open merely because that work will need evaluation or choices when handled later. `EACH` and `NOW`, `SOON`, `LATER`, or `FINALLY` are current brace-delimited examples. Enumerating `EACH` targets happens during execution. A closed instruction may still fail when executed. Antonym: open instruction; [closed task](../../docs/glossary.md) describes the containing task.
 - **class table:** An immutable set of mutually compatible Classes that resolves expressions into Types. A Catalog has one reusable master class table; each game view combines it with its premise class table and premise-selected declaration closure.
 - **Component:** One immutable occurrence of a concrete type in a game world. Components have no identity or fields beyond their type, so occurrences of the same type differ only by multiplicity.
 - **component effect:** A class effect specialized for one concrete type by binding inherited dependencies and contextual placeholders. It does not yet include the fact that a corresponding Component currently exists.
@@ -43,7 +43,7 @@ Language, type, catalog, and Canon terms. Live execution and task terms are in t
 - **dependency key:** The internal stable identity of a dependency: its declaring class plus its declaration ordinal.
 - **dependency path:** An ordered sequence of dependency keys locating a direct or nested dependency within a type. For example, it can identify either a card's Owner dependency or a dependency inside the card type used as a resource holder.
 - **Die:** A concrete, final Type with the invariant `HAS MAX 0 This`. A mandatory gain is a dead
-  end; a nonmandatory gain can resolve to no change.
+  end; a nonmandatory gain can evaluate to no change.
 - **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
 - **direct effect:** A card's instructions performed when it enters play, authored in card data as `direct` and normally expressed in Pets with `This:`. The term describes card behavior; it does not specify automatic (`::`) versus queued (`:`) dispatch.
 - **display name:** The locale-specific natural-language name used for UI text, such as a printed card title. It need not be a valid or stable Pets identifier.
@@ -58,8 +58,8 @@ Language, type, catalog, and Canon terms. Live execution and task terms are in t
 - **gated instruction:** An instruction guarded by a requirement, such as `TrWasRaised: -3 THEN TerraformRating`. An unsatisfied gate does not mean “do nothing”; it makes that task uncompletable unless its quantifier or enclosing choice permits another result.
 - **Iconic:** A type for a player-facing component suitable for representation by an icon. An ordinary event log includes a change when at least one side is `Iconic`; full history also contains changes to other types. This classification does not control corrections or whether information is secret from players.
 - **instruction:** A Pets specification of work that may change a game world.
-- **invariant:** A class-declared requirement. Component-count invariants must hold at [operation completion](type-system.md#invariants-and-operation-completion); positive exact counts of concrete dependent parts also construct those parts when their owner is gained. Selected Module requirements also participate in premise validation.
-- **limit:** A counting invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. Limits constrain completed operations and also bound AMAP and optional quantities in the current World.
+- **invariant:** A class-declared requirement. Component-count invariants must hold after each [immediate change cascade](type-system.md#invariants-after-an-immediate-change-cascade); positive exact counts of concrete dependent parts also construct those parts when their owner is gained. Selected Module requirements also participate in premise validation.
+- **limit:** A counting invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. Limits constrain completed immediate change cascades and also bound AMAP and optional quantities in the current World.
 - **master class table:** The complete immutable class model compiled once from a catalog's reusable declarations. A game reuses its classes and types rather than compiling them again.
 - **metric:** A Pets expression that computes a nonnegative integer from a game world.
 - **compact form:** A round-tripping Type expression with no individually removable argument. It omits declared bounds except where needed to protect greedy argument matching, then removes redundancies proved by Type resolution, including dependency equalities.
@@ -67,7 +67,9 @@ Language, type, catalog, and Canon terms. Live execution and task terms are in t
 - **multi-instruction:** An instruction containing two or more comma-separated, unordered child instructions. It is split into separate tasks because one task cannot contain a multi-instruction.
 - **multi-requirement:** A requirement containing two or more child requirements combined as logical “and.”
 - **narrowing:** Replacing an expression, type, instruction, or selected task with a valid more specific form. For types, nominal subtyping is a static relation, while `narrows` is a contextual validity relation that can also account for refinements and linked variables.
+- **needs narrowing:** An instruction-tree check for an unfixed `OR`, target, amount, or other narrowing slot. The engine may infer a unique value for such a slot. This syntactic question is distinct from whether the current task is [open](../../docs/glossary.md): evaluation can remain without a narrowing slot, and carried work inside braces or quotes can contain slots while its parent instruction is closed.
 - **Ok:** A Signal whose gain is the standard do-nothing instruction. It always succeeds, leaves no observable state behind, and cannot trigger anything.
+- **open instruction:** During task preparation, an instruction that still needs game-state evaluation, elective narrowing, or both before it closes. A gate or metric awaiting evaluation keeps it open even when no Player choice remains. Antonym: closed instruction; [open task](../../docs/glossary.md) describes the containing task.
 - **Owner:** An identity that can own Components, including `Player`, `SoloOpponent`, and `Neutral`. The inherited `Me@Owner` variable on `Owned` names a particular owner.
 - **Owned:** The root class for Components whose type carries an ownership dependency.
 - **per:**
@@ -75,7 +77,7 @@ Language, type, catalog, and Canon terms. Live execution and task terms are in t
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **premise class table:** The small declaration delta owned by one game premise, including generated Players, the generated `Premise`, and ad-hoc test declarations. It imports one master class table; the master cannot refer back to it, and its names cannot collide with master names.
 - **premise selection:** The configuration-resolution process that chooses Modules and signed Class selections, then follows reachable selection edges to form one game's included Class closure. The resulting authority is the game class-table view. Use the qualifier when needed to distinguish this construction policy from selecting a pending task.
-- **production box:** Terraforming Mars-specific `PROD[...]` notation that preprocessing lowers into production-Component operations.
+- **production box:** Terraforming Mars-specific `PROD[...]` notation that preprocessing lowers into production-Component changes.
 - **quantifier:** The policy on a change instruction: mandatory (`!`), optional (`?`), or AMAP (`*`).
 - **queued effect:** An effect written with `:`. Its triggered instruction becomes a task instead of executing inline. Antonym: automatic effect.
 - **refinement:** A conjunction of `HAS` world requirements and `NOT` structural exclusions attached to an expression to restrict the matching Types or Components.
@@ -91,7 +93,7 @@ Language, type, catalog, and Canon terms. Live execution and task terms are in t
 - **sequential instruction:**
 - **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, and gives each Player the generic card counts and setup choices selected by the active modules.
 - **Signal:** An unscoped point event that leaves no persistent component state.
-- **singleton type:** A concrete type constrained to exactly one occurrence at operation completion by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
+- **singleton type:** A concrete type constrained to exactly one occurrence after an immediate change cascade by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no tasks or turns.
 - **source effect:** An effect as authored in `.pets` or generated from structured content data, before class-level inheritance and transformation.
 - **structured content data:** Transitional category-specific card or map data used to generate class declarations and retain metadata not yet authored in Pets. It is not a common engine representation.
