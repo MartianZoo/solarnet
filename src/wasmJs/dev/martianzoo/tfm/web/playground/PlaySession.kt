@@ -769,10 +769,14 @@ internal constructor(
     val available = tracker.hand(player, choice.back, choice.source).mapTo(linkedSetOf()) { "$it" }
     val chosen = chosenCards.mapTo(linkedSetOf()) { "$it" }
     val count = chosen.size
+    val keeping = choice.source == SELECTING && !choice.drawing
     var incompleteSearch = false
     val floor = choice.required ?: if (choice.maximum != null) 0 else 1
     val ceiling = choice.required ?: choice.maximum ?: available.size
-    fun allowedSize(size: Int) = size in floor..minOf(ceiling, available.size)
+    fun movedCount(size: Int) = if (keeping) available.size - size else size
+    fun allowedSize(size: Int) = movedCount(size) in floor..minOf(ceiling, available.size)
+    val firstSize = if (keeping) (available.size - ceiling).coerceAtLeast(0) else floor
+    val lastSize = if (keeping) available.size - floor else minOf(ceiling, available.size)
     // The search keeps cards anonymous, so only how many cards move can matter to completion;
     // which cards is the Player's choice. A size is proved impossible only by the search.
     val verdicts = mutableMapOf<Int, DecisionSearch.Verdict?>()
@@ -782,16 +786,17 @@ internal constructor(
             val form = it[player].fillInTask(task.id)
             form.decisions().singleOrNull()?.let { decision ->
               require(decision.kind == Decision.Kind.AMOUNT)
-              form.choose(decision, if (size == 0) "Ok" else size.toString())
+              val moved = movedCount(size)
+              form.choose(decision, if (moved == 0) "Ok" else moved.toString())
             }
             form.commit()
           }
         }
-    val sizes = floor..minOf(ceiling, available.size)
+    val sizes = firstSize..lastSize
     /** The best verdict among allowed sizes of at least [size]. */
     fun reachable(size: Int): DecisionSearch.Verdict? {
       if (search() == null) return null
-      val found = (maxOf(size, floor)..sizes.last).map(::verdict)
+      val found = (maxOf(size, firstSize)..sizes.last).map(::verdict)
       return when {
         COMPLETES in found -> COMPLETES
         found.any { it != DEAD_END } -> UNKNOWN
@@ -802,7 +807,7 @@ internal constructor(
         if (chosen.all { it in available } && allowedSize(count)) verdict(count) else DEAD_END
     if (confirmVerdict == UNKNOWN) incompleteSearch = true
     val canConfirm = confirmVerdict != DEAD_END
-    val more = if (count < ceiling) reachable(count + 1) else DEAD_END
+    val more = if (count < lastSize) reachable(count + 1) else DEAD_END
     if (more == UNKNOWN) incompleteSearch = true
     val selectable = available.filterTo(linkedSetOf()) { it in chosen || more != DEAD_END }
     val unproven =
@@ -821,8 +826,8 @@ internal constructor(
           }
     }
     return Prompt(
-        if (choice.drawing) "Choose cards to draw" else "Choose cards to discard",
-        "Task ${task.id.ordinal} (${task.assignee}): ${task.instruction}. Select cards in ${choice.source}, then confirm here.",
+        if (choice.source == SELECTING) "Choose cards to keep" else "Choose cards to discard",
+        "Task ${task.id.ordinal} (${task.assignee}): ${task.instruction}. Select cards in ${choice.source} to ${if (choice.source == SELECTING) "keep" else "discard"}, then confirm here.",
         retreat = if (chosen.isNotEmpty()) "CLEAR SELECTION" else "CANCEL CARD CHOICE",
         cards =
             Prompt.Cards(
@@ -853,7 +858,10 @@ internal constructor(
     val task = world.tasks.getTaskData(taskId)
     val choice = cardChoice(task) ?: return
     if (!cardPrompt(task, choice).cards!!.canConfirm) return
-    val names = chosenCards.toList()
+    val names =
+        if (choice.source == SELECTING && !choice.drawing)
+            tracker.hand(player, choice.back, choice.source).filterNot { it in chosenCards }
+        else chosenCards.toList()
     val form = formFor(task)
     try {
       form.decisions().singleOrNull()?.let { decision ->

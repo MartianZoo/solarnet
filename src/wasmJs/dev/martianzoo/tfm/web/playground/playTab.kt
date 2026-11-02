@@ -70,13 +70,13 @@ internal fun PlayTab(recording: RecordingStore, useIcons: Boolean) {
     recording.problem?.let { Text(it, style = palette.mono.copy(color = palette.mars)) }
     prompt.cards?.let { cards ->
       Text(
-          "${cards.chosen.size} selected${if (cards.drawing) " to draw" else " to discard"}",
+          "${cards.chosen.size} selected to ${if (cards.fromHand) "discard" else "keep"}",
           style = palette.label,
       )
       if (prompt.enabled && cards.canConfirm) {
         OutlinedAction(
-            "${if (cards.confirmUnproven) "* " else ""}CONFIRM ${if (cards.drawing) "DRAW" else "DISCARD"} (${cards.chosen.size})",
-            if (cards.drawing) Color(0xFF4DAA67) else palette.mars,
+            "${if (cards.confirmUnproven) "* " else ""}CONFIRM ${if (cards.fromHand) "DISCARD" else "KEEP"} (${cards.chosen.size})",
+            if (cards.fromHand) palette.mars else Color(0xFF4DAA67),
             { runPlayAction(recording::confirmCards) },
         )
       }

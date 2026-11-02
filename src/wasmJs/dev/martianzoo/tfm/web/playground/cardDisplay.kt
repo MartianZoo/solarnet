@@ -162,7 +162,7 @@ private fun HandRow(
                   width,
                   selectedColor =
                       if (cards?.fromHand == false && name in cards.chosen) {
-                        if (cards?.drawing == true) Color(0xFF4DAA67) else Color(0xFFC54B4B)
+                        Color(0xFF4DAA67)
                       } else null,
                   onSelect =
                       if (cards?.fromHand == false && name in cards.available)

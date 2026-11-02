@@ -255,22 +255,23 @@ internal class PlaySessionTest {
   }
 
   @Test
-  fun selectingDiscardsUseTheClickedCardsAndTheirCount() {
+  fun selectingRemovalUsesTheCardsNotKept() {
     val session = session()
     session.agents[session.player].autoExecPolicy = AutoExecPolicy.NONE
     val before = session.held(cn("Selecting"))
     val task = session.agents[session.player].addTasks("-3? ProjectCard<Selecting>").single()
 
     session.choose(session.prompt().options.single { it.taskId == task })
+    assertEquals("Choose cards to keep", session.prompt().heading)
     assertEquals(false, session.prompt().cards?.drawing)
-    val chosen = session.prompt().cards!!.available.take(2)
-    chosen.forEach(session::toggleCard)
-    assertEquals(chosen.toSet(), session.prompt().cards?.chosen)
+    val kept = before.dropLast(2)
+    kept.forEach(session::toggleCard)
+    assertEquals(kept.toSet(), session.prompt().cards?.chosen)
     assertTrue(session.prompt().cards?.canConfirm == true)
     session.confirmCards()
 
     assertNull(session.problem)
-    assertEquals(before.filterNot { it in chosen }, session.held(cn("Selecting")))
+    assertEquals(kept, session.held(cn("Selecting")))
   }
 
   @Test
@@ -281,6 +282,8 @@ internal class PlaySessionTest {
     val task = session.agents[session.player].addTasks("-3? ProjectCard<Selecting>").single()
 
     session.choose(session.prompt().options.single { it.taskId == task })
+    assertEquals(false, session.prompt().cards?.canConfirm)
+    before.forEach(session::toggleCard)
     assertTrue(session.prompt().cards?.canConfirm == true)
     session.confirmCards()
 
@@ -298,6 +301,7 @@ internal class PlaySessionTest {
     session.choose(session.prompt().options.single { it.taskId == task })
     val cards = session.prompt().cards!!
     assertTrue(cards.fromHand)
+    assertEquals("Choose cards to discard", session.prompt().heading)
     val chosen = cards.available.first()
     session.toggleCard(chosen)
     session.confirmCards()
@@ -321,6 +325,7 @@ internal class PlaySessionTest {
     assertEquals(selecting, session.held(cn("Selecting")))
     assertEquals(hand, session.held(cn("Hand")))
     assertEquals(true, session.prompt().cards?.drawing)
+    assertEquals("Choose cards to keep", session.prompt().heading)
     val chosen = session.prompt().cards!!.available.take(2)
     session.toggleCard(chosen.first())
     assertEquals(false, session.prompt().cards?.canConfirm)
@@ -368,8 +373,8 @@ internal class PlaySessionTest {
     val cards = session.held(cn("Selecting"))
     session.choose(session.prompt().options.single { it.taskId == task })
     assertEquals("CANCEL CARD CHOICE", session.prompt().retreat)
-    val chosen = session.prompt().cards!!.available.first()
-    session.toggleCard(chosen)
+    val kept = cards.dropLast(1)
+    kept.forEach(session::toggleCard)
     assertEquals("CLEAR SELECTION", session.prompt().retreat)
 
     session.retreat()
@@ -378,10 +383,10 @@ internal class PlaySessionTest {
     assertEquals(before, session.world.timeline.checkpoint())
     assertEquals(cards, session.held(cn("Selecting")))
     session.choose(session.prompt().options.single { it.taskId == task })
-    session.toggleCard(chosen)
+    kept.forEach(session::toggleCard)
     session.confirmCards()
     assertNull(session.problem)
-    assertEquals(cards.filterNot { it == chosen }, session.held(cn("Selecting")))
+    assertEquals(kept, session.held(cn("Selecting")))
   }
 
   @Test
@@ -509,7 +514,7 @@ internal class PlaySessionTest {
     session.setSafeAutoexec(true)
     session.choose(session.prompt().options.single { "CorporationCard" in it.label })
     session.choose(session.prompt().options.first())
-    session.held(cn("Selecting")).drop(2).forEach(session::toggleCard)
+    session.held(cn("Selecting")).take(2).forEach(session::toggleCard)
     session.confirmCards()
     val held = session.held(cn("Hand"))
     val card = held.first()
@@ -550,7 +555,7 @@ internal class PlaySessionTest {
     session.setSafeAutoexec(true)
     session.choose(session.prompt().options.single { "CorporationCard" in it.label })
     session.choose(session.prompt().options.first())
-    session.held(cn("Selecting")).filterNot { it == "Birds" }.forEach(session::toggleCard)
+    session.toggleCard("Birds")
     session.confirmCards()
 
     assertFalse(session.projectCardAvailable("Birds"))
@@ -579,7 +584,7 @@ internal class PlaySessionTest {
     session.choose(session.prompt().options.single { "CorporationCard" in it.label })
     session.choose(session.prompt().options.first())
     assertTrue("NuclearPower" in session.held(cn("Selecting")))
-    session.held(cn("Selecting")).filterNot { it == "NuclearPower" }.forEach(session::toggleCard)
+    session.toggleCard("NuclearPower")
     session.confirmCards()
     session.agents[session.player].sneak("100 MC, 20 Steel")
     val searchTrace = mutableListOf<String>()

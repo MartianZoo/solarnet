@@ -28,7 +28,9 @@ to concrete `CardFront` classes with the matching back in the catalog. A source 
 even when that card is excluded from this game's playable pool. An operation with missing names
 rolls back; automatic execution can leave the affected card task pending for the client. The
 Playground supplies names from tracked Selecting cards when Admin clears the leftovers after an
-action or research. The Player still names cards for a choice to discard or keep.
+action or research. The Player still names cards for a choice to discard or keep. In the Playground, selected cards
+in `Selecting` are the cards to keep; a direct removal names the unselected cards instead. Selected
+cards in `Hand` are the cards to discard.
 Unused supplied names may be replaced after a failed operation without changing names used by
 surviving events.
 
