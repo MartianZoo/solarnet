@@ -1285,10 +1285,14 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 3:42:07 PM — Blue: "Oh yeah, and for money. I didn't even think about that. And then, oh
       // yeah, minus an energy production plus three money productions."
       playProject(DomedCrater, 24) { placeTile(3, 7) }
+      // board-14-23-07.jpg shows a plant at 3-7 on the mat used in this game.
+      exMachina("Plant")
       // 3:42:19 PM — Blue: "And for my second action I'm going to convert my plants to a greenery."
       // 3:42:58 PM — Blue: "Three eight. Get in there. There we go. Three eight and I get two
       // plants. Okay. Oh, I should probably do... Yeah."
       convertPlants { placeTile(3, 8) }
+      // The same photograph shows two plants at 3-8.
+      exMachina("2 Plant")
     }
     // Blue's app has no 2 M€ Terraforming Deal response to this greenery's oxygen step:
     // entry 178 leaves 10 M€, and the 15:57 dashboard plus entry 188 production both leave
