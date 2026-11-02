@@ -56,10 +56,8 @@ internal class AiCentralTest : TfmSandboxTest() {
     kim.exMachina("$AiCentral, $InventorsGuild")
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(
-            "UseAction<UseActionOnCardAction, Action1>",
-            "UseAction<AiCentral, Action1> THEN ActionUsedMarker<InventorsGuild>",
-        )
+        doTask("UseAction<UseActionOnCardAction, Action1>")
+        selectTask("UseAction<AiCentral, Action1> THEN ActionUsedMarker<InventorsGuild>")
       }
     }
     kim.assertCounts(0 to "ActionUsedMarker")

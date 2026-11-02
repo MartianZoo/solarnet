@@ -134,7 +134,7 @@ internal class HellasPromoGameTest : FullGameTest() {
           *playCardTasks("$SearchForLife"),
           "3 Pay<> FROM MC",
           "$SearchForLife FROM ProjectCard",
-          "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating",
+          "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
           "3 TerraformRating",
       )
       doTasks(

@@ -86,7 +86,7 @@ internal constructor(
     private val instructor: Instructor,
     private val worldTransaction: WorldTransaction,
     private val transactions: Transactions,
-    private val trialWorld: () -> SpeculativeWorld,
+    private val trialWorld: () -> OverlayWorld,
 ) {
   private val allTasks: TaskQueue = gameWorld.tasks
 
@@ -826,7 +826,8 @@ internal constructor(
    *
    * A change assigned to another Actor stays selected without attempting that Actor's execution.
    * Later queued tasks remain pending. A failed transaction restores all changes made by this
-   * command.
+   * command. [narrowing] must describe one stage and cannot contain `THEN`; the first stage of a
+   * linked task can bind shared Type variables and X for its continuation.
    */
   public fun doTask(
       narrowing: InstructionTree,
@@ -836,6 +837,11 @@ internal constructor(
   ): Unit =
       transactions.perform(actor, CLIENT_REQUEST) {
         val evaluated = evaluatePer(narrowing)
+        if (narrowing.descendantsOfType<Then>().isNotEmpty()) {
+          throw TaskException(
+              "doTask accepts one stage at a time; submit each THEN stage separately"
+          )
+        }
         val id = matchingTask(evaluated, taskId, quantifierOmitted, contextClass)
         if (id == null) {
           throw TaskException(
@@ -943,7 +949,11 @@ internal constructor(
     }
     val typedZero = narrowing is Change && narrowing.count == ActualScalar(0)
     val effective =
-        effectiveNarrowing(narrowing, existing, quantifierOmitted, info, intersect = true)
+        try {
+          effectiveNarrowing(narrowing, existing, quantifierOmitted, info, intersect = true)
+        } catch (_: NarrowingException) {
+          return null
+        }
     effective.intersect(existing, reader.classTable, info)?.let {
       // A shared no-op does not establish that the submitted Type identifies this task.
       return it.takeUnless { typedZero && it == NoOp }
@@ -963,9 +973,46 @@ internal constructor(
       info: TypeInfo = reader,
       intersect: Boolean = false,
   ): InstructionTree {
-    // A complete sequence may omit its current step's gate, just as a standalone request may.
-    // Restore that condition before intersecting shared choices; the caller still supplies every
-    // stage and the normal evaluator checks the bound gate before execution.
+    // A first-stage request can identify a linked choice through OR and a satisfied gate.
+    if (existing is Or && narrowing !is Or && existing.descendantsOfType<Then>().isNotEmpty()) {
+      val matches =
+          existing.instructions.mapNotNull { choice ->
+            val candidate =
+                try {
+                  effectiveNarrowing(narrowing, choice, quantifierOmitted, info, intersect)
+                } catch (_: NarrowingException) {
+                  null
+                }
+            candidate?.takeIf { it.intersect(choice, reader.classTable, info) != null }
+          }
+      if (matches.size == 1) return matches.single()
+    }
+    if (
+        existing is Gated &&
+            narrowing !is Gated &&
+            existing.inner.descendantsOfType<Then>().isNotEmpty() &&
+            info.has(existing.gate)
+    ) {
+      val inner = effectiveNarrowing(narrowing, existing.inner, quantifierOmitted, info, intersect)
+      return Gated.createTree(existing.gate, inner)
+    }
+    if (existing is Then && narrowing !is Then) {
+      val head =
+          if (existing.first is Gated && narrowing !is Gated) {
+            val gate = existing.first as Gated
+            Gated.createTree(
+                gate.gate,
+                effectiveNarrowing(narrowing, gate.inner, quantifierOmitted, info, intersect),
+            )
+          } else {
+            effectiveNarrowing(narrowing, existing.first, quantifierOmitted, info, intersect)
+          }
+      if (head is Instruction) {
+        return existing.narrowFirst(head, info)
+      }
+    }
+    // Selection may still narrow a full linked sequence. Restore an omitted first-stage gate
+    // before intersecting shared choices; evaluation checks that gate before execution.
     if (
         narrowing is Then &&
             existing is Then &&

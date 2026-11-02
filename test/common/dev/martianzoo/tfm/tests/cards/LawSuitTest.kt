@@ -32,7 +32,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -55,7 +55,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("0 PlayedEvent<Kim, Class<$LawSuit>>, PlayedEvent<Stan, Class<$LawSuit>>")
   }
@@ -78,7 +78,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -102,7 +102,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -127,7 +127,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "LawSuit FROM ProjectCard",
               "3 MC",
           )
-          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("4 MC<Kim>, -3 MC<Stan>")
   }
@@ -151,7 +151,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -176,7 +176,7 @@ internal class LawSuitTest : TfmSandboxTest() {
             "2 Pay<> FROM MC",
             "LawSuit FROM ProjectCard",
         )
-        doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+        doTask("3 MC<Kim FROM Stan>")
       }
     }
     kim.assertCounts(36 to "MC", 9 to "ProjectCard")
@@ -204,7 +204,7 @@ internal class LawSuitTest : TfmSandboxTest() {
             "2 Pay<> FROM MC",
             "LawSuit FROM ProjectCard",
         )
-        doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+        doTask("3 MC<Kim FROM Stan>")
       }
     }
     kim.assertCounts(20 to "MC", 10 to "ProjectCard")
@@ -240,7 +240,7 @@ internal class LawSuitTest : TfmSandboxTest() {
             "2 Pay<> FROM MC",
             "LawSuit FROM ProjectCard",
         )
-        doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+        doTask("3 MC<Kim FROM Stan>")
       }
     }
     kim.assertCounts(42 to "MC", 10 to "ProjectCard")
@@ -274,7 +274,7 @@ internal class LawSuitTest : TfmSandboxTest() {
               "2 Pay<> FROM MC",
               "LawSuit FROM ProjectCard",
           )
-          doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("MC<Kim>, -3 MC<Stan>, 0 MC<Rob>")
   }
@@ -299,7 +299,7 @@ internal class LawSuitTest : TfmSandboxTest() {
             "LawSuit FROM ProjectCard",
         )
         // Stan attacked, but the omitted gate must still reject charging uninvolved Rob.
-        doTask("3 MC<Kim FROM Rob> THEN PlayedEvent<Rob, Class<LawSuit>> FROM LawSuit")
+        doTask("3 MC<Kim FROM Rob>")
       }
     }
     kim.assertCounts(42 to "MC", 10 to "ProjectCard")
@@ -324,7 +324,7 @@ internal class LawSuitTest : TfmSandboxTest() {
           "2 Pay<> FROM MC",
           "LawSuit FROM ProjectCard",
       )
-      doTask("3 MC<Kim FROM Stan> THEN PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit")
+      doTask("3 MC<Kim FROM Stan>")
     }
 
     // Energy Tapping and Law Suit each cost Stan a point.

@@ -431,7 +431,11 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 3:08:02 PM — Rainbow: "Um, get my two plants, get my ocean and"
       playProject(Flooding, 7) {
             // Blue does not have to spend a heat (couldn't if she wanted to)
-            doTask("OceanTile<Amazonis_05_10>! THEN -3 MC<Blue>")
+            doWithoutAutoExec(yellow) {
+              selectTask("OceanTile<Amazonis_05_10>! THEN -3 MC<Blue>")
+              doTask("OceanTile<Amazonis_05_10>!")
+              doTask("-3 MC<Blue>")
+            }
             blue.declineTask()
           }
           .expect("OceanTile, 2 Plant")
@@ -1903,7 +1907,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 9:17:24 PM — Yellow: "Okay. And I add a graphene."
       // The app never logs this four-steel payment. It therefore shows 4 steel both before this
       // play and after production; the replay additionally visits the evidenced intervening zero.
-      playProject(MarsUniversity, steel = 4) { doTask("-ProjectCard THEN ProjectCard") }
+      playProject(MarsUniversity, steel = 4) { doTask("-ProjectCard") }
           .expect("-4 Steel, Graphene<$CarbonNanosystems>")
     }
     rainbow.turn {
@@ -1950,7 +1954,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
                 pay(2)
               },
           ) {
-            doTask("-ProjectCard THEN ProjectCard")
+            doTask("-ProjectCard")
           }
           .expect("-2 MC")
       // Yellow's app posts -3 M€ for this otherwise fully narrated 2 M€ payment.

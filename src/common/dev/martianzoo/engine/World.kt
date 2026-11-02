@@ -3,7 +3,6 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
-import dev.martianzoo.state.ComponentGraph
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.TaskQueue
@@ -24,9 +23,6 @@ public interface World {
   /** Participating Actors: configured Players in seat order, followed by Admin. */
   public val actors: List<Actor>
     get() = reader.actors
-
-  /** Live component counts and dependencies; the returned graph is not a snapshot. */
-  public val components: ComponentGraph
 
   /**
    * Live event history, including component changes and task edits. Reading the history does not

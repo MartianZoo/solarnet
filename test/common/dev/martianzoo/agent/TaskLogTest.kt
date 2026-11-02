@@ -304,16 +304,21 @@ internal class TaskLogTest {
   @Test
   internal fun singleTaskExecutionPreservesImplicitExpansionAndContinuations() {
     val premise = testGamePremise("CLASS Rating : Atomized\nCLASS Coin\nCLASS Marker")
-    for (instruction in
-        listOf("2 Rating", "2 Coin THEN Marker", "MAX 0 Marker: 2 Rating", "Rating / 2")) {
+    for ((offered, submitted) in
+        listOf(
+            "2 Rating" to "2 Rating",
+            "2 Coin THEN Marker" to "2 Coin",
+            "MAX 0 Marker: 2 Rating" to "MAX 0 Marker: 2 Rating",
+            "Rating / 2" to "Rating / 2",
+        )) {
       fun newAgents(): Agents =
           Agents(Engine.newGame(premise)).also {
             it[PLAYER1].autoExecPolicy = NONE
-            it[PLAYER1].addTasks("($instruction) OR Marker")
+            it[PLAYER1].addTasks("($offered) OR Marker")
           }
       val source = newAgents()
       start(source)
-      source[PLAYER1].doTask(instruction)
+      source[PLAYER1].doTask(submitted)
 
       val imported = newAgents()
       replay(source, imported)

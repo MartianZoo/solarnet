@@ -102,10 +102,10 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTask("ProjectCard<Stan, Hand>")
       kim.count("PlutoLock") shouldBe 0
       // Stan chooses when Kim handles this colony task.
-      doTask("NOW Kim { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }")
+      doTask("NOW Kim { PlutoLock! }")
       kim.doTask("ProjectCard<Kim, Hand>")
       // Stan chooses when Kim handles this colony task.
-      doTask("NOW Kim { -ProjectCard THEN -PlutoLock! }")
+      doTask("NOW Kim { -ProjectCard }")
       kim.doTask("-ProjectCard<Kim, Hand>")
     }
 
@@ -151,30 +151,30 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           "2 ProjectCard",
       )
       // Stan chooses when Kim handles this colony task.
-      doTask("NOW Kim { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }")
+      doTask("NOW Kim { PlutoLock! }")
       kim.doTask("ProjectCard<Kim>")
       shouldThrow<TaskException> { doTask("ProjectCard<Kim>") }
       kim.count("ProjectCard") shouldBe 1
       kim.count("PlutoLock") shouldBe 1
       shouldThrow<NotNowException> {
-        doTask("NOW Kim { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }")
+        doTask("NOW Kim { PlutoLock! }")
       }
       kim.count("ProjectCard") shouldBe 1
       kim.count("PlutoLock") shouldBe 1
-      doTask("NOW Stan { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }")
+      doTask("NOW Stan { PlutoLock! }")
       doTask("ProjectCard<Stan>")
       stan.count("ProjectCard") shouldBe 3
       doTask("-ProjectCard<Stan>")
       // Stan chooses when Kim handles this colony task.
-      doTask("NOW Kim { -ProjectCard THEN -PlutoLock! }")
+      doTask("NOW Kim { -ProjectCard }")
       kim.doTask("-ProjectCard<Kim>")
       kim.count("PlutoLock") shouldBe 0
       // Stan chooses when Kim handles this colony task.
-      doTask("NOW Kim { PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock! }")
+      doTask("NOW Kim { PlutoLock! }")
       kim.doTask("ProjectCard<Kim>")
       kim.count("ProjectCard") shouldBe 1
       // Stan chooses when Kim handles this colony task.
-      doTask("NOW Kim { -ProjectCard THEN -PlutoLock! }")
+      doTask("NOW Kim { -ProjectCard }")
       kim.doTask("-ProjectCard<Kim>")
     }
 

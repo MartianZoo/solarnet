@@ -225,7 +225,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     kim.count("TerraformRating") shouldBe 63
     kim.completeOperation {
           doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
+          doTask("-12 MC")
           autoExecNow(EAGER)
           doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
           doTask("PlayCard<Class<CorporationCard>, Class<$Pristar>>")

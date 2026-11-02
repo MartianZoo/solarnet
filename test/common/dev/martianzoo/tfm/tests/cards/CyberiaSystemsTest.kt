@@ -23,7 +23,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
         "16 Pay<> FROM MC",
         "CyberiaSystems FROM ProjectCard",
         "PROD[Steel]",
-        "CopyProductionBox<Mine> THEN CopyProductionBox<CardFront>",
+        "CopyProductionBox<Mine>",
         "PROD[Steel]",
     )
     doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
@@ -46,7 +46,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
           doTask("BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
           doTasks(
-              "CopyProductionBox<ResearchNetwork> THEN CopyProductionBox<CardFront>",
+              "CopyProductionBox<ResearchNetwork>",
               "PROD[MC]",
               "CopyProductionBox<MedicalLab>",
               "PROD[1 MC]",
@@ -71,7 +71,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
           doTask("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
           doTasks(
-              "CopyProductionBox<Mine> THEN CopyProductionBox<CardFront>",
+              "CopyProductionBox<Mine>",
               "PROD[Steel]",
               "CopyProductionBox<Gyropolis>",
               "PROD[-2 Energy]",
@@ -96,7 +96,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           "16 Pay<> FROM MC",
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
-          "CopyProductionBox<Mine> THEN CopyProductionBox<CardFront>",
+          "CopyProductionBox<Mine>",
           "PROD[Steel]",
           "CopyProductionBox<IndustrialMicrobes>",
           "PROD[Energy]",
@@ -113,7 +113,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
         doTasks(*playCardTasks("CyberiaSystems"))
         doTasks("16 Pay<> FROM MC", "CyberiaSystems FROM ProjectCard")
         doTask("PROD[Steel]")
-        doTask("CopyProductionBox<Mine> THEN CopyProductionBox<CardFront>")
+        doTask("CopyProductionBox<Mine>")
         doTask("PROD[Steel]")
         doTask("CopyProductionBox<Mine>")
       }
@@ -121,7 +121,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Cannot copy itself`() {
+  internal fun `Cannot choose itself without a Building tag`() {
     initializeGame()
     shouldThrow<RequirementException> {
       kim.inTurn {
@@ -131,7 +131,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
             "CyberiaSystems FROM ProjectCard",
             "PROD[Steel]",
         )
-        doTask("CopyProductionBox<CyberiaSystems> THEN CopyProductionBox<CardFront>")
+        doTask("CopyProductionBox<CyberiaSystems>")
       }
     }
   }
@@ -151,14 +151,19 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
           "Steel",
-          "CopyProductionBox<MagneticFieldGeneratorsPromo> THEN CopyProductionBox<CardFront>",
+          "CopyProductionBox<MagneticFieldGeneratorsPromo>",
           "PROD[-4 Energy]",
           "PROD[2 Plant]",
           "2 Plant",
           "CopyProductionBox<IndustrialComplex>",
       )
       // Expand the copied production box into its separate resource increases.
-      doTask(tasks.matching { !it.deferred }.single())
+      doTask(
+          "EACH Class<@StandardResource> { Production<Kim, Class<@StandardResource>>! " +
+              "/ (Class<@StandardResource> OR QuickStartVariant OR " +
+              "ProdOffset<Kim, Class<@StandardResource>>) - " +
+              "Production<Kim, Class<@StandardResource>> }"
+      )
       doTasks(
           "PROD[MC]",
           "PROD[Titanium]",

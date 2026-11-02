@@ -16,5 +16,6 @@ internal class OverlayWorld(
 ) :
     WholeWorld(gameWorld, overlayTimeline, reader, classTable, actorEngines, effector),
     SpeculativeWorld {
-  override fun reset() = overlayTimeline.resetOverlay()
+  /** Restores this overlay's creation state for another engine transaction trial. */
+  internal fun reset() = overlayTimeline.resetOverlay()
 }

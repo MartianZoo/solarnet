@@ -24,30 +24,18 @@ public interface Timeline {
 
   /**
    * Snapshot of recorded positions in ascending order. It may include retained future positions
-   * after [checkpoint], and positions before [floor] that can no longer be visited.
+   * after [checkpoint], and positions before the earliest navigable position.
    */
   public val positions: List<Checkpoint>
 
   /**
-   * Earliest navigable position. Initialization, [Engine.fork], and [Engine.overlay] set it to
-   * their resulting state; [SpeculativeWorld.reset] returns an overlay's floor to its source point.
-   */
-  public val floor: Checkpoint
-
-  /**
    * Moves the live World to [checkpoint] without recalculating game consequences. Both the current
-   * position and destination must be recorded. The destination must be at or after [floor] and,
-   * inside [atomic], cannot precede the innermost block's start. Invalid positions fail before
-   * navigation begins. Moving backward retains later events; moving forward reapplies them.
+   * position and destination must be recorded. The destination must be at or after this World's
+   * earliest navigable position and, inside [atomic], cannot precede the innermost block's start.
+   * Invalid positions fail before navigation begins. Moving backward retains later events; moving
+   * forward reapplies them.
    */
   public fun seek(checkpoint: Checkpoint)
-
-  /**
-   * Moves to the nearest earlier recorded position allowed by [floor] and any active [atomic]
-   * block. Returns true if it moves, false if no earlier position is allowed. [seek]'s requirement
-   * that the current position be recorded still applies.
-   */
-  public fun stepBack(): Boolean
 
   /**
    * Moves to the next recorded position, returning true if it moves or false when already at the
@@ -73,7 +61,7 @@ public interface Timeline {
    * exception also escapes an enclosing call. The block must perform any needed invariant checks
    * through the mutation API; this method alone supplies no transaction-completion checks.
    *
-   * The [floor] stays unchanged throughout the block.
+   * The earliest navigable position stays unchanged throughout the block.
    *
    * Current limits: arbitrary Kotlin side effects, existing event commentary, Agent policies,
    * guards, and listeners are not restored.

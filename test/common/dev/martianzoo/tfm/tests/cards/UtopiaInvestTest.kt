@@ -14,7 +14,7 @@ internal class UtopiaInvestTest : TfmSandboxTest() {
     kim.setToExMachina(2, "PROD[Plant]")
 
     kim.inTurn {
-      doTasks(*cardActionTasks("UtopiaInvest"), "PROD[-Plant] THEN 4 Plant", "4 Plant")
+      doTasks(*cardActionTasks("UtopiaInvest"), "PROD[-Plant]", "4 Plant")
     }
   }
 
@@ -26,7 +26,7 @@ internal class UtopiaInvestTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(*cardActionTasks("UtopiaInvest"))
-        doTask("PROD[-Plant] THEN 4 Steel")
+        selectTask("PROD[-Plant] THEN 4 Steel")
       }
     }
   }

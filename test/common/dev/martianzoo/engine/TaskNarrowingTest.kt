@@ -947,7 +947,7 @@ internal class TaskNarrowingTest {
     writer.runOperation("Plant, Heat")
     initiate("Selected@StandardResource THEN -StandardResource(NOT Selected@StandardResource)")
 
-    writer.doTask("Steel THEN -StandardResource(NOT Steel)")
+    writer.doTask("Steel")
 
     tasksAsText().shouldContainExactly("-StandardResource<Player1>(NOT Steel<Player1>)!")
     writer.doTask("-Plant")
@@ -963,8 +963,8 @@ internal class TaskNarrowingTest {
         "(Selected@StandardResource: Selected@StandardResource) THEN Selected@StandardResource"
     )
 
-    shouldThrow<RequirementException> { writer.doTask("(Heat: Heat) THEN Heat") }
-    writer.doTask("(Plant: Plant) THEN Plant")
+    shouldThrow<RequirementException> { writer.doTask("(Heat: Heat)") }
+    writer.doTask("(Plant: Plant)")
 
     writer.count("Plant") shouldBe 2
     tasksAsText().shouldContainExactly("Plant<Player1>!")
@@ -992,6 +992,22 @@ internal class TaskNarrowingTest {
     task.instruction.toString() shouldBe "3! Heat<Player1>"
     task.then shouldBe null
     writer.count("Plant") shouldBe 3
+  }
+
+  @Test
+  internal fun `a submitted first stage binds scaled X in the continuation`() {
+    writer.runOperation("4 Plant")
+    initiate("-2X Plant THEN 3X Heat")
+
+    shouldThrow<TaskException> { writer.doTask("-4 Plant THEN 6 Heat") }
+    shouldThrow<TaskException> { writer.doTasks("-4 Plant THEN 6 Heat") }
+    shouldThrow<TaskException> { writer.doTask("-3 Plant") }
+    writer.count("Plant") shouldBe 4
+
+    writer.doTask("-4 Plant")
+
+    writer.count("Plant") shouldBe 0
+    tasksAsText().shouldContainExactly("6! Heat<Player1>")
   }
 
   @Test
@@ -1041,7 +1057,7 @@ internal class TaskNarrowingTest {
     writer.autoExecNow()
     writer.autoExecPolicy = NONE
 
-    writer.doTask("3* MC FROM MC<Player2> THEN Plant<Player2>")
+    writer.doTask("3* MC FROM MC<Player2>")
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
@@ -1054,7 +1070,7 @@ internal class TaskNarrowingTest {
     writer.autoExecPolicy = NONE
     initiate("3* MC FROM MC<@Player> THEN Plant<@Player>")
 
-    writer.doTask("3* MC FROM MC<Player2> THEN Plant<Player2>")
+    writer.doTask("3* MC FROM MC<Player2>")
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
@@ -1066,7 +1082,7 @@ internal class TaskNarrowingTest {
     game.testAgent(PLAYER2).runOperation("Plant, 3 MC")
     initiate("(Plant<@Player>: 3 MC FROM MC<@Player>) THEN Heat<@Player>")
 
-    writer.doTask("(Plant<Player2>: 3 MC FROM MC<Player2>) THEN Heat<Player2>")
+    writer.doTask("(Plant<Player2>: 3 MC FROM MC<Player2>)")
 
     tasksAsText().shouldContainExactly("Heat<Player2>!")
     writer.count("MC") shouldBe 3
@@ -1079,7 +1095,7 @@ internal class TaskNarrowingTest {
     game.testAgent(PLAYER2).runOperation("Plant")
     initiate("(Plant<@Player>: 3 MC<Player2> FROM MC<@Player>) THEN Heat<@Player>")
 
-    shouldThrow<TaskException> { writer.doTask("3 MC<Player2> FROM MC<Player1>") }
+    shouldThrow<RequirementException> { writer.doTask("3 MC<Player2> FROM MC<Player1>") }
 
     writer.count("MC") shouldBe 3
     tasks.extract { it }.shouldHaveSize(1)
@@ -1194,7 +1210,7 @@ internal class TaskNarrowingTest {
             .single()
 
     shouldThrow<TaskException> {
-      writer.doTask("Heat: (MC<Player1> THEN StandardResource)")
+      writer.doTask("Heat: MC<Player1>")
     }
     writer.count("MC") shouldBe 0
     writer.count("Heat") shouldBe 1
@@ -1400,7 +1416,7 @@ internal class TaskNarrowingTest {
     val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.runOperation("Other")
     agent.addTasks("Chosen@Shape THEN Notice<Chosen@Shape>")
-    agent.doTask("Only THEN Notice<Only>")
+    agent.doTask("Only")
 
     agent.count("Only") shouldBe 1
     shouldThrow<TaskException> { agent.doTask("Notice<Other>") }

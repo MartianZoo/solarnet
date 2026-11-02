@@ -29,7 +29,7 @@ internal class TimelineImpl(
   /** The changes and surviving new tasks recorded since event [ordinal]. */
   internal fun activitySince(ordinal: Int): TaskResult = gameWorld.activitySince(ordinal)
 
-  override var floor = Checkpoint(0)
+  internal var floor = Checkpoint(0)
     private set
 
   private val future = mutableListOf<GameEvent>()
@@ -86,7 +86,7 @@ internal class TimelineImpl(
     }
   }
 
-  override fun stepBack(): Boolean {
+  internal fun stepBack(): Boolean {
     val previous =
         positions.lastOrNull {
           it.serial < checkpoint().serial &&

@@ -64,11 +64,13 @@ internal class WorldForkTest {
     source.events.entriesSince(0).first().notes = "captured"
     val sourceChoiceCounts = mutableListOf<Int>()
     val sourceChoiceSubscription =
-        source.components.listenToCount(
-            sourceAgent.resolve("Choice"),
-            source.reader,
-            sourceChoiceCounts::add,
-        )
+        (source as WholeWorld)
+            .components
+            .listenToCount(
+                sourceAgent.resolve("Choice"),
+                source.reader,
+                sourceChoiceCounts::add,
+            )
 
     val fork = Engine.fork(source)
     val forkAgent = fork.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }

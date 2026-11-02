@@ -48,9 +48,9 @@ internal class BootstrapLifecycleTest {
     game.tasks.isEmpty() shouldBe true
     game.events.entriesSinceSetup().shouldBeEmpty()
 
-    game.timeline.floor shouldBe Checkpoint(0)
+    game.timeline.checkpoint() shouldBe Checkpoint(0)
+    game.timeline.positions shouldBe listOf(Checkpoint(0))
     game.timeline.seek(Checkpoint(0))
-    game.timeline.stepBack() shouldBe false
   }
 
   @Test

@@ -17,12 +17,12 @@ internal class CeresTechMarketTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTasks(*cardActionTasks("CeresTechMarket"))
-        doTask("-5 ProjectCard THEN 10 MC")
+        doTask("-5 ProjectCard")
       }
     }
     kim.inTurn {
           doTasks(*cardActionTasks("CeresTechMarket"))
-          doTask("-4 ProjectCard THEN 8 MC")
+          doTask("-4 ProjectCard")
           doTask("8 MC")
         }
         .expect("-4 ProjectCard")

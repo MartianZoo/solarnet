@@ -117,10 +117,18 @@ internal class GroupSubmissionTest {
 
   @Test
   fun normalizedThenMemberExecutesItsCurrentInstruction() {
-    engine.addTasks(
-        InstructionGroup.of(parse<InstructionTree>("((First! THEN Following!), Second!) OR Other!"))
-    )
-    engine.doTask(parse<InstructionTree>("(First! THEN Following!), Second!"))
+    val group =
+        engine
+            .addTasks(
+                InstructionGroup.of(
+                    parse<InstructionTree>("((First! THEN Following!), Second!) OR Other!")
+                )
+            )
+            .single()
+    engine.selectTask(parse<InstructionTree>("(First! THEN Following!), Second!"))
+    engine.doTask(group)
+    engine.doTask(parse<InstructionTree>("First!"))
+    engine.doTask(parse<InstructionTree>("Second!"))
     world.reader.count(parse<Metric>("First")) shouldBe 1
     world.reader.count(parse<Metric>("Second")) shouldBe 1
     world.reader.count(parse<Metric>("Following")) shouldBe 0
@@ -129,10 +137,18 @@ internal class GroupSubmissionTest {
 
   @Test
   fun membersWithDifferentContinuationsDoNotCompete() {
-    engine.addTasks(
-        InstructionGroup.of(parse<InstructionTree>("((First! THEN Following!), First!) OR Other!"))
-    )
-    engine.doTask(parse<InstructionTree>("(First! THEN Following!), First!"))
+    val group =
+        engine
+            .addTasks(
+                InstructionGroup.of(
+                    parse<InstructionTree>("((First! THEN Following!), First!) OR Other!")
+                )
+            )
+            .single()
+    engine.selectTask(parse<InstructionTree>("(First! THEN Following!), First!"))
+    engine.doTask(group)
+    val members = engine.tasks.ids().toList()
+    members.forEach(engine::doTask)
     world.reader.count(parse<Metric>("First")) shouldBe 2
     world.reader.count(parse<Metric>("Following")) shouldBe 0
   }
@@ -149,13 +165,21 @@ internal class GroupSubmissionTest {
 
   @Test
   fun aDispatchThenMemberLeavesItsBodyAndContinuationPending() {
-    engine.addTasks(
-        InstructionGroup.of(
-            parse<InstructionTree>("((SOON Player1 { First! } THEN Following!), Second!) OR Other!")
-        )
-    )
+    val group =
+        engine
+            .addTasks(
+                InstructionGroup.of(
+                    parse<InstructionTree>(
+                        "((SOON Player1 { First! } THEN Following!), Second!) OR Other!"
+                    )
+                )
+            )
+            .single()
 
-    engine.doTask(parse<InstructionTree>("(SOON Player1 { First! } THEN Following!), Second!"))
+    engine.selectTask(parse<InstructionTree>("(SOON Player1 { First! } THEN Following!), Second!"))
+    engine.doTask(group)
+    engine.doTask(parse<InstructionTree>("SOON Player1 { First! }"))
+    engine.doTask(parse<InstructionTree>("Second!"))
 
     world.reader.count(parse<Metric>("First")) shouldBe 0
     world.reader.count(parse<Metric>("Following")) shouldBe 0

@@ -54,7 +54,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(*cardActionTasks("MarsNomads"))
-      doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1> THEN Placement<Tharsis_1_1>", "2 Steel")
+      doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
     }
   }
 
@@ -66,7 +66,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks(*cardActionTasks("MarsNomads"))
-        doTask("NomadsMarker<Tharsis_4_2 FROM Tharsis_1_1> THEN Placement<Tharsis_4_2>")
+        doTask("NomadsMarker<Tharsis_4_2 FROM Tharsis_1_1>")
       }
     }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 0 to "NomadsMarker<Tharsis_4_2>")
@@ -81,7 +81,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks(*cardActionTasks("MarsNomads"))
-        doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1> THEN Placement<Tharsis_2_2>")
+        doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
       }
     }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>")
@@ -96,7 +96,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks(*cardActionTasks("MarsNomads"))
-        doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1> THEN Placement<Tharsis_2_2>")
+        doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
       }
     }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 1 to "Community<Tharsis_2_2>")
@@ -229,7 +229,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*cardActionTasks("MarsNomads"))
           doTasks(
-              "NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1> THEN Placement<Tharsis_1_1>",
+              "NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>",
               "2 Steel",
           )
         }
@@ -255,7 +255,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(*cardActionTasks("MarsNomads"))
       doTasks(
-          "NomadsMarker<Tharsis_5_7 FROM Tharsis_4_7> THEN Placement<Tharsis_5_7>",
+          "NomadsMarker<Tharsis_5_7 FROM Tharsis_4_7>",
           "2 Plant",
           "2 MC",
           "2 MC",
@@ -271,7 +271,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(*cardActionTasks("MarsNomads"))
-          doTasks("NomadsMarker<Tharsis_4_7 FROM Tharsis_4_6> THEN Placement<Tharsis_4_7>", "Plant")
+          doTasks("NomadsMarker<Tharsis_4_7 FROM Tharsis_4_6>", "Plant")
           doTask("MC")
           doTask("2 MC")
         }
@@ -286,7 +286,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*cardActionTasks("MarsNomads"))
           doTasks(
-              "NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1> THEN Placement<Tharsis_1_1>",
+              "NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>",
               "2 Steel",
           )
         }
@@ -300,7 +300,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(*cardActionTasks("MarsNomads"))
-      doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1> THEN Placement<Tharsis_1_1>", "2 Steel")
+      doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
     }
   }
 
@@ -318,7 +318,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
         .inTurn {
           doTasks(*cardActionTasks("MarsNomads"))
           doTasks(
-              "NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1> THEN Placement<Tharsis_1_1>",
+              "NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>",
               "2 Steel",
           )
         }
@@ -334,7 +334,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks(*cardActionTasks("MarsNomads"))
-        doTask("NomadsMarker<Tharsis_2_1 FROM Tharsis_1_1> THEN Placement<Tharsis_2_1>")
+        doTask("NomadsMarker<Tharsis_2_1 FROM Tharsis_1_1>")
       }
     }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 0 to "NomadsMarker<Tharsis_2_1>")
@@ -348,7 +348,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks(*cardActionTasks("MarsNomads"))
-        doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1> THEN Placement<Tharsis_2_2>")
+        doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
       }
     }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 0 to "NomadsMarker<Tharsis_2_2>")
@@ -361,7 +361,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(*cardActionTasks("MarsNomads"))
-          doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2> THEN Placement<Cimmeria_3_3>")
+          doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2>")
           doTask("CimmeriaPlacementBonus!")
           doTasks("-5 MC", "Colony<Luna>", "PROD[2 MC]")
         }
@@ -378,7 +378,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     shouldThrow<DependencyException> {
       kim.inTurn {
         doTasks(*cardActionTasks("MarsNomads"))
-        doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2> THEN Placement<Cimmeria_3_3>")
+        doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2>")
         doTask("CimmeriaPlacementBonus!")
         doTask("-5 MC")
         // Resolve the colony offer to prove that no eligible colony tile remains.

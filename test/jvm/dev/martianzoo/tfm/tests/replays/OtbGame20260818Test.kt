@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
@@ -293,7 +292,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "Then I play Mars University for eight... discard one and draw one."
-      playProject(MarsUniversity, 8) { doTask("-ProjectCard THEN ProjectCard") }
+      playProject(MarsUniversity, 8) { doTask("-ProjectCard") }
     }
 
     yellow.turn {
@@ -1041,8 +1040,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "I'm gonna play advanced alloys." "It costs me nine." "No discounts."
-      playProject(AdvancedAlloys, 9) { doTask("-ProjectCard THEN ProjectCard") }
-          .expect("-ProjectCard")
+      playProject(AdvancedAlloys, 9) { doTask("-ProjectCard") }.expect("-ProjectCard")
       // "I am gonna go ahead and play Solar Logistics." "But I spend four titanium on that." "I get
       // two titanium from it. I get a minimal on Martian Zoo. I get a card."
       playProject(SolarLogistics, titanium = 4).expect("-2 Titanium, Animal<$MartianZoo>")
@@ -1348,7 +1346,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // they were in that order."
       sellPatents(1).expect("1 MC, -ProjectCard")
       playProject(RoboticWorkforce, 9) {
-            doTask("-ProjectCard THEN ProjectCard")
+            doTask("-ProjectCard")
             doTask("0 BuildingTag<WildTagElection<WildTag<ResearchCoordination>>>")
             doTask("CopyProductionBox<$IndustrialMicrobes>")
           }
@@ -1683,8 +1681,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
         decodedEvents.map { it.toString() } shouldBe originalEvents.map { it.toString() }
         decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
         reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
-        reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
-            game.components.getAll(allComponents, NoGameState).entries
+        reconstructed.reader.getComponents(allComponents).entries shouldBe
+            game.reader.getComponents(allComponents).entries
       }
     }
 

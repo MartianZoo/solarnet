@@ -62,8 +62,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
           doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC")
 
           doTasks("Trade<Luna>")
-          // Hand the colony-track change to Admin before collecting trade income.
-          selectTask("ColonyProduction<Luna>?")
+          // Resolve the zero colony-track change before collecting trade income.
           doTask("0 ColonyProduction<Luna>")
           doTask("17 MC")
         }

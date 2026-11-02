@@ -29,7 +29,7 @@ internal class SignalChangeTest {
     admin.runOperation("Observer")
     val observedCounts = mutableListOf<Int>()
     val signalType = admin.resolve("Moment")
-    game.components.listenToCount(signalType, game.reader, observedCounts::add)
+    (game as WholeWorld).components.listenToCount(signalType, game.reader, observedCounts::add)
 
     val result = admin.runOperation("Moment!")
 
@@ -62,7 +62,7 @@ internal class SignalChangeTest {
     val signalType = admin.resolve("Moment")
     val fuelType = admin.resolve("Fuel")
     val observedCounts = mutableListOf<Int>()
-    game.components.listenToCount(signalType, game.reader, observedCounts::add)
+    (game as WholeWorld).components.listenToCount(signalType, game.reader, observedCounts::add)
 
     val result = admin.runOperation("Moment FROM Fuel")
 

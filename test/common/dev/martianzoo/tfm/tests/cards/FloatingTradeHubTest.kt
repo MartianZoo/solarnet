@@ -13,7 +13,7 @@ internal class FloatingTradeHubTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(*cardActionTasks("FloatingTradeHub", "Action2"))
-      doTask("-3 Floater<FloatingTradeHub> THEN 3 Titanium")
+      doTask("-3 Floater<FloatingTradeHub>")
       doTask("3 Titanium")
     }
   }

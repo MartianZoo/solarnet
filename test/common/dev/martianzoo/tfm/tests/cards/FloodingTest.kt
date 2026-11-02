@@ -24,7 +24,8 @@ internal class FloodingTest : TfmSandboxTest() {
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
-          doTasks("OceanTile<Tharsis_5_4>! THEN -4! MC<Rob>", "TerraformRating")
+          selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Rob>")
+          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating")
           doTask("-4 MC<Rob>")
           doTask("2 Plant")
         }
@@ -58,7 +59,8 @@ internal class FloodingTest : TfmSandboxTest() {
             "7 Pay<> FROM MC",
             "Flooding FROM ProjectCard",
         )
-        doTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
+        selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
+        doTask("OceanTile<Tharsis_5_4>!")
       }
     }
 
@@ -75,7 +77,8 @@ internal class FloodingTest : TfmSandboxTest() {
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
-          doTasks("OceanTile<Tharsis_5_4>! THEN -2! MC<Stan>", "TerraformRating")
+          selectTask("OceanTile<Tharsis_5_4>! THEN -2! MC<Stan>")
+          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating")
           doTask("-2 MC<Stan>")
           doTask("2 Plant")
         }
@@ -93,7 +96,8 @@ internal class FloodingTest : TfmSandboxTest() {
             "7 Pay<> FROM MC",
             "Flooding FROM ProjectCard",
         )
-        doTask("OceanTile<Tharsis_5_4>! THEN -5! MC<Stan>")
+        selectTask("OceanTile<Tharsis_5_4>! THEN -5! MC<Stan>")
+        doTask("OceanTile<Tharsis_5_4>!")
       }
     }
   }
@@ -105,7 +109,8 @@ internal class FloodingTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(*playCardTasks("Flooding"))
         doTasks("7 Pay<> FROM MC", "Flooding FROM ProjectCard")
-        doTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
+        selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
+        doTask("OceanTile<Tharsis_5_4>!")
         doTask("TerraformRating")
         doTask("-4 MC<Stan>")
         doTask("2 Plant")
@@ -153,7 +158,8 @@ internal class FloodingTest : TfmSandboxTest() {
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
-          doTasks("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>", "TerraformRating")
+          selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
+          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating")
           doTask("-4 MC<Stan>")
           doTask("2 Plant")
         }
@@ -205,7 +211,8 @@ internal class FloodingTest : TfmSandboxTest() {
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
-          doTasks("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>", "TerraformRating")
+          selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
+          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating")
           doTask("-4 MC<Stan>")
           doTasks("2 Plant", "2 MC")
         }
@@ -224,7 +231,8 @@ internal class FloodingTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTasks(*playCardTasks("Flooding"), "7 Pay<> FROM MC", "Flooding FROM ProjectCard")
-        doTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
+        selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
+        doTask("OceanTile<Tharsis_5_4>!")
       }
     }
     kim.assertCounts(7 to "MC", 9 to "OceanTile", 0 to "Flooding")
@@ -261,7 +269,8 @@ internal class FloodingTest : TfmSandboxTest() {
             "7 Pay<> FROM MC",
             "Flooding FROM ProjectCard",
         )
-        doTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
+        selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
+        doTask("OceanTile<Tharsis_5_4>!")
         doTask("TerraformRating")
         doTask("2 Plant")
         // Select Flooding's loss separately from the still-open Neptunian payment.
@@ -299,7 +308,8 @@ internal class FloodingTest : TfmSandboxTest() {
             "7 Pay<> FROM MC",
             "Flooding FROM ProjectCard",
         )
-        doTask("OceanTile<Tharsis_1_2>! THEN -4! MC<Maya>")
+        selectTask("OceanTile<Tharsis_1_2>! THEN -4! MC<Maya>")
+        doTask("OceanTile<Tharsis_1_2>!")
       }
     }
   }
@@ -315,7 +325,8 @@ internal class FloodingTest : TfmSandboxTest() {
             "7 Pay<> FROM MC",
             "Flooding FROM ProjectCard",
         )
-        doTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Maya>")
+        selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Maya>")
+        doTask("OceanTile<Tharsis_5_4>!")
       }
     }
   }
@@ -331,7 +342,8 @@ internal class FloodingTest : TfmSandboxTest() {
             "7 Pay<> FROM MC",
             "Flooding FROM ProjectCard",
         )
-        doTask("OceanTile<Tharsis_1_2>! THEN -4! MC<Stan>")
+        selectTask("OceanTile<Tharsis_1_2>! THEN -4! MC<Stan>")
+        doTask("OceanTile<Tharsis_1_2>!")
       }
     }
   }
@@ -384,7 +396,8 @@ internal class FloodingTest : TfmSandboxTest() {
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
-          doTasks("OceanTile<Tharsis_5_4>! THEN Ok", "TerraformRating", "2 Plant")
+          selectTask("OceanTile<Tharsis_5_4>! THEN Ok")
+          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating", "2 Plant")
         }
         .expect("0 MC<Stan>, 0 MC<Rob>, 0 MC<Maya>")
   }
@@ -398,7 +411,8 @@ internal class FloodingTest : TfmSandboxTest() {
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
-          doTasks("OceanTile<Tharsis_5_4>! THEN -2? MC<Stan>", "TerraformRating", "2 Plant")
+          selectTask("OceanTile<Tharsis_5_4>! THEN -2? MC<Stan>")
+          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating", "2 Plant")
           doTask("-2! MC<Stan>")
         }
         .expect("0 MC<Rob>, 0 MC<Maya>")
@@ -427,8 +441,9 @@ internal class FloodingTest : TfmSandboxTest() {
               "Flooding FROM ProjectCard",
           )
 
+          selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Kim>")
           doTasks(
-              "OceanTile<Tharsis_5_4>! THEN -4? MC<Kim>",
+              "OceanTile<Tharsis_5_4>!",
               "UseAction<NeptunianOption, Action1>",
           )
           doTask("-4 MC")
@@ -458,7 +473,8 @@ internal class FloodingTest : TfmSandboxTest() {
           "Flooding FROM ProjectCard",
       )
 
-      doTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
+      selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
+      doTask("OceanTile<Tharsis_5_4>!")
       // Kim offers the choice to Stan before Stan can accept or decline it.
       doTask("NOW Stan { UseAction<Stan, NeptunianOption>? }")
       shouldThrow<TaskException> { doTask("-4! MC<Stan>") }
@@ -493,7 +509,8 @@ internal class FloodingTest : TfmSandboxTest() {
           "Flooding FROM ProjectCard",
       )
 
-      doTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
+      selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
+      doTask("OceanTile<Tharsis_5_4>!")
       // Kim offers the choice to Stan before Stan can accept or decline it.
       doTask("NOW Stan { UseAction<Stan, NeptunianOption>? }")
       stan.doTask("UseAction<NeptunianOption, Action1>")

@@ -79,7 +79,7 @@ internal class NewPartnerTest : TfmGameplayTest(NONE) {
             "PROD[MC]",
         )
         doTask("2 PreludeCard<Selecting>")
-        doTask("-PreludeCard<Selecting> THEN Audit THEN 15 MC")
+        doTask("-PreludeCard<Selecting>")
         doTask("Audit")
         doTask("15 MC")
       }

@@ -202,6 +202,11 @@ public interface Agent {
    * selected. Admin failures restore the whole call. SOON and other consequences may leave ordinary
    * pending work.
    *
+   * The text names one stage and must not contain `THEN`. A first-stage choice binds shared Type
+   * variables and X in its queued continuation. A successful call completes the named stage;
+   * executing an `EACH` container completes that stage by creating its child tasks. [doTasks]
+   * applies the same rule to each argument and returns only after completing all of them.
+   *
    * @throws [NotFullySpecifiedException] if the task still needs narrowing
    * @throws [NotNowException] if the task cannot currently be evaluated or executed
    */

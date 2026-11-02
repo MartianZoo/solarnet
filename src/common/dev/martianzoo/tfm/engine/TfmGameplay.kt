@@ -762,10 +762,7 @@ public class TfmGameplay(
     if (standardActionOffered) {
       doTask("UseAction<UseActionOnCardAction, Action1>")
     }
-    doTask(
-        "UseAction<$cardName, ${whichAction(which)}>" +
-            if (standardActionOffered) " THEN ActionUsedMarker<$cardName>" else ""
-    )
+    doTask("UseAction<$cardName, ${whichAction(which)}>")
     x?.let { chooseVariableAmount(this, it) }
     payInvoiceFromItsResourceIfOffered()
     body()

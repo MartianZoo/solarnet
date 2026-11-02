@@ -322,7 +322,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "4 Pay<Class<Steel>> FROM Steel",
         "0 Pay<> FROM MC",
         "MarsUniversity FROM ProjectCard",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     // Test inference: the source gives the sale count, not card identities.
@@ -452,7 +452,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "0 Pay<> FROM MC",
         "OlympusConference FROM ProjectCard",
         "Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     draw(NewHolland, MagneticShield, TopsoilContract, CityParks)
@@ -463,7 +463,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "MartianSurvey FROM ProjectCard",
         "2 ProjectCard",
         "ProjectCard FROM Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     draw(SpinOffDepartment)
@@ -474,7 +474,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "Pay<> FROM MC",
         "DevelopmentCenter FROM ProjectCard",
         "Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
@@ -536,7 +536,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "3 ProjectCard<Selecting>",
         "ProjectCard FROM ProjectCard<Selecting>",
         "ProjectCard FROM Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks(
@@ -716,7 +716,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "Pay<> FROM MC",
         "HiTechLab FROM ProjectCard",
         "Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks(*cardActionTasks("AstroDrill"), "Asteroid<CometAiming>")
@@ -808,7 +808,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "3 Pay<> FROM MC",
         "SearchForLife FROM ProjectCard",
         "ProjectCard FROM Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks(
@@ -973,7 +973,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "14 Pay<> FROM MC",
         "WarpDrive FROM ProjectCard",
         "Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks(*cardActionTasks("Dirigibles"), "Floater<AerialMappers>")
@@ -1107,7 +1107,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "SolarProbe FROM ProjectCard",
         "2 ProjectCard",
         "ProjectCard FROM Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks(
@@ -1235,7 +1235,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "6 Pay<> FROM MC",
         "FloaterTechnology FROM ProjectCard",
         "Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     draw(InterplanetaryColonyShip, ArtificialLake)
@@ -1245,7 +1245,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "13 Pay<> FROM MC",
         "AntiGravityTechnology FROM ProjectCard",
         "ProjectCard FROM Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks(*cardActionTasks("Hospitals"), "-Disease<Hospitals>", "5 MC")
@@ -1527,7 +1527,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         *playCardTasks("TransNeptuneProbe"),
         "TransNeptuneProbe FROM ProjectCard",
         "Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks(
@@ -1595,11 +1595,11 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "SponsoredAcademies FROM ProjectCard",
     )
     // Resolve the mandatory discard before the optional Mars University exchange.
-    doTask("-ProjectCard<Hand>!")
+    doTask("-ProjectCard<Hand>!", SponsoredAcademies)
     doTasks(
         "ProjectCard FROM Science<OlympusConference>",
         "3 ProjectCard",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     // Resolve the draw for other players; there are none in this solo game.
@@ -1684,7 +1684,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "AtalantaPlanitiaLab FROM ProjectCard",
         "2 ProjectCard",
         "Science<OlympusConference>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     draw(Decomposers)

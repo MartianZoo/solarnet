@@ -18,7 +18,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
           "TerraformRating",
       )
       doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-      doTasks("PartyLeader<Scientists> THEN PartyDelegate<Scientists>", "PartyFollower<Scientists>")
+      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
     }
 
     kim.inTurn {
@@ -49,7 +49,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
           "TerraformRating",
       )
       doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-      doTasks("PartyLeader<Scientists> THEN PartyDelegate<Scientists>", "PartyFollower<Scientists>")
+      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
     }
 
     kim.inTurn {
@@ -79,7 +79,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
       kim.completeOperation {
         doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
         doTasks(
-            "PartyLeader<Scientists> THEN PartyDelegate<Scientists>",
+            "PartyLeader<Scientists>",
             "PartyFollower<Scientists>",
         )
         autoExecNow(EAGER)

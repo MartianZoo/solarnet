@@ -128,7 +128,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(ForcedPrecipitation)
       playProject(InvestmentLoan, 3).expect("PROD[-MC], 10 MC")
       playProject(Solarnet, 7)
-      cardAction2(SulphurEatingBacteria) { doTask("-3 Microbe<$SulphurEatingBacteria> THEN 9 MC") }
+      cardAction2(SulphurEatingBacteria) { doTask("-3 Microbe<$SulphurEatingBacteria>") }
           .expect("9 MC")
       playProject(BigAsteroid, 21, titanium = 2) { /* Decline removing an opponent's plants. */
             declineTask()
@@ -292,7 +292,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       }
       sellPatents(3)
       cardAction2(SulphurEatingBacteria) {
-            doTask("-19 Microbe<$SulphurEatingBacteria> THEN 57 MC")
+            doTask("-19 Microbe<$SulphurEatingBacteria>")
           }
           .expect("57 MC")
       playProject(ReleaseOfInertGases, 14).expect("-11 MC")

@@ -18,7 +18,7 @@ internal constructor(
     private val actorEngines: Map<Actor, ActorEngine>,
     internal val effector: Effector,
 ) : World {
-  override val components: ComponentGraph
+  internal val components: ComponentGraph
     get() = gameWorld.components
 
   override val events: EventLog

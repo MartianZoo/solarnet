@@ -3,6 +3,7 @@ package dev.martianzoo.pets.ast
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
+import dev.martianzoo.pets.Transforming
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
@@ -639,6 +640,44 @@ public sealed class Instruction : InstructionTree() {
       val replacement =
           createTree(instructions) as? Then ?: error("`THEN` requires at least two stages")
       return replacement.withTypeVariables(typeVariables)
+    }
+
+    /**
+     * Constructs the complete sequence narrowing required by
+     * [L3-2](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#3-narrowing)
+     * from a proposed first stage. A binding of an authored Type variable under
+     * [T13-11](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/type-system-spec.md#13-type-variables)
+     * or shared X in that stage also narrows its later occurrences. The proposal must identify a
+     * valid first-stage choice; an incompatible amount or Type fails without returning a partly
+     * narrowed sequence.
+     *
+     * @throws NarrowingException if the proposed stage cannot narrow this sequence
+     */
+    public fun narrowFirst(proposed: Instruction, info: TypeInfo): Then {
+      val originalFirst = first
+      val proposal = withInstructions(listOf(proposed) + instructions.drop(1))
+      val typed = bindTypeVariablesFrom(proposal, info)
+      val x = sharedXValue(originalFirst, proposed, info)
+      val bound =
+          if (x == null) typed else Transforming.bindXTo(x).transformInstructionTree(typed) as Then
+      val boundFirst = bound.first
+      val narrowedFirst =
+          if (proposed is Gated && boundFirst is Gated) {
+            val inner =
+                proposed.inner.intersect(boundFirst.inner, info.classTable, info)
+                    ?: throw NarrowingException(
+                        "`$proposed` does not narrow the first stage of `$this`"
+                    )
+            Gated.createTree(boundFirst.gate, inner)
+          } else {
+            proposed.intersect(boundFirst, info.classTable, info)
+                ?: throw NarrowingException(
+                    "`$proposed` does not narrow the first stage of `$this`"
+                )
+          }
+      val result = bound.withInstructions(listOf(narrowedFirst) + bound.instructions.drop(1))
+      result.ensureNarrows(this, info)
+      return result
     }
 
     /** Replaces the sequence parts while preserving this `THEN`'s Type variables. */

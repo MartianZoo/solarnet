@@ -210,6 +210,10 @@ semantics.
 > or mirrored Canon data. A test-support helper must express a recurring component-independent
 > operation, never one card's rule or missing engine semantics.
 
+Do not discover a task to execute with `tasks.matching { !it.deferred }.single()` in a card or rule
+test. It hides which game decision the test makes. Submit the named choice, or use `selectOnlyTask()`
+when selecting the sole pending task is itself the intended action.
+
 > **Default assertion style:** Almost every successful gameplay action that returns a `TaskResult`
 > should chain `.expect(...)` directly to that action in gameplay tests. Sandbox tests instead
 > submit concrete expected work explicitly and add expectations only for additional consequences.
@@ -649,7 +653,8 @@ match. Preserve this coverage during refactoring.
 Absolute checks should be rare. Prefer `.expect()` for the action's relevant net effects. When
 an absolute check is needed, establish a known initial amount and assert a literal result; do not
 save an old count and assert `oldValue + change`. `assertCounts` remains useful for several relevant
-absolute facts, and `assertProds` reports signed printed production by subtracting `ProdOffset`.
+absolute facts; prefer it to repeated `count(...) shouldBe ...` checks when possible. `assertProds`
+reports signed printed production by subtracting `ProdOffset`.
 Neither replaces a suitable relative expectation.
 
 Assert the actual exception type with `shouldThrow<ExpectedException>`; do not use `shouldThrowAny`

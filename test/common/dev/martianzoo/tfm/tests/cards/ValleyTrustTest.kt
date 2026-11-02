@@ -75,7 +75,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("DoRequiredActions")
           doTask("3 PreludeCard<Kim, Selecting>")
-          doTask("-PreludeCard<Selecting> THEN Audit THEN 15 MC")
+          doTask("-PreludeCard<Selecting>")
           // Hand the fizzle audit to Admin before receiving compensation.
           doTask("Audit!")
           doTask("15 MC")

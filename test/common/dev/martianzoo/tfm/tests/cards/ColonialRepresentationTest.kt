@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -43,8 +44,10 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
-      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+      admin.assertCounts(
+          1 to "PartyLeader<Greens, Neutral>",
+          1 to "Distant<ExploreFirstDirective>",
+      )
       (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")

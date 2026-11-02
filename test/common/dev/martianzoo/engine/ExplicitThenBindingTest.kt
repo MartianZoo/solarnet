@@ -17,7 +17,7 @@ internal class ExplicitThenBindingTest {
     val task = agent.tasks.extract { it }.single()
     val before = world.events.nextOrdinal
 
-    shouldThrow<TaskException> { agent.doTask("3 Foo") }
+    shouldThrow<TaskException> { agent.doTask("4 Foo") }
     world.events.nextOrdinal shouldBe before
     world.tasks.getTaskData(task.id) shouldBe task
 

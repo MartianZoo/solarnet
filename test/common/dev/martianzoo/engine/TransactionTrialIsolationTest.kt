@@ -34,11 +34,13 @@ internal class TransactionTrialIsolationTest {
     val task = engine.addTasks(InstructionGroup.of(parse<InstructionTree>("Choice!"))).single()
     val counts = mutableListOf<Int>()
     val subscription =
-        world.components.listenToCount(
-            world.reader.resolve(parse("Notice")),
-            world.reader,
-            counts::add,
-        )
+        (world as WholeWorld)
+            .components
+            .listenToCount(
+                world.reader.resolve(parse("Notice")),
+                world.reader,
+                counts::add,
+            )
     val before = world.events.nextOrdinal
     val overlay = Engine.overlay(world)
 

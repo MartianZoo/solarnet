@@ -60,7 +60,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     me.turn {
       stdAction("DoRequiredActions")
       cardAction1(BoardOfDirectors) {
-        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
+        doTask("-12 MC")
         playPrelude(DoubleDown) {
           doTask("CopyPrelude<$Merger>")
           me.playCorp(CrediCor)
@@ -145,7 +145,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
         placeTile(4, 7)
       }
       cardAction1(BoardOfDirectors) {
-        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
+        doTask("-12 MC")
         playPrelude(TerraformingDeal)
       }
     }
@@ -170,7 +170,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       convertPlants { placeTile(1, 2) }
       convertPlants { placeTile(1, 3) }
       cardAction1(BoardOfDirectors) {
-        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
+        doTask("-12 MC")
         playPrelude(SuitableInfrastructure)
       }
     }

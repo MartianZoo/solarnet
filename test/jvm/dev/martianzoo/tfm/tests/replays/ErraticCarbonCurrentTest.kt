@@ -160,7 +160,7 @@ internal class ErraticCarbonCurrentTest : LegacyCardTrackingFullGameTest() {
     pink.turn {
       playProject(MarsUniversity, steel = 4) {
         draw(Plantation)
-        doTask("-ProjectCard THEN ProjectCard")
+        doTask("-ProjectCard")
         pink.discard(NoctisCity)
       }
     }
@@ -197,7 +197,7 @@ internal class ErraticCarbonCurrentTest : LegacyCardTrackingFullGameTest() {
     pink.turn {
       convertPlants { placeTile(6, 6) }
       cardAction1(MarsNomads) {
-        doTask("NomadsMarker<Hellas_9_7 FROM Hellas_8_7> THEN Placement<Hellas_9_7>")
+        doTask("NomadsMarker<Hellas_9_7 FROM Hellas_8_7>")
         placeTile(5, 7)
       }
     }
@@ -229,7 +229,7 @@ internal class ErraticCarbonCurrentTest : LegacyCardTrackingFullGameTest() {
     blue.turn { playProject(ExtractorBalloons, 20) }
     pink.turn {
       cardAction1(MarsNomads) {
-        doTask("NomadsMarker<Hellas_8_6 FROM Hellas_9_7> THEN Placement<Hellas_8_6>")
+        doTask("NomadsMarker<Hellas_8_6 FROM Hellas_9_7>")
       }
     }
     blue.turn {
@@ -273,7 +273,7 @@ internal class ErraticCarbonCurrentTest : LegacyCardTrackingFullGameTest() {
     }
     pink.turn {
       cardAction1(MarsNomads) {
-        doTask("NomadsMarker<Hellas_9_7 FROM Hellas_8_6> THEN Placement<Hellas_9_7>")
+        doTask("NomadsMarker<Hellas_9_7 FROM Hellas_8_6>")
         placeTile(6, 8)
       }
       convertHeat()
@@ -331,7 +331,7 @@ internal class ErraticCarbonCurrentTest : LegacyCardTrackingFullGameTest() {
     }
     pink.turn {
       cardAction1(MarsNomads) {
-        doTask("NomadsMarker<Hellas_8_7 FROM Hellas_9_7> THEN Placement<Hellas_8_7>")
+        doTask("NomadsMarker<Hellas_8_7 FROM Hellas_9_7>")
       }
     }
     blue.turn {
@@ -389,7 +389,7 @@ internal class ErraticCarbonCurrentTest : LegacyCardTrackingFullGameTest() {
     }
     pink.turn {
       cardAction1(MarsNomads) {
-        doTask("NomadsMarker<Hellas_8_6 FROM Hellas_8_7> THEN Placement<Hellas_8_6>")
+        doTask("NomadsMarker<Hellas_8_6 FROM Hellas_8_7>")
       }
       convertHeat()
     }
@@ -406,7 +406,7 @@ internal class ErraticCarbonCurrentTest : LegacyCardTrackingFullGameTest() {
       cardAction1(BusinessNetwork) { buyCards(0) }
       playProject(CarbonNanosystems, steel = 7) {
         draw(EosChasmaNationalPark)
-        doTask("-ProjectCard THEN ProjectCard")
+        doTask("-ProjectCard")
         pink.discard(Plantation)
       }
     }
@@ -455,7 +455,7 @@ internal class ErraticCarbonCurrentTest : LegacyCardTrackingFullGameTest() {
           doTask("ProjectCard FROM PlayedEvent<Class<$InvestmentLoan>>")
           doTask("ProjectCard FROM PlayedEvent<Class<$Harvest>>")
         }
-        doTask("-ProjectCard THEN ProjectCard")
+        doTask("-ProjectCard")
         pink.discard(Decomposers)
       }
     }
@@ -464,7 +464,7 @@ internal class ErraticCarbonCurrentTest : LegacyCardTrackingFullGameTest() {
       playProject(Harvest, 4)
       cardAction1(MarsNomads) {
         draw(ColonizerTrainingCamp)
-        doTask("NomadsMarker<Hellas_8_5 FROM Hellas_8_6> THEN Placement<Hellas_8_5>")
+        doTask("NomadsMarker<Hellas_8_5 FROM Hellas_8_6>")
       }
     }
     blue.turn {

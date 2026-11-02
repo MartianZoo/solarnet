@@ -116,7 +116,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     purple.playProject(ReleaseOfInertGases, 14)
     purple
         .playProject(MagneticFieldDome, 3, steel = 1) {
-          doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
+          doTask("-2 Microbe<$Recyclon>")
         }
         .expect("PROD[2 Plant, -2 Energy]")
 
@@ -178,7 +178,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
     purple.playProject(IndustrialCenter, 4) {
       placeTile(2, 3)
-      doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
+      doTask("-2 Microbe<$Recyclon>")
     }
     purple.assertCounts(8 to "Plant")
     purple.convertPlants {
@@ -466,7 +466,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
     purple
         .playProject(Supercapacitors, 4) {
-          doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
+          doTask("-2 Microbe<$Recyclon>")
         }
         .expect("PROD[1 MC, Plant]")
     purple.cardAction1(Hospitals)
@@ -536,7 +536,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     purple
         .playProject(FieldCappedCity, 25, steel = 2) {
           placeTile(6, 5)
-          doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
+          doTask("-2 Microbe<$Recyclon>")
         }
         .expect("PROD[2 MC, Energy, Plant], 3 Plant, Disease")
 

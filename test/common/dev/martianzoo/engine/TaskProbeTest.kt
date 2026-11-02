@@ -104,11 +104,13 @@ internal class TaskProbeTest {
     val before = world.events.nextOrdinal
     val notices = mutableListOf<Int>()
     val subscription =
-        world.components.listenToCount(
-            world.reader.resolve(parse("Notice")),
-            world.reader,
-            notices::add,
-        )
+        (world as WholeWorld)
+            .components
+            .listenToCount(
+                world.reader.resolve(parse("Notice")),
+                world.reader,
+                notices::add,
+            )
 
     engine.canSelectTask(task) shouldBe true
     engine.canExecuteTask(task) shouldBe false

@@ -11,6 +11,7 @@ import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.ExpandedReference
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
+import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
@@ -195,6 +196,9 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             bindingsFrom(w, classTable.resolve(w), classTable.resolve(n), classTable)[variable]
                 ?.expression
         )
+      }
+      if (w is FromExpression && n is FromExpression) {
+        return collect(w.toExpression, n.toExpression) + collect(w.fromExpression, n.fromExpression)
       }
       if (w::class != n::class) return emptyList()
       return w.childNodes().zip(n.childNodes()).flatMap { (wc, nc) ->

@@ -100,7 +100,7 @@ internal class MergerTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(*cardActionTasks("BoardOfDirectors"))
         doTask("PreludeCard<Kim, Hand>")
-        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
+        doTask("-12 MC")
         doTask("-Director<BoardOfDirectors>")
         doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
         doTask("4 CorporationCard<Kim, Selecting>")
@@ -156,7 +156,7 @@ internal class MergerTest : TfmSandboxTest() {
 
       return kim.completeOperation {
         doTasks(*cardActionTasks("$BoardOfDirectors"))
-        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
+        doTask("-12 MC")
         autoExecNow(EAGER)
         doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
         doTask("PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>")

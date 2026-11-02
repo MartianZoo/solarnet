@@ -10,7 +10,7 @@ internal fun playCardTasks(card: String, source: String = "Hand"): Array<String>
 internal fun cardActionTasks(card: String, action: String = "Action1"): Array<String> =
     arrayOf(
         "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$card, $action> THEN ActionUsedMarker<$card>",
+        "UseAction<$card, $action>",
     )
 
 internal fun standardProjectTasks(project: String): Array<String> =

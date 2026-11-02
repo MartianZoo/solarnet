@@ -41,9 +41,7 @@ internal class CardTrackingTest : TfmTest() {
     agent.runOperation("ProjectCard")
 
     agent.runOperation("UseAction<UseActionOnCardAction, Action1>") {
-      doTask(
-          "UseAction<SelfReplicatingRobots, Action1> THEN ActionUsedMarker<SelfReplicatingRobots>"
-      )
+      doTask("UseAction<SelfReplicatingRobots, Action1>")
 
       doTask("StageForReplicatedProject<Class<Mine>>")
       autoExecNow(EAGER)
@@ -80,9 +78,7 @@ internal class CardTrackingTest : TfmTest() {
     agent.runOperation("ProjectCard")
 
     agent.runOperation("UseAction<UseActionOnCardAction, Action1>") {
-      doTask(
-          "UseAction<SelfReplicatingRobots, Action1> THEN ActionUsedMarker<SelfReplicatingRobots>"
-      )
+      doTask("UseAction<SelfReplicatingRobots, Action1>")
 
       doTask("StageForReplicatedProject<Class<Mine>>")
       autoExecNow(EAGER)
@@ -134,12 +130,6 @@ internal class CardTrackingTest : TfmTest() {
     copied.transactionGuard shouldBe null
     copied[player].count("ProjectCard<Hand>") shouldBe 2
     sourceTracking.requireComplete()
-
-    overlay.reset()
-    sourceTracking.hand(player) shouldBe setOf(firstCard)
-    imagined[player].count("ProjectCard<Hand>") shouldBe 1
-    imagined[player].runOperation("ProjectCard")
-    imagined[player].count("ProjectCard<Hand>") shouldBe 2
   }
 
   @Test
@@ -357,8 +347,7 @@ internal class CardTrackingTest : TfmTest() {
     val before = game.events.nextOrdinal
 
     agents[holder].runOperation("LawSuit FROM ProjectCard") {
-      selectOnlyTask()
-      doTask(
+      selectTask(
           "3 MC<$holder FROM $attacker> THEN PlayedEvent<$attacker, Class<LawSuit>> FROM LawSuit"
       )
     }

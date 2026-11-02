@@ -79,7 +79,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(*cardActionTasks("BoardOfDirectors"))
         doTask("PreludeCard<Kim, Hand>")
-        doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
+        doTask("-12 MC")
         doTask("-Director<BoardOfDirectors>")
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<EarlyColonization>>",
@@ -96,9 +96,9 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*cardActionTasks("BoardOfDirectors"))
           doTask("PreludeCard<Kim, Hand>")
-          doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
+          doTask("-12 MC")
           doTask("-Director<BoardOfDirectors>")
-          doTask("-PreludeCard THEN Audit THEN 15 MC")
+          doTask("-PreludeCard")
           // Execute the fizzle audit before receiving compensation.
           doTask("Audit!")
           doTask("15 MC")

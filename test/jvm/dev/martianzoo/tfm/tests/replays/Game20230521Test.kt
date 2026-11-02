@@ -245,7 +245,7 @@ internal class Game20230521Test : FullGameTest() {
           "1 Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
           "$MarsUniversity FROM ProjectCard",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
     }
@@ -407,7 +407,7 @@ internal class Game20230521Test : FullGameTest() {
           "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no mc paid
           "$TransNeptuneProbe FROM ProjectCard",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
       doTasks(
@@ -517,7 +517,7 @@ internal class Game20230521Test : FullGameTest() {
           *playCardTasks("$SearchForLife"),
           "3 Pay<> FROM MC",
           "$SearchForLife FROM ProjectCard",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
     }
@@ -1041,7 +1041,7 @@ internal class Game20230521Test : FullGameTest() {
           "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
     }
@@ -1205,7 +1205,7 @@ internal class Game20230521Test : FullGameTest() {
           *playCardTasks("$AdvancedAlloys"),
           "7 Pay<> FROM MC",
           "$AdvancedAlloys FROM ProjectCard",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
 
@@ -1215,7 +1215,7 @@ internal class Game20230521Test : FullGameTest() {
           "13 Pay<> FROM MC",
           "$AiCentral FROM ProjectCard",
           "PROD[-Energy]",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
     }
@@ -1624,7 +1624,7 @@ internal class Game20230521Test : FullGameTest() {
           "2 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
           "$NaturalPreserve FROM ProjectCard",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "NaturalPreserve_SpecialTile<Tharsis_3_1>",
           "ProjectCard",
           "ProjectCard",
@@ -2279,7 +2279,7 @@ internal class Game20230521Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "$AtalantaPlanitiaLab FROM ProjectCard",
           "2 ProjectCard",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
       doTasks(

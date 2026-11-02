@@ -497,6 +497,10 @@ inheritance from `Agents`. Those tests construct `Engine.overlay` directly and r
 checks for invalidation, history, reset effects, and anonymous card draws. No engine trial
 capability or test scenario was removed.
 
+**Status note, November 1:** reset remains necessary for engine trials, but now lives on internal
+`OverlayWorld`. The public `SpeculativeWorld` interface has no reset member, and the external
+`CardTrackingTest` no longer calls reset.
+
 The engine's `tryTask` overloads also had only Agent callers, apart from a direct restoration test.
 That policy now lives in Agent: attempt `doTask` within timeline rollback, restore unfinished
 handoffs, and leave unavailable work or requests needing choices pending. The engine restoration

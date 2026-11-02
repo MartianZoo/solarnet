@@ -65,7 +65,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "-5 Heat",
               "4 Plant",
           )
-          doTasks("-2 Floater THEN 4 Heat", "4 Heat")
+          doTasks("-2 Floater", "4 Heat")
         }
         .expect("-2 Floater<$StormcraftIncorporated>, -Heat, 4 Plant")
   }
@@ -79,7 +79,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               *playCardTasks("LocalHeatTrapping"),
               "1 Pay<> FROM MC",
               "LocalHeatTrapping FROM ProjectCard",
-              "-3 Floater THEN 5 Heat",
+              "-3 Floater",
               "5 Heat",
               "-5 Heat",
               "4 Plant",

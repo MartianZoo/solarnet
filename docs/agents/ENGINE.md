@@ -40,6 +40,9 @@ records its past, and the timeline supports restoration; neither is an additiona
 `GameReader` supplies higher-level queries over the current state. The
 `ClassTable` and premise are immutable for the life of the World.
 
+The public `World` exposes component values through `reader`, not its `ComponentGraph`.
+Overlay reset and the timeline's floor and backward-step helper are internal engine methods;
+clients navigate history with recorded positions and `seek`.
 Narrower notes own adjacent subjects:
 
 - [SEQUENCING.md](SEQUENCING.md) owns ordering, `THEN`, barriers, and completion scopes.

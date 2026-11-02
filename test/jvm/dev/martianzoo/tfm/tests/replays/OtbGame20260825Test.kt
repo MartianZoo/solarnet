@@ -384,7 +384,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "Now that I destroyed your beautiful plan." Green removes all four Sulphur-Eating Bacteria
       // microbes for 12 M€.
       cardAction2(SulphurEatingBacteria) {
-        doTask("-4 Microbe<$SulphurEatingBacteria> THEN 12 MC")
+        doTask("-4 Microbe<$SulphurEatingBacteria>")
       }
       // Green spends 8 M€ to claim Philanthropist.
       claimMilestone(cn("Philantropist"))
@@ -573,7 +573,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.exMachina("MC")
     green.turn {
       playProject(LawSuit, 2) {
-        doTask("3 MC<Green> FROM MC<Yellow> THEN PlayedEvent<Yellow, Class<LawSuit>> FROM LawSuit")
+        doTask("3 MC<Green> FROM MC<Yellow>")
       }
     }
     green.exMachina("-MC")

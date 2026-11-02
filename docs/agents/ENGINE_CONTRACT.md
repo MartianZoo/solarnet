@@ -42,6 +42,13 @@ work, and applicable application/completion checks. These may be several transac
 using AI Central can run System bookkeeping and return with its Player draw task still pending.
 A pass can trigger production and the next generation before returning.
 
+`doTask` and `doTasks` must not return successfully without completing every instruction named in
+their text arguments. They reject text containing `THEN`: callers submit the current step and then
+submit later steps separately. A current step can create child tasks or enqueue a `THEN`
+continuation without executing that later work. For example, executing an `EACH` task can finish the
+named `EACH` instruction by creating its individual child tasks. A failed submitted step restores
+the whole Agent call.
+
 Each engine mutation restores its transaction on an escaping `Throwable`. An escaping failure from
 an Agent call restores the entire call, including successful earlier transactions in that call.
 A later failed call does not automatically undo an earlier call that already returned successfully.
@@ -94,15 +101,16 @@ Dropping the selected task is an explicit correction facility, not an in-game wa
 ### Linked instructions
 
 A `THEN` instruction remains joined while a shared type or amount required by its current step is
-unbound. The caller supplies a compatible complete instruction, binding repeated choices
-consistently; `Task.bindXTo` can explicitly bind X. The engine does not reconstruct a linked choice
-from a request naming only the first step. A complete linked proposal can omit its current step's
-gate; the engine retains that condition and checks it after the shared choices are bound.
+unbound. A caller may identify and narrow it by its first step alone when that identifies a unique
+task. The engine carries the first step's type and X bindings into every later step. For example,
+`-2X Foo THEN 3X Bar` accepts `doTask("-4 Foo")` and leaves `6 Bar` pending; `-3 Foo` cannot bind an
+integer X and fails. `Task.bindXTo` can also explicitly bind X. A first-step request may omit its
+gate; the engine retains that condition and checks it after shared choices are bound.
 
 For example, a normal blue-card action is offered as use the chosen action card, then mark that same
-card used. A caller can supply `UseAction<AiCentral, Action1> THEN ActionUsedMarker<AiCentral>`.
-Supplying Inventors Guild for the second occurrence is incompatible. TaskForm can construct the
-complete binding from a guided choice.
+card used. A caller can submit `UseAction<AiCentral, Action1>`; the engine binds the later
+`ActionUsedMarker<AiCentral>` consistently. Supplying Inventors Guild for that later step would be
+incompatible. TaskForm can construct the complete binding from a guided choice.
 
 After binding, the task exposes its current instruction and stores its continuation separately.
 The caller can then narrow or execute just that current instruction without repeating the

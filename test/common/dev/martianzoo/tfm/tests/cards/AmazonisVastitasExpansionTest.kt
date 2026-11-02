@@ -91,7 +91,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
               "CityTile<Amazonis_08_09>",
           )
           doTasks(
-              "PartyLeader<Scientists> THEN PartyDelegate<Scientists>",
+              "PartyLeader<Scientists>",
               "PartyFollower<Scientists>",
           )
         }
@@ -109,7 +109,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
             "25 Pay<> FROM MC",
             "PROD[MC]",
             "CityTile<Amazonis_08_09>",
-            "PartyLeader<Scientists> THEN PartyDelegate<Scientists>",
+            "PartyLeader<Scientists>",
             "PartyLeader<Unity>",
         )
       }
@@ -130,7 +130,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
         doTask("25 Pay<> FROM MC")
         doTask("PROD[MC]")
         doTask("CityTile<Amazonis_08_09>")
-        doTasks("PartyFollower<MarsFirst> THEN PartyDelegate<MarsFirst>", "PartyLeader<MarsFirst>")
+        doTasks("PartyFollower<MarsFirst>", "PartyLeader<MarsFirst>")
       }
     }
     kim.count("CityTile") shouldBe 0

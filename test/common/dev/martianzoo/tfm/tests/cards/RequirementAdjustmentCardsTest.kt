@@ -248,7 +248,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(*cardActionTasks("BoardOfDirectors"))
       doTask("PreludeCard<Kim, Hand>")
-      doTask("-12 MC THEN -Director<BoardOfDirectors> THEN PlayPrelude<Hand>")
+      doTask("-12 MC")
       doTask("-Director<BoardOfDirectors>")
       doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
     }

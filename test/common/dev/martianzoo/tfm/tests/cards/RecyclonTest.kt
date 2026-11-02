@@ -30,7 +30,7 @@ internal class RecyclonTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(*playCardTasks("TitaniumMine"), "7 Pay<> FROM MC")
       doTasks("TitaniumMine FROM ProjectCard", "PROD[Titanium]")
-      doTasks("-2 Microbe THEN PROD[Plant]", "PROD[Plant]")
+      doTasks("-2 Microbe", "PROD[Plant]")
     }
   }
 }

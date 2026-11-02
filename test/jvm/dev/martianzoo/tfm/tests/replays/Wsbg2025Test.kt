@@ -602,7 +602,7 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$MarsUniversity"),
           "6 Pay<> FROM MC",
           "$MarsUniversity FROM ProjectCard",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
       doTask("PassBaton") // decline the second action
@@ -647,7 +647,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$CheungShingMars>",
           "PROD[3 MC]",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
       doTask("PassBaton") // decline the second action
@@ -899,7 +899,7 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$InventorsGuild"),
           "9 Pay<> FROM MC",
           "$InventorsGuild FROM ProjectCard",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
       doTasks(
@@ -941,7 +941,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "16 Pay<> FROM MC",
           "$DesignedMicroorganisms FROM ProjectCard",
           "PROD[2 Plant]",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
       doTasks(
@@ -1042,7 +1042,7 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$DevelopmentCenter"),
           "9 Pay<> FROM MC",
           "$DevelopmentCenter FROM ProjectCard",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
     }
@@ -1122,7 +1122,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "$MassConverter FROM ProjectCard",
           "PROD[6 Energy]",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
       doTask("PassBaton") // decline the second action
@@ -1439,7 +1439,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "11 Pay<> FROM MC",
           "$MedicalLab FROM ProjectCard",
           "PROD[5 MC]",
-          "-ProjectCard THEN ProjectCard",
+          "-ProjectCard",
           "ProjectCard",
       )
       // Development Center timing is provisional.

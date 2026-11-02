@@ -26,7 +26,7 @@ internal class WgProjectTest : TfmSandboxTest() {
           doTask("HighCircles FROM PreludeCard<Selecting>")
           doTask("TerraformRating")
           doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-          doTasks("PartyLeader<Unity> THEN PartyDelegate<Unity>", "PartyFollower<Unity>")
+          doTasks("PartyLeader<Unity>", "PartyFollower<Unity>")
         }
         .expect("$HighCircles, 0 PreludeCard, 0 PreludeCard<Selecting>")
   }
@@ -55,7 +55,7 @@ internal class WgProjectTest : TfmSandboxTest() {
               "WgProject FROM ProjectCard",
           )
           doTask("3 PreludeCard<Kim, Selecting>")
-          doTask("-PreludeCard<Selecting> THEN Audit THEN 15 MC")
+          doTask("-PreludeCard<Selecting>")
           // Hand the fizzle audit to Admin before receiving compensation.
           doTask("Audit!")
           doTask("15 MC")

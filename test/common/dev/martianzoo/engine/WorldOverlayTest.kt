@@ -32,7 +32,7 @@ internal class WorldOverlayTest {
     val pending = sourceAgent.addTasks("Choice?").single()
     val sourceCheckpoint = source.timeline.checkpoint()
 
-    val overlay = Engine.overlay(source)
+    val overlay = Engine.overlay(source) as OverlayWorld
     val imagined = Agents(overlay) { NONE }
     val imaginedAgent = imagined[PLAYER1]
     val originalNote = source.events.entriesSince(0).first().notes
@@ -75,11 +75,11 @@ internal class WorldOverlayTest {
         )
     val sourceAgent = Agents(source) { NONE }[PLAYER1]
     sourceAgent.runOperation("Listener")
-    val overlay = Engine.overlay(source)
+    val overlay = Engine.overlay(source) as OverlayWorld
     val imagined = Agents(overlay) { NONE }
     val imaginedAgent = imagined[PLAYER1]
     val start = imagined.world.timeline.checkpoint()
-    val retainedComponents = imagined.world.components
+    val retainedComponents = (imagined.world as WholeWorld).components
     val retainedEvents = imagined.world.events
     val observedPongCounts = mutableListOf<Int>()
     val subscription =
@@ -96,9 +96,9 @@ internal class WorldOverlayTest {
     imaginedAgent.runOperation("Other")
     (imagined.world.timeline as TimelineImpl).commit()
     overlay.reset()
-    imagined.world.timeline.floor shouldBe start
+    (imagined.world.timeline as TimelineImpl).floor shouldBe start
     imaginedAgent.runOperation("Ping") { doTask("Pong") }
-    imagined.world.timeline.stepBack() shouldBe true
+    (imagined.world.timeline as TimelineImpl).stepBack() shouldBe true
     imagined.world.timeline.stepForward() shouldBe true
 
     imaginedAgent.count("Pong") shouldBe 1
@@ -115,7 +115,7 @@ internal class WorldOverlayTest {
         Engine.newGame(testGamePremise("CLASS Listener { Ping: Pong }\nCLASS Ping\nCLASS Pong"))
     val sourceAgent = Agents(source) { NONE }[PLAYER1]
     sourceAgent.runOperation("Listener")
-    val overlay = Engine.overlay(source)
+    val overlay = Engine.overlay(source) as OverlayWorld
     val imagined = Agents(overlay) { NONE }
     val imaginedAgent = imagined[PLAYER1]
 
@@ -137,14 +137,14 @@ internal class WorldOverlayTest {
   @Test
   internal fun aResetListenerCannotStartAnotherTrialDuringReset() {
     val source = Engine.newGame(testGamePremise("CLASS Token\nCLASS Other"))
-    val overlay = Engine.overlay(source)
+    val overlay = Engine.overlay(source) as OverlayWorld
     val imagined = Agents(overlay) { NONE }
     val agent = imagined[PLAYER1]
     val start = imagined.world.timeline.checkpoint()
     var armed = false
     var rejected = false
     val subscription =
-        imagined.world.components.listenToCount(
+        (imagined.world as WholeWorld).components.listenToCount(
             agent.resolve("Token"),
             imagined.world.reader,
         ) { count ->
@@ -160,7 +160,7 @@ internal class WorldOverlayTest {
 
     rejected shouldBe true
     imagined.world.timeline.checkpoint() shouldBe start
-    imagined.world.timeline.floor shouldBe start
+    (imagined.world.timeline as TimelineImpl).floor shouldBe start
     agent.count("Other") shouldBe 0
     agent.runOperation("Other")
     agent.count("Other") shouldBe 1
@@ -172,8 +172,8 @@ internal class WorldOverlayTest {
     val source = Engine.newGame(testGamePremise("CLASS Token"))
     val sourceAgent = Agents(source) { NONE }[PLAYER1]
     val before = source.timeline.checkpoint()
-    val imagined = Engine.overlay(source)
-    val retainedComponents = imagined.components
+    val imagined = Engine.overlay(source) as OverlayWorld
+    val retainedComponents = (imagined as WholeWorld).components
     val retainedEvents = imagined.events
     val retainedTasks = imagined.tasks
 

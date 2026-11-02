@@ -15,7 +15,7 @@ internal class TitanShuttlesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(*cardActionTasks("TitanShuttles", "Action2"))
-          doTasks("-5 Floater THEN 5 Titanium", "5 Titanium")
+          doTasks("-5 Floater", "5 Titanium")
         }
         .expect("-5 Floater<$TitanShuttles>, 5 Titanium")
   }
@@ -30,7 +30,7 @@ internal class TitanShuttlesTest : TfmSandboxTest() {
         doTasks(*cardActionTasks("TitanShuttles", "Action2"))
         // Select the conversion to verify that its payment and reward share the same amount.
         selectTask("-X! Floater<TitanShuttles> THEN X! Titanium")
-        doTask("-4 Floater THEN 5 Titanium")
+        narrowTask("-4 Floater THEN 5 Titanium")
       }
     }
   }

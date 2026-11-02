@@ -91,9 +91,9 @@ public object Engine {
    * invalidate it. Source commands that temporarily apply events have the same invalidating effect.
    *
    * [source] must satisfy [fork]'s requirements. A source positioned in its recorded past must
-   * discard its retained future before this call. [SpeculativeWorld.reset] restores the creation
-   * state; [fork] produces an independent copy. Guards cannot be installed on this result, so
-   * application checks such as card-identity tracking are absent.
+   * discard its retained future before this call. [fork] produces an independent copy. Guards
+   * cannot be installed on this result, so application checks such as card-identity tracking are
+   * absent.
    *
    * This documents an existing capability pending the removal review on [SpeculativeWorld]; the
    * public copy API remains under review independently of internal transaction trials.
@@ -200,7 +200,7 @@ public object Engine {
       return world
     }
 
-    internal fun createOverlay(): SpeculativeWorld {
+    internal fun createOverlay(): OverlayWorld {
       transactions.initializationFinished()
       timeline.commit()
       limiter.checkRequiredCounts = true

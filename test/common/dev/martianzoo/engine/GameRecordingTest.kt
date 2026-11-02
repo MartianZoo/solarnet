@@ -47,7 +47,8 @@ internal class GameRecordingTest {
     val tasks = agent as Agent
     val heat = game.reader.resolve(parse<Expression>("Heat<Player1>"))
     val observedCounts = mutableListOf<Int>()
-    val subscription = game.components.listenToCount(heat, game.reader, observedCounts::add)
+    val subscription =
+        (game as WholeWorld).components.listenToCount(heat, game.reader, observedCounts::add)
 
     tasks.beginOperation("Heat?")
     val offered = game.timeline.checkpoint()

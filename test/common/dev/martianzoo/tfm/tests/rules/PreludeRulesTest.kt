@@ -13,8 +13,7 @@ internal class PreludeRulesTest : TfmGameplayTest() {
     val checkpoint = game.events.nextOrdinal
 
     // Follow mode accepts the player's declaration that their physical Prelude was unplayable.
-    kim.completeOperation { doTask("-PreludeCard THEN Audit THEN 15 MC") }
-        .expect("15 MC, -PreludeCard")
+    kim.completeOperation { doTask("-PreludeCard") }.expect("15 MC, -PreludeCard")
     kim.completeOperation {
           doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
           autoExecNow(EAGER)

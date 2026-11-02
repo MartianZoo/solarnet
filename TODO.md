@@ -172,6 +172,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Design the planned interaction API as a Platonic UI for information, decisions, navigation, and
   undo. Specify shared interaction scripts with a direct driver and a UI driver, and research
   established test patterns before choosing interfaces. No UI or driver implementation is selected.
+- Specify fuzzy task matching for client requests: settle which omitted details may still identify
+  a pending task, how ambiguity is reported, and how this relates to explicit task IDs and
+  context-class disambiguation. Preserve useful narrowing errors when candidate matching fails
+  without rejecting valid gated requests. Review the current descriptive rule in
+  [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md#identifying-the-permitted-task) before changing behavior.
 - Evolve `TaskForm` and the other agent choice surfaces to the ordered decision kinds
   **TASK, OR, TYPE, NUMBER, CARD**. TASK chooses pending work; OR chooses an alternative;
   TYPE narrows classes and dependencies; NUMBER supplies `?` amounts or `X`; CARD supplies

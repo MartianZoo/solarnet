@@ -255,7 +255,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     with(pink) {
       doTasks(
           *cardActionTasks("$TitanShuttles", "Action2"),
-          "-2 Floater THEN 2 Titanium",
+          "-2 Floater",
           "2 Titanium",
       )
       draw(StaticHarvesting)

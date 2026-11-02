@@ -43,7 +43,7 @@ internal object SampleGames {
     p2.playProject(cn("RotatorImpacts"), titanium = 2)
     p2.stdAction(
         "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<RotatorImpacts, Action1> THEN ActionUsedMarker<RotatorImpacts>",
+        "UseAction<RotatorImpacts, Action1>",
         payment = { p2.pay(titanium = 2) },
     )
     p1.pass()
@@ -58,7 +58,7 @@ internal object SampleGames {
 
     // Generation 2, starting with Player2
     p2.cardAction2(cn("Factorum"))
-    p2.playProject(cn("MarsUniversity"), 6, steel = 1) { doTask("-ProjectCard THEN ProjectCard") }
+    p2.playProject(cn("MarsUniversity"), 6, steel = 1) { doTask("-ProjectCard") }
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p1.playProject(cn("EarthOffice"), 1)
     p2.cardAction2(cn("RotatorImpacts"))
@@ -85,11 +85,11 @@ internal object SampleGames {
     p1.playProject(cn("CorporateStronghold"), 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
     p1.playProject(cn("OptimalAerobraking"), 7)
     p2.playProject(cn("TransNeptuneProbe"), 0, titanium = 2) {
-      doTask("-ProjectCard THEN ProjectCard")
+      doTask("-ProjectCard")
     }
     p2.stdAction(
         "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<RotatorImpacts, Action1> THEN ActionUsedMarker<RotatorImpacts>",
+        "UseAction<RotatorImpacts, Action1>",
         payment = { p2.pay(6) },
     )
     p1.cardAction2(cn("DeuteriumExport"))
@@ -109,12 +109,12 @@ internal object SampleGames {
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p2.stdAction(
         "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<AquiferPumping, Action1> THEN ActionUsedMarker<AquiferPumping>",
+        "UseAction<AquiferPumping, Action1>",
         payment = { p2.pay(8) },
     ) {
       doTask("OceanTile<Tharsis_2_6>")
     }
-    p2.playProject(cn("SearchForLife"), 3) { doTask("-ProjectCard THEN ProjectCard") }
+    p2.playProject(cn("SearchForLife"), 3) { doTask("-ProjectCard") }
     p1.cardAction1(cn("DeuteriumExport"))
     p1.playProject(cn("TectonicStressPower"), 12, steel = 3)
     p2.cardAction2(cn("RotatorImpacts"))
@@ -141,7 +141,7 @@ internal object SampleGames {
     p2.sellPatents(2)
     p2.stdAction(
         "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<DirectedImpactors, Action1> THEN ActionUsedMarker<DirectedImpactors>",
+        "UseAction<DirectedImpactors, Action1>",
         payment = { p2.pay(6) },
     ) {
       doTask("Asteroid<RotatorImpacts>")
@@ -154,7 +154,7 @@ internal object SampleGames {
     p1.declineSecondAction()
     p2.stdAction(
         "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<AquiferPumping, Action1> THEN ActionUsedMarker<AquiferPumping>",
+        "UseAction<AquiferPumping, Action1>",
         payment = { p2.pay(6, steel = 1) },
     ) {
       doTask("OceanTile<Tharsis_1_4>")
@@ -176,7 +176,7 @@ internal object SampleGames {
     p2.playProject(cn("PowerPlant"), 2, steel = 1)
     p2.stdAction(
         "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<AquiferPumping, Action1> THEN ActionUsedMarker<AquiferPumping>",
+        "UseAction<AquiferPumping, Action1>",
         payment = { p2.pay(8) },
     ) {
       doTask("OceanTile<Tharsis_1_5>")
@@ -185,7 +185,7 @@ internal object SampleGames {
     p1.playProject(cn("SisterPlanetSupport"), 4)
     p2.stdAction(
         "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<DirectedImpactors, Action1> THEN ActionUsedMarker<DirectedImpactors>",
+        "UseAction<DirectedImpactors, Action1>",
         payment = { p2.pay(3, titanium = 1) },
     ) {
       doTask("Asteroid<RotatorImpacts>")
@@ -219,7 +219,7 @@ internal object SampleGames {
     p1.stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Builder8") }
     p1.cardAction1(cn("DevelopmentCenter"))
     p2.playProject(cn("EarthCatapult"), 23)
-    p2.playProject(cn("InventionContest"), 0) { doTask("-ProjectCard THEN ProjectCard") }
+    p2.playProject(cn("InventionContest"), 0) { doTask("-ProjectCard") }
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(0) }
     p1.playProject(cn("QuantumExtractor"), 13)
     p2.playProject(cn("BioPrintingFacility"), 1, steel = 2)
@@ -246,14 +246,14 @@ internal object SampleGames {
     p2.buyCards(2)
 
     // Generation 8, starting with Player2
-    p2.playProject(cn("AdvancedAlloys"), 7) { doTask("-ProjectCard THEN ProjectCard") }
-    p2.playProject(cn("AiCentral"), 13, steel = 2) { doTask("-ProjectCard THEN ProjectCard") }
+    p2.playProject(cn("AdvancedAlloys"), 7) { doTask("-ProjectCard") }
+    p2.playProject(cn("AiCentral"), 13, steel = 2) { doTask("-ProjectCard") }
     p1.playProject(cn("ExtractorBalloons"), 21)
     p1.cardAction1(cn("DevelopmentCenter"))
     p2.cardAction1(cn("AiCentral"))
     p2.stdAction(
         "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<DirectedImpactors, Action1> THEN ActionUsedMarker<DirectedImpactors>",
+        "UseAction<DirectedImpactors, Action1>",
         payment = { p2.pay(2, titanium = 1) },
     ) {
       doTask("Asteroid<RotatorImpacts>")

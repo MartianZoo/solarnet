@@ -25,7 +25,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
             "PROD[3 MC]",
             "CityTile<Tharsis_4_2>",
             "Plant",
-            "PartyLeader<Scientists> THEN PartyDelegate<Scientists>",
+            "PartyLeader<Scientists>",
             "PartyLeader<Greens>",
         )
       }
@@ -63,7 +63,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
           "PROD[3 MC]",
           "CityTile<Tharsis_4_2>",
           "Plant",
-          "PartyLeader<Scientists> THEN PartyDelegate<Scientists>",
+          "PartyLeader<Scientists>",
           "PartyFollower<Scientists>",
       )
       // The selected variant does not offer this voluntary removal.
@@ -85,7 +85,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
               "PROD[3 MC]",
               "CityTile<Tharsis_4_2>",
               "Plant",
-              "PartyFollower<Scientists> THEN PartyDelegate<Scientists>",
+              "PartyFollower<Scientists>",
               "PartyLeader<Scientists>",
           )
         }
@@ -109,7 +109,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
         doTask("CityTile<Tharsis_4_2>")
         doTask("Plant")
         doTasks(
-            "PartyLeader<Scientists> THEN PartyDelegate<Scientists>",
+            "PartyLeader<Scientists>",
             "PartyFollower<Scientists>",
         )
       }
@@ -135,7 +135,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
               "Plant",
           )
           doTasks(
-              "PartyLeader<Scientists> THEN PartyDelegate<Scientists>",
+              "PartyLeader<Scientists>",
               "PartyFollower<Scientists>",
           )
         }

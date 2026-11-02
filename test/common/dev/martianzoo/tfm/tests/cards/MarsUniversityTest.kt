@@ -22,7 +22,7 @@ internal class MarsUniversityTest : TfmSandboxTest() {
               "Research FROM ProjectCard",
           )
           doTask("2 ProjectCard<Kim, Hand>")
-          doTasks("-ProjectCard THEN ProjectCard", "-ProjectCard THEN ProjectCard")
+          doTasks("-ProjectCard", "-ProjectCard")
           doTask("ProjectCard<Kim, Hand>")
           doTask("ProjectCard<Kim, Hand>")
         }
@@ -38,7 +38,7 @@ internal class MarsUniversityTest : TfmSandboxTest() {
       doTasks(*playCardTasks("MarsUniversity"), "8 Pay<> FROM MC")
       doTasks("MarsUniversity FROM ProjectCard")
       // Resolve the exchange offer: the empty hand leaves no card to discard.
-      doTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
+      doTask("Ok")
     }
   }
 

@@ -61,11 +61,9 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
           .map { ScriptCompletion(it, "phases") }
 
   fun checkpointIds(): List<ScriptCompletion> =
-      repl.game.timeline.positions
-          .filter { it.serial >= repl.game.timeline.floor.serial }
-          .map {
-            ScriptCompletion(it.serial.toString(), "completed positions")
-          }
+      repl.game.timeline.positions.map {
+        ScriptCompletion(it.serial.toString(), "completed positions")
+      }
 
   fun optionSuggestions(): List<ScriptCompletion> {
     return OptionCodeTranslation.suggestions(repl.optionCodes).map {

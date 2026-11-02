@@ -80,6 +80,7 @@ internal class TimelineTest {
             )
         )
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val timeline = game.timeline as TimelineImpl
     val start = game.timeline.checkpoint()
     agent.runOperation("Listener")
     val listener = game.timeline.checkpoint()
@@ -93,16 +94,16 @@ internal class TimelineTest {
     }
     game.timeline.checkpoint() shouldBe end
 
-    while (game.timeline.checkpoint() != listener) game.timeline.stepBack() shouldBe true
+    while (game.timeline.checkpoint() != listener) timeline.stepBack() shouldBe true
     agent.count("Pong") shouldBe 0
     game.recording().positions shouldBe (0..listener.serial).map(::Checkpoint)
     shouldThrow<IllegalStateException> { agent.runOperation("Ping") }
     shouldThrow<IllegalStateException> {
       game.actorEngine(PLAYER1).addTasks(parse<InstructionGroup>("Choice"))
     }
-    while (game.timeline.checkpoint() != start) game.timeline.stepBack() shouldBe true
+    while (game.timeline.checkpoint() != start) timeline.stepBack() shouldBe true
     agent.count("Listener") shouldBe 0
-    game.timeline.stepBack() shouldBe false
+    timeline.stepBack() shouldBe false
     while (game.timeline.checkpoint() != listener) game.timeline.stepForward() shouldBe true
     while (game.timeline.checkpoint() != end) game.timeline.stepForward() shouldBe true
     agent.count("Pong") shouldBe 1
@@ -123,6 +124,7 @@ internal class TimelineTest {
             testGamePremise("CLASS ChoiceA\nCLASS ChoiceB\nCLASS ChoiceC\nCLASS ChoiceD")
         )
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val timeline = game.timeline as TimelineImpl
     agent.addTasks("ChoiceA OR ChoiceB, ChoiceC OR ChoiceD")
     lateinit var betweenCalls: Checkpoint
 
@@ -130,8 +132,8 @@ internal class TimelineTest {
       doTask("ChoiceA")
       betweenCalls = game.timeline.checkpoint()
       (betweenCalls in game.timeline.positions) shouldBe true
-      game.timeline.stepBack() shouldBe true
-      game.timeline.stepBack() shouldBe false
+      timeline.stepBack() shouldBe true
+      timeline.stepBack() shouldBe false
       game.timeline.stepForward() shouldBe true
       doTask("ChoiceC")
       game.timeline.seek(betweenCalls)
@@ -148,13 +150,14 @@ internal class TimelineTest {
   internal fun directDoTasksRecordsNavigablePositions() {
     val game = Engine.newGame(testGamePremise("CLASS ChoiceA\nCLASS ChoiceB"))
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val timeline = game.timeline as TimelineImpl
     agent.addTasks("ChoiceA")
     agent.doTasks("ChoiceA")
 
     game.timeline.positions shouldBe (0..game.timeline.checkpoint().serial).map(::Checkpoint)
     agent.count("ChoiceA") shouldBe 1
     val done = game.timeline.checkpoint()
-    game.timeline.stepBack() shouldBe true
+    timeline.stepBack() shouldBe true
     agent.count("ChoiceA") shouldBe 0
     game.timeline.seek(done)
     agent.count("ChoiceA") shouldBe 1

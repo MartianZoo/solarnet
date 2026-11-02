@@ -251,7 +251,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4> THEN Placement<Vastitas_5_5>",
+        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
         "TemperatureStep",
         "-1 MC",
         "TerraformRating",
@@ -288,7 +288,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5> THEN Placement<Vastitas_5_4>",
+        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
         "2 Plant",
         "3 MC",
     )
@@ -321,7 +321,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4> THEN Placement<Vastitas_5_5>",
+        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
         "TemperatureStep",
         "2 MC",
         "TerraformRating",
@@ -393,7 +393,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5> THEN Placement<Vastitas_5_4>",
+        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
         "2 Plant",
         "9 MC",
     )
@@ -479,7 +479,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4> THEN Placement<Vastitas_5_5>",
+        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
         "TemperatureStep",
         "5 MC",
         "TerraformRating",
@@ -551,12 +551,12 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "4 Pay<Class<Steel>> FROM Steel",
         "0 Pay<> FROM MC",
         "MarsUniversity FROM ProjectCard",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5> THEN Placement<Vastitas_5_4>",
+        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
         "2 Plant",
         "9 MC",
     )
@@ -628,7 +628,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4> THEN Placement<Vastitas_5_5>",
+        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
         "TemperatureStep",
         "5 MC",
         "TerraformRating",
@@ -673,10 +673,10 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "11 Pay<> FROM MC",
         "Research FROM ProjectCard",
         "2 ProjectCard",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
-    doTask("-ProjectCard THEN ProjectCard")
+    doTask("-ProjectCard")
     doTask("ProjectCard")
     doTasks(
         *playCardTasks("LavaTubeSettlement"),
@@ -801,7 +801,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5> THEN Placement<Vastitas_5_4>",
+        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
         "2 Plant",
         "9 MC",
     )
@@ -815,7 +815,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "14 Pay<> FROM MC",
         "CarbonNanosystems FROM ProjectCard",
         "Graphene<CarbonNanosystems>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     draw(SmallAnimals)
@@ -825,7 +825,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "9 Pay<> FROM MC",
         "AdvancedAlloys FROM ProjectCard",
         "Graphene<CarbonNanosystems>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     draw(BigAsteroid)
@@ -961,7 +961,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_5_4> THEN Placement<Vastitas_6_4>",
+        "NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_5_4>",
         "Plant",
         "6 MC",
     )
@@ -1053,7 +1053,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_6_3> FROM NomadsMarker<Vastitas_6_4> THEN Placement<Vastitas_6_3>",
+        "NomadsMarker<Vastitas_6_3> FROM NomadsMarker<Vastitas_6_4>",
         "3 MC",
     )
     draw(IceCapMelting)
@@ -1097,7 +1097,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "SpecialDesign FROM ProjectCard",
         "SpecialDesign_NextCardEffect",
         "Graphene<CarbonNanosystems>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks(
@@ -1160,7 +1160,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "FusionPower FROM ProjectCard",
         "PROD[3 Energy]",
         "Graphene<CarbonNanosystems>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     draw(SolarLogistics)
@@ -1171,7 +1171,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "QuantumExtractor FROM ProjectCard",
         "PROD[4 Energy]",
         "Graphene<CarbonNanosystems>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     doTasks(
@@ -1253,7 +1253,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "AiCentral FROM ProjectCard",
         "PROD[-Energy]",
         "Graphene<CarbonNanosystems>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     draw(Soletta, HiredRaiders)
@@ -1269,7 +1269,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
     doTasks(
         *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_6_3> THEN Placement<Vastitas_6_4>",
+        "NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_6_3>",
         "Plant",
         "6 MC",
     )
@@ -1411,7 +1411,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "3 ProjectCard<Selecting>",
         "ProjectCard FROM ProjectCard<Selecting>",
         "Graphene<CarbonNanosystems>",
-        "-ProjectCard THEN ProjectCard",
+        "-ProjectCard",
     )
     doTask("ProjectCard")
     draw(FieldCappedCity)
