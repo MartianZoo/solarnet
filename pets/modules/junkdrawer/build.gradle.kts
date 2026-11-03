@@ -83,3 +83,29 @@ tasks.register<JavaExec>("actionTurnDiagram") {
           .orElse(layout.buildDirectory.dir("reports/action-turns").map { it.asFile.absolutePath })
   args(canonSourceDirectory.asFile.absolutePath, output.get())
 }
+
+tasks.register<JavaExec>("generateMaps") {
+  group = "reporting"
+  description = "Generates seeded experimental map diagrams and statistics."
+  classpath = sourceSets.main.get().runtimeClasspath
+  mainClass.set("dev.martianzoo.tfm.petstools.GenerateMapsKt")
+  args(
+      providers.gradleProperty("mapSeed").orElse("1").get(),
+      providers.gradleProperty("mapCount").orElse("3").get(),
+      rootProject.layout.projectDirectory
+          .file("../src/js/dev/martianzoo/tfm/web/shared/map/mars.png")
+          .asFile
+          .absolutePath,
+      petsToolsSourceDirectory.dir("map-icons").asFile.absolutePath,
+      providers
+          .gradleProperty("mapImageDir")
+          .orElse(
+              rootProject.layout.projectDirectory
+                  .dir("../_local/generated-maps")
+                  .asFile
+                  .absolutePath
+          )
+          .get(),
+      providers.gradleProperty("mapScreen").orElse("true").get(),
+  )
+}

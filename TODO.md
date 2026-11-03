@@ -218,3 +218,5 @@ further work in its appendix. [Implementation evidence](docs/agents/ENGINE_TRANS
 preserves the retired transition plan's useful decisions and experiments. Whole-action planning,
 general Player exploration, installed-policy design, operation lifecycle redesign, and
 correction-time recalculation remain separate work.
+
+- Compare future generated map PNGs with the published maps for coastline shapes that the current shared-edge and opposing-water-space counts miss; add a measurable check if repeated odd shapes appear.

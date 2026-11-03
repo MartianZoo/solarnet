@@ -236,3 +236,28 @@ files, so consumers do not need access to its source or intermediate build direc
 This is an independent fan project, not affiliated with or endorsed by FryxGames AB.
 
 See [Querying Canon with XPath](docs/agents/canon-xpath.md) for the authored/elaborated command-line query tool.
+
+## Experimental map generator
+
+Run `./gradlew :junkdrawer:generateMaps -PmapSeed=42 -PmapCount=3 --quiet` from `pets/`.
+The seed reproduces a batch. The report includes a diagram and statistics for each map;
+water-to-water shared edges count each touching pair once. The generator constructs new layouts and bonus patterns from random choices; it does not read
+the reference maps. It is an exploratory
+map design tool, not a complete playable map: its output still needs map declarations, milestones,
+awards, and any expansion-dependent special-bonus rules.
+
+Generated map PNGs are written to `_local/generated-maps/` in the Solarnet checkout. Set
+`-PmapImageDir=/path/to/directory` to use another destination. Images reuse the Playground map
+geometry and icon atlas, and the existing Mars background. Raw candidates use a `-raw.png`
+suffix so they do not replace screened images with the same seed.
+
+Reference-based screening is on by default. Pass `-PmapScreen=false` to inspect raw candidates. Screening discards candidates
+outside the current observed ranges for water grouping, narrow land spaces, plant totals and
+clustering, the largest water clump, total and local icon density, card and titanium totals, water placement of plants and steel, spaces with three or more icons, local bonus variety, same-type bonus concentration, and volcanic placement, rewards, and repeated bonuses. Screening is a review aid rather than a game
+rule; volcano, special-spot, and Noctis choices are fixed before screening each map. The generator itself does
+not load the reference maps. The report defines a narrow land space as a non-water space with
+water on two opposite sides; other narrow passage shapes are not captured by that count.
+
+Generated diagrams can include bonus `V`, a Venus step for 5 M€ when Venus Next is included. When
+present, the output prints the conditional Pets signal declaration needed by a future playable
+map. With 20% probability before screening, a bonus-rich land space becomes a Noctis area.
