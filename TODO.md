@@ -235,3 +235,5 @@ Admin and other attached Actors their automatic turns before returning. Player s
 itself execute as Player. This is intended behavior, not a completed migration. Combined totals,
 submitted-group execution, and explicit numeric THEN binding are already committed on the branch;
 do not repeat them as future work. Whole-action exploration is a separate Agent project.
+
+- Compare future generated map PNGs with the published maps for coastline shapes that the current shared-edge and opposing-water-space counts miss; add a measurable check if repeated odd shapes appear.

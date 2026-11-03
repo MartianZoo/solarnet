@@ -43,3 +43,9 @@ Delegate sigils are emitted directly as
 allowing different leader/follower roles. The trigger-side condition makes the bonus absent from
 games without party delegates while keeping it mandatory when that class is present. Cimmeria's colony-and-cost bonus remains a named Signal
 because its two consequences form one conditional package.
+
+The experimental map generator also uses bonus `V` for `VenusPlacementBonus` and prints
+its conditional signal declaration with a generated diagram that contains it. Generated maps
+remain previews; the signal and generated area declarations must be included when making a
+playable map. The signal makes both the Venus step and the 5 M€ payment conditional on
+`VenusNextExpansion`.
