@@ -147,6 +147,7 @@ val activeReplayClasses =
     listOf(
             "ActiveProtonFlowTest",
             "ActiveVacuumCoreTest",
+            "BinaryVectorStreamTest",
             "CosmicProtonTraceTest",
             "DistantPressureMassTest",
             "DistantSignalBeamTest",
