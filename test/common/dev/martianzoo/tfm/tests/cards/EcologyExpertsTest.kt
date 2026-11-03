@@ -6,6 +6,7 @@ import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Ignore
@@ -97,8 +98,7 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
           "PROD[Plant]",
       )
       // The active player chooses when to hand this task to its owner.
-      doTask("NOW Stan { 2 MC<Stan> }")
-      stan.doTask("2 MC")
+      giveTask(stan, "2 MC<Stan>")
       doTasks("2 MC", "PlayCard<Class<ProjectCard>, Class<Decomposers>>")
       // Execute the requirement waiver before playing the project.
       doTask("-Required* / Required")
@@ -107,8 +107,7 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       selectTask("Microbe<Decomposers>*")
       doTask("Microbe<Decomposers>")
       // The active player chooses when to hand this task to its owner.
-      doTask("NOW Stan { 2 MC<Stan> }")
-      stan.doTask("2 MC")
+      giveTask(stan, "2 MC<Stan>")
       doTask("2 MC")
     }
 

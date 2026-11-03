@@ -39,8 +39,7 @@ internal class ProductiveOutpostTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("ProductiveOutpost"),
           "ProductiveOutpost FROM ProjectCard",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
   }

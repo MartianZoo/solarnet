@@ -108,10 +108,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
         doTask("PROD[3 MC]")
         doTask("CityTile<Tharsis_4_2>")
         doTask("Plant")
-        doTasks(
-            "PartyLeader<Scientists>",
-            "PartyFollower<Scientists>",
-        )
+        doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
       }
     }
 
@@ -134,10 +131,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
               "CityTile<Tharsis_4_2>",
               "Plant",
           )
-          doTasks(
-              "PartyLeader<Scientists>",
-              "PartyFollower<Scientists>",
-          )
+          doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
         }
         .expect("-LobbyDelegate")
   }

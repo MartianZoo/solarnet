@@ -230,8 +230,7 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
           *playCardTasks("$ImportedGhg"),
           "$ImportedGhg FROM ProjectCard",
           "PROD[Heat]",
-          "3 Heat",
-          "3 Heat",
+          "6 Heat",
           "3 MC",
           "3 MC",
       )

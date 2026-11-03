@@ -14,7 +14,7 @@ internal data class PendingTask(
     val instruction: InstructionGroup,
     val cause: Cause?,
     /** The deferral of the tasks this work becomes; see [dev.martianzoo.state.Task.deferral]. */
-    val deferral: Deferral = Deferral.NONE,
+    val deferral: Deferral = Deferral.SOON,
 ) {
   operator fun times(factor: Int): PendingTask = copy(instruction = instruction * factor)
 

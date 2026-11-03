@@ -5,6 +5,7 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
@@ -89,8 +90,7 @@ internal class Game20230521Test : FullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
           "$AlliedBank FROM PreludeCard",
           "PROD[4 MC]",
-          "3 MC",
-          "4 MC",
+          "7 MC",
       )
     }
 
@@ -430,9 +430,7 @@ internal class Game20230521Test : FullGameTest() {
           "4 Pay<> FROM MC",
           "$ImportedGhg FROM ProjectCard",
           "PROD[Heat]",
-          "3 Heat",
-          "3 Heat",
-          "Heat",
+          "7 Heat",
           "3 MC",
       )
     }
@@ -643,8 +641,7 @@ internal class Game20230521Test : FullGameTest() {
           "3 MC",
           "TerraformRating",
           "PROD[Heat]",
-          "3 Heat",
-          "Heat",
+          "4 Heat",
       )
     }
 
@@ -832,8 +829,7 @@ internal class Game20230521Test : FullGameTest() {
           *cardActionTasks("$AquiferPumping"),
           "8 Pay<> FROM MC",
           "OceanTile<Tharsis_1_5>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
           "2 Plant",
       )
@@ -879,8 +875,7 @@ internal class Game20230521Test : FullGameTest() {
           "$DuskLaserMining FROM ProjectCard",
           "PROD[Titanium]",
           "PROD[-Energy]",
-          "4 Titanium",
-          "Titanium",
+          "5 Titanium",
       )
 
       doTasks(
@@ -1297,15 +1292,13 @@ internal class Game20230521Test : FullGameTest() {
           "7 Pay<> FROM MC",
           "$MoholeLake FROM ProjectCard",
           "OceanTile<Tharsis_5_5>",
-          "3 Plant",
-          "2 Plant",
+          "5 Plant",
           "TemperatureStep",
           "TerraformRating",
           "TerraformRating",
       )
       // Player 1 hands the Arctic Algae reward to Player 2.
-      doTask("NOW Player2 { 2 Plant<Player2> }")
-      p2.doTasks("2 Plant")
+      giveTask(p2, "2 Plant<Player2>")
 
       doTasks(
           "UseAction<ClaimMilestoneAction, Action1>",
@@ -1451,15 +1444,12 @@ internal class Game20230521Test : FullGameTest() {
           "DeimosDownPromo_SpecialTile<Tharsis_2_5>",
           "-4 Plant<Player1>",
           "4 Steel",
-          "2 Plant",
-          "Plant",
+          "3 Plant",
           "TerraformRating",
           "TerraformRating",
           "TerraformRating",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
       doTasks(
           *cardActionTasks("$AiCentral"),
@@ -1488,11 +1478,9 @@ internal class Game20230521Test : FullGameTest() {
           "3 Pay<Class<Steel>> FROM Steel",
           "Ok", // no mc paid
           "OceanTile<Tharsis_5_6>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
-          "2 Plant",
-          "2 Plant",
+          "4 Plant",
       )
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
@@ -1553,8 +1541,7 @@ internal class Game20230521Test : FullGameTest() {
           "EcologicalZone_SpecialTile<Tharsis_4_5>",
           "Animal<$EcologicalZone>",
           "Animal<$EcologicalZone>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "2 Plant",
       )
 
@@ -1626,8 +1613,7 @@ internal class Game20230521Test : FullGameTest() {
           "$NaturalPreserve FROM ProjectCard",
           "-ProjectCard",
           "NaturalPreserve_SpecialTile<Tharsis_3_1>",
-          "ProjectCard",
-          "ProjectCard",
+          "2 ProjectCard",
           "PROD[MC]",
       )
     }
@@ -1671,8 +1657,7 @@ internal class Game20230521Test : FullGameTest() {
           "13 Pay<> FROM MC",
           "$Trees FROM ProjectCard",
           "PROD[3 Plant]",
-          "Plant",
-          "3 Plant",
+          "4 Plant",
       )
       doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Banker")
     }
@@ -2147,8 +2132,7 @@ internal class Game20230521Test : FullGameTest() {
           "OceanTile<Tharsis_5_4>",
           "2 MC",
           "TerraformRating",
-          "2 Plant",
-          "2 Plant",
+          "4 Plant",
       )
     }
 
@@ -2237,9 +2221,7 @@ internal class Game20230521Test : FullGameTest() {
           "PROD[-4 Energy]",
           "PROD[2 Plant]",
           "3 TerraformRating",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
           "Plant",
       )
 
@@ -2249,14 +2231,11 @@ internal class Game20230521Test : FullGameTest() {
           "1 Pay<> FROM MC",
           "$TowingAComet FROM ProjectCard",
           "OceanTile<Tharsis_6_8>",
-          "2 Plant",
-          "2 Plant",
-          "Plant",
+          "5 Plant",
           "OxygenStep",
           "TerraformRating",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
 
@@ -2336,10 +2315,7 @@ internal class Game20230521Test : FullGameTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_5_7>",
-          "3 MC",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "9 MC",
           "2 Plant",
           "OxygenStep",
           "TerraformRating",
@@ -2370,8 +2346,7 @@ internal class Game20230521Test : FullGameTest() {
       doTasks(
           "GreeneryTile<Tharsis_4_4>",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "0 OxygenStep", // oxygen maxed
       )
     }
@@ -2440,8 +2415,7 @@ internal class Game20230521Test : FullGameTest() {
     p1.doTasks(
         "GreeneryTile<Tharsis_6_5>",
         "Plant",
-        "2 MC",
-        "2 MC",
+        "4 MC",
     )
     p1.doTask("PassBaton") // no more greenery
     p2.doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
@@ -116,8 +117,7 @@ internal class PhilaresTest : TfmSandboxTest() {
           doTask("ProjectCard<Stan, Hand>")
           doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_3>")
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { StandardResource<Kim>! }")
-          kim.doTask("Titanium")
+          giveTask(kim, "StandardResource<Kim>!", "Titanium")
           doTask("Plant")
         }
         .expect("Titanium<Kim>, 0 Community<Stan>")

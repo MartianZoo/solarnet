@@ -74,7 +74,7 @@ internal class TaskQueues(
       instruction: InstructionGroup,
       assignee: Actor,
       cause: Cause?,
-      deferral: Deferral = Deferral.NONE,
+      deferral: Deferral = Deferral.SOON,
       includeDispatchedTasks: Boolean = true,
   ): List<TaskAddedEvent> {
     requireAtEnd()
@@ -129,7 +129,7 @@ internal class TaskQueues(
           gameWorld.reader.recipientOf(dispatch),
           task.cause,
           dispatch.deferral,
-      ) + task.then?.let { admit(it, task.assignee, task.cause, Deferral.NONE) }.orEmpty()
+      ) + task.then?.let { admit(it, task.assignee, task.cause, Deferral.SOON) }.orEmpty()
 
   internal fun removeTask(task: Task): TaskRemovedEvent {
     requireAtEnd()
@@ -155,7 +155,7 @@ internal class TaskQueues(
       if (pending.isEmpty() || pending.any { !it.deferred }) return
       val earliest = pending.minOf { it.deferral }
       val batch = pending.filter { it.deferral == earliest }
-      batch.forEach { editTask(it.copy(deferral = Deferral.NONE)) }
+      batch.forEach { editTask(it.copy(deferral = Deferral.SOON)) }
       val dispatches =
           batch
               .map { gameWorld.tasks.getTaskData(it.id) }
@@ -252,7 +252,7 @@ internal class TaskQueues(
                   Instruction.Dispatch(
                       task.assignee.expression,
                       InstructionGroup.createTree(it.instructions),
-                      if (continueSelected && it.size == 1) Deferral.NOW else Deferral.NONE,
+                      if (continueSelected && it.size == 1) Deferral.NOW else Deferral.SOON,
                   )
               )
             },

@@ -147,7 +147,7 @@ internal class HellasPromoGameTest : FullGameTest() {
     }
     p2.doTask("Pass")
 
-    p1.doTasks("-5 MC", "5 MC", "23 MC")
+    p1.doTasks("-5 MC", "28 MC")
     p2.doTasks("3 MC", "25 MC", "-5 MC", "3 Plant", "Energy", "Heat")
 
     // Generation 2 (Player2 first)

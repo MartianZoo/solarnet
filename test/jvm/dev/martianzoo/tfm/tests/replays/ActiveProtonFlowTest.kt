@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -212,8 +213,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       doTask("OceanTile<Tharsis_2_6>")
       doTask("TerraformRating")
     }
-    green.doTask("NOW ER { 2 Plant<ER> }")
-    pink.doTask("2 Plant")
+    green.giveTask(pink, "2 Plant<ER>")
     green.doTask("2 ProjectCard")
     with(pink) {
       doTasks(

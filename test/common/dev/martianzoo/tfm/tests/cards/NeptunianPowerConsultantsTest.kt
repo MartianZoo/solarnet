@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.NeptunianPowerConsultants
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -46,20 +47,20 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
               "TerraformRating",
           )
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { UseAction<Kim, NeptunianOption<NeptunianPowerConsultants<Kim>>>? }")
-          kim.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+          giveTask(
+              kim,
+              "UseAction<Kim, NeptunianOption<NeptunianPowerConsultants<Kim>>>?",
+              "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+          )
           doTask("2 Steel")
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { 5 Pay<Kim> FROM MC<Kim> }")
-          kim.doTask("5 Pay<> FROM MC")
+          giveTask(kim, "5 Pay<Kim> FROM MC<Kim>")
           // Handle Admin's bill closure after Kim's cross-player payment.
           autoExecNow()
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { PROD[Energy<Kim>] }")
-          kim.doTask("PROD[Energy]")
+          giveTask(kim, "PROD[Energy<Kim>]")
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { Hydroelectric<NeptunianPowerConsultants<Kim>> }")
-          kim.doTask("Hydroelectric<NeptunianPowerConsultants>")
+          giveTask(kim, "Hydroelectric<NeptunianPowerConsultants<Kim>>")
         }
         .expect("-5 MC<Kim>, Hydroelectric<Kim>, PROD[Energy<Kim>]")
   }
@@ -79,8 +80,11 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
               "TerraformRating",
           )
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { UseAction<Kim, NeptunianOption<NeptunianPowerConsultants<Kim>>>? }")
-          kim.doTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
+          giveTask(
+              kim,
+              "UseAction<Kim, NeptunianOption<NeptunianPowerConsultants<Kim>>>?",
+              "0 UseAction<NeptunianOption<NeptunianPowerConsultants>>",
+          )
           doTask("2 Steel")
         }
         .expect("0 Hydroelectric<Kim>")

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -55,8 +56,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           selectTask("Microbe<Decomposers>*")
           doTask("Microbe<Decomposers>!")
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { 2 MC<Kim> }")
-          kim.doTask("2 MC")
+          giveTask(kim, "2 MC<Kim>")
           doTask("2 MC")
         }
         .expect("-3 MC<Stan>, Microbe<$Decomposers<Stan>>")
@@ -92,8 +92,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           selectTask("Microbe<Decomposers>*")
           doTask("Microbe<Decomposers>!")
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { 2 MC<Kim> }")
-          kim.doTask("2 MC")
+          giveTask(kim, "2 MC<Kim>")
           doTask("Microbe<Decomposers>!")
         }
         .expect("-5 MC<Stan>, 2 Microbe<$Decomposers<Stan>>")
@@ -129,8 +128,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           selectTask("Microbe<Decomposers>*")
           doTask("Microbe<Decomposers>!")
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { 2 MC<Kim> }")
-          kim.doTask("2 MC")
+          giveTask(kim, "2 MC<Kim>")
           shouldThrow<TaskException> { doTask("Microbe<$RegolithEaters>!") }
           doTask("Microbe<Decomposers>")
         }
@@ -164,8 +162,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
               "PROD[Steel]",
           )
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { 2 MC<Kim> }")
-          kim.doTask("2 MC")
+          giveTask(kim, "2 MC<Kim>")
           doTask("Ok")
         }
         .expect("-12 MC<Stan>, 0 Microbe<Stan>")

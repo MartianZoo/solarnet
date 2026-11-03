@@ -41,7 +41,7 @@ internal fun newTask(
     instruction: Instruction,
     cause: Cause?,
     isAbstract: ((Expression) -> Boolean)? = null,
-    deferral: Deferral = Deferral.NONE,
+    deferral: Deferral = Deferral.SOON,
 ): Task =
     normalizeTask(
         Task(
@@ -50,7 +50,7 @@ internal fun newTask(
             instruction = instruction,
             cause = cause,
             selected = deferral == Deferral.NOW,
-            deferral = if (deferral == Deferral.NOW) Deferral.NONE else deferral,
+            deferral = if (deferral == Deferral.NOW) Deferral.SOON else deferral,
         ),
         isAbstract,
     )

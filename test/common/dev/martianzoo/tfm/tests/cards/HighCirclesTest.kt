@@ -78,10 +78,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
       )
       kim.completeOperation {
         doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
-        doTasks(
-            "PartyLeader<Scientists>",
-            "PartyFollower<Scientists>",
-        )
+        doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
         autoExecNow(EAGER)
       }
       kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")

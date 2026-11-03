@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
@@ -24,8 +25,7 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
           "TerraformRating",
       )
       // The active player chooses when to hand this task to its owner.
-      doTask("NOW Kim { 2 Plant<Kim> }")
-      kim.doTask("2 Plant")
+      giveTask(kim, "2 Plant<Kim>")
       doTask("2 Steel")
     }
   }
@@ -48,13 +48,11 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       doTask("OceanTile<Tharsis_1_2>")
       doTasks("TerraformRating", "2 Steel")
       // The active player chooses when to hand this task to its owner.
-      doTask("NOW Stan { 2 Plant<Stan> }")
-      stan.doTask("2 Plant")
+      giveTask(stan, "2 Plant<Stan>")
       doTask("OceanTile<Tharsis_1_4>")
       doTasks("TerraformRating", "ProjectCard")
       // The active player chooses when to hand this task to its owner.
-      doTask("NOW Stan { 2 Plant<Stan> }")
-      stan.doTask("2 Plant")
+      giveTask(stan, "2 Plant<Stan>")
       doTask("-6 Plant<Stan>")
     }
   }
@@ -78,12 +76,10 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
           "TerraformRating",
       )
       // The active player chooses when to hand this task to its owner.
-      doTask("NOW Stan { 2 Plant<Stan> }")
-      stan.doTask("2 Plant")
+      giveTask(stan, "2 Plant<Stan>")
       doTasks("2 Steel", "OceanTile<Tharsis_1_4>", "TerraformRating")
       // The active player chooses when to hand this task to its owner.
-      doTask("NOW Stan { 2 Plant<Stan> }")
-      stan.doTask("2 Plant")
+      giveTask(stan, "2 Plant<Stan>")
       doTask("ProjectCard<Kim, Hand>")
     }
   }

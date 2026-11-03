@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -95,11 +96,13 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           )
           doTask("Microbe<Decomposers>*")
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { Disease<PharmacyUnion<Kim>>! OR (MAX 0 PharmacyUnion<Kim>: Ok) }")
-          kim.doTask("Disease<PharmacyUnion<Kim>>")
+          giveTask(
+              kim,
+              "Disease<PharmacyUnion<Kim>>! OR (MAX 0 PharmacyUnion<Kim>: Ok)",
+              "Disease<PharmacyUnion<Kim>>",
+          )
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { -4* MC<Kim> }")
-          kim.doTask("-4 MC")
+          giveTask(kim, "-4* MC<Kim>", "-4 MC")
         }
         .expect("Disease<$PharmacyUnion<Kim>>, -4 MC<Kim>")
   }

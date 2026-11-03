@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
@@ -215,7 +216,7 @@ internal class Game20260619Test : FullGameTest() {
     }
 
     ER.doTasks("8 MC", "-5 MC", "21 MC", "Titanium", "2 Plant", "3 Heat")
-    KB.doTasks("-5 MC", "8 MC", "21 MC", "2 Titanium", "5 Energy", "3 Heat")
+    KB.doTasks("-5 MC", "29 MC", "2 Titanium", "5 Energy", "3 Heat")
     ER.doTask("4 ProjectCard<Selecting>")
     KB.doTask("4 ProjectCard<Selecting>")
 
@@ -274,8 +275,7 @@ internal class Game20260619Test : FullGameTest() {
           "$RestrictedArea FROM ProjectCard",
           "RestrictedArea_SpecialTile<Tharsis_3_7>",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
     }
@@ -483,7 +483,7 @@ internal class Game20260619Test : FullGameTest() {
     }
 
     ER.doTasks("10 MC", "-5 MC", "24 MC", "Titanium", "2 Plant", "5 Heat")
-    KB.doTasks("-5 MC", "8 MC", "22 MC", "2 Titanium", "9 Energy", "3 Heat", "8 Heat FROM Energy")
+    KB.doTasks("-5 MC", "30 MC", "2 Titanium", "9 Energy", "3 Heat", "8 Heat FROM Energy")
     ER.doTask("4 ProjectCard<Selecting>")
     KB.doTask("4 ProjectCard<Selecting>")
 
@@ -683,7 +683,7 @@ internal class Game20260619Test : FullGameTest() {
           "$MirandaResort FROM ProjectCard",
           "PROD[5 MC]",
       )
-      KB.doTask("PROD[MC]")
+      giveTask(KB, "PROD[MC<Player2>]")
       doTask("PassBaton") // decline the second action
     }
 
@@ -773,8 +773,7 @@ internal class Game20260619Test : FullGameTest() {
     ER.doTasks("15 MC", "-5 MC", "26 MC", "Titanium", "3 Plant", "9 Heat")
     KB.doTasks(
         "-5 MC",
-        "8 MC",
-        "26 MC",
+        "34 MC",
         "2 Titanium",
         "9 Energy",
         "4 Heat",

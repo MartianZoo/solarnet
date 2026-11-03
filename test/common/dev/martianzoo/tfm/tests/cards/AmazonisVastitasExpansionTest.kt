@@ -90,10 +90,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
               "PROD[MC]",
               "CityTile<Amazonis_08_09>",
           )
-          doTasks(
-              "PartyLeader<Scientists>",
-              "PartyFollower<Scientists>",
-          )
+          doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
         }
         .expect("PartyLeader<Scientists>, Dominant<Scientists>")
   }

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -37,8 +38,7 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
           "2 ProjectCard",
       )
       // Stan hands the reaction to Solar Logistics' owner.
-      doTask("NOW Kim { ProjectCard<Kim> }")
-      kim.doTask("ProjectCard")
+      giveTask(kim, "ProjectCard<Kim>")
     }
   }
 }

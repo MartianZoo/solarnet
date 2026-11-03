@@ -134,7 +134,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
           "GreeneryTile<Tharsis_3_3>",
       )
       doTask("OxygenStep")
-      doTasks("2 MC", "2 MC", "TerraformRating")
+      doTasks("4 MC", "TerraformRating")
     }
     kim.inTurn {
       doTasks(

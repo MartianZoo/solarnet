@@ -199,8 +199,7 @@ internal class WildTagTest : TfmSandboxTest() {
           "33 Pay<> FROM MC",
           "TerraformingGanymede FROM ProjectCard",
       )
-      doTask("NOW Kim { PROD[MC] }")
-      kim.doTask("PROD[1 MC]")
+      giveTask(kim, "PROD[MC]", "PROD[1 MC]")
       doTask("2 TerraformRating")
     }
   }

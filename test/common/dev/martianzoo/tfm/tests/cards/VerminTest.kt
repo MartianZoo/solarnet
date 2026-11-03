@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.setUpGame
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
@@ -29,8 +30,7 @@ internal class VerminTest : TfmSandboxTest() {
               "CityTile<Tharsis_2_1>",
           )
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { Animal<Vermin<Kim>> }")
-          kim.doTask("Animal<Vermin>")
+          giveTask(kim, "Animal<Vermin<Kim>>")
         }
         .expect("Animal<$Vermin<Kim>>")
   }

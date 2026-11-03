@@ -42,8 +42,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
       // Execute the repeat-bonus signal so the area offers its bonus again.
       doTask("RepeatPlacementBonus<Kim, Hellas_9_7>!")
       doTasks(
-          "-6 MC",
-          "-6 MC",
+          "-12 MC",
           "OceanTile<Hellas_5_7>",
           "TerraformRating",
           "3 Heat",
@@ -77,8 +76,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
       doTask("CimmeriaPlacementBonus!")
       doTask("CimmeriaPlacementBonus!")
       doTasks(
-          "-5 MC",
-          "-5 MC",
+          "-10 MC",
           "Colony<Luna>",
           "PROD[2 MC]",
           "Colony<Ceres>",
@@ -144,7 +142,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
       doTask("-FrontierTownBonus!")
       doTasks("2 Plant", "2 MC")
       doTask("RepeatPlacementBonus<Tharsis_4_5>")
-      doTasks("2 Plant", "2 Plant")
+      doTasks("4 Plant")
     }
   }
 }

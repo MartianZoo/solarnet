@@ -4,6 +4,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
@@ -156,13 +157,11 @@ internal class OtbGame20261009Test : FullGameTest() {
           "TerraformRating",
           "OceanTile<Vastitas_6_7>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "ProjectCard",
           "OceanTile<Vastitas_5_7>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "2 Plant",
           "-Plant<Aqua>",
           "PROD[Heat]",
@@ -184,8 +183,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "PROD[-2 MC]",
           "CityTile<Vastitas_7_8>",
           "PROD[MC]",
-          "3 MC",
-          "2 MC",
+          "5 MC",
           "Plant",
       )
       doTask("PassBaton") // decline the second action
@@ -266,8 +264,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "PROD[MC]",
       )
       // Aqua hands Pink the Pets reward before Pink takes it.
-      doTask("NOW Pink { Animal<$Pets<Pink>> }")
-      p2.doTasks("Animal<$Pets>")
+      giveTask(p2, "Animal<$Pets<Pink>>")
       doTask("PassBaton") // decline the second action
     }
     with(p2) {
@@ -448,7 +445,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       )
       selectTask("ColonyProduction<Triton>?")
       doTask("ColonyProduction<Triton>")
-      doTasks("5 Titanium", "Titanium")
+      doTasks("6 Titanium")
     }
     with(p2) {
       doTasks(
@@ -663,14 +660,12 @@ internal class OtbGame20261009Test : FullGameTest() {
           "Animal<$Pets>",
       )
       // Pink hands Aqua the city-triggered production reward.
-      doTask("NOW Aqua { PROD[MC<Aqua>] }")
-      p1.doTasks("PROD[MC]")
+      giveTask(p1, "PROD[MC<Aqua>]")
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
           "GreeneryTile<Vastitas_4_4>",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "OxygenStep",
           "TerraformRating",
       )
@@ -980,8 +975,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "TerraformRating",
           "OceanTile<Vastitas_3_2>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "2 Plant",
           "OceanTile<Vastitas_6_5>",
           "TerraformRating",
@@ -1020,8 +1014,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTasks(
           "GreeneryTile<Vastitas_4_6>",
           "ProjectCard",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "OxygenStep",
           "TerraformRating",
       )
@@ -1510,9 +1503,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Vastitas_7_7>",
-          "3 MC",
-          "2 MC",
-          "2 MC",
+          "7 MC",
           "2 Plant",
           "OxygenStep",
           "TerraformRating",
@@ -1542,8 +1533,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
           "GreeneryTile<Vastitas_6_4>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "Plant",
           "OxygenStep",
           "TerraformRating",
@@ -1811,9 +1801,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Vastitas_6_8>",
-          "3 MC",
-          "2 MC",
-          "2 MC",
+          "7 MC",
           "Plant",
           "OxygenStep",
           "TerraformRating",
@@ -1886,8 +1874,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Miranda>",
           "Animal<$Pets>",
-          "ProjectCard",
-          "ProjectCard",
+          "2 ProjectCard",
       )
       doTask("PassBaton") // decline the second action
     }
@@ -2018,8 +2005,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Miranda>",
           "2 Animal<$Pets>",
-          "ProjectCard",
-          "ProjectCard",
+          "2 ProjectCard",
       )
       doTask("PassBaton") // decline the second action
     }
@@ -2049,8 +2035,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       )
       // Pink records only the two placement plants, missing Viral Enhancers' optional plant.
       doTask("Ok") // decline Viral Enhancers' plant
-      doTask("NOW Aqua { PROD[MC<Aqua>] }")
-      p1.doTasks("PROD[MC]")
+      giveTask(p1, "PROD[MC<Aqua>]")
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks("GreeneryTile<Vastitas_3_5>", "Plant")
       doTask("0 OxygenStep") // oxygen is already maxed
@@ -2221,8 +2206,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "PROD[2 Plant]",
           "3 TerraformRating",
           "MagneticFieldGeneratorsPromo_SpecialTile<Vastitas_2_2>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "2 Plant",
       )
     }
@@ -2273,8 +2257,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "3 MC", // Arcadian community
           "PROD[MC]", // Immigrant City
       )
-      doTask("NOW Pink { Animal<$Pets<Pink>> }")
-      p2.doTasks("Animal<$Pets>")
+      giveTask(p2, "Animal<$Pets<Pink>>")
       doTasks("PROD[MC]") // the city's own production, in addition to Immigrant City
       doTask("PassBaton") // decline the second action
     }

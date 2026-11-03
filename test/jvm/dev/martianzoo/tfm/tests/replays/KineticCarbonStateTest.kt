@@ -610,8 +610,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "18 Pay<> FROM MC",
         "OceanTile<Hellas_1_1>",
         "TerraformRating",
-        "2 Plant",
-        "2 Plant",
+        "4 Plant",
     )
     assertUnusedActionCards(AppliedScience)
     doTasks(
@@ -882,8 +881,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "-3 Plant<SoloOpponent>",
         "OceanTile<Hellas_2_1>",
         "TerraformRating",
-        "2 Plant",
-        "2 Plant",
+        "4 Plant",
         "4 MC",
     )
     doTasks(

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -64,8 +65,7 @@ internal class CapitalTest : TfmSandboxTest() {
               "CapitalTile<Tharsis_3_3>",
           )
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { PROD[MC<Kim>] }")
-          kim.doTask("PROD[MC]")
+          giveTask(kim, "PROD[MC<Kim>]")
         }
         .expect("PROD[MC<Kim>]")
   }

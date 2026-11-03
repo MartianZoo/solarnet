@@ -137,7 +137,7 @@ internal class FirstPartialGameTest : FullGameTest() {
       )
     }
     p2.doTask("Pass")
-    p1.doTasks("-5 MC", "5 MC", "20 MC", "Energy", "4 Titanium")
+    p1.doTasks("-5 MC", "25 MC", "Energy", "4 Titanium")
     p2.doTasks("6 MC", "-5 MC", "23 MC", "3 Steel", "Titanium")
 
     // Generation 2 (Player2 first)
@@ -230,7 +230,7 @@ internal class FirstPartialGameTest : FullGameTest() {
     p1.doTask("Pass")
     p2.doTask("Pass")
     p1.doTasks("7 MC", "-5 MC", "20 MC", "Energy", "5 Titanium", "Heat FROM Energy", "Steel")
-    p2.doTasks("-5 MC", "6 MC", "23 MC", "6 Steel", "Titanium", "Energy")
+    p2.doTasks("-5 MC", "29 MC", "6 Steel", "Titanium", "Energy")
 
     // Generation 3 (Player1 first)
     p1.doTasks(
@@ -307,8 +307,8 @@ internal class FirstPartialGameTest : FullGameTest() {
       doTask("Pass")
     }
 
-    p1.doTasks("-5 MC", "7 MC", "20 MC", "Energy", "5 Titanium", "2 Steel", "Heat FROM Energy")
-    p2.doTasks("-5 MC", "10 MC", "25 MC", "6 Steel", "Titanium", "Heat FROM Energy", "2 Energy")
+    p1.doTasks("-5 MC", "27 MC", "Energy", "5 Titanium", "2 Steel", "Heat FROM Energy")
+    p2.doTasks("-5 MC", "35 MC", "6 Steel", "Titanium", "Heat FROM Energy", "2 Energy")
 
     // Generation 4 (Player2 first)
     p1.doTasks(
@@ -395,8 +395,8 @@ internal class FirstPartialGameTest : FullGameTest() {
 
     p1.doTask("Pass")
     p2.doTask("Pass")
-    p1.doTasks("-5 MC", "7 MC", "20 MC", "Energy", "7 Titanium", "2 Steel", "Heat FROM Energy")
-    p2.doTasks("-5 MC", "13 MC", "25 MC", "6 Steel", "Titanium", "2 Energy", "2 Heat FROM Energy")
+    p1.doTasks("-5 MC", "27 MC", "Energy", "7 Titanium", "2 Steel", "Heat FROM Energy")
+    p2.doTasks("-5 MC", "38 MC", "6 Steel", "Titanium", "2 Energy", "2 Heat FROM Energy")
     p1.doTask("4 ProjectCard<Selecting>")
     p2.doTask("4 ProjectCard<Selecting>")
 

@@ -965,7 +965,7 @@ public object Parsing {
             }
     private val dispatchInstruction by
         ((nowKeyword asJust Deferral.NOW) or
-            (soonKeyword asJust Deferral.NONE) or
+            (soonKeyword asJust Deferral.SOON) or
             (laterKeyword asJust Deferral.LATER) or
             (finallyKeyword asJust Deferral.FINALLY)) and
             optional(expression) and

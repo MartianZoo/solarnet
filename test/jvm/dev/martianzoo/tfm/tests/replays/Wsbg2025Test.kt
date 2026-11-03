@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
@@ -324,8 +325,7 @@ internal class Wsbg2025Test : FullGameTest() {
       )
       assertCounts(20 to "MC") // visual confirmation
       doTasks("2 MC")
-      doTask("NOW Blue { 2 Plant<Blue> }")
-      blue.doTasks("2 Plant") // Arctic Algae
+      giveTask(blue, "2 Plant<Blue>") // Arctic Algae
     }
     with(blue) {
       doTasks(
@@ -360,7 +360,7 @@ internal class Wsbg2025Test : FullGameTest() {
     with(black) {
       // Greenery timing inferred between 00:38:30 and 00:43:30.
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_4_3>", "OxygenStep", "TerraformRating", "Plant", "2 MC", "2 MC")
+      doTasks("GreeneryTile<Elysium_4_3>", "OxygenStep", "TerraformRating", "Plant", "4 MC")
       assertCounts(6 to "MC", 24 to "TerraformRating") // visual confirmation
       doTasks("Pass")
     }
@@ -499,8 +499,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "GreeneryTile<Elysium_5_5>",
           "OxygenStep",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       doTask("PassBaton") // decline the second action
@@ -522,8 +521,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "GreeneryTile<Elysium_2_6>",
           "OxygenStep",
           "2 Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       doTasks(
@@ -668,11 +666,9 @@ internal class Wsbg2025Test : FullGameTest() {
           "OceanTile<Elysium_3_5>",
           "TerraformRating",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
-      doTask("NOW Blue { 2 Plant<Blue> }")
-      blue.doTasks("2 Plant")
+      giveTask(blue, "2 Plant<Blue>")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -697,8 +693,7 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$GiantIceAsteroid"),
           "34 Pay<> FROM MC",
           "$GiantIceAsteroid FROM ProjectCard",
-          "4 MC",
-          "3 MC",
+          "7 MC",
           "3 Heat",
           "TemperatureStep",
           "TemperatureStep",
@@ -708,14 +703,12 @@ internal class Wsbg2025Test : FullGameTest() {
           "OceanTile<Elysium_2_4>",
           "TerraformRating",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "OceanTile<Elysium_1_4>",
           "TerraformRating",
           "2 Plant",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "-5 Plant<Black>",
       )
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
@@ -724,8 +717,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "OxygenStep",
           "TerraformRating",
           "ProjectCard",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
     blue.assertCounts(31 to "TerraformRating") // 01:01:50 track
@@ -739,7 +731,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "Microbe<$Decomposers>",
       )
       doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_4_5>", "OxygenStep", "TerraformRating", "Plant", "2 MC", "2 MC")
+      doTasks("GreeneryTile<Elysium_4_5>", "OxygenStep", "TerraformRating", "Plant", "4 MC")
     }
     with(black) {
       doTasks(
@@ -846,9 +838,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "$Capital FROM ProjectCard",
           "4 MC",
           "CapitalTile<Elysium_3_4>",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
           "PROD[-2 Energy]",
           "PROD[5 MC]",
       )
@@ -875,18 +865,15 @@ internal class Wsbg2025Test : FullGameTest() {
           "OceanTile<Elysium_1_3>",
           "TerraformRating",
           "ProjectCard",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
-      doTask("NOW Blue { 2 Plant<Blue> }")
-      blue.doTasks("2 Plant")
+      giveTask(blue, "2 Plant<Blue>")
       doTasks(
           *playCardTasks("$NuclearZone"),
           "10 Pay<> FROM MC",
           "$NuclearZone FROM ProjectCard",
           "NuclearZone_SpecialTile<Elysium_2_3>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TemperatureStep",
           "TemperatureStep",
           "TerraformRating",
@@ -1055,8 +1042,7 @@ internal class Wsbg2025Test : FullGameTest() {
       )
       doTasks(*playCardTasks("$CupolaCity"), "14 Pay<> FROM MC", "$CupolaCity FROM ProjectCard")
       doTasks("NormalCityTile<Elysium_6_5>", "Plant", "2 MC", "PROD[-Energy]", "PROD[3 MC]")
-      doTask("NOW Red { 2 MC<Red> }")
-      red.doTasks("2 MC")
+      giveTask(red, "2 MC<Red>")
     }
     with(red) {
       // Small Animals turn grouping is provisional.
@@ -1302,8 +1288,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "PROD[2 Steel]",
       )
       assertCounts(7 to "MC", 0 to "Steel") // visual confirmation
-      doTask("NOW Red { 2 MC<Red> }")
-      red.doTasks("2 MC")
+      giveTask(red, "2 MC<Red>")
     }
     with(black) {
       // 01:40:05 shows a greenery, despite commentary calling it a city spot.
@@ -1644,10 +1629,8 @@ internal class Wsbg2025Test : FullGameTest() {
           "2 Plant",
           "NormalCityTile<Elysium_8_6>",
       )
-      doTask("NOW Red { 2 MC<Red> }")
-      red.doTask("2 MC")
-      doTask("NOW Red { PROD[MC<Red>] }")
-      red.doTask("PROD[MC]")
+      giveTask(red, "2 MC<Red>")
+      giveTask(red, "PROD[MC<Red>]")
     }
     with(black) {
       doTasks(
@@ -1716,11 +1699,9 @@ internal class Wsbg2025Test : FullGameTest() {
           "OceanTile<Elysium_4_6>",
           "TerraformRating",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
-      doTask("NOW Blue { 2 Plant<Blue> }")
-      blue.doTasks("2 Plant")
+      giveTask(blue, "2 Plant<Blue>")
     }
     with(green) {
       // Heat conversion evidenced by 24 -> 25 TR; grouping with patent sale is provisional.

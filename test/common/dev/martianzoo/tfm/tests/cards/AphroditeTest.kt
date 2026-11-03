@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -18,8 +19,7 @@ internal class AphroditeTest : TfmSandboxTest() {
       doTask("VenusStep")
       doTask("TerraformRating")
       // The active player chooses when to hand this task to its owner.
-      doTask("NOW Kim { 2 MC<Kim> }")
-      kim.doTask("2 MC")
+      giveTask(kim, "2 MC<Kim>")
     }
   }
 

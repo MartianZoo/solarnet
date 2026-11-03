@@ -15,7 +15,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Deferral.FINALLY
-import dev.martianzoo.pets.ast.Deferral.NONE
+import dev.martianzoo.pets.ast.Deferral.SOON
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Per
@@ -599,7 +599,7 @@ internal class AgentImpl(
       world.events
           .entriesSince(eventCursor)
           .firstOrNull {
-            it is TaskEditedEvent && it.oldTask.deferral == FINALLY && it.task.deferral == NONE
+            it is TaskEditedEvent && it.oldTask.deferral == FINALLY && it.task.deferral == SOON
           }
           ?.ordinal
 

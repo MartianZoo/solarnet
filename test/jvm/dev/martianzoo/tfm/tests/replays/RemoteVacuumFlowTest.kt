@@ -1596,11 +1596,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     )
     // Resolve the mandatory discard before the optional Mars University exchange.
     doTask("-ProjectCard<Hand>!", SponsoredAcademies)
-    doTasks(
-        "ProjectCard FROM Science<OlympusConference>",
-        "3 ProjectCard",
-        "-ProjectCard",
-    )
+    doTasks("ProjectCard FROM Science<OlympusConference>", "3 ProjectCard", "-ProjectCard")
     doTask("ProjectCard")
     // Resolve the draw for other players; there are none in this solo game.
     doTask(tasks.extract { it }.single().id)

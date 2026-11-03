@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.NeptunianPowerConsultants
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
@@ -442,10 +443,7 @@ internal class FloodingTest : TfmSandboxTest() {
           )
 
           selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Kim>")
-          doTasks(
-              "OceanTile<Tharsis_5_4>!",
-              "UseAction<NeptunianOption, Action1>",
-          )
+          doTasks("OceanTile<Tharsis_5_4>!", "UseAction<NeptunianOption, Action1>")
           doTask("-4 MC")
           kim.count("Owed") shouldBe 5
           doTasks(
@@ -512,13 +510,15 @@ internal class FloodingTest : TfmSandboxTest() {
       selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
       doTask("OceanTile<Tharsis_5_4>!")
       // Kim offers the choice to Stan before Stan can accept or decline it.
-      doTask("NOW Stan { UseAction<Stan, NeptunianOption>? }")
-      stan.doTask("UseAction<NeptunianOption, Action1>")
+      giveTask(stan, "UseAction<Stan, NeptunianOption>?", "UseAction<NeptunianOption, Action1>")
       // Handle Admin's bill after Stan's cross-player action, before choosing payment.
       autoExecNow()
       // Kim offers the steel-payment task; Stan decides how much steel to spend.
-      doTask("NOW Stan { (X Pay<Stan, Class<Steel>> FROM Steel<Stan>) OR Ok }")
-      stan.doTask("2 Pay<Class<Steel>> FROM Steel")
+      giveTask(
+          stan,
+          "(X Pay<Stan, Class<Steel>> FROM Steel<Stan>) OR Ok",
+          "2 Pay<Class<Steel>> FROM Steel",
+      )
       kim.selectTask("-4? MC<Stan>")
       kim.doTask("-1! MC<Stan>")
       autoExecNow() // Finish removing the steel acceptance before testing the cash remainder.

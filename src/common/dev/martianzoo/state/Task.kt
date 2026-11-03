@@ -47,7 +47,7 @@ public data class Task(
      * No task may be selected while a task with an earlier [Deferral] remains. When no ordinary
      * task remains, every task with the earliest remaining deferral becomes ordinary at once.
      */
-    val deferral: Deferral = Deferral.NONE,
+    val deferral: Deferral = Deferral.SOON,
 ) {
   init {
     require(deferral != Deferral.NOW) { "NOW is stored as selected ordinary work" }
@@ -56,7 +56,7 @@ public data class Task(
 
   /** Whether this task waits for ordinary, or earlier-deferred, work to finish. */
   val deferred: Boolean
-    get() = deferral != Deferral.NONE
+    get() = deferral != Deferral.SOON
 
   /**
    * Returns a proposed version of this task with its current instruction's linked X set to [value].

@@ -228,10 +228,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(*cardActionTasks("MarsNomads"))
-          doTasks(
-              "NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>",
-              "2 Steel",
-          )
+          doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
         }
         .expect("0 Community<Stan>")
     stan.assertCounts(1 to "Community<Tharsis_2_1>")
@@ -254,13 +251,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(*cardActionTasks("MarsNomads"))
-      doTasks(
-          "NomadsMarker<Tharsis_5_7 FROM Tharsis_4_7>",
-          "2 Plant",
-          "2 MC",
-          "2 MC",
-          "2 MC",
-      )
+      doTasks("NomadsMarker<Tharsis_5_7 FROM Tharsis_4_7>", "2 Plant", "6 MC")
     }
   }
 
@@ -285,10 +276,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(*cardActionTasks("MarsNomads"))
-          doTasks(
-              "NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>",
-              "2 Steel",
-          )
+          doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
         }
         .expect("PROD[0 Steel]")
   }
@@ -317,10 +305,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(*cardActionTasks("MarsNomads"))
-          doTasks(
-              "NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>",
-              "2 Steel",
-          )
+          doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
         }
         .expect("0 StandardResource<Kim>")
     shouldThrow<TaskException> { kim.doTask("Steel") }

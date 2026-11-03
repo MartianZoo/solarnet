@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -47,8 +48,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
           doTask("VenusStep BY Admin")
           // Kim retains the timing choice after Admin performs the global change.
-          doTask("NOW Stan { 2 MC<Stan> }")
-          stan.doTask("2 MC")
+          giveTask(stan, "2 MC<Stan>")
         }
         .expect("0 TerraformRating")
   }
@@ -64,11 +64,9 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
           doTask("OceanTile<Tharsis_1_2> BY Admin")
           // Kim retains the timing choice after Admin performs the global change.
-          doTask("NOW Stan { 2 Plant<Stan> }")
-          stan.doTask("2 Plant")
+          giveTask(stan, "2 Plant<Stan>")
           // Kim retains the timing choice after Admin performs the global change.
-          doTask("NOW Stan { PROD[MC<Stan>] }")
-          stan.doTask("PROD[MC]")
+          giveTask(stan, "PROD[MC<Stan>]")
         }
         .expect("PROD[MC<Stan>], 0 HydrologistCredit, 0 TerraformRating")
   }

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
 
@@ -19,8 +20,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
               "TerraformRating",
           )
           // The active player chooses when to hand this task to its owner.
-          doTask("NOW Kim { PROD[MC<Kim>] }")
-          kim.doTask("PROD[MC]")
+          giveTask(kim, "PROD[MC<Kim>]")
           doTask("2 Steel")
         }
         .expect("PROD[MC<Kim>]")

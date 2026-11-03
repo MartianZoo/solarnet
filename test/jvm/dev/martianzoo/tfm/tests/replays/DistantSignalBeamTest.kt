@@ -131,8 +131,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "2 Steel",
       )
       // Database save 4: Project Eden introduced Purple's first city and plant tags.
@@ -253,11 +252,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       doTask("PassBaton") // decline the second action
     }
     with(pink) {
-      doTasks(
-          *cardActionTasks("$TitanShuttles", "Action2"),
-          "-2 Floater",
-          "2 Titanium",
-      )
+      doTasks(*cardActionTasks("$TitanShuttles", "Action2"), "-2 Floater", "2 Titanium")
       draw(StaticHarvesting)
       doTasks(
           *playCardTasks("$LagrangeObservatory"),

@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
@@ -443,8 +444,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
           "HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
-      doTask("NOW Kim { 3* MC<Rob FROM Kim> }")
-      kim.doTask("$payout MC<Rob FROM Kim>")
+      giveTask(kim, "3* MC<Rob FROM Kim>", "$payout MC<Rob FROM Kim>")
     }
   }
 }

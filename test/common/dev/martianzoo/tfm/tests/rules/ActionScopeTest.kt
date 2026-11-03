@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
@@ -217,8 +218,7 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     admin.count("ActionScope<Kim>") shouldBe 0
     shouldThrow<TaskException> { stan.doTasks(*standardProjectTasks("PowerPlantProject")) }
 
-    stan.doTask("NOW Kim { StandardResource }")
-    kim.doTask("Titanium").expect("Titanium")
+    stan.giveTask(kim, "StandardResource", "Titanium").expect("Titanium")
     admin.count("ActionScope") shouldBe 0
     stan.doTasks(*standardProjectTasks("PowerPlantProject"))
     admin.count("ActionScope<Stan>") shouldBe 1

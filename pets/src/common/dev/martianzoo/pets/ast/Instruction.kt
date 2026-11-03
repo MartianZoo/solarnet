@@ -444,7 +444,7 @@ public sealed class Instruction : InstructionTree() {
   public data class Dispatch(
       val actor: Expression?,
       val body: InstructionTree,
-      val deferral: Deferral = Deferral.NONE,
+      val deferral: Deferral = Deferral.SOON,
   ) : Instruction() {
     init {
       if (body == NoOp) throw PetSyntaxException("`${deferral.keyword}` requires a non-`Ok` body")
