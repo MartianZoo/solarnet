@@ -52,12 +52,13 @@ CLASS Constructor : Award { metric = COUNT "Colony OR CityTile" }
 CLASS Manufacturer : Award { metric = COUNT "PROD[Steel OR Heat]" }
 CLASS Physicist : Award { metric = COUNT "ScienceTag OR SpaceTag" }
 
+// The cardboard board has no bonuses at 03_07 or 03_08.
 // The map areas below are code-generated based on the following comment
 //                  LS   LSS    LS    LC   LTT    L
 //
 //               W     LD    LS    L     LP   WPP   WTT
 //
-//           WSS    L    LCC    L     LP    W     LP   LPP
+//           WSS    L    LCC    L     LP    W     L     L
 //
 //         LT    W     L     L     LP    LP   LPP    LP   LPC
 //
@@ -96,8 +97,8 @@ CLASS Amazonis_03_03 :     LandArea { row = 3; column = 3; Placement<This>: 2 Pr
 CLASS Amazonis_03_04 :     LandArea { row = 3; column = 4 }
 CLASS Amazonis_03_05 :     LandArea { row = 3; column = 5; Placement<This>: Plant }
 CLASS Amazonis_03_06 :    WaterArea { row = 3; column = 6 }
-CLASS Amazonis_03_07 :     LandArea { row = 3; column = 7; Placement<This>: Plant }
-CLASS Amazonis_03_08 :     LandArea { row = 3; column = 8; Placement<This>: 2 Plant }
+CLASS Amazonis_03_07 :     LandArea { row = 3; column = 7 }
+CLASS Amazonis_03_08 :     LandArea { row = 3; column = 8 }
 
 CLASS Amazonis_04_01 :     LandArea { row = 4; column = 1; Placement<This>: Titanium }
 CLASS Amazonis_04_02 :    WaterArea { row = 4; column = 2 }
