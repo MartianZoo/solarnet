@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
+import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class AridorTest : TfmSandboxTest() {
   @Test
@@ -15,6 +18,19 @@ internal class AridorTest : TfmSandboxTest() {
           // Hand colony selection to Admin so the unused tiles become available.
           selectTask("ColonyTileSelection!")
           // Hand the chosen tile to Admin to activate its colony track.
+          selectTask("Europa!")
+        }
+        .expect("Europa, ColonyProduction, -RequiredAction")
+  }
+
+  @Test
+  internal fun `First action cannot choose a colony tile already in play`() {
+    newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", kimCorporation = Aridor)
+    assertEquals(1, admin.count("Luna"))
+    kim.inTurn {
+          doTask("DoRequiredActions")
+          selectTask("ColonyTileSelection!")
+          shouldThrow<LimitsException> { selectTask("Luna!") }
           selectTask("Europa!")
         }
         .expect("Europa, ColonyProduction, -RequiredAction")
