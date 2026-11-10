@@ -37,6 +37,23 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
   }
 
   @Test
+  internal fun `Can keep its floaters when heat covers the conversion`() {
+    newTestGame(kimCorporation = StormcraftIncorporated)
+    kim.exMachina("Floater<$StormcraftIncorporated>, 8 Heat")
+
+    kim.inTurn {
+          doTasks(
+              "UseAction<ConvertHeatAction, Action1>",
+              "Ok", // Keep the floaters on Stormcraft.
+              "8 Pay<Class<Heat>> FROM Heat",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+        }
+        .expect("TemperatureStep, -8 Heat, 0 Floater<$StormcraftIncorporated>")
+  }
+
+  @Test
   internal fun `Can spend no floaters on Local Heat Trapping`() {
     initializeStormcraftGame(floaters = 1, heat = 5)
 
