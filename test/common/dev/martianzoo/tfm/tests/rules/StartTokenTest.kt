@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -66,7 +67,7 @@ internal class StartTokenTest : TfmGameplayTest() {
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
   }
 
-  internal class Setup : TfmTest() {
+  internal class Setup {
     @Test
     internal fun `solo setup links each greenery to its own city`() {
       // The second greenery neighbors the first city, but not the second city.
@@ -105,7 +106,8 @@ internal class StartTokenTest : TfmGameplayTest() {
 
     @Test
     internal fun `Research passes the token according to the explicit seat order`() {
-      game = setUpGame(players = 3)
+      val game = setUpGame(players = 3)
+      val admin = game.testAgent(ADMIN)
       admin.exMachina(
           "NextPlayer<Player1, Player3> FROM NextPlayer<Player1, Player2>, " +
               "NextPlayer<Player3, Player2> FROM NextPlayer<Player3, Player1>, " +
@@ -117,7 +119,8 @@ internal class StartTokenTest : TfmGameplayTest() {
 
     @Test
     internal fun `Seat order and start token reject invalid corrections`() {
-      game = setUpGame(players = 3)
+      val game = setUpGame(players = 3)
+      val admin = game.testAgent(ADMIN)
       shouldThrow<LimitsException> { admin.exMachina("-StartToken<Player1>") }
       shouldThrow<LimitsException> { admin.exMachina("NextPlayer<Player1, Player3>") }
       shouldThrow<LimitsException> { admin.exMachina("NextPlayer<Player3, Player2>") }

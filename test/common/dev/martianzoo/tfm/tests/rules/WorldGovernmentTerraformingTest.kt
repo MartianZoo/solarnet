@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER2
@@ -44,7 +45,7 @@ internal class WorldGovernmentTerraformingTest : TfmGameplayTest() {
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
   }
 
-  internal class Attribution : TfmTest() {
+  internal class Attribution {
     @Test
     internal fun `first player chooses the threshold ocean after Admin raises temperature`() {
       val game = setUpGame(VenusNextExpansion, players = 2)

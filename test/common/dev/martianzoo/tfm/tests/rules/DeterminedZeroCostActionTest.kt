@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.testsupport.PLAYER1
@@ -10,7 +9,7 @@ import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import kotlin.test.Test
 
-internal class DeterminedZeroCostActionTest : TfmTest() {
+internal class DeterminedZeroCostActionTest : TfmSandboxTest() {
   @Test
   internal fun `an action remains usable when its determined cost is zero`() {
     val extension =
@@ -30,7 +29,7 @@ internal class DeterminedZeroCostActionTest : TfmTest() {
         }
     val catalog = TfmCatalog(Canon, extension)
     game = setUpGame(canonicalPremise(catalog = catalog))
-    val p1 = game.testTfm(PLAYER1)
+    val p1 = agents[PLAYER1]
     p1.runOperation("DeterminedZeroCostAction")
 
     p1.runOperation("UseAction<DeterminedZeroCostAction, Action1>").expect("Plant")

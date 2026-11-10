@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -21,7 +20,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class AwardsTest : TfmTest() {
+internal class AwardsTest : TfmSandboxTest() {
   @Test
   internal fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
     game = TfmEngine.newGame(canonicalPremise(players = 1))
@@ -46,8 +45,8 @@ internal class AwardsTest : TfmTest() {
                 players = 2,
             )
         )
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
 
     p1.exMachina("Incorporator, $Ecoline, $InterplanetaryCinematics")
     p2.exMachina("$MiningGuild, $Mine")
@@ -67,9 +66,9 @@ internal class AwardsTest : TfmTest() {
   @Test
   internal fun customAwardMetricsAreCountedForEachPlayer() {
     game = TfmEngine.newGame(canonicalPremise(Cimmeria, players = 3))
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    val p3 = game.testTfm(PLAYER3)
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    val p3 = agents[PLAYER3]
 
     p1.exMachina("Forecaster, $ArtificialLake")
     p2.exMachina("$Birds, $Algae")
@@ -93,7 +92,7 @@ internal class AwardsTest : TfmTest() {
   @Test
   internal fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
     game = TfmEngine.newGame(canonicalPremise(players = 2))
-    val p1 = game.testTfm(PLAYER1)
+    val p1 = agents[PLAYER1]
     p1.exMachina("100 MC")
 
     val first = p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Landlord") }
@@ -122,9 +121,9 @@ internal class AwardsTest : TfmTest() {
   @Test
   internal fun zeroScoresCanEarnFirstAndSecondWhileUnfundedAwardsAreIgnored() {
     game = TfmEngine.newGame(canonicalPremise(players = 3))
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    val p3 = game.testTfm(PLAYER3)
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    val p3 = agents[PLAYER3]
 
     p1.exMachina("Thermalist, Miner, Heat")
 
@@ -153,9 +152,9 @@ internal class AwardsTest : TfmTest() {
   @Test
   internal fun negativeBankerProductionCanEarnFirstAndSecond() {
     game = TfmEngine.newGame(canonicalPremise(players = 3))
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    val p3 = game.testTfm(PLAYER3)
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    val p3 = agents[PLAYER3]
 
     p1.exMachina("Banker, PROD[-4 MC]")
     p2.exMachina("PROD[-5 MC]")
@@ -174,8 +173,8 @@ internal class AwardsTest : TfmTest() {
   @Test
   internal fun adminDrivenEndReturnsOnlyAfterAllVictoryPointsAreCounted() {
     game = TfmEngine.newGame(canonicalPremise())
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
     p1.runOperation("3 VictoryPoint, TerraformRating")
     p2.runOperation("Banker, PROD[1 MC]")
     p1.autoExecPolicy = NONE
@@ -194,8 +193,8 @@ internal class AwardsTest : TfmTest() {
   @Test
   internal fun adminScoresNegativeCardsAndPlayedEventsWithPlayerAutoexecutionOff() {
     game = TfmEngine.newGame(canonicalPremise())
-    val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     p1.exMachina("$CorporateStronghold, $EarthCatapult, 5 TerraformRating")
     p2.exMachina("$EnergyTapping, PlayedEvent<Class<$LargeConvoy>>, 3 TerraformRating")
 

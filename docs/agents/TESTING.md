@@ -334,12 +334,12 @@ Keep scenarios minimal and legible. Project-card tests that fit the standardized
 migration rules below. Other card tests use the smallest suitable configuration and consistently
 name their gameplay objects. Use `runOperation()` when an operation's resulting setup matters and a
 correction is not suitable. Eligible project-card scenarios use the fixture's explicit `exMachina` setup methods.
-Synthetic engine checks can construct a premise from `TfmTest`, using the existing
-`canonicalPremise` and `setUpGame` functions. `ResearchWildTagTest` retains legacy operation-level
-coverage of assigned tags, and `VerminTest.Attribution` supplies a synthetic listener; neither uses
-the sandbox or gameplay fixture. `WildTagTest` and `WildTagContinuationTest` cover allocation and
-cleanup through sandbox actions. Arbitrary task-selection checks use `TfmTest` directly rather than
-claiming authentic gameplay.
+Synthetic engine checks use the existing `canonicalPremise` and `setUpGame` functions, either
+in standalone tests or by assigning a synthetic world to the sandbox's `game`. For example,
+`VerminTest.Attribution` supplies a synthetic listener through the sandbox. `ResearchWildTagTest`
+still retains legacy operation-level coverage of assigned tags; `WildTagTest` and
+`WildTagContinuationTest` cover allocation and cleanup through sandbox actions.
+`TfmTaskHelpersTest` remains legacy coverage of the helpers being retired.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
 Sandbox and gameplay scenarios use explicit Agent task submissions rather than the helpers on
@@ -371,8 +371,8 @@ Choose the fixture by what the scenario proves, not the kind of card:
 
 - `TfmSandboxTest` supplies a prepared position, explicit corrections, and selected phase shortcuts.
   Use it for focused card interactions and rules that do not depend on authentic turn/phase history.
-  Its game is set up and enters the corporation phase normally; the fixture then drops the turn
-  order that phase begins, so scenarios take turns ex machina. Its private phase correction places
+  With `newTestGame()`, its game enters the corporation phase normally; the fixture then drops
+  the turn order that phase begins, so scenarios take turns ex machina. Its private phase correction places
   later phases without their queued start-of-phase rules. A scenario that needs a phase's real effects,
   such as production, a solar phase, or research, belongs in `TfmGameplayTest`.
 - `TfmGameplayTest` starts the game and lets its own rules offer every turn and begin every phase.
@@ -398,6 +398,11 @@ State the steps explicitly when testing their order. Finish or decline alternati
 offers before the exact remainder, and explain each `Ok`. Fixed command abbreviations may
 shorten repeated invocation steps; payments and gameplay outcomes remain explicit. Loops remain
 appropriate for seat-order traversal and long generation/endgame progressions.
+
+Synthetic sandbox checks may instead assign `game` directly. This creates fresh `Agents` with
+their default policies, without preparing a position or binding `players`, `kim`, `stan`, or `rob`;
+use `agents[player]` and `admin`. These subclasses also run under `:tfm-tests:sandboxTest`,
+so that task measures both prepared-position scenarios and synthetic sandbox checks.
 
 Synthetic engine checks that only need setup use `setUpGame`, which starts the game and drops setup's
 pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCorporationPhaseOutOfTurn`
