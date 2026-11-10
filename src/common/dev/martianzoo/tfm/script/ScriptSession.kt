@@ -26,7 +26,6 @@ import dev.martianzoo.tfm.canon.cardCost
 import dev.martianzoo.tfm.canon.soloTileAreas
 import dev.martianzoo.tfm.canon.soloTileSetup
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.script.Access.BlueMode
 import dev.martianzoo.tfm.script.Access.GreenMode
 import dev.martianzoo.tfm.script.Access.PurpleMode
@@ -102,7 +101,8 @@ public class ScriptSession(
   ) {
     val candidateAgents = Agents(candidateGame) { if (it == ADMIN || purple) EAGER else NONE }
     val candidateAgent = candidateAgents[ADMIN]
-    candidateAgents.tfm(ADMIN).startGame()
+    candidateAgents.taskLog.gameStarted()
+    candidateAgent.beginOperation("SetupPhase FROM BootstrapPhase")
     if (!purple) {
       // Outside purple mode the user changes phases, so the game does not leave setup on its own.
       candidateGame.tasks
@@ -162,11 +162,12 @@ public class ScriptSession(
         playerName?.let(::player)
             ?: game.actors.filterIsInstance<Player>().firstOrNull()
             ?: throw UsageException("the game has no participating Player")
-    val tfm = agents.tfm(player)
+    val playerAgent = agents[player]
+    val production = ApiUtils.lookUpProductionLevels(game.reader, player)
 
     fun countIfLoaded(type: String): Int =
         try {
-          tfm.count(type)
+          playerAgent.count(type)
         } catch (_: ExpressionException) {
           0
         }
@@ -198,7 +199,7 @@ public class ScriptSession(
 
     return PlayerSnapshot(
         playerName = player.className.toString(),
-        phase = tfm.list("Phase").singleOrNull()?.toString()?.removeSuffix("Phase"),
+        phase = playerAgent.list("Phase").singleOrNull()?.toString()?.removeSuffix("Phase"),
         victoryPoints = countIfLoaded("VictoryPoint"),
         terraformRating = countIfLoaded("TerraformRating"),
         cards = countIfLoaded("ProjectCard"),
@@ -207,7 +208,7 @@ public class ScriptSession(
               PlayerResourceSnapshot(
                   name = displayName,
                   stock = countIfLoaded(type),
-                  production = tfm.production(cn(type)),
+                  production = production.getValue(cn(type)),
               )
             },
         tags =

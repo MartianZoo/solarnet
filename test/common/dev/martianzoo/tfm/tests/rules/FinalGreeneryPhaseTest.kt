@@ -30,7 +30,7 @@ internal class FinalGreeneryPhaseTest {
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_6>") }
 
-    admin.oxygenPercent() shouldBe 1
+    admin.count("OxygenStep") shouldBe 1
   }
 
   @Test
@@ -56,7 +56,7 @@ internal class FinalGreeneryPhaseTest {
     admin.count("FinalGreeneryPhase") shouldBe 1
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_5>") }
 
-    admin.oxygenPercent() shouldBe 0
+    admin.count("OxygenStep") shouldBe 0
   }
 
   @Test

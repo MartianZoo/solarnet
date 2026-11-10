@@ -14,6 +14,7 @@ import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
+import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -184,7 +185,7 @@ internal class BootstrapLifecycleTest {
     player.doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
     admin.count("SelectedColonyTile") shouldBe 3
     admin.count("SoloColoniesSetup") shouldBe 0
-    player.production(cn("MC")) shouldBe -2
+    player.assertProds(-2 to "MC")
   }
 
   @Test

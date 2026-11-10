@@ -1,10 +1,11 @@
 package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptSession
 import dev.martianzoo.tfm.script.TfmMapRenderer
 
-internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tfm_map") {
+internal class TfmMapCommand(private val repl: ScriptSession) : ScriptCommand("tfm_map") {
   override val usage = "map"
   override val help =
       """

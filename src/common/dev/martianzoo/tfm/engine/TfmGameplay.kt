@@ -810,22 +810,6 @@ public class TfmGameplay(
     return asActor(ADMIN).exMachina("${phase}Phase FROM $current")
   }
 
-  /** This actor's printed production of [kind]: live `PROD[kind]` minus `ProdOffset`. */
-  public fun production(kind: ClassName): Int =
-      count("PROD[$kind]") - count("ProdOffset<Class<$kind>>")
-
-  /** Current oxygen percentage, equal to the live `OxygenStep` count. */
-  public fun oxygenPercent(): Int = count("OxygenStep")
-
-  /** Current temperature in Celsius: −30 at zero steps, −28 at one step, and so on. */
-  public fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
-
-  /** Current Venus percentage: 30% at step 15, 31% at step 16, then one more per step. */
-  public fun venusPercent(): Int {
-    val count = count("VenusStep")
-    return if (count <= 15) count * 2 else count + 15 // thanks Amazonis
-  }
-
   public companion object {
     /** Creates Terraforming Mars conveniences for this world's [actor]. */
     public fun Agents.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)

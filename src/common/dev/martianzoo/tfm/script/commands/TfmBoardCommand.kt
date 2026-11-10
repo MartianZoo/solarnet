@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.script.commands
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptCompletion
 import dev.martianzoo.tfm.script.ScriptCompletionContext
 import dev.martianzoo.tfm.script.ScriptSession
@@ -16,7 +17,7 @@ import dev.martianzoo.tfm.script.TfmColor.STEEL
 import dev.martianzoo.tfm.script.TfmColor.TITANIUM
 import dev.martianzoo.tfm.state.ApiUtils
 
-internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tfm_board") {
+internal class TfmBoardCommand(private val repl: ScriptSession) : ScriptCommand("tfm_board") {
   override val usage = "tfm_board [PlayerN]"
   override val help =
       """
@@ -27,22 +28,22 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.playerNames(includeAdmin = false)
 
-  override fun noArgs(): List<String> = PlayerBoardToText(tfm(), repl.useAnsiColors).board()
+  override fun noArgs(): List<String> = PlayerBoardToText(repl.agent, repl.useAnsiColors).board()
 
   override fun withArgs(args: String) =
-      PlayerBoardToText(tfm().asPlayer(repl.player(args)), repl.useAnsiColors).board()
+      PlayerBoardToText(repl.agents[repl.player(args)], repl.useAnsiColors).board()
 
   private class PlayerBoardToText(
-      private val tfm: TfmGameplay,
+      private val agent: Agent,
       private val useColors: Boolean = true,
   ) {
 
     internal fun board(): List<String> {
-      val player = tfm.actor as? Player ?: error("a player board requires a Player actor")
-      val prodMap = ApiUtils.lookUpProductionLevels(tfm.reader, player)
+      val player = agent.actor as? Player ?: error("a player board requires a Player actor")
+      val prodMap = ApiUtils.lookUpProductionLevels(agent.reader, player)
       val resourceMap =
-          ApiUtils.standardResourceNames(tfm.reader).associateBy({ it }) {
-            tfm.reader.count(Count(it.of(player.className)))
+          ApiUtils.standardResourceNames(agent.reader).associateBy({ it }) {
+            agent.reader.count(Count(it.of(player.className)))
           }
 
       fun prodAndResource(s: String) =
@@ -71,8 +72,8 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
       val energ = maybeColor(ENERGY, "E: $eres")
       val heeat = maybeColor(HEAT, "H: $hres")
 
-      val r = tfm.count("TerraformRating")
-      val tiles = tfm.count("OwnedTile")
+      val r = agent.count("TerraformRating")
+      val tiles = agent.count("OwnedTile")
       return """
           $player   TR: $r   Tiles: $tiles
         +---------+---------+---------+

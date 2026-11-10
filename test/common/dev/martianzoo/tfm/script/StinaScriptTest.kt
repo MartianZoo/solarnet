@@ -1,10 +1,9 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.state.ApiUtils
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -93,7 +92,7 @@ internal class StinaScriptTest {
           repl.commands.getValue(line.substringBefore(' ')).withArgs(line.substringAfter(' '))
         }
 
-    val p1 = repl.game.testTfm(repl.game.actors.filterIsInstance<Player>().single())
+    val p1 = repl.agents[repl.game.actors.filterIsInstance<Player>().single()]
     p1.assertResources(m = 9, s = 0, t = 3, p = 2, e = 0, h = 15)
     p1.assertProduction(m = 2, s = 0, t = 1, p = 1, e = 9, h = 3)
     p1.assertCounts(
@@ -134,13 +133,14 @@ internal class StinaScriptTest {
     )
   }
 
-  private fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
-    assertEquals(m, production(cn("MC")), "MC production")
-    assertEquals(s, production(cn("Steel")), "Steel production")
-    assertEquals(t, production(cn("Titanium")), "Titanium production")
-    assertEquals(p, production(cn("Plant")), "Plant production")
-    assertEquals(e, production(cn("Energy")), "Energy production")
-    assertEquals(h, production(cn("Heat")), "Heat production")
+  private fun Agent.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
+    val production = ApiUtils.lookUpProductionLevels(reader, actor as Player)
+    assertEquals(m, production.getValue(cn("MC")), "MC production")
+    assertEquals(s, production.getValue(cn("Steel")), "Steel production")
+    assertEquals(t, production.getValue(cn("Titanium")), "Titanium production")
+    assertEquals(p, production.getValue(cn("Plant")), "Plant production")
+    assertEquals(e, production.getValue(cn("Energy")), "Energy production")
+    assertEquals(h, production.getValue(cn("Heat")), "Heat production")
   }
 
   private fun Agent.assertTags(
