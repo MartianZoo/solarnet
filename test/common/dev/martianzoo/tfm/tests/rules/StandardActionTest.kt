@@ -1,221 +1,189 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.tfm.tests.TestOption.Prelude2Cards
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TfmTest
-import dev.martianzoo.tfm.tests.canonicalPremise
-import dev.martianzoo.tfm.tests.setUpGame
-import dev.martianzoo.tfm.tests.startCorporationPhaseOutOfTurn
+import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class StandardActionTest : TfmTest() {
+internal class StandardActionTest : TfmSandboxTest() {
   @Test
   internal fun `the standard card action offers the card play and then payment`() {
-    game = setUpGame(canonicalPremise())
-    val p1 = game.testTfm(PLAYER1)
-    p1.runOperation("20 MC, ProjectCard, ProjectCard<Selecting>, ProjectCard<Revealed>")
-    admin.phase("Action")
-    p1.autoExecPolicy = NONE
+    newTestGame()
+    kim.setToExMachina(20, "MC")
+    kim.exMachina("ProjectCard<Selecting>, ProjectCard<Revealed>")
 
-    p1.beginOperation("OfferAction")
-    p1.doTask("UseAction<PlayCardAction, Action1>")
-    shouldThrow<TaskException> {
-      p1.doTask("PlayCard<Class<ProjectCard>, Class<Mine>, Selecting>")
+    kim.inTurn {
+      kim.doTask("UseAction<PlayCardAction, Action1>")
+      shouldThrow<TaskException> {
+        kim.doTask("PlayCard<Class<ProjectCard>, Class<Mine>, Selecting>")
+      }
+      shouldThrow<TaskException> {
+        kim.doTask("PlayCard<Class<ProjectCard>, Class<Mine>, Revealed>")
+      }
+      kim.count("MC") shouldBe 20
+      kim.doTasks(
+          "PlayCard<Class<ProjectCard>, Class<Mine>, Hand>",
+          "4 Pay<> FROM MC",
+          "Mine FROM ProjectCard",
+          "PROD[Steel]",
+      )
     }
-    shouldThrow<TaskException> {
-      p1.doTask("PlayCard<Class<ProjectCard>, Class<Mine>, Revealed>")
-    }
-    p1.count("MC") shouldBe 20
-    p1.doTasks(
-        "PlayCard<Class<ProjectCard>, Class<Mine>, Hand>",
-        "4 Pay<> FROM MC",
-        "Mine FROM ProjectCard",
-        "PROD[Steel]",
-    )
     game.isIdle() shouldBe true
   }
 
   @Test
   internal fun `the milestone and award are chosen after paying`() {
-    game = setUpGame(canonicalPremise())
-    val p1 = game.testTfm(PLAYER1)
-    p1.runOperation("40 MC, 15 TerraformRating")
-    admin.phase("Action")
-    p1.autoExecPolicy = NONE
+    newTestGame()
+    kim.setToExMachina(40, "MC")
+    kim.exMachina("15 TerraformRating")
 
-    p1.beginOperation("OfferAction")
-    p1.doTask("UseAction<ClaimMilestoneAction, Action1>")
-    shouldThrow<TaskException> { p1.doTask("Terraformer35") }
-    p1.doTasks("8 Pay<> FROM MC", "Terraformer35")
-    p1.beginOperation("OfferAction")
-    p1.doTask("UseAction<FundAwardAction, Action1>")
-    shouldThrow<TaskException> { p1.doTask("Banker") }
-    p1.doTasks("8 Pay<> FROM MC", "Banker")
+    kim.inTurn {
+      kim.doTask("UseAction<ClaimMilestoneAction, Action1>")
+      shouldThrow<TaskException> { kim.doTask("Terraformer35") }
+      kim.doTasks("8 Pay<> FROM MC", "Terraformer35")
+    }
+    kim.inTurn {
+      kim.doTask("UseAction<FundAwardAction, Action1>")
+      shouldThrow<TaskException> { kim.doTask("Banker") }
+      kim.doTasks("8 Pay<> FROM MC", "Banker")
 
-    p1.count("MC") shouldBe 24
+      kim.count("MC") shouldBe 24
+    }
     game.isIdle() shouldBe true
   }
 
   @Test
   internal fun `required work replaces the ordinary turn choice`() {
-    game = setUpGame(canonicalPremise())
-    val p1 = game.testTfm(PLAYER1)
-    p1.runOperation("Inventrix")
-    admin.phase("Action")
-    p1.autoExecPolicy = NONE
+    newTestGame(kimCorporation = Inventrix)
 
-    p1.beginOperation("OfferAction")
-    shouldThrow<TaskException> {
-      p1.doTasks(
-          "UseAction<PlayCardAction, Action1>",
-          "PlayCard<Class<ProjectCard>, Class<Mine>, Hand>",
+    kim.inTurn {
+      shouldThrow<TaskException> {
+        kim.doTasks(
+            "UseAction<PlayCardAction, Action1>",
+            "PlayCard<Class<ProjectCard>, Class<Mine>, Hand>",
+        )
+      }
+      kim.doTasks("DoRequiredActions", "3 ProjectCard")
+
+      kim.count("RequiredAction") shouldBe 0
+    }
+    kim.inTurn {
+      kim.doTasks(
+          "UseAction<UseStandardProjectAction, Action1>",
+          "UseAction<PowerPlantProject, Action1>",
+          "11 Pay<> FROM MC",
+          "PROD[Energy]",
       )
     }
-    p1.doTasks("DoRequiredActions", "3 ProjectCard")
-
-    p1.count("RequiredAction") shouldBe 0
-    p1.beginOperation("OfferAction")
-    p1.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<PowerPlantProject, Action1>",
-        "11 Pay<> FROM MC",
-        "PROD[Energy]",
-    )
     game.isIdle() shouldBe true
   }
 
   @Test
   internal fun `using a card through the standard action consumes its action for the generation`() {
-    game = setUpGame(canonicalPremise())
-    val p1 = game.testTfm(PLAYER1)
-    p1.runOperation("DevelopmentCenter, 2 Energy")
-    admin.phase("Action")
-    p1.autoExecPolicy = NONE
+    newTestGame()
+    kim.exMachina("DevelopmentCenter, 2 Energy")
+    kim.setToExMachina(0, "ProjectCard")
 
-    p1.beginOperation("OfferAction")
-    p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<DevelopmentCenter, Action1>",
-        "Pay<Class<Energy>> FROM Energy",
-        "ProjectCard",
-    )
-    p1.count("ActionUsedMarker<DevelopmentCenter>") shouldBe 1
-    p1.beginOperation("OfferAction")
-    shouldThrow<LimitsException> {
-      p1.doTasks(
+    kim.inTurn {
+      kim.doTasks(
           "UseAction<UseActionOnCardAction, Action1>",
           "UseAction<DevelopmentCenter, Action1>",
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
+      kim.count("ActionUsedMarker<DevelopmentCenter>") shouldBe 1
     }
-    p1.doTask("Pass")
+    kim.inTurn {
+      shouldThrow<LimitsException> {
+        kim.doTasks(
+            "UseAction<UseActionOnCardAction, Action1>",
+            "UseAction<DevelopmentCenter, Action1>",
+            "Pay<Class<Energy>> FROM Energy",
+            "ProjectCard",
+        )
+      }
+      kim.doTask("Pass")
 
-    p1.count("Energy") shouldBe 1
-    p1.count("ProjectCard") shouldBe 1
+      kim.count("Energy") shouldBe 1
+      kim.count("ProjectCard") shouldBe 1
+    }
     game.isIdle() shouldBe true
   }
 
   @Test
   internal fun `an unqualified milestone claim cannot complete`() {
-    game = setUpGame(canonicalPremise())
-    val p1 = game.testTfm(PLAYER1)
-    p1.runOperation("8 MC")
-    admin.phase("Action")
-    p1.autoExecPolicy = NONE
+    newTestGame()
+    kim.setToExMachina(8, "MC")
 
-    p1.beginOperation("OfferAction")
-    shouldThrow<RequirementException> {
-      p1.doTasks(
-          "UseAction<ClaimMilestoneAction, Action1>",
-          "8 Pay<> FROM MC",
-          "Terraformer35",
-      )
+    kim.inTurn {
+      shouldThrow<RequirementException> {
+        kim.doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Terraformer35",
+        )
+      }
+      kim.count("Terraformer35") shouldBe 0
+      kim.count("MC") shouldBe 8
+      kim.doTask("Pass")
     }
-    p1.count("Terraformer35") shouldBe 0
-    p1.count("MC") shouldBe 8
-    p1.doTask("Pass")
     game.isIdle() shouldBe true
   }
 
   @Test
   internal fun `plant conversion preserves Ecolines discount and leaves tile choice to the player`() {
-    game = setUpGame(canonicalPremise())
-    val p1 = game.testTfm(PLAYER1)
-    p1.runOperation("Ecoline, 4 Plant")
-    game.startCorporationPhaseOutOfTurn()
-    admin.phase("Action")
-    p1.autoExecPolicy = NONE
+    newTestGame(kimCorporation = Ecoline)
+    kim.exMachina("4 Plant")
 
-    p1.beginOperation("OfferAction")
-    p1.doTask("UseAction<ConvertPlantsAction, Action1>")
-    shouldThrow<TaskException> { p1.doTask("PlaceGreeneryTile") }
-    p1.doTask("7 Pay<Class<Plant>> FROM Plant")
-    p1.doTasks(
-        "GreeneryTile<Tharsis_1_3>",
-        "OxygenStep",
-        "TerraformRating",
-    )
+    kim.inTurn {
+      kim.doTask("UseAction<ConvertPlantsAction, Action1>")
+      shouldThrow<TaskException> { kim.doTask("PlaceGreeneryTile") }
+      kim.doTask("7 Pay<Class<Plant>> FROM Plant")
+      kim.doTasks(
+          "GreeneryTile<Tharsis_1_3>",
+          "OxygenStep",
+          "TerraformRating",
+      )
 
-    p1.count("Plant") shouldBe 0
+      kim.count("Plant") shouldBe 0
+    }
     game.isIdle() shouldBe true
   }
 
   @Test
   internal fun `a free milestone and award need no payment choice`() {
-    game =
-        setUpGame(
-            canonicalPremise(
-                PreludeExpansion,
-                Prelude2Cards,
-            )
-        )
-    val p1 = game.testTfm(PLAYER1)
-    p1.runOperation("NirgalEnterprises, 15 TerraformRating")
-    admin.phase("Action")
-    p1.autoExecPolicy = NONE
-    val startingMoney = p1.count("MC")
+    newTestGame(addOptions = "NirgalEnterprises", kimCorporation = NirgalEnterprises)
+    kim.exMachina("15 TerraformRating")
 
-    p1.beginOperation("OfferAction")
-    p1.doTasks("UseAction<ClaimMilestoneAction, Action1>", "Terraformer35")
-    p1.beginOperation("OfferAction")
-    p1.doTasks("UseAction<FundAwardAction, Action1>", "Banker")
-
-    p1.count("MC") shouldBe startingMoney
+    kim.inTurn {
+          kim.doTasks("UseAction<ClaimMilestoneAction, Action1>", "Terraformer35")
+        }
+        .expect("0 MC")
+    kim.inTurn {
+          kim.doTasks("UseAction<FundAwardAction, Action1>", "Banker")
+        }
+        .expect("0 MC")
     game.isIdle() shouldBe true
   }
 
   @Test
   internal fun `a production reward recognizes the selected turn option`() {
-    game =
-        setUpGame(
-            canonicalPremise(
-                PreludeExpansion,
-                Prelude2Cards,
-            )
-        )
-    val p1 = game.testTfm(PLAYER1)
-    p1.runOperation("SuitableInfrastructure, 11 MC")
-    admin.phase("Action")
-    p1.autoExecPolicy = NONE
+    newTestGame(addOptions = "SuitableInfrastructure")
+    kim.exMachina("SuitableInfrastructure")
+    kim.setToExMachina(11, "MC")
 
-    p1.runOperation("OfferAction") {
+    kim.inTurn {
           doTasks(
               "UseAction<UseStandardProjectAction, Action1>",
               "UseAction<PowerPlantProject, Action1>",
           )
           doTask("11 Pay<> FROM MC")
           doTask("PROD[Energy]")
-          p1.selectTask(p1.tasks.ids().single())
-          autoExecNow()
+          doTask("-SuitableInfrastructureBonus!")
           doTask("2 MC")
         }
         .expect("PROD[Energy], -9 MC")
