@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
@@ -29,7 +29,7 @@ internal class CustomMetricTest {
   @Test
   internal fun instructionSignalsAndVirtualMetricsHaveSeparateClasses() {
     val game = customClassGame()
-    val p1 = game.testTfm(PLAYER1)
+    val p1 = game.testAgent(PLAYER1)
 
     p1.count("BothBehavior") shouldBe 7
     shouldThrow<ExpressionException> { p1.exMachina("BothBehavior") }
@@ -43,7 +43,7 @@ internal class CustomMetricTest {
 
   @Test
   internal fun abstractArgumentsSumTheirConcreteSpecializations() {
-    val p1 = customClassGame().testTfm(PLAYER1)
+    val p1 = customClassGame().testAgent(PLAYER1)
 
     val invocationsBefore = ConcreteOnlyMetric.invocations
     p1.count("ConcreteOnlyMetric<Player1>") shouldBe 17
@@ -60,7 +60,7 @@ internal class CustomMetricTest {
 
   @Test
   internal fun customMetricsMayEvaluateAnAbstractQueryDirectly() {
-    val p1 = customClassGame().testTfm(PLAYER1)
+    val p1 = customClassGame().testAgent(PLAYER1)
 
     p1.count("AbstractAwareMetric<Player>") shouldBe 23
     p1.count("AbstractAwareMetric<Player1>") shouldBe 17
@@ -68,7 +68,7 @@ internal class CustomMetricTest {
 
   @Test
   internal fun customMetricsOnlyEvaluateSpecializationsWhoseDependencyTargetsExist() {
-    val p1 = customClassGame().testTfm(PLAYER1)
+    val p1 = customClassGame().testAgent(PLAYER1)
 
     val invocationsBefore = TileMetric.invocations
     p1.count("TileMetric<CityTile<Player1, Tharsis_4_4>>") shouldBe 0
@@ -82,7 +82,7 @@ internal class CustomMetricTest {
 
   @Test
   internal fun metricOnlyCustomClassesCannotBeUsedAsInstructionsOrComponents() {
-    val p1 = customClassGame().testTfm(PLAYER1)
+    val p1 = customClassGame().testAgent(PLAYER1)
 
     shouldThrow<ExpressionException> { p1.runOperation("ConcreteOnlyMetric<Player1>") }
     shouldThrow<ExpressionException> { p1.exMachina("ConcreteOnlyMetric<Player1>") }
@@ -91,7 +91,7 @@ internal class CustomMetricTest {
 
   @Test
   internal fun changingACustomMetricDoesNotProduceAnEventForItsName() {
-    val p1 = customClassGame().testTfm(PLAYER1)
+    val p1 = customClassGame().testAgent(PLAYER1)
 
     p1.count("MetricTriggerObserver") shouldBe 1
     p1.count("PlantCount<Player1>") shouldBe 0
@@ -102,7 +102,7 @@ internal class CustomMetricTest {
 
   @Test
   internal fun customImplementationRuntimeFailuresHaveTheirOwnDomain() {
-    val p1 = customClassGame().testTfm(PLAYER1)
+    val p1 = customClassGame().testAgent(PLAYER1)
 
     shouldThrow<CustomCodeException> { p1.count("BrokenMetric") }
     shouldThrow<CustomCodeException> { p1.runOperation("BrokenInstruction") }

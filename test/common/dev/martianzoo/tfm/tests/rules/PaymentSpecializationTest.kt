@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -17,7 +17,7 @@ import kotlin.test.Test
 internal class PaymentSpecializationTest {
   @Test
   internal fun `Admin prepares a research bill while the player chooses the payment`() {
-    val p1 = setUpGame().testTfm(PLAYER1)
+    val p1 = setUpGame().testAgent(PLAYER1)
     p1.autoExecPolicy = NONE
     p1.runOperation("20 MC, 4 ProjectCard<Selecting>")
 
@@ -42,7 +42,7 @@ internal class PaymentSpecializationTest {
 
   @Test
   internal fun `card play rejects a front from a different deck`() {
-    val player = setUpGame().testTfm(PLAYER1)
+    val player = setUpGame().testAgent(PLAYER1)
 
     shouldThrow<ExpressionException> {
       player.beginOperation("PlayCard<Class<CorporationCard>, Class<$AcquiredCompany>, Hand>")
@@ -51,7 +51,7 @@ internal class PaymentSpecializationTest {
 
   @Test
   internal fun `The payment remainder uses only its own resource`() {
-    val p1 = setUpGame().testTfm(PLAYER1)
+    val p1 = setUpGame().testAgent(PLAYER1)
     p1.autoExecPolicy = NONE
     p1.runOperation("Steel, Titanium")
 

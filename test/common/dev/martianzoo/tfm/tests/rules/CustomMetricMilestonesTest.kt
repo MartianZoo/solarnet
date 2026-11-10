@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.testsupport.PLAYER1
@@ -18,7 +18,7 @@ import kotlin.test.Test
 internal class CustomMetricMilestonesTest {
   @Test
   internal fun tycoonCanBeClaimedWithFifteenActiveAndAutomatedCards() {
-    val p1 = TfmEngine.newGame(canonicalPremise(Elysium, players = 2)).testTfm(PLAYER1)
+    val p1 = TfmEngine.newGame(canonicalPremise(Elysium, players = 2)).testAgent(PLAYER1)
     p1.exMachina(
         "$ColonizerTrainingCamp, $DeepWellHeating, $CloudSeeding, $MartianRails, " +
             "$WaterImportFromEuropa, $EquatorialMagnetizer, $DomedCrater, $NoctisCity, " +
@@ -48,13 +48,13 @@ internal class CustomMetricMilestonesTest {
                 colonyTiles = testColonyTiles(2),
             )
         )
-    val p1 = game.testTfm(PLAYER1)
+    val p1 = game.testAgent(PLAYER1)
     p1.runOperation(
         "$Ecoline, $ThorGate, $PhoboLog, $InventorsGuild, $EarthOffice, " +
             "$IoMiningIndustries, $Pets, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
     )
     game
-        .testTfm(PLAYER2)
+        .testAgent(PLAYER2)
         .runOperation("$EarthCatapult, $Mine, $DeepWellHeating, 9 Plant, 7 Steel, 5 Heat")
 
     p1.count("Class<@Tag>(HAS @Tag<Player1>)") shouldBe 7
@@ -78,7 +78,7 @@ internal class CustomMetricMilestonesTest {
                     colonyTiles = testColonyTiles(2),
                 )
             )
-            .testTfm(PLAYER1)
+            .testAgent(PLAYER1)
     p1.exMachina("$ArtificialLake, $Birds, $Algae, $AsteroidMiningConsortium")
 
     p1.count("CardFront(HAS requirement)") shouldBe 4

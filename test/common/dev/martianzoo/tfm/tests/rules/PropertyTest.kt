@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -25,7 +25,7 @@ internal class PropertyTest {
   @Test
   internal fun numberPropertiesAreReadableWithoutBecomingComponents() {
     val game = TfmEngine.newGame(canonicalPremise(Hellas, VenusNextExpansion, players = 2))
-    val p1 = game.testTfm(PLAYER1)
+    val p1 = game.testAgent(PLAYER1)
     val componentCount = p1.count("Component")
 
     p1.count("Hellas_8_4.row") shouldBe 8
@@ -44,7 +44,7 @@ internal class PropertyTest {
   @Test
   internal fun numberPropertiesWorkInsideARefinement() {
     val game = TfmEngine.newGame(canonicalPremise(Hellas, players = 2))
-    val p1 = game.testTfm(PLAYER1)
+    val p1 = game.testAgent(PLAYER1)
 
     p1.exMachina(
         "NormalCityTile<Player1, Hellas_7_4>, NormalCityTile<Player1, Hellas_8_4>, " +
@@ -62,7 +62,7 @@ internal class PropertyTest {
   internal fun metricPropertiesAreEvaluatedExplicitlyInsideEffectsAndReadQueries() {
     val catalog = TfmCatalog(Canon, MetricPropertyProbeCatalog)
     val game = TfmEngine.newGame(canonicalPremise(catalog = catalog, players = 2))
-    val p1 = game.testTfm(PLAYER1)
+    val p1 = game.testAgent(PLAYER1)
 
     p1.runOperation("3! TemperatureStep, MetricPropertyProbe")
 
@@ -77,8 +77,8 @@ internal class PropertyTest {
   internal fun requirementPropertiesAreEvaluatedAfterTheirEffectReceiverBecomesConcrete() {
     val catalog = TfmCatalog(Canon, RequirementPropertyProbeCatalog)
     val game = TfmEngine.newGame(canonicalPremise(catalog = catalog, players = 2))
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
+    val p1 = game.testAgent(PLAYER1)
+    val p2 = game.testAgent(PLAYER2)
 
     p1.runOperation("RequirementPropertyMarker")
     p1.runOperation("OptionalRequirementPropertyProbe") {

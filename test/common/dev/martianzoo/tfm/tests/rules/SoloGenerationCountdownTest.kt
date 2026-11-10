@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -16,7 +16,7 @@ internal class SoloGenerationCountdownTest {
   @Test
   internal fun laterGenerationsRemoveOneGenerationLeft() {
     val game = setUpGame(players = 1)
-    val admin = game.testTfm(ADMIN)
+    val admin = game.testAgent(ADMIN)
 
     admin.runOperation("Generation")
 
@@ -26,7 +26,7 @@ internal class SoloGenerationCountdownTest {
   @Test
   internal fun enteringTheFinalSoloGenerationRemovesTheLastGameEndBarrier() {
     val game = setUpGame(players = 1)
-    val admin = game.testTfm(ADMIN)
+    val admin = game.testAgent(ADMIN)
     admin.exMachina("-12 SoloGenerationsLeft")
 
     admin.runOperation("-SoloGenerationsLeft")
@@ -38,8 +38,8 @@ internal class SoloGenerationCountdownTest {
   @Test
   internal fun tr63SoloReplacesTheStandardObjectiveAndProvidesBufferGas() {
     val game = setUpGame(Tr63SoloObjective, players = 1)
-    val admin = game.testTfm(ADMIN)
-    val player = game.testTfm(PLAYER1)
+    val admin = game.testAgent(ADMIN)
+    val player = game.testAgent(PLAYER1)
 
     player.count("Tr63SoloObjective") shouldBe 1
     player.count("StandardSoloObjective") shouldBe 0
