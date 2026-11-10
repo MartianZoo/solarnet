@@ -38,7 +38,8 @@ internal fun World.startSetupOnly() {
   val policies = actors.filterIsInstance<Player>().associateWith { agents[it].autoExecPolicy }
   try {
     policies.keys.forEach { agents[it].autoExecPolicy = NONE }
-    agents.tfm(ADMIN).startGame()
+    agents.taskLog.gameStarted()
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
     tasks.extract { it }.filter { it.deferred }.forEach { agents[it.assignee].dropTask(it.id) }
   } finally {
     policies.forEach { (actor, policy) -> agents[actor].autoExecPolicy = policy }
