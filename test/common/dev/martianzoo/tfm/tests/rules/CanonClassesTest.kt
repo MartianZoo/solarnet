@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -115,7 +114,7 @@ internal class CanonClassesTest {
                   colonyTiles = testColonyTiles(2),
               )
           )
-      val agent = game.testTfm(PLAYER1)
+      val agent = game.testAgent(PLAYER1)
 
       withClue(map.name) {
         agent.count("Class<Milestone>") shouldBe 6
@@ -128,10 +127,10 @@ internal class CanonClassesTest {
   internal fun preludeSetupRetainsTwoOfFourPreludeCardsForEachPlayer() {
     val game = setUpGame(canonicalPremise(PreludeExpansion, players = 2))
 
-    game.testTfm(PLAYER1).phase("Prelude")
+    game.testAgent(ADMIN).exMachina("PreludePhase FROM SetupPhase")
 
-    game.testTfm(PLAYER1).count("PreludeCard<Player1>") shouldBe 2
-    game.testTfm(PLAYER2).count("PreludeCard<Player2>") shouldBe 2
+    game.testAgent(PLAYER1).count("PreludeCard<Player1>") shouldBe 2
+    game.testAgent(PLAYER2).count("PreludeCard<Player2>") shouldBe 2
   }
 
   @Test

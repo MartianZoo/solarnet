@@ -1,9 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -11,14 +9,13 @@ import dev.martianzoo.tfm.tests.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class VictoryTest {
+internal class VictoryTest : TfmSandboxTest() {
 
   @Test
   internal fun exactMultiplayerTiesProduceJointVictories() {
-    val game = setUpGame()
-    val admin = game.testTfm(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
+    game = setUpGame()
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
 
     admin.runOperation("End FROM Phase")
 
@@ -34,10 +31,9 @@ internal class VictoryTest {
 
   @Test
   internal fun mcBreaksAVictoryPointTie() {
-    val game = setUpGame()
-    val admin = game.testTfm(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
+    game = setUpGame()
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
     p1.exMachina("MC")
 
     admin.runOperation("End FROM Phase")

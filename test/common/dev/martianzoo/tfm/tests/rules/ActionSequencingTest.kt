@@ -1,10 +1,8 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -14,14 +12,14 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class ActionSequencingTest {
+internal class ActionSequencingTest : TfmSandboxTest() {
   @Test
   internal fun `payment completion belongs to the action provider's owner`() {
-    val game = setUpGame()
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
+    game = setUpGame()
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
     p1.runOperation("$Steelworks, 4 Energy")
-    game.testTfm(ADMIN).phase("Action")
+    admin.exMachina("ActionPhase FROM SetupPhase")
 
     p1.runOperation("UseAction<$Steelworks, Action1>")
 
@@ -31,8 +29,8 @@ internal class ActionSequencingTest {
 
   @Test
   internal fun `use-card action rejects a different card after Admin places the marker`() {
-    val game = setUpGame()
-    val manual = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
+    game = setUpGame()
+    val manual = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     manual.runOperation("$SymbioticFungus, $Ants")
 
     manual.beginOperation("UseAction<StandardAction>") {
