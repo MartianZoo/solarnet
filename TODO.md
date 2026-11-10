@@ -169,11 +169,12 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Refine and verify the strategy catalogue in [DECISION_GRAPH.md](docs/agents/DECISION_GRAPH.md).
   Settle action-clearance recognition and task comparison ignoring ordinals. Use the two-identical-
   `Foo?`-tasks case to specify when different task causes can be ignored; card tracking and legacy
-  gameplay helpers currently inspect some causes. Decide what, if anything, must be preserved at
-  intra-action handoffs. Inventory which
-  existing forced deductions belong in Player and Admin agents. Measure pruning and safe eager
-  execution on Canon scenarios such as Project Eden, retaining UNKNOWN when analysis runs out
-  of information or work. The document selects semantic rules, not an implementation.
+  gameplay helpers currently inspect some causes. Verify that comparisons at intra-action handoffs
+  preserve the recipient's meaningful choices. Inventory which
+  existing forced deductions belong in Player and Admin agents. Measure pruning and safe early
+  task completion on Canon scenarios such as Project Eden. Investigate unexpected UNKNOWN results
+  without pruning options that lack a viability proof. The document selects semantic rules, not an
+  implementation.
 - Design the planned interaction API as a Platonic UI for information, decisions, navigation, and
   undo. Specify shared interaction scripts with a direct driver and a UI driver, and research
   established test patterns before choosing interfaces. No UI or driver implementation is selected.

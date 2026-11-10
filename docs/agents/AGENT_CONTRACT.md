@@ -13,12 +13,11 @@ choice-analysis rules remain in [DECISION_GRAPH.md](DECISION_GRAPH.md).
 
 ## Agent responsibilities: four buckets
 
-**Selected organization — October 28, 2026.** Separate helping the client choose, choosing for
-it during an interaction, other interaction responsibilities, and configuring standing autoexec
-policies in the engine. Assistance remains useful with Player automatic decisions disabled.
+**Selected organization — October 28, 2026.** Separate helping the client choose, optional
+choices for it during an interaction, other interaction responsibilities, and configuring standing
+autoexec policies in the engine. Assistance remains useful with Player automatic decisions disabled.
 These are responsibilities, not a proposal for four classes, modules, or processing stages.
-The inventory assumes the selected engine destination for design discussion; it does not claim
-that the transition or the services below are implemented.
+The inventory does not claim that the services below are implemented.
 
 **Selected** identifies agreed responsibility or direction. **Recommendation** identifies an
 additional proposed service. **Open** identifies details still requiring a decision.
@@ -48,8 +47,9 @@ Player automatic decisions must not disable guidance, filtering, or analysis.
   Preserve TRUE/FALSE/UNKNOWN; missing card information or unfinished analysis is not proof of
   impossibility. Use engine execution for game consequences rather than a second rule interpreter.
 - **Establish which distinctions matter.** Prove when alternatives or task orders have equivalent
-  outcomes. Explaining that equivalence helps the client; submitting a representative answer is
-  a separate act in bucket 2.
+  outcomes. Finding a task safe to complete early can remove many redundant orders from further
+  analysis. Explaining equivalence helps the client; submitting an answer is a separate act in
+  bucket 2.
 
 **Recommendation:** offer previews and explanations based on that analysis: established
 consequences and unresolved choices before submission, and retained changes, remaining choices,
@@ -62,27 +62,28 @@ and the relationship between local drafts and voluntarily retained engine narrow
 ordered-decision and viability discussions remain in DECISION_GRAPH; this inventory does not
 resolve them merely by assigning the work to Agent.
 
-### 2. Choose for the client during the current interaction
+### 2. Optionally choose for the client during the current interaction
 
-**Selected responsibility:** under the client's applicable policy, the agent may supply and submit
-an answer while handling the current situation. Establishing an answer and being authorized to act
-on it are separate requirements.
+**Possible Player service:** under the client's applicable policy, the agent could supply and submit
+an answer while handling the current situation. Its usefulness for Player agents remains open;
+mandatory Admin handling has a different purpose. Establishing an answer and being authorized to
+act on it are separate requirements. The rules below constrain the service if adopted.
 
-- **Advance through forced decisions.** After sound pruning and collapsing leave no meaningful
-  choice, an authorized agent can apply the remaining answer and continue to the next decision.
-  This automatic advancement is distinct from executing the resulting task. Finding a
-  successful continuation does not authorize executing all of its later choices.
-- **Choose among proved equivalent alternatives.** The agent can select a representative or an
-  interchangeable task order under the decision-graph rules. Executability of both tasks alone
-  does not show that their order is harmless; their consequences must be considered.
+- **Advance through forced decisions.** If enabled, an authorized agent can apply the remaining
+  answer after sound pruning and collapsing leave no meaningful choice. This is distinct from
+  executing the resulting task. Finding a successful continuation does not authorize executing
+  all of its later choices.
+- **Choose among proved equivalent alternatives.** If enabled, the agent can select a
+  representative or an interchangeable task order under the decision-graph rules. Executability
+  of both tasks alone does not show that their order is harmless; their consequences matter.
 - **Respect each Actor's decisions.** Analysis of Kim's Philares response does not let Stan's
   agent pick Kim's resource. A policy authorizing Kim's answer must come from her agent's configured
   authority. This is Actor attribution and client policy, not caller authentication.
 
-**Open:** the controls and defaults for granting this authority, and migration from current Player
-policies. No new default follows from this inventory. **Deferred:** broader strategic delegation
-where an agent actively chooses between meaningfully different outcomes. It would belong here,
-but is not required for assistance or automatic handling of proved unnecessary questions.
+**Open:** whether Player automatic advancement is worth building, its controls and defaults if it
+is, and migration from current Player policies. No new default follows from this inventory.
+**Deferred:** broader strategic delegation where an agent actively chooses between meaningfully
+different outcomes. It would belong here, but is not required for assistance.
 
 ### 3. Carry out and maintain the interaction
 
@@ -124,6 +125,9 @@ evidence, not a requirement to retain their lifecycle or completion assumptions.
 assigned to its Actor. When such a task matches a policy, the engine can completely handle it
 without consulting that agent or its client again. The agent decides what to authorize in advance;
 the engine carries out that standing instruction under the ordinary game rules.
+Without a matching policy, the Actor's agent retains the right to be consulted each time. A
+standing policy delegates only the choices and execution it covers, not general authority over
+that Actor's future decisions.
 
 **Selected example:** Kim's agent installs a standing policy saying to take her Arctic Algae plants. Stan
 places an ocean and selects the resulting plant task assigned to Kim. The engine completes that
@@ -162,7 +166,8 @@ requirements.
 - How finishing the selected task relates to newly queued work, and how resulting transactions,
   returned results, and restoration fit the surrounding call. Do not infer whole-action completion.
 - How replay captures these decisions without executing them twice, and how previews/speculation
-  apply installed policies consistently. Existing Player-policy replay behavior does not settle this.
+  distinguish possible Player choices from the particular route an installed policy would take.
+  Existing Player-policy replay behavior does not settle this.
 
 ## Current implementation evidence
 
@@ -170,4 +175,3 @@ Current [AutoExecPolicy](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt
 [AutoExecLoop](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt) configure and run Player policy
 in Agent. They do not implement the newly selected engine-installed policies. The inventory records
 intended ownership; it does not claim that those policies or the full guidance services exist.
-The engine transition and this agent design remain separate implementation work.

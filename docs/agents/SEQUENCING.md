@@ -287,7 +287,10 @@ check runs before removal.
 
 The selected [action clearance](DECISION_GRAPH.md#other-players-and-the-endpoint) includes scope
 removal and its consequences. The current check above is therefore insufficient for that agent
-exploration endpoint. Recognition of clearance, and reconciliation with the older restriction on
+exploration endpoint: logically the Player's action must be able to finish through that work. We
+could instead require `FINALLY` work never to deadlock an action, making its start sufficient, but
+that restriction has not been selected. This review has not established a Canon case where the
+difference matters. Recognition of clearance, and reconciliation with the older restriction on
 cleanup choices, remain open; they add no engine completion requirement.
 
 ### Decisions and open questions

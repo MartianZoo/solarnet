@@ -1,6 +1,6 @@
 # Single-Action Decision Graph
 
-> **Agent design — updated October 24, 2026; implementation remains exploratory.**
+> **Agent design — updated November 10, 2026; implementation remains exploratory.**
 > **Selected** records direction agreed with the
 > project owner. **Candidate** describes a strategy whose proof and implementation still need
 > review. **Open** identifies an unsettled question. Current-code evidence does not establish
@@ -13,8 +13,9 @@
 > responsibility inventory and the separate standing-policy direction.
 
 This is a separate Agent project, not an acceptance checklist for the current
-[engine contract](ENGINE_CONTRACT.md). Player inference remains a limited convenience; supported
-Canon Admin tasks must complete without incoming client choices.
+[engine contract](ENGINE_CONTRACT.md). Player assistance is the motivation for this analysis;
+Player automatic advancement is optional. Supported Canon Admin tasks must complete without
+incoming client choices under their separate mandatory driver.
 
 ## Purpose and governing rule
 
@@ -33,20 +34,24 @@ reported a recent UI incident that attempted to copy the entire integer domain i
 A stronger goal is to prevent a client from starting down a path that later forces it to back
 out. That is the goal of viability analysis, not an unconditional guarantee when information or
 computation is insufficient. In those cases, preserve the option and report viability as unknown.
+Unknown is a necessary honest result, not an expected common outcome. Treat an unexplained unknown
+in a supported, fully known scenario as an analysis defect to investigate, while retaining the
+option until a valid proof can remove it. Merger's unknowable card identity is a different case.
 
-The agent also removes questions whose answers cannot affect the outcome. This helps the Player,
-but it also reduces the work needed to analyze the remaining decisions. Simplification is part of
-making viability analysis practical, not merely presentation work after analysis has finished.
+The agent also removes questions whose answers cannot affect the outcome. Most useful is proving
+that a task can safely be selected and completed early: it gets that task out of the way and avoids
+analyzing every ordering of it with later work. Simplification makes viability analysis practical;
+it is not merely presentation work after analysis has finished.
 
 ## Division of responsibility
 
-**Selected destination, October 24, 2026; not yet implemented in full:** the engine interprets an
-explicit request within an identified permitting task. It combines the task and submitted input,
-and can examine the entire requested transaction to establish that exactly a single fully specified
-instruction succeeds. It does not execute subsequently queued tasks to decide this, including Admin
-work. Task finding itself may remain a simple descriptive comparison, without trying consequences
-to choose between different tasks. [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#identifying-the-permitted-task)
-owns the precise rule and remaining implementation questions.
+**Current engine rule, with finite inference coverage:** the engine interprets an explicit request
+within an identified permitting task. It combines the task and submitted input, and can examine
+the requested transaction to establish that exactly a single fully specified instruction succeeds.
+It does not execute subsequently queued tasks to decide this, including Admin work. Task finding
+uses descriptive matching rather than trying consequences to choose between different tasks.
+[ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#identifying-the-permitted-task) owns the precise rule and
+current coverage.
 
 The agent answers different questions: what to ask when the client has not supplied a complete
 request, whether to execute automatically, and whether choices can finish the later action. It can
@@ -55,7 +60,7 @@ engine's successful transaction is the beginning of that later analysis, not pro
 The agent must not duplicate the engine's legality rules in a separate game interpreter.
 
 The earlier plan to move every unique-subtype or present-dependency gain deduction into the agent
-is superseded. Deductions used to interpret an explicit execution request can remain in the engine;
+is superseded. Deductions used to interpret an explicit execution request remain in the engine;
 unsolicited narrowing and authorization of automatic execution are agent policy. An installed
 policy can let the engine finish a covered selected task without consulting Agent again; this does
 not move viability analysis into engine. Partial reductions remain useful even when they do not
@@ -73,11 +78,11 @@ certifies viability of later work.
 
 Admin remains permanently automatic in the agent, through separate engine transactions. Its
 scheduling follows [ENGINE_CONTRACT.md](ENGINE_CONTRACT.md#admins-choices-and-retries). Player
-policy settings never disable Admin. Agent exploration must include the Admin transactions and
-installed Player-policy execution that actual play would perform. Engine uniqueness deliberately
-stops before subsequent task execution. Outcome comparison below also includes settled Admin work
-and therefore must not be reused as the engine's
-rule for accepting an ambiguous request.
+policy settings never disable Admin. Agent exploration includes consequent Admin transactions.
+Optional Player policies authorize actual execution; they are not evidence that alternatives are
+viable or equivalent and need not choose the continuations explored for those proofs. Engine
+uniqueness deliberately stops before subsequent task execution. Outcome comparison includes settled
+Admin work and therefore must not be reused as the engine's rule for accepting an ambiguous request.
 
 [ENGINE_TRANSITION_RESULTS.md](ENGINE_TRANSITION_RESULTS.md) retains the engine experiments.
 The remainder of this document governs future Agent exploration.
@@ -126,12 +131,13 @@ These concerns have different proof requirements and cooperate throughout explor
 2. **Viability:** establish whether an option can lead to action clearance. Prune options proved
    to lead only to dead ends; retain options whose viability remains unknown.
 3. **Equivalent outcomes:** collapse distinctions whose alternatives cannot change the result.
-   This includes task orders proved equivalent, even when every order is viable.
+   In particular, prove when a task can safely be completed early, removing redundant task orders.
 4. **Cost of analysis:** avoid exploring equivalent paths repeatedly, and try inexpensive
    simplifications before expensive searches. Execution proved harmless can reduce the remaining
    problem before its full graph has been explored.
-5. **Automatic advancement:** when the reduced graph leaves no meaningful choice at the current node,
-   advance without asking the Player.
+5. **Optional Player automatic advancement:** if the Player authorizes it, apply a remaining answer
+   when the reduced graph leaves no meaningful choice at the current node. The Admin driver must
+   handle its required choices automatically under the separate engine contract.
 
 These are not mandatory sequential processing phases. In particular, constructing the whole SADG
 before applying reductions would defeat an important reason for having them. Pruning and
@@ -140,6 +146,7 @@ collapsing remain useful even when a client has disabled automatic advancement.
 ## Viability and its three possible results
 
 **Selected:** viability analysis uses `TRUE`, `FALSE`, and `UNKNOWN` for an option's remaining path.
+Only `FALSE` permits pruning.
 
 | Result | Meaning |
 | --- | --- |
@@ -191,6 +198,9 @@ that new action is outside the current SADG.
 insufficient because removal can enqueue work. Reaching `FINALLY` is earlier still. Canon's
 [scope and Baton rules](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/base/game.pets)
 also show why following every recursively caused task would absorb subsequent actions indefinitely.
+The Player's action must be able to finish through clearance; starting `FINALLY` is not enough to
+prove it. [Sequencing](SEQUENCING.md#current-agent-completion-check) records a possible narrower
+rule for `FINALLY` and the lack of an established Canon case distinguishing the rules.
 
 **Open:** recognize clearance from existing facts, distinguish an outstanding response from
 a new independent decision, and determine how to analyze completion of setup, research, production,
@@ -205,6 +215,9 @@ that convention remains future work.
 **Selected:** unavailable card information and exhausted computation can both yield UNKNOWN.
 They have the same logical treatment. A diagnostic message can explain why analysis stopped;
 the result does not need separate logical variants for different causes.
+An unknown card play can be intrinsically unpredictable from the starting information. By contrast,
+an allowance exhausted on an ordinary known-choice action is a practical analysis shortfall to
+investigate, even though both results must retain the option.
 
 The initial inventory is:
 
@@ -250,39 +263,35 @@ verification; they do not select card-specific engine exceptions.
 
 ## Equality of outcomes
 
-**Selected criterion:** compare alternatives from the same starting game state after their
-transactions and the consequent Admin transactions have settled. Settled outcomes are equivalent
-when their component deltas and actionable task changes match. Task ids, cause-event ordinals, and
-different event order alone do not distinguish them. The event log is part of the game world, but
-not the current game state being compared.
-
-**Selected agency rule:** pruning, collapsing, and automatic advancement must preserve every
-distinct reachable end-of-action state. Whether an additional guarantee is needed at an
-intra-action handoff, such as Kim's Philares response during Stan's action, remains open.
+**Selected criterion:** a distinction matters when a Player could have a legitimate gameplay
+reason to care about it. From the same starting state, compare the outcomes after each transaction
+and its consequent Admin work have settled. Preserve every distinct reachable end-of-action state
+and every later meaningful choice, including another Player's choice during the action. Component
+changes and actionable pending tasks matter; task IDs, cause graphs, and event order do not matter
+by themselves. Taking a steel then a plant instead of a plant then a steel is not a Player choice
+when all consequences and later possibilities are the same. The actual event log still records the
+route taken.
 
 This comparison applies both to complete continuations and to shorter alternatives such as AB
 versus BA before the rest of the action. At the shorter comparison point, ordinary Player tasks
 can remain pending; they are part of the comparison. Applicable Admin work must have settled.
 
-Compare the resulting component and task differences from the common start, not the ordering of
-events used to produce them. Task comparison retains meaningful instruction content, multiplicity,
-assignee, selection, continuation, and deferral. Incidental task IDs derived from event ordinals
-do not make outcomes different. The mechanical comparison of references and cause metadata still
-needs specification. If two cards each create the same `Foo?` task, accepting the first and
-declining the second should be equivalent to the reverse when resulting components, pending tasks,
-and future gameplay possibilities agree. The origin labels alone do not make two end-of-action
-states different. Current card tracking and legacy gameplay helpers do inspect causes in some
-situations, so a mechanical comparison cannot discard every cause without checking its consequences.
+Compare component and task differences from the common start. Task comparison retains meaningful
+instruction content, multiplicity, assignee, selection, continuation, and deferral. If two cards
+each create the same `Foo?` task, accepting the first and declining the second is equivalent to the
+reverse when future gameplay possibilities agree. Current card tracking and legacy helpers inspect
+some causes; their use must be checked for an actual difference in later choices or consequences,
+not preserved as a Player preference for a particular origin label. The mechanical comparison of
+task references and known card identities still needs specification.
 
-The actual route still has its actual recorded history. Equivalence for analysis does not rewrite
-or suppress that history. Intermediate effects must first run: equal direct gains are insufficient
-if their different orders produce different triggered work.
+Equivalence for analysis does not rewrite or suppress the actual history. Intermediate effects must
+first run: equal direct gains are insufficient if different orders produce different triggered work.
 
 This rule compares execution outcomes. Two unfinished client drafts are not interchangeable merely
 because neither has mutated the World; their supplied choices and remaining questions can differ.
 Likewise, unknown card consequences cannot establish equality by their absence from a partial trace.
 
-## Safe eager execution and automatic advancement
+## Safe early execution and optional automatic advancement
 
 This section concerns Agent decisions during an interaction. The separate
 [standing-policy direction](AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine) can
@@ -291,9 +300,11 @@ mechanics remain future work. That authorization does not prove other outcomes e
 
 ### Doing harmless work early
 
-**Selected:** task C can be done eagerly when doing it now cannot close off any possible outcome.
-It is insufficient to find a successful path starting with C. Every outcome otherwise available
-must remain available after doing C first.
+**Selected:** the cleanest useful collapse of task-order routes is to prove task C safe to select
+and complete now. It is insufficient to find a successful path starting with C. Every outcome
+otherwise available must remain available after doing C first. The Agent can then complete C in
+speculation, getting it out of the way of further analysis. Applying that route to the live World
+still requires the Actor's authorization; it does not imply general Player automatic advancement.
 
 For independent tasks gaining a plant, a heat, and a steel, if every order produces the same
 settled component and task changes, the Player need not choose an order. Their six permutations
@@ -322,18 +333,20 @@ Admin scheduling continues to follow its separate contract.
 
 ### Walking the reduced graph
 
-**Selected:** automatic advancement follows the sole remaining meaningful edge after justified
-pruning and collapsing. This is distinct from execution of a closed task.
+**Conditional rule:** if Player automatic advancement is enabled, it follows the sole remaining
+meaningful edge after justified pruning and collapsing. Whether Player advancement is useful enough
+to build remains open; Admin's mandatory handling is separate. Advancement is distinct from
+execution of a closed task.
 Apart from alternatives proved equivalent, every competing path must be proved nonviable.
 Finding the first successful path is not sufficient.
 
 | Remaining alternatives | Consequence |
 | --- | --- |
-| TRUE and FALSE | The false alternative can be removed; the surviving step can be walked. |
+| TRUE and FALSE | The false alternative can be removed; the survivor can be offered or walked if authorized. |
 | TRUE and UNKNOWN | Both remain. Success elsewhere does not remove the unknown choice. |
 | UNKNOWN and UNKNOWN | Both remain unless equivalence is independently proved. |
 | UNKNOWN and FALSE | The false alternative can be removed. The survivor is still unknown. |
-| Several proved equivalent alternatives | Choose a representative under the ordering rules above. |
+| Several proved equivalent alternatives | Offer or choose a representative under the ordering rules above. |
 
 A sole unknown survivor does not prove viability. Automatic advancement never supplies missing card names or
 other unknown required input: the agent must obtain that input when execution needs it.
@@ -422,11 +435,12 @@ analysis. Different resource names are not a proof of independence: effects, gat
 limits, and spawned tasks can connect them. Enumerating the useful cheap proofs is central future
 work, starting with concrete Canon scenarios.
 
-### 7. Advance through a forced narrowing
+### 7. Establish a forced narrowing
 
-**Selected direction; enumeration mechanism open:** supply a choice when every competing answer is
-proved impossible, or all retained answers are proved equivalent. This includes choosing a forced
-type, dependency, or amount, as well as a task order. It reduces both question count and search.
+**Selected analysis direction; Player execution optional:** establish that every competing answer
+is impossible, or all retained answers are equivalent. This includes a type, dependency, amount,
+or task order. The result simplifies both the client's choice and further analysis. An authorized
+agent may also supply the answer without asking the Player, if that behavior proves useful.
 
 An incomplete option list cannot prove uniqueness. A sole successful answer plus unexamined or
 unknown answers is insufficient. Review which existing engine deductions establish these facts
@@ -449,9 +463,10 @@ No cache, persistent state key, or invalidation protocol is selected by this dra
 A cheap proof that C is safe may remove many orders before a harder search begins. Stop when the
 configured allowance is exhausted and propagate UNKNOWN, with a diagnostic explaining the stop.
 
-This controls work without changing what TRUE and FALSE mean. Record search work and reductions
-on actual scenarios before claiming a performance improvement. Proof prioritization must not
-turn “the first answer found” into “the only answer the Player may choose.”
+This controls work without changing what TRUE and FALSE mean. Investigate unexpected UNKNOWN
+results on known-choice scenarios. Record search work and reductions on actual scenarios before
+claiming a performance improvement. Proof prioritization must not turn “the first answer found”
+into “the only answer the Player may choose.”
 
 ### 10. Simplify state-dependent instructions early
 
