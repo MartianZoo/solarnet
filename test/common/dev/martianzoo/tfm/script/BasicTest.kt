@@ -1,14 +1,12 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agenttestsupport.startSetupOnly
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -22,19 +20,11 @@ internal fun setUpGame(
     val agents = testAgents()
     startSetupOnly()
     actors.filterIsInstance<Player>().forEach { player ->
-      agents.tfm(player).keepStartingProjects(0)
+      val agent = agents[player]
+      val offered = agent.count("ProjectCard<Selecting>")
+      agent.doTask(if (offered == 0) "Ok" else "-$offered ProjectCard<Selecting>")
     }
   }
-}
-
-internal fun ScriptSession.keepStartingProjects(vararg counts: Int) {
-  for ((player, count) in game.actors.filterIsInstance<Player>().zip(counts.asIterable())) {
-    agents.tfm(player).keepStartingProjects(count)
-  }
-}
-
-internal fun ScriptSession.playCorporation(cardName: String) {
-  agents.tfm(agent.actor).playCorp(cn(cardName))
 }
 
 internal class BasicTest {
@@ -89,7 +79,7 @@ internal class BasicTest {
   @Test
   internal fun canonicalClassNamesWorkInScriptInput() {
     val game = setUpGame()
-    val session = game.testTfm(PLAYER2)
+    val session = game.testAgent(PLAYER2)
 
     session.runOperation("PROD[5 MC, 4 Energy]")
     session.runOperation("ProjectCard")
@@ -100,13 +90,13 @@ internal class BasicTest {
     assertEquals(5, session.count("PROD[Steel]"))
     assertEquals(3, session.count("PROD[Titanium]"))
 
-    assertTrue(game.testTfm(PLAYER1).has("PROD[=1 Energy, =1 Steel]"))
+    assertTrue(game.testAgent(PLAYER1).has("PROD[=1 Energy, =1 Steel]"))
   }
 
   @Test
   internal fun removeAmap() {
     val game = setUpGame()
-    val session = game.testTfm(PLAYER1)
+    val session = game.testAgent(PLAYER1)
 
     session.runOperation("3! Heat")
     session.runOperation("4* Heat")
@@ -117,7 +107,7 @@ internal class BasicTest {
   @Test
   internal fun rollback() {
     val game = setUpGame()
-    val session = game.testTfm(PLAYER1)
+    val session = game.testAgent(PLAYER1)
 
     session.runOperation("3 Heat")
     session.runOperation("4 Heat")
@@ -134,7 +124,7 @@ internal class BasicTest {
   @Test
   internal fun dependencies() {
     val game = setUpGame()
-    val session = game.testTfm(PLAYER1)
+    val session = game.testAgent(PLAYER1)
 
     assertTrue(game.tasks.isEmpty())
     assertEquals(0, session.count("Microbe"))
@@ -154,7 +144,7 @@ internal class BasicTest {
   @Test
   internal fun counting() {
     val game = setUpGame()
-    val session = game.testTfm(PLAYER1)
+    val session = game.testAgent(PLAYER1)
     session.runOperation("42 Heat")
     assertEquals(42, session.count("Heat"))
     assertEquals(10, session.count("4 Heat"))
@@ -172,7 +162,7 @@ internal class BasicTest {
   @Test
   internal fun tempTrigger() {
     val game = setUpGame()
-    val session = game.testTfm(PLAYER1)
+    val session = game.testAgent(PLAYER1)
     assertEquals(20, session.count("TerraformRating"))
 
     session.runOperation("2 TemperatureStep")

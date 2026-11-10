@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -11,7 +13,8 @@ internal class ScriptCompletionEngineTest {
   private val completer = ScriptCompletionEngine(repl)
 
   init {
-    repl.keepStartingProjects(0, 0)
+    repl.agents[PLAYER1].doTask("-10 ProjectCard<Selecting>")
+    repl.agents[PLAYER2].doTask("-10 ProjectCard<Selecting>")
   }
 
   @Test

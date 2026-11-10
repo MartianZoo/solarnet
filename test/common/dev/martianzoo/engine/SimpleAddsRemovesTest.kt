@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -75,7 +74,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val p2 = game.testTfm(PLAYER2)
+    val p2 = game.testAgent(PLAYER2)
 
     p2.runOperation("StandardResource") { doTask("Plant") }
 
@@ -84,7 +83,7 @@ internal class SimpleAddsRemovesTest {
 
   @Test
   internal fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
-    val p2 = TfmEngine.newGame(canonicalPremise()).testTfm(PLAYER2)
+    val p2 = TfmEngine.newGame(canonicalPremise()).testAgent(PLAYER2)
 
     shouldThrow<LimitsException> { p2.runOperation("-Plant") }
   }
@@ -105,7 +104,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualPreservesTasksThatWereAlreadyPending() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val p2 = game.testTfm(PLAYER2)
+    val p2 = game.testAgent(PLAYER2)
     val pendingTask = p2.addTasks("StandardResource?").single()
 
     p2.runOperation("Heat")
@@ -117,7 +116,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualRejectsASelectedTask() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val p2 = game.testTfm(PLAYER2)
+    val p2 = game.testAgent(PLAYER2)
     val pendingTask = p2.addTasks("StandardResource?").single()
     p2.selectTask(pendingTask)
 
@@ -133,7 +132,7 @@ internal class SimpleAddsRemovesTest {
     val admin = game.testAgent(ADMIN)
     admin.count("Heat") shouldBe 0
 
-    val p2 = game.testTfm(PLAYER2)
+    val p2 = game.testAgent(PLAYER2)
 
     p2.runOperation("5! Heat<Player2>")
     p2.runOperation("10! Heat<Player1>")

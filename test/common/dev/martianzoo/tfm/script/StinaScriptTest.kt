@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.state.ApiUtils
@@ -19,8 +21,18 @@ internal class StinaScriptTest {
             listOf("Elysium_5_6", "Elysium_5_5", "Elysium_7_7", "Elysium_7_6").map(::cn),
     )
     repl.command("become Me")
-    repl.keepStartingProjects(10)
-    repl.playCorporation("SaturnSystems")
+    repl.agent.doTask("Ok") // keep all ten starting projects
+    repl.agent.autoExecPolicy = NONE
+    repl.agent.doTasks(
+        "PlayCard<Class<CorporationCard>, Class<SaturnSystems>>",
+        "SaturnSystems FROM CorporationCard",
+        "42 MC",
+        "PROD[Titanium]",
+        "PROD[MC]",
+        "30 Pay<> FROM MC",
+        "10 ProjectCard<Hand FROM Selecting>",
+    )
+    repl.agent.autoExecPolicy = EAGER
 
     val script =
         """
