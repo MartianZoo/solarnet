@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
@@ -9,13 +8,15 @@ import dev.martianzoo.tfm.fake.FakeCanon
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Complete database replay: Static Pressure Stream (g1212dda978b8)
 // Source: _local/replays/Game20260912/Heroku-g1212dda978b8/
 // http://newazure.local:8080/the-end?id=pe1c5cff0c611
-internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
+internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
   override val config =
       GameConfig(
           """
@@ -281,8 +282,25 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
 
   @Test
   internal fun staticPressureStream() {
-    admin.startGame()
-    keepStartingProjects(6, 4)
+    startGame()
+    nor.doTask("20 TerraformRating")
+    vin.doTask("20 TerraformRating")
+    nor.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+    )
+    vin.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+    )
+    nor.doTask("-4 ProjectCard<Selecting>")
+    vin.doTask("-6 ProjectCard<Selecting>")
     generation1()
     generation2()
     generation3()
@@ -298,47 +316,132 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
   }
 
   private fun generation1() {
-    nor.draw(
-        DesignedMicroorganisms,
-        ResearchOutpost,
-        AquiferPumping,
-        UndergroundCity,
-        ExtractorBalloons,
-        Supermarkets,
-    )
-    nor.playCorp(Ecoline)
-    vin.draw(FuelFactory, CarbonateProcessing, OptimalAerobraking, CloudTourism)
-    vin.playCorp(CheungShingMars)
-    nor.turn {
-      playPrelude(AlbedoPlants)
-      playPrelude(ProjectEden) {
-        // Project Eden opens all three placement choices together.
-        doTask("OceanTile<Tharsis_2_6>")
-        nor.draw(SfMemorial, EcologicalZone)
-        doTask("CityTile<Tharsis_4_7>")
-        doTask("GreeneryTile<Tharsis_3_7>")
-        // Save 6 identifies Project Eden's three discarded cards.
-        nor.discard(ExtractorBalloons, UndergroundCity, SfMemorial)
-      }
+    with(nor) {
+      draw(
+          DesignedMicroorganisms,
+          ResearchOutpost,
+          AquiferPumping,
+          UndergroundCity,
+          ExtractorBalloons,
+          Supermarkets,
+      )
+
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$Ecoline>>",
+          "$Ecoline FROM CorporationCard",
+          "36 MC",
+          "3 Plant",
+          "PROD[2 Plant]",
+          "18 Pay<> FROM MC",
+          "6 ProjectCard<Hand FROM Selecting>",
+      )
     }
-    vin.turn {
-      playPrelude(Supplier)
-      playPrelude(ResearchNetwork) {
-        vin.draw(ProtectedHabitats, SisterPlanetSupport, PhysicsComplex)
-      }
+
+    with(vin) {
+      draw(FuelFactory, CarbonateProcessing, OptimalAerobraking, CloudTourism)
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$CheungShingMars>>",
+          "$CheungShingMars FROM CorporationCard",
+          "44 MC",
+          "PROD[3 MC]",
+          "12 Pay<> FROM MC",
+          "4 ProjectCard<Hand FROM Selecting>",
+      )
     }
-    nor.pass()
-    vin.turn {
-      playProject(FuelFactory, steel = 2)
-      playProject(CarbonateProcessing, steel = 2)
-      pass()
+
+    with(nor) {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$AlbedoPlants>>",
+          "$AlbedoPlants FROM PreludeCard",
+          "PROD[Plant]",
+          "Plant",
+          "3 Heat",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$ProjectEden>>",
+          "$ProjectEden FROM PreludeCard",
+          "3 Heat",
+          "OceanTile<Tharsis_2_6>",
+          "TerraformRating",
+      )
+
+      // Project Eden opens all three placement choices together.
+      draw(SfMemorial, EcologicalZone)
+      doTasks("CityTile<Tharsis_4_7>", "2 ProjectCard", "Plant")
+
+      // Save 6 identifies Project Eden's three discarded cards.
+      discard(ExtractorBalloons, UndergroundCity, SfMemorial)
+      doTasks(
+          "GreeneryTile<Tharsis_3_7>",
+          "OxygenStep",
+          "Steel",
+          "2 MC",
+          "TerraformRating",
+          "-3 ProjectCard",
+      )
     }
-    nor.wgt("VenusStep")
+
+    with(vin) {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
+          "$Supplier FROM PreludeCard",
+          "PROD[2 Energy]",
+          "4 Steel",
+      )
+      draw(ProtectedHabitats, SisterPlanetSupport, PhysicsComplex)
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$ResearchNetwork>>",
+          "$ResearchNetwork FROM PreludeCard",
+          "PROD[MC]",
+          "3 ProjectCard",
+      )
+    }
+
+    with(nor) {
+      doTask("Pass")
+    }
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$FuelFactory"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "Ok", // no MC remainder
+          "$FuelFactory FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[Titanium]",
+          "PROD[MC]",
+      )
+      doTasks(
+          *playCardTasks("$CarbonateProcessing"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "Ok", // no MC remainder
+          "$CarbonateProcessing FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[3 Heat]",
+      )
+      doTask("Pass")
+    }
+
+    nor.doTasks("22 MC", "3 Plant")
+    vin.doTasks("25 MC", "Titanium", "3 Heat")
+    nor.doTask("VenusStep! BY Admin")
   }
 
   private fun generation2() {
-    vin.buyCards(Omnicourt, VenusShuttles)
-    nor.buyCards(StaticHarvesting, AerialMappers)
+    vin.draw(Omnicourt, VenusShuttles)
+    nor.draw(StaticHarvesting, AerialMappers)
+    nor.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("4 ProjectCard<Selecting>")
+    vin.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    nor.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 18: immediately after both Research purchases in generation 2.
     nor.assertResources(m = 36, s = 1, t = 0, p = 8, e = 0, h = 6)
     nor.assertProduction(m = 0, s = 0, t = 0, p = 3, e = 0, h = 0)
@@ -351,38 +454,105 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     vin.assertTags(but = 3, pot = 1)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 1, venus = 2)
-
     // Research Network's wild tag supplies Cloud Tourism's missing Earth tag.
-    vin.turn {
-      playProject(CloudTourism, 11).expect("PROD[MC]")
+    with(vin) {
+      doTasks(
+              *playCardTasks("$CloudTourism"),
+              "11 Pay<> FROM MC",
+              "$CloudTourism FROM ProjectCard",
+              "EarthTag<WildTagElection<WildTag<$ResearchNetwork>>>",
+              "PROD[MC]",
+          )
+          .expect("PROD[MC]")
+      doTask("PassBaton")
     }
-    nor.turn {
-      convertPlants { placeTile(3, 6) }
-      playProject(AquiferPumping, 16, steel = 1)
+
+    with(nor) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_3_6>",
+          "OxygenStep",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("$AquiferPumping"),
+          "1 Pay<Class<Steel>> FROM Steel",
+          "16 Pay<> FROM MC",
+          "$AquiferPumping FROM ProjectCard",
+      )
     }
+
     // Research Network supplies Sister Planet Support's missing Earth tag.
-    vin.turn {
-      playProject(SisterPlanetSupport, 7).expect("PROD[3 MC]")
+    with(vin) {
+      doTasks(
+              *playCardTasks("$SisterPlanetSupport"),
+              "7 Pay<> FROM MC",
+              "$SisterPlanetSupport FROM ProjectCard",
+              "PROD[3 MC]",
+          )
+          .expect("PROD[3 MC]")
+      doTask("PassBaton")
     }
-    nor.turn {
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-        placeTile(6, 9)
-      }
+
+    with(nor) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Tharsis_6_9>",
+          "TerraformRating",
+          "Plant",
+      )
+      doTask("PassBaton")
     }
-    vin.turn { playProject(Omnicourt, 9) }
-    nor.pass()
-    vin.turn {
-      cardAction1(CloudTourism)
-      playProject(VenusShuttles, 9) { addCardResources(CloudTourism, 2) }
-      cardAction1(VenusShuttles)
-      pass()
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$Omnicourt"),
+          "9 Pay<> FROM MC",
+          "$Omnicourt FROM ProjectCard",
+          "2 TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    vin.wgt("OxygenStep")
+
+    with(nor) {
+      doTask("Pass")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
+      doTasks(
+          *playCardTasks("$VenusShuttles"),
+          "9 Pay<> FROM MC",
+          "$VenusShuttles FROM ProjectCard",
+          "2 Floater<$CloudTourism>",
+      )
+      doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
+      doTask("Pass")
+    }
+
+    nor.doTasks("24 MC", "3 Plant")
+    vin.doTasks("32 MC", "Titanium", "3 Heat")
+    vin.doTask("OxygenStep! BY Admin")
   }
 
   private fun generation3() {
-    nor.buyCards(LocalShading, Research)
-    vin.buyCards(RoboticWorkforce, SmallAnimals)
+    nor.draw(LocalShading, Research)
+    vin.draw(RoboticWorkforce, SmallAnimals)
+    nor.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("4 ProjectCard<Selecting>")
+    nor.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    vin.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 47: immediately after both Research purchases in generation 3.
     nor.assertResources(m = 32, s = 0, t = 0, p = 5, e = 0, h = 6)
     nor.assertProduction(m = 0, s = 0, t = 0, p = 3, e = 0, h = 0)
@@ -395,35 +565,82 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     vin.assertTags(but = 4, pot = 1, eat = 1, jot = 1, vet = 3)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 3, temp = -30, oxygen = 3, oceans = 2, venus = 4)
+    with(nor) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Tharsis_6_8>",
+          "TerraformRating",
+          "Plant",
+          "2 MC",
+      )
+      doTasks(
+          *playCardTasks("$StaticHarvesting"),
+          "5 Pay<> FROM MC",
+          "$StaticHarvesting FROM ProjectCard",
+          "PROD[Energy]",
+          "MC",
+      )
+    }
 
-    nor.turn {
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-        placeTile(6, 8)
-      }
-      playProject(StaticHarvesting, 5)
+    with(vin) {
+      doTasks(
+          *playCardTasks("$RoboticWorkforce"),
+          "9 Pay<> FROM MC",
+          "$RoboticWorkforce FROM ProjectCard",
+          "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
+          "0 BuildingTag<WildTagElection<WildTag<$ResearchNetwork>>>",
+          "CopyProductionBox<$CheungShingMars>",
+          "PROD[3 MC]",
+      )
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Fundraiser")
     }
-    vin.turn {
-      playProject(RoboticWorkforce, 9) {
-        doTask("0 BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
-        doTask("CopyProductionBox<$CheungShingMars>")
-      }
-      claimMilestone(cn("Fundraiser"))
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$AerialMappers"),
+          "11 Pay<> FROM MC",
+          "$AerialMappers FROM ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    nor.turn { playProject(AerialMappers, 11) }
-    vin.turn { cardAction1(CloudTourism) }
-    nor.turn { playProject(LocalShading, 4) }
-    vin.pass()
-    nor.turn {
-      cardAction1(AerialMappers) { addCardResources(LocalShading) }
-      cardAction2(LocalShading)
-      pass()
+
+    with(vin) {
+      doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
+      doTask("PassBaton")
     }
-    nor.wgt("TemperatureStep")
+
+    with(nor) {
+      doTasks(*playCardTasks("$LocalShading"), "4 Pay<> FROM MC", "$LocalShading FROM ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTask("Pass")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$AerialMappers"), "Floater<$LocalShading>")
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTask("Pass")
+    }
+
+    nor.doTasks("26 MC", "3 Plant", "Energy")
+    vin.doTasks("35 MC", "Titanium", "3 Heat")
+    nor.doTask("TemperatureStep! BY Admin")
   }
 
   private fun generation4() {
-    nor.buyCards(ResearchCoordination)
-    vin.buyCards(NuclearZone, MarsUniversity, SpinInducingAsteroid, Bushes)
+    nor.draw(ResearchCoordination)
+    vin.draw(NuclearZone, MarsUniversity, SpinInducingAsteroid, Bushes)
+    nor.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("4 ProjectCard<Selecting>")
+    nor.doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+    vin.doTasks(
+        "Ok", // discard no research cards
+        "12 Pay<> FROM MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 75: immediately after both Research purchases in generation 4.
     nor.assertResources(m = 30, s = 0, t = 0, p = 9, e = 1, h = 6)
     nor.assertProduction(m = 1, s = 0, t = 0, p = 3, e = 1, h = 0)
@@ -436,48 +653,164 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     vin.assertTags(but = 4, sct = 1, pot = 1, eat = 1, jot = 1, vet = 3)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 4, temp = -28, oxygen = 3, oceans = 3, venus = 4)
+    with(vin) {
+      doTasks(
+          *playCardTasks("$OptimalAerobraking"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "1 Pay<> FROM MC",
+          "$OptimalAerobraking FROM ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("$SpinInducingAsteroid"),
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "13 Pay<> FROM MC",
+      )
+      draw(EnergyTapping)
+      doTasks(
+          "$SpinInducingAsteroid FROM ProjectCard",
+          "VenusStep",
+          "VenusStep",
+          "3 MC",
+          "3 Heat",
+          "TerraformRating",
+          "TerraformRating",
+          "ProjectCard",
+      )
+    }
 
-    vin.turn {
-      playProject(OptimalAerobraking, 1, titanium = 2)
-      playProject(SpinInducingAsteroid, 13, titanium = 1) {
-        vin.draw(EnergyTapping)
-      }
+    with(nor) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Tharsis_4_8>",
+          "TerraformRating",
+          "2 Plant",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_5_8>",
+          "OxygenStep",
+          "2 Plant",
+          "2 MC",
+          "2 MC",
+          "2 MC",
+          "TerraformRating",
+      )
     }
-    nor.turn {
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-        placeTile(4, 8)
-      }
-      convertPlants { placeTile(5, 8) }
-    }
-    vin.turn {
-      playProject(NuclearZone, 10) { placeTile(5, 7) }
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$NuclearZone"),
+          "10 Pay<> FROM MC",
+          "$NuclearZone FROM ProjectCard",
+          "TemperatureStep",
+          "TemperatureStep",
+          "TerraformRating",
+          "TerraformRating",
+          "PROD[Heat]",
+          "NuclearZone_SpecialTile<Tharsis_5_7>",
+          "2 Plant",
+          "2 MC",
+      )
+
       // Research Network supplies Planetologist's second Jovian tag.
-      claimMilestone(cn("Planetologist"))
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Planetologist")
     }
-    nor.turn { playProject(DesignedMicroorganisms, 16) }
-    vin.turn {
-      cardAction1(VenusShuttles)
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$DesignedMicroorganisms"),
+          "16 Pay<> FROM MC",
+          "$DesignedMicroorganisms FROM ProjectCard",
+          "PROD[2 Plant]",
+      )
+      doTask("PassBaton")
     }
-    nor.turn {
-      playProject(EcologicalZone, 12) {
-        placeTile(5, 9)
-      }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
+      doTask("PassBaton")
     }
-    vin.turn { cardAction1(CloudTourism) }
-    nor.turn { convertPlants { placeTile(2, 5) } }
-    vin.turn { playProject(EnergyTapping, 3) }
-    nor.turn { cardAction1(AerialMappers) { addCardResources(LocalShading) } }
-    vin.pass()
-    nor.turn {
-      cardAction2(LocalShading)
-      pass()
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$EcologicalZone"),
+          "12 Pay<> FROM MC",
+          "$EcologicalZone FROM ProjectCard",
+          "Animal<$EcologicalZone>",
+          "Animal<$EcologicalZone>",
+          "3 Heat",
+          "EcologicalZone_SpecialTile<Tharsis_5_9>",
+          "2 Plant",
+          "2 MC",
+          "2 MC",
+      )
+      doTask("PassBaton")
     }
-    vin.wgt("OceanTile<Tharsis_5_5>")
+
+    with(vin) {
+      doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_2_5>",
+          "OxygenStep",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$EnergyTapping"),
+          "3 Pay<> FROM MC",
+          "$EnergyTapping FROM ProjectCard",
+          "-Production<Nor, Class<Energy>>",
+          "PROD[Energy]",
+      )
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$AerialMappers"), "Floater<$LocalShading>")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTask("Pass")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTask("Pass")
+    }
+
+    nor.doTasks("30 MC", "5 Plant", "Heat FROM Energy")
+    vin.doTasks("40 MC", "Titanium", "4 Heat", "Energy")
+    vin.doTask("OceanTile<Tharsis_5_5>! BY Admin")
   }
 
   private fun generation5() {
-    vin.buyCards(Cartel, MethaneFromTitan, CloudSeeding)
-    nor.buyCards(RobotPollinators, Plantation, InterplanetaryTrade)
+    vin.draw(Cartel, MethaneFromTitan, CloudSeeding)
+    nor.draw(RobotPollinators, Plantation, InterplanetaryTrade)
+    nor.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("4 ProjectCard<Selecting>")
+    vin.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    nor.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 117: immediately after both Research purchases in generation 5.
     nor.assertResources(m = 27, s = 0, t = 0, p = 6, e = 0, h = 10)
     nor.assertProduction(m = 2, s = 0, t = 0, p = 5, e = 0, h = 0)
@@ -490,41 +823,131 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     vin.assertTags(but = 4, spt = 1, sct = 1, pot = 2, eat = 2, jot = 1, vet = 3)
     vin.assertDashRight(events = 1, tagless = 1, cities = 0)
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 5, venus = 10)
+    with(nor) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Tharsis_5_6>",
+          "TerraformRating",
+          "2 Plant",
+          "2 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_4_6>",
+          "OxygenStep",
+          "Plant",
+          "2 MC",
+          "TerraformRating",
+      )
+    }
 
-    nor.turn {
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-        placeTile(5, 6)
-      }
-      convertPlants { placeTile(4, 6) }
+    with(vin) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+          "PROD[Heat]",
+      )
     }
-    vin.turn {
-      convertHeat()
-      convertHeat()
+
+    with(nor) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    nor.turn { convertHeat() }
-    vin.turn { cardAction1(CloudTourism) }
-    nor.turn { cardAction1(AerialMappers) { addCardResources(LocalShading) } }
-    vin.turn {
-      playProject(Cartel, 8)
+
+    with(vin) {
+      doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
+      doTask("PassBaton")
     }
-    nor.turn { cardAction2(LocalShading) }
-    vin.turn {
-      cardAction1(VenusShuttles)
+
+    with(nor) {
+      doTasks(*cardActionTasks("$AerialMappers"), "Floater<$LocalShading>")
+      doTask("PassBaton")
     }
-    nor.turn { claimMilestone(cn("Briber")) }
-    vin.turn { playProject(SmallAnimals, 6) }
-    nor.pass()
-    vin.turn {
-      cardAction1(SmallAnimals)
-      playProject(ProtectedHabitats, 5)
-      pass()
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$Cartel"),
+          "8 Pay<> FROM MC",
+          "$Cartel FROM ProjectCard",
+          "PROD[4 MC]",
+      )
+      doTask("PassBaton")
     }
-    nor.wgt("TemperatureStep")
+
+    with(nor) {
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Briber", "-12 MC")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$SmallAnimals"),
+          "6 Pay<> FROM MC",
+          "$SmallAnimals FROM ProjectCard",
+          "-Production<Nor, Class<Plant>>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTask("Pass")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTasks(
+          *playCardTasks("$ProtectedHabitats"),
+          "5 Pay<> FROM MC",
+          "$ProtectedHabitats FROM ProjectCard",
+      )
+      doTask("Pass")
+    }
+
+    vin.doTasks("47 MC", "Titanium", "5 Heat", "Energy", "Heat FROM Energy")
+    nor.doTasks("34 MC", "4 Plant")
+    nor.doTask("TemperatureStep! BY Admin")
   }
 
   private fun generation6() {
-    vin.buyCards(SolarLogistics, InterstellarColonyShip, Sabotage)
-    nor.buyCards(IshtarMining, Greenhouses)
+    vin.draw(SolarLogistics, InterstellarColonyShip, Sabotage)
+    nor.draw(IshtarMining, Greenhouses)
+    nor.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("4 ProjectCard<Selecting>")
+    vin.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    nor.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 160: immediately after both Research purchases in generation 6.
     nor.assertResources(m = 31, s = 0, t = 0, p = 6, e = 0, h = 2)
     nor.assertProduction(m = 3, s = 0, t = 0, p = 4, e = 0, h = 0)
@@ -537,36 +960,133 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     vin.assertTags(but = 4, spt = 1, sct = 1, pot = 2, eat = 3, jot = 1, vet = 3, ant = 1)
     vin.assertDashRight(events = 1, tagless = 2, cities = 0)
     assertSidebar(gen = 6, temp = -16, oxygen = 6, oceans = 6, venus = 12)
+    with(vin) {
+      doTasks(
+          *playCardTasks("$Sabotage"),
+          "1 Pay<> FROM MC",
+          "$Sabotage FROM ProjectCard",
+          "-7 MC<Nor>",
+      )
+      doTask("PassBaton")
+    }
 
-    vin.turn { playProject(Sabotage, 1) { doTask("-7 MC<Nor>") } }
-    nor.turn { playProject(ResearchCoordination, 4) }
-    vin.turn {
-      cardAction1(VenusShuttles)
-      stdProject("AirScrappingProject")
+    with(nor) {
+      doTasks(
+          *playCardTasks("$ResearchCoordination"),
+          "4 Pay<> FROM MC",
+          "$ResearchCoordination FROM ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    nor.turn {
-      playProject(Plantation, 15) { placeTile(4, 5) }
-      convertPlants { placeTile(3, 4) }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+          "TerraformRating",
+      )
     }
-    vin.turn { cardAction1(SmallAnimals) }
-    nor.turn { cardAction1(AerialMappers) { addCardResources(AerialMappers) } }
-    vin.turn { cardAction1(CloudTourism) }
-    nor.turn { cardAction1(LocalShading) }
-    vin.turn { playProject(SolarLogistics, 14, titanium = 2) }
-    nor.turn {
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-        placeTile(6, 7)
-      }
-      playProject(IshtarMining, 5)
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$Plantation"),
+          "15 Pay<> FROM MC",
+          "$Plantation FROM ProjectCard",
+          "Animal<$EcologicalZone>",
+          "3 Heat",
+          "GreeneryTile<Tharsis_4_5>",
+          "OxygenStep",
+          "2 Plant",
+          "2 MC",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_3_4>",
+          "OxygenStep",
+          "TerraformRating",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
-    vin.pass()
-    nor.pass()
-    vin.wgt("OceanTile<Tharsis_9_9>")
+
+    with(vin) {
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$SolarLogistics"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "14 Pay<> FROM MC",
+          "$SolarLogistics FROM ProjectCard",
+          "2 Titanium",
+      )
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Tharsis_6_7>",
+          "TerraformRating",
+          "Plant",
+          "2 MC",
+          "2 MC",
+      )
+      doTasks(
+          *playCardTasks("$IshtarMining"),
+          "5 Pay<> FROM MC",
+          "$IshtarMining FROM ProjectCard",
+          "PROD[Titanium]",
+      )
+    }
+
+    with(vin) {
+      doTask("Pass")
+    }
+
+    with(nor) {
+      doTask("Pass")
+    }
+
+    vin.doTasks("50 MC", "Titanium", "5 Heat", "Energy", "Heat FROM Energy")
+    nor.doTasks("38 MC", "4 Plant", "Titanium")
+    vin.doTask("OceanTile<Tharsis_9_9>! BY Admin")
   }
 
   private fun generation7() {
-    nor.buyCards()
-    vin.buyCards(GeneRepair, Thermophiles)
+    vin.draw(GeneRepair, Thermophiles)
+    nor.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("4 ProjectCard<Selecting>")
+    nor.doTask("-4 ProjectCard<Selecting>")
+    vin.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 201: immediately after both Research purchases in generation 7.
     nor.assertResources(m = 38, s = 0, t = 1, p = 6, e = 0, h = 5)
     nor.assertProduction(m = 3, s = 0, t = 1, p = 4, e = 0, h = 0)
@@ -579,52 +1099,133 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     vin.assertTags(but = 4, spt = 2, sct = 1, pot = 2, eat = 4, jot = 1, vet = 3, ant = 1)
     vin.assertDashRight(events = 2, tagless = 2, cities = 0)
     assertSidebar(gen = 7, temp = -14, oxygen = 8, oceans = 8, venus = 16)
+    with(nor) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Tharsis_5_4>",
+          "TerraformRating",
+          "2 Plant",
+          "2 MC",
+      )
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Landlord")
+    }
 
-    nor.turn {
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-        placeTile(5, 4)
-      }
-      fundAward(cn("Landlord"), 8)
+    with(vin) {
+      doTasks(
+          *playCardTasks("$MethaneFromTitan"),
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "19 Pay<> FROM MC",
+          "$MethaneFromTitan FROM ProjectCard",
+          "PROD[2 Heat]",
+          "PROD[2 Plant]",
+      )
+      doTask("PassBaton")
     }
-    vin.turn { playProject(MethaneFromTitan, 19, titanium = 3) }
-    nor.turn {
-      cardAction2(AerialMappers) { nor.draw(TitaniumMine) }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$AerialMappers", "Action2"), "-Floater<$AerialMappers>")
+      draw(TitaniumMine)
+      doTasks("ProjectCard")
+      doTask("PassBaton")
     }
-    vin.turn { cardAction1(SmallAnimals) }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTask("PassBaton")
+    }
+
     // Research Coordination supplies Interplanetary Trade's tenth distinct tag.
-    nor.turn {
-      inTurn {
-        doWithAutoExecPolicy(SOLE_TASK) {
-          playProject(InterplanetaryTrade, 24, titanium = 1) {
-            doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
-            doTask("JovianTag<WildTagElection<WildTag<ResearchCoordination>>>")
-          }
-        }
-      }
+    with(nor) {
+      doTasks(
+          *playCardTasks("$InterplanetaryTrade"),
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "24 Pay<> FROM MC",
+          "$InterplanetaryTrade FROM ProjectCard",
+          "EACH @WildTagElection { Tag<@WildTagElection>? }",
+          "JovianTag<WildTagElection<WildTag<ResearchCoordination>>>",
+          "PROD[10 MC]",
+      )
+      doTask("PassBaton")
     }
-    vin.turn { playProject(Thermophiles, 9) }
-    nor.turn { convertPlants { placeTile(3, 3) } }
-    vin.turn { cardAction1(CloudTourism) }
-    nor.turn { cardAction2(LocalShading) }
-    vin.turn { cardAction1(Thermophiles) { addCardResources(Thermophiles) } }
-    nor.pass()
-    vin.turn {
-      cardAction1(VenusShuttles)
-      convertHeat()
-      playProject(MarsUniversity, 6) {
-        doTask("-ProjectCard")
-        vin.discard(PhysicsComplex)
-        vin.draw(VenusGovernor)
-      }
-      playProject(VenusGovernor, 4)
-      pass()
+
+    with(vin) {
+      doTasks(*playCardTasks("$Thermophiles"), "9 Pay<> FROM MC", "$Thermophiles FROM ProjectCard")
+      doTask("PassBaton")
     }
-    nor.wgt("TemperatureStep")
+
+    with(nor) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_3_3>",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$Thermophiles>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTask("Pass")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$VenusShuttles"), "7 Pay<> FROM MC", "VenusStep", "TerraformRating")
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(*playCardTasks("$MarsUniversity"), "6 Pay<> FROM MC")
+      discard(PhysicsComplex)
+      doTasks("$MarsUniversity FROM ProjectCard", "-ProjectCard")
+      draw(VenusGovernor)
+      doTask("ProjectCard")
+      doTasks(
+          *playCardTasks("$VenusGovernor"),
+          "4 Pay<> FROM MC",
+          "$VenusGovernor FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+      doTask("Pass")
+    }
+
+    nor.doTasks("51 MC", "4 Plant", "Titanium")
+    vin.doTasks("54 MC", "Titanium", "7 Heat", "Energy", "Heat FROM Energy", "2 Plant")
+    nor.doTask("TemperatureStep! BY Admin")
   }
 
   private fun generation8() {
-    vin.buyCards(TundraFarming, VenusianAnimals)
-    nor.buyCards(RoverConstruction, Trees)
+    vin.draw(TundraFarming, VenusianAnimals)
+    nor.draw(RoverConstruction, Trees)
+    nor.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("4 ProjectCard<Selecting>")
+    vin.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    nor.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 246: immediately after both Research purchases in generation 8.
     nor.assertResources(m = 45, s = 0, t = 1, p = 5, e = 0, h = 5)
     nor.assertProduction(m = 14, s = 0, t = 1, p = 4, e = 0, h = 0)
@@ -657,37 +1258,131 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 0)
     assertSidebar(gen = 8, temp = -10, oxygen = 9, oceans = 9, venus = 18)
+    with(vin) {
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Tharsis_3_5>",
+      )
+      doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Excentric")
+    }
 
-    vin.turn {
-      stdProject("CityProject") { placeTile(3, 5) }
-      fundAward(cn("Excentric"), 14)
+    with(nor) {
+      doTasks(
+          *playCardTasks("$RoverConstruction"),
+          "8 Pay<> FROM MC",
+          "$RoverConstruction FROM ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("$ResearchOutpost"),
+          "18 Pay<> FROM MC",
+          "$ResearchOutpost FROM ProjectCard",
+          "CityTile<Tharsis_4_2>",
+          "2 MC",
+          "Plant",
+      )
     }
-    nor.turn {
-      playProject(RoverConstruction, 8)
-      playProject(ResearchOutpost, 18) { placeTile(4, 2) }
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$Bushes"),
+          "10 Pay<> FROM MC",
+          "$Bushes FROM ProjectCard",
+          "PROD[2 Plant]",
+          "2 Plant",
+      )
+      doTask("PassBaton")
     }
-    vin.turn { playProject(Bushes, 10) }
-    nor.turn { cardAction1(AerialMappers) { addCardResources(AerialMappers) } }
-    vin.turn { convertHeat() }
-    nor.turn { cardAction1(LocalShading) }
-    vin.turn { cardAction1(Thermophiles) { addCardResources(Thermophiles) } }
-    nor.turn {
-      playProject(Research, 10) {
-        nor.draw(StanfordTorus, PowerPlant)
-      }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
+      doTask("PassBaton")
     }
-    vin.turn { cardAction1(SmallAnimals) }
-    nor.turn { playProject(Supermarkets, 8) }
-    vin.turn { cardAction1(CloudTourism) }
-    nor.turn { playProject(PowerPlant, 3) }
-    vin.pass()
-    nor.pass()
-    vin.wgt("OxygenStep")
+
+    with(vin) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$Thermophiles>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*playCardTasks("$Research"), "10 Pay<> FROM MC")
+      draw(StanfordTorus, PowerPlant)
+      doTasks("$Research FROM ProjectCard", "2 ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$Supermarkets"),
+          "8 Pay<> FROM MC",
+          "$Supermarkets FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$PowerPlant"),
+          "3 Pay<> FROM MC",
+          "$PowerPlant FROM ProjectCard",
+          "PROD[Energy]",
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTask("Pass")
+    }
+
+    with(nor) {
+      doTask("Pass")
+    }
+
+    nor.doTasks("53 MC", "4 Plant", "Titanium", "Energy")
+    vin.doTasks("56 MC", "Titanium", "7 Heat", "Energy", "Heat FROM Energy", "4 Plant")
+    vin.doTask("OxygenStep! BY Admin")
   }
 
   private fun generation9() {
-    vin.buyCards(AtalantaPlanitiaLab)
-    nor.buyCards(IndenturedWorkers, GiantSolarShade)
+    vin.draw(AtalantaPlanitiaLab)
+    nor.draw(IndenturedWorkers, GiantSolarShade)
+    nor.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("-3 ProjectCard<Selecting>")
+    vin.doTask("3 Pay<> FROM MC")
+    vin.doTask("ProjectCard<Hand FROM Selecting>")
+    nor.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 293: immediately after both Research purchases in generation 9.
     nor.assertResources(m = 47, s = 0, t = 2, p = 10, e = 1, h = 5)
     nor.assertProduction(m = 16, s = 0, t = 1, p = 4, e = 1, h = 0)
@@ -721,52 +1416,234 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 1)
     assertSidebar(gen = 9, temp = -8, oxygen = 10, oceans = 9, venus = 18)
+    with(nor) {
+      draw(DuskLaserMining)
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Tharsis_4_4>",
+          "2 MC",
+          "Plant",
+          "2 MC",
+          "2 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_3_1>",
+          "OxygenStep",
+          "ProjectCard",
+          "TerraformRating",
+      )
+    }
 
-    nor.draw(DuskLaserMining)
-    nor.turn {
-      stdProject("CityProject") { placeTile(4, 4) }
-      convertPlants { placeTile(3, 1) }
+    with(vin) {
+      doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Forecaster")
+      doTask("PassBaton")
     }
-    vin.turn { fundAward(cn("Forecaster"), 20) }
-    nor.turn {
-      cardAction2(AerialMappers) { nor.draw(HeatTrappers) }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$AerialMappers", "Action2"), "-Floater<$AerialMappers>")
+      draw(HeatTrappers)
+      doTasks("ProjectCard")
+      doTask("PassBaton")
     }
-    vin.turn { convertHeat() }
-    nor.turn { playProject(DuskLaserMining, 1, titanium = 2) }
-    vin.turn { stdProject("CityProject") { placeTile(2, 3) } }
-    nor.turn { cardAction2(LocalShading) }
-    vin.turn { convertPlants { placeTile(2, 4) } }
-    nor.turn {
-      playProject(Greenhouses, 5)
-      convertPlants { placeTile(4, 3) }
+
+    with(vin) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    vin.turn { cardAction1(CloudTourism) }
-    nor.turn { convertHeat() }
-    vin.turn { cardAction1(SmallAnimals) }
-    nor.turn { playProject(Trees, 12) }
-    vin.turn { cardAction2(Thermophiles) }
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$DuskLaserMining"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "1 Pay<> FROM MC",
+          "$DuskLaserMining FROM ProjectCard",
+          "-Production<Nor, Class<Energy>>",
+          "PROD[Titanium]",
+          "4 Titanium",
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Tharsis_2_3>",
+          "NOW Nor { 2 MC }",
+      )
+
+      nor.doTask("2 MC")
+
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_2_4>",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$Greenhouses"),
+          "5 Pay<> FROM MC",
+          "$Greenhouses FROM ProjectCard",
+          "Plant / CityTile<Anyone>",
+          "Animal<$EcologicalZone>",
+          "3 Heat",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_4_3>",
+          "OxygenStep",
+          "Plant",
+          "2 MC",
+          "TerraformRating",
+      )
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$Trees"),
+          "12 Pay<> FROM MC",
+          "$Trees FROM ProjectCard",
+          "PROD[3 Plant]",
+          "Plant",
+          "Animal<$EcologicalZone>",
+          "3 Heat",
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(
+          *cardActionTasks("$Thermophiles", "Action2"),
+          "-2 Microbe<$Thermophiles>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
     // Research Coordination supplies the eighth Plant tag counted by Robot Pollinators.
-    nor.turn {
-      playProject(RobotPollinators, 8)
-      convertPlants { placeTile(5, 2) }
+    with(nor) {
+      doTasks(
+          *playCardTasks("$RobotPollinators"),
+          "8 Pay<> FROM MC",
+          "$RobotPollinators FROM ProjectCard",
+          "PROD[Plant]",
+          "8 Plant",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_5_2>",
+          "OxygenStep",
+          "2 Plant",
+          "TerraformRating",
+      )
     }
-    vin.turn {
-      cardAction1(VenusShuttles)
+
+    with(vin) {
+      doTasks(*cardActionTasks("$VenusShuttles"), "5 Pay<> FROM MC", "VenusStep", "TerraformRating")
+      doTask("PassBaton")
     }
-    nor.turn { convertPlants { placeTile(4, 1) } }
-    vin.pass()
-    nor.turn {
-      playProject(IndenturedWorkers, 0)
-      playProject(GiantSolarShade, 3, titanium = 5)
-      pass()
+
+    with(nor) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_4_1>",
+          "OxygenStep",
+          "Plant",
+          "Titanium",
+      )
+      doTask("PassBaton")
     }
-    nor.wgt("VenusStep")
+
+    with(vin) {
+      doTask("Pass")
+    }
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$IndenturedWorkers"),
+          "$IndenturedWorkers FROM ProjectCard",
+          "IndenturedWorkers_NextCardEffect",
+      )
+      doTasks(
+          *playCardTasks("$GiantSolarShade"),
+          "5 Pay<Class<Titanium>> FROM Titanium",
+          "3 Pay<> FROM MC",
+          "$GiantSolarShade FROM ProjectCard",
+          "VenusStep",
+          "VenusStep",
+          "VenusStep",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+      )
+      doTask("Pass")
+    }
+
+    vin.doTasks("61 MC", "Titanium", "7 Heat", "Energy", "Heat FROM Energy", "4 Plant")
+    nor.doTasks("62 MC", "8 Plant", "2 Titanium", "Heat FROM Energy")
+    nor.doTask("VenusStep! BY Admin")
   }
 
   private fun generation10() {
-    vin.buyCards(InventorsGuild)
+    vin.draw(InventorsGuild)
     // Source Floyd Continuum is represented by FakeFloydContinuum here.
-    nor.buyCards(LandClaim, FakeFloydContinuum, RadSuits, DeepWellHeating)
+    nor.draw(LandClaim, FakeFloydContinuum, RadSuits, DeepWellHeating)
+    nor.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("4 ProjectCard<Selecting>")
+    vin.doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+    nor.doTasks(
+        "Ok", // discard no research cards
+        "12 Pay<> FROM MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 357: immediately after both Research purchases in generation 10.
     nor.assertResources(m = 53, s = 0, t = 2, p = 9, e = 0, h = 4)
     nor.assertProduction(m = 18, s = 0, t = 2, p = 8, e = 0, h = 0)
@@ -800,56 +1677,201 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 2)
     assertSidebar(gen = 10, temp = -4, oxygen = 14, oceans = 9, venus = 30)
+    with(vin) {
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Tharsis_5_1>",
+          "NOW Nor { 2 MC }",
+      )
 
-    vin.turn {
-      stdProject("CityProject") { placeTile(5, 1) }
-      convertPlants { placeTile(6, 2) }
-    }
-    nor.turn {
-      stdProject("CityProject") { placeTile(6, 3) }
-      convertPlants { placeTile(6, 4) }
-    }
-    vin.turn { convertHeat() }
-    nor.turn { playProject(LandClaim, 0) { doTask("Community<Tharsis_2_2>") } }
-    vin.turn {
-      playProject(VenusianAnimals, 15) {
-        doTask("-ProjectCard")
-        vin.discard(CloudSeeding)
-        vin.draw(Gyropolis)
-      }
+      nor.doTask("2 MC")
+
+      doTasks(
+          "2 Plant",
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_6_2>",
+          "0 OxygenStep",
+          "Plant",
+      )
     }
 
-    nor.turn { playProject(FakeFloydContinuum, 3) }
+    with(nor) {
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Tharsis_6_3>",
+          "2 MC",
+          "2 Plant",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_6_4>",
+          "0 OxygenStep",
+          "Plant",
+          "2 MC",
+      )
+    }
+
+    with(vin) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*playCardTasks("$LandClaim"), "$LandClaim FROM ProjectCard", "Community<Tharsis_2_2>")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*playCardTasks("$VenusianAnimals"), "15 Pay<> FROM MC")
+      discard(CloudSeeding)
+      draw(Gyropolis)
+      doTasks(
+          "$VenusianAnimals FROM ProjectCard",
+          "Animal<$VenusianAnimals>",
+          "-ProjectCard",
+          "ProjectCard",
+      )
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$FakeFloydContinuum"),
+          "3 Pay<> FROM MC",
+          "$FakeFloydContinuum FROM ProjectCard",
+      )
+      doTask("PassBaton")
+    }
+
     // Research Network supplies Atalanta Planitia Lab's third Science tag.
-    vin.turn {
-      playProject(AtalantaPlanitiaLab, 10) {
-        vin.draw(WaterSplittingPlant, Algae)
-        doTask("2 ProjectCard")
-        doTask("-ProjectCard")
-        vin.discard(WaterSplittingPlant)
-        vin.draw(NoctisCity)
-      }
+    with(vin) {
+      doTasks(*playCardTasks("$AtalantaPlanitiaLab"), "10 Pay<> FROM MC")
+      draw(WaterSplittingPlant, Algae)
+      discard(WaterSplittingPlant)
+      doTasks(
+          "$AtalantaPlanitiaLab FROM ProjectCard",
+          "Animal<$VenusianAnimals>",
+          "2 ProjectCard",
+          "-ProjectCard",
+      )
+      draw(NoctisCity)
+      doTasks("ProjectCard")
+      doTask("PassBaton")
     }
-    nor.turn { cardAction1(AerialMappers) { addCardResources(AerialMappers) } }
-    vin.turn { cardAction1(SmallAnimals) }
-    nor.turn { cardAction1(LocalShading) }
-    vin.turn { cardAction1(CloudTourism) }
-    nor.turn { playProject(DeepWellHeating, 12) }
-    vin.turn { cardAction1(Thermophiles) { addCardResources(Thermophiles) } }
-    nor.turn { cardAction1(FakeFloydContinuum).expect("9 MC") }
-    vin.turn { playProject(Algae, 10) }
-    nor.turn { stdProject("CityProject") { placeTile(6, 5) } }
-    vin.pass()
-    nor.turn {
-      playProject(RadSuits, 5)
-      pass()
+
+    with(nor) {
+      doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
+      doTask("PassBaton")
     }
-    vin.wgt("TemperatureStep")
+
+    with(vin) {
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$DeepWellHeating"),
+          "12 Pay<> FROM MC",
+          "$DeepWellHeating FROM ProjectCard",
+          "PROD[Energy]",
+          "TemperatureStep",
+          "TerraformRating",
+          "Ok", // oceans are already complete
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$Thermophiles>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$FakeFloydContinuum"), "9 MC").expect("9 MC")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$Algae"),
+          "10 Pay<> FROM MC",
+          "$Algae FROM ProjectCard",
+          "Plant",
+          "PROD[2 Plant]",
+      )
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Tharsis_6_5>",
+          "2 MC",
+          "Plant",
+          "2 MC",
+          "2 MC",
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTask("Pass")
+    }
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$RadSuits"),
+          "5 Pay<> FROM MC",
+          "$RadSuits FROM ProjectCard",
+          "PROD[MC]",
+      )
+      doTask("Pass")
+    }
+
+    nor.doTasks("66 MC", "8 Plant", "2 Titanium", "Energy")
+    vin.doTasks("63 MC", "Titanium", "7 Heat", "Energy", "Heat FROM Energy", "6 Plant")
+    vin.doTask("TemperatureStep! BY Admin")
   }
 
   private fun generation11() {
-    nor.buyCards(GhgProducingBacteria, OlympusConference)
-    vin.buyCards(IshtarExpedition, AdvancedAlloys)
+    nor.draw(GhgProducingBacteria, OlympusConference)
+    vin.draw(IshtarExpedition, AdvancedAlloys)
+    nor.doTask("4 ProjectCard<Selecting>")
+    vin.doTask("4 ProjectCard<Selecting>")
+    nor.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    vin.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 417: immediately after both Research purchases in generation 11.
     nor.assertResources(m = 64, s = 0, t = 4, p = 14, e = 1, h = 4)
     nor.assertProduction(m = 21, s = 0, t = 2, p = 8, e = 1, h = 0)
@@ -883,106 +1905,298 @@ internal class StaticPressureStreamTest : LegacyCardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 3)
     assertSidebar(gen = 11, temp = 2, oxygen = 14, oceans = 9, venus = 30)
+    with(nor) {
+      doTasks(*cardActionTasks("$AerialMappers", "Action2"), "-Floater<$AerialMappers>")
+      draw(WeatherBalloons)
+      doTask("ProjectCard")
+      doTasks(
+          *playCardTasks("$OlympusConference"),
+          "9 Pay<> FROM MC",
+          "$OlympusConference FROM ProjectCard",
+          "Science<$OlympusConference>",
+      )
+    }
 
-    nor.turn {
-      cardAction2(AerialMappers) {
-        nor.draw(WeatherBalloons)
-      }
-      playProject(OlympusConference, 9)
+    with(vin) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(*playCardTasks("$IshtarExpedition"), "6 Pay<> FROM MC")
+      draw(FreyjaBiodomes, GhgImportFromVenus)
+      doTasks(
+          "$IshtarExpedition FROM ProjectCard",
+          "3 Titanium",
+          "2 SearchForCard<Vin, TagFilter<Class<VenusTag>>>",
+      )
     }
-    vin.turn {
-      convertHeat()
-      playProject(IshtarExpedition, 6) {
-        vin.draw(FreyjaBiodomes, GhgImportFromVenus)
-      }
+
+    with(nor) {
+      doTasks(*playCardTasks("$GhgProducingBacteria"), "7 Pay<> FROM MC")
+      draw(MoholeLake)
+      doTasks("$GhgProducingBacteria FROM ProjectCard", "ProjectCard FROM Science")
+      doTasks(
+          *playCardTasks("$MoholeLake"),
+          "30 Pay<> FROM MC",
+          "$MoholeLake FROM ProjectCard",
+          "OceanTile<WaterArea(HAS MAX 0 Tile)>",
+          "TemperatureStep",
+          "3 Plant",
+          "TerraformRating",
+      )
     }
-    nor.turn {
-      playProject(GhgProducingBacteria, 7) {
-        nor.draw(MoholeLake)
-        doTask("ProjectCard FROM Science")
-      }
-      playProject(MoholeLake, 30)
+
+    with(vin) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_1_3>",
+          "0 OxygenStep",
+      )
+      doTask("PassBaton")
     }
-    vin.turn { convertPlants { placeTile(1, 3) } }
-    nor.turn {
-      stdProject("AsteroidProject")
-      convertPlants { placeTile(6, 6) }
+
+    with(nor) {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_6_6>",
+          "0 OxygenStep",
+          "Plant",
+          "2 MC",
+          "2 MC",
+          "2 MC",
+      )
     }
-    vin.turn { cardAction1(Thermophiles) { addCardResources(Thermophiles) } }
-    nor.turn {
-      playProject(WeatherBalloons, 10) {
-        nor.draw(GiantIceAsteroid)
-      }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$Thermophiles>")
+      doTask("PassBaton")
     }
-    vin.turn { cardAction1(CloudTourism) }
-    nor.turn { cardAction1(FakeFloydContinuum).expect("12 MC") }
-    vin.turn { cardAction1(SmallAnimals) }
-    nor.turn { convertPlants { placeTile(7, 5) } }
-    vin.turn {
-      sellPatents(GhgImportFromVenus)
+
+    with(nor) {
+      doTasks(*playCardTasks("$WeatherBalloons"), "10 Pay<> FROM MC")
+      draw(GiantIceAsteroid)
+      doTasks("$WeatherBalloons FROM ProjectCard", "Science<$OlympusConference>", "ProjectCard")
+      doTask("PassBaton")
     }
-    nor.turn { cardAction2(LocalShading) }
-    vin.turn {
-      playProject(FreyjaBiodomes, 14) { addCardResources(VenusianAnimals, 2) }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
+      doTask("PassBaton")
     }
-    nor.turn { cardAction1(GhgProducingBacteria) }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$FakeFloydContinuum"), "12 MC").expect("12 MC")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_7_5>",
+          "0 OxygenStep",
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      discard(GhgImportFromVenus)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$FreyjaBiodomes"),
+          "14 Pay<> FROM MC",
+          "$FreyjaBiodomes FROM ProjectCard",
+          "-Production<Vin, Class<Energy>>",
+          "PROD[2 MC]",
+          "2* Animal<$VenusianAnimals>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$GhgProducingBacteria"), "Microbe<$GhgProducingBacteria>")
+      doTask("PassBaton")
+    }
+
     // Research Network supplies Interstellar Colony Ship's fifth Science tag.
-    vin.turn {
-      playProject(InterstellarColonyShip, 1, titanium = 7) {
-        vin.draw(RestrictedArea)
-      }
+    with(vin) {
+      doTasks(
+          *playCardTasks("$InterstellarColonyShip"),
+          "7 Pay<Class<Titanium>> FROM Titanium",
+          "1 Pay<> FROM MC",
+      )
+      draw(RestrictedArea)
+      doTasks("$InterstellarColonyShip FROM ProjectCard", "3 MC", "3 Heat", "ProjectCard")
+      doTask("PassBaton")
     }
-    nor.turn { cardAction1(WeatherBalloons) }
-    vin.turn { stdProject("PowerPlantProject") }
-    nor.turn { playProject(StanfordTorus, titanium = 4) }
-    vin.turn { playProject(NoctisCity, 16) }
-    nor.turn {
-      sellPatents(GiantIceAsteroid)
+
+    with(nor) {
+      doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
+      doTask("PassBaton")
     }
-    vin.turn {
-      sellPatents(Gyropolis)
+
+    with(vin) {
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
+      doTask("PassBaton")
     }
-    nor.turn {
-      sellPatents(HeatTrappers)
+
+    with(nor) {
+      doTasks(
+          *playCardTasks("$StanfordTorus"),
+          "4 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no MC remainder
+          "$StanfordTorus FROM ProjectCard",
+          "NormalCityTile<StanfordTorus_RemoteArea>",
+          "2 MC",
+      )
+      doTask("PassBaton")
     }
-    vin.turn {
-      sellPatents(AdvancedAlloys)
+
+    with(vin) {
+      doTasks(
+          *playCardTasks("$NoctisCity"),
+          "16 Pay<> FROM MC",
+          "$NoctisCity FROM ProjectCard",
+          "-Production<Vin, Class<Energy>>",
+          "PROD[3 MC]",
+          "NormalCityTile<Tharsis_5_3>",
+          "NOW Nor { 2 MC }",
+      )
+
+      nor.doTask("2 MC")
+
+      doTasks("2 Plant", "2 MC")
+      doTask("PassBaton")
     }
-    nor.turn { cardAction1(MoholeLake) { addCardResources(EcologicalZone) } }
-    vin.turn {
-      playProject(RestrictedArea, 11) {
-        placeTile(7, 8)
-        doTask("-ProjectCard")
-        vin.discard(TundraFarming)
-        vin.draw(CorporateStronghold)
-      }
+
+    with(nor) {
+      discard(GiantIceAsteroid)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
-    nor.turn {
-      sellPatents(TitaniumMine)
+
+    with(vin) {
+      discard(Gyropolis)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
-    vin.turn {
-      cardAction1(RestrictedArea) {
-        vin.draw(MagneticFieldDome)
-      }
+
+    with(nor) {
+      discard(HeatTrappers)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
-    nor.pass()
-    vin.turn {
-      playProject(GeneRepair, 12) {
-        doTask("-ProjectCard")
-        vin.discard(MagneticFieldDome)
-        vin.draw(Teslaract)
-      }
-      sellPatents(InventorsGuild, CorporateStronghold, Teslaract)
-      pass()
+
+    with(vin) {
+      discard(AdvancedAlloys)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
+
+    with(nor) {
+      doTasks(*cardActionTasks("$MoholeLake"), "Animal<$EcologicalZone>")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*playCardTasks("$RestrictedArea"), "11 Pay<> FROM MC")
+      discard(TundraFarming)
+      draw(CorporateStronghold)
+      doTasks(
+          "$RestrictedArea FROM ProjectCard",
+          "Animal<$VenusianAnimals>",
+          "RestrictedArea_SpecialTile<Tharsis_7_8>",
+          "Plant",
+          "2 MC",
+          "2 MC",
+          "-ProjectCard",
+          "ProjectCard",
+      )
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      discard(TitaniumMine)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC")
+      draw(MagneticFieldDome)
+      doTasks("ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(nor) {
+      doTask("Pass")
+    }
+
+    with(vin) {
+      doTasks(*playCardTasks("$GeneRepair"), "12 Pay<> FROM MC")
+      discard(MagneticFieldDome)
+      draw(Teslaract)
+      doTasks(
+          "$GeneRepair FROM ProjectCard",
+          "PROD[2 MC]",
+          "Animal<$VenusianAnimals>",
+          "-ProjectCard",
+          "ProjectCard",
+      )
+      discard(InventorsGuild, CorporateStronghold, Teslaract)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
+      doTask("Pass")
+    }
+
+    nor.doTasks("69 MC", "8 Plant", "2 Titanium", "Energy", "Heat FROM Energy")
+    vin.doTasks("71 MC", "Titanium", "7 Heat", "Heat FROM Energy", "6 Plant")
   }
 
   private fun endgame() {
     assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
-    nor.convertPlants { placeTile(7, 6) }
-    nor.declineTask()
-    vin.convertPlants { placeTile(7, 9) }
-    vin.declineTask()
+    with(nor) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_7_6>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(vin) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_7_9>",
+          "2 MC",
+          "2 MC",
+      )
+      doTask("PassBaton")
+    }
 
     assertCardTrackingComplete()
     nor.cardsHand shouldBe emptySet()

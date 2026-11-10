@@ -26,10 +26,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   corrections, and replay export/import checks. Replay-only unused-action and payment-allocation
   audits may be removed during migration.
 
-- Retire `AbstractFullGameTest`, `LegacyCardTrackingFullGameTest`, and
-  `LegacyTfmTestSupport` as their remaining helper-based tests migrate. Existing explicit-task
-  replays now use `FullGameTest` / `CardTrackingFullGameTest` on `TfmGameplayTest`, with
-  plain Agents and Player autoexecution disabled.
+- Retire `AbstractFullGameTest` and `LegacyTfmTestSupport` as their remaining helper-based tests
+  migrate. Existing explicit-task replays now use `FullGameTest` / `CardTrackingFullGameTest` on
+  `TfmGameplayTest`, with plain Agents and Player autoexecution disabled.
 
 - Continue converting replay tests that use Player autoexecution or `TfmGameplay` actions to
   explicit Player `doTask`/`doTasks` submissions. Keep source-backed state checkpoints and
