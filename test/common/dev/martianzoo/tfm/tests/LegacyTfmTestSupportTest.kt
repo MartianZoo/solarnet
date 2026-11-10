@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
@@ -9,13 +10,19 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class TfmTaskHelpersTest : TfmTest() {
+internal class LegacyTfmTestSupportTest : LegacyTfmTestSupport {
+  override lateinit var agents: Agents
+    private set
+
+  override val game
+    get() = agents.world
+
   private val kim
-    get() = game.testTfm(PLAYER1)
+    get() = agents[PLAYER1]
 
   @BeforeTest
   fun initializeGame() {
-    game = setUpGame(canonicalPremise(VenusNextExpansion))
+    agents = Agents(setUpGame(canonicalPremise(VenusNextExpansion)))
   }
 
   @Test

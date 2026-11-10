@@ -46,9 +46,8 @@ member currently has no repository caller.
 - Application `main` functions and JMH-discovered classes and methods remain public.
 - The [Pets public-surface contract](../../pets/docs/agents/SPEC_FIDELITY.md#deliberate-public-surface)
   governs AST construction, transformations, and parser entrypoints.
-- `TfmTest.World.testAgent` must remain protected. Calls in subclasses resolve to that member
-  extension. Making it private leaves the source compilable but silently rebinds those calls to an
-  imported extension with different behavior.
+- Preserve intended resolution of member extensions. Hiding a member can leave source compilable
+  while silently rebinding calls to an imported extension with different behavior.
 
 Strict explicit-API mode prevents accidental production API growth. It does not establish that an
 existing public declaration is necessary, and it does not cover implicit test visibility.
@@ -110,8 +109,8 @@ compiler's own access rules where possible rather than reimplementing Kotlin's d
 and `internal` are not a simple wider/narrower pair: a subclass in another module can use a
 protected member but not an internal member, while an unrelated caller in the same module has the
 opposite access. Select the first candidate that admits every required use in this policy order:
-`private`, `internal`, `protected`, then `public`, except where an explicit contract such as
-`testAgent` requires protected semantics.
+`private`, `internal`, `protected`, then `public`, except where an explicit contract requires
+protected semantics.
 
 Apply the following constraints:
 
@@ -128,15 +127,7 @@ Apply the following constraints:
 5. Treat zero-edge declarations as private candidates, not automatic edits. First check runtime
    discovery and the surrounding public abstraction.
 
-The report should explain each result with concrete evidence. For example:
-
-```text
-TfmTest.World.testAgent
-current: protected
-minimum: protected
-reason: resolved calls from subclasses; private would hide the member and expose an imported
-        extension with the same call syntax
-```
+The report should explain each result with concrete evidence.
 
 A raw usage count is a useful summary, but caller location determines visibility. Five callers in
 the same class permit `private`; a single cross-module caller requires `public`.

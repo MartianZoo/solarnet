@@ -25,8 +25,6 @@
 
 ## Test-support entry points
 
-- [`TfmTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmTest.kt) — inspect
-  integrated setup and gameplay scopes.
 - [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
   search for the named helper before spelling raw task text.
 - [`TfmSandboxTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmSandboxTest.kt) —
@@ -339,12 +337,12 @@ in standalone tests or by assigning a synthetic world to the sandbox's `game`. F
 `VerminTest.Attribution` supplies a synthetic listener through the sandbox. `ResearchWildTagTest`
 retains its synthetic assigned-tag scenarios using plain Agents; `WildTagTest` and
 `WildTagContinuationTest` cover allocation and cleanup through prepared sandbox actions.
-`TfmTaskHelpersTest` remains legacy coverage of the helpers being retired.
+`LegacyTfmTestSupportTest` directly tests the remaining helpers being retired.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
 Sandbox and gameplay scenarios use explicit Agent task submissions rather than the helpers on
-`TfmTest` or `TfmGameplay`. The fixture-specific operation and payment conventions are described
-below.
+`LegacyTfmTestSupport` or `TfmGameplay`. The fixture-specific operation and payment conventions
+are described below.
 
 `CoreRulesTest` uses the same player-level style to document rules that belong to the game rather
 than any individual card. Its scenarios should reproduce only the important preconditions observed
@@ -410,7 +408,7 @@ moves such a game into the corporation phase through that phase's own start, the
 order it begins.
 
 The sandbox owns its plain `Agent` fixture directly and must not use `TfmGameplay`, including
-through inherited helpers. Gameplay also owns its fixture directly; neither extends `TfmTest`. Both expose
+through inherited helpers. Gameplay also owns its fixture directly. Both expose
 `newTestGameBeforeCorporationPlay()` for explicit corporation plays; a normal
 `newTestGame(kimCorporation = ...)` plays the corporation during setup. `kimCorporation` never
 changes the game configuration; use `addOptions` to include cards outside the default bundles.
