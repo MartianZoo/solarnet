@@ -337,8 +337,8 @@ correction is not suitable. Eligible project-card scenarios use the fixture's ex
 Synthetic engine checks use the existing `canonicalPremise` and `setUpGame` functions, either
 in standalone tests or by assigning a synthetic world to the sandbox's `game`. For example,
 `VerminTest.Attribution` supplies a synthetic listener through the sandbox. `ResearchWildTagTest`
-still retains legacy operation-level coverage of assigned tags; `WildTagTest` and
-`WildTagContinuationTest` cover allocation and cleanup through sandbox actions.
+retains its synthetic assigned-tag scenarios using plain Agents; `WildTagTest` and
+`WildTagContinuationTest` cover allocation and cleanup through prepared sandbox actions.
 `TfmTaskHelpersTest` remains legacy coverage of the helpers being retired.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
