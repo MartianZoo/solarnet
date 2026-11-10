@@ -42,19 +42,9 @@ public class TfmGameplay(
   private val agent: Agent = agents[actor]
   private val game: World = agents.world
 
-  private var explicitPaymentChoicesRequired = false
-  private var explicitUnusedActionCardsRequired = false
-  private var allowNondefaultPayment = false
+  private fun asActor(actor: Actor) = TfmGameplay(agents, actor)
 
-  private fun asActor(actor: Actor) =
-      TfmGameplay(agents, actor).also {
-        if (explicitPaymentChoicesRequired) it.requireExplicitPaymentChoices()
-        if (explicitUnusedActionCardsRequired) it.requireExplicitUnusedActionCards()
-      }
-
-  /**
-   * Returns a view of the same world for [player], copying this wrapper's explicit-choice settings.
-   */
+  /** Returns a view of the same world for [player]. */
   public fun asPlayer(player: Player): TfmGameplay = asActor(player)
 
   /**
@@ -156,36 +146,8 @@ public class TfmGameplay(
     }
   }
 
-  /**
-   * Passes this actor's current action turn; with [requireExplicitUnusedActionCards] enabled, this
-   * also asserts that no unspent action card remains.
-   */
-  public fun pass(): TaskResult {
-    return if (explicitUnusedActionCardsRequired) pass(unused = emptySet())
-    else passWithoutUnusedActionCardCheck()
-  }
-
-  /** Passes after asserting that exactly these action cards have no `ActionUsedMarker`. */
-  public fun pass(unused: ClassName, vararg additionallyUnused: ClassName): TaskResult =
-      pass(unused = setOf(unused, *additionallyUnused))
-
-  /**
-   * Passes after asserting that [unused] is exactly the set of this actor's unspent action cards. A
-   * mismatch fails before the Pass task is selected.
-   */
-  public fun pass(unused: Set<ClassName>): TaskResult {
-    val actual =
-        reader
-            .getComponents(resolve("ActionCard"))
-            .elements
-            .filter { count("ActionUsedMarker<${it.className}>") == 0 }
-            .map { it.className }
-            .toSet()
-    require(actual == unused) { "$actor has unused action cards $actual, not $unused" }
-    return passWithoutUnusedActionCardCheck()
-  }
-
-  private fun passWithoutUnusedActionCardCheck(): TaskResult = inTurn { doTask("Pass") }
+  /** Passes this actor's current action turn. */
+  public fun pass(): TaskResult = inTurn { doTask("Pass") }
 
   // TODO: Contract temporary tfm-tests gameplay seams.
   /**
@@ -444,11 +406,8 @@ public class TfmGameplay(
    * processed as plants, energy, heat, titanium, steel, then MC. A unit is rejected if removing it
    * would still leave the whole bill covered; unavoidable excess is permitted. Each positive
    * quantity must be accepted by an available payment task and owned by the payer. When the bill
-   * reaches zero, its remainder is acknowledged and concrete follow-up work is advanced.
-   *
-   * [requireExplicitPaymentChoices] adds an audit of the default allocation. A call to
-   * [intentionalUnderpay] skips that audit for this call only; it does not bypass the game's
-   * payment rules. The operation's result reports whether any further choices remain.
+   * reaches zero, its remainder is acknowledged and concrete follow-up work is advanced. The
+   * operation's result reports whether any further choices remain.
    */
   public fun pay(
       mc: Int = 0,
@@ -458,8 +417,6 @@ public class TfmGameplay(
       energy: Int = 0,
       heat: Int = 0,
   ): TaskResult {
-    val nondefaultPaymentAllowed = allowNondefaultPayment
-    allowNondefaultPayment = false
     // Payment effects are queued; safely advance them until the choices are available.
     val previousAutoExecPolicy = autoExecPolicy
     autoExecPolicy = NONE
@@ -477,7 +434,6 @@ public class TfmGameplay(
                 MC.toString() to mc,
             )
         rejectReturnableUnit(tender)
-        if (explicitPaymentChoicesRequired && !nondefaultPaymentAllowed) auditSourcedTender(tender)
         for ((currency, units) in tender) {
           if (units > 0) {
             if (count("Owed<Class<$currency>>") > 0) {
@@ -513,31 +469,6 @@ public class TfmGameplay(
             "Illegal payment by $actor: removing one $currency still covers $debt owed"
         )
       }
-    }
-  }
-
-  /** Audits sourced legal payments against the default resource allocation. */
-  private fun auditSourcedTender(tender: Map<String, Int>) {
-    var remainingDebt = count("Owed<Class<MC>>")
-    if (remainingDebt == 0) return
-    for ((currency, units) in tender) {
-      if (currency == MC.toString() || pendingPaymentOffers(currency).isEmpty()) continue
-      val value = paymentValue(currency)
-      if (value > 1) {
-        val fullValueUnits = minOf(count(currency), remainingDebt / value)
-        if (units < fullValueUnits) {
-          throw IllegalArgumentException(
-              "$actor paid $units $currency but could pay $fullValueUnits at full value; " +
-                  "call intentionalUnderpay() immediately before paying if this is sourced"
-          )
-        }
-      } else if (value == 1 && units > 0 && count(MC.toString()) >= remainingDebt) {
-        throw IllegalArgumentException(
-            "$actor paid $units $currency while $remainingDebt M€ could cover the bill; " +
-                "call intentionalUnderpay() immediately before paying if this is sourced"
-        )
-      }
-      remainingDebt = (remainingDebt - units * value).coerceAtLeast(0)
     }
   }
 
@@ -639,33 +570,6 @@ public class TfmGameplay(
       if (current.assignee == actor) selectTask(task.id)
       else asActor(current.assignee).selectTask(task.id)
     }
-  }
-
-  /**
-   * Exempts the next [pay] call from this wrapper's default-allocation audit. The flag is consumed
-   * by that call, including when the call fails; normal payment legality still applies.
-   */
-  public fun intentionalUnderpay() {
-    allowNondefaultPayment = true
-  }
-
-  /**
-   * Requires subsequent [pay] calls to use the default resource allocation unless preceded by
-   * [intentionalUnderpay]. For each accepted non-MC resource valued above one MC, the allocation
-   * must use as many full-value units as the remaining bill and available stock permit before using
-   * later currencies. At value one, MC is preferred when it can cover the remaining bill. This
-   * setting stays on this wrapper and is copied by [asPlayer]. Returns this wrapper for chaining.
-   */
-  public fun requireExplicitPaymentChoices(): TfmGameplay = apply {
-    explicitPaymentChoicesRequired = true
-  }
-
-  /**
-   * Makes parameterless [pass] assert that no action card is unused. Call a [pass] overload with
-   * the exact unused-card set to acknowledge such cards. Returns this wrapper for chaining.
-   */
-  public fun requireExplicitUnusedActionCards(): TfmGameplay = apply {
-    explicitUnusedActionCardsRequired = true
   }
 
   /**

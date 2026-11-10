@@ -397,7 +397,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(Steelworks)
       playProject(FueledGenerators, 0)
       // The archive used only two of the available steel cubes for Strip Mine.
-      intentionalUnderpay()
       playProject(StripMine, mc = 18, steel = 2)
       playProject(SulphurExports, mc = 5, titanium = 3)
       stdAction("UseAction<LobbyAction, Action1>") {
@@ -503,7 +502,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(Steelworks)
       cardAction1(SmallAnimals)
       // The archive paid cash despite holding steel that could cover Rego Plastics.
-      intentionalUnderpay()
       playProject(RegoPlastics, 9)
       playProject(Omnicourt, mc = 2, steel = 2)
       playProject(GhgFactories, mc = 2, steel = 2)
@@ -666,7 +664,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       playProject(Bushes, 7)
       // The archive recorded no payment for the one M€ remaining after card discounts.
-      intentionalUnderpay()
       playProject(BusinessNetwork, 0)
       cardAction1(BusinessNetwork) { buyCards(0) }
       playProject(Fish, 6) { doTask("PROD[-Plant<SoloOpponent>]") }

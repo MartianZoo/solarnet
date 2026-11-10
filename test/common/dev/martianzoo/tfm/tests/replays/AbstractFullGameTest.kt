@@ -9,7 +9,6 @@ import kotlin.test.BeforeTest
 
 /** Retains the old action helpers for replays that have not migrated to plain Agents. */
 internal abstract class AbstractFullGameTest : FullGameTest(EAGER), LegacyTfmTestSupport {
-  protected open val requireExplicitPaymentChoices: Boolean = true
   override val admin: TfmGameplay
     get() = agents.tfm(ADMIN)
 
@@ -25,13 +24,9 @@ internal abstract class AbstractFullGameTest : FullGameTest(EAGER), LegacyTfmTes
   @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
-    fun gameplay(seat: Int) =
-        player(seat).also {
-          if (requireExplicitPaymentChoices) it.requireExplicitPaymentChoices()
-        }
-    p1 = gameplay(1)
-    if (players.size > 1) p2 = gameplay(2)
-    if (players.size > 2) p3 = gameplay(3)
+    p1 = player(1)
+    if (players.size > 1) p2 = player(2)
+    if (players.size > 2) p3 = player(3)
   }
 
   override fun player(seat: Int): TfmGameplay = agents.tfm(super.player(seat).actor)

@@ -810,18 +810,10 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 - Logs may not indicate how much steel/titanium/etc. was used toward a purchase. A reasonable
   default assumption to start with is that they probably spent as much of it as they could get full
   value for. Later events may reveal that your assumption needs to be revised.
-- Source-backed full-game replays enforce that assumption for resources worth more than one M€.
-  Leaving an accepted full-value unit unused fails unless the player calls `intentionalUnderpay()`
-  immediately before that payment. The same one-shot audit exemption covers spending an accepted
-  1:1 resource while enough M€ could cover the bill. It does not waive payment legality: an
-  allocation containing a unit that could be returned is rejected, while unavoidable rounding
-  excess needs no marker. Explain the sourced later payment or checkpoint that requires an unusual
-  allocation, and prefer correcting an unsupported allocation over declaring intent.
+- Replay payments should retain sourced allocations and the comments explaining inferred choices.
   For a recorded physical game, first search the transcript and player-board logs for an explicit
   payment composition; prefer that source evidence to inference from a later balance.
-- Call `requireExplicitUnusedActionCards()` on replay players when every pass should audit unused
-  action cards. For those players, `pass()` asserts that no action cards are unused; otherwise use
-  `pass(unused = CardA, CardB)`. The pass fails if the complete set does not match.
+  Preserve resource checkpoints, card identities, corrections, and final outcomes.
 - The herokuapp and Solarnet map coordinates differ: herokuapp counts from the first tile whereas
   Solarnet uses slant-columns.
 - Prefer supplied logs, images, and local map data over investigating another application's

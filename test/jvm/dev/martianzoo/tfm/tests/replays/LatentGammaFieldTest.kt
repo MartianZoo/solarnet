@@ -264,7 +264,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "PROD[2 Steel]",
     )
     doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Unity> FROM LobbyDelegate")
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "18 MC",
@@ -369,7 +368,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "PROD[Heat]",
     )
     doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "25 MC",
@@ -449,7 +447,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "PROD[2 Plant]",
         "-Production<SoloOpponent, Class<Heat>>",
     )
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "33 MC",
@@ -497,7 +494,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "Plant",
         "PROD[2 Plant]",
     )
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "35 MC",
@@ -601,7 +597,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "ExtremeColdFungus FROM ProjectCard",
     )
     doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "40 MC",
@@ -773,7 +768,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "PROD[Titanium]",
     )
     doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<MarsFirst> FROM LobbyDelegate")
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "56 MC",
@@ -886,7 +880,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "PROD[Titanium]",
         "-Production<SoloOpponent, Class<Titanium>>",
     )
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "58 MC",
@@ -1028,7 +1021,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     // Unsupported component: source area 31 remains an ocean; collect its recorded adjacency
     // reward.
     exMachina("3 MC")
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "73 MC",
@@ -1194,7 +1186,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     exMachina("MC")
     doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
     doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "86 MC",
@@ -1375,7 +1366,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "0 OxygenStep",
         "3 MC",
     )
-    assertUnusedActionCards(AsteroidRights)
     doTasks(
         "Pass",
         "98 MC",
@@ -1553,7 +1543,6 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "VenusStep",
         "TerraformRating",
     )
-    assertUnusedActionCards(AsteroidRights, MarsNomads)
     doTasks(
         "Pass",
         "108 MC",

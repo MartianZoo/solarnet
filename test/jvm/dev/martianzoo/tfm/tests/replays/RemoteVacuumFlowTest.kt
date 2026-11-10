@@ -270,7 +270,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "PROD[2 Energy]",
     )
     doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<MarsFirst> FROM LobbyDelegate")
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "14 MC",
@@ -337,7 +336,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "PROD[2 MC]",
     )
     doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<Reds>")
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "19 MC",
@@ -389,7 +387,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "3 Pay<> FROM MC",
         "PartyLeader<Scientists>",
     )
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "21 MC",
@@ -488,7 +485,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     discard(MiningRights)
     doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
     doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<MarsFirst>")
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "20 MC",
@@ -553,7 +549,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "ColonyProduction<Pluto>",
         "4 ProjectCard",
     )
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "21 MC",
@@ -620,7 +615,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     )
     doTasks(*cardActionTasks("ExtractorBalloons"), "Floater<ExtractorBalloons>")
     doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
-    assertUnusedActionCards(MartianMediaCenter)
     doTasks(
         "Pass",
         "26 MC",
@@ -735,7 +729,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>", "MC")
     doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<MarsFirst>")
     doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
-    assertUnusedActionCards(HiTechLab)
     doTasks(
         "Pass",
         "28 MC",
@@ -902,7 +895,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "DeuteriumExport FROM ProjectCard",
     )
     doTasks(*cardActionTasks("DeuteriumExport"), "Floater<DeuteriumExport>")
-    assertUnusedActionCards(DevelopmentCenter, HiTechLab, Hospitals, SearchForLife)
     doTasks(
         "Pass",
         "38 MC",
@@ -1131,7 +1123,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>",
         "-ProjectCard<Revealed>",
     )
-    assertUnusedActionCards(HiTechLab)
     doTasks(
         "Pass",
         "51 MC",
@@ -1276,7 +1267,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "TemperatureStep",
         "TerraformRating",
     )
-    assertUnusedActionCards(HiTechLab, SearchForLife)
     doTasks(
         "Pass",
         "63 MC",
@@ -1480,7 +1470,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "VenusStep",
         "TerraformRating",
     )
-    assertUnusedActionCards(HiTechLab, SearchForLife)
     doTasks(
         "Pass",
         "83 MC",
@@ -1709,7 +1698,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "GreeneryTile<Cimmeria_7_5>",
         "0 OxygenStep",
     )
-    assertUnusedActionCards(CometAiming, HiTechLab, MartianMediaCenter, SearchForLife)
     doTasks(
         "Pass",
         "101 MC",

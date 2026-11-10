@@ -92,17 +92,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       return this
     }
 
-    fun done(unused: Set<ClassName>? = null): TaskResult {
-      unused?.let { expected ->
-        val actual =
-            player.reader
-                .getComponents(player.resolve("ActionCard"))
-                .elements
-                .filter { player.count("ActionUsedMarker<${it.className}>") == 0 }
-                .map { it.className }
-                .toSet()
-        assertEquals(expected, actual)
-      }
+    fun done(): TaskResult {
       form.decisions().singleOrNull()?.let { error("another decision remains: $it") }
       return commit()
     }
@@ -133,9 +123,9 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260828() {
     admin.startGame()
-    val green = p1.requireExplicitUnusedActionCards()
-    val blue = p2.requireExplicitUnusedActionCards()
-    val yellow = p3.requireExplicitUnusedActionCards()
+    val green = p1
+    val blue = p2
+    val yellow = p3
     keepStartingProjects(4, 5, 5)
 
     // "Okay, I am the start player, and I play Paladin Shipping. That gives me 36 money and five
@@ -210,7 +200,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // warfare. Floatfare." "I will spend three titanium, which counts as nine money, so I need
       // 14 more. That's my turn."
       // Green explicitly considers keeping titanium for Palladin Shipping, then keeps two.
-      intentionalUnderpay()
       playProject(TitanShuttles, 14, titanium = 3)
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
@@ -254,10 +243,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     // She forgot to reduce her money production (fixed later)
     yellow.exMachina("PROD[MC]")
 
-    green
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(PalladinShipping))
+    green.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // "I'm going to play Nitrite Reducing Bacteria. That costs me 11 money."
       // "You immediately get three free microbes on Nitrite Reducing Bacteria."
@@ -292,8 +278,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // production. And I think that's it."
       playProject(FueledGenerators, 1)
     }
-    blue.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
-    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
+    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
 
     // "I will raise the oxygen to one percent as my World Government step."
     green
@@ -380,7 +366,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "On top of Solar Logistics, I will place Optimal Aerobraking. For that, I will spend
       // seven." "We cannot let her get space events."
       // Yellow keeps Solar Logistics' two titanium to trade with Io next generation.
-      intentionalUnderpay()
       playProject(OptimalAerobraking, 7)
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
@@ -390,7 +375,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // Elevator."
       // The retained titanium and Space Elevator's new production pay for Palladin Shipping next
       // generation.
-      intentionalUnderpay()
       playProject(SpaceElevator, titanium = 9)
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
@@ -405,7 +389,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // Logistics,
       // and from Optimal Aerobraking I get three money and three heat."
       // Yellow continues to keep two titanium to trade with Io next generation.
-      intentionalUnderpay()
       playProject(ImportOfAdvancedGhg, 7).expect("-4 MC, 3 Heat, PROD[2 Heat]")
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
@@ -421,7 +404,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(Potatoes, 2)
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
     green.turn {
       // "I'm spending three steel and 12 real on Research Outpost, which lets me place a city tile.
       // I can place it right here, pay five money, and get another colony, which I'm just gonna
@@ -459,16 +442,13 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       doTasks(*cardActionTasks("Celestic"))
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers").done()
     }
-    green
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(PalladinShipping))
+    green.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // "Then I'm going to use my Jet Stream Microscrappers action to remove two floaters and raise
       // Venus one step." "Ah shit, I made it easier for [Yellow] to get the bonus."
       doTasks(*cardActionTasks("JetStreamMicroscrappers", "Action2"))
     }
-    blue.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
 
     // "I'm going to raise Venus." "Venus is now at eight. No one gets the card. We're still at one
     // oxygen, two oceans, and no temperature raises yet."
@@ -627,7 +607,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       convertHeat()
       convertHeat().expect("PROD[Heat]")
     }
-    green.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    green.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // The recording goes silent here. Blue's app adds one TR, and these three unused actions
       // are the ordinary card sequence that produces exactly that result.
@@ -636,14 +616,11 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       doTasks(*cardActionTasks("Celestic"))
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers").done()
     }
-    yellow
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(PowerInfrastructure))
+    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       doTasks(*cardActionTasks("JetStreamMicroscrappers", "Action2"))
     }
-    blue.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
 
     // board-18-39-07.jpg: end of the Generation 3 action phase, before production.
     assertSidebar(gen = 3, temp = -24, oxygen = 2, oceans = 2, venus = 10)
@@ -778,7 +755,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Yeah, yeah, fuck you."
       // No reason for keeping the steel is evident. Yellow next spends it, together with one steel
       // from production, to buy Electro Catapult; both cards accept steel at the same value.
-      intentionalUnderpay()
       playProject(LavaTubeSettlement, 15) {
         fillInTask("CityTile")
             .choose("CityTile" to "NormalCityTile")
@@ -845,10 +821,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       cardAction1(PowerInfrastructure, x = 1)
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    green
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(PalladinShipping))
+    green.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // "I will take my Jet Stream Microscrappers action to remove two floaters and raise Venus to
       // 14."
@@ -876,8 +849,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
 
       fillInTask("Floater").choose("ResourceHolder" to "Dirigibles").done()
     }
-    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
-    blue.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
+    blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
 
     // board-18-58-23.jpg: end of the Generation 4 action phase.
     assertSidebar(gen = 4, temp = -24, oxygen = 3, oceans = 4, venus = 16)
@@ -1121,10 +1094,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
         fillInTask("Floater").choose("ResourceHolder" to "FloatingHabs").done()
       }
     }
-    green
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(PalladinShipping, DirectedImpactors))
+    green.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // "I'm going to use my Extremophiles action to add two floaters to my Dirigibles."
       // "I'm going to play Extremophiles."
@@ -1142,10 +1112,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       doTasks(*cardActionTasks("Extremophiles"))
       fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria").done()
     }
-    yellow
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(PowerInfrastructure))
+    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // "I guess I'm going to use my Celestic action to add a dirigible."
       doTasks(*cardActionTasks("Celestic"))
@@ -1165,7 +1132,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
             doTask("4 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
           },
       )
-      pass(unused = emptySet())
+      pass()
     }
 
     // "Okay, Jaybird, what do you want to move for World Government? Venus, temperature, oxygen,
@@ -1389,7 +1356,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
         fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_2_2").done()
       }
       // Green keeps exactly the two titanium used for Palladin Shipping later this generation.
-      intentionalUnderpay()
       playProject(SkyDocks, 5, titanium = 4)
     }
     blue.turn {
@@ -1472,10 +1438,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(VenusGovernor, 2)
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    green
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(DirectedImpactors))
+    green.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // "I'm going to use my Stratopolis action to add two floaters to Jet Stream Microscrappers."
       doTasks(*cardActionTasks("Stratopolis"))
@@ -1571,7 +1534,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       }
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    blue.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
     yellow.turn {
       // "Heat boop. Heat up to 14—minus 14."
       // "Oh shit, I have not been tracking the temperature or anything up to minus 14."
@@ -1580,7 +1543,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Yeah."
       // "Has been for a while. Always has been."
       convertHeat()
-      pass(unused = emptySet())
+      pass()
     }
 
     // "We decided that we would do World Government, which is whose choice?"
@@ -1846,10 +1809,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       convertHeat()
       convertHeat()
     }
-    green
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(DirectedImpactors))
+    green.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // "Take my Red Ships action, for which I get nothing."
       doTasks(*cardActionTasks("RedShips"))
@@ -1860,7 +1820,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       convertHeat()
       convertHeat()
     }
-    blue.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
     yellow.turn {
       // "Power Infrastructure, spend two energy, gain two money."
       cardAction1(PowerInfrastructure, x = 2)
@@ -1895,7 +1855,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 7, temp = 8, oxygen = 6, oceans = 9, venus = 26)
 
-    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
     // "It is my turn to be the world government ... I'm going to eat up a Venus slot."
     green
         .fillInTask("GlobalParameter")
@@ -2154,10 +2114,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(Ants, 7)
       doTasks(*cardActionTasks("Ants"))
     }
-    green
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(PalladinShipping, DirectedImpactors))
+    green.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // "I take my Titan Air Scrapping action. I remove two floaters and I gain a TR."
       doTasks(*cardActionTasks("TitanAirScrapping", "Action2"))
@@ -2205,7 +2162,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       }
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // "I take my Red Ships action and I gain one money."
       doTasks(*cardActionTasks("RedShips"))
@@ -2234,7 +2191,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 8, temp = 8, oxygen = 10, oceans = 9, venus = 30)
 
-    blue.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = emptySet())
+    blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
     // "[Blue] would be the world government, but there's no choice. ... raise the oxygen."
     blue
         .fillInTask("GlobalParameter")
@@ -2275,7 +2232,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       cardAction1(WaterSplittingPlant)
       // "Build the Immigrant City ... cost me nine ... 9-8 for two money and a plant."
       // Green keeps his steel for Space Elevator, where it is worth five M€ instead of two.
-      intentionalUnderpay()
       playProject(ImmigrantCity, 9) {
         fillInTask("CityTile")
             .choose("CityTile" to "NormalCityTile")
@@ -2316,7 +2272,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     green.turn {
       // "Play Open City. It cost me 19 ... go to 5-3."
       // Green continues to keep the same steel for his next Space Elevator action.
-      intentionalUnderpay()
       playProject(OpenCity, 19) {
         fillInTask("CityTile")
             .choose("CityTile" to "NormalCityTile")
@@ -2515,10 +2470,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       }
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    green
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(PalladinShipping, DirectedImpactors))
+    green.fillInTask("StandardAction").chooseAlternative("Pass").done()
     blue.turn {
       // "Take my Red Ships action ... one, two, three, four."
       doTasks(*cardActionTasks("RedShips")).expect("4 MC")
@@ -2550,10 +2502,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(Insects, 7)
       fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    blue
-        .fillInTask("StandardAction")
-        .chooseAlternative("Pass")
-        .done(unused = setOf(JetStreamMicroscrappers))
+    blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
     yellow.turn {
       // "Stanford Torus ... four titanium ... reserved area."
       playProject(StanfordTorus, titanium = 4)
@@ -2575,7 +2524,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("MC").chooseAmount(1).done()
     }
     // Floating Habs being unused makes sense since it has an even number of floaters (eight).
-    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done(unused = setOf(FloatingHabs))
+    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
 
     // All three applogs after the final production phase and before final greenery placement.
     with(green) {

@@ -51,7 +51,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
   @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
-    purple = player(4).requireExplicitPaymentChoices()
+    purple = player(4)
   }
 
   @Test
@@ -97,7 +97,6 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
     blue.turn {
       cardAction2(AstroDrill)
-      intentionalUnderpay()
       playProject(CometAiming, 14, titanium = 1)
     }
     pink.turn {
@@ -171,7 +170,6 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     green.turn { cardAction1(SulphurEatingBacteria) }
     purple.turn { playProject(MagneticFieldDome, 5) }
     blue.turn {
-      intentionalUnderpay()
       playProject(IceAsteroid, 17, titanium = 2) {
         placeTile(5, 4)
         placeTile(5, 5)
@@ -484,7 +482,6 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     green.turn { convertPlants { placeTile(9, 6) } }
     purple.turn { playProject(BusinessContacts, 7) }
     blue.turn {
-      intentionalUnderpay()
       playProject(SpaceElevator, 25, steel = 1)
       cardAction1(SpaceElevator)
     }
@@ -492,7 +489,6 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       playProject(CeosFavoriteProject, 0) { addCardResources(DirectedImpactors) }
     }
     green.turn {
-      intentionalUnderpay()
       playProject(RegoPlastics, 8, steel = 1)
     }
     purple.turn { playProject(FuelFactory, 2, steel = 2) }
@@ -641,7 +637,6 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       stdProject("CityProject") { placeTile(3, 5) }
     }
     blue.turn {
-      intentionalUnderpay()
       playProject(MercurianAlloys, 3)
       stdProject("CityProject") { placeTile(3, 7) }
     }

@@ -293,12 +293,10 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       cardAction1(RestrictedArea)
     }
     been.turn {
-      intentionalUnderpay()
       playProject(SolarReflectors, 23)
     }
     keen.turn { convertPlants { placeTile(4, 5) } }
     been.turn {
-      intentionalUnderpay()
       playProject(SpaceMirrors, 3)
     }
     keen.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
@@ -519,7 +517,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     been.turn { playProject(LunarBeam, 10) }
     keen.turn {
       // The archive pays Solar Probe entirely in M€ despite Keen retaining usable titanium.
-      intentionalUnderpay()
       playProject(SolarProbe, 7) {
             doTask("-ProjectCard")
           }

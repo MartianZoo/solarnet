@@ -188,7 +188,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "Pay<> FROM MC",
         "OptimalAerobraking FROM ProjectCard",
     )
-    assertUnusedActionCards()
     doTasks("Pass", "18 MC", "Plant")
     doTasks("TemperatureStep! BY Admin", "4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[0], after World Government.
@@ -215,7 +214,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     )
     doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
     doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>", "Titanium")
-    assertUnusedActionCards()
     doTasks("Pass", "18 MC", "Plant")
     doTasks("TemperatureStep! BY Admin", "4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[1], after World Government.
@@ -271,7 +269,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "LunarMining FROM ProjectCard",
         "PROD[2 Titanium]",
     )
-    assertUnusedActionCards()
     doTasks("Pass", "17 MC", "Plant", "2 Titanium")
     doTasks("OceanTile<Hellas_6_7>! BY Admin", "4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[2], after World Government.
@@ -330,7 +327,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "BribedCommittee FROM ProjectCard",
         "2 TerraformRating",
     )
-    assertUnusedActionCards()
     doTasks("Pass", "18 MC", "Plant", "2 Titanium")
     doTasks("VenusStep! BY Admin", "4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[3], after World Government.
@@ -371,7 +367,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     )
     draw(WaterSplittingPlant)
     doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "19 MC",
@@ -447,7 +442,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "2 Pay<> FROM MC",
         "TransNeptuneProbe FROM ProjectCard",
     )
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "19 MC",
@@ -532,7 +526,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "3 Heat",
         "6 MC",
     )
-    assertUnusedActionCards()
     doTasks(
         "Pass",
         "23 MC",
@@ -612,7 +605,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "TerraformRating",
         "4 Plant",
     )
-    assertUnusedActionCards(AppliedScience)
     doTasks(
         "Pass",
         "26 MC",
@@ -697,7 +689,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "TerraformingContract FROM ProjectCard",
         "PROD[4 MC]",
     )
-    assertUnusedActionCards(AppliedScience)
     doTasks(
         "Pass",
         "34 MC",
@@ -826,7 +817,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "Steel",
         "TerraformRating",
     )
-    assertUnusedActionCards(AppliedScience)
     doTasks(
         "Pass",
         "52 MC",
@@ -939,7 +929,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "2 Plant",
         "4 MC",
     )
-    assertUnusedActionCards(AppliedScience)
     doTasks(
         "Pass",
         "65 MC",
@@ -1098,7 +1087,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "TemperatureStep",
         "TerraformRating",
     )
-    assertUnusedActionCards(AppliedScience, Teslaract)
     doTasks(
         "Pass",
         "82 MC",

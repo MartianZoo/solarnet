@@ -257,7 +257,6 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     green.cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
     // Reason 3: Mercurian Alloys makes Green's retained titanium worth more after this payment; the
     // next authoritative dashboard confirms that he retained all four.
-    green.intentionalUnderpay()
     green.playProject(MercurianAlloys, 3)
 
     purple.cardAction1(Hospitals)

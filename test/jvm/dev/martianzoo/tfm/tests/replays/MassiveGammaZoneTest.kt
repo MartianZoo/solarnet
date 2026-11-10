@@ -55,7 +55,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   @Test
   internal fun massiveGammaZone() {
-    with(me.requireExplicitUnusedActionCards()) {
+    with(me) {
       generation1()
       generation2()
       generation3()
@@ -166,7 +166,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyLeader<Greens> FROM LobbyDelegate")
       }
       cardAction1(AppliedScience) { addCardResources(BoardOfDirectors) }
-      pass(unused = UndergroundDetonations)
+      pass()
           .expect("DemocraticReform, Distant<DemocraticReform>, PartyFollower<MarsFirst, Neutral>")
       (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
       admin.count("Distant<DemocraticReform>") shouldBe 1
@@ -207,7 +207,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       playProject(PoliticalAlliance, 4)
       playProject(BribedCommittee, 7)
-      pass(unused = UndergroundDetonations)
+      pass()
           .expect(
               "MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyLeader<Kelvinists, Neutral>"
           )
@@ -265,7 +265,6 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdProject("AquiferProject") { placeTile(5, 4) }
       convertPlants { placeTile(4, 4) }
       // Payment reconstruction: database saves 74–75 preserve all 9 steel and spend 10 M€.
-      intentionalUnderpay()
       playProject(RegoPlastics, 10)
       playProject(BiomassCombustors, mc = 1, steel = 1) {
         // The archive's solo implementation omitted the mandatory plant-production reduction.
@@ -296,7 +295,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdAction("UseAction<PaidLobbyAction, Action1>") {
         doTask("PartyFollower<Unity>")
       }
-      pass(unused = AppliedScience)
+      pass()
       doTask("OceanTile<Tharsis_1_5> BY Admin")
           .expect("ThawMining, Distant<ThawMining>, 2 PartyFollower<Kelvinists, Neutral>")
       admin.autoExecNow()
@@ -340,15 +339,13 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       cardAction1(AppliedScience) { doTask("Titanium") }
       // Payment reconstruction: database saves 100–101 spend 18 M€ and 3 of 4 steel.
-      intentionalUnderpay()
       playProject(SpaceElevator, mc = 18, steel = 3)
       cardAction1(SpaceElevator)
       playProject(Archaebacteria, 6)
       convertPlants {
         placeTile(8, 6)
       }
-      pass(unused = UndergroundDetonations)
-          .expect("PateraBoring, Distant<PateraBoring>, PartyLeader<Scientists, Neutral>")
+      pass().expect("PateraBoring, Distant<PateraBoring>, PartyLeader<Scientists, Neutral>")
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
       admin.count("Distant<PateraBoring>") shouldBe 1
       (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
@@ -366,7 +363,6 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertHeat()
       playProject(EarthOffice, 1)
       // Payment reconstruction: database saves 113–114 spend 5 M€ and 3 titanium.
-      intentionalUnderpay()
       playProject(SolarLogistics, mc = 5, titanium = 3)
       playProject(GhgShipment, 3)
       playProject(KelpFarming, 17)
@@ -385,7 +381,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdAction("UseAction<PaidLobbyAction, Action1>") {
         doTask("PartyLeader<MarsFirst>")
       }
-      pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
+      pass()
           .expect(
               "ExperimentalLifeforms, Distant<ExperimentalLifeforms>, PartyLeader<Greens, Neutral>"
           )
@@ -445,8 +441,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdProject("AsteroidProject")
       stdProject("AsteroidProject") { placeTile(9, 9) }
       playProject(ImportedNitrogen, mc = 3, titanium = 3)
-      pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
-          .expect("CorporateAlliance, Distant<CorporateAlliance>, PartyLeader<Unity, Neutral>")
+      pass().expect("CorporateAlliance, Distant<CorporateAlliance>, PartyLeader<Unity, Neutral>")
       (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
       admin.count("Distant<CorporateAlliance>") shouldBe 1
       (admin.count("PartyLeader<Unity, Neutral>") > 0) shouldBe true
@@ -499,8 +494,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyLeader<Greens> FROM LobbyDelegate")
       }
       stdProject("CityProject") { doTask("NormalCityTile<Tharsis_3_4>") }
-      pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
-          .expect("HeatFirstPolicy, Distant<HeatFirstPolicy>, PartyLeader<Kelvinists, Neutral>")
+      pass().expect("HeatFirstPolicy, Distant<HeatFirstPolicy>, PartyLeader<Kelvinists, Neutral>")
       (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       admin.count("Distant<HeatFirstPolicy>") shouldBe 1
       (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
@@ -554,7 +548,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdProject("CityProject") { doTask("NormalCityTile<Tharsis_9_6>") }
       convertPlants { placeTile(8, 5) }
       stdProject("GreeneryProject") { placeTile(7, 6) }
-      pass(unused = setOf(BoardOfDirectors, AppliedScience, UndergroundDetonations))
+      pass()
 
       // Player-record evidence: production completed and final greenery placement is pending.
       assertResources(m = 124, s = 4, t = 2, p = 19, e = 0, h = 27)

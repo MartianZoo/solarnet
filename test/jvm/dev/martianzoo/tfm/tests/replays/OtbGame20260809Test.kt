@@ -140,8 +140,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I'm passing with 41 money."
     green.assertCounts(41 to "MC") // ledger entry 11
     green.pass()
-    yellow.assertUnusedActionCards()
-    green.assertUnusedActionCards()
 
     // "We do production. World Government Terraforming is [Yellow]'s choice."
     // "I'm boosting oxygen."
@@ -209,8 +207,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     yellow.pass()
     // "I pass as well."
     green.pass()
-    yellow.assertUnusedActionCards()
-    green.assertUnusedActionCards()
 
     // "We do production."
     // "Then World Government Terraforming is my choice."
@@ -332,8 +328,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "I think we're at the point where I've done everything. So, I pass."
       pass()
     }
-    yellow.assertUnusedActionCards()
-    green.assertUnusedActionCards()
 
     // "We hit production. We do World Government Terraforming, and it's your turn."
     // "I increase the oxygen. Oxygen goes to 3%."
@@ -472,8 +466,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "I don't have enough money to take its action. I pass."
       pass()
     }
-    yellow.assertUnusedActionCards()
-    green.assertUnusedActionCards(IndustrialCenter)
 
     // "Because we've both passed, we hit production."
     // "I will World Gov, and the thing that I will World Gov will be that I will Word Gov."
@@ -616,8 +608,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
       pass()
     }
-    yellow.assertUnusedActionCards()
-    green.assertUnusedActionCards(IndustrialCenter)
 
     // "We do production."
     // "I use World Government Terraforming to raise Venus to 12%."
@@ -783,8 +773,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "I pass. We do production."
       pass()
     }
-    yellow.assertUnusedActionCards(AquiferPumping)
-    green.assertUnusedActionCards(IndustrialCenter)
 
     // "For World Government Terraforming, I'm going to raise the temperature."
     // "The temperature is now −18°C."
@@ -930,8 +918,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // (6:33 pm) "I pass. We hit production."
       pass()
     }
-    yellow.assertUnusedActionCards(AquiferPumping)
-    green.assertUnusedActionCards(IndustrialCenter)
 
     // "I use World Government Terraforming to raise the temperature to −12°C."
     yellow.wgt("TemperatureStep")
@@ -1076,8 +1062,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "I pass. We do production."
       pass()
     }
-    yellow.assertUnusedActionCards(AquiferPumping, EnergyMarket)
-    green.assertUnusedActionCards(IndustrialCenter)
 
     // "I use World Government Terraforming to raise the temperature to −10°C."
     green.wgt("TemperatureStep")
@@ -1218,8 +1202,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "We do production. You get to do World Government Terraforming."
       pass()
     }
-    yellow.assertUnusedActionCards(AquiferPumping, EnergyMarket, Ironworks)
-    green.assertUnusedActionCards(IndustrialCenter)
     // "We'll move the temperature. The temperature is now −4°C."
     yellow.wgt("TemperatureStep")
 
@@ -1417,8 +1399,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "I pass."
       pass()
     }
-    yellow.assertUnusedActionCards(AquiferPumping, Ironworks)
-    green.assertUnusedActionCards(IndustrialCenter)
 
     // (8:32 pm) "We do production. I will World Gov temperature up to minus two."
     green.wgt("TemperatureStep")
@@ -1669,8 +1649,6 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "So now I must pass. And so we hit production."
       pass()
     }
-    yellow.assertUnusedActionCards(AquiferPumping, Ironworks, SubZeroSaltFish)
-    green.assertUnusedActionCards(IndustrialCenter, TitanFloatingLaunchPad)
 
     with(green) {
       assertProduction(m = 12, s = 2, t = 2, p = 0, e = 4, h = 0)

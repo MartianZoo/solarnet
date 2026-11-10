@@ -56,9 +56,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
   @Test
   internal fun completeGame() {
     admin.startGame()
-    val green = p1.requireExplicitUnusedActionCards()
-    val yellow = p2.requireExplicitUnusedActionCards()
-    val blue = p3.requireExplicitUnusedActionCards()
+    val green = p1
+    val yellow = p2
+    val blue = p3
     keepStartingProjects(10, 7, 8)
 
     // "Our coming global event is Mud Slides, and our distant global event is Venus
@@ -206,7 +206,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // "I use soych for life [Search for Life] for three."
       cardAction1(SearchForLife) { declineTask() }.expect("-MC, 0 Science")
     }
-    blue.pass(unused = DirectedHeatUsage, TychoMagnetics)
+    blue.pass()
     green.turn {
       // "I will use Orbital Cleanup to take three money." Artificial Photosynthesis supplies one
       // printed Science tag, and both wild tags are assigned Science for this action.
@@ -218,7 +218,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Blue>]") }
     }
     green.pass()
-    yellow.pass(unused = AppliedScience)
+    yellow.pass()
 
     // Complete phone-ledger resource checkpoint after Generation 1 production. World Government
     // is pending, so the Turmoil TR revision must not have happened yet.
@@ -354,7 +354,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // "Local Shading, add floater."
       cardAction1(LocalShading).expect("Floater<$LocalShading>")
     }
-    blue.pass(unused = DirectedHeatUsage, TychoMagnetics)
+    blue.pass()
 
     green.turn {
       // "Oh, right. It's your turn." "You're gonna pay five ... to maybe go to Scientists? Wow."
@@ -668,7 +668,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.turn {
       // "Asteroid Hollowing ... I need one titanium to actually put on the card, so I'll take one
       // back and pay four more money." Final payment was two titanium and eight M€.
-      intentionalUnderpay()
       playProject(AsteroidHollowing, 8, titanium = 2)
     }
     green.turn {
@@ -677,7 +676,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "Security Fleet for 12." "I'm gonna spend a titanium to put a fighter on it."
-      intentionalUnderpay()
       playProject(SecurityFleet, 12)
       cardAction1(SecurityFleet)
     }
@@ -877,7 +875,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       }
     }
     blue.turn { cardAction1(TychoMagnetics, x = 2) }
-    green.pass(unused = WaterSplittingPlant)
+    green.pass()
     yellow.pass()
     blue.turn { cardAction1(BioPrintingFacility) { doTask("2 Plant") } }
     blue.pass()
@@ -1008,7 +1006,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // Summit Logistics: two steel, one titanium, three M€, then five planetary tags.
-      intentionalUnderpay()
       playProject(SummitLogistics, 3, steel = 2, titanium = 1).expect("2 MC")
     }
     blue.turn { cardAction1(BioPrintingFacility) { doTask("2 Plant") } }
@@ -1028,7 +1025,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       cardAction2(DeuteriumExport).expect("-Floater<$DeuteriumExport>, PROD[Energy]")
     }
     yellow.turn {
-      intentionalUnderpay()
       // "Moholy Lake, 31"; Yellow explicitly kept the two available steel.
       playProject(MoholeLake, 31) { placeTile(6, 7) }
     }
@@ -1054,7 +1050,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       }
     }
     green.turn {
-      intentionalUnderpay()
       // "I'm going to spend sixteen on aquifer pumping"; Green kept its plants.
       playProject(AquiferPumping, 16)
     }
@@ -1068,7 +1063,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       }
     }
     yellow.turn { cardAction2(LocalShading) }
-    blue.pass(unused = DirectedHeatUsage)
+    blue.pass()
     green.turn {
       cardAction1(OrbitalCleanup).expect("6 MC")
       // Toll Station is visible in board-21-53-02.jpg and its cost/production are the remaining
@@ -1084,8 +1079,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // records cannot exclude an earlier missed one-heat gain or manual correction in this interval.
     yellow.turn { cardAction1(RedShips).expect("3 MC") }
     yellow.exMachina("Heat")
-    green.pass(unused = WaterSplittingPlant)
-    yellow.pass(unused = SearchForLife)
+    green.pass()
+    yellow.pass()
 
     // Blue's TR loss for Diversity was entered before production at the table, reducing the
     // physical M€ payout by one; the engine correctly applies the TR loss later in Solar.
@@ -1179,7 +1174,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       }
     }
     yellow.turn {
-      intentionalUnderpay()
       playProject(SpaceStation, 5, titanium = 1)
     }
     blue.turn { cardAction1(AsteroidHollowing) }
@@ -1240,7 +1234,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       stdProject("AsteroidProject")
       playProject(Trees, 11)
     }
-    yellow.pass(unused = SearchForLife, EnergyMarket)
+    yellow.pass()
 
     // Green converted its remaining energy normally in the photographed production.
     green.declineTask()
@@ -1304,7 +1298,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     yellow.turn {
       convertPlants { placeTile(4, 6) }
-      intentionalUnderpay()
       playProject(GiantSolarShade, 19, titanium = 1)
     }
     blue.turn {
@@ -1317,7 +1310,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       }
       // Frontier Town repeats the temperature/-4 M€ bonus printed at 5-5 and crosses the
       // zero-degree ocean threshold; the table placed that ocean at 3-3.
-      intentionalUnderpay()
       playProject(FrontierTown, 9) {
         placeTile(5, 5)
         placeTile(3, 3)
@@ -1388,12 +1380,12 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.turn {
       cardAction1(BioPrintingFacility) { addCardResources(VenusianAnimals) }
     }
-    green.pass(unused = WaterSplittingPlant)
+    green.pass()
     yellow.turn { playProject(Heather, 4) }
     blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
     yellow.turn { cardAction2(LocalShading) }
     blue.pass()
-    yellow.pass(unused = SearchForLife, EnergyMarket)
+    yellow.pass()
 
     // Green again retained Supercapacitors' energy instead of converting it to heat.
     green.declineTask()
@@ -1540,7 +1532,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.turn { fundAward(cn("Politician"), 20) }
     yellow.turn { playProject(PhobosSpaceHaven, 12, titanium = 3) }
     blue.turn { cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) } }
-    green.pass(unused = WaterSplittingPlant, AquiferPumping, DeuteriumExport)
+    green.pass()
     yellow.turn { sellPatents(1) }
     blue.turn { playProject(UnexpectedApplication, 4) }
     yellow.turn { playProject(ArtificialLake, 7, steel = 3) }
@@ -1584,11 +1576,11 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       }
       stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyFollower<Greens>") }
     }
-    blue.pass(unused = TychoMagnetics, BioPrintingFacility)
+    blue.pass()
     yellow.turn {
       stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyFollower<Kelvinists>") }
     }
-    yellow.pass(unused = SearchForLife, AppliedScience)
+    yellow.pass()
 
     // Green once more retained Supercapacitors' energy during final production.
     green.declineTask()

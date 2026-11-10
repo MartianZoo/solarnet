@@ -132,7 +132,6 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(Tardigrades)
       // Payment reconstruction: retain one titanium for Interplanetary Trade; that allocation is
       // required to reproduce the later archived balance without a state adjustment.
-      intentionalUnderpay()
       playProject(DeimosDownPromo, 23, titanium = 2) {
             // Decline removing an opponent's plants.
             declineTask()
@@ -225,7 +224,6 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(SaturnSurfing)
       // Payment reconstruction: retain one titanium for Magnetic Shield, where it avoids the
       // Rotator Impacts overpayment and receives full value.
-      intentionalUnderpay()
       playProject(SixteenPsyche, 11, titanium = 5).expect("PROD[2 Titanium]")
       cardAction1(SearchForLife) {
         doTask("ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
@@ -281,7 +279,6 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       }
       // Payment reconstruction: retain the titanium from Pioneer Settlement for Terraforming
       // Ganymede, where it receives full value.
-      intentionalUnderpay()
       playProject(Atmoscoop, 8, titanium = 3) {
         doTask("2 VenusStep")
         addCardResources(TitanShuttles)
@@ -295,7 +292,6 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       }
       // Payment reconstruction: retain one titanium for Terraforming Ganymede rather than
       // overpaying for Ganymede Colony.
-      intentionalUnderpay()
       playProject(GanymedeColony, 2, titanium = 4)
       playProject(ConvoyFromEuropa, titanium = 4) {
         placeTile(9, 9)

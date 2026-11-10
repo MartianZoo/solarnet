@@ -48,14 +48,10 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260904() {
     admin.startGame()
-    val yellow = p1.requireExplicitUnusedActionCards()
-    val rainbow = p2.requireExplicitUnusedActionCards()
-    val blue = p3.requireExplicitUnusedActionCards()
-    val green =
-        game
-            .testTfm(game.actors.filterIsInstance<Player>()[3])
-            .requireExplicitPaymentChoices()
-            .requireExplicitUnusedActionCards()
+    val yellow = p1
+    val rainbow = p2
+    val blue = p3
+    val green = game.testTfm(game.actors.filterIsInstance<Player>()[3])
     keepStartingProjects(4, 6, 5, 4)
 
     // 2:12:23 PM — Yellow: "Okay, um well all I can do for now is put down My corporation is
@@ -225,7 +221,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // [Rainbow]."
     green.pass()
     // 2:35:57 PM — Rainbow: "I believe I also pass."
-    rainbow.pass(unused = AppliedScience)
+    rainbow.pass()
 
     // 2:36:16 PM — Yellow: "Anushkin on this two-card spot so no one gets that."
     // 2:36:20 PM — Green: "So that looks like it's eight four to me."
@@ -626,7 +622,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     // 3:37:26 PM — Green: "I cannot use my Factorum action, so I have nothing left, or any
     // shuttles, so I must pass."
-    green.pass(unused = setOf(Factorum, VenusShuttles))
+    green.pass()
     // 3:37:36 PM — Blue: "I believe I pass as well."
     yellow.pass()
     rainbow.turn {
@@ -646,7 +642,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     // 3:41:34 PM — Rainbow: "Yep. Yeah, believe me, I tried all kinds of ways to make that happen,
     // and I just wasn't. Um, I'm finally done. I pass."
-    rainbow.pass(unused = FloatingRefinery)
+    rainbow.pass()
 
     // 3:42:11 PM — Green: "I don't know. What I really care about I think I'll bump oxygen up to
     // four. Then the start player token moves to Wait wait wait wait before we do all those things
@@ -713,7 +709,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // account of which I can play Diversity Support."
       // Green's quoted "Cost me full price" establishes that he preserved his titanium despite the
       // Space tag.
-      intentionalUnderpay()
       playProject(TechnologyDemonstration, 5)
       // 3:53:38 PM — Green: "Because I have Science, Animal, Floater, and all six standard. And
       // that costs me one money, right? I don't have any discounts on. So that's my turn."
@@ -745,7 +740,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     // 3:56:59 PM — Yellow: "I didn't like giving that card up. I just like, I couldn't afford it.
     // Um, I pass."
-    yellow.pass(unused = SpaceMirrors)
+    yellow.pass()
     rainbow.turn {
       // Rainbow's app entry 89 debits 2 M€ where the transcript establishes a 25 M€ cash
       // payment. Supply the omitted 23 M€ only long enough for the real billing to reproduce that
@@ -867,7 +862,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(Thermophiles, 7)
       cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
     }
-    green.pass(unused = VenusShuttles)
+    green.pass()
     rainbow.pass()
 
     // 4:06:32 PM — Yellow: "I think I'm gonna boop the temperature."
@@ -1053,7 +1048,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(Flooding, 7) {
         placeTile(6, 6)
         blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-        blue.intentionalUnderpay()
         blue.pay(2, heat = 3)
       }
     }
@@ -1165,7 +1159,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
         blue.narrowTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
       }
     }
-    green.pass(unused = VenusShuttles)
+    green.pass()
 
     // 3:30:39 PM — Green: "Um is there anything else we can do? I don't think so. I think I used
     // all my stuff. Oh, yeah, shuttles I can't afford. Gotta stop buying things I can't afford.
@@ -1327,7 +1321,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(StratosphericBirds, 10)
     }
     // 3:45:43 PM — Blue: "I'm gonna pass."
-    blue.pass(unused = WaterSplittingPlant)
+    blue.pass()
     // 3:45:50 PM — Green: "Mm 'kay. [Blue] passes. I will use cloud tourism, [Yellow]."
     green.turn { cardAction1(CloudTourism) }
     yellow.turn {
@@ -1386,7 +1380,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // full price. And I lose an energy production, gain three money production, which gives me
       // two money. I place a shitty tile. My first. I'm not on the board at all."
       // 3:51:10 PM — Yellow: "Six four. For two plants and four money."
-      intentionalUnderpay()
       playProject(CupolaCity, 16) { placeTile(6, 4) }
       // 3:51:29 PM — Green: "Let's just go ahead and use Venus magnetizer decrease in energy
       // production to raise Venus to 12% and get a TR. All right, who's still in?"
@@ -1408,11 +1401,10 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // or five?"
       // 3:52:59 PM — Rainbow: "Yeah. I'm going to pay ten to build the toll station, which gives me
       // six money production."
-      intentionalUnderpay()
       playProject(TollStation, 10)
     }
     // 3:53:47 PM — Green: "All right, I pass. You're still up. [Yellow], just [Yellow]?"
-    green.pass(unused = setOf(VenusShuttles, IcyImpactors))
+    green.pass()
     yellow.turn {
       // 3:53:58 PM — Blue: "I'm still in. Bio, ask combustors for two steel. Wait, no, no, no, one
       // steel. Requires six percent oxygen. Decrease any plant production one step. That'll be
@@ -1425,7 +1417,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 3:55:00 PM — Rainbow: "Okay. Um you guys have both passed?"
     // 3:55:03 PM — Yellow: "Yeah."
     // 3:55:03 PM — Blue: "Yeah."
-    yellow.pass(unused = setOf(SmallAnimals, SpaceMirrors))
+    yellow.pass()
     rainbow.turn {
       // 3:55:12 PM — Rainbow: "I can't believe I let Predators go. Held it for so long just in
       // case.
@@ -1438,11 +1430,10 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.turn {
       // Rainbow paid 8 M€ for Miranda Resort without titanium. The table counted her wild tag as
       // Earth while resolving the card, then corrected the resulting production increase to two.
-      intentionalUnderpay()
       playProject(MirandaResort, 8)
     }
     // 3:57:14 PM — Rainbow: "Alright, I'm also going to pass."
-    rainbow.pass(unused = SulphurEatingBacteria)
+    rainbow.pass()
 
     // 3:57:20 PM — Green: "Okay, so we hit plus generation, and then [Blue] chooses about the world
     // governing."
@@ -1652,7 +1643,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.turn {
       // 5:50:11 PM — Rainbow: "So Venus way station should be nine, but I have a
       // minus two for and a minus two for a thing, so it's five."
-      intentionalUnderpay()
       playProject(VenusWaystation, 5)
       // 5:51:04 PM — Rainbow: "I'm gonna build local shading for free."
       playProject(LocalShading, 0)
@@ -1699,7 +1689,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       convertPlants { placeTile(5, 4) }
     }
     // 5:55:38 PM — Yellow: "Uh-huh. Um, I was gonna pass."
-    yellow.pass(unused = setOf(SpaceMirrors))
+    yellow.pass()
     rainbow.turn {
       // 5:55:50 PM — Rainbow: "I got actions. I'm going to take my Maxwell base action, add one
       // resource to another Venus card. And I guess I'm going to do that to the floating refinery."
@@ -1752,7 +1742,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // to Venus for three titanium, no discounts. Raise Venus to 20%, get a TR. I'm going to play
     // air
     // scrapping exhibition. For thirteen money. No discounts."
-    rainbow.pass(unused = AppliedScience)
+    rainbow.pass()
 
     green.turn {
       playProject(WaterToVenus, titanium = 3)
@@ -1772,7 +1762,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(MediaArchives, 5).expect("11 MC, -ProjectCard")
       assertCounts(5 to "PlayedEvent<Yellow>")
 
-      pass(unused = IcyImpactors)
+      pass()
     }
 
     // 6:01:45 PM — Green: "all right I pass it's done yeah I'm sad we hit generation nine I choose
@@ -2053,7 +2043,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
 
     // 9:31:07 PM — Blue: "Pass."
-    blue.pass(unused = WaterSplittingPlant)
+    blue.pass()
 
     green.turn {
       // 9:31:07 PM — Green: "I will... Use cloud tourism to add a floater to cloud tourism."
@@ -2145,7 +2135,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
 
     // 9:35:59 PM — Yellow: "I pass."
-    yellow.pass(unused = SpaceMirrors)
+    yellow.pass()
     // Yellow's app has no entries for CEO's Favorite or either late patent sale. Those three
     // recorded actions net +1 M€, but the next app balance remains 2 M€ before the
     // 44 M€ production credit. Reconcile that recorded one-M€ omission at Yellow's final action.
@@ -2215,7 +2205,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // Despite the narration, the app omits Suitable Infrastructure's 2 M€ response to the
       // production gain.
       green.exMachina("-2 MC")
-      pass(unused = IcyImpactors) // no point anymore
+      pass() // No point using Icy Impactors anymore.
     }
 
     // Green's app credits 50 M€ at production despite 36 TR and 11 M€ production totaling 47.

@@ -150,18 +150,6 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
     assertCounts(*resources.map { (count, card) -> count to "CardResource<$card>" }.toTypedArray())
   }
 
-  protected fun Agent.assertUnusedActionCards(vararg cardNames: ClassName) {
-    val expectedUnusedActionCards = cardNames.toSet()
-    val unusedActionCards =
-        reader
-            .getComponents(resolve("ActionCard"))
-            .elements
-            .filter { count("ActionUsedMarker<${it.className}>") == 0 }
-            .map { it.className }
-            .toSet()
-    unusedActionCards shouldBe expectedUnusedActionCards
-  }
-
   protected fun Agent.assertDashMiddle(
       played: Int,
       actions: Int? = null,

@@ -662,7 +662,6 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     green.turn { cardAction1(SpaceElevator) }
     yellow.turn {
       // Yellow explicitly preserved both steel while playing Rego Plastics.
-      intentionalUnderpay()
       playProject(RegoPlastics, 10)
     }
     green.turn {

@@ -135,7 +135,6 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     green.turn {
       // Green played Aquifer Pumping
       // The later Aquifer Pumping action requires four of Green's ten steel to remain available.
-      intentionalUnderpay()
       playProject(AquiferPumping, 6, steel = 6)
       // Green ended turn
     }
@@ -390,7 +389,6 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     pink.turn {
       // Pink played Space Elevator
       // The later Space Elevator action requires one of Pink's nine steel to remain available.
-      intentionalUnderpay()
       // Pink gained 1 titanium production
       playProject(SpaceElevator, 5, steel = 8, titanium = 2)
       // Pink ended turn
@@ -665,7 +663,6 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       playProject(GeothermalPower, 1, steel = 4)
       // Pink played Immigrant City
       // The later Space Elevator action requires one of Pink's five steel to remain available.
-      intentionalUnderpay()
       playProject(ImmigrantCity, 3, steel = 4) {
             // Pink placed city tile at 12
             placeTile(2, 5)
