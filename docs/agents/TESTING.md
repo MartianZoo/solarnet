@@ -338,8 +338,8 @@ Synthetic engine checks can construct a premise from `TfmTest`, using the existi
 `canonicalPremise` and `setUpGame` functions. `ResearchWildTagTest` retains legacy operation-level
 coverage of assigned tags, and `VerminTest.Attribution` supplies a synthetic listener; neither uses
 the sandbox or gameplay fixture. `WildTagTest` and `WildTagContinuationTest` cover allocation and
-cleanup through sandbox actions. Audit-history and arbitrary task-selection
-checks also use `TfmTest` directly rather than claiming authentic gameplay.
+cleanup through sandbox actions. Arbitrary task-selection checks use `TfmTest` directly rather than
+claiming authentic gameplay.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
 Sandbox and gameplay scenarios use explicit Agent task submissions rather than the helpers on

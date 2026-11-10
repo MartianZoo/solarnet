@@ -1,31 +1,26 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.tfm.tests.TestOption.PreludeCards
-import dev.martianzoo.tfm.tests.TfmTest
-import dev.martianzoo.tfm.tests.canonicalPremise
-import dev.martianzoo.tfm.tests.setUpGame
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class AuditTest : TfmTest() {
+internal class AuditTest : TfmSandboxTest() {
   @Test
   internal fun `one generic search records different tag criteria only in audited history`() {
-    game = setUpGame(canonicalPremise(PreludeCards))
-    val p1 = game.testTfm(PLAYER1)
+    newTestGame("prelude:cards")
     val checkpoint = game.events.nextOrdinal
 
-    p1.runOperation("SearchForCard<TagFilter<Class<SpaceTag>>>").expect("ProjectCard")
-    p1.runOperation("SearchForCard<TagFilter<Class<PlantTag>>>").expect("ProjectCard")
+    kim.runOperation("SearchForCard<TagFilter<Class<SpaceTag>>>").expect("ProjectCard")
+    kim.runOperation("SearchForCard<TagFilter<Class<PlantTag>>>").expect("ProjectCard")
 
-    p1.count("SearchForCard<TagFilter<Class<SpaceTag>>>") shouldBe 0
-    p1.count("SearchForCard<TagFilter<Class<PlantTag>>>") shouldBe 0
-    p1.auditGainsSince(checkpoint) shouldBe 2
+    kim.count("SearchForCard<TagFilter<Class<SpaceTag>>>") shouldBe 0
+    kim.count("SearchForCard<TagFilter<Class<PlantTag>>>") shouldBe 0
+    kim.auditGainsSince(checkpoint) shouldBe 2
     game.events.changesSince(checkpoint).count {
-      it.change.gaining?.type == p1.resolve("SearchForCard<TagFilter<Class<SpaceTag>>>")
+      it.change.gaining?.type == kim.resolve("SearchForCard<TagFilter<Class<SpaceTag>>>")
     } shouldBe 1
     game.events.changesSince(checkpoint).count {
-      it.change.gaining?.type == p1.resolve("SearchForCard<TagFilter<Class<PlantTag>>>")
+      it.change.gaining?.type == kim.resolve("SearchForCard<TagFilter<Class<PlantTag>>>")
     } shouldBe 1
   }
 }

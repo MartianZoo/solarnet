@@ -1,72 +1,65 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.engine.*
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.tests.*
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class GlobalParameterCompletionTest : TfmTest() {
+internal class GlobalParameterCompletionTest : TfmSandboxTest() {
   @Test
   internal fun atomizedGainStopsWhenTheTrackCompletes() {
-    game = setUpGame()
-    val p1 = game.testTfm(PLAYER1)
+    newTestGame()
 
-    p1.runOperation("55 OxygenStep")
+    kim.runOperation("55 OxygenStep") { autoExecNow(EAGER) }
 
-    p1.count("OxygenStep") shouldBe 14
-    p1.count("GpComplete<Class<OxygenStep>>") shouldBe 1
+    kim.count("OxygenStep") shouldBe 14
+    kim.count("GpComplete<Class<OxygenStep>>") shouldBe 1
   }
 
   @Test
   internal fun eachTrackRecordsCompletionOnItsFinalStep() {
-    game = setUpGame(VenusNextExpansion)
-    val p1 = game.testTfm(PLAYER1)
-    val waterAreas = p1.list("WaterArea")
-    val landArea = p1.list("LandArea").first()
+    newTestGame()
+    val waterAreas = kim.list("WaterArea")
+    val landArea = kim.list("LandArea").first()
 
-    p1.exMachina("18 TemperatureStep, 13 OxygenStep, 14 VenusStep")
-    p1.exMachina(waterAreas.take(8).joinToString { "OceanTile<$it>" })
+    kim.exMachina("18 TemperatureStep, 13 OxygenStep, 14 VenusStep")
+    kim.exMachina(waterAreas.take(8).joinToString { "OceanTile<$it>" })
 
-    p1.runOperation("TemperatureStep, OxygenStep, VenusStep")
+    kim.runOperation("TemperatureStep, OxygenStep, VenusStep") { autoExecNow(EAGER) }
 
-    p1.count("GameEndBarrier") shouldBe 1
+    kim.count("GameEndBarrier") shouldBe 1
 
-    p1.runOperation("OceanTile<${waterAreas.elementAt(8)}>")
+    kim.runOperation("OceanTile<${waterAreas.elementAt(8)}>") { autoExecNow(EAGER) }
 
-    p1.count("GpComplete<Class<TemperatureStep>>") shouldBe 1
-    p1.count("GpComplete<Class<OxygenStep>>") shouldBe 1
-    p1.count("GpComplete<Class<OceanTile>>") shouldBe 1
-    p1.count("GpComplete<Class<VenusStep>>") shouldBe 1
-    p1.count("GpIncomplete") shouldBe 0
-    p1.count("GameEndBarrier") shouldBe 0
+    kim.count("GpComplete<Class<TemperatureStep>>") shouldBe 1
+    kim.count("GpComplete<Class<OxygenStep>>") shouldBe 1
+    kim.count("GpComplete<Class<OceanTile>>") shouldBe 1
+    kim.count("GpComplete<Class<VenusStep>>") shouldBe 1
+    kim.count("GpIncomplete") shouldBe 0
+    kim.count("GameEndBarrier") shouldBe 0
 
-    p1.runOperation("TemperatureStep, OceanTile<$landArea>")
-    shouldThrow<DeadEndException> { p1.runOperation("-TemperatureStep") }
-    shouldThrow<DeadEndException> { p1.runOperation("-OxygenStep") }
-    shouldThrow<DeadEndException> { p1.runOperation("-OceanTile<${waterAreas.first()}>") }
-    shouldThrow<DeadEndException> { p1.runOperation("-VenusStep") }
-    p1.count("TemperatureStep") shouldBe 19
-    p1.count("OxygenStep") shouldBe 14
-    p1.count("OceanTile") shouldBe 9
-    p1.count("VenusStep") shouldBe 15
+    kim.runOperation("TemperatureStep, OceanTile<$landArea>") { autoExecNow(EAGER) }
+    shouldThrow<DeadEndException> { kim.runOperation("-TemperatureStep") }
+    shouldThrow<DeadEndException> { kim.runOperation("-OxygenStep") }
+    shouldThrow<DeadEndException> { kim.runOperation("-OceanTile<${waterAreas.first()}>") }
+    shouldThrow<DeadEndException> { kim.runOperation("-VenusStep") }
+    kim.count("TemperatureStep") shouldBe 19
+    kim.count("OxygenStep") shouldBe 14
+    kim.count("OceanTile") shouldBe 9
+    kim.count("VenusStep") shouldBe 15
   }
 
   @Test
   internal fun extendedOceanTrackRecordsCompletionOnItsEleventhOcean() {
-    game = setUpGame(Amazonis)
-    val p1 = game.testTfm(PLAYER1)
-    val waterAreas = p1.list("WaterArea")
+    newTestGame("AmazonisMap")
+    val waterAreas = kim.list("WaterArea")
 
-    p1.exMachina(waterAreas.take(10).joinToString { "OceanTile<$it>" })
-    p1.runOperation("OceanTile<${waterAreas.elementAt(10)}>")
+    kim.exMachina(waterAreas.take(10).joinToString { "OceanTile<$it>" })
+    kim.runOperation("OceanTile<${waterAreas.elementAt(10)}>") { autoExecNow(EAGER) }
 
-    p1.count("OceanTile") shouldBe 11
-    p1.count("GpComplete<Class<OceanTile>>") shouldBe 1
+    kim.count("OceanTile") shouldBe 11
+    kim.count("GpComplete<Class<OceanTile>>") shouldBe 1
   }
 }
