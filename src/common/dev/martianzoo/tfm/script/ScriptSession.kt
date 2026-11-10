@@ -64,7 +64,6 @@ import dev.martianzoo.tfm.script.commands.TfmBoardCommand
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import dev.martianzoo.tfm.script.commands.TfmPayCommand
 import dev.martianzoo.tfm.script.commands.TfmPlayCommand
-import dev.martianzoo.tfm.script.commands.TfmSampleCommand
 import dev.martianzoo.tfm.script.commands.TurnCommand
 import dev.martianzoo.tfm.state.ApiUtils
 
@@ -316,7 +315,6 @@ public class ScriptSession(
               TfmActionCommand(this),
               TfmPayCommand(this),
               TfmPlayCommand(this),
-              TfmSampleCommand(this),
           ) + hostCommands(this))
           .associateBy { it.name }
 

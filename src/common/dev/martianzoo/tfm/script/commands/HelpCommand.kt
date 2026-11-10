@@ -76,7 +76,6 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
         tfm_map             -> displays an extremely bad looking Mars board
         tfm_play <card>,... -> plays a card, with optional inline tfm_pay arguments
         tfm_pay <amt> <res> -> pays a bill using the listed standard resources (shortcut)
-        tfm_sample          -> executes one of the hardcoded sample games
       """
           .trimIndent()
 

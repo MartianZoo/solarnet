@@ -21,6 +21,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   but its export fails to re-import with an ambiguous task. The replay currently uses
   exact `selectTask` instead.
 
+- Consolidate gameplay tests around sandbox, ordinary gameplay, card-tracked gameplay, and
+  TaskForm interactions, then delete `TfmGameplay`. Keep sourced checkpoints, card identities,
+  corrections, and replay export/import checks. Replay-only unused-action and payment-allocation
+  audits may be removed during migration.
+
 - Retire `AbstractFullGameTest`, `LegacyCardTrackingFullGameTest`, and
   `LegacyTfmTestSupport` as their remaining helper-based tests migrate. Existing explicit-task
   replays now use `FullGameTest` / `CardTrackingFullGameTest` on `TfmGameplayTest`, with
