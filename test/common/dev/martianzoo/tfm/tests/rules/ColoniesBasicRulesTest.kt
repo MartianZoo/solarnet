@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
@@ -8,7 +9,6 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.util.toSetStrict
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -24,7 +24,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 /** Comment lines are quotes directly from the rulebook. */
-internal class ColoniesBasicRulesTest : TfmTest() {
+internal class ColoniesBasicRulesTest : TfmSandboxTest() {
   private val normal =
       listOf(
               "Luna",
@@ -45,14 +45,16 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   init {
     game = setUpGame(premise)
     game.startCorporationPhaseOutOfTurn()
+    p1.autoExecPolicy = NONE
   }
 
-  private val p1 = game.testTfm(PLAYER1)
+  private val p1
+    get() = agents[PLAYER1]
 
   @BeforeTest
   fun setUp() {
     p1.exMachina("100 MC, 5 ProjectCard")
-    admin.phase("Action")
+    admin.exMachina("ActionPhase FROM CorporationPhase")
   }
 
   // Shuffle the Colony Tiles and draw the number of players plus 2, and place them next to the
@@ -82,10 +84,9 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 4,
             colonyTiles = colonies,
         )
-    val game = setUpGame(premise)
+    game = setUpGame(premise)
     game.startCorporationPhaseOutOfTurn()
-    val admin = game.testTfm(ADMIN)
-    val p1 = admin.asPlayer(PLAYER1)
+    p1.autoExecPolicy = NONE
 
     admin.assertCounts(
         3 to "ColonyTile",
@@ -97,9 +98,13 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     // and the marker is placed on the highlighted second step of the track immediately when there
     // is any card in play that may collect their respective resources.
 
-    admin.phase("Action")
+    admin.exMachina("ActionPhase FROM CorporationPhase")
     p1.exMachina("100 MC, 5 ProjectCard")
-    p1.playProject(Pets, 10).expect("Miranda, ColonyProduction")
+    p1.inTurn {
+          doTasks(*playCardTasks("$Pets"), "10 Pay<> FROM MC", "$Pets FROM ProjectCard")
+          autoExecNow(EAGER)
+        }
+        .expect("Miranda, ColonyProduction")
     admin.assertCounts(
         4 to "ColonyTile",
         4 to "ColonyProduction",
@@ -117,12 +122,11 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 1,
             colonyTiles = setOf("Callisto", "Luna", "Miranda", "Titan").mapTo(linkedSetOf(), ::cn),
         )
-    val game = TfmEngine.newGame(premise)
-    val admin = game.testTfm(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
+    game = TfmEngine.newGame(premise)
 
     admin.assertCounts(0 to "ColonyTile", 4 to "SelectedColonyTile")
-    game.testTfm(ADMIN).startGame()
+    agents.taskLog.gameStarted()
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
     p1.doTask("-SelectedColonyTile<Class<Luna>>")
     admin.assertCounts(
         0 to "ColonyTile",
@@ -145,26 +149,35 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 4,
             colonyTiles = colonies,
         )
-    val game = setUpGame(premise)
+    game = setUpGame(premise)
     game.startCorporationPhaseOutOfTurn()
-    val admin = game.testTfm(ADMIN)
-    val p1 = admin.asPlayer(PLAYER1)
+    p1.autoExecPolicy = NONE
 
-    admin.phase("Action")
+    admin.exMachina("ActionPhase FROM CorporationPhase")
     p1.exMachina("100 MC, 5 ProjectCard")
 
     shouldThrow<DependencyException> {
-      p1.stdProject("BuildColonyProject") { doTask("Colony<Miranda>") }
+      p1.inTurn {
+        doTasks(*standardProjectTasks("BuildColonyProject"), "17 Pay<> FROM MC", "Colony<Miranda>")
+        autoExecNow(EAGER)
+      }
     }
 
     shouldThrow<DependencyException> {
-      p1.stdAction("UseAction<TradeAction, Action1>") { doTask("Trade<Miranda>") }
+      p1.inTurn {
+        doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC", "Trade<Miranda>")
+        autoExecNow(EAGER)
+      }
     }
 
     // And just to show that it would have worked otherwise
-    p1.playProject(Pets, 10)
-    p1.stdAction("UseAction<TradeAction, Action1>") {
-      doTask("Trade<Miranda>")
+    p1.inTurn {
+      doTasks(*playCardTasks("$Pets"), "10 Pay<> FROM MC", "$Pets FROM ProjectCard")
+      autoExecNow(EAGER)
+    }
+    p1.inTurn {
+      doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC", "Trade<Miranda>")
+      autoExecNow(EAGER)
       doTask("Animal<$Pets>")
     }
   }
@@ -177,7 +190,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     admin.exMachina("-ColonyProduction<Luna>")
     admin.assertCounts(0 to "ColonyProduction<Luna>")
 
-    p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
+    p1.inTurn {
+          doTasks(*standardProjectTasks("BuildColonyProject"), "17 Pay<> FROM MC", "Colony<Luna>")
+          autoExecNow(EAGER)
+        }
         // Take the placement bonus printed inside the track.
         .expect("PROD[2 MC]")
 
@@ -190,7 +206,8 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // Only 3 colonies total per Colony Tile are allowed - no exceptions!
   @Test
   internal fun `three colonies max`() {
-    admin.runOperation("Colony<Player1, Luna>")
+    admin.beginOperation("Colony<Player1, Luna>")
+    p1.doTask("PROD[2 MC]")
     admin.runOperation("Colony<Player2, Luna>")
     admin.runOperation("Colony<Player3, Luna>")
     shouldThrow<LimitsException> { admin.runOperation("Colony<Player4, Luna>") }
@@ -199,10 +216,16 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // Each player may only have one colony per Colony Tile (unless stated otherwise on a card).
   @Test
   internal fun `duplicate colony`() {
-    p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
+    p1.inTurn {
+      doTasks(*standardProjectTasks("BuildColonyProject"), "17 Pay<> FROM MC", "Colony<Luna>")
+      autoExecNow(EAGER)
+    }
     p1.assertCounts(1 to "Colony<Luna>")
     shouldThrow<NarrowingException> {
-      p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
+      p1.inTurn {
+        doTasks(*standardProjectTasks("BuildColonyProject"), "17 Pay<> FROM MC", "Colony<Luna>")
+        autoExecNow(EAGER)
+      }
     }
     p1.assertCounts(1 to "Colony<Luna>")
   }
@@ -216,8 +239,13 @@ internal class ColoniesBasicRulesTest : TfmTest() {
         "5 ColonyProduction<Luna>, Colony<Player1, Luna>, Colony<Player2, Luna>, 3 Energy<Player1>"
     )
     p1.assertCounts(6 to "ColonyProduction<Luna>")
-    p1.stdAction("UseAction<TradeAction, Action2>") {
-          doTask("Trade<Luna>")
+    p1.inTurn {
+          doTasks(
+              "UseAction<TradeAction, Action2>",
+              "3 Pay<Class<Energy>> FROM Energy",
+              "Trade<Luna>",
+          )
+          autoExecNow(EAGER)
           // Then follow the Colony Tile instructions: Check the Colony Tile track to determine your
           // trade income, and give the local colony owners their colony bonus.
         }
@@ -229,7 +257,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     p1.assertCounts(2 to "ColonyProduction<Luna>")
 
     // A Colony Tile may only hold 1 trade fleet at a time.
-    shouldThrow<LimitsException> { p1.asPlayer(PLAYER2).runOperation("Trade<Luna>") }
+    shouldThrow<LimitsException> { agents[PLAYER2].runOperation("Trade<Luna>") }
 
     // When the generation ends, the recorded trades clear and all white markers move 1 step up the
     // Colony track. The players' trade-fleet capacities remain.
@@ -253,10 +281,17 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   @Test
   internal fun `trade fleet cannot be reused`() {
-    p1.stdAction("UseAction<TradeAction, Action1>") { doTask("Trade<Luna>") }
+    p1.inTurn {
+      doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC", "Trade<Luna>")
+      autoExecNow(EAGER)
+    }
 
-    shouldThrow<GameplayException> { p1.runOperation("Trade<Player1, Triton>") }
-    shouldThrow<GameplayException> { p1.runOperation("Trade<Triton>, TradeFleet") }
+    shouldThrow<GameplayException> {
+      p1.runOperation("Trade<Player1, Triton>") { autoExecNow(EAGER) }
+    }
+    shouldThrow<GameplayException> {
+      p1.runOperation("Trade<Triton>, TradeFleet") { autoExecNow(EAGER) }
+    }
     p1.assertCounts(
         1 to "Trade<Luna>",
         0 to "Trade<Triton>",
@@ -266,9 +301,12 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   @Test
   internal fun `additional trade fleet permits a later trade`() {
-    p1.stdAction("UseAction<TradeAction, Action1>") { doTask("Trade<Luna>") }
+    p1.inTurn {
+      doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC", "Trade<Luna>")
+      autoExecNow(EAGER)
+    }
     p1.runOperation("TradeFleet")
-    p1.runOperation("Trade<Triton>")
+    p1.runOperation("Trade<Triton>") { autoExecNow(EAGER) }
 
     p1.assertCounts(
         1 to "Trade<Luna>",
