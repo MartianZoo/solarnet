@@ -36,8 +36,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   @Test
   internal fun erraticCarbonCurrent() {
     startGame()
+    blue.doTask("20 TerraformRating")
+    pink.doTask("20 TerraformRating")
     blue.doTasks(
-        "20 TerraformRating",
         "2 CorporationCard",
         "-CorporationCard",
         "10 ProjectCard<Selecting>",
@@ -45,7 +46,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "-2 PreludeCard",
     )
     pink.doTasks(
-        "20 TerraformRating",
         "2 CorporationCard",
         "-CorporationCard",
         "10 ProjectCard<Selecting>",
@@ -167,8 +167,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTask("Pass")
     }
 
-    blue.doTasks("-5 MC", "6 MC", "20 MC", "2 Plant", "3 Heat")
-    pink.doTasks("4 MC", "20 MC", "-5 MC", "5 Plant", "Steel", "Titanium")
+    blue.doTasks("21 MC", "2 Plant", "3 Heat")
+    pink.doTasks("19 MC", "5 Plant", "Steel", "Titanium")
     blue.doTask("TemperatureStep! BY Admin")
   }
 
@@ -261,8 +261,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTask("Pass")
     }
 
-    blue.doTasks("-5 MC", "8 MC", "22 MC", "3 Plant", "4 Heat")
-    pink.doTasks("-5 MC", "4 MC", "21 MC", "5 Plant", "Steel", "Titanium")
+    blue.doTasks("25 MC", "3 Plant", "4 Heat")
+    pink.doTasks("20 MC", "5 Plant", "Steel", "Titanium")
     pink.doTask("OxygenStep! BY Admin")
   }
 
@@ -332,8 +332,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTask("Pass")
     }
 
-    blue.doTasks("-5 MC", "12 MC", "23 MC", "3 Plant", "4 Heat")
-    pink.doTasks("-5 MC", "4 MC", "23 MC", "5 Plant", "Steel", "Titanium", "Heat")
+    blue.doTasks("30 MC", "3 Plant", "4 Heat")
+    pink.doTasks("22 MC", "5 Plant", "Steel", "Titanium", "Heat")
     blue.doTask("OxygenStep! BY Admin")
   }
 
@@ -414,7 +414,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok",
+          "Ok", // no MC remainder
       )
       draw(Plantation)
       discard(NoctisCity)
@@ -436,8 +436,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.doTask("Pass")
     blue.doTask("Pass")
 
-    pink.doTasks("-5 MC", "4 MC", "25 MC", "5 Plant", "Steel", "Titanium", "Heat")
-    blue.doTasks("14 MC", "-5 MC", "23 MC", "4 Plant", "4 Heat")
+    pink.doTasks("24 MC", "5 Plant", "Steel", "Titanium", "Heat")
+    blue.doTasks("32 MC", "4 Plant", "4 Heat")
     pink.doTask("OceanTile<Hellas_6_7>! BY Admin")
   }
 
@@ -577,8 +577,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.doTask("Pass")
     pink.doTask("Pass")
 
-    blue.doTasks("14 MC", "-5 MC", "28 MC", "8 Plant", "4 Heat", "Energy")
-    pink.doTasks("4 MC", "29 MC", "-5 MC", "5 Plant", "Steel", "Titanium", "Heat")
+    blue.doTasks("37 MC", "8 Plant", "4 Heat", "Energy")
+    pink.doTasks("28 MC", "5 Plant", "Steel", "Titanium", "Heat")
     blue.doTask("OxygenStep! BY Admin")
   }
 
@@ -714,8 +714,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.doTask("Pass")
     pink.doTask("Pass")
 
-    blue.doTasks("14 MC", "-5 MC", "30 MC", "16 Plant", "4 Heat", "Energy", "Heat FROM Energy")
-    pink.doTasks("6 MC", "-5 MC", "29 MC", "6 Plant", "Steel", "Titanium", "2 Heat")
+    blue.doTasks("39 MC", "16 Plant", "4 Heat", "Energy", "Heat FROM Energy")
+    pink.doTasks("30 MC", "6 Plant", "Steel", "Titanium", "2 Heat")
     pink.doTask("OceanTile<Hellas_4_1>! BY Admin")
   }
 
@@ -842,7 +842,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
-          "Ok",
+          "Ok", // keep the offered Business Network card
           "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -862,7 +862,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ImportOfAdvancedGhg"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok",
+          "Ok", // no MC remainder
           "$ImportOfAdvancedGhg FROM ProjectCard",
           "PROD[2 Heat]",
       )
@@ -890,17 +890,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.doTask("Pass")
     pink.doTask("Pass")
 
-    blue.doTasks(
-        "14 MC",
-        "-5 MC",
-        "33 MC",
-        "16 Plant",
-        "4 Heat",
-        "3 Energy",
-        "Heat FROM Energy",
-        "2 Steel",
-    )
-    pink.doTasks("5 MC", "-5 MC", "32 MC", "8 Plant", "Steel", "Titanium", "4 Heat")
+    blue.doTasks("42 MC", "16 Plant", "4 Heat", "3 Energy", "Heat FROM Energy", "2 Steel")
+    pink.doTasks("32 MC", "8 Plant", "Steel", "Titanium", "4 Heat")
     blue.doTask("OxygenStep! BY Admin")
   }
 
@@ -914,7 +905,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "6 Pay<> FROM MC",
         "2 ProjectCard<Hand FROM Selecting>",
     )
-    blue.doTasks("Ok", "12 Pay<> FROM MC", "4 ProjectCard<Hand FROM Selecting>")
+    blue.doTasks(
+        "Ok", // discard no research cards
+        "12 Pay<> FROM MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    )
     // Database save 214 evidence: after both research purchases.
     blue.assertResources(m = 30, s = 2, t = 0, p = 20, e = 3, h = 9)
     blue.assertProduction(m = 9, s = 2, t = 0, p = 16, e = 3, h = 4)
@@ -1072,17 +1067,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTask("Pass")
     }
 
-    blue.doTasks(
-        "14 MC",
-        "-5 MC",
-        "35 MC",
-        "16 Plant",
-        "4 Heat",
-        "2 Energy",
-        "3 Heat FROM Energy",
-        "2 Steel",
-    )
-    pink.doTasks("7 MC", "-5 MC", "34 MC", "11 Plant", "Steel", "Titanium", "4 Heat")
+    blue.doTasks("44 MC", "16 Plant", "4 Heat", "2 Energy", "3 Heat FROM Energy", "2 Steel")
+    pink.doTasks("36 MC", "11 Plant", "Steel", "Titanium", "4 Heat")
     pink.doTask("OceanTile<Hellas_3_1>! BY Admin")
   }
 
@@ -1264,7 +1250,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$CarbonNanosystems"),
           "7 Pay<Class<Steel>> FROM Steel",
-          "Ok",
+          "Ok", // no MC remainder
       )
       draw(EosChasmaNationalPark)
       discard(Plantation)
@@ -1298,17 +1284,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTask("Pass")
     }
 
-    pink.doTasks("-5 MC", "7 MC", "38 MC", "11 Plant", "Steel", "Titanium", "4 Heat")
-    blue.doTasks(
-        "14 MC",
-        "-5 MC",
-        "39 MC",
-        "16 Plant",
-        "4 Heat",
-        "2 Energy",
-        "2 Heat FROM Energy",
-        "2 Steel",
-    )
+    pink.doTasks("40 MC", "11 Plant", "Steel", "Titanium", "4 Heat")
+    blue.doTasks("48 MC", "16 Plant", "4 Heat", "2 Energy", "2 Heat FROM Energy", "2 Steel")
     blue.doTask("TemperatureStep! BY Admin")
   }
 
@@ -1582,17 +1559,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTask("Pass")
     }
 
-    blue.doTasks(
-        "-5 MC",
-        "18 MC",
-        "45 MC",
-        "16 Plant",
-        "2 Heat",
-        "2 Energy",
-        "2 Heat FROM Energy",
-        "2 Steel",
-    )
-    pink.doTasks("6 MC", "-5 MC", "41 MC", "11 Plant", "Steel", "Titanium", "4 Heat")
+    blue.doTasks("58 MC", "16 Plant", "2 Heat", "2 Energy", "2 Heat FROM Energy", "2 Steel")
+    pink.doTasks("42 MC", "11 Plant", "Steel", "Titanium", "4 Heat")
     assertSidebar(gen = 10, temp = 8, oxygen = 14, oceans = 9, venus = 18)
 
     pink.doTasks(
