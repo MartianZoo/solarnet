@@ -54,7 +54,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
         "10 ProjectCard<Selecting>",
         "4 PreludeCard",
         "-2 PreludeCard",
-        "Ok",
+        "Ok", // Keep all ten starting project cards.
     )
     generation1()
     generation2()

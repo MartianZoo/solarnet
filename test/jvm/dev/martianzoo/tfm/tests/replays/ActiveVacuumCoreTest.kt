@@ -866,8 +866,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$NoctisFarming"),
           "5 Pay<Class<Steel>> FROM Steel",
-          "Ok",
-          "Ok",
+          "Ok", // No Psychrophiles microbes paid.
+          "Ok", // No M€ needed after paying with steel.
           "$NoctisFarming FROM ProjectCard",
           "PROD[MC]",
           "2 Plant",
@@ -898,7 +898,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TransNeptuneProbe"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok",
+          "Ok", // No M€ needed after paying with titanium.
           "$TransNeptuneProbe FROM ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
       )
@@ -1052,7 +1052,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
         "9 Pay<> FROM MC",
         "3 ProjectCard<Hand FROM Selecting>",
     )
-    pink.doTasks("Ok", "12 Pay<> FROM MC", "4 ProjectCard<Hand FROM Selecting>")
+    pink.doTasks(
+        "Ok", // Keep all four Research cards.
+        "12 Pay<> FROM MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    )
     purple.doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
@@ -1271,7 +1275,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MiningArea"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok",
+          "Ok", // No M€ needed after paying with steel.
           "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Tharsis_9_5>",
           "Production<Class<Metal>(HAS PlacementBonus<LandArea(HAS MiningArea_SpecialTile)>)>",
@@ -1580,7 +1584,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$OrbitalCleanup"),
           "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok",
+          "Ok", // No M€ needed after paying with graphene and titanium.
           "$OrbitalCleanup FROM ProjectCard",
           "PROD[-2 MC]",
       )
@@ -1786,7 +1790,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$KaguyaTech"),
           "5 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
-          "Ok",
+          "Ok", // No M€ needed after paying with Psychrophiles microbes.
           "$KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
           "ProjectCard",
@@ -1892,7 +1896,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     with(blue) {
       doTasks(
           *playCardTasks("$MercurianAlloys"),
-          "Ok",
+          "Ok", // No titanium paid.
           "3 Pay<> FROM MC",
           "$MercurianAlloys FROM ProjectCard",
       )
