@@ -31,12 +31,10 @@ internal interface LegacyTfmTestSupport {
   val game: World
   val agents: Agents
 
-  // Keep calls such as game.testTfm(player) on this fixture's recorded Agents.
+  // Keep World receiver calls on this fixture's recorded Agents.
   fun World.testAgents(): Agents = if (this === game) agents else retainedTestAgents()
 
   fun World.testAgent(actor: Actor): Agent = testAgents()[actor]
-
-  fun World.testTfm(actor: Actor): TfmGameplay = testAgents().tfm(actor)
 
   fun keepStartingProjects(vararg counts: Int) {
     val players = game.actors.filterIsInstance<dev.martianzoo.state.Player>()
