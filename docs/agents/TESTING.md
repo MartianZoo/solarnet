@@ -31,10 +31,12 @@
   focused scenarios with corrections and selected phase shortcuts.
 - [`TfmGameplayTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmGameplayTest.kt) —
   scenarios reached through play, with the game's own rules offering turns and beginning phases.
-- [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
-  — legacy helper-based replays. Plain-Agent replays use
-  [`FullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/FullGameTest.kt),
-  which extends `TfmGameplayTest` and retains endpoint and export/import checks.
+- [`FullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/FullGameTest.kt) —
+  replay setup, assertions, endpoint and export/import checks on `TfmGameplayTest`.
+- [`CardTrackingFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt) —
+  replay setup with named card arrivals, departures, and hand checks.
+- [`OtbGame20260828Test.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/OtbGame20260828Test.kt) —
+  the TaskForm replay style, with automatic concrete follow-up work.
 
 ## Standard verification
 
@@ -319,7 +321,7 @@ one card, corporation, Prelude, or other component. Use existing gameplay helper
 operation scopes fit. When component-specific steps must stay inside an outer operation, express
 them through existing `OperationScope` primitives so any sibling task may remain pending. Add a
 shared helper only for a recurring, component-independent concept that materially simplifies
-several call sites. `TfmGameplay` must not repair the game model by creating or relocating rule
+several call sites. Test helpers must not repair the game model by creating or relocating rule
 components, imposing order absent from Pets or the engine, or identifying work by rendered text or
 cause.
 
@@ -337,12 +339,10 @@ in standalone tests or by assigning a synthetic world to the sandbox's `game`. F
 `VerminTest.Attribution` supplies a synthetic listener through the sandbox. `ResearchWildTagTest`
 retains its synthetic assigned-tag scenarios using plain Agents; `WildTagTest` and
 `WildTagContinuationTest` cover allocation and cleanup through prepared sandbox actions.
-`LegacyTfmTestSupportTest` directly tests the remaining helpers being retired.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
-Sandbox and gameplay scenarios use explicit Agent task submissions rather than the helpers on
-`LegacyTfmTestSupport` or `TfmGameplay`. The fixture-specific operation and payment conventions
-are described below.
+Sandbox and gameplay scenarios use explicit Agent task submissions. The fixture-specific
+operation and payment conventions are described below.
 
 `CoreRulesTest` uses the same player-level style to document rules that belong to the game rather
 than any individual card. Its scenarios should reproduce only the important preconditions observed
@@ -386,8 +386,8 @@ returning. Do not use `inTurn`: it can create an out-of-turn offer when the acto
 work. Decline an offered second action explicitly with `selectTask("PassBaton")`; do not insert that
 choice after both actions, after a Prelude, or when all opponents have already passed.
 
-`TfmGameplayTest` describes authentic game flow, not the `TfmGameplay` convenience class. The
-fixture owns its `World` and `Agents` directly and exposes Admin and all players as plain Agents.
+`TfmGameplayTest` exercises authentic game flow. The fixture owns its `World` and `Agents`
+directly and exposes Admin and all players as plain Agents.
 Scenario payments state concrete amounts, including research purchases; do not use `/ Owed` or
 payment helpers. Shared corporation setup alone reads the bill for its five starting projects,
 so corporations such as TerraLabs use their actual purchase price.
@@ -407,8 +407,7 @@ pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCor
 moves such a game into the corporation phase through that phase's own start, then drops the turn
 order it begins.
 
-The sandbox owns its plain `Agent` fixture directly and must not use `TfmGameplay`, including
-through inherited helpers. Gameplay also owns its fixture directly. Both expose
+Sandbox and gameplay each own their plain `Agent` fixture directly. Both expose
 `newTestGameBeforeCorporationPlay()` for explicit corporation plays; a normal
 `newTestGame(kimCorporation = ...)` plays the corporation during setup. `kimCorporation` never
 changes the game configuration; use `addOptions` to include cards outside the default bundles.
@@ -501,7 +500,6 @@ merely to identify the sole task.
 Write expected payment amounts explicitly, such as `6 Pay<> FROM MC`; never pay `/ Owed`
 in a sandbox scenario. Write `kim.inTurn { ... }` directly, without redundant `with(kim)` wrappers.
 Inside that block, helpers on its operation receiver do not repeat `kim.`; another actor remains explicit.
-`TfmGameplay.turn` groups the published game's turn, including declining an unused second action.
 `TfmSandboxTest` supplies its own `Agent.inTurn` member extension: it uses `runOperation("OfferAction")`
 when no task is pending, and otherwise `completeOperation`. This keeps the generic Agent free of
 Terraforming Mars rules while sandbox scenarios retain their explicit operation scripts.
@@ -716,7 +714,7 @@ already evident from the preceding task submissions, including automatic resourc
 checks that a quantity stayed unchanged. Do not repeat explicit gains/removals or their arithmetic
 totals. Retain state checkpoints and final score/winner assertions. Purchase transfers into `Hand`
 are explicit tasks from `Selecting`. Keep the replay's task calls instead of introducing
-`TfmGameplay` action or payment helpers.
+action or payment helpers.
 
 `OtbGame20260828Test` exercises the separate TaskForm style on `FullGameTest(EAGER)`.
 Players submit their choices through `TaskForm.choose`, `narrow`, and `commit`; the policy
@@ -762,8 +760,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   which starts production [CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt)
   before gameplay. Use `cardArrivalOrder` and `cardDepartureOrder` for automatically dealt setup
   cards. Name project hand movements beside their actions with `draw` and `discard` before the
-  relevant Agent operation completes, including purchased and sold cards. The legacy fixture also
-  provides `buyCards(cardNames)` and `sellPatents(cardNames)` wrappers.
+  relevant Agent operation completes, including purchased and sold cards.
   `assertCardTrackingComplete` checks unused supplied names. `cardArrivalOrder` describes hand
   entry, not offers or deck order. When a replay has names for every `Selecting` movement,
   `selectingArrivalOrder` and `selectingDepartureOrder` enable game-wide Selecting tracking.
@@ -798,8 +795,6 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   `PassBaton` when the player declines their second action. Preserve sourced fast-mode choices,
   including explicit passes and declined second actions. Once every other player has passed, the
   remaining player's actions through `Pass` may share a scope block; the game keeps offering actions.
-  Legacy helper-based replays still use `player.turn { ... }`, which automatically declines an
-  unused second action.
 - When an Event card's sibling tasks require explicit replay ordering, record only the gameplay
   consequences. The card's `LATER` dispatch defers its flip, and the owner performs the flip once
   no ordinary work remains. The engine performs the dispatch itself; the replay records the explicit

@@ -52,18 +52,8 @@ sequence, but they do not give a task separately chosen quantities of cash, Stee
 card-held resources. A complete allocation task would require new task semantics or a domain
 instruction; it is not a spelling change.
 
-The remaining legacy replay helper `TfmGameplay.pay` rejects an allocation for positive M€ debt
-when a selected unit could be returned while the remainder still covers the debt. With debt `D`, unit values `v1 ... vn`, and
-total `P`, the test is:
-
-```text
-P - D < vi for every selected unit i
-```
-
-Full payment separately requires `P >= D`. Card-held resources are submitted separately, and raw
-engine tasks and `tfm_pay` do not apply the same whole-allocation check. The physical-game
-rule for the characterized mixed-metal case is unverified; do not describe current behavior as a
-settled rules defect.
+Engine tasks and `tfm_pay` do not check whether a selected resource unit could be returned while
+the remaining allocation still covers the debt. Card-held resources are submitted separately.
 
 ## Evidence
 

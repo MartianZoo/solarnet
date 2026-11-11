@@ -43,7 +43,7 @@ and classes are acceptable when they keep the general language and engine smalle
 an honest exception at the semantic seam, not smuggle card knowledge into orchestration.
 
 Ordinary production Kotlin outside those extension points must not branch on particular cards,
-components, expansions, or setting vocabulary. `TfmGameplay`, initializers, phase drivers, and
+components, expansions, or setting vocabulary. Client helpers, initializers, phase drivers, and
 similar integration code must not repair or coordinate individual content. If behavior cannot be
 expressed in raw Pets or a bounded custom semantic extension, reconsider the behavior, the
 component's inclusion, or the model before adding orchestration.

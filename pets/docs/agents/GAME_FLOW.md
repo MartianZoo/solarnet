@@ -16,8 +16,7 @@ scopes are not actions. These terms are defined in the [Solarnet glossary](../..
 
 `ActionScope<Player>` records an accepted action until its clearance. It is globally unique and
 identifies the active player. Each action in a turn has its own scope, even when consecutive
-actions belong to the same player. `TfmGameplay.turn { }` groups the ordinary published action-phase
-turn and declines an unused second opportunity; it does not define the full turn concept.
+actions belong to the same player.
 
 ### Offering, taking, and finishing an action
 
@@ -130,8 +129,9 @@ for standalone play. It does not record the turn holder. The phase or `InRound` 
 or hands over play when no further activity is due. A request submitted without a baton still opens
 an accepted action's scope and cleanup, but finishing it does not rotate seats. Sandbox scenarios
 and direct REPL mode use this distinction without changing the game's rules. The script's `turn`
-command calls `beginOperation("OfferAction")` directly outside purple mode. `TfmGameplay.inTurn`
-requests an offer only when its actor has no pending task; the generic Agent API has no turn concept.
+command calls `beginOperation("OfferAction")` directly outside purple mode. The sandbox fixture's
+`Agent.inTurn` requests an offer only when its actor has no pending task; the generic Agent API
+has no turn concept.
 This signal was previously called `NewTurn`; the new name distinguishes a single offer from the full
 turn.
 
@@ -199,8 +199,9 @@ For DOT alone, run `./gradlew -p pets :junkdrawer:actionTurnDiagram` with
 
 The game's own rules carry play from `SetupPhase` until `GameScope` is removed. Winning games enter
 the terminal `End` phase for final scoring; a solo loss ends in `ProductionPhase`. A client starts
-the game with `TfmGameplay.startGame`, which performs `SetupPhase FROM BootstrapPhase`. Entering
-`BootstrapPhase` automatically creates the singleton `GameScope`.
+the game by submitting `SetupPhase FROM BootstrapPhase` through Admin's `beginOperation`.
+Recording clients first call `agents.taskLog.gameStarted()`. Entering `BootstrapPhase`
+automatically creates the singleton `GameScope`.
 
 - **Phases without turns** dispatch their `FINALLY` handoff as they begin. Production proceeds to
   `SolarPhase` while a `GameEndBarrier` exists and otherwise signals `CheckGameEnd`.

@@ -22,21 +22,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   `OtbGame20260818Test` generation 10 reproduces the same failure for Robotic Workforce's
   wild-tag election while Mars University's discard/draw is pending; it also names the context.
 
-- Consolidate gameplay tests around sandbox, ordinary gameplay, card-tracked gameplay, and
-  TaskForm interactions, then delete `TfmGameplay`. Keep sourced checkpoints, card identities,
-  corrections, and replay export/import checks. Replay-only unused-action and payment-allocation
-  audits may be removed during migration.
-
-- Retire `AbstractFullGameTest` and `LegacyTfmTestSupport` as their remaining helper-based tests
-  migrate. Existing explicit-task replays now use `FullGameTest` / `CardTrackingFullGameTest` on
-  `TfmGameplayTest`, with plain Agents and Player autoexecution disabled.
-
-- Continue converting replay tests that use Player autoexecution or `TfmGameplay` actions to
-  explicit Player `doTask`/`doTasks` submissions. Keep source-backed state checkpoints and
-  expectations for effects that are not evident from those submissions. The archived
-  `HellasPromoWithoutPreludeTest` is a verified small example; `OtbGame20260828Test` has a
-  deliberate TaskForm interaction style and should be assessed separately.
-
 - Clarify `THEN` after an instruction whose amount resolution atomizes it into a group. The current
   engine releases the continuation when that group is admitted, while Pets forbids an authored
   group or `EACH` before `THEN`. No Canon consequence is established; keep this separate from
@@ -168,9 +153,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   FIFO in ordinary execution. See [Admin handling](docs/agents/ENGINE_CONTRACT.md#admins-choices-and-retries).
 - Refine and verify the strategy catalogue in [DECISION_GRAPH.md](docs/agents/DECISION_GRAPH.md).
   Settle action-clearance recognition and task comparison ignoring ordinals. Use the two-identical-
-  `Foo?`-tasks case to specify when different task causes can be ignored; card tracking and legacy
-  gameplay helpers currently inspect some causes. Decide what, if anything, must be preserved at
-  intra-action handoffs. Inventory which
+  `Foo?`-tasks case to specify when different task causes can be ignored; card tracking currently
+  inspects some causes. Decide what, if anything, must be preserved at intra-action handoffs. Inventory which
   existing forced deductions belong in Player and Admin agents. Measure pruning and safe eager
   execution on Canon scenarios such as Project Eden, retaining UNKNOWN when analysis runs out
   of information or work. The document selects semantic rules, not an implementation.
