@@ -36,10 +36,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   `HellasPromoWithoutPreludeTest` is a verified small example; `OtbGame20260828Test` has a
   deliberate TaskForm interaction style and should be assessed separately.
 
-- Remove literal-effect expectations left by the explicit-task migrations of
-  `ErraticCarbonCurrentTest` and `StaticPressureStreamTest`. Retain expectations for automatic
-  effects or unchanged quantities that the submitted tasks do not already establish.
-
 - Clarify `THEN` after an instruction whose amount resolution atomizes it into a group. The current
   engine releases the continuation when that group is admitted, while Pets forbids an authored
   group or `EACH` before `THEN`. No Canon consequence is established; keep this separate from

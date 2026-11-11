@@ -457,13 +457,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Research Network's wild tag supplies Cloud Tourism's missing Earth tag.
     with(vin) {
       doTasks(
-              *playCardTasks("$CloudTourism"),
-              "11 Pay<> FROM MC",
-              "$CloudTourism FROM ProjectCard",
-              "EarthTag<WildTagElection<WildTag<$ResearchNetwork>>>",
-              "PROD[MC]",
-          )
-          .expect("PROD[MC]")
+          *playCardTasks("$CloudTourism"),
+          "11 Pay<> FROM MC",
+          "$CloudTourism FROM ProjectCard",
+          "EarthTag<WildTagElection<WildTag<$ResearchNetwork>>>",
+          "PROD[MC]",
+      )
       doTask("PassBaton")
     }
 
@@ -487,12 +486,11 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Research Network supplies Sister Planet Support's missing Earth tag.
     with(vin) {
       doTasks(
-              *playCardTasks("$SisterPlanetSupport"),
-              "7 Pay<> FROM MC",
-              "$SisterPlanetSupport FROM ProjectCard",
-              "PROD[3 MC]",
-          )
-          .expect("PROD[3 MC]")
+          *playCardTasks("$SisterPlanetSupport"),
+          "7 Pay<> FROM MC",
+          "$SisterPlanetSupport FROM ProjectCard",
+          "PROD[3 MC]",
+      )
       doTask("PassBaton")
     }
 
@@ -1809,7 +1807,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     }
 
     with(nor) {
-      doTasks(*cardActionTasks("$FakeFloydContinuum"), "9 MC").expect("9 MC")
+      doTasks(*cardActionTasks("$FakeFloydContinuum"), "9 MC")
       doTask("PassBaton")
     }
 
@@ -1995,7 +1993,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     }
 
     with(nor) {
-      doTasks(*cardActionTasks("$FakeFloydContinuum"), "12 MC").expect("12 MC")
+      doTasks(*cardActionTasks("$FakeFloydContinuum"), "12 MC")
       doTask("PassBaton")
     }
 

@@ -623,15 +623,14 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
     with(blue) {
       doTasks(
-              "UseAction<ConvertPlantsAction, Action1>",
-              "8 Pay<Class<Plant>> FROM Plant",
-              "GreeneryTile<Hellas_2_4>",
-              "OxygenStep",
-              "Plant",
-              "Steel",
-              "TerraformRating",
-          )
-          .expect("-7 Plant, Steel")
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_2_4>",
+          "OxygenStep",
+          "Plant",
+          "Steel",
+          "TerraformRating",
+      )
       doTask("PassBaton")
     }
 
@@ -669,19 +668,17 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
     with(blue) {
       doTasks(
-              *playCardTasks("$Insects"),
-              "8 Pay<> FROM MC",
-              "$Insects FROM ProjectCard",
-              "PROD[6 Plant]",
-          )
-          .expect("PROD[6 Plant]")
+          *playCardTasks("$Insects"),
+          "8 Pay<> FROM MC",
+          "$Insects FROM ProjectCard",
+          "PROD[6 Plant]",
+      )
       doTasks(
-              *playCardTasks("$Worms"),
-              "7 Pay<> FROM MC",
-              "$Worms FROM ProjectCard",
-              "PROD[2 Plant]",
-          )
-          .expect("PROD[2 Plant]")
+          *playCardTasks("$Worms"),
+          "7 Pay<> FROM MC",
+          "$Worms FROM ProjectCard",
+          "PROD[2 Plant]",
+      )
     }
 
     with(pink) {
@@ -785,12 +782,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
     with(blue) {
       doTasks(
-              *playCardTasks("$PowerGrid"),
-              "17 Pay<> FROM MC",
-              "$PowerGrid FROM ProjectCard",
-              "PROD[4 Energy]",
-          )
-          .expect("PROD[4 Energy]")
+          *playCardTasks("$PowerGrid"),
+          "17 Pay<> FROM MC",
+          "$PowerGrid FROM ProjectCard",
+          "PROD[4 Energy]",
+      )
       doTasks(
           *playCardTasks("$UndergroundCity"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -937,13 +933,12 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
     with(blue) {
       doTasks(
-              *playCardTasks("$OlympusConference"),
-              "2 Pay<Class<Steel>> FROM Steel",
-              "5 Pay<> FROM MC",
-              "$OlympusConference FROM ProjectCard",
-              "Science<$OlympusConference>",
-          )
-          .expect("Science<$OlympusConference>")
+          *playCardTasks("$OlympusConference"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "5 Pay<> FROM MC",
+          "$OlympusConference FROM ProjectCard",
+          "Science<$OlympusConference>",
+      )
       // Research Outpost and Olympus Conference supply the other two science tags.
       doTasks(
           *playCardTasks("$AiCentral"),
