@@ -19,6 +19,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   `PetSyntaxException: EACH cannot be followed by THEN` while Mars University's optional
   discard/draw is pending. Passing `SponsoredAcademies` as the context succeeds; the replay
   keeps that explicit context and its exported game reconstructs successfully.
+  `OtbGame20260818Test` generation 10 reproduces the same failure for Robotic Workforce's
+  wild-tag election while Mars University's discard/draw is pending; it also names the context.
 
 - Consolidate gameplay tests around sandbox, ordinary gameplay, card-tracked gameplay, and
   TaskForm interactions, then delete `TfmGameplay`. Keep sourced checkpoints, card identities,
