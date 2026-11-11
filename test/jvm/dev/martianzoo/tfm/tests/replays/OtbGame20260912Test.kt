@@ -1,19 +1,19 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /** Three-player physical game begun Saturday, 2026-09-12. */
-internal class OtbGame20260912Test : AbstractFullGameTest() {
+internal class OtbGame20260912Test : FullGameTest() {
   override val firstGlobalEvents =
       listOf(
           "ThawMining",
@@ -53,14 +53,61 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       """
           .trimIndent()
 
+  private val green
+    get() = player(1)
+
+  private val yellow
+    get() = player(2)
+
+  private val blue
+    get() = player(3)
+
   @Test
   internal fun completeGame() {
-    admin.startGame()
-    val green = p1
-    val yellow = p2
-    val blue = p3
-    keepStartingProjects(10, 7, 8)
+    startGame()
+    blue.doTask("3 TerraformRating")
+    green.doTask("20 TerraformRating")
+    yellow.doTask("20 TerraformRating")
+    blue.doTask("20 TerraformRating")
+    green.doTask("PreludeCard")
+    yellow.doTask("PreludeCard")
+    blue.doTask("PreludeCard")
+    green.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+    )
+    yellow.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+    )
+    blue.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+    )
+    green.doTask("Ok") // Keep all ten starting projects.
+    yellow.doTask("-3 ProjectCard<Selecting>")
+    blue.doTask("-2 ProjectCard<Selecting>")
+    generation1()
+    generation2()
+    generation3()
+    generation4()
+    generation5()
+    generation6()
+    generation7()
+    generation8()
+    generation9()
+  }
 
+  private fun generation1() {
     // "Our coming global event is Mud Slides, and our distant global event is Venus
     // Infrastructure."
     admin.count("Coming<ThawMining>") shouldBe 1
@@ -68,157 +115,326 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.count("Distant<MartianProtectionism>") shouldBe 1
     (admin.count("PartyLeader<MarsFirst, Neutral>") > 0) shouldBe true
 
-    // "Septim Triboos [Septem Tribus]. I get 36 money, and then I buy 10 cards. Don't tell me I
-    // bought 10."
-    green.playCorp(SeptemTribus)
-    // "Pristar. I get 53 money. I lose two TR. Not super happy. And I buy seven cards."
-    yellow.playCorp(Pristar)
-    // "My corporation is Tycho Magnetics. I start with 42. Not 42 money production. But one energy
-    // production."
-    blue.playCorp(TychoMagnetics)
+    with(green) {
+      // "Septim Triboos [Septem Tribus]. I get 36 money, and then I buy 10 cards. Don't tell me I
+      // bought 10."
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$SeptemTribus>>",
+          "$SeptemTribus FROM CorporationCard",
+          "36 MC",
+          "30 Pay<> FROM MC",
+          "10 ProjectCard<Hand FROM Selecting>",
+      )
+    }
 
-    green.turn {
+    with(yellow) {
+      // "Pristar. I get 53 money. I lose two TR. Not super happy. And I buy seven cards."
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$Pristar>>",
+          "$Pristar FROM CorporationCard",
+          "53 MC",
+          "-2 TerraformRating",
+          "21 Pay<> FROM MC",
+          "7 ProjectCard<Hand FROM Selecting>",
+      )
+    }
+
+    with(blue) {
+      // "My corporation is Tycho Magnetics. I start with 42. Not 42 money production. But one
+      // energy
+      // production."
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$TychoMagnetics>>",
+          "$TychoMagnetics FROM CorporationCard",
+          "42 MC",
+          "PROD[Energy]",
+          "24 Pay<> FROM MC",
+          "8 ProjectCard<Hand FROM Selecting>",
+      )
+    }
+
+    with(green) {
       // "Nobel Prize. My second wild tag. I have no tags, but I have two wild tags."
-      playPrelude(NobelPrize)
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$NobelPrize>>",
+          "$NobelPrize FROM PreludeCard",
+          "5 MC",
+      )
+      doTask("2 SearchForCard<RequirementFilter>").expect("2 ProjectCard")
       // "Experimental Forest. My greenery. I'm going to go on six two. For dos cardos. And for
       // moneyos."
-      playPrelude(ExperimentalForest) { placeTile(6, 2) }
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$ExperimentalForest>>",
+          "$ExperimentalForest FROM PreludeCard",
+      )
+      doTask("2 SearchForCard<TagFilter<Class<PlantTag>>>").expect("2 ProjectCard")
+      doTasks("GreeneryTile<Vastitas_6_2>", "OxygenStep", "2 ProjectCard", "TerraformRating")
       // The players acknowledged that paying the initial Greens policy during Prelude was a rule
       // mistake. Green nevertheless took 4 M€ here (transcript and Green ledger entry 6).
       green.exMachina("4 MC")
+
       // "Y'all ready for this?" "Is it a head start?" "I have 16 project cards in hand. Imagine if
       // we had a planner milestone. So I gain 32 money. Then I immediately take two actions. You
       // guys are never going to get to take any turns."
       // SF Memorial's sentence is missing from the transcript. Green's first ledger segment and
       // every tableau photo place it in Head Start's first action. The newer transcript restores
       // the second: "Let's just use my free delegate thingy ... put it in Scientists."
-      playPrelude(FakeHeadStart) {
-        playProject(SfMemorial, 3, steel = 2)
-        useStdAction("UseAction<LobbyAction, Action1>") {
-          doTask("PartyLeader<Scientists> FROM LobbyDelegate")
-        }
-      }
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
+          "$FakeHeadStart FROM PreludeCard",
+          "2 Steel",
+          "32 MC",
+      )
+      doTasks(
+          *playCardTasks("$SfMemorial"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "3 Pay<> FROM MC",
+          "$SfMemorial FROM ProjectCard",
+          "ProjectCard",
+          "UseAction<LobbyAction, Action1>",
+          "PartyLeader<Scientists> FROM LobbyDelegate",
+      )
     }
-    yellow.turn {
+    with(yellow) {
       // "Martian Industries." "Nice." "Gain energy production, steel production, and gain six
       // monies."
-      playPrelude(MartianIndustries)
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>",
+          "$MartianIndustries FROM PreludeCard",
+          "PROD[Energy]",
+          "PROD[Steel]",
+          "6 MC",
+      )
       // "Applied Science is a wild tag, not that it counts for anything yet. I immediately add six
       // science resources, and it's going to let me gain stuff. Stuff and stuff."
-      playPrelude(AppliedScience)
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$AppliedScience>>",
+          "$AppliedScience FROM PreludeCard",
+          "6 Science<$AppliedScience>",
+      )
       // "Established methods. Gain 30 monies." "Wow." "I'm gonna greenery for 23. I'm gonna put
       // it here for two cards... And that gave me the temperatura."
-      playPrelude(EstablishedMethods) {
-        useStdAction("UseAction<GreeneryProject, Action1>", payment = { yellow.pay(23) })
-        placeTile(5, 9)
-        useStdAction("UseAction<AsteroidProject, Action1>", payment = { yellow.pay(14) })
-      }
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
+          "$EstablishedMethods FROM PreludeCard",
+          "30 MC",
+          "UseAction<GreeneryProject, Action1>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Vastitas_5_9>",
+          "OxygenStep",
+          "2 ProjectCard",
+          "TerraformRating",
+          "UseAction<AsteroidProject, Action1>",
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
       // The players acknowledged this initial Greens-policy payout during Prelude as the same rule
       // mistake. Yellow nevertheless took 4 M€ here (transcript and Yellow ledger entry 15).
       yellow.exMachina("4 MC")
     }
-    blue.turn {
+    with(blue) {
       // "I got some boring ones, but hopefully they'll be good. Allied Bank." "Oh, that's a good
       // one." "I increased my money production by four and I give myself three loose monies. Dome
       // Farming. I increased my money production by two and plant production by one. And Power
       // Generator [Power Generation]. One, two, three energy production."
-      playPrelude(AlliedBank)
-      playPrelude(DomeFarming)
-      playPrelude(PowerGeneration)
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
+          "$AlliedBank FROM PreludeCard",
+          "PROD[4 MC]",
+          "3 MC",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
+          "$DomeFarming FROM PreludeCard",
+          "PROD[Plant]",
+          "PROD[2 MC]",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>",
+          "$PowerGeneration FROM PreludeCard",
+          "PROD[3 Energy]",
+      )
     }
 
-    green.turn {
+    with(green) {
       // "Artificial Photosynthesis. I spent twelve, and I get two energy production. Actually,
       // no, I'm going to also spend five to put another one of my dudes in Unity."
-      playProject(ArtificialPhotosynthesis, 12) { doTask("PROD[2 Energy]") }
+      doTasks(
+          *playCardTasks("$ArtificialPhotosynthesis"),
+          "12 Pay<> FROM MC",
+          "$ArtificialPhotosynthesis FROM ProjectCard",
+          "PROD[2 Energy]",
+      )
       // "Actually, no, I'm going to also spend five to put another one of my dudes in community
       // [Unity]."
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyLeader<Unity>") }
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Unity>")
     }
-    yellow.turn {
+    with(yellow) {
       // "I'm going to lava flows for 18. Raise temperature, two steps. Oh, and I get the heat. Oh,
       // this is the lava. Two, six."
-      playProject(LavaFlows, 18) { placeTile(2, 6) }
+      doTasks(
+          *playCardTasks("$LavaFlows"),
+          "18 Pay<> FROM MC",
+          "$LavaFlows FROM ProjectCard",
+          "TemperatureStep",
+          "TemperatureStep",
+          "TerraformRating",
+          "TerraformRating",
+          "PROD[Heat]",
+          "LavaFlows_SpecialTile<Vastitas_2_6>",
+          "ProjectCard",
+      )
       // "I'm also going to place my delegate in the Grens [Greens] since that's coming into power.
       // I was going to try and go for red since that would work better with Prestar [Pristar], but
       // now I've terraformed. I screwed that up."
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyLeader<Greens> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
     }
-    blue.turn {
+    with(blue) {
       // "I'm going to pay five for Power Supply Consortium. I believe I'm increasing [Green's]
       // power production by one. And I gain one."
-      playProject(PowerSupplyConsortium, 5) { doTask("PROD[-Energy<Green>]") }
+      doTasks(
+          *playCardTasks("$PowerSupplyConsortium"),
+          "5 Pay<> FROM MC",
+          "$PowerSupplyConsortium FROM ProjectCard",
+          "PROD[Energy]",
+          "PROD[-Energy<Green>]",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I'm not liking all of these options." "But I am liking this option." "So I pay seven for
       // that. The requirement is met and I get a plant production."
       // The latest photo identifies the otherwise unnamed card as Lichen.
-      playProject(Lichen, 7)
+      doTasks(
+          *playCardTasks("$Lichen"),
+          "7 Pay<> FROM MC",
+          "$Lichen FROM ProjectCard",
+          "PROD[Plant]",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "Hermetic Order of Mars. Pay 10. Oxygen must be 4% or lower." "Sure is." "Gain two money
       // production. Gain a money per empty area adjacent to my tiles. That is seven." "Heck yeah."
-      playProject(HermeticOrderOfMars, 10)
+      doTasks(
+          *playCardTasks("$HermeticOrderOfMars"),
+          "10 Pay<> FROM MC",
+          "$HermeticOrderOfMars FROM ProjectCard",
+          "PROD[2 MC]",
+          "7 MC",
+      )
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // "I am paying 13." "Blue paying 13 and two money production. In order to gain two heat
       // production and two more energy production." "My goodness." "On lunar beam."
-      playProject(LunarBeam, 13)
+      doTasks(
+          *playCardTasks("$LunarBeam"),
+          "13 Pay<> FROM MC",
+          "$LunarBeam FROM ProjectCard",
+          "PROD[-2 MC]",
+          "PROD[2 Heat]",
+          "PROD[2 Energy]",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I think I'm going to pay five to put another doodage in red."
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyLeader<Reds>") }
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Reds>")
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "Titanium mine. Pay seven, gain titanium production."
-      playProject(TitaniumMine, 7)
+      doTasks(
+          *playCardTasks("$TitaniumMine"),
+          "7 Pay<> FROM MC",
+          "$TitaniumMine FROM ProjectCard",
+          "PROD[Titanium]",
+      )
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // "I like science. Put me in the scientist party."
       // "The ruler's blue lobbyist is in the science party."
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Scientists> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
+      doTask("PassBaton")
     }
     // "Oh, dominance moved over to the Scientists." Green's recovered Head Start placement and
     // Blue's placement make Scientists the first party with two delegates.
-    green.turn {
+    with(green) {
       // "Well, that's good in some ways. I think I'll go ahead and use my Septim Tribus [Septem
       // Tribus] action now. And that means I get six money, right?" "Six McSeas."
-      cardAction1(SeptemTribus).expect("6 MC")
+      doTasks(*cardActionTasks("$SeptemTribus"), "6 MC")
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "Soych for life [Search for Life] for three."
-      playProject(SearchForLife, 3)
+      doTasks(
+          *playCardTasks("$SearchForLife"),
+          "3 Pay<> FROM MC",
+          "$SearchForLife FROM ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // "Dang. You know what? I can't use it yet, but I can afford it right now. So I'm going to
       // pay one money for Directed Heat Usage."
-      playProject(DirectedHeatUsage, 1)
+      doTasks(
+          *playCardTasks("$DirectedHeatUsage"),
+          "1 Pay<> FROM MC",
+          "$DirectedHeatUsage FROM ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "Play orbital cleanup. And I lose two money production."
-      playProject(OrbitalCleanup, 14)
+      doTasks(
+          *playCardTasks("$OrbitalCleanup"),
+          "14 Pay<> FROM MC",
+          "$OrbitalCleanup FROM ProjectCard",
+          "PROD[-2 MC]",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "I use soych for life [Search for Life] for three."
-      cardAction1(SearchForLife) { declineTask() }.expect("-MC, 0 Science")
+      doTasks(
+              *cardActionTasks("$SearchForLife"),
+              "Pay<> FROM MC",
+              "ProjectCard<Revealed>",
+              "Ok", // No microbe tag was revealed.
+              "-ProjectCard<Revealed>",
+          )
+          .expect("0 Science")
+      doTask("PassBaton")
     }
-    blue.pass()
-    green.turn {
+    blue.doTask("Pass")
+    with(green) {
       // "I will use Orbital Cleanup to take three money." Artificial Photosynthesis supplies one
       // printed Science tag, and both wild tags are assigned Science for this action.
-      cardAction1(OrbitalCleanup).expect("3 MC")
+      doTasks(*cardActionTasks("$OrbitalCleanup"), "3 MC")
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "Decisions, decisions." "You should take mine." "We're reducing blue's energy production
       // by one."
-      playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Blue>]") }
+      doTasks(
+          *playCardTasks("$EnergyTapping"),
+          "3 Pay<> FROM MC",
+          "$EnergyTapping FROM ProjectCard",
+          "PROD[Energy]",
+          "PROD[-Energy<Blue>]",
+      )
+      doTask("PassBaton")
     }
-    green.pass()
-    yellow.pass()
+    green.doTask("Pass")
+    yellow.doTask("Pass")
+
+    // Production.
+    green.doTasks("19 MC", "Energy", "Plant")
+    yellow.doTasks("24 MC", "2 Energy", "Steel", "Heat", "Titanium")
+    blue.doTasks("27 MC", "6 Energy", "Plant", "2 Heat")
 
     // Complete phone-ledger resource checkpoint after Generation 1 production. World Government
     // is pending, so the Turmoil TR revision must not have happened yet.
@@ -234,13 +450,12 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       assertResources(m = 29, s = 0, t = 0, p = 1, e = 6, h = 2)
       assertCounts(23 to "TerraformRating")
     }
-
     // "I will world government." "Five, eight." "So just increase oceans by one?"
-    green
-        .wgt("OceanTile<Vastitas_5_8>")
-        .expect(
-            "0 TerraformRating<Green>, ScienceSummit, Distant<ScienceSummit>, PartyLeader<Scientists, Neutral>"
-        )
+    expectChanges(
+        "0 TerraformRating<Green>, ScienceSummit, Distant<ScienceSummit>, PartyLeader<Scientists, Neutral>"
+    ) {
+      green.doTask("OceanTile<Vastitas_5_8>! BY Admin")
+    }
     // "Oh, turmoil." "Walk us through it." "TR Revision, all players lose one TR." "Boo."
     // "New Government. The dominant party now becomes ruling. Change policy title to Scientists."
     // The Turmoil phase that follows performs TR revision, forms the Scientists government, and
@@ -250,7 +465,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
     admin.count("Distant<ScienceSummit>") shouldBe 1
     (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
+  }
 
+  private fun generation2() {
     // "Really, because you're the chairman. Oh, did you give yourself TR for being chairman?" "No,
     // because you didn't say it." "Oh, yeah, that is what I skipped. Sorry."
     // Green placed the first Scientist delegate and remains its leader when Blue ties it. Green
@@ -283,134 +500,229 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         1 to "Distant<ScienceSummit>",
     )
 
-    // Generation 2 Research: "I buy four"; Yellow buys two; Blue buys three.
-    green.buyCards(4)
-    yellow.buyCards(2)
-    blue.buyCards(3)
+    // Research.
+    green.doTask("4 ProjectCard<Selecting>")
+    yellow.doTask("4 ProjectCard<Selecting>")
+    blue.doTask("4 ProjectCard<Selecting>")
 
-    yellow.turn {
+    // Generation 2 Research: "I buy four"; Yellow buys two; Blue buys three.
+    green.doTasks(
+        "Ok", // Keep all four Research cards.
+        "12 Pay<> FROM MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    )
+    yellow.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    blue.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+
+    with(yellow) {
       // "I will pay three for Supported Research. Requires scientists are in power. They sure
       // are. Draw two cards."
-      playProject(SupportedResearch, 3).expect("-3 MC, ProjectCard")
+      doTasks(
+          *playCardTasks("$SupportedResearch"),
+          "3 Pay<> FROM MC",
+          "$SupportedResearch FROM ProjectCard",
+          "2 ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // "Blue is paying six money ... to build Fuel Factory. So I'm going to lose one energy
       // production, but gain a titanium and a money production."
-      playProject(FuelFactory, 6).expect("-6 MC, PROD[-Energy, Titanium, 1 MC]")
+      doTasks(
+          *playCardTasks("$FuelFactory"),
+          "6 Pay<> FROM MC",
+          "$FuelFactory FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[Titanium]",
+          "PROD[MC]",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I will play Investment Loan for three and get 10 and lose the money production."
-      playProject(InvestmentLoan, 3).expect("7 MC, PROD[-1 MC]")
+      doTasks(
+          *playCardTasks("$InvestmentLoan"),
+          "3 Pay<> FROM MC",
+          "$InvestmentLoan FROM ProjectCard",
+          "PROD[-MC]",
+          "10 MC",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "I will play Local Shading for four."
-      playProject(LocalShading, 4)
+      doTasks(*playCardTasks("$LocalShading"), "4 Pay<> FROM MC", "$LocalShading FROM ProjectCard")
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // "Put my blue lobbyist in the Unity party, please."
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Unity> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Unity> FROM LobbyDelegate")
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I'm gonna use my free action to put a dude into Greens."
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Greens> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "I'll put my free guy in Reds."
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Reds> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // "Blue's going to pay five money to put another delegate in Unity."
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyLeader<Unity>") }
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Unity>")
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "Recruitment in the Greens ... I become the party leader. I paid two for that."
-      playProject(Recruitment, 2) {
-        doTask("PartyLeader<Greens> FROM PartyFollower<Greens, Neutral>")
-      }
+      doTasks(
+          *playCardTasks("$Recruitment"),
+          "2 Pay<> FROM MC",
+          "$Recruitment FROM ProjectCard",
+          "PartyLeader<Greens> FROM PartyFollower<Greens, Neutral>",
+      )
+      doTask("PassBaton")
     }
 
-    yellow.turn {
+    with(yellow) {
       // "Pay five to place a dude in Reds." "Aww, that's no fair." "Yeah. I laid the track."
       // This is Yellow's turn between Green's Recruitment and Blue's House Printing. Her ledger
       // includes the 5 M€ payment, board-12-18-40.jpg shows both Yellow delegates in Reds, and
       // she later cites those two delegates as satisfying Red Appeasement.
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyLeader<Reds>") }
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Reds>")
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // "Blue is paying ten for House Printing, which gives me a steel production."
-      playProject(HousePrinting, 10)
+      doTasks(
+          *playCardTasks("$HousePrinting"),
+          "10 Pay<> FROM MC",
+          "$HousePrinting FROM ProjectCard",
+          "PROD[Steel]",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I'm gonna pay five and put a dude in Kelvinists."
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyFollower<Kelvinists>") }
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyFollower<Kelvinists>")
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "Local Shading, add floater."
-      cardAction1(LocalShading).expect("Floater<$LocalShading>")
+      doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
+      doTask("PassBaton")
     }
-    blue.pass()
+    blue.doTask("Pass")
 
-    green.turn {
+    with(green) {
       // "Oh, right. It's your turn." "You're gonna pay five ... to maybe go to Scientists? Wow."
       // Green has six delegates deployed and the seventh still in reserve. The later photograph
       // shows Green represented in Scientists, and Green's aggregated ledger includes this 5 M€
       // payment along with Recruitment, Kelvinists, and Lobbyist.
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyFollower<Scientists>") }
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyFollower<Scientists>")
+      doTask("PassBaton")
     }
 
-    yellow.turn {
+    with(yellow) {
       // "Search for Life. Pay one ... It was Public Celebrations."
-      cardAction1(SearchForLife) { declineTask() }.expect("-MC, 0 Science")
+      doTasks(
+              *cardActionTasks("$SearchForLife"),
+              "Pay<> FROM MC",
+              "ProjectCard<Revealed>",
+              "Ok", // No microbe tag was revealed.
+              "-ProjectCard<Revealed>",
+          )
+          .expect("0 Science")
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I am going to pay eight for the Lobbyist."
-      claimMilestone(cn("Lobbyist")).expect("-8 MC, Lobbyist")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Lobbyist")
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "Applied Science floater onto Local Shading."
-      cardAction1(AppliedScience) { addCardResources(LocalShading) }
-          .expect("-Science<$AppliedScience>, Floater<$LocalShading>")
+      doTasks(
+          *cardActionTasks("$AppliedScience"),
+          "-Science<$AppliedScience>",
+          "Floater<$LocalShading>",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I am going to use my Septem Tribus action to take ten money." Green is represented in
       // five parties; the recovered Generation 1 Scientist delegate became chairman rather than
       // remaining in Mars First.
-      cardAction1(SeptemTribus).expect("10 MC")
+      doTasks(*cardActionTasks("$SeptemTribus"), "10 MC")
+      doTask("PassBaton")
     }
-    yellow.pass()
+    yellow.doTask("Pass")
 
-    green.turn {
+    with(green) {
       // "I am going to play Event Analysts, which costs five. You have an extra influence
       // permanently."
-      playProject(EventAnalysts, 5)
+      doTasks(
+          *playCardTasks("$EventAnalysts"),
+          "5 Pay<> FROM MC",
+          "$EventAnalysts FROM ProjectCard",
+      )
     }
-    green.turn {
+    with(green) {
       // "Use Orbital Cleanup to take four money."
       // Artificial Photosynthesis and Event Analysts supply two printed Science tags; Septem
       // Tribus and Nobel Prize supply the two chosen wild tags.
-      cardAction1(OrbitalCleanup).expect("4 MC")
+      doTasks(*cardActionTasks("$OrbitalCleanup"), "4 MC")
     }
-    green.turn {
+    with(green) {
       // "Play Peroxide Power for seven money ... minus four [M€ production] ... two energy
       // production."
-      playProject(PeroxidePower, 7)
+      doTasks(
+          *playCardTasks("$PeroxidePower"),
+          "7 Pay<> FROM MC",
+          "$PeroxidePower FROM ProjectCard",
+          "PROD[-MC]",
+          "PROD[2 Energy]",
+      )
     }
-    green.turn {
+    with(green) {
       // "Sell a card for money."
-      sellPatents(1)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
-    green.turn {
+    with(green) {
       // "I'm going to play Lightning Harvest for all eight of my money. I do have the three
       // science tags I need." The same two wild tags satisfy the printed requirement.
-      playProject(LightningHarvest, 8)
+      doTasks(
+          *playCardTasks("$LightningHarvest"),
+          "8 Pay<> FROM MC",
+          "$LightningHarvest FROM ProjectCard",
+          "PROD[Energy]",
+          "PROD[MC]",
+      )
     }
-    green.pass()
+    green.doTask("Pass")
+
+    // Production.
+    green.doTasks("18 MC", "4 Energy", "Plant", "Heat FROM Energy")
+    yellow.doTask("6 MC", Pristar)
+    yellow.doTasks(
+        "23 MC",
+        "Preservation<$Pristar>",
+        "2 Energy",
+        "Steel",
+        "Heat",
+        "Titanium",
+        "2 Heat FROM Energy",
+    )
+    blue.doTasks("27 MC", "5 Energy", "Plant", "2 Heat", "6 Heat FROM Energy", "Titanium", "Steel")
 
     // Reds, Greens, and Unity each have three delegates. The existing marker therefore remains on
     // Greens, matching the spoken government formation and board-12-18-40.jpg.
@@ -439,14 +751,16 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       assertResources(m = 27, s = 1, t = 1, p = 2, e = 5, h = 10)
       assertCounts(22 to "TerraformRating")
     }
-
     // "Ellie does World Government ... ocean ... five seven." The Admin ocean awards Yellow no TR;
     // the Turmoil phase then begins at once, and its TR revision costs every player one.
-    yellow
-        .wgt("OceanTile<Vastitas_5_7>")
-        .expect(
-            "-1 TerraformRating<Yellow>, BioengineeringBoom, Distant<BioengineeringBoom>, PartyLeader<Greens, Neutral>"
-        )
+    expectChanges(
+        "-1 TerraformRating<Yellow>, BioengineeringBoom, Distant<BioengineeringBoom>, PartyLeader<Greens, Neutral>"
+    ) {
+      yellow.doTask("OceanTile<Vastitas_5_7>! BY Admin")
+      green.doTask("-0 MC")
+      yellow.doTask("-0 MC")
+      blue.doTask("-0 MC")
+    }
     // Mud Slides charges nobody because influence covers every adjacent owned tile. Greens forms
     // the government and Green becomes chairman.
     (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
@@ -460,6 +774,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         4 to "PartyDelegate<Unity>",
         1 to "Dominant<Unity>",
     )
+  }
+
+  private fun generation3() {
     // The three complete phone histories: Generation 3 before Research.
     with(green) {
       assertProduction(m = -3, s = 0, t = 0, p = 1, e = 4, h = 0)
@@ -485,89 +802,172 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         1 to "Distant<BioengineeringBoom>",
     )
 
-    // Generation 3 Research: all three players buy three projects.
-    green.buyCards(3)
-    yellow.buyCards(3)
-    blue.buyCards(3)
+    // Research.
+    green.doTask("4 ProjectCard<Selecting>")
+    yellow.doTask("4 ProjectCard<Selecting>")
+    blue.doTask("4 ProjectCard<Selecting>")
 
-    blue.turn {
+    // Generation 3 Research: all three players buy three projects.
+    green.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    yellow.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    blue.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+
+    with(blue) {
       // "I'm definitely spending three heat in order to gain four money. And ... that was Blue."
-      cardAction1(DirectedHeatUsage) { doTask("4 MC") }.expect("-3 Heat, 4 MC")
+      doTasks(*cardActionTasks("$DirectedHeatUsage"), "3 Pay<Class<Heat>> FROM Heat", "4 MC")
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I'm going to use my free action to put a dude into Mars First." The former Green chairman
       // and one non-leader Green delegate returned when Greens formed, so this placement is legal.
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<MarsFirst> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "Sponsored Academies. I pay nine. I pitch a card and draw three and everyone else gets
       // one."
-      playProject(SponsoredAcademies, 9)
+      doTasks(
+          *playCardTasks("$SponsoredAcademies"),
+          "9 Pay<> FROM MC",
+          "$SponsoredAcademies FROM ProjectCard",
+          "-ProjectCard",
+          "EACH Other@Player(NOT Yellow) { ProjectCard<Other@Player, Hand>! }",
+          "3 ProjectCard",
+          "ProjectCard<Green, Hand>",
+          "ProjectCard<Blue, Hand>",
+      )
       // "I guess I have Local Shading. Remove floater to gain money production."
-      cardAction2(LocalShading).expect("-Floater<$LocalShading>, PROD[MC]")
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
     }
-    blue.turn {
+    with(blue) {
       // "Blue ... spending eight money to get the Generalist."
-      claimMilestone(cn("Generalist")).expect("-8 MC, Generalist")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Generalist")
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I'm going to use my Septem Tribus action to take 10 money."
-      cardAction1(SeptemTribus).expect("10 MC")
+      doTasks(*cardActionTasks("$SeptemTribus"), "10 MC")
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "I spend two titanium and six real on Space Hotels. Increase money production four
       // steps." Sponsored Academies supplies one Earth tag; Applied Science's wild tag is the
       // second Earth tag for the requirement.
-      playProject(SpaceHotels, 6, titanium = 2)
+      doTasks(
+          *playCardTasks("$SpaceHotels"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "6 Pay<> FROM MC",
+          "$SpaceHotels FROM ProjectCard",
+          "PROD[4 MC]",
+      )
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // "Blue is spending one steel and seven money ... Natural Preserve ... up here for two
       // steel."
-      playProject(NaturalPreserve, 7, steel = 1) { placeTile(4, 1) }
+      doTasks(
+          *playCardTasks("$NaturalPreserve"),
+          "1 Pay<Class<Steel>> FROM Steel",
+          "7 Pay<> FROM MC",
+          "$NaturalPreserve FROM ProjectCard",
+          "PROD[MC]",
+          "NaturalPreserve_SpecialTile<Vastitas_4_1>",
+          "2 Steel",
+      )
       // "For my second action, I'm going to pay eight money ... Producer."
-      claimMilestone(cn("Producer")).expect("-8 MC, Producer")
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Producer")
     }
-    green.turn {
+    with(green) {
       // "Water Splitting Plant. We have the two oceans. I pay the 12 money."
-      playProject(WaterSplittingPlant, 12)
+      doTasks(
+          *playCardTasks("$WaterSplittingPlant"),
+          "12 Pay<> FROM MC",
+          "$WaterSplittingPlant FROM ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "Apply Science floater onto Local Shading. And I will pay two steel for Mine to get a
       // steel production."
-      cardAction1(AppliedScience) { addCardResources(LocalShading) }
-      playProject(Mine, steel = 2)
+      doTasks(
+          *cardActionTasks("$AppliedScience"),
+          "-Science<$AppliedScience>",
+          "Floater<$LocalShading>",
+      )
+      doTasks(
+          *playCardTasks("$Mine"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "Ok", // No M€ needed after paying with steel.
+          "$Mine FROM ProjectCard",
+          "PROD[Steel]",
+      )
     }
-    blue.turn {
+    with(blue) {
       // "Blue, spending five energy for five cards. And I will keep one."
-      cardAction1(TychoMagnetics, x = 5).expect("-5 Energy, ProjectCard")
+      doTasks(
+          *cardActionTasks("$TychoMagnetics"),
+          "-5 Energy",
+          "5 ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "Use my Water Splitting Plant, spend three energy, raise oxygen to three, and get a TR."
-      cardAction1(WaterSplittingPlant).expect("-3 Energy, OxygenStep, TerraformRating")
+      doTasks(
+          *cardActionTasks("$WaterSplittingPlant"),
+          "3 Pay<Class<Energy>> FROM Energy",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "I add a delegate in Unity ... for an influence."
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Unity> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Unity> FROM LobbyDelegate")
       // "Red Appeasement for zero ... gain two money production and this counts as me passing."
-      playProject(RedAppeasement, 0).expect("PROD[2 MC], Pass")
+      doTasks(*playCardTasks("$RedAppeasement"), "$RedAppeasement FROM ProjectCard", "PROD[2 MC]")
+      doTask("Pass")
     }
-    blue.turn {
+    with(blue) {
       // "Blue is going to send her lobbyist to ... Greens."
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Greens> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I'm going to use Orbital Cleanup ... and get four money." Green again chooses both wild
       // tags as Science.
-      cardAction1(OrbitalCleanup).expect("4 MC")
+      doTasks(*cardActionTasks("$OrbitalCleanup"), "4 MC")
+      doTask("PassBaton")
     }
-    blue.pass()
-    green.pass()
+    blue.doTask("Pass")
+    green.doTask("Pass")
+
+    // Production.
+    green.doTasks("19 MC", "4 Energy", "Plant", "Heat FROM Energy")
+    yellow.doTask("6 MC", Pristar)
+    yellow.doTasks(
+        "29 MC",
+        "Preservation<$Pristar>",
+        "2 Energy",
+        "2 Steel",
+        "Heat",
+        "Titanium",
+        "2 Heat FROM Energy",
+    )
+    blue.doTasks("27 MC", "5 Energy", "Plant", "2 Heat", "Titanium", "Steel")
 
     // board-12-36-50.jpg and the phone histories show these complete physical ledgers after
     // production and before World Government or Turmoil. Yellow's phone still reads 40 M€ because
@@ -590,14 +990,17 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       assertCounts(21 to "TerraformRating")
     }
     assertSidebar(gen = 3, temp = -24, oxygen = 3, oceans = 2, venus = 0)
-
     // "Why not Venus? Venus it is. ... Venus is now at two." The Turmoil phase follows at once:
     // Blue loses one TR to revision and regains it as chairman.
-    blue
-        .wgt("VenusStep")
-        .expect(
-            "0 TerraformRating<Blue>, FreeAcademiaTreaty, Distant<FreeAcademiaTreaty>, PartyFollower<Scientists, Neutral>"
-        )
+    expectChanges(
+        "0 TerraformRating<Blue>, FreeAcademiaTreaty, Distant<FreeAcademiaTreaty>, PartyFollower<Scientists, Neutral>"
+    ) {
+      blue.doTask("VenusStep! BY Admin")
+      green.doTasks("0 MC", "6 MC")
+      yellow.selectTask("2! MC<Yellow> / VenusTag<Yellow> MAX 5")
+      yellow.doTasks("2 MC", "2 MC")
+      blue.doTasks("0 MC", "4 MC")
+    }
     // Venus Infrastructure pays Green 6 M€, Yellow 4 M€, and Blue 4 M€ from their recorded
     // Venus tags and influence. Unity then pays 1/3/2 M€ for planetary tags and makes Blue
     // chairman. Diversity—the event headed "Free Academia Treaty"—is revealed with its neutral
@@ -605,7 +1008,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
     admin.count("Distant<FreeAcademiaTreaty>") shouldBe 1
     (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
+  }
 
+  private fun generation4() {
     // Complete Generation 3 Solar ledgers.
     with(green) {
       assertProduction(m = -3, s = 0, t = 0, p = 1, e = 4, h = 0)
@@ -631,114 +1036,266 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         1 to "Distant<FreeAcademiaTreaty>",
     )
 
+    // Research.
+    green.doTask("4 ProjectCard<Selecting>")
+    yellow.doTask("4 ProjectCard<Selecting>")
+    blue.doTask("4 ProjectCard<Selecting>")
+
     // Generation 4 Research: Green buys zero, Yellow buys one, and Blue buys three. The complete
     // ledgers disambiguate which voice owns each purchase.
-    green.buyCards(0)
-    yellow.buyCards(1)
-    blue.buyCards(3)
+    green.doTask("-4 ProjectCard<Selecting>")
+    yellow.doTasks(
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "1 ProjectCard<Hand FROM Selecting>",
+    )
+    blue.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
 
-    green.turn {
+    with(green) {
       // "Cultural Metropolis, for 20. No discounts." The photographed city at Vastitas 6-9
       // supplies the recorded two titanium and two M€ placement bonuses.
-      playProject(CulturalMetropolis, 20) {
-        placeTile(6, 9)
-        doTask("PartyFollower<Reds>")
-        doTask("PartyLeader<Reds>")
-      }
+      doTasks(
+          *playCardTasks("$CulturalMetropolis"),
+          "20 Pay<> FROM MC",
+          "$CulturalMetropolis FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[3 MC]",
+          "CityTile<Vastitas_6_9>",
+          "2 Titanium",
+          "2 MC",
+          "PartyFollower<Reds>",
+          "PartyLeader<Reds>",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "I'm gonna go place my free delegate in Punity." The board photo shows that the otherwise
       // unlabeled speaker placed Yellow's delegate, not Green's.
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyLeader<Unity> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Unity> FROM LobbyDelegate")
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // "Mining Area. I'm going to pay two steel for it."
-      playProject(MiningArea, steel = 2) { placeTile(4, 2) }
+      doTasks(
+          *playCardTasks("$MiningArea"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "Ok", // No M€ needed after paying with steel.
+          "$MiningArea FROM ProjectCard",
+          "MiningArea_SpecialTile<Vastitas_4_2>",
+          "Production<Class<Metal>(HAS PlacementBonus<LandArea(HAS MiningArea_SpecialTile)>)>",
+          "Titanium",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I am going to design some microorganisms. Pay 16 ... two plant production."
-      playProject(DesignedMicroorganisms, 16)
+      doTasks(
+          *playCardTasks("$DesignedMicroorganisms"),
+          "16 Pay<> FROM MC",
+          "$DesignedMicroorganisms FROM ProjectCard",
+          "PROD[2 Plant]",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "I'm gonna pay six for Archaebacteria, for a plant production."
-      playProject(Archaebacteria, 6)
+      doTasks(
+          *playCardTasks("$Archaebacteria"),
+          "6 Pay<> FROM MC",
+          "$Archaebacteria FROM ProjectCard",
+          "PROD[Plant]",
+      )
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // "Asteroid Hollowing ... I need one titanium to actually put on the card, so I'll take one
       // back and pay four more money." Final payment was two titanium and eight M€.
-      playProject(AsteroidHollowing, 8, titanium = 2)
+      doTasks(
+          *playCardTasks("$AsteroidHollowing"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "8 Pay<> FROM MC",
+          "$AsteroidHollowing FROM ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I will use Orbital Cleanup to get five money."
-      cardAction1(OrbitalCleanup).expect("5 MC")
+      doTasks(*cardActionTasks("$OrbitalCleanup"), "5 MC")
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "Security Fleet for 12." "I'm gonna spend a titanium to put a fighter on it."
-      playProject(SecurityFleet, 12)
-      cardAction1(SecurityFleet)
+      doTasks(
+          *playCardTasks("$SecurityFleet"),
+          "Ok", // No titanium paid.
+          "12 Pay<> FROM MC",
+          "$SecurityFleet FROM ProjectCard",
+      )
+      doTasks(
+          *cardActionTasks("$SecurityFleet"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Fighter<$SecurityFleet>",
+      )
     }
-    blue.turn {
-      cardAction1(AsteroidHollowing)
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$AsteroidHollowing"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Asteroid<$AsteroidHollowing>",
+          "PROD[MC]",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "Free lobby into Kelvinists"; then "Sponsored Mohole for five ... two heat production."
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyLeader<Kelvinists> FROM LobbyDelegate")
-      }
-      playProject(SponsoredMohole, 5)
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Kelvinists> FROM LobbyDelegate")
+      doTasks(
+          *playCardTasks("$SponsoredMohole"),
+          "5 Pay<> FROM MC",
+          "$SponsoredMohole FROM ProjectCard",
+          "PROD[2 Heat]",
+      )
     }
-    yellow.turn {
+    with(yellow) {
       // "Research Coordination for four. And then Interplanetary Trade." Its nine-step increase
       // brings Yellow's M€ production from nine to the photographed 18.
-      playProject(ResearchCoordination, 4)
-      inTurn {
-            doWithAutoExecPolicy(SOLE_TASK) {
-              playProject(InterplanetaryTrade, 27) {
-                doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
-                doTask("JovianTag<WildTagElection<WildTag<AppliedScience>>>")
-                doTask("PlantTag<WildTagElection<WildTag<ResearchCoordination>>>")
-              }
-            }
-          }
-          .expect("PROD[9 MC]")
+      doTasks(
+          *playCardTasks("$ResearchCoordination"),
+          "4 Pay<> FROM MC",
+          "$ResearchCoordination FROM ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("$InterplanetaryTrade"),
+          "27 Pay<> FROM MC",
+          "$InterplanetaryTrade FROM ProjectCard",
+          "EACH @WildTagElection { Tag<@WildTagElection>? }",
+          "JovianTag<WildTagElection<WildTag<$AppliedScience>>>",
+          "PlantTag<WildTagElection<WildTag<$ResearchCoordination>>>",
+          "PROD[9 MC]",
+      )
     }
-    blue.turn {
+    with(blue) {
       // "Bioprinting Facility ... one steel and five money." "Spend two energy, gain two plants."
-      playProject(BioPrintingFacility, 5, steel = 1)
-      cardAction1(BioPrintingFacility) { doTask("2 Plant") }
+      doTasks(
+          *playCardTasks("$BioPrintingFacility"),
+          "1 Pay<Class<Steel>> FROM Steel",
+          "5 Pay<> FROM MC",
+          "$BioPrintingFacility FROM ProjectCard",
+      )
+      doTasks(
+          *cardActionTasks("$BioPrintingFacility"),
+          "2 Pay<Class<Energy>> FROM Energy",
+          "2 Plant",
+      )
     }
-    green.turn { cardAction1(SeptemTribus).expect("8 MC") }
-    yellow.turn {
-      cardAction1(SearchForLife) { declineTask() }.expect("-MC, 0 Science")
+
+    with(green) {
+      doTasks(*cardActionTasks("$SeptemTribus"), "8 MC")
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(yellow) {
+      doTasks(
+              *cardActionTasks("$SearchForLife"),
+              "Pay<> FROM MC",
+              "ProjectCard<Revealed>",
+              "Ok", // No microbe tag was revealed.
+              "-ProjectCard<Revealed>",
+          )
+          .expect("0 Science")
+      doTask("PassBaton")
+    }
+    with(blue) {
       // Blue's ledger separately records two energy for Bioprinting and one here for Tycho.
-      cardAction1(TychoMagnetics, x = 1)
+      doTasks(
+          *cardActionTasks("$TychoMagnetics"),
+          "-Energy",
+          "ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      cardAction1(WaterSplittingPlant).expect("-3 Energy, OxygenStep, TerraformRating")
+    with(green) {
+      doTasks(
+          *cardActionTasks("$WaterSplittingPlant"),
+          "3 Pay<Class<Energy>> FROM Energy",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
-      cardAction2(LocalShading).expect("-Floater<$LocalShading>, PROD[MC]")
+    with(yellow) {
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTask("PassBaton")
     }
-    blue.turn {
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Greens> FROM LobbyDelegate")
-      }
+    with(blue) {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
+      doTask("PassBaton")
     }
-    green.pass()
-    yellow.turn { cardAction1(AppliedScience) { addCardResources(SecurityFleet) } }
-    blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
-    yellow.pass()
-    blue.turn {
+    green.doTask("Pass")
+
+    with(yellow) {
+      doTasks(
+          *cardActionTasks("$AppliedScience"),
+          "-Science<$AppliedScience>",
+          "Fighter<$SecurityFleet>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(*cardActionTasks("$DirectedHeatUsage"), "3 Pay<Class<Heat>> FROM Heat", "4 MC")
+      doTask("PassBaton")
+    }
+    yellow.doTask("Pass")
+    with(blue) {
       // "Business Contacts for seven"; the two retained projects are not named in the record.
-      playProject(BusinessContacts, 7)
-      playProject(RadChemFactory, 8)
+      doTasks(
+          *playCardTasks("$BusinessContacts"),
+          "7 Pay<> FROM MC",
+          "$BusinessContacts FROM ProjectCard",
+          "4 ProjectCard<Selecting>",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
+      doTasks(
+          *playCardTasks("$RadChemFactory"),
+          "8 Pay<> FROM MC",
+          "$RadChemFactory FROM ProjectCard",
+          "PROD[-Energy]",
+          "2 TerraformRating",
+      )
     }
-    blue.turn { sellPatents(2) }
-    blue.pass()
+
+    with(blue) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
+    }
+    blue.doTask("Pass")
+
+    // Production.
+    green.doTasks("22 MC", "3 Energy", "3 Plant", "Heat FROM Energy", "2 Heat")
+    yellow.doTask("6 MC", Pristar)
+    yellow.doTasks(
+        "38 MC",
+        "Preservation<$Pristar>",
+        "2 Energy",
+        "2 Steel",
+        "Heat",
+        "Titanium",
+        "2 Heat FROM Energy",
+        "Plant",
+    )
+    blue.doTasks(
+        "30 MC",
+        "4 Energy",
+        "Plant",
+        "2 Heat",
+        "2 Titanium",
+        "Steel",
+        "2 Heat FROM Energy",
+    )
 
     // Yellow added Pristar's preservation resource, which is visible when Sponsored Projects is
     // resolved, but neither the complete ledger nor the spoken production includes its 6 M€.
@@ -762,21 +1319,28 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       assertCounts(23 to "TerraformRating")
     }
     assertSidebar(gen = 4, temp = -24, oxygen = 4, oceans = 2, venus = 2)
-
     // "World Government ... oxygen." Sponsored Projects resolves before Reds form government;
     // the automatic Turmoil phase then advances Spin-Off Products and Diversity. The newly drawn
     // card is Improved Energy Templates, headed "Second Energy Crisis" in the physical deck.
-    green
-        .wgt("OxygenStep")
-        .expect(
-            "OxygenStep, SecondEnergyCrisis, Distant<SecondEnergyCrisis>, 2 PartyFollower<Scientists, Neutral>"
-        )
+    expectChanges(
+        "SecondEnergyCrisis, Distant<SecondEnergyCrisis>, 2 PartyFollower<Scientists, Neutral>"
+    ) {
+      green.doTask("OxygenStep! BY Admin")
+      green.doTasks(
+          "EACH Card@ResourceHolder<Player>(HAS CardResource) { CardResource<Card@ResourceHolder>* BY Admin }",
+          "3 ProjectCard",
+      )
+      yellow.doTask("ProjectCard")
+      blue.doTask("ProjectCard")
+    }
     // At 6:38:48 pm, the table notes that Search for Life has no science to receive a bonus.
     yellow.assertCardResources(0 to SearchForLife)
     (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
     admin.count("Distant<SecondEnergyCrisis>") shouldBe 1
     (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
+  }
 
+  private fun generation5() {
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 2, venus = 2)
     admin.assertCounts(
         1 to "Ruling<Reds>",
@@ -790,97 +1354,316 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.assertCounts(10 to "ProjectCard")
     green.assertCounts(14 to "ProjectCard")
 
+    // Research.
+    green.doTask("4 ProjectCard<Selecting>")
+    yellow.doTask("4 ProjectCard<Selecting>")
+    blue.doTask("4 ProjectCard<Selecting>")
+
     // Generation 5 Research after the dinner break: Yellow and Green buy three; Blue buys one.
-    yellow.buyCards(3)
-    blue.buyCards(1)
+    yellow.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    blue.doTasks(
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "1 ProjectCard<Hand FROM Selecting>",
+    )
     // Blue says she buys one, but Blue's continuous ledger has no 3 M€ purchase and every later
     // payment reaches the photographed balance only if that charge was missed physically.
     blue.exMachina("3 MC")
-    green.buyCards(3)
+    green.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
 
-    yellow.turn { fundAward(cn("Collector"), 8) }
-    blue.turn {
+    with(yellow) {
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Collector")
+      doTask("PassBaton")
+    }
+    with(blue) {
       // "Blue is going to pay most of her money, 22, to build Stratopolis."
-      playProject(Stratopolis, 22)
+      doTasks(
+          *playCardTasks("$Stratopolis"),
+          "22 Pay<> FROM MC",
+          "$Stratopolis FROM ProjectCard",
+          "PROD[2 MC]",
+          "NormalCityTile<Stratopolis_RemoteArea>",
+      )
       // The physical game omitted Stratopolis's two M€ production; Blue's ledger and the
       // board-21-13-22.jpg production track both retain eight.
       exMachina("PROD[-2 MC]")
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "I'm going to put my free delegate in reds."
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyLeader<Reds> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Reds> FROM LobbyDelegate")
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // Dusk Laser Mining: one titanium and five M€. Satellites: three titanium and one M€.
-      playProject(DuskLaserMining, 5, titanium = 1)
-      playProject(Satellites, 1, titanium = 3).expect("PROD[7 MC]")
+      doTasks(
+          *playCardTasks("$DuskLaserMining"),
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "5 Pay<> FROM MC",
+          "$DuskLaserMining FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[Titanium]",
+          "4 Titanium",
+      )
+      doTasks(
+          *playCardTasks("$Satellites"),
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "1 Pay<> FROM MC",
+          "$Satellites FROM ProjectCard",
+          "PROD[7 MC]",
+      )
     }
-    blue.turn { cardAction1(AsteroidHollowing) }
-    green.turn { playProject(EarthCatapult, 23) }
-    yellow.turn { cardAction1(SecurityFleet) }
-    blue.turn { sellPatents(2) }
-    green.turn { playProject(MercurianAlloys, 1) }
-    yellow.turn { cardAction2(LocalShading) }
-    blue.turn {
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<MarsFirst> FROM LobbyDelegate")
-      }
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$AsteroidHollowing"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Asteroid<$AsteroidHollowing>",
+          "PROD[MC]",
+      )
+      doTask("PassBaton")
     }
-    green.turn { cardAction1(SeptemTribus).expect("8 MC") }
-    yellow.turn {
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$EarthCatapult"),
+          "23 Pay<> FROM MC",
+          "$EarthCatapult FROM ProjectCard",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *cardActionTasks("$SecurityFleet"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Fighter<$SecurityFleet>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$MercurianAlloys"),
+          "Ok", // No titanium paid.
+          "1 Pay<> FROM MC",
+          "$MercurianAlloys FROM ProjectCard",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTask("PassBaton")
+    }
+    with(blue) {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(*cardActionTasks("$SeptemTribus"), "8 MC")
+      doTask("PassBaton")
+    }
+    with(yellow) {
       // Symbiotic Fungus is revealed, so Search for Life succeeds.
-      cardAction1(SearchForLife) {
-        doTask("ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
-      }
+      doTasks(
+          *cardActionTasks("$SearchForLife"),
+          "Pay<> FROM MC",
+          "ProjectCard<Revealed>",
+          "ClaimCardReward<TagFilter<Class<MicrobeTag>>, $SearchForLife>",
+          "-ProjectCard<Revealed>",
+      )
+      doTask("PassBaton")
     }
-    blue.turn { cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) } }
-    green.turn {
+
+    with(blue) {
+      doTasks(*cardActionTasks("$Stratopolis"), "2 Floater<$Stratopolis>")
+      doTask("PassBaton")
+    }
+    with(green) {
       // Earth Catapult reduces Deuterium Export to nine; Mercurian Alloys makes each titanium
       // worth four, so the recorded payment is two titanium and one M€.
-      playProject(DeuteriumExport, 1, titanium = 2)
+      doTasks(
+          *playCardTasks("$DeuteriumExport"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "1 Pay<> FROM MC",
+          "$DeuteriumExport FROM ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn { cardAction1(AppliedScience) { addCardResources(SecurityFleet) } }
-    blue.turn {
-      playProject(AsteroidDeflectionSystem, 8, steel = 1, titanium = 1)
+
+    with(yellow) {
+      doTasks(
+          *cardActionTasks("$AppliedScience"),
+          "-Science<$AppliedScience>",
+          "Fighter<$SecurityFleet>",
+      )
+      doTask("PassBaton")
+    }
+    with(blue) {
+      doTasks(
+          *playCardTasks("$AsteroidDeflectionSystem"),
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "1 Pay<Class<Steel>> FROM Steel",
+          "8 Pay<> FROM MC",
+          "$AsteroidDeflectionSystem FROM ProjectCard",
+          "PROD[-Energy]",
+      )
       // The physical game also omitted Asteroid Deflection System's energy-production decrease.
       exMachina("PROD[Energy]")
+      doTask("PassBaton")
     }
-    green.turn { cardAction1(DeuteriumExport) }
-    yellow.turn { playProject(ImportOfAdvancedGhg, 9) }
-    blue.turn { playProject(DustSeals, 2) }
-    green.turn {
-      cardAction1(OrbitalCleanup).expect("5 MC")
+
+    with(green) {
+      doTasks(*cardActionTasks("$DeuteriumExport"), "Floater<$DeuteriumExport>")
+      doTask("PassBaton")
     }
-    yellow.turn { playProject(RedShips, 2) }
-    blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
-    green.turn {
-      playProject(HeatTrappers, 4) { doTask("PROD[-2 Heat<Yellow>]") }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$ImportOfAdvancedGhg"),
+          "9 Pay<> FROM MC",
+          "$ImportOfAdvancedGhg FROM ProjectCard",
+          "PROD[2 Heat]",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn { playProject(GhgFactories, 3, steel = 4) }
-    blue.turn {
+
+    with(blue) {
+      doTasks(*playCardTasks("$DustSeals"), "2 Pay<> FROM MC", "$DustSeals FROM ProjectCard")
+      doTask("PassBaton")
+    }
+    with(green) {
+      doTasks(*cardActionTasks("$OrbitalCleanup"), "5 MC")
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(*playCardTasks("$RedShips"), "2 Pay<> FROM MC", "$RedShips FROM ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(*cardActionTasks("$DirectedHeatUsage"), "3 Pay<Class<Heat>> FROM Heat", "4 MC")
+      doTask("PassBaton")
+    }
+    with(green) {
+      doTasks(
+          *playCardTasks("$HeatTrappers"),
+          "4 Pay<> FROM MC",
+          "$HeatTrappers FROM ProjectCard",
+          "PROD[Energy]",
+          "PROD[-2 Heat<Yellow>]",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$GhgFactories"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "3 Pay<> FROM MC",
+          "$GhgFactories FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[4 Heat]",
+      )
+      doTask("PassBaton")
+    }
+    with(blue) {
       // Venus Shuttles has no Space tag, so the reveal adds no asteroid.
-      cardAction1(AsteroidDeflectionSystem) { declineTask() }
+      doTasks(
+          *cardActionTasks("$AsteroidDeflectionSystem"),
+          "ProjectCard<Revealed>",
+          "Ok", // No space tag was revealed.
+          "-ProjectCard<Revealed>",
+      )
+      doTask("PassBaton")
     }
-    green.turn { playProject(CarbonateProcessing, 4) }
-    yellow.turn { cardAction1(RedShips).expect("MC") }
-    blue.turn {
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyLeader<MarsFirst>") }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$CarbonateProcessing"),
+          "4 Pay<> FROM MC",
+          "$CarbonateProcessing FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[3 Heat]",
+      )
+      doTask("PassBaton")
     }
-    green.turn { playProject(Supercapacitors, 2) }
-    yellow.turn {
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Greens> FROM LobbyDelegate")
-      }
+
+    with(yellow) {
+      doTasks(*cardActionTasks("$RedShips"), "MC")
+      doTask("PassBaton")
     }
-    blue.turn { cardAction1(TychoMagnetics, x = 2) }
-    green.pass()
-    yellow.pass()
-    blue.turn { cardAction1(BioPrintingFacility) { doTask("2 Plant") } }
-    blue.pass()
+    with(blue) {
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<MarsFirst>")
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$Supercapacitors"),
+          "2 Pay<> FROM MC",
+          "$Supercapacitors FROM ProjectCard",
+          "PROD[MC]",
+      )
+      doTask("PassBaton")
+    }
+    with(yellow) {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$TychoMagnetics"),
+          "-2 Energy",
+          "2 ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTask("PassBaton")
+    }
+    green.doTask("Pass")
+    yellow.doTask("Pass")
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$BioPrintingFacility"),
+          "2 Pay<Class<Energy>> FROM Energy",
+          "2 Plant",
+      )
+    }
+    blue.doTask("Pass")
+
+    // Production.
+    green.doTasks("23 MC", "3 Energy", "3 Plant", "3 Heat FROM Energy", "5 Heat")
+    yellow.doTask("6 MC", Pristar)
+    yellow.doTasks(
+        "46 MC",
+        "Preservation<$Pristar>",
+        "2 Steel",
+        "5 Heat",
+        "2 Titanium",
+        "2 Heat FROM Energy",
+        "Plant",
+    )
+    blue.doTasks("30 MC", "4 Energy", "Plant", "2 Heat", "2 Titanium", "Steel")
     // Green's photographed post-production energy and heat show that Supercapacitors was declined.
-    green.declineTask()
+    green.doTask("Ok") // Keep the energy on Supercapacitors.
     with(green) {
       assertProduction(m = 1, s = 0, t = 0, p = 3, e = 3, h = 5)
       assertResources(m = 27, s = 0, t = 0, p = 9, e = 3, h = 13)
@@ -903,11 +1686,15 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // sees Yellow's chairman TR from the preceding Solar transition.
     yellow.exMachina("6 MC")
     // The Admin ocean awards Yellow no TR; the Turmoil phase's TR revision then costs one.
-    yellow
-        .wgt("OceanTile<Vastitas_4_3>")
-        .expect(
-            "-1 TerraformRating<Yellow>, WorldGovernmentDirectives, Distant<WorldGovernmentDirectives>, PartyFollower<Unity, Neutral>"
-        )
+    expectChanges(
+        "-1 TerraformRating<Yellow>, WorldGovernmentDirectives, Distant<WorldGovernmentDirectives>, PartyFollower<Unity, Neutral>"
+    ) {
+      yellow.doTask("OceanTile<Vastitas_4_3>! BY Admin")
+      green.selectTask("2! MC<Green> / ScienceTag<Green> MAX 5")
+      green.doTasks("6 MC", "6 MC")
+      yellow.doTasks("6 MC", "0 MC")
+      blue.doTasks("4 MC", "0 MC")
+    }
     // Spin-Off Products and the Scientists ruling bonus pay for science tags. Diversity becomes
     // current, Improved Energy Templates becomes coming, and Revolution is revealed.
     admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
@@ -919,7 +1706,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // likeliest entry mistake is therefore recording both announced event awards for Blue while
     // omitting Blue's own 2 M€ ruling bonus, a net overpayment of four.
     blue.exMachina("4 MC")
+  }
 
+  private fun generation6() {
     with(green) {
       assertResources(m = 42, s = 0, t = 0, p = 9, e = 3, h = 13)
       assertCounts(21 to "TerraformRating")
@@ -934,159 +1723,406 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 6, temp = -24, oxygen = 5, oceans = 3, venus = 2)
 
-    // Generation 6 Research: Blue buys two, Green three, and Yellow four.
-    blue.buyCards(2)
-    green.buyCards(3)
-    yellow.buyCards(4)
+    // Research.
+    green.doTask("4 ProjectCard<Selecting>")
+    yellow.doTask("4 ProjectCard<Selecting>")
+    blue.doTask("4 ProjectCard<Selecting>")
 
-    blue.turn {
-      cardAction1(AsteroidHollowing)
+    // Generation 6 Research: Blue buys two, Green three, and Yellow four.
+    blue.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    green.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    yellow.doTasks(
+        "Ok", // Keep all four Research cards.
+        "12 Pay<> FROM MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    )
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$AsteroidHollowing"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Asteroid<$AsteroidHollowing>",
+          "PROD[MC]",
+      )
       // Asteroid Hollowing should raise M€ production from eight to nine. The phone next records
       // Food Factory raising it directly from eight to twelve, so Blue added the asteroid and spent
       // the titanium but omitted this production step.
       exMachina("PROD[-MC]")
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "Which cost me five. And then I'm going to raise Venus to four percent."
-      playProject(OptimalAerobraking, 5)
+      doTasks(
+          *playCardTasks("$OptimalAerobraking"),
+          "5 Pay<> FROM MC",
+          "$OptimalAerobraking FROM ProjectCard",
+      )
       // Green's phone omitted this spoken five-M€ payment; preserve its continuous balance.
       exMachina("5 MC")
-      playProject(CometForVenus, 9) { declineTask() }
+
+      doTasks(
+          *playCardTasks("$CometForVenus"),
+          "9 Pay<> FROM MC",
+          "$CometForVenus FROM ProjectCard",
+          "VenusStep",
+          "3 MC",
+          "3 Heat",
+          "TerraformRating",
+          "Ok", // Do not remove another player’s M€.
+      )
     }
-    yellow.turn {
-      convertHeat()
-      convertHeat()
+    with(yellow) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+          "PROD[Heat]",
+      )
     }
-    blue.turn { convertHeat() }
+
+    with(blue) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
 
     // The transcript resumes with Yellow although Green had not passed. To preserve legal turn
     // order, Green's next narrated action is advanced into that skipped physical turn; the
     // remaining Green actions stay in their sourced order through the otherwise silent Toll
     // Station play.
-    green.turn {
+    with(green) {
       // "I'm gonna plant forest. Obviously here on 6-8 for one plant and four money."
-      convertPlants { placeTile(6, 8) }
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_6_8>",
+          "OxygenStep",
+          "Plant",
+          "2 MC",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "I'm going to envoys from Venus ... put two delegates in one party ... unity."
-      playProject(EnvoysFromVenus, 1) {
-        doTask("PartyFollower<Unity>")
-        doTask("PartyFollower<Unity>")
-      }
+      doTasks(
+          *playCardTasks("$EnvoysFromVenus"),
+          "1 Pay<> FROM MC",
+          "$EnvoysFromVenus FROM ProjectCard",
+          "PartyFollower<Unity>",
+          "PartyFollower<Unity>",
+      )
       // board-21-13-22.jpg shows Yellow leading an otherwise empty player delegation in Unity
       // before Generation 6. Yellow then announces placing two Yellow Envoys delegates there, but
       // board-21-53-02.jpg instead shows Green as leader with another Green non-leader, while the
       // displaced original Yellow leader remains as Yellow's only Unity delegate. The exact color
       // counts show that the two Envoys cubes were physically taken from Green's supply.
       exMachina("-2 PartyFollower<Unity>")
+
       green.exMachina("PartyFollower<Unity>, PartyLeader<Unity>")
+
       // The table called Envoys free, and Yellow's ledger contains no payment.
       exMachina("MC")
-      playProject(EcologicalZone, 12) {
-        placeTile(4, 8)
-        doTask("PartyFollower<Greens>")
-      }
+
+      doTasks(
+          *playCardTasks("$EcologicalZone"),
+          "12 Pay<> FROM MC",
+          "$EcologicalZone FROM ProjectCard",
+          "Animal<$EcologicalZone>",
+          "Animal<$EcologicalZone>",
+          "EcologicalZone_SpecialTile<Vastitas_4_8>",
+          "2 MC",
+          "PartyFollower<Greens>",
+      )
     }
-    blue.turn {
+    with(blue) {
       // "One steel as two money. And then 10 monies ... to play Food Factory."
-      playProject(FoodFactory, 10, steel = 1)
+      doTasks(
+          *playCardTasks("$FoodFactory"),
+          "1 Pay<Class<Steel>> FROM Steel",
+          "10 Pay<> FROM MC",
+          "$FoodFactory FROM ProjectCard",
+          "PROD[-Plant]",
+          "PROD[4 MC]",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      playProject(MartianLumberCorp, 4)
+    with(green) {
+      doTasks(
+          *playCardTasks("$MartianLumberCorp"),
+          "4 Pay<> FROM MC",
+          "$MartianLumberCorp FROM ProjectCard",
+          "PROD[Plant]",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // Scientists' ruling policy: "I suppose I'll spend ten to draw three cards."
-      stdAction("UseAction<ScientistsPolicy, Action1>").expect("-10 MC, 3 ProjectCard")
+      doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+      doTask("PassBaton")
     }
-    blue.turn { playProject(ReleaseOfInertGases, 14) }
-    green.turn {
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Scientists> FROM LobbyDelegate")
-      }
+
+    with(blue) {
+      doTasks(
+          *playCardTasks("$ReleaseOfInertGases"),
+          "14 Pay<> FROM MC",
+          "$ReleaseOfInertGases FROM ProjectCard",
+          "2 TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(green) {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
+      doTask("PassBaton")
+    }
+    with(yellow) {
       // Summit Logistics: two steel, one titanium, three M€, then five planetary tags.
-      playProject(SummitLogistics, 3, steel = 2, titanium = 1).expect("2 MC")
+      doTasks(
+          *playCardTasks("$SummitLogistics"),
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "2 Pay<Class<Steel>> FROM Steel",
+          "3 Pay<> FROM MC",
+          "$SummitLogistics FROM ProjectCard",
+          "5 MC",
+          "2 ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    blue.turn { cardAction1(BioPrintingFacility) { doTask("2 Plant") } }
-    green.turn {
-      playProject(AdvancedEcosystems, 9)
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$BioPrintingFacility"),
+          "2 Pay<Class<Energy>> FROM Energy",
+          "2 Plant",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn { playProject(DiversitySupport, 1) }
-    blue.turn {
+    with(green) {
+      doTasks(
+          *playCardTasks("$AdvancedEcosystems"),
+          "9 Pay<> FROM MC",
+          "$AdvancedEcosystems FROM ProjectCard",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$DiversitySupport"),
+          "1 Pay<> FROM MC",
+          "$DiversitySupport FROM ProjectCard",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+    with(blue) {
       // Stanford Tours has a Space tag, so the reveal adds an asteroid.
-      cardAction1(AsteroidDeflectionSystem) {
-        doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
-      }
+      doTasks(
+          *cardActionTasks("$AsteroidDeflectionSystem"),
+          "ProjectCard<Revealed>",
+          "ClaimCardReward<TagFilter<Class<SpaceTag>>, $AsteroidDeflectionSystem>",
+          "-ProjectCard<Revealed>",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // "Remove a floater ... and gain an energy production." This is Deuterium Export's second
       // action; it supplies Green ledger entry 151 without any state repair.
-      cardAction2(DeuteriumExport).expect("-Floater<$DeuteriumExport>, PROD[Energy]")
+      doTasks(
+          *cardActionTasks("$DeuteriumExport", "Action2"),
+          "-Floater<$DeuteriumExport>",
+          "PROD[Energy]",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+    with(yellow) {
       // "Moholy Lake, 31"; Yellow explicitly kept the two available steel.
-      playProject(MoholeLake, 31) { placeTile(6, 7) }
+      doTasks(
+          *playCardTasks("$MoholeLake"),
+          "31 Pay<> FROM MC",
+          "$MoholeLake FROM ProjectCard",
+          "TemperatureStep",
+          "3 Plant",
+          "TerraformRating",
+          "OceanTile<Vastitas_6_7>",
+          "TerraformRating",
+          "ProjectCard",
+          "2 MC",
+      )
+      doTask("PassBaton")
     }
-    blue.turn { cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) } }
-    // The wrong-color Envoys placement above supplies Green's photographed Unity representation
-    // and the fifth party counted by this Septem Tribus action.
-    green.turn { cardAction1(SeptemTribus).expect("10 MC") }
-    yellow.turn {
-      playProject(AstraMechanica, 7) {
-        doWithoutAutoExec(yellow) {
-          doTask("ProjectCard FROM PlayedEvent<Class<$DiversitySupport>>")
-          doTask("ProjectCard FROM PlayedEvent<Class<$EnvoysFromVenus>>")
-        }
-      }
-      playProject(DiversitySupport, 1)
+
+    with(blue) {
+      doTasks(*cardActionTasks("$Stratopolis"), "2 Floater<$Stratopolis>")
+      doTask("PassBaton")
     }
-    blue.turn { cardAction1(TychoMagnetics, x = 1) }
-    green.turn { playProject(TransNeptuneProbe, 4) }
-    yellow.turn { cardAction1(SecurityFleet) }
-    blue.turn {
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Scientists> FROM LobbyDelegate")
-      }
+
+    with(green) {
+      // The wrong-color Envoys placement above supplies Green's photographed Unity representation
+      // and the fifth party counted by this Septem Tribus action.
+      doTasks(*cardActionTasks("$SeptemTribus"), "10 MC")
+      doTask("PassBaton")
     }
-    green.turn {
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$AstraMechanica"),
+          "7 Pay<> FROM MC",
+          "$AstraMechanica FROM ProjectCard",
+          "ProjectCard FROM PlayedEvent<Class<$DiversitySupport>>",
+          "ProjectCard FROM PlayedEvent<Class<$EnvoysFromVenus>>",
+      )
+      doTasks(
+          *playCardTasks("$DiversitySupport"),
+          "1 Pay<> FROM MC",
+          "$DiversitySupport FROM ProjectCard",
+          "TerraformRating",
+      )
+    }
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$TychoMagnetics"),
+          "-Energy",
+          "ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$TransNeptuneProbe"),
+          "4 Pay<> FROM MC",
+          "$TransNeptuneProbe FROM ProjectCard",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *cardActionTasks("$SecurityFleet"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Fighter<$SecurityFleet>",
+      )
+      doTask("PassBaton")
+    }
+    with(blue) {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
+      doTask("PassBaton")
+    }
+    with(green) {
       // "I'm going to spend sixteen on aquifer pumping"; Green kept its plants.
-      playProject(AquiferPumping, 16)
+      doTasks(
+          *playCardTasks("$AquiferPumping"),
+          "Ok", // Keep the plants; pay with M€.
+          "16 Pay<> FROM MC",
+          "$AquiferPumping FROM ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn { cardAction1(AppliedScience) { addCardResources(SecurityFleet) } }
-    blue.turn {
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyFollower<Unity>") }
+
+    with(yellow) {
+      doTasks(
+          *cardActionTasks("$AppliedScience"),
+          "-Science<$AppliedScience>",
+          "Fighter<$SecurityFleet>",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-        placeTile(5, 6)
-      }
+    with(blue) {
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyFollower<Unity>")
+      doTask("PassBaton")
     }
-    yellow.turn { cardAction2(LocalShading) }
-    blue.pass()
-    green.turn {
-      cardAction1(OrbitalCleanup).expect("6 MC")
+    with(green) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Vastitas_5_6>",
+          "TerraformRating",
+          "2 Plant",
+          "2 MC",
+          "2 MC",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTask("PassBaton")
+    }
+    blue.doTask("Pass")
+    with(green) {
+      doTasks(*cardActionTasks("$OrbitalCleanup"), "6 MC")
       // Toll Station is visible in board-21-53-02.jpg and its cost/production are the remaining
       // Green ledger changes, although the transcript does not name the play.
-      playProject(TollStation, 10).expect("PROD[8 MC]")
+      doTasks(
+          *playCardTasks("$TollStation"),
+          "10 Pay<> FROM MC",
+          "$TollStation FROM ProjectCard",
+          "PROD[8 MC]",
+      )
     }
-    yellow.turn { cardAction1(MoholeLake) { addCardResources(EcologicalZone) } }
-    green.turn { convertHeat() }
-    // The otherwise unnamed +3 M€ row is exactly Red Ships' Generation 6 count: its sourced
-    // actions pay one in Generation 5 and four in Generation 7, while the intervening map has three
-    // eligible wet cities/special tiles. Yellow has one extra loose heat by production. Repeating
-    // the already-awarded -20°C threshold heat is the strongest candidate, but the surviving
-    // records cannot exclude an earlier missed one-heat gain or manual correction in this interval.
-    yellow.turn { cardAction1(RedShips).expect("3 MC") }
+
+    with(yellow) {
+      doTasks(*cardActionTasks("$MoholeLake"), "Animal<$EcologicalZone>")
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      // The otherwise unnamed +3 M€ row is exactly Red Ships' Generation 6 count: its sourced
+      // actions pay one in Generation 5 and four in Generation 7, while the intervening map has
+      // three
+      // eligible wet cities/special tiles. Yellow has one extra loose heat by production. Repeating
+      // the already-awarded -20°C threshold heat is the strongest candidate, but the surviving
+      // records cannot exclude an earlier missed one-heat gain or manual correction in this
+      // interval.
+      doTasks(*cardActionTasks("$RedShips"), "3 MC")
+      doTask("PassBaton")
+    }
     yellow.exMachina("Heat")
-    green.pass()
-    yellow.pass()
+    green.doTask("Pass")
+    yellow.doTask("Pass")
+
+    // Production.
+    green.doTasks("34 MC", "4 Energy", "4 Plant", "3 Heat FROM Energy", "5 Heat")
+    yellow.doTasks("52 MC", "2 Steel", "6 Heat", "2 Titanium", "Plant")
+    blue.doTasks("36 MC", "4 Energy", "2 Heat", "2 Titanium", "Steel", "Heat FROM Energy")
 
     // Blue's TR loss for Diversity was entered before production at the table, reducing the
     // physical M€ payout by one; the engine correctly applies the TR loss later in Solar.
     blue.exMachina("-MC")
     // Neither Green's spoken intent correction nor its ledger preserved energy this production.
-    green.declineTask()
+    green.doTask("Ok") // Keep the energy on Supercapacitors.
 
     with(green) {
       assertProduction(m = 9, s = 0, t = 0, p = 4, e = 4, h = 5)
@@ -1104,13 +2140,15 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       assertCounts(24 to "TerraformRating")
     }
     assertSidebar(gen = 6, temp = -14, oxygen = 6, oceans = 5, venus = 4)
-
     // The Turmoil phase's TR revision follows World Government at once and costs Blue one TR.
-    blue
-        .wgt("VenusStep")
-        .expect(
-            "-1 TerraformRating<Blue>, MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyLeader<Kelvinists, Neutral>"
-        )
+    expectChanges(
+        "-1 TerraformRating<Blue>, MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyLeader<Kelvinists, Neutral>"
+    ) {
+      blue.doTask("VenusStep! BY Admin")
+      green.doTask("10 MC")
+      yellow.doTask("10 MC")
+      blue.doTask("10 MC")
+    }
     // Diversity resolves, Greens takes government, and Snow Cover is revealed.
     (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
     admin.count("Distant<MoholeLakeGlobalEvent>") shouldBe 1
@@ -1127,7 +2165,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         1 to "Dominant<Unity>",
         1 to "Chairman<Yellow>",
     )
+  }
 
+  private fun generation7() {
     with(green) {
       assertResources(m = 51, s = 0, t = 0, p = 8, e = 4, h = 16)
       assertCounts(24 to "TerraformRating")
@@ -1142,102 +2182,440 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 7, temp = -14, oxygen = 6, oceans = 5, venus = 6)
 
-    // Generation 7 Research: Green buys three, Yellow four, and Blue two.
-    green.buyCards(3)
-    yellow.buyCards(4)
-    blue.buyCards(2)
+    // Research.
+    green.doTask("4 ProjectCard<Selecting>")
+    yellow.doTask("4 ProjectCard<Selecting>")
+    blue.doTask("4 ProjectCard<Selecting>")
 
-    green.turn {
-      cardAction1(WaterSplittingPlant)
-      convertPlants { placeTile(7, 9) }
+    // Generation 7 Research: Green buys three, Yellow four, and Blue two.
+    green.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    yellow.doTasks(
+        "Ok", // Keep all four Research cards.
+        "12 Pay<> FROM MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    )
+    blue.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$WaterSplittingPlant"),
+          "3 Pay<Class<Energy>> FROM Energy",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_7_9>",
+          "OxygenStep",
+          "4 MC",
+          "TerraformRating",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
-    yellow.turn {
-      playProject(WgProject, 9) { playPrelude(CorporateArchives) }
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$WgProject"),
+          "9 Pay<> FROM MC",
+          "$WgProject FROM ProjectCard",
+          "3 PreludeCard<Selecting>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$CorporateArchives>>",
+          "$CorporateArchives FROM PreludeCard<Selecting>",
+          "13 MC",
+          "7 ProjectCard<Selecting>",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
+      doTask("PassBaton")
     }
-    blue.turn {
+    with(blue) {
       // The phone call obscures this play in the transcript. Blue's continuous ledger records its
       // exact cost and production, and the next photograph isolates its city at 7-8.
-      playProject(CorporateStronghold, 9, steel = 1) { placeTile(7, 8) }
-      convertPlants { placeTile(7, 7) }
+      doTasks(
+          *playCardTasks("$CorporateStronghold"),
+          "1 Pay<Class<Steel>> FROM Steel",
+          "9 Pay<> FROM MC",
+          "$CorporateStronghold FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[3 MC]",
+          "CityTile<Vastitas_7_8>",
+          "Plant",
+          "2 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_7_7>",
+          "OxygenStep",
+          "4 MC",
+          "2 Plant",
+          "2 MC",
+          "TerraformRating",
+      )
       // Unlike Blue's later greeneries, the ledger omits this 4 M€ Greens ruling bonus.
       exMachina("-4 MC")
     }
-    green.turn { playProject(OrbitalReflectors, 24) }
-    yellow.turn {
-      playProject(AntiGravityTechnology, 14)
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$OrbitalReflectors"),
+          "24 Pay<> FROM MC",
+          "$OrbitalReflectors FROM ProjectCard",
+          "VenusStep",
+          "VenusStep",
+          "PROD[2 Heat]",
+          "TerraformRating",
+          "ProjectCard",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
-    green.turn {
-      cardAction1(DeuteriumExport)
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-        placeTile(6, 6)
-      }
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$AntiGravityTechnology"),
+          "14 Pay<> FROM MC",
+          "$AntiGravityTechnology FROM ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
-      playProject(SpaceStation, 5, titanium = 1)
+
+    with(blue) {
+      doTasks(*cardActionTasks("$DirectedHeatUsage"), "3 Pay<Class<Heat>> FROM Heat", "4 MC")
+      doTask("PassBaton")
     }
-    blue.turn { cardAction1(AsteroidHollowing) }
-    green.turn { cardAction1(SeptemTribus).expect("10 MC") }
-    yellow.turn { cardAction1(SecurityFleet) }
-    blue.turn { playProject(MartianMediaCenter, 7) }
-    green.turn { playProject(Grass, 9) }
-    yellow.turn { playProject(Virus, 0) { doTask("-4 Plant<Green>") } }
-    blue.turn { playProject(ProtectedValley, 23) { placeTile(3, 2) } }
-    green.turn {
-      cardAction1(OrbitalCleanup).expect("6 MC")
+    with(green) {
+      doTasks(*cardActionTasks("$DeuteriumExport"), "Floater<$DeuteriumExport>")
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Vastitas_6_6>",
+          "TerraformRating",
+          "2 Heat",
+          "Plant",
+          "2 MC",
+          "2 MC",
+      )
+    }
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$SpaceStation"),
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "5 Pay<> FROM MC",
+          "$SpaceStation FROM ProjectCard",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$AsteroidHollowing"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Asteroid<$AsteroidHollowing>",
+          "PROD[MC]",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(*cardActionTasks("$SeptemTribus"), "10 MC")
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *cardActionTasks("$SecurityFleet"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Fighter<$SecurityFleet>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *playCardTasks("$MartianMediaCenter"),
+          "7 Pay<> FROM MC",
+          "$MartianMediaCenter FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$Grass"),
+          "9 Pay<> FROM MC",
+          "$Grass FROM ProjectCard",
+          "PROD[Plant]",
+          "3 Plant",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(*playCardTasks("$Virus"), "$Virus FROM ProjectCard", "-4 Plant<Green>")
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *playCardTasks("$ProtectedValley"),
+          "23 Pay<> FROM MC",
+          "$ProtectedValley FROM ProjectCard",
+          "PROD[2 MC]",
+          "GreeneryTile<Vastitas_3_2>",
+          "OxygenStep",
+          "4 MC",
+          "2 Plant",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+    with(green) {
+      doTasks(*cardActionTasks("$OrbitalCleanup"), "6 MC")
       // The name is lost under "brain says" in the transcript; Green's ledger records its exact
       // seven-M€ cost and production, and the next photograph shows Adapted Lichen in the tableau.
-      playProject(AdaptedLichen, 7)
+      doTasks(
+          *playCardTasks("$AdaptedLichen"),
+          "7 Pay<> FROM MC",
+          "$AdaptedLichen FROM ProjectCard",
+          "PROD[Plant]",
+      )
     }
-    yellow.turn { playProject(ImportOfAdvancedGhg, 5) }
-    blue.turn {
-      cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) }
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyLeader<Greens> FROM LobbyDelegate")
-      }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$ImportOfAdvancedGhg"),
+          "5 Pay<> FROM MC",
+          "$ImportOfAdvancedGhg FROM ProjectCard",
+          "PROD[2 Heat]",
+      )
+      doTask("PassBaton")
     }
-    green.turn { convertHeat() }
-    yellow.turn { cardAction1(AppliedScience) { addCardResources(SecurityFleet) } }
-    blue.turn { cardAction1(MartianMediaCenter) { doTask("PartyFollower<Unity>") } }
-    green.turn { convertHeat() }
-    yellow.turn { playProject(SnowAlgae, 10) }
-    blue.turn { convertPlants { placeTile(8, 9) } }
-    green.turn { sellPatents(1) }
-    yellow.turn { playProject(Moss, 2) }
-    blue.turn { cardAction1(AsteroidDeflectionSystem) { declineTask() } }
-    green.turn {
-      playProject(TopsoilContract, 6)
+    with(blue) {
+      doTasks(*cardActionTasks("$Stratopolis"), "2 Floater<$Stratopolis>")
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
+    }
+
+    with(green) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *cardActionTasks("$AppliedScience"),
+          "-Science<$AppliedScience>",
+          "Fighter<$SecurityFleet>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(*cardActionTasks("$MartianMediaCenter"), "3 Pay<> FROM MC", "PartyFollower<Unity>")
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$SnowAlgae"),
+          "10 Pay<> FROM MC",
+          "$SnowAlgae FROM ProjectCard",
+          "PROD[Plant]",
+          "PROD[Heat]",
+          "Animal<$EcologicalZone>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_8_9>",
+          "OxygenStep",
+          "4 MC",
+          "Plant",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$Moss"),
+          "2 Pay<> FROM MC",
+          "$Moss FROM ProjectCard",
+          "PROD[Plant]",
+          "-Plant",
+          "Animal<$EcologicalZone>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$AsteroidDeflectionSystem"),
+          "ProjectCard<Revealed>",
+          "Ok", // No space tag was revealed.
+          "-ProjectCard<Revealed>",
+      )
+      doTask("PassBaton")
+    }
+    with(green) {
+      doTasks(
+          *playCardTasks("$TopsoilContract"),
+          "6 Pay<> FROM MC",
+          "$TopsoilContract FROM ProjectCard",
+          "3 Plant",
+      )
       // Topsoil costs six after Earth Catapult and its own Microbe tag refunds one, for a legal net
       // cost of five. The phone records both a five-M€ debit and a later one-M€ credit, so the
       // narrow mistake is double-crediting that self-trigger; no later Green Microbe tag exists in
       // the generation.
       exMachina("MC")
+      doTask("PassBaton")
     }
-    yellow.turn { cardAction1(MoholeLake) { addCardResources(EcologicalZone) } }
-    blue.turn { stdProject("AirScrappingProject") }
-    green.pass()
-    yellow.turn { cardAction1(LocalShading) }
-    blue.turn { cardAction1(TychoMagnetics, x = 1) }
-    yellow.turn { playProject(EnergyMarket, 1) }
-    blue.turn { cardAction1(BioPrintingFacility) { doTask("2 Plant") } }
-    yellow.turn {
-      playProject(Greenhouses, steel = 2)
-      convertPlants { placeTile(4, 7) }
-    }
-    blue.turn { playProject(OutdoorSports, 8) }
-    yellow.turn {
-      convertHeat()
-      cardAction1(RedShips).expect("4 MC")
-    }
-    blue.pass()
-    yellow.turn {
-      stdProject("AsteroidProject")
-      playProject(Trees, 11)
-    }
-    yellow.pass()
 
+    with(yellow) {
+      doTasks(*cardActionTasks("$MoholeLake"), "Animal<$EcologicalZone>")
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+    green.doTask("Pass")
+
+    with(yellow) {
+      doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$TychoMagnetics"),
+          "-Energy",
+          "ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(*playCardTasks("$EnergyMarket"), "1 Pay<> FROM MC", "$EnergyMarket FROM ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$BioPrintingFacility"),
+          "2 Pay<Class<Energy>> FROM Energy",
+          "2 Plant",
+      )
+      doTask("PassBaton")
+    }
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$Greenhouses"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "Ok", // No M€ needed after paying with steel.
+          "$Greenhouses FROM ProjectCard",
+          "3 Plant",
+          "Animal<$EcologicalZone>",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_4_7>",
+          "OxygenStep",
+          "4 MC",
+          "Plant",
+          "2 MC",
+          "2 MC",
+          "TerraformRating",
+      )
+    }
+
+    with(blue) {
+      doTasks(
+          *playCardTasks("$OutdoorSports"),
+          "8 Pay<> FROM MC",
+          "$OutdoorSports FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+      doTask("PassBaton")
+    }
+    with(yellow) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$RedShips"), "4 MC")
+    }
+    blue.doTask("Pass")
+    with(yellow) {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("$Trees"),
+          "11 Pay<> FROM MC",
+          "$Trees FROM ProjectCard",
+          "PROD[3 Plant]",
+          "Plant",
+          "Animal<$EcologicalZone>",
+      )
+    }
+    yellow.doTask("Pass")
+
+    // Production.
+    green.doTasks("41 MC", "4 Energy", "6 Plant", "Heat FROM Energy", "7 Heat")
+    yellow.doTasks("55 MC", "2 Steel", "9 Heat", "2 Titanium", "6 Plant")
+    blue.doTasks("49 MC", "3 Energy", "2 Heat", "2 Titanium", "Steel", "Heat FROM Energy")
     // Green converted its remaining energy normally in the photographed production.
-    green.declineTask()
+    green.doTask("Ok") // Keep the energy on Supercapacitors.
 
     with(green) {
       assertProduction(m = 9, s = 0, t = 0, p = 6, e = 4, h = 7)
@@ -1255,12 +2633,14 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       assertCounts(27 to "TerraformRating")
     }
     assertSidebar(gen = 7, temp = -4, oxygen = 12, oceans = 6, venus = 12)
-
-    green
-        .wgt("OxygenStep")
-        .expect(
-            "ExperimentalLifeforms, Distant<ExperimentalLifeforms>, PartyFollower<Greens, Neutral>"
-        )
+    expectChanges(
+        "ExperimentalLifeforms, Distant<ExperimentalLifeforms>, PartyFollower<Greens, Neutral>"
+    ) {
+      green.doTask("OxygenStep! BY Admin")
+      green.doTask("PROD[4 Energy]")
+      yellow.doTask("PROD[2 Energy]")
+      blue.doTask("PROD[2 Energy]")
+    }
     (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
     admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
     (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
@@ -1273,7 +2653,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         1 to "Dominant<Kelvinists>",
         1 to "Chairman<Green>",
     )
+  }
 
+  private fun generation8() {
     with(green) {
       assertProduction(m = 9, s = 0, t = 0, p = 6, e = 8, h = 7)
       assertResources(m = 60, s = 0, t = 0, p = 9, e = 4, h = 10)
@@ -1291,104 +2673,384 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 8, temp = -4, oxygen = 13, oceans = 6, venus = 12)
 
-    // Generation 8 Research: Yellow buys two projects, Blue one, and Green one.
-    yellow.buyCards(2)
-    blue.buyCards(1)
-    green.buyCards(1)
+    // Research.
+    green.doTask("4 ProjectCard<Selecting>")
+    yellow.doTask("4 ProjectCard<Selecting>")
+    blue.doTask("4 ProjectCard<Selecting>")
 
-    yellow.turn {
-      convertPlants { placeTile(4, 6) }
-      playProject(GiantSolarShade, 19, titanium = 1)
+    // Generation 8 Research: Yellow buys two projects, Blue one, and Green one.
+    yellow.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    blue.doTasks(
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "1 ProjectCard<Hand FROM Selecting>",
+    )
+    green.doTasks(
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "ProjectCard<Hand FROM Selecting>",
+    )
+
+    with(yellow) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_4_6>",
+          "OxygenStep",
+          "ProjectCard",
+          "2 MC",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("$GiantSolarShade"),
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "19 Pay<> FROM MC",
+          "$GiantSolarShade FROM ProjectCard",
+          "VenusStep",
+          "VenusStep",
+          "VenusStep",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+      )
     }
-    blue.turn {
-      playProject(MagneticFieldGeneratorsPromo, 20, steel = 1) { placeTile(5, 4) }
+    with(blue) {
+      doTasks(
+          *playCardTasks("$MagneticFieldGeneratorsPromo"),
+          "1 Pay<Class<Steel>> FROM Steel",
+          "20 Pay<> FROM MC",
+          "$MagneticFieldGeneratorsPromo FROM ProjectCard",
+          "PROD[-4 Energy]",
+          "PROD[2 Plant]",
+          "3 TerraformRating",
+          "MagneticFieldGeneratorsPromo_SpecialTile<Vastitas_5_4>",
+          "2 Plant",
+          "2 MC",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+    with(green) {
       // Green says this is a Lobby delegate; the app stays at 57 M€ until Frontier Town.
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<MarsFirst> FROM LobbyDelegate")
-      }
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
       // Frontier Town repeats the temperature/-4 M€ bonus printed at 5-5 and crosses the
       // zero-degree ocean threshold; the table placed that ocean at 3-3.
-      playProject(FrontierTown, 9) {
-        placeTile(5, 5)
-        placeTile(3, 3)
-      }
+      doTasks(
+          *playCardTasks("$FrontierTown"),
+          "Ok", // Keep the plants; pay with M€.
+          "9 Pay<> FROM MC",
+          "$FrontierTown FROM ProjectCard",
+          "FrontierTownBonus",
+          "PROD[-Energy]",
+          "CityTile<Vastitas_5_5>",
+          "-FrontierTownBonus",
+          "TemperatureStep",
+          "-4 MC",
+          "2 MC",
+          "2 MC",
+          "RepeatPlacementBonus<Vastitas_5_5>",
+          "TerraformRating",
+          "TemperatureStep",
+          "-4 MC",
+          "TemperatureStep",
+          "-4 MC",
+          "TerraformRating",
+          "TerraformRating",
+          "OceanTile<Vastitas_3_3>",
+          "TerraformRating",
+          "2 Plant",
+          "2 MC",
+      )
     }
-    yellow.turn {
-      playProject(OpenCity, 17, steel = 2) { placeTile(3, 6) }
-      convertHeat()
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$OpenCity"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "17 Pay<> FROM MC",
+          "$OpenCity FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[4 MC]",
+          "2 Plant",
+          "CityTile<Vastitas_3_6>",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
-    blue.turn {
-      cardAction1(AsteroidHollowing)
-      playProject(StratosphericBirds, 12)
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$AsteroidHollowing"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Asteroid<$AsteroidHollowing>",
+          "PROD[MC]",
+      )
+      doTasks(
+          *playCardTasks("$StratosphericBirds"),
+          "12 Pay<> FROM MC",
+          "$StratosphericBirds FROM ProjectCard",
+          "-Floater<$Stratopolis>",
+      )
     }
-    green.turn {
-      convertHeat()
-      stdProject("CityProject") { placeTile(3, 4) }
+    with(green) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Vastitas_3_4>",
+          "2 Plant",
+          "2 MC",
+      )
     }
-    yellow.turn { playProject(Research, 9) }
-    blue.turn { playProject(VenusianAnimals, 15) }
-    green.turn {
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-        placeTile(5, 3)
-      }
-      convertPlants { placeTile(4, 4) }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$Research"),
+          "9 Pay<> FROM MC",
+          "$Research FROM ProjectCard",
+          "2 ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn { playProject(SolarWindPower, 3, titanium = 1) }
-    blue.turn { cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) } }
-    green.turn { cardAction1(SeptemTribus).expect("8 MC") }
-    yellow.turn { cardAction1(SecurityFleet) }
-    blue.turn {
+
+    with(blue) {
+      doTasks(
+          *playCardTasks("$VenusianAnimals"),
+          "15 Pay<> FROM MC",
+          "$VenusianAnimals FROM ProjectCard",
+          "Animal<$VenusianAnimals>",
+      )
+      doTask("PassBaton")
+    }
+    with(green) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Vastitas_5_3>",
+          "TerraformRating",
+          "Plant",
+          "2 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_4_4>",
+          "OxygenStep",
+          "Plant",
+          "2 MC",
+          "2 MC",
+      )
+    }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$SolarWindPower"),
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "3 Pay<> FROM MC",
+          "$SolarWindPower FROM ProjectCard",
+          "PROD[Energy]",
+          "2 Titanium",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(*cardActionTasks("$Stratopolis"), "2 Floater<$Stratopolis>")
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(*cardActionTasks("$SeptemTribus"), "8 MC")
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *cardActionTasks("$SecurityFleet"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Fighter<$SecurityFleet>",
+      )
+      doTask("PassBaton")
+    }
+    with(blue) {
       // The revealed project has a Space tag, so Asteroid Deflection System succeeds.
-      cardAction1(AsteroidDeflectionSystem) {
-        doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
-      }
+      doTasks(
+          *cardActionTasks("$AsteroidDeflectionSystem"),
+          "ProjectCard<Revealed>",
+          "ClaimCardReward<TagFilter<Class<SpaceTag>>, $AsteroidDeflectionSystem>",
+          "-ProjectCard<Revealed>",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      playProject(TundraFarming, 14)
-      convertPlants { placeTile(4, 5) }
+    with(green) {
+      doTasks(
+          *playCardTasks("$TundraFarming"),
+          "14 Pay<> FROM MC",
+          "$TundraFarming FROM ProjectCard",
+          "PROD[Plant]",
+          "PROD[2 MC]",
+          "Plant",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_4_5>",
+          "OxygenStep",
+          "2 MC",
+      )
     }
-    yellow.turn {
-      playProject(DawnCity, 7, titanium = 1)
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyLeader<Unity> FROM LobbyDelegate")
-      }
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$DawnCity"),
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "7 Pay<> FROM MC",
+          "$DawnCity FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[Titanium]",
+          "NormalCityTile<DawnCity_RemoteArea>",
+      )
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Unity> FROM LobbyDelegate")
     }
-    blue.turn {
+    with(blue) {
       // The transcript skips Blue in this rotation and narrates this action after Yellow's next
       // turn. Advance that next Blue action here to preserve the legal turn sequence. It considers
       // Greens and Scientists without saying which was chosen; the next photograph shows Blue
       // leading Greens.
-      cardAction1(MartianMediaCenter) { doTask("PartyFollower<Greens>") }
+      doTasks(*cardActionTasks("$MartianMediaCenter"), "3 Pay<> FROM MC", "PartyFollower<Greens>")
+      doTask("PassBaton")
     }
-    green.turn {
-      cardAction1(OrbitalCleanup).expect("6 MC")
+    with(green) {
+      doTasks(*cardActionTasks("$OrbitalCleanup"), "6 MC")
+      doTask("PassBaton")
     }
-    yellow.turn { cardAction1(MoholeLake) { addCardResources(EcologicalZone) } }
-    blue.turn { cardAction1(StratosphericBirds) }
-    green.turn { cardAction2(DeuteriumExport) }
-    yellow.turn { cardAction1(AppliedScience) { addCardResources(SecurityFleet) } }
-    blue.turn { cardAction1(TychoMagnetics, x = 1) }
-    green.turn { playProject(ParliamentHall, 6) }
-    yellow.turn { cardAction1(RedShips).expect("7 MC") }
-    blue.turn { sellPatents(4) }
-    green.turn {
-      playProject(LuxuryFoods, 6)
-    }
-    yellow.turn { playProject(Farming, 14) }
-    blue.turn {
-      cardAction1(BioPrintingFacility) { addCardResources(VenusianAnimals) }
-    }
-    green.pass()
-    yellow.turn { playProject(Heather, 4) }
-    blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
-    yellow.turn { cardAction2(LocalShading) }
-    blue.pass()
-    yellow.pass()
 
+    with(yellow) {
+      doTasks(*cardActionTasks("$MoholeLake"), "Animal<$EcologicalZone>")
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$DeuteriumExport", "Action2"),
+          "-Floater<$DeuteriumExport>",
+          "PROD[Energy]",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *cardActionTasks("$AppliedScience"),
+          "-Science<$AppliedScience>",
+          "Fighter<$SecurityFleet>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$TychoMagnetics"),
+          "-Energy",
+          "ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$ParliamentHall"),
+          "6 Pay<> FROM MC",
+          "$ParliamentHall FROM ProjectCard",
+          "PROD[4 MC]",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(*cardActionTasks("$RedShips"), "7 MC")
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "4 MC FROM ProjectCard")
+      doTask("PassBaton")
+    }
+    with(green) {
+      doTasks(*playCardTasks("$LuxuryFoods"), "6 Pay<> FROM MC", "$LuxuryFoods FROM ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$Farming"),
+          "14 Pay<> FROM MC",
+          "$Farming FROM ProjectCard",
+          "PROD[2 MC]",
+          "PROD[2 Plant]",
+          "2 Plant",
+          "Animal<$EcologicalZone>",
+      )
+      doTask("PassBaton")
+    }
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$BioPrintingFacility"),
+          "2 Pay<Class<Energy>> FROM Energy",
+          "Animal<$VenusianAnimals>",
+      )
+      doTask("PassBaton")
+    }
+    green.doTask("Pass")
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$Heather"),
+          "4 Pay<> FROM MC",
+          "$Heather FROM ProjectCard",
+          "PROD[Plant]",
+          "Plant",
+          "Animal<$EcologicalZone>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(*cardActionTasks("$DirectedHeatUsage"), "3 Pay<Class<Heat>> FROM Heat", "4 MC")
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTask("PassBaton")
+    }
+    blue.doTask("Pass")
+    yellow.doTask("Pass")
+
+    // Production.
+    green.doTasks("54 MC", "8 Energy", "7 Plant", "4 Heat FROM Energy", "7 Heat")
+    yellow.doTasks("67 MC", "2 Steel", "9 Heat", "3 Titanium", "9 Plant", "Energy")
+    blue.doTasks("52 MC", "Energy", "2 Heat", "2 Titanium", "Steel", "2 Plant")
     // Green again retained Supercapacitors' energy instead of converting it to heat.
-    green.declineTask()
+    green.doTask("Ok") // Keep the energy on Supercapacitors.
 
     with(green) {
       assertProduction(m = 16, s = 0, t = 0, p = 7, e = 8, h = 7)
@@ -1406,12 +3068,13 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       assertCounts(29 to "TerraformRating")
     }
     assertSidebar(gen = 8, temp = 6, oxygen = 14, oceans = 8, venus = 18)
-
-    yellow
-        .wgt("TemperatureStep")
-        .expect(
-            "CharismaticWgPresident, Distant<CharismaticWgPresident>, PartyFollower<Unity, Neutral>"
-        )
+    expectChanges(
+        "CharismaticWgPresident, Distant<CharismaticWgPresident>, PartyFollower<Unity, Neutral>"
+    ) {
+      yellow.doTask("TemperatureStep! BY Admin")
+      green.doTask("-2 TerraformRating")
+      blue.doTask("-TerraformRating")
+    }
     // Revolution resolves, Mars First takes government, and the final photograph identifies
     // Interplanetary Trade as the newly revealed distant event.
     (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
@@ -1430,6 +3093,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         1 to "Dominant<Kelvinists>",
         1 to "Chairman<Blue>",
     )
+  }
+
+  private fun generation9() {
     with(green) {
       assertResources(m = 72, s = 0, t = 0, p = 7, e = 8, h = 13)
       assertCounts(35 to "TerraformRating")
@@ -1444,112 +3110,354 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 9, temp = 8, oxygen = 14, oceans = 8, venus = 18)
 
-    // Generation 9 Research: Blue buys one project; Green and Yellow buy two each.
-    blue.buyCards(1)
-    green.buyCards(2)
-    yellow.buyCards(2)
+    // Research.
+    green.doTask("4 ProjectCard<Selecting>")
+    yellow.doTask("4 ProjectCard<Selecting>")
+    blue.doTask("4 ProjectCard<Selecting>")
 
-    blue.turn { stdProject("AquiferProject") { placeTile(7, 6) } }
-    green.turn {
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyLeader<Scientists> FROM LobbyDelegate")
-      }
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyLeader<MarsFirst>") }
+    // Generation 9 Research: Blue buys one project; Green and Yellow buy two each.
+    blue.doTasks(
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "1 ProjectCard<Hand FROM Selecting>",
+    )
+    green.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    yellow.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+
+    with(blue) {
+      doTasks(
+          *standardProjectTasks("AquiferProject"),
+          "18 Pay<> FROM MC",
+          "OceanTile<Vastitas_7_6>",
+          "TerraformRating",
+          "Steel",
+          "2 Heat",
+          "2 MC",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
-      stdProject("CityProject") { placeTile(8, 7) }
-      convertPlants { placeTile(9, 7) }
+    with(green) {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<MarsFirst>")
     }
-    blue.turn {
-      cardAction1(DirectedHeatUsage) { doTask("2 Plant") }
-      convertPlants { placeTile(2, 2) }
+    with(yellow) {
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Vastitas_8_7>",
+          "Steel",
+          "Plant",
+          "Steel",
+          "2 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_9_7>",
+          "OxygenStep",
+          "Steel",
+          "ProjectCard",
+      )
     }
-    green.turn {
-      stdProject("GreeneryProject") { placeTile(3, 5) }
+    with(blue) {
+      doTasks(*cardActionTasks("$DirectedHeatUsage"), "3 Pay<Class<Heat>> FROM Heat", "2 Plant")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_2_2>",
+          "OxygenStep",
+          "Steel",
+          "2 Plant",
+          "2 MC",
+      )
+    }
+    with(green) {
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Vastitas_3_5>",
+          "OxygenStep",
+          "Steel",
+          "Plant",
+      )
       // The transcript records one-ocean adjacency and no printed resource bonus; 5-2 is the
       // photographed legal space adjacent to Green's 6-2 greenery.
-      convertPlants { placeTile(5, 2) }
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_5_2>",
+          "OxygenStep",
+          "Steel",
+          "2 MC",
+      )
     }
-    yellow.turn {
-      stdProject("CityProject") { placeTile(2, 1) }
-      convertPlants { placeTile(9, 8) }
+    with(yellow) {
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Vastitas_2_1>",
+          "Steel",
+          "2 Plant",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_9_8>",
+          "OxygenStep",
+          "Steel",
+          "Titanium",
+      )
     }
-    blue.turn {
-      stdProject("CityProject") { placeTile(6, 4) }
+    with(blue) {
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Vastitas_6_4>",
+          "Steel",
+          "Plant",
+          "2 MC",
+      )
       // Blue's phone and final production omit the standard city's production increase.
       exMachina("PROD[-MC]")
+      doTask("PassBaton")
     }
-    green.turn { playProject(LagrangeObservatory, 7) }
-    // The transcript compresses several final-generation rotations. Keep each player's sourced
-    // action order while advancing the next available action into the otherwise silent turns. The
-    // final tableau and Yellow's combined 11 M€ debit assign Decomposers and Bactoviral Research
-    // to Yellow despite the transcript's missing speaker labels.
-    yellow.turn { playProject(Decomposers, 3) }
-    blue.turn { cardAction1(AsteroidHollowing) }
-    green.turn {
-      cardAction1(OrbitalCleanup).expect("7 MC")
-      fundAward(cn("Landscaper"), 14)
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$LagrangeObservatory"),
+          "7 Pay<> FROM MC",
+          "$LagrangeObservatory FROM ProjectCard",
+          "ProjectCard",
+      )
+      doTask("PassBaton")
     }
-    yellow.turn {
+
+    with(yellow) {
+      // The transcript compresses several final-generation rotations. Keep each player's sourced
+      // action order while advancing the next available action into the otherwise silent turns. The
+      // final tableau and Yellow's combined 11 M€ debit assign Decomposers and Bactoviral Research
+      // to Yellow despite the transcript's missing speaker labels.
+      doTasks(
+          *playCardTasks("$Decomposers"),
+          "3 Pay<> FROM MC",
+          "$Decomposers FROM ProjectCard",
+          "Microbe<$Decomposers>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$AsteroidHollowing"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Asteroid<$AsteroidHollowing>",
+          "PROD[MC]",
+      )
+      doTask("PassBaton")
+    }
+    with(green) {
+      doTasks(*cardActionTasks("$OrbitalCleanup"), "7 MC")
+      doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Landscaper")
+    }
+    with(yellow) {
       // 16:13:50: twelve Science tags including both wilds, plus Decomposers' printed-tag
       // reaction, give the spoken thirteen microbes.
-      playProject(BactoviralResearch, 8) {
-            yellow.assertCounts(12 to "ScienceTag")
-            addCardResources(Decomposers)
-          }
-          .expect("13 Microbe<$Decomposers>")
+      doTasks(
+          *playCardTasks("$BactoviralResearch"),
+          "8 Pay<> FROM MC",
+          "$BactoviralResearch FROM ProjectCard",
+          "ProjectCard",
+          "Microbe<$Decomposers>",
+      )
+      yellow.assertCounts(12 to "ScienceTag")
+      doTask("12 Microbe<$Decomposers>")
+      doTask("PassBaton")
     }
-    blue.turn { cardAction1(MartianMediaCenter) { doTask("PartyFollower<Reds>") } }
-    green.turn { playProject(Mangrove, 10) { placeTile(6, 5) } }
-    yellow.turn {
-      playProject(NoctisFarming, steel = 4)
-      cardAction1(SecurityFleet)
+
+    with(blue) {
+      doTasks(*cardActionTasks("$MartianMediaCenter"), "3 Pay<> FROM MC", "PartyFollower<Reds>")
+      doTask("PassBaton")
     }
-    blue.turn {
-      playProject(DevelopmentCenter, 3, steel = 4)
-      cardAction1(DevelopmentCenter)
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$Mangrove"),
+          "10 Pay<> FROM MC",
+          "$Mangrove FROM ProjectCard",
+          "GreeneryTile<Vastitas_6_5>",
+          "OxygenStep",
+          "Steel",
+          "2 Heat",
+          "2 MC",
+          "2 MC",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyFollower<Reds>") }
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$NoctisFarming"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "Ok", // No M€ needed after paying with steel.
+          "$NoctisFarming FROM ProjectCard",
+          "PROD[MC]",
+          "2 Plant",
+          "Animal<$EcologicalZone>",
+          "Microbe<$Decomposers>",
+      )
+      doTasks(
+          *cardActionTasks("$SecurityFleet"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Fighter<$SecurityFleet>",
+      )
+    }
+    with(blue) {
+      doTasks(
+          *playCardTasks("$DevelopmentCenter"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "3 Pay<> FROM MC",
+          "$DevelopmentCenter FROM ProjectCard",
+          "Animal<$VenusianAnimals>",
+      )
+      doTasks(
+          *cardActionTasks("$DevelopmentCenter"),
+          "Pay<Class<Energy>> FROM Energy",
+          "ProjectCard",
+      )
+    }
+    with(green) {
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyFollower<Reds>")
       // Both physical wild tags are chosen as Jovian for MicrogravityHealthProblems Movement.
       // Together with the
       // card's own Jovian tag, they explain the spoken three-M€ payout.
-      playProject(DiasporaMovement, 5).expect("-2 MC")
+      doTasks(
+          *playCardTasks("$DiasporaMovement"),
+          "5 Pay<> FROM MC",
+          "$DiasporaMovement FROM ProjectCard",
+          "3 MC",
+      )
     }
-    yellow.turn { cardAction1(LocalShading) }
-    blue.turn {
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Unity> FROM LobbyDelegate")
-      }
+
+    with(yellow) {
+      doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
+      doTask("PassBaton")
     }
-    green.turn { cardAction1(SeptemTribus).expect("8 MC") }
-    yellow.turn { cardAction2(EnergyMarket).expect("PROD[-Energy], 8 MC") }
-    blue.turn {
-      cardAction1(AsteroidDeflectionSystem) {
-        doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
-      }
+    with(blue) {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Unity> FROM LobbyDelegate")
+      doTask("PassBaton")
     }
-    green.turn { fundAward(cn("Politician"), 20) }
-    yellow.turn { playProject(PhobosSpaceHaven, 12, titanium = 3) }
-    blue.turn { cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) } }
-    green.pass()
-    yellow.turn { sellPatents(1) }
-    blue.turn { playProject(UnexpectedApplication, 4) }
-    yellow.turn { playProject(ArtificialLake, 7, steel = 3) }
-    blue.turn {
-      playProject(SubCrustMeasurements, 20)
+
+    with(green) {
+      doTasks(*cardActionTasks("$SeptemTribus"), "8 MC")
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(*cardActionTasks("$EnergyMarket", "Action2"), "PROD[-Energy]", "8 MC")
+      doTask("PassBaton")
+    }
+    with(blue) {
+      doTasks(
+          *cardActionTasks("$AsteroidDeflectionSystem"),
+          "ProjectCard<Revealed>",
+          "ClaimCardReward<TagFilter<Class<SpaceTag>>, $AsteroidDeflectionSystem>",
+          "-ProjectCard<Revealed>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Politician")
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$PhobosSpaceHaven"),
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "12 Pay<> FROM MC",
+          "$PhobosSpaceHaven FROM ProjectCard",
+          "PROD[Titanium]",
+          "NormalCityTile<PhobosSpaceHaven_RemoteArea>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(*cardActionTasks("$Stratopolis"), "2 Floater<$Stratopolis>")
+      doTask("PassBaton")
+    }
+    green.doTask("Pass")
+
+    with(yellow) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(
+          *playCardTasks("$UnexpectedApplication"),
+          "4 Pay<> FROM MC",
+          "$UnexpectedApplication FROM ProjectCard",
+          "-ProjectCard",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(
+          *playCardTasks("$ArtificialLake"),
+          "3 Pay<Class<Steel>> FROM Steel",
+          "7 Pay<> FROM MC",
+          "$ArtificialLake FROM ProjectCard",
+          "0 OceanTile<LandArea>",
+      )
+      doTask("PassBaton")
+    }
+    with(blue) {
+      doTasks(
+          *playCardTasks("$SubCrustMeasurements"),
+          "20 Pay<> FROM MC",
+          "$SubCrustMeasurements FROM ProjectCard",
+          "Animal<$VenusianAnimals>",
+      )
       // The transcript and printed card both say 20 M€, while Blue's phone falls by 22 in this
       // interval. Every named intervening cost is already represented and none costs two. The
       // extra debit may nevertheless be a delayed correction of an earlier G9 entry; only if it
       // was not does this row represent a 22-M€ Sub-Crust payment. Preserve the bounded difference,
       // not the unproved local cause.
       exMachina("-2 MC")
-      cardAction1(SubCrustMeasurements)
+
+      doTasks(*cardActionTasks("$SubCrustMeasurements"), "ProjectCard")
     }
-    yellow.turn { cardAction1(MoholeLake) { addCardResources(EcologicalZone) } }
-    blue.turn { cardAction1(StratosphericBirds) }
-    yellow.turn { sellPatents(1) }
-    blue.turn {
+
+    with(yellow) {
+      doTasks(*cardActionTasks("$MoholeLake"), "Animal<$EcologicalZone>")
+      doTask("PassBaton")
+    }
+
+    with(blue) {
+      doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
+      doTask("PassBaton")
+    }
+
+    with(yellow) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
+    }
+    with(blue) {
       // The hand count is exact at the Generation 5 checkpoint and every later named source/sink is
       // accounted for. One extra card therefore entered Blue's hand between that checkpoint and
       // this sale. The strongest candidate is Space Elevator, successfully revealed by Asteroid
@@ -1557,33 +3465,48 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // exactly the second patent. Stanford Tours (Generation 6) or the unnamed Generation 8
       // successful reveal are earlier alternatives.
       exMachina("ProjectCard")
-      sellPatents(2)
+
+      doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
-    yellow.turn {
-      cardAction1(RedShips).expect("9 MC")
+    with(yellow) {
+      doTasks(*cardActionTasks("$RedShips"), "9 MC")
       // The table debates ten candidates, excludes the non-wet tile, and settles on nine. Yellow's
       // phone later groups 11 M€ where Red Ships plus the adjacent one-card patent sale explain
       // only ten. Entering ten despite the verbal correction is the strongest candidate, though a
       // delayed unrecorded one-M€ gain from earlier in the interval cannot be excluded.
       exMachina("MC")
+      doTask("PassBaton")
     }
-    blue.turn {
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyFollower<Greens>") }
+    with(blue) {
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyFollower<Greens>")
+      doTask("PassBaton")
     }
-    yellow.turn {
-      stdAction("UseAction<LobbyAction, Action1>") {
-        doTask("PartyFollower<Greens> FROM LobbyDelegate")
-      }
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyFollower<Greens>") }
+    with(yellow) {
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyFollower<Greens>")
     }
-    blue.pass()
-    yellow.turn {
-      stdAction("UseAction<PaidLobbyAction, Action1>") { doTask("PartyFollower<Kelvinists>") }
+    blue.doTask("Pass")
+    with(yellow) {
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyFollower<Kelvinists>")
     }
-    yellow.pass()
+    yellow.doTask("Pass")
 
+    // Production.
+    green.doTasks("51 MC", "8 Energy", "7 Plant", "8 Heat FROM Energy", "7 Heat")
+    yellow.doTask("6 MC", Pristar)
+    yellow.doTasks(
+        "69 MC",
+        "Preservation<$Pristar>",
+        "2 Steel",
+        "9 Heat",
+        "4 Titanium",
+        "9 Plant",
+        "Heat FROM Energy",
+    )
+    blue.doTasks("54 MC", "Energy", "2 Heat", "2 Titanium", "Steel", "2 Plant")
     // Green once more retained Supercapacitors' energy during final production.
-    green.declineTask()
+    green.doTask("Ok") // Keep the energy on Supercapacitors.
     // Once MicrogravityHealthProblems Movement receives the two evidenced wild Jovian tags above,
     // Green reaches the
     // photographed final cash without any residual adjustment.
@@ -1608,13 +3531,21 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       assertCounts(30 to "TerraformRating")
     }
     assertSidebar(gen = 9, temp = 8, oxygen = 14, oceans = 9, venus = 20)
-
     // Final greenery placement in start-player order. Blue and Green each have fewer than eight
     // plants; Yellow's photographed greenery is adjacent to Dawn City at 8-6.
-    blue.declineTask()
-    green.declineTask()
-    yellow.convertPlants { placeTile(8, 6) }
-    yellow.declineTask()
+    blue.doTask("PassBaton")
+    green.doTask("PassBaton")
+
+    with(yellow) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_8_6>",
+          "Plant",
+          "2 MC",
+      )
+    }
+    yellow.doTask("PassBaton")
 
     val score = Summarizer(game)
     assertEquals(
