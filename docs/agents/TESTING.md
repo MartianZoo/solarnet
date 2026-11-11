@@ -718,6 +718,11 @@ totals. Retain state checkpoints and final score/winner assertions. Purchase tra
 are explicit tasks from `Selecting`. Keep the replay's task calls instead of introducing
 `TfmGameplay` action or payment helpers.
 
+`OtbGame20260828Test` exercises the separate TaskForm style on `FullGameTest(EAGER)`.
+Players submit their choices through `TaskForm.choose`, `narrow`, and `commit`; the policy
+executes concrete follow-up work. Its local form wrapper asserts offered choices and completed
+drafts, without gameplay actions, payment helpers, or a raw `doTask` fallback.
+
 Replay tests assert victory points only after the game's actual final scoring. Mid-game
 checkpoints verify the live state without simulating production or scoring; partial replays
 do not assert hypothetical victory points.
