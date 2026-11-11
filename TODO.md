@@ -14,12 +14,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   intentionally skips its scoring phase on a solo loss. Source: `_local/replays/Game20261030/`.
   Do not inject a scoring phase into the replay to manufacture the website's displayed total.
 
-- Preserve task disambiguation when recording `doTask(instruction, contextClass)`.
-  `AgentImpl` passes the context to the engine but omits it from the recorded command.
-  Reproduction: Sponsored Academies and Mars University offer discards together in
-  `RemoteVacuumFlowTest` generation 12; a context-qualified discard plays successfully
-  but its export fails to re-import with an ambiguous task. The replay currently uses
-  exact `selectTask` instead.
+- Investigate task matching when an `EACH` request is checked against an unrelated `THEN`
+  task. In `SyntheticMagnetBurstTest` generation 8, Sponsored Academies' opponent draw throws
+  `PetSyntaxException: EACH cannot be followed by THEN` while Mars University's optional
+  discard/draw is pending. Passing `SponsoredAcademies` as the context succeeds; the replay
+  keeps that explicit context and its exported game reconstructs successfully.
 
 - Consolidate gameplay tests around sandbox, ordinary gameplay, card-tracked gameplay, and
   TaskForm interactions, then delete `TfmGameplay`. Keep sourced checkpoints, card identities,

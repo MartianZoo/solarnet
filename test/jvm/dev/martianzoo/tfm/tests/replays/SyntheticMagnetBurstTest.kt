@@ -1,19 +1,22 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-// Partial archive replay through the generation-10 World Government action:
-// Synthetic Magnet Burst (ga5237bd2fb08)
+// Source: _local/replays/Game20260820/ (game log, player record, and dashboard screenshots)
+// Complete archive replay: Synthetic Magnet Burst (ga5237bd2fb08)
 // https://terraforming-mars.herokuapp.com/the-end?id=pa9f45e80d897
-internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
+internal class SyntheticMagnetBurstTest : FullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Venus, Prelude, Prelude 2, drafting, World
   // Government, two players, and these full-random milestone and award pools.
+  // Setup retains Solarnet's two-corporation offer; the archive offered three. The rejected-card
+  // comments below preserve source identities, but the extra corporation rejection is not modeled.
   // This replay still uses Builder and Sponsor stand-ins for Thawer and Briber.
   // Player-record evidence: Merger was dealt despite promo cards being disabled, so it is included
   // individually without enabling promos:cards.
@@ -31,152 +34,237 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
           "Green",
       )
 
-  @Test
-  internal fun gameThroughGeneration10() {
-    admin.startGame()
-    val pink = p1
-    val green = p2
-    keepStartingProjects(7, 4)
+  private val pink
+    get() = p1
 
-    // First player this generation is Pink
-    // Good luck Pink!
-    // Good luck Green!
-    // Generation 1
+  private val green
+    get() = p2
+
+  @Test
+  internal fun game20260820() {
+    startGame()
+    pink.doTask("20 TerraformRating")
+    green.doTask("20 TerraformRating")
+    pink.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+    )
+    green.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+    )
+    pink.doTask("-3 ProjectCard<Selecting>")
+    green.doTask("-6 ProjectCard<Selecting>")
+    generation1()
+    generation2()
+    generation3()
+    generation4()
+    generation5()
+    generation6()
+    generation7()
+    generation8()
+    generation9()
+    generation10()
+    generation11()
+  }
+
+  private fun generation1() {
     admin.assertCounts(1 to "Generation")
 
-    // Pink rejected CrediCor and Ecotec; Venus Contract and Focused Organization; and Windmills,
-    // Open City, and Energy Saving.
-    // Pink played Tharsis Republic
-    // Pink kept 7 project cards
-    pink.playCorp(TharsisRepublic)
-
-    // Green rejected Ecoline and Morning Star Inc.; Project Eden and Floating Trade Hub; and
-    // Magnetic Field Dome, Heather, Insulation, Cartel, Caretaker Contract, and Protected Habitats.
-    // Green played Nirgal Enterprises
-    // Green gained 1 steel production
-    // Green gained 1 plant production
-    // Green gained 1 energy production
-    // Green kept 4 project cards
-    green.playCorp(NirgalEnterprises)
-
-    pink.turn {
-      // Pink played Recession
-      // Pink gained 10 M€
-      // Green lost 1 M€ production because of Pink
-      // Green lost 5 M€ because of Pink
-      playPrelude(Recession).expect("PROD[-1 MC<Green>], -5 MC<Green>")
-      // Pink played Merger
-      playPrelude(Merger) {
-            // You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
-            // Pink played Sagitta Frontier Services
-            playCorp(SagittaFrontierServices)
-            // Pink gained 2 M€ production
-            // Pink gained 1 energy production
-            /* Discarded 49 cards Freyja Biodomes,Atalanta Planitia Lab,Adaptation Technology,Mining Rights,Urbanized Area,Lichen,Extractor Balloons,Forced Precipitation,Luna Metropolis,Sister Planet Support,Ants,Corroder Suits,Artificial Photosynthesis,Cloud Tourism,Sulphur-Eating Bacteria,Strip Mine,Imported Nitrogen,Standard Technology,Trans-Neptune Probe,Quantum Extractor,Mass Converter,Nitrophilic Moss,Carbonate Processing,Psychrophiles,Mining Area,Towing A Comet,Rover Construction,Extreme-Cold Fungus,Spin-Inducing Asteroid,Indentured Workers,Worms,Immigration Shuttles,Symbiotic Fungus,Livestock,Local Heat Trapping,Underground Detonations,Corporate Stronghold,SF Memorial,Nitrogen-Rich Asteroid,Io Sulphur Research,Imported GHG,Cupola City,Biomass Combustors,Special Design,Inventors' Guild,Comet,Greenhouses,Methane From Titan,Advanced Alloys */
-            // Pink drew Micro-Mills
-            // Pink gained 4 M€ for playing Sagitta Frontier Services, which has no tags.
-          }
-          .expect("PROD[2 MC, Energy], ProjectCard, -7 MC")
+    with(pink) {
+      // Pink rejected CrediCor and Ecotec; Venus Contract and Focused Organization; and Windmills,
+      // Open City, and Energy Saving.
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
+          "$TharsisRepublic FROM CorporationCard",
+          "40 MC",
+          "21 Pay<> FROM MC",
+          "7 ProjectCard<Hand FROM Selecting>",
+      )
     }
 
-    green.turn {
-      // Green played Nobel Prize
-      playPrelude(NobelPrize) {
-            // Green gained 5 M€
-            /* Discarded 6 cards Dirigibles,Asteroid Mining,Viral Enhancers,Soletta,Sabotage,Big Asteroid */
-            // Green drew Insects,Stratopolis
-          }
-          .expect("5 MC, 2 ProjectCard")
-      // Green played Suitable Infrastructure
-      // Green gained 5 steel
-      playPrelude(SuitableInfrastructure)
+    with(green) {
+      // Green rejected Ecoline and Morning Star Inc.; Project Eden and Floating Trade Hub; and
+      // Magnetic Field Dome, Heather, Insulation, Cartel, Caretaker Contract, and Protected
+      // Habitats.
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$NirgalEnterprises>>",
+          "$NirgalEnterprises FROM CorporationCard",
+          "30 MC",
+          "PROD[Energy]",
+          "PROD[Plant]",
+          "PROD[Steel]",
+          "12 Pay<> FROM MC",
+          "4 ProjectCard<Hand FROM Selecting>",
+      )
     }
 
-    pink.turn {
-      // Pink took the first action of Tharsis Republic corporation
-      stdAction("DoRequiredActions") {
-            // Pink placed city tile at 61
-            placeTile(9, 7)
-            // Pink placed ocean tile at 34
-            placeTile(5, 6)
-            // Pink drew 1 card(s)
-            // You drew Industrial Center
-            // Pink gained 3 M€
-            // Pink gained 1 M€ production
-          }
-          .expect("-3 MC, PROD[1 MC]")
-      // Pink played Micro-Mills
-      // Pink gained 1 heat production
-      // Pink gained 4 M€ for playing Micro-Mills, which has no tags.
-      playProject(MicroMills, 3)
+    with(pink) {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Recession>>",
+          "$Recession FROM PreludeCard",
+          "10 MC",
+          "EACH Other@Player(NOT Pink) { -5* MC<Other@Player>, -Production<Other@Player, Class<MC>>! }",
+          "-5 MC<Green>",
+          "PROD[-MC<Green>]",
+      )
+      // You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+          "PlayCard<Class<CorporationCard>, Class<$SagittaFrontierServices>>",
+          "$SagittaFrontierServices FROM CorporationCard<Selecting>",
+          "31 MC",
+          "-42 MC",
+          "PROD[Energy]",
+          "PROD[2 MC]",
+      )
+      // Pink drew Micro-Mills
+      doTask("SearchForCard<NoTagsFilter>").expect("ProjectCard")
+      doTask("4 MC")
     }
 
-    green.turn {
-      // Green played Mineral Deposit
-      // Green gained 5 steel
-      playProject(MineralDeposit, 5)
-      // Green ended turn
+    with(green) {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$NobelPrize>>",
+          "$NobelPrize FROM PreludeCard",
+          "5 MC",
+      )
+      // Green drew Insects,Stratopolis
+      doTask("2 SearchForCard<RequirementFilter>").expect("2 ProjectCard")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$SuitableInfrastructure>>",
+          "$SuitableInfrastructure FROM PreludeCard",
+          "5 Steel",
+      )
     }
 
-    pink.turn {
-      // Pink played Mine
-      // Pink gained 1 steel production
-      // Pink gained 1 M€ for playing Mine, which has exactly 1 tag.
-      playProject(Mine, 4)
-      // Pink played Great Escarpment Consortium
-      playProject(GreatEscarpmentConsortium, 6) {
-        // Pink stole 1 steel production from Green
-        doTask("PROD[-Steel<Green>]")
-        // Pink gained 1 steel production
-        // Pink gained 4 M€ for playing Great Escarpment Consortium, which has no tags.
-      }
+    with(pink) {
+      // You drew Industrial Center
+      doTasks(
+          "DoRequiredActions",
+          "CityTile<Hellas_9_7>",
+          "PROD[MC]",
+          "3 MC",
+          "-6 MC",
+          "OceanTile<Hellas_5_6>",
+          "TerraformRating",
+          "ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("$MicroMills"),
+          "3 Pay<> FROM MC",
+          "$MicroMills FROM ProjectCard",
+          "PROD[Heat]",
+          "4 MC",
+      )
     }
 
-    green.turn {
-      // Green played Aquifer Pumping
+    with(green) {
+      doTasks(
+          *playCardTasks("$MineralDeposit"),
+          "5 Pay<> FROM MC",
+          "$MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$Mine"),
+          "4 Pay<> FROM MC",
+          "$Mine FROM ProjectCard",
+          "PROD[Steel]",
+          "MC",
+      )
+      doTasks(
+          *playCardTasks("$GreatEscarpmentConsortium"),
+          "6 Pay<> FROM MC",
+          "$GreatEscarpmentConsortium FROM ProjectCard",
+          "PROD[Steel]",
+          "4 MC",
+          "PROD[-Steel<Green>]",
+      )
+    }
+
+    with(green) {
       // The later Aquifer Pumping action requires four of Green's ten steel to remain available.
-      playProject(AquiferPumping, 6, steel = 6)
-      // Green ended turn
+      doTasks(
+          *playCardTasks("$AquiferPumping"),
+          "6 Pay<Class<Steel>> FROM Steel",
+          "6 Pay<> FROM MC",
+          "$AquiferPumping FROM ProjectCard",
+      )
+      doTask("PassBaton")
     }
 
-    pink.turn {
-      // Pink played Sponsors
-      // Pink gained 2 M€ production
-      // Pink gained 1 M€ for playing Sponsors, which has exactly 1 tag.
-      playProject(Sponsors, 6)
-      // Pink played Robotic Workforce
-      playProject(RoboticWorkforce, 9) {
-            // Pink gained 1 M€ for playing Robotic Workforce, which has exactly 1 tag.
-            // Pink copied Mine production with Robotic Workforce
-            doTask("CopyProductionBox<$Mine>")
-            // Pink gained 1 steel production
-          }
-          .expect("PROD[Steel], -8 MC, 0 Mine")
+    with(pink) {
+      doTasks(
+          *playCardTasks("$Sponsors"),
+          "6 Pay<> FROM MC",
+          "$Sponsors FROM ProjectCard",
+          "PROD[2 MC]",
+          "MC",
+      )
+      // Copy Mine's production without creating another Mine.
+      doTasks(
+              *playCardTasks("$RoboticWorkforce"),
+              "9 Pay<> FROM MC",
+              "$RoboticWorkforce FROM ProjectCard",
+              "MC",
+              "CopyProductionBox<$Mine>",
+              "PROD[Steel]",
+          )
+          .expect("0 Mine")
     }
 
-    green.turn {
-      // Green used Aquifer Pumping action
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(steel = 4) }) {
-            // Green placed ocean tile at 46
-            placeTile(7, 3)
-            // Green gained 2 titanium
-          }
-          .expect("2 Titanium")
+    with(green) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "Ok", // No MC remainder.
+          "OceanTile<Hellas_7_3>",
+          "TerraformRating",
+          "2 Titanium",
+      )
+      doTask("PassBaton")
     }
-    // Green passed
-    // Pink passed
-    // Green declared this pass early after one action; Solarnet executes both passes in turn order.
-    pink.pass()
-    green.pass()
-    // Pink placed ocean tile at 08
-    // Pink acted as World Government and placed an ocean
-    pink.wgt("OceanTile<Hellas_2_1>")
 
-    // Generation 2
-    // First player this generation is Green
-    // Green bought 4 card(s)
+    with(pink) {
+      // Green declared this pass early after one action; Solarnet executes both passes in turn
+      // order.
+      doTask("Pass")
+    }
+
+    with(green) {
+      doTask("Pass")
+    }
+
+    // Production.
+    pink.doTasks("26 MC", "Energy", "Heat", "3 Steel")
+    green.doTasks("20 MC", "Energy", "Plant")
+
+    // World Government.
+    pink.doTask("OceanTile<Hellas_2_1>! BY Admin")
+  }
+
+  private fun generation2() {
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
     // You bought Giant Ice Asteroid,Investment Loan,Earth Office,Power Supply Consortium
-    green.buyCards(4)
+    green.doTasks(
+        "Ok", // Keep all four offered cards.
+        "12 Pay<> FROM MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    )
 
     // Game20260820-dashboards-gen2.png was taken after Green's generation 2 purchase and
     // before Pink's.
@@ -185,68 +273,101 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     pink.assertProduction(m = 5, s = 3, t = 0, p = 0, e = 1, h = 1)
     green.assertResources(m = 15, s = 0, t = 2, p = 1, e = 1, h = 0)
     green.assertProduction(m = -1, s = 0, t = 0, p = 1, e = 1, h = 0)
-    // Pink bought 4 card(s)
     // You bought Invention Contest,Decomposers,Colonizer Training Camp,Imported Hydrogen
-    pink.buyCards(4)
+    pink.doTasks(
+        "Ok", // Keep all four offered cards.
+        "12 Pay<> FROM MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    )
 
-    green.turn {
-      // Green played Earth Office
-      playProject(EarthOffice, 1)
-      // Green ended turn
+    with(green) {
+      doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink played Designed Microorganisms
-      // Pink gained 2 plant production
-      playProject(DesignedMicroorganisms, 16)
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$DesignedMicroorganisms"),
+          "16 Pay<> FROM MC",
+          "$DesignedMicroorganisms FROM ProjectCard",
+          "PROD[2 Plant]",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
+
+    with(green) {
       // Power Supply Consortium requires Nobel Prize's wild icon to count as Green's second power
       // tag.
-      // Green played Power Supply Consortium
-      playProject(PowerSupplyConsortium, 5) {
-        // Green stole 1 energy production from Pink
-        doTask("PROD[-Energy<Pink>]")
-        // Green gained 2 M€ from Suitable Infrastructure
-      }
-      // Green ended turn
+      doTasks(
+          *playCardTasks("$PowerSupplyConsortium"),
+          "5 Pay<> FROM MC",
+          "$PowerSupplyConsortium FROM ProjectCard",
+          "PROD[Energy]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+          "PROD[-Energy<Pink>]",
+      )
+      doTask("PassBaton")
     }
-    // Pink passed
-    pink.pass()
-    green.turn {
-      // Green played Investment Loan
-      // Green lost 1 M€ production
-      // Green gained 10 M€
-      playProject(InvestmentLoan, 0).expect("PROD[-1 MC], 10 MC")
-      // Green used Aquifer Pumping action
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-            // Green placed ocean tile at 35
-            placeTile(5, 7)
-            // Green gained 3 heat
-            // Green gained 2 M€ from 1 ocean(s)
-          }
-          .expect("3 Heat, -6 MC")
-    }
-    green.turn {
-      // Green played Rotator Impacts
-      playProject(RotatorImpacts, titanium = 2)
-      // Green used Rotator Impacts action
-      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(6) })
-      // Green added 1 Asteroid to Rotator Impacts
-    }
-    // Green passed
-    green.pass()
-    // Green acted as World Government and increased oxygen level
-    green.wgt("OxygenStep")
 
-    // Generation 3
-    // First player this generation is Pink
-    // Green bought 3 card(s)
+    with(pink) {
+      doTask("Pass")
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$InvestmentLoan"),
+          "$InvestmentLoan FROM ProjectCard",
+          "PROD[-MC]",
+          "10 MC",
+      )
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Hellas_5_7>",
+          "TerraformRating",
+          "3 Heat",
+          "2 MC",
+      )
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$RotatorImpacts"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // No MC remainder.
+          "$RotatorImpacts FROM ProjectCard",
+      )
+      doTasks(*cardActionTasks("$RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<$RotatorImpacts>")
+    }
+
+    with(green) {
+      doTask("Pass")
+    }
+
+    // Production.
+    pink.doTasks("26 MC", "Heat", "3 Steel", "Heat FROM Energy", "2 Plant")
+    green.doTasks("20 MC", "2 Energy", "Plant", "Heat FROM Energy")
+
+    // World Government.
+    green.doTask("OxygenStep! BY Admin")
+  }
+
+  private fun generation3() {
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
     // You bought Mars University,Neutralizer Factory,Great Dam
-    green.buyCards(3)
-    // Pink bought 2 card(s)
+    green.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
     // You bought Hackers,ArchaeBacteria
-    pink.buyCards(2)
+    pink.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
     // Game20260820-dashboards-gen3.png was taken after generation 3 purchases and before
     // the first action.
@@ -255,294 +376,456 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     pink.assertProduction(m = 5, s = 3, t = 0, p = 2, e = 0, h = 1)
     green.assertResources(m = 20, s = 0, t = 0, p = 2, e = 2, h = 4)
     green.assertProduction(m = -2, s = 0, t = 0, p = 1, e = 2, h = 0)
-    pink.turn {
-      // Pink played Invention Contest
-      // Pink drew 1 card(s)
+
+    with(pink) {
       // You drew Ishtar Mining
-      playProject(InventionContest, 2)
-      // Pink ended turn
+      doTasks(
+          *playCardTasks("$InventionContest"),
+          "2 Pay<> FROM MC",
+          "$InventionContest FROM ProjectCard",
+          "3 ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green played Mars University
-      playProject(MarsUniversity, 8, steel = 0) {
-        // Green is using their Mars University effect to draw a card by discarding a card.
-        // Green discarded Stratopolis
-        // Green drew 1 card(s)
-        // You drew House Printing
-        doTask("-ProjectCard")
-      }
-      // Green ended turn
-    }
-    pink.turn {
-      // Pink played ArchaeBacteria
-      // Pink gained 1 plant production
-      // Pink gained 1 M€ for playing ArchaeBacteria, which has exactly 1 tag.
-      playProject(Archaebacteria, 6)
-      // Pink ended turn
-    }
-    green.turn {
-      // Green used Rotator Impacts action
-      cardAction2(RotatorImpacts)
-      // Green removed 1 resource(s) from Green's Rotator Impacts
-      // Green ended turn
-    }
-    // Pink passed
-    pink.pass()
-    green.turn {
-      // Green used Aquifer Pumping action
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(8) }) {
-        // Green placed ocean tile at 26
-        placeTile(4, 6)
-        // Green gained 1 plant
-        // Green gained 4 M€ from 2 ocean(s)
-      }
-    }
-    // Green passed
-    green.pass()
-    // Pink acted as World Government and increased Venus scale
-    pink.wgt("VenusStep")
 
-    // Generation 4
-    // First player this generation is Green
-    // Pink bought 2 card(s)
+    with(green) {
+      // Green discarded Stratopolis
+      // You drew House Printing
+      doTasks(
+          *playCardTasks("$MarsUniversity"),
+          "8 Pay<> FROM MC",
+          "$MarsUniversity FROM ProjectCard",
+          "-ProjectCard",
+          "ProjectCard",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$Archaebacteria"),
+          "6 Pay<> FROM MC",
+          "$Archaebacteria FROM ProjectCard",
+          "PROD[Plant]",
+          "MC",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTask("Pass")
+    }
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "8 Pay<> FROM MC",
+          "OceanTile<Hellas_4_6>",
+          "TerraformRating",
+          "Plant",
+          "2 MC",
+          "2 MC",
+      )
+    }
+
+    with(green) {
+      doTask("Pass")
+    }
+
+    // Production.
+    pink.doTasks("26 MC", "Heat", "3 Steel", "3 Plant")
+    green.doTasks("22 MC", "2 Energy", "Plant", "2 Heat FROM Energy")
+
+    // World Government.
+    pink.doTask("VenusStep! BY Admin")
+  }
+
+  private fun generation4() {
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
     // You bought Titanium Mine,Ecological Zone
-    pink.buyCards(2)
-    // Green bought 4 card(s)
+    pink.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // You bought Media Group,Ironworks,Research,Miranda Resort
-    green.buyCards(4)
+    green.doTasks(
+        "Ok", // Keep all four offered cards.
+        "12 Pay<> FROM MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    )
 
-    green.turn {
-      // Green played Media Group
-      playProject(MediaGroup, 3)
-      // Green ended turn
+    with(green) {
+      doTasks(*playCardTasks("$MediaGroup"), "3 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink played Orbital Reflectors
-      // Pink gained 2 heat production
-      // Pink drew 1 card(s)
+
+    with(pink) {
       // You drew Water Splitting Plant
-      playProject(OrbitalReflectors, 26)
-      // Pink played Ishtar Mining
-      // Pink gained 1 titanium production
-      // Pink gained 1 M€ for playing Ishtar Mining, which has exactly 1 tag.
-      playProject(IshtarMining, 5)
+      doTasks(
+          *playCardTasks("$OrbitalReflectors"),
+          "26 Pay<> FROM MC",
+          "$OrbitalReflectors FROM ProjectCard",
+          "VenusStep",
+          "VenusStep",
+          "PROD[2 Heat]",
+          "TerraformRating",
+          "TerraformRating",
+          "ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("$IshtarMining"),
+          "5 Pay<> FROM MC",
+          "$IshtarMining FROM ProjectCard",
+          "PROD[Titanium]",
+          "MC",
+      )
     }
-    green.turn {
-      // Green played Miranda Resort
-      // Miranda Resort counted Nobel Prize's wild icon as Green's third earth tag.
-      // Green gained 3 M€ production
-      // Green gained 2 M€ from Suitable Infrastructure
-      playProject(MirandaResort, 12).expect("PROD[3 MC], -10 MC")
-      // Nobel Prize's wild icon counts as Green's eighth distinct tag.
-      // Green claimed Diversifier milestone
-      inTurn {
-        doWithAutoExecPolicy(SOLE_TASK) {
-          useStdAction("UseAction<ClaimMilestoneAction, Action1>") {
-            doTask("Diversifier")
-          }
-        }
-      }
-    }
-    pink.turn {
-      // Pink played Titanium Mine
-      // Pink gained 1 titanium production
-      // Pink gained 1 M€ for playing Titanium Mine, which has exactly 1 tag.
-      playProject(TitaniumMine, 1, steel = 3).expect("PROD[Titanium], 0 MC")
-      // Pink ended turn
-    }
-    // Green passed
-    green.pass()
-    // Pink passed
-    pink.pass()
-    // Green acted as World Government and increased oxygen level
-    green.wgt("OxygenStep")
 
-    // Generation 5
-    // First player this generation is Pink
+    with(green) {
+      // Miranda Resort counted Nobel Prize's wild icon as Green's third earth tag.
+      doTasks(
+          *playCardTasks("$MirandaResort"),
+          "12 Pay<> FROM MC",
+          "$MirandaResort FROM ProjectCard",
+          "PROD[3 MC]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+      )
+      // Nobel Prize's wild icon counts as Green's eighth distinct tag.
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "Diversifier",
+      ) // Free with Nirgal Enterprises.
+    }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$TitaniumMine"),
+          "3 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
+          "$TitaniumMine FROM ProjectCard",
+          "PROD[Titanium]",
+          "MC",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTask("Pass")
+    }
+
+    with(pink) {
+      doTask("Pass")
+    }
+
+    // Production.
+    pink.doTasks("28 MC", "3 Heat", "3 Steel", "3 Plant", "2 Titanium")
+    green.doTasks("25 MC", "2 Energy", "Plant", "2 Heat FROM Energy")
+
+    // World Government.
+    green.doTask("OxygenStep! BY Admin")
+  }
+
+  private fun generation5() {
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
+
     // Game20260820-dashboards-gen5.png was taken in generation 5 drafting, before purchases.
     assertSidebar(gen = 5, temp = -30, oxygen = 2, oceans = 5, venus = 8)
     pink.assertResources(m = 31, s = 9, t = 2, p = 8, e = 0, h = 7)
     pink.assertProduction(m = 5, s = 3, t = 2, p = 3, e = 0, h = 3)
     green.assertResources(m = 30, s = 0, t = 0, p = 5, e = 2, h = 8)
     green.assertProduction(m = 1, s = 0, t = 0, p = 1, e = 2, h = 0)
-    // Green bought 3 card(s)
     // You bought Thermophiles,Rad-Chem Factory,GHG Factories
-    green.buyCards(3)
-    // Pink bought 3 card(s)
+    green.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
     // You bought Floating Habs,Nuclear Zone,Space Elevator
-    pink.buyCards(3)
+    pink.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
 
-    pink.turn {
-      // Pink used Convert Plants standard action
-      // Pink placed greenery tile at 56
-      // Pink gained 2 heat
-      convertPlants { placeTile(8, 7) }.expect("2 Heat")
-      // Pink ended turn
+    with(pink) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_8_7>",
+          "OxygenStep",
+          "2 Heat",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green played Great Dam
-      // Green gained 2 energy production
-      // Green gained 2 M€ from Suitable Infrastructure
-      playProject(GreatDam, 12)
-      // Green ended turn
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$GreatDam"),
+          "12 Pay<> FROM MC",
+          "$GreatDam FROM ProjectCard",
+          "PROD[2 Energy]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+      )
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink played Space Elevator
+
+    with(pink) {
       // The later Space Elevator action requires one of Pink's nine steel to remain available.
-      // Pink gained 1 titanium production
-      playProject(SpaceElevator, 5, steel = 8, titanium = 2)
-      // Pink ended turn
+      doTasks(
+          *playCardTasks("$SpaceElevator"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "8 Pay<Class<Steel>> FROM Steel",
+          "5 Pay<> FROM MC",
+          "$SpaceElevator FROM ProjectCard",
+          "PROD[Titanium]",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green used Rotator Impacts action
-      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(6) })
-      // Green added 1 Asteroid to Rotator Impacts
-      // Green ended turn
+
+    with(green) {
+      doTasks(*cardActionTasks("$RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<$RotatorImpacts>")
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink used Space Elevator action
-      // Pink gained 5 M€
-      cardAction1(SpaceElevator)
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
+      doTask("PassBaton")
     }
-    // Green passed
-    green.pass()
-    pink.turn {
-      // Pink used Convert Heat standard action
-      convertHeat()
-      // Pink played Nuclear Zone
-      // Pink gained 1 heat production
-      // Pink placed Nuclear Zone tile at 20
-      // Pink gained 1 plant
-      // Pink drew 1 card(s)
+
+    with(green) {
+      doTask("Pass")
+    }
+
+    with(pink) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
       // You drew Earth Catapult
-      playProject(NuclearZone, 10) {
-            placeTile(3, 7)
-          }
-          .expect("Plant")
-      // Pink gained 1 M€ for playing Nuclear Zone, which has exactly 1 tag.
+      doTasks(
+          *playCardTasks("$NuclearZone"),
+          "10 Pay<> FROM MC",
+          "$NuclearZone FROM ProjectCard",
+          "TemperatureStep",
+          "TemperatureStep",
+          "MC",
+          "TerraformRating",
+          "TerraformRating",
+          "PROD[Heat]",
+          "NuclearZone_SpecialTile<Hellas_3_7>",
+          "Plant",
+          "ProjectCard",
+      )
     }
-    // Pink passed
-    pink.pass()
-    // Pink placed ocean tile at 27
-    // Pink acted as World Government and placed an ocean
-    pink.wgt("OceanTile<Hellas_4_7>")
 
-    // Generation 6
-    // First player this generation is Green
-    // Pink bought 2 card(s)
+    with(pink) {
+      doTask("Pass")
+    }
+
+    // Production.
+    pink.doTasks("32 MC", "4 Heat", "3 Steel", "3 Plant", "3 Titanium")
+    green.doTasks("25 MC", "4 Energy", "Plant", "2 Heat FROM Energy")
+
+    // World Government.
+    pink.doTask("OceanTile<Hellas_4_7>! BY Admin")
+  }
+
+  private fun generation6() {
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
     // You bought Solar Wind Power,Aerobraked Ammonia Asteroid
-    pink.buyCards(2)
-    // Green bought 2 card(s)
+    pink.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // You bought Asteroid,Nitrite Reducing Bacteria
-    green.buyCards(2)
+    green.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
-    green.turn {
-      // Green used Convert Heat standard action
-      convertHeat()
-      // Green played Asteroid
-      // Green gained 2 titanium
-      // Green gained 1 heat production
-      // Green gained 2 M€ from Suitable Infrastructure
-      // Pink lost 3 plants because of Green
-      // Green gained 3 M€
-      playProject(AsteroidCard, 14) { doTask("-3 Plant<Pink>") }
-          .expect("2 Titanium, PROD[Heat], -3 Plant<Pink>")
+    with(green) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("$AsteroidCard"),
+          "14 Pay<> FROM MC",
+          "$AsteroidCard FROM ProjectCard",
+          "TemperatureStep",
+          "2 Titanium",
+          "3 MC",
+          "TerraformRating",
+          "PROD[Heat]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+          "-3 Plant<Pink>",
+      )
     }
-    pink.turn {
-      // Pink played Earth Catapult
-      // Pink gained 1 M€ for playing Earth Catapult, which has exactly 1 tag.
-      playProject(EarthCatapult, 23)
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$EarthCatapult"),
+          "23 Pay<> FROM MC",
+          "$EarthCatapult FROM ProjectCard",
+          "MC",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green played Ironworks
-      playProject(Ironworks, 11)
-      // Green ended turn
+
+    with(green) {
+      doTasks(*playCardTasks("$Ironworks"), "11 Pay<> FROM MC", "$Ironworks FROM ProjectCard")
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink played Solar Wind Power
-      // Pink gained 1 energy production
-      // Pink gained 2 titanium
-      playProject(SolarWindPower, titanium = 3)
-      // Pink claimed Generalist milestone
-      stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Generalist") }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$SolarWindPower"),
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // No MC remainder.
+          "$SolarWindPower FROM ProjectCard",
+          "PROD[Energy]",
+          "2 Titanium",
+      )
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Generalist")
     }
-    green.turn {
-      // Green used Ironworks action
-      // Green gained 1 steel
-      cardAction1(Ironworks)
-      // Green ended turn
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$Ironworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "Steel",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink played Hackers
-      // Pink gained 2 M€ production
-      // Pink lost 1 energy production
-      // Pink stole 2 M€ production from Green
-      // Pink gained 4 M€ for playing Hackers, which has no tags.
-      playProject(Hackers, 1) { doTask("PROD[-2 MC<Green>]") }
-          .expect("PROD[2 MC, -Energy, -2 MC<Green>], 3 MC")
-      // Pink used Space Elevator action
-      // Pink gained 5 M€
-      cardAction1(SpaceElevator)
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$Hackers"),
+          "1 Pay<> FROM MC",
+          "$Hackers FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[2 MC]",
+          "4 MC",
+          "PROD[-2 MC<Green>]",
+      )
+      doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
     }
-    green.turn {
-      // Green used Rotator Impacts action
-      // Green removed 1 resource(s) from Green's Rotator Impacts
-      cardAction2(RotatorImpacts)
-      // Green ended turn
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink played Decomposers
-      // Pink added 1 Microbe to Decomposers
-      // Pink gained 1 M€ for playing Decomposers, which has exactly 1 tag.
-      playProject(Decomposers, 3).expect("Microbe<$Decomposers>, -2 MC")
-      // Pink played Ecological Zone
-      // Pink added 2 Microbe(s) to Decomposers
-      // Pink added 2 Animal(s) to Ecological Zone
-      // Pink placed Ecological Zone tile at 49
-      // Pink drew 1 card(s)
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$Decomposers"),
+          "3 Pay<> FROM MC",
+          "$Decomposers FROM ProjectCard",
+          "MC",
+          "Microbe<$Decomposers>",
+      )
       // You drew Zeppelins
-      playProject(EcologicalZone, 10) {
-            placeTile(7, 6)
-          }
-          .expect("2 Microbe<$Decomposers>, 2 Animal<$EcologicalZone>")
+      doTasks(
+          *playCardTasks("$EcologicalZone"),
+          "10 Pay<> FROM MC",
+          "$EcologicalZone FROM ProjectCard",
+          "Animal<$EcologicalZone>",
+          "Microbe<$Decomposers>",
+          "Animal<$EcologicalZone>",
+          "Microbe<$Decomposers>",
+          "EcologicalZone_SpecialTile<Hellas_7_6>",
+          "ProjectCard",
+      )
     }
-    green.turn {
-      // Green funded Contractor award
-      stdAction("UseAction<FundAwardAction, Action1>") { doTask("Contractor") }
-      // Green ended turn
-    }
-    pink.turn {
-      // Pink played Floating Habs
-      // Pink gained 1 M€ for playing Floating Habs, which has exactly 1 tag.
-      playProject(FloatingHabs, 3)
-      // Pink played Colonizer Training Camp
-      playProject(ColonizerTrainingCamp, 2, steel = 2)
-    }
-    // Green passed
-    green.pass()
-    pink.turn {
-      // Pink used Sell Patents standard project
-      sellPatents(1)
-      // Pink sold 1 patents
-      // Pink used Floating Habs action
-      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
-      // Pink added 1 Floater to Floating Habs
-    }
-    // Pink passed
-    pink.pass()
-    // Green acted as World Government and increased temperature
-    green.wgt("TemperatureStep")
 
-    // Generation 7
-    // First player this generation is Pink
-    // Pink bought 3 card(s)
+    with(green) {
+      doTasks("UseAction<FundAwardAction, Action1>", "Contractor") // Free with Nirgal Enterprises.
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$FloatingHabs"),
+          "3 Pay<> FROM MC",
+          "$FloatingHabs FROM ProjectCard",
+          "MC",
+      )
+      doTasks(
+          *playCardTasks("$ColonizerTrainingCamp"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "2 Pay<> FROM MC",
+          "$ColonizerTrainingCamp FROM ProjectCard",
+      )
+    }
+
+    with(green) {
+      doTask("Pass")
+    }
+
+    with(pink) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTasks(*cardActionTasks("$FloatingHabs"), "2 Pay<> FROM MC", "Floater<$FloatingHabs>")
+    }
+
+    with(pink) {
+      doTask("Pass")
+    }
+
+    // Production.
+    pink.doTasks("34 MC", "4 Heat", "3 Steel", "3 Plant", "3 Titanium")
+    green.doTasks("27 MC", "4 Energy", "Plant", "Heat")
+
+    // World Government.
+    green.doTask("TemperatureStep! BY Admin")
+  }
+
+  private fun generation7() {
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
     // You bought Lagrange Observatory,Advanced Ecosystems,Deimos Down
-    pink.buyCards(3)
-    // Green bought 2 card(s)
+    pink.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
     // You bought Terraforming Contract,Sponsored Academies
-    green.buyCards(2)
+    green.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
     // Game20260820-dashboards-gen7.png was taken after generation 7 purchases and before actions.
     assertSidebar(gen = 7, temp = -18, oxygen = 4, oceans = 6, venus = 10)
@@ -550,241 +833,385 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     pink.assertProduction(m = 7, s = 3, t = 3, p = 3, e = 0, h = 4)
     green.assertResources(m = 25, s = 1, t = 2, p = 7, e = 4, h = 3)
     green.assertProduction(m = -1, s = 0, t = 0, p = 1, e = 4, h = 1)
-    pink.turn {
-      // Pink played Deimos Down
-      // Pink gained 4 steel
-      // Green lost 7 plants because of Pink
-      playProject(DeimosDown, 14, titanium = 5) { doTask("-7 Plant<Green>") }
-          .expect("4 Steel, -7 Plant<Green>")
-      // Pink claimed Terraformer milestone
-      stdAction("UseAction<ClaimMilestoneAction, Action1>") { doTask("Terraformer") }
-    }
-    green.turn {
-      // Green played Terraforming Contract
-      // Green gained 4 M€ production
-      // Green gained 2 M€ from Suitable Infrastructure
-      playProject(TerraformingContract, 5)
-      // Green ended turn
-    }
-    pink.turn {
-      // Pink used Space Elevator action
-      // Pink gained 5 M€
-      cardAction1(SpaceElevator)
-      // Pink ended turn
-    }
-    green.turn {
-      // Green used Rotator Impacts action
-      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(titanium = 2) })
-      // Green added 1 Asteroid to Rotator Impacts
-      // Green ended turn
-    }
-    // Green ended turn
-    pink.turn {
-      // Pink played Lagrange Observatory
-      // Pink drew 1 card(s)
-      // You drew Gyropolis
-      playProject(LagrangeObservatory, 7)
-      // Pink ended turn
-    }
-    green.turn {
-      // Green used Ironworks action
-      // Green gained 1 steel
-      cardAction1(Ironworks)
-      // Green ended turn
-    }
-    pink.turn {
-      // Pink used Convert Heat standard action
-      convertHeat()
-      // Pink ended turn
-    }
-    green.turn {
-      // Green used Aquifer Pumping action
-      stdAction(*cardActionTasks("$AquiferPumping"), payment = { pay(4, steel = 2) }) {
-        // Green placed ocean tile at 36
-        placeTile(5, 8)
-        // Green gained 4 M€ from 2 ocean(s)
-      }
-      // Green ended turn
-    }
-    // Pink passed
-    pink.pass()
-    green.turn {
-      // Green played Tectonic Stress Power
-      // Nobel Prize's wild icon counts as Green's second science tag.
-      // Green gained 3 energy production
-      // Green gained 2 M€ from Suitable Infrastructure
-      playProject(TectonicStressPower, 18)
-      // Green passed
-      pass()
-    }
-    // Pink acted as World Government and increased temperature
-    pink.wgt("TemperatureStep")
 
-    // Generation 8
-    // First player this generation is Green
+    with(pink) {
+      doTasks(
+          *playCardTasks("$DeimosDown"),
+          "5 Pay<Class<Titanium>> FROM Titanium",
+          "14 Pay<> FROM MC",
+          "$DeimosDown FROM ProjectCard",
+          "TemperatureStep",
+          "TemperatureStep",
+          "TemperatureStep",
+          "4 Steel",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "-7 Plant<Green>",
+      )
+      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Terraformer")
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$TerraformingContract"),
+          "5 Pay<> FROM MC",
+          "$TerraformingContract FROM ProjectCard",
+          "PROD[4 MC]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$RotatorImpacts"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // No MC remainder.
+          "Asteroid<$RotatorImpacts>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      // You drew Gyropolis
+      doTasks(
+          *playCardTasks("$LagrangeObservatory"),
+          "7 Pay<> FROM MC",
+          "$LagrangeObservatory FROM ProjectCard",
+          "ProjectCard",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$Ironworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "Steel",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$AquiferPumping"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "4 Pay<> FROM MC",
+          "OceanTile<Hellas_5_8>",
+          "TerraformRating",
+          "2 MC",
+          "2 MC",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTask("Pass")
+    }
+
+    with(green) {
+      // Nobel Prize's wild icon counts as Green's second science tag.
+      doTasks(
+          *playCardTasks("$TectonicStressPower"),
+          "18 Pay<> FROM MC",
+          "$TectonicStressPower FROM ProjectCard",
+          "PROD[3 Energy]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+      )
+      doTask("Pass")
+    }
+
+    // Production.
+    pink.doTasks("38 MC", "4 Heat", "3 Steel", "3 Plant", "3 Titanium")
+    green.doTasks("33 MC", "7 Energy", "Plant", "Heat")
+
+    // World Government.
+    pink.doTask("TemperatureStep! BY Admin")
+  }
+
+  private fun generation8() {
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
+
     // Game20260820-dashboards-gen8.png was taken during generation 8 drafting, before purchases.
     assertSidebar(gen = 8, temp = -8, oxygen = 5, oceans = 7, venus = 10)
     pink.assertResources(m = 39, s = 9, t = 3, p = 7, e = 0, h = 5)
     pink.assertProduction(m = 7, s = 3, t = 3, p = 3, e = 0, h = 4)
     green.assertResources(m = 39, s = 0, t = 0, p = 1, e = 7, h = 4)
     green.assertProduction(m = 3, s = 0, t = 0, p = 1, e = 7, h = 1)
-    // Green bought 2 card(s)
     // You bought Ishtar Expedition,Lava Tube Settlement
-    green.buyCards(2)
-    // Pink bought 3 card(s)
+    green.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // You bought Rad-Suits,Geothermal Power,Gene Repair
-    pink.buyCards(3)
+    pink.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
 
-    green.turn {
-      // Green played Ishtar Expedition
-      // Green gained 3 titanium
-      /* Discarded 5 cards Magnetic Field Generators,Mangrove,Domed Crater,Mohole Area,Medical Lab */
+    with(green) {
       // Green drew Stratospheric Birds,Floating Refinery
-      // Green gained 3 M€
-      playProject(IshtarExpedition, 6).expect("3 Titanium, -3 MC")
-      // Green played Giant Ice Asteroid
-      playProject(GiantIceAsteroid, 27, titanium = 3) {
-            // Green placed ocean tile at 43
-            doTask("OceanTile<Hellas_6_7>")
-            // Green gained 4 M€ from 2 ocean(s)
-            // Green placed ocean tile at 44
-            doTask("OceanTile<Hellas_6_8>")
-            // Green gained 1 steel
-            // Green gained 6 M€ from 3 ocean(s)
-            // Pink lost 6 plants because of Green
-            doTask("-6 Plant<Pink>")
-            // Green gained 3 M€
-          }
-          .expect("Steel, -6 Plant<Pink>, -14 MC")
+      doTasks(
+          *playCardTasks("$IshtarExpedition"),
+          "6 Pay<> FROM MC",
+          "$IshtarExpedition FROM ProjectCard",
+          "3 Titanium",
+      )
+      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>").expect("2 ProjectCard")
+      doTask("3 MC")
+      doTasks(
+          *playCardTasks("$GiantIceAsteroid"),
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "27 Pay<> FROM MC",
+          "$GiantIceAsteroid FROM ProjectCard",
+          "TemperatureStep",
+          "TemperatureStep",
+          "3 MC",
+          "TerraformRating",
+          "TerraformRating",
+          "OceanTile<Hellas_6_7>",
+          "TerraformRating",
+          "2 MC",
+          "2 MC",
+          "OceanTile<Hellas_6_8>",
+          "TerraformRating",
+          "Steel",
+          "2 MC",
+          "2 MC",
+          "2 MC",
+          "-6 Plant<Pink>",
+      )
     }
-    pink.turn {
-      // Pink played Geothermal Power
-      // Pink gained 2 energy production
-      playProject(GeothermalPower, 1, steel = 4)
-      // Pink played Immigrant City
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$GeothermalPower"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
+          "$GeothermalPower FROM ProjectCard",
+          "PROD[2 Energy]",
+      )
       // The later Space Elevator action requires one of Pink's five steel to remain available.
-      playProject(ImmigrantCity, 3, steel = 4) {
-            // Pink placed city tile at 12
-            placeTile(2, 5)
-            // Pink gained 1 plant
-            // Pink gained 3 M€
-            // Pink gained 1 M€ production
-            // Pink gained 1 M€ production
-          }
-          .expect("PROD[0 MC], 0 MC")
+      doTasks(
+          *playCardTasks("$ImmigrantCity"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "3 Pay<> FROM MC",
+          "$ImmigrantCity FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[-2 MC]",
+          "CityTile<Hellas_2_5>",
+          "PROD[MC]",
+          "3 MC",
+          "PROD[MC]",
+          "Plant",
+      )
     }
-    green.turn {
-      // Green used Ironworks action
-      // Green gained 1 steel
-      cardAction1(Ironworks)
-      // Green ended turn
-    }
-    pink.turn {
-      // Pink used Space Elevator action
-      // Pink gained 5 M€
-      cardAction1(SpaceElevator)
-      // Pink played Rad-Suits
-      // Pink gained 1 M€ production
-      // Pink gained 4 M€ for playing Rad-Suits, which has no tags.
-      playProject(RadSuits, 4)
-    }
-    green.turn {
-      // Green played Sponsored Academies
-      // Green drew 3 card(s)
-      // You drew Commercial District,Cloud Seeding,Solarnet
-      // Pink drew 1 card(s)
-      // You drew GHG Producing Bacteria
-      playProject(SponsoredAcademies, 6) {
-        // Green is using their Mars University effect to draw a card by discarding a card.
-        // Green discarded Floating Refinery
-        // Green drew 1 card(s)
-        // You drew Space Mirrors
-        doTask("-ProjectCard")
-      }
-      // Green ended turn
-    }
-    pink.turn {
-      // Pink played Gene Repair
-      // Pink gained 2 M€ production
-      // Pink gained 1 M€ for playing Gene Repair, which has exactly 1 tag.
-      playProject(GeneRepair, 10)
-      // Pink ended turn
-    }
-    green.turn {
-      // Green used Rotator Impacts action
-      // Green removed 1 resource(s) from Green's Rotator Impacts
-      cardAction2(RotatorImpacts)
-      // Green ended turn
-    }
-    pink.turn {
-      // Pink played GHG Producing Bacteria
-      // Pink added 1 Microbe to Decomposers
-      playProject(GhgProducingBacteria, 6).expect("Microbe<$Decomposers>")
-      // Pink ended turn
-    }
-    green.turn {
-      // Green played Rad-Chem Factory
-      // Green lost 1 energy production
-      playProject(RadChemFactory, 4, steel = 2)
-      // Green ended turn
-    }
-    pink.turn {
-      // Pink used Floating Habs action
-      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
-      // Pink added 1 Floater to Floating Habs
-      // Pink ended turn
-    }
-    // Green passed
-    green.pass()
-    pink.turn {
-      // Pink played Aerobraked Ammonia Asteroid
-      // Pink gained 1 plant production
-      // Pink gained 3 heat production
-      // Pink added 2 Microbe(s) to GHG Producing Bacteria
-      playProject(AerobrakedAmmoniaAsteroid, 15, titanium = 3) {
-            addCardResources(GhgProducingBacteria)
-          }
-          .expect("PROD[Plant, 3 Heat], 2 Microbe<$GhgProducingBacteria>")
-      // Pink used GHG Producing Bacteria action
-      // Pink removed 2 resource(s) from Pink's GHG Producing Bacteria
-      cardAction2(GhgProducingBacteria)
-      // Pink passed
-      pass()
-    }
-    // Green acted as World Government and increased temperature
-    green.wgt("TemperatureStep")
 
-    // Generation 9
-    // First player this generation is Pink
-    // Green bought 2 card(s)
+    with(green) {
+      doTasks(
+          *cardActionTasks("$Ironworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "Steel",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
+      doTasks(
+          *playCardTasks("$RadSuits"),
+          "4 Pay<> FROM MC",
+          "$RadSuits FROM ProjectCard",
+          "PROD[MC]",
+          "4 MC",
+      )
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$SponsoredAcademies"),
+          "6 Pay<> FROM MC",
+          "$SponsoredAcademies FROM ProjectCard",
+      )
+      // Both cards offer a discard; identify Sponsored Academies explicitly.
+      doTask("-ProjectCard", SponsoredAcademies)
+      // The context also avoids matching EACH against Mars University's unrelated THEN task.
+      doTask(
+          "EACH Other@Player(NOT Green) { ProjectCard<Other@Player, Hand>! }",
+          SponsoredAcademies,
+      )
+      doTasks(
+          "3 ProjectCard", // Green drew Commercial District, Cloud Seeding, and Solarnet.
+          "ProjectCard<Pink, Hand>", // Pink drew GHG Producing Bacteria.
+          "-ProjectCard", // Mars University: Green discarded Floating Refinery.
+          "ProjectCard", // Green drew Space Mirrors.
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$GeneRepair"),
+          "10 Pay<> FROM MC",
+          "$GeneRepair FROM ProjectCard",
+          "PROD[2 MC]",
+          "MC",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$GhgProducingBacteria"),
+          "6 Pay<> FROM MC",
+          "$GhgProducingBacteria FROM ProjectCard",
+          "Microbe<$Decomposers>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$RadChemFactory"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "4 Pay<> FROM MC",
+          "$RadChemFactory FROM ProjectCard",
+          "PROD[-Energy]",
+          "2 TerraformRating",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTasks(*cardActionTasks("$FloatingHabs"), "2 Pay<> FROM MC", "Floater<$FloatingHabs>")
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTask("Pass")
+    }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$AerobrakedAmmoniaAsteroid"),
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "15 Pay<> FROM MC",
+          "$AerobrakedAmmoniaAsteroid FROM ProjectCard",
+          "PROD[3 Heat]",
+          "PROD[Plant]",
+          "2 Microbe<$GhgProducingBacteria>",
+      )
+      doTasks(
+          *cardActionTasks("$GhgProducingBacteria", "Action2"),
+          "-2 Microbe<$GhgProducingBacteria>",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("Pass")
+    }
+
+    // Production.
+    pink.doTasks("42 MC", "7 Heat", "3 Steel", "4 Plant", "3 Titanium", "Energy")
+    green.doTasks("41 MC", "6 Energy", "Plant", "Heat", "3 Heat FROM Energy")
+
+    // World Government.
+    green.doTask("TemperatureStep! BY Admin")
+    // All nine oceans are already placed, so the temperature bonus adds no ocean.
+    green.doTask("OceanTile<WaterArea(HAS MAX 0 Tile)>* BY Admin")
+  }
+
+  private fun generation9() {
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
     // You bought Land Claim,Bribed Committee
-    green.buyCards(2)
-    // Pink bought 3 card(s)
+    green.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // You bought Herbivores,Dawn City,Beam From A Thorium Asteroid
-    pink.buyCards(3)
+    pink.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
 
-    pink.turn {
-      // Pink used Greenery standard project
-      // Pink placed greenery tile at 19
-      // Pink gained 2 plants
-      // Pink gained 4 M€ from 2 ocean(s)
-      stdProject("GreeneryProject", { pay(23) }) { placeTile(3, 6) }
-      // Pink used Convert Plants standard action
-      // Pink placed greenery tile at 55
-      // Pink gained 2 heat
-      convertPlants { placeTile(8, 6) }.expect("2 Heat")
+    with(pink) {
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Hellas_3_6>",
+          "OxygenStep",
+          "2 Plant",
+          "2 MC",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_8_6>",
+          "OxygenStep",
+          "2 Heat",
+          "TerraformRating",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
-    green.turn {
-      // Green used Convert Heat standard action
-      convertHeat()
-      // Green ended turn
+
+    with(green) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink used Convert Heat standard action
-      convertHeat()
-      // Pink used Space Elevator action
-      // Pink gained 5 M€
-      cardAction1(SpaceElevator)
+
+    with(pink) {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
     }
 
     // Game20260820-dashboards-gen9-early.png was taken after Space Elevator and before Ironworks.
@@ -793,98 +1220,149 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     pink.assertProduction(m = 10, s = 3, t = 3, p = 4, e = 1, h = 7)
     green.assertResources(m = 41, s = 0, t = 0, p = 2, e = 6, h = 0)
     green.assertProduction(m = 3, s = 0, t = 0, p = 1, e = 6, h = 1)
-    green.turn {
-      // Green used Ironworks action
-      // Green gained 1 steel
-      cardAction1(Ironworks)
-      // Green ended turn
-    }
-    pink.turn {
-      // Pink played Industrial Center
-      // Pink placed Industrial Center tile at 62
-      // Pink gained 2 heat
-      // Pink gained 1 M€ for playing Industrial Center, which has exactly 1 tag.
-      playProject(IndustrialCenter, steel = 1) { placeTile(9, 8) }.expect("2 Heat")
-      // Pink used Convert Heat standard action
-      convertHeat()
-    }
-    green.turn {
-      // Green used Air Scrapping standard project
-      stdProject("AirScrappingProject")
-      // Green played Neutralizer Factory
-      playProject(NeutralizerFactory, 7)
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$Ironworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "Steel",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
 
-    pink.turn {
-      // Pink played Dawn City
-      // Pink gained 1 titanium production
-      // Pink lost 1 energy production
-      // Pink gained 3 M€
-      // Pink gained 1 M€ production
-      playProject(DawnCity, 4, titanium = 3).expect("PROD[Titanium, -Energy, 1 MC], -1 MC")
-      // Pink ended turn
+    with(pink) {
+      doTasks(
+          *playCardTasks("$IndustrialCenter"),
+          "1 Pay<Class<Steel>> FROM Steel",
+          "Ok", // No MC remainder.
+          "$IndustrialCenter FROM ProjectCard",
+          "MC",
+          "IndustrialCenter_SpecialTile<Hellas_9_8>",
+          "2 Heat",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
-    green.turn {
-      // Green used Rotator Impacts action
-      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(6) })
-      // Green added 1 Asteroid to Rotator Impacts
-      // Green ended turn
+
+    with(green) {
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("$NeutralizerFactory"),
+          "7 Pay<> FROM MC",
+          "$NeutralizerFactory FROM ProjectCard",
+          "VenusStep",
+          "TerraformRating",
+          "TerraformRating",
+      )
     }
-    pink.turn {
-      // Pink used GHG Producing Bacteria action
-      cardAction1(GhgProducingBacteria)
-      // Pink added 1 Microbe to GHG Producing Bacteria
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$DawnCity"),
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "4 Pay<> FROM MC",
+          "$DawnCity FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[Titanium]",
+          "NormalCityTile<DawnCity_RemoteArea>",
+          "3 MC",
+          "PROD[MC]",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green played Bribed Committee
-      // Green gained 3 M€
-      playProject(BribedCommittee, 4).expect("2 TerraformRating, -1 MC")
-      // Green ended turn
+
+    with(green) {
+      doTasks(*cardActionTasks("$RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<$RotatorImpacts>")
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink used Floating Habs action
-      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
-      // Pink added 1 Floater to Floating Habs
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(*cardActionTasks("$GhgProducingBacteria"), "Microbe<$GhgProducingBacteria>")
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green played Cloud Seeding
-      // Green lost 1 M€ production
-      // Green gained 2 plant production
-      // Green gained 2 M€ from Suitable Infrastructure
-      // Pink lost 1 heat production because of Green
-      playProject(CloudSeeding, 11) { doTask("PROD[-Heat<Pink>]") }
-          .expect("PROD[-1 MC, 2 Plant, -Heat<Pink>], -9 MC")
-      // Green ended turn
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$BribedCommittee"),
+          "4 Pay<> FROM MC",
+          "$BribedCommittee FROM ProjectCard",
+          "2 TerraformRating",
+          "3 MC",
+      )
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink played Zeppelins
-      // Pink gained 2 M€ production
-      // Pink gained 4 M€ for playing Zeppelins, which has no tags.
-      playProject(Zeppelins, 11)
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(*cardActionTasks("$FloatingHabs"), "2 Pay<> FROM MC", "Floater<$FloatingHabs>")
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green played Land Claim
-      // Green placed land claim at 11
-      // Green gained 3 M€
-      playProject(LandClaim, 1) { doTask("Community<Hellas_2_4>") }
-      // Green ended turn
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$CloudSeeding"),
+          "11 Pay<> FROM MC",
+          "$CloudSeeding FROM ProjectCard",
+          "PROD[-MC]",
+          "PROD[2 Plant]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+          "PROD[-Heat<Pink>]",
+      )
+      doTask("PassBaton")
     }
-    // Pink passed
-    pink.pass()
-    green.turn {
-      // Green used Sell Patents standard project
-      sellPatents(2)
-      // Green sold 2 patents
-      // Green played Solarnet
-      // Green drew 2 card(s)
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$Zeppelins"),
+          "11 Pay<> FROM MC",
+          "$Zeppelins FROM ProjectCard",
+          "PROD[2 MC]",
+          "4 MC",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$LandClaim"),
+          "1 Pay<> FROM MC",
+          "$LandClaim FROM ProjectCard",
+          "3 MC",
+          "Community<Hellas_2_4>",
+      )
+      doTask("PassBaton")
+    }
+
+    with(pink) {
+      doTask("Pass")
+    }
+
+    with(green) {
       // You drew Water to Venus,Noctis City
-      playProject(Solarnet, 7).expect("ProjectCard")
-      // Green passed
-      pass()
+      doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$Solarnet"),
+          "7 Pay<> FROM MC",
+          "$Solarnet FROM ProjectCard",
+          "2 ProjectCard",
+      )
+      doTask("Pass")
     }
+
+    // Production.
+    pink.doTasks("50 MC", "6 Heat", "3 Steel", "4 Plant", "4 Titanium", "Heat FROM Energy")
+    green.doTasks("47 MC", "6 Energy", "3 Plant", "Heat", "2 Heat FROM Energy")
 
     // Game20260820-dashboards-gen9-late.png was taken after production and before World Government.
     assertSidebar(gen = 9, temp = 8, oxygen = 9, oceans = 9, venus = 16)
@@ -892,145 +1370,199 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     pink.assertProduction(m = 13, s = 3, t = 4, p = 4, e = 0, h = 6)
     green.assertResources(m = 47, s = 1, t = 0, p = 5, e = 6, h = 3)
     green.assertProduction(m = 2, s = 0, t = 0, p = 3, e = 6, h = 1)
-    // Pink acted as World Government and increased oxygen level
-    pink.wgt("OxygenStep")
 
-    // Generation 10
-    // First player this generation is Green
-    // Green bought 1 card(s)
+    // World Government.
+    pink.doTask("OxygenStep! BY Admin")
+  }
+
+  private fun generation10() {
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
     // You bought Business Network
-    green.buyCards(1)
-    // Pink bought 2 card(s)
+    green.doTasks(
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "1 ProjectCard<Hand FROM Selecting>",
+    )
     // You bought CEO's Favorite Project,Fusion Power
-    pink.buyCards(2)
+    pink.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
-    green.turn {
-      // Green used Ironworks action
-      // Green gained 1 steel
-      cardAction1(Ironworks)
-      // Green played Lava Tube Settlement
-      // Green gained 2 M€ production
-      // Green gained 2 M€ from Suitable Infrastructure
-      // Green lost 1 energy production
-      // Green placed city tile at 54
-      // Green drew 1 card(s)
+    with(green) {
+      doTasks(
+          *cardActionTasks("$Ironworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "Steel",
+          "OxygenStep",
+          "TerraformRating",
+      )
       // You drew Venusian Insects
-      // Pink gained 1 M€ production
-      // Pink gained 1 M€ production
-      playProject(LavaTubeSettlement, 11, steel = 2) {
-            placeTile(8, 5)
-          }
-          .expect("PROD[2 MC<Pink>]")
-    }
-    pink.turn {
-      // Pink played Fusion Power
-      // Pink gained 3 energy production
-      playProject(FusionPower, 4, steel = 4)
-      // Pink ended turn
-    }
-    green.turn {
-      // Green used Rotator Impacts action
-      // Green removed 1 resource(s) from Green's Rotator Impacts
-      cardAction2(RotatorImpacts)
-      // Green played Business Network
-      // Green lost 1 M€ production
-      playProject(BusinessNetwork, 1)
-    }
-    pink.turn {
-      // Pink played Herbivores
-      // Pink added 1 Microbe to Decomposers
-      // Pink added 1 Animal to Ecological Zone
-      // Pink added 1 Animal to Herbivores
-      // Green lost 1 plant production because of Pink
-      // Pink gained 1 M€ for playing Herbivores, which has exactly 1 tag.
-      playProject(Herbivores, 10) { doTask("PROD[-Plant<Green>]") }.expect("Microbe, 2 Animal")
-      // Pink played Gyropolis
-      // Pink gained 6 M€ production
-      // Pink lost 2 energy production
-      // Pink placed city tile at 05
-      // Pink gained 2 plants
-      // Pink gained 3 M€
-      // Pink gained 1 M€ production
-      // Pink gained 1 M€ production
-      playProject(Gyropolis, 18) { placeTile(1, 3) }.expect("PROD[8 MC], 2 Plant")
-    }
-    green.turn {
-      // Green used Business Network action
-      // Green bought 0 card(s)
-      cardAction1(BusinessNetwork) { /* Decline buying the revealed card. */
-            buyCards(0)
-          }
-          .expect("0 ProjectCard")
-      // Green played Research
-      playProject(Research, 11) {
-        // Green drew 2 card(s)
-        // You drew Energy Tapping,Ice Cap Melting
-        // Green is using their Mars University effect to draw a card by discarding a card.
-        // Green discarded Ice Cap Melting
-        // Green drew 1 card(s)
-        // You drew Venus Shuttles
-        // Green is using their Mars University effect to draw a card by discarding a card.
-        // Green discarded Venusian Insects
-        // Green drew 1 card(s)
-        // You drew Venus Soils
-        doTask("-ProjectCard")
-        doTask("-ProjectCard")
-      }
-    }
-    pink.turn {
-      // Pink played Imported Hydrogen
-      // Pink gained 3 plants
-      playProject(ImportedHydrogen, 2, titanium = 4) { doTask("3 Plant") }
-      // Pink used Convert Plants standard action
-      // Pink placed greenery tile at 06
-      // Pink gained 1 plant
-      // Pink gained 1 steel
-      // Pink added 1 Animal to Herbivores
-      convertPlants { placeTile(1, 4) }.expect("Steel, Animal<$Herbivores>")
+      doTasks(
+          *playCardTasks("$LavaTubeSettlement"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "11 Pay<> FROM MC",
+          "$LavaTubeSettlement FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[2 MC]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+          "CityTile<Hellas_8_5>",
+          "NOW Pink { Production<Pink, Class<MC>>! }",
+      )
+      pink.doTask("PROD[MC]")
+      doTask("NOW Pink { Production<Pink, Class<MC>>! }")
+      pink.doTask("PROD[MC]")
+      doTask("ProjectCard")
     }
 
-    green.turn {
-      // Green played House Printing
-      // Green gained 1 steel production
-      // Green gained 2 M€ from Suitable Infrastructure
-      playProject(HousePrinting, 10)
-      // Green played Insects
+    with(pink) {
+      doTasks(
+          *playCardTasks("$FusionPower"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "4 Pay<> FROM MC",
+          "$FusionPower FROM ProjectCard",
+          "PROD[3 Energy]",
+      )
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("$BusinessNetwork"),
+          "1 Pay<> FROM MC",
+          "$BusinessNetwork FROM ProjectCard",
+          "PROD[-MC]",
+      )
+    }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$Herbivores"),
+          "10 Pay<> FROM MC",
+          "$Herbivores FROM ProjectCard",
+          "Animal<$Herbivores>",
+          "MC",
+          "Animal<$EcologicalZone>",
+          "Microbe<$Decomposers>",
+          "PROD[-Plant<Green>]",
+      )
+      doTasks(
+          *playCardTasks("$Gyropolis"),
+          "18 Pay<> FROM MC",
+          "$Gyropolis FROM ProjectCard",
+          "PROD[-2 Energy]",
+          "PROD[6 MC]", // Three Earth tags and three Venus tags.
+          "CityTile<Hellas_1_3>",
+          "PROD[MC]",
+          "3 MC",
+          "PROD[MC]",
+          "2 Plant",
+      )
+    }
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>", // Decline the revealed Business Network card.
+      )
+      doTasks(
+          *playCardTasks("$Research"),
+          "11 Pay<> FROM MC",
+          "$Research FROM ProjectCard",
+          "2 ProjectCard", // Energy Tapping and Ice Cap Melting.
+          "-ProjectCard", // Mars University: discard Ice Cap Melting.
+          "ProjectCard", // Venus Shuttles.
+          "-ProjectCard", // Mars University: discard Venusian Insects.
+          "ProjectCard", // Venus Soils.
+      )
+    }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$ImportedHydrogen"),
+          "4 Pay<Class<Titanium>> FROM Titanium",
+          "2 Pay<> FROM MC",
+          "$ImportedHydrogen FROM ProjectCard",
+          "OceanTile<WaterArea(HAS MAX 0 Tile)>", // All nine oceans are already placed.
+          "3 Plant",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_1_4>",
+          "OxygenStep",
+          "Animal<$Herbivores>",
+          "Plant",
+          "Steel",
+          "TerraformRating",
+      )
+    }
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$HousePrinting"),
+          "10 Pay<> FROM MC",
+          "$HousePrinting FROM ProjectCard",
+          "PROD[Steel]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+      )
       // Nobel Prize's wild icon counts as Green's second plant tag.
-      // Green gained 2 plant production
-      // Green gained 2 M€ from Suitable Infrastructure
-      playProject(Insects, 9)
+      doTasks(
+          *playCardTasks("$Insects"),
+          "9 Pay<> FROM MC",
+          "$Insects FROM ProjectCard",
+          "PROD[2 Plant]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+      )
     }
-    pink.turn {
-      // Pink used Space Elevator action
-      // Pink gained 5 M€
-      cardAction1(SpaceElevator)
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green used Sell Patents standard project
-      sellPatents(1)
-      // Green sold 1 patents
-      // Green played Water to Venus
-      // Green gained 3 M€
-      playProject(WaterToVenus, 9).expect("VenusStep, -6 MC")
+
+    with(green) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$WaterToVenus"),
+          "9 Pay<> FROM MC",
+          "$WaterToVenus FROM ProjectCard",
+          "VenusStep",
+          "3 MC",
+          "TerraformRating",
+      )
     }
-    pink.turn {
-      // Pink funded Landscaper award
-      stdAction("UseAction<FundAwardAction, Action1>") { doTask("Landscaper") }
-      // Pink ended turn
+
+    with(pink) {
+      doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Landscaper")
+      doTask("PassBaton")
     }
-    // Green passed
-    green.pass()
-    pink.turn {
-      // Pink used Floating Habs action
-      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
-      // Pink added 1 Floater to Floating Habs
-      // Pink used GHG Producing Bacteria action
-      cardAction1(GhgProducingBacteria)
-      // Pink added 1 Microbe to GHG Producing Bacteria
-      // Pink passed
-      pass()
+
+    with(green) {
+      doTask("Pass")
     }
+
+    with(pink) {
+      doTasks(*cardActionTasks("$FloatingHabs"), "2 Pay<> FROM MC", "Floater<$FloatingHabs>")
+      doTasks(*cardActionTasks("$GhgProducingBacteria"), "Microbe<$GhgProducingBacteria>")
+      doTask("Pass")
+    }
+
+    // Production.
+    pink.doTasks("61 MC", "6 Heat", "3 Steel", "4 Plant", "4 Titanium", "Energy")
+    green.doTasks("51 MC", "5 Energy", "4 Plant", "Heat", "2 Heat FROM Energy", "Steel")
 
     // Game20260820-dashboards-gen10.png was taken after production and before World Government.
     assertSidebar(gen = 10, temp = 8, oxygen = 12, oceans = 9, venus = 20)
@@ -1038,177 +1570,253 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     pink.assertProduction(m = 23, s = 3, t = 4, p = 4, e = 1, h = 6)
     green.assertResources(m = 54, s = 1, t = 0, p = 9, e = 5, h = 6)
     green.assertProduction(m = 3, s = 1, t = 0, p = 4, e = 5, h = 1)
-    // Green acted as World Government and increased Venus scale
-    green.wgt("VenusStep")
 
-    // Generation 11
-    // First player this generation is Pink
-    // Pink bought 2 card(s)
+    // World Government.
+    green.doTask("VenusStep! BY Admin")
+  }
+
+  private fun generation11() {
+    pink.doTask("4 ProjectCard<Selecting>")
+    green.doTask("4 ProjectCard<Selecting>")
     // You bought Technology Demonstration,Birds
-    pink.buyCards(2)
-    // Green bought 2 card(s)
+    pink.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
     // You bought Giant Solar Shade,Algae
-    green.buyCards(2)
+    green.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
-    pink.turn {
-      // Pink used Greenery standard project
-      // Pink placed greenery tile at 04
-      // Pink gained 2 plants
-      // Pink added 1 Animal to Herbivores
-      stdProject("GreeneryProject") { placeTile(1, 2) }
-      // Pink used Convert Plants standard action
-      // Pink placed greenery tile at 13
-      // Pink gained 1 plant
-      // Pink added 1 Animal to Herbivores
-      convertPlants { placeTile(2, 6) }
+    with(pink) {
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Hellas_1_2>",
+          "OxygenStep",
+          "Animal<$Herbivores>",
+          "2 Plant",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_2_6>",
+          "OxygenStep",
+          "Animal<$Herbivores>",
+          "Plant",
+          "TerraformRating",
+      )
     }
-    green.turn {
-      // Green used Convert Plants standard action
-      // Green placed greenery tile at 53
-      // Green gained 1 steel
-      // Green gained 2 M€ from 1 ocean(s)
-      convertPlants { placeTile(8, 4) }
-      // Green used Business Network action
-      // Green bought 0 card(s)
-      cardAction1(BusinessNetwork) { /* Decline buying the revealed card. */
-            buyCards(0)
-          }
-          .expect("0 ProjectCard")
+
+    with(green) {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_8_4>",
+          "OxygenStep",
+          "Steel",
+          "2 MC",
+      )
+      doTasks(
+          *cardActionTasks("$BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>", // Decline the revealed Business Network card.
+      )
     }
-    pink.turn {
-      // Pink played Technology Demonstration
-      // Pink drew 2 card(s)
+
+    with(pink) {
       // You drew Toll Station,Fueled Generators
-      playProject(TechnologyDemonstration, titanium = 1)
-      // Pink funded Founder award
-      stdAction("UseAction<FundAwardAction, Action1>") { doTask("Founder") }.expect("Award")
+      doTasks(
+          *playCardTasks("$TechnologyDemonstration"),
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // No MC remainder.
+          "$TechnologyDemonstration FROM ProjectCard",
+          "2 ProjectCard",
+      )
+      doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Founder")
     }
-    green.turn {
-      // Green used Ironworks action
-      // Green gained 1 steel
-      cardAction1(Ironworks).expect("Steel")
-      // Green played Commercial District
-      // Green gained 4 M€ production
-      // Green gained 2 M€ from Suitable Infrastructure
-      // Green lost 1 energy production
-      // Green placed Commercial District tile at 11
-      // Green gained 1 plant
-      // Green gained 1 steel
-      playProject(CommercialDistrict, 10, steel = 3) { placeTile(2, 4) }
+
+    with(green) {
+      doTasks(
+          *cardActionTasks("$Ironworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "Steel",
+          "0 OxygenStep",
+      )
+      doTasks(
+          *playCardTasks("$CommercialDistrict"),
+          "3 Pay<Class<Steel>> FROM Steel",
+          "10 Pay<> FROM MC",
+          "$CommercialDistrict FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[4 MC]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+          "CommercialDistrict_SpecialTile<Hellas_2_4>",
+          "Plant",
+          "Steel",
+      )
     }
-    pink.turn {
-      // Pink used Space Elevator action
-      // Pink gained 5 M€
-      cardAction1(SpaceElevator).expect("5 MC, -Steel")
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green used Sell Patents standard project
-      sellPatents(1)
-      // Green sold 1 patents
-      // Green ended turn
+
+    with(green) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink used GHG Producing Bacteria action
-      cardAction1(GhgProducingBacteria).expect("Microbe<$GhgProducingBacteria>")
-      // Pink added 1 Microbe to GHG Producing Bacteria
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(*cardActionTasks("$GhgProducingBacteria"), "Microbe<$GhgProducingBacteria>")
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green used Sell Patents standard project
-      sellPatents(1)
-      // Green sold 1 patents
-      // Green ended turn
+
+    with(green) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink played Advanced Ecosystems
-      // Pink added 3 Microbe(s) to Decomposers
-      // Pink added 2 Animal(s) to Ecological Zone
-      playProject(AdvancedEcosystems, 9)
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$AdvancedEcosystems"),
+          "9 Pay<> FROM MC",
+          "$AdvancedEcosystems FROM ProjectCard",
+          "Animal<$EcologicalZone>",
+          "Microbe<$Decomposers>",
+          "Microbe<$Decomposers>",
+          "Animal<$EcologicalZone>",
+          "Microbe<$Decomposers>",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green played Giant Solar Shade
-      playProject(GiantSolarShade, 27)
-      // Green ended turn
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$GiantSolarShade"),
+          "27 Pay<> FROM MC",
+          "$GiantSolarShade FROM ProjectCard",
+          "VenusStep",
+          "VenusStep",
+          "VenusStep",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink used Air Scrapping standard project
-      stdProject("AirScrappingProject")
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green used Sell Patents standard project
-      sellPatents(1)
-      // Green sold 1 patents
-      // Green ended turn
+
+    with(green) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink used Sell Patents standard project
-      sellPatents(1)
-      // Pink sold 1 patents
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green played Noctis City
-      // Green gained 3 M€ production
-      // Green gained 2 M€ from Suitable Infrastructure
-      // Green placed city tile at 09
-      // Green gained 2 plants
-      // Green gained 2 M€ from 1 ocean(s)
-      // Pink gained 1 M€ production
-      // Pink gained 1 M€ production
-      playProject(NoctisCity, 16, steel = 1) { placeTile(2, 2) }
-      // Green ended turn
+
+    with(green) {
+      doTasks(
+          *playCardTasks("$NoctisCity"),
+          "1 Pay<Class<Steel>> FROM Steel",
+          "16 Pay<> FROM MC",
+          "$NoctisCity FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[3 MC]",
+          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
+          "2 MC",
+          "CityTile<Hellas_2_2>",
+          "NOW Pink { Production<Pink, Class<MC>>! }",
+      )
+      pink.doTask("PROD[MC]")
+      doTask("NOW Pink { Production<Pink, Class<MC>>! }")
+      pink.doTask("PROD[MC]")
+      doTasks("2 Plant", "2 MC")
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink used Sell Patents standard project
-      sellPatents(1)
-      // Pink sold 1 patents
-      // Pink ended turn
+
+    with(pink) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
-    green.turn {
-      // Green used Sell Patents standard project
-      sellPatents(2)
-      // Green sold 2 patents
-      // Green passed
+
+    with(green) {
       // Green declared this pass early after one action; Solarnet executes it on Green's next turn.
+      doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
+      doTask("PassBaton")
     }
-    pink.turn {
-      // Pink played Birds
-      // Pink added 1 Microbe to Decomposers
-      // Pink added 1 Animal to Ecological Zone
-      // Green lost 2 plant production because of Pink
-      // Pink gained 1 M€ for playing Birds, which has exactly 1 tag.
-      playProject(Birds, 8) { doTask("PROD[-2 Plant<Green>]") }
-      // Pink used Birds action
-      cardAction1(Birds).expect("Animal<$Birds>")
-      // Pink added 1 Animal to Birds
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$Birds"),
+          "8 Pay<> FROM MC",
+          "$Birds FROM ProjectCard",
+          "MC",
+          "Animal<$EcologicalZone>",
+          "Microbe<$Decomposers>",
+          "PROD[-2 Plant<Green>]",
+      )
+      doTasks(*cardActionTasks("$Birds"), "Animal<$Birds>")
     }
-    green.pass()
-    pink.turn {
-      // Pink played CEO's Favorite Project
-      playProject(CeosFavoriteProject, 0) { addCardResources(Birds) }
-      // Pink added 1 Animal to Birds
-      // Pink gained 1 M€ for playing CEO's Favorite Project, which has exactly 1 tag.
-      // Pink used Sell Patents standard project
-      sellPatents(1)
-      // Pink sold 1 patents
-      // Pink passed
-      pass()
+
+    with(green) {
+      doTask("Pass")
     }
+
+    with(pink) {
+      doTasks(
+          *playCardTasks("$CeosFavoriteProject"),
+          "$CeosFavoriteProject FROM ProjectCard",
+          "MC",
+          "Animal<$Birds>",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("Pass")
+    }
+
+    // Production.
+    pink.doTasks(
+        "66 MC",
+        "6 Heat",
+        "3 Steel",
+        "4 Plant",
+        "4 Titanium",
+        "Energy",
+        "Heat FROM Energy",
+    )
+    green.doTasks("61 MC", "3 Energy", "2 Plant", "Heat", "Heat FROM Energy", "Steel")
 
     assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
 
-    // Final greenery placement
-    // Pink declines the final greenery placement.
-    pink.declineTask()
-    // Green declines the final greenery placement.
-    green.declineTask()
+    with(pink) {
+      // Final greenery placement
+      // Pink declines the final greenery placement.
+      doTask("PassBaton")
+    }
+
+    with(green) {
+      // Green declines the final greenery placement.
+      doTask("PassBaton")
+    }
     pink.assertCounts(0 to "ProjectCard")
     green.assertCounts(0 to "ProjectCard")
 
-    // This game id was ga5237bd2fb08
     admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
 
     pink.assertCounts(
