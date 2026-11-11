@@ -13,7 +13,6 @@ import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.soloTileSetup
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -27,7 +26,8 @@ internal class SoloPremiseTest {
     val agents = Agents(TfmEngine.newGame(premise)) { NONE }
 
     agents.taskLog.start()
-    agents.tfm(ADMIN).startGame()
+    agents.taskLog.gameStarted()
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
 
     val admin = agents[ADMIN]
     admin.count("CityTile<Tharsis_4_1, SoloOpponent>") shouldBe 1
@@ -45,7 +45,10 @@ internal class SoloPremiseTest {
               document,
               Canon,
               newAgents = { Agents(TfmEngine.newGame(it)) },
-              startGame = { it.tfm(ADMIN).startGame() },
+              startGame = {
+                it.taskLog.gameStarted()
+                it[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+              },
           )
       replay[ADMIN].list("Component").entries shouldBe admin.list("Component").entries
     }
