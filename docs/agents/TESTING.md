@@ -706,6 +706,7 @@ Explicit-task replays extend `FullGameTest` or `CardTrackingFullGameTest`, both 
 `TfmGameplayTest` with plain Agents and Player autoexecution disabled. Call the fixture's
 `startGame()` to begin setup. Have each player take their starting TR before either player handles
 starting cards. Group each corporation, Prelude, and action-phase turn in `with(player) { ... }`.
+A solo replay may group a whole generation in a single `with(player)` block.
 When a player declines their second action, submit `doTask("PassBaton")` explicitly at the end of
 that turn. A scope block itself performs no gameplay. Keep the task submissions inside each section
 as raw `doTask`/`doTasks` calls.
