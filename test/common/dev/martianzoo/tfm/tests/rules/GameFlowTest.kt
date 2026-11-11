@@ -1,8 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgents
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.*
@@ -30,18 +29,14 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class GameFlowTest {
+internal class GameFlowTest : TfmGameplayTest(EAGER) {
   @Test
   internal fun startingPurchasesUseTheCorporationAlreadyInPlay() {
     for ((corporation, cost) in listOf(TerraLabsResearch to 2, Polyphemos to 10)) {
-      val game =
-          TfmEngine.newGame(
-              withTestSoloSetup(Canon.gamePremise(GameConfig("$corporation", "Player1")))
-          )
-      val agents = game.testAgents()
+      initializeGame(withTestSoloSetup(Canon.gamePremise(GameConfig("$corporation", "Player1"))))
       val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
-      val admin = game.testTfm(ADMIN)
-      admin.startGame()
+      agents.taskLog.gameStarted()
+      admin.beginOperation("SetupPhase FROM BootstrapPhase")
       player.doTasks(
           "14 TerraformRating",
           "2 CorporationCard",
@@ -66,20 +61,20 @@ internal class GameFlowTest {
 
   @Test
   internal fun beginnerVariantLetsEachPlayerChooseTheirStartingPath() {
-    val game =
-        TfmEngine.newGame(
-            Canon.gamePremise(
-                GameConfig(
-                    "BeginnerVariant, CorporateEraExpansion, PreludeExpansion",
-                    "Player1",
-                    "Player2",
-                )
+    initializeGame(
+        Canon.gamePremise(
+            GameConfig(
+                "BeginnerVariant, CorporateEraExpansion, PreludeExpansion",
+                "Player1",
+                "Player2",
             )
         )
-    val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
+    )
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
-    game.testTfm(ADMIN).startGame()
+    agents.taskLog.gameStarted()
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
     p1.assertCounts(
         0 to "BeginnerCard",
         0 to "CorporationCard",
@@ -146,7 +141,7 @@ internal class GameFlowTest {
     p2.doTask("PlayCard<Class<CorporationCard>, Class<CrediCor>, Hand>")
     p2.doTask("CrediCor FROM CorporationCard<Hand>")
     p2.doTask("57 MC")
-    p2.pay(15)
+    p2.doTask("15 Pay<> FROM MC")
     p2.doTasks("5 ProjectCard<Hand FROM Selecting>")
     p2.assertCounts(
         1 to "CrediCor",
@@ -157,11 +152,12 @@ internal class GameFlowTest {
 
   @Test
   internal fun beginnerCorporationCopiesLetTwoPlayersChooseTheBeginnerPath() {
-    val game = TfmEngine.newGame(canonicalPremise(BeginnerVariant, players = 2))
-    val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
+    initializeGame(canonicalPremise(BeginnerVariant, players = 2))
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
-    game.testTfm(ADMIN).startGame()
+    agents.taskLog.gameStarted()
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
     listOf(p1, p2).forEach { player ->
       player.selectTask("BeginnerOption OR StandardOption")
       player.narrowTask("BeginnerOption")
@@ -202,14 +198,13 @@ internal class GameFlowTest {
 
   @Test
   internal fun startingCardsBelongToEachPlayerAgent() {
-    val game =
-        TfmEngine.newGame(Canon.gamePremise(GameConfig("PreludeExpansion", "Player1", "Player2")))
-    val admin = game.testTfm(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
+    initializeGame(Canon.gamePremise(GameConfig("PreludeExpansion", "Player1", "Player2")))
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
     p1.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
-    game.testTfm(ADMIN).startGame()
+    agents.taskLog.gameStarted()
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
     p1.assertCounts(
         1 to "StandardOption",
         0 to "CorporationCard",
@@ -247,20 +242,20 @@ internal class GameFlowTest {
 
   @Test
   internal fun startingCardCountsAreAdditiveAdjustments() {
-    val game =
-        TfmEngine.newGame(
-            Canon.gamePremise(
-                GameConfig(
-                    "PreludeExpansion, 1 SelectableCorporationCount, -1 SelectablePreludeCount",
-                    "Player1",
-                    "Player2",
-                )
+    initializeGame(
+        Canon.gamePremise(
+            GameConfig(
+                "PreludeExpansion, 1 SelectableCorporationCount, -1 SelectablePreludeCount",
+                "Player1",
+                "Player2",
             )
         )
-    val players = listOf(game.testTfm(PLAYER1), game.testTfm(PLAYER2))
+    )
+    val players = listOf(agents[PLAYER1], agents[PLAYER2])
     players.forEach { it.autoExecPolicy = NONE }
 
-    game.testTfm(ADMIN).startGame()
+    agents.taskLog.gameStarted()
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
     players.forEach { player ->
       player.doTask("3 CorporationCard")
       player.doTask("3 PreludeCard")
@@ -273,125 +268,111 @@ internal class GameFlowTest {
   }
 
   @Test
-  internal fun researchPlayersChooseAndPayInSeparateBatches() {
-    val game = TfmEngine.newGame(canonicalPremise(players = 2))
-    val agents = game.testAgents()
-    agents[PLAYER1].autoExecPolicy = NONE
-    agents[PLAYER2].autoExecPolicy = NONE
+  internal fun playerCanDeclineAnOfferedSecondAction() {
+    initializeGame(canonicalPremise(Hellas, PromoCards, players = 2))
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    agents.taskLog.gameStarted()
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    p1.doTask("-3 ProjectCard<Selecting>")
+    p2.doTask("-5 ProjectCard<Selecting>")
+    p1.completeOperation {
+      doWithAutoExecPolicy(NONE) {
+        doTasks(
+            "PlayCard<Class<CorporationCard>, Class<InterplanetaryCinematics>>",
+            "InterplanetaryCinematics FROM CorporationCard",
+            "30 MC",
+            "20 Steel",
+            "21 Pay<> FROM MC",
+            "7 ProjectCard<Hand FROM Selecting>",
+        )
+      }
+    }
+    p2.completeOperation {
+      doWithAutoExecPolicy(NONE) {
+        doTasks(
+            "PlayCard<Class<CorporationCard>, Class<CrediCor>>",
+            "CrediCor FROM CorporationCard",
+            "57 MC",
+            "15 Pay<> FROM MC",
+            "5 ProjectCard<Hand FROM Selecting>",
+        )
+      }
+    }
 
-    game.testTfm(PLAYER1).exMachina("20 MC")
-    game.testTfm(PLAYER2).exMachina("20 MC")
-    agents[ADMIN].beginOperation("ResearchPhase FROM Phase")
-
-    // The client finishes each Player's choice and payment before starting the next purchase.
-    agents[PLAYER2].doTasks(
-        "4 ProjectCard<Selecting>",
-        "-2 ProjectCard<Selecting>",
-        "6 Pay<> FROM MC",
-        "2 ProjectCard<Hand FROM Selecting>",
-    )
-    agents[PLAYER1].doTasks(
-        "4 ProjectCard<Selecting>",
-        "-3 ProjectCard<Selecting>",
-        "3 Pay<> FROM MC",
-        "ProjectCard<Hand FROM Selecting>",
-    )
-
-    agents[PLAYER1].count("ProjectCard") shouldBe 1
-    agents[PLAYER2].count("ProjectCard") shouldBe 2
-    agents[PLAYER1].count("MC") shouldBe 17
-    agents[PLAYER2].count("MC") shouldBe 14
-  }
-
-  @Test
-  internal fun turnDeclinesAnUnusedSecondAction() {
-    val game = TfmEngine.newGame(canonicalPremise(Hellas, PromoCards, players = 2))
-    val admin = game.testTfm(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    admin.startGame()
-    p1.keepStartingProjects(7)
-    p2.keepStartingProjects(5)
-    p1.playCorp(InterplanetaryCinematics)
-    p2.playCorp(CrediCor)
-
-    p1.turn { sellPatents(1) }
-    p2.pass()
-    p1.pass()
+    p1.doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+    p1.selectTask("PassBaton")
+    p2.doTask("Pass")
+    p1.doTask("Pass")
 
     admin.assertCounts(2 to "Generation", 1 to "ResearchPhase")
   }
 
   @Test
   internal fun soleRemainingPlayerDoesNotReceiveSecondActions() {
-    val game = TfmEngine.newGame(canonicalPremise(Hellas, PromoCards, players = 2))
-    val admin = game.testTfm(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    admin.startGame()
-    p1.keepStartingProjects(7)
-    p2.keepStartingProjects(5)
-    p1.playCorp(InterplanetaryCinematics)
-    p2.playCorp(CrediCor)
+    initializeGame(canonicalPremise(Hellas, PromoCards, players = 2))
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    agents.taskLog.gameStarted()
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    p1.doTask("-3 ProjectCard<Selecting>")
+    p2.doTask("-5 ProjectCard<Selecting>")
+    p1.completeOperation {
+      doWithAutoExecPolicy(NONE) {
+        doTasks(
+            "PlayCard<Class<CorporationCard>, Class<InterplanetaryCinematics>>",
+            "InterplanetaryCinematics FROM CorporationCard",
+            "30 MC",
+            "20 Steel",
+            "21 Pay<> FROM MC",
+            "7 ProjectCard<Hand FROM Selecting>",
+        )
+      }
+    }
+    p2.completeOperation {
+      doWithAutoExecPolicy(NONE) {
+        doTasks(
+            "PlayCard<Class<CorporationCard>, Class<CrediCor>>",
+            "CrediCor FROM CorporationCard",
+            "57 MC",
+            "15 Pay<> FROM MC",
+            "5 ProjectCard<Hand FROM Selecting>",
+        )
+      }
+    }
 
-    p1.pass()
-    p2.turn {
-      sellPatents(1)
-      sellPatents(1)
-      pass()
+    p1.doTask("Pass")
+    with(p2) {
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTask("Pass")
     }
 
     admin.assertCounts(2 to "Generation", 1 to "ResearchPhase")
   }
 
   @Test
-  internal fun preludePhasePlaysEveryRetainedPrelude() {
-    val game = TfmEngine.newGame(canonicalPremise(PreludeExpansion, players = 2))
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    game.testTfm(ADMIN).startGame()
-    p1.exMachina("PreludeCard")
-    p1.keepStartingProjects(0)
-    p2.keepStartingProjects(0)
-
-    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
-    playCorporationWithoutStartingProjects(p2, CrediCor)
-
-    p1.turn {
-      playPrelude(Donation)
-      playPrelude(MartianIndustries)
-      playPrelude(PowerGeneration)
-    }
-    p2.turn {
-      playPrelude(DomeFarming)
-      playPrelude(Supplier)
-    }
-
-    p1.count("PreludeCard") shouldBe 0
-    p2.count("PreludeCard") shouldBe 0
-  }
-
-  @Test
   internal fun solarWaitsForWorldGovernmentBeforeTurmoil() {
-    val game =
-        TfmEngine.newGame(
-            withTestTurmoilDeck(canonicalPremise(VenusNextExpansion, TurmoilExpansion, players = 2))
-        )
-    val admin = game.testTfm(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    admin.startGame()
+    initializeGame(
+        withTestTurmoilDeck(canonicalPremise(VenusNextExpansion, TurmoilExpansion, players = 2))
+    )
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    agents.taskLog.gameStarted()
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
     admin.count("Coming<DemocraticReform>") shouldBe 1
     admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
     admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
     admin.count("PartyLeader<Reds, Neutral>") shouldBe 1
-    p1.keepStartingProjects(0)
-    p2.keepStartingProjects(0)
-    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
-    playCorporationWithoutStartingProjects(p2, CrediCor)
+    p1.doTask("-10 ProjectCard<Selecting>")
+    p2.doTask("-10 ProjectCard<Selecting>")
+    p1.completeOperation {
+      doTask("PlayCard<Class<CorporationCard>, Class<$UnitedNationsMarsInitiative>>")
+    }
+    p2.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$CrediCor>>") }
 
-    p1.pass()
-    p2.pass()
+    p1.doTask("Pass")
+    p2.doTask("Pass")
 
     p1.count("TerraformRating") shouldBe 20
     p2.count("TerraformRating") shouldBe 20
@@ -405,27 +386,28 @@ internal class GameFlowTest {
 
   @Test
   internal fun solarAdvancesColonyTracksAlongsideWorldGovernment() {
-    val game =
-        TfmEngine.newGame(
-            canonicalPremise(
-                VenusNextExpansion,
-                ColoniesExpansion,
-                players = 2,
-                colonyTiles = testColonyTiles(2, "Luna"),
-            )
+    initializeGame(
+        canonicalPremise(
+            VenusNextExpansion,
+            ColoniesExpansion,
+            players = 2,
+            colonyTiles = testColonyTiles(2, "Luna"),
         )
-    val admin = game.testTfm(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    admin.startGame()
-    p1.keepStartingProjects(0)
-    p2.keepStartingProjects(0)
-    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
-    playCorporationWithoutStartingProjects(p2, CrediCor)
+    )
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    agents.taskLog.gameStarted()
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    p1.doTask("-10 ProjectCard<Selecting>")
+    p2.doTask("-10 ProjectCard<Selecting>")
+    p1.completeOperation {
+      doTask("PlayCard<Class<CorporationCard>, Class<$UnitedNationsMarsInitiative>>")
+    }
+    p2.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$CrediCor>>") }
     val lunaProduction = admin.count("ColonyProduction<Luna>")
 
-    p1.pass()
-    p2.pass()
+    p1.doTask("Pass")
+    p2.doTask("Pass")
 
     // Neither expansion's solar work affects the other's, so the tracks need not wait.
     admin.count("SolarPhase") shouldBe 1
@@ -434,5 +416,67 @@ internal class GameFlowTest {
     p1.doTask("TemperatureStep! BY Admin")
 
     admin.count("ResearchPhase") shouldBe 1
+  }
+
+  internal class Synthetic : TfmSandboxTest() {
+    @Test
+    internal fun researchPlayersChooseAndPayInSeparateBatches() {
+      game = TfmEngine.newGame(canonicalPremise(players = 2))
+      agents[PLAYER1].autoExecPolicy = NONE
+      agents[PLAYER2].autoExecPolicy = NONE
+
+      agents[PLAYER1].exMachina("20 MC")
+      agents[PLAYER2].exMachina("20 MC")
+      agents[ADMIN].beginOperation("ResearchPhase FROM Phase")
+
+      // The client finishes each Player's choice and payment before starting the next purchase.
+      agents[PLAYER2].doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
+      agents[PLAYER1].doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+
+      agents[PLAYER1].count("ProjectCard") shouldBe 1
+      agents[PLAYER2].count("ProjectCard") shouldBe 2
+      agents[PLAYER1].count("MC") shouldBe 17
+      agents[PLAYER2].count("MC") shouldBe 14
+    }
+
+    @Test
+    internal fun preludePhasePlaysEveryRetainedPrelude() {
+      game = TfmEngine.newGame(canonicalPremise(PreludeExpansion, players = 2))
+      val p1 = agents[PLAYER1]
+      val p2 = agents[PLAYER2]
+      agents.taskLog.gameStarted()
+      admin.beginOperation("SetupPhase FROM BootstrapPhase")
+      p1.exMachina("PreludeCard")
+      p1.doTask("-10 ProjectCard<Selecting>")
+      p2.doTask("-10 ProjectCard<Selecting>")
+
+      p1.completeOperation {
+        doTask("PlayCard<Class<CorporationCard>, Class<$UnitedNationsMarsInitiative>>")
+      }
+      p2.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$CrediCor>>") }
+
+      p1.completeOperation {
+        doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+        doTask("PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>")
+        doTask("PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>")
+      }
+      p2.completeOperation {
+        doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
+        doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+      }
+
+      p1.count("PreludeCard") shouldBe 0
+      p2.count("PreludeCard") shouldBe 0
+    }
   }
 }

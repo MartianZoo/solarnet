@@ -76,11 +76,6 @@ internal fun World.startCorporationPhaseOutOfTurn() {
   }
 }
 
-internal fun playCorporationWithoutStartingProjects(
-    player: TfmGameplay,
-    corporation: ClassName,
-): TaskResult = player.playCorp(corporation)
-
 internal fun setUpGame(
     vararg selectedOptions: TestSelection,
     players: Int = 2,
