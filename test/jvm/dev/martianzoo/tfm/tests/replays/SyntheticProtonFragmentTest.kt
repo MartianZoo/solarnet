@@ -467,7 +467,9 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     with(green) {
       // Green does not meet Diversifier before Corporate Stronghold enters play.
       shouldThrow<RequirementException> {
-        doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Diversifier")
+        continueOperation {
+          doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Diversifier")
+        }
       }
       doTasks(
           *playCardTasks("$CorporateStronghold"),
@@ -763,7 +765,9 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     with(pink) {
       // Pink does not meet Tycoon before Hermetic Order of Mars enters play.
       shouldThrow<RequirementException> {
-        doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Tycoon")
+        continueOperation {
+          doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Tycoon")
+        }
       }
       doTasks(
           *playCardTasks("$HermeticOrderOfMars"),
@@ -1043,7 +1047,9 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     with(green) {
       // Green cannot pay Designed Microorganisms' 16 MC price with the remaining 9 MC.
       shouldThrow<TaskException> {
-        doTasks(*playCardTasks("$DesignedMicroorganisms"), "16 Pay<> FROM MC")
+        continueOperation {
+          doTasks(*playCardTasks("$DesignedMicroorganisms"), "16 Pay<> FROM MC")
+        }
       }
       green.count("MC") shouldBe 9
       // Viral Enhancers reacts to its own tag.

@@ -796,34 +796,17 @@ transaction, roll back the block, change automatic execution, or require all tas
 The current Pristar block itself calls `autoExecNow(EAGER)`; removing that use is separate from
 what the assertion helper observes.
 
-### Investigation: changing `doTasks` failure behavior
+### Sequential task submissions
 
-**Current implementation, not a newly selected policy:** public `Agent.doTasks` is an atomic
-batch. If `doTasks("Coin", "3 Plant")` executes the first task but the second fails, the first is
-also undone. `AgentImpl.doTasks` wraps the batch in `atomic`; the API documentation and
-[engine contract](ENGINE_CONTRACT.md) promise that behavior.
+`doTasks` follows repeated individually atomic `doTask` calls: a later failure retains successful
+earlier arguments. See [the engine contract](ENGINE_CONTRACT.md#state-transactions-and-calls) and
+`Agent.doTasks` for execution, results, recording, and restoration semantics.
 
-The user selected exploring a convenience like repeated `Collection.add` calls: if `c` throws
-in `doTasks(a, b, c)`, the state should retain the completed `a` and `b`. Changing to that behavior
-appears feasible, but it is not just removing a wrapper. At least these tests deliberately depend
-on all-or-nothing batches:
-
-- `DoTasksTest.rollsBackEarlierInstructionsWhenABatchFails` checks that the first gain and event
-  position are restored after the second instruction fails.
-- `TaskLogTest.omitsFailedBatchesAndRolledBackCommandsEvenWhenOrdinalsAreReused` checks that failed
-  batch inputs disappear from the recording.
-
-Audit other failure assertions before claiming these are the only dependencies. The proposal is
-to execute each argument as an individually atomic `doTask`, throw at the first failure without
-returning a `TaskResult`, and retain earlier successful steps. The proposed successful-call result
-still aggregates all steps' changes. Keep explicit enclosing `completeOperation` and
-`continueOperation` blocks atomic when failure escapes them. Review `OperationScope.doTasks` too:
-it currently promises restoration of the enclosing Agent call, and failure caught inside the
-block needs explicit consideration. The general contract that every failed Agent call restores
-the whole call would need an explicit exception for sequential `doTasks`. Check recording/
-reconstruction, undo and checkpoints, automatic work between steps, and empty calls, then update
-the owning API/contract and tests together. The exploration is authorized; until its implementation
-and verification are complete, the current atomic-batch behavior described above still applies.
+Use an explicit operation block when a negative probe must restore its whole attempt before the
+scenario continues. Let the exception escape that block before catching it. Catching a failed step
+inside the operation instead retains the successful earlier steps. Prefer `continueOperation` when
+the probe may legitimately leave work pending; use `completeOperation` when finishing is part of
+what the probe checks.
 
 ### Archived replay verification
 
@@ -878,9 +861,9 @@ unevaluated metrics. Combine the three production money amounts into their net i
 tasks are already pending. Keep amounts from unrelated reasons separate, for example Investment
 Loan's 10 MC and Media Group's 3 MC. Agent translates the production total into individual engine
 calls, with gains before removals and each task's effects preserved; engine has no combined-total
-command. See `Agent.doTask` for exact matching rules. Explicit `doTasks(...)` calls are currently
-atomic, resumable batches; the user has questioned that contract. See
-[the proposed failure-behavior change](#investigation-changing-dotasks-failure-behavior).
+command. See `Agent.doTask` for exact matching rules. Explicit `doTasks(...)` calls submit each
+argument separately and retain successful earlier steps when a later step fails. See
+[Sequential task submissions](#sequential-task-submissions).
 Explicit-task replays extend `FullGameTest` or `CardTrackingFullGameTest`, both based on
 `TfmGameplayTest` with plain Agents and Player autoexecution disabled. Call the fixture's
 `startGame()` to begin setup. Have each player take their starting TR before either player handles

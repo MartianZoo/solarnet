@@ -113,7 +113,7 @@ public class TaskLog internal constructor(private val world: World) {
       actor: Actor,
       instruction: String,
       formTask: TaskId? = null,
-      kind: RecordedInput.Kind = RecordedInput.Kind.DO_TASKS,
+      kind: RecordedInput.Kind,
       taskId: TaskId? = null,
       automatic: Boolean = false,
       contextClass: ClassName? = null,
@@ -225,7 +225,6 @@ public class TaskLog internal constructor(private val world: World) {
                     ?: error("recorded task is absent: ${command.instruction}")
               }
           when (command.kind) {
-            RecordedInput.Kind.DO_TASKS -> agent.doTasks(command.instruction)
             RecordedInput.Kind.DO_TASK ->
                 when {
                   contextClass != null -> agent.doTask(command.instruction, contextClass)

@@ -630,13 +630,46 @@ internal class TaskLogTest {
   }
 
   @Test
-  internal fun omitsFailedBatchesAndRolledBackCommandsEvenWhenOrdinalsAreReused() {
+  internal fun recordsAndReplaysSuccessfulStepsBeforeALaterArgumentFails() {
+    val premise = testGamePremise("CLASS Coin\nCLASS Marker\nCLASS Plant")
+    fun newAgents(): Agents =
+        Agents(Engine.newGame(premise)) { NONE }
+            .also {
+              it[PLAYER1].addTasks("Coin, Marker, 2 Plant")
+            }
+    val source = newAgents()
+    start(source)
+    val before = source.world.timeline.checkpoint()
+
+    shouldThrow<TaskException> { source[PLAYER1].doTasks("Coin", "Marker", "3 Plant") }
+
+    source.taskLog.inputs().drop(1) shouldBe
+        listOf(
+            RecordedInput.Command(PLAYER1, RecordedInput.Kind.DO_TASK, "Coin"),
+            RecordedInput.Command(PLAYER1, RecordedInput.Kind.DO_TASK, "Marker"),
+        )
+    val imported = newAgents()
+    replay(source, imported)
+    imported[PLAYER1].count("Coin") shouldBe 1
+    imported[PLAYER1].count("Marker") shouldBe 1
+    imported.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
+    imported.world.events.entriesSinceSetup() shouldBe source.world.events.entriesSinceSetup()
+
+    source.world.timeline.seek(before)
+    source.world.timeline.truncate()
+    source.taskLog.inputs().size shouldBe 1
+    source[PLAYER1].count("Coin") shouldBe 0
+    source[PLAYER1].count("Marker") shouldBe 0
+  }
+
+  @Test
+  internal fun omitsFailedOperationsAndRolledBackCommandsEvenWhenOrdinalsAreReused() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
     val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("Coin OR Marker")
     start(agents)
 
-    shouldThrow<TaskException> { player.doTasks("Coin", "Marker") }
+    shouldThrow<TaskException> { player.continueOperation { doTasks("Coin", "Marker") } }
     agents.taskLog.inputs().size shouldBe 1
 
     val before = agents.world.timeline.checkpoint()
@@ -646,7 +679,7 @@ internal class TaskLogTest {
     player.doTasks("Marker")
 
     agents.taskLog.inputs().drop(1) shouldBe
-        listOf(RecordedInput.Command(PLAYER1, RecordedInput.Kind.DO_TASKS, "Marker"))
+        listOf(RecordedInput.Command(PLAYER1, RecordedInput.Kind.DO_TASK, "Marker"))
     player.count("Coin") shouldBe 0
     player.count("Marker") shouldBe 1
   }

@@ -26,8 +26,6 @@ the remaining audit items listed there are **not yet discussed or approved**.
 - Improve consistency in checking meaningful consequences without repeating submitted tasks.
 - Reduce detailed cause-accounting assertions in ordinary replays after selecting representative
   inputs for focused mechanism tests; preserve meaningful score/resource outcomes.
-- Explore the selected sequential `doTasks` behavior: when `c` throws, retain completed `a` and
-  `b`. Audit callers and coordinate the API/contract, recording, undo, and enclosing operations.
 
 ### Changes to review with the user
 
@@ -37,6 +35,23 @@ verification and Opus/high review support committing them. Remove entries after 
 - `MassiveGammaZoneTest`: replaces three dropped attack consequences with explicit reductions
   against `SoloOpponent`. This adds neutral-player events absent from the source's human log while
   preserving its recorded human position. Low risk; check that this representation reads clearly.
+
+- `doTasks`: now retains successful earlier arguments when a later argument throws; an empty
+  sequence no longer triggers automatic execution. Explicit operation blocks still restore their
+  whole attempt when failure escapes. `StandardActionTest` and `SyntheticProtonFragmentTest` now
+  make that restoration explicit around failed exploratory actions, retaining their assertions.
+  Review whether those scopes read clearly. Operation-scope submissions also now restore their
+  automatic follow-up work if it fails and the exception is caught inside the operation.
+- Non-`NONE` timing: `doTasks` now follows `doTask` literally, so it no longer runs Player automatic
+  work before its first argument. A qualified `agent.doTasks` inside an operation follows nested
+  `agent.doTask` timing; use the scope's own calls for its automatic work between arguments. These
+  differences disappear when Player execution is explicit, but deserve review.
+- Replay recording now represents `doTasks` arguments as ordinary `DO_TASK` inputs. The redundant
+  `DO_TASKS` kind is removed; older derived recordings containing it must be regenerated. Review
+  any saved generated files still needed outside the test suite. Known shared `_local/replays/`
+  copies are `Game20261102/solarnet-replay.short.json`, `Game20261031/RemoteVacuumFlow.short.json`,
+  `Game20261031/p9a4445506f19/LatentGammaFieldTest.short.json`, and
+  `Game20261030/KineticCarbonState.short.json`; leave those shared copies for separate regeneration.
 
 ## Other work
 

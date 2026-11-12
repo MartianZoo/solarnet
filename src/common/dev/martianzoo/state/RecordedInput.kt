@@ -67,7 +67,6 @@ public sealed class RecordedInput {
 
   /** Agent operations whose identical instruction text can have different effects. */
   public enum class Kind {
-    DO_TASKS,
     DO_TASK,
     DO_TASK_ID,
     TRY_TASK,

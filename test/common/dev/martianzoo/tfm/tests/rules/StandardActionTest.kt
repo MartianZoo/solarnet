@@ -99,12 +99,14 @@ internal class StandardActionTest : TfmSandboxTest() {
     }
     kim.inTurn {
       shouldThrow<LimitsException> {
-        kim.doTasks(
-            "UseAction<UseActionOnCardAction, Action1>",
-            "UseAction<DevelopmentCenter, Action1>",
-            "Pay<Class<Energy>> FROM Energy",
-            "ProjectCard",
-        )
+        kim.continueOperation {
+          doTasks(
+              "UseAction<UseActionOnCardAction, Action1>",
+              "UseAction<DevelopmentCenter, Action1>",
+              "Pay<Class<Energy>> FROM Energy",
+              "ProjectCard",
+          )
+        }
       }
       kim.doTask("Pass")
 
@@ -121,11 +123,13 @@ internal class StandardActionTest : TfmSandboxTest() {
 
     kim.inTurn {
       shouldThrow<RequirementException> {
-        kim.doTasks(
-            "UseAction<ClaimMilestoneAction, Action1>",
-            "8 Pay<> FROM MC",
-            "Terraformer35",
-        )
+        kim.continueOperation {
+          doTasks(
+              "UseAction<ClaimMilestoneAction, Action1>",
+              "8 Pay<> FROM MC",
+              "Terraformer35",
+          )
+        }
       }
       kim.count("Terraformer35") shouldBe 0
       kim.count("MC") shouldBe 8

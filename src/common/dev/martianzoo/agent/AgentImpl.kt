@@ -189,8 +189,11 @@ internal class AgentImpl(
     }
   }
 
-  override fun doTasks(vararg narrowings: String): TaskResult = atomic {
-    continueOperationBody { Adapter().performTasks(narrowings) }
+  override fun doTasks(vararg narrowings: String): TaskResult {
+    val before = world.events.nextOrdinal
+    val pendingBefore = allTasks.ids()
+    narrowings.forEach { doTask(it) }
+    return TaskResult(world.events.changesSince(before), allTasks.ids() - pendingBefore)
   }
 
   override fun continueOperation(body: OperationBlock): TaskResult {
@@ -233,10 +236,11 @@ internal class AgentImpl(
 
     override val reader = this@AgentImpl.reader
 
-    private inline fun <T> returnedCall(block: () -> T): T {
-      val result = block()
-      autoExecLoop.run()
-      return result
+    private fun returnedCall(block: () -> Unit) {
+      atomic {
+        block()
+        autoExecLoop.run()
+      }
     }
 
     override fun selectTask(instruction: String) {
@@ -259,21 +263,8 @@ internal class AgentImpl(
       returnedCall { this@AgentImpl.doTask(narrowing) }
     }
 
-    fun performTasks(narrowings: Array<out String>) {
-      narrowings.forEach { narrowing ->
-        val parsed = parseTaskNarrowing(narrowing)
-        decide {
-          taskLog.capture(actor, narrowing) {
-            executeInput(parsed)
-          }
-          finishTaskHandoff()
-        }
-        autoExecLoop.run()
-      }
-    }
-
     override fun doTasks(vararg narrowings: String) {
-      performTasks(narrowings)
+      narrowings.forEach { doTask(it) }
     }
 
     override fun doTask(narrowing: String, contextClass: ClassName) {

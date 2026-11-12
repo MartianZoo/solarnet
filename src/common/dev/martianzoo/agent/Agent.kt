@@ -29,17 +29,19 @@ import kotlin.reflect.KClass
  * A gameplay call may make several engine calls. Mandatory Admin handling runs before and after
  * Player decisions, including nested calls, while [autoExecPolicy] controls Player work. A selected
  * task retains priority. A nonempty pass through ordinary Admin work must succeed at a task;
- * otherwise the call throws and restores its game changes, even if Player work could unblock it.
- * Deferred Admin work is handled after promotion. Complete enumeration of legal Admin choices is
- * not implemented. Admin retries unfinished analysis after other work progresses; if a pass stalls
- * with an unfinished proof, [IncompleteAnalysisException] fails the whole call and restores its
- * game changes.
+ * otherwise the submitted step throws and restores its game changes, even if Player work could
+ * unblock it. Deferred Admin work is handled after promotion. Complete enumeration of legal Admin
+ * choices is not implemented. Admin retries unfinished analysis after other work progresses; if a
+ * pass stalls with an unfinished proof, [IncompleteAnalysisException] fails the submitted step and
+ * restores its game changes.
  *
  * A returned [TaskResult] covers every retained change during that call, including Admin handling
  * and configured Player work. A [Throwable] escaping the call restores its game changes, including
- * a successful request followed by failing Admin work; see [dev.martianzoo.engine.Timeline.atomic]
- * for the state covered by restoration. [exMachina] deliberately omits task handling; [addTasks]
- * and [dropTask] handle Admin work without choosing Player tasks.
+ * a successful request followed by failing Admin work. The exception is [doTasks]: it submits
+ * individually atomic steps and retains earlier successful steps when a later step throws. See
+ * [dev.martianzoo.engine.Timeline.atomic] for the state covered by restoration. [exMachina]
+ * deliberately omits task handling; [addTasks] and [dropTask] handle Admin work without choosing
+ * Player tasks.
  *
  * The current `*Operation` helpers group work across calls: [beginOperation] and
  * [continueOperation] allow tasks to remain, while [runOperation] and [completeOperation] check
@@ -213,11 +215,14 @@ public interface Agent {
   public fun doTask(narrowing: String): TaskResult
 
   /**
-   * Executes an atomic batch against this Actor's pending tasks using [OperationScope.doTasks]
-   * matching, including the combined-total convenience described by [doTask]. Runs configured
-   * autoexecution before, between, and after submitted instructions. Returns the whole batch's
-   * changes; any failure rolls the entire batch back. This may leave work pending, so callers can
-   * split initiated work across multiple batches.
+   * Calls [doTask] for each argument in order and returns their combined changes and surviving new
+   * tasks. With no arguments, does nothing and returns an empty result. Each step includes the same
+   * task handling as [doTask]; other work may remain pending after the sequence.
+   *
+   * If a step throws, restores that step and propagates the exception without returning a result.
+   * Earlier successful steps remain completed, and later arguments are not attempted. For example,
+   * if the third argument fails, the first two remain completed. An exception escaping an enclosing
+   * operation, such as [completeOperation] or [continueOperation], restores that whole operation.
    */
   public fun doTasks(vararg narrowings: String): TaskResult
 
@@ -342,8 +347,13 @@ public interface Agent {
 
   /**
    * Commands available inside an [OperationBlock]. They act on the enclosing Agent and contribute
-   * to the enclosing call's result. A command failure restores that call's earlier changes. The
-   * scope's task and reader views reflect changes made earlier in the same block.
+   * to the enclosing call's result. Each task selection, narrowing, or submission restores its own
+   * changes and automatic follow-up if it throws; [doTasks] applies this separately to each argument.
+   * An exception escaping the block restores the enclosing call. The scope's task and reader views
+   * reflect changes made earlier in the same block.
+   *
+   * Explicit [autoExecNow] and [doWithAutoExecPolicy] work shares the enclosing restoring scope;
+   * catching its failure inside the block can retain automatic work already completed.
    */
   public interface OperationScope {
     /** This actor's current pending-task view. */
@@ -385,9 +395,10 @@ public interface Agent {
     public fun doTask(taskId: TaskId)
 
     /**
-     * Submits each instruction in order, including all component changes when a chosen amount
-     * expands into a group. Uses [Agent.doTask]'s matching and combined-total rules. Failure rolls
-     * back the enclosing Agent call.
+     * Calls [doTask] for each argument in order. An empty sequence does nothing. If a step throws,
+     * restores that step and stops. Catching the exception inside this scope retains earlier steps;
+     * letting it escape restores the enclosing operation. Uses [Agent.doTask]'s matching and
+     * combined-total rules.
      */
     public fun doTasks(vararg narrowings: String)
 
