@@ -146,7 +146,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
               "CopyProductionBox<IndustrialComplex>",
           )
           // Expand the copied production box into its separate resource increases.
-          doTask(tasks.matching { !it.deferred }.single())
+          doTask("EACH")
           doTask("PROD[MC]")
         }
         .expect("PROD[MC, 0 Steel, 0 Titanium, 0 Plant, 0 Energy, 0 Heat]")

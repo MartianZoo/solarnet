@@ -141,7 +141,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
           "-18 MC",
       )
       // Expand the production box after New Partner has raised MC production to its target.
-      doTask(tasks.matching { !it.deferred }.single())
+      doTask("EACH")
       doTasks("PROD[Steel]", "PROD[Titanium]", "PROD[Plant]", "PROD[Energy]", "PROD[Heat]")
     }
     kim.count("PROD[MC]") - kim.count("ProdOffset<Class<MC>>") shouldBe 1

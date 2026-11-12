@@ -18,6 +18,7 @@ import dev.martianzoo.pets.ast.Deferral.FINALLY
 import dev.martianzoo.pets.ast.Deferral.SOON
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
@@ -103,7 +104,25 @@ internal class AgentImpl(
   override fun parseAs(type: KClass<out PetElement>, text: String): PetElement =
       elaborator.elaborateInput(Parsing.parse(type, text), actor as? Player)
 
-  private fun parseTaskNarrowing(text: String): ParsedTaskNarrowing {
+  private fun parseTaskNarrowing(
+      text: String,
+      contextClass: ClassName? = null,
+      taskId: TaskId? = null,
+  ): ParsedTaskNarrowing {
+    if (text.trim() == "EACH") {
+      val selected = allTasks.selectedTask()
+      val task =
+          tasks
+              .extract { it }
+              .singleOrNull {
+                !it.deferred &&
+                    it.instruction is Each &&
+                    (selected == null || it.id == selected) &&
+                    (taskId == null || it.id == taskId) &&
+                    (contextClass == null || it.cause?.context?.className == contextClass)
+              } ?: throw TaskException("Expected exactly one applicable EACH task for $actor")
+      return ParsedTaskNarrowing(task.instruction, quantifierOmitted = false, taskId = task.id)
+    }
     val parsed = Parsing.parse<InstructionTree>(text)
     return ParsedTaskNarrowing(
         elaborator.elaborateInput(parsed, actor as? Player),
@@ -329,7 +348,7 @@ internal class AgentImpl(
       TaskForm(taskId, tasks.getTaskData(taskId).instruction, this)
 
   internal fun prepareFormNarrowing(taskId: TaskId, narrowing: String): InstructionTree {
-    val parsed = parseTaskNarrowing(narrowing)
+    val parsed = parseTaskNarrowing(narrowing, taskId = taskId)
     return engine.prepareTaskNarrowing(taskId, parsed.instruction, parsed.quantifierOmitted)
   }
 
@@ -372,7 +391,7 @@ internal class AgentImpl(
   override fun selectTask(instruction: String) = decide {
     taskLog.capture(actor, instruction, kind = Kind.CHOOSE) {
       val parsed = parseTaskNarrowing(instruction)
-      engine.selectTask(parsed.instruction, parsed.quantifierOmitted)
+      engine.selectTask(parsed.instruction, parsed.quantifierOmitted, parsed.taskId)
     }
   }
 
@@ -390,7 +409,7 @@ internal class AgentImpl(
 
   private fun executeInput(parsed: ParsedTaskNarrowing, contextClass: ClassName? = null) {
     if (allTasks.selectedTask() == null && combineAmounts(parsed, contextClass)) return
-    engine.doTask(parsed.instruction, parsed.quantifierOmitted, contextClass = contextClass)
+    engine.doTask(parsed.instruction, parsed.quantifierOmitted, parsed.taskId, contextClass)
   }
 
   /** A submitted total describes all matching current amounts, never a searched subset. */
@@ -464,7 +483,7 @@ internal class AgentImpl(
 
   override fun doTask(narrowing: String, contextClass: ClassName) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.DO_TASK, contextClass = contextClass) {
-      val parsed = parseTaskNarrowing(narrowing)
+      val parsed = parseTaskNarrowing(narrowing, contextClass = contextClass)
       executeInput(parsed, contextClass)
     }
     finishTaskHandoff()
@@ -472,7 +491,7 @@ internal class AgentImpl(
 
   override fun doTask(narrowing: String, taskId: TaskId) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.DO_TASK, taskId = taskId) {
-      val parsed = parseTaskNarrowing(narrowing)
+      val parsed = parseTaskNarrowing(narrowing, taskId = taskId)
       engine.doTask(
           parsed.instruction,
           parsed.quantifierOmitted,
@@ -498,7 +517,7 @@ internal class AgentImpl(
     taskLog.capture(actor, narrowing, kind = Kind.TRY_TASK) {
       val parsed = parseTaskNarrowing(narrowing)
       tryExecution {
-        engine.doTask(parsed.instruction, parsed.quantifierOmitted)
+        engine.doTask(parsed.instruction, parsed.quantifierOmitted, parsed.taskId)
         if (allTasks.selectedTask() != null) throw AbortTransactionException()
       }
     }
@@ -506,7 +525,7 @@ internal class AgentImpl(
 
   override fun tryTask(narrowing: String, taskId: TaskId) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.TRY_TASK, taskId = taskId) {
-      val parsed = parseTaskNarrowing(narrowing)
+      val parsed = parseTaskNarrowing(narrowing, taskId = taskId)
       tryExecution {
         engine.doTask(parsed.instruction, parsed.quantifierOmitted, taskId)
         if (allTasks.selectedTask() != null) throw AbortTransactionException()
@@ -639,5 +658,6 @@ internal class AgentImpl(
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,
       val quantifierOmitted: Boolean,
+      val taskId: TaskId? = null,
   )
 }

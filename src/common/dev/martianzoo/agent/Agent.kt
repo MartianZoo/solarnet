@@ -43,6 +43,12 @@ import kotlin.reflect.KClass
  * deliberately omits task handling; [addTasks] and [dropTask] handle Admin work without choosing
  * Player tasks.
  *
+ * Task-instruction strings accept the shorthand `EACH` for this Actor's unique applicable task
+ * whose current instruction is an `EACH`. It respects selection, deferral, and any explicit task-ID
+ * or context-Class filter. Zero or multiple matches throw [TaskException] without changes. It
+ * supplies the existing instruction without choosing its children's targets or amounts; selection
+ * only selects it, while execution opens its child tasks. Other text uses ordinary Pets syntax.
+ *
  * The current `*Operation` helpers group work across calls: [beginOperation] and
  * [continueOperation] allow tasks to remain, while [runOperation] and [completeOperation] check
  * whether the initiated work has finished. Whether this API grouping should survive is under

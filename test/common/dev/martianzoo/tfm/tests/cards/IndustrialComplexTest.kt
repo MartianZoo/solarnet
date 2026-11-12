@@ -19,7 +19,7 @@ internal class IndustrialComplexTest : TfmSandboxTest() {
               "-18 MC",
           )
           // Expand the production box into its separate resource increases.
-          doTask(tasks.matching { !it.deferred }.single())
+          doTask("EACH")
           doTasks("PROD[6 MC]", "PROD[Energy]", "PROD[Heat]", "PROD[Steel]")
         }
         .expect("PROD[0 Titanium, 0 Plant]")
@@ -39,7 +39,7 @@ internal class IndustrialComplexTest : TfmSandboxTest() {
               "-18 MC",
           )
           // Expand the production box into its separate resource increases.
-          doTask(tasks.matching { !it.deferred }.single())
+          doTask("EACH")
           doTasks("PROD[7 MC]", "PROD[Energy]", "PROD[2 Plant]", "PROD[Heat]", "PROD[Steel]")
         }
         .expect("PROD[0 Titanium]")

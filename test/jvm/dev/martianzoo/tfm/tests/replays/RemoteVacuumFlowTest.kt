@@ -137,7 +137,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "-18 MC",
       )
       // Expand the production box into its separate resource increases.
-      doTask(tasks.extract { it }.single().id)
+      doTask("EACH")
       doTasks(
           "PROD[Titanium]",
           "PROD[Steel]",
@@ -1587,7 +1587,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks("ProjectCard FROM Science<OlympusConference>", "3 ProjectCard", "-ProjectCard")
     doTask("ProjectCard")
     // Resolve the draw for other players; there are none in this solo game.
-    doTask(tasks.extract { it }.single().id)
+    doTask("EACH")
     draw(Mangrove)
     doTasks(
         *playCardTasks("Capital"),

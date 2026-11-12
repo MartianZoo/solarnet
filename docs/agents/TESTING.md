@@ -212,8 +212,9 @@ semantics.
 > operation, never one card's rule or missing engine semantics.
 
 Do not discover a task to execute with `tasks.matching { !it.deferred }.single()` in a card or rule
-test. It hides which game decision the test makes. Submit the named choice, or use `selectOnlyTask()`
-when selecting the sole pending task is itself the intended action.
+test. It hides which game decision the test makes. Submit the named choice. For an `EACH`
+container, use `doTask("EACH")` to expose its children, then submit their concrete choices. Keep
+`selectOnlyTask()` only when selecting the sole pending task is itself the intended action.
 
 > **Default assertion style:** Almost every successful gameplay action that returns a `TaskResult`
 > should chain `.expect(...)` directly to that action in gameplay tests. Sandbox tests instead
@@ -492,8 +493,9 @@ Use `selectTask` and `selectOnlyTask` only for a choice still needing narrowing,
 handoff, never to carry out concrete player work. Every retained selection must have a local
 comment explaining why it is necessary. Prefer a short named selection, such as
 `selectTask("PlaceGreeneryTile")`, to an anonymous selection. String selection also narrows the
-task; it is not a name-only lookup. Keep `selectOnlyTask` when a short instruction cannot identify
-an `EACH` group or would discard part of a linked choice, as in Flooding's placement and attack.
+task; it is not a name-only lookup. Open an `EACH` group with `doTask("EACH")`.
+Keep `selectOnlyTask` when a short instruction would discard part of a linked choice, as in Flooding's
+placement and attack.
 Use `doTask` for the Actor's explicit work, naming a short, meaningful instruction.
 This also applies when binding X makes player work concrete: submit the chosen resource amount
 directly. Do not copy full rule expressions merely to identify the sole task.

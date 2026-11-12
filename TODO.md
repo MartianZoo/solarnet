@@ -32,6 +32,17 @@ the remaining audit items listed there are **not yet discussed or approved**.
 Keep this list during the autonomous cleanup. Record behavior or readability tradeoffs even when
 verification and Opus/high review support committing them. Remove entries after human review.
 
+- The user-requested `EACH` shorthand identifies a unique applicable top-level `EACH` task through
+  existing Agent input handling. It removes grouped-effect ID lookups without copying formulas;
+  child choices remain explicit. Review whether the short label plus nearby comments is clear
+  enough. It rejects multiple applicable containers, even identical ones, which is stricter than
+  ordinary instruction matching's interchangeability rule. Selection or an explicit task/context
+  filter can identify the intended container. No Pets grammar or engine rule changed.
+- October 9's Miranda trade now submits its printed `3* Animal` reward and asserts zero animals
+  gained, replacing a task drop. With no legal holder, normal execution produces nothing. Review
+  this deliberate AMAP spelling: `0 Animal` cannot identify that pending task, while the printed
+  maximum can. All sourced checkpoints and chronology remain intact.
+
 - `MassiveGammaZoneTest`: replaces three dropped attack consequences with explicit reductions
   against `SoloOpponent`. This adds neutral-player events absent from the source's human log while
   preserving its recorded human position. Low risk; check that this representation reads clearly.

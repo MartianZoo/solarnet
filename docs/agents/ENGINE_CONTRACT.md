@@ -96,6 +96,9 @@ choices in the selected task without executing its component changes. Choosing a
 further evaluation, including its AMAP amount. No transaction stays open while a person chooses.
 Evaluated and closed instructions can still fail when executed.
 
+Agent task-instruction strings accept the `EACH` shorthand specified in `Agent` to identify an
+applicable container without copying its formula or looking up its ID.
+
 Groups, `EACH`, and dispatches exposed by selection retain their parent until execution. Executing
 that parent admits its children and consumes it. Ordinary initial admission still normalizes literal
 groups into independent tasks, removes literal zero/Ok work, and separates eligible sequences.

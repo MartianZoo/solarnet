@@ -19,6 +19,35 @@ import kotlin.test.Test
 
 internal class TaskLogTest {
   @Test
+  internal fun replaysEachShorthandWithItsContextFilter() {
+    val premise =
+        testGamePremise(
+            """
+      CLASS Left : Signal { This: EACH Player { Coin } }
+      CLASS Right : Signal { This: EACH Player { Marker } }
+      CLASS Coin
+      CLASS Marker
+    """
+        )
+    fun newAgents() =
+        Agents(Engine.newGame(premise)) { NONE }
+            .also {
+              it[PLAYER1].addTasks("Left, Right")
+            }
+    val source = newAgents()
+    start(source)
+    source[PLAYER1].doTasks("Left", "Right")
+    source[PLAYER1].doTask("EACH", cn("Left"))
+    source[PLAYER1].doTask("Coin")
+    val imported = newAgents()
+    replay(source, imported)
+    imported[PLAYER1].count("Coin") shouldBe 1
+    imported[PLAYER1].count("Marker") shouldBe 0
+    imported[PLAYER1].doTasks("EACH", "Marker")
+    imported[PLAYER1].count("Marker") shouldBe 1
+  }
+
+  @Test
   internal fun contextClassIsRetainedWhenCombiningRewards() {
     val premise =
         testGamePremise(
