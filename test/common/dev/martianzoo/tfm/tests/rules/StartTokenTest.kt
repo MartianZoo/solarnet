@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.engine.*
@@ -22,7 +21,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
-internal class StartTokenTest : TfmGameplayTest() {
+internal class StartTokenTest : TfmGameplayTest(NONE) {
   @Test
   internal fun `Start token begins with the first player and passes after each research phase`() {
     newTestGame(playerCount = 3)
@@ -35,13 +34,24 @@ internal class StartTokenTest : TfmGameplayTest() {
     )
     admin.assertCounts(1 to "StartToken<Kim>", 0 to "StartToken<Stan>")
 
-    finishGeneration(kim, stan, rob)
+    listOf(kim, stan, rob).forEach { it.doTask("Pass") }
+    players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     admin.assertCounts(0 to "StartToken<Kim>", 1 to "StartToken<Stan>")
 
-    finishGeneration(stan, rob, kim)
+    listOf(stan, rob, kim).forEach { it.doTask("Pass") }
+    players.forEach { it.doTask("Heat FROM Energy") }
+    players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
+    stan.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     admin.assertCounts(0 to "StartToken<Stan>", 1 to "StartToken<Rob>")
 
-    finishGeneration(rob, kim, stan)
+    listOf(rob, kim, stan).forEach { it.doTask("Pass") }
+    players.forEach { it.doTask("Heat FROM Energy") }
+    players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
+    rob.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     admin.assertCounts(1 to "StartToken<Kim>", 0 to "StartToken<Rob>")
     admin.assertCounts(1 to "StartToken")
   }
@@ -50,21 +60,13 @@ internal class StartTokenTest : TfmGameplayTest() {
   internal fun `Start token stays with the only player in a solo game`() {
     newTestGame(playerCount = 1)
 
-    finishGeneration(kim)
+    kim.doTask("Pass")
+    // 14 TR plus -1 MC production after the solo Colonies setup penalty.
+    kim.doTasks("13 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
+    kim.doTask("VenusStep! BY Admin")
+    kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
 
     admin.assertCounts(1 to "StartToken<Kim>", 0 to "NextPlayer")
-  }
-
-  /**
-   * Every player passes in turn order, the start player chooses World Government's step, and no
-   * player buys research cards.
-   */
-  private fun finishGeneration(vararg inTurnOrder: Agent) {
-    inTurnOrder.forEach { it.doTask("Pass") }
-    players.forEach { it.autoExecNow(EAGER) }
-    inTurnOrder.first().doTask("VenusStep! BY Admin")
-
-    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
   }
 
   internal class Setup {

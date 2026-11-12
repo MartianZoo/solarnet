@@ -25,6 +25,7 @@ import kotlin.test.assertTrue
 
 /** Three-player physical game begun Friday, 2026-08-28. */
 internal class OtbGame20260828Test : FullGameTest(EAGER) {
+  // TaskForm requires a task ID. Keep the offer lookup here so replay steps name their choices.
   // This replay knows its choices in advance. Check that the current chooser offers each
   // recorded choice without fixing the number of unrelated options in the catalog.
   private fun Agent.fillInTask(

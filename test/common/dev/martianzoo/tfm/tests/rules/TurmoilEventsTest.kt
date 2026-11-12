@@ -1082,11 +1082,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
-      // These indistinguishable choices may be answered in any order, using their public task IDs.
-      val choices = kim.tasks.extract { it.id }
-      kim.doTask("Heat", choices[0])
-      kim.doTask("Plant", choices[1])
-      kim.doTask("Steel", choices[2])
+      // Spend the three independent resource choices on different resources.
+      kim.doTasks("Heat", "Plant", "Steel")
       admin.count("OceanTile") shouldBe 0
       // Revision and chairman TR cancel.
     }
@@ -1153,10 +1150,10 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         first.doTask("OceanTile<Tharsis_1_2> BY Admin")
         players.forEach { it.autoExecNow(EAGER) }
       }
-      if (generation == 2)
-          players.forEach { player ->
-            player.tasks.extract { it.id }.forEach { player.doTask("Heat", it) }
-          }
+      if (generation == 2) {
+        // Dry Deserts: Kim has the party leader and a follower; Stan has the chair and a follower.
+        players.forEach { it.doTasks("Heat", "Heat") }
+      }
       admin.count("Distant<${reveals[generation]}>") shouldBe 1
       admin.count("GlobalEventDrawn") shouldBe generation + 3
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }

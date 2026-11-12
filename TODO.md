@@ -12,7 +12,9 @@ the remaining audit items listed there are **not yet discussed or approved**.
   noteworthy events over shorter test-writing. Preserve the scoped corporation-setup convenience;
   the scope of automatic starting-card setup still needs clarification.
 - Prioritize replacing task collection/ID selection, then sole-task assumptions; explain retained
-  uses.
+  uses. A broader scan also found `PropertyTest`'s raw synthetic requirement probe: it locates a
+  blocked task by rendered instruction and drops it. Review that mechanism test separately from
+  the gameplay/card-tracked replay migrations.
 - Inventory replay corrections and task drops, then apply the recorded correction/comment policy.
   Keep retcons to `//` comments identifying correction pairs that could safely be rewritten later;
   retain their execution and chronology for now.
@@ -32,6 +34,16 @@ the remaining audit items listed there are **not yet discussed or approved**.
 Keep this list during the autonomous cleanup. Record behavior or readability tradeoffs even when
 verification and Opus/high review support committing them. Remove entries after human review.
 
+- `StartTokenTest` now uses `NONE` and shows each generation's passing, production, energy
+  conversion, World Government, and research directly. Its private automatic generation helper
+  is gone. The solo case spells out the existing 13 MC income after the Colonies setup penalty.
+  Review whether the repeated phase steps make the token assertions easier to follow.
+- `TurmoilEventsTest` no longer selects resource rewards by task ID. Dry Deserts names Heat,
+  Plant, and Steel directly; the seven-generation scenario explicitly takes two Heat per player,
+  with a comment explaining each player's two sources of influence. It no longer silently adapts
+  to however many reward tasks exist. The class's other player automatic execution remains for
+  a later batch. The remaining TaskForm driver's ID lookup is documented locally because the
+  form API requires an ID; ordinary replay steps do not choose IDs.
 - `PristarTest`, `TerraLabsTest`, `PreludeRulesTest`, and UNMI's nested gameplay suite now use
   `NONE`, naming Prelude benefits, Merger corporation setup, payments, production, and research.
   Existing outcome/phase assertions remain. Pristar combines its 19 MC income and 6 MC bonus
