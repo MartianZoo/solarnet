@@ -2,6 +2,33 @@
 
 Delete entries when they are done. Static-language and English work lives in [Pets TODO](pets/TODO.md).
 
+## Gameplay consistency
+
+The [project record](docs/agents/TESTING.md#gameplay-consistency-project) owns the user's decisions,
+examples, verified findings, and questions. These tasks implement or investigate that direction;
+the remaining audit items listed there are **not yet discussed or approved**.
+
+- Remove non-Admin `EAGER` use and minimize policy changes in tests. Preserve the scoped
+  corporation-setup convenience; settle the open `SOLE_TASK` and starting-card setup questions.
+- Prioritize replacing task collection/ID selection, then sole-task assumptions; explain retained
+  uses and remove specialized APIs such as `selectOnlyTask(x)` as callers migrate.
+- Inventory replay corrections and task drops, then apply the recorded correction/comment policy.
+  Start with `MassiveGammaZoneTest`'s three drops and potentially misleading source-app comments.
+- Audit replay choices and assertions against original evidence, including expectations copied
+  from current engine output.
+- Investigate what each "start a game" entry point has already done before consolidating setup.
+- Investigate consistent completion checks for focused scenarios, full games, and partial games.
+- Inventory choices computed from state (starting player, free water area, affordable purchases)
+  versus literal recorded choices; decide which adaptations are useful.
+- Adopt combined-total task submissions more thoroughly, preserving choices and required ordering.
+- Improve consistency in checking meaningful consequences without repeating submitted tasks.
+- Reduce detailed cause-accounting assertions in ordinary replays after selecting representative
+  inputs for focused mechanism tests; preserve meaningful score/resource outcomes.
+- Investigate sequential `doTasks` failure behavior and audit callers. Confirm the proposed
+  semantics before coordinating the API/contract, recording, undo, and enclosing-operation changes.
+
+## Other work
+
 - New Holland's combined city/ocean tile remains unsupported. `RemoteVacuumFlowTest`
   uses an identity-only declaration for drawing/discarding; `LatentGammaFieldTest` uses
   the user-authorized `FakeNewHolland`, which places no city, plus explicit corrections.
@@ -41,9 +68,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   placement deliberately uses mandatory gain for this reason. Characterize affected Canon amounts
   before changing the rule. Reconcile form commit selecting/evaluating before applying a narrowing
   with direct execution applying the request first.
-  A sole displayed option is not proof of a sole successful transaction. Keep Player automatic
-  policy scope unchanged until this is resolved. Explicit combined-total requests are a separate
-  Agent convenience, selected for production income; they do not authorize automatic choice-making.
+  A sole displayed option is not proof of a sole successful transaction. Do not broaden Player
+  automatic choice-making until this is resolved; the selected reduction of automatic execution
+  is tracked in the gameplay consistency project above. Explicit combined-total requests are a
+  separate Agent convenience, selected for production income; they do not authorize automatic
+  choice-making.
 
 - Investigate the deferred nested-placement and partial-selection experiment in
   [Make types types again](docs/agents/MAKE_TYPES_TYPES_AGAIN.md) if that proposal is selected.
@@ -139,10 +168,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   [Agent contract](docs/agents/AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
   Keep instructions such as "always take titanium for Philares" deferred; no policy API,
   implementation, or default migration is selected by this documentation work.
-- Migrate Players away from the EAGER default, which can close legitimate gameplay choices.
-  The user deliberately deferred the migration cleanup for now, hoping to move to a suitable smart
-  policy rather than first migrating to NONE or CONCRETE. Leave the current default unchanged in
-  this pass. Use explicit Player choices when testing engine semantics independently of policy.
+- Reconcile the global Player default and remaining clients with the
+  [gameplay consistency direction](docs/agents/TESTING.md#agreed-direction-execution-and-task-selection).
+  The 2026-11-12 direction makes non-Admin `EAGER` cleanup active work, superseding the earlier
+  blanket deferral. A replacement global default or new smart policy remains unselected.
 - Resolve order-dependent Advanced Alloys discount attribution: the randomized-effect diagnostic
   reproduced the known `ThermalMatterWaveTest` (-96 versus -92) and `Game20230521Test`
   (-33 versus -31) reporting mismatches. Game-state assertions before those checks passed.
