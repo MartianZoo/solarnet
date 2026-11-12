@@ -1928,7 +1928,6 @@ internal class Game20230521Test : FullGameTest() {
           "$PowerInfrastructure FROM ProjectCard",
       )
       doTasks(*cardActionTasks("$PowerInfrastructure"))
-      selectTask(p1.tasks.extract { it }.single().bindXTo(8))
       doTask("-8 Energy")
       doTask("8 MC")
     }
@@ -2110,7 +2109,6 @@ internal class Game20230521Test : FullGameTest() {
 
     with(p1) {
       doTasks(*cardActionTasks("$PowerInfrastructure"))
-      selectTask(p1.tasks.extract { it }.single().bindXTo(5))
       doTask("-5 Energy")
       doTask("5 MC")
       doTasks(

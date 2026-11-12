@@ -415,4 +415,16 @@ internal class DoTasksTest {
     player.count("Coin") shouldBe 5
     player.tasks.ids() shouldBe fixed.toSet()
   }
+
+  @Test
+  internal fun choosingAnAmountAlsoBindsTheDeferredContinuation() {
+    val player =
+        Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker"))) { NONE }[PLAYER1]
+    player.addTasks("X Coin THEN X Marker")
+    player.doTask("3 Coin")
+    shouldThrow<TaskException> { player.doTask("2 Marker") }
+    player.doTask("3 Marker")
+    player.count("Coin") shouldBe 3
+    player.count("Marker") shouldBe 3
+  }
 }

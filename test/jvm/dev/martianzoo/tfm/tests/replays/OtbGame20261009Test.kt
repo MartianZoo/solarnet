@@ -2183,7 +2183,6 @@ internal class OtbGame20261009Test : FullGameTest() {
     }
     with(p2) {
       doTasks(*cardActionTasks("$SulphurEatingBacteria", "Action2"))
-      selectOnlyTask(x = 4)
       doTasks(
           "-4 Microbe<$SulphurEatingBacteria>",
           "12 MC",

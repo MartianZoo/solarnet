@@ -1042,7 +1042,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "2 MC",
     )
     doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-    p1.selectOnlyTask(x = 6)
     doTasks("-6 Microbe<SulphurEatingBacteria>", "18 MC")
     doTasks(*cardActionTasks("Hospitals"), "-Disease<Hospitals>", "5 MC")
     doTasks(
@@ -1627,7 +1626,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "TerraformRating",
     )
     doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-    p1.selectOnlyTask(x = 7)
     doTasks("-7 Microbe<SulphurEatingBacteria>", "21 MC")
     doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
     doTasks(

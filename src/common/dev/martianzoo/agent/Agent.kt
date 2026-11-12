@@ -140,16 +140,14 @@ public interface Agent {
 
   /**
    * Selects this Actor's sole pending task that is not [deferred][Task.deferred], using
-   * [selectTask]'s evaluation and assignee transfer rules. When [x] is supplied, binds the task's X
-   * scalars to that value before selection, using [Task.bindXTo] and [selectTask]'s narrowing
-   * rules. Otherwise selects without narrowing. Throws [TaskException] without changing the World
-   * if this Actor has no such task or more than one.
+   * [selectTask]'s evaluation and assignee transfer rules, without narrowing it. Throws
+   * [TaskException] without changing the World if this Actor has no such task or more than one.
    */
-  public fun selectOnlyTask(x: Int? = null): TaskResult {
+  public fun selectOnlyTask(): TaskResult {
     val id =
         tasks.matching { !it.deferred }.singleOrNull()
             ?: throw TaskException("Expected exactly one pending task that is not deferred")
-    return if (x == null) selectTask(id) else selectTask(tasks.getTaskData(id).bindXTo(x))
+    return selectTask(id)
   }
 
   /**
@@ -348,9 +346,9 @@ public interface Agent {
   /**
    * Commands available inside an [OperationBlock]. They act on the enclosing Agent and contribute
    * to the enclosing call's result. Each task selection, narrowing, or submission restores its own
-   * changes and automatic follow-up if it throws; [doTasks] applies this separately to each argument.
-   * An exception escaping the block restores the enclosing call. The scope's task and reader views
-   * reflect changes made earlier in the same block.
+   * changes and automatic follow-up if it throws; [doTasks] applies this separately to each
+   * argument. An exception escaping the block restores the enclosing call. The scope's task and
+   * reader views reflect changes made earlier in the same block.
    *
    * Explicit [autoExecNow] and [doWithAutoExecPolicy] work shares the enclosing restoring scope;
    * catching its failure inside the block can retain automatic work already completed.
@@ -374,7 +372,7 @@ public interface Agent {
     /**
      * Selects this Actor's sole pending task and runs automatic work; see [Agent.selectOnlyTask].
      */
-    public fun selectOnlyTask(x: Int? = null)
+    public fun selectOnlyTask()
 
     /**
      * Narrows this Actor's selected task and runs automatic work. A System result needing no

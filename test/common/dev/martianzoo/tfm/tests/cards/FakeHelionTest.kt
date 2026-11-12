@@ -301,7 +301,9 @@ internal class FakeHelionTest : TfmSandboxTest() {
 
     return kim.inTurn {
       doTasks(*cardActionTasks("EnergyMarket"))
-      selectOnlyTask(x = 3)
+      // Choose X = 3 without spending MC; the intended scenario would pay with heat next.
+      // This selection currently fails because the variable cost offers no heat payment.
+      selectTask("-6 MC")
       doTasks("6 Pay<Class<Heat>> FROM Heat", "Ok", "3 Energy")
     }
   }

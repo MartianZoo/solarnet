@@ -495,9 +495,8 @@ comment explaining why it is necessary. Prefer a short named selection, such as
 task; it is not a name-only lookup. Keep `selectOnlyTask` when a short instruction cannot identify
 an `EACH` group or would discard part of a linked choice, as in Flooding's placement and attack.
 Use `doTask` for the Actor's explicit work, naming a short, meaningful instruction.
-This also applies when binding X makes player work concrete. When the bound amount instead opens
-a bill through Admin, use a commented `selectOnlyTask(x = ...)`. Do not copy full rule expressions
-merely to identify the sole task.
+This also applies when binding X makes player work concrete: submit the chosen resource amount
+directly. Do not copy full rule expressions merely to identify the sole task.
 Write expected payment amounts explicitly, such as `6 Pay<> FROM MC`; never pay `/ Owed`
 in a sandbox scenario. Write `kim.inTurn { ... }` directly, without redundant `with(kim)` wrappers.
 Inside that block, helpers on its operation receiver do not repeat `kim.`; another actor remains explicit.
@@ -721,9 +720,10 @@ These permissions do not imply removing source resource checkpoints or changing 
   existing named task submissions suffice. When unavoidable, explain why at the use site. Also
   reduce assumptions that the only pending task must be the intended task: they reveal less about
   the scenario than naming the intended work.
-- Remove specialized selection conveniences such as `selectOnlyTask(x = 6)` as callers migrate.
-  Do not replace each variation with another specialized helper. First establish how existing
-  general task selection and narrowing express the required choice; report any actual API gap.
+- Do not reintroduce specialized selection conveniences such as `selectOnlyTask(x = 6)`. Bind X
+  through the named amount being submitted. Do not replace each variation with another specialized
+  helper. First establish how existing general task selection and narrowing express the required
+  choice; report any actual API gap.
 - Adopt combined-total task submissions more thoroughly. For example, a single production income
   can replace separate submissions for the TR and production contributions. Keep genuinely
   different choices, owners, and ordered continuations explicit; this is not permission to merge

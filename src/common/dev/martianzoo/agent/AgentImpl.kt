@@ -251,8 +251,8 @@ internal class AgentImpl(
       returnedCall { this@AgentImpl.selectTask(task) }
     }
 
-    override fun selectOnlyTask(x: Int?) {
-      returnedCall { this@AgentImpl.selectOnlyTask(x) }
+    override fun selectOnlyTask() {
+      returnedCall { this@AgentImpl.selectOnlyTask() }
     }
 
     override fun narrowTask(narrowing: String) {

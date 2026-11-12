@@ -12,7 +12,7 @@ the remaining audit items listed there are **not yet discussed or approved**.
   noteworthy events over shorter test-writing. Preserve the scoped corporation-setup convenience;
   the scope of automatic starting-card setup still needs clarification.
 - Prioritize replacing task collection/ID selection, then sole-task assumptions; explain retained
-  uses and remove specialized APIs such as `selectOnlyTask(x)` as callers migrate.
+  uses.
 - Inventory replay corrections and task drops, then apply the recorded correction/comment policy.
   Keep retcons to `//` comments identifying correction pairs that could safely be rewritten later;
   retain their execution and chronology for now.
@@ -42,6 +42,10 @@ verification and Opus/high review support committing them. Remove entries after 
   make that restoration explicit around failed exploratory actions, retaining their assertions.
   Review whether those scopes read clearly. Operation-scope submissions also now restore their
   automatic follow-up work if it fails and the exception is caught inside the operation.
+- Removed `selectOnlyTask(x = ...)` and redundant X selections in four replays and five card
+  suites. Submitted resource amounts now supply X directly. FakeHelion's existing failure
+  characterization uses the named `selectTask("-6 MC")`; no card behavior changed. Low risk;
+  review the remaining distinction between selecting a named cost and executing it.
 - Non-`NONE` timing: `doTasks` now follows `doTask` literally, so it no longer runs Player automatic
   work before its first argument. A qualified `agent.doTasks` inside an operation follows nested
   `agent.doTask` timing; use the scope's own calls for its automatic work between arguments. These

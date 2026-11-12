@@ -497,7 +497,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "Microbe<SulphurEatingBacteria>",
     )
     doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-    p1.selectOnlyTask(x = 6)
     doTasks(
         "-6 Microbe<SulphurEatingBacteria>",
         "18 MC",
@@ -759,7 +758,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "4 Microbe<SulphurEatingBacteria>",
     )
     doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-    p1.selectOnlyTask(x = 9)
     doTasks(
         "-9 Microbe<SulphurEatingBacteria>",
         "27 MC",
@@ -1029,7 +1027,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "TerraformRating",
     )
     doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-    p1.selectOnlyTask(x = 5)
     doTasks(
         "-5 Microbe<SulphurEatingBacteria>",
         "15 MC",

@@ -17,7 +17,6 @@ internal class TychoMagneticsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(*cardActionTasks("TychoMagnetics"))
-          selectOnlyTask(x = 4)
           doTask("-4 Energy")
           doTask("4 ProjectCard<Kim, Selecting>")
           doTask("ProjectCard<Hand FROM Selecting>")
