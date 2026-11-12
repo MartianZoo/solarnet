@@ -703,11 +703,12 @@ These permissions do not imply removing source resource checkpoints or changing 
 
 - Eliminate `EAGER` for non-Admin players, subject to the limited setup convenience below. Admin
   continues to execute automatically. Minimize temporary policy changes and explicit automatic
-  execution used to make a test proceed. Whether normal gameplay should also stop using `SOLE_TASK`
-  remains open; the user has not yet selected `NONE` for every gameplay test. Start with test
-  callers; a replacement global Agent default or new smart policy has not been selected. Preserve
-  the TaskForm replay as a test of forms when removing its Player `EAGER` dependency. Use explicit
-  Player choices when testing engine semantics independently of policy.
+  execution used to make a test proceed. The user also selected removing `SOLE_TASK` from normal
+  gameplay tests as much as possible: optimize for reading every noteworthy event, not for ease
+  of writing the test. Prefer `NONE` and explicit task submissions outside the setup convenience.
+  Start with test callers; a replacement global Agent default or new smart policy has not been
+  selected. Preserve the TaskForm replay as a test of forms when removing its Player `EAGER`
+  dependency. Use explicit Player choices when testing engine semantics independently of policy.
 - A superclass setup helper may perform corporation setup with automatic execution when the caller
   only needs the corporation to exist and is not testing its turn. Keep this behavior scoped to
   that helper and make its purpose clear. Tests of corporation choices or consequences need those
@@ -747,30 +748,15 @@ These permissions do not imply removing source resource checkpoints or changing 
   every drop mechanically with an adjustment before investigating what the task represents.
 - Reproducing a live player's mistake is legitimate. In particular, the October 9 Project Eden
   correction accounts for oxygen/TR the table omitted; that fact alone is not a defect in the test.
-- Selectively rewriting a resolved game's history to what should have happened is acceptable.
-  During transcription, preserve the chronology needed to compare screenshots and logs. After the
-  mistake and its later correction are understood, an earlier corrected history can be clearer.
-  Preserve the original evidence and explain the rewrite. This is permission to consider such
-  changes, not a requirement to rewrite every replay; the extent of autonomous discretion remains
-  a question for the user.
+- Do not rewrite replay history in the current autonomous pass. When a pair of `exMachina` calls
+  could correctly be eliminated by rewriting the earlier play, add a `//` comment identifying the
+  pair and explaining why. Retain both adjustments and the original chronology. The user may
+  select such retcons later, after reconstruction is settled; that work is not currently authorized.
 
-A concrete first investigation is `MassiveGammaZoneTest`'s three dropped production tasks:
-
-| Card | Task currently dropped | Candidate ordinary submission |
-| --- | --- | --- |
-| Biomass Combustors | Remove 1 plant production from a selected owner | `PROD[-Plant<SoloOpponent>]` |
-| Heat Trappers | Remove 2 heat production from a selected owner | `PROD[-2 Heat<SoloOpponent>]` |
-| Cloud Seeding | Remove 1 heat production from a selected owner | `PROD[-Heat<SoloOpponent>]` |
-
-The source log records the human player's gains without these reductions. That does **not** prove
-that the application incorrectly omitted a human player's loss. The model supports a neutral
-`SoloOpponent` with removable production, and `BinaryVectorStreamTest` already targets it for
-Energy Tapping. Try that existing mechanism and verify the replay against the source before
-retaining a drop or introducing a correction. The candidate replacements have not yet been run.
-The earlier audit's phrase "production reductions omitted by the source application" was too
-strong; absence from the human player's log does not establish an application error. Revise the
-replay's corresponding comments during this cleanup. These three drops also select tasks by ID,
-so resolving them removes examples of both problems.
+For solo attack effects, ordinary submissions against `SoloOpponent` can preserve the human
+player's recorded position without dropping tasks. `MassiveGammaZoneTest` and
+`BinaryVectorStreamTest` demonstrate this. Absence of a neutral production reduction from the
+human player's source log does not establish an application mistake.
 
 ### Agreed follow-up: setup, completion, and assertions
 
@@ -817,9 +803,10 @@ batch. If `doTasks("Coin", "3 Plant")` executes the first task but the second fa
 also undone. `AgentImpl.doTasks` wraps the batch in `atomic`; the API documentation and
 [engine contract](ENGINE_CONTRACT.md) promise that behavior.
 
-The user expected a convenience like repeated `Collection.add` calls, where earlier successful
-items remain after a later failure. Changing to that behavior appears feasible, but it is not just
-removing a wrapper. At least these tests deliberately depend on all-or-nothing batches:
+The user selected exploring a convenience like repeated `Collection.add` calls: if `c` throws
+in `doTasks(a, b, c)`, the state should retain the completed `a` and `b`. Changing to that behavior
+appears feasible, but it is not just removing a wrapper. At least these tests deliberately depend
+on all-or-nothing batches:
 
 - `DoTasksTest.rollsBackEarlierInstructionsWhenABatchFails` checks that the first gain and event
   position are restored after the second instruction fails.
@@ -835,8 +822,8 @@ it currently promises restoration of the enclosing Agent call, and failure caugh
 block needs explicit consideration. The general contract that every failed Agent call restores
 the whole call would need an explicit exception for sequential `doTasks`. Check recording/
 reconstruction, undo and checkpoints, automatic work between steps, and empty calls, then update
-the owning API/contract and tests together. No semantics were changed by this documentation task;
-confirm the intended failure behavior before implementing it.
+the owning API/contract and tests together. The exploration is authorized; until its implementation
+and verification are complete, the current atomic-batch behavior described above still applies.
 
 ### Archived replay verification
 
@@ -1021,8 +1008,8 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 ### State reconciliation
 
 See the [gameplay consistency decisions](#agreed-direction-sources-and-corrections) for the current
-preference for explained corrections over task drops and the option to rewrite resolved mistakes
-after transcription is complete. Those decisions do not require erasing mistakes from every replay.
+preference for explained corrections over task drops. For now, only comment on pairs of corrections
+that could be retconned later; preserve their execution and the original history.
 
 - Express a sourced per-player setup rule, such as a starting handicap, on that replay's concrete
   Player Class with a `SetupPhase` effect supplied through `playerClassPets`. It is game

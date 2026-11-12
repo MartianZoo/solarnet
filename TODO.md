@@ -8,12 +8,14 @@ The [project record](docs/agents/TESTING.md#gameplay-consistency-project) owns t
 examples, verified findings, and questions. These tasks implement or investigate that direction;
 the remaining audit items listed there are **not yet discussed or approved**.
 
-- Remove non-Admin `EAGER` use and minimize policy changes in tests. Preserve the scoped
-  corporation-setup convenience; settle the open `SOLE_TASK` and starting-card setup questions.
+- Remove non-Admin `EAGER` and as much `SOLE_TASK` use as possible in gameplay tests. Prefer visible
+  noteworthy events over shorter test-writing. Preserve the scoped corporation-setup convenience;
+  the scope of automatic starting-card setup still needs clarification.
 - Prioritize replacing task collection/ID selection, then sole-task assumptions; explain retained
   uses and remove specialized APIs such as `selectOnlyTask(x)` as callers migrate.
 - Inventory replay corrections and task drops, then apply the recorded correction/comment policy.
-  Start with `MassiveGammaZoneTest`'s three drops and potentially misleading source-app comments.
+  Keep retcons to `//` comments identifying correction pairs that could safely be rewritten later;
+  retain their execution and chronology for now.
 - Audit replay choices and assertions against original evidence, including expectations copied
   from current engine output.
 - Investigate what each "start a game" entry point has already done before consolidating setup.
@@ -24,8 +26,17 @@ the remaining audit items listed there are **not yet discussed or approved**.
 - Improve consistency in checking meaningful consequences without repeating submitted tasks.
 - Reduce detailed cause-accounting assertions in ordinary replays after selecting representative
   inputs for focused mechanism tests; preserve meaningful score/resource outcomes.
-- Investigate sequential `doTasks` failure behavior and audit callers. Confirm the proposed
-  semantics before coordinating the API/contract, recording, undo, and enclosing-operation changes.
+- Explore the selected sequential `doTasks` behavior: when `c` throws, retain completed `a` and
+  `b`. Audit callers and coordinate the API/contract, recording, undo, and enclosing operations.
+
+### Changes to review with the user
+
+Keep this list during the autonomous cleanup. Record behavior or readability tradeoffs even when
+verification and Opus/high review support committing them. Remove entries after human review.
+
+- `MassiveGammaZoneTest`: replaces three dropped attack consequences with explicit reductions
+  against `SoloOpponent`. This adds neutral-player events absent from the source's human log while
+  preserving its recorded human position. Low risk; check that this representation reads clearly.
 
 ## Other work
 

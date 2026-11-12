@@ -549,11 +549,9 @@ internal class MassiveGammaZoneTest : FullGameTest() {
           "1 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
           "$BiomassCombustors FROM ProjectCard",
+          "PROD[-Plant<SoloOpponent>]",
           "PROD[2 Energy]",
       )
-      // The archive's solo implementation omitted the mandatory plant-production reduction.
-      // Drop only that unsupported effect so the replay preserves the sourced action and state.
-      dropTask(tasks.extract { it }.single { !it.deferred }.id)
 
       doTasks(
           *playCardTasks("$GhgFactories"),
@@ -568,10 +566,9 @@ internal class MassiveGammaZoneTest : FullGameTest() {
           "2 Pay<Class<Steel>> FROM Steel",
           "Ok", // no MC remainder
           "$HeatTrappers FROM ProjectCard",
+          "PROD[-2 Heat<SoloOpponent>]",
           "PROD[Energy]",
       )
-      // As with Biomass Combustors, the archive omitted the solo production reduction.
-      dropTask(tasks.extract { it }.single { !it.deferred }.id)
 
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -1019,10 +1016,9 @@ internal class MassiveGammaZoneTest : FullGameTest() {
           "9 Pay<> FROM MC",
           "$CloudSeeding FROM ProjectCard",
           "PROD[-MC]",
+          "PROD[-Heat<SoloOpponent>]",
           "PROD[2 Plant]",
       )
-      // The archive again omitted a solo-only production target.
-      dropTask(tasks.extract { it }.single { !it.deferred }.id)
 
       doTasks(
           *standardProjectTasks("AsteroidProject"),
