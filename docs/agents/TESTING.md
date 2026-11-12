@@ -795,8 +795,6 @@ block**. For example, `PristarTest` observes the last player's pass together wit
 production work to check Kim's 25 MC and Preservation marker. A `.expect()` on the pass alone
 would observe only changes retained before that call returned. The helper does not create a
 transaction, roll back the block, change automatic execution, or require all tasks to finish.
-The current Pristar block itself calls `autoExecNow(EAGER)`; removing that use is separate from
-what the assertion helper observes.
 
 ### Sequential task submissions
 

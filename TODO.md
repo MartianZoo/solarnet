@@ -32,6 +32,14 @@ the remaining audit items listed there are **not yet discussed or approved**.
 Keep this list during the autonomous cleanup. Record behavior or readability tradeoffs even when
 verification and Opus/high review support committing them. Remove entries after human review.
 
+- `PristarTest`, `TerraLabsTest`, `PreludeRulesTest`, and UNMI's nested gameplay suite now use
+  `NONE`, naming Prelude benefits, Merger corporation setup, payments, production, and research.
+  Existing outcome/phase assertions remain. Pristar combines its 19 MC income and 6 MC bonus
+  into `25 MC`, with an explanatory comment. A separate `6 MC` would also match the fixture's
+  ordinary 6 MC production task (before its -5 MC offset), so it would not reliably identify the
+  bonus. Both gains belong to the same production phase. Review the extra setup detail and
+  repetition; no new gameplay helper was introduced to hide these events. Some retained `.expect`
+  assertions now repeat explicit inputs; review those in the planned assertion-consistency pass.
 - The user-requested `EACH` shorthand identifies a unique applicable top-level `EACH` task through
   existing Agent input handling. It removes grouped-effect ID lookups without copying formulas;
   child choices remain explicit. Review whether the short label plus nearby comments is clear

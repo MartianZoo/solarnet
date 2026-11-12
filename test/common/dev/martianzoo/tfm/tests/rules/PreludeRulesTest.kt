@@ -1,22 +1,27 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class PreludeRulesTest : TfmGameplayTest() {
+internal class PreludeRulesTest : TfmGameplayTest(NONE) {
   @Test
   internal fun `A declared fizzle consumes a Prelude and allows the remaining Prelude to be played`() {
     newTestGame("PreludeExpansion", playerCount = 2)
     val checkpoint = game.events.nextOrdinal
 
     // Follow mode accepts the player's declaration that their physical Prelude was unplayable.
-    kim.completeOperation { doTask("-PreludeCard") }.expect("15 MC, -PreludeCard")
+    kim.completeOperation { doTasks("-PreludeCard", "Audit", "15 MC") }
+        .expect("15 MC, -PreludeCard")
     kim.completeOperation {
-          doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
-          autoExecNow(EAGER)
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
+              "$DomeFarming FROM PreludeCard",
+              "PROD[Plant]",
+              "PROD[2 MC]",
+          )
         }
         .expect("$DomeFarming, -PreludeCard")
 
@@ -31,15 +36,32 @@ internal class PreludeRulesTest : TfmGameplayTest() {
     kim.count("PreludeCard") shouldBe 2
     stan.count("PreludeCard") shouldBe 2
 
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
-    kim.autoExecNow(EAGER)
+    kim.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+        "$Donation FROM PreludeCard",
+        "21 MC",
+    )
+    kim.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
+        "$DomeFarming FROM PreludeCard",
+        "PROD[Plant]",
+        "PROD[2 MC]",
+    )
 
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
-    stan.autoExecNow(EAGER)
+    stan.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
+        "$Supplier FROM PreludeCard",
+        "PROD[2 Energy]",
+        "4 Steel",
+    )
 
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
-    stan.autoExecNow(EAGER)
+    stan.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
+        "$MetalsCompany FROM PreludeCard",
+        "PROD[MC]",
+        "PROD[Steel]",
+        "PROD[Titanium]",
+    )
 
     admin.count("ActionPhase") shouldBe 1
     kim.count("PreludeCard") shouldBe 0
