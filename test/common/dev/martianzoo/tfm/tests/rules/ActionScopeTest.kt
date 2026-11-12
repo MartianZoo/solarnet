@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -114,11 +113,11 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     admin.count("Baton") shouldBe 0
     admin.count("ActionScope") shouldBe 0
 
-    players.forEach { it.autoExecNow(EAGER) }
+    players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
     admin.count("ResearchPhase") shouldBe 1
     admin.count("Baton") shouldBe 0
     admin.count("ActionScope") shouldBe 0
-    players.forEach { it.autoExecNow(EAGER) }
+    players.forEach { it.doTask("4 ProjectCard<Selecting>") }
     kim.doTask("-4 ProjectCard<Selecting>")
     admin.count("ActionScope") shouldBe 0
     stan.doTask("-4 ProjectCard<Selecting>")

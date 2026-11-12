@@ -46,6 +46,13 @@ verification and Opus/high review support committing them. Remove entries after 
   suites. Submitted resource amounts now supply X directly. FakeHelion's existing failure
   characterization uses the named `selectTask("-6 MC")`; no card behavior changed. Low risk;
   review the remaining distinction between selecting a named cost and executing it.
+- `SupercapacitorsTest` now uses `NONE` and lists its card payment, production, energy-to-heat
+  conversion, and Research draws. `ActionScopeTest` likewise names production and draws instead
+  of using `EAGER`. Resource/phase assertions remain. The invalid two-energy request now expects
+  `TaskException` instead of `NarrowingException`: with `NONE`, no earlier automatic selection
+  has committed to the remaining choice. The request must still fail, and the following valid
+  request must preserve the original energy/heat totals. Low risk; review this exception change
+  and whether the literal production lines make the setup clear enough despite the added length.
 - Non-`NONE` timing: `doTasks` now follows `doTask` literally, so it no longer runs Player automatic
   work before its first argument. A qualified `agent.doTasks` inside an operation follows nested
   `agent.doTask` timing; use the scope's own calls for its automatic work between arguments. These
