@@ -17,9 +17,10 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
 
 /**
- * Scenarios reached through play, with the game's own rules offering every turn and beginning every
- * phase. Players submit offered tasks through plain Agents with a fixed policy. Explicit
- * autoExecNow calls handle competing consequences when their order is not the subject.
+ * Scenarios following the game's own turns and phases. Focused phase tests may prepare their
+ * starting position with visible corrections, then follow the real game flow. Players submit
+ * offered tasks through plain Agents with a fixed policy. Explicit autoExecNow calls handle
+ * competing consequences when their order is not the subject.
  */
 internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy = SOLE_TASK) {
   lateinit var game: World

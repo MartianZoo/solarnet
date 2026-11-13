@@ -1,92 +1,75 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.engine.*
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.tests.*
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TestOption.MandatoryVenusVariant
+import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
+import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.setUpGame
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class FinalGreeneryPhaseTest : TfmSandboxTest() {
+internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
+  // Omit starting production and expansion solar work; these scenarios isolate the base phase flow.
+  private val options = "-QuickStartVariant, -ColoniesExpansion, -VenusNextExpansion"
+
   @Test
   internal fun normalGreeneryRaisesOxygen() {
-    game = TfmEngine.newGame(canonicalPremise())
-    val p1 = agents[PLAYER1]
-    p1.runOperation("8 Plant")
-    agents.taskLog.gameStarted()
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
-    p1.doTask("-10 ProjectCard<Selecting>")
-    agents[PLAYER2].doTask("-10 ProjectCard<Selecting>")
-    p1.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$Ecoline>>") }
-    agents[PLAYER2].completeOperation {
-      doTask("PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>")
+    newTestGame(options, playerCount = 2)
+    // Supply plants for the conversion; how they were collected is irrelevant here.
+    kim.exMachina("8 Plant")
+    kim.completeOperation {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_3_6>",
+          "OxygenStep",
+          "TerraformRating",
+      )
     }
-
-    p1.completeOperation {
-      doWithAutoExecPolicy(NONE) {
-        doTasks("UseAction<ConvertPlantsAction, Action1>", "7 Pay<Class<Plant>> FROM Plant")
-      }
-      autoExecNow()
-      doTask("GreeneryTile<Tharsis_3_6>")
-    }
-
-    admin.count("OxygenStep") shouldBe 1
   }
 
   @Test
   internal fun finalGreeneryDoesNotRaiseOxygen() {
-    game = TfmEngine.newGame(canonicalPremise())
-    val p1 = agents[PLAYER1]
-    val p2 = agents[PLAYER2]
-    p1.runOperation("8 Plant")
-    admin.runOperation(
+    newTestGame(options, playerCount = 2)
+    // Supply plants for the final conversion without playing a resource-gathering history.
+    kim.exMachina("8 Plant")
+    // End with oxygen still low so that the final greenery's lack of an oxygen reward is
+    // observable.
+    admin.exMachina(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
-            "-GpGameEndBarrier<Class<OxygenStep>>, " +
-            "-GpGameEndBarrier<Class<OceanTile>>"
+            "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
     )
-    agents.taskLog.gameStarted()
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
-    p1.doTask("-10 ProjectCard<Selecting>")
-    p2.doTask("-10 ProjectCard<Selecting>")
-    p1.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$Ecoline>>") }
-    p2.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>") }
-    p1.doTask("Pass")
-    p2.doTask("Pass")
+    kim.doTask("Pass")
+    stan.doTask("Pass")
+    kim.doTask("20 MC")
+    stan.doTask("20 MC")
 
     admin.count("FinalGreeneryPhase") shouldBe 1
-    p1.completeOperation {
-      doWithAutoExecPolicy(NONE) {
-        doTasks("UseAction<ConvertPlantsAction, Action1>", "7 Pay<Class<Plant>> FROM Plant")
-      }
-      autoExecNow()
-      doTask("GreeneryTile<Tharsis_3_5>")
-    }
-
-    admin.count("OxygenStep") shouldBe 0
+    kim.completeOperation {
+          doTasks(
+              "UseAction<ConvertPlantsAction, Action1>",
+              "8 Pay<Class<Plant>> FROM Plant",
+              "GreeneryTile<Tharsis_3_5>",
+          )
+        }
+        .expect("0 OxygenStep, 0 TerraformRating")
   }
 
   @Test
   internal fun soloLossSkipsFinalGreeneryAndScoring() {
-    val setup = canonicalPremise(players = 1)
-    game = TfmEngine.newGame(setup)
-    val p1 = agents[PLAYER1]
-    admin.runOperation("-13 SoloGenerationsLeft")
-    agents.taskLog.gameStarted()
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
-    p1.doTask("-10 ProjectCard<Selecting>")
-    p1.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$Ecoline>>") }
-
-    p1.doTask("Pass")
+    newTestGame(options, playerCount = 1)
+    // Reach the final solo generation without filling the global tracks.
+    admin.exMachina("-13 SoloGenerationsLeft")
+    kim.doTask("Pass")
+    kim.doTask("14 MC")
 
     admin.count("FinalGreeneryPhase") shouldBe 0
     admin.count("End") shouldBe 0
-    admin.count("Victory<Player1>") shouldBe 0
+    kim.count("Victory") shouldBe 0
     admin.count("GameScope") shouldBe 0
     admin.count("TemperatureStep") shouldBe 0
     admin.count("OxygenStep") shouldBe 0
@@ -97,18 +80,11 @@ internal class FinalGreeneryPhaseTest : TfmSandboxTest() {
 
   @Test
   internal fun multiplayerDoesNotTreatAbsentCountdownAsGameEnd() {
-    val setup = canonicalPremise()
-    game = TfmEngine.newGame(setup)
-    val p1 = agents[PLAYER1]
-    val p2 = agents[PLAYER2]
-    agents.taskLog.gameStarted()
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
-    p1.doTask("-10 ProjectCard<Selecting>")
-    p2.doTask("-10 ProjectCard<Selecting>")
-    p1.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$Ecoline>>") }
-    p2.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>") }
-    p1.doTask("Pass")
-    p2.doTask("Pass")
+    newTestGame(options, playerCount = 2)
+    kim.doTask("Pass")
+    stan.doTask("Pass")
+    kim.doTask("20 MC")
+    stan.doTask("20 MC")
 
     game.classTable.allClassNames.shouldNotContain(cn("SoloGenerationsLeft"))
     admin.count("ResearchPhase") shouldBe 1
@@ -117,129 +93,129 @@ internal class FinalGreeneryPhaseTest : TfmSandboxTest() {
 
   @Test
   internal fun elevenPlantsCanBecomeTwoGreeneriesWithEcolineAndTheElysiumBonus() {
-    game = TfmEngine.newGame(canonicalPremise(Elysium))
-    val p1 = agents[PLAYER1]
-    val p2 = agents[PLAYER2]
-    p1.runOperation("6 Plant")
-    admin.runOperation(
-        "-GpGameEndBarrier<Class<TemperatureStep>>, " +
-            "-GpGameEndBarrier<Class<OxygenStep>>, " +
-            "-GpGameEndBarrier<Class<OceanTile>>"
+    newTestGame(
+        "ElysiumMap, $options",
+        playerCount = 2,
+        kimCorporation = Ecoline,
     )
-    agents.taskLog.gameStarted()
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
-    p1.doTask("-10 ProjectCard<Selecting>")
-    p2.doTask("-10 ProjectCard<Selecting>")
-    p1.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$Ecoline>>") }
-    p2.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$MiningGuild>>") }
+    // Ecoline starts with three plants and will produce two more: six additional plants make 11.
+    kim.exMachina("6 Plant")
+    // End this generation without completing the parameters; test the final-greenery conversions.
+    admin.exMachina(
+        "-GpGameEndBarrier<Class<TemperatureStep>>, " +
+            "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
+    )
+    kim.doTask("Pass")
+    stan.doTask("Pass")
+    kim.doTasks("20 MC", "2 Plant")
+    stan.doTask("20 MC")
 
-    p1.doTask("Pass")
-    p2.doTask("Pass")
-    p1.count("Plant") shouldBe 11
-    p1.completeOperation {
-      doWithAutoExecPolicy(NONE) {
-        doTasks("UseAction<ConvertPlantsAction, Action1>", "7 Pay<Class<Plant>> FROM Plant")
-      }
-      autoExecNow()
-
-      // 11 - 7 with Ecoline + the unique 3-plant bonus = 7.
-      doTask("GreeneryTile<Elysium_5_6>")
+    kim.count("Plant") shouldBe 11
+    kim.completeOperation {
+      // 11 - 7 with Ecoline + the 3-plant placement bonus = 7.
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_5_6>",
+          "3 Plant",
+      )
     }
-    p1.count("Plant") shouldBe 7
-    p1.completeOperation {
-      doWithAutoExecPolicy(NONE) {
-        doTasks("UseAction<ConvertPlantsAction, Action1>", "7 Pay<Class<Plant>> FROM Plant")
-      }
-      autoExecNow()
-      doTask("GreeneryTile<Elysium_5_5>")
+    kim.count("Plant") shouldBe 7
+    kim.completeOperation {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "7 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_5_5>",
+          "2 Plant",
+      )
     }
-    p1.selectTask("PassBaton")
-
-    p1.count("GreeneryTile<Player1>") shouldBe 2
+    kim.selectTask("PassBaton")
+    kim.count("GreeneryTile") shouldBe 2
   }
 
   @Test
   internal fun tenPlantsCanBecomeTwoGreeneriesWithPhilaresNeighborsAndTheElysiumBonus() {
-    game = TfmEngine.newGame(canonicalPremise(Elysium, PromoCards))
-    val p1 = agents[PLAYER1]
-    val p2 = agents[PLAYER2]
-    p2.runOperation(
-        "GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " + "GreeneryTile<Elysium_6_6>"
+    newTestGame(
+        "ElysiumMap, $options",
+        playerCount = 2,
+        kimCorporation = Philares,
     )
-    p1.runOperation("8 Plant")
-    admin.runOperation(
+    // Establish the neighboring opponent tiles; their placement is not under test.
+    stan.exMachina(
+        "GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, GreeneryTile<Elysium_6_6>"
+    )
+    // The required greenery's placement and adjacency will bring these eight plants to ten.
+    kim.exMachina("8 Plant")
+    // End this generation without completing the parameters; test the final-greenery conversions.
+    admin.exMachina(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
-            "-GpGameEndBarrier<Class<OxygenStep>>, " +
-            "-GpGameEndBarrier<Class<OceanTile>>"
+            "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
     )
-    agents.taskLog.gameStarted()
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
-    p1.doTask("-10 ProjectCard<Selecting>")
-    p2.doTask("-10 ProjectCard<Selecting>")
-    p1.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$Philares>>") }
-    p2.completeOperation { doTask("PlayCard<Class<CorporationCard>, Class<$MiningGuild>>") }
-
-    p1.completeOperation {
-      doTask("DoRequiredActions")
-      doTask("GreeneryTile<Elysium_4_5>")
-      doTask("Plant")
+    kim.completeOperation {
+      doTasks(
+          "DoRequiredActions",
+          "GreeneryTile<Elysium_4_5>",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      // Bare Plant matches both rewards; select the fixed placement bonus before Philares' choice.
+      selectTask("Plant!")
+      doTasks("Plant", "Plant")
     }
-    p1.selectTask("PassBaton")
-    p2.doTask("Pass")
-    p1.doTask("Pass")
-    p1.count("Plant") shouldBe 10
-    p1.count("GreeneryTile<Player1>") shouldBe 1
-    p1.completeOperation {
-      doWithAutoExecPolicy(NONE) {
-        doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      }
-      autoExecNow()
+    kim.selectTask("PassBaton")
+    stan.doTask("Pass")
+    kim.doTask("Pass")
+    kim.doTask("21 MC")
+    stan.doTask("20 MC")
 
-      // 10 - 8 + the 3-plant bonus + one Philares plant per opponent adjacency = 8.
-      doTask("GreeneryTile<Elysium_5_6>")
-      repeat(3) { doTask("Plant") }
+    kim.count("Plant") shouldBe 10
+    kim.count("GreeneryTile") shouldBe 1
+    kim.completeOperation {
+      // 10 - 8 + the 3-plant bonus + a Philares plant per opponent adjacency = 8.
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_5_6>",
+          "3 Plant",
+      )
+      doTasks("Plant", "Plant", "Plant")
     }
-    p1.count("Plant") shouldBe 8
-    p1.completeOperation {
-      doWithAutoExecPolicy(NONE) {
-        doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      }
-      autoExecNow()
-
-      doTask("GreeneryTile<Elysium_6_7>")
-      repeat(2) { doTask("Plant") }
+    kim.count("Plant") shouldBe 8
+    kim.completeOperation {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_6_7>",
+      )
+      // Bare Plant matches both rewards; select the fixed placement bonus before Philares' choices.
+      selectTask("Plant!")
+      doTasks("Plant", "Plant", "Plant")
     }
-    p1.selectTask("PassBaton")
-
-    p1.count("GreeneryTile<Player1>") shouldBe 3
+    kim.selectTask("PassBaton")
+    kim.count("GreeneryTile") shouldBe 3
   }
 
-  @Test
-  internal fun multiplayerEndConditionIgnoresVenusCompletion() {
-    game = setUpGame(VenusNextExpansion)
+  // These checks exercise the end conditions directly, without running turns or phases.
+  internal class EndConditions : TfmSandboxTest() {
+    @Test
+    internal fun multiplayerEndConditionIgnoresVenusCompletion() {
+      game = setUpGame(VenusNextExpansion)
+      admin.runOperation(
+          "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+      )
+      admin.count("GpComplete<Class<VenusStep>>") shouldBe 0
+      admin.count("GameEndBarrier") shouldBe 0
+    }
 
-    admin.runOperation(
-        "GpComplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
-    )
-
-    admin.count("GpComplete<Class<VenusStep>>") shouldBe 0
-    admin.count("GameEndBarrier") shouldBe 0
-  }
-
-  @Test
-  internal fun mandatoryVenusVariantKeepsItsOwnBarrierUntilVenusIsComplete() {
-    game = setUpGame(VenusNextExpansion, MandatoryVenusVariant)
-
-    admin.runOperation(
-        "GpComplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
-    )
-
-    admin.count("GameEndBarrier") shouldBe 1
-
-    admin.runOperation("GpComplete<Class<VenusStep>>")
-
-    admin.count("GameEndBarrier") shouldBe 0
+    @Test
+    internal fun mandatoryVenusVariantKeepsItsOwnBarrierUntilVenusIsComplete() {
+      game = setUpGame(VenusNextExpansion, MandatoryVenusVariant)
+      admin.runOperation(
+          "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+      )
+      admin.count("GameEndBarrier") shouldBe 1
+      admin.runOperation("GpComplete<Class<VenusStep>>")
+      admin.count("GameEndBarrier") shouldBe 0
+    }
   }
 }

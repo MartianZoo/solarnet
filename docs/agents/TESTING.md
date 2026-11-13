@@ -31,7 +31,8 @@
 - [`TfmSandboxTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmSandboxTest.kt) —
   focused scenarios with corrections and selected phase shortcuts.
 - [`TfmGameplayTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmGameplayTest.kt) —
-  scenarios reached through play, with the game's own rules offering turns and beginning phases.
+  scenarios following the game's own turns and phases, including focused phase tests from corrected
+  starting positions.
 - [`FullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/FullGameTest.kt) —
   replay setup, assertions, endpoint and export/import checks on `TfmGameplayTest`.
 - [`CardTrackingFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt) —
@@ -375,11 +376,15 @@ Choose the fixture by what the scenario proves, not the kind of card:
   later phases without their queued start-of-phase rules. A scenario that needs a phase's real effects,
   such as production, a solar phase, or research, belongs in `TfmGameplayTest`.
 - `TfmGameplayTest` starts the game and lets its own rules offer every turn and begin every phase.
-  Reach the scenario through real play, including passing through production to obtain resources.
-  Do not inject resources, replace phases, or invoke internal rule instructions. A setup
-  convenience may play a documented ordered selection of corporations or Preludes in turn order;
-  convenience must not bypass their gameplay. The implemented default already plays the starting
-  corporations; Prelude choices remain explicit.
+  When prior play matters to the claim, reach the scenario through that play, including production
+  to obtain resources. **Human direction, November 12, 2026:** focused phase tests may instead
+  prepare an incidental starting position with visible, commented `exMachina` calls. For example,
+  supply plants for final greenery or arrange for the current generation to end. From that position,
+  let real turns, passes, production, and phase transitions exercise the behavior under test; do not
+  replace a phase or inject the consequence being asserted. A setup convenience may play a
+  documented ordered selection of corporations or Preludes in turn order; convenience must not
+  bypass their gameplay. The implemented default already plays the starting corporations; Prelude
+  choices remain explicit.
 
 Gameplay tests submit the turns the game offers through plain `Agent`s. Use `doTask`/`doTasks`
 for explicit choices, or `completeOperation { ... }` when the whole operation must finish before
@@ -521,8 +526,10 @@ and operation order may be incidental, copied from another scenario, obsolete, o
 old behavior. Begin with the behavior named by the scenario and its meaningful observable coverage.
 Challenge every setup step: if removing it does not change the behavior under test, remove it. For
 sandbox scenarios, do not preserve gameplay merely because the old test used it to reach a state
-that a correction can express. Gameplay scenarios must still reach their conditions through
-play. Do not infer a configuration requirement solely from the old test's configuration.
+that a correction can express. Gameplay scenarios must exercise the behavior under test through
+play; focused phase tests may correct an incidental starting position as specified in
+[Sandbox and gameplay fixture migration](#sandbox-and-gameplay-fixture-migration).
+Do not infer a configuration requirement solely from the old test's configuration.
 
 Review an unmigrated class for test value and structure before deciding whether it fits the fixture.
 First remove declaration-only and duplicate scenarios, separate independent behaviors, and trim
@@ -552,8 +559,11 @@ interaction among independently authored rules. Prefer representative coverage o
 same semantic pattern for another card with different literals.
 
 Every state change in a migrated sandbox test must come from real player-facing gameplay or from
-its explicit fixture methods. Do not use `runOperation`, `beginOperation`, arbitrary direct
-phase changes, or other lower-level shortcuts in either fixture's subclasses. The sandbox provides
+its explicit fixture methods. Prepared-fixture scenarios do not use `runOperation`, `beginOperation`,
+arbitrary direct phase changes, or other lower-level shortcuts. The focused phase-test exception
+permits `exMachina` setup, not direct invocation of phase effects. Raw synthetic construction follows
+its separate rules in [Sandbox and gameplay fixture migration](#sandbox-and-gameplay-fixture-migration).
+The sandbox provides
 `advanceUntilActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
 is irrelevant; finish pending choices first. This is a sandbox shortcut, so other unplayed starting
 cards need not be handled when they are irrelevant to the scenario. Gameplay leaves those choices
@@ -596,8 +606,10 @@ throughout even when some methods could use sandbox; `PreservationProgramTest` f
 When most methods suit sandbox and only a few need the game flow, a normal nested class may extend
 `TfmGameplayTest` inside the sandbox class. It owns its own fixture and does not share the outer
 instance; do not use Kotlin `inner` or JVM-only `@Nested`. See
-`TfmSandboxTestTest.TfmGameplayTestTest` for executable discovery coverage. When filtering by the
-outer class name, include a trailing wildcard to include nested classes as well. Synthetic
+`TfmSandboxTestTest.TfmGameplayTestTest` for executable discovery coverage. The reverse arrangement
+also works: `FinalGreeneryPhaseTest.EndConditions` keeps synthetic sandbox checks inside a gameplay
+suite. When filtering by the outer class name, include a trailing wildcard to include nested classes
+as well. Synthetic
 declarations still require separate evaluation.
 Do not replace meaningful coverage just to increase the migrated count. An existing base class does
 not itself express a preferred style.
