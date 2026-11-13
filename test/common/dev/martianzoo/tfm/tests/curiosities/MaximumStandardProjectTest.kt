@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.curiosities
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
@@ -85,37 +84,15 @@ internal class MaximumStandardProjectTest : FullGameTest() {
               "12 PayFromCard<Spire> FROM Science<Spire>",
               "Ok", // twelve science cover the bill
           )
-          doTask("4 MC", CrediCor)
-          doTask("3 MC", StandardTechnology)
-          doTask("GreeneryTile<Hellas_3_6>")
-          doTask("4 MC", cn("GreensPolicy"))
-          doTask("2 Plant", cn("Hellas_3_6"))
-          doTask("3 MC", LakefrontResorts)
-          doTask("2 MC", cn("OceanTile"))
-          doTask("2 MC", cn("OceanTile"))
-          doTask("2 MC", cn("OceanTile"))
-          doTask("Animal", Herbivores)
-          doTask("2 MC", MeatIndustry)
-          doTask("OxygenStep", cn("GreeneryTile"))
-          doTask("TerraformRating", cn("OxygenStep"))
-          doTask("2 MC", TerraformingDeal)
-          doTask("TemperatureStep", cn("StandardGpTrackRules"))
-          doTask("3 MC", HomeostasisBureau)
-          doTask("TerraformRating", cn("TemperatureStep"))
-          doTask("2 MC", TerraformingDeal)
-          doTask("OceanTile<Hellas_5_7>")
-          doTask("3 Heat", cn("Hellas_5_7"))
-          doTask("6 MC", LakefrontResorts)
-          doTask("2 MC", cn("OceanTile"))
-          doTask("2 MC", cn("OceanTile"))
-          doTask("2 MC", cn("OceanTile"))
-          doTask("2 MC", cn("OceanTile"))
-          doTask("2 MC", cn("OceanTile"))
-          doTask("2 MC", cn("OceanTile"))
-          doTask("2 Plant", ArcticAlgae)
-          doTask("TerraformRating", cn("OceanTile"))
-          doTask("2 MC", TerraformingDeal)
-          doTask("PROD[1 MC]", LakefrontResorts)
+          doTask("7 MC") // CrediCor and Standard Technology.
+          doTasks("GreeneryTile<Hellas_3_6>", "2 Plant", "Animal<Herbivores>")
+          // Greens, Lakefront Resorts, three adjacent oceans, and Meat Industry.
+          doTask("15 MC")
+          doTasks("OxygenStep", "TerraformRating", "TemperatureStep", "TerraformRating")
+          doTask("7 MC") // Two TR rewards from Terraforming Deal, plus Homeostasis Bureau.
+          doTasks("OceanTile<Hellas_5_7>", "3 Heat", "2 Plant", "TerraformRating")
+          doTask("20 MC") // Lakefront Resorts, six adjacent oceans, and Terraforming Deal.
+          doTask("PROD[MC]")
           doTasks("-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>", "2 MC")
         }
         .expect("51 MC")
@@ -573,14 +550,8 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "2 Plant",
           "Steel",
       )
-      // Select Lakefront's calculated bonus by card; the remaining 6 MC comes from
-      // two adjacent oceans and Terraforming Deal.
-      doTask("2 MC", LakefrontResorts)
-      doTasks(
-          "2 MC",
-          "2 MC",
-          "2 MC",
-      )
+      // Lakefront Resorts, two adjacent oceans, and Terraforming Deal.
+      doTask("8 MC")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",

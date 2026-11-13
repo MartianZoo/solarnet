@@ -702,6 +702,10 @@ These permissions do not imply removing source resource checkpoints or changing 
 
 ### Agreed direction: execution and task selection
 
+The user deferred further EACH-shorthand matching changes and REPL payment cleanup on 2026-11-12.
+Keep those implementations unchanged until the user reopens that work. Explicit Suitable Infrastructure
+bonus-marker removal is tracked in TODO.md for the user's planned fix.
+
 - Eliminate `EAGER` for non-Admin players, subject to the limited setup convenience below. Admin
   continues to execute automatically. Minimize temporary policy changes and explicit automatic
   execution used to make a test proceed. The user also selected removing `SOLE_TASK` from normal

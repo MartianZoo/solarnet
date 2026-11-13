@@ -4,6 +4,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Gameplay consistency
 
+- Remove explicit `-SuitableInfrastructureBonus<..., ActionScope>` submissions from gameplay
+  and replay tests using the user's planned fix. The user already has an approach; do not invent
+  replacement helpers or change the model for this until the user selects that work.
+
 The [project record](docs/agents/TESTING.md#gameplay-consistency-project) owns the user's decisions,
 examples, verified findings, and questions. These tasks implement or investigate that direction;
 the remaining audit items listed there are **not yet discussed or approved**.
@@ -28,72 +32,6 @@ the remaining audit items listed there are **not yet discussed or approved**.
 - Improve consistency in checking meaningful consequences without repeating submitted tasks.
 - Reduce detailed cause-accounting assertions in ordinary replays after selecting representative
   inputs for focused mechanism tests; preserve meaningful score/resource outcomes.
-
-### Changes to review with the user
-
-Keep this list during the autonomous cleanup. Record behavior or readability tradeoffs even when
-verification and Opus/high review support committing them. Remove entries after human review.
-
-- `StartTokenTest` now uses `NONE` and shows each generation's passing, production, energy
-  conversion, World Government, and research directly. Its private automatic generation helper
-  is gone. The solo case spells out the existing 13 MC income after the Colonies setup penalty.
-  Review whether the repeated phase steps make the token assertions easier to follow.
-- `TurmoilEventsTest` no longer selects resource rewards by task ID. Dry Deserts names Heat,
-  Plant, and Steel directly; the seven-generation scenario explicitly takes two Heat per player,
-  with a comment explaining each player's two sources of influence. It no longer silently adapts
-  to however many reward tasks exist. The class's other player automatic execution remains for
-  a later batch. The remaining TaskForm driver's ID lookup is documented locally because the
-  form API requires an ID; ordinary replay steps do not choose IDs.
-- `PristarTest`, `TerraLabsTest`, `PreludeRulesTest`, and UNMI's nested gameplay suite now use
-  `NONE`, naming Prelude benefits, Merger corporation setup, payments, production, and research.
-  Existing outcome/phase assertions remain. Pristar combines its 19 MC income and 6 MC bonus
-  into `25 MC`, with an explanatory comment. A separate `6 MC` would also match the fixture's
-  ordinary 6 MC production task (before its -5 MC offset), so it would not reliably identify the
-  bonus. Both gains belong to the same production phase. Review the extra setup detail and
-  repetition; no new gameplay helper was introduced to hide these events. Some retained `.expect`
-  assertions now repeat explicit inputs; review those in the planned assertion-consistency pass.
-- The user-requested `EACH` shorthand identifies a unique applicable top-level `EACH` task through
-  existing Agent input handling. It removes grouped-effect ID lookups without copying formulas;
-  child choices remain explicit. Review whether the short label plus nearby comments is clear
-  enough. It rejects multiple applicable containers, even identical ones, which is stricter than
-  ordinary instruction matching's interchangeability rule. Selection or an explicit task/context
-  filter can identify the intended container. No Pets grammar or engine rule changed.
-- October 9's Miranda trade now submits its printed `3* Animal` reward and asserts zero animals
-  gained, replacing a task drop. With no legal holder, normal execution produces nothing. Review
-  this deliberate AMAP spelling: `0 Animal` cannot identify that pending task, while the printed
-  maximum can. All sourced checkpoints and chronology remain intact.
-
-- `MassiveGammaZoneTest`: replaces three dropped attack consequences with explicit reductions
-  against `SoloOpponent`. This adds neutral-player events absent from the source's human log while
-  preserving its recorded human position. Low risk; check that this representation reads clearly.
-
-- `doTasks`: now retains successful earlier arguments when a later argument throws; an empty
-  sequence no longer triggers automatic execution. Explicit operation blocks still restore their
-  whole attempt when failure escapes. `StandardActionTest` and `SyntheticProtonFragmentTest` now
-  make that restoration explicit around failed exploratory actions, retaining their assertions.
-  Review whether those scopes read clearly. Operation-scope submissions also now restore their
-  automatic follow-up work if it fails and the exception is caught inside the operation.
-- Removed `selectOnlyTask(x = ...)` and redundant X selections in four replays and five card
-  suites. Submitted resource amounts now supply X directly. FakeHelion's existing failure
-  characterization uses the named `selectTask("-6 MC")`; no card behavior changed. Low risk;
-  review the remaining distinction between selecting a named cost and executing it.
-- `SupercapacitorsTest` now uses `NONE` and lists its card payment, production, energy-to-heat
-  conversion, and Research draws. `ActionScopeTest` likewise names production and draws instead
-  of using `EAGER`. Resource/phase assertions remain. The invalid two-energy request now expects
-  `TaskException` instead of `NarrowingException`: with `NONE`, no earlier automatic selection
-  has committed to the remaining choice. The request must still fail, and the following valid
-  request must preserve the original energy/heat totals. Low risk; review this exception change
-  and whether the literal production lines make the setup clear enough despite the added length.
-- Non-`NONE` timing: `doTasks` now follows `doTask` literally, so it no longer runs Player automatic
-  work before its first argument. A qualified `agent.doTasks` inside an operation follows nested
-  `agent.doTask` timing; use the scope's own calls for its automatic work between arguments. These
-  differences disappear when Player execution is explicit, but deserve review.
-- Replay recording now represents `doTasks` arguments as ordinary `DO_TASK` inputs. The redundant
-  `DO_TASKS` kind is removed; older derived recordings containing it must be regenerated. Review
-  any saved generated files still needed outside the test suite. Known shared `_local/replays/`
-  copies are `Game20261102/solarnet-replay.short.json`, `Game20261031/RemoteVacuumFlow.short.json`,
-  `Game20261031/p9a4445506f19/LatentGammaFieldTest.short.json`, and
-  `Game20261030/KineticCarbonState.short.json`; leave those shared copies for separate regeneration.
 
 ## Other work
 
@@ -139,8 +77,8 @@ verification and Opus/high review support committing them. Remove entries after 
   A sole displayed option is not proof of a sole successful transaction. Do not broaden Player
   automatic choice-making until this is resolved; the selected reduction of automatic execution
   is tracked in the gameplay consistency project above. Explicit combined-total requests are a
-  separate Agent convenience, selected for production income; they do not authorize automatic
-  choice-making.
+  separate Agent convenience, selected for production income and other simultaneous rewards; they do
+  not authorize automatic choice-making.
 
 - Investigate the deferred nested-placement and partial-selection experiment in
   [Make types types again](docs/agents/MAKE_TYPES_TYPES_AGAIN.md) if that proposal is selected.
