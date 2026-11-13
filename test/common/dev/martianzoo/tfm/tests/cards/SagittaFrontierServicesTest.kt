@@ -141,4 +141,21 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
       doTask("4 MC")
     }
   }
+
+  @Test
+  internal fun `A wild-only card earns the tagless rebate`() {
+    newTestGame(
+        "SagittaFrontierServices, ResearchCoordination, -Merger",
+        kimCorporation = SagittaFrontierServices,
+    )
+    kim.inTurn {
+          doTasks(
+              *playCardTasks("ResearchCoordination"),
+              "4 Pay<> FROM MC",
+              "ResearchCoordination FROM ProjectCard",
+              "4 MC",
+          )
+        }
+        .expect("0 MC")
+  }
 }

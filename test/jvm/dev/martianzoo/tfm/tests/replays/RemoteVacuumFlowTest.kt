@@ -137,7 +137,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "-18 MC",
       )
       // Expand the production box into its separate resource increases.
-      doTask(tasks.extract { it }.single().id)
+      doTask("EACH")
       doTasks(
           "PROD[Titanium]",
           "PROD[Steel]",
@@ -1042,7 +1042,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "2 MC",
     )
     doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-    p1.selectOnlyTask(x = 6)
     doTasks("-6 Microbe<SulphurEatingBacteria>", "18 MC")
     doTasks(*cardActionTasks("Hospitals"), "-Disease<Hospitals>", "5 MC")
     doTasks(
@@ -1588,7 +1587,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks("ProjectCard FROM Science<OlympusConference>", "3 ProjectCard", "-ProjectCard")
     doTask("ProjectCard")
     // Resolve the draw for other players; there are none in this solo game.
-    doTask(tasks.extract { it }.single().id)
+    doTask("EACH")
     draw(Mangrove)
     doTasks(
         *playCardTasks("Capital"),
@@ -1627,7 +1626,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "TerraformRating",
     )
     doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-    p1.selectOnlyTask(x = 7)
     doTasks("-7 Microbe<SulphurEatingBacteria>", "21 MC")
     doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
     doTasks(

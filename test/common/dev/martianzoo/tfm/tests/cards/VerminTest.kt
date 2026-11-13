@@ -4,7 +4,6 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestOption.PromoCards
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cardActionTasks
@@ -57,12 +56,12 @@ internal class VerminTest : TfmSandboxTest() {
 
     victoryPoints {
       // Expand the per-player deductions; Admin applies the scoring changes.
-      kim.doTask(kim.tasks.matching { !it.deferred }.single())
+      kim.doTask("EACH")
     } shouldBe listOf(18, 19, 19)
   }
 
   // This synthetic listener tests engine attribution, rather than Vermin's player-facing result.
-  internal class Attribution : TfmTest() {
+  internal class Attribution : TfmSandboxTest() {
     @Test
     internal fun `Admin is credited for every point removed by Vermin`() {
       game =

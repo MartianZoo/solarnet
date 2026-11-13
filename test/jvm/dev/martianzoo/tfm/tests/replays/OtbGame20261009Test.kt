@@ -809,7 +809,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       selectTask("ColonyProduction<Miranda>?")
       doTask("ColonyProduction<Miranda>")
       // The printed three-animal trade reward had no legal holder and yielded nothing.
-      agents[p1.actor].dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
+      doTask("3* Animal").expect("0 Animal<Aqua>")
     }
     with(p2) {
       doTasks(
@@ -1057,7 +1057,8 @@ internal class OtbGame20261009Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "$L1TradeTerminal FROM ProjectCard",
       )
-      doTask(game.tasks.extract { it }.single { !it.deferred }.id) // L1's three distinct holders
+      // L1's three distinct holders
+      doTask("EACH")
       doTasks(
           "Asteroid<$RotatorImpacts>",
           "Floater<$Dirigibles>",
@@ -2183,7 +2184,6 @@ internal class OtbGame20261009Test : FullGameTest() {
     }
     with(p2) {
       doTasks(*cardActionTasks("$SulphurEatingBacteria", "Action2"))
-      selectOnlyTask(x = 4)
       doTasks(
           "-4 Microbe<$SulphurEatingBacteria>",
           "12 MC",

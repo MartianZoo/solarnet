@@ -46,12 +46,20 @@ A pass can trigger production and the next generation before returning.
 their text arguments. They reject text containing `THEN`: callers submit the current step and then
 submit later steps separately. A current step can create child tasks or enqueue a `THEN`
 continuation without executing that later work. For example, executing an `EACH` task can finish the
-named `EACH` instruction by creating its individual child tasks. A failed submitted step restores
-the whole Agent call.
+named `EACH` instruction by creating its individual child tasks.
 
-Each engine mutation restores its transaction on an escaping `Throwable`. An escaping failure from
-an Agent call restores the entire call, including successful earlier transactions in that call.
-A later failed call does not automatically undo an earlier call that already returned successfully.
+`doTasks(a, b, c)` is a sequence of individually atomic `doTask` calls. If `c` throws, its changes
+are restored, `a` and `b` remain completed, and later arguments are not attempted. The failed call
+returns no result. A successful call reports the combined changes and surviving new tasks across
+all steps. An empty sequence does nothing. Recording stores the successful steps as ordinary
+`doTask` inputs; a failed later step does not erase them.
+
+Each engine mutation restores its transaction on an escaping `Throwable`. Other Agent mutation
+calls restore the entire call on an escaping failure, including successful earlier transactions
+in that call. An enclosing operation or Agent call still restores its whole block when failure
+escapes, even if it originated in `doTasks`. A task-submission failure caught inside an operation
+block restores the failed step but retains earlier steps. A later failed call does not automatically undo
+an earlier call that already returned successfully.
 For example, requesting AI Central's nonexistent second action fails without consuming its valid
 first action. [Timeline](../../src/common/dev/martianzoo/engine/Timeline.kt) specifies restoration
 limits; [EX_MACHINA.md](EX_MACHINA.md) describes corrections separately.
@@ -87,6 +95,9 @@ Selection chooses pending work; narrowing supplies a compatible choice. Both can
 choices in the selected task without executing its component changes. Choosing a target can permit
 further evaluation, including its AMAP amount. No transaction stays open while a person chooses.
 Evaluated and closed instructions can still fail when executed.
+
+Agent task-instruction strings accept the `EACH` shorthand specified in `Agent` to identify an
+applicable container without copying its formula or looking up its ID.
 
 Groups, `EACH`, and dispatches exposed by selection retain their parent until execution. Executing
 that parent admits its children and consumes it. Ordinary initial admission still normalizes literal

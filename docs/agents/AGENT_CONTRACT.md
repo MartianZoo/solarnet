@@ -113,11 +113,13 @@ meaningful answer.
   execution is repeated automatically during replay; recording new installed-policy execution
   needs its own explicit decision below.
 
-The owner selected whole-call restoration after a subsequent Admin failure, and removal of the
-unused completion hook. **Open:** recovery across already-returned calls; recognition of action clearance;
-and the precise client contracts for previews and diagnostics. Arbitrary external application
-side effects are not covered by engine rollback. Existing `*Operation` helpers are implementation
-evidence, not a requirement to retain their lifecycle or completion assumptions.
+A submitted step restores its changes after a subsequent Admin failure. The selected `doTasks`
+behavior applies that guarantee to each argument separately; earlier successful arguments remain
+completed. Explicit operation blocks still restore the whole block on an escaping failure. The
+unused completion hook was removed. **Open:** recovery across already-returned calls; recognition
+of action clearance; and the precise client contracts for previews and diagnostics. Arbitrary
+external application side effects are not covered by engine rollback. Existing `*Operation` helpers
+are implementation evidence, not a requirement to retain their lifecycle or completion assumptions.
 
 ### 4. Configure autoexec policies in the engine
 

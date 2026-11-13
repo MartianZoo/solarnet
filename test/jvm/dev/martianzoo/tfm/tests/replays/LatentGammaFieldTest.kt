@@ -113,7 +113,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "-18 MC",
       )
       // Expand the production box into its separate resource increases.
-      doTask(tasks.extract { it }.single().id)
+      doTask("EACH")
       doTasks(
           "PROD[Titanium]",
           "PROD[Steel]",

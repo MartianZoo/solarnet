@@ -17,8 +17,6 @@ Agents through `FullGameTest` and `TfmGameplayTest`. Player autoexecution is dis
 by the fixture. Use private `Agent` receiver methods for generation sections and
 `startGame()` to preserve the recording's start marker. Named card queues, state
 assertions, endpoint checks, and fresh-game export verification remain shared.
-`AbstractFullGameTest` and `LegacyCardTrackingFullGameTest` retain the older
-`TfmGameplay` helpers only for existing tests that still use them.
 
 ## Code entry points
 

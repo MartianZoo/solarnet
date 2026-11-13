@@ -13,7 +13,6 @@ import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
 internal fun canonicalPremise(
     vararg included: ClassName,
@@ -48,6 +47,8 @@ internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
       val agents = testAgents()
       startSetupOnly()
       actors.filterIsInstance<Player>().forEach { player ->
-        agents.tfm(player).keepStartingProjects(0)
+        val agent = agents[player]
+        val offered = agent.count("ProjectCard<Selecting>")
+        agent.doTask(if (offered == 0) "Ok" else "-$offered ProjectCard<Selecting>")
       }
     }

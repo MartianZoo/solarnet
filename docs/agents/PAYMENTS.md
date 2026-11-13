@@ -30,17 +30,20 @@ Pharmacy Union's starting 54 MC is queued behind a zero-disease gate; its microb
 disease before offering the capped 4 MC loss.
 
 Payment offers are routed by their effect owner, changed component owner, or triggering Actor.
-The `pay` helper selects through each task's current assignee. Calling those Agents is legitimate
-calculator use, independently of who operates the external caller.
+Calling an offer's assigned Agent is legitimate calculator use, independently of who operates
+the external caller.
 
 ## Current pieces
 
-Kotlin payment helpers submit explicit exchanges, decline unused alternatives, and pay
-the exact remainder. The [model pieces](../../pets/docs/agents/PAYMENTS.md#current-pieces)
-own pricing and acceptance.
+The [model pieces](../../pets/docs/agents/PAYMENTS.md#current-pieces) own pricing and acceptance.
+Sandbox tests and migrated replays submit resource exchanges directly before the purchased result.
 
-The sandbox suite exercises payment ordering with explicit submissions. Custom allocations belong
-in the helper's payment callback, before the purchased result.
+The REPL `tfm_pay` command submits the stated standard resources through the Player's Agent,
+with alternatives before the bill's denomination. It declines unused optional payment offers
+before the exact remainder, and acknowledges an offered zero remainder after a payment in metals.
+These choices use the offered instructions, not their causes. The command restores the caller's
+automatic-execution policy and leaves subsequent card effects to that policy or explicit calls.
+A failed submission rolls back the whole payment. `tfm_play` and `tfm_action` reuse this command.
 
 ## Allocation validation
 
@@ -49,18 +52,8 @@ sequence, but they do not give a task separately chosen quantities of cash, Stee
 card-held resources. A complete allocation task would require new task semantics or a domain
 instruction; it is not a spelling change.
 
-For positive M€ debt, `TfmGameplay.pay` rejects an allocation when a selected unit could be
-returned while the remainder still covers the debt. With debt `D`, unit values `v1 ... vn`, and
-total `P`, the test is:
-
-```text
-P - D < vi for every selected unit i
-```
-
-Full payment separately requires `P >= D`. Card-held resources are submitted separately, and raw
-engine tasks do not apply the same whole-allocation check. The physical-game
-rule for the characterized mixed-metal case is unverified; do not describe current behavior as a
-settled rules defect.
+Engine tasks and `tfm_pay` do not check whether a selected resource unit could be returned while
+the remaining allocation still covers the debt. Card-held resources are submitted separately.
 
 ## Evidence
 

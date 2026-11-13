@@ -2,6 +2,41 @@
 
 Delete entries when they are done. Static-language and English work lives in [Pets TODO](pets/TODO.md).
 
+## Gameplay consistency
+
+- Remove explicit `-SuitableInfrastructureBonus<..., ActionScope>` submissions from gameplay
+  and replay tests using the user's planned fix. The user already has an approach; do not invent
+  replacement helpers or change the model for this until the user selects that work.
+  `SuitableInfrastructureTest` also still uses Player autoexecution: migrating its reward cases
+  currently requires more of these marker removals, so migrate that suite together with the fix.
+
+The [project record](docs/agents/TESTING.md#gameplay-consistency-project) owns the user's decisions,
+examples, verified findings, and questions. These tasks implement or investigate that direction;
+the remaining audit items listed there are **not yet discussed or approved**.
+
+- Remove non-Admin `EAGER` and as much `SOLE_TASK` use as possible in gameplay tests. Prefer visible
+  noteworthy events over shorter test-writing. Preserve the scoped corporation-setup convenience;
+  the scope of automatic starting-card setup still needs clarification.
+- Prioritize replacing task collection/ID selection, then sole-task assumptions; explain retained
+  uses. A broader scan also found `PropertyTest`'s raw synthetic requirement probe: it locates a
+  blocked task by rendered instruction and drops it. Review that mechanism test separately from
+  the gameplay/card-tracked replay migrations.
+- Inventory replay corrections and task drops, then apply the recorded correction/comment policy.
+  Keep retcons to `//` comments identifying correction pairs that could safely be rewritten later;
+  retain their execution and chronology for now.
+- Audit replay choices and assertions against original evidence, including expectations copied
+  from current engine output.
+- Investigate what each "start a game" entry point has already done before consolidating setup.
+- Investigate consistent completion checks for focused scenarios, full games, and partial games.
+- Inventory choices computed from state (starting player, free water area, affordable purchases)
+  versus literal recorded choices; decide which adaptations are useful.
+- Adopt combined-total task submissions more thoroughly, preserving choices and required ordering.
+- Improve consistency in checking meaningful consequences without repeating submitted tasks.
+- Reduce detailed cause-accounting assertions in ordinary replays after selecting representative
+  inputs for focused mechanism tests; preserve meaningful score/resource outcomes.
+
+## Other work
+
 - New Holland's combined city/ocean tile remains unsupported. `RemoteVacuumFlowTest`
   uses an identity-only declaration for drawing/discarding; `LatentGammaFieldTest` uses
   the user-authorized `FakeNewHolland`, which places no city, plus explicit corrections.
@@ -14,28 +49,13 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   intentionally skips its scoring phase on a solo loss. Source: `_local/replays/Game20261030/`.
   Do not inject a scoring phase into the replay to manufacture the website's displayed total.
 
-- Preserve task disambiguation when recording `doTask(instruction, contextClass)`.
-  `AgentImpl` passes the context to the engine but omits it from the recorded command.
-  Reproduction: Sponsored Academies and Mars University offer discards together in
-  `RemoteVacuumFlowTest` generation 12; a context-qualified discard plays successfully
-  but its export fails to re-import with an ambiguous task. The replay currently uses
-  exact `selectTask` instead.
-
-- Consolidate gameplay tests around sandbox, ordinary gameplay, card-tracked gameplay, and
-  TaskForm interactions, then delete `TfmGameplay`. Keep sourced checkpoints, card identities,
-  corrections, and replay export/import checks. Replay-only unused-action and payment-allocation
-  audits may be removed during migration.
-
-- Retire `AbstractFullGameTest`, `LegacyCardTrackingFullGameTest`, and
-  `LegacyTfmTestSupport` as their remaining helper-based tests migrate. Existing explicit-task
-  replays now use `FullGameTest` / `CardTrackingFullGameTest` on `TfmGameplayTest`, with
-  plain Agents and Player autoexecution disabled.
-
-- Continue converting replay tests that use Player autoexecution or `TfmGameplay` actions to
-  explicit Player `doTask`/`doTasks` submissions. Keep source-backed state checkpoints and
-  expectations for effects that are not evident from those submissions. The archived
-  `HellasPromoWithoutPreludeTest` is a verified small example; `OtbGame20260828Test` has a
-  deliberate TaskForm interaction style and should be assessed separately.
+- Investigate task matching when an `EACH` request is checked against an unrelated `THEN`
+  task. In `SyntheticMagnetBurstTest` generation 8, Sponsored Academies' opponent draw throws
+  `PetSyntaxException: EACH cannot be followed by THEN` while Mars University's optional
+  discard/draw is pending. Passing `SponsoredAcademies` as the context succeeds; the replay
+  keeps that explicit context and its exported game reconstructs successfully.
+  `OtbGame20260818Test` generation 10 reproduces the same failure for Robotic Workforce's
+  wild-tag election while Mars University's discard/draw is pending; it also names the context.
 
 - Clarify `THEN` after an instruction whose amount resolution atomizes it into a group. The current
   engine releases the continuation when that group is admitted, while Pets forbids an authored
@@ -56,9 +76,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   placement deliberately uses mandatory gain for this reason. Characterize affected Canon amounts
   before changing the rule. Reconcile form commit selecting/evaluating before applying a narrowing
   with direct execution applying the request first.
-  A sole displayed option is not proof of a sole successful transaction. Keep Player automatic
-  policy scope unchanged until this is resolved. Explicit combined-total requests are a separate
-  Agent convenience, selected for production income; they do not authorize automatic choice-making.
+  A sole displayed option is not proof of a sole successful transaction. Do not broaden Player
+  automatic choice-making until this is resolved; the selected reduction of automatic execution
+  is tracked in the gameplay consistency project above. Explicit combined-total requests are a
+  separate Agent convenience, selected for production income and other simultaneous rewards; they do
+  not authorize automatic choice-making.
 
 - Investigate the deferred nested-placement and partial-selection experiment in
   [Make types types again](docs/agents/MAKE_TYPES_TYPES_AGAIN.md) if that proposal is selected.
@@ -154,10 +176,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   [Agent contract](docs/agents/AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
   Keep instructions such as "always take titanium for Philares" deferred; no policy API,
   implementation, or default migration is selected by this documentation work.
-- Migrate Players away from the EAGER default, which can close legitimate gameplay choices.
-  The user deliberately deferred the migration cleanup for now, hoping to move to a suitable smart
-  policy rather than first migrating to NONE or CONCRETE. Leave the current default unchanged in
-  this pass. Use explicit Player choices when testing engine semantics independently of policy.
+- Reconcile the global Player default and remaining clients with the
+  [gameplay consistency direction](docs/agents/TESTING.md#agreed-direction-execution-and-task-selection).
+  The 2026-11-12 direction makes non-Admin `EAGER` cleanup active work, superseding the earlier
+  blanket deferral. A replacement global default or new smart policy remains unselected.
 - Resolve order-dependent Advanced Alloys discount attribution: the randomized-effect diagnostic
   reproduced the known `ThermalMatterWaveTest` (-96 versus -92) and `Game20230521Test`
   (-33 versus -31) reporting mismatches. Game-state assertions before those checks passed.
@@ -168,8 +190,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   FIFO in ordinary execution. See [Admin handling](docs/agents/ENGINE_CONTRACT.md#admins-choices-and-retries).
 - Refine and verify the strategy catalogue in [DECISION_GRAPH.md](docs/agents/DECISION_GRAPH.md).
   Settle action-clearance recognition and task comparison ignoring ordinals. Use the two-identical-
-  `Foo?`-tasks case to specify when different task causes can be ignored; card tracking and legacy
-  gameplay helpers currently inspect some causes. Verify that comparisons at intra-action handoffs
+  `Foo?`-tasks case to specify when different task causes can be ignored; card tracking currently
+  inspects some causes. Verify that comparisons at intra-action handoffs
   preserve the recipient's meaningful choices. Inventory which
   existing forced deductions belong in Player and Admin agents. Measure pruning and safe early
   task completion on Canon scenarios such as Project Eden. Investigate unexpected UNKNOWN results

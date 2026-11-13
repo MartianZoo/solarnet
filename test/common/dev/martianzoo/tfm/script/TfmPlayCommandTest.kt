@@ -1,6 +1,10 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -10,7 +14,8 @@ internal class TfmPlayCommandTest {
   internal fun `tfm play completes a card action that was already selected`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
-    repl.keepStartingProjects(0, 0)
+    repl.agents[PLAYER1].doTask("-10 ProjectCard<Selecting>")
+    repl.agents[PLAYER2].doTask("-10 ProjectCard<Selecting>")
     repl.command("auto safe")
     repl.command("become Player1")
     repl.agent.runOperation("ProjectCard, 4 MC")
@@ -39,8 +44,18 @@ internal class TfmPlayCommandTest {
             listOf("Elysium_5_6", "Elysium_5_5", "Elysium_7_7", "Elysium_7_6").map(::cn),
     )
     repl.command("become Me")
-    repl.keepStartingProjects(10)
-    repl.playCorporation("SaturnSystems")
+    repl.agent.doTask("Ok") // keep all ten starting projects
+    repl.agent.autoExecPolicy = NONE
+    repl.agent.doTasks(
+        "PlayCard<Class<CorporationCard>, Class<SaturnSystems>>",
+        "SaturnSystems FROM CorporationCard",
+        "42 MC",
+        "PROD[Titanium]",
+        "PROD[MC]",
+        "30 Pay<> FROM MC",
+        "10 ProjectCard<Hand FROM Selecting>",
+    )
+    repl.agent.autoExecPolicy = EAGER
     repl.command("tfm_play NewPartner")
     repl.command("tfm_play Donation")
     assertEquals(1, repl.agent.count("PreludeCard<Hand>"))
@@ -57,7 +72,8 @@ internal class TfmPlayCommandTest {
   internal fun `tfm play pays with alternatives first and rolls back an incorrect remainder`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
-    repl.keepStartingProjects(0, 0)
+    repl.agents[PLAYER1].doTask("-10 ProjectCard<Selecting>")
+    repl.agents[PLAYER2].doTask("-10 ProjectCard<Selecting>")
     repl.command("auto safe")
     repl.command("become Player1")
     repl.agent.runOperation("ProjectCard, 2 Steel, 6 MC")

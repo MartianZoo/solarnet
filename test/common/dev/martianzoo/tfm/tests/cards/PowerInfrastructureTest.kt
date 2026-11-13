@@ -32,7 +32,6 @@ internal class PowerInfrastructureTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(*cardActionTasks("PowerInfrastructure"))
-          selectOnlyTask(x = 3)
           doTask("-3 Energy")
           doTask("3 MC")
         }
@@ -47,7 +46,6 @@ internal class PowerInfrastructureTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
           kim.inTurn {
             doTasks(*cardActionTasks("PowerInfrastructure"))
-            selectOnlyTask(x = 3)
             doTask("-3 Energy")
             doTask("3 MC")
           }

@@ -19,8 +19,11 @@ import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
 
 /**
- * Focused scenarios with explicit corrections and selected phase shortcuts. The game is set up and
- * enters the corporation phase normally, but scenarios then act outside the game's turn order.
+ * Focused scenarios with explicit corrections and selected phase shortcuts. [newTestGame] sets up
+ * the game and enters the corporation phase normally, then leaves the game's turn order.
+ *
+ * Synthetic checks may assign [game] directly and use [agents] and [admin]. This creates fresh
+ * Agents with their default policies; it does not prepare a position or bind the named players.
  */
 internal abstract class TfmSandboxTest {
   protected var game: World

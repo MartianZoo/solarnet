@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.AutoExecPolicy
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
@@ -10,8 +8,7 @@ import dev.martianzoo.tfm.engine.CardTracking
 import kotlin.test.BeforeTest
 
 /** Replay conveniences for the production card-tracked Agent mode. */
-internal abstract class CardTrackingFullGameTest(playerPolicy: AutoExecPolicy = NONE) :
-    FullGameTest(playerPolicy) {
+internal abstract class CardTrackingFullGameTest : FullGameTest() {
   protected open val cardArrivalOrder: Map<ClassName, Map<ClassName, List<ClassName>>> = emptyMap()
   protected open val cardDepartureOrder: Map<ClassName, Map<ClassName, List<ClassName>>> =
       emptyMap()

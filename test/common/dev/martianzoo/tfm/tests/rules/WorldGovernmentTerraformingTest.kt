@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER2
@@ -10,41 +11,26 @@ import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class WorldGovernmentTerraformingTest : TfmGameplayTest() {
+internal class WorldGovernmentTerraformingTest : TfmGameplayTest(NONE) {
   @Test
   internal fun `Solar phase is skipped when production ends the game`() {
     newTestGame()
-    repeat(19) { finishGeneration("TemperatureStep") }
-    repeat(8) { finishGeneration("OceanTile") }
-    repeat(14) { finishGeneration("OxygenStep") }
-
-    rob.doTask("Pass")
+    // Arrange for this generation to end; earlier track completion is irrelevant to phase order.
+    // Leave the tracks themselves low so an erroneous Solar Phase would still offer terraforming.
+    admin.exMachina(
+        "-GpGameEndBarrier<Class<TemperatureStep>>, " +
+            "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
+    )
     kim.doTask("Pass")
     stan.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    rob.doTask("Pass")
+    players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
 
     admin.count("SolarPhase") shouldBe 0
     admin.count("FinalGreeneryPhase") shouldBe 1
   }
 
-  private fun finishGeneration(parameter: String) {
-    val first = players.indexOfFirst { it.count("StartToken") == 1 }
-    val order = players.drop(first) + players.take(first)
-    order.forEach { it.doTask("Pass") }
-    players.forEach { it.autoExecNow(EAGER) }
-    val temperature = admin.count("TemperatureStep")
-    val choice =
-        if (parameter == "OceanTile") "OceanTile<${kim.list("WaterArea(HAS MAX 0 Tile)").first()}>"
-        else parameter
-    order.first().doTask("$choice! BY Admin")
-
-    if (parameter == "TemperatureStep" && temperature == 14)
-        order.first().doTask("OceanTile<Tharsis_1_2> BY Admin")
-
-    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-  }
-
-  internal class Attribution : TfmTest() {
+  internal class Attribution {
     @Test
     internal fun `first player chooses the threshold ocean after Admin raises temperature`() {
       val game = setUpGame(VenusNextExpansion, players = 2)

@@ -20,23 +20,25 @@
 | Write or move a card/rule test or gameplay helper | Test design through the relevant test category; also read [Sandbox and gameplay fixture migration](#sandbox-and-gameplay-fixture-migration) |
 | Use `TaskResult.expect()` | Expectations |
 | Preserve known incorrect behavior | Known-defect tests |
+| Consolidate gameplay/replay styles or helpers | Gameplay consistency project; distinguish agreed work from observations not yet discussed |
 | Reconstruct a whole game | Game replay tests and State reconciliation, then the routed replay guide |
 | Change shared multiplatform tests | Multiplatform tests |
 
 ## Test-support entry points
 
-- [`TfmTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmTest.kt) — inspect
-  integrated setup and gameplay scopes.
 - [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
   search for the named helper before spelling raw task text.
 - [`TfmSandboxTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmSandboxTest.kt) —
   focused scenarios with corrections and selected phase shortcuts.
 - [`TfmGameplayTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmGameplayTest.kt) —
-  scenarios reached through play, with the game's own rules offering turns and beginning phases.
-- [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
-  — legacy helper-based replays. Plain-Agent replays use
-  [`FullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/FullGameTest.kt),
-  which extends `TfmGameplayTest` and retains endpoint and export/import checks.
+  scenarios following the game's own turns and phases, including focused phase tests from corrected
+  starting positions.
+- [`FullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/FullGameTest.kt) —
+  replay setup, assertions, endpoint and export/import checks on `TfmGameplayTest`.
+- [`CardTrackingFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt) —
+  replay setup with named card arrivals, departures, and hand checks.
+- [`OtbGame20260828Test.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/OtbGame20260828Test.kt) —
+  the TaskForm replay style, with automatic concrete follow-up work.
 
 ## Standard verification
 
@@ -211,8 +213,9 @@ semantics.
 > operation, never one card's rule or missing engine semantics.
 
 Do not discover a task to execute with `tasks.matching { !it.deferred }.single()` in a card or rule
-test. It hides which game decision the test makes. Submit the named choice, or use `selectOnlyTask()`
-when selecting the sole pending task is itself the intended action.
+test. It hides which game decision the test makes. Submit the named choice. For an `EACH`
+container, use `doTask("EACH")` to expose its children, then submit their concrete choices. Keep
+`selectOnlyTask()` only when selecting the sole pending task is itself the intended action.
 
 > **Default assertion style:** Almost every successful gameplay action that returns a `TaskResult`
 > should chain `.expect(...)` directly to that action in gameplay tests. Sandbox tests instead
@@ -321,7 +324,7 @@ one card, corporation, Prelude, or other component. Use existing gameplay helper
 operation scopes fit. When component-specific steps must stay inside an outer operation, express
 them through existing `OperationScope` primitives so any sibling task may remain pending. Add a
 shared helper only for a recurring, component-independent concept that materially simplifies
-several call sites. `TfmGameplay` must not repair the game model by creating or relocating rule
+several call sites. Test helpers must not repair the game model by creating or relocating rule
 components, imposing order absent from Pets or the engine, or identifying work by rendered text or
 cause.
 
@@ -334,17 +337,14 @@ Keep scenarios minimal and legible. Project-card tests that fit the standardized
 migration rules below. Other card tests use the smallest suitable configuration and consistently
 name their gameplay objects. Use `runOperation()` when an operation's resulting setup matters and a
 correction is not suitable. Eligible project-card scenarios use the fixture's explicit `exMachina` setup methods.
-Synthetic engine checks can construct a premise from `TfmTest`, using the existing
-`canonicalPremise` and `setUpGame` functions. `ResearchWildTagTest` retains legacy operation-level
-coverage of assigned tags, and `VerminTest.Attribution` supplies a synthetic listener; neither uses
-the sandbox or gameplay fixture. `WildTagTest` and `WildTagContinuationTest` cover allocation and
-cleanup through sandbox actions. Arbitrary task-selection checks use `TfmTest` directly rather than
-claiming authentic gameplay.
+Synthetic engine checks use the existing `canonicalPremise` and `setUpGame` functions, either
+in standalone tests or by assigning a synthetic world to the sandbox's `game`. For example,
+`VerminTest.Attribution` supplies a synthetic listener through the sandbox. `WildTagTest` and
+`WildTagContinuationTest` cover allocation and cleanup through prepared sandbox actions.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
-Sandbox and gameplay scenarios use explicit Agent task submissions rather than the helpers on
-`TfmTest` or `TfmGameplay`. The fixture-specific operation and payment conventions are described
-below.
+Sandbox and gameplay scenarios use explicit Agent task submissions. The fixture-specific
+operation and payment conventions are described below.
 
 `CoreRulesTest` uses the same player-level style to document rules that belong to the game rather
 than any individual card. Its scenarios should reproduce only the important preconditions observed
@@ -371,16 +371,20 @@ Choose the fixture by what the scenario proves, not the kind of card:
 
 - `TfmSandboxTest` supplies a prepared position, explicit corrections, and selected phase shortcuts.
   Use it for focused card interactions and rules that do not depend on authentic turn/phase history.
-  Its game is set up and enters the corporation phase normally; the fixture then drops the turn
-  order that phase begins, so scenarios take turns ex machina. Its private phase correction places
+  With `newTestGame()`, its game enters the corporation phase normally; the fixture then drops
+  the turn order that phase begins, so scenarios take turns ex machina. Its private phase correction places
   later phases without their queued start-of-phase rules. A scenario that needs a phase's real effects,
   such as production, a solar phase, or research, belongs in `TfmGameplayTest`.
 - `TfmGameplayTest` starts the game and lets its own rules offer every turn and begin every phase.
-  Reach the scenario through real play, including passing through production to obtain resources.
-  Do not inject resources, replace phases, or invoke internal rule instructions. A setup
-  convenience may play a documented ordered selection of corporations or Preludes in turn order;
-  convenience must not bypass their gameplay. The implemented default already plays the starting
-  corporations; Prelude choices remain explicit.
+  When prior play matters to the claim, reach the scenario through that play, including production
+  to obtain resources. **Human direction, November 12, 2026:** focused phase tests may instead
+  prepare an incidental starting position with visible, commented `exMachina` calls. For example,
+  supply plants for final greenery or arrange for the current generation to end. From that position,
+  let real turns, passes, production, and phase transitions exercise the behavior under test; do not
+  replace a phase or inject the consequence being asserted. A setup convenience may play a
+  documented ordered selection of corporations or Preludes in turn order; convenience must not
+  bypass their gameplay. The implemented default already plays the starting corporations; Prelude
+  choices remain explicit.
 
 Gameplay tests submit the turns the game offers through plain `Agent`s. Use `doTask`/`doTasks`
 for explicit choices, or `completeOperation { ... }` when the whole operation must finish before
@@ -388,8 +392,8 @@ returning. Do not use `inTurn`: it can create an out-of-turn offer when the acto
 work. Decline an offered second action explicitly with `selectTask("PassBaton")`; do not insert that
 choice after both actions, after a Prelude, or when all opponents have already passed.
 
-`TfmGameplayTest` describes authentic game flow, not the `TfmGameplay` convenience class. The
-fixture owns its `World` and `Agents` directly and exposes Admin and all players as plain Agents.
+`TfmGameplayTest` exercises authentic game flow. The fixture owns its `World` and `Agents`
+directly and exposes Admin and all players as plain Agents.
 Scenario payments state concrete amounts, including research purchases; do not use `/ Owed` or
 payment helpers. Shared corporation setup alone reads the bill for its five starting projects,
 so corporations such as TerraLabs use their actual purchase price.
@@ -399,13 +403,17 @@ offers before the exact remainder, and explain each `Ok`. Fixed command abbrevia
 shorten repeated invocation steps; payments and gameplay outcomes remain explicit. Loops remain
 appropriate for seat-order traversal and long generation/endgame progressions.
 
+Synthetic sandbox checks may instead assign `game` directly. This creates fresh `Agents` with
+their default policies, without preparing a position or binding `players`, `kim`, `stan`, or `rob`;
+use `agents[player]` and `admin`. These subclasses also run under `:tfm-tests:sandboxTest`,
+so that task measures both prepared-position scenarios and synthetic sandbox checks.
+
 Synthetic engine checks that only need setup use `setUpGame`, which starts the game and drops setup's
 pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCorporationPhaseOutOfTurn`
 moves such a game into the corporation phase through that phase's own start, then drops the turn
 order it begins.
 
-The sandbox owns its plain `Agent` fixture directly and must not use `TfmGameplay`, including
-through inherited helpers. Gameplay also owns its fixture directly; neither extends `TfmTest`. Both expose
+Sandbox and gameplay each own their plain `Agent` fixture directly. Both expose
 `newTestGameBeforeCorporationPlay()` for explicit corporation plays; a normal
 `newTestGame(kimCorporation = ...)` plays the corporation during setup. `kimCorporation` never
 changes the game configuration; use `addOptions` to include cards outside the default bundles.
@@ -489,16 +497,15 @@ Use `selectTask` and `selectOnlyTask` only for a choice still needing narrowing,
 handoff, never to carry out concrete player work. Every retained selection must have a local
 comment explaining why it is necessary. Prefer a short named selection, such as
 `selectTask("PlaceGreeneryTile")`, to an anonymous selection. String selection also narrows the
-task; it is not a name-only lookup. Keep `selectOnlyTask` when a short instruction cannot identify
-an `EACH` group or would discard part of a linked choice, as in Flooding's placement and attack.
+task; it is not a name-only lookup. Open an `EACH` group with `doTask("EACH")`.
+Keep `selectOnlyTask` when a short instruction would discard part of a linked choice, as in Flooding's
+placement and attack.
 Use `doTask` for the Actor's explicit work, naming a short, meaningful instruction.
-This also applies when binding X makes player work concrete. When the bound amount instead opens
-a bill through Admin, use a commented `selectOnlyTask(x = ...)`. Do not copy full rule expressions
-merely to identify the sole task.
+This also applies when binding X makes player work concrete: submit the chosen resource amount
+directly. Do not copy full rule expressions merely to identify the sole task.
 Write expected payment amounts explicitly, such as `6 Pay<> FROM MC`; never pay `/ Owed`
 in a sandbox scenario. Write `kim.inTurn { ... }` directly, without redundant `with(kim)` wrappers.
 Inside that block, helpers on its operation receiver do not repeat `kim.`; another actor remains explicit.
-`TfmGameplay.turn` groups the published game's turn, including declining an unused second action.
 `TfmSandboxTest` supplies its own `Agent.inTurn` member extension: it uses `runOperation("OfferAction")`
 when no task is pending, and otherwise `completeOperation`. This keeps the generic Agent free of
 Terraforming Mars rules while sandbox scenarios retain their explicit operation scripts.
@@ -519,8 +526,10 @@ and operation order may be incidental, copied from another scenario, obsolete, o
 old behavior. Begin with the behavior named by the scenario and its meaningful observable coverage.
 Challenge every setup step: if removing it does not change the behavior under test, remove it. For
 sandbox scenarios, do not preserve gameplay merely because the old test used it to reach a state
-that a correction can express. Gameplay scenarios must still reach their conditions through
-play. Do not infer a configuration requirement solely from the old test's configuration.
+that a correction can express. Gameplay scenarios must exercise the behavior under test through
+play; focused phase tests may correct an incidental starting position as specified in
+[Sandbox and gameplay fixture migration](#sandbox-and-gameplay-fixture-migration).
+Do not infer a configuration requirement solely from the old test's configuration.
 
 Review an unmigrated class for test value and structure before deciding whether it fits the fixture.
 First remove declaration-only and duplicate scenarios, separate independent behaviors, and trim
@@ -550,8 +559,11 @@ interaction among independently authored rules. Prefer representative coverage o
 same semantic pattern for another card with different literals.
 
 Every state change in a migrated sandbox test must come from real player-facing gameplay or from
-its explicit fixture methods. Do not use `runOperation`, `beginOperation`, arbitrary direct
-phase changes, or other lower-level shortcuts in either fixture's subclasses. The sandbox provides
+its explicit fixture methods. Prepared-fixture scenarios do not use `runOperation`, `beginOperation`,
+arbitrary direct phase changes, or other lower-level shortcuts. The focused phase-test exception
+permits `exMachina` setup, not direct invocation of phase effects. Raw synthetic construction follows
+its separate rules in [Sandbox and gameplay fixture migration](#sandbox-and-gameplay-fixture-migration).
+The sandbox provides
 `advanceUntilActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
 is irrelevant; finish pending choices first. This is a sandbox shortcut, so other unplayed starting
 cards need not be handled when they are irrelevant to the scenario. Gameplay leaves those choices
@@ -594,8 +606,10 @@ throughout even when some methods could use sandbox; `PreservationProgramTest` f
 When most methods suit sandbox and only a few need the game flow, a normal nested class may extend
 `TfmGameplayTest` inside the sandbox class. It owns its own fixture and does not share the outer
 instance; do not use Kotlin `inner` or JVM-only `@Nested`. See
-`TfmSandboxTestTest.TfmGameplayTestTest` for executable discovery coverage. When filtering by the
-outer class name, include a trailing wildcard to include nested classes as well. Synthetic
+`TfmSandboxTestTest.TfmGameplayTestTest` for executable discovery coverage. The reverse arrangement
+also works: `FinalGreeneryPhaseTest.EndConditions` keeps synthetic sandbox checks inside a gameplay
+suite. When filtering by the outer class name, include a trailing wildcard to include nested classes
+as well. Synthetic
 declarations still require separate evaluation.
 Do not replace meaningful coverage just to increase the migrated count. An existing base class does
 not itself express a preferred style.
@@ -683,6 +697,171 @@ Other packages retain `BugsTest`: its passing tests characterize known
 incorrect behavior, and their names say what currently happens incorrectly. Prefer a clearly marked
 characterization over a disproportionate workaround.
 
+## Gameplay consistency project
+
+**Status: decisions and follow-up work recorded on 2026-11-12.** This section records the user's
+responses to the gameplay consistency audit. Agreed direction, current implementation, proposals,
+and observations not yet discussed are distinguished below. The work list is in
+[`TODO.md`](../../TODO.md#gameplay-consistency). This is not a claim that the migration is finished.
+
+The intended families remain sandbox, gameplay, gameplay with card tracking, and the separate
+TaskForm style. Differences required by card tracking are not cleanup targets. `TfmGameplay.kt`
+has been deleted; keep shrinking the remaining gameplay API rather than recreating its helpers.
+The user does not require preservation of unused-action or underpayment/overpayment checks merely
+because old replay helpers performed them. Do not restore the discarded `tfm_sample` REPL command.
+These permissions do not imply removing source resource checkpoints or changing recorded payments.
+
+### Agreed direction: execution and task selection
+
+The user deferred further EACH-shorthand matching changes and REPL payment cleanup on 2026-11-12.
+Keep those implementations unchanged until the user reopens that work. Explicit Suitable Infrastructure
+bonus-marker removal is tracked in TODO.md for the user's planned fix.
+
+- Eliminate `EAGER` for non-Admin players, subject to the limited setup convenience below. Admin
+  continues to execute automatically. Minimize temporary policy changes and explicit automatic
+  execution used to make a test proceed. The user also selected removing `SOLE_TASK` from normal
+  gameplay tests as much as possible: optimize for reading every noteworthy event, not for ease
+  of writing the test. Prefer `NONE` and explicit task submissions outside the setup convenience.
+  Start with test callers; a replacement global Agent default or new smart policy has not been
+  selected. Preserve the TaskForm replay as a test of forms when removing its Player `EAGER`
+  dependency. Use explicit Player choices when testing engine semantics independently of policy.
+- A superclass setup helper may perform corporation setup with automatic execution when the caller
+  only needs the corporation to exist and is not testing its turn. Keep this behavior scoped to
+  that helper and make its purpose clear. Tests of corporation choices or consequences need those
+  steps visible. Today `chooseStartingCards` and `playStartingCorporations` in `TfmGameplayTest`
+  use bounded `autoExecNow(EAGER)` calls; they do not permanently change the configured Player
+  policy. Starting-card setup also uses automatic execution today; whether it belongs in the
+  same permitted convenience remains to be clarified. Do not treat its current implementation as
+  approval of that scope. A replacement helper or new policy-switching API has not been selected.
+- High priority: remove gameplay tests' inspection of task collections to choose IDs wherever
+  existing named task submissions suffice. When unavoidable, explain why at the use site. Also
+  reduce assumptions that the only pending task must be the intended task: they reveal less about
+  the scenario than naming the intended work.
+- Do not reintroduce specialized selection conveniences such as `selectOnlyTask(x = 6)`. Bind X
+  through the named amount being submitted. Do not replace each variation with another specialized
+  helper. First establish how existing general task selection and narrowing express the required
+  choice; report any actual API gap.
+- Adopt combined-total task submissions more thoroughly. For example, a single production income
+  can replace separate submissions for the TR and production contributions. Keep genuinely
+  different choices, owners, and ordered continuations explicit; this is not permission to merge
+  unrelated game events or silently choose among targets.
+
+### Agreed direction: sources and corrections
+
+- Fake or substitute cards are an accepted necessity where the real card is unsupported. Their
+  mere presence is not an inconsistency to eliminate. Keep limitations visible and avoid treating
+  the substitute as proof of the real card's complete behavior.
+- Different games inevitably have different evidence. Audit replay assertions and choices against
+  the available original logs, screenshots, recordings, and saves to find possible mistakes; do
+  not try to make the evidence formats uniform. An assertion copied from an engine run is not
+  independent source confirmation. For example, `SyntheticProtonFragmentTest` explicitly says its
+  generation 7 values lack a screenshot and reflect the engine's current results.
+- Inventory every way a replay reconciles the model with its source, then simplify those uses.
+  Prefer explicit `exMachina` adjustments with comments explaining the reason: a table mistake,
+  an unsupported part of a fake card, or another evidenced mismatch. Ordinary task execution is
+  preferable when it already reproduces the sourced position without a correction.
+- Avoid dropping tasks as much as possible. A retained drop needs a comment explaining why it is
+  the most feasible treatment; naming the omitted effect alone is insufficient. Do not replace
+  every drop mechanically with an adjustment before investigating what the task represents.
+- Reproducing a live player's mistake is legitimate. In particular, the October 9 Project Eden
+  correction accounts for oxygen/TR the table omitted; that fact alone is not a defect in the test.
+- Do not rewrite replay history in the current autonomous pass. When a pair of `exMachina` calls
+  could correctly be eliminated by rewriting the earlier play, add a `//` comment identifying the
+  pair and explaining why. Retain both adjustments and the original chronology. The user may
+  select such retcons later, after reconstruction is settled; that work is not currently authorized.
+
+For solo attack effects, ordinary submissions against `SoloOpponent` can preserve the human
+player's recorded position without dropping tasks. `MassiveGammaZoneTest` and
+`BinaryVectorStreamTest` demonstrate this. Absence of a neutral production reduction from the
+human player's source log does not establish an application mistake.
+
+### Agreed follow-up: setup, completion, and assertions
+
+- Investigate what "start a game" hides. Compare `newTestGame`,
+  `newTestGameBeforeCorporationPlay`, replay `startGame`, and direct premise initialization: which
+  setup, starting cards, corporation turns, and first choices have already happened at return?
+  Document the useful distinctions before choosing what to consolidate.
+- Establish consistent completion checks appropriate to a scenario's stopping point. Audit direct
+  gameplay tests, complete replays, and intentionally partial replays, including which execution
+  routes install `ReplayExportExtension`. A partial replay may legitimately have pending work;
+  checking only a count does not explain which work was expected. No replacement endpoint API
+  has been selected.
+- Inventory scripted choices versus choices computed from current state. Concrete examples are
+  locating the current starting player (`PreservationProgramTest.passGeneration`), selecting the
+  first available water area (`EndgameRulesTest.finishMultiplayerGeneration`), and buying a
+  standard project repeatedly while MC permits (`EndgameRulesTest`). Compare these with a replay
+  that names the recorded player, location, and purchase count. Some loops only traverse players in the game's
+  order; others let the scenario adapt when the engine changes. Decide which are useful rather
+  than imposing a blanket ban on loops or queries.
+- Improve consistency in checking consequences beyond "the task call succeeded": useful automatic
+  gains, effects on another player, and quantities that should stay unchanged. Preserve source
+  checkpoints and final outcomes; do not add assertions that merely repeat the submitted task.
+- Different assertion receivers legitimately imply different observation scopes. That fact alone
+  needs no cleanup. The user asked what `expectChanges` means, not for its removal or expansion.
+- Reduce detailed lifetime/cause accounting in ordinary replays. The user's suggested destination
+  is a few focused tests of the accounting mechanism using a couple of replay games as inputs.
+  Choose representative coverage before removing duplicated assertions. Preserve ordinary final
+  scores, meaningful resource checks, and source checkpoints; removing detailed cause accounting
+  does not authorize deleting those outcomes or the accounting implementation.
+
+`expectChanges("...") { ... }` is an existing assertion helper in `TfmGameplayTest`. It remembers
+an event position, runs the block, and checks the requested **net changes across the entire
+block**. For example, `PristarTest` observes the last player's pass together with subsequent
+production work to check Kim's 25 MC and Preservation marker. A `.expect()` on the pass alone
+would observe only changes retained before that call returned. The helper does not create a
+transaction, roll back the block, change automatic execution, or require all tasks to finish.
+
+### Sequential task submissions
+
+`doTasks` follows repeated individually atomic `doTask` calls: a later failure retains successful
+earlier arguments. See [the engine contract](ENGINE_CONTRACT.md#state-transactions-and-calls) and
+`Agent.doTasks` for execution, results, recording, and restoration semantics.
+
+Use an explicit operation block when a negative probe must restore its whole attempt before the
+scenario continues. Let the exception escape that block before catching it. Catching a failed step
+inside the operation instead retains the successful earlier steps. Prefer `continueOperation` when
+the probe may legitimately leave work pending; use `completeOperation` when finishing is part of
+what the probe checks.
+
+### Archived replay verification
+
+Leaving slow archived games outside the routine suite is an intentional runtime concession, not
+by itself a problem to fix. At the user's request, on 2026-11-12 all seven archived JVM replay
+classes were executed: `FirstPartialGameTest`, `Game20260619Test`, `HellasPromoGameTest`,
+`HellasPromoWithoutPreludeTest`, `SoloGame20230611Test`, `SoloGame20230710Test`, and
+`SoloGame20230721Test`. Result: **7 tests, 0 failures, 0 errors, 0 skipped**.
+
+A temporary Gradle init script used the replay classpath and enabled the JUnit extension; all
+seven ran `assertPendingTasksAtEnd`. Normal suite selection and repository build files were
+unchanged. Input exports/reconstruction were disabled. This verifies those archived scenarios
+on the JVM, not the browser suite or export round trips.
+
+### Remaining audit observations — not yet discussed with the user
+
+The following are the remainder of the ranked audit (original items 15–29). **The user has not
+reviewed these observations or selected a response.** They are retained for discussion, not
+instructions to normalize everything. The order reflects how consequential the difference is,
+not how many tests use each approach. Narrower decisions above do not imply acceptance of every
+related change below.
+
+| Original rank | Difference observed | Concrete examples or question to revisit |
+| --- | --- | --- |
+| 15 | Negative probes and restoration checks versus successful play only | `SyntheticProtonFragmentTest` tries invalid Robinson Industries choices; `ActionScopeTest` checks restoration. Other replays submit only successful choices. Decide where these checks belong. |
+| 16 | How known wrong behavior is represented | `PreservationProgramTest` and `MergerTest` pair disabled intended behavior with passing `BUG -` cases; other scenarios characterize unresolved behavior directly, or replay it with a correction. Review consistency with Known-defect tests above. |
+| 17 | Recording and reconstruction coverage | Ordinary replays do not record unless exports are requested. August 18 also checks serialized content, notes, and a midpoint; routine browser replay coverage mainly uses the August 28 TaskForm game. |
+| 18 | Frequency, placement, and breadth of checkpoints | `BinaryVectorStreamTest` checks generations against saves; `ThermalMatterWaveTest` concentrates more at the end; physical games follow photographs. Evidence naturally differs, but assertion placement can still be reviewed. |
+| 19 | What final validation proves | Some tests check totals and winners, some score categories (`DistantPressureMassTest`), and some phase/GameScope state. This is distinct from whether tasks remain pending. |
+| 20 | Extra checks of internal flow and rendered output | `SoloGame20230721Test` asserts 99 counted action signals; `ThermalMatterWaveTest` notes those signals do not measure the source's 169 actions. Some replays check a rendered map. Decide which checks add useful evidence. |
+| 21 | Scenario preparation in setup hooks versus visible test bodies | `SupercapacitorsTest`'s setup advances several generations; `PristarTest` creates its game in `@BeforeTest`; `StinaGameTest` starts through shared setup. The reader sees different amounts of the scenario locally. |
+| 22 | Private helpers containing a whole scenario versus inline steps | `SelfReplicatingRobotsTest`'s nested gameplay tests share a helper returning three counts; other scenarios keep actions and assertions together. Review what deserves a shared helper. |
+| 23 | Organization of long play sequences | Separate generation methods versus a long test body; Agent receiver methods versus `with(player)`; scope blocks that mean a turn, an action, or a continuation. |
+| 24 | How broadly assertion helpers check state | `assertCounts` names selected facts; `assertTags` supplies zero defaults for omitted categories; resource/production helpers cover six amounts and production offsets. Similar-looking checkpoints can check different amounts of state. |
+| 25 | Syntax used to express equivalent tasks | Constants versus literal card names, task arrays versus expanded sequences, explicit versus inferred owners, movement spellings, and `selectTask("PassBaton")` versus `doTask("PassBaton")`. Which differences are only spelling, and which depend on execution policy? |
+| 26 | Naming players | Numbered players, fixture aliases such as Kim, colors, and source names; a color can map to `Player1`. Some calls redundantly name the receiver. |
+| 27 | Assertion notation | `assertEquals`, Kotest matchers, `has`, and count checks; positional versus named tag arguments. Rank below differences in what is actually asserted. |
+| 28 | Class/file/test organization | Nested versus top-level test classes, directory placement, method names, and visibility. Suite selection parses source declarations; which moves would change what runs? |
+| 29 | Comments and presentation | Quoted source text, timestamps, database-save references, generation headings, and commented-out assertions vary. Existing replay `Ok` comments already follow a shared convention. |
+
 ## Game replay tests
 
 `Game20230521Test` and `Wsbg2025Test` deliberately exercise the raw Agent task API.
@@ -697,12 +876,14 @@ unevaluated metrics. Combine the three production money amounts into their net i
 tasks are already pending. Keep amounts from unrelated reasons separate, for example Investment
 Loan's 10 MC and Media Group's 3 MC. Agent translates the production total into individual engine
 calls, with gains before removals and each task's effects preserved; engine has no combined-total
-command. See `Agent.doTask` for exact matching rules. Explicit `doTasks(...)` calls are atomic,
-resumable batches.
+command. See `Agent.doTask` for exact matching rules. Explicit `doTasks(...)` calls submit each
+argument separately and retain successful earlier steps when a later step fails. See
+[Sequential task submissions](#sequential-task-submissions).
 Explicit-task replays extend `FullGameTest` or `CardTrackingFullGameTest`, both based on
 `TfmGameplayTest` with plain Agents and Player autoexecution disabled. Call the fixture's
 `startGame()` to begin setup. Have each player take their starting TR before either player handles
 starting cards. Group each corporation, Prelude, and action-phase turn in `with(player) { ... }`.
+A solo replay may group a whole generation in a single `with(player)` block.
 When a player declines their second action, submit `doTask("PassBaton")` explicitly at the end of
 that turn. A scope block itself performs no gameplay. Keep the task submissions inside each section
 as raw `doTask`/`doTasks` calls.
@@ -712,7 +893,12 @@ already evident from the preceding task submissions, including automatic resourc
 checks that a quantity stayed unchanged. Do not repeat explicit gains/removals or their arithmetic
 totals. Retain state checkpoints and final score/winner assertions. Purchase transfers into `Hand`
 are explicit tasks from `Selecting`. Keep the replay's task calls instead of introducing
-`TfmGameplay` action or payment helpers.
+action or payment helpers.
+
+`OtbGame20260828Test` exercises the separate TaskForm style on `FullGameTest(EAGER)`.
+Players submit their choices through `TaskForm.choose`, `narrow`, and `commit`; the policy
+executes concrete follow-up work. Its local form wrapper asserts offered choices and completed
+drafts, without gameplay actions, payment helpers, or a raw `doTask` fallback.
 
 Replay tests assert victory points only after the game's actual final scoring. Mid-game
 checkpoints verify the live state without simulating production or scoring; partial replays
@@ -753,8 +939,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   which starts production [CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt)
   before gameplay. Use `cardArrivalOrder` and `cardDepartureOrder` for automatically dealt setup
   cards. Name project hand movements beside their actions with `draw` and `discard` before the
-  relevant Agent operation completes, including purchased and sold cards. The legacy fixture also
-  provides `buyCards(cardNames)` and `sellPatents(cardNames)` wrappers.
+  relevant Agent operation completes, including purchased and sold cards.
   `assertCardTrackingComplete` checks unused supplied names. `cardArrivalOrder` describes hand
   entry, not offers or deck order. When a replay has names for every `Selecting` movement,
   `selectingArrivalOrder` and `selectingDepartureOrder` enable game-wide Selecting tracking.
@@ -789,8 +974,6 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   `PassBaton` when the player declines their second action. Preserve sourced fast-mode choices,
   including explicit passes and declined second actions. Once every other player has passed, the
   remaining player's actions through `Pass` may share a scope block; the game keeps offering actions.
-  Legacy helper-based replays still use `player.turn { ... }`, which automatically declines an
-  unused second action.
 - When an Event card's sibling tasks require explicit replay ordering, record only the gameplay
   consequences. The card's `LATER` dispatch defers its flip, and the owner performs the flip once
   no ordinary work remains. The engine performs the dispatch itself; the replay records the explicit
@@ -821,6 +1004,10 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   `TODO.md`.
 
 ### State reconciliation
+
+See the [gameplay consistency decisions](#agreed-direction-sources-and-corrections) for the current
+preference for explained corrections over task drops. For now, only comment on pairs of corrections
+that could be retconned later; preserve their execution and the original history.
 
 - Express a sourced per-player setup rule, such as a starting handicap, on that replay's concrete
   Player Class with a `SetupPhase` effect supplied through `playerClassPets`. It is game

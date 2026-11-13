@@ -80,7 +80,7 @@ Distinguish precedence, synchronous consequences, exclusive control, completion,
 | Specific latch | Known prerequisites must finish before later work becomes legal. |
 
 A fixed outcome does not imply Admin ownership. Do not repair ordering through
-`TfmGameplay`, rendered-task matching, or incidental queue iteration order.
+test helpers, rendered-task matching, or incidental queue iteration order.
 
 ## What `THEN` does
 

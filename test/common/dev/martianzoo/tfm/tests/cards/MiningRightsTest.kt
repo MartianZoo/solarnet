@@ -37,7 +37,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
 
       doTask("Steel")
       // Resolve the production choice to expose the known wild-area requirement failure.
-      selectOnlyTask()
+      doTask("PROD[Steel]")
     }
   }
 
@@ -78,7 +78,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
         doTask("MiningRights FROM ProjectCard")
         doTask("MiningRights_SpecialTile<Tharsis_2_1>")
         // Resolve the production choice to check that this area supplies a metal bonus.
-        selectOnlyTask()
+        doTask("PROD[Steel]")
       }
     }
     kim.assertCounts(42 to "MC", 0 to "MiningRights_SpecialTile")

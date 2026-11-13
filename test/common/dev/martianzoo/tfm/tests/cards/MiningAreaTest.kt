@@ -66,7 +66,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
         doTask("MiningArea FROM ProjectCard")
         doTask("MiningArea_SpecialTile<Tharsis_3_2>")
         // Resolve the production choice to check that this area supplies a metal bonus.
-        selectOnlyTask()
+        doTask("PROD[Steel]")
       }
     }
     kim.assertCounts(42 to "MC", 0 to "MiningArea_SpecialTile")

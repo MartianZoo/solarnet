@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -48,7 +50,8 @@ internal class TurnCommandTest {
   private fun manualActionGame(): ScriptSession =
       ScriptSession().also { repl ->
         repl.command("newgame B 2")
-        repl.keepStartingProjects(0, 0)
+        repl.agents[PLAYER1].doTask("-10 ProjectCard<Selecting>")
+        repl.agents[PLAYER2].doTask("-10 ProjectCard<Selecting>")
         repl.command("become Player2")
         repl.agent.runOperation("ProjectCard")
         repl.command("phase Action")

@@ -30,7 +30,6 @@ internal class HiTechLabTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(*cardActionTasks("HiTechLab"))
-          selectOnlyTask(x = 3)
           doTask("-3 Energy")
           doTask("3 ProjectCard<Kim, Selecting>")
           doTask("ProjectCard<Hand FROM Selecting>")

@@ -221,7 +221,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           "-18 MC",
       )
       // Expand the copied production box into its separate resource increases.
-      doTask(tasks.matching { !it.deferred }.single())
+      doTask("EACH")
       doTasks(
           "PROD[7 MC]",
           "PROD[Titanium]",
@@ -237,7 +237,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
           doTasks("CopyPrelude<IndustrialComplex>", "-18 MC")
           // Expand the copied production box into its separate resource increases.
-          doTask(tasks.matching { !it.deferred }.single())
+          doTask("EACH")
           doTask("PROD[Steel]")
         }
         .expect("PROD[0 MC, Steel, 0 Titanium, 0 Plant, 0 Energy, 0 Heat]")

@@ -32,7 +32,7 @@ Reject the change if:
 
 - card- or rule-specific Kotlin, a custom instruction, or component-specific gameplay machinery was
   used without first exhausting removal and ordinary Pets composition;
-- `TfmGameplay` or test support creates or relocates rule components, supplies missing ordering, or
+- test support creates or relocates rule components, supplies missing ordering, or
   identifies work through rendered text or cause;
 - behavior originates from an inert identity or duplicated state rather than the live component
   that offers and rescinds it;

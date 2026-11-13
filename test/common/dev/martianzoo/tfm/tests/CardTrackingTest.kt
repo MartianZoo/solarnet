@@ -17,7 +17,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class CardTrackingTest : TfmTest() {
+internal class CardTrackingTest : TfmSandboxTest() {
   private fun newTrackedGame(
       expansions: String = "PreludeExpansion",
       requireSelectingNames: Boolean = false,
@@ -861,7 +861,7 @@ internal class CardTrackingTest : TfmTest() {
         newTrackedGame(
             "PreludeExpansion, VenusNextExpansion, prelude2:cards, promos:cards, TurmoilExpansion"
         )
-    val agent = game.testTfm(player)
+    val agent = agents[player]
     agent.runOperation("2 ProjectCard<Selecting>, 3 MC")
     tracking.expectArrivals(player, cn("VenusGovernor"))
     agent.runOperation("TakeSelectedCard<TagFilter<Class<VenusTag>>>")

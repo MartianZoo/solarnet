@@ -280,7 +280,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
       doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
       doTask("10 MC")
       // Expand Recession into separate losses before checking compensation order.
-      doTask(tasks.matching { !it.deferred }.single())
+      doTask("EACH")
       if (compensateFirst) {
         doTask("-5 MC<Rob>")
         // The active player chooses when to hand this task to its owner.

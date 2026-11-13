@@ -31,7 +31,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.matchers.shouldBe
 
@@ -40,7 +39,9 @@ internal fun setUpGame(premise: GamePremise): World =
       val agents = testAgents()
       startSetupOnly()
       actors.filterIsInstance<Player>().forEach { player ->
-        agents.tfm(player).keepStartingProjects(0)
+        val agent = agents[player]
+        val offered = agent.count("ProjectCard<Selecting>")
+        agent.doTask(if (offered == 0) "Ok" else "-$offered ProjectCard<Selecting>")
       }
     }
 
@@ -69,16 +70,11 @@ internal fun World.startCorporationPhaseOutOfTurn() {
   val agents = testAgents()
   agents[ADMIN].beginOperation("CorporationPhase FROM SetupPhase")
   tasks.extract { it.id to it.assignee }.forEach { (id, assignee) -> agents[assignee].dropTask(id) }
-  val admin = agents.tfm(ADMIN)
+  val admin = agents[ADMIN]
   admin.list("Baton").elements.forEach { baton ->
     admin.exMachina("-${admin.count("$baton")} $baton")
   }
 }
-
-internal fun playCorporationWithoutStartingProjects(
-    player: TfmGameplay,
-    corporation: ClassName,
-): TaskResult = player.playCorp(corporation)
 
 internal fun setUpGame(
     vararg selectedOptions: TestSelection,

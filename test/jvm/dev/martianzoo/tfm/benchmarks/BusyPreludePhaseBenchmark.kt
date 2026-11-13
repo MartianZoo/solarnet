@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.benchmarks
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
@@ -12,8 +13,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.soloTileSetup
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.fake.FakeCanon
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations.Benchmark
@@ -32,7 +31,7 @@ import org.openjdk.jmh.annotations.TearDown
 public open class BusyPreludePhaseBenchmark {
   private val fakeHeadStart = cn("FakeHeadStart")
   private lateinit var game: World
-  private lateinit var me: TfmGameplay
+  private lateinit var me: Agent
   private lateinit var beforeCorporationPlay: Checkpoint
 
   @Setup(Level.Trial)
@@ -53,11 +52,11 @@ public open class BusyPreludePhaseBenchmark {
             )
         )
     val agents = Agents(game)
-    me = agents.tfm(PLAYER1)
-    val admin = agents.tfm(ADMIN)
+    me = agents[PLAYER1]
+    val admin = agents[ADMIN]
 
-    admin.startGame()
-    me.keepStartingProjects(10)
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    me.doTask("Ok") // Keep all ten starting projects.
     me.doTask("-SelectedColonyTile<Class<Ceres>>")
     check(admin.count("CorporationPhase") == 1) {
       "benchmark setup did not reach the corporation phase:\n${game.tasks}"
@@ -68,43 +67,38 @@ public open class BusyPreludePhaseBenchmark {
 
   @Benchmark
   public fun corporationThroughFirstActionPhase(): Int {
-    me.playCorp(cn("Teractor"))
+    me.doTask("PlayCard<Class<CorporationCard>, Class<Teractor>>")
 
-    me.playPrelude(fakeHeadStart) {
-      doTasks(
-          "UseAction<PlayCardAction, Action1>",
-          "PlayCard<Class<ProjectCard>, Class<EarthOffice>, Hand>",
-      )
-      me.pay(0)
-      doTasks(
-          "UseAction<PlayCardAction, Action1>",
-          "PlayCard<Class<ProjectCard>, Class<HeavyTaxation>, Hand>",
-      )
-      me.pay(0)
-    }
-    me.playPrelude(cn("NewPartner")) {
-      me.playPrelude(cn("Merger")) {
-        doTask("PlayCard<Class<CorporationCard>, Class<ValleyTrust>, Selecting>")
-      }
-    }
+    me.doTask("PlayCard<Class<PreludeCard>, Class<$fakeHeadStart>>")
+    me.doTasks(
+        "UseAction<PlayCardAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<EarthOffice>, Hand>",
+    )
+    me.doTasks(
+        "UseAction<PlayCardAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<HeavyTaxation>, Hand>",
+    )
+    me.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<NewPartner>>",
+        "PlayCard<Class<PreludeCard>, Class<Merger>>",
+        "PlayCard<Class<CorporationCard>, Class<ValleyTrust>, Selecting>",
+    )
 
     // Jacob Fryxelius's ruling makes Valley Trust's required action the first action-phase action.
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
-    me.stdAction("DoRequiredActions") {
-      me.playPrelude(cn("DoubleDown")) {
-        doTask("CopyPrelude<$fakeHeadStart>")
-        doTasks(
-            "UseAction<PlayCardAction, Action1>",
-            "PlayCard<Class<ProjectCard>, Class<LunaGovernor>, Hand>",
-        )
-        me.pay(0)
-        doTasks(
-            "UseAction<PlayCardAction, Action1>",
-            "PlayCard<Class<ProjectCard>, Class<ProductiveOutpost>, Hand>",
-        )
-        me.pay(0)
-      }
-    }
+    me.doTasks(
+        "DoRequiredActions",
+        "PlayCard<Class<PreludeCard>, Class<DoubleDown>>",
+        "CopyPrelude<$fakeHeadStart>",
+    )
+    me.doTasks(
+        "UseAction<PlayCardAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<LunaGovernor>, Hand>",
+    )
+    me.doTasks(
+        "UseAction<PlayCardAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<ProductiveOutpost>, Hand>",
+    )
     return me.count("CardFront")
   }
 

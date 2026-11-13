@@ -1,6 +1,7 @@
 package dev.martianzoo.agent
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.Parsing.parse
@@ -233,14 +234,133 @@ internal class DoTasksTest {
   }
 
   @Test
-  internal fun rollsBackEarlierInstructionsWhenABatchFails() {
-    val game = Engine.newGame(testGamePremise("CLASS Coin\nCLASS Plant"))
-    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
-    player.addTasks("Coin, 2 Plant")
+  internal fun retainsEarlierStepsAndDoesNotAttemptLaterStepsWhenAnArgumentFails() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Coin
+                CLASS Marker
+                CLASS Plant : Atomized { HAS MAX 1 This }
+                CLASS Last
+                """
+            )
+        )
+    val player = Agents(game) { NONE }[PLAYER1]
+    player.addTasks("Coin, Marker, 2! Plant, Last")
+
+    shouldThrow<LimitsException> { player.doTasks("Coin", "Marker", "2 Plant", "Last") }
+
+    player.count("Coin") shouldBe 1
+    player.count("Marker") shouldBe 1
+    player.count("Plant") shouldBe 0
+    player.count("Last") shouldBe 0
+    player.doTask("Last")
+    player.count("Last") shouldBe 1
+  }
+
+  @Test
+  internal fun anEscapingFailureRestoresAContinuingOperation() {
+    val game = Engine.newGame(testGamePremise("CLASS Coin\nCLASS Plant { HAS MAX 1 This }"))
+    val player = Agents(game) { NONE }[PLAYER1]
+    player.addTasks("Coin, 2! Plant")
     val before = game.events.nextOrdinal
 
-    shouldThrow<TaskException> { player.doTasks("Coin", "3 Plant") }
+    shouldThrow<LimitsException> { player.continueOperation { doTasks("Coin", "2 Plant") } }
 
+    game.events.nextOrdinal shouldBe before
+    player.count("Coin") shouldBe 0
+  }
+
+  @Test
+  internal fun anEscapingFailureRestoresACompletingOperationUsingTheAgentDirectly() {
+    val game = Engine.newGame(testGamePremise("CLASS Coin\nCLASS Plant { HAS MAX 1 This }"))
+    val player = Agents(game) { NONE }[PLAYER1]
+    player.addTasks("Coin, 2! Plant")
+    val before = game.events.nextOrdinal
+
+    shouldThrow<LimitsException> { player.completeOperation { player.doTasks("Coin", "2 Plant") } }
+
+    game.events.nextOrdinal shouldBe before
+    player.count("Coin") shouldBe 0
+  }
+
+  @Test
+  internal fun aFailureCaughtInsideAnOperationRetainsEarlierSteps() {
+    val game = Engine.newGame(testGamePremise("CLASS Coin\nCLASS Plant { HAS MAX 1 This }"))
+    val player = Agents(game) { NONE }[PLAYER1]
+    player.addTasks("Coin, 2! Plant")
+
+    player.continueOperation {
+      shouldThrow<LimitsException> { doTasks("Coin", "2 Plant") }
+    }
+
+    player.count("Coin") shouldBe 1
+    player.count("Plant") shouldBe 0
+  }
+
+  @Test
+  internal fun caughtAutomaticFailureRestoresTheStepInsideAnOperation() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Coin
+                CLASS Trigger { This: 2! Plant }
+                CLASS Plant { HAS MAX 1 This }
+                CLASS Skip
+                """
+            )
+        )
+    val player = Agents(game) { SOLE_TASK }[PLAYER1]
+    // Keep both submissions as choices; only Trigger's Plant consequence runs automatically.
+    player.addTasks("Coin OR Skip, Trigger OR Skip")
+
+    player.continueOperation {
+      doTask("Coin")
+      shouldThrow<LimitsException> { doTasks("Trigger") }
+      player.count("Coin") shouldBe 1
+      player.count("Trigger") shouldBe 0
+      player.count("Plant") shouldBe 0
+    }
+  }
+
+  @Test
+  internal fun returnsAllChangesAndOnlyNewTasksStillPendingAfterTheLastStep() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS First { This: Next, Pending }
+                CLASS Next { This: Later }
+                CLASS Pending
+                CLASS Later
+                CLASS Existing
+                """
+            )
+        )
+    val player = Agents(game) { NONE }[PLAYER1]
+    player.addTasks("First, Existing")
+
+    val result = player.doTasks("First", "Next")
+
+    result.changes.map { it.change.gaining?.type?.className.toString() } shouldBe
+        listOf("First", "Next")
+    result.tasksSpawned.map { game.tasks.getTaskData(it).instruction.toString() }.toSet() shouldBe
+        setOf("Pending!", "Later!")
+  }
+
+  @Test
+  internal fun anEmptySequenceDoesNotTriggerPlayerAutomaticExecution() {
+    val game = Engine.newGame(testGamePremise("CLASS Coin"))
+    val player = Agents(game)[PLAYER1]
+    player.addTasks("Coin")
+    val before = game.events.nextOrdinal
+
+    val result = player.doTasks()
+
+    result.changes shouldBe emptyList()
+    result.tasksSpawned shouldBe emptySet()
     game.events.nextOrdinal shouldBe before
     player.count("Coin") shouldBe 0
   }
@@ -294,5 +414,17 @@ internal class DoTasksTest {
 
     player.count("Coin") shouldBe 5
     player.tasks.ids() shouldBe fixed.toSet()
+  }
+
+  @Test
+  internal fun choosingAnAmountAlsoBindsTheDeferredContinuation() {
+    val player =
+        Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker"))) { NONE }[PLAYER1]
+    player.addTasks("X Coin THEN X Marker")
+    player.doTask("3 Coin")
+    shouldThrow<TaskException> { player.doTask("2 Marker") }
+    player.doTask("3 Marker")
+    player.count("Coin") shouldBe 3
+    player.count("Marker") shouldBe 3
   }
 }

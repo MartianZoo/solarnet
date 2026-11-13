@@ -1,20 +1,25 @@
-package dev.martianzoo.tfm.script
+package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.tfm.tests.ExcludedTestOption
+import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
+import dev.martianzoo.tfm.tests.TestOption.Hellas
+import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.setUpGame
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-internal class TilePlacingTest {
+internal class TilePlacingTest : TfmSandboxTest() {
   @Test
   internal fun defaultGreeneryWrapperRunsWhilePlayerAutoexecIsOff() {
-    val game = setUpGame()
-    val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
+    game = setUpGame(ExcludedTestOption(CorporateEraExpansion))
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
 
     p1.runOperation("PlaceGreeneryTile") { doTask("GreeneryTile<Tharsis_3_3>") }
 
@@ -23,20 +28,26 @@ internal class TilePlacingTest {
 
   @Test
   internal fun citiesRepel() {
-    val game = setUpGame()
-    with(game.testTfm(PLAYER2)) {
-      phase("Action")
+    game = setUpGame(ExcludedTestOption(CorporateEraExpansion))
+    with(agents[PLAYER2]) {
+      admin.exMachina("ActionPhase FROM SetupPhase")
       runOperation("CityTile<Tharsis_4_6>, CityTile<Tharsis_4_4>, 25 MC")
       assertFailsWith<NarrowingException> {
-        stdProject("CityProject") { doTask("CityTile<Tharsis_3_4>") }
+        inTurn {
+          doWithAutoExecPolicy(NONE) {
+            doTasks(*standardProjectTasks("CityProject"), "25 Pay<> FROM MC")
+          }
+          autoExecNow()
+          doTask("CityTile<Tharsis_3_4>")
+        }
       }
     }
   }
 
   @Test
   internal fun cantStack() {
-    val game = setUpGame()
-    val p2 = game.testTfm(PLAYER2)
+    game = setUpGame(ExcludedTestOption(CorporateEraExpansion))
+    val p2 = agents[PLAYER2]
 
     p2.runOperation("CityTile<Tharsis_3_3>")
     assertFailsWith<LimitsException> { p2.runOperation("OceanTile<Tharsis_3_3>!") }
@@ -44,32 +55,48 @@ internal class TilePlacingTest {
 
   @Test
   internal fun greeneryCanBePlacedAnywhereWhenOwnedTilesAreSurrounded() {
-    val game = setUpGame()
+    game = setUpGame(ExcludedTestOption(CorporateEraExpansion))
 
-    with(game.testTfm(PLAYER1)) {
+    with(agents[PLAYER1]) {
       exMachina("100 MC")
-      phase("Action")
-      stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_4_3>") }
+      admin.exMachina("ActionPhase FROM SetupPhase")
+      inTurn {
+        doWithAutoExecPolicy(NONE) {
+          doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
+        }
+        autoExecNow()
+        doTask("GreeneryTile<Tharsis_4_3>")
+      }
       assertFailsWith<NarrowingException> {
-        stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_7_5>") }
+        inTurn {
+          doWithAutoExecPolicy(NONE) {
+            doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
+          }
+          autoExecNow()
+          doTask("GreeneryTile<Tharsis_7_5>")
+        }
       }
       // Yer surrounded!
-      game
-          .testTfm(PLAYER2)
-          .runOperation(
-              "GreeneryTile<Tharsis_3_2>, GreeneryTile<Tharsis_3_3>, " +
-                  "GreeneryTile<Tharsis_4_2>, GreeneryTile<Tharsis_4_4>"
-          )
+      agents[PLAYER2].runOperation(
+          "GreeneryTile<Tharsis_3_2>, GreeneryTile<Tharsis_3_3>, " +
+              "GreeneryTile<Tharsis_4_2>, GreeneryTile<Tharsis_4_4>"
+      )
 
-      stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_7_5>") }
+      inTurn {
+        doWithAutoExecPolicy(NONE) {
+          doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
+        }
+        autoExecNow()
+        doTask("GreeneryTile<Tharsis_7_5>")
+      }
     }
   }
 
   @Test
   internal fun greeneryRequirementDoesntCareIfItDeadEndsYourTurn() {
-    val game = setUpGame("BH", 2)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
+    game = setUpGame(Hellas, ExcludedTestOption(CorporateEraExpansion))
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
 
     // Player1 has greenery next to south pole
     p1.runOperation("4 MC, GreeneryTile<Hellas_9_8>")
@@ -104,10 +131,10 @@ internal class TilePlacingTest {
 
   @Test
   internal fun greeneryNextToOwned_possible() {
-    val game = setUpGame()
+    game = setUpGame(ExcludedTestOption(CorporateEraExpansion))
 
-    with(game.testTfm(PLAYER1)) {
-      phase("Action")
+    with(agents[PLAYER1]) {
+      admin.exMachina("ActionPhase FROM SetupPhase")
 
       runOperation("666 MC, CityTile<Tharsis_8_6>") // shown as [] in comment below
 
@@ -115,7 +142,12 @@ internal class TilePlacingTest {
       runOperation("CityTile<Player2, Tharsis_6_7>")
 
       // Use the standard project so that the placement rule is in effect.
-      stdProject("GreeneryProject") {
+      inTurn {
+        doWithAutoExecPolicy(NONE) {
+          doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
+        }
+        autoExecNow()
+
         fun checkCantPlaceGreenery(area: String) =
             assertFailsWith<NarrowingException>(area) { doTask("GreeneryTile<$area>") }
 

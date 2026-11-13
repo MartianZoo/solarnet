@@ -1,10 +1,13 @@
 package dev.martianzoo.tfm.script.commands
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptCompletion
 import dev.martianzoo.tfm.script.ScriptCompletionContext
@@ -38,20 +41,41 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
             }
             .groupBy({ it.first }, { it.second })
             .mapValues { (_, amounts) -> amounts.sum() }
+    val previousPolicy = repl.agent.autoExecPolicy
     val result =
         repl.game.timeline.atomic {
-          repl.agents
-              .tfm(repl.agent.actor)
-              .pay(
-                  mc = payments["MC"] ?: 0,
-                  steel = payments["Steel"] ?: 0,
-                  titanium = payments["Titanium"] ?: 0,
-                  plants = payments["Plant"] ?: 0,
-                  energy = payments["Energy"] ?: 0,
-                  heat = payments["Heat"] ?: 0,
-              )
-          repl.agent.autoExecNow()
+          try {
+            repl.agent.autoExecPolicy = NONE
+            repl.agent.continueOperation {
+              for (resource in listOf("Plant", "Energy", "Heat", "Titanium", "Steel", "MC")) {
+                val amount = payments[resource] ?: continue
+                if (amount == 0) continue
+                if (repl.agent.count("Owed<Class<$resource>>") > 0) {
+                  declineUnusedPaymentChoices()
+                }
+                doTask("$amount Pay<Class<$resource>> FROM $resource")
+              }
+              if (repl.agent.count("Owed") == 0) declineUnusedPaymentChoices()
+              repl.agent.autoExecPolicy = previousPolicy
+              autoExecNow()
+            }
+          } finally {
+            repl.agent.autoExecPolicy = previousPolicy
+          }
         }
     return repl.describeExecutionResults(result)
+  }
+
+  private fun declineUnusedPaymentChoices() {
+    val paid = repl.agent.count("Owed") == 0
+    repl.agent.tasks
+        .extract { it }
+        .filter { task ->
+          (paid || NoOp.narrows(task.instruction, repl.agent.reader)) &&
+              task.instruction.descendantsOfType<Change>().any {
+                it.gaining?.className in setOf(cn("Pay"), cn("PayFromCard"))
+              }
+        }
+        .forEach { repl.agent.doTask("Ok", it.id) }
   }
 }

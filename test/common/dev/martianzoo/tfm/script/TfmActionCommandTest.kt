@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -30,7 +32,8 @@ internal class TfmActionCommandTest {
   internal fun `tfm action uses a granted card action without spending its ordinary use`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
-    repl.keepStartingProjects(0, 0)
+    repl.agents[PLAYER1].doTask("-10 ProjectCard<Selecting>")
+    repl.agents[PLAYER2].doTask("-10 ProjectCard<Selecting>")
     repl.command("become Player1")
     repl.agent.runOperation("PROD[Energy], AiCentral")
     repl.command("auto none")
@@ -145,7 +148,8 @@ internal class TfmActionCommandTest {
   private fun actionGame(contents: String, options: String = "BRP"): ScriptSession {
     val repl = ScriptSession()
     repl.command("newgame $options 2")
-    repl.keepStartingProjects(0, 0)
+    repl.agents[PLAYER1].doTask("-10 ProjectCard<Selecting>")
+    repl.agents[PLAYER2].doTask("-10 ProjectCard<Selecting>")
     repl.command("become Player1")
     repl.agent.runOperation(contents)
     repl.command("phase Action")

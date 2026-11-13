@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.DependencyException
@@ -40,7 +40,7 @@ internal class InstructionEvaluationTest {
       )
 
   init {
-    game.testTfm(PLAYER1).exMachina("Plant, 10 ProjectCard, PROD[-1 MC]")
+    game.testAgent(PLAYER1).exMachina("Plant, 10 ProjectCard, PROD[-1 MC]")
   }
 
   private fun preprocess(instr: InstructionTree): InstructionTree {

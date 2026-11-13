@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
@@ -41,24 +41,48 @@ internal class UnmiTest : TfmSandboxTest() {
     }
   }
 
-  internal class Gameplay : TfmGameplayTest() {
+  internal class Gameplay : TfmGameplayTest(NONE) {
     @Test
     internal fun `Can use UNMI acquired after an earlier TR gain in the generation`() {
       newTestGame(addOptions = "PreludeExpansion", playerCount = 2, kimCorporation = CrediCor)
-      kim.doTask("PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>")
-      kim.autoExecNow(EAGER)
+      kim.doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
+          "$UnmiContractor FROM PreludeCard",
+          "3 TerraformRating",
+          "ProjectCard",
+      )
       kim.completeOperation {
-        doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
-        doTask("PlayCard<Class<CorporationCard>, Class<$UnitedNationsMarsInitiative>>")
-        autoExecNow(EAGER)
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+            "$Merger FROM PreludeCard",
+            "4 CorporationCard<Selecting>",
+            "PlayCard<Class<CorporationCard>, Class<$UnitedNationsMarsInitiative>>",
+            "$UnitedNationsMarsInitiative FROM CorporationCard<Selecting>",
+            "40 MC",
+            "-42 MC",
+        )
       }
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
-      stan.autoExecNow(EAGER)
+      stan.doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
+          "$Supplier FROM PreludeCard",
+          "PROD[2 Energy]",
+          "4 Steel",
+      )
 
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
-      stan.autoExecNow(EAGER)
+      stan.doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
+          "$MetalsCompany FROM PreludeCard",
+          "PROD[MC]",
+          "PROD[Steel]",
+          "PROD[Titanium]",
+      )
 
-      kim.doTasks(*cardActionTasks("$UnitedNationsMarsInitiative")).expect("TerraformRating")
+      kim.doTasks(
+              *cardActionTasks("$UnitedNationsMarsInitiative"),
+              "3 Pay<> FROM MC",
+              "TerraformRating",
+          )
+          .expect("TerraformRating")
     }
 
     @Test
@@ -68,16 +92,38 @@ internal class UnmiTest : TfmSandboxTest() {
           playerCount = 2,
           kimCorporation = UnitedNationsMarsInitiative,
       )
-      kim.doTask("PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>")
-      kim.autoExecNow(EAGER)
-      kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
-      stan.autoExecNow(EAGER)
+      kim.doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
+          "$UnmiContractor FROM PreludeCard",
+          "3 TerraformRating",
+          "ProjectCard",
+      )
+      kim.doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard",
+          "21 MC",
+      )
+      stan.doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
+          "$Supplier FROM PreludeCard",
+          "PROD[2 Energy]",
+          "4 Steel",
+      )
 
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
-      stan.autoExecNow(EAGER)
+      stan.doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
+          "$MetalsCompany FROM PreludeCard",
+          "PROD[MC]",
+          "PROD[Steel]",
+          "PROD[Titanium]",
+      )
 
-      kim.doTasks(*cardActionTasks("$UnitedNationsMarsInitiative")).expect("TerraformRating")
+      kim.doTasks(
+              *cardActionTasks("$UnitedNationsMarsInitiative"),
+              "3 Pay<> FROM MC",
+              "TerraformRating",
+          )
+          .expect("TerraformRating")
     }
   }
 }

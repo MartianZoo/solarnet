@@ -55,18 +55,4 @@ internal class SelectOnlyTaskTest {
       Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))[PLAYER1].also {
         it.autoExecPolicy = NONE
       }
-
-  @Test
-  internal fun `Choosing X also binds the deferred continuation`() {
-    val player = player()
-    player.addTasks("X Coin THEN X Marker")
-    player.completeOperation {
-      selectOnlyTask(x = 3)
-      doTask("3 Coin")
-      selectOnlyTask()
-      doTask("3 Marker")
-    }
-    player.count("Coin") shouldBe 3
-    player.count("Marker") shouldBe 3
-  }
 }

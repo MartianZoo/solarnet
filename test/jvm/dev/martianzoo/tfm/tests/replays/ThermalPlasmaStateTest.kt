@@ -4,13 +4,15 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.playCardTasks
+import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Sources: _local/replays/Game20260817/full-log-pb64886c6e682.txt and
 // _local/replays/Game20260817/player-pb64886c6e682.json. The complete Research offers come from the
 // earlier clone of the same source game at /the-end?id=pe59a6b631bd6.
-internal class ThermalPlasmaStateTest : AbstractSoloTest() {
+internal class ThermalPlasmaStateTest : FullGameTest() {
   override val config =
       GameConfig(
           """
@@ -26,289 +28,1054 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
   // Drew and discarded Lake Marineris to place a 0
   // Drew and discarded Topsoil Contract to place a 2
   // Drew and discarded Space Station to place a 0
-  override fun cityAreas(): Pair<String, String> = "Elysium_6_4" to "Elysium_8_7"
+  override val soloTileLocations =
+      listOf("Elysium_6_4", "Elysium_7_5", "Elysium_8_7", "Elysium_9_8")
 
-  override fun greeneryAreas(): Pair<String, String> = "Elysium_7_5" to "Elysium_9_8"
+  private val me
+    get() = p1
 
   @Test
   internal fun thermalPlasmaState() {
+    startGame()
     with(me) {
+      doTask("14 TerraformRating")
+      doTasks(
+          "2 CorporationCard",
+          "-CorporationCard",
+          "10 ProjectCard<Selecting>",
+          "4 PreludeCard",
+          "-2 PreludeCard",
+      )
       doTask("-SelectedColonyTile<Class<Miranda>>")
+      doTask("-2 ProjectCard<Selecting>")
+    }
+    generation1()
+    generation2()
+    generation3()
+    generation4()
+    generation5()
+    generation6()
+    generation7()
+    generation8()
+    generation9()
+    generation10()
+    generation11()
+    generation12()
+  }
 
-      keepStartingProjects(8)
-      playCorp(TerraLabsResearch)
-      playPrelude(BusinessEmpire).expect("PROD[6 MC], -6 MC")
-      playPrelude(MetalsCompany).expect("PROD[MC]")
+  private fun generation1() {
+    with(me) {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$TerraLabsResearch>>",
+          "$TerraLabsResearch FROM CorporationCard",
+          "14 MC",
+          "-TerraformRating",
+          "8 Pay<> FROM MC",
+          "8 ProjectCard<Hand FROM Selecting>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$BusinessEmpire>>",
+          "$BusinessEmpire FROM PreludeCard",
+          "PROD[6 MC]",
+          "-6 MC",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
+          "$MetalsCompany FROM PreludeCard",
+          "PROD[MC]",
+          "PROD[Steel]",
+          "PROD[Titanium]",
+      )
 
       assertCounts(0 to "MC")
-      pass()
-      wgt("VenusStep")
-      buyCards(1)
+      doTask("Pass")
+      doTasks("18 MC", "Steel", "Titanium")
+      doTask("VenusStep! BY Admin")
+    }
+  }
+
+  private fun generation2() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks("-3 ProjectCard<Selecting>", "Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
 
       assertCounts(17 to "MC")
-      pass()
-      wgt("VenusStep")
-      buyCards(2)
+      doTask("Pass")
+      doTasks("18 MC", "Steel", "Titanium")
+      doTask("VenusStep! BY Admin")
+    }
+  }
 
-      playProject(FueledGenerators, 1).expect("PROD[-MC, Energy]")
-      playProject(Research, 11)
-      playProject(AiCentral, 17, steel = 2)
-      cardAction1(AiCentral)
-      sellPatents(5)
-      playProject(VestaShipyard, 9, titanium = 2)
-
-      assertCounts(0 to "MC")
-      pass()
-      wgt("VenusStep")
-      buyCards(3)
-
-      cardAction1(AiCentral)
-      playProject(SolarWindPower, 5, titanium = 2)
-      playProject(GeothermalPower, 9, steel = 1)
-
-      assertCounts(0 to "MC")
-      pass()
-      wgt("TemperatureStep")
-      buyCards(3)
-
-      cardAction1(AiCentral)
-      playProject(MediaGroup, 6)
-      playProject(ProjectInspection, 0) {
-            doTask("UseAction<$AiCentral, Action1>")
-          }
-          .expect("3 MC")
-      playProject(RotatorImpacts, titanium = 2)
-      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(titanium = 2) })
-      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Luna>") }.expect("13 MC")
-      playProject(RestrictedArea, 11) {
-        placeTile(3, 7)
-      }
-      cardAction1(RestrictedArea)
-      sellPatents(5)
-      playProject(Conscription, 5).expect("-2 MC")
-      playProject(LunarBeam, 0).expect("PROD[-2 MC]")
-      playProject(ArtificialPhotosynthesis, 12) { doTask("PROD[2 Energy]") }
-      sellPatents(1)
-      playProject(Extremophiles, 3)
-      cardAction1(Extremophiles) { addCardResources(Extremophiles) }
+  private fun generation3() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks("-2 ProjectCard<Selecting>", "2 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          *playCardTasks("$FueledGenerators"),
+          "Ok", // no steel paid
+          "1 Pay<> FROM MC",
+          "$FueledGenerators FROM ProjectCard",
+          "PROD[-MC]",
+          "PROD[Energy]",
+      )
+      doTasks(
+          *playCardTasks("$Research"),
+          "11 Pay<> FROM MC",
+          "$Research FROM ProjectCard",
+          "2 ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("$AiCentral"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "17 Pay<> FROM MC",
+          "$AiCentral FROM ProjectCard",
+          "PROD[-Energy]",
+      )
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
+      doTasks(*standardProjectTasks("SellPatentsProject"), "5 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$VestaShipyard"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "9 Pay<> FROM MC",
+          "$VestaShipyard FROM ProjectCard",
+          "PROD[Titanium]",
+      )
 
       assertCounts(0 to "MC")
-      pass()
-      wgt("TemperatureStep")
-      buyCards(4)
+      doTask("Pass")
+      doTasks("17 MC", "Steel", "2 Titanium")
+      doTask("VenusStep! BY Admin")
+    }
+  }
 
-      cardAction1(RestrictedArea)
-      cardAction1(AiCentral)
-      cardAction2(RotatorImpacts)
-      stdAction("UseAction<TradeAction, Action2>") {
-        doTask("Trade<Pluto>")
-      }
-      playProject(IndenturedWorkers, 0).expect("3 MC")
-      playProject(ForcedPrecipitation, 0)
-      cardAction1(ForcedPrecipitation)
-      sellPatents(5)
-      playProject(Steelworks, 11, steel = 2)
-      cardAction1(Steelworks)
-      playProject(ImportOfAdvancedGhg, 3, titanium = 2).expect("0 MC")
-      sellPatents(2)
-      playProject(SulphurEatingBacteria, 6)
-      cardAction1(SulphurEatingBacteria)
-      cardAction1(Extremophiles) { addCardResources(SulphurEatingBacteria) }
+  private fun generation4() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks("-1 ProjectCard<Selecting>", "3 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
+      doTasks(
+          *playCardTasks("$SolarWindPower"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "5 Pay<> FROM MC",
+          "$SolarWindPower FROM ProjectCard",
+          "PROD[Energy]",
+          "2 Titanium",
+      )
+      doTasks(
+          *playCardTasks("$GeothermalPower"),
+          "1 Pay<Class<Steel>> FROM Steel",
+          "9 Pay<> FROM MC",
+          "$GeothermalPower FROM ProjectCard",
+          "PROD[2 Energy]",
+      )
 
       assertCounts(0 to "MC")
-      pass()
-      wgt("OceanTile<Elysium_3_6>")
-      buyCards(4)
+      doTask("Pass")
+      doTasks("17 MC", "Steel", "2 Titanium", "3 Energy")
+      doTask("TemperatureStep! BY Admin")
+    }
+  }
 
-      cardAction1(AiCentral)
-      cardAction1(RestrictedArea)
-      cardAction1(Steelworks)
-      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Ganymede>") }
-      cardAction1(Extremophiles) { addCardResources(SulphurEatingBacteria) }
-      cardAction1(ForcedPrecipitation)
-      playProject(InvestmentLoan, 3).expect("PROD[-MC], 10 MC")
-      playProject(Solarnet, 7)
-      cardAction2(SulphurEatingBacteria) { doTask("-3 Microbe<$SulphurEatingBacteria>") }
-          .expect("9 MC")
-      playProject(BigAsteroid, 21, titanium = 2) { /* Decline removing an opponent's plants. */
-            declineTask()
-          }
-          .expect("-18 MC")
-      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(titanium = 2) })
-      sellPatents(3)
-      playProject(LunaGovernor, 4).expect("PROD[2 MC], -4 MC")
+  private fun generation5() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks("-1 ProjectCard<Selecting>", "3 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
+      doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$ProjectInspection"),
+          "$ProjectInspection FROM ProjectCard",
+          "3 MC",
+          "UseAction<$AiCentral, Action1>",
+          "2 ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("$RotatorImpacts"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no MC remainder
+          "$RotatorImpacts FROM ProjectCard",
+      )
+      doTasks(
+          *cardActionTasks("$RotatorImpacts"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no MC remainder
+          "Asteroid<$RotatorImpacts>",
+      )
+      doTasks(
+          "UseAction<TradeAction, Action2>",
+          "3 Pay<Class<Energy>> FROM Energy",
+          "Trade<Luna>",
+          "13 MC",
+      )
+      doTasks(
+          *playCardTasks("$RestrictedArea"),
+          "11 Pay<> FROM MC",
+          "$RestrictedArea FROM ProjectCard",
+          "RestrictedArea_SpecialTile<Elysium_3_7>",
+          "3 ProjectCard",
+      )
+      doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
+      doTasks(*standardProjectTasks("SellPatentsProject"), "5 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$Conscription"),
+          "5 Pay<> FROM MC",
+          "$Conscription FROM ProjectCard",
+          "Conscription_NextCardEffect",
+          "3 MC",
+      )
+      doTasks(
+          *playCardTasks("$LunarBeam"),
+          "$LunarBeam FROM ProjectCard",
+          "PROD[-2 MC]",
+          "PROD[2 Heat]",
+          "PROD[2 Energy]",
+      )
+      doTasks(
+          *playCardTasks("$ArtificialPhotosynthesis"),
+          "12 Pay<> FROM MC",
+          "$ArtificialPhotosynthesis FROM ProjectCard",
+          "PROD[2 Energy]",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$Extremophiles"),
+          "3 Pay<> FROM MC",
+          "$Extremophiles FROM ProjectCard",
+      )
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$Extremophiles>")
+
+      assertCounts(0 to "MC")
+      doTask("Pass")
+      doTasks("15 MC", "Steel", "2 Titanium", "7 Energy", "2 Heat")
+      doTask("TemperatureStep! BY Admin")
+    }
+  }
+
+  private fun generation6() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks(
+          "Ok", // keep all offered cards
+          "4 Pay<> FROM MC",
+          "4 ProjectCard<Hand FROM Selecting>",
+      )
+      doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
+      doTasks(
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
+          "VenusStep",
+          "TerraformRating",
+          "ProjectCard",
+      )
+      doTasks(
+          "UseAction<TradeAction, Action2>",
+          "3 Pay<Class<Energy>> FROM Energy",
+          "Trade<Pluto>",
+          "4 ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("$IndenturedWorkers"),
+          "$IndenturedWorkers FROM ProjectCard",
+          "IndenturedWorkers_NextCardEffect",
+          "3 MC",
+      )
+      doTasks(*playCardTasks("$ForcedPrecipitation"), "$ForcedPrecipitation FROM ProjectCard")
+      doTasks(
+          *cardActionTasks("$ForcedPrecipitation"),
+          "2 Pay<> FROM MC",
+          "Floater<$ForcedPrecipitation>",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "5 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$Steelworks"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "11 Pay<> FROM MC",
+          "$Steelworks FROM ProjectCard",
+      )
+      doTasks(
+          *cardActionTasks("$Steelworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "2 Steel",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("$ImportOfAdvancedGhg"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "3 Pay<> FROM MC",
+          "$ImportOfAdvancedGhg FROM ProjectCard",
+          "PROD[2 Heat]",
+          "3 MC",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$SulphurEatingBacteria"),
+          "6 Pay<> FROM MC",
+          "$SulphurEatingBacteria FROM ProjectCard",
+      )
+      doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$SulphurEatingBacteria>")
+
+      assertCounts(0 to "MC")
+      doTask("Pass")
+      doTasks("17 MC", "Steel", "2 Titanium", "7 Energy", "4 Heat")
+      doTask("OceanTile<Elysium_3_6>! BY Admin")
+    }
+  }
+
+  private fun generation7() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks(
+          "Ok", // keep all offered cards
+          "4 Pay<> FROM MC",
+          "4 ProjectCard<Hand FROM Selecting>",
+      )
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
+      doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
+      doTasks(
+          *cardActionTasks("$Steelworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "2 Steel",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<TradeAction, Action2>",
+          "3 Pay<Class<Energy>> FROM Energy",
+          "Trade<Ganymede>",
+          "6 Plant",
+      )
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$SulphurEatingBacteria>")
+      doTasks(
+          *cardActionTasks("$ForcedPrecipitation"),
+          "2 Pay<> FROM MC",
+          "Floater<$ForcedPrecipitation>",
+      )
+      doTasks(
+          *playCardTasks("$InvestmentLoan"),
+          "3 Pay<> FROM MC",
+          "$InvestmentLoan FROM ProjectCard",
+          "PROD[-MC]",
+          "10 MC",
+          "3 MC",
+      )
+      doTasks(
+          *playCardTasks("$Solarnet"),
+          "7 Pay<> FROM MC",
+          "$Solarnet FROM ProjectCard",
+          "2 ProjectCard",
+      )
+      doTasks(
+          *cardActionTasks("$SulphurEatingBacteria", "Action2"),
+          "-3 Microbe<$SulphurEatingBacteria>",
+          "9 MC",
+      )
+      doTasks(
+          *playCardTasks("$BigAsteroid"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "21 Pay<> FROM MC",
+          "$BigAsteroid FROM ProjectCard",
+          "TemperatureStep",
+          "TemperatureStep",
+          "4 Titanium",
+          "3 MC",
+          "TerraformRating",
+          "PROD[Heat]",
+          "TerraformRating",
+          "Ok", // decline removing an opponent's plants
+      )
+      doTasks(
+          *cardActionTasks("$RotatorImpacts"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no MC remainder
+          "Asteroid<$RotatorImpacts>",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$LunaGovernor"),
+          "4 Pay<> FROM MC",
+          "$LunaGovernor FROM ProjectCard",
+          "PROD[2 MC]",
+      )
 
       assertCounts(2 to "MC")
-      pass()
-      wgt("OceanTile<Elysium_2_4>")
-      buyCards(2)
+      doTask("Pass")
+      doTasks("21 MC", "Steel", "2 Titanium", "7 Energy", "5 Heat")
+      doTask("OceanTile<Elysium_2_4>! BY Admin")
+    }
+  }
 
-      convertHeat()
-      cardAction1(AiCentral)
-      cardAction1(RestrictedArea)
-      cardAction2(ForcedPrecipitation)
-      cardAction2(RotatorImpacts)
-      cardAction1(Steelworks)
-      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Luna>") }.expect("7 MC")
-      playProject(OlympusConference, steel = 5)
-      playProject(StaticHarvesting, 5).expect("0 MC")
-      playProject(ProtectedGrowth, 2).expect("1 MC")
-      convertPlants { placeTile(4, 8) }
-      playProject(AtalantaPlanitiaLab, 10) {
-        doTask("ProjectCard FROM Science")
-      }
-      playProject(ImportedGhg, 1, titanium = 2).expect("2 MC")
-      cardAction1(SulphurEatingBacteria)
-      playProject(RegolithEaters, 13)
-      cardAction1(RegolithEaters)
-      cardAction1(Extremophiles) { addCardResources(RegolithEaters) }
-      sellPatents(2)
-      playProject(Worms, 8)
-      sellPatents(2)
+  private fun generation8() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks("-2 ProjectCard<Selecting>", "2 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+          "PROD[Heat]",
+      )
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
+      doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
+      doTasks(
+          *cardActionTasks("$ForcedPrecipitation", "Action2"),
+          "-2 Floater<$ForcedPrecipitation>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *cardActionTasks("$Steelworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "2 Steel",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<TradeAction, Action2>",
+          "3 Pay<Class<Energy>> FROM Energy",
+          "Trade<Luna>",
+          "7 MC",
+      )
+      doTasks(
+          *playCardTasks("$OlympusConference"),
+          "5 Pay<Class<Steel>> FROM Steel",
+          "Ok", // no MC remainder
+          "$OlympusConference FROM ProjectCard",
+          "Science<$OlympusConference>",
+      )
+      doTasks(
+          *playCardTasks("$StaticHarvesting"),
+          "5 Pay<> FROM MC",
+          "$StaticHarvesting FROM ProjectCard",
+          "PROD[Energy]",
+          "5 MC",
+      )
+      doTasks(
+          *playCardTasks("$ProtectedGrowth"),
+          "2 Pay<> FROM MC",
+          "$ProtectedGrowth FROM ProjectCard",
+          "5 Plant",
+          "3 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_4_8>",
+          "OxygenStep",
+          "Plant",
+          "Steel",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("$AtalantaPlanitiaLab"),
+          "10 Pay<> FROM MC",
+          "$AtalantaPlanitiaLab FROM ProjectCard",
+          "2 ProjectCard",
+          "ProjectCard FROM Science",
+      )
+      doTasks(
+          *playCardTasks("$ImportedGhg"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "1 Pay<> FROM MC",
+          "$ImportedGhg FROM ProjectCard",
+          "PROD[Heat]",
+          "3 Heat",
+          "3 MC",
+      )
+      doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
+      doTasks(
+          *playCardTasks("$RegolithEaters"),
+          "13 Pay<> FROM MC",
+          "$RegolithEaters FROM ProjectCard",
+          "Science<$OlympusConference>",
+      )
+      doTasks(*cardActionTasks("$RegolithEaters"), "Microbe<$RegolithEaters>")
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$RegolithEaters>")
+      doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$Worms"),
+          "8 Pay<> FROM MC",
+          "$Worms FROM ProjectCard",
+          "PROD[2 Plant]",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
 
       assertCounts(2 to "MC")
-      pass()
-      wgt("TemperatureStep")
-      buyCards(3)
+      doTask("Pass")
+      doTasks("26 MC", "Steel", "2 Titanium", "8 Energy", "7 Heat", "2 Plant")
+      doTask("TemperatureStep! BY Admin")
+    }
+  }
 
-      convertHeat()
-      cardAction1(AiCentral)
-      cardAction1(RestrictedArea)
-      cardAction1(Steelworks)
-      sellPatents(3)
-      playProject(BusinessNetwork, 4).expect("PROD[-MC], -4 MC")
-      cardAction1(BusinessNetwork) { buyCards(1) }
-      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(titanium = 2) })
-      playProject(AirScrappingExpedition, 13) { addCardResources(ForcedPrecipitation) }
-          .expect("-10 MC")
-      cardAction2(ForcedPrecipitation)
-      cardAction2(RegolithEaters)
-      cardAction1(Extremophiles) { addCardResources(RegolithEaters) }
-      cardAction1(SulphurEatingBacteria)
-      playProject(SoilEnrichment, 6) { doTask("-Microbe<$Extremophiles>") }.expect("-3 MC")
-      convertPlants { placeTile(5, 8) }
-      sellPatents(1)
-      playProject(Thermophiles, 9)
-      cardAction1(Thermophiles) { addCardResources(Thermophiles) }
+  private fun generation9() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks("-1 ProjectCard<Selecting>", "3 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
+      doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
+      doTasks(
+          *cardActionTasks("$Steelworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "2 Steel",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$BusinessNetwork"),
+          "4 Pay<> FROM MC",
+          "$BusinessNetwork FROM ProjectCard",
+          "PROD[-MC]",
+      )
+      doTasks(
+          *cardActionTasks("$BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "Ok", // keep all offered cards
+          "Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTasks(
+          *cardActionTasks("$RotatorImpacts"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no MC remainder
+          "Asteroid<$RotatorImpacts>",
+      )
+      doTasks(
+          *playCardTasks("$AirScrappingExpedition"),
+          "13 Pay<> FROM MC",
+          "$AirScrappingExpedition FROM ProjectCard",
+          "VenusStep",
+          "3 MC",
+          "TerraformRating",
+          "3 Floater<$ForcedPrecipitation>",
+      )
+      doTasks(
+          *cardActionTasks("$ForcedPrecipitation", "Action2"),
+          "-2 Floater<$ForcedPrecipitation>",
+          "VenusStep",
+          "TerraformRating",
+          "TerraformRating",
+      )
+      doTasks(
+          *cardActionTasks("$RegolithEaters", "Action2"),
+          "-2 Microbe<$RegolithEaters>",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$RegolithEaters>")
+      doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
+      doTasks(
+          *playCardTasks("$SoilEnrichment"),
+          "6 Pay<> FROM MC",
+          "$SoilEnrichment FROM ProjectCard",
+          "5 Plant",
+          "3 MC",
+          "-Microbe<$Extremophiles>",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_5_8>",
+          "OxygenStep",
+          "2 Plant",
+          "TerraformRating",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+      doTasks(*playCardTasks("$Thermophiles"), "9 Pay<> FROM MC", "$Thermophiles FROM ProjectCard")
+      doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$Thermophiles>")
 
       assertCounts(0 to "MC")
-      pass()
-      wgt("TemperatureStep")
-      buyCards(4)
+      doTask("Pass")
+      doTasks("32 MC", "Steel", "2 Titanium", "8 Energy", "7 Heat", "2 Plant", "4 Heat FROM Energy")
+      doTask("TemperatureStep! BY Admin")
+    }
+  }
 
-      convertHeat()
-      convertHeat()
-      cardAction1(AiCentral)
-      cardAction1(RestrictedArea)
-      cardAction1(BusinessNetwork) { buyCards(1) }
-      cardAction2(RotatorImpacts)
-      cardAction1(Steelworks)
-      cardAction1(Extremophiles) { addCardResources(RegolithEaters) }
-      cardAction2(RegolithEaters)
-      cardAction1(SulphurEatingBacteria)
-      cardAction1(ForcedPrecipitation)
-      cardAction1(Thermophiles) { addCardResources(Thermophiles) }
-      playProject(CarbonateProcessing, steel = 3)
-      stdAction("UseAction<TradeAction, Action2>") {
-        doTask("Trade<Pluto>")
-      }
-      sellPatents(6)
-      playProject(BlackPolarDust, 15) {
-            placeTile(1, 3)
-          }
-          .expect("PROD[-2 MC], -13 MC")
-      playProject(BribedCommittee, 7).expect("-4 MC")
-      playProject(BusinessContacts, 7).expect("-4 MC")
-      playProject(JovianEmbassy, steel = 7)
-      playProject(MineralDeposit, 5).expect("-2 MC")
-      playProject(Windmills, steel = 3)
+  private fun generation10() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks(
+          "Ok", // keep all offered cards
+          "4 Pay<> FROM MC",
+          "4 ProjectCard<Hand FROM Selecting>",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
+      doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
+      doTasks(
+          *cardActionTasks("$BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "Ok", // keep all offered cards
+          "Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTasks(
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *cardActionTasks("$Steelworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "2 Steel",
+          "OxygenStep",
+          "TerraformRating",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$RegolithEaters>")
+      doTasks(
+          *cardActionTasks("$RegolithEaters", "Action2"),
+          "-2 Microbe<$RegolithEaters>",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
+      doTasks(
+          *cardActionTasks("$ForcedPrecipitation"),
+          "2 Pay<> FROM MC",
+          "Floater<$ForcedPrecipitation>",
+      )
+      doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$Thermophiles>")
+      doTasks(
+          *playCardTasks("$CarbonateProcessing"),
+          "3 Pay<Class<Steel>> FROM Steel",
+          "Ok", // no MC remainder
+          "$CarbonateProcessing FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[3 Heat]",
+      )
+      doTasks(
+          "UseAction<TradeAction, Action2>",
+          "3 Pay<Class<Energy>> FROM Energy",
+          "Trade<Pluto>",
+          "3 ProjectCard",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "6 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$BlackPolarDust"),
+          "15 Pay<> FROM MC",
+          "$BlackPolarDust FROM ProjectCard",
+          "PROD[-2 MC]",
+          "PROD[3 Heat]",
+          "OceanTile<Elysium_1_3>",
+          "TerraformRating",
+          "ProjectCard",
+          "2 MC",
+      )
+      doTasks(
+          *playCardTasks("$BribedCommittee"),
+          "7 Pay<> FROM MC",
+          "$BribedCommittee FROM ProjectCard",
+          "2 TerraformRating",
+          "3 MC",
+      )
+      doTasks(
+          *playCardTasks("$BusinessContacts"),
+          "7 Pay<> FROM MC",
+          "$BusinessContacts FROM ProjectCard",
+          "4 ProjectCard<Selecting>",
+          "2 ProjectCard<Hand FROM Selecting>",
+          "3 MC",
+      )
+      doTasks(
+          *playCardTasks("$JovianEmbassy"),
+          "7 Pay<Class<Steel>> FROM Steel",
+          "Ok", // no MC remainder
+          "$JovianEmbassy FROM ProjectCard",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("$MineralDeposit"),
+          "5 Pay<> FROM MC",
+          "$MineralDeposit FROM ProjectCard",
+          "5 Steel",
+          "3 MC",
+      )
+      doTasks(
+          *playCardTasks("$Windmills"),
+          "3 Pay<Class<Steel>> FROM Steel",
+          "Ok", // no MC remainder
+          "$Windmills FROM ProjectCard",
+          "PROD[Energy]",
+      )
 
       assertCounts(6 to "MC")
-      pass()
-      wgt("VenusStep")
-      buyCards(1)
+      doTask("Pass")
+      doTasks("40 MC", "Steel", "2 Titanium", "8 Energy", "13 Heat", "2 Plant", "Heat FROM Energy")
+      doTask("VenusStep! BY Admin")
+    }
+  }
 
-      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Luna>") }.expect("7 MC")
-      cardAction1(RestrictedArea)
-      convertHeat()
-      cardAction1(AiCentral)
-      playProject(InventionContest, 2) {
-            doTask("ProjectCard FROM Science")
-          }
-          .expect("1 MC")
-      playProject(TowingAComet, 5, titanium = 6) { placeTile(4, 6) }.expect("0 MC")
-      playProject(LavaFlows, 18) { placeTile(3, 1) }.expect("-15 MC")
-      stdProject("AsteroidProject") { placeTile(4, 7) }.expect("-10 MC")
-      convertPlants { placeTile(5, 7) }.expect("4 MC")
-      cardAction1(BusinessNetwork) { buyCards(1) }
-      cardAction2(ForcedPrecipitation)
-      cardAction1(RegolithEaters)
-      cardAction2(Thermophiles)
-      sellPatents(3)
-      stdAction(*cardActionTasks("$RotatorImpacts"), payment = { pay(titanium = 2) })
-      cardAction1(Extremophiles) { addCardResources(Thermophiles) }
-      cardAction1(SulphurEatingBacteria)
-      playProject(ExtractorBalloons, 21)
-      playProject(Airliners, 11) { addCardResources(ForcedPrecipitation) }
-          .expect("PROD[2 MC], -11 MC")
-      cardAction2(ExtractorBalloons)
+  private fun generation11() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks("-3 ProjectCard<Selecting>", "Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "UseAction<TradeAction, Action2>",
+          "3 Pay<Class<Energy>> FROM Energy",
+          "Trade<Luna>",
+          "7 MC",
+      )
+      doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
+      doTasks(
+          *playCardTasks("$InventionContest"),
+          "2 Pay<> FROM MC",
+          "$InventionContest FROM ProjectCard",
+          "3 ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+          "3 MC",
+          "ProjectCard FROM Science",
+      )
+      doTasks(
+          *playCardTasks("$TowingAComet"),
+          "6 Pay<Class<Titanium>> FROM Titanium",
+          "5 Pay<> FROM MC",
+          "$TowingAComet FROM ProjectCard",
+          "2 Plant",
+          "OxygenStep",
+          "3 MC",
+          "TerraformRating",
+          "OceanTile<Elysium_4_6>",
+          "TerraformRating",
+          "Plant",
+          "2 MC",
+      )
+      doTasks(
+          *playCardTasks("$LavaFlows"),
+          "18 Pay<> FROM MC",
+          "$LavaFlows FROM ProjectCard",
+          "TemperatureStep",
+          "TemperatureStep",
+          "3 MC",
+          "TerraformRating",
+          "TerraformRating",
+          "LavaFlows_SpecialTile<Elysium_3_1>",
+          "2 Titanium",
+      )
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+          "OceanTile<Elysium_4_7>",
+          "TerraformRating",
+          "Plant",
+          "2 MC",
+          "2 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_5_7>",
+          "OxygenStep",
+          "2 Plant",
+          "2 MC",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          *cardActionTasks("$BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "Ok", // keep all offered cards
+          "Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTasks(
+          *cardActionTasks("$ForcedPrecipitation", "Action2"),
+          "-2 Floater<$ForcedPrecipitation>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$RegolithEaters"), "Microbe<$RegolithEaters>")
+      doTasks(
+          *cardActionTasks("$Thermophiles", "Action2"),
+          "-2 Microbe<$Thermophiles>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
+      doTasks(
+          *cardActionTasks("$RotatorImpacts"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no MC remainder
+          "Asteroid<$RotatorImpacts>",
+      )
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$Thermophiles>")
+      doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
+      doTasks(
+          *playCardTasks("$ExtractorBalloons"),
+          "21 Pay<> FROM MC",
+          "$ExtractorBalloons FROM ProjectCard",
+          "3 Floater<$ExtractorBalloons>",
+      )
+      doTasks(
+          *playCardTasks("$Airliners"),
+          "11 Pay<> FROM MC",
+          "$Airliners FROM ProjectCard",
+          "PROD[2 MC]",
+          "2 Floater<$ForcedPrecipitation>",
+      )
+      doTasks(
+          *cardActionTasks("$ExtractorBalloons", "Action2"),
+          "-2 Floater<$ExtractorBalloons>",
+          "VenusStep",
+          "TerraformRating",
+      )
 
       assertCounts(0 to "MC")
-      pass()
-      wgt("OceanTile<Elysium_4_4>")
-      buyCards(1)
+      doTask("Pass")
+      doTasks(
+          "53 MC",
+          "Steel",
+          "2 Titanium",
+          "8 Energy",
+          "13 Heat",
+          "2 Plant",
+          "5 Heat FROM Energy",
+      )
+      doTask("OceanTile<Elysium_4_4>! BY Admin")
+    }
+  }
 
-      convertHeat()
-      convertPlants { placeTile(5, 6) }.expect("2 MC")
-      convertHeat()
-      convertHeat()
-      cardAction1(AiCentral)
-      cardAction1(RestrictedArea)
-      cardAction1(BusinessNetwork) { buyCards(1) }
-      cardAction2(ForcedPrecipitation)
-      cardAction2(RotatorImpacts)
-      cardAction1(ExtractorBalloons)
-      cardAction1(Steelworks)
-      cardAction1(Extremophiles) { addCardResources(RegolithEaters) }
-      cardAction2(RegolithEaters)
-      cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
-      playProject(IoSulphurResearch, 17) {
-        doTask("3 ProjectCard")
-      }
-      sellPatents(5)
-      playProject(FusionPower, 2, steel = 6) {
-        doTask("ProjectCard FROM Science")
-      }
-      playProject(InventorsGuild, 9)
-      cardAction1(InventorsGuild) { buyCards(1) }
-      playProject(AirRaid, 0) {
-            // The app omitted Air Raid's 5 M€ transfer from the log.
-            doTask("5 MC<Me> FROM MC<SoloOpponent>")
-          }
-          .expect("8 MC")
-      playProject(BactoviralResearch, 10) {
-        doTask("ProjectCard FROM Science")
-        addCardResources(SulphurEatingBacteria)
-      }
-      sellPatents(3)
-      cardAction2(SulphurEatingBacteria) {
-            doTask("-19 Microbe<$SulphurEatingBacteria>")
-          }
-          .expect("57 MC")
-      playProject(ReleaseOfInertGases, 14).expect("-11 MC")
-      stdProject("AquiferProject") { placeTile(2, 5) }.expect("-14 MC")
-      playProject(Mangrove, 12) { placeTile(3, 5) }.expect("-4 MC")
-      stdProject("CityProject") { placeTile(4, 5) }.expect("-21 MC")
-      playProject(Algae, 10)
-      stdAction("UseAction<TradeAction, Action2>") { doTask("Trade<Ganymede>") }
-      stdProject("AquiferProject") { placeTile(5, 4) }.expect("-16 MC")
-      convertPlants { placeTile(5, 5) }.expect("4 MC")
-      convertPlants { placeTile(3, 4) }.expect("4 MC")
-      stdProject("AsteroidProject")
+  private fun generation12() {
+    with(me) {
+      doTask("4 ProjectCard<Selecting>")
+      doTasks("-3 ProjectCard<Selecting>", "Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_5_6>",
+          "OxygenStep",
+          "3 Plant",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
+      doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
+      doTasks(
+          *cardActionTasks("$BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "Ok", // keep all offered cards
+          "Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      doTasks(
+          *cardActionTasks("$ForcedPrecipitation", "Action2"),
+          "-2 Floater<$ForcedPrecipitation>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
+      doTasks(
+          *cardActionTasks("$Steelworks"),
+          "4 Pay<Class<Energy>> FROM Energy",
+          "2 Steel",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$RegolithEaters>")
+      doTasks(
+          *cardActionTasks("$RegolithEaters", "Action2"),
+          "-2 Microbe<$RegolithEaters>",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$SulphurEatingBacteria>")
+      doTasks(
+          *playCardTasks("$IoSulphurResearch"),
+          "17 Pay<> FROM MC",
+          "$IoSulphurResearch FROM ProjectCard",
+          "Science<$OlympusConference>",
+          "3 ProjectCard",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "5 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$FusionPower"),
+          "6 Pay<Class<Steel>> FROM Steel",
+          "2 Pay<> FROM MC",
+          "$FusionPower FROM ProjectCard",
+          "PROD[3 Energy]",
+          "ProjectCard FROM Science",
+      )
+      doTasks(
+          *playCardTasks("$InventorsGuild"),
+          "9 Pay<> FROM MC",
+          "$InventorsGuild FROM ProjectCard",
+          "Science<$OlympusConference>",
+      )
+      doTasks(
+          *cardActionTasks("$InventorsGuild"),
+          "ProjectCard<Selecting>",
+          "Ok", // keep all offered cards
+          "Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+      // The app omitted Air Raid's 5 M€ transfer from the log.
+      doTasks(
+          *playCardTasks("$AirRaid"),
+          "$AirRaid FROM ProjectCard",
+          "-Floater",
+          "3 MC",
+          "5 MC FROM MC<SoloOpponent>",
+      )
+      doTasks(
+          *playCardTasks("$BactoviralResearch"),
+          "10 Pay<> FROM MC",
+          "$BactoviralResearch FROM ProjectCard",
+          "ProjectCard",
+          "ProjectCard FROM Science",
+          "14 Microbe<$SulphurEatingBacteria>",
+      )
+      doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
+      doTasks(
+          *cardActionTasks("$SulphurEatingBacteria", "Action2"),
+          "-19 Microbe<$SulphurEatingBacteria>",
+          "57 MC",
+      )
+      doTasks(
+          *playCardTasks("$ReleaseOfInertGases"),
+          "14 Pay<> FROM MC",
+          "$ReleaseOfInertGases FROM ProjectCard",
+          "2 TerraformRating",
+          "3 MC",
+      )
+      doTasks(
+          *standardProjectTasks("AquiferProject"),
+          "18 Pay<> FROM MC",
+          "OceanTile<Elysium_2_5>",
+          "TerraformRating",
+          "2 MC",
+          "2 MC",
+      )
+      doTasks(
+          *playCardTasks("$Mangrove"),
+          "12 Pay<> FROM MC",
+          "$Mangrove FROM ProjectCard",
+          "GreeneryTile<Elysium_3_5>",
+          "OxygenStep",
+          "Plant",
+          "2 MC",
+          "2 MC",
+          "2 MC",
+          "2 MC",
+      )
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Elysium_4_5>",
+          "Plant",
+          "2 MC",
+          "2 MC",
+      )
+      doTasks(
+          *playCardTasks("$Algae"),
+          "10 Pay<> FROM MC",
+          "$Algae FROM ProjectCard",
+          "Plant",
+          "PROD[2 Plant]",
+      )
+      doTasks(
+          "UseAction<TradeAction, Action2>",
+          "3 Pay<Class<Energy>> FROM Energy",
+          "Trade<Ganymede>",
+          "5 Plant",
+      )
+      doTasks(
+          *standardProjectTasks("AquiferProject"),
+          "18 Pay<> FROM MC",
+          "OceanTile<Elysium_5_4>",
+          "TerraformRating",
+          "2 Plant",
+          "2 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_5_5>",
+          "OxygenStep",
+          "2 Plant",
+          "2 MC",
+          "2 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_3_4>",
+          "OxygenStep",
+          "2 MC",
+          "2 MC",
+      )
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
       assertCounts(3 to "MC")
-      pass()
+      doTask("Pass")
+      doTasks("67 MC", "Steel", "2 Titanium", "11 Energy", "13 Heat", "4 Plant", "Heat FROM Energy")
       // Decline the final greenery placement.
-      declineTask()
+      doTask("PassBaton")
       assertCounts(0 to "ProjectCard")
       // Final state and score come from /api/player?id=pb64886c6e682.
       assertProduction(m = 3, s = 1, t = 2, p = 4, e = 11, h = 13)

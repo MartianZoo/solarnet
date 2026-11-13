@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -83,7 +83,8 @@ internal class GamePremiseTest {
     val second = TfmEngine.newGame(premise)
 
     first.classTable shouldBe second.classTable
-    first.testTfm(ADMIN).startGame()
+    first.testAgents().taskLog.gameStarted()
+    first.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
     first.testAgent(ADMIN).count("SetupPhase") shouldBe 1
     second.testAgent(ADMIN).count("SetupPhase") shouldBe 0
   }
@@ -155,7 +156,8 @@ internal class GamePremiseTest {
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
     game.reader.getComponents(cn("Player").expression).map { it.className }.toSet() shouldBe
         setOf(blue, yellow)
-    game.testTfm(ADMIN).startGame()
+    game.testAgents().taskLog.gameStarted()
+    game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
     game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
     game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
     game.reader
@@ -223,9 +225,10 @@ internal class GamePremiseTest {
     admin.count("SelectedEnceladus") shouldBe 1
     admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
 
-    game.testTfm(ADMIN).startGame()
-    game.testTfm(Player(cn("Player1"))).keepStartingProjects(0)
-    game.testTfm(Player(cn("Player2"))).keepStartingProjects(0)
+    game.testAgents().taskLog.gameStarted()
+    game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
+    game.testAgent(Player(cn("Player1"))).doTask("-10 ProjectCard<Selecting>")
+    game.testAgent(Player(cn("Player2"))).doTask("-10 ProjectCard<Selecting>")
     admin.count("CorporationPhase") shouldBe 1
 
     admin.count("SelectedColonyTile") shouldBe 0

@@ -58,9 +58,10 @@ records selections, single-task and batch execution, tries, drops, and `exMachin
 operations. A `doTask` that hands work to another Player retains that execution command; NOW must execute to
 create the selected recipient task. The receiving Player's execution is recorded separately. Admin execution is omitted and repeated automatically during replay;
 Admin `HAS` assertions remain recorded. Its causal task selector helps replay target repeated
-tasks without storing source ordinals. Game start is mandatory and recorded by
-`TfmGameplay.startGame()`; import starts the game through that same method, and the game's own rules
-drive play from there.
+tasks without storing source ordinals. Game start is mandatory. The replay fixture and its import
+callback record `agents.taskLog.gameStarted()`, then submit
+`SetupPhase FROM BootstrapPhase` through Admin's `beginOperation`. The game's own rules drive
+play from there.
 Unique task instructions omit ancestry from their selectors. Context-class disambiguation retains
 the caller's `contextClass` input, including when that class filters a submitted total. A handoff records the chosen task selector and the original command kind, so replay repeats
 selection or execution as submitted before the receiving Player acts.

@@ -14,8 +14,8 @@ import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.canon.soloTileSetup
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.fake.FakeCanon
 import java.nio.file.Files
 import java.nio.file.Path
@@ -45,18 +45,29 @@ private fun createGame(playerCount: Int): World {
                   playerNames = (1..playerCount).map { cn("Player$it") },
               )
           )
-  val deck = TfmEngine.globalEventDeck(premise).shuffled(kotlin.random.Random(0))
-  return TfmEngine.newGame(premise.copy(drawOrder = deck)).also { game ->
+  val preparedPremise =
+      if (playerCount == 1) {
+        soloTileSetup(
+            premise,
+            listOf("Tharsis_4_1", "Tharsis_5_1", "Tharsis_5_8", "Tharsis_5_7").map(::cn),
+        )
+      } else premise
+  val deck = TfmEngine.globalEventDeck(preparedPremise).shuffled(kotlin.random.Random(0))
+  return TfmEngine.newGame(preparedPremise.copy(drawOrder = deck)).also { game ->
     val agents = Agents(game)
-    agents.tfm(ADMIN).startGame()
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
     val players = game.actors.filterIsInstance<Player>()
     if (playerCount == 1) {
-      agents.tfm(players.first()).doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
+      agents[players.first()].doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
     }
     players.forEachIndexed { index, player ->
-      agents.tfm(player).keepStartingProjects(if (index == 0) 4 else 0)
+      agents[player].doTask(
+          if (index == 0) "-6 ProjectCard<Selecting>" else "-10 ProjectCard<Selecting>"
+      )
     }
-    agents.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"))
+    agents[players.first()].doTask(
+        "PlayCard<Class<CorporationCard>, Class<InterplanetaryCinematics>>"
+    )
   }
 }
 
