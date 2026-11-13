@@ -338,8 +338,7 @@ name their gameplay objects. Use `runOperation()` when an operation's resulting 
 correction is not suitable. Eligible project-card scenarios use the fixture's explicit `exMachina` setup methods.
 Synthetic engine checks use the existing `canonicalPremise` and `setUpGame` functions, either
 in standalone tests or by assigning a synthetic world to the sandbox's `game`. For example,
-`VerminTest.Attribution` supplies a synthetic listener through the sandbox. `ResearchWildTagTest`
-retains its synthetic assigned-tag scenarios using plain Agents; `WildTagTest` and
+`VerminTest.Attribution` supplies a synthetic listener through the sandbox. `WildTagTest` and
 `WildTagContinuationTest` cover allocation and cleanup through prepared sandbox actions.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
