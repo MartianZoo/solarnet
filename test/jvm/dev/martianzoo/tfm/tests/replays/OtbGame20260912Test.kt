@@ -1276,9 +1276,9 @@ internal class OtbGame20260912Test : FullGameTest() {
 
     // Production.
     green.doTasks("22 MC", "3 Energy", "3 Plant", "Heat FROM Energy", "2 Heat")
-    yellow.doTask("6 MC", Pristar)
+    // 38 MC ordinary income plus Pristar's 6 MC, recorded separately in the phone ledger.
     yellow.doTasks(
-        "38 MC",
+        "44 MC",
         "Preservation<$Pristar>",
         "2 Energy",
         "2 Steel",
@@ -1297,12 +1297,8 @@ internal class OtbGame20260912Test : FullGameTest() {
         "2 Heat FROM Energy",
     )
 
-    // Yellow added Pristar's preservation resource, which is visible when Sponsored Projects is
-    // resolved, but neither the complete ledger nor the spoken production includes its 6 M€.
-    yellow.exMachina("-6 MC")
-
-    // Complete photographed phone ledgers after Generation 4 production and before World
-    // Government. The board photograph still shows oxygen at four.
+    // Photographed post-production phone ledgers, with Yellow's separately logged Pristar
+    // reward included below. The board photograph still shows oxygen at four.
     with(green) {
       assertProduction(m = 0, s = 0, t = 0, p = 3, e = 3, h = 2)
       assertResources(m = 35, s = 0, t = 2, p = 6, e = 3, h = 5)
@@ -1310,7 +1306,9 @@ internal class OtbGame20260912Test : FullGameTest() {
     }
     with(yellow) {
       assertProduction(m = 19, s = 2, t = 1, p = 1, e = 2, h = 1)
-      assertResources(m = 38, s = 4, t = 1, p = 1, e = 2, h = 10)
+      // yellow-applog-04.jpg row 95 has 38 MC before Pristar;
+      // yellow-applog-05.jpg row 106 records its separate 6 MC, bringing the balance to 44.
+      assertResources(m = 44, s = 4, t = 1, p = 1, e = 2, h = 10)
       assertCounts(19 to "TerraformRating")
     }
     with(blue) {
@@ -1651,9 +1649,9 @@ internal class OtbGame20260912Test : FullGameTest() {
 
     // Production.
     green.doTasks("23 MC", "3 Energy", "3 Plant", "3 Heat FROM Energy", "5 Heat")
-    yellow.doTask("6 MC", Pristar)
+    // 46 MC ordinary income plus Pristar's 6 MC, recorded separately in the phone ledger.
     yellow.doTasks(
-        "46 MC",
+        "52 MC",
         "Preservation<$Pristar>",
         "2 Steel",
         "5 Heat",
@@ -1671,7 +1669,9 @@ internal class OtbGame20260912Test : FullGameTest() {
     }
     with(yellow) {
       assertProduction(m = 27, s = 2, t = 2, p = 1, e = 0, h = 5)
-      assertResources(m = 53, s = 2, t = 2, p = 2, e = 0, h = 17)
+      // yellow-applog-06.jpg row 131 has 53 MC before Pristar;
+      // row 139 records its separate 6 MC, bringing the balance to 59.
+      assertResources(m = 59, s = 2, t = 2, p = 2, e = 0, h = 17)
       assertCounts(19 to "TerraformRating")
     }
     with(blue) {
@@ -1681,10 +1681,6 @@ internal class OtbGame20260912Test : FullGameTest() {
     }
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 2, venus = 2)
 
-    // Yellow gained no TR during Generation 5, so this is the legitimate Pristar preservation
-    // reward, not a table mistake. The engine suppresses it because its generation watcher still
-    // sees Yellow's chairman TR from the preceding Solar transition.
-    yellow.exMachina("6 MC")
     // The Admin ocean awards Yellow no TR; the Turmoil phase's TR revision then costs one.
     expectChanges(
         "-1 TerraformRating<Yellow>, WorldGovernmentDirectives, Distant<WorldGovernmentDirectives>, PartyFollower<Unity, Neutral>"
