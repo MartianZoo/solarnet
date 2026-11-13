@@ -26,6 +26,12 @@ the remaining audit items listed there are **not yet discussed or approved**.
   from current engine output.
 - Investigate what each "start a game" entry point has already done before consolidating setup.
 - Investigate consistent completion checks for focused scenarios, full games, and partial games.
+- Finish `FinalGreeneryPhaseTest`'s explicit-player migration after deciding whether focused
+  gameplay tests may prepare their starting position with `exMachina`. This is still an open user
+  question; `TESTING.md` currently prohibits those corrections in gameplay tests. The candidate is
+  saved in Git stash `26443eab4546160368aca41c0949850bca0ac3fe`. Before using it, also separate the
+  synthetic Venus completion checks, remove incidental Ecoline setup, and explain the necessary
+  `Plant!` selections. The candidate passed tests but has not passed final review.
 - Inventory choices computed from state (starting player, free water area, affordable purchases)
   versus literal recorded choices; decide which adaptations are useful.
 - Adopt combined-total task submissions more thoroughly, preserving choices and required ordering.
