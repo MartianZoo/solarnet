@@ -491,7 +491,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
         )
         doTask("CopyProductionBox<$card>")
         // Resolve the metal filter, which does not recognize the wild placement bonus.
-        selectOnlyTask()
+        doTask("PROD[Steel]")
       }
     }
     kim.count("RoboticWorkforce") shouldBe 0

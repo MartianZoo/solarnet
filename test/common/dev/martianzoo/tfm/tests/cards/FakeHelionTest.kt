@@ -163,7 +163,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
           "18 Pay<Class<Heat>> FROM Heat",
           "Ok",
       )
-      selectOnlyTask()
+      doTask("EACH")
       doTasks(
           "PROD[2 MC]",
           "PROD[2 Steel]",
