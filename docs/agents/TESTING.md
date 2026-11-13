@@ -788,7 +788,7 @@ human player's source log does not establish an application mistake.
   has been selected.
 - Inventory scripted choices versus choices computed from current state. Concrete examples are
   locating the current starting player (`PreservationProgramTest.passGeneration`), selecting the
-  first available water area (`WorldGovernmentTerraformingTest.finishGeneration`), and buying a
+  first available water area (`EndgameRulesTest.finishMultiplayerGeneration`), and buying a
   standard project repeatedly while MC permits (`EndgameRulesTest`). Compare these with a replay
   that names the recorded player, location, and purchase count. Some loops only traverse players in the game's
   order; others let the scenario adapt when the engine changes. Decide which are useful rather
