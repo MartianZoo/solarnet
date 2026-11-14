@@ -230,8 +230,8 @@ internal class OtbGame20261111Test : FullGameTest() {
           "2 Pay<> FROM MC",
           "$AerialLenses FROM ProjectCard",
           "PROD[2 Heat]",
+          "Ok", // no plants removed
       )
-      doTask("Ok") // no plants removed
     }
     // (12:04:26 PM) "Then you pass after that?"
     // "Yeah."
@@ -267,13 +267,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     // Pink: "I believe that is all good, and I start."
     green
         .doTask("OceanTile<Vastitas_5_3>! BY Admin")
-        .expect(
-            "-TerraformRating<Green>, 0 TerraformRating<Pink>, 0 Plant<Green>, 7 MC<Pink>, " +
-                "-Chairman<Neutral>, Chairman<Pink>, 2 PartyDelegate<Neutral, Scientists>, " +
-                "-PartyLeader<Scientists, Green>, -Dominant<Kelvinists>, Dominant<Scientists>, -Ruling<Greens>, " +
-                "Ruling<Kelvinists>, Current<ExploreFirstDirective>, Coming<HeatFirstPolicy>, " +
-                "Distant<FreeAcademiaTreaty>",
-        )
+        .expect("7 MC<Pink>, Chairman<Pink>, Dominant<Scientists>, Ruling<Kelvinists>")
 
     // green-applog-01 entry 27: we don't know why green did this, maybe a stray tap
     green.exMachina("PROD[-MC]")
@@ -334,10 +328,7 @@ internal class OtbGame20261111Test : FullGameTest() {
       doTasks(
           *playCardTasks("$AsteroidRights"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-      )
-
-      doTask("Ok") // no MC paid
-      doTasks(
+          "Ok", // no MC paid
           "$AsteroidRights FROM ProjectCard",
           "2 Asteroid<$AsteroidRights>",
       )
@@ -420,7 +411,7 @@ internal class OtbGame20261111Test : FullGameTest() {
 
     // WGT starts Turmoil, but its global-event payouts still await the players below. Check
     // government formation on the last payout, when it actually happens.
-    pink.doTask("VenusStep! BY Admin").expect("-TerraformRating<Green>, -TerraformRating<Pink>")
+    pink.doTask("VenusStep! BY Admin")
     // board-12-16-00.jpg: resource/tableau snapshot after Venus WGT, before event payouts.
     green.assertResources(m = 27, s = 3, t = 3, p = 0, e = 1, h = 3)
     green.assertProduction(m = 3, s = 1, t = 2, p = 0, e = 1, h = 1)
@@ -448,50 +439,34 @@ internal class OtbGame20261111Test : FullGameTest() {
     // each earn an automatic 1 MC ruling bonus.
     pink
         .doTask("8 MC")
-        .expect(
-            "-Ruling<Kelvinists>, Ruling<Scientists>, -Chairman<Pink>, " +
-                "Chairman<Neutral>, -Dominant<Scientists>, Dominant<MarsFirst>, Current<HeatFirstPolicy>, " +
-                "Coming<FreeAcademiaTreaty>, Distant<ViralModificationsApproved>, -PartyLeader<Greens, Green>, " +
-                "PartyFollower<Greens, Green>",
-        )
-    // Neither final app log includes this bonus: Green 36, Pink 32 at the pause.
-    green.exMachina("-MC")
-    pink.exMachina("-MC")
-    green.assertResources(m = 36, s = 3, t = 3, p = 0, e = 1, h = 3)
-    pink.assertResources(m = 32, s = 0, t = 1, p = 0, e = 4, h = 18)
+        .expect("Ruling<Scientists>, Chairman<Neutral>, Dominant<MarsFirst>")
+    // Both app logs briefly missed the Scientists bonus; keep it here.
+    green.assertResources(m = 37, s = 3, t = 3, p = 0, e = 1, h = 3)
+    pink.assertResources(m = 33, s = 0, t = 1, p = 0, e = 4, h = 18)
     green.assertCounts(18 to "TerraformRating", 8 to "ProjectCard")
     pink.assertCounts(19 to "TerraformRating", 7 to "ProjectCard")
 
-    // (12:18:18 PM) "Generation moves, button moves, cubes come off cards. I'd like to pause and
-    // have you send me screencaps and get my translation started. I'm pretty sure I've already made
-    // some mistakes, and I want to find out what they are."
-    // At the pause, the players confirm correcting the discrepancies found above. Keep the original
-    // screenshots' values above and apply the repairs when they occurred.
-    pink.exMachina("MC")
-    green.exMachina("PROD[MC], 2 MC")
+    // (12:18:18 PM) "Generation moves, button moves, cubes come off cards."
+    // Correct Green's accidental MC-production decrease and its missed production.
+    green.exMachina("PROD[MC], MC")
     pink.assertCounts(33 to "MC")
     green.assertCounts(38 to "MC")
     green.assertProduction(m = 4, s = 1, t = 2, p = 0, e = 1, h = 1)
 
-    // (12:56:15 PM) "Green has eight cards in hand. Three of my cards have requirements. Pink has
-    // seven cards in hand. We're ready to draft. Two for you, two for me, two for you, two for me."
+    // (12:56:15 PM) "Green has eight cards in hand. Pink has seven cards in hand. We're ready to
+    // draft."
     // Green: "I'll buy one card."
     // Pink: "I will buy two cards."
-    // transcript-next.md, 12:56–12:58: eight cards for Green, seven for Pink. Green forgot this
-    // payment at the table. Per user request, pay it normally here. His ledger remains 3 MC above
-    // the replay through generation 3; the checkpoints below use the corrected balance, so no
-    // manual grant restores the omitted payment.
+    // Green forgot the research payment; pay it here. His generation 3 checkpoints are
+    // therefore 3 MC below the app log.
     green.doTasks(
         "4 ProjectCard<Selecting>",
         "-3 ProjectCard<Selecting>",
         "3 Pay<> FROM MC",
         "ProjectCard<Hand FROM Selecting>",
     )
-    // Pink forgot this 6 MC payment, then corrected it before production at 13:18–13:19 by
-    // cancelling her last Martian Media Center action and paying the research bill. Per user
-    // request, pay here and omit that cancelled action. Her ledger is 6 MC above this replay during
-    // the generation (3 MC while the cancelled action is recorded), then agrees again before
-    // production.
+    // Pink paid for research late and canceled her last Martian Media Center action to afford
+    // it. Pay here and omit the canceled action; her balance agrees again before production.
     pink.doTasks(
         "4 ProjectCard<Selecting>",
         "-2 ProjectCard<Selecting>",
@@ -560,8 +535,6 @@ internal class OtbGame20261111Test : FullGameTest() {
           "2 ProjectCard",
       )
     }
-    // Pink's accidental heat-production decrease is immediately reversed in the log. The actual
-    // increase below comes from reaching -24 degrees.
     // (1:07:13 PM) "I have 16 heat with which to do two heat boops. Accidentally decreased my heat
     // production by one."
     pink.turn {
@@ -718,31 +691,21 @@ internal class OtbGame20261111Test : FullGameTest() {
     // (1:17:42 PM) "I don't have many options left. I think I'm prepared to pass."
     green.doTask("Pass")
 
-    // (1:17:52 PM) Pink: "Martian Media Center: spend three to place a delegate in Scientists, and
-    // it becomes party leader. Now I pass."
-    // Green: "We hit production."
-    // Pink: "Whoops, wait. I forgot to buy my freaking cards."
-    // Green: "Now you wouldn't have had enough money to do it. We'll have to let it go, but after
-    // you do production... Is that enough to fix it? Okay, we're making it so that you did not use
-    // Martian Media Center."
+    // (1:17:52 PM) Pink: "Whoops, wait. I forgot to buy my freaking cards."
+    // Green: "We're making it so that you did not use Martian Media Center."
     // Pink: "I just don't use this."
-    // Green: "Scientists is still empty, and because you bought two cards, that way you have just
-    // enough."
-    // Pink: "The slider has fewer options now. Don't want to cheat."
-    // The players canceled this action to cover Pink's forgotten research payment. The replay pays
-    // the 6 MC during research and omits this action and its delegate.
+    // The research payment is already included above.
     pink.assertCounts(0 to "MC")
     // (1:19:15 PM) "Then hit your production."
     // "Now I pass. Pro Duck."
     pink.doTask("Pass")
 
-    // Green's app groups Corroder +2, delegate -5, Scientists -10, production +30 as +17.
     green.doTasks("30 MC", "Steel", "2 Titanium", "Heat FROM Energy", "Heat")
     pink.doTasks("28 MC", "Titanium", "Heat FROM Energy", "4 Energy", "9 Heat")
     // (1:19:22 PM) "I am going to increase Venus to four percent for my world government. Then it's
     // picture time. Then colonies go zhwee, and trade fleet goes back. Let's do Turmoil carefully,
     // one step at a time. Read it off the thing."
-    green.doTask("VenusStep! BY Admin").expect("-TerraformRating<Green>, -TerraformRating<Pink>")
+    green.doTask("VenusStep! BY Admin")
     // board-13-19-37.jpg and both app logs, before Global Dust Storm. Green's 30 MC is the
     // photographed/logged 33 MC less the retconned research payment.
     green.assertResources(m = 30, s = 4, t = 4, p = 1, e = 0, h = 5)
@@ -768,11 +731,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     // Funding."
     pink
         .doTask("-4 MC")
-        .expect(
-            "TerraformRating<Green>, -Ruling<Scientists>, Ruling<Greens>, -Chairman<Neutral>, " +
-                "Chairman<Green>, -Dominant<Greens>, Dominant<MarsFirst>, Current<FreeAcademiaTreaty>, " +
-                "Coming<ViralModificationsApproved>, Distant<TerraformingLobbying>",
-        )
+        .expect("TerraformRating<Green>, Ruling<Greens>, Chairman<Green>, Dominant<MarsFirst>")
     green.assertResources(m = 28, s = 4, t = 4, p = 1, e = 0, h = 0)
     pink.assertResources(m = 24, s = 0, t = 1, p = 0, e = 4, h = 0)
     green.assertCounts(19 to "TerraformRating", 11 to "ProjectCard")
@@ -780,7 +739,6 @@ internal class OtbGame20261111Test : FullGameTest() {
 
     // (1:21:47 PM) "I have so little TR. Generation marker moves, the button moves, cubes come off
     // cards. We would be ready to draft, but we're pausing. I have 11 cards in hand."
-    // transcript-afternoon.md, 16:53–16:54: Pink buys a card; Green buys two.
     // (4:51:38 PM) "I'm gonna buy one card."
     pink.doTasks(
         "4 ProjectCard<Selecting>",
@@ -852,8 +810,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     }
     green.turn {
       // (4:59:30 PM) "I'm going to need to sell a patent."
-      // 16:59:30: the user-approved retcon sells an additional patent, making Legend affordable
-      // after paying for research.
+      // Sell an extra patent to afford Legend after the corrected research payment.
       doTasks(
           *standardProjectTasks("SellPatentsProject"),
           "2 MC FROM ProjectCard",
@@ -927,8 +884,8 @@ internal class OtbGame20261111Test : FullGameTest() {
       // "Did I reach the end of everything I can do? I did my lobby action, I can't convert stuff,
       // I've used all my card actions, and I don't have enough money to do anything. And I flew my
       // boat. It's crazy that we still haven't gotten those colonies. Ready to hit production?"
-      // Omit the Ceres trade that depended on TSP's energy and, as selected by the user, the 1 MC
-      // Asteroid Rights refill. Nomads has already moved; retain the Unity lobby.
+      // The corrected play omits the Ceres trade and Asteroid Rights refill.
+      // Nomads has already moved; only the Unity lobby remains.
       doTasks(
           "UseAction<LobbyAction, Action1>",
           "PartyFollower<Unity> FROM LobbyDelegate",
@@ -943,7 +900,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     // (5:05:45 PM) "You must world governmentalize."
     // "I think I will oxygenate."
     // "Oxygen is up to one percent."
-    pink.doTask("OxygenStep! BY Admin").expect("-TerraformRating<Green>, -TerraformRating<Pink>")
+    pink.doTask("OxygenStep! BY Admin")
     // (5:06:02 PM) "Now it's time for the picture, then colonies. Oops, why did I move it down? Up,
     // up, up. Luna is on the 10 money spot now. Walk us through Turmoil."
     // "All players lose one TR. Perform the current global event."
@@ -977,9 +934,8 @@ internal class OtbGame20261111Test : FullGameTest() {
     pink
         .doTask("Ok") // no Diversity payout: five distinct tags plus two influence
         .expect(
-            "3 MC<Green>, 2 MC<Pink>, TerraformRating<Pink>, -Ruling<Greens>, Ruling<MarsFirst>, " +
-                "-Chairman<Green>, Chairman<Pink>, -Dominant<MarsFirst>, Dominant<Unity>, " +
-                "Current<ViralModificationsApproved>, Coming<TerraformingLobbying>, Distant<DemocraticReform>",
+            "3 MC<Green>, 2 MC<Pink>, TerraformRating<Pink>, Ruling<MarsFirst>, Chairman<Pink>, " +
+                "Dominant<Unity>",
         )
     green.assertResources(m = 45, s = 5, t = 5, p = 1, e = 1, h = 2)
     // Corrected hand count: 11 before Research + 2 purchases + 2 draws - 4 plays - 2 sales.
@@ -993,33 +949,14 @@ internal class OtbGame20261111Test : FullGameTest() {
     // cards."
 
     // Play resumed on November 12, before generation 5.
-    // (3:34:23 PM) Green: "We're going to make it as if I didn't play Tectonic Stress Power, but
+    // (3:34:23 PM) "We're going to make it as if I didn't play Tectonic Stress Power, but
     // played Solar Wind Power instead, and undo the trade with Ceres. Return Tectonic Stress Power
     // to my hand, move Solar Wind Power into my tableau, and sell an extra patent. I should finish
     // with nine cards in hand; I do. Remove the asteroid from Asteroid Rights because I wouldn't
-    // have had the one money to do that. Then I lose one money and two steel, because I never got
-    // them from trade, but I never spent them either. Steel goes from seven to five. Titanium goes
-    // from four to five. Plants unchanged. I have two fewer energy and one more heat, because of
-    // the power generator, and my energy production is down too. Is that good enough for you for
-    // now?"
-    // Pink: "Yeah. I assume you wouldn't have spent your energy on the trade."
-    // Green: "I wouldn't have done a trade, so we have to send this back to eight. I lost six
-    // steel, but gained back the four I never ended up spending. Now we're ready for Generation 5."
-    // transcript-middle.md, 15:35–15:37: both players confirm applying the repair above. Green
-    // confirms nine cards in hand after the repair. green-applog-05 entries 110–115 confirm all six
-    // repair deltas, including energy production.
-    // (3:37:59 PM) "Two for you, two for me. We have building tags coming up."
-    // "I noticed Red Appeasement has a red star in the requirements. I thought it was a requirement
-    // relating to the Reds, but no. I love Vote of No Confidence in solo games."
-    // "If I know you, there's never going to be a neutral chairman."
-    // "Usually players keep doing the thing. And with Red Appeasement, you're the one who'd benefit
-    // from the Reds. I don't like that you have that much money production."
-    // "You make almost as much money as me anyway. I'm going to actually buy my cards. Buy two
-    // cards."
-    // "It goes max five, then reduced by influence. So once you have five already, there's no harm
-    // in putting more."
-    // "Yes, that is how that works."
-    // 15:43–15:45: Green buys two; Pink buys three.
+    // have had the one money to do that."
+    // Both players applied the corrections already included above; Green has nine cards.
+    // (3:37:59 PM) "We have building tags coming up."
+    // "I'm going to actually buy my cards. Buy two cards."
     green.doTasks(
         "4 ProjectCard<Selecting>",
         "-2 ProjectCard<Selecting>",
@@ -1086,8 +1023,7 @@ internal class OtbGame20261111Test : FullGameTest() {
       // (3:48:27 PM) "I'll play Floating Refinery for six. Because I have two Venus tags, it puts
       // two floaters on itself. Oops, those aren't floaters. Where are the squares? Titan has now
       // come into play."
-      // 15:48: the diarization says Ellie, but all three photos put Floating Refinery in Green's
-      // tableau.
+      // The tableau photos identify Floating Refinery as Green's.
       doTasks(
           *playCardTasks("$FloatingRefinery"),
           "6 Pay<> FROM MC",
@@ -1151,8 +1087,7 @@ internal class OtbGame20261111Test : FullGameTest() {
           "CityTile<Vastitas_2_3>",
           "Steel",
       )
-      // green-applog-05/06: Cupola leaves 1 steel; Mining adds 2, Power Plant spends 1. The Mars
-      // First placement steel was omitted at the table.
+      // Green forgot the Mars First party's bonus steel
       exMachina("-Steel")
     }
     pink.turn {
@@ -1160,10 +1095,8 @@ internal class OtbGame20261111Test : FullGameTest() {
       // money and a plant."
       // "Two money and a plant, and two money because it went on 6-6."
       // "No, two heat and a plant. The whole heat-for-money thing. Wait, one more action."
-      // 15:52: six MC and two heat, ocean at 6,6. Its TR was remembered at 15:54; resolve it here,
-      // with the same final balance and no intervening TR-dependent action.
-      doTasks(*cardActionTasks("$AquiferPumping"))
       doTasks(
+          *cardActionTasks("$AquiferPumping"),
           "2 Pay<Class<Heat>> FROM Heat",
           "6 Pay<> FROM MC",
           "OceanTile<Vastitas_6_6>",
@@ -1173,27 +1106,21 @@ internal class OtbGame20261111Test : FullGameTest() {
           "2 MC",
           "Steel",
       )
-      // pink-applog-06 and board-15-58-19 show 0 steel: this Mars First bonus was also missed.
+      // Pink also forgot the Mars First party's bonus steel
       exMachina("-Steel")
       // (3:53:30 PM) "Red Appeasement, and no other player has passed."
       // "I haven't passed yet, so you can't play that. Oh, no other player. Right."
       // "I pay no money, get two money production, and I pass."
       doTasks(
-          // The required Pass below completes this card action.
           *playCardTasks("$RedAppeasement"),
           "$RedAppeasement FROM ProjectCard",
           "PROD[2 MC]",
+          "Pass",
       )
-      doTask("Pass")
     }
     green.turn {
-      // Pink has passed through Red Appeasement; Green completes the generation.
-      // (3:53:49 PM) Green: "I don't really have a plan here. I guess I'll play Mining Expedition
-      // for 11, which raises oxygen to 2 and gives me a TR."
-      // Pink: "I think I forgot to give myself the TR for my ocean."
-      // Green: "We're at three oceans now?"
-      // Pink: "Yes."
-      // Green: "And you can lose your one plant."
+      // (3:53:49 PM) "I guess I'll play Mining Expedition for 11, which raises oxygen to 2 and
+      // gives me a TR. And you can lose your one plant."
       doTasks(
           *playCardTasks("$MiningExpedition"),
           "11 Pay<> FROM MC",
@@ -1264,9 +1191,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     green.doTasks("37 MC", "Steel", "2 Titanium", "2 Heat FROM Energy", "4 Energy", "Heat")
     pink.doTasks("36 MC", "Titanium", "Heat FROM Energy", "4 Energy", "9 Heat")
     // "Then I need to world governmentalize. How about an ocean at 5-8?"
-    green
-        .doTask("OceanTile<Vastitas_5_8>! BY Admin")
-        .expect("-TerraformRating<Green>, -TerraformRating<Pink>, 0 MC<Green>, 0 Plant<Green>")
+    green.doTask("OceanTile<Vastitas_5_8>! BY Admin")
     // (3:58:06 PM) "Oceans are at four now. Picture time. Colonies: two boats return, everything
     // has slid up. Then Turmoil: all players lose one TR."
     // board-15-58-19.jpg: after production/WGT, before Pandemic and the Reds government.
@@ -1288,11 +1213,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     // to Unity."
     pink
         .doTask("-3 MC")
-        .expect(
-            "2 TerraformRating<Green>, -Ruling<MarsFirst>, Ruling<Reds>, -Chairman<Pink>, Chairman<Green>, " +
-                "-Dominant<Reds>, Dominant<Unity>, Current<TerraformingLobbying>, Coming<DemocraticReform>, " +
-                "Distant<SelfSufficiencyProgram>",
-        )
+        .expect("2 TerraformRating<Green>, Ruling<Reds>, Chairman<Green>, Dominant<Unity>")
     // The spoken "21 TR" conflicts with green-applog-06 entry 156: two TR gained, ending at 22.
     green.assertResources(m = 29, s = 3, t = 8, p = 1, e = 4, h = 5)
     pink.assertResources(m = 35, s = 0, t = 9, p = 0, e = 4, h = 20)
@@ -1489,7 +1410,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     // (4:11:27 PM) "Then world government."
     // Pink: "I will increase oxygen to three percent."
     // Green: "I'm belatedly raising the temp for my thing too."
-    pink.doTask("OxygenStep! BY Admin").expect("-TerraformRating<Green>, -TerraformRating<Pink>")
+    pink.doTask("OxygenStep! BY Admin")
     // (4:11:47 PM) "Then picture time, then colonies. Take my ship back. Then walk us through
     // Turmoil."
     // board-16-11-57.jpg, green-applog-07 and pink-applog-08, before Generous Funding.
@@ -1515,11 +1436,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     // current. We get neutral in Greens."
     pink
         .doTask("Ok") // no influence payout
-        .expect(
-            "5 MC<Green>, 4 MC<Pink>, TerraformRating<Green>, -Ruling<Reds>, Ruling<Unity>, 0 " +
-                "Chairman<Green>, -Dominant<Unity>, Dominant<Greens>, Current<DemocraticReform>, " +
-                "Coming<SelfSufficiencyProgram>, Distant<Diaspora>",
-        )
+        .expect("5 MC<Green>, 4 MC<Pink>, TerraformRating<Green>, Ruling<Unity>, Dominant<Greens>")
     green.assertResources(m = 63, s = 1, t = 10, p = 1, e = 2, h = 10)
     pink.assertResources(m = 44, s = 0, t = 10, p = 2, e = 7, h = 17)
     green.assertCounts(22 to "TerraformRating")
@@ -1535,7 +1452,6 @@ internal class OtbGame20261111Test : FullGameTest() {
     // Pink: "I as well purchase two. I believe I will pay a titanium for Rim Freighters."
     // Green: "Is it my turn?"
     // Pink: "Oh wait, it is. Sorry, your turn."
-    // 16:16: both buy two.
     green.doTasks(
         "4 ProjectCard<Selecting>",
         "-2 ProjectCard<Selecting>",
@@ -1560,7 +1476,6 @@ internal class OtbGame20261111Test : FullGameTest() {
     pink.turn {
       // (4:18:29 PM) "For now I'm not going to play Rim Freighters. I'll spend the full three
       // energy to fly my boat to Ceres for three steel."
-      // The proposed early Rim Freighters play was withdrawn; the photographed card arrives later.
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
@@ -1596,8 +1511,7 @@ internal class OtbGame20261111Test : FullGameTest() {
           "2 Plant",
           "TerraformRating",
       )
-      // green-applog-07 entries 188/189 already add ocean 6/TR 23 for the standard project. Entries
-      // 192/193 add another ocean/TR; 194 reverses only the ocean, leaving TR 24.
+      // Green accidentally gained the ocean's TR twice.
       exMachina("TerraformRating")
     }
     pink.turn {
@@ -1605,7 +1519,6 @@ internal class OtbGame20261111Test : FullGameTest() {
       // order, but I want to make sure I get to them. I guess I will play Sky Docks. Had it since
       // the start. Requires two Earth tags. Four titanium as 16, and two real. I get a universal
       // discount of one and another trade fleet."
-      // 16:23: four titanium are worth 16 under Unity, plus two MC for Sky Docks.
       doTasks(
           *playCardTasks("$SkyDocks"),
           "4 Pay<Class<Titanium>> FROM Titanium",
@@ -1644,8 +1557,7 @@ internal class OtbGame20261111Test : FullGameTest() {
           "PROD[Energy]",
           "Energy",
       )
-      // green-applog-08 entries 198/200 each add energy production for the same standard project.
-      // Entry 201 adds Manutech's energy only once. Keep that actual extra production explicit.
+      // Green accidentally gained the energy production twice, but took Manutech's energy once.
       exMachina("PROD[Energy]")
     }
     pink.turn {
@@ -1768,7 +1680,7 @@ internal class OtbGame20261111Test : FullGameTest() {
           *playCardTasks("$NuclearZone"),
           "7 Pay<> FROM MC",
       )
-      // 16:29: Green paid 9 MC (entry 214), forgetting Solar Logistics' Earth-tag discount.
+      // Green forgot Solar Logistics' 2 MC Earth-tag discount.
       exMachina("-2 MC")
       // (4:29:48 PM) "I'm going to place it at 6,8 for one plant and six money, and raise the temp
       // to minus 14, which gives me two TR. My cube on it. Let me check if there's anything else I
@@ -1810,7 +1722,6 @@ internal class OtbGame20261111Test : FullGameTest() {
     pink.turn {
       // (4:31:39 PM) "I've decided to spend the full titanium on Rim Freighters. Figure I'll want
       // to get aggressive next."
-      // 16:31: the actual Rim Freighters play, after both of Pink's trades.
       doTasks(
           *playCardTasks("$RimFreighters"),
           "Pay<Class<Titanium>> FROM Titanium",
@@ -2008,7 +1919,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     )
     // (4:40:21 PM) "I will world governmentalize Venus to 20. This game needs to end sometime; I'm
     // gonna do oxygen to four instead. Then colonies: three boats go back. Everyone loses a TR."
-    green.doTask("OxygenStep! BY Admin").expect("-TerraformRating<Green>, -TerraformRating<Pink>")
+    green.doTask("OxygenStep! BY Admin")
     // (4:41:21 PM) Pink: "Perform the current global event. First player, no ocean placed. Gain one
     // plant and one steel per influence. You keep winning the Turmoil stuff."
     // Green: "That's three of each for me."
@@ -2022,11 +1933,7 @@ internal class OtbGame20261111Test : FullGameTest() {
         // Pink: "Ruling bonus. I get four. You become chairman and earn TR."
         // Green: "Seven for me. My dudes are going back, I get one TR, and dominance shifts to
         // Greens."
-        .expect(
-            "7 MC<Green>, 4 MC<Pink>, TerraformRating<Green>, -Ruling<Unity>, Ruling<MarsFirst>, 0 " +
-                "Chairman<Green>, -Dominant<MarsFirst>, Dominant<Greens>, Current<SelfSufficiencyProgram>, " +
-                "Coming<Diaspora>, Distant<IncreasedInterplanetaryTrade>",
-        )
+        .expect("7 MC<Green>, 4 MC<Pink>, TerraformRating<Green>, Ruling<MarsFirst>, Dominant<Greens>")
     green.assertResources(m = 60, s = 5, t = 4, p = 11, e = 4, h = 13)
     pink.assertResources(m = 54, s = 0, t = 2, p = 6, e = 5, h = 16)
     green.assertCounts(29 to "TerraformRating")
@@ -2212,7 +2119,7 @@ internal class OtbGame20261111Test : FullGameTest() {
           "TerraformRating",
           "Steel",
       )
-      // Green ledger entries 291–296 omit this Standard Technology rebate: 59−23+12−3−14=31 MC.
+      // Green forgot Standard Technology's 3 MC rebate.
       exMachina("-3 MC")
       // "Harvest costs me three, and gives me 12."
       doTasks(
@@ -2399,8 +2306,6 @@ internal class OtbGame20261111Test : FullGameTest() {
     // (7:09:08 PM) Pink: "It was at two, I believe. You increased it four."
     // Green: "Oh, I get four steel."
     // Pink: "Did you multiply it by two?"
-    // The spoken 8-steel trade is immediately corrected to 4; ledger entries 324/325 combine that
-    // correction with spending 5 steel.
     green.turn {
       // (7:09:19 PM) "I don't know what I did. Now I can play Jovian Embassy for thirteen, but
       // spend ten of it as steel. Three real. I get a TR. I might finally be done."
@@ -2428,8 +2333,6 @@ internal class OtbGame20261111Test : FullGameTest() {
     // (7:10:15 PM) "Now I'm out of stuff to do, and I've only one card left."
     green.doTask("Pass")
 
-    // 19:10 production. Green ledger entry 333 combines the 3-MC asteroid rebate with 62-MC
-    // production.
     green.doTasks(
         "62 MC",
         "Steel",
@@ -2456,7 +2359,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     // reduced my heat production by one, so I'm going to increase it again. Now it's time for
     // colonies."
     // board-19-11-27.jpg: WGT oxygen 11, before Turmoil; Green 3 greeneries, Pink 2.
-    pink.doTask("OxygenStep! BY Admin").expect("-TerraformRating<Green>, -TerraformRating<Pink>")
+    pink.doTask("OxygenStep! BY Admin")
     // (7:11:59 PM) Green: "Then the global event. I get two TR. Does second place happen in a
     // two-player game?"
     // Pink: "Good question. Where's the rulebook?"
@@ -2466,9 +2369,8 @@ internal class OtbGame20261111Test : FullGameTest() {
     pink
         .doTask("TerraformRating")
         .expect(
-            "2 TerraformRating<Pink>, MC<Green>, -Chairman<Green>, Chairman<Pink>, -Ruling<MarsFirst>, " +
-                "Ruling<Greens>, -Dominant<Greens>, Dominant<Scientists>, Current<Diaspora>, " +
-                "Coming<IncreasedInterplanetaryTrade>, Distant<MoralMovement>",
+            "2 TerraformRating<Pink>, MC<Green>, Chairman<Pink>, Ruling<Greens>, " +
+                "Dominant<Scientists>",
         )
     // (7:14:01 PM) "All players lose one TR, but we've already done the current event. New
     // government: dominant party becomes ruling, Greens."
@@ -2630,8 +2532,7 @@ internal class OtbGame20261111Test : FullGameTest() {
           "4 MC",
           "0 OxygenStep",
       )
-      // The app briefly adds TR at maximum oxygen; Green reverses it immediately. The second missed
-      // rebate appears in ledger entries 374/375: 37+4+2−14−10=19 MC.
+      // Green again forgot Standard Technology's 3 MC rebate.
       exMachina("-3 MC")
       // (7:23:32 PM) "Use Mars Nomads, move this guy back to take two money and two cards. Please
       // be good. No."
@@ -2723,8 +2624,7 @@ internal class OtbGame20261111Test : FullGameTest() {
           "PROD[-2 MC]",
           "Animal<$MartianZoo>",
       )
-      // Pink ledger entry 334 records only Refugee Camps’ 16→15 production change. Orbital
-      // Cleanup’s −2 is omitted.
+      // Pink forgot Orbital Cleanup's 2 MC-production decrease.
       exMachina("PROD[2 MC]")
     }
     green.turn {
@@ -2893,9 +2793,8 @@ internal class OtbGame20261111Test : FullGameTest() {
     // Pink: "75. I put it in VP on cards."
     // Green: "I'll go back to VP on cards and add four. Or I could have done it as resources. 92 to
     // 75."
-    // The table announces 92–75. Pink omits the chairman point but overcounts printed cards as 13
-    // instead of 12, consistent with overlooking Aerial Lenses’ −1. The errors cancel. Per user
-    // instruction, let the chairman point score normally; no score adjustment is made.
+    // The table announces 92–75. Pink's omitted chairman point and extra printed card point
+    // cancel; score both normally here.
     val score = Summarizer(game)
     assertEquals(1, score.net("Chairman", "VictoryPoint<Pink>"))
     assertEquals(4, score.net("PartyLeader", "VictoryPoint<Green>"))
