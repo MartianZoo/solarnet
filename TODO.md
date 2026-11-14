@@ -2,6 +2,12 @@
 
 Delete entries when they are done. Static-language and English work lives in [Pets TODO](pets/TODO.md).
 
+- Convert Distant Isotope Link and Stable Silicon Point into source-backed replay tests,
+  including export/import verification. Prepared sources: `_local/replays/Game20261112/`
+  and `_local/replays/Game20261112/pab280e66a6e5/`, respectively; read each archive README.
+  Stable Silicon Point is missing intermediate save 232, but its complete log and final
+  state are preserved. Neither conversion has started.
+
 ## Gameplay consistency
 
 - Remove explicit `-SuitableInfrastructureBonus<..., ActionScope>` submissions from gameplay
