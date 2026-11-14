@@ -93,7 +93,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "2 Steel<Stan FROM Rob>",
       )
       // The active player chooses when to hand this task to its owner.
-      giveTask(kim, "3* MC<Rob FROM Kim>", "3 MC<Rob FROM Kim>")
+      giveTask(kim, "3 MC<Rob FROM Kim>")
     }
   }
 
@@ -176,7 +176,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "2 Steel<Stan FROM Rob>",
       )
       // The active player chooses when to hand this task to its owner.
-      giveTask(kim, "3* MC<Rob FROM Kim>", "2 MC<Rob FROM Kim>")
+      giveTask(kim, "2 MC<Rob FROM Kim>")
     }
   }
 
@@ -194,13 +194,9 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
               "PROD[Steel]",
           )
           // The active player chooses when to hand this task to its owner.
-          giveTask(
-              stan,
-              "Disease<PharmacyUnion<Stan>>! OR (MAX 0 PharmacyUnion<Stan>: Ok)",
-              "Disease<PharmacyUnion<Stan>>",
-          )
+          giveTask(stan, "Disease<PharmacyUnion<Stan>>")
           // The active player chooses when to hand this task to its owner.
-          giveTask(stan, "-4* MC<Stan>", "-4 MC")
+          giveTask(stan, "-4 MC")
         }
         .expect("-4 MC<Stan>, Disease<$PharmacyUnion<Stan>>")
   }

@@ -4,6 +4,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
@@ -169,11 +170,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "3 MC",
           "PROD[Plant]",
           "PROD[Steel]",
-          "NOW Green { (Disease<$PharmacyUnion<Green>>! OR (MAX 0 $PharmacyUnion<Green>: Ok)) }",
       )
-      green.doTask("Disease<$PharmacyUnion>")
-      doTask("NOW Green { -4* MC<Green> }")
-      green.doTask("-4 MC")
+      giveTask(green, "Disease<$PharmacyUnion>")
+      giveTask(green, "-4 MC")
     }
 
     with(pink) {
@@ -246,11 +245,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "$IndustrialMicrobes FROM ProjectCard",
           "PROD[Energy]",
           "PROD[Steel]",
-          "NOW Green { (Disease<$PharmacyUnion<Green>>! OR (MAX 0 $PharmacyUnion<Green>: Ok)) }",
       )
-      green.doTask("Disease<$PharmacyUnion>")
-      doTask("NOW Green { -4* MC<Green> }")
-      green.doTask("-4 MC")
+      giveTask(green, "Disease<$PharmacyUnion>")
+      giveTask(green, "-4 MC")
     }
 
     with(green) {
@@ -489,11 +486,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$Psychrophiles"),
           "2 Pay<> FROM MC",
           "$Psychrophiles FROM ProjectCard",
-          "NOW Green { (Disease<$PharmacyUnion<Green>>! OR (MAX 0 $PharmacyUnion<Green>: Ok)) }",
       )
-      green.doTask("Disease<$PharmacyUnion>")
-      doTask("NOW Green { -4* MC<Green> }")
-      green.doTask("-4 MC")
+      giveTask(green, "Disease<$PharmacyUnion>")
+      giveTask(green, "-4 MC")
     }
 
     green.doTask("Pass")
@@ -1154,9 +1149,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating",
           "OceanTile<Tharsis_2_6>",
           "TerraformRating",
-          "NOW Blue { 2! Plant<Blue> }",
       )
-      blue.doTask("2 Plant")
+      giveTask(blue, "2 Plant")
       doTasks("2 ProjectCard", "-3 Plant<Blue>")
       doTask("PassBaton")
     }
@@ -1495,9 +1489,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "3 MC",
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
-          "NOW Blue { 2! Plant<Blue> }",
       )
-      blue.doTask("2 Plant")
+      giveTask(blue, "2 Plant")
       doTask("2 Steel")
     }
 
@@ -1599,9 +1592,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_5_7>",
-          "NOW Pink { Production<Pink, Class<MC>>! }",
       )
-      pink.doTask("PROD[MC]")
+      giveTask(pink, "PROD[MC]")
       doTasks("2 Plant", "2 MC", "2 MC", "2 MC")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -1757,9 +1749,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "$SubterraneanReservoir FROM ProjectCard",
           "OceanTile<Tharsis_9_9>",
           "TerraformRating",
-          "NOW Blue { 2! Plant<Blue> }",
       )
-      blue.doTask("2 Plant")
+      giveTask(blue, "2 Plant")
       doTask("2 Titanium")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -1795,9 +1786,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[2 MC]",
           "ProjectCard",
           "CityTile<Tharsis_6_4> FROM GreeneryTile<Tharsis_6_4>",
-          "NOW Pink { Production<Pink, Class<MC>>! }",
       )
-      pink.doTask("PROD[MC]")
+      giveTask(pink, "PROD[MC]")
       doTasks("Plant", "2 MC")
       doTask("PassBaton")
     }
@@ -1860,11 +1850,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "9 Pay<> FROM MC",
           "$AdvancedEcosystems FROM ProjectCard",
           "3 MC",
-          "NOW Green { (Disease<$PharmacyUnion<Green>>! OR (MAX 0 $PharmacyUnion<Green>: Ok)) }",
       )
-      green.doTask("Disease<$PharmacyUnion>")
-      doTask("NOW Green { -4* MC<Green> }")
-      green.doTask("-4 MC")
+      giveTask(green, "Disease<$PharmacyUnion>")
+      giveTask(green, "-4 MC")
     }
 
     with(green) {
@@ -1888,9 +1876,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_3_5>",
-          "NOW Pink { Production<Pink, Class<MC>>! }",
       )
-      pink.doTask("PROD[MC]")
+      giveTask(pink, "PROD[MC]")
     }
 
     with(blue) {
@@ -1905,9 +1892,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_3_7>",
-          "NOW Pink { Production<Pink, Class<MC>>! }",
       )
-      pink.doTask("PROD[MC]")
+      giveTask(pink, "PROD[MC]")
       doTasks("Steel", "2 MC")
     }
 
@@ -2084,9 +2070,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[-Energy]",
           "PROD[3 MC]",
           "NormalCityTile<Tharsis_5_3>",
-          "NOW Pink { Production<Pink, Class<MC>>! }",
       )
-      pink.doTask("PROD[MC]")
+      giveTask(pink, "PROD[MC]")
       doTasks("2 Plant", "2 MC")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -2265,9 +2250,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[-2 Energy]",
           "PROD[2 Steel]",
           "CityTile<Tharsis_4_1>",
-          "NOW Pink { Production<Pink, Class<MC>>! }",
       )
-      pink.doTask("PROD[MC]")
+      giveTask(pink, "PROD[MC]")
       doTasks("Plant", "Titanium")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -2285,9 +2269,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_2_3>",
-          "NOW Pink { Production<Pink, Class<MC>>! }",
       )
-      pink.doTask("PROD[MC]")
+      giveTask(pink, "PROD[MC]")
       doTask("2 MC")
     }
 

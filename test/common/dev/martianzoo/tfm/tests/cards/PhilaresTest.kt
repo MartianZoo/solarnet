@@ -117,7 +117,7 @@ internal class PhilaresTest : TfmSandboxTest() {
           doTask("ProjectCard<Stan, Hand>")
           doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_3>")
           // The active player chooses when to hand this task to its owner.
-          giveTask(kim, "StandardResource<Kim>!", "Titanium")
+          giveTask(kim, "Titanium")
           doTask("Plant")
         }
         .expect("Titanium<Kim>, 0 Community<Stan>")

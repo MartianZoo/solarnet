@@ -19,7 +19,7 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
       doTasks("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
       doTask("CathedralOffer<Stan>")
       // The active player chooses when to hand this task to its owner.
-      giveTask(stan, "UseAction<Stan, CathedralOption>?", "UseAction<CathedralOption, Action1>")
+      giveTask(stan, "UseAction<CathedralOption, Action1>")
       // The active player chooses when to hand this task to its owner.
       giveTask(stan, "2 Pay<Stan> FROM MC<Stan>")
       // The active player chooses when to hand this task to its owner.
@@ -39,7 +39,7 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
       doTasks("Cathedral<CityTile<Anyone, Tharsis_2_5>>")
       doTask("CathedralOffer<Stan>")
       // The active player chooses when to hand this task to its owner.
-      giveTask(stan, "UseAction<Stan, CathedralOption>?", "0 UseAction<CathedralOption>")
+      giveTask(stan, "0 UseAction<CathedralOption>")
     }
   }
 

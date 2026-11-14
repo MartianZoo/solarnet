@@ -103,10 +103,9 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTask("ProjectCard<Stan, Hand>")
       kim.count("PlutoLock") shouldBe 0
       // Stan chooses when Kim handles this colony task.
-      doTask("NOW Kim { PlutoLock! }")
-      kim.doTask("ProjectCard<Kim, Hand>")
+      giveTask(kim, "ProjectCard<Kim, Hand>")
       // Stan chooses when Kim handles this colony task.
-      giveTask(kim, "-ProjectCard", "-ProjectCard<Kim, Hand>")
+      giveTask(kim, "-ProjectCard<Kim, Hand>")
     }
 
     kim.count("ProjectCard") shouldBe 0
@@ -151,8 +150,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           "2 ProjectCard",
       )
       // Stan chooses when Kim handles this colony task.
-      doTask("NOW Kim { PlutoLock! }")
-      kim.doTask("ProjectCard<Kim>")
+      giveTask(kim, "PlutoLock!", "ProjectCard<Kim>")
       shouldThrow<TaskException> { doTask("ProjectCard<Kim>") }
       kim.count("ProjectCard") shouldBe 1
       kim.count("PlutoLock") shouldBe 1
@@ -161,19 +159,17 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       }
       kim.count("ProjectCard") shouldBe 1
       kim.count("PlutoLock") shouldBe 1
-      doTask("NOW Stan { PlutoLock! }")
-      doTask("ProjectCard<Stan>")
+      giveTask(stan, "ProjectCard<Stan>")
       stan.count("ProjectCard") shouldBe 3
       doTask("-ProjectCard<Stan>")
       // Stan chooses when Kim handles this colony task.
       giveTask(kim, "-ProjectCard", "-ProjectCard<Kim>")
       kim.count("PlutoLock") shouldBe 0
       // Stan chooses when Kim handles this colony task.
-      doTask("NOW Kim { PlutoLock! }")
-      kim.doTask("ProjectCard<Kim>")
+      giveTask(kim, "ProjectCard<Kim>")
       kim.count("ProjectCard") shouldBe 1
       // Stan chooses when Kim handles this colony task.
-      giveTask(kim, "-ProjectCard", "-ProjectCard<Kim>")
+      giveTask(kim, "-ProjectCard<Kim>")
     }
 
     kim.count("ProjectCard") shouldBe 0
@@ -284,7 +280,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           // Stan chooses when Kim handles this colony task.
           giveTask(kim, "Floater<Kim>*", "Floater<ForcedPrecipitation>*")
           // Stan chooses when Kim handles this colony task.
-          giveTask(kim, "Floater<Kim>*", "Floater<ExtractorBalloons>*")
+          giveTask(kim, "Floater<ExtractorBalloons>*")
         }
         .expect("Floater<$ForcedPrecipitation<Kim>>, Floater<$ExtractorBalloons<Kim>>")
   }

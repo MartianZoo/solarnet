@@ -1629,7 +1629,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "2 Plant",
           "NormalCityTile<Elysium_8_6>",
       )
-      giveTask(red, "2 MC<Red>")
+      giveTask(red, "2 MC<Red>", "2 MC<Red>")
       giveTask(red, "PROD[MC<Red>]")
     }
     with(black) {

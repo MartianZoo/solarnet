@@ -5,6 +5,7 @@ import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
@@ -1089,9 +1090,8 @@ internal class OtbGame20260818Test : FullGameTest() {
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Utopia_3_2>",
-          "NOW Green { Animal<$Pets<Green>>* }",
       )
-      green.doTask("Animal<$Pets>")
+      giveTask(green, "Animal<$Pets>")
       doTask("2 MC")
       doTask("PassBaton")
     }
@@ -2009,9 +2009,8 @@ internal class OtbGame20260818Test : FullGameTest() {
           "PROD[-2 Energy]",
           "PROD[5 MC]",
           "CapitalTile<Utopia_6_5>",
-          "NOW Green { Animal<$Pets<Green>>* }",
       )
-      green.doTask("Animal<$Pets>")
+      giveTask(green, "Animal<$Pets>")
       doTasks("2 Plant", "2 MC", "2 MC", "2 MC")
     }
 

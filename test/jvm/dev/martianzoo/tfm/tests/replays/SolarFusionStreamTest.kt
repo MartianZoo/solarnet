@@ -4,6 +4,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
@@ -206,9 +207,8 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "18 Pay<> FROM MC",
           "$ResearchOutpost FROM ProjectCard",
           "CityTile<Elysium_5_3>",
-          "NOW JR { PROD[MC<JR>] }",
       )
-      JR.doTask("PROD[MC]")
+      giveTask(JR, "PROD[MC]")
       doTask("2 Plant")
       doTasks(
           *playCardTasks("$AcquiredCompany"),
@@ -1123,9 +1123,8 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "3 MC",
           "TerraformRating",
           "-3 Plant<JR>",
-          "NOW KB { 3* MC<JR FROM KB> }",
       )
-      KB.doTask("3 MC<JR> FROM MC")
+      giveTask(KB, "3 MC<JR> FROM MC")
     }
 
     with(JR) {
@@ -1371,18 +1370,16 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "$NitrogenRichAsteroid FROM ProjectCard",
           "2 TerraformRating",
           "TemperatureStep",
-          "NOW ER { ProjectCard<ER, Hand> }",
       )
-      ER.doTask("ProjectCard")
+      giveTask(ER, "ProjectCard")
       doTasks("TerraformRating", "PROD[4 Plant]")
       doTasks(
           *playCardTasks("$SmallAsteroid"),
           "3 Pay<> FROM MC",
           "$SmallAsteroid FROM ProjectCard",
           "TemperatureStep",
-          "NOW ER { ProjectCard<ER, Hand> }",
       )
-      ER.doTask("ProjectCard")
+      giveTask(ER, "ProjectCard")
       doTask("TerraformRating")
       doTask("OceanTile<WaterArea(HAS MAX 0 Tile)>") // All nine oceans are already placed.
       doTasks("-2 Plant<JR>", "0 MC<JR> FROM MC")
@@ -1509,9 +1506,8 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "DeimosDownPromo_SpecialTile<Elysium_9_7>",
           "ProjectCard",
           "-6 Plant<JR>",
-          "NOW KB { 3* MC<JR FROM KB> }",
       )
-      KB.doTask("3 MC<JR> FROM MC")
+      giveTask(KB, "3 MC<JR> FROM MC")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1704,13 +1700,10 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Elysium_6_2>",
-          "NOW JR { PROD[MC<JR>] }",
       )
-      JR.doTask("PROD[MC]")
-      doTask("NOW JR { PROD[MC<JR>] }")
-      JR.doTask("PROD[MC]")
-      doTask("NOW JR { Animal<$Pets<JR>>* }")
-      JR.doTask("Animal<$Pets>")
+      giveTask(JR, "PROD[MC<JR>]", "PROD[MC]")
+      giveTask(JR, "PROD[MC<JR>]", "PROD[MC]")
+      giveTask(JR, "Animal<$Pets>")
       doTask("Steel")
     }
 
@@ -1727,9 +1720,8 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "1 Pay<> FROM MC",
           "$ImportedNutrients FROM ProjectCard",
           "4 Plant",
-          "NOW ER { ProjectCard<ER, Hand> }",
       )
-      ER.doTask("ProjectCard")
+      giveTask(ER, "ProjectCard")
       doTask("4 Microbe<$Ants>")
     }
 

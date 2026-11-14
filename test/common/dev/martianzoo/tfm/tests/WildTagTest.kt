@@ -199,7 +199,7 @@ internal class WildTagTest : TfmSandboxTest() {
           "33 Pay<> FROM MC",
           "TerraformingGanymede FROM ProjectCard",
       )
-      giveTask(kim, "PROD[MC]", "PROD[1 MC]")
+      giveTask(kim, "PROD[1 MC]")
       doTask("2 TerraformRating")
     }
   }

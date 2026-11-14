@@ -446,7 +446,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
           "HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
-      giveTask(kim, "3* MC<Rob FROM Kim>", "$payout MC<Rob FROM Kim>")
+      giveTask(kim, "$payout MC<Rob FROM Kim>")
     }
   }
 }

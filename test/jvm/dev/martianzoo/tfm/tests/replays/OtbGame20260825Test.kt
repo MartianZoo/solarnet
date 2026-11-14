@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
@@ -1256,13 +1257,10 @@ internal class OtbGame20260825Test : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Cimmeria_6_3>",
-          "NOW Green { 2! MC<Green> }",
       )
-      green.doTask("2 MC")
-      doTask("NOW Green { Animal<$Pets<Green>>* }")
-      green.doTask("Animal<$Pets>")
-      doTask("NOW Green { 2! MC<Green> }")
-      green.doTask("2 MC")
+      giveTask(green, "2! MC<Green>", "2 MC")
+      giveTask(green, "Animal<$Pets<Green>>*", "Animal<$Pets>")
+      giveTask(green, "2 MC")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1584,15 +1582,12 @@ internal class OtbGame20260825Test : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Cimmeria_6_6>",
-          "NOW Green { 2! MC<Green> }",
       )
-      green.doTask("2 MC")
-      doTask("NOW Green { Animal<$Pets<Green>>* }")
-      green.doTask("Animal<$Pets>")
-      doTask("NOW Green { Production<Green, Class<MC>>! }")
-      green.doTask("PROD[MC]")
-      doTasks("Titanium", "NOW Green { 2! MC<Green> }")
-      green.doTask("2 MC")
+      giveTask(green, "2! MC<Green>", "2 MC")
+      giveTask(green, "Animal<$Pets<Green>>*", "Animal<$Pets>")
+      giveTask(green, "Production<Green, Class<MC>>!", "PROD[MC]")
+      doTasks("Titanium")
+      giveTask(green, "2 MC")
       // "Second will be to ore process. Spend four energy, gain titanium, oxygen raise, TR, two
       // money." Oxygen reaches 12%.
       doTasks(
@@ -1842,15 +1837,11 @@ internal class OtbGame20260825Test : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Cimmeria_5_7>",
-          "NOW Green { 2! MC<Green> }",
       )
-      green.doTask("2 MC")
-      doTask("NOW Green { Animal<$Pets<Green>>* }")
-      green.doTask("Animal<$Pets>")
-      doTask("NOW Green { Production<Green, Class<MC>>! }")
-      green.doTask("PROD[MC]")
-      doTask("NOW Green { 2! MC<Green> }")
-      green.doTask("2 MC")
+      giveTask(green, "2! MC<Green>", "2 MC")
+      giveTask(green, "Animal<$Pets<Green>>*", "Animal<$Pets>")
+      giveTask(green, "Production<Green, Class<MC>>!", "PROD[MC]")
+      giveTask(green, "2 MC")
       // "Greenery to Apollinaris Mons for two titaniums." Yellow converts plants at 4,7.
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",

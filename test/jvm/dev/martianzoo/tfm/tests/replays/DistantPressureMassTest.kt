@@ -4,6 +4,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
@@ -1733,9 +1734,8 @@ internal class DistantPressureMassTest : FullGameTest() {
           "Trade<Ganymede>",
           "4 Plant",
           "Plant",
-          "NOW Keen { Plant<Keen> }",
       )
-      keen.doTask("Plant")
+      giveTask(keen, "Plant")
     }
 
     with(keen) {
@@ -1958,9 +1958,8 @@ internal class DistantPressureMassTest : FullGameTest() {
           "Trade<Ganymede>",
           "3 Plant",
           "Plant",
-          "NOW Keen { Plant<Keen> }",
       )
-      keen.doTask("Plant")
+      giveTask(keen, "Plant")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",

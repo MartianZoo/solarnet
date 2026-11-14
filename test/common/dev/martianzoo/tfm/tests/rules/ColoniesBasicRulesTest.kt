@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -214,8 +215,7 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
       // Then follow the Colony Tile instructions: Check the Colony Tile track to determine your
       // trade income, and give the local colony owners their colony bonus.
       doTask("19 MC")
-      doTask("NOW Stan { 2! MC<Stan> }")
-      stan.doTask("2 MC")
+      giveTask(stan, "2 MC")
     }
 
     // Directly after trading you move the white marker as far left as possible, stopping next to

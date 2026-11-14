@@ -9,6 +9,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
@@ -479,9 +480,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Hellas_2_4>",
-          "NOW Player1 { Disease<$Hospitals<Player1>>* }",
       )
-      purple.doTask("Disease<$Hospitals>")
+      giveTask(purple, "Disease<$Hospitals>")
       doTasks("Plant", "Steel")
       purple.assertCounts(7 to "Plant")
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Diversifier")
@@ -693,9 +693,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$Psychrophiles"),
           "2 Pay<> FROM MC",
           "$Psychrophiles FROM ProjectCard",
-          "NOW Player3 { 2! MC<Player3> }",
       )
-      green.doTask("2 MC")
+      giveTask(green, "2 MC")
       doTask("Microbe<$Psychrophiles>")
     }
 
@@ -951,9 +950,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Hellas_4_3>",
-          "NOW Player1 { Disease<$Hospitals<Player1>>* }",
       )
-      purple.doTask("Disease<$Hospitals>")
+      giveTask(purple, "Disease<$Hospitals>")
       doTask("Steel")
       doTasks(
           *cardActionTasks("$Ants"),
@@ -1202,9 +1200,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
-          "NOW Player3 { ProjectCard<Player3, Hand>! }",
       )
-      green.doTask("ProjectCard")
+      giveTask(green, "ProjectCard")
       doTasks("3 MC", "TerraformRating", "-3 Plant<Player3>")
     }
 
@@ -1238,9 +1235,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "14 Pay<> FROM MC",
           "$ImportedNutrients FROM ProjectCard",
           "4 Plant",
-          "NOW Player3 { ProjectCard<Player3, Hand>! }",
       )
-      green.doTask("ProjectCard")
+      giveTask(green, "ProjectCard")
       doTask("4 Microbe<$Recyclon>")
     }
 
@@ -1484,9 +1480,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "1 Pay<> FROM MC",
           "$ConvoyFromEuropa FROM ProjectCard",
           "ProjectCard",
-          "NOW Player3 { ProjectCard<Player3, Hand>! }",
       )
-      green.doTask("ProjectCard")
+      giveTask(green, "ProjectCard")
       doTasks("3 MC", "OceanTile<Hellas_5_8>", "TerraformRating", "2 MC", "2 MC")
       doTasks(
           *playCardTasks("$VestaShipyard"),
@@ -1675,9 +1670,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Hellas_7_7>",
-          "NOW Player1 { Disease<$Hospitals<Player1>>* }",
       )
-      purple.doTask("Disease<$Hospitals>")
+      giveTask(purple, "Disease<$Hospitals>")
       doTasks(
           *playCardTasks("$HousePrinting"),
           "4 Pay<Class<Steel>> FROM Steel",

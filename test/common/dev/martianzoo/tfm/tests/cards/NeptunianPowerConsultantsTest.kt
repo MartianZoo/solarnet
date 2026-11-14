@@ -47,18 +47,14 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
               "TerraformRating",
           )
           // The active player chooses when to hand this task to its owner.
-          giveTask(
-              kim,
-              "UseAction<Kim, NeptunianOption<NeptunianPowerConsultants<Kim>>>?",
-              "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
-          )
+          giveTask(kim, "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
           doTask("2 Steel")
           // The active player chooses when to hand this task to its owner.
           giveTask(kim, "5 Pay<Kim> FROM MC<Kim>")
           // Handle Admin's bill closure after Kim's cross-player payment.
           autoExecNow()
           // The active player chooses when to hand this task to its owner.
-          giveTask(kim, "PROD[Energy<Kim>]")
+          giveTask(kim, "PROD[Energy<Kim>]", "PROD[Energy<Kim>]")
           // The active player chooses when to hand this task to its owner.
           giveTask(kim, "Hydroelectric<NeptunianPowerConsultants<Kim>>")
         }
@@ -80,11 +76,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
               "TerraformRating",
           )
           // The active player chooses when to hand this task to its owner.
-          giveTask(
-              kim,
-              "UseAction<Kim, NeptunianOption<NeptunianPowerConsultants<Kim>>>?",
-              "0 UseAction<NeptunianOption<NeptunianPowerConsultants>>",
-          )
+          giveTask(kim, "0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
           doTask("2 Steel")
         }
         .expect("0 Hydroelectric<Kim>")

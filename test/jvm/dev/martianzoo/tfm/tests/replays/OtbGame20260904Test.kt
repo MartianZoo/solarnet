@@ -4,6 +4,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
@@ -818,9 +819,8 @@ internal class OtbGame20260904Test : FullGameTest() {
           "OceanTile<Amazonis_05_10>",
           "-3 MC<Blue>",
           "TerraformRating",
-          "NOW Blue { UseAction<Blue, NeptunianOption<$NeptunianPowerConsultants<Blue>>>? }",
       )
-      blue.doTask("Ok") // Decline the Neptunian Power Consultants response.
+      giveTask(blue, "Ok") // Decline the Neptunian Power Consultants response.
       doTask("2 Plant")
       // 3:08:23 PM — Yellow: "Mm-hmm. Underground city."
       // 3:08:32 PM — Blue: "Yeah. Um my four steel and ten reel. Do do do do do do do do do do."
@@ -833,9 +833,8 @@ internal class OtbGame20260904Test : FullGameTest() {
           "PROD[-2 Energy]",
           "PROD[2 Steel]",
           "CityTile<Amazonis_10_10>",
-          "NOW Green { Animal<$Pets<Green>>* }",
       )
-      green.doTask("Animal<$Pets>")
+      giveTask(green, "Animal<$Pets>")
       doTask("2 Plant")
     }
     with(rainbow) {
@@ -1453,18 +1452,14 @@ internal class OtbGame20260904Test : FullGameTest() {
           // two plants."
           "OceanTile<Amazonis_07_04>",
           "TerraformRating",
-          // The ocean placer hands each Neptunian step to Blue, who then submits that step.
-          "NOW Blue { UseAction<Blue, NeptunianOption<$NeptunianPowerConsultants<Blue>>>? }",
       )
-      blue.doTask("UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
-      doTasks("2 Plant", "2 MC", "NOW Blue { X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok }")
-      blue.doTask("Ok") // No heat paid.
-      doTask("NOW Blue { 5 Pay<Blue> FROM MC<Blue> }")
-      blue.doTask("5 Pay<> FROM MC")
-      doTask("NOW Blue { PROD[Energy<Blue>] }")
-      blue.doTask("PROD[Energy]")
-      doTask("NOW Blue { Hydroelectric<$NeptunianPowerConsultants<Blue>>* }")
-      blue.doTask("Hydroelectric<$NeptunianPowerConsultants>")
+      // The ocean placer hands each Neptunian step to Blue, who then submits that step.
+      giveTask(blue, "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
+      doTasks("2 Plant", "2 MC")
+      giveTask(blue, "X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok", "Ok") // No heat paid.
+      giveTask(blue, "5 Pay<> FROM MC")
+      giveTask(blue, "PROD[Energy<Blue>]", "PROD[Energy]")
+      giveTask(blue, "Hydroelectric<$NeptunianPowerConsultants>")
       doTasks(
           // 3:59:00 PM — Green: "All right this would be nine four."
           // 3:59:01 PM — Blue: "Two money, one steel and one titanium. Where am I doing the
@@ -1472,39 +1467,30 @@ internal class OtbGame20260904Test : FullGameTest() {
           // one? Only two money or two plants. Do I need another card? Do I need another card?"
           "OceanTile<Amazonis_09_04>",
           "TerraformRating",
-          "NOW Blue { UseAction<Blue, NeptunianOption<$NeptunianPowerConsultants<Blue>>>? }",
       )
-      blue.doTask("UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
+      giveTask(blue, "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
       doTasks(
           "Steel",
           "Titanium",
           "2 MC",
-          "NOW Blue { X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok }",
       )
-      blue.doTask("Ok") // No heat paid.
-      doTask("NOW Blue { 5 Pay<Blue> FROM MC<Blue> }")
-      blue.doTask("5 Pay<> FROM MC")
-      doTask("NOW Blue { PROD[Energy<Blue>] }")
-      blue.doTask("PROD[Energy]")
-      doTask("NOW Blue { Hydroelectric<$NeptunianPowerConsultants<Blue>>* }")
-      blue.doTask("Hydroelectric<$NeptunianPowerConsultants>")
+      giveTask(blue, "X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok", "Ok") // No heat paid.
+      giveTask(blue, "5 Pay<> FROM MC")
+      giveTask(blue, "PROD[Energy<Blue>]", "PROD[Energy]")
+      giveTask(blue, "Hydroelectric<$NeptunianPowerConsultants>")
       doTasks(
           // Crossing 0°C supplies Amazonis's temperature-track ocean bonus.
           // 3:59:30 PM — Green: "All right, going to 611 and you get a card. What a turn of
           // events."
           "OceanTile<Amazonis_06_11>",
           "TerraformRating",
-          "NOW Blue { UseAction<Blue, NeptunianOption<$NeptunianPowerConsultants<Blue>>>? }",
       )
-      blue.doTask("UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
-      doTasks("ProjectCard", "2 MC", "NOW Blue { X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok }")
-      blue.doTask("Ok") // No heat paid.
-      doTask("NOW Blue { 5 Pay<Blue> FROM MC<Blue> }")
-      blue.doTask("5 Pay<> FROM MC")
-      doTask("NOW Blue { PROD[Energy<Blue>] }")
-      blue.doTask("PROD[Energy]")
-      doTask("NOW Blue { Hydroelectric<$NeptunianPowerConsultants<Blue>>* }")
-      blue.doTask("Hydroelectric<$NeptunianPowerConsultants>")
+      giveTask(blue, "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
+      doTasks("ProjectCard", "2 MC")
+      giveTask(blue, "X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok", "Ok") // No heat paid.
+      giveTask(blue, "5 Pay<> FROM MC")
+      giveTask(blue, "PROD[Energy<Blue>]", "PROD[Energy]")
+      giveTask(blue, "Hydroelectric<$NeptunianPowerConsultants>")
       doTask("-5 Plant<Yellow>")
       doTask("PassBaton")
     }
@@ -1897,11 +1883,9 @@ internal class OtbGame20260904Test : FullGameTest() {
           "PROD[-2 Energy]",
           "PROD[5 MC]",
           "CapitalTile<Amazonis_07_03>",
-          "NOW Green { Animal<$Pets<Green>>* }",
       )
-      green.doTask("Animal<$Pets>")
-      doTask("NOW Rainbow { 2! MC<Rainbow> }")
-      rainbow.doTask("2 MC")
+      giveTask(green, "Animal<$Pets>")
+      giveTask(rainbow, "2 MC")
       doTasks("2 Plant", "2 MC", "2 MC")
       doTask("PassBaton")
     }
@@ -1957,17 +1941,17 @@ internal class OtbGame20260904Test : FullGameTest() {
           "$Flooding FROM ProjectCard",
           "OceanTile<Amazonis_06_06>",
           "TerraformRating",
-          "NOW Blue { UseAction<Blue, NeptunianOption<$NeptunianPowerConsultants<Blue>>>? }",
       )
-      blue.doTask("UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
-      doTasks("2 Plant", "NOW Blue { X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok }")
-      blue.doTask("3 Pay<Class<Heat>> FROM Heat")
-      doTask("NOW Blue { 2 Pay<Blue> FROM MC<Blue> }")
-      blue.doTask("2 Pay<> FROM MC")
-      doTask("NOW Blue { PROD[Energy<Blue>] }")
-      blue.doTask("PROD[Energy]")
-      doTask("NOW Blue { Hydroelectric<$NeptunianPowerConsultants<Blue>>* }")
-      blue.doTask("Hydroelectric<$NeptunianPowerConsultants>")
+      giveTask(blue, "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
+      doTask("2 Plant")
+      giveTask(
+          blue,
+          "X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok",
+          "3 Pay<Class<Heat>> FROM Heat",
+      )
+      giveTask(blue, "2 Pay<> FROM MC")
+      giveTask(blue, "PROD[Energy<Blue>]", "PROD[Energy]")
+      giveTask(blue, "Hydroelectric<$NeptunianPowerConsultants>")
       doTask("PassBaton")
     }
     with(rainbow) {
@@ -2104,9 +2088,8 @@ internal class OtbGame20260904Test : FullGameTest() {
           "PROD[-Energy]",
           "PROD[2 MC]",
           "CityTile<Amazonis_07_11>",
-          "NOW Green { Animal<$Pets<Green>>* }",
       )
-      green.doTask("Animal<$Pets>")
+      giveTask(green, "Animal<$Pets>")
       doTasks("2 MC", "2 MC")
       assertCounts(12 to "MC")
       doTask("PassBaton")
@@ -2147,16 +2130,14 @@ internal class OtbGame20260904Test : FullGameTest() {
           *cardActionTasks("$IcyImpactors", "Action2"),
           "-Asteroid<$IcyImpactors>",
           "EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player, Green>! }",
-          "NOW Rainbow { OceanTile<WaterArea(HAS MAX 0 Tile)>* BY Green }",
       )
-      rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
+      giveTask(rainbow, "OceanTile<Amazonis_02_01> BY Green")
       doTasks(
           "OceanTile<Amazonis_02_01>",
           "TerraformRating",
           // Green chooses when Blue receives the optional Neptunian bonus.
-          "NOW Blue { UseAction<Blue, NeptunianOption>? }",
       )
-      blue.doTask("0 UseAction<NeptunianOption<$NeptunianPowerConsultants>>")
+      giveTask(blue, "0 UseAction<NeptunianOption<$NeptunianPowerConsultants>>")
     }
     green.doTask("Pass")
 
@@ -2288,17 +2269,13 @@ internal class OtbGame20260904Test : FullGameTest() {
           "TerraformRating",
           "OceanTile<Amazonis_06_05>",
           "TerraformRating",
-          "NOW Blue { UseAction<Blue, NeptunianOption<$NeptunianPowerConsultants<Blue>>>? }",
       )
-      blue.doTask("UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
-      doTasks("2 Plant", "2 MC", "NOW Blue { X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok }")
-      blue.doTask("Ok") // No heat paid.
-      doTask("NOW Blue { 5 Pay<Blue> FROM MC<Blue> }")
-      blue.doTask("5 Pay<> FROM MC")
-      doTask("NOW Blue { PROD[Energy<Blue>] }")
-      blue.doTask("PROD[Energy]")
-      doTask("NOW Blue { Hydroelectric<$NeptunianPowerConsultants<Blue>>* }")
-      blue.doTask("Hydroelectric<$NeptunianPowerConsultants>")
+      giveTask(blue, "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
+      doTasks("2 Plant", "2 MC")
+      giveTask(blue, "X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok", "Ok") // No heat paid.
+      giveTask(blue, "5 Pay<> FROM MC")
+      giveTask(blue, "PROD[Energy<Blue>]", "PROD[Energy]")
+      giveTask(blue, "Hydroelectric<$NeptunianPowerConsultants>")
       doTask("-3 Plant<Blue>")
       // Yellow did not physically pay Comet's 21 M€ at this play. Restore the engine-enforced
       // payment until the recorded correction at 3:46:46 PM.
@@ -2324,22 +2301,17 @@ internal class OtbGame20260904Test : FullGameTest() {
           "TerraformRating",
           "OceanTile<Amazonis_05_05>",
           "TerraformRating",
-          "NOW Blue { UseAction<Blue, NeptunianOption<$NeptunianPowerConsultants<Blue>>>? }",
       )
-      blue.doTask("UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
+      giveTask(blue, "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
       doTasks(
           "ProjectCard",
           "2 MC",
           "2 MC",
-          "NOW Blue { X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok }",
       )
-      blue.doTask("Ok") // No heat paid.
-      doTask("NOW Blue { 5 Pay<Blue> FROM MC<Blue> }")
-      blue.doTask("5 Pay<> FROM MC")
-      doTask("NOW Blue { PROD[Energy<Blue>] }")
-      blue.doTask("PROD[Energy]")
-      doTask("NOW Blue { Hydroelectric<$NeptunianPowerConsultants<Blue>>* }")
-      blue.doTask("Hydroelectric<$NeptunianPowerConsultants>")
+      giveTask(blue, "X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok", "Ok") // No heat paid.
+      giveTask(blue, "5 Pay<> FROM MC")
+      giveTask(blue, "PROD[Energy<Blue>]", "PROD[Energy]")
+      giveTask(blue, "Hydroelectric<$NeptunianPowerConsultants>")
       // 3:41:04 PM — Rainbow: "Well, my second action, I will greener eyes."
       // 3:41:14 PM — Rainbow: "I'm I'm putting it there so I get another plant and four money."
       // 3:41:24 PM — Green: "That is on 610."
@@ -2371,11 +2343,9 @@ internal class OtbGame20260904Test : FullGameTest() {
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Amazonis_03_07>",
-          "NOW Green { Animal<$Pets<Green>>* }",
       )
-      green.doTask("Animal<$Pets>")
-      doTask("NOW Rainbow { 2! MC<Rainbow> }")
-      rainbow.doTask("2 MC")
+      giveTask(green, "Animal<$Pets>")
+      giveTask(rainbow, "2 MC")
       doTasks("2 MC", "2 MC")
       // board-14-23-07.jpg shows a plant at 3-7 on the mat used in this game.
       exMachina("Plant")
@@ -2553,9 +2523,8 @@ internal class OtbGame20260904Test : FullGameTest() {
           "2 MC",
           "CityTile<Amazonis_06_04>",
           "Animal<$Pets>",
-          "NOW Rainbow { 2! MC<Rainbow> }",
       )
-      rainbow.doTask("2 MC")
+      giveTask(rainbow, "2 MC")
       doTasks("2 Plant", "2 MC", "2 MC")
       // 3:51:29 PM — Green: "Let's just go ahead and use Venus magnetizer decrease in energy
       // production to raise Venus to 12% and get a TR. All right, who's still in?"
@@ -2921,9 +2890,8 @@ internal class OtbGame20260904Test : FullGameTest() {
           "$MaxwellBase FROM ProjectCard",
           "PROD[-Energy]",
           "NormalCityTile<MaxwellBase_RemoteArea>",
-          "NOW Green { Animal<$Pets<Green>>* }",
       )
-      green.doTask("Animal<$Pets>")
+      giveTask(green, "Animal<$Pets>")
       doTask("2 MC")
     }
     with(blue) {
@@ -3257,11 +3225,9 @@ internal class OtbGame20260904Test : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "NormalCityTile<Amazonis_06_09>",
-          "NOW Green { Animal<$Pets<Green>>* }",
       )
-      green.doTask("Animal<$Pets>")
-      doTask("NOW Rainbow { 2! MC<Rainbow> }")
-      rainbow.doTask("2 MC")
+      giveTask(green, "Animal<$Pets>")
+      giveTask(rainbow, "2 MC")
     }
     with(rainbow) {
       // 6:09:38 PM — Rainbow: "You need other fish. Okay. Exactly. Um okay, so I am going to take
@@ -3370,11 +3336,9 @@ internal class OtbGame20260904Test : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Amazonis_04_06>",
-          "NOW Green { Animal<$Pets<Green>>* }",
       )
-      green.doTask("Animal<$Pets>")
-      doTask("NOW Rainbow { 2! MC<Rainbow> }")
-      rainbow.doTask("2 MC")
+      giveTask(green, "Animal<$Pets>")
+      giveTask(rainbow, "2 MC")
       doTasks("Plant", "2 MC")
       doTask("PassBaton")
     }
@@ -3541,9 +3505,8 @@ internal class OtbGame20260904Test : FullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Amazonis_06_07>",
-          "NOW Green { Animal<$Pets<Green>>* }",
       )
-      green.doTask("Animal<$Pets>")
+      giveTask(green, "Animal<$Pets>")
       doTasks("2 MC", "Steel", "2 Plant", "2 MC")
       // 9:26:36 PM — Rainbow: "Yay. Um, hey, yay. And then I'm gonna do a plant, plant forest
       // action."
@@ -3597,9 +3560,8 @@ internal class OtbGame20260904Test : FullGameTest() {
           "2 MC",
           "CityTile<Amazonis_09_08>",
           "Animal<$Pets>",
-          "NOW Rainbow { 2! MC<Rainbow> }",
       )
-      rainbow.doTask("2 MC")
+      giveTask(rainbow, "2 MC")
     }
     // The -12 M€ net above is the narrated -14 M€ payment plus Green's real +2 M€ Suitable
     // Infrastructure response to the production increase. Do not erase that income.

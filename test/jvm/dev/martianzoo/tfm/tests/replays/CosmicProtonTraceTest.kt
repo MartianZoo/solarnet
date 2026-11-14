@@ -1361,7 +1361,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "2 Plant",
           "TerraformRating",
       )
-      giveTask(p3, "2 Plant<Green>") // Arctic Algae
+      giveTask(p3, "2 Plant<Green>", "2 Plant<Green>") // Arctic Algae
       giveTask(p3, "2 Plant<Green>") // Arctic Algae
     }
     with(p3) {

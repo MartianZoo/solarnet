@@ -815,6 +815,11 @@ transaction, roll back the block, change automatic execution, or require all tas
 
 ### Sequential task submissions
 
+Use `giveTask(recipient, choice)` to release the unique pending `NOW` task for that recipient
+and immediately submit their choice. When several handoffs await that recipient, identify the
+offered task explicitly with `giveTask(recipient, task, choice)`. Keep separate calls when a test
+checks the intermediate state or the recipient only selects or narrows work.
+
 `doTasks` follows repeated individually atomic `doTask` calls: a later failure retains successful
 earlier arguments. See [the engine contract](ENGINE_CONTRACT.md#state-transactions-and-calls) and
 `Agent.doTasks` for execution, results, recording, and restoration semantics.
@@ -888,7 +893,7 @@ starting cards. Group each corporation, Prelude, and action-phase turn in `with(
 A solo replay may group a whole generation in a single `with(player)` block.
 When a player declines their second action, submit `doTask("PassBaton")` explicitly at the end of
 that turn. A scope block itself performs no gameplay. Keep the task submissions inside each section
-as raw `doTask`/`doTasks` calls.
+as raw `doTask`/`doTasks` calls, using `giveTask` for immediate `NOW` handoffs.
 Use the shared card-name constants, give every `Ok` a short inline comment to its right naming
 the task it dismisses (for example, `// no steel paid`). Use `.expect()` for consequences not
 already evident from the preceding task submissions, including automatic resource changes and

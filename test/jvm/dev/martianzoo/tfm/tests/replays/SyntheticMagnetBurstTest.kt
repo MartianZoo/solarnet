@@ -4,6 +4,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
@@ -1402,11 +1403,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[2 MC]",
           "2 MC",
           "CityTile<Hellas_8_5>",
-          "NOW Pink { Production<Pink, Class<MC>>! }",
       )
-      pink.doTask("PROD[MC]")
-      doTask("NOW Pink { Production<Pink, Class<MC>>! }")
-      pink.doTask("PROD[MC]")
+      giveTask(pink, "Production<Pink, Class<MC>>!", "PROD[MC]")
+      giveTask(pink, "PROD[MC]")
       doTask("ProjectCard")
     }
 
@@ -1730,11 +1729,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[3 MC]",
           "2 MC",
           "CityTile<Hellas_2_2>",
-          "NOW Pink { Production<Pink, Class<MC>>! }",
       )
-      pink.doTask("PROD[MC]")
-      doTask("NOW Pink { Production<Pink, Class<MC>>! }")
-      pink.doTask("PROD[MC]")
+      giveTask(pink, "Production<Pink, Class<MC>>!", "PROD[MC]")
+      giveTask(pink, "PROD[MC]")
       doTasks("2 Plant", "2 MC")
       doTask("PassBaton")
     }

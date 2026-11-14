@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.fake.FakeCanon
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
@@ -1477,10 +1478,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_2_3>",
-          "NOW Nor { 2 MC }",
       )
-
-      nor.doTask("2 MC")
+      giveTask(nor, "2 MC")
 
       doTask("PassBaton")
     }
@@ -1681,10 +1680,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_5_1>",
-          "NOW Nor { 2 MC }",
       )
-
-      nor.doTask("2 MC")
+      giveTask(nor, "2 MC")
 
       doTasks(
           "2 Plant",
@@ -2082,10 +2079,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "-Production<Vin, Class<Energy>>",
           "PROD[3 MC]",
           "NormalCityTile<Tharsis_5_3>",
-          "NOW Nor { 2 MC }",
       )
-
-      nor.doTask("2 MC")
+      giveTask(nor, "2 MC")
 
       doTasks("2 Plant", "2 MC")
       doTask("PassBaton")

@@ -64,7 +64,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
           doTask("OceanTile<Tharsis_1_2> BY Admin")
           // Kim retains the timing choice after Admin performs the global change.
-          giveTask(stan, "2 Plant<Stan>")
+          giveTask(stan, "2 Plant<Stan>", "2 Plant<Stan>")
           // Kim retains the timing choice after Admin performs the global change.
           giveTask(stan, "PROD[MC<Stan>]")
         }

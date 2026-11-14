@@ -96,13 +96,9 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           )
           doTask("Microbe<Decomposers>*")
           // The active player chooses when to hand this task to its owner.
-          giveTask(
-              kim,
-              "Disease<PharmacyUnion<Kim>>! OR (MAX 0 PharmacyUnion<Kim>: Ok)",
-              "Disease<PharmacyUnion<Kim>>",
-          )
+          giveTask(kim, "Disease<PharmacyUnion<Kim>>")
           // The active player chooses when to hand this task to its owner.
-          giveTask(kim, "-4* MC<Kim>", "-4 MC")
+          giveTask(kim, "-4 MC")
         }
         .expect("Disease<$PharmacyUnion<Kim>>, -4 MC<Kim>")
   }

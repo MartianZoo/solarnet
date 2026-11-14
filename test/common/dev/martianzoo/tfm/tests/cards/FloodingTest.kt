@@ -510,7 +510,7 @@ internal class FloodingTest : TfmSandboxTest() {
       selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
       doTask("OceanTile<Tharsis_5_4>!")
       // Kim offers the choice to Stan before Stan can accept or decline it.
-      giveTask(stan, "UseAction<Stan, NeptunianOption>?", "UseAction<NeptunianOption, Action1>")
+      giveTask(stan, "UseAction<NeptunianOption, Action1>")
       // Handle Admin's bill after Stan's cross-player action, before choosing payment.
       autoExecNow()
       // Kim offers the steel-payment task; Stan decides how much steel to spend.
