@@ -24,6 +24,7 @@ architecture change. Then choose the narrowest relevant note:
 | Live World construction, components, tasks, effects, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
 | Agent assistance, delegated choices, interaction services, or engine-installed autoexec policies | [`AGENT_CONTRACT.md`](AGENT_CONTRACT.md) — responsibility inventory and open policy questions |
 | Actor attribution, on-turn identity, Admin, assignment, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md); lexical ownership is in [Pets](../../pets/docs/agents/OWNERSHIP.md) |
+| Card payoffs, shared causes, decision-quality explanations, or payoff data for reinforcement learning | [`ATTRIBUTION.md`](ATTRIBUTION.md) — verified evidence, agreed scope, and research proposals |
 | Game flow, turns and offers, Head Start timing, task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
 | Payment choices, accepted resources, billing, or payment completion | [`PAYMENTS.md`](PAYMENTS.md) |
 | Client interaction, engine versus agent deduction, transactions, task priorities, or mandatory Admin handling | [`ENGINE_CONTRACT.md`](ENGINE_CONTRACT.md) |

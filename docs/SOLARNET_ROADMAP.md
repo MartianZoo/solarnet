@@ -147,7 +147,8 @@ with timing and current differences from the interaction contract.
    Playground to browse exact recordings, coherent history positions, useful queries, and trustworthy
    provenance. Pair it eventually with the compact decision format so a game can be read as both an
    exact evolving World and an explanatory sequence of choices. Broader causal analytics remain
-   conditional on being derived cheaply from these foundations.
+   conditional on being derived cheaply from these foundations; see the exploratory
+   [card attribution and learning research](agents/ATTRIBUTION.md).
 
 3. **Continue the dual-engine parity experiment.** **Active exploratory branch.** The
    `heroku-experiment` branch proves a Kotlin/JS facade that can accept semantic moves, drive a
