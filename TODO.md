@@ -183,8 +183,9 @@ the remaining audit items listed there are **not yet discussed or approved**.
 - Resolve order-dependent Advanced Alloys discount attribution: the randomized-effect diagnostic
   reproduced the known `ThermalMatterWaveTest` (-96 versus -92) and `Game20230521Test`
   (-33 versus -31) reporting mismatches. Game-state assertions before those checks passed.
-  See [TESTING.md](docs/agents/TESTING.md#standard-verification); this reporting issue is separate
-  from transaction checkpoints and remains deferred.
+  See [TESTING.md](docs/agents/TESTING.md#standard-verification) and the
+  [attribution accounting analysis](docs/agents/ATTRIBUTION.md#capped-effects-make-per-provider-totals-order-dependent);
+  this reporting issue is separate from transaction checkpoints and remains deferred.
 - Investigate a diagnostic test mode that varies Admin task execution order, alongside the existing
   randomized independent `::` listeners. Use it to expose accidental ordering dependencies; retain
   FIFO in ordinary execution. See [Admin handling](docs/agents/ENGINE_CONTRACT.md#admins-choices-and-retries).
