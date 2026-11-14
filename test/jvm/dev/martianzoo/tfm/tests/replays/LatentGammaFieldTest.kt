@@ -19,7 +19,7 @@ import kotlin.test.Test
 // https://terraforming-mars.herokuapp.com/the-end?id=p9a4445506f19
 // Source archive: _local/replays/Game20261031/p9a4445506f19/.
 internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
-  override val firstGlobalEvents =
+  override val globalEventDeck =
       listOf(
           "MiningRestrictions",
           "ExperimentalLifeforms",
@@ -243,29 +243,31 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     // Test inference: Nomads starts at area 32 and follows 33,32,33,32,33,32,33,32,40,39,40.
     // The source omits destinations; this legal route matches every recorded bonus and final
     // marker.
+    turn {
+      doTasks(
+          *playCardTasks("MarsNomads"),
+          "13 Pay<> FROM MC",
+          "MarsNomads FROM ProjectCard",
+          "NomadsMarker<Vastitas_5_4>",
+      )
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
+          "TemperatureStep",
+          "-1 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("BuildingIndustries"),
+          "6 Pay<> FROM MC",
+          "BuildingIndustries FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[2 Steel]",
+      )
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Unity> FROM LobbyDelegate")
+    }
+    doTask("Pass")
     doTasks(
-        *playCardTasks("MarsNomads"),
-        "13 Pay<> FROM MC",
-        "MarsNomads FROM ProjectCard",
-        "NomadsMarker<Vastitas_5_4>",
-    )
-    doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
-        "TemperatureStep",
-        "-1 MC",
-        "TerraformRating",
-    )
-    doTasks(
-        *playCardTasks("BuildingIndustries"),
-        "6 Pay<> FROM MC",
-        "BuildingIndustries FROM ProjectCard",
-        "PROD[-Energy]",
-        "PROD[2 Steel]",
-    )
-    doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Unity> FROM LobbyDelegate")
-    doTasks(
-        "Pass",
         "18 MC",
         "Titanium",
         "3 Steel",
@@ -285,19 +287,24 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "6 Pay<> FROM MC",
         "2 ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
+          "2 Plant",
+          "3 MC",
+      )
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Greens>")
+      doTasks(
+          // The required Pass below completes this card action.
+          *playCardTasks("RedAppeasement"),
+          "RedAppeasement FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+      doTask("Pass")
+    }
     doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
-        "2 Plant",
-        "3 MC",
-    )
-    doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
-    doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Greens>")
-    doTasks(
-        *playCardTasks("RedAppeasement"),
-        "RedAppeasement FROM ProjectCard",
-        "PROD[2 MC]",
-        "Pass",
         "21 MC",
         "Titanium",
         "3 Steel",
@@ -318,58 +325,60 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "9 Pay<> FROM MC",
         "3 ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
+          "TemperatureStep",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("MiningExpedition"),
+          "12 Pay<> FROM MC",
+          "MiningExpedition FROM ProjectCard",
+          "OxygenStep",
+          "2 Steel",
+          "TerraformRating",
+          "-2 Plant<SoloOpponent>",
+      )
+      doTasks(
+          *playCardTasks("MoholeArea"),
+          "8 Pay<Class<Steel>> FROM Steel",
+          "4 Pay<> FROM MC",
+          "MoholeArea FROM ProjectCard",
+          "PROD[4 Heat]",
+          "MoholeArea_SpecialTile<Vastitas_3_3>",
+          "2 Plant",
+          "3 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_3_4>",
+          "OxygenStep",
+          "4 MC",
+          "2 Plant",
+          "TerraformRating",
+      )
+      doTask("MC! / Neighbor<OceanTile, Vastitas_3_4>")
+      doTasks(
+          *playCardTasks("NitrophilicMoss"),
+          "8 Pay<> FROM MC",
+          "NitrophilicMoss FROM ProjectCard",
+          "PROD[2 Plant]",
+          "-2 Plant",
+      )
+      doTasks(
+          *playCardTasks("MicroMills"),
+          "3 Pay<> FROM MC",
+          "MicroMills FROM ProjectCard",
+          "PROD[Heat]",
+      )
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
+    }
+    doTask("Pass")
     doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
-        "TemperatureStep",
-        "2 MC",
-        "TerraformRating",
-    )
-    doTasks(
-        *playCardTasks("MiningExpedition"),
-        "12 Pay<> FROM MC",
-        "MiningExpedition FROM ProjectCard",
-        "OxygenStep",
-        "2 Steel",
-        "TerraformRating",
-        "-2 Plant<SoloOpponent>",
-    )
-    doTasks(
-        *playCardTasks("MoholeArea"),
-        "8 Pay<Class<Steel>> FROM Steel",
-        "4 Pay<> FROM MC",
-        "MoholeArea FROM ProjectCard",
-        "PROD[4 Heat]",
-        "MoholeArea_SpecialTile<Vastitas_3_3>",
-        "2 Plant",
-        "3 MC",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_3_4>",
-        "OxygenStep",
-        "4 MC",
-        "2 Plant",
-        "TerraformRating",
-    )
-    doTask("MC! / Neighbor<OceanTile, Vastitas_3_4>")
-    doTasks(
-        *playCardTasks("NitrophilicMoss"),
-        "8 Pay<> FROM MC",
-        "NitrophilicMoss FROM ProjectCard",
-        "PROD[2 Plant]",
-        "-2 Plant",
-    )
-    doTasks(
-        *playCardTasks("MicroMills"),
-        "3 Pay<> FROM MC",
-        "MicroMills FROM ProjectCard",
-        "PROD[Heat]",
-    )
-    doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
-    doTasks(
-        "Pass",
         "25 MC",
         "Titanium",
         "3 Steel",
@@ -389,66 +398,68 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "6 Pay<> FROM MC",
         "2 ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
+          "2 Plant",
+          "9 MC",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+          "PROD[Heat]",
+      )
+      doTasks(
+          *playCardTasks("OptimalAerobraking"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "3 Pay<> FROM MC",
+          "OptimalAerobraking FROM ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("GiantIceAsteroid"),
+          "4 Pay<Class<Titanium>> FROM Titanium",
+          "20 Pay<> FROM MC",
+          "GiantIceAsteroid FROM ProjectCard",
+          "2 TemperatureStep",
+          "3 MC",
+          "3 Heat",
+          "2 TerraformRating",
+          "PROD[Heat]",
+          "-6 Plant<SoloOpponent>",
+          "OceanTile<Vastitas_6_6>",
+          "TerraformRating",
+          "PROD[MC]",
+          "2 Heat",
+          "Plant",
+          "6 MC",
+          "OceanTile<Vastitas_7_6>",
+          "TerraformRating",
+          "PROD[MC]",
+          "2 Heat",
+          "6 MC",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Reds>")
+      doTasks(
+          *playCardTasks("CloudSeeding"),
+          "11 Pay<> FROM MC",
+          "CloudSeeding FROM ProjectCard",
+          "PROD[-MC]",
+          "PROD[2 Plant]",
+          "-Production<SoloOpponent, Class<Heat>>",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
-        "2 Plant",
-        "9 MC",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-        "PROD[Heat]",
-    )
-    doTasks(
-        *playCardTasks("OptimalAerobraking"),
-        "Pay<Class<Titanium>> FROM Titanium",
-        "3 Pay<> FROM MC",
-        "OptimalAerobraking FROM ProjectCard",
-    )
-    doTasks(
-        *playCardTasks("GiantIceAsteroid"),
-        "4 Pay<Class<Titanium>> FROM Titanium",
-        "20 Pay<> FROM MC",
-        "GiantIceAsteroid FROM ProjectCard",
-        "2 TemperatureStep",
-        "3 MC",
-        "3 Heat",
-        "2 TerraformRating",
-        "PROD[Heat]",
-        "-6 Plant<SoloOpponent>",
-        "OceanTile<Vastitas_6_6>",
-        "TerraformRating",
-        "PROD[MC]",
-        "2 Heat",
-        "Plant",
-        "6 MC",
-        "OceanTile<Vastitas_7_6>",
-        "TerraformRating",
-        "PROD[MC]",
-        "2 Heat",
-        "6 MC",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
-    doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Reds>")
-    doTasks(
-        *playCardTasks("CloudSeeding"),
-        "11 Pay<> FROM MC",
-        "CloudSeeding FROM ProjectCard",
-        "PROD[-MC]",
-        "PROD[2 Plant]",
-        "-Production<SoloOpponent, Class<Heat>>",
-    )
-    doTasks(
-        "Pass",
         "33 MC",
         "Titanium",
         "3 Steel",
@@ -474,28 +485,30 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "9 Pay<> FROM MC",
         "3 ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
+          "TemperatureStep",
+          "5 MC",
+          "TerraformRating",
+          "PROD[Heat]",
+          "-3 MC",
+      )
+      doTasks(*playCardTasks("LocalShading"), "4 Pay<> FROM MC", "LocalShading FROM ProjectCard")
+      doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Greens>")
+      doTasks(
+          *playCardTasks("Algae"),
+          "10 Pay<> FROM MC",
+          "Algae FROM ProjectCard",
+          "Plant",
+          "PROD[2 Plant]",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
-        "TemperatureStep",
-        "5 MC",
-        "TerraformRating",
-        "PROD[Heat]",
-        "-3 MC",
-    )
-    doTasks(*playCardTasks("LocalShading"), "4 Pay<> FROM MC", "LocalShading FROM ProjectCard")
-    doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
-    doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
-    doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Greens>")
-    doTasks(
-        *playCardTasks("Algae"),
-        "10 Pay<> FROM MC",
-        "Algae FROM ProjectCard",
-        "Plant",
-        "PROD[2 Plant]",
-    )
-    doTasks(
-        "Pass",
         "35 MC",
         "Titanium",
         "3 Steel",
@@ -516,89 +529,91 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "ProjectCard FROM ProjectCard<Selecting>",
     )
     draw(SpaceHotels, SpaceMirrors, ExtremeColdFungus)
+    turn {
+      doTasks(
+          *playCardTasks("LargeConvoy"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "30 Pay<> FROM MC",
+          "LargeConvoy FROM ProjectCard",
+          "2 ProjectCard",
+          "3 MC",
+          "3 Heat",
+          "5 Plant",
+          "OceanTile<Vastitas_6_7>",
+          "TerraformRating",
+          "PROD[MC]",
+          "ProjectCard",
+          "6 MC",
+      )
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Scientists>")
+      draw(MarsUniversity, CometForVenus)
+      doTasks(
+          *playCardTasks("SupportedResearch"),
+          "3 Pay<> FROM MC",
+          "SupportedResearch FROM ProjectCard",
+          "2 ProjectCard",
+      )
+      draw(ElectroCatapult)
+      discard(SpaceMirrors)
+      doTasks(
+          *playCardTasks("MarsUniversity"),
+          "4 Pay<Class<Steel>> FROM Steel",
+          "0 Pay<> FROM MC",
+          "MarsUniversity FROM ProjectCard",
+          "-ProjectCard",
+      )
+      doTask("ProjectCard")
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
+          "2 Plant",
+          "9 MC",
+      )
+      doTasks(
+          *playCardTasks("GiantSpaceMirror"),
+          "17 Pay<> FROM MC",
+          "GiantSpaceMirror FROM ProjectCard",
+          "PROD[3 Energy]",
+      )
+      doTasks(
+          *playCardTasks("ElectroCatapult"),
+          "5 Pay<Class<Steel>> FROM Steel",
+          "7 Pay<> FROM MC",
+          "ElectroCatapult FROM ProjectCard",
+          "PROD[-Energy]",
+      )
+      // Test inference: plant cost; all seven actions are constrained by subsequent steel
+      // payments.
+      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("ExtremeColdFungus"),
+          "13 Pay<> FROM MC",
+          "ExtremeColdFungus FROM ProjectCard",
+      )
+      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+    }
+    doTask("Pass")
     doTasks(
-        *playCardTasks("LargeConvoy"),
-        "2 Pay<Class<Titanium>> FROM Titanium",
-        "30 Pay<> FROM MC",
-        "LargeConvoy FROM ProjectCard",
-        "2 ProjectCard",
-        "3 MC",
-        "3 Heat",
-        "5 Plant",
-        "OceanTile<Vastitas_6_7>",
-        "TerraformRating",
-        "PROD[MC]",
-        "ProjectCard",
-        "6 MC",
-    )
-    doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
-    doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Scientists>")
-    draw(MarsUniversity, CometForVenus)
-    doTasks(
-        *playCardTasks("SupportedResearch"),
-        "3 Pay<> FROM MC",
-        "SupportedResearch FROM ProjectCard",
-        "2 ProjectCard",
-    )
-    draw(ElectroCatapult)
-    discard(SpaceMirrors)
-    doTasks(
-        *playCardTasks("MarsUniversity"),
-        "4 Pay<Class<Steel>> FROM Steel",
-        "0 Pay<> FROM MC",
-        "MarsUniversity FROM ProjectCard",
-        "-ProjectCard",
-    )
-    doTask("ProjectCard")
-    doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
-        "2 Plant",
-        "9 MC",
-    )
-    doTasks(
-        *playCardTasks("GiantSpaceMirror"),
-        "17 Pay<> FROM MC",
-        "GiantSpaceMirror FROM ProjectCard",
-        "PROD[3 Energy]",
-    )
-    doTasks(
-        *playCardTasks("ElectroCatapult"),
-        "5 Pay<Class<Steel>> FROM Steel",
-        "7 Pay<> FROM MC",
-        "ElectroCatapult FROM ProjectCard",
-        "PROD[-Energy]",
-    )
-    // Test inference: plant cost; all seven actions are constrained by subsequent steel
-    // payments.
-    doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
-    doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(
-        *playCardTasks("ExtremeColdFungus"),
-        "13 Pay<> FROM MC",
-        "ExtremeColdFungus FROM ProjectCard",
-    )
-    doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-    doTasks(
-        "Pass",
         "40 MC",
         "Titanium",
         "3 Steel",
@@ -620,156 +635,158 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "9 Pay<> FROM MC",
         "3 ProjectCard FROM ProjectCard<Selecting>",
     )
-    doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+    turn {
+      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
+          "TemperatureStep",
+          "5 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("MiningRights"),
+          "3 Pay<Class<Steel>> FROM Steel",
+          "3 Pay<> FROM MC",
+          "MiningRights FROM ProjectCard",
+          "MiningRights_SpecialTile<Vastitas_6_9>",
+          "PROD[Titanium]",
+          "2 Titanium",
+          "3 MC",
+      )
+      draw(Research, Psychrophiles)
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_5_9>",
+          "OxygenStep",
+          "4 MC",
+          "2 ProjectCard",
+          "3 MC",
+          "TerraformRating",
+      )
+      draw(Casinos, TitaniumMine, EnvoysFromVenus, MartianRails)
+      discard(Psychrophiles, EnvoysFromVenus)
+      doTasks(
+          *playCardTasks("Research"),
+          "11 Pay<> FROM MC",
+          "Research FROM ProjectCard",
+          "2 ProjectCard",
+          "-ProjectCard",
+      )
+      doTask("ProjectCard")
+      doTask("-ProjectCard")
+      doTask("ProjectCard")
+      doTasks(
+          *playCardTasks("LavaTubeSettlement"),
+          "15 Pay<> FROM MC",
+          "LavaTubeSettlement FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[2 MC]",
+          "NormalCityTile<Vastitas_7_3>",
+          "Titanium",
+          "0 MC",
+      )
+      draw(GhgFactories, StanfordTorus)
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_6_2>",
+          "OxygenStep",
+          "4 MC",
+          "2 ProjectCard",
+          "TerraformRating",
+      )
+      doTask("MC! / Neighbor<OceanTile, Vastitas_6_2>")
+      doTasks(
+          *playCardTasks("AsteroidRights"),
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "Pay<> FROM MC",
+          "AsteroidRights FROM ProjectCard",
+          "2 Asteroid<AsteroidRights>",
+      )
+      doTasks(
+          *cardActionTasks("AsteroidRights", "Action2"),
+          "-Asteroid<AsteroidRights>",
+          "2 Titanium",
+      )
+      doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
+      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+      doTasks(
+          *playCardTasks("Casinos"),
+          "5 Pay<> FROM MC",
+          "Casinos FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[4 MC]",
+      )
+      doTasks(
+          *playCardTasks("NuclearPower"),
+          "10 Pay<> FROM MC",
+          "NuclearPower FROM ProjectCard",
+          "PROD[-2 MC]",
+          "PROD[3 Energy]",
+      )
+      doTasks(
+          *playCardTasks("Capital"),
+          "26 Pay<> FROM MC",
+          "Capital FROM ProjectCard",
+          "PROD[-2 Energy]",
+          "PROD[5 MC]",
+          "CapitalTile<Vastitas_7_7, Capital>",
+          "2 Plant",
+          "9 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_8_7>",
+          "OxygenStep",
+          "4 MC",
+          "Plant",
+          "Steel",
+          "3 MC",
+          "TerraformRating",
+      )
+      draw(ImportOfAdvancedGhg)
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_9_7>",
+          "OxygenStep",
+          "4 MC",
+          "ProjectCard",
+          "TerraformRating",
+      )
+      doTask("MC! / Neighbor<OceanTile, Vastitas_9_7>")
+      doTasks(
+          *playCardTasks("MartianRails"),
+          "Pay<Class<Steel>> FROM Steel",
+          "11 Pay<> FROM MC",
+          "MartianRails FROM ProjectCard",
+      )
+      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "4 MC")
+      doTasks(
+          *playCardTasks("TitaniumMine"),
+          "7 Pay<> FROM MC",
+          "TitaniumMine FROM ProjectCard",
+          "PROD[Titanium]",
+      )
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<MarsFirst> FROM LobbyDelegate")
+    }
+    doTask("Pass")
     doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
-        "TemperatureStep",
-        "5 MC",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(
-        *playCardTasks("MiningRights"),
-        "3 Pay<Class<Steel>> FROM Steel",
-        "3 Pay<> FROM MC",
-        "MiningRights FROM ProjectCard",
-        "MiningRights_SpecialTile<Vastitas_6_9>",
-        "PROD[Titanium]",
-        "2 Titanium",
-        "3 MC",
-    )
-    draw(Research, Psychrophiles)
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_5_9>",
-        "OxygenStep",
-        "4 MC",
-        "2 ProjectCard",
-        "3 MC",
-        "TerraformRating",
-    )
-    draw(Casinos, TitaniumMine, EnvoysFromVenus, MartianRails)
-    discard(Psychrophiles, EnvoysFromVenus)
-    doTasks(
-        *playCardTasks("Research"),
-        "11 Pay<> FROM MC",
-        "Research FROM ProjectCard",
-        "2 ProjectCard",
-        "-ProjectCard",
-    )
-    doTask("ProjectCard")
-    doTask("-ProjectCard")
-    doTask("ProjectCard")
-    doTasks(
-        *playCardTasks("LavaTubeSettlement"),
-        "15 Pay<> FROM MC",
-        "LavaTubeSettlement FROM ProjectCard",
-        "PROD[-Energy]",
-        "PROD[2 MC]",
-        "NormalCityTile<Vastitas_7_3>",
-        "Titanium",
-        "0 MC",
-    )
-    draw(GhgFactories, StanfordTorus)
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_6_2>",
-        "OxygenStep",
-        "4 MC",
-        "2 ProjectCard",
-        "TerraformRating",
-    )
-    doTask("MC! / Neighbor<OceanTile, Vastitas_6_2>")
-    doTasks(
-        *playCardTasks("AsteroidRights"),
-        "3 Pay<Class<Titanium>> FROM Titanium",
-        "Pay<> FROM MC",
-        "AsteroidRights FROM ProjectCard",
-        "2 Asteroid<AsteroidRights>",
-    )
-    doTasks(
-        *cardActionTasks("AsteroidRights", "Action2"),
-        "-Asteroid<AsteroidRights>",
-        "2 Titanium",
-    )
-    doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
-    doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-    doTasks(
-        *playCardTasks("Casinos"),
-        "5 Pay<> FROM MC",
-        "Casinos FROM ProjectCard",
-        "PROD[-Energy]",
-        "PROD[4 MC]",
-    )
-    doTasks(
-        *playCardTasks("NuclearPower"),
-        "10 Pay<> FROM MC",
-        "NuclearPower FROM ProjectCard",
-        "PROD[-2 MC]",
-        "PROD[3 Energy]",
-    )
-    doTasks(
-        *playCardTasks("Capital"),
-        "26 Pay<> FROM MC",
-        "Capital FROM ProjectCard",
-        "PROD[-2 Energy]",
-        "PROD[5 MC]",
-        "CapitalTile<Vastitas_7_7, Capital>",
-        "2 Plant",
-        "9 MC",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_8_7>",
-        "OxygenStep",
-        "4 MC",
-        "Plant",
-        "Steel",
-        "3 MC",
-        "TerraformRating",
-    )
-    draw(ImportOfAdvancedGhg)
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_9_7>",
-        "OxygenStep",
-        "4 MC",
-        "ProjectCard",
-        "TerraformRating",
-    )
-    doTask("MC! / Neighbor<OceanTile, Vastitas_9_7>")
-    doTasks(
-        *playCardTasks("MartianRails"),
-        "Pay<Class<Steel>> FROM Steel",
-        "11 Pay<> FROM MC",
-        "MartianRails FROM ProjectCard",
-    )
-    doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "4 MC")
-    doTasks(
-        *playCardTasks("TitaniumMine"),
-        "7 Pay<> FROM MC",
-        "TitaniumMine FROM ProjectCard",
-        "PROD[Titanium]",
-    )
-    doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<MarsFirst> FROM LobbyDelegate")
-    doTasks(
-        "Pass",
         "56 MC",
         "3 Titanium",
         "3 Steel",
@@ -792,96 +809,98 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "3 ProjectCard FROM ProjectCard<Selecting>",
     )
     draw(SpecialPermit, DomedCrater, CarbonNanosystems)
-    doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
-    doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
-        "2 Plant",
-        "9 MC",
-    )
-    draw(AdvancedAlloys)
-    discard(SpaceHotels)
-    // Source explicitly preserves steel for later payments.
+    turn {
+      doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
+          "2 Plant",
+          "9 MC",
+      )
+      draw(AdvancedAlloys)
+      discard(SpaceHotels)
+      // Source explicitly preserves steel for later payments.
 
+      doTasks(
+          *playCardTasks("CarbonNanosystems"),
+          "Ok", // no steel paid
+          "14 Pay<> FROM MC",
+          "CarbonNanosystems FROM ProjectCard",
+          "Graphene<CarbonNanosystems>",
+          "-ProjectCard",
+      )
+      doTask("ProjectCard")
+      draw(SmallAnimals)
+      discard(Potatoes)
+      doTasks(
+          *playCardTasks("AdvancedAlloys"),
+          "9 Pay<> FROM MC",
+          "AdvancedAlloys FROM ProjectCard",
+          "Graphene<CarbonNanosystems>",
+          "-ProjectCard",
+      )
+      doTask("ProjectCard")
+      draw(BigAsteroid)
+      doTasks(
+          *playCardTasks("CometForVenus"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no graphene paid
+          "3 Pay<> FROM MC",
+          "CometForVenus FROM ProjectCard",
+          "VenusStep",
+          "3 MC",
+          "3 Heat",
+          "TerraformRating",
+          "ProjectCard",
+          "Ok", // decline Comet for Venus's MC attack
+      )
+      doTasks(
+          *playCardTasks("ImportOfAdvancedGhg"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no graphene paid
+          "Pay<> FROM MC",
+          "ImportOfAdvancedGhg FROM ProjectCard",
+          "PROD[2 Heat]",
+          "3 MC",
+          "3 Heat",
+      )
+      doTasks(
+          *playCardTasks("GhgFactories"),
+          "3 Pay<Class<Steel>> FROM Steel",
+          "2 Pay<> FROM MC",
+          "GhgFactories FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[4 Heat]",
+      )
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Unity> FROM LobbyDelegate")
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Unity>")
+      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(
+          *cardActionTasks("AsteroidRights", "Action2"),
+          "-Asteroid<AsteroidRights>",
+          "2 Titanium",
+      )
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "4 MC")
+      doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
+      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+      doTasks(
+          *playCardTasks("SmallAnimals"),
+          "6 Pay<> FROM MC",
+          "SmallAnimals FROM ProjectCard",
+          "-Production<SoloOpponent, Class<Plant>>",
+      )
+      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
+      doTasks(
+          *playCardTasks("AsteroidMiningConsortium"),
+          "13 Pay<> FROM MC",
+          "AsteroidMiningConsortium FROM ProjectCard",
+          "PROD[Titanium]",
+          "-Production<SoloOpponent, Class<Titanium>>",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        *playCardTasks("CarbonNanosystems"),
-        "Ok", // no steel paid
-        "14 Pay<> FROM MC",
-        "CarbonNanosystems FROM ProjectCard",
-        "Graphene<CarbonNanosystems>",
-        "-ProjectCard",
-    )
-    doTask("ProjectCard")
-    draw(SmallAnimals)
-    discard(Potatoes)
-    doTasks(
-        *playCardTasks("AdvancedAlloys"),
-        "9 Pay<> FROM MC",
-        "AdvancedAlloys FROM ProjectCard",
-        "Graphene<CarbonNanosystems>",
-        "-ProjectCard",
-    )
-    doTask("ProjectCard")
-    draw(BigAsteroid)
-    doTasks(
-        *playCardTasks("CometForVenus"),
-        "2 Pay<Class<Titanium>> FROM Titanium",
-        "Ok", // no graphene paid
-        "3 Pay<> FROM MC",
-        "CometForVenus FROM ProjectCard",
-        "VenusStep",
-        "3 MC",
-        "3 Heat",
-        "TerraformRating",
-        "ProjectCard",
-        "Ok", // decline Comet for Venus's MC attack
-    )
-    doTasks(
-        *playCardTasks("ImportOfAdvancedGhg"),
-        "2 Pay<Class<Titanium>> FROM Titanium",
-        "Ok", // no graphene paid
-        "Pay<> FROM MC",
-        "ImportOfAdvancedGhg FROM ProjectCard",
-        "PROD[2 Heat]",
-        "3 MC",
-        "3 Heat",
-    )
-    doTasks(
-        *playCardTasks("GhgFactories"),
-        "3 Pay<Class<Steel>> FROM Steel",
-        "2 Pay<> FROM MC",
-        "GhgFactories FROM ProjectCard",
-        "PROD[-Energy]",
-        "PROD[4 Heat]",
-    )
-    doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Unity> FROM LobbyDelegate")
-    doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Unity>")
-    doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
-    doTasks(
-        *cardActionTasks("AsteroidRights", "Action2"),
-        "-Asteroid<AsteroidRights>",
-        "2 Titanium",
-    )
-    doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-    doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "4 MC")
-    doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
-    doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-    doTasks(
-        *playCardTasks("SmallAnimals"),
-        "6 Pay<> FROM MC",
-        "SmallAnimals FROM ProjectCard",
-        "-Production<SoloOpponent, Class<Plant>>",
-    )
-    doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
-    doTasks(
-        *playCardTasks("AsteroidMiningConsortium"),
-        "13 Pay<> FROM MC",
-        "AsteroidMiningConsortium FROM ProjectCard",
-        "PROD[Titanium]",
-        "-Production<SoloOpponent, Class<Titanium>>",
-    )
-    doTasks(
-        "Pass",
         "58 MC",
         "4 Titanium",
         "3 Steel",
@@ -902,127 +921,129 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "12 Pay<> FROM MC",
         "4 ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          *playCardTasks("Shuttles"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no graphene paid
+          "0 Pay<> FROM MC",
+          "Shuttles FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[2 MC]",
+      )
+      doTasks(
+          *playCardTasks("BigAsteroid"),
+          "5 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no graphene paid
+          "0 Pay<> FROM MC",
+          "BigAsteroid FROM ProjectCard",
+          "2 TemperatureStep",
+      )
+      doTasks(
+          "4 Titanium",
+          "3 MC",
+          "3 Heat",
+          "TerraformRating",
+          "TerraformRating",
+      )
+      doTasks(
+          "-4 Plant<SoloOpponent>",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+          "OceanTile<Vastitas_5_7>",
+          "TerraformRating",
+          "PROD[MC]",
+          "2 Plant",
+          "9 MC",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_5_4>",
+          "Plant",
+          "6 MC",
+      )
+      doTasks(
+          *playCardTasks("PowerSupplyConsortium"),
+          "5 Pay<> FROM MC",
+          "PowerSupplyConsortium FROM ProjectCard",
+          "-Production<SoloOpponent, Class<Energy>>",
+          "PROD[Energy]",
+      )
+      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Greens>")
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "NormalCityTile<Vastitas_3_5>",
+          "Plant",
+          "0 MC",
+      )
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "NormalCityTile<Vastitas_9_8>",
+          "Titanium",
+          "0 MC",
+      )
+      // Source map variant: area 62 gives steel; our Vastitas map gives titanium.
+      exMachina("Steel, -Titanium")
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "NormalCityTile<Vastitas_4_4>",
+          "Plant",
+          "3 MC",
+      )
+      doTasks(
+          *playCardTasks("StanfordTorus"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no graphene paid
+          "0 Pay<> FROM MC",
+          "StanfordTorus FROM ProjectCard",
+          "NormalCityTile<StanfordTorus_RemoteArea>",
+      )
+      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "7 MC")
+      doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
+      doTasks(*cardActionTasks("AsteroidRights"), "Pay<> FROM MC", "Asteroid<AsteroidRights>")
+      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
+      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+      // The source has seven Mars cities before New Holland, satisfying its printed four-city
+      // requirement.
+      admin.assertCounts(7 to "CityTile<MarsArea, Anyone>")
+      doTasks(
+          *playCardTasks("FakeNewHolland"),
+          "2 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          "4 Pay<Class<Steel>> FROM Steel",
+          "0 Pay<> FROM MC",
+          "FakeNewHolland FROM ProjectCard",
+          "PROD[3 MC]",
+      )
+      // Unsupported component: source area 31 remains an ocean; collect its recorded adjacency
+      // reward.
+      exMachina("3 MC")
+    }
+    doTask("Pass")
     doTasks(
-        *playCardTasks("Shuttles"),
-        "2 Pay<Class<Titanium>> FROM Titanium",
-        "Ok", // no graphene paid
-        "0 Pay<> FROM MC",
-        "Shuttles FROM ProjectCard",
-        "PROD[-Energy]",
-        "PROD[2 MC]",
-    )
-    doTasks(
-        *playCardTasks("BigAsteroid"),
-        "5 Pay<Class<Titanium>> FROM Titanium",
-        "Ok", // no graphene paid
-        "0 Pay<> FROM MC",
-        "BigAsteroid FROM ProjectCard",
-        "2 TemperatureStep",
-    )
-    doTasks(
-        "4 Titanium",
-        "3 MC",
-        "3 Heat",
-        "TerraformRating",
-        "TerraformRating",
-    )
-    doTasks(
-        "-4 Plant<SoloOpponent>",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-        "OceanTile<Vastitas_5_7>",
-        "TerraformRating",
-        "PROD[MC]",
-        "2 Plant",
-        "9 MC",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_5_4>",
-        "Plant",
-        "6 MC",
-    )
-    doTasks(
-        *playCardTasks("PowerSupplyConsortium"),
-        "5 Pay<> FROM MC",
-        "PowerSupplyConsortium FROM ProjectCard",
-        "-Production<SoloOpponent, Class<Energy>>",
-        "PROD[Energy]",
-    )
-    doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
-    doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
-    doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Greens>")
-    doTasks(
-        *standardProjectTasks("CityProject"),
-        "25 Pay<> FROM MC",
-        "PROD[MC]",
-        "NormalCityTile<Vastitas_3_5>",
-        "Plant",
-        "0 MC",
-    )
-    doTasks(
-        *standardProjectTasks("CityProject"),
-        "25 Pay<> FROM MC",
-        "PROD[MC]",
-        "NormalCityTile<Vastitas_9_8>",
-        "Titanium",
-        "0 MC",
-    )
-    // Source map variant: area 62 gives steel; our Vastitas map gives titanium.
-    exMachina("Steel, -Titanium")
-    doTasks(
-        *standardProjectTasks("CityProject"),
-        "25 Pay<> FROM MC",
-        "PROD[MC]",
-        "NormalCityTile<Vastitas_4_4>",
-        "Plant",
-        "3 MC",
-    )
-    doTasks(
-        *playCardTasks("StanfordTorus"),
-        "2 Pay<Class<Titanium>> FROM Titanium",
-        "Ok", // no graphene paid
-        "0 Pay<> FROM MC",
-        "StanfordTorus FROM ProjectCard",
-        "NormalCityTile<StanfordTorus_RemoteArea>",
-    )
-    doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "7 MC")
-    doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
-    doTasks(*cardActionTasks("AsteroidRights"), "Pay<> FROM MC", "Asteroid<AsteroidRights>")
-    doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
-    doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-    // The source has seven Mars cities before New Holland, satisfying its printed four-city
-    // requirement.
-    admin.assertCounts(7 to "CityTile<MarsArea, Anyone>")
-    doTasks(
-        *playCardTasks("FakeNewHolland"),
-        "2 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
-        "4 Pay<Class<Steel>> FROM Steel",
-        "0 Pay<> FROM MC",
-        "FakeNewHolland FROM ProjectCard",
-        "PROD[3 MC]",
-    )
-    // Unsupported component: source area 31 remains an ocean; collect its recorded adjacency
-    // reward.
-    exMachina("3 MC")
-    doTasks(
-        "Pass",
         "73 MC",
         "4 Titanium",
         "3 Steel",
@@ -1043,151 +1064,153 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "3 Pay<> FROM MC",
         "ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_6_3> FROM NomadsMarker<Vastitas_6_4>",
+          "3 MC",
+      )
+      draw(IceCapMelting)
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_4_6>",
+          "OxygenStep",
+          "4 MC",
+          "ProjectCard",
+          "6 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_8_8>",
+          "OxygenStep",
+          "4 MC",
+          "Steel",
+          "TerraformRating",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTask("MC! / Neighbor<OceanTile, Vastitas_8_8>")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_5_5>",
+          "OxygenStep",
+          "4 MC",
+          "TemperatureStep",
+          "5 MC",
+          "2 TerraformRating",
+      )
+      draw(AcquiredCompany)
+      discard(IceCapMelting)
+      doTasks(
+          *playCardTasks("SpecialDesign"),
+          "4 Pay<> FROM MC",
+          "SpecialDesign FROM ProjectCard",
+          "SpecialDesign_NextCardEffect",
+          "Graphene<CarbonNanosystems>",
+          "-ProjectCard",
+      )
+      doTask("ProjectCard")
+      doTasks(
+          *playCardTasks("DomedCrater"),
+          "PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          "4 Pay<Class<Steel>> FROM Steel",
+          "8 Pay<> FROM MC",
+          "DomedCrater FROM ProjectCard",
+          "3 Plant",
+          "PROD[-Energy]",
+          "PROD[3 MC]",
+          "NormalCityTile<Vastitas_8_9>",
+          "Plant",
+          "0 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_5_4>",
+          "OxygenStep",
+          "4 MC",
+          "2 Plant",
+          "9 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("SpecialPermit"),
+          "5 Pay<> FROM MC",
+          "SpecialPermit FROM ProjectCard",
+          "4 Plant FROM Plant<SoloOpponent>",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_7_8>",
+          "OxygenStep",
+          "4 MC",
+          "Plant",
+          "3 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(
+          *cardActionTasks("AsteroidRights", "Action2"),
+          "-Asteroid<AsteroidRights>",
+          "PROD[MC]",
+      )
+      doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
+      draw(QuantumExtractor)
+      discard(ProtectedHabitats)
+      doTasks(
+          *playCardTasks("FusionPower"),
+          "14 Pay<> FROM MC",
+          "FusionPower FROM ProjectCard",
+          "PROD[3 Energy]",
+          "Graphene<CarbonNanosystems>",
+          "-ProjectCard",
+      )
+      doTask("ProjectCard")
+      draw(SolarLogistics)
+      discard(AcquiredCompany)
+      doTasks(
+          *playCardTasks("QuantumExtractor"),
+          "13 Pay<> FROM MC",
+          "QuantumExtractor FROM ProjectCard",
+          "PROD[4 Energy]",
+          "Graphene<CarbonNanosystems>",
+          "-ProjectCard",
+      )
+      doTask("ProjectCard")
+      doTasks(
+          *playCardTasks("SolarLogistics"),
+          "4 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no graphene paid
+          "0 Pay<> FROM MC",
+          "SolarLogistics FROM ProjectCard",
+          "2 Titanium",
+      )
+      doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
+      doTasks(
+          "UseAction<PaidLobbyAction, Action1>",
+          "5 Pay<> FROM MC",
+          "PartyFollower<Scientists>",
+      )
+      doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Scientists>")
+      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "8 MC")
+      // Unsupported component: include New Holland in the source city count.
+      exMachina("MC")
+      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
+      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+    }
+    doTask("Pass")
     doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_6_3> FROM NomadsMarker<Vastitas_6_4>",
-        "3 MC",
-    )
-    draw(IceCapMelting)
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_4_6>",
-        "OxygenStep",
-        "4 MC",
-        "ProjectCard",
-        "6 MC",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_8_8>",
-        "OxygenStep",
-        "4 MC",
-        "Steel",
-        "TerraformRating",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTask("MC! / Neighbor<OceanTile, Vastitas_8_8>")
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_5_5>",
-        "OxygenStep",
-        "4 MC",
-        "TemperatureStep",
-        "5 MC",
-        "2 TerraformRating",
-    )
-    draw(AcquiredCompany)
-    discard(IceCapMelting)
-    doTasks(
-        *playCardTasks("SpecialDesign"),
-        "4 Pay<> FROM MC",
-        "SpecialDesign FROM ProjectCard",
-        "SpecialDesign_NextCardEffect",
-        "Graphene<CarbonNanosystems>",
-        "-ProjectCard",
-    )
-    doTask("ProjectCard")
-    doTasks(
-        *playCardTasks("DomedCrater"),
-        "PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
-        "4 Pay<Class<Steel>> FROM Steel",
-        "8 Pay<> FROM MC",
-        "DomedCrater FROM ProjectCard",
-        "3 Plant",
-        "PROD[-Energy]",
-        "PROD[3 MC]",
-        "NormalCityTile<Vastitas_8_9>",
-        "Plant",
-        "0 MC",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_5_4>",
-        "OxygenStep",
-        "4 MC",
-        "2 Plant",
-        "9 MC",
-        "TerraformRating",
-    )
-    doTasks(
-        *playCardTasks("SpecialPermit"),
-        "5 Pay<> FROM MC",
-        "SpecialPermit FROM ProjectCard",
-        "4 Plant FROM Plant<SoloOpponent>",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_7_8>",
-        "OxygenStep",
-        "4 MC",
-        "Plant",
-        "3 MC",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
-    doTasks(
-        *cardActionTasks("AsteroidRights", "Action2"),
-        "-Asteroid<AsteroidRights>",
-        "PROD[MC]",
-    )
-    doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
-    draw(QuantumExtractor)
-    discard(ProtectedHabitats)
-    doTasks(
-        *playCardTasks("FusionPower"),
-        "14 Pay<> FROM MC",
-        "FusionPower FROM ProjectCard",
-        "PROD[3 Energy]",
-        "Graphene<CarbonNanosystems>",
-        "-ProjectCard",
-    )
-    doTask("ProjectCard")
-    draw(SolarLogistics)
-    discard(AcquiredCompany)
-    doTasks(
-        *playCardTasks("QuantumExtractor"),
-        "13 Pay<> FROM MC",
-        "QuantumExtractor FROM ProjectCard",
-        "PROD[4 Energy]",
-        "Graphene<CarbonNanosystems>",
-        "-ProjectCard",
-    )
-    doTask("ProjectCard")
-    doTasks(
-        *playCardTasks("SolarLogistics"),
-        "4 Pay<Class<Titanium>> FROM Titanium",
-        "Ok", // no graphene paid
-        "0 Pay<> FROM MC",
-        "SolarLogistics FROM ProjectCard",
-        "2 Titanium",
-    )
-    doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
-    doTasks(
-        "UseAction<PaidLobbyAction, Action1>",
-        "5 Pay<> FROM MC",
-        "PartyFollower<Scientists>",
-    )
-    doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Scientists>")
-    doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "8 MC")
-    // Unsupported component: include New Holland in the source city count.
-    exMachina("MC")
-    doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
-    doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-    doTasks(
-        "Pass",
         "86 MC",
         "4 Titanium",
         "3 Steel",
@@ -1209,165 +1232,167 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "2 ProjectCard FROM ProjectCard<Selecting>",
     )
     draw(KelpFarming, FueledGenerators, ResearchCoordination)
-    doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+    turn {
+      doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+          "TerraformRating",
+      )
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "NormalCityTile<Vastitas_4_1>",
+          "2 Steel",
+          "0 MC",
+      )
+      draw(AiCentral)
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_3_1>",
+          "OxygenStep",
+          "ProjectCard",
+          "0 MC",
+          "TerraformRating",
+      )
+      draw(CorroderSuits)
+      discard(FueledGenerators)
+      doTasks(
+          *playCardTasks("AiCentral"),
+          "5 Pay<Class<Steel>> FROM Steel",
+          "6 Pay<> FROM MC",
+          "AiCentral FROM ProjectCard",
+          "PROD[-Energy]",
+          "Graphene<CarbonNanosystems>",
+          "-ProjectCard",
+      )
+      doTask("ProjectCard")
+      draw(Soletta, HiredRaiders)
+      doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard")
+      // Test inference: two stolen steel are required by the subsequent payments and final stock.
+      doTasks(
+          *playCardTasks("HiredRaiders"),
+          "Pay<> FROM MC",
+          "HiredRaiders FROM ProjectCard",
+          "2 Steel FROM Steel<SoloOpponent>",
+      )
+      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
+      doTasks(
+          *cardActionTasks("MarsNomads"),
+          "NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_6_3>",
+          "Plant",
+          "6 MC",
+      )
+      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
+      doTasks(
+          *playCardTasks("GanymedeColony"),
+          "4 Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no graphene paid
+          "0 Pay<> FROM MC",
+          "GanymedeColony FROM ProjectCard",
+          "NormalCityTile<GanymedeColony_RemoteArea>",
+      )
+      doTasks(
+          *playCardTasks("KelpFarming"),
+          "17 Pay<> FROM MC",
+          "KelpFarming FROM ProjectCard",
+          "PROD[2 MC]",
+          "PROD[3 Plant]",
+          "2 Plant",
+      )
+      // Test inference: the source gives the sale count, not card identities.
+      discard(CorroderSuits, ResearchCoordination, Soletta)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("EquatorialMagnetizer"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "5 Pay<> FROM MC",
+          "EquatorialMagnetizer FROM ProjectCard",
+      )
+      doTasks(*cardActionTasks("EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
+      doTasks(
+          *playCardTasks("PublicBaths"),
+          "6 Pay<> FROM MC",
+          "PublicBaths FROM ProjectCard",
+          "6 MC",
+      )
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "NormalCityTile<Vastitas_4_7>",
+          "Plant",
+          "6 MC",
+      )
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Vastitas_4_8>",
+          "OxygenStep",
+          "3 MC",
+          "TerraformRating",
+          "PartyLeader<Scientists>",
+      )
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "NormalCityTile<Vastitas_8_6>",
+          "Plant",
+          "3 MC",
+      )
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "NormalCityTile<Vastitas_2_1>",
+          "2 Plant",
+          "0 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_4_5>",
+          "OxygenStep",
+          "3 MC",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "12 MC")
+      // Unsupported component: include New Holland in the source city count.
+      exMachina("MC")
+      doTasks(
+          *playCardTasks("Greenhouses"),
+          "6 Pay<> FROM MC",
+          "Greenhouses FROM ProjectCard",
+          "14 Plant",
+      )
+      // Unsupported component: New Holland is also a city for Greenhouses.
+      exMachina("Plant")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_4_2>",
+          "0 OxygenStep",
+          "Titanium",
+          "6 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_5_2>",
+          "0 OxygenStep",
+          "3 MC",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        *standardProjectTasks("AirScrappingProject"),
-        "15 Pay<> FROM MC",
-        "VenusStep",
-        "TerraformRating",
-        "TerraformRating",
-    )
-    doTasks(
-        *standardProjectTasks("CityProject"),
-        "25 Pay<> FROM MC",
-        "PROD[MC]",
-        "NormalCityTile<Vastitas_4_1>",
-        "2 Steel",
-        "0 MC",
-    )
-    draw(AiCentral)
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_3_1>",
-        "OxygenStep",
-        "ProjectCard",
-        "0 MC",
-        "TerraformRating",
-    )
-    draw(CorroderSuits)
-    discard(FueledGenerators)
-    doTasks(
-        *playCardTasks("AiCentral"),
-        "5 Pay<Class<Steel>> FROM Steel",
-        "6 Pay<> FROM MC",
-        "AiCentral FROM ProjectCard",
-        "PROD[-Energy]",
-        "Graphene<CarbonNanosystems>",
-        "-ProjectCard",
-    )
-    doTask("ProjectCard")
-    draw(Soletta, HiredRaiders)
-    doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard")
-    // Test inference: two stolen steel are required by the subsequent payments and final stock.
-    doTasks(
-        *playCardTasks("HiredRaiders"),
-        "Pay<> FROM MC",
-        "HiredRaiders FROM ProjectCard",
-        "2 Steel FROM Steel<SoloOpponent>",
-    )
-    doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-    doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
-    doTasks(
-        *cardActionTasks("MarsNomads"),
-        "NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_6_3>",
-        "Plant",
-        "6 MC",
-    )
-    doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
-    doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
-    doTasks(
-        *playCardTasks("GanymedeColony"),
-        "4 Pay<Class<Titanium>> FROM Titanium",
-        "Ok", // no graphene paid
-        "0 Pay<> FROM MC",
-        "GanymedeColony FROM ProjectCard",
-        "NormalCityTile<GanymedeColony_RemoteArea>",
-    )
-    doTasks(
-        *playCardTasks("KelpFarming"),
-        "17 Pay<> FROM MC",
-        "KelpFarming FROM ProjectCard",
-        "PROD[2 MC]",
-        "PROD[3 Plant]",
-        "2 Plant",
-    )
-    // Test inference: the source gives the sale count, not card identities.
-    discard(CorroderSuits, ResearchCoordination, Soletta)
-    doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
-    doTasks(
-        *playCardTasks("EquatorialMagnetizer"),
-        "2 Pay<Class<Steel>> FROM Steel",
-        "5 Pay<> FROM MC",
-        "EquatorialMagnetizer FROM ProjectCard",
-    )
-    doTasks(*cardActionTasks("EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
-    doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
-    doTasks(
-        *playCardTasks("PublicBaths"),
-        "6 Pay<> FROM MC",
-        "PublicBaths FROM ProjectCard",
-        "6 MC",
-    )
-    doTasks(
-        *standardProjectTasks("CityProject"),
-        "25 Pay<> FROM MC",
-        "PROD[MC]",
-        "NormalCityTile<Vastitas_4_7>",
-        "Plant",
-        "6 MC",
-    )
-    doTasks(
-        *standardProjectTasks("GreeneryProject"),
-        "23 Pay<> FROM MC",
-        "GreeneryTile<Vastitas_4_8>",
-        "OxygenStep",
-        "3 MC",
-        "TerraformRating",
-        "PartyLeader<Scientists>",
-    )
-    doTasks(
-        *standardProjectTasks("CityProject"),
-        "25 Pay<> FROM MC",
-        "PROD[MC]",
-        "NormalCityTile<Vastitas_8_6>",
-        "Plant",
-        "3 MC",
-    )
-    doTasks(
-        *standardProjectTasks("CityProject"),
-        "25 Pay<> FROM MC",
-        "PROD[MC]",
-        "NormalCityTile<Vastitas_2_1>",
-        "2 Plant",
-        "0 MC",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_4_5>",
-        "OxygenStep",
-        "3 MC",
-        "TerraformRating",
-    )
-    doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "12 MC")
-    // Unsupported component: include New Holland in the source city count.
-    exMachina("MC")
-    doTasks(
-        *playCardTasks("Greenhouses"),
-        "6 Pay<> FROM MC",
-        "Greenhouses FROM ProjectCard",
-        "14 Plant",
-    )
-    // Unsupported component: New Holland is also a city for Greenhouses.
-    exMachina("Plant")
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_4_2>",
-        "0 OxygenStep",
-        "Titanium",
-        "6 MC",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_5_2>",
-        "0 OxygenStep",
-        "3 MC",
-    )
-    doTasks(
-        "Pass",
         "98 MC",
         "4 Titanium",
         "3 Steel",
@@ -1391,160 +1416,162 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "ProjectCard FROM ProjectCard<Selecting>",
     )
     draw(LunarBeam, InventionContest)
-    doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard")
-    draw(TransNeptuneProbe, GhgShipment)
-    discard(LunarBeam)
+    turn {
+      doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard")
+      draw(TransNeptuneProbe, GhgShipment)
+      discard(LunarBeam)
+      doTasks(
+          *playCardTasks("InventionContest"),
+          "2 Pay<> FROM MC",
+          "InventionContest FROM ProjectCard",
+          "3 ProjectCard<Selecting>",
+          "ProjectCard FROM ProjectCard<Selecting>",
+          "Graphene<CarbonNanosystems>",
+          "-ProjectCard",
+      )
+      doTask("ProjectCard")
+      draw(FieldCappedCity)
+      doTasks(
+          *playCardTasks("GhgShipment"),
+          "GhgShipment FROM ProjectCard",
+          "PROD[Heat]",
+          "Heat",
+          "3 MC",
+          "3 Heat",
+          "ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("TransNeptuneProbe"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "Ok", // no graphene paid
+          "0 Pay<> FROM MC",
+          "TransNeptuneProbe FROM ProjectCard",
+          "Graphene<CarbonNanosystems>",
+          "Ok", // decline the Mars University exchange
+      )
+      doTasks(
+          *playCardTasks("FieldCappedCity"),
+          "5 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          "3 Pay<Class<Steel>> FROM Steel",
+          "0 Pay<> FROM MC",
+          "FieldCappedCity FROM ProjectCard",
+          "PROD[2 MC]",
+          "PROD[Energy]",
+          "3 Plant",
+          "NormalCityTile<Vastitas_6_8>",
+          "Plant",
+          "9 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_6_3>",
+          "0 OxygenStep",
+          "3 MC",
+      )
+      doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
+      doTasks(*cardActionTasks("EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
+      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
+      doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Kelvinists> FROM LobbyDelegate")
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Vastitas_2_2>",
+          "0 OxygenStep",
+          "2 Plant",
+          "0 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Vastitas_1_1>",
+          "0 OxygenStep",
+          "Plant",
+          "0 MC",
+      )
+      doTasks(
+          *playCardTasks("Trees"),
+          "13 Pay<> FROM MC",
+          "Trees FROM ProjectCard",
+          "PROD[3 Plant]",
+          "Plant",
+      )
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Vastitas_2_5>",
+          "0 OxygenStep",
+          "Plant",
+          "0 MC",
+      )
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Vastitas_3_6>",
+          "0 OxygenStep",
+          "0 MC",
+      )
+      doTasks(
+          *standardProjectTasks("CityProject"),
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "NormalCityTile<Vastitas_2_3>",
+          "0 MC",
+      )
+      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "14 MC")
+      // Unsupported component: include New Holland in the source city count.
+      exMachina("MC")
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Vastitas_9_9>",
+          "0 OxygenStep",
+          "Steel",
+          "0 MC",
+      )
+      // Source map variant: area 63 gives titanium; our Vastitas map gives steel.
+      exMachina("Titanium, -Steel")
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        *playCardTasks("InventionContest"),
-        "2 Pay<> FROM MC",
-        "InventionContest FROM ProjectCard",
-        "3 ProjectCard<Selecting>",
-        "ProjectCard FROM ProjectCard<Selecting>",
-        "Graphene<CarbonNanosystems>",
-        "-ProjectCard",
-    )
-    doTask("ProjectCard")
-    draw(FieldCappedCity)
-    doTasks(
-        *playCardTasks("GhgShipment"),
-        "GhgShipment FROM ProjectCard",
-        "PROD[Heat]",
-        "Heat",
-        "3 MC",
-        "3 Heat",
-        "ProjectCard",
-    )
-    doTasks(
-        *playCardTasks("TransNeptuneProbe"),
-        "Pay<Class<Titanium>> FROM Titanium",
-        "Ok", // no graphene paid
-        "0 Pay<> FROM MC",
-        "TransNeptuneProbe FROM ProjectCard",
-        "Graphene<CarbonNanosystems>",
-        "Ok", // decline the Mars University exchange
-    )
-    doTasks(
-        *playCardTasks("FieldCappedCity"),
-        "5 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
-        "3 Pay<Class<Steel>> FROM Steel",
-        "0 Pay<> FROM MC",
-        "FieldCappedCity FROM ProjectCard",
-        "PROD[2 MC]",
-        "PROD[Energy]",
-        "3 Plant",
-        "NormalCityTile<Vastitas_6_8>",
-        "Plant",
-        "9 MC",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_6_3>",
-        "0 OxygenStep",
-        "3 MC",
-    )
-    doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
-    doTasks(*cardActionTasks("EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
-    doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-    doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
-    doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
-    doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Kelvinists> FROM LobbyDelegate")
-    doTasks(
-        *standardProjectTasks("GreeneryProject"),
-        "23 Pay<> FROM MC",
-        "GreeneryTile<Vastitas_2_2>",
-        "0 OxygenStep",
-        "2 Plant",
-        "0 MC",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Vastitas_1_1>",
-        "0 OxygenStep",
-        "Plant",
-        "0 MC",
-    )
-    doTasks(
-        *playCardTasks("Trees"),
-        "13 Pay<> FROM MC",
-        "Trees FROM ProjectCard",
-        "PROD[3 Plant]",
-        "Plant",
-    )
-    doTasks(
-        *standardProjectTasks("GreeneryProject"),
-        "23 Pay<> FROM MC",
-        "GreeneryTile<Vastitas_2_5>",
-        "0 OxygenStep",
-        "Plant",
-        "0 MC",
-    )
-    doTasks(
-        *standardProjectTasks("GreeneryProject"),
-        "23 Pay<> FROM MC",
-        "GreeneryTile<Vastitas_3_6>",
-        "0 OxygenStep",
-        "0 MC",
-    )
-    doTasks(
-        *standardProjectTasks("CityProject"),
-        "25 Pay<> FROM MC",
-        "PROD[MC]",
-        "NormalCityTile<Vastitas_2_3>",
-        "0 MC",
-    )
-    doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "14 MC")
-    // Unsupported component: include New Holland in the source city count.
-    exMachina("MC")
-    doTasks(
-        *standardProjectTasks("GreeneryProject"),
-        "23 Pay<> FROM MC",
-        "GreeneryTile<Vastitas_9_9>",
-        "0 OxygenStep",
-        "Steel",
-        "0 MC",
-    )
-    // Source map variant: area 63 gives titanium; our Vastitas map gives steel.
-    exMachina("Titanium, -Steel")
-    doTasks(
-        *standardProjectTasks("AirScrappingProject"),
-        "15 Pay<> FROM MC",
-        "VenusStep",
-        "TerraformRating",
-    )
-    doTasks(
-        *standardProjectTasks("AirScrappingProject"),
-        "15 Pay<> FROM MC",
-        "VenusStep",
-        "TerraformRating",
-    )
-    doTasks(
-        *standardProjectTasks("AirScrappingProject"),
-        "15 Pay<> FROM MC",
-        "VenusStep",
-        "TerraformRating",
-    )
-    doTasks(
-        *standardProjectTasks("AirScrappingProject"),
-        "15 Pay<> FROM MC",
-        "VenusStep",
-        "TerraformRating",
-    )
-    doTasks(
-        *standardProjectTasks("AirScrappingProject"),
-        "15 Pay<> FROM MC",
-        "VenusStep",
-        "TerraformRating",
-    )
-    doTasks(
-        *standardProjectTasks("AirScrappingProject"),
-        "15 Pay<> FROM MC",
-        "VenusStep",
-        "TerraformRating",
-    )
-    doTasks(
-        "Pass",
         "108 MC",
         "4 Titanium",
         "3 Steel",

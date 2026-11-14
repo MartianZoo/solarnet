@@ -120,165 +120,167 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
           "2 SearchForCard<TagFilter<Class<SpaceTag>>>",
       )
 
-      doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
-      doTasks(*playCardTasks("$MediaGroup"), "3 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
-      doTasks(
-          *playCardTasks("$InvestmentLoan"),
-          "$InvestmentLoan FROM ProjectCard",
-          "PROD[-MC]",
-          "10 MC",
-          "3 MC",
-      )
-      doTasks(*playCardTasks("$IndenturedWorkers"), "$IndenturedWorkers FROM ProjectCard", "3 MC")
-      doTask("IndenturedWorkers_NextCardEffect")
-      doTasks(
-          *playCardTasks("$EarthCatapult"),
-          "12 Pay<> FROM MC",
-          "$EarthCatapult FROM ProjectCard",
-      )
-      doTasks(
-          *playCardTasks("$HiredRaiders"),
-          "$HiredRaiders FROM ProjectCard",
-          "2 Steel<Me> FROM Steel<SoloOpponent>",
-          "3 MC",
-      )
-      doTasks(
-          *playCardTasks("$OlympusConference"),
-          "2 Pay<Class<Steel>> FROM Steel",
-          "1 Pay<> FROM MC",
-          "$OlympusConference FROM ProjectCard",
-      )
-      doTask("Science<$OlympusConference>")
-      draw(TechnologyDemonstration)
-      doTasks(
-          *playCardTasks("$AdvancedAlloys"),
-          "7 Pay<> FROM MC",
-          "$AdvancedAlloys FROM ProjectCard",
-          "ProjectCard FROM Science",
-      )
-      doTasks(
-          *playCardTasks("$MineralDeposit"),
-          "3 Pay<> FROM MC",
-          "$MineralDeposit FROM ProjectCard",
-          "5 Steel",
-      )
-      doTask("3 MC")
-      draw(ImportOfAdvancedGhg)
-      doTasks(
-          *playCardTasks("$ResearchOutpost"),
-          "5 Pay<Class<Steel>> FROM Steel",
-          "1 Pay<> FROM MC",
-          "$ResearchOutpost FROM ProjectCard",
-          "CityTile<Elysium_9_7>",
-          "Science<$OlympusConference>",
-          "ProjectCard",
-      )
-      draw(ImportedGhg, MassConverter)
-      doTasks(
-          *playCardTasks("$InventionContest"),
-          "$InventionContest FROM ProjectCard",
-          "ProjectCard FROM Science",
-          "3 ProjectCard<Selecting>",
-          "ProjectCard<Hand FROM Selecting>",
-          "3 MC",
-      )
-      draw(TowingAComet, AdaptationTechnology)
-      doTasks(
-          *playCardTasks("$BusinessContacts"),
-          "1 Pay<> FROM MC",
-          "$BusinessContacts FROM ProjectCard",
-          "4 ProjectCard<Selecting>",
-          "2 ProjectCard<Hand FROM Selecting>",
-          "3 MC",
-      )
-      doTasks(
-          *playCardTasks("$QuantumExtractor"),
-          "10 Pay<> FROM MC",
-          "$QuantumExtractor FROM ProjectCard",
-          "Science<$OlympusConference>",
-          "PROD[4 Energy]",
-      )
-      doTasks(
-          *playCardTasks("$SpaceStation"),
-          "1 Pay<Class<Titanium>> FROM Titanium",
-          "1 Pay<> FROM MC",
-          "$SpaceStation FROM ProjectCard",
-      )
-      doTasks(*playCardTasks("$OptimalAerobraking"), "$OptimalAerobraking FROM ProjectCard")
-      // Test inference: Lagrange Observatory is free after the accumulated space discounts and
-      // draws twice with Olympus Conference. Convoy from Europa costs 3 M€, rebates 6 M€, draws a
-      // replacement card, and places an ocean.
-      draw(SpecialDesign, Shuttles, LagrangeObservatory)
-      doTasks(
-          *playCardTasks("$TechnologyDemonstration"),
-          "$TechnologyDemonstration FROM ProjectCard",
-          "2 ProjectCard",
-          "ProjectCard FROM Science",
-          "3 MC",
-          "3 MC",
-          "3 Heat",
-      )
-      doTasks(
-          *playCardTasks("$ImportOfAdvancedGhg"),
-          "$ImportOfAdvancedGhg FROM ProjectCard",
-          "PROD[2 Heat]",
-          "3 MC",
-          "3 MC",
-          "3 Heat",
-      )
-      doTasks(
-          *playCardTasks("$ImportedGhg"),
-          "$ImportedGhg FROM ProjectCard",
-          "PROD[Heat]",
-          "6 Heat",
-          "3 MC",
-          "3 MC",
-      )
-      doTasks(
-          *playCardTasks("$MassConverter"),
-          "5 Pay<> FROM MC",
-          "$MassConverter FROM ProjectCard",
-          "Science<$OlympusConference>",
-          "PROD[6 Energy]",
-      )
-      doTasks(
-          *playCardTasks("$TowingAComet"),
-          "3 Pay<Class<Titanium>> FROM Titanium",
-          "2 Pay<> FROM MC",
-          "$TowingAComet FROM ProjectCard",
-          "2 Plant",
-          "OxygenStep",
-          "TerraformRating",
-          "OceanTile<Elysium_1_2>",
-          "Titanium",
-          "TerraformRating",
-          "3 MC",
-          "3 MC",
-          "3 Heat",
-      )
-      doTasks(
-          *playCardTasks("$AdaptationTechnology"),
-          "9 Pay<> FROM MC",
-          "$AdaptationTechnology FROM ProjectCard",
-          "Science<$OlympusConference>",
-      )
-      draw(ConvoyFromEuropa)
-      doTasks(
-          *playCardTasks("$SpecialDesign"),
-          "1 Pay<> FROM MC",
-          "$SpecialDesign FROM ProjectCard",
-          "ProjectCard FROM Science",
-          "3 MC",
-      )
-      doTask("SpecialDesign_NextCardEffect")
-      doTasks(
-          *playCardTasks("$Shuttles"),
-          "Ok", // no titanium paid
-          "1 Pay<> FROM MC",
-          "$Shuttles FROM ProjectCard",
-          "PROD[-Energy]",
-          "PROD[2 MC]",
-      )
+      me.turn {
+        doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
+        doTasks(*playCardTasks("$MediaGroup"), "3 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
+        doTasks(
+            *playCardTasks("$InvestmentLoan"),
+            "$InvestmentLoan FROM ProjectCard",
+            "PROD[-MC]",
+            "10 MC",
+            "3 MC",
+        )
+        doTasks(*playCardTasks("$IndenturedWorkers"), "$IndenturedWorkers FROM ProjectCard", "3 MC")
+        doTask("IndenturedWorkers_NextCardEffect")
+        doTasks(
+            *playCardTasks("$EarthCatapult"),
+            "12 Pay<> FROM MC",
+            "$EarthCatapult FROM ProjectCard",
+        )
+        doTasks(
+            *playCardTasks("$HiredRaiders"),
+            "$HiredRaiders FROM ProjectCard",
+            "2 Steel<Me> FROM Steel<SoloOpponent>",
+            "3 MC",
+        )
+        doTasks(
+            *playCardTasks("$OlympusConference"),
+            "2 Pay<Class<Steel>> FROM Steel",
+            "1 Pay<> FROM MC",
+            "$OlympusConference FROM ProjectCard",
+        )
+        doTask("Science<$OlympusConference>")
+        draw(TechnologyDemonstration)
+        doTasks(
+            *playCardTasks("$AdvancedAlloys"),
+            "7 Pay<> FROM MC",
+            "$AdvancedAlloys FROM ProjectCard",
+            "ProjectCard FROM Science",
+        )
+        doTasks(
+            *playCardTasks("$MineralDeposit"),
+            "3 Pay<> FROM MC",
+            "$MineralDeposit FROM ProjectCard",
+            "5 Steel",
+        )
+        doTask("3 MC")
+        draw(ImportOfAdvancedGhg)
+        doTasks(
+            *playCardTasks("$ResearchOutpost"),
+            "5 Pay<Class<Steel>> FROM Steel",
+            "1 Pay<> FROM MC",
+            "$ResearchOutpost FROM ProjectCard",
+            "CityTile<Elysium_9_7>",
+            "Science<$OlympusConference>",
+            "ProjectCard",
+        )
+        draw(ImportedGhg, MassConverter)
+        doTasks(
+            *playCardTasks("$InventionContest"),
+            "$InventionContest FROM ProjectCard",
+            "ProjectCard FROM Science",
+            "3 ProjectCard<Selecting>",
+            "ProjectCard<Hand FROM Selecting>",
+            "3 MC",
+        )
+        draw(TowingAComet, AdaptationTechnology)
+        doTasks(
+            *playCardTasks("$BusinessContacts"),
+            "1 Pay<> FROM MC",
+            "$BusinessContacts FROM ProjectCard",
+            "4 ProjectCard<Selecting>",
+            "2 ProjectCard<Hand FROM Selecting>",
+            "3 MC",
+        )
+        doTasks(
+            *playCardTasks("$QuantumExtractor"),
+            "10 Pay<> FROM MC",
+            "$QuantumExtractor FROM ProjectCard",
+            "Science<$OlympusConference>",
+            "PROD[4 Energy]",
+        )
+        doTasks(
+            *playCardTasks("$SpaceStation"),
+            "1 Pay<Class<Titanium>> FROM Titanium",
+            "1 Pay<> FROM MC",
+            "$SpaceStation FROM ProjectCard",
+        )
+        doTasks(*playCardTasks("$OptimalAerobraking"), "$OptimalAerobraking FROM ProjectCard")
+        // Test inference: Lagrange Observatory is free after the accumulated space discounts and
+        // draws twice with Olympus Conference. Convoy from Europa costs 3 M€, rebates 6 M€, draws a
+        // replacement card, and places an ocean.
+        draw(SpecialDesign, Shuttles, LagrangeObservatory)
+        doTasks(
+            *playCardTasks("$TechnologyDemonstration"),
+            "$TechnologyDemonstration FROM ProjectCard",
+            "2 ProjectCard",
+            "ProjectCard FROM Science",
+            "3 MC",
+            "3 MC",
+            "3 Heat",
+        )
+        doTasks(
+            *playCardTasks("$ImportOfAdvancedGhg"),
+            "$ImportOfAdvancedGhg FROM ProjectCard",
+            "PROD[2 Heat]",
+            "3 MC",
+            "3 MC",
+            "3 Heat",
+        )
+        doTasks(
+            *playCardTasks("$ImportedGhg"),
+            "$ImportedGhg FROM ProjectCard",
+            "PROD[Heat]",
+            "6 Heat",
+            "3 MC",
+            "3 MC",
+        )
+        doTasks(
+            *playCardTasks("$MassConverter"),
+            "5 Pay<> FROM MC",
+            "$MassConverter FROM ProjectCard",
+            "Science<$OlympusConference>",
+            "PROD[6 Energy]",
+        )
+        doTasks(
+            *playCardTasks("$TowingAComet"),
+            "3 Pay<Class<Titanium>> FROM Titanium",
+            "2 Pay<> FROM MC",
+            "$TowingAComet FROM ProjectCard",
+            "2 Plant",
+            "OxygenStep",
+            "TerraformRating",
+            "OceanTile<Elysium_1_2>",
+            "Titanium",
+            "TerraformRating",
+            "3 MC",
+            "3 MC",
+            "3 Heat",
+        )
+        doTasks(
+            *playCardTasks("$AdaptationTechnology"),
+            "9 Pay<> FROM MC",
+            "$AdaptationTechnology FROM ProjectCard",
+            "Science<$OlympusConference>",
+        )
+        draw(ConvoyFromEuropa)
+        doTasks(
+            *playCardTasks("$SpecialDesign"),
+            "1 Pay<> FROM MC",
+            "$SpecialDesign FROM ProjectCard",
+            "ProjectCard FROM Science",
+            "3 MC",
+        )
+        doTask("SpecialDesign_NextCardEffect")
+        doTasks(
+            *playCardTasks("$Shuttles"),
+            "Ok", // no titanium paid
+            "1 Pay<> FROM MC",
+            "$Shuttles FROM ProjectCard",
+            "PROD[-Energy]",
+            "PROD[2 MC]",
+        )
+      }
 
       assertCardTrackingComplete()
 

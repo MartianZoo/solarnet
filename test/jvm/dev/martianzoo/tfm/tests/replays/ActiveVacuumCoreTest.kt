@@ -22,7 +22,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           """
           TharsisMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards
-          fakes:cards
 
           Diversifier, Mayor, Builder, Coastguard, Terran, Metallurgist
           Visionary, Landlord, Investor, Forecaster, Traveller, Celebrity
@@ -227,7 +226,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       doTasks(
           *playCardTasks("$CometAiming"),
@@ -237,7 +236,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks("DoRequiredActions", "Investor")
       doTasks(
           *playCardTasks("$IndustrialMicrobes"),
@@ -250,12 +249,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       giveTask(green, "-4 MC")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Titanium")
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks("DoRequiredActions", "3 ProjectCard")
       doTasks(
           *playCardTasks("$BribedCommittee"),
@@ -265,28 +263,26 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *cardActionTasks("$CometAiming"),
           "Pay<Class<Titanium>> FROM Titanium",
           "Asteroid<$AstroDrill>",
       )
-      doTask("PassBaton")
     }
 
     pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$CuttingEdgeTechnology"),
           "12 Pay<> FROM MC",
           "$CuttingEdgeTechnology FROM ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$WaterToVenus"),
           "9 Pay<> FROM MC",
@@ -305,7 +301,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
 
     blue.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$SulphurEatingBacteria"),
           "4 Pay<> FROM MC",
@@ -313,15 +309,14 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "Disease<$PharmacyUnion>",
           "-MC",
       )
-      doTask("PassBaton")
     }
 
     purple.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
-      doTask("Pass")
     }
+    green.doTask("Pass")
 
     // Production.
     blue.doTasks("27 MC", "Plant", "Steel")
@@ -385,7 +380,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     purple.assertDashRight(events = 2, tagless = 1, cities = 0)
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 14)
 
-    with(pink) {
+    pink.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$Soletta"),
@@ -395,17 +390,16 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$Omnicourt"),
           "9 Pay<> FROM MC",
           "$Omnicourt FROM ProjectCard",
           "2 TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$SolarPower"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -413,10 +407,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "$SolarPower FROM ProjectCard",
           "PROD[Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       doTasks(
           *cardActionTasks("$CometAiming"),
@@ -427,12 +420,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
 
     pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$MagneticFieldDome"),
           "5 Pay<> FROM MC",
@@ -441,10 +433,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[Plant]",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$IceAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -458,24 +449,21 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "2 Plant",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$AppliedScience"),
           "-Science<$AppliedScience>",
           "Microbe<$SulphurEatingBacteria>",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "12 Pay<> FROM MC",
@@ -495,10 +483,10 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
 
     purple.doTask("Pass")
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
-      doTask("Pass")
     }
+    blue.doTask("Pass")
 
     // Production.
     blue.doTasks("29 MC", "Plant", "Steel")
@@ -562,7 +550,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     purple.assertDashRight(events = 2, tagless = 1, cities = 0)
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 2, venus = 16)
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$LightningHarvest"),
           "6 Pay<> FROM MC",
@@ -570,10 +558,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[Energy]",
           "PROD[MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$DeimosDownPromo"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -593,10 +580,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "2 MC",
           "-6 Plant<Blue>",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *cardActionTasks("$CometAiming", "Action2"),
           "-Asteroid<$CometAiming>",
@@ -606,19 +592,17 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "2 Plant",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$DirectedImpactors"),
           "8 Pay<> FROM MC",
           "$DirectedImpactors FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Plant")
       doTasks(
           *playCardTasks("$Moss"),
@@ -629,7 +613,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$PowerSupplyConsortium"),
           "5 Pay<> FROM MC",
@@ -637,29 +621,26 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[Energy]",
           "PROD[-Energy<Pink>]",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$DirectedImpactors"),
           "6 Pay<> FROM MC",
           "Asteroid<$DirectedImpactors>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Diversifier")
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$Teslaract"),
           "5 Pay<Class<Steel>> FROM Steel",
@@ -667,10 +648,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "$Teslaract FROM ProjectCard",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$MiningExpedition"),
           "12 Pay<> FROM MC",
@@ -680,39 +660,35 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating",
           "-2 Plant<Purple>",
       )
-      doTask("PassBaton")
     }
 
     pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Teslaract"), "PROD[-Energy]", "PROD[Plant]")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$WeatherBalloons"),
           "11 Pay<> FROM MC",
           "$WeatherBalloons FROM ProjectCard",
           "ProjectCard",
       )
-      doTask("PassBaton")
     }
 
     green.doTask("Pass")
 
     purple.doTask("Pass")
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
-      doTask("Pass")
     }
+    blue.doTask("Pass")
 
     // Production.
     blue.doTasks("31 MC", "Plant", "Steel")
@@ -784,7 +760,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$DeepWellHeating"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -803,38 +779,35 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
           "$EarthCatapult FROM ProjectCard",
           "3 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$AppliedScience"),
           "-Science<$AppliedScience>",
           "Microbe<$SulphurEatingBacteria>",
       )
-      doTask("PassBaton")
     }
 
     purple.doTask("Pass")
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$AstroDrill"), "Asteroid<$CometAiming>")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$HomeostasisBureau"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -842,10 +815,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "$HomeostasisBureau FROM ProjectCard",
           "PROD[2 Heat]",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$VenusianPlants"),
           "11 Pay<> FROM MC",
@@ -854,10 +826,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating",
           "Microbe<$SulphurEatingBacteria>",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$NoctisFarming"),
           "5 Pay<Class<Steel>> FROM Steel",
@@ -878,7 +849,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -886,10 +857,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating",
           "3 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$TransNeptuneProbe"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -897,10 +867,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "$TransNeptuneProbe FROM ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$MethaneFromTitan"),
           "4 Pay<Class<Titanium>> FROM Titanium",
@@ -909,10 +878,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[2 Heat]",
           "PROD[2 Plant]",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -920,29 +888,26 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating",
           "3 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$SulphurEatingBacteria", "Action2"),
           "-6 Microbe<$SulphurEatingBacteria>",
           "18 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$TerraformingContract"),
           "8 Pay<> FROM MC",
           "$TerraformingContract FROM ProjectCard",
           "PROD[4 MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$DirectedImpactors", "Action2"),
           "-Asteroid<$DirectedImpactors>",
@@ -950,20 +915,18 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating",
           "3 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$Solarnet"),
           "5 Pay<> FROM MC",
           "$Solarnet FROM ProjectCard",
           "2 ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *cardActionTasks("$CometAiming", "Action2"),
           "-Asteroid<$CometAiming>",
@@ -973,12 +936,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "Plant",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
     pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$SnowAlgae"),
           "10 Pay<> FROM MC",
@@ -986,7 +948,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[Plant]",
           "PROD[Heat]",
       )
-      doTask("PassBaton")
     }
 
     blue.doTask("Pass")
@@ -1063,12 +1024,12 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$SterlingVents"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -1092,7 +1053,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
@@ -1101,20 +1062,18 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "Production<Class<Metal>(HAS PlacementBonus<LandArea(HAS MiningRights_SpecialTile)>)>",
           "2 Steel",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       doTasks(
           *cardActionTasks("$CometAiming"),
@@ -1123,7 +1082,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1131,15 +1090,13 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating",
           "3 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$Comet"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1152,10 +1109,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
       giveTask(blue, "2 Plant")
       doTasks("2 ProjectCard", "-3 Plant<Blue>")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "4 Pay<> FROM MC",
@@ -1170,18 +1126,16 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$DirectedImpactors"),
           "6 Pay<> FROM MC",
           "Asteroid<$DirectedImpactors>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Titanium")
-      doTask("PassBaton")
     }
 
     // Database save 282: complete public state after Green's Applied Science action. Private hands
@@ -1208,27 +1162,25 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     purple.assertDashRight(events = 4, tagless = 1, cities = 0)
     assertSidebar(gen = 5, temp = -8, oxygen = 3, oceans = 5, venus = 20)
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$PowerGrid"),
           "18 Pay<> FROM MC",
           "$PowerGrid FROM ProjectCard",
           "PROD[6 Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$WavePower"),
           "8 Pay<> FROM MC",
           "$WavePower FROM ProjectCard",
           "PROD[Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$FieldCappedCity"),
           "27 Pay<> FROM MC",
@@ -1239,10 +1191,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "CityTile<Tharsis_7_4>",
           "PROD[MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$NitrogenRichAsteroid"),
           "4 Pay<Class<Titanium>> FROM Titanium",
@@ -1253,19 +1204,17 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating",
           "PROD[4 Plant]",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Teslaract"), "PROD[-Energy]", "PROD[Plant]")
-      doTask("PassBaton")
     }
 
     blue.doTask("Pass")
 
     pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$MiningArea"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -1275,7 +1224,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "Production<Class<Metal>(HAS PlacementBonus<LandArea(HAS MiningArea_SpecialTile)>)>",
           "Steel",
       )
-      doTask("PassBaton")
     }
 
     purple.doTask("Pass")
@@ -1352,7 +1300,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$VenusianAnimals"),
           "13 Pay<> FROM MC",
@@ -1360,10 +1308,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "3 MC",
           "Animal<$VenusianAnimals>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1372,10 +1319,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "2 Steel",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$BusinessContacts"),
           "7 Pay<> FROM MC",
@@ -1383,10 +1329,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "4 ProjectCard<Selecting>",
           "2 ProjectCard<Hand FROM Selecting>",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$SpaceElevator"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -1397,26 +1342,24 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
           "$CeosFavoriteProject FROM ProjectCard",
           "Asteroid<$DirectedImpactors>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$RegoPlastics"),
           "1 Pay<Class<Steel>> FROM Steel",
           "8 Pay<> FROM MC",
           "$RegoPlastics FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$FuelFactory"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -1426,15 +1369,13 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[Titanium]",
           "PROD[MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1442,10 +1383,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating",
           "3 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$CarbonNanosystems"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -1454,10 +1394,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating FROM Disease<$PharmacyUnion>",
           "Graphene<$CarbonNanosystems>",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$GiantSpaceMirror"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -1465,15 +1404,13 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "$GiantSpaceMirror FROM ProjectCard",
           "PROD[3 Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$AstroDrill"), "Titanium")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$DirectedImpactors", "Action2"),
           "-Asteroid<$DirectedImpactors>",
@@ -1494,7 +1431,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTask("2 Steel")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$ArtificialPhotosynthesis"),
           "12 Pay<> FROM MC",
@@ -1503,10 +1440,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "Graphene<$CarbonNanosystems>",
           "PROD[2 Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$SmallAsteroid"),
           "10 Pay<> FROM MC",
@@ -1515,10 +1451,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating",
           "-2 Plant<Blue>",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *cardActionTasks("$CometAiming", "Action2"),
           "-Asteroid<$CometAiming>",
@@ -1528,10 +1463,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "Plant",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$DevelopmentCenter"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -1546,22 +1480,19 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Titanium")
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Teslaract"), "PROD[-Energy]", "PROD[Plant]")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$WeatherBalloons", "Action2"), "-Floater<$WeatherBalloons>", "2 MC")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$JovianEmbassy"),
           "12 Pay<> FROM MC",
@@ -1572,7 +1503,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Builder")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$OrbitalCleanup"),
           "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
@@ -1581,12 +1512,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "$OrbitalCleanup FROM ProjectCard",
           "PROD[-2 MC]",
       )
-      doTask("PassBaton")
     }
 
     purple.doTask("Pass")
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1608,47 +1538,42 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
 
     pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$OrbitalCleanup"), "6 MC")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Coastguard")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$SecurityFleet"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "9 Pay<> FROM MC",
           "$SecurityFleet FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
     blue.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$AdaptedLichen"),
           "9 Pay<> FROM MC",
           "$AdaptedLichen FROM ProjectCard",
           "PROD[Plant]",
       )
-      doTask("Pass")
     }
+    green.doTask("Pass")
 
     // Production.
     blue.doTasks("47 MC", "3 Plant", "Steel", "2 Heat", "Energy", "Heat FROM Energy", "Titanium")
@@ -1742,7 +1667,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$SubterraneanReservoir"),
           "11 Pay<> FROM MC",
@@ -1762,7 +1687,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1777,7 +1702,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$KaguyaTech"),
           "5 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
@@ -1789,10 +1714,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
       giveTask(pink, "PROD[MC]")
       doTasks("Plant", "2 MC")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$DirectedImpactors", "Action2"),
           "-Asteroid<$DirectedImpactors>",
@@ -1803,7 +1727,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Traveller")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$SolarWindPower"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -1814,10 +1738,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TerraformRating FROM Disease<$PharmacyUnion>",
           "Graphene<$CarbonNanosystems>",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$PhysicsComplex"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -1831,12 +1754,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Trees"),
           "11 Pay<> FROM MC",
@@ -1855,12 +1777,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       giveTask(green, "-4 MC")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$OrbitalCleanup"), "7 MC")
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1880,7 +1801,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       giveTask(pink, "PROD[MC]")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$MercurianAlloys"),
           "Ok", // No titanium paid.
@@ -1897,7 +1818,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks("Steel", "2 MC")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
@@ -1910,7 +1831,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$SisterPlanetSupport"),
           "5 Pay<> FROM MC",
@@ -1927,12 +1848,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Teslaract"), "PROD[-Energy]", "PROD[Plant]")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *cardActionTasks("$CometAiming"),
           "Pay<Class<Titanium>> FROM Titanium",
@@ -1949,7 +1869,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$SponsoredAcademies"),
           "7 Pay<> FROM MC",
@@ -1963,10 +1883,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "ProjectCard<Green, Hand>",
           "ProjectCard<Purple, Hand>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$SulphurEatingBacteria", "Action2"),
           "-2 Microbe<$SulphurEatingBacteria>",
@@ -1982,7 +1901,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$ProtectedGrowth"),
           "2 Pay<> FROM MC",
@@ -2000,12 +1919,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$SoilFactory"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -2015,27 +1933,24 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[Plant]",
           "3 MC",
       )
-      doTask("PassBaton")
     }
 
     green.doTask("Pass")
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$Lichen"),
           "7 Pay<> FROM MC",
           "$Lichen FROM ProjectCard",
           "PROD[Plant]",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$WeatherBalloons", "Action2"), "-Floater<$WeatherBalloons>", "6 MC")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$CorroderSuits"),
           "6 Pay<> FROM MC",
@@ -2043,12 +1958,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PROD[2 MC]",
           "Animal<$VenusianAnimals>",
       )
-      doTask("PassBaton")
     }
 
     purple.doTask("Pass")
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       doTasks(
           *cardActionTasks("$SecurityFleet"),
@@ -2059,7 +1973,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
 
     pink.doTask("Pass")
 
-    with(blue) {
+    blue.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(*standardProjectTasks("SellPatentsProject"), "4 MC FROM ProjectCard")
       doTasks(
@@ -2092,8 +2006,8 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "2 Plant",
           "TerraformRating",
       )
-      doTask("Pass")
     }
+    blue.doTask("Pass")
 
     // Production.
     blue.doTasks("56 MC", "3 Plant", "Steel", "2 Heat", "Heat FROM Energy", "Titanium")
@@ -2200,7 +2114,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(purple) {
+    purple.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -2216,7 +2130,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
       doTasks(
           *cardActionTasks("$SecurityFleet"),
@@ -2225,7 +2139,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -2240,7 +2154,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Celebrity")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$UndergroundCity"),
           "PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
@@ -2262,7 +2176,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Teslaract"), "PROD[-Energy]", "PROD[Plant]")
       doTasks(
           *standardProjectTasks("CityProject"),
@@ -2274,7 +2188,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTask("2 MC")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *cardActionTasks("$CometAiming"),
           "Pay<Class<Titanium>> FROM Titanium",
@@ -2283,7 +2197,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$StratosphericExpedition"),
           "10 Pay<> FROM MC",
@@ -2358,7 +2272,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
   }
 
   private fun finishGeneration8() {
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$CallistoPenalMines"),
           "4 Pay<Class<Titanium>> FROM Titanium",
@@ -2366,25 +2280,23 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "$CallistoPenalMines FROM ProjectCard",
           "PROD[3 MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_3_4>",
           "0 OxygenStep",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(*cardActionTasks("$WeatherBalloons", "Action2"), "-Floater<$WeatherBalloons>", "9 MC")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Research"),
           "9 Pay<> FROM MC",
@@ -2397,7 +2309,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(*playCardTasks("$Sabotage"), "$Sabotage FROM ProjectCard", "-3 Titanium<Blue>")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -2405,15 +2317,13 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "OxygenStep",
           "ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "5 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$Grass"),
           "PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
@@ -2430,7 +2340,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$FreyjaBiodomes"),
           "12 Pay<> FROM MC",
@@ -2440,22 +2350,20 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "3 MC",
           "2 Animal<$VenusianAnimals>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$SaturnSurfing"),
           "13 Pay<> FROM MC",
           "$SaturnSurfing FROM ProjectCard",
           "4 Floater<$SaturnSurfing>",
       )
-      doTask("PassBaton")
     }
 
     purple.doTask("Pass")
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -2464,10 +2372,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "2 Plant",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$AstraMechanica"),
           "5 Pay<> FROM MC",
@@ -2479,7 +2386,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(*playCardTasks("$Sabotage"), "$Sabotage FROM ProjectCard", "-7 MC<Blue>")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>", "3 MC", "MC")
       doTasks(
           *playCardTasks("$TopsoilContract"),
@@ -2491,7 +2398,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$AsteroidMining"),
@@ -2502,21 +2409,19 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
           "$CeosFavoriteProject FROM ProjectCard",
           "Animal<$VenusianAnimals>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>", "MC")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -2533,12 +2438,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$OrbitalCleanup"), "7 MC")
       doTasks(
           *playCardTasks("$SoilEnrichment"),
@@ -2553,12 +2457,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
 
     blue.doTask("Pass")
 
-    with(pink) {
+    pink.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -2566,20 +2469,17 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "OxygenStep",
           "ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "5 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$CometForVenus"),

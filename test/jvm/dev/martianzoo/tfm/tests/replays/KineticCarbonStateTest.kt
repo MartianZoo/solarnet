@@ -155,40 +155,43 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
   }
 
   private fun Agent.generation1() {
-    doTasks(*playCardTasks("EarthOffice"), "Pay<> FROM MC", "EarthOffice FROM ProjectCard")
-    doTasks(
-        *playCardTasks("CorroderSuits"),
-        "8 Pay<> FROM MC",
-        "CorroderSuits FROM ProjectCard",
-        "PROD[2 MC]",
-        "Science<AppliedScience>",
-    )
-    doTasks(
-        *playCardTasks("FloatingRefinery"),
-        "7 Pay<> FROM MC",
-        "FloatingRefinery FROM ProjectCard",
-        "4 Floater<FloatingRefinery>",
-    )
-    doTasks(
-        *cardActionTasks("FloatingRefinery", "Action2"),
-        "-2 Floater<FloatingRefinery>",
-        "Titanium",
-        "2 MC",
-    )
-    doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>", "Titanium")
-    doTasks(
-        *playCardTasks("AdaptedLichen"),
-        "9 Pay<> FROM MC",
-        "AdaptedLichen FROM ProjectCard",
-        "PROD[Plant]",
-    )
-    doTasks(
-        *playCardTasks("OptimalAerobraking"),
-        "2 Pay<Class<Titanium>> FROM Titanium",
-        "Pay<> FROM MC",
-        "OptimalAerobraking FROM ProjectCard",
-    )
-    doTasks("Pass", "18 MC", "Plant")
+    turn {
+      doTasks(*playCardTasks("EarthOffice"), "Pay<> FROM MC", "EarthOffice FROM ProjectCard")
+      doTasks(
+          *playCardTasks("CorroderSuits"),
+          "8 Pay<> FROM MC",
+          "CorroderSuits FROM ProjectCard",
+          "PROD[2 MC]",
+          "Science<AppliedScience>",
+      )
+      doTasks(
+          *playCardTasks("FloatingRefinery"),
+          "7 Pay<> FROM MC",
+          "FloatingRefinery FROM ProjectCard",
+          "4 Floater<FloatingRefinery>",
+      )
+      doTasks(
+          *cardActionTasks("FloatingRefinery", "Action2"),
+          "-2 Floater<FloatingRefinery>",
+          "Titanium",
+          "2 MC",
+      )
+      doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>", "Titanium")
+      doTasks(
+          *playCardTasks("AdaptedLichen"),
+          "9 Pay<> FROM MC",
+          "AdaptedLichen FROM ProjectCard",
+          "PROD[Plant]",
+      )
+      doTasks(
+          *playCardTasks("OptimalAerobraking"),
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "Pay<> FROM MC",
+          "OptimalAerobraking FROM ProjectCard",
+      )
+    }
+    doTask("Pass")
+    doTasks("18 MC", "Plant")
     doTasks("TemperatureStep! BY Admin", "4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[0], after World Government.
     assertSidebar(gen = 2, temp = -28, oxygen = 0, oceans = 0, venus = 0)
@@ -201,20 +204,23 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "6 Pay<> FROM MC",
         "2 ProjectCard FROM ProjectCard<Selecting>",
     )
-    doTasks(
-        *cardActionTasks("FloatingRefinery", "Action2"),
-        "-2 Floater<FloatingRefinery>",
-        "Titanium",
-        "2 MC",
-    )
-    doTasks(
-        *playCardTasks("FloaterTechnology"),
-        "7 Pay<> FROM MC",
-        "FloaterTechnology FROM ProjectCard",
-    )
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
-    doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>", "Titanium")
-    doTasks("Pass", "18 MC", "Plant")
+    turn {
+      doTasks(
+          *cardActionTasks("FloatingRefinery", "Action2"),
+          "-2 Floater<FloatingRefinery>",
+          "Titanium",
+          "2 MC",
+      )
+      doTasks(
+          *playCardTasks("FloaterTechnology"),
+          "7 Pay<> FROM MC",
+          "FloaterTechnology FROM ProjectCard",
+      )
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
+      doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>", "Titanium")
+    }
+    doTask("Pass")
+    doTasks("18 MC", "Plant")
     doTasks("TemperatureStep! BY Admin", "4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[1], after World Government.
     assertSidebar(gen = 3, temp = -26, oxygen = 0, oceans = 0, venus = 0)
@@ -227,49 +233,52 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "9 Pay<> FROM MC",
         "3 ProjectCard FROM ProjectCard<Selecting>",
     )
-    doTasks(
-        *playCardTasks("BusinessNetwork"),
-        "Pay<> FROM MC",
-        "BusinessNetwork FROM ProjectCard",
-        "PROD[-MC]",
-    )
-    draw(Capital)
-    doTasks(
-        *cardActionTasks("BusinessNetwork"),
-        "ProjectCard<Selecting>",
-        "Ok", // keep the Business Network card
-        "3 Pay<> FROM MC",
-        "ProjectCard FROM ProjectCard<Selecting>",
-    )
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
-    doTasks(
-        *cardActionTasks("FloatingRefinery", "Action2"),
-        "-2 Floater<FloatingRefinery>",
-        "Titanium",
-        "2 MC",
-    )
-    doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>", "Titanium")
-    draw(Flooding, SkyDocks)
-    doTasks(
-        *playCardTasks("MartianSurvey"),
-        "9 Pay<> FROM MC",
-        "MartianSurvey FROM ProjectCard",
-        "2 ProjectCard",
-    )
-    doTasks(
-        *playCardTasks("SkyDocks"),
-        "4 Pay<Class<Titanium>> FROM Titanium",
-        "3 Pay<> FROM MC",
-        "SkyDocks FROM ProjectCard",
-        "TradeFleet",
-    )
-    doTasks(
-        *playCardTasks("LunarMining"),
-        "7 Pay<> FROM MC",
-        "LunarMining FROM ProjectCard",
-        "PROD[2 Titanium]",
-    )
-    doTasks("Pass", "17 MC", "Plant", "2 Titanium")
+    turn {
+      doTasks(
+          *playCardTasks("BusinessNetwork"),
+          "Pay<> FROM MC",
+          "BusinessNetwork FROM ProjectCard",
+          "PROD[-MC]",
+      )
+      draw(Capital)
+      doTasks(
+          *cardActionTasks("BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "Ok", // keep the Business Network card
+          "3 Pay<> FROM MC",
+          "ProjectCard FROM ProjectCard<Selecting>",
+      )
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
+      doTasks(
+          *cardActionTasks("FloatingRefinery", "Action2"),
+          "-2 Floater<FloatingRefinery>",
+          "Titanium",
+          "2 MC",
+      )
+      doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>", "Titanium")
+      draw(Flooding, SkyDocks)
+      doTasks(
+          *playCardTasks("MartianSurvey"),
+          "9 Pay<> FROM MC",
+          "MartianSurvey FROM ProjectCard",
+          "2 ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("SkyDocks"),
+          "4 Pay<Class<Titanium>> FROM Titanium",
+          "3 Pay<> FROM MC",
+          "SkyDocks FROM ProjectCard",
+          "TradeFleet",
+      )
+      doTasks(
+          *playCardTasks("LunarMining"),
+          "7 Pay<> FROM MC",
+          "LunarMining FROM ProjectCard",
+          "PROD[2 Titanium]",
+      )
+    }
+    doTask("Pass")
+    doTasks("17 MC", "Plant", "2 Titanium")
     doTasks("OceanTile<Hellas_6_7>! BY Admin", "4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[2], after World Government.
     assertSidebar(gen = 4, temp = -26, oxygen = 0, oceans = 1, venus = 0)
@@ -283,51 +292,54 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "2 ProjectCard FROM ProjectCard<Selecting>",
     )
     draw(SulphurEatingBacteria)
-    doTasks(
-        *cardActionTasks("BusinessNetwork"),
-        "ProjectCard<Selecting>",
-        "Ok", // keep the Business Network card
-        "3 Pay<> FROM MC",
-        "ProjectCard FROM ProjectCard<Selecting>",
-    )
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
-    draw(Steelworks)
-    doTasks(
-        *playCardTasks("Flooding"),
-        "6 Pay<> FROM MC",
-        "Flooding FROM ProjectCard",
-        "OceanTile<Hellas_5_6>",
-        "TerraformRating",
-        "ProjectCard",
-        "2 MC",
-    )
-    doTasks(
-        *cardActionTasks("AppliedScience"),
-        "-Science<AppliedScience>",
-        "Floater<FloatingRefinery>",
-    )
-    doTasks(
-        *cardActionTasks("FloatingRefinery", "Action2"),
-        "-2 Floater<FloatingRefinery>",
-        "Titanium",
-        "2 MC",
-    )
-    doTasks(
-        *playCardTasks("PioneerSettlement"),
-        "3 Pay<Class<Titanium>> FROM Titanium",
-        "3 Pay<> FROM MC",
-        "PioneerSettlement FROM ProjectCard",
-        "PROD[-2 MC]",
-        "Colony<Triton>",
-        "3 Titanium",
-    )
-    doTasks(
-        *playCardTasks("BribedCommittee"),
-        "3 Pay<> FROM MC",
-        "BribedCommittee FROM ProjectCard",
-        "2 TerraformRating",
-    )
-    doTasks("Pass", "18 MC", "Plant", "2 Titanium")
+    turn {
+      doTasks(
+          *cardActionTasks("BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "Ok", // keep the Business Network card
+          "3 Pay<> FROM MC",
+          "ProjectCard FROM ProjectCard<Selecting>",
+      )
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
+      draw(Steelworks)
+      doTasks(
+          *playCardTasks("Flooding"),
+          "6 Pay<> FROM MC",
+          "Flooding FROM ProjectCard",
+          "OceanTile<Hellas_5_6>",
+          "TerraformRating",
+          "ProjectCard",
+          "2 MC",
+      )
+      doTasks(
+          *cardActionTasks("AppliedScience"),
+          "-Science<AppliedScience>",
+          "Floater<FloatingRefinery>",
+      )
+      doTasks(
+          *cardActionTasks("FloatingRefinery", "Action2"),
+          "-2 Floater<FloatingRefinery>",
+          "Titanium",
+          "2 MC",
+      )
+      doTasks(
+          *playCardTasks("PioneerSettlement"),
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "3 Pay<> FROM MC",
+          "PioneerSettlement FROM ProjectCard",
+          "PROD[-2 MC]",
+          "Colony<Triton>",
+          "3 Titanium",
+      )
+      doTasks(
+          *playCardTasks("BribedCommittee"),
+          "3 Pay<> FROM MC",
+          "BribedCommittee FROM ProjectCard",
+          "2 TerraformRating",
+      )
+    }
+    doTask("Pass")
+    doTasks("18 MC", "Plant", "2 Titanium")
     doTasks("VenusStep! BY Admin", "4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[3], after World Government.
     assertSidebar(gen = 5, temp = -26, oxygen = 0, oceans = 2, venus = 2)
@@ -340,35 +352,37 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "6 Pay<> FROM MC",
         "2 ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          *cardActionTasks("BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "-ProjectCard<Selecting>",
+      )
+      doTasks(*cardActionTasks("FloatingRefinery"), "Floater<FloatingRefinery>")
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
+      doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>", "Titanium")
+      doTasks(
+          *playCardTasks("GhgImportFromVenus"),
+          "6 Pay<Class<Titanium>> FROM Titanium",
+          "4 Pay<> FROM MC",
+          "GhgImportFromVenus FROM ProjectCard",
+          "VenusStep",
+          "PROD[3 Heat]",
+          "3 MC",
+          "3 Heat",
+          "TerraformRating",
+          "3 MC",
+      )
+      doTasks(
+          *playCardTasks("SubCrustMeasurements"),
+          "14 Pay<> FROM MC",
+          "SubCrustMeasurements FROM ProjectCard",
+      )
+      draw(WaterSplittingPlant)
+      doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
+    }
+    doTask("Pass")
     doTasks(
-        *cardActionTasks("BusinessNetwork"),
-        "ProjectCard<Selecting>",
-        "-ProjectCard<Selecting>",
-    )
-    doTasks(*cardActionTasks("FloatingRefinery"), "Floater<FloatingRefinery>")
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
-    doTasks(*cardActionTasks("AppliedScience"), "-Science<AppliedScience>", "Titanium")
-    doTasks(
-        *playCardTasks("GhgImportFromVenus"),
-        "6 Pay<Class<Titanium>> FROM Titanium",
-        "4 Pay<> FROM MC",
-        "GhgImportFromVenus FROM ProjectCard",
-        "VenusStep",
-        "PROD[3 Heat]",
-        "3 MC",
-        "3 Heat",
-        "TerraformRating",
-        "3 MC",
-    )
-    doTasks(
-        *playCardTasks("SubCrustMeasurements"),
-        "14 Pay<> FROM MC",
-        "SubCrustMeasurements FROM ProjectCard",
-    )
-    draw(WaterSplittingPlant)
-    doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
-    doTasks(
-        "Pass",
         "19 MC",
         "Plant",
         "2 Titanium",
@@ -386,64 +400,66 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "6 Pay<> FROM MC",
         "2 ProjectCard FROM ProjectCard<Selecting>",
     )
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
-    draw(LavaFlows)
-    doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
+    turn {
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
+      draw(LavaFlows)
+      doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
+      doTasks(
+          *cardActionTasks("BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "-ProjectCard<Selecting>",
+      )
+      doTasks(
+          *playCardTasks("AirRaid"),
+          "AirRaid FROM ProjectCard",
+          "-Floater<FloatingRefinery>",
+          "5 MC FROM MC<SoloOpponent>",
+      )
+      doTasks(
+          *cardActionTasks("FloatingRefinery", "Action2"),
+          "-2 Floater<FloatingRefinery>",
+          "Titanium",
+          "2 MC",
+      )
+      doTasks(
+          "UseAction<TradeAction, Action3>",
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "Trade<Triton>",
+          "5 Titanium",
+          "Titanium",
+      )
+      doTasks(
+          "UseAction<TradeAction, Action3>",
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "Trade<Titan>",
+          "4 Floater<FloatingRefinery>",
+      )
+      doTasks(
+          *playCardTasks("SulphurEatingBacteria"),
+          "5 Pay<> FROM MC",
+          "SulphurEatingBacteria FROM ProjectCard",
+      )
+      doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>")
+      doTasks(
+          *cardActionTasks("AppliedScience"),
+          "-Science<AppliedScience>",
+          "Microbe<SulphurEatingBacteria>",
+      )
+      doTasks(
+          *playCardTasks("ArcticAlgae"),
+          "11 Pay<> FROM MC",
+          "ArcticAlgae FROM ProjectCard",
+          "Plant",
+      )
+      doTasks(
+          *playCardTasks("TransNeptuneProbe"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "2 Pay<> FROM MC",
+          "TransNeptuneProbe FROM ProjectCard",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        *cardActionTasks("BusinessNetwork"),
-        "ProjectCard<Selecting>",
-        "-ProjectCard<Selecting>",
-    )
-    doTasks(
-        *playCardTasks("AirRaid"),
-        "AirRaid FROM ProjectCard",
-        "-Floater<FloatingRefinery>",
-        "5 MC FROM MC<SoloOpponent>",
-    )
-    doTasks(
-        *cardActionTasks("FloatingRefinery", "Action2"),
-        "-2 Floater<FloatingRefinery>",
-        "Titanium",
-        "2 MC",
-    )
-    doTasks(
-        "UseAction<TradeAction, Action3>",
-        "3 Pay<Class<Titanium>> FROM Titanium",
-        "Trade<Triton>",
-        "5 Titanium",
-        "Titanium",
-    )
-    doTasks(
-        "UseAction<TradeAction, Action3>",
-        "3 Pay<Class<Titanium>> FROM Titanium",
-        "Trade<Titan>",
-        "4 Floater<FloatingRefinery>",
-    )
-    doTasks(
-        *playCardTasks("SulphurEatingBacteria"),
-        "5 Pay<> FROM MC",
-        "SulphurEatingBacteria FROM ProjectCard",
-    )
-    doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>")
-    doTasks(
-        *cardActionTasks("AppliedScience"),
-        "-Science<AppliedScience>",
-        "Microbe<SulphurEatingBacteria>",
-    )
-    doTasks(
-        *playCardTasks("ArcticAlgae"),
-        "11 Pay<> FROM MC",
-        "ArcticAlgae FROM ProjectCard",
-        "Plant",
-    )
-    doTasks(
-        *playCardTasks("TransNeptuneProbe"),
-        "Pay<Class<Titanium>> FROM Titanium",
-        "2 Pay<> FROM MC",
-        "TransNeptuneProbe FROM ProjectCard",
-    )
-    doTasks(
-        "Pass",
         "19 MC",
         "Plant",
         "2 Titanium",
@@ -461,72 +477,74 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "9 Pay<> FROM MC",
         "3 ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+          "PROD[Heat]",
+      )
+      doTasks(
+          *cardActionTasks("FloatingRefinery", "Action2"),
+          "-2 Floater<FloatingRefinery>",
+          "Titanium",
+          "2 MC",
+      )
+      draw(MiningColony)
+      doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
+      doTasks(
+          *cardActionTasks("BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "-ProjectCard<Selecting>",
+      )
+      doTasks(
+          *playCardTasks("MiningColony"),
+          "5 Pay<Class<Titanium>> FROM Titanium",
+          "4 Pay<> FROM MC",
+          "MiningColony FROM ProjectCard",
+          "PROD[Titanium]",
+          "Colony<Enceladus>",
+          "3 Microbe<SulphurEatingBacteria>",
+      )
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
+      doTasks(
+          *cardActionTasks("AppliedScience"),
+          "-Science<AppliedScience>",
+          "Microbe<SulphurEatingBacteria>",
+      )
+      doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
+      doTasks(
+          "-6 Microbe<SulphurEatingBacteria>",
+          "18 MC",
+      )
+      doTasks(
+          *playCardTasks("Lichen"),
+          "6 Pay<> FROM MC",
+          "Lichen FROM ProjectCard",
+          "PROD[Plant]",
+      )
+      // Test inference: the log gives the sale count, but omits the card identities.
+      discard(Steelworks)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
+      doTasks(
+          *playCardTasks("LavaFlows"),
+          "17 Pay<> FROM MC",
+          "LavaFlows FROM ProjectCard",
+          "2 TemperatureStep",
+          "2 TerraformRating",
+          "PROD[Heat]",
+          "LavaFlows_SpecialTile<Hellas_9_7>",
+          "-6 MC",
+          "OceanTile<Hellas_5_7>",
+          "TerraformRating",
+          "2 Plant",
+          "3 Heat",
+          "6 MC",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-        "PROD[Heat]",
-    )
-    doTasks(
-        *cardActionTasks("FloatingRefinery", "Action2"),
-        "-2 Floater<FloatingRefinery>",
-        "Titanium",
-        "2 MC",
-    )
-    draw(MiningColony)
-    doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
-    doTasks(
-        *cardActionTasks("BusinessNetwork"),
-        "ProjectCard<Selecting>",
-        "-ProjectCard<Selecting>",
-    )
-    doTasks(
-        *playCardTasks("MiningColony"),
-        "5 Pay<Class<Titanium>> FROM Titanium",
-        "4 Pay<> FROM MC",
-        "MiningColony FROM ProjectCard",
-        "PROD[Titanium]",
-        "Colony<Enceladus>",
-        "3 Microbe<SulphurEatingBacteria>",
-    )
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
-    doTasks(
-        *cardActionTasks("AppliedScience"),
-        "-Science<AppliedScience>",
-        "Microbe<SulphurEatingBacteria>",
-    )
-    doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-    doTasks(
-        "-6 Microbe<SulphurEatingBacteria>",
-        "18 MC",
-    )
-    doTasks(
-        *playCardTasks("Lichen"),
-        "6 Pay<> FROM MC",
-        "Lichen FROM ProjectCard",
-        "PROD[Plant]",
-    )
-    // Test inference: the log gives the sale count, but omits the card identities.
-    discard(Steelworks)
-    doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
-    doTasks(
-        *playCardTasks("LavaFlows"),
-        "17 Pay<> FROM MC",
-        "LavaFlows FROM ProjectCard",
-        "2 TemperatureStep",
-        "2 TerraformRating",
-        "PROD[Heat]",
-        "LavaFlows_SpecialTile<Hellas_9_7>",
-        "-6 MC",
-        "OceanTile<Hellas_5_7>",
-        "TerraformRating",
-        "2 Plant",
-        "3 Heat",
-        "6 MC",
-    )
-    doTasks(
-        "Pass",
         "23 MC",
         "2 Plant",
         "3 Titanium",
@@ -544,68 +562,70 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "6 Pay<> FROM MC",
         "2 ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          *cardActionTasks("FloatingRefinery", "Action2"),
+          "-2 Floater<FloatingRefinery>",
+          "Titanium",
+          "2 MC",
+      )
+      doTasks(
+          *playCardTasks("ForcedPrecipitation"),
+          "7 Pay<> FROM MC",
+          "ForcedPrecipitation FROM ProjectCard",
+      )
+      doTasks(
+          *playCardTasks("FloaterPrototypes"),
+          "Pay<> FROM MC",
+          "FloaterPrototypes FROM ProjectCard",
+          "2 Floater<ForcedPrecipitation>",
+      )
+      draw(VenusSoils)
+      doTasks(
+          *cardActionTasks("ForcedPrecipitation", "Action2"),
+          "-2 Floater<ForcedPrecipitation>",
+          "VenusStep",
+          "TerraformRating",
+          "ProjectCard",
+          "3 MC",
+      )
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      draw(OreProcessor)
+      doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<ForcedPrecipitation>")
+      draw(Heather)
+      doTasks(
+          *cardActionTasks("BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "Ok", // keep the Business Network card
+          "3 Pay<> FROM MC",
+          "ProjectCard FROM ProjectCard<Selecting>",
+      )
+      doTasks(
+          *playCardTasks("ImportOfAdvancedGhg"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "2 Pay<> FROM MC",
+          "ImportOfAdvancedGhg FROM ProjectCard",
+          "PROD[2 Heat]",
+          "3 MC",
+          "3 Heat",
+      )
+      doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>")
+      doTasks(
+          *standardProjectTasks("AquiferProject"),
+          "18 Pay<> FROM MC",
+          "OceanTile<Hellas_1_1>",
+          "TerraformRating",
+          "4 Plant",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        *cardActionTasks("FloatingRefinery", "Action2"),
-        "-2 Floater<FloatingRefinery>",
-        "Titanium",
-        "2 MC",
-    )
-    doTasks(
-        *playCardTasks("ForcedPrecipitation"),
-        "7 Pay<> FROM MC",
-        "ForcedPrecipitation FROM ProjectCard",
-    )
-    doTasks(
-        *playCardTasks("FloaterPrototypes"),
-        "Pay<> FROM MC",
-        "FloaterPrototypes FROM ProjectCard",
-        "2 Floater<ForcedPrecipitation>",
-    )
-    draw(VenusSoils)
-    doTasks(
-        *cardActionTasks("ForcedPrecipitation", "Action2"),
-        "-2 Floater<ForcedPrecipitation>",
-        "VenusStep",
-        "TerraformRating",
-        "ProjectCard",
-        "3 MC",
-    )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    draw(OreProcessor)
-    doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<ForcedPrecipitation>")
-    draw(Heather)
-    doTasks(
-        *cardActionTasks("BusinessNetwork"),
-        "ProjectCard<Selecting>",
-        "Ok", // keep the Business Network card
-        "3 Pay<> FROM MC",
-        "ProjectCard FROM ProjectCard<Selecting>",
-    )
-    doTasks(
-        *playCardTasks("ImportOfAdvancedGhg"),
-        "Pay<Class<Titanium>> FROM Titanium",
-        "2 Pay<> FROM MC",
-        "ImportOfAdvancedGhg FROM ProjectCard",
-        "PROD[2 Heat]",
-        "3 MC",
-        "3 Heat",
-    )
-    doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>")
-    doTasks(
-        *standardProjectTasks("AquiferProject"),
-        "18 Pay<> FROM MC",
-        "OceanTile<Hellas_1_1>",
-        "TerraformRating",
-        "4 Plant",
-    )
-    doTasks(
-        "Pass",
         "26 MC",
         "2 Plant",
         "3 Titanium",
@@ -623,73 +643,75 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "6 Pay<> FROM MC",
         "2 ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      draw(AerialMappers)
+      doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<ForcedPrecipitation>")
+      doTasks(
+          *cardActionTasks("ForcedPrecipitation", "Action2"),
+          "-2 Floater<ForcedPrecipitation>",
+          "VenusStep",
+          "TerraformRating",
+          "3 MC",
+      )
+      doTasks(*cardActionTasks("FloatingRefinery"), "Floater<FloatingRefinery>")
+      doTasks(
+          *cardActionTasks("BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "-ProjectCard<Selecting>",
+      )
+      draw(ResearchOutpost, DustSeals)
+      doTasks(
+          *playCardTasks("ResearchColony"),
+          "6 Pay<Class<Titanium>> FROM Titanium",
+          "Pay<> FROM MC",
+          "ResearchColony FROM ProjectCard",
+          "2 ProjectCard",
+          "Colony<Titan>",
+          "3 Floater<ForcedPrecipitation>",
+      )
+      doTasks(
+          *playCardTasks("ResearchOutpost"),
+          "15 Pay<> FROM MC",
+          "ResearchOutpost FROM ProjectCard",
+          "NormalCityTile<Hellas_4_3>",
+          "Steel",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_4_4>",
+          "OxygenStep",
+          "2 Steel",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_5_4>",
+          "OxygenStep",
+          "2 Steel",
+          "TerraformRating",
+      )
+      // Test inference: the log gives the sale count, but omits the card identities.
+      discard(WaterSplittingPlant)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
+      doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>")
+      doTasks(
+          *playCardTasks("TerraformingContract"),
+          "3 Pay<> FROM MC",
+          "TerraformingContract FROM ProjectCard",
+          "PROD[4 MC]",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    draw(AerialMappers)
-    doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<ForcedPrecipitation>")
-    doTasks(
-        *cardActionTasks("ForcedPrecipitation", "Action2"),
-        "-2 Floater<ForcedPrecipitation>",
-        "VenusStep",
-        "TerraformRating",
-        "3 MC",
-    )
-    doTasks(*cardActionTasks("FloatingRefinery"), "Floater<FloatingRefinery>")
-    doTasks(
-        *cardActionTasks("BusinessNetwork"),
-        "ProjectCard<Selecting>",
-        "-ProjectCard<Selecting>",
-    )
-    draw(ResearchOutpost, DustSeals)
-    doTasks(
-        *playCardTasks("ResearchColony"),
-        "6 Pay<Class<Titanium>> FROM Titanium",
-        "Pay<> FROM MC",
-        "ResearchColony FROM ProjectCard",
-        "2 ProjectCard",
-        "Colony<Titan>",
-        "3 Floater<ForcedPrecipitation>",
-    )
-    doTasks(
-        *playCardTasks("ResearchOutpost"),
-        "15 Pay<> FROM MC",
-        "ResearchOutpost FROM ProjectCard",
-        "NormalCityTile<Hellas_4_3>",
-        "Steel",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Hellas_4_4>",
-        "OxygenStep",
-        "2 Steel",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Hellas_5_4>",
-        "OxygenStep",
-        "2 Steel",
-        "TerraformRating",
-    )
-    // Test inference: the log gives the sale count, but omits the card identities.
-    discard(WaterSplittingPlant)
-    doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
-    doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>")
-    doTasks(
-        *playCardTasks("TerraformingContract"),
-        "3 Pay<> FROM MC",
-        "TerraformingContract FROM ProjectCard",
-        "PROD[4 MC]",
-    )
-    doTasks(
-        "Pass",
         "34 MC",
         "2 Plant",
         "3 Titanium",
@@ -707,116 +729,118 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "9 Pay<> FROM MC",
         "3 ProjectCard FROM ProjectCard<Selecting>",
     )
-    doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    draw(InvestmentLoan)
-    doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
-    doTasks(
-        *cardActionTasks("FloatingRefinery", "Action2"),
-        "-2 Floater<FloatingRefinery>",
-        "Titanium",
-        "2 MC",
-    )
-    doTasks(
-        *cardActionTasks("ForcedPrecipitation", "Action2"),
-        "-2 Floater<ForcedPrecipitation>",
-        "VenusStep",
-        "TerraformRating",
-        "3 MC",
-    )
-    doTasks(
-        *cardActionTasks("BusinessNetwork"),
-        "ProjectCard<Selecting>",
-        "-ProjectCard<Selecting>",
-    )
-    doTasks(
-        *playCardTasks("InvestmentLoan"),
-        "InvestmentLoan FROM ProjectCard",
-        "PROD[-MC]",
-        "10 MC",
-    )
-    doTasks(*playCardTasks("Pets"), "5 Pay<> FROM MC", "Pets FROM ProjectCard", "Animal<Pets>")
-    doTasks(
-        *playCardTasks("VenusSoils"),
-        "18 Pay<> FROM MC",
-        "VenusSoils FROM ProjectCard",
-        "VenusStep",
-        "PROD[Plant]",
-        "TerraformRating",
-        "3 MC",
-        "2 Microbe<SulphurEatingBacteria>",
-    )
-    doTasks(
-        "UseAction<TradeAction, Action3>",
-        "3 Pay<Class<Titanium>> FROM Titanium",
-        "Trade<Enceladus>",
-        "Microbe<SulphurEatingBacteria>",
-        "4 Microbe<SulphurEatingBacteria>",
-    )
-    doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-    doTasks(
-        "-9 Microbe<SulphurEatingBacteria>",
-        "27 MC",
-    )
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<ForcedPrecipitation>")
-    doTasks(
-        *playCardTasks("Grass"),
-        "9 Pay<> FROM MC",
-        "Grass FROM ProjectCard",
-        "PROD[Plant]",
-        "3 Plant",
-    )
-    doTasks(
-        *playCardTasks("Heather"),
-        "4 Pay<> FROM MC",
-        "Heather FROM ProjectCard",
-        "PROD[Plant]",
-        "Plant",
-    )
-    doTasks(
-        *playCardTasks("RobotPollinators"),
-        "7 Pay<> FROM MC",
-        "RobotPollinators FROM ProjectCard",
-        "PROD[Plant]",
-        "7 Plant",
-    )
-    doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-    doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-    doTasks(
-        *playCardTasks("Gyropolis"),
-        "5 Pay<Class<Steel>> FROM Steel",
-        "6 Pay<> FROM MC",
-        "Gyropolis FROM ProjectCard",
-        "PROD[-2 Energy]",
-        "PROD[14 MC]",
-        "NormalCityTile<Hellas_1_3>",
-        "Animal<Pets>",
-        "2 Plant",
-    )
+    turn {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      draw(InvestmentLoan)
+      doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
+      doTasks(
+          *cardActionTasks("FloatingRefinery", "Action2"),
+          "-2 Floater<FloatingRefinery>",
+          "Titanium",
+          "2 MC",
+      )
+      doTasks(
+          *cardActionTasks("ForcedPrecipitation", "Action2"),
+          "-2 Floater<ForcedPrecipitation>",
+          "VenusStep",
+          "TerraformRating",
+          "3 MC",
+      )
+      doTasks(
+          *cardActionTasks("BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "-ProjectCard<Selecting>",
+      )
+      doTasks(
+          *playCardTasks("InvestmentLoan"),
+          "InvestmentLoan FROM ProjectCard",
+          "PROD[-MC]",
+          "10 MC",
+      )
+      doTasks(*playCardTasks("Pets"), "5 Pay<> FROM MC", "Pets FROM ProjectCard", "Animal<Pets>")
+      doTasks(
+          *playCardTasks("VenusSoils"),
+          "18 Pay<> FROM MC",
+          "VenusSoils FROM ProjectCard",
+          "VenusStep",
+          "PROD[Plant]",
+          "TerraformRating",
+          "3 MC",
+          "2 Microbe<SulphurEatingBacteria>",
+      )
+      doTasks(
+          "UseAction<TradeAction, Action3>",
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "Trade<Enceladus>",
+          "Microbe<SulphurEatingBacteria>",
+          "4 Microbe<SulphurEatingBacteria>",
+      )
+      doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
+      doTasks(
+          "-9 Microbe<SulphurEatingBacteria>",
+          "27 MC",
+      )
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<ForcedPrecipitation>")
+      doTasks(
+          *playCardTasks("Grass"),
+          "9 Pay<> FROM MC",
+          "Grass FROM ProjectCard",
+          "PROD[Plant]",
+          "3 Plant",
+      )
+      doTasks(
+          *playCardTasks("Heather"),
+          "4 Pay<> FROM MC",
+          "Heather FROM ProjectCard",
+          "PROD[Plant]",
+          "Plant",
+      )
+      doTasks(
+          *playCardTasks("RobotPollinators"),
+          "7 Pay<> FROM MC",
+          "RobotPollinators FROM ProjectCard",
+          "PROD[Plant]",
+          "7 Plant",
+      )
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(
+          *playCardTasks("Gyropolis"),
+          "5 Pay<Class<Steel>> FROM Steel",
+          "6 Pay<> FROM MC",
+          "Gyropolis FROM ProjectCard",
+          "PROD[-2 Energy]",
+          "PROD[14 MC]",
+          "NormalCityTile<Hellas_1_3>",
+          "Animal<Pets>",
+          "2 Plant",
+      )
 
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_1_2>",
+          "OxygenStep",
+          "2 Plant",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_3_3>",
+          "OxygenStep",
+          "Steel",
+          "TerraformRating",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Hellas_1_2>",
-        "OxygenStep",
-        "2 Plant",
-        "2 MC",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Hellas_3_3>",
-        "OxygenStep",
-        "Steel",
-        "TerraformRating",
-    )
-    doTasks(
-        "Pass",
         "52 MC",
         "6 Plant",
         "3 Titanium",
@@ -834,101 +858,103 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "9 Pay<> FROM MC",
         "3 ProjectCard FROM ProjectCard<Selecting>",
     )
+    turn {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      draw(NitrogenRichAsteroid)
+      doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
+      draw(SoilStudies)
+      doTasks(
+          *cardActionTasks("BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "Ok", // keep the Business Network card
+          "3 Pay<> FROM MC",
+          "ProjectCard FROM ProjectCard<Selecting>",
+      )
+      doTasks(
+          "UseAction<TradeAction, Action3>",
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "Trade<Triton>",
+          "5 Titanium",
+          "Titanium",
+      )
+      doTasks(
+          *playCardTasks("Comet"),
+          "6 Pay<Class<Titanium>> FROM Titanium",
+          "Pay<> FROM MC",
+          "Comet FROM ProjectCard",
+          "TemperatureStep",
+          "3 MC",
+          "3 Heat",
+          "TerraformRating",
+          "-3 Plant<SoloOpponent>",
+          "OceanTile<Hellas_2_1>",
+          "TerraformRating",
+          "4 Plant",
+          "4 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_3_2>",
+          "OxygenStep",
+          "Plant",
+          "4 MC",
+          "TerraformRating",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_2_3>",
+          "OxygenStep",
+          "Plant",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>")
+      doTasks(
+          *cardActionTasks("ForcedPrecipitation", "Action2"),
+          "-2 Floater<ForcedPrecipitation>",
+          "VenusStep",
+          "2 TerraformRating",
+          "3 MC",
+      )
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<ForcedPrecipitation>")
+      doTasks(*cardActionTasks("FloatingRefinery"), "Floater<FloatingRefinery>")
+      doTasks(
+          *playCardTasks("Greenhouses"),
+          "Pay<Class<Steel>> FROM Steel",
+          "0 Pay<> FROM MC",
+          "Greenhouses FROM ProjectCard",
+          "4 Plant",
+      )
+      doTasks(
+          *playCardTasks("SoilStudies"),
+          "11 Pay<> FROM MC",
+          "SoilStudies FROM ProjectCard",
+          "18 Plant",
+      )
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(
+          *playCardTasks("Capital"),
+          "22 Pay<> FROM MC",
+          "Capital FROM ProjectCard",
+          "PROD[-2 Energy]",
+          "PROD[5 MC]",
+          "CapitalTile<Hellas_2_2, Capital>",
+          "Animal<Pets>",
+          "2 Plant",
+          "4 MC",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    draw(NitrogenRichAsteroid)
-    doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
-    draw(SoilStudies)
-    doTasks(
-        *cardActionTasks("BusinessNetwork"),
-        "ProjectCard<Selecting>",
-        "Ok", // keep the Business Network card
-        "3 Pay<> FROM MC",
-        "ProjectCard FROM ProjectCard<Selecting>",
-    )
-    doTasks(
-        "UseAction<TradeAction, Action3>",
-        "3 Pay<Class<Titanium>> FROM Titanium",
-        "Trade<Triton>",
-        "5 Titanium",
-        "Titanium",
-    )
-    doTasks(
-        *playCardTasks("Comet"),
-        "6 Pay<Class<Titanium>> FROM Titanium",
-        "Pay<> FROM MC",
-        "Comet FROM ProjectCard",
-        "TemperatureStep",
-        "3 MC",
-        "3 Heat",
-        "TerraformRating",
-        "-3 Plant<SoloOpponent>",
-        "OceanTile<Hellas_2_1>",
-        "TerraformRating",
-        "4 Plant",
-        "4 MC",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Hellas_3_2>",
-        "OxygenStep",
-        "Plant",
-        "4 MC",
-        "TerraformRating",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Hellas_2_3>",
-        "OxygenStep",
-        "Plant",
-        "TerraformRating",
-    )
-    doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>")
-    doTasks(
-        *cardActionTasks("ForcedPrecipitation", "Action2"),
-        "-2 Floater<ForcedPrecipitation>",
-        "VenusStep",
-        "2 TerraformRating",
-        "3 MC",
-    )
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<ForcedPrecipitation>")
-    doTasks(*cardActionTasks("FloatingRefinery"), "Floater<FloatingRefinery>")
-    doTasks(
-        *playCardTasks("Greenhouses"),
-        "Pay<Class<Steel>> FROM Steel",
-        "0 Pay<> FROM MC",
-        "Greenhouses FROM ProjectCard",
-        "4 Plant",
-    )
-    doTasks(
-        *playCardTasks("SoilStudies"),
-        "11 Pay<> FROM MC",
-        "SoilStudies FROM ProjectCard",
-        "18 Plant",
-    )
-    doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-    doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-    doTasks(
-        *playCardTasks("Capital"),
-        "22 Pay<> FROM MC",
-        "Capital FROM ProjectCard",
-        "PROD[-2 Energy]",
-        "PROD[5 MC]",
-        "CapitalTile<Hellas_2_2, Capital>",
-        "Animal<Pets>",
-        "2 Plant",
-        "4 MC",
-    )
-    doTasks(
-        "Pass",
         "65 MC",
         "6 Plant",
         "3 Titanium",
@@ -941,151 +967,153 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
 
   private fun Agent.generation12() {
     doTask("-4 ProjectCard<Selecting>")
+    turn {
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      draw(BioPrintingFacility)
+      doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
+      draw(Teslaract)
+      doTasks(
+          *cardActionTasks("BusinessNetwork"),
+          "ProjectCard<Selecting>",
+          "Ok", // keep the Business Network card
+          "3 Pay<> FROM MC",
+          "ProjectCard FROM ProjectCard<Selecting>",
+      )
+      // Test inference: the log gives the sale count, but omits the card identities.
+      discard(OreProcessor, AerialMappers, DustSeals, VenusOrbitalSurvey)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "4 MC FROM ProjectCard")
+      doTasks(
+          "UseAction<TradeAction, Action3>",
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "Trade<Enceladus>",
+          "Microbe<SulphurEatingBacteria>",
+          "3 Microbe<SulphurEatingBacteria>",
+      )
+      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<ForcedPrecipitation>")
+      doTasks(
+          *cardActionTasks("ForcedPrecipitation", "Action2"),
+          "-2 Floater<ForcedPrecipitation>",
+          "VenusStep",
+          "TerraformRating",
+          "3 MC",
+      )
+      doTasks(
+          *playCardTasks("MiningExpedition"),
+          "10 Pay<> FROM MC",
+          "MiningExpedition FROM ProjectCard",
+          "OxygenStep",
+          "2 Steel",
+          "TerraformRating",
+          "-2 Plant<SoloOpponent>",
+      )
+      doTasks(
+          *standardProjectTasks("AquiferProject"),
+          "18 Pay<> FROM MC",
+          "OceanTile<Hellas_4_1>",
+          "TerraformRating",
+          "2 Plant",
+          "Plant",
+          "2 MC",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_4_2>",
+          "OxygenStep",
+          "Plant",
+          "4 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_5_5>",
+          "OxygenStep",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_6_6>",
+          "OxygenStep",
+          "4 MC",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_5_2>",
+          "OxygenStep",
+          "2 MC",
+          "TerraformRating",
+      )
+      doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
+      doTasks(
+          "-5 Microbe<SulphurEatingBacteria>",
+          "15 MC",
+      )
+      doTasks(
+          *playCardTasks("Teslaract"),
+          "2 Pay<Class<Steel>> FROM Steel",
+          "6 Pay<> FROM MC",
+          "Teslaract FROM ProjectCard",
+          "TerraformRating",
+      )
+      doTasks(
+          *playCardTasks("NitrogenRichAsteroid"),
+          "Pay<Class<Titanium>> FROM Titanium",
+          "26 Pay<> FROM MC",
+          "NitrogenRichAsteroid FROM ProjectCard",
+          "2 TerraformRating",
+          "TemperatureStep",
+          "3 MC",
+          "3 Heat",
+          "TerraformRating",
+          "PROD[4 Plant]",
+      )
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+          "OceanTile<Hellas_4_6>",
+          "TerraformRating",
+          "2 Plant",
+          "Plant",
+          "4 MC",
+      )
+      doTasks(*cardActionTasks("FloatingRefinery"), "Floater<FloatingRefinery>")
+      // Test inference: the log gives the sale count, but omits the card identities.
+      discard(BioPrintingFacility)
+      doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+          "3 MC",
+      )
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+    }
+    doTask("Pass")
     doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
-        "8 Pay<Class<Heat>> FROM Heat",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    draw(BioPrintingFacility)
-    doTasks(*cardActionTasks("SubCrustMeasurements"), "ProjectCard")
-    draw(Teslaract)
-    doTasks(
-        *cardActionTasks("BusinessNetwork"),
-        "ProjectCard<Selecting>",
-        "Ok", // keep the Business Network card
-        "3 Pay<> FROM MC",
-        "ProjectCard FROM ProjectCard<Selecting>",
-    )
-    // Test inference: the log gives the sale count, but omits the card identities.
-    discard(OreProcessor, AerialMappers, DustSeals, VenusOrbitalSurvey)
-    doTasks(*standardProjectTasks("SellPatentsProject"), "4 MC FROM ProjectCard")
-    doTasks(
-        "UseAction<TradeAction, Action3>",
-        "3 Pay<Class<Titanium>> FROM Titanium",
-        "Trade<Enceladus>",
-        "Microbe<SulphurEatingBacteria>",
-        "3 Microbe<SulphurEatingBacteria>",
-    )
-    doTasks(*cardActionTasks("FloaterTechnology"), "Floater<ForcedPrecipitation>")
-    doTasks(
-        *cardActionTasks("ForcedPrecipitation", "Action2"),
-        "-2 Floater<ForcedPrecipitation>",
-        "VenusStep",
-        "TerraformRating",
-        "3 MC",
-    )
-    doTasks(
-        *playCardTasks("MiningExpedition"),
-        "10 Pay<> FROM MC",
-        "MiningExpedition FROM ProjectCard",
-        "OxygenStep",
-        "2 Steel",
-        "TerraformRating",
-        "-2 Plant<SoloOpponent>",
-    )
-    doTasks(
-        *standardProjectTasks("AquiferProject"),
-        "18 Pay<> FROM MC",
-        "OceanTile<Hellas_4_1>",
-        "TerraformRating",
-        "2 Plant",
-        "Plant",
-        "2 MC",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Hellas_4_2>",
-        "OxygenStep",
-        "Plant",
-        "4 MC",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Hellas_5_5>",
-        "OxygenStep",
-        "2 MC",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Hellas_6_6>",
-        "OxygenStep",
-        "4 MC",
-        "TerraformRating",
-    )
-    doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "8 Pay<Class<Plant>> FROM Plant",
-        "GreeneryTile<Hellas_5_2>",
-        "OxygenStep",
-        "2 MC",
-        "TerraformRating",
-    )
-    doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-    doTasks(
-        "-5 Microbe<SulphurEatingBacteria>",
-        "15 MC",
-    )
-    doTasks(
-        *playCardTasks("Teslaract"),
-        "2 Pay<Class<Steel>> FROM Steel",
-        "6 Pay<> FROM MC",
-        "Teslaract FROM ProjectCard",
-        "TerraformRating",
-    )
-    doTasks(
-        *playCardTasks("NitrogenRichAsteroid"),
-        "Pay<Class<Titanium>> FROM Titanium",
-        "26 Pay<> FROM MC",
-        "NitrogenRichAsteroid FROM ProjectCard",
-        "2 TerraformRating",
-        "TemperatureStep",
-        "3 MC",
-        "3 Heat",
-        "TerraformRating",
-        "PROD[4 Plant]",
-    )
-    doTasks(
-        *standardProjectTasks("AsteroidProject"),
-        "14 Pay<> FROM MC",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(
-        *standardProjectTasks("AsteroidProject"),
-        "14 Pay<> FROM MC",
-        "TemperatureStep",
-        "TerraformRating",
-        "OceanTile<Hellas_4_6>",
-        "TerraformRating",
-        "2 Plant",
-        "Plant",
-        "4 MC",
-    )
-    doTasks(*cardActionTasks("FloatingRefinery"), "Floater<FloatingRefinery>")
-    // Test inference: the log gives the sale count, but omits the card identities.
-    discard(BioPrintingFacility)
-    doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
-    doTasks(
-        *standardProjectTasks("AirScrappingProject"),
-        "15 Pay<> FROM MC",
-        "VenusStep",
-        "TerraformRating",
-        "3 MC",
-    )
-    doTasks(
-        *standardProjectTasks("AsteroidProject"),
-        "14 Pay<> FROM MC",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    doTasks(
-        "Pass",
         "82 MC",
         "10 Plant",
         "3 Titanium",

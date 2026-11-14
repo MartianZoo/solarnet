@@ -18,7 +18,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, promos:cards
-          fakes:cards
 
           RimSettler, Ecologist, Producer, Fundraiser, Philantropist, Terraformer
           Traveller, Collector, Excentric, Investor, Suburbian, Magnate
@@ -131,7 +130,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$AerobrakedAmmoniaAsteroid"),
           "26 Pay<> FROM MC",
@@ -141,10 +140,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "PROD[Plant]",
           "4 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
@@ -153,19 +151,18 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "PROD[Steel]",
           "2 Steel",
       )
-      doTask("PassBaton")
     }
 
     blue.doTask("Pass")
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$VestaShipyard"),
           "15 Pay<> FROM MC",
           "$VestaShipyard FROM ProjectCard",
           "PROD[Titanium]",
       )
-      doTask("Pass")
     }
+    pink.doTask("Pass")
 
     blue.doTasks("21 MC", "2 Plant", "3 Heat")
     pink.doTasks("19 MC", "5 Plant", "Steel", "Titanium")
@@ -194,7 +191,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = -1, s = 1, t = 1, p = 5, e = 0, h = 0)
     assertSidebar(gen = 2, temp = -28, oxygen = 0, oceans = 0, venus = 0)
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -203,10 +200,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "Steel",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$Potatoes"),
           "2 Pay<> FROM MC",
@@ -215,16 +211,15 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "PROD[2 MC]",
           "3 Heat",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       discard(SymbioticFungus)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -243,7 +238,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
 
     pink.doTask("Pass")
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$Lichen"),
           "7 Pay<> FROM MC",
@@ -258,8 +253,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "8 Pay<> FROM MC",
           "Ecologist",
       )
-      doTask("Pass")
     }
+    blue.doTask("Pass")
 
     blue.doTasks("25 MC", "3 Plant", "4 Heat")
     pink.doTasks("20 MC", "5 Plant", "Steel", "Titanium")
@@ -284,16 +279,15 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = -1, s = 1, t = 1, p = 5, e = 0, h = 0)
     assertSidebar(gen = 3, temp = -24, oxygen = 2, oceans = 0, venus = 0)
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "4 Pay<> FROM MC",
           "$ResearchCoordination FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$BigAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -307,30 +301,28 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "PROD[Heat]",
           "-4 Plant<Blue>",
       )
-      doTask("PassBaton")
     }
 
     // Blue has no printed Earth tags yet, so Space Hotels needs both wild tags.
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$SpaceHotels"),
           "12 Pay<> FROM MC",
           "$SpaceHotels FROM ProjectCard",
           "PROD[4 MC]",
       )
-      doTask("PassBaton")
     }
 
     pink.doTask("Pass")
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("Pass")
     }
+    blue.doTask("Pass")
 
     blue.doTasks("30 MC", "3 Plant", "4 Heat")
     pink.doTasks("22 MC", "5 Plant", "Steel", "Titanium", "Heat")
@@ -359,16 +351,15 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = -1, s = 1, t = 1, p = 5, e = 0, h = 1)
     assertSidebar(gen = 4, temp = -18, oxygen = 3, oceans = 0, venus = 0)
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$EarthOffice"),
           "1 Pay<> FROM MC",
           "$EarthOffice FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$ResearchOutpost"),
           "18 Pay<> FROM MC",
@@ -376,10 +367,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "CityTile<Hellas_2_5>",
           "Plant",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$LargeConvoy"),
           "5 Pay<Class<Titanium>> FROM Titanium",
@@ -399,7 +389,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$HermeticOrderOfMars"),
           "9 Pay<> FROM MC",
@@ -407,10 +397,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "PROD[2 MC]",
           "6 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -419,10 +408,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       draw(Plantation)
       discard(NoctisCity)
       doTasks("$MarsUniversity FROM ProjectCard", "-ProjectCard", "ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$AdaptedLichen"),
           "8 Pay<> FROM MC",
@@ -430,7 +418,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "PROD[Plant]",
           "3 Heat",
       )
-      doTask("PassBaton")
     }
 
     pink.doTask("Pass")
@@ -459,8 +446,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = -1, s = 1, t = 1, p = 5, e = 0, h = 1)
     assertSidebar(gen = 5, temp = -18, oxygen = 4, oceans = 2, venus = 0)
 
-    with(blue) {
+    blue.turn {
       discard(Hackers)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$NitrogenRichAsteroid"),
@@ -474,7 +462,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
@@ -495,7 +483,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -504,10 +492,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "2 MC",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Harvest"),
           "4 Pay<> FROM MC",
@@ -522,17 +509,16 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -555,23 +541,21 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$Windmills"),
           "5 Pay<> FROM MC",
           "$Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ClaimMilestoneAction, Action1>",
           "8 Pay<> FROM MC",
           "Terraformer",
       )
-      doTask("PassBaton")
     }
 
     blue.doTask("Pass")
@@ -604,7 +588,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = -1, s = 1, t = 1, p = 5, e = 0, h = 1)
     assertSidebar(gen = 6, temp = -12, oxygen = 8, oceans = 4, venus = 0)
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *standardProjectTasks("PowerPlantProject"),
           "11 Pay<> FROM MC",
@@ -621,7 +605,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -631,10 +615,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "Steel",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$ImportedGhg"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -643,10 +626,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "PROD[Heat]",
           "3 Heat",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$ExtractorBalloons"),
           "20 Pay<> FROM MC",
@@ -654,19 +636,17 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "3 Floater<$ExtractorBalloons>",
           "4 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Hellas_8_6 FROM Hellas_9_7>",
           "2 Heat",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$Insects"),
           "8 Pay<> FROM MC",
@@ -681,23 +661,22 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       discard(BuildingIndustries, MartianSurvey)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Moss"),
           "4 Pay<> FROM MC",
@@ -705,7 +684,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "PROD[Plant]",
           "-Plant",
       )
-      doTask("PassBaton")
     }
 
     blue.doTask("Pass")
@@ -738,7 +716,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 1, t = 1, p = 6, e = 0, h = 2)
     assertSidebar(gen = 7, temp = -12, oxygen = 9, oceans = 5, venus = 2)
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -759,7 +737,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "12 Pay<> FROM MC",
@@ -780,7 +758,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$PowerGrid"),
           "17 Pay<> FROM MC",
@@ -799,7 +777,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Hellas_9_7 FROM Hellas_8_6>",
@@ -818,16 +796,15 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ClaimMilestoneAction, Action1>",
           "8 Pay<> FROM MC",
           "Producer",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$BusinessNetwork"),
           "1 Pay<> FROM MC",
@@ -844,17 +821,16 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$ImportOfAdvancedGhg"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -866,12 +842,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$NitrophilicMoss"),
           "8 Pay<> FROM MC",
@@ -880,7 +855,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "-2 Plant",
           "Animal<$EcologicalZone>",
       )
-      doTask("PassBaton")
     }
 
     blue.doTask("Pass")
@@ -913,7 +887,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 0, s = 1, t = 1, p = 8, e = 0, h = 4)
     assertSidebar(gen = 8, temp = -8, oxygen = 13, oceans = 6, venus = 2)
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -931,7 +905,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$OlympusConference"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -953,16 +927,15 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
           "-1 ProjectCard<Selecting>",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$AqueductSystems"),
           "8 Pay<> FROM MC",
@@ -976,16 +949,15 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Hellas_8_7 FROM Hellas_9_7>",
           "2 Heat",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1003,26 +975,24 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$FloatingHabs"),
           "4 Pay<> FROM MC",
           "$FloatingHabs FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$KelpFarming"),
           "17 Pay<> FROM MC",
@@ -1032,11 +1002,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "2 Plant",
           "Animal<$EcologicalZone>",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       discard(UndergroundDetonations)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *cardActionTasks("$FloatingHabs"),
@@ -1046,7 +1016,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
 
     pink.doTask("Pass")
-    with(blue) {
+    blue.turn {
       doTasks(
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
@@ -1059,8 +1029,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("Pass")
     }
+    blue.doTask("Pass")
 
     blue.doTasks("44 MC", "16 Plant", "4 Heat", "2 Energy", "3 Heat FROM Energy", "2 Steel")
     pink.doTasks("36 MC", "11 Plant", "Steel", "Titanium", "4 Heat")
@@ -1089,7 +1059,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 2, s = 1, t = 1, p = 11, e = 0, h = 4)
     assertSidebar(gen = 9, temp = -4, oxygen = 14, oceans = 7, venus = 4)
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1108,7 +1078,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1134,8 +1104,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       draw(InventionContest, Zeppelins)
+
       doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
       doTasks(
           *playCardTasks("$InventionContest"),
@@ -1150,7 +1121,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Virus"),
           "1 Pay<> FROM MC",
@@ -1167,17 +1138,16 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
 
     // Three printed science tags remain in play; Invention Contest is already an event.
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$InterstellarColonyShip"),
           "23 Pay<> FROM MC",
           "$InterstellarColonyShip FROM ProjectCard",
           "4 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Hellas_8_6 FROM Hellas_8_7>",
@@ -1191,41 +1161,38 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$HiredRaiders"),
           "$HiredRaiders FROM ProjectCard",
           "3 MC<Blue> FROM MC<Pink>",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Hellas_7_5>",
           "0 OxygenStep",
       )
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<FundAwardAction, Action1>",
           "8 Pay<> FROM MC",
           "Magnate",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       discard(FieldCappedCity)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1233,10 +1200,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "Titanium",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
@@ -1257,14 +1223,14 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       discard(ArcticAlgae)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
     pink.doTask("Pass")
-    with(blue) {
+    blue.turn {
       doTasks(
           *cardActionTasks("$FloatingHabs"),
           "2 Pay<> FROM MC",
@@ -1276,8 +1242,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "VenusStep",
           "TerraformRating",
       )
-      doTask("Pass")
     }
+    blue.doTask("Pass")
 
     pink.doTasks("40 MC", "11 Plant", "Steel", "Titanium", "4 Heat")
     blue.doTasks("48 MC", "16 Plant", "4 Heat", "2 Energy", "2 Heat FROM Energy", "2 Steel")
@@ -1306,7 +1272,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 2, s = 1, t = 1, p = 11, e = 0, h = 4)
     assertSidebar(gen = 10, temp = 8, oxygen = 14, oceans = 9, venus = 6)
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *standardProjectTasks("AirScrappingProject"),
           "15 Pay<> FROM MC",
@@ -1320,14 +1286,14 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       draw(ConvoyFromEuropa, Grass)
+
       doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
       // The source records an explicit unused second action.
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1346,7 +1312,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$AirScrappingExpedition"),
           "12 Pay<> FROM MC",
@@ -1355,10 +1321,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "TerraformRating",
           "3 Floater<$FloatingHabs>",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "$InvestmentLoan FROM ProjectCard",
@@ -1381,16 +1346,15 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           "UseAction<FundAwardAction, Action1>",
           "14 Pay<> FROM MC",
           "Suburbian",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Harvest"),
           "4 Pay<> FROM MC",
@@ -1406,7 +1370,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$NoctisFarming"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -1425,7 +1389,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "$InvestmentLoan FROM ProjectCard",
@@ -1439,8 +1403,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       draw(Atmoscoop)
+
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1459,7 +1424,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -1476,7 +1441,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$Atmoscoop"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1497,8 +1462,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       discard(EosChasmaNationalPark, GreatDamPromo, ColonizerTrainingCamp)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$ReleaseOfInertGases"),
@@ -1508,8 +1474,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(blue) {
+    blue.turn {
       discard(GreatEscarpmentConsortium)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$MediaArchives"),
@@ -1520,7 +1487,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
 
     pink.doTask("Pass")
-    with(blue) {
+    blue.turn {
       doTasks(
           *playCardTasks("$TropicalResort"),
           "12 Pay<> FROM MC",
@@ -1551,8 +1518,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "VenusStep",
           "TerraformRating",
       )
-      doTask("Pass")
     }
+    blue.doTask("Pass")
 
     blue.doTasks("58 MC", "16 Plant", "2 Heat", "2 Energy", "2 Heat FROM Energy", "2 Steel")
     pink.doTasks("42 MC", "11 Plant", "Steel", "Titanium", "4 Heat")

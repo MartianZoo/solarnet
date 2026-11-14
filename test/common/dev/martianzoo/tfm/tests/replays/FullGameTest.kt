@@ -89,7 +89,7 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
   /** Neutral solo locations in city, greenery, city, greenery order. */
   protected open val soloTileLocations: List<String> = emptyList()
   /** Ordered events observed by a replay; the fixture adds remaining unused cards. */
-  protected open val firstGlobalEvents: List<String> = emptyList()
+  protected open val globalEventDeck: List<String> = emptyList()
   protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
 
   internal suspend fun completedGameFileJson(short: Boolean = false): String? {
@@ -106,7 +106,7 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
                 catalog.gamePremise(config, parseClasses(playerClassPets)),
                 soloTileLocations.map(::cn),
             ),
-            firstGlobalEvents,
+            globalEventDeck,
         )
     initializeGame(gamePremise)
     if (exportReplay) agents.taskLog.start()

@@ -178,20 +178,18 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(*playCardTasks("$SpaceMirrors"), "3 Pay<> FROM MC", "$SpaceMirrors FROM ProjectCard")
-      doTask("PassBaton") // decline the second action
     }
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "12 Pay<> FROM MC",
           "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
-      doTask("PassBaton") // decline the second action
     }
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$OptimalAerobraking"),
           "7 Pay<> FROM MC",
@@ -212,10 +210,11 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       doTask("3 Heat")
       doTask("OceanTile<Tharsis_2_6>")
       doTask("TerraformRating")
+
+      green.giveTask(pink, "2 Plant<ER>")
+      green.doTask("2 ProjectCard")
     }
-    green.giveTask(pink, "2 Plant<ER>")
-    green.doTask("2 ProjectCard")
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$PowerPlant"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -223,22 +222,20 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
           "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
       )
-      doTask("PassBaton") // decline the second action
     }
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$GeothermalPower"),
           "11 Pay<> FROM MC",
           "$GeothermalPower FROM ProjectCard",
           "PROD[2 Energy]",
       )
-      doTask("PassBaton") // decline the second action
     }
     pink.doTask("Pass")
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
-      doTask("Pass")
     }
+    green.doTask("Pass")
   }
 
   private fun generation2() {
@@ -263,7 +260,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 2, t = 1, p = 1, e = 2, h = 1)
     pink.assertCounts(20 to "TerraformRating", 6 to "ProjectCard")
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 1)
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$BlackPolarDust"),
           "15 Pay<> FROM MC",
@@ -274,12 +271,11 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
           "PROD[-2 MC]",
           "PROD[3 Heat]",
       )
+
+      doTasks("PROD[Steel]", "2 Titanium")
     }
-    pink.doTasks("PROD[Steel]", "2 Titanium")
-    pink.doTask("PassBaton")
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
-      doTask("PassBaton") // decline the second action
     }
     pink.doTask("Pass")
   }

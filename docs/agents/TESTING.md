@@ -389,8 +389,9 @@ Choose the fixture by what the scenario proves, not the kind of card:
 Gameplay tests submit the turns the game offers through plain `Agent`s. Use `doTask`/`doTasks`
 for explicit choices, or `completeOperation { ... }` when the whole operation must finish before
 returning. Do not use `inTurn`: it can create an out-of-turn offer when the actor has no pending
-work. Decline an offered second action explicitly with `selectTask("PassBaton")`; do not insert that
-choice after both actions, after a Prelude, or when all opponents have already passed.
+work. Use `player.turn { ... }` for complete action-phase turns. It declines an unused second
+action only while opponents remain. Setup, final greenery, and generation passes stay outside it.
+Keep explicit `PassBaton` submissions in focused tests whose subject is the handoff itself.
 
 `TfmGameplayTest` exercises authentic game flow. The fixture owns its `World` and `Agents`
 directly and exposes Admin and all players as plain Agents.
@@ -889,11 +890,26 @@ argument separately and retain successful earlier steps when a later step fails.
 Explicit-task replays extend `FullGameTest` or `CardTrackingFullGameTest`, both based on
 `TfmGameplayTest` with plain Agents and Player autoexecution disabled. Call the fixture's
 `startGame()` to begin setup. Have each player take their starting TR before either player handles
-starting cards. Group each corporation, Prelude, and action-phase turn in `with(player) { ... }`.
-A solo replay may group a whole generation in a single `with(player)` block.
-When a player declines their second action, submit `doTask("PassBaton")` explicitly at the end of
-that turn. A scope block itself performs no gameplay. Keep the task submissions inside each section
-as raw `doTask`/`doTasks` calls, using `giveTask` for immediate `NOW` handoffs.
+starting cards. Group corporations and Preludes in `with(player) { ... }`; use
+`player.turn { ... }` for action-phase turns. Solo and last-player blocks may contain any number
+of actions. Keep research, production, final greenery, and ordinary generation passes outside turn blocks.
+Keep each action in its own task call, with the recorded dialogue beside that action. A card's
+nested action (such as Viron repeating another card or Project Inspection invoking a card) remains
+part of that card's action. Keep ordinary passes separate from the preceding action.
+Use the existing `playCardTasks`, `cardActionTasks`, and `standardProjectTasks` abbreviations where
+they exactly represent the submitted commands; do not add an extra turn action for a nested choice.
+Select only the fake substitute cards used by the replay, rather than the entire `fakes:cards` pool.
+Keep political changes in nearby result expectations, including the displaced leader becoming a
+follower. Avoid repeating those expectations as later absolute assertions, while retaining
+source-backed resource checkpoints and final board/scoring checks.
+
+The turn wrapper checks that the actor holds the turn and that each action finishes, including
+other players' responses. It submits `PassBaton` only when the actor still holds the turn and
+opponents remain. It creates no offers and does not roll back previously submitted work on failure.
+Keep ordinary `doTask("Pass")` submissions outside the block. Red Appeasement's required Pass
+belongs inside because it completes that card action; the wrapper then needs no extra handoff.
+Keep each original task submission and its order, including cross-player responses.
+Use `giveTask` for immediate `NOW` handoffs within those turns.
 Use the shared card-name constants, give every `Ok` a short inline comment to its right naming
 the task it dismisses (for example, `// no steel paid`). Use `.expect()` for consequences not
 already evident from the preceding task submissions, including automatic resource changes and
@@ -905,7 +921,8 @@ action or payment helpers.
 `OtbGame20260828Test` exercises the separate TaskForm style on `FullGameTest(EAGER)`.
 Players submit their choices through `TaskForm.choose`, `narrow`, and `commit`; the policy
 executes concrete follow-up work. Its local form wrapper asserts offered choices and completed
-drafts, without gameplay actions, payment helpers, or a raw `doTask` fallback.
+drafts, without gameplay actions, payment helpers, or a raw `doTask` fallback. Its turn wrapper
+only supplies the same unused-second-action handoff as in explicit-task replays.
 
 Replay tests assert victory points only after the game's actual final scoring. Mid-game
 checkpoints verify the live state without simulating production or scoring; partial replays

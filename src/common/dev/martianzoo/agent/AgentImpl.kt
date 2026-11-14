@@ -469,6 +469,7 @@ internal class AgentImpl(
         .sortedBy { it.second.gaining == null }
         .forEach { (task, change) ->
           engine.doTask(change, taskId = task.id)
+          autoExecLoop.runAdmin()
         }
     return true
   }

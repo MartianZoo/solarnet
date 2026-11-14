@@ -100,7 +100,7 @@ internal class HellasPromoGameTest : FullGameTest() {
 
     // Generation 1 (Player1 first)
 
-    with(p1) {
+    p1.turn {
       doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
       doTasks(
           *playCardTasks("$Sabotage"),
@@ -111,7 +111,7 @@ internal class HellasPromoGameTest : FullGameTest() {
           "-7 MC<Player2>",
       )
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
@@ -129,7 +129,7 @@ internal class HellasPromoGameTest : FullGameTest() {
       )
     }
     p1.doTask("Pass")
-    with(p2) {
+    p2.turn {
       doTasks(
           *playCardTasks("$SearchForLife"),
           "3 Pay<> FROM MC",
@@ -164,7 +164,7 @@ internal class HellasPromoGameTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(p2) {
+    p2.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$VestaShipyard"),
@@ -173,7 +173,7 @@ internal class HellasPromoGameTest : FullGameTest() {
           "PROD[Titanium]",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
@@ -189,7 +189,7 @@ internal class HellasPromoGameTest : FullGameTest() {
     }
     p2.doTask("Pass")
 
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$DevelopmentCenter"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -244,7 +244,7 @@ internal class HellasPromoGameTest : FullGameTest() {
         "ProjectCard<Hand FROM Selecting>",
     )
 
-    with(p1) {
+    p1.turn {
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "1 Pay<Class<Energy>> FROM Energy",

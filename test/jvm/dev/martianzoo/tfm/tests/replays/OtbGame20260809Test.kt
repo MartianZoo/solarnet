@@ -169,7 +169,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     // "That concludes the Prelude phase. It is now time for the action phase."
     admin.assertCounts(1 to "ActionPhase")
 
-    with(yellow) {
+    yellow.turn {
       // "I play Aquifer Pumping for 18."
       doTasks(
           *playCardTasks("$AquiferPumping"),
@@ -184,16 +184,15 @@ internal class OtbGame20260809Test : FullGameTest() {
       doTasks("OceanTile<Hellas_5_7>", "TerraformRating", "3 Heat", "2 MC", "2 MC")
     }
 
-    with(green) {
+    green.turn {
       // "For my first action, I flip cards until I get 3 Venus tags. Let's see how this goes."
       // "I draw Venusian Insects, Air-Scrapping Expedition, and Atalanta Planitia Lab."
       doTask("DoRequiredActions")
       doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>").expect("3 ProjectCard")
-      doTask("PassBaton")
     }
 
     // (11:33 am) "I pitch a card for money, and I spend all my nine money on Robotic Workforce."
-    with(yellow) {
+    yellow.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       // "It just so happens that Dome Farming is a box-building tag."
       // "So that's a plant production and 2 money production."
@@ -211,7 +210,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     // "I can play Moss. I pay four, bringing me down to 41."
     // "I satisfy the three-ocean requirement."
     // "I lose one plant and gain one plant production."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$Moss"),
           "4 Pay<> FROM MC",
@@ -220,7 +219,6 @@ internal class OtbGame20260809Test : FullGameTest() {
           "-Plant",
       )
       assertCounts(41 to "MC") // ledger entry 11
-      doTask("PassBaton")
     }
     yellow.doTask("Pass")
 
@@ -245,7 +243,6 @@ internal class OtbGame20260809Test : FullGameTest() {
 
   private fun generation2() {
     // "Generation becomes two. Any cubes come off cards."
-    green.assertCounts(0 to "ActionUsedMarker<Anyone>")
     with(green) {
       assertProduction(m = -2, s = 0, t = 0, p = 2, e = 0, h = 0)
       assertResources(m = 62, s = 0, t = 0, p = 2, e = 0, h = 0)
@@ -280,7 +277,7 @@ internal class OtbGame20260809Test : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(green) {
+    green.turn {
       // "I'm going to release my inert gases. For fourteen. That gives me two TR."
       doTasks(
           *playCardTasks("$ReleaseOfInertGases"),
@@ -288,25 +285,23 @@ internal class OtbGame20260809Test : FullGameTest() {
           "$ReleaseOfInertGases FROM ProjectCard",
           "2 TerraformRating",
       )
-      doTask("PassBaton")
     }
 
     // 11:43 am
     // "I'm gonna pay eight to pump an aquifer."
-    with(yellow) {
+    yellow.turn {
       // "I will put it up here for the spot with one plant and four money."
       // "And one TR?"
       doTasks(*cardActionTasks("$AquiferPumping"), "8 Pay<> FROM MC")
       assertCounts(14 to "MC") // ledger entry 35
       doTasks("OceanTile<Hellas_4_7>", "TerraformRating", "Plant", "2 MC", "2 MC")
       assertCounts(18 to "MC") // ledger entry 37
-      doTask("PassBaton")
     }
 
     // "I'm going to play Terraforming Contract because I can."
     // "So that costs me eight, bringing me down to 34."
     // "It takes me from negative two to positive two money production."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$TerraformingContract"),
           "8 Pay<> FROM MC",
@@ -314,7 +309,6 @@ internal class OtbGame20260809Test : FullGameTest() {
           "PROD[4 MC]",
       )
       assertCounts(34 to "MC", 7 to "PROD[MC]") // ledger entry 28; 7 really means 2
-      doTask("PassBaton")
     }
     // "I think I'll pass. Requirements."
     yellow.doTask("Pass")
@@ -364,7 +358,7 @@ internal class OtbGame20260809Test : FullGameTest() {
         "ProjectCard<Hand FROM Selecting>",
     )
 
-    with(yellow) {
+    yellow.turn {
       // "I feel like I can always start by Aquifer Pumping."
       // "Eight real money to use Aquifer Pumping."
       // "I'm going on the one-one. I get two plants and a TR."
@@ -395,7 +389,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     // 11:49 am
     // "Giant Solar Shade. That cost me 27 full real money, bringing me down to 25."
     // "I raise Venus three steps and get three TR and a card."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$GiantSolarShade"),
           "27 Pay<> FROM MC",
@@ -409,14 +403,13 @@ internal class OtbGame20260809Test : FullGameTest() {
           "ProjectCard",
       )
       assertCounts(25 to "MC") // ledger entry 41
-      doTask("PassBaton")
     }
 
     // "I think I gave myself minus four because I was thinking of placing next to oceans, but then
     // I"
     // "placed away from oceans, so I had to fully minus eight."
     // "I play seven for Optimal Aerobraking and 21 for Comet."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           *playCardTasks("$OptimalAerobraking"),
           "7 Pay<> FROM MC",
@@ -447,7 +440,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     }
     green.assertCounts(28 to "MC") // ledger entry 46
 
-    with(green) {
+    green.turn {
       // 11:53 am
       // "Because Venus is at 8%, I can play Venusian Insects, which requires Venus at 12%."
       // "That brings Enceladus into play, and the cube goes on the second spot."
@@ -458,10 +451,9 @@ internal class OtbGame20260809Test : FullGameTest() {
               "$VenusianInsects FROM ProjectCard",
           )
           .expect("Enceladus")
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // "We have more than the five-ocean requirement, so I play Algae."
       // "I pay ten for Algae. I gain one plant and gain two plant production."
       doTasks(
@@ -471,10 +463,9 @@ internal class OtbGame20260809Test : FullGameTest() {
           "Plant",
           "PROD[2 Plant]",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // "I'm going to play Topsoil Contract. That costs me eight, leaving me with 15."
       // "I gain three plants."
       doTasks(
@@ -483,14 +474,13 @@ internal class OtbGame20260809Test : FullGameTest() {
           "$TopsoilContract FROM ProjectCard",
           "3 Plant",
       )
-      doTask("PassBaton")
     }
     // "I believe I pass."
     yellow.doTask("Pass")
 
     // "I'm going to take the action of Venusian Insects to add one microbe to Venusian Insects"
     // "and get one money from Topsoil Contract."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$VenusianInsects"), "Microbe<$VenusianInsects>", "MC")
       assertCounts(16 to "MC") // ledger entry 49
 
@@ -521,10 +511,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           )
           .expect("0 Science")
       assertCounts(8 to "MC") // ledger entry 52
-
-      // "I think we're at the point where I've done everything. So, I pass."
-      doTask("Pass")
     }
+
+    // "I think we're at the point where I've done everything. So, I pass."
+    green.doTask("Pass")
 
     // Production.
     yellow.doTasks("33 MC", "5 Plant", "Energy", "Heat", "Heat FROM Energy")
@@ -577,13 +567,12 @@ internal class OtbGame20260809Test : FullGameTest() {
 
     // "I'm going to use Venusian Insects to take a microbe on Venusian Insects and gain one money"
     // "and forgo my second action."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$VenusianInsects"), "Microbe<$VenusianInsects>", "MC")
-      doTask("PassBaton")
     }
 
     // "I'm gonna pay 16 for Imported Hydrogen. I'm gonna gain three plants."
-    with(yellow) {
+    yellow.turn {
       // "Place an ocean tile. On the steel spot, for four money and a steel. What a steal."
       // "And a TR."
       // "Optimal Aerobraking gives me three money and three heat, bringing me up to 14 heat."
@@ -620,7 +609,7 @@ internal class OtbGame20260809Test : FullGameTest() {
 
     // (12:38 pm) "Peroxide Power costs me seven."
     // "It costs me a money production and gains me two energy production."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$PeroxidePower"),
           "7 Pay<> FROM MC",
@@ -629,12 +618,11 @@ internal class OtbGame20260809Test : FullGameTest() {
           "PROD[2 Energy]",
       )
       assertCounts(25 to "MC") // ledger entry 65
-      doTask("PassBaton")
     }
 
     // "I'm gonna buzz buzz. Sponsorize some academies. That's nine to discard a card from hand."
     // "Draw three cards and you get one card."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           *playCardTasks("$SponsoredAcademies"),
           "9 Pay<> FROM MC",
@@ -645,19 +633,17 @@ internal class OtbGame20260809Test : FullGameTest() {
           "ProjectCard<Green, Hand>",
       )
       assertCounts(10 to "MC") // ledger entry 100
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // "I'm going to use the Power Plant standard project."
       // "That brings me up to three energy production."
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-      doTask("PassBaton")
     }
     green.assertCounts(14 to "MC") // ledger entry 69
 
     // (12:40 pm) "I will convert eight plants to a greenery."
-    with(yellow) {
+    yellow.turn {
       // "And that'll be on the 2-plants, 4-money spot."
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -692,7 +678,7 @@ internal class OtbGame20260809Test : FullGameTest() {
 
     // "I'm going to play Martian Survey while I still can."
     // "That costs me nine, and it draws me two cards."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$MartianSurvey"),
           "9 Pay<> FROM MC",
@@ -700,13 +686,12 @@ internal class OtbGame20260809Test : FullGameTest() {
           "2 ProjectCard",
       )
       assertCounts(5 to "MC") // derived from ledger entry 72 before Industrial Center
-      doTask("PassBaton")
     }
     // (12:43 pm) "I believe I pass."
     yellow.doTask("Pass")
 
     // "I'm going to use Search for Life, and I flip Potatoes, so I do not get a science resource."
-    with(green) {
+    green.turn {
       doTasks(
               *cardActionTasks("$SearchForLife"),
               "Pay<> FROM MC",
@@ -734,10 +719,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "Plant",
       )
       assertCounts(1 to "MC") // ledger entry 72
-
-      // "I don't have enough money to take its action. I pass."
-      doTask("Pass")
     }
+
+    // "I don't have enough money to take its action. I pass."
+    green.doTask("Pass")
 
     // Production.
     yellow.doTasks("39 MC", "5 Plant", "Heat", "Heat FROM Energy")
@@ -793,7 +778,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     )
 
     // "I will spend eight money to place the last ocean."
-    with(yellow) {
+    yellow.turn {
       // "I get a TR."
       // "It'll go on the two-one space for two plants and two money."
       doTasks(
@@ -814,18 +799,17 @@ internal class OtbGame20260809Test : FullGameTest() {
 
     // (12:51 pm) "I'm gonna spend three energy to fly my little ship to Luna."
     // "And I simply take 13 money. The track goes all the way down. And the track zoops."
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Luna>",
           "13 MC",
       )
-      doTask("PassBaton")
     }
 
     // "I spend six money to gain three energy."
-    with(yellow) {
+    yellow.turn {
       doTasks(*cardActionTasks("$EnergyMarket"), "-6 MC", "3 Energy")
       // "And then I will use the three energy to trade with Callisto and get ten."
       doTasks(
@@ -841,17 +825,16 @@ internal class OtbGame20260809Test : FullGameTest() {
     yellow.exMachina("6 MC")
     yellow.assertCounts(21 to "MC") // ledger entry 130
 
-    with(green) {
+    green.turn {
       // "Earth Catapult for 23."
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
           "$EarthCatapult FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // (12:54 pm) "I'll spend five on Ishtar Mining."
       // "It requires Venus at 8%, and I get a titanium production."
       doTasks(
@@ -860,12 +843,11 @@ internal class OtbGame20260809Test : FullGameTest() {
           "$IshtarMining FROM ProjectCard",
           "PROD[Titanium]",
       )
-      doTask("PassBaton")
     }
 
     // "Well, I think it's time to play Lunar Mining. That cost me eleven. No, it cost me nine."
     // "It gives me two titanium production."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$LunarMining"),
           "9 Pay<> FROM MC",
@@ -873,12 +855,11 @@ internal class OtbGame20260809Test : FullGameTest() {
           "PROD[2 Titanium]",
       )
       assertCounts(4 to "MC") // ledger entry 85
-      doTask("PassBaton")
     }
 
     // "I raise the temperature twice because I have 16 heat."
     // "The temperature is now −24°C. I get two TR."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -894,22 +875,20 @@ internal class OtbGame20260809Test : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       // "I'm gonna use Venusian Insects to give myself a microbe."
       // "That gives me one money."
       doTasks(*cardActionTasks("$VenusianInsects"), "Microbe<$VenusianInsects>", "MC")
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // "I'm gonna play... Ironworks for 11. Boop."
       doTasks(*playCardTasks("$Ironworks"), "11 Pay<> FROM MC", "$Ironworks FROM ProjectCard")
-      doTask("PassBaton")
     }
 
     // "I use Search for Life to spend one money and flip Forced Precipitation."
     // "That does not get me a science resource."
-    with(green) {
+    green.turn {
       doTasks(
               *cardActionTasks("$SearchForLife"),
               "Pay<> FROM MC",
@@ -918,10 +897,9 @@ internal class OtbGame20260809Test : FullGameTest() {
               "-ProjectCard<Revealed>",
           )
           .expect("0 Science")
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // "I will spend four energy on Ironworks to gain a steel."
       // "Oxygen goes to 5%. I get a TR."
       doTasks(
@@ -931,14 +909,14 @@ internal class OtbGame20260809Test : FullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
     admin.assertCounts(5 to "OxygenStep")
     // "I am passing."
     green.doTask("Pass")
 
     // (12:58 pm) "I will spend eight plants to place a greenery. Oxygen is now at six."
-    with(yellow) {
+    yellow.turn {
+
       // "I get a TR."
       // "I put it at the top right on the one-plant spot."
       doTasks(
@@ -966,8 +944,8 @@ internal class OtbGame20260809Test : FullGameTest() {
       assertCounts(1 to "MC") // ledger entry 154
       doTasks("PROD[-Plant<Green>]", "MC<Green> FROM MC")
       green.assertCounts(5 to "MC") // ledger entry 92
-      doTask("Pass")
     }
+    yellow.doTask("Pass")
 
     // Production.
     yellow.doTasks("44 MC", "5 Plant", "2 Heat", "6 Heat FROM Energy", "Titanium", "2 Energy")
@@ -1013,7 +991,7 @@ internal class OtbGame20260809Test : FullGameTest() {
 
     // "I'm going to fly my ship to Triton by paying three energy."
     // "That lets me take five titanium, bringing me up to seven titanium."
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
@@ -1041,7 +1019,7 @@ internal class OtbGame20260809Test : FullGameTest() {
       )
     }
     // "I'm gonna pay 12 for Ecological Zone." "Oh my, does it hold animals?"
-    with(yellow) {
+    yellow.turn {
       // "It holds animals, so Miranda finally comes into play."
       // "I place the tile adjacent to a greenery on the almost-rightmost space in the fourth"
       // "row. That's four money and a plant."
@@ -1072,7 +1050,7 @@ internal class OtbGame20260809Test : FullGameTest() {
 
     // "I'll spend the eight plants. I'm going to put the greenery on the two-plants, four-money"
     // "spot. I raise oxygen to 7% and get a TR."
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1084,11 +1062,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "TerraformRating",
       )
       admin.assertCounts(7 to "OxygenStep")
-      doTask("PassBaton")
     }
 
     // "I will do my plant forest."
-    with(yellow) {
+    yellow.turn {
       // "I'm going to put it at row five, column nine."
       // "I get a plant, two money, and an oxygen raise."
       // "I have to manually input the temperature raise and the extra TR."
@@ -1114,7 +1091,7 @@ internal class OtbGame20260809Test : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       // (1:12 pm) "Why do I play badly?" "Temp is at minus 20, and oxygen is at eight."
       // "Oh no, I didn't. I spent the titanium. What am I doing?"
       // "I don't want to spend the six. So I stay at 26 money and five titanium."
@@ -1124,11 +1101,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "1 Pay<> FROM MC",
           "$RotatorImpacts FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
     // "I play Kelp Farming for 17. We have the six oceans."
-    with(yellow) {
+    yellow.turn {
       // "I gain two money production, three plant production, and two plants."
       // "I add an animal to Ecological Zone."
       doTasks(
@@ -1141,11 +1117,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "Animal<$EcologicalZone>",
       )
       assertCounts(7 to "MC") // ledger entry 186
-      doTask("PassBaton")
     }
 
     // "I'm going to play Nuclear Power, which costs eight. I spend one steel and six money."
-    with(green) {
+    green.turn {
       // "I lose two money production and gain three energy production."
       doTasks(
           *playCardTasks("$NuclearPower"),
@@ -1156,11 +1131,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "PROD[3 Energy]",
       )
       assertCounts(19 to "MC") // ledger entry 122
-      doTask("PassBaton")
     }
 
     // (1:15 pm) "Energy Market: pay four money, gain two energy."
-    with(yellow) {
+    yellow.turn {
       doTasks(*cardActionTasks("$EnergyMarket"), "-4 MC", "2 Energy")
       // "I use Ironworks to pay four energy, gain a steel, and raise oxygen."
       // "Oxygen is at 9%. I get a TR."
@@ -1174,16 +1148,16 @@ internal class OtbGame20260809Test : FullGameTest() {
       admin.assertCounts(9 to "OxygenStep")
     }
 
-    with(green) {
+    green.turn {
       // "I... I... I... I am going to spend eight to get Venophile funded."
       doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Venuphile")
-      doTask("PassBaton")
     }
     // "I pass."
     yellow.doTask("Pass")
 
     // "I am going to spend 11 on Venusian Plants, which is all the money I have."
-    with(green) {
+    green.turn {
+
       // (1:17 pm) "I meet the requirement of 16%. I raise Venus one step, which gives me one
       // TR."
       // "I put a microbe on Venusian Insects, which gives me one money."
@@ -1219,10 +1193,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           )
           .expect("0 Science")
       assertCounts(1 to "MC") // ledger entry 130
-
-      // "I pass. We do production."
-      doTask("Pass")
     }
+
+    // "I pass. We do production."
+    green.doTask("Pass")
 
     // Production.
     yellow.doTasks("50 MC", "8 Plant", "3 Heat", "Titanium", "2 Energy")
@@ -1281,7 +1255,7 @@ internal class OtbGame20260809Test : FullGameTest() {
         "4 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(yellow) {
+    yellow.turn {
       // "I think I'm just gonna Standard Project City."
       // "I put it at row one, column two, for two plants and two money."
       doTasks(
@@ -1310,7 +1284,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     // "I'm gonna spend all six titanium, plus seven real."
     // "I'm going to get four titanium, two temperature raises, and two TR."
     // "That takes the temperature to −14°C."
-    with(green) {
+    green.turn {
       // "You lose four plants."
       doTasks(
           *playCardTasks("$BigAsteroid"),
@@ -1324,11 +1298,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "TerraformRating",
           "-4 Plant<Yellow>",
       )
-      doTask("PassBaton")
     }
 
     // (6:25 pm) "I think I'm gonna play some Nitrophilic Moss. It's eight money."
-    with(yellow) {
+    yellow.turn {
       // "I lose two plants, gain two plant production, and add an animal to Ecological Zone."
       doTasks(
           *playCardTasks("$NitrophilicMoss"),
@@ -1338,11 +1311,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "-2 Plant",
           "Animal<$EcologicalZone>",
       )
-      doTask("PassBaton")
     }
 
     // "Titan Floating Launch-Pad. That costs all 16 of my money."
-    with(green) {
+    green.turn {
       // "It tells me to add two floaters to any Jovian card. I wonder which one I will pick."
       // "It'll be itself."
       doTasks(
@@ -1352,22 +1324,19 @@ internal class OtbGame20260809Test : FullGameTest() {
           "2 Floater<$TitanFloatingLaunchPad>",
       )
       assertCounts(0 to "MC") // ledger entry 145
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // (6:27 pm) "I will spend four money to gain two energy using Energy Market."
       doTasks(*cardActionTasks("$EnergyMarket"), "-4 MC", "2 Energy")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // "I will sell a card."
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // "I will spend four energy to gain a steel and raise the oxygen."
       // "Oxygen is at 11%."
       doTasks(
@@ -1377,11 +1346,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
     admin.assertCounts(11 to "OxygenStep")
 
-    with(green) {
+    green.turn {
       // "I'm playing a trans card for four money, which I'm going to do as one titanium, one
       // money."
       // "It's Trans-Neptune Probe and that's it. It just—that's it."
@@ -1391,11 +1359,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "1 Pay<> FROM MC",
           "$TransNeptuneProbe FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
     // "I play Mercurian Alloys for three money."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           *playCardTasks("$MercurianAlloys"),
           "Ok", // No titanium paid.
@@ -1416,7 +1383,7 @@ internal class OtbGame20260809Test : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       // (6:30 pm) "Oh jeez, I've been sitting on this the whole time. I'll use Rotator Impacts"
       // "to remove an asteroid and do a Venus raise to 16%, which gets me"
       // "two TR."
@@ -1427,7 +1394,6 @@ internal class OtbGame20260809Test : FullGameTest() {
           "TerraformRating",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
     admin.assertCounts(8 to "VenusStep")
     // "I pass."
@@ -1435,7 +1401,7 @@ internal class OtbGame20260809Test : FullGameTest() {
 
     // "I use Titan Floating Launch-Pad, lose a floater, and take four microbes from Enceladus."
     // "They go on Venusian Insects, and that gives me four money from Topsoil Contract."
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$TitanFloatingLaunchPad", "Action2"),
           "-Floater<$TitanFloatingLaunchPad>",
@@ -1458,9 +1424,9 @@ internal class OtbGame20260809Test : FullGameTest() {
               "-ProjectCard<Revealed>",
           )
           .expect("0 Science")
-      // (6:33 pm) "I pass. We hit production."
-      doTask("Pass")
     }
+    // (6:33 pm) "I pass. We hit production."
+    green.doTask("Pass")
 
     // Production.
     yellow.doTasks("53 MC", "10 Plant", "3 Heat", "Titanium", "3 Energy")
@@ -1500,7 +1466,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     )
 
     // (6:37 pm) "God damn it. We play Penguins, which costs five."
-    with(green) {
+    green.turn {
       doTasks(*playCardTasks("$Penguins"), "5 Pay<> FROM MC", "$Penguins FROM ProjectCard")
       // "And then we just trade three energy to grab two measly little aminals from Miranda."
       // The later Generation 9 ledger and Green's evidenced eight-heat conversion show that the
@@ -1517,7 +1483,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     }
 
     // (7:51 pm) "I spend three energy to trade with Callisto and get five energy."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
@@ -1538,7 +1504,7 @@ internal class OtbGame20260809Test : FullGameTest() {
 
     // (7:54 pm) "Let us finally play Strato Birds. That cost me ten."
     // "I lose a floater from Titan Floating Launch-Pad to do that."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$StratosphericBirds"),
           "10 Pay<> FROM MC",
@@ -1546,11 +1512,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "-Floater<$TitanFloatingLaunchPad>",
       )
       assertCounts(21 to "MC") // ledger entry 171
-      doTask("PassBaton")
     }
 
     // "I'm going to use the City standard project."
-    with(yellow) {
+    yellow.turn {
       // "I place the city at row three, column five, for two money."
       doTasks(
           *standardProjectTasks("CityProject"),
@@ -1577,7 +1542,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     }
 
     // (7:56 pm) "Boids. I played boids for eight, bringing me down to 13."
-    with(green) {
+    green.turn {
       // "That lowers [Yellow]'s plant production by two."
       doTasks(
           *playCardTasks("$Birds"),
@@ -1585,11 +1550,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "$Birds FROM ProjectCard",
           "PROD[-2 Plant<Yellow>]",
       )
-      doTask("PassBaton")
     }
 
     // "I'm going to spend eight plants on a greenery."
-    with(yellow) {
+    yellow.turn {
       // "And that will be the four-five for a steel and four money."
       // "You're slaughtering me."
       // "Oh man, you got the last oxygen. I never win this game."
@@ -1609,37 +1573,33 @@ internal class OtbGame20260809Test : FullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Mayor")
     }
 
-    with(green) {
+    green.turn {
       // "I'm going to spend one on Extremophiles. I have the two science tags it needs."
       doTasks(
           *playCardTasks("$Extremophiles"),
           "1 Pay<> FROM MC",
           "$Extremophiles FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // "Before I forget, I'm going to claim Producer for eight. I have all three milestones."
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Producer")
-      doTask("PassBaton")
     }
 
     // "I'm going to use Venusian Insects and add a microbe to Venusian Insects and take the"
     // "money."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$VenusianInsects"), "Microbe<$VenusianInsects>", "MC")
       assertCounts(13 to "MC") // ledger entry 176
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // (7:59 pm) "I'm going to pay 14 for Botanist. Botanist is funded."
       doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Botanist")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // "I am going to play Satellites."
       // "It would cost eight, but I'm spending six worth of titanium and two money."
       // "I'm getting four money production, bringing me up to eight money production."
@@ -1650,13 +1610,12 @@ internal class OtbGame20260809Test : FullGameTest() {
           "$Satellites FROM ProjectCard",
           "PROD[4 MC]",
       )
-      doTask("PassBaton")
     }
     // "I pass."
     yellow.doTask("Pass")
 
     // "I add a Penguin, a Strato Bird, and a Bird."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$Penguins"), "Animal<$Penguins>")
       doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
       doTasks(*cardActionTasks("$Birds"), "Animal<$Birds>")
@@ -1676,10 +1635,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           )
           .expect("0 Science")
       assertCounts(5 to "MC") // ledger entry 181
-
-      // "I pass. We do production."
-      doTask("Pass")
     }
+
+    // "I pass. We do production."
+    green.doTask("Pass")
 
     // Production.
     yellow.doTasks("57 MC", "8 Plant", "3 Heat", "Titanium", "3 Energy", "Heat FROM Energy")
@@ -1715,7 +1674,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     green.doTask("-4 ProjectCard<Selecting>")
 
     // (8:05 pm) "I believe I start by paying three energy to trade with Luna. That's ten."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
@@ -1735,7 +1694,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     }
 
     // "I'm going to play Eos Chasma National Park, which costs 14."
-    with(green) {
+    green.turn {
       // "It gives me three plants."
       // "It gives me an aminal, which I'm putting on Penguins."
       // "It gives me two money production. We meet the requirement."
@@ -1763,7 +1722,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           .expect("0 TerraformRating")
     }
 
-    with(yellow) {
+    yellow.turn {
       // (8:08 pm) "I will pay ten money for Rego Plastics."
       doTasks(
           *playCardTasks("$RegoPlastics"),
@@ -1771,17 +1730,15 @@ internal class OtbGame20260809Test : FullGameTest() {
           "10 Pay<> FROM MC",
           "$RegoPlastics FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // "I use Venusian Insects to add a cube to Venusian Insects and take one money."
       doTasks(*cardActionTasks("$VenusianInsects"), "Microbe<$VenusianInsects>", "MC")
-      doTask("PassBaton")
     }
 
     // "I will pay four steel, because it's worth three now, for Industrial Microbes."
-    with(yellow) {
+    yellow.turn {
       // "I increase energy production and steel production one step each."
       doTasks(
           *playCardTasks("$IndustrialMicrobes"),
@@ -1792,18 +1749,16 @@ internal class OtbGame20260809Test : FullGameTest() {
           "PROD[Steel]",
       )
       assertCounts(4 to "PROD[Energy]") // ledger entry 294
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // "I'm going to pay 20 to fund the only award that I have a chance at, which is
       // Magnate."
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Magnate")
-      doTask("PassBaton")
     }
 
     // "I will pay four titanium for 16 and 12 money for Methane from Titan."
-    with(yellow) {
+    yellow.turn {
       // "I increase heat production two steps and plant production two steps."
       doTasks(
           *playCardTasks("$MethaneFromTitan"),
@@ -1813,10 +1768,9 @@ internal class OtbGame20260809Test : FullGameTest() {
           "PROD[2 Heat]",
           "PROD[2 Plant]",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // "Maxwell Edison... I'm sorry, Maxwell Base, costs all 16 money that I have."
       // "It gives me a negative energy production, taking me down to four."
       // "And I place a shitty tile on the Maxwell Base space area and put a delegate on it."
@@ -1827,10 +1781,9 @@ internal class OtbGame20260809Test : FullGameTest() {
           "PROD[-Energy]",
           "NormalCityTile<MaxwellBase_RemoteArea>",
       )
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // (8:12 pm) "I raise the temperature to −8°C with eight heat. I get a TR."
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -1838,18 +1791,16 @@ internal class OtbGame20260809Test : FullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
     admin.assertCounts(11 to "TemperatureStep")
 
-    with(green) {
+    green.turn {
       // "I use Maxwell Base to add a Stratospheric Bird."
       doTasks(*cardActionTasks("$MaxwellBase"), "Animal<$StratosphericBirds>")
-      doTask("PassBaton")
     }
 
     // "I play Nitrite Reducing Bacteria for 11. I get three free microbes on that."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           *playCardTasks("$NitriteReducingBacteria"),
           "11 Pay<> FROM MC",
@@ -1857,10 +1808,9 @@ internal class OtbGame20260809Test : FullGameTest() {
           "3 Microbe<$NitriteReducingBacteria>",
       )
       assertCounts(1 to "MC") // ledger entry 304
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // "I use Rotator Impacts to remove an asteroid and raise Venus to 18%."
       // "That gives me a TR, taking me to 35 TR."
       doTasks(
@@ -1869,32 +1819,29 @@ internal class OtbGame20260809Test : FullGameTest() {
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
     admin.assertCounts(9 to "VenusStep")
 
-    with(yellow) {
+    yellow.turn {
       // "I use Nitrite Reducing Bacteria to remove three microbes and get a TR."
       doTasks(
           *cardActionTasks("$NitriteReducingBacteria", "Action2"),
           "-3 Microbe<$NitriteReducingBacteria>",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
     // "I use Extremophiles to add a Venusian Insect, which gives me one money."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$VenusianInsects>", "MC")
       assertCounts(1 to "MC") // ledger entry 201
-      doTask("PassBaton")
     }
     // "I pass."
     yellow.doTask("Pass")
 
     // "I use all three of my animal cards to take one animal each."
     // "That gives me my fifth Penguin."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$Penguins"), "Animal<$Penguins>")
       doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
       doTasks(*cardActionTasks("$Birds"), "Animal<$Birds>")
@@ -1925,10 +1872,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "TerraformRating",
       )
       admin.assertCounts(12 to "TemperatureStep")
-
-      // "We do production. You get to do World Government Terraforming."
-      doTask("Pass")
     }
+
+    // "We do production. You get to do World Government Terraforming."
+    green.doTask("Pass")
 
     // Production.
     yellow.doTasks("60 MC", "10 Plant", "5 Heat", "Titanium", "4 Energy", "Steel")
@@ -1970,7 +1917,7 @@ internal class OtbGame20260809Test : FullGameTest() {
 
     // (8:18 pm) "I'm going to use three energy to fly to Enceladus and take three microbes."
     // "My three microbes go onto Venusian Insects and give me three money."
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
@@ -1978,11 +1925,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "3 Microbe<$VenusianInsects>",
           "3 MC",
       )
-      doTask("PassBaton")
     }
 
     // "I can pay 25 for a City standard project."
-    with(yellow) {
+    yellow.turn {
       // "It'll go at row five, column five, for two money."
       doTasks(
           *standardProjectTasks("CityProject"),
@@ -2006,7 +1952,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     }
 
     // "What I'm going to do is play Restricted Area for nine."
-    with(green) {
+    green.turn {
       // (8:21 pm) "Thank you. You know, screw that. I'll give back the two steel."
       // "I'm going to place Restricted Area on the one-card space that is two above the south
       // pole"
@@ -2018,12 +1964,11 @@ internal class OtbGame20260809Test : FullGameTest() {
           "RestrictedArea_SpecialTile<Hellas_7_6>",
           "ProjectCard",
       )
-      doTask("PassBaton")
     }
     green.assertCounts(31 to "MC") // ledger entry 217
 
     // "I'm going to play my Sub-Zero Salt Fish." "Oh, I guess I lose a plant production."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           *playCardTasks("$SubZeroSaltFish"),
           "5 Pay<> FROM MC",
@@ -2032,7 +1977,6 @@ internal class OtbGame20260809Test : FullGameTest() {
           "PROD[-Plant<Green>]",
           "3 MC<Green> FROM MC",
       )
-      doTask("PassBaton")
     }
     // "Like that's gonna change much."
     // HACK: That exchange never mentions the Mons Insurance payment, which we omitted physically.
@@ -2040,10 +1984,9 @@ internal class OtbGame20260809Test : FullGameTest() {
     green.assertCounts(31 to "MC") // ledger entry 217
     yellow.assertCounts(31 to "MC") // ledger entry 325
 
-    with(green) {
+    green.turn {
       // "I use Restricted Area to draw a card."
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
-      doTask("PassBaton")
     }
     // HACK: I narrated drawing the card but never mentioned Restricted Area's two-money cost.
     green.exMachina("2 MC")
@@ -2052,7 +1995,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     // "I play Medical Lab. I'll spend my four steel as 12 money plus one money."
     // "I increase money production one step for every two building tags."
     // "I have eight building tags, so that's four money production."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           *playCardTasks("$MedicalLab"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -2061,13 +2004,12 @@ internal class OtbGame20260809Test : FullGameTest() {
           "PROD[4 MC]",
       )
       assertCounts(25 to "PROD[MC]") // ledger entry 328; 25 really means 20
-      doTask("PassBaton")
     }
 
     // (8:24 pm) "I'm gonna play Atalanta Planitia Lab for eight money,"
     // "because I can now finally. Finally."
     // "That gives me two cards."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$AtalantaPlanitiaLab"),
           "8 Pay<> FROM MC",
@@ -2075,13 +2017,12 @@ internal class OtbGame20260809Test : FullGameTest() {
           "2 ProjectCard",
       )
       assertCounts(23 to "MC") // ledger entry 221
-      doTask("PassBaton")
     }
 
     // "I'm going to play Venus Soils for 20. I raise Venus one step, which gives me a TR."
     // "I increase plant production one step. I add two microbes to Nitrite Reducing Bacteria."
     // "I also add an animal to Ecological Zone."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           *playCardTasks("$VenusSoils"),
           "20 Pay<> FROM MC",
@@ -2093,12 +2034,11 @@ internal class OtbGame20260809Test : FullGameTest() {
           "2 Microbe<$NitriteReducingBacteria>",
       )
       assertCounts(10 to "MC") // ledger entry 329
-      doTask("PassBaton")
     }
 
     // "I play Invention Contest for free and choose this card."
     // Green's Earth Catapult discount reduces its printed 2-M€ cost to zero.
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$InventionContest"),
           "$InventionContest FROM ProjectCard",
@@ -2113,15 +2053,14 @@ internal class OtbGame20260809Test : FullGameTest() {
     green.assertCounts(26 to "MC") // ledger entry 222
     yellow.assertCounts(7 to "MC") // ledger entry 332
 
-    with(yellow) {
+    yellow.turn {
       // "I add a Sub-Zero Salt Fish."
       doTasks(*cardActionTasks("$SubZeroSaltFish"), "Animal<$SubZeroSaltFish>")
-      doTask("PassBaton")
     }
 
     // "I'm going to spend 23 and put a greenery at the only spot next to my city that isn't next"
     // "to one of yours. I get a steel."
-    with(green) {
+    green.turn {
       doTasks(
               *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
@@ -2130,57 +2069,50 @@ internal class OtbGame20260809Test : FullGameTest() {
               "Steel",
           )
           .expect("0 TerraformRating")
-      doTask("PassBaton")
     }
     yellow.assertCounts(7 to "MC") // ledger entry 332
 
-    with(yellow) {
+    yellow.turn {
       // (8:28 pm) "I add a Nitrite Reducing Bacterium."
       doTasks(*cardActionTasks("$NitriteReducingBacteria"), "Microbe<$NitriteReducingBacteria>")
-      doTask("PassBaton")
     }
 
     // "I play Harvest for two and then get 12. Now I have 13 money."
-    with(green) {
+    green.turn {
       doTasks(*playCardTasks("$Harvest"), "2 Pay<> FROM MC", "$Harvest FROM ProjectCard", "12 MC")
       assertCounts(13 to "MC") // ledger entry 226
-      doTask("PassBaton")
     }
 
     // "I'll spend three energy to trade with Miranda for one measly animal, which I'll"
     // "play on Sub-Zero Salt Fish just to even the score or whatever."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Miranda>",
           "Animal<$SubZeroSaltFish>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // "I'm going to play Floating Habs for three. I meet the requirement."
       doTasks(*playCardTasks("$FloatingHabs"), "3 Pay<> FROM MC", "$FloatingHabs FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // "I use Energy Market to pay six money for three energy."
       doTasks(*cardActionTasks("$EnergyMarket"), "-6 MC", "3 Energy")
-      doTask("PassBaton")
     }
 
     // "I use Titan Floating Launch-Pad to add a floater to Titan Floating Launch-Pad."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$TitanFloatingLaunchPad"), "Floater<$TitanFloatingLaunchPad>")
-      doTask("PassBaton")
     }
     // (8:30 pm) "I pass."
     yellow.doTask("Pass")
 
     // "I'm going to use Venusian Insects to get a microbe and a money."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$VenusianInsects"), "Microbe<$VenusianInsects>", "MC")
       // "I'm going to use Penguins, Stratospheric Birds, and Birds to get one animal on each."
       doTasks(*cardActionTasks("$Penguins"), "Animal<$Penguins>")
@@ -2216,9 +2148,9 @@ internal class OtbGame20260809Test : FullGameTest() {
               "-ProjectCard<Revealed>",
           )
           .expect("0 Science")
-      // "I pass."
-      doTask("Pass")
     }
+    // "I pass."
+    green.doTask("Pass")
 
     // Production.
     yellow.doTasks(
@@ -2280,7 +2212,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     green.assertCounts(43 to "MC") // ledger entry 243
 
     // "I'm gonna heat boop twice. So we're at two temp."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -2298,7 +2230,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     }
 
     // (8:38 pm) "I'm going to use Restricted Area to draw a card."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
       // "I'm going to trade with Triton. I spend three energy and take four titanium."
       doTasks(
@@ -2315,7 +2247,7 @@ internal class OtbGame20260809Test : FullGameTest() {
 
     // "I'm going to convert eight plants to a greenery."
     // "I place it at row five, column four, and get two steel."
-    with(yellow) {
+    yellow.turn {
       doTasks(
               "UseAction<ConvertPlantsAction, Action1>",
               "8 Pay<Class<Plant>> FROM Plant",
@@ -2344,23 +2276,21 @@ internal class OtbGame20260809Test : FullGameTest() {
     yellow.exMachina("PROD[-3 MC, 2 Energy]")
 
     // (8:41 pm) "I'm going to use Venusian Insects for one microbe and one money."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$VenusianInsects"), "Microbe<$VenusianInsects>", "MC")
       assertCounts(44 to "MC") // ledger entry 247
-      doTask("PassBaton")
     }
 
-    with(yellow) {
+    yellow.turn {
       // "I remove three Nitrite Reducing Bacteria to gain a TR."
       doTasks(
           *cardActionTasks("$NitriteReducingBacteria", "Action2"),
           "-3 Microbe<$NitriteReducingBacteria>",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // "I'm going to use Rotator Impacts to remove an asteroid and raise Venus."
       // "Venus is now at 22%, and my TR is at 37."
       doTasks(
@@ -2369,26 +2299,24 @@ internal class OtbGame20260809Test : FullGameTest() {
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
     admin.assertCounts(11 to "VenusStep")
     green.assertCounts(37 to "TerraformRating")
 
     // "I'm going to pay three energy to trade with Enceladus and get one microbe."
     // "It goes to Nitrite Reducing Bacteria."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Enceladus>",
           "Microbe<$NitriteReducingBacteria>",
       )
-      doTask("PassBaton")
     }
 
     // "I hope this is not a mistake. Jovian Lanterns cost me 18 money."
     // "It gives me a TR and two floaters, which I put on Jovian Lanterns itself."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$JovianLanterns"),
           "18 Pay<> FROM MC",
@@ -2396,23 +2324,21 @@ internal class OtbGame20260809Test : FullGameTest() {
           "TerraformRating",
           "2 Floater<$JovianLanterns>",
       )
-      doTask("PassBaton")
     }
     // HACK: It was a mistake: I only paid 17.
     green.exMachina("1 MC")
     green.assertCounts(27 to "MC") // ledger entry 249
 
-    with(yellow) {
+    yellow.turn {
       // "I sell a card for one money."
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
     // (8:45 pm) "In order to Terraform Ganymede, that costs 31, but I spend 24 worth of titanium.
     // "I only have to spend seven mc, taking me down to 20."
     // "That gives me three TR."
     // (later) "Oh shit. Let me take back one titanium and spend three more money."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$TerraformingGanymede"),
           "7 Pay<Class<Titanium>> FROM Titanium",
@@ -2431,7 +2357,7 @@ internal class OtbGame20260809Test : FullGameTest() {
       )
     }
 
-    with(yellow) {
+    yellow.turn {
       // "I will play Molecular Printing for 11. I get 8 money for the 8 cities."
       doTasks(
           *playCardTasks("$MolecularPrinting"),
@@ -2440,7 +2366,6 @@ internal class OtbGame20260809Test : FullGameTest() {
           "8 MC",
           "0 MC",
       )
-      doTask("PassBaton")
     }
     yellow.assertCounts(48 to "MC") // ledger entry 365
 
@@ -2449,7 +2374,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     yellow.exMachina("-1 MC")
     yellow.assertCounts(47 to "MC") // ledger entry 366
 
-    with(green) {
+    green.turn {
       // "I'm going to use Jovian Lanterns to spend a titanium and put two more floaters on Jovian"
       // "Lanterns."
       doTasks(
@@ -2457,14 +2382,13 @@ internal class OtbGame20260809Test : FullGameTest() {
           "Pay<Class<Titanium>> FROM Titanium",
           "2 Floater<$JovianLanterns>",
       )
-      doTask("PassBaton")
     }
 
     // (8:50 pm) "Asteroid, Asteroid."
     // "Oh, I'm a dumbass. I forgot to boop the temperature when you did. There we go."
     // "You bought two standard project Asteroids."
     // "And now temp is maxed, so that is last call. The game will end soon."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           *standardProjectTasks("AsteroidProject"),
           "14 Pay<> FROM MC",
@@ -2481,7 +2405,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     }
 
     // "I am going to spend one on Floater Leasing, which gives me two money production."
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$FloaterLeasing"),
           "1 Pay<> FROM MC",
@@ -2489,11 +2413,10 @@ internal class OtbGame20260809Test : FullGameTest() {
           "PROD[2 MC]",
       )
       assertCounts(16 to "MC") // ledger entry 262
-      doTask("PassBaton")
     }
 
     // "I'm not quite sure what I meant by this. Gonna pitch two cards."
-    with(yellow) {
+    yellow.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
       // "And then I have 21 to play Ecology Research."
       // "I increase plant production one step for each colony, which does not apply to me."
@@ -2512,15 +2435,14 @@ internal class OtbGame20260809Test : FullGameTest() {
       assertCounts(0 to "MC") // ledger entry 376
     }
 
-    with(green) {
+    green.turn {
       // "I'm starting to have tough decisions, so I'll just stall more by taking a Penguin."
       doTasks(*cardActionTasks("$Penguins"), "Animal<$Penguins>")
-      doTask("PassBaton")
     }
 
     // "And, for zero, Project Inspection."
     // "I use Nitrite Reducing Bacteria to turn in three microbes and get another TR."
-    with(yellow) {
+    yellow.turn {
       doTasks(
           *playCardTasks("$ProjectInspection"),
           "$ProjectInspection FROM ProjectCard",
@@ -2528,18 +2450,16 @@ internal class OtbGame20260809Test : FullGameTest() {
           "-3 Microbe<$NitriteReducingBacteria>",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // (8:52 pm) "I knew there had to be a plan. I'll take a Strato Bird."
       doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
-      doTask("PassBaton")
     }
 
     // "There is one thing I can do. Not that I really need to. Do a plant forest."
     // "In other words, convert plants to greenery. To this four-two for a plant."
-    with(yellow) {
+    yellow.turn {
       doTasks(
               "UseAction<ConvertPlantsAction, Action1>",
               "8 Pay<Class<Plant>> FROM Plant",
@@ -2548,27 +2468,25 @@ internal class OtbGame20260809Test : FullGameTest() {
               "Plant",
           )
           .expect("0 TerraformRating")
-      doTask("PassBaton")
     }
 
     // "I'm going to use Birds to take a Bird."
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$Birds"), "Animal<$Birds>")
       doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$VenusianInsects>", "MC")
     }
 
     // "Not that it would have helped me much, but I can use Energy Market to decrease"
     // "an energy production." "I pitched one card. For the energy production."
-    with(yellow) {
+    yellow.turn {
       doTasks(*cardActionTasks("$EnergyMarket", "Action2"), "PROD[-Energy]", "8 MC")
       assertCounts(8 to "MC") // ledger entry 382
-      doTask("PassBaton")
     }
 
     // (8:55 pm) "Sixteen. I think I can do it. Let's find out."
     // "Be brave. Try playing Viral Enhancers first. That cost me seven. And it gives me a plant,
     // right?"
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$ViralEnhancers"),
           "7 Pay<> FROM MC",
@@ -2592,7 +2510,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     // "Convert plants to greenery." "There's nowhere I can go next to my city that doesn't also"
     // "go next to your city. Whatever. I did it."
     // "I might need the steel, so I'm going on four-four to get two steel."
-    with(green) {
+    green.turn {
       doTasks(
               "UseAction<ConvertPlantsAction, Action1>",
               "8 Pay<Class<Plant>> FROM Plant",
@@ -2635,10 +2553,10 @@ internal class OtbGame20260809Test : FullGameTest() {
       exMachina("2 MC")
 
       assertCounts(2 to "MC") // ledger entry 275
-
-      // "So now I must pass. And so we hit production."
-      doTask("Pass")
     }
+
+    // "So now I must pass. And so we hit production."
+    green.doTask("Pass")
 
     // Production.
     yellow.doTasks(

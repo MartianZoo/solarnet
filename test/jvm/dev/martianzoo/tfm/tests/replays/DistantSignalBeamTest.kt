@@ -144,8 +144,9 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       )
     }
     // Database save 5: Allied Bank introduced Purple's first Earth tag.
-    with(pink) {
+    pink.turn {
       draw(VenusSoils, SulphurEatingBacteria, StratosphericExpedition)
+
       doTasks("DoRequiredActions", "3 SearchForCard<TagFilter<Class<VenusTag>>>")
       doTasks(
           *playCardTasks("$TitanShuttles"),
@@ -153,20 +154,18 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "$TitanShuttles FROM ProjectCard",
       )
     }
-    with(purple) {
+    purple.turn {
       completeOperation {
         doTask("DoRequiredActions")
         selectTask("ColonyTileSelection")
         narrowTask("Luna")
       }
-      doTask("PassBaton") // decline the second action
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$TitanShuttles"), "2 Floater<$TitanShuttles>")
-      doTask("PassBaton") // decline the second action
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$PeroxidePower"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -177,18 +176,16 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "PROD[MC]",
           "PROD[MC]",
       )
-      doTask("PassBaton") // decline the second action
     }
     // Database save 15: Peroxide Power introduced Purple's first power and building tags.
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$SulphurEatingBacteria"),
           "6 Pay<> FROM MC",
           "$SulphurEatingBacteria FROM ProjectCard",
       )
-      doTask("PassBaton") // decline the second action
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$Casinos"),
           "5 Pay<> FROM MC",
@@ -196,24 +193,21 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "PROD[-Energy]",
           "PROD[4 MC]",
       )
-      doTask("PassBaton") // decline the second action
     }
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
-      doTask("PassBaton") // decline the second action
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$Tardigrades"),
           "4 Pay<> FROM MC",
           "$Tardigrades FROM ProjectCard",
           "PROD[MC]",
       )
-      doTask("PassBaton") // decline the second action
     }
     // Database save 27: Tardigrades introduced Purple's first microbe tag.
     pink.doTask("Pass")
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Tardigrades"), "Microbe<$Tardigrades>")
       doTasks(
           *playCardTasks("$RotatorImpacts"),
@@ -221,9 +215,10 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "$RotatorImpacts FROM ProjectCard",
           "PROD[MC]",
       )
-      // Database save 33: Rotator Impacts introduced Purple's first space tag.
-      doTask("Pass")
     }
+    // Database save 33: Rotator Impacts introduced Purple's first space tag.
+    purple.doTask("Pass")
+
     pink.doTasks("23 MC", "2 Heat")
     purple.doTasks("36 MC", "Energy")
     pink.doTask("OceanTile<Hellas_5_7>! BY Admin")
@@ -247,11 +242,10 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     purple.assertProduction(m = 14, s = 0, t = 0, p = 0, e = 1, h = 0)
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 3, venus = 4)
 
-    with(purple) {
+    purple.turn {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Fundraiser")
-      doTask("PassBaton") // decline the second action
     }
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$TitanShuttles", "Action2"), "-2 Floater", "2 Titanium")
       draw(StaticHarvesting)
       doTasks(
@@ -262,8 +256,9 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "ProjectCard",
       )
     }
-    with(purple) {
+    purple.turn {
       draw(LocalShading)
+
       doTasks(
           *playCardTasks("$BactoviralResearch"),
           "10 Pay<> FROM MC",
@@ -275,7 +270,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       // Database save 49: Bactoviral Research introduced Purple's first science tag.
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Diversifier")
     }
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$HousePrinting"),
           "10 Pay<> FROM MC",
@@ -290,7 +285,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "2 MC",
       )
     }
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Tardigrades"), "Microbe<$Tardigrades>")
       doTasks(
           *playCardTasks("$LocalShading"),
@@ -300,7 +295,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       )
     }
     // Database save 56: Local Shading introduced Purple's first Venus tag.
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
       doTasks(
           *playCardTasks("$MicroMills"),
@@ -309,9 +304,8 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "PROD[Heat]",
       )
     }
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
-      doTask("PassBaton") // decline the second action
     }
     pink.doTask("Pass")
     purple.doTask("Pass")
@@ -337,11 +331,10 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     purple.assertResources(m = 35, s = 0, t = 0, p = 1, e = 1, h = 1)
     purple.assertProduction(m = 16, s = 0, t = 0, p = 0, e = 1, h = 0)
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$TitanShuttles"), "2 Floater<$TitanShuttles>")
-      doTask("PassBaton") // decline the second action
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$InterplanetaryTrade"),
           "27 Pay<> FROM MC",

@@ -42,6 +42,24 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
     TaskResult(changes = game.events.changesSince(checkpoint)).expect(expected)
   }
 
+  /**
+   * Takes a complete action-phase turn. Declines an unused second action; the last remaining player
+   * may take any number of actions. Resolve other players' responses inside the block. Ordinary
+   * generation passes belong outside; a card-required pass completes its action inside the block.
+   * Failed checks retain already submitted tasks, just like ordinary doTasks calls; this is not a
+   * transaction or a source of turn offers.
+   */
+  protected fun Agent.turn(body: Agent.() -> Unit) {
+    check(has("ActionPhase, Baton, InRound, MAX 0 ActionScope")) {
+      "Cannot start $actor's turn: it must be their action-phase turn with no unfinished action"
+    }
+    body()
+    check(has("MAX 0 ActionScope")) {
+      "Finish $actor's action, including payments and other players' responses, inside turn { ... }"
+    }
+    if (has("Baton, 2 InRound<Anyone>")) doTask("PassBaton")
+  }
+
   protected fun Agent.auditGainsSince(eventCursor: Int): Int =
       game.events.changesSince(eventCursor).count { it.change.gaining?.type == resolve("Audit") }
 

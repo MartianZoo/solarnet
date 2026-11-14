@@ -398,11 +398,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(nor) {
-      doTask("Pass")
-    }
+    nor.doTask("Pass")
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$FuelFactory"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -420,8 +418,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "PROD[-Energy]",
           "PROD[3 Heat]",
       )
-      doTask("Pass")
     }
+    vin.doTask("Pass")
 
     nor.doTasks("22 MC", "3 Plant")
     vin.doTasks("25 MC", "Titanium", "3 Heat")
@@ -456,7 +454,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 1, venus = 2)
     // Research Network's wild tag supplies Cloud Tourism's missing Earth tag.
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$CloudTourism"),
           "11 Pay<> FROM MC",
@@ -464,10 +462,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "EarthTag<WildTagElection<WildTag<$ResearchNetwork>>>",
           "PROD[MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -485,17 +482,16 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     }
 
     // Research Network supplies Sister Planet Support's missing Earth tag.
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$SisterPlanetSupport"),
           "7 Pay<> FROM MC",
           "$SisterPlanetSupport FROM ProjectCard",
           "PROD[3 MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "8 Pay<> FROM MC",
@@ -503,24 +499,20 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "TerraformRating",
           "Plant",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$Omnicourt"),
           "9 Pay<> FROM MC",
           "$Omnicourt FROM ProjectCard",
           "2 TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
-      doTask("Pass")
-    }
+    nor.doTask("Pass")
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
       doTasks(
           *playCardTasks("$VenusShuttles"),
@@ -529,8 +521,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "2 Floater<$CloudTourism>",
       )
       doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
-      doTask("Pass")
     }
+    vin.doTask("Pass")
 
     nor.doTasks("24 MC", "3 Plant")
     vin.doTasks("32 MC", "Titanium", "3 Heat")
@@ -564,7 +556,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.assertTags(but = 4, pot = 1, eat = 1, jot = 1, vet = 3)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 3, temp = -30, oxygen = 3, oceans = 2, venus = 4)
-    with(nor) {
+    nor.turn {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "8 Pay<> FROM MC",
@@ -582,7 +574,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
@@ -595,34 +587,29 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Fundraiser")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$AerialMappers"),
           "11 Pay<> FROM MC",
           "$AerialMappers FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*playCardTasks("$LocalShading"), "4 Pay<> FROM MC", "$LocalShading FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(vin) {
-      doTask("Pass")
-    }
+    vin.doTask("Pass")
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$AerialMappers"), "Floater<$LocalShading>")
       doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
-      doTask("Pass")
     }
+    nor.doTask("Pass")
 
     nor.doTasks("26 MC", "3 Plant", "Energy")
     vin.doTasks("35 MC", "Titanium", "3 Heat")
@@ -652,7 +639,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.assertTags(but = 4, sct = 1, pot = 1, eat = 1, jot = 1, vet = 3)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 4, temp = -28, oxygen = 3, oceans = 3, venus = 4)
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$OptimalAerobraking"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -677,7 +664,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "8 Pay<> FROM MC",
@@ -698,7 +685,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$NuclearZone"),
           "10 Pay<> FROM MC",
@@ -717,22 +704,20 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Planetologist")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$DesignedMicroorganisms"),
           "16 Pay<> FROM MC",
           "$DesignedMicroorganisms FROM ProjectCard",
           "PROD[2 Plant]",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "12 Pay<> FROM MC",
@@ -745,15 +730,13 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "2 MC",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -762,10 +745,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "2 MC",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
@@ -773,22 +755,18 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "-Production<Nor, Class<Energy>>",
           "PROD[Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$AerialMappers"), "Floater<$LocalShading>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
-      doTask("Pass")
-    }
+    vin.doTask("Pass")
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
-      doTask("Pass")
     }
+    nor.doTask("Pass")
 
     nor.doTasks("30 MC", "5 Plant", "Heat FROM Energy")
     vin.doTasks("40 MC", "Titanium", "4 Heat", "Energy")
@@ -822,7 +800,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.assertTags(but = 4, spt = 1, sct = 1, pot = 2, eat = 2, jot = 1, vet = 3)
     vin.assertDashRight(events = 1, tagless = 1, cities = 0)
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 5, venus = 10)
-    with(nor) {
+    nor.turn {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "8 Pay<> FROM MC",
@@ -842,7 +820,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -858,74 +836,64 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$AerialMappers"), "Floater<$LocalShading>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$Cartel"),
           "8 Pay<> FROM MC",
           "$Cartel FROM ProjectCard",
           "PROD[4 MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Briber", "-12 MC")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$SmallAnimals"),
           "6 Pay<> FROM MC",
           "$SmallAnimals FROM ProjectCard",
           "-Production<Nor, Class<Plant>>",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
-      doTask("Pass")
-    }
+    nor.doTask("Pass")
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
       doTasks(
           *playCardTasks("$ProtectedHabitats"),
           "5 Pay<> FROM MC",
           "$ProtectedHabitats FROM ProjectCard",
       )
-      doTask("Pass")
     }
+    vin.doTask("Pass")
 
     vin.doTasks("47 MC", "Titanium", "5 Heat", "Energy", "Heat FROM Energy")
     nor.doTasks("34 MC", "4 Plant")
@@ -959,26 +927,24 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.assertTags(but = 4, spt = 1, sct = 1, pot = 2, eat = 3, jot = 1, vet = 3, ant = 1)
     vin.assertDashRight(events = 1, tagless = 2, cities = 0)
     assertSidebar(gen = 6, temp = -16, oxygen = 6, oceans = 6, venus = 12)
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$Sabotage"),
           "1 Pay<> FROM MC",
           "$Sabotage FROM ProjectCard",
           "-7 MC<Nor>",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "4 Pay<> FROM MC",
           "$ResearchCoordination FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
       doTasks(
           *standardProjectTasks("AirScrappingProject"),
@@ -989,7 +955,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$Plantation"),
           "15 Pay<> FROM MC",
@@ -1014,27 +980,23 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$SolarLogistics"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1042,10 +1004,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "$SolarLogistics FROM ProjectCard",
           "2 Titanium",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "8 Pay<> FROM MC",
@@ -1063,13 +1024,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
-      doTask("Pass")
-    }
+    vin.doTask("Pass")
 
-    with(nor) {
-      doTask("Pass")
-    }
+    nor.doTask("Pass")
 
     vin.doTasks("50 MC", "Titanium", "5 Heat", "Energy", "Heat FROM Energy")
     nor.doTasks("38 MC", "4 Plant", "Titanium")
@@ -1098,7 +1055,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.assertTags(but = 4, spt = 2, sct = 1, pot = 2, eat = 4, jot = 1, vet = 3, ant = 1)
     vin.assertDashRight(events = 2, tagless = 2, cities = 0)
     assertSidebar(gen = 7, temp = -14, oxygen = 8, oceans = 8, venus = 16)
-    with(nor) {
+    nor.turn {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "8 Pay<> FROM MC",
@@ -1110,7 +1067,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Landlord")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$MethaneFromTitan"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -1119,23 +1076,20 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "PROD[2 Heat]",
           "PROD[2 Plant]",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$AerialMappers", "Action2"), "-Floater<$AerialMappers>")
       draw(TitaniumMine)
       doTasks("ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
-      doTask("PassBaton")
     }
 
     // Research Coordination supplies Interplanetary Trade's tenth distinct tag.
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$InterplanetaryTrade"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -1145,15 +1099,13 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "JovianTag<WildTagElection<WildTag<ResearchCoordination>>>",
           "PROD[10 MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*playCardTasks("$Thermophiles"), "9 Pay<> FROM MC", "$Thermophiles FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -1161,29 +1113,23 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$Thermophiles>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
-      doTask("Pass")
-    }
+    nor.doTask("Pass")
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$VenusShuttles"), "7 Pay<> FROM MC", "VenusStep", "TerraformRating")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -1202,8 +1148,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "$VenusGovernor FROM ProjectCard",
           "PROD[2 MC]",
       )
-      doTask("Pass")
     }
+    vin.doTask("Pass")
 
     nor.doTasks("51 MC", "4 Plant", "Titanium")
     vin.doTasks("54 MC", "Titanium", "7 Heat", "Energy", "Heat FROM Energy", "2 Plant")
@@ -1257,7 +1203,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 0)
     assertSidebar(gen = 8, temp = -10, oxygen = 9, oceans = 9, venus = 18)
-    with(vin) {
+    vin.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1267,7 +1213,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Excentric")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$RoverConstruction"),
           "8 Pay<> FROM MC",
@@ -1283,7 +1229,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$Bushes"),
           "10 Pay<> FROM MC",
@@ -1291,78 +1237,64 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "PROD[2 Plant]",
           "2 Plant",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$Thermophiles>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*playCardTasks("$Research"), "10 Pay<> FROM MC")
       draw(StanfordTorus, PowerPlant)
       doTasks("$Research FROM ProjectCard", "2 ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$Supermarkets"),
           "8 Pay<> FROM MC",
           "$Supermarkets FROM ProjectCard",
           "PROD[2 MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$PowerPlant"),
           "3 Pay<> FROM MC",
           "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
-      doTask("Pass")
-    }
+    vin.doTask("Pass")
 
-    with(nor) {
-      doTask("Pass")
-    }
+    nor.doTask("Pass")
 
     nor.doTasks("53 MC", "4 Plant", "Titanium", "Energy")
     vin.doTasks("56 MC", "Titanium", "7 Heat", "Energy", "Heat FROM Energy", "4 Plant")
@@ -1415,8 +1347,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 1)
     assertSidebar(gen = 9, temp = -8, oxygen = 10, oceans = 9, venus = 18)
-    with(nor) {
+    nor.turn {
       draw(DuskLaserMining)
+
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1437,29 +1370,26 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Forecaster")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$AerialMappers", "Action2"), "-Floater<$AerialMappers>")
       draw(HeatTrappers)
       doTasks("ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$DuskLaserMining"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1469,10 +1399,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "PROD[Titanium]",
           "4 Titanium",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1480,16 +1409,13 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "CityTile<Tharsis_2_3>",
       )
       giveTask(nor, "2 MC")
-
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1497,10 +1423,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$Greenhouses"),
           "5 Pay<> FROM MC",
@@ -1520,27 +1445,24 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$Trees"),
           "12 Pay<> FROM MC",
@@ -1550,21 +1472,19 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "Animal<$EcologicalZone>",
           "3 Heat",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *cardActionTasks("$Thermophiles", "Action2"),
           "-2 Microbe<$Thermophiles>",
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
     // Research Coordination supplies the eighth Plant tag counted by Robot Pollinators.
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$RobotPollinators"),
           "8 Pay<> FROM MC",
@@ -1582,12 +1502,11 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$VenusShuttles"), "5 Pay<> FROM MC", "VenusStep", "TerraformRating")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -1596,14 +1515,11 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "Plant",
           "Titanium",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
-      doTask("Pass")
-    }
+    vin.doTask("Pass")
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$IndenturedWorkers"),
           "$IndenturedWorkers FROM ProjectCard",
@@ -1621,8 +1537,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "TerraformRating",
           "TerraformRating",
       )
-      doTask("Pass")
     }
+    nor.doTask("Pass")
 
     vin.doTasks("61 MC", "Titanium", "7 Heat", "Energy", "Heat FROM Energy", "4 Plant")
     nor.doTasks("62 MC", "8 Plant", "2 Titanium", "Heat FROM Energy")
@@ -1674,7 +1590,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 2)
     assertSidebar(gen = 10, temp = -4, oxygen = 14, oceans = 9, venus = 30)
-    with(vin) {
+    vin.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1683,8 +1599,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
       giveTask(nor, "2 MC")
 
+      doTask("2 Plant")
       doTasks(
-          "2 Plant",
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_6_2>",
@@ -1693,7 +1609,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1712,22 +1628,20 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*playCardTasks("$LandClaim"), "$LandClaim FROM ProjectCard", "Community<Tharsis_2_2>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*playCardTasks("$VenusianAnimals"), "15 Pay<> FROM MC")
       discard(CloudSeeding)
       draw(Gyropolis)
@@ -1737,20 +1651,18 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "-ProjectCard",
           "ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$FakeFloydContinuum"),
           "3 Pay<> FROM MC",
           "$FakeFloydContinuum FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
     // Research Network supplies Atalanta Planitia Lab's third Science tag.
-    with(vin) {
+    vin.turn {
       doTasks(*playCardTasks("$AtalantaPlanitiaLab"), "10 Pay<> FROM MC")
       draw(WaterSplittingPlant, Algae)
       discard(WaterSplittingPlant)
@@ -1762,30 +1674,25 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
       draw(NoctisCity)
       doTasks("ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$DeepWellHeating"),
           "12 Pay<> FROM MC",
@@ -1795,20 +1702,17 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "TerraformRating",
           "Ok", // oceans are already complete
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$Thermophiles>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$FakeFloydContinuum"), "9 MC")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
@@ -1816,10 +1720,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "Plant",
           "PROD[2 Plant]",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1830,22 +1733,19 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "2 MC",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
-      doTask("Pass")
-    }
+    vin.doTask("Pass")
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$RadSuits"),
           "5 Pay<> FROM MC",
           "$RadSuits FROM ProjectCard",
           "PROD[MC]",
       )
-      doTask("Pass")
     }
+    nor.doTask("Pass")
 
     nor.doTasks("66 MC", "8 Plant", "2 Titanium", "Energy")
     vin.doTasks("63 MC", "Titanium", "7 Heat", "Energy", "Heat FROM Energy", "6 Plant")
@@ -1900,7 +1800,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 3)
     assertSidebar(gen = 11, temp = 2, oxygen = 14, oceans = 9, venus = 30)
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$AerialMappers", "Action2"), "-Floater<$AerialMappers>")
       draw(WeatherBalloons)
       doTask("ProjectCard")
@@ -1912,7 +1812,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1928,7 +1828,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*playCardTasks("$GhgProducingBacteria"), "7 Pay<> FROM MC")
       draw(MoholeLake)
       doTasks("$GhgProducingBacteria FROM ProjectCard", "ProjectCard FROM Science")
@@ -1943,17 +1843,16 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_1_3>",
           "0 OxygenStep",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *standardProjectTasks("AsteroidProject"),
           "14 Pay<> FROM MC",
@@ -1972,55 +1871,48 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$Thermophiles"), "Microbe<$Thermophiles>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*playCardTasks("$WeatherBalloons"), "10 Pay<> FROM MC")
       draw(GiantIceAsteroid)
       doTasks("$WeatherBalloons FROM ProjectCard", "Science<$OlympusConference>", "ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$FakeFloydContinuum"), "12 MC")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_7_5>",
           "0 OxygenStep",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       discard(GhgImportFromVenus)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$FreyjaBiodomes"),
           "14 Pay<> FROM MC",
@@ -2029,16 +1921,14 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "PROD[2 MC]",
           "2* Animal<$VenusianAnimals>",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$GhgProducingBacteria"), "Microbe<$GhgProducingBacteria>")
-      doTask("PassBaton")
     }
 
     // Research Network supplies Interstellar Colony Ship's fifth Science tag.
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$InterstellarColonyShip"),
           "7 Pay<Class<Titanium>> FROM Titanium",
@@ -2046,20 +1936,17 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
       draw(RestrictedArea)
       doTasks("$InterstellarColonyShip FROM ProjectCard", "3 MC", "3 Heat", "ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(
           *playCardTasks("$StanfordTorus"),
           "4 Pay<Class<Titanium>> FROM Titanium",
@@ -2068,10 +1955,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "NormalCityTile<StanfordTorus_RemoteArea>",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(
           *playCardTasks("$NoctisCity"),
           "16 Pay<> FROM MC",
@@ -2083,39 +1969,37 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       giveTask(nor, "2 MC")
 
       doTasks("2 Plant", "2 MC")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       discard(GiantIceAsteroid)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       discard(Gyropolis)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       discard(HeatTrappers)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       discard(AdvancedAlloys)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       doTasks(*cardActionTasks("$MoholeLake"), "Animal<$EcologicalZone>")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*playCardTasks("$RestrictedArea"), "11 Pay<> FROM MC")
       discard(TundraFarming)
       draw(CorporateStronghold)
@@ -2129,27 +2013,23 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "-ProjectCard",
           "ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(nor) {
+    nor.turn {
       discard(TitaniumMine)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(vin) {
+    vin.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC")
       draw(MagneticFieldDome)
       doTasks("ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(nor) {
-      doTask("Pass")
-    }
+    nor.doTask("Pass")
 
-    with(vin) {
+    vin.turn {
       doTasks(*playCardTasks("$GeneRepair"), "12 Pay<> FROM MC")
       discard(MagneticFieldDome)
       draw(Teslaract)
@@ -2162,8 +2042,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
       discard(InventorsGuild, CorporateStronghold, Teslaract)
       doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
-      doTask("Pass")
     }
+    vin.doTask("Pass")
 
     nor.doTasks("69 MC", "8 Plant", "2 Titanium", "Energy", "Heat FROM Energy")
     vin.doTasks("71 MC", "Titanium", "7 Heat", "Heat FROM Energy", "6 Plant")

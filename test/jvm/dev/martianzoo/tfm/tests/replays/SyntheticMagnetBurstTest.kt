@@ -26,7 +26,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, Merger, SagittaFrontierServices, Unsafe
-          fakes:cards
 
           Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
           Scientist, Landscaper, Founder, Contractor, Forecaster, Incorporator
@@ -147,7 +146,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       // You drew Industrial Center
       doTasks(
           "DoRequiredActions",
@@ -168,17 +167,16 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
           "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Mine"),
           "4 Pay<> FROM MC",
@@ -196,7 +194,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       // The later Aquifer Pumping action requires four of Green's ten steel to remain available.
       doTasks(
           *playCardTasks("$AquiferPumping"),
@@ -204,10 +202,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "6 Pay<> FROM MC",
           "$AquiferPumping FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Sponsors"),
           "6 Pay<> FROM MC",
@@ -227,7 +224,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           .expect("0 Mine")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -236,18 +233,13 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "TerraformRating",
           "2 Titanium",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
-      // Green declared this pass early after one action; Solarnet executes both passes in turn
-      // order.
-      doTask("Pass")
-    }
+    // Green declared this pass early after one action; Solarnet executes both passes in turn
+    // order.
+    pink.doTask("Pass")
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
     // Production.
     pink.doTasks("26 MC", "Energy", "Heat", "3 Steel")
@@ -281,22 +273,20 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
         "4 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(green) {
+    green.turn {
       doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$DesignedMicroorganisms"),
           "16 Pay<> FROM MC",
           "$DesignedMicroorganisms FROM ProjectCard",
           "PROD[2 Plant]",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // Power Supply Consortium requires Nobel Prize's wild icon to count as Green's second power
       // tag.
       doTasks(
@@ -307,14 +297,11 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "2 MC",
           "PROD[-Energy<Pink>]",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "$InvestmentLoan FROM ProjectCard",
@@ -331,7 +318,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$RotatorImpacts"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -341,9 +328,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(*cardActionTasks("$RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<$RotatorImpacts>")
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
     // Production.
     pink.doTasks("26 MC", "Heat", "3 Steel", "Heat FROM Energy", "2 Plant")
@@ -377,7 +362,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     green.assertResources(m = 20, s = 0, t = 0, p = 2, e = 2, h = 4)
     green.assertProduction(m = -2, s = 0, t = 0, p = 1, e = 2, h = 0)
 
-    with(pink) {
+    pink.turn {
       // You drew Ishtar Mining
       doTasks(
           *playCardTasks("$InventionContest"),
@@ -386,10 +371,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // Green discarded Stratopolis
       // You drew House Printing
       doTasks(
@@ -399,10 +383,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "-ProjectCard",
           "ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Archaebacteria"),
           "6 Pay<> FROM MC",
@@ -410,24 +393,20 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[Plant]",
           "MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$RotatorImpacts", "Action2"),
           "-Asteroid<$RotatorImpacts>",
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "8 Pay<> FROM MC",
@@ -439,9 +418,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
     // Production.
     pink.doTasks("26 MC", "Heat", "3 Steel", "3 Plant")
@@ -467,12 +444,11 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
         "4 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(green) {
+    green.turn {
       doTasks(*playCardTasks("$MediaGroup"), "3 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       // You drew Water Splitting Plant
       doTasks(
           *playCardTasks("$OrbitalReflectors"),
@@ -494,7 +470,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       // Miranda Resort counted Nobel Prize's wild icon as Green's third earth tag.
       doTasks(
           *playCardTasks("$MirandaResort"),
@@ -510,7 +486,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       ) // Free with Nirgal Enterprises.
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$TitaniumMine"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -519,16 +495,11 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[Titanium]",
           "MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
     // Production.
     pink.doTasks("28 MC", "3 Heat", "3 Steel", "3 Plant", "2 Titanium")
@@ -561,7 +532,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -570,10 +541,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "2 Heat",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$GreatDam"),
           "12 Pay<> FROM MC",
@@ -581,10 +551,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[2 Energy]",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       // The later Space Elevator action requires one of Pink's nine steel to remain available.
       doTasks(
           *playCardTasks("$SpaceElevator"),
@@ -594,24 +563,19 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "$SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<$RotatorImpacts>")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
-      doTask("PassBaton")
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -635,9 +599,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
     // Production.
     pink.doTasks("32 MC", "4 Heat", "3 Steel", "3 Plant", "3 Titanium")
@@ -663,7 +625,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -684,22 +646,20 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
           "$EarthCatapult FROM ProjectCard",
           "MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*playCardTasks("$Ironworks"), "11 Pay<> FROM MC", "$Ironworks FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$SolarWindPower"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -711,7 +671,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Generalist")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$Ironworks"),
           "4 Pay<Class<Energy>> FROM Energy",
@@ -719,10 +679,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Hackers"),
           "1 Pay<> FROM MC",
@@ -735,17 +694,16 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$RotatorImpacts", "Action2"),
           "-Asteroid<$RotatorImpacts>",
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Decomposers"),
           "3 Pay<> FROM MC",
@@ -767,12 +725,11 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks("UseAction<FundAwardAction, Action1>", "Contractor") // Free with Nirgal Enterprises.
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$FloatingHabs"),
           "3 Pay<> FROM MC",
@@ -787,18 +744,14 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
-    with(pink) {
+    pink.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(*cardActionTasks("$FloatingHabs"), "2 Pay<> FROM MC", "Floater<$FloatingHabs>")
     }
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
     // Production.
     pink.doTasks("34 MC", "4 Heat", "3 Steel", "3 Plant", "3 Titanium")
@@ -831,7 +784,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     green.assertResources(m = 25, s = 1, t = 2, p = 7, e = 4, h = 3)
     green.assertProduction(m = -1, s = 0, t = 0, p = 1, e = 4, h = 1)
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$DeimosDown"),
           "5 Pay<Class<Titanium>> FROM Titanium",
@@ -849,7 +802,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Terraformer")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$TerraformingContract"),
           "5 Pay<> FROM MC",
@@ -857,25 +810,22 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[4 MC]",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$RotatorImpacts"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // No MC remainder.
           "Asteroid<$RotatorImpacts>",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       // You drew Gyropolis
       doTasks(
           *playCardTasks("$LagrangeObservatory"),
@@ -883,10 +833,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "$LagrangeObservatory FROM ProjectCard",
           "ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$Ironworks"),
           "4 Pay<Class<Energy>> FROM Energy",
@@ -894,20 +843,18 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -917,14 +864,12 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "2 MC",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
+
       // Nobel Prize's wild icon counts as Green's second science tag.
       doTasks(
           *playCardTasks("$TectonicStressPower"),
@@ -933,8 +878,8 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[3 Energy]",
           "2 MC",
       )
-      doTask("Pass")
     }
+    green.doTask("Pass")
 
     // Production.
     pink.doTasks("38 MC", "4 Heat", "3 Steel", "3 Plant", "3 Titanium")
@@ -967,7 +912,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(green) {
+    green.turn {
       // Green drew Stratospheric Birds,Floating Refinery
       doTasks(
           *playCardTasks("$IshtarExpedition"),
@@ -1001,7 +946,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$GeothermalPower"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -1025,7 +970,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$Ironworks"),
           "4 Pay<Class<Energy>> FROM Energy",
@@ -1033,10 +978,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
       doTasks(
           *playCardTasks("$RadSuits"),
@@ -1047,7 +991,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$SponsoredAcademies"),
           "6 Pay<> FROM MC",
@@ -1066,10 +1010,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "-ProjectCard", // Mars University: Green discarded Floating Refinery.
           "ProjectCard", // Green drew Space Mirrors.
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$GeneRepair"),
           "10 Pay<> FROM MC",
@@ -1077,30 +1020,27 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[2 MC]",
           "MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$RotatorImpacts", "Action2"),
           "-Asteroid<$RotatorImpacts>",
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$GhgProducingBacteria"),
           "6 Pay<> FROM MC",
           "$GhgProducingBacteria FROM ProjectCard",
           "Microbe<$Decomposers>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$RadChemFactory"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -1109,19 +1049,15 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[-Energy]",
           "2 TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$FloatingHabs"), "2 Pay<> FROM MC", "Floater<$FloatingHabs>")
-      doTask("PassBaton")
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$AerobrakedAmmoniaAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -1137,8 +1073,8 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("Pass")
     }
+    pink.doTask("Pass")
 
     // Production.
     pink.doTasks("42 MC", "7 Heat", "3 Steel", "4 Plant", "3 Titanium", "Energy")
@@ -1166,7 +1102,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -1189,17 +1125,16 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1216,7 +1151,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     green.assertResources(m = 41, s = 0, t = 0, p = 2, e = 6, h = 0)
     green.assertProduction(m = 3, s = 0, t = 0, p = 1, e = 6, h = 1)
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$Ironworks"),
           "4 Pay<Class<Energy>> FROM Energy",
@@ -1224,10 +1159,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$IndustrialCenter"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -1245,7 +1179,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *standardProjectTasks("AirScrappingProject"),
           "15 Pay<> FROM MC",
@@ -1262,7 +1196,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$DawnCity"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -1274,20 +1208,17 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "3 MC",
           "PROD[MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<$RotatorImpacts>")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$GhgProducingBacteria"), "Microbe<$GhgProducingBacteria>")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "4 Pay<> FROM MC",
@@ -1295,15 +1226,13 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "2 TerraformRating",
           "3 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$FloatingHabs"), "2 Pay<> FROM MC", "Floater<$FloatingHabs>")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$CloudSeeding"),
           "11 Pay<> FROM MC",
@@ -1313,10 +1242,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "2 MC",
           "PROD[-Heat<Pink>]",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Zeppelins"),
           "11 Pay<> FROM MC",
@@ -1324,10 +1252,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[2 MC]",
           "4 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$LandClaim"),
           "1 Pay<> FROM MC",
@@ -1335,14 +1262,12 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "3 MC",
           "Community<Hellas_2_4>",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
+
       // You drew Water to Venus,Noctis City
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
       doTasks(
@@ -1351,8 +1276,8 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "$Solarnet FROM ProjectCard",
           "2 ProjectCard",
       )
-      doTask("Pass")
     }
+    green.doTask("Pass")
 
     // Production.
     pink.doTasks("50 MC", "6 Heat", "3 Steel", "4 Plant", "4 Titanium", "Heat FROM Energy")
@@ -1385,7 +1310,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$Ironworks"),
           "4 Pay<Class<Energy>> FROM Energy",
@@ -1409,7 +1334,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTask("ProjectCard")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$FusionPower"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -1417,10 +1342,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "$FusionPower FROM ProjectCard",
           "PROD[3 Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$RotatorImpacts", "Action2"),
           "-Asteroid<$RotatorImpacts>",
@@ -1435,7 +1359,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Herbivores"),
           "10 Pay<> FROM MC",
@@ -1460,7 +1384,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
@@ -1478,7 +1402,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$ImportedHydrogen"),
           "4 Pay<Class<Titanium>> FROM Titanium",
@@ -1499,7 +1423,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$HousePrinting"),
           "10 Pay<> FROM MC",
@@ -1517,12 +1441,11 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$WaterToVenus"),
@@ -1534,20 +1457,17 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Landscaper")
-      doTask("PassBaton")
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$FloatingHabs"), "2 Pay<> FROM MC", "Floater<$FloatingHabs>")
       doTasks(*cardActionTasks("$GhgProducingBacteria"), "Microbe<$GhgProducingBacteria>")
-      doTask("Pass")
     }
+    pink.doTask("Pass")
 
     // Production.
     pink.doTasks("61 MC", "6 Heat", "3 Steel", "4 Plant", "4 Titanium", "Energy")
@@ -1580,7 +1500,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -1601,7 +1521,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1617,7 +1537,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       // You drew Toll Station,Fueled Generators
       doTasks(
           *playCardTasks("$TechnologyDemonstration"),
@@ -1629,7 +1549,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Founder")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$Ironworks"),
           "4 Pay<Class<Energy>> FROM Energy",
@@ -1650,27 +1570,23 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$GhgProducingBacteria"), "Microbe<$GhgProducingBacteria>")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$AdvancedEcosystems"),
           "9 Pay<> FROM MC",
@@ -1681,10 +1597,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "Animal<$EcologicalZone>",
           "Microbe<$Decomposers>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$GiantSolarShade"),
           "27 Pay<> FROM MC",
@@ -1696,30 +1611,26 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "TerraformRating",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *standardProjectTasks("AirScrappingProject"),
           "15 Pay<> FROM MC",
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$NoctisCity"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -1733,21 +1644,18 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       giveTask(pink, "Production<Pink, Class<MC>>!", "PROD[MC]")
       giveTask(pink, "PROD[MC]")
       doTasks("2 Plant", "2 MC")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       // Green declared this pass early after one action; Solarnet executes it on Green's next turn.
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Birds"),
           "8 Pay<> FROM MC",
@@ -1760,11 +1668,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(*cardActionTasks("$Birds"), "Animal<$Birds>")
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
           "$CeosFavoriteProject FROM ProjectCard",
@@ -1772,8 +1678,8 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "Animal<$Birds>",
       )
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("Pass")
     }
+    pink.doTask("Pass")
 
     // Production.
     pink.doTasks(

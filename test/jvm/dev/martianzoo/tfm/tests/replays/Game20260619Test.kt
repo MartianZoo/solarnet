@@ -155,21 +155,20 @@ internal class Game20260619Test : FullGameTest() {
     // ER drew 1 card(s)
     // You drew Restricted Area
     // ER ended turn
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$EarthOffice"),
           "1 Pay<> FROM MC",
           "$EarthOffice FROM ProjectCard",
           "ProjectCard",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // KB played Vesta Shipyard
     // KB gained 1 titanium production
     // KB gained 1 M€ production because of Saturn Systems
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$VestaShipyard"),
           "15 Pay<> FROM MC",
@@ -177,14 +176,13 @@ internal class Game20260619Test : FullGameTest() {
           "PROD[Titanium]",
           "PROD[MC]",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // ER played Carbonate Processing
     // ER lost 1 energy production
     // ER gained 3 heat production
     // ER ended turn
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$CarbonateProcessing"),
           "6 Pay<> FROM MC",
@@ -192,7 +190,6 @@ internal class Game20260619Test : FullGameTest() {
           "PROD[-Energy]",
           "PROD[3 Heat]",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // KB passed
@@ -201,7 +198,7 @@ internal class Game20260619Test : FullGameTest() {
     // ER played Subterranean Reservoir
     // ER placed ocean tile at 28
     // ER gained 2 plants
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$SubterraneanReservoir"),
           "11 Pay<> FROM MC",
@@ -210,10 +207,10 @@ internal class Game20260619Test : FullGameTest() {
           "TerraformRating",
           "2 Plant",
       )
-
-      // ER passed
-      doTask("Pass")
     }
+
+    // ER passed
+    ER.doTask("Pass")
 
     ER.doTasks("8 MC", "-5 MC", "21 MC", "Titanium", "2 Plant", "3 Heat")
     KB.doTasks("-5 MC", "29 MC", "2 Titanium", "5 Energy", "3 Heat")
@@ -251,14 +248,13 @@ internal class Game20260619Test : FullGameTest() {
     // KB drew 2 card(s)
     // You drew Robotic Workforce,Ore Processor
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$MartianSurvey"),
           "9 Pay<> FROM MC",
           "$MartianSurvey FROM ProjectCard",
           "2 ProjectCard",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // ER played Restricted Area
@@ -268,7 +264,7 @@ internal class Game20260619Test : FullGameTest() {
     // ER used Restricted Area action
     // ER drew 1 card(s)
     // You drew Immigrant City
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$RestrictedArea"),
           "11 Pay<> FROM MC",
@@ -283,21 +279,20 @@ internal class Game20260619Test : FullGameTest() {
     // KB played Artificial Photosynthesis
     // KB gained 2 energy production
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$ArtificialPhotosynthesis"),
           "12 Pay<> FROM MC",
           "$ArtificialPhotosynthesis FROM ProjectCard",
           "PROD[2 Energy]",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // ER played Solar Wind Power
     // ER gained 1 energy production
     // ER gained 2 titanium
     // ER ended turn
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$SolarWindPower"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -306,13 +301,12 @@ internal class Game20260619Test : FullGameTest() {
           "PROD[Energy]",
           "2 Titanium",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // KB played Power Supply Consortium
     // KB stole 1 energy production from ER
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$PowerSupplyConsortium"),
           "5 Pay<> FROM MC",
@@ -320,7 +314,6 @@ internal class Game20260619Test : FullGameTest() {
           "PROD[Energy]",
           "PROD[-Energy<Player1>]",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // ER passed
@@ -364,7 +357,7 @@ internal class Game20260619Test : FullGameTest() {
     // ER used Restricted Area action
     // ER drew 1 card(s)
     // You drew Satellites
-    with(ER) {
+    ER.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
 
       // ER used Convert Plants standard action
@@ -382,14 +375,13 @@ internal class Game20260619Test : FullGameTest() {
 
     // KB used Convert Heat standard action
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // ER played Nuclear Zone
@@ -399,7 +391,7 @@ internal class Game20260619Test : FullGameTest() {
     // ER placed Nuclear Zone tile at 37
     // ER gained 2 plants
     // ER gained 2 M€ from 1 ocean(s)
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$NuclearZone"),
           "7 Pay<> FROM MC",
@@ -427,9 +419,8 @@ internal class Game20260619Test : FullGameTest() {
 
     // KB used Power Plant:SP standard project
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-      doTask("PassBaton") // decline the second action
     }
 
     // ER played Business Contacts
@@ -437,7 +428,7 @@ internal class Game20260619Test : FullGameTest() {
     // You drew Phobos Space Haven
     // ER drew 2 card(s)
     // You drew Sponsors,ArchaeBacteria
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$BusinessContacts"),
           "4 Pay<> FROM MC",
@@ -468,7 +459,7 @@ internal class Game20260619Test : FullGameTest() {
     // ER gained 3 heat
     // ER drew 1 card(s)
     // You drew Permafrost Extraction
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$ImportedGhg"),
           "4 Pay<> FROM MC",
@@ -477,10 +468,10 @@ internal class Game20260619Test : FullGameTest() {
           "3 Heat",
           "ProjectCard",
       )
-
-      // ER passed
-      doTask("Pass")
     }
+
+    // ER passed
+    ER.doTask("Pass")
 
     ER.doTasks("10 MC", "-5 MC", "24 MC", "Titanium", "2 Plant", "5 Heat")
     KB.doTasks("-5 MC", "30 MC", "2 Titanium", "9 Energy", "3 Heat", "8 Heat FROM Energy")
@@ -517,14 +508,13 @@ internal class Game20260619Test : FullGameTest() {
     // KB played Power Plant
     // KB gained 1 energy production
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$PowerPlant"),
           "4 Pay<> FROM MC",
           "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // ER played Pets
@@ -532,7 +522,7 @@ internal class Game20260619Test : FullGameTest() {
     // You drew House Printing
     // ER added 1 Animal to Pets
     // ER ended turn
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$Pets"),
           "7 Pay<> FROM MC",
@@ -540,14 +530,12 @@ internal class Game20260619Test : FullGameTest() {
           "Animal<$Pets>",
           "ProjectCard",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // KB claimed Specialist milestone
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Specialist")
-      doTask("PassBaton") // decline the second action
     }
 
     // ER played Mohole Area
@@ -556,7 +544,7 @@ internal class Game20260619Test : FullGameTest() {
     // ER drew 1 card(s)
     // You drew Large Convoy
     // ER ended turn
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$MoholeArea"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -566,14 +554,12 @@ internal class Game20260619Test : FullGameTest() {
           "MoholeArea_SpecialTile<Tharsis_1_4>",
           "ProjectCard",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // KB played Ore Processor
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(*playCardTasks("$OreProcessor"), "13 Pay<> FROM MC", "$OreProcessor FROM ProjectCard")
-      doTask("PassBaton") // decline the second action
     }
 
     // ER passed
@@ -616,13 +602,12 @@ internal class Game20260619Test : FullGameTest() {
 
     // ER claimed Planner milestone
     // ER ended turn
-    with(ER) {
+    ER.turn {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Planner")
-      doTask("PassBaton") // decline the second action
     }
 
     // KB used Convert Heat standard action
-    with(KB) {
+    KB.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -644,7 +629,7 @@ internal class Game20260619Test : FullGameTest() {
     // ER used Restricted Area action
     // ER drew 1 card(s)
     // You drew Nitrophilic Moss
-    with(ER) {
+    ER.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
 
       // ER played ArchaeBacteria
@@ -660,7 +645,7 @@ internal class Game20260619Test : FullGameTest() {
     // KB used Ore Processor action
     // KB gained 1 titanium
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(
           *cardActionTasks("$OreProcessor"),
           "4 Pay<Class<Energy>> FROM Energy",
@@ -668,14 +653,13 @@ internal class Game20260619Test : FullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // ER played Miranda Resort
     // ER gained 5 M€ production
     // KB gained 1 M€ production because of Saturn Systems
     // ER ended turn
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$MirandaResort"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -684,57 +668,52 @@ internal class Game20260619Test : FullGameTest() {
           "PROD[5 MC]",
       )
       giveTask(KB, "PROD[MC<Player2>]")
-      doTask("PassBaton") // decline the second action
     }
 
     // KB played Regolith Eaters
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$RegolithEaters"),
           "13 Pay<> FROM MC",
           "$RegolithEaters FROM ProjectCard",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // ER used Convert Heat standard action
     // ER ended turn
-    with(ER) {
+    ER.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // KB used Regolith Eaters action
     // KB added 1 Microbe to Regolith Eaters
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$RegolithEaters"), "Microbe<$RegolithEaters>")
-      doTask("PassBaton") // decline the second action
     }
 
     // ER used Convert Heat standard action
     // ER ended turn
-    with(ER) {
+    ER.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // KB played Investment Loan
     // KB lost 1 M€ production
     // KB gained 10 M€
     // KB ended turn
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "3 Pay<> FROM MC",
@@ -742,14 +721,13 @@ internal class Game20260619Test : FullGameTest() {
           "PROD[-MC]",
           "10 MC",
       )
-      doTask("PassBaton") // decline the second action
     }
 
     // ER passed
     ER.doTask("Pass")
 
     // KB used Convert Heat standard action
-    with(KB) {
+    KB.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -768,8 +746,9 @@ internal class Game20260619Test : FullGameTest() {
           "PROD[-Energy]",
           "PROD[Plant]",
       )
-      doTask("Pass")
     }
+    KB.doTask("Pass")
+
     ER.doTasks("15 MC", "-5 MC", "26 MC", "Titanium", "3 Plant", "9 Heat")
     KB.doTasks(
         "-5 MC",

@@ -163,6 +163,7 @@ val activeReplayClasses =
             "OtbGame20260904Test",
             "OtbGame20260912Test",
             "OtbGame20261009Test",
+            "OtbGame20261111Test",
             "RemoteVacuumFlowTest",
             "SolarFusionStreamTest",
             "StaticPressureStreamTest",

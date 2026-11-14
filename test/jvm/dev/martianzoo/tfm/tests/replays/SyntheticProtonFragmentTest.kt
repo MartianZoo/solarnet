@@ -179,7 +179,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$DeepWellHeating"),
           "13 Pay<> FROM MC",
@@ -189,10 +189,9 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "Microbe<$Recyclon>",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
@@ -204,9 +203,10 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTask("PROD[Heat]")
     }
 
-    with(green) {
+    green.turn {
       // Splice Tactical Genomics' mandatory first action prevents Green from playing Lichen first.
       shouldThrow<TaskException> { doTask("UseAction<PlayCardAction, Action1>") }
+
       doTask("DoRequiredActions")
       doTask("SearchForCard<TagFilter<Class<MicrobeTag>>>").expect("ProjectCard")
       doTask("3 ProjectCard")
@@ -218,24 +218,20 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
-      // (Purple already passed early)
-      doTask("Pass")
-    }
+    // (Purple already passed early)
+    purple.doTask("Pass")
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$SolarLogistics"),
           "20 Pay<> FROM MC",
           "$SolarLogistics FROM ProjectCard",
           "2 Titanium",
       )
-      doTask("Pass")
     }
+    green.doTask("Pass")
 
     // Production.
     purple.doTasks("25 MC", "Steel", "2 Plant", "2 Energy", "Heat")
@@ -271,12 +267,12 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(pink) {
+    pink.turn {
       doTasks(*playCardTasks("$MediaGroup"), "4 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
       doTasks(*playCardTasks("$Sabotage"), "$Sabotage FROM ProjectCard", "3 MC", "-7 MC<Player1>")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$AsteroidRights"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -291,7 +287,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$ReleaseOfInertGases"),
           "14 Pay<> FROM MC",
@@ -311,7 +307,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$SolarWindPower"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -328,7 +324,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$Archaebacteria"),
           "6 Pay<> FROM MC",
@@ -337,14 +333,11 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
       doTask("2 MC", SpliceTacticalGenomics)
       doTask("2 MC")
-      doTask("PassBaton")
     }
 
-    with(purple) {
-      doTask("Pass")
-    }
+    purple.doTask("Pass")
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$LagrangeObservatory"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -355,12 +348,10 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Titanium]")
     }
 
-    with(green) {
-      // (Green already passed early)
-      doTask("Pass")
-    }
+    // (Green already passed early)
+    green.doTask("Pass")
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$MiningRights"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -381,8 +372,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "6 Pay<> FROM MC",
           "Asteroid<$DirectedImpactors>",
       )
-      doTask("Pass")
     }
+    pink.doTask("Pass")
 
     // Production.
     purple.doTasks("28 MC", "Steel", "4 Plant", "Heat", "2 Heat FROM Energy")
@@ -418,7 +409,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$FueledGenerators"),
           "Ok", // Pay no steel.
@@ -434,7 +425,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$PeroxidePower"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -453,7 +444,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Steel]")
       doTasks(
           *playCardTasks("$GhgFactories"),
@@ -465,7 +456,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       // Green does not meet Diversifier before Corporate Stronghold enters play.
       shouldThrow<RequirementException> {
         continueOperation {
@@ -487,7 +478,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Diversifier")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$IndustrialCenter"),
           "4 Pay<> FROM MC",
@@ -508,21 +499,18 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$DirectedImpactors"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // No MC remainder.
           "Asteroid<$DirectedImpactors>",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "12 Pay<> FROM MC",
@@ -541,14 +529,10 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
-      // (Pink already passed early)
-      doTask("Pass")
-    }
+    // (Pink already passed early)
+    pink.doTask("Pass")
 
-    with(purple) {
-      doTask("Pass")
-    }
+    purple.doTask("Pass")
 
     // Production.
     purple.doTasks("29 MC", "Steel", "5 Plant", "Heat", "Energy")
@@ -584,7 +568,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
@@ -602,7 +586,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -622,7 +606,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$HeatTrappers"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -644,7 +628,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$NaturalPreserve"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -659,7 +643,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$ProtectedGrowth"),
           "$ProtectedGrowth FROM ProjectCard",
@@ -675,7 +659,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$AsteroidRights"), "Pay<> FROM MC", "Asteroid<$AsteroidRights>")
       // Mercurian Alloys makes Green's retained titanium worth more after this payment; the
       // next authoritative dashboard confirms that he retained all four.
@@ -687,7 +671,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Hospitals"), "-Disease<$Hospitals>", "MC")
       doTasks(
           *playCardTasks("$Psychrophiles"),
@@ -698,7 +682,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTask("Microbe<$Psychrophiles>")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$Mine"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -706,26 +690,18 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
-      doTask("PassBaton")
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
-      doTask("PassBaton")
     }
 
-    with(pink) {
-      // (Pink already passed early)
-      doTask("Pass")
-    }
+    // (Pink already passed early)
+    pink.doTask("Pass")
 
-    with(purple) {
-      doTask("Pass")
-    }
+    purple.doTask("Pass")
 
     // Production.
     purple.doTasks("32 MC", "Steel", "5 Plant", "Heat", "Energy", "Heat FROM Energy")
@@ -761,7 +737,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(pink) {
+    pink.turn {
       // Pink does not meet Tycoon before Hermetic Order of Mars enters play.
       shouldThrow<RequirementException> {
         continueOperation {
@@ -778,19 +754,19 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Tycoon")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*playCardTasks("$Ants"), "9 Pay<> FROM MC", "$Ants FROM ProjectCard")
       doTask("2 MC", SpliceTacticalGenomics)
       doTask("2 MC")
       doTasks(*cardActionTasks("$Ants"), "-Microbe<Player1, $Recyclon<Player1>>", "Microbe<$Ants>")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -806,7 +782,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$WeatherBalloons"),
           "11 Pay<> FROM MC",
@@ -816,7 +792,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$TollStation"),
           "12 Pay<> FROM MC",
@@ -833,7 +809,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "5 Pay<> FROM MC",
@@ -844,7 +820,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$DiversitySupport"),
           "1 Pay<> FROM MC",
@@ -858,17 +834,15 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$IndustrialCenter"), "7 Pay<> FROM MC", "PROD[Steel]")
-      doTask("PassBaton")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Energy]")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$CallistoPenalMines"),
           "6 Pay<Class<Titanium>> FROM Titanium",
@@ -884,17 +858,13 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
-      // (Purple already passed early)
-      doTask("Pass")
-    }
+    // (Purple already passed early)
+    purple.doTask("Pass")
 
-    with(pink) {
-      // (Pink already passed early)
-      doTask("Pass")
-    }
+    // (Pink already passed early)
+    pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -904,8 +874,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "Steel",
           "TerraformRating",
       )
-      doTask("Pass")
     }
+    green.doTask("Pass")
 
     // Production.
     purple.doTasks("40 MC", "2 Steel", "5 Plant", "Heat", "2 Energy", "Heat FROM Energy")
@@ -941,7 +911,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$CupolaCity"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -960,7 +930,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Trader")
       doTasks(
           *playCardTasks("$ProtectedValley"),
@@ -980,7 +950,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$LavaFlows"),
           "16 Pay<> FROM MC",
@@ -1004,7 +974,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$AsteroidRights"), "Pay<> FROM MC", "Asteroid<$AsteroidRights>")
       doTasks(
           *playCardTasks("$Hackers"),
@@ -1016,7 +986,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1032,7 +1002,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1042,7 +1012,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Plant]")
     }
 
-    with(green) {
+    green.turn {
       // Green cannot pay Designed Microorganisms' 16 MC price with the remaining 9 MC.
       shouldThrow<TaskException> {
         continueOperation {
@@ -1061,7 +1031,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*cardActionTasks("$WeatherBalloons", "Action2"), "-Floater<$WeatherBalloons>", "2 MC")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -1074,7 +1044,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *cardActionTasks("$DirectedImpactors", "Action2"),
           "-Asteroid<$DirectedImpactors>",
@@ -1091,17 +1061,11 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
-    with(purple) {
-      doTask("Pass")
-    }
+    purple.doTask("Pass")
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
     // Production.
     purple.doTasks("46 MC", "2 Steel", "5 Plant", "Heat", "2 Energy", "2 Heat FROM Energy")
@@ -1138,7 +1102,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1158,7 +1122,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Energy]")
       doTasks(
           *playCardTasks("$DuskLaserMining"),
@@ -1171,7 +1135,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$Ants"), "-Microbe<Player1, $Recyclon<Player1>>", "Microbe<$Ants>")
       doTasks(
           *cardActionTasks("$AsteroidRights", "Action2"),
@@ -1180,7 +1144,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(
           *playCardTasks("$BioPrintingFacility"),
@@ -1191,7 +1155,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "SpaceBaron")
       doTasks(
           *playCardTasks("$AsteroidCard"),
@@ -1205,7 +1169,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks("3 MC", "TerraformRating", "-3 Plant<Player3>")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *standardProjectTasks("AsteroidProject"),
           "14 Pay<> FROM MC",
@@ -1224,7 +1188,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *cardActionTasks("$BioPrintingFacility"),
           "2 Pay<Class<Energy>> FROM Energy",
@@ -1240,7 +1204,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTask("4 Microbe<$Recyclon>")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1255,7 +1219,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$SterlingVents"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -1269,7 +1233,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks("PROD[2 Plant]", "Plant")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$Supercapacitors"),
           "4 Pay<> FROM MC",
@@ -1281,7 +1245,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*cardActionTasks("$Hospitals"), "-Disease<$Hospitals>", "3 MC")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$IoMiningIndustries"),
           "9 Pay<Class<Titanium>> FROM Titanium",
@@ -1297,7 +1261,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$Grass"),
@@ -1309,15 +1273,11 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
-      doTask("Pass")
-    }
+    purple.doTask("Pass")
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1329,8 +1289,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "TerraformRating",
       )
       doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
-      doTask("Pass")
     }
+    green.doTask("Pass")
 
     // Production.
     purple.doTasks("50 MC", "2 Steel", "6 Plant", "Heat", "2 Energy")
@@ -1367,7 +1327,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(pink) {
+    pink.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1382,12 +1342,12 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$Ants"), "-Microbe<Player1, $Recyclon<Player1>>", "Microbe<$Ants>")
       doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Forecaster")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
@@ -1405,7 +1365,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$LakeMarineris"),
           "16 Pay<> FROM MC",
@@ -1434,7 +1394,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$IceAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1452,7 +1412,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*cardActionTasks("$AsteroidRights"), "Pay<> FROM MC", "Asteroid<$AsteroidRights>")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *cardActionTasks("$BioPrintingFacility"),
           "2 Pay<Class<Energy>> FROM Energy",
@@ -1473,7 +1433,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$ConvoyFromEuropa"),
           "4 Pay<Class<Titanium>> FROM Titanium",
@@ -1492,17 +1452,17 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$WeatherBalloons", "Action2"), "-Floater<$WeatherBalloons>", "4 MC")
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(*cardActionTasks("$Hospitals"), "-Disease<$Hospitals>", "4 MC")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Energy]")
       doTasks(
           *playCardTasks("$SaturnSurfing"),
@@ -1512,7 +1472,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$RobotPollinators"),
           "9 Pay<> FROM MC",
@@ -1532,7 +1492,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
@@ -1549,12 +1509,11 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>", "2 MC", "MC")
-      doTask("PassBaton")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "5 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$EquatorialMagnetizer"),
@@ -1564,7 +1523,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
@@ -1572,28 +1531,20 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "PROD[Energy]",
           "PROD[-Energy<Player3>]",
       )
-      doTask("PassBaton")
     }
 
-    with(pink) {
-      // (Pink already passed early)
-      doTask("Pass")
-    }
+    // (Pink already passed early)
+    pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
-      doTask("PassBaton")
     }
 
-    with(purple) {
-      // (Purple already passed early)
-      doTask("Pass")
-    }
+    // (Purple already passed early)
+    purple.doTask("Pass")
 
-    with(green) {
-      // (Green already passed early)
-      doTask("Pass")
-    }
+    // (Green already passed early)
+    green.doTask("Pass")
 
     // Production.
     purple.doTasks("54 MC", "2 Steel", "7 Plant", "Heat", "4 Energy")
@@ -1630,7 +1581,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(green) {
+    green.turn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -1648,7 +1599,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
               "UseAction<ConvertPlantsAction, Action1>",
               "8 Pay<Class<Plant>> FROM Plant",
@@ -1664,7 +1615,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1681,7 +1632,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$TechnologyDemonstration"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -1693,7 +1644,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$AdaptedLichen"),
           "3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
@@ -1710,7 +1661,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>")
       // Resolve the fixed MC gain before the equal floater-based gain.
       selectTask("MC<Player2>!")
@@ -1725,7 +1676,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *playCardTasks("$Windmills"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -1743,12 +1694,12 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks("Plant", "2 MC", "5 Microbe<$Ants>")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(*cardActionTasks("$Hospitals"), "-Disease<$Hospitals>", "5 MC")
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(
           *playCardTasks("$MagneticFieldGeneratorsPromo"),
           "10 Pay<Class<Steel>> FROM Steel",
@@ -1764,7 +1715,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(green) {
+    green.turn {
       doTasks(*cardActionTasks("$Ants"))
       // Protected Habitats now prevents Green from removing Purple's microbe.
       shouldThrow<DeadEndException> { doTask("-Microbe<Player1, $Psychrophiles<Player1>>") }
@@ -1772,7 +1723,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
       doTasks(
           *standardProjectTasks("CityProject"),
@@ -1784,12 +1735,12 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       )
     }
 
-    with(pink) {
+    pink.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(green) {
+    green.turn {
       doTasks(
           *cardActionTasks("$AsteroidRights", "Action2"),
           "-Asteroid<$AsteroidRights>",
@@ -1798,27 +1749,20 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
     }
 
-    with(purple) {
+    purple.turn {
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Botanist")
       doTasks(*cardActionTasks("$IndustrialCenter"), "7 Pay<> FROM MC", "PROD[Steel]")
     }
 
-    with(pink) {
-      doTask("Pass")
-    }
+    pink.doTask("Pass")
 
-    with(green) {
+    green.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "6 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(purple) {
-      doTask("Pass")
-    }
+    purple.doTask("Pass")
 
-    with(green) {
-      doTask("Pass")
-    }
+    green.doTask("Pass")
 
     // Production.
     purple.doTasks("55 MC", "3 Steel", "8 Plant", "Heat", "4 Energy", "2 Heat FROM Energy")

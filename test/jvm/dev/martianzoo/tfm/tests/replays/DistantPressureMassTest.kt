@@ -19,7 +19,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, ColoniesExpansion, promos:cards, SagittaFrontierServices
-          fakes:cards, -Merger
+          -Merger
 
           Ecologist, Terraformer, Terran, Mayor, Merchant, Researcher
           Electrician, Industrialist, Highlander, Investor, Scientist, Manufacturer
@@ -141,12 +141,11 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Titanium")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$LunarExports"),
           "5 Pay<Class<Titanium>> FROM Titanium",
@@ -154,12 +153,11 @@ internal class DistantPressureMassTest : FullGameTest() {
           "$LunarExports FROM ProjectCard",
           "PROD[5 MC]",
       )
-      doTask("PassBaton")
     }
 
     keen.doTask("Pass")
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$Flooding"),
           "7 Pay<> FROM MC",
@@ -169,8 +167,8 @@ internal class DistantPressureMassTest : FullGameTest() {
           "3 Heat",
           "2 MC",
       )
-      doTask("Pass")
     }
+    been.doTask("Pass")
 
     // Production.
     keen.doTasks("22 MC", "Energy", "Titanium", "Steel", "Plant", "Heat")
@@ -195,44 +193,40 @@ internal class DistantPressureMassTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$ExtractorBalloons"),
           "21 Pay<> FROM MC",
           "$ExtractorBalloons FROM ProjectCard",
           "3 Floater<$ExtractorBalloons>",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$CuttingEdgeTechnology"),
           "12 Pay<> FROM MC",
           "$CuttingEdgeTechnology FROM ProjectCard",
           "MC",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*playCardTasks("$DustSeals"), "$DustSeals FROM ProjectCard", "4 MC")
-      doTask("PassBaton")
     }
 
     been.doTask("Pass")
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$DirectedHeatUsage"),
           "1 Pay<> FROM MC",
@@ -273,8 +267,8 @@ internal class DistantPressureMassTest : FullGameTest() {
           )
           .expect("0 Science")
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Titanium")
-      doTask("Pass")
     }
+    keen.doTask("Pass")
 
     // Production.
     keen.doTasks("26 MC", "Energy", "Titanium", "Steel", "Plant", "Heat", "Heat FROM Energy")
@@ -322,12 +316,12 @@ internal class DistantPressureMassTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Energy")
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Merchant")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$ForcedPrecipitation"),
           "8 Pay<> FROM MC",
@@ -343,7 +337,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -355,7 +349,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Researcher")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *cardActionTasks("$ForcedPrecipitation"),
           "2 Pay<> FROM MC",
@@ -364,7 +358,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$DirectedHeatUsage"), "3 Pay<Class<Heat>> FROM Heat", "4 MC")
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
@@ -427,7 +421,7 @@ internal class DistantPressureMassTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(been) {
+    been.turn {
       doTasks(
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
@@ -443,12 +437,11 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$DirectedHeatUsage"), "3 Pay<Class<Heat>> FROM Heat", "4 MC")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<TradeAction, Action1>",
           "9 Pay<> FROM MC",
@@ -467,17 +460,16 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
           "$EarthCatapult FROM ProjectCard",
           "MC",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
@@ -486,25 +478,22 @@ internal class DistantPressureMassTest : FullGameTest() {
           "Production<Class<Metal>(HAS PlacementBonus<LandArea(HAS MiningRights_SpecialTile)>)>",
           "Titanium",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "2 Pay<> FROM MC",
           "$ResearchCoordination FROM ProjectCard",
           "4 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
@@ -521,10 +510,10 @@ internal class DistantPressureMassTest : FullGameTest() {
 
     been.doTask("Pass")
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Titanium")
-      doTask("Pass")
     }
+    keen.doTask("Pass")
 
     // Production.
     keen.doTasks("26 MC", "Energy", "Titanium", "Steel", "Plant", "Heat", "Heat FROM Energy")
@@ -549,17 +538,16 @@ internal class DistantPressureMassTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
           "Trade<Ceres>",
           "8 Steel",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$CorporateStronghold"),
           "11 Pay<> FROM MC",
@@ -572,17 +560,16 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Mayor")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$FueledGenerators"),
           "$FueledGenerators FROM ProjectCard",
           "PROD[-MC]",
           "PROD[Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -590,20 +577,17 @@ internal class DistantPressureMassTest : FullGameTest() {
           "Floater<$ExtractorBalloons>",
           "3 Floater<$ForcedPrecipitation>",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Titanium")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$LunarMining"),
           "9 Pay<> FROM MC",
@@ -611,20 +595,18 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[2 Titanium]",
           "MC",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$SisterPlanetSupport"),
           "7 Pay<> FROM MC",
           "$SisterPlanetSupport FROM ProjectCard",
           "PROD[3 MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$CupolaCity"),
           "6 Pay<Class<Steel>> FROM Steel",
@@ -635,31 +617,28 @@ internal class DistantPressureMassTest : FullGameTest() {
           "CityTile<Hellas_4_4>",
           "2 Steel",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *cardActionTasks("$ForcedPrecipitation", "Action2"),
           "-2 Floater<$ForcedPrecipitation>",
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
           "-1 ProjectCard<Selecting>",
       )
-      doTask("PassBaton")
     }
 
     been.doTask("Pass")
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
@@ -675,8 +654,8 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[2 Heat]",
           "PROD[2 Plant]",
       )
-      doTask("Pass")
     }
+    keen.doTask("Pass")
 
     // Production.
     keen.doTasks("28 MC", "Energy", "3 Titanium", "Steel", "3 Plant", "3 Heat", "Heat FROM Energy")
@@ -701,7 +680,7 @@ internal class DistantPressureMassTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(been) {
+    been.turn {
       doTasks(
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
@@ -717,17 +696,16 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
           "Trade<Io>",
           "13 Heat",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -736,10 +714,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           "Plant",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
@@ -747,15 +724,13 @@ internal class DistantPressureMassTest : FullGameTest() {
           "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$RestrictedArea"),
           "9 Pay<> FROM MC",
@@ -767,20 +742,17 @@ internal class DistantPressureMassTest : FullGameTest() {
           "-ProjectCard",
           "ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*playCardTasks("$LunaGovernor"), "$LunaGovernor FROM ProjectCard", "PROD[2 MC]")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$SolarReflectors"),
           "Ok", // Pay no titanium.
@@ -788,10 +760,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           "$SolarReflectors FROM ProjectCard",
           "PROD[5 Heat]",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -802,30 +773,26 @@ internal class DistantPressureMassTest : FullGameTest() {
           "2 MC",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$SpaceMirrors"),
           "Ok", // Pay no titanium.
           "3 Pay<> FROM MC",
           "$SpaceMirrors FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Titanium")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$LightningHarvest"),
           "4 Pay<> FROM MC",
@@ -834,12 +801,11 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[MC]",
           "MC",
       )
-      doTask("PassBaton")
     }
 
     been.doTask("Pass")
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$OptimalAerobraking"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -854,8 +820,8 @@ internal class DistantPressureMassTest : FullGameTest() {
           "TerraformRating",
       )
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-      doTask("Pass")
     }
+    keen.doTask("Pass")
 
     // Production.
     keen.doTasks(
@@ -885,7 +851,7 @@ internal class DistantPressureMassTest : FullGameTest() {
     keen.doTask("Ok") // Keep all four research cards.
     keen.doTasks("12 Pay<> FROM MC", "4 ProjectCard<Hand FROM Selecting>")
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$RadSuits"),
           "2 Pay<> FROM MC",
@@ -902,7 +868,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$VenusianAnimals"),
           "15 Pay<> FROM MC",
@@ -919,7 +885,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$GiantIceAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -942,10 +908,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           "TerraformRating",
           "2 Titanium",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$BusinessContacts"),
           "4 Pay<> FROM MC",
@@ -953,10 +918,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           "4 ProjectCard<Selecting>",
           "2 ProjectCard<Hand FROM Selecting>",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -972,7 +936,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$CorroderSuits"),
           "8 Pay<> FROM MC",
@@ -980,15 +944,13 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[2 MC]",
           "Animal<$VenusianAnimals>",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -996,10 +958,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           "4 Plant",
           "Plant",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$SterlingVents"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -1008,30 +969,27 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[-2 Heat]",
           "PROD[2 Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$WaterSplittingPlant"),
           "3 Pay<Class<Energy>> FROM Energy",
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$FloaterPrototypes"),
           "2 Pay<> FROM MC",
@@ -1039,10 +997,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           "Animal<$VenusianAnimals>",
           "2 Floater<$ForcedPrecipitation>",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$RadChemFactory"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -1052,20 +1009,18 @@ internal class DistantPressureMassTest : FullGameTest() {
           "2 TerraformRating",
           "MC",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *cardActionTasks("$ForcedPrecipitation", "Action2"),
           "-2 Floater<$ForcedPrecipitation>",
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
@@ -1073,15 +1028,13 @@ internal class DistantPressureMassTest : FullGameTest() {
           "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
@@ -1089,7 +1042,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           "Ok", // No microbe tag on the revealed card.
           "-ProjectCard<Revealed>",
       )
-      doTask("PassBaton")
     }
 
     been.doTask("Pass")
@@ -1144,7 +1096,7 @@ internal class DistantPressureMassTest : FullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(been) {
+    been.turn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -1166,7 +1118,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1178,7 +1130,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Scientist")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -1197,7 +1149,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$Atmoscoop"),
           "5 Pay<Class<Titanium>> FROM Titanium",
@@ -1208,10 +1160,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           "TerraformRating",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
@@ -1226,12 +1177,11 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*playCardTasks("$ProductiveOutpost"), "$ProductiveOutpost FROM ProjectCard", "4 MC")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$AstraMechanica"),
           "7 Pay<> FROM MC",
@@ -1252,12 +1202,11 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
@@ -1277,7 +1226,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
@@ -1285,12 +1234,11 @@ internal class DistantPressureMassTest : FullGameTest() {
           "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
-      doTask("PassBaton")
     }
 
     been.doTask("Pass")
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$WaterSplittingPlant"),
           "3 Pay<Class<Energy>> FROM Energy",
@@ -1340,8 +1288,8 @@ internal class DistantPressureMassTest : FullGameTest() {
           "2 Plant",
           "MC",
       )
-      doTask("Pass")
     }
+    keen.doTask("Pass")
 
     // Production.
     keen.doTasks(
@@ -1374,7 +1322,7 @@ internal class DistantPressureMassTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1417,7 +1365,7 @@ internal class DistantPressureMassTest : FullGameTest() {
     assertSidebar(gen = 9, temp = -14, oxygen = 12, oceans = 8, venus = 30)
     admin.assertCounts(21 to "Tile")
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$RimFreighters"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -1432,12 +1380,11 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$UndergroundCity"),
           "6 Pay<Class<Steel>> FROM Steel",
@@ -1452,7 +1399,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Highlander")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
@@ -1468,7 +1415,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$LunarBeam"),
           "10 Pay<> FROM MC",
@@ -1477,11 +1424,10 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[2 Heat]",
           "PROD[2 Energy]",
       )
-      doTask("PassBaton")
     }
 
     // The archive pays Solar Probe entirely in M€ despite Keen retaining usable titanium.
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$SolarProbe"),
           "Ok", // Pay no titanium.
@@ -1493,19 +1439,17 @@ internal class DistantPressureMassTest : FullGameTest() {
           "-ProjectCard",
           "ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$AerialMappers"),
           "11 Pay<> FROM MC",
           "$AerialMappers FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -1532,7 +1476,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$UrbanDecomposers"),
           "6 Pay<> FROM MC",
@@ -1540,35 +1484,30 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[Plant]",
           "Ok", // No card can receive microbes.
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*playCardTasks("$Harvest"), "$Harvest FROM ProjectCard", "12 MC")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$VenusMagnetizer"),
           "3 Pay<> FROM MC",
           "$VenusMagnetizer FROM ProjectCard",
           "MC",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
@@ -1576,32 +1515,29 @@ internal class DistantPressureMassTest : FullGameTest() {
           "Ok", // No microbe tag on the revealed card.
           "-ProjectCard<Revealed>",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
     been.doTask("Pass")
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$SpecialDesign"),
           "2 Pay<> FROM MC",
@@ -1650,8 +1586,8 @@ internal class DistantPressureMassTest : FullGameTest() {
           "Steel",
           "TerraformRating",
       )
-      doTask("Pass")
     }
+    keen.doTask("Pass")
 
     // Production.
     keen.doTasks("56 MC", "3 Energy", "3 Titanium", "Steel", "12 Plant", "3 Heat")
@@ -1684,7 +1620,7 @@ internal class DistantPressureMassTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$FieldCappedCity"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -1707,7 +1643,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
@@ -1722,7 +1658,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *cardActionTasks("$AerialMappers", "Action2"),
           "-Floater<$AerialMappers>",
@@ -1738,7 +1674,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       giveTask(keen, "Plant")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$Capital"),
           "7 Pay<Class<Steel>> FROM Steel",
@@ -1750,10 +1686,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           "2 MC",
           "2 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1772,17 +1707,16 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTask("Animal<$VenusianAnimals>") // Ecology Research.
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1798,17 +1732,15 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
@@ -1828,7 +1760,7 @@ internal class DistantPressureMassTest : FullGameTest() {
 
     been.doTask("Pass")
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1871,8 +1803,8 @@ internal class DistantPressureMassTest : FullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("Pass")
     }
+    keen.doTask("Pass")
 
     // Production.
     keen.doTasks("63 MC", "3 Energy", "3 Titanium", "Steel", "13 Plant", "3 Heat")
@@ -1905,7 +1837,7 @@ internal class DistantPressureMassTest : FullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$SubZeroSaltFish"),
           "1 Pay<> FROM MC",
@@ -1921,7 +1853,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1936,7 +1868,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1951,7 +1883,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           "UseAction<TradeAction, Action2>",
           "2 Pay<Class<Energy>> FROM Energy",
@@ -1969,7 +1901,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1986,7 +1918,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(been) {
+    been.turn {
       doTasks(
           *playCardTasks("$Plantation"),
           "15 Pay<> FROM MC",
@@ -2005,7 +1937,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -2016,12 +1948,12 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
     }
 
-    with(been) {
+    been.turn {
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Investor")
       doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "1 Pay<> FROM MC",
@@ -2029,25 +1961,21 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[-MC]",
           "10 MC",
       )
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(*cardActionTasks("$SubZeroSaltFish"), "Animal<$SubZeroSaltFish>")
-      doTask("PassBaton")
     }
 
-    with(been) {
+    been.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$Greenhouses"),
           "1 Pay<Class<Steel>> FROM Steel",
@@ -2068,7 +1996,7 @@ internal class DistantPressureMassTest : FullGameTest() {
     // The archive records Been passing as a second action; defer it to Been's next legal turn.
     been.doTask("Pass")
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *playCardTasks("$NitrogenFromTitan"),
           "6 Pay<Class<Titanium>> FROM Titanium",
@@ -2080,7 +2008,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(keen) {
+    keen.turn {
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
           "ProjectCard<Selecting>",
@@ -2098,8 +2026,8 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[-Energy]",
           "0 VenusStep", // Venus is already maxed.
       )
-      doTask("Pass")
     }
+    keen.doTask("Pass")
 
     // Production.
     keen.doTasks("67 MC", "2 Energy", "3 Titanium", "Steel", "13 Plant", "3 Heat")

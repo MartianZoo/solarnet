@@ -26,8 +26,8 @@ import kotlin.test.assertTrue
 /** Three-player physical game begun Friday, 2026-08-28. */
 internal class OtbGame20260828Test : FullGameTest(EAGER) {
   // TaskForm requires a task ID. Keep the offer lookup here so replay steps name their choices.
-  // This replay knows its choices in advance. Check that the current chooser offers each
-  // recorded choice without fixing the number of unrelated options in the catalog.
+  // This replay knows its choices in advance. Check that the current chooser offers each recorded
+  // choice without fixing the number of unrelated options in the catalog.
   private fun Agent.fillInTask(
       vararg keyClasses: String,
       count: Int? = null,
@@ -108,7 +108,6 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, ColoniesExpansion, promos:cards
-          fakes:cards
 
           Engineer, Fundraiser, Landshaper, Merchant, Metallurgist
           Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron
@@ -155,8 +154,8 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_2_1").done()
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_9_5").done()
       // "I'm going to put this one on row nine, column five. That gives me two plants." "And then
-      // Atmospheric Enhancers. I'm enhancing our atmosphere. I'm gonna go ahead and raise Venus
-      // two steps."
+      // Atmospheric Enhancers. I'm enhancing our atmosphere. I'm gonna go ahead and raise Venus two
+      // steps."
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard")
           .choose("CardFront" to "AtmosphericEnhancers")
@@ -196,17 +195,16 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     }
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 2, venus = 4)
 
-    with(green) {
+    green.turn {
       // "I'm gonna play Titan Shuttles." "Oh, shit, that's competition." "Yep. Floater on floater
-      // warfare. Floatfare." "I will spend three titanium, which counts as nine money, so I need
-      // 14 more. That's my turn."
+      // warfare. Floatfare." "I will spend three titanium, which counts as nine money, so I need 14
+      // more. That's my turn."
       // Green explicitly considers keeping titanium for Palladin Shipping, then keeps two.
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$TitanShuttles").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(3).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I had a plan; it's gone now." "Your first action should be to draw this stuff."
       // "There's one: Jet Stream Microscrappers. And Floater Technology. Very cool."
       fillInTask("DoRequiredActions")
@@ -217,22 +215,20 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$LocalShading").done()
     }
-    with(yellow) {
+    yellow.turn {
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$RimFreighters").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(1).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I'm going to use the Titan Shuttles action to put two floaters on Titan Shuttles."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$TitanShuttles, Action1>").done()
       fillInTask("Floater").choose("ResourceCard" to "TitanShuttles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
-      // "Where's my plan? FML. You have all these floater cards now. I'm going to play
-      // Floater Technology for seven."
+    blue.turn {
+      // "Where's my plan? FML. You have all these floater cards now. I'm going to play Floater
+      // Technology for seven."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$FloaterTechnology").done()
       // "I'm going to use the Local Shading action to add a floater to Local Shading. Wait, no,
@@ -241,37 +237,35 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("UseAction").narrow("UseAction<$FloaterTechnology, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "For some reason, I thought I was rushing to trade. It occurs to me now that it's probably
       // not worth it for you guys to trade. I probably should have played Business Network first.
       // That's four real monies and an Earth-tag discount card."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$BusinessNetwork").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
 
     // She forgot to reduce her money production (fixed later)
     yellow.exMachina("PROD[MC]")
 
     green.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       // "I'm going to play Nitrite Reducing Bacteria. That costs me 11 money."
       // "You immediately get three free microbes on Nitrite Reducing Bacteria."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$NitriteReducingBacteria").done()
-      // "For my next trick, I will use the Local Shading action to remove a floater and increase
-      // my money production one step."
+      // "For my next trick, I will use the Local Shading action to remove a floater and increase my
+      // money production one step."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$LocalShading, Action2>").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I use Business Network action. I look at a card... not feeling it."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$BusinessNetwork, Action1>").done()
       fillInTask("ProjectCard").chooseAmount(1).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I will use my Nitrite Reducing Bacteria action to spend three microbes and increase my TR
       // one step. I guess I pass." "No, you have one more action."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
@@ -282,7 +276,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("UseAction").narrow("UseAction<$Celestic, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I will spend two energy to trade with Luna. That's seven from the track plus my bonus of
       // two, so nine." "Jesus."
       expectChanges("-2 Energy, 9 MC") {
@@ -328,21 +322,19 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     yellow.fillInTask("ProjectCard").chooseAmount(2).done()
     green.fillInTask("ProjectCard").chooseAmount(1).done()
 
-    with(blue) {
+    blue.turn {
       // "I'm going to start by taking my Local Shading action, spending a floater to increase my
       // money production."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$LocalShading, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I'm going to use my Business Network. And I will buy it."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$BusinessNetwork, Action1>").done()
       fillInTask("ProjectCard").chooseAmount(0).done() // Keep the offered project.
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Minority Refuge. I'll spend one titanium and two real money. I lose two money production,
       // and I get to place a colony, which I'm going to place on Titan."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
@@ -350,53 +342,48 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(1).done()
       fillInTask("Colony").choose("ColonyTile" to "Titan").done()
       fillInTask("Floater").choose("ResourceHolder" to "TitanShuttles").done()
-      // "Then I'm going to use my second action to grab all these floaters." "Remember to get 3
-      // for your placing." "Holy shit. I get three and three and one. I get seven floaters."
+      // "Then I'm going to use my second action to grab all these floaters." "Remember to get 3 for
+      // your placing." "Holy shit. I get three and three and one. I get seven floaters."
       fillInTask("StandardAction").narrow("UseAction<TradeAction, Action2>").done()
       fillInTask("Trade").choose("ColonyTile" to "Titan").done()
       fillInTask("Floater", count = 3).choose("ResourceHolder" to "TitanShuttles").done()
       fillInTask("Floater").choose("ResourceHolder" to "TitanShuttles").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to play Jet Stream Microscrappers. Pay 12 for it." "You want me to actually pay
       // for the things that I place? You're crazy."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$JetStreamMicroscrappers").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I'm going to pay five titanium and five real for Solar Logistics." "Oh, man. She gets to
       // draw a card any time any one of us plays a space event. Plus she gets a discount on Earth
       // tags."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$SolarLogistics").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(5).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "You'll never imagine what I'm going to do. I'm going to use Titan Shuttles to spend nine
       // floaters and get nine titanium." "Gawah."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$TitanShuttles, Action2>").done()
       fillInTask("Floater").chooseAmount(9).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to play Dirigibles, which costs 11 money."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$Dirigibles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "On top of Solar Logistics, I will place Optimal Aerobraking. For that, I will spend
       // seven." "We cannot let her get space events."
       // Yellow keeps Solar Logistics' two titanium to trade with Io next generation.
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$OptimalAerobraking").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Ok").done() // No titanium paid.
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Here we go. Spache Elevator." "Am I spending all titanium for it? I'm gonna hold back one
       // titanium. I'm gonna spend nine titanium. Not 99, just nine." "Stupid fucking Spache
       // Elevator."
@@ -406,47 +393,40 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("PlayCard").choose("CardFront" to "$SpaceElevator").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(9).done()
       fillInTask("Pay", "Steel").chooseAlternative("Ok").done() // No steel paid.
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to take my Nitrite Reducing Bacteria action to add a microbe."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$NitriteReducingBacteria, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Solar Logistics also gives me a discount of two on my Earth tag. I'm gonna pay seven for
       // Imported Advanced GHG. Increase heat production two steps. I get a card for Solar
-      // Logistics,
-      // and from Optimal Aerobraking I get three money and three heat."
+      // Logistics, and from Optimal Aerobraking I get three money and three heat."
       // Yellow continues to keep two titanium to trade with Io next generation.
       expectChanges("-4 MC, 3 Heat, PROD[2 Heat]") {
         fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
         fillInTask("PlayCard").choose("CardFront" to "$ImportOfAdvancedGhg").done()
         fillInTask("Pay", "Titanium").chooseAlternative("Ok").done() // No titanium paid.
       }
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I am going to use my Spache Elevator action to lose one steel and gain five real."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$SpaceElevator, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Oh my god, I'm an idiot. Dude, I have plants. I can plant Potatoes. Why didn't I do this
       // last freaking generation? That cost me two money. I lose two plants, and I get two money
       // production." "Yep. Potatoes are mine. Andy Weir up in here."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$Potatoes").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(green) {
+    green.turn {
       // "I'm spending three steel and 12 real on Research Outpost, which lets me place a city tile.
       // I can place it right here, pay five money, and get another colony, which I'm just gonna
-      // drop
-      // on Luna. That gives me two money production, getting me back to zero again."
+      // drop on Luna. That gives me two money production, getting me back to zero again."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$ResearchOutpost").done()
       fillInTask("Pay", "Steel").chooseAlternative("Pay").chooseAmount(3).done()
@@ -455,27 +435,23 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
           .choose("LandArea" to "Cimmeria_3_3")
           .done()
       fillInTask("Colony").choose("ColonyTile" to "Luna").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to use my Floater Technology action to add a floater to Local Shading."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloaterTechnology, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "[Yellow]'s already passed, so I'm the one holding things up. We play Peroxide Power, which
       // costs me six real money. I lose one money production and add two energy production."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$PeroxidePower").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to take my Dirigibles action, which lets me add a floater to any card, and add
-      // it
-      // to Jet Stream Microscrappers. Then I take my Celestic action to add another floater to Jet
-      // Stream Microscrappers." "I forgot I'm supposed to pay titanium for both of those." "You
+      // it to Jet Stream Microscrappers. Then I take my Celestic action to add another floater to
+      // Jet Stream Microscrappers." "I forgot I'm supposed to pay titanium for both of those." "You
       // don't have to pay." "I don't have to pay, thank God."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Dirigibles, Action1>").done()
@@ -485,7 +461,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers").done()
     }
     green.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       // "Then I'm going to use my Jet Stream Microscrappers action to remove two floaters and raise
       // Venus one step." "Ah shit, I made it easier for [Yellow] to get the bonus."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
@@ -523,7 +499,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     green.fillInTask("ProjectCard").chooseAmount(2).done()
     blue.fillInTask("ProjectCard").chooseAmount(3).done()
 
-    with(yellow) {
+    yellow.turn {
       // "I think I will start by paying two titanium to trade with Io. That's ten heat for me."
       expectChanges("-2 Titanium, 10 Heat") {
         fillInTask("StandardAction").narrow("UseAction<TradeAction, Action3>").done()
@@ -534,7 +510,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("UseAction").narrow("UseAction<$BusinessNetwork, Action1>").done()
       fillInTask("ProjectCard").chooseAmount(1).done()
     }
-    with(green) {
+    green.turn {
       // "What I'm gonna do is fly my boat. I'm gonna spend three energy, fly my boat to Ganymede,
       // take five planta. When you want to convert plants to greenery, you hit plants, but then
       // there's this 'plant forest'—for whatever reason they call it plant forest. It automatically
@@ -550,7 +526,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
         fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_3_2").done()
       }
     }
-    with(blue) {
+    blue.turn {
       // "How much money do I have? Fuck. Okay, FML. I guess I'm playing Io Sulphur Research. I pay
       // for it first, then draw three cards. I have two Venus tags."
       // "I'll buy Reno."
@@ -559,15 +535,13 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
         fillInTask("PlayCard").choose("CardFront" to "$IoSulphurResearch").done()
         fillInTask("ProjectCard").chooseAlternative("ProjectCard", count = 3).done()
       }
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "For six monies, Carbonate Processing. Lose energy production, gain three heat production."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$CarbonateProcessing").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "This is really cool, actually. I play Mining Area. It costs three money. That solves both
       // my—because I need steels for this thing, you know? It gives me one for this turn and solves
       // my problem for the future as well. That gives me one steel and one steel production."
@@ -580,7 +554,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<ClaimMilestoneAction, Action1>").done()
       fillInTask("Milestone").choose("Milestone" to "Landshaper").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to play Mars University."
       // "Did you get that from the—"
       // "When I just drew three cards from Io Sulphur Research, I did draw Mars University, and I'm
@@ -594,75 +568,63 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("ProjectCard")
           .chooseAlternative("Ok")
           .done() // Decline Mars University's discard and draw.
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "For Power Infrastructure."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$PowerInfrastructure").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Now I can use Spache Elevator to use one steel and get five real. Was there anything else
       // I was in a hurry to do? No."
       // "Look, guys, I'm jet-lagged. Jet lag makes me stupid, okay? We know this. This is a true
       // fact about me."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$SpaceElevator, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm just gonna use my Nitrite Reducing Bacteria action to add a microbe."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$NitriteReducingBacteria, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I now have two power tags, so I can play Fusion Tower [Fusion Power]."
       // "Dang it, I didn't think you were gonna be able to play that. I thought it might come back
       // to me."
       // "Increase energy production three steps."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$FusionPower").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I'm gonna use Titan Shuttles to add two floaters."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$TitanShuttles, Action1>").done()
       fillInTask("Floater").choose("ResourceCard" to "TitanShuttles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "You'll never guess: I'm gonna use my Local Shading action to spend a floater to increase
-      // my
-      // money production by one."
+      // my money production by one."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$LocalShading, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I will use my remaining ten money to play House Printing, gain steel production."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$HousePrinting").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I will use my Paladin Shipping action to pay two titanium to raise the temperature to
-      // minus
-      // 28 and get my second TR."
+      // minus 28 and get my second TR."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$PalladinShipping, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm gonna use my Floater Technology action to add one floater to Local Shading."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloaterTechnology, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I have 17 heat."
       // Yellow's app and the photographed track require both ordinary heat conversions.
       fillInTask("UseAction").narrow("UseAction<ConvertHeatAction, Action1>").done()
@@ -671,9 +633,9 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       }
     }
     green.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
-      // The recording goes silent here. Blue's app adds one TR, and these three unused actions
-      // are the ordinary card sequence that produces exactly that result.
+    blue.turn {
+      // The recording goes silent here. Blue's app adds one TR, and these three unused actions are
+      // the ordinary card sequence that produces exactly that result.
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Dirigibles, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers").done()
@@ -682,7 +644,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers").done()
     }
     yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$JetStreamMicroscrappers, Action2>").done()
     }
@@ -737,7 +699,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       yellow.fillInTask("ProjectCard").chooseAmount(3).done()
     }
 
-    with(green) {
+    green.turn {
       // "Research Colony. One titanium and 16 real money. Not only does it let me place another
       // colony, it lets me go somewhere that I'm already at. I get another two money production, so
       // I'm back to positive money production again."
@@ -756,7 +718,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
         fillInTask("Trade").choose("ColonyTile" to "Luna").done()
       }
     }
-    with(blue) {
+    blue.turn {
       // "I'm gonna play Ice Moon Colony. I'm gonna spend two titanium, which equals six money, and
       // 17 money. I'm gonna place an ocean first: row eight, column nine. I get two plants and one
       // TR."
@@ -766,55 +728,47 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       // "So did I."
       // "As did I. We all did."
       // "Then I place my colony on Titan. I immediately get three floaters for one card, so I'm
-      // gonna
-      // put them on Jet Stream Microscrappers."
+      // gonna put them on Jet Stream Microscrappers."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$IceMoonColony").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(2).done()
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_8_9").done()
       fillInTask("Colony").choose("ColonyTile" to "Titan").done()
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "This is a lot of colonies on the board."
       // "I need more money. Why do I have so little money? And so little everything? Why are all my
       // productions so low? I feel like I never draw any cards that just give me productions
-      // without
-      // also costing other productions that I already don't have."
+      // without also costing other productions that I already don't have."
       // "Business Network. A card to inspect. Inspect, protect, detect."
       // "You know what I just realized. Minus one money—"
       // "You never did that?"
       // "I never."
       // "Wow. Take yourself a minus one money production now and maybe minus two or three money."
       // "I know I played this first gen, and it is gen four. So that means minus three money.
-      // Thanks
-      // for noticing that. We would have caught it later."
+      // Thanks for noticing that. We would have caught it later."
       // "What are you going to do with that card?"
       // "Nah. Booped."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$BusinessNetwork, Action1>").done()
 
       fillInTask("ProjectCard").chooseAmount(1).done()
-
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     // Yellow then corrected Business Network's previously omitted production loss and the three
     // generations of extra income it had caused.
     yellow.exMachina("-3 MC, PROD[-MC]")
-    with(green) {
+    green.turn {
       // "Space Elevate. A steel for five money."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$SpaceElevator, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I will do my Nitrite Reducing Bacteria action to add a microbe."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$NitriteReducingBacteria, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I will pay 15 money for Love Tube Settlement [Lava Tube Settlement]. Lose energy
       // production, gain two money production, and place a city tile."
       // "I will place it on Hadriacus Mons, 6-2, for two cards."
@@ -833,30 +787,24 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
           .choose("CityTile" to "NormalCityTile")
           .choose("VolcanicArea" to "Cimmeria_6_2")
           .done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "With this money that, as previously observed, I have. How did I get that money, by the
-      // way?
-      // Oh, Space Elevating. Spillivate."
+      // way? Oh, Space Elevating. Spillivate."
       // "It's your lucky day, [Yellow]. I'm playing a space event. That cost me 22. Paladin
-      // Shipping
-      // gives me a titanium. You get a card. I'll take a titanium, take two plants, raise oxygen to
-      // three and get a TR, and place an ocean tile and get a TR. The ocean tile will be 7-9 for
-      // two
-      // plants and two money. Au revoir."
+      // Shipping gives me a titanium. You get a card. I'll take a titanium, take two plants, raise
+      // oxygen to three and get a TR, and place an ocean tile and get a TR. The ocean tile will be
+      // 7-9 for two plants and two money. Au revoir."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$TowingAComet").done()
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_7_9").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm gonna take my Local Shading action to remove a floater and gain a money production."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$LocalShading, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "When did we get a third oxygen?"
       // "Just now."
       // "Good, because I wasn't paying attention."
@@ -866,60 +814,49 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<UseStandardProjectAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<SellPatentsProject, Action1>").done()
       fillInTask("ProjectCard").chooseAmount(1).done()
-
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I am going to Titan Shuttles to place two floaters."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$TitanShuttles, Action1>").done()
 
       fillInTask("Floater").choose("ResourceCard" to "TitanShuttles").done()
-
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to use my Floater Technology action to add a floater to Local Shading."
       // "Keep in mind, it can be useful to park them on Dirigibles too, because then you have the
       // option of using them as money. Local Shading, you can always next turn put it on and take
-      // it
-      // off, so it doesn't really do any advantage to have it there this turn. On the other hand,
-      // there might be a card that does even better that collects floaters."
+      // it off, so it doesn't really do any advantage to have it there this turn. On the other
+      // hand, there might be a card that does even better that collects floaters."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloaterTechnology, Action1>").done()
 
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading").done()
-
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I use Power Infrastructure: spend an energy to gain money."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$PowerInfrastructure, Action1>").done()
       fillInTask("Energy").chooseAmount(1).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     green.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       // "I will take my Jet Stream Microscrappers action to remove two floaters and raise Venus to
       // 14."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$JetStreamMicroscrappers, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Water to Venus. Spend three titanium."
       // "She always gets it. Such an asshole."
       // "I raise it to 16, which gives an extra TR. And I get three money and three heat from
-      // Optimal
-      // Aerobraking."
+      // Optimal Aerobraking."
       // "I never told you that I hate you."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$WaterToVenus").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(3).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I use my Dirigibles action to put a floater on Jet Stream Microscrappers, and my Celestic
       // action to put a floater on Dirigibles. And that's all, folks."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
@@ -990,7 +927,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     yellow.fillInTask("ProjectCard").chooseAmount(1).done()
     green.fillInTask("ProjectCard").chooseAmount(1).done()
 
-    with(blue) {
+    blue.turn {
       // "I'm gonna play Protected Valley."
       // "We're gonna save the River Valley. Yay."
       // "I pay 23 money. I don't give myself 23 money. I pay 23 money. I gain two money production,
@@ -1001,15 +938,13 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$ProtectedValley").done()
       fillInTask("GreeneryTile").choose("WaterArea" to "Cimmeria_9_9").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "This feels like getting in the way of doing actual stuff, but I'm a bit paranoid. So,
       // Subterranean Reservoir."
       // "I know what you're doing."
       // "Yep. Pay 11 for an ocean to go top right, 1-5. Oceans are now at 6. Give myself TR as
-      // well.
-      // Can't forget."
+      // well. Can't forget."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$SubterraneanReservoir").done()
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_1_5").done()
@@ -1022,7 +957,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<ClaimMilestoneAction, Action1>").done()
       fillInTask("Milestone").choose("Milestone" to "Merchant").done()
     }
-    with(green) {
+    green.turn {
       // "Oh, yeah. I was going to try to steal [Yellow]'s milestone."
       // "I'm afraid I'm going to spend three energy and fly my boat to Titan. Three floaters and a
       // floater. And [Blue], you get one floater."
@@ -1034,24 +969,21 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       blue.fillInTask("Floater").choose("ResourceHolder" to "Dirigibles").done()
       fillInTask("Floater", count = 3).choose("ResourceHolder" to "TitanShuttles").done()
       fillInTask("Floater", "Green", count = 1).choose("ResourceHolder" to "TitanShuttles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Okay, so let me think. So that's now six money. Using 16 money and two floaters for my
       // Dirigibles card, I am going to play Stratopolis."
       // "Nice."
       // "And so I pay my 16 money first. And then I gain two money production. And I place a city
-      // on
-      // Stratopolis."
+      // on Stratopolis."
       // "You are the floater queen."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$Stratopolis").done()
       fillInTask("PayFromCard")
           .narrow("2 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
           .done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Now that I have much enticed, spend two energies to trade with Luna. I get 12. You get 12
       // and I get four."
       expectChanges("-2 Energy, 12 MC, 4 MC<Green>") {
@@ -1065,21 +997,19 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("UseAction").narrow("UseAction<$BusinessNetwork, Action1>").done()
       fillInTask("ProjectCard").chooseAmount(1).done()
     }
-    with(green) {
+    green.turn {
       // "Well, I'll do my thing where I spend one steel to get five real by using Spache Elevator.
       // That's my turn. Go off."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$SpaceElevator, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm out of money, so I am going to use my Nitrite Reducing Bacteria action to remove three
       // microbes and raise my TR one step."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$NitriteReducingBacteria, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Man, I want to do stuff, but—wait. Wait. I think I can. You know what? I can always just
       // start by—can't really lose anything if I—yes, I will spend my two steel and 13 real. Then
       // immediately spend a plant to gain seven."
@@ -1091,21 +1021,19 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$ElectroCatapult, Action1>").done()
     }
-    with(green) {
+    green.turn {
       // "I think I should probably use Titan Shuttles to take eight titanium. Oyga."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$TitanShuttles, Action2>").done()
       fillInTask("Floater").chooseAmount(8).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I am going to use my Local Shading action. I remove a floater and I get a money
       // production."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$LocalShading, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Robotic Workforce."
       // "Yeah, I didn't like giving that to you."
       // "Spend nine. You have so many building production cards."
@@ -1114,26 +1042,23 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$RoboticWorkforce").done()
       fillInTask("CopyProductionBox").choose("CardFront" to "FusionPower").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "On my turn, it's time to play Io Mining Industries. That cost me ten titanium, which is
       // worth three, and I get two titanium production, two money production, and I'm going to get
       // bank on Jupiter tags."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$IoMiningIndustries").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(10).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm using Jet Stream Microscrappers to spend two floaters and raise the Venus."
       // "To 18."
       // "To 18, and I give myself a TR for that."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$JetStreamMicroscrappers, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Alright, I think I've done the urgent stuff. Now I can double heat boop."
       // "Okay. Boop. That takes temp to minus 20, and I get a heat product."
       fillInTask("UseAction").narrow("UseAction<ConvertHeatAction, Action1>").done()
@@ -1141,21 +1066,19 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
         fillInTask("UseAction").narrow("UseAction<ConvertHeatAction, Action1>").done()
       }
     }
-    with(green) {
+    green.turn {
       // "Let's just direct some impactors. Direct impact. I pay seven for that."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$DirectedImpactors").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to use Floater Technology to add one floater to Dirigibles."
       // "Okay. Alright. Dirigibles."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloaterTechnology, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "Dirigibles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Actually, you know what the hell. Why not? I'm going to sell a card for a money and then
       // pay five for Floating Habs."
       // "Ah, that's the one that's two floaters to a victory point."
@@ -1166,23 +1089,21 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$FloatingHabs").done()
     }
-    with(green) {
+    green.turn {
       // "I'm going to Release my Inert Gases, which costs all 13 of my money. And it just gives me
       // two TR. And it flips."
       // "Oh, I forgot to use Directed Impactors. Built it for nothing."
       // "Yeah, I think I'm kind of fading too. In terms of my awareness."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$ReleaseOfInertGases").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to use my Stratopolis action to add two floaters to my Dirigibles. Sweet."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Stratopolis, Action1>").done()
       fillInTask("Floater").choose("ResourceCard" to "Dirigibles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I'm going to pitch two cards for two money. Then spend two money to add a floater to any
       // card, and that will be Floating Habs."
       fillInTask("StandardAction").narrow("UseAction<UseStandardProjectAction, Action1>").done()
@@ -1193,7 +1114,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("Floater").choose("ResourceHolder" to "FloatingHabs").done()
     }
     green.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       // "I'm going to use my Extremophiles action to add two floaters to my Dirigibles."
       // "I'm going to play Extremophiles."
       // "Does that have a requirement?"
@@ -1209,7 +1130,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria").done()
     }
     yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       // "I guess I'm going to use my Celestic action to add a dirigible."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Celestic, Action1>").done()
@@ -1229,8 +1150,8 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("PayFromCard")
           .narrow("4 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
           .done()
-      fillInTask("StandardAction").chooseAlternative("Pass").done()
     }
+    blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
 
     // "Okay, Jaybird, what do you want to move for World Government? Venus, temperature, oxygen,
     // ocean."
@@ -1269,7 +1190,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     yellow.fillInTask("ProjectCard").chooseAmount(0).done() // Keep all four Research cards.
     green.fillInTask("ProjectCard").chooseAmount(0).done() // Keep all four Research cards.
 
-    with(yellow) {
+    yellow.turn {
       // "Well, why don't I go ahead and pay eight for Engineer. And I think I will pay two energies
       // to trade with Luna. I'll collect my ten—no, twelve monies. You get your four."
       // "Oh, put your boat on."
@@ -1281,29 +1202,26 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
         fillInTask("Trade").choose("ColonyTile" to "Luna").done()
       }
     }
-    with(green) {
+    green.turn {
       // "This kind of sucks. I shouldn't have taken so many cards. Okay, well, alright. I'm not
       // racing for anything anymore. I'll use Space Elevator to spend one steel and take five
       // real."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$SpaceElevator, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I am going to buy some Red Ships. Oh, wait, that does—okay, which costs me two money."
       // "I should actually warn you that it doesn't pay out anything just yet."
       // "I know. Why would I not know that?"
       // "It will. It will, yeah."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$RedShips").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Alright, let me start with Imported GHG. Pay one titanium, two monies. Increase heat
       // production one, gain three heat, get a card from Earth card, from space event—yes, both
-      // Earth
-      // and space. Doesn't make any sense. And gain three money, three heat. Jesus Christ, that's
-      // insane. Be nicer if I got more space events."
+      // Earth and space. Doesn't make any sense. And gain three money, three heat. Jesus Christ,
+      // that's insane. Be nicer if I got more space events."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$ImportedGhg").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(1).done()
@@ -1312,31 +1230,27 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       // "I decided to put it in."
       // "Aw, thank you."
       // "The thing is that the card I think would be best with that I'd kind of want to play soon,
-      // so
-      // I'm gonna reject anyways."
+      // so I'm gonna reject anyways."
       // "Reject."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$BusinessNetwork, Action1>").done()
       fillInTask("ProjectCard").chooseAmount(1).done()
     }
-    with(green) {
+    green.turn {
       // "I'm gonna play Research Coordination for three."
       // "Oh God, you like the wild tags."
       // "I love them. They're so useful."
       // "You like to live on the wild side."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$ResearchCoordination").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to play Snow Algae, which costs me 12 money, and it gives me one plant
-      // production
-      // and one heat production."
+      // production and one heat production."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$SnowAlgae").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Spend a plant to gain seven money production—no, not money production, seven money
       // resource. That would be ridiculous."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
@@ -1350,19 +1264,16 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     // She forgot to pay for Cartel (fixed later)
     yellow.exMachina("6 MC")
 
-    with(green) {
+    green.turn {
       // "I am going to play Olympus Conferencia, which costs nine, and it gives me a science
-      // resource
-      // because it's a science tag."
+      // resource because it's a science tag."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$OlympusConference").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Okay, I'm now going to play Red Spot Observatory, which costs 17 monies, and with Mars
       // University, can I draw the two cards that I get from this first and then decide how to
-      // discard
-      // one?"
+      // discard one?"
       // "Okay, good. I draw two cards."
       // "Come on. Dropped card. Stupid-ass card."
       // "Let the record show that [Blue] dropped her stupid-ass card."
@@ -1372,9 +1283,8 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$RedSpotObservatory").done()
       fillInTask("ProjectCard").narrow("-ProjectCard").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I realize, you know, I got some cash flow. Stratospheric Expedition. Pay four titaniums."
       // "Add two floaters to any card. That will be Floating Habs. Draw two Venus cards. But also
       // save a card for me to draw because of—"
@@ -1384,9 +1294,8 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("PlayCard").choose("CardFront" to "$StratosphericExpedition").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(4).done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingHabs").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I am going to spend three energy to fly my boat to Titan."
       // "To Titan."
       // "And [Blue] gets one floater, and I get two plus one floaters."
@@ -1396,33 +1305,27 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       blue.fillInTask("Floater").choose("ResourceHolder" to "LocalShading").done()
       fillInTask("Floater", count = 2).choose("ResourceHolder" to "TitanShuttles").done()
       fillInTask("Floater", "Green", count = 1).choose("ResourceHolder" to "TitanShuttles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I don't have money to pay for any of my cards. I'm just doing actions."
       // "I'm going to take my Nitrate Reducing Bacteria action and add a microbe to my Nitrate
       // Reducing Bacteria. Bet you guys never would have guessed that I'm going to do something
-      // crazy
-      // like that."
+      // crazy like that."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$NitriteReducingBacteria, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Can I see your player board?"
       // "You suck. Apparently not. No, you can't see it."
       // "You know what? I don't have shit for my ass. I don't have anything. You know what? Leave
-      // me
-      // alone."
+      // me alone."
       // "[Green], I'm hiring raiders. Stealing three money from you. Boop. Boop, boop, doot, doot.
-      // And
-      // pay them one money for it."
+      // And pay them one money for it."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$HiredRaiders").done()
       fillInTask("MC").chooseAlternative("MC", count = 3).choose("Owner" to "Green").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "That might just possibly screw me up, actually."
       // "Yay! Everybody dance! Everybody dance! Life is good!"
       // "God, I keep forgetting. Every time I trade, I forget to play Market Manipulation first.
@@ -1433,31 +1336,26 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
         fillInTask("UseAction").narrow("UseAction<$TitanShuttles, Action2>").done()
         fillInTask("Floater").chooseAmount(3).done()
       }
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm gonna use my Local Shading action to—not to add a floater—to spend a floater to add a
       // money production."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$LocalShading, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I will play Cutting Edge Technology for 12."
       // "Nice. Love it?"
       // "Yeah."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$CuttingEdgeTechnology").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I'm gonna plant a forest, as they say. Oxygen is now six, and my forest will go right
-      // where
-      // you think it will go, 2-2."
+      // where you think it will go, 2-2."
       // "Then, for my next trick, what I'm gonna do is I'm gonna play Sky Docks."
       // "Do you actually say 'for my next trick'? Did you take that from me, or did I take that
-      // from
-      // you?"
+      // from you?"
       // "I used to say that all the time."
       // "Okay, I took it from you."
       // "I do have the two Earth tags. I have to assign my wild tag as an Earth tag when I play it.
@@ -1465,12 +1363,13 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       // "Yeah, you do. Heck. H-E-K-K."
       fillInTask("UseAction").narrow("UseAction<ConvertPlantsAction, Action1>").done()
       fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_2_2").done()
+
       // Green keeps exactly the two titanium used for Palladin Shipping later this generation.
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$SkyDocks").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(4).done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm using my Floater Technology action to put a floater somewhere fun, I guess. I don't
       // know."
       // "You're starting to drown in floaters."
@@ -1480,18 +1379,16 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloaterTechnology, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "RedSpotObservatory").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Expat Ishtar for four. I gain three titanium, and it requires Venus ten percent."
       // "Yeah, we got that."
       // "Draw two Venus cards. What gives you a two discount?"
       // "Cutting Edge."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$IshtarExpedition").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I'm gonna play Inventors' Guild. I call it Inventioner's Guild. That cost me seven money."
       // "And then I'm gonna use it."
       // "Use it tonight."
@@ -1507,18 +1404,16 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("UseAction").narrow("UseAction<$InventorsGuild, Action1>").done()
       fillInTask("ProjectCard").chooseAmount(0).done() // Keep the offered project.
     }
-    with(blue) {
+    blue.turn {
       // "I'm gonna use my Extremophiles action to put a microbe on my sulfite reducing bacteria.
-      // Bet
-      // you weren't expecting that."
+      // Bet you weren't expecting that."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Extremophiles, Action1>").done()
       fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     // "I am now realizing I miscalculated. Bummer, dude. How dare I miscalculate."
     // "In multiple ways, I really could have played my cards better, quite literally."
-    with(yellow) {
+    yellow.turn {
       // "We probably have at least three more generations left in this game, right?"
       // "Probably. Maybe even four? I don't know. It's hard to say."
       // "We're kind of focusing on not terraforming."
@@ -1530,70 +1425,60 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       // It's working wonders for me."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$AerialMappers").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I am gonna use Paladin Shipping for almost the first time ever to get a Temp Boop to minus
       // 18."
       // "I don't know about that. It's at least the second."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$PalladinShipping, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Wait a minute. When I played Inventor's Guild, I should have lost a Science Cube and drawn
-      // a
-      // card. But it's still your turn."
+      // a card. But it's still your turn."
       // "I'm going to use my Red Spot Observatory action to spend a floater and draw a card. Card
       // me."
       // "Card. Cardi B."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$RedSpotObservatory, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "All right, for two, I had to actually get my second Venus tag down. Venus Governator."
       // "Governator."
       // "I gain two money per Earth."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$VenusGovernor").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     green.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       // "I'm going to use my Stratopolis action to add two floaters to Jet Stream Microscrappers."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Stratopolis, Action1>").done()
       fillInTask("Floater").choose("ResourceCard" to "JetStreamMicroscrappers").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "You know, before I forget, I can do this. Power Infrastructure. Spend two monies. Get—no,
       // spend two energies. Get two monies."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$PowerInfrastructure, Action1>").done()
       fillInTask("Energy").chooseAmount(2).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to use my Jet Stream Microscrappers action to raise the Venus. [Yellow], can you
-      // move
-      // the Venus? And I get a TR."
+      // move the Venus? And I get a TR."
       // "Yay! Yay! Life is good."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$JetStreamMicroscrappers, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I spend seven money on Floating Refinery. And I get one, two, three, four, five floaters
       // immediately added."
       // "Damn. And where are you adding them?"
       // "To Floating Refinery. It makes you add them there."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$FloatingRefinery").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "[Blue] would have really liked that card because it lets you pull floaters off of any card
       // you want."
       // "Oh, that would have been cool."
@@ -1601,14 +1486,12 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Dirigibles, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "Dirigibles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "You know what? Before I forget, I'm going to heat boop. Boop up to minus 16."
       fillInTask("UseAction").narrow("UseAction<ConvertHeatAction, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to use my Celestic action to add a cube to—to add a floater to, I guess, to
       // Celestic."
       // "I've never seen so many float boys."
@@ -1618,50 +1501,44 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Celestic, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I'm going to add an Aerial Mapper."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$AerialMappers, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "AerialMappers").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Okay, for one Dirigible and two monies, I'm gonna play Ishtar Mining, and I get a titanium
       // production."
       // "Yay! Yay! Yay! Yay! Kermit the Frog. Kermit the Frog goes, 'Yay!'"
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$IshtarMining").done()
       fillInTask("PayFromCard").narrow("PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I am feeling like I did not play this generation optimally."
       // "Nope. Sure didn't."
       // "Floating Refinery. Remove two from Floating Refinery to gain a titanium and two money."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloatingRefinery, Action2>").done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingRefinery").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Just to have something to do, I'm gonna take my Red Ships action, which doesn't give me
       // anything."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$RedShips, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I'm gonna use Floating Habs. Spend two money, add to Floating Habs."
       // "How do you have so much shit to do? I freaking pass."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloatingHabs, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingHabs").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(yellow) {
+    yellow.turn {
       // "Heat boop. Heat up to 14—minus 14."
       // "Oh shit, I have not been tracking the temperature or anything up to minus 14."
       // "And then six and six."
@@ -1669,8 +1546,8 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       // "Yeah."
       // "Has been for a while. Always has been."
       fillInTask("UseAction").narrow("UseAction<ConvertHeatAction, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("Pass").done()
     }
+    yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
 
     // "We decided that we would do World Government, which is whose choice?"
     // "Me."
@@ -1706,7 +1583,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     yellow.fillInTask("ProjectCard").chooseAmount(1).done()
     blue.fillInTask("ProjectCard").chooseAmount(3).done()
 
-    with(green) {
+    green.turn {
       // "Do you mind if we say that I played Market Manipulation just before I did that?" "Sure."
       // "I'll reduce Titan." Luna's raised track makes the following trade worth three more M€.
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
@@ -1723,7 +1600,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
         fillInTask("Trade").choose("ColonyTile" to "Luna").done()
       }
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to play Indentured Workers, Giant Ice Asteroid."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "IndenturedWorkers").done()
@@ -1736,7 +1613,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_9_6").done()
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_9_7").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I will Business Network. Look at the card. Keep."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$BusinessNetwork, Action1>").done()
@@ -1747,28 +1624,25 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("PlayCard").choose("CardFront" to "$TechnologyDemonstration").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(1).done()
     }
-    with(green) {
+    green.turn {
       // "Play Invention Contest for free. That gives me a little ... science resource on Olympus
       // Conference. And then I look at three cards from the deck. And I get to keep ... this one."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$InventionContest").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my Nitrite Reducing Bacteria action to remove three microbes and raise my TR."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$NitriteReducingBacteria, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I will Asteroid. That's four titanium and two real." "[Blue], you lose three plants."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$AsteroidCard").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(4).done()
       fillInTask("Plant").chooseAmount(3).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Quantum Extractor. That costs me 11. It gives me four energy production."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$QuantumExtractor").done()
@@ -1777,36 +1651,31 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
               "ProjectCard",
           )
           .done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my Floater Technology action to add a floater to Local Shading."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloaterTechnology, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Use Floating Refinery. Remove two things ... to take a titanium and two money."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloatingRefinery, Action2>").done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingRefinery").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     green.assertCounts(3 to "Titanium") // Green applog entry 170 starts from three titanium.
-    with(green) {
+    green.turn {
       // "Use two titanium and my Paladin action ... to raise the temperature to minus six."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$PalladinShipping, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Take my Local Shading action to turn that floater into a money production."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$LocalShading, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Pay four titanium and thirteen real money for L1 Trade Terminal."
       // "I add one to Floating Habs ... and add Aerial Mapper, add Floating Refineries."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
@@ -1815,69 +1684,59 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("FloatingHabs").chooseAmount(1).done()
       fillInTask("AerialMappers").chooseAmount(1).done()
       fillInTask("FloatingRefinery").chooseAmount(1).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Use my Space Elevator to destroy one steel and gain five real."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$SpaceElevator, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my Stratopolis action to add two floaters to Jetstream Microscrapper."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Stratopolis, Action1>").done()
       fillInTask("Floater").choose("ResourceCard" to "JetStreamMicroscrappers").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Spend two energies to trade with Io ... 13 heateroonies for me."
       expectChanges("-2 Energy, 13 Heat") {
         fillInTask("StandardAction").narrow("UseAction<TradeAction, Action2>").done()
         fillInTask("Trade").choose("ColonyTile" to "Io").done()
         fillInTask("ColonyProduction").chooseAlternative("ColonyProduction", count = 2).done()
       }
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Use my Inventors' Guild and decide whether to buy this ... card. Nothing."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$InventorsGuild, Action1>").done()
       fillInTask("ProjectCard").chooseAmount(1).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Spend two floaters and raise Venus one step. Venus is at 24 and I get a TR."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$JetStreamMicroscrappers, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I will spend a steel to gain seven real."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$ElectroCatapult, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I will play Molecular Printing. That cost me nine ... it gives me eight."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$MolecularPrinting").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my Extremophiles action to add a microbe to Nitrate Reducing Bacteria."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Extremophiles, Action1>").done()
       fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Aerial Mappers remove to card."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$AerialMappers, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Anti-Gravity Technology. I pay 12 for that."
       // "I have one, two, three, four, five, six, seven science tags."
       // The seven are Research Outpost, Research Colony, Olympus Conference, Inventors' Guild,
@@ -1889,60 +1748,51 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
               "ProjectCard",
           )
           .done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Get ready for some grass. Grass is grass production and three plants."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$Grass").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Comet for Venus. I pay 11. Raise Venus one step ... you lose four money."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$CometForVenus").done()
       fillInTask("MC").choose("Owner" to "Blue").chooseAmount(4).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Take my Titan Shuttles action to put two Jovian floaters on Titan Shuttles."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$TitanShuttles, Action1>").done()
       fillInTask("Floater").choose("ResourceCard" to "TitanShuttles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Take my Red Spot Observatory action to add a floater to Red Spot Observatory."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$RedSpotObservatory, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Five for Sister Planet Support ... increase money production three steps and take a card."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$SisterPlanetSupport").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "This makes it four Earth tags. And that cost me seven money ... two titanium production."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$LunarMining").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use the Dirigibles action to add a floater to Celestic."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Dirigibles, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Luna Governor ... for free. Two money production, two cards."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "LunaGovernor").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Atmoscoop ... one titanium and 13 real. ... two floaters on Titan Shuttles. I raise the
       // temperature to minus two and get my two TR."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
@@ -1954,32 +1804,30 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("UseAction").narrow("UseAction<ConvertHeatAction, Action1>").done()
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_2_6").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my Celestic action to add a floater to Celestic."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Celestic, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I do two heat boops. Temp is at plus four now."
       fillInTask("UseAction").narrow("UseAction<ConvertHeatAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<ConvertHeatAction, Action1>").done()
     }
     green.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       // "Take my Red Ships action, for which I get nothing."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$RedShips, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I'm going to do two heat boops. Another two heat? ... temp is maxed."
       fillInTask("UseAction").narrow("UseAction<ConvertHeatAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<ConvertHeatAction, Action1>").done()
     }
     blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(yellow) {
+    yellow.turn {
       // "Power Infrastructure, spend two energy, gain two money."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$PowerInfrastructure, Action1>").done()
@@ -2048,7 +1896,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     green.fillInTask("ProjectCard").chooseAmount(2).done()
     yellow.fillInTask("ProjectCard").chooseAmount(3).done()
 
-    with(blue) {
+    blue.turn {
       // "Use my Stratopolis action to add two floaters to Jetstream Microscrappers and then my
       // Jetstream Microscrappers action to raise Venus."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
@@ -2057,7 +1905,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$JetStreamMicroscrappers, Action2>").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Suppose I can start with a Business Network."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$BusinessNetwork, Action1>").done()
@@ -2067,23 +1915,22 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$AtalantaPlanitiaLab").done()
     }
-    with(green) {
+    green.turn {
       // "I'm gonna pay 22. Damn, two awards. Industrialist and Space Baron."
       fillInTask("StandardAction").narrow("UseAction<FundAwardAction, Action1>").done()
       fillInTask("Award").choose("Award" to "Industrialist").done()
       fillInTask("StandardAction").narrow("UseAction<FundAwardAction, Action1>").done()
       fillInTask("Award").choose("Award" to "SpaceBaron").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm gonna play Gene Repair. So it costs 12 money and I gain two money production."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$GeneRepair").done()
       fillInTask("ProjectCard")
           .chooseAlternative("Ok")
           .done() // Decline Mars University's discard and draw.
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I'm gonna play Cry Yourself to Sleep for 10."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$CryoSleep").done()
@@ -2093,7 +1940,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("PlayCard").choose("CardFront" to "$SolarProbe").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(2).done()
     }
-    with(green) {
+    green.turn {
       // "I pay three energy to fly my boat to Luna. I get 14 and [Yellow] gets two."
       expectChanges("-3 Energy, 14 MC, 2 MC<Yellow>") {
         fillInTask("StandardAction").narrow("UseAction<TradeAction, Action2>").done()
@@ -2105,21 +1952,19 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
         fillInTask("Trade").choose("ColonyTile" to "Ganymede").done()
       }
     }
-    with(blue) {
+    blue.turn {
       // "I'm gonna play Orbital Cleanup. ... I put 17. ... give myself three more money. ... my
       // titanium ... three more money."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$OrbitalCleanup").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(1).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "First remove an Aerial Mapper to draw another card."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$AerialMappers, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Something's waiting for us in the bushes of love. And that cost me six money. It gives me
       // two plant production and two plants."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
@@ -2128,113 +1973,97 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("UseAction").narrow("UseAction<ConvertPlantsAction, Action1>").done()
       fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_3_4").done()
     }
-    with(blue) {
+    blue.turn {
       // "For 10 money, I'm going to play Bacto Viral Research. ... discard a card from hand to draw
       // a card. ... add all six of mine to my nitrate reducing bacteria."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$BactoviralResearch").done()
       fillInTask("ProjectCard").narrow("-ProjectCard").done()
       fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Pitch a steel for seven real."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$ElectroCatapult, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Pitch a steel for five real."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$SpaceElevator, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Now I'm going to play Titan Air Scrapping for 21 money."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$TitanAirScrapping").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Floating Refinery, spend two floaters ... gain a titanium and two monies."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloatingRefinery, Action2>").done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingRefinery").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Play Quantum Communications because it costs me four and it gives me five money
       // production."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$QuantumCommunications").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my nitrate reducing bacteria action to ... increase my TR."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$NitriteReducingBacteria, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Spend two energy, get two money."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$PowerInfrastructure, Action1>").done()
       fillInTask("Energy").chooseAmount(2).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I'm going to use Inventor's Guild. No. I'm not going to buy it."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$InventorsGuild, Action1>").done()
       fillInTask("ProjectCard").chooseAmount(1).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I use Floater Technology to add a floater to Local Shading."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloaterTechnology, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Add a Cloud Tourism, if you will."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$CloudTourism, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Water Splitting Plant. That costs me eight."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$WaterSplittingPlant").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Take my Local Shading action ... increase my money production by one step."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$LocalShading, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "For 12 plus 4, Mangrove. ... that'll be 8-4. Get two money. Get a TR."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$Mangrove").done()
       fillInTask("GreeneryTile").choose("WaterArea" to "Cimmeria_8_4").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Use my Water Splitting Plant ... lose three energy."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$WaterSplittingPlant, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my Dirigibles action to add a floater to Titan Air Scrapping."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Dirigibles, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "TitanAirScrapping").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Tundra Farming. Right, for 16. ... increase plant production one step, increase money
       // production two steps, and gain a plant."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
@@ -2244,21 +2073,19 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$Livestock").done()
     }
-    with(green) {
+    green.turn {
       // "I've spent seven on Breathing Filters and I'm putting a science resource on Olympus
       // Conference."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$BreathingFilters").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I take my Extremophiles action and put a microbe on Nitrate Reducing Bacteria."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Extremophiles, Action1>").done()
       fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // L1 Trade Terminal: "I boost the thing two things first."
       // "Because I have two of these bonuses, only pay one energy to trade. And it'll be with
       // Miranda. ... I get two animals to Livestock."
@@ -2266,9 +2093,8 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("Trade").choose("ColonyTile" to "Miranda").done()
       fillInTask("ColonyProduction").chooseAlternative("ColonyProduction", count = 2).done()
       fillInTask("Animal").choose("ResourceHolder" to "Livestock").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I'm going to play a Trans-Neptune Probe ... it's free. ... remove a science resource from
       // Olympus Conference and I draw a card."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
@@ -2278,17 +2104,14 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
               "ProjectCard",
           )
           .done()
-
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm going to take my Orbital Cleanup action and I gain six money because I have six
       // science tags."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$OrbitalCleanup, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Spend 5 for Mineral Deposit, gain 5 steel."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$MineralDeposit").done()
@@ -2298,21 +2121,19 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("Pay", "Steel").chooseAlternative("Pay").chooseAmount(4).done()
       fillInTask("MiningRights_SpecialTile").choose("LandArea" to "Cimmeria_8_6").done()
     }
-    with(green) {
+    green.turn {
       // "Use Titan Shuttles to add 2 floaters to Titan Shuttles."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$TitanShuttles, Action1>").done()
       fillInTask("Floater").choose("ResourceCard" to "TitanShuttles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my Celestic action to add a floater to Titan Air Scrapping."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Celestic, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "TitanAirScrapping").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Ants, pay 7, remember my Cutting Edge this time. ... immediately ants one of your
       // nitrites."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
@@ -2321,59 +2142,53 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("UseAction").narrow("UseAction<$Ants, Action1>").done()
     }
     green.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       // "I take my Titan Air Scrapping action. I remove two floaters and I gain a TR."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$TitanAirScrapping, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I add a Livestock."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Livestock, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I take my Red Spot Observatory action and I draw a card, please."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$RedSpotObservatory, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    // Blue did not remove the floater spent by the Observatory draw: the generation-end photo
-    // still shows it, and every flexible floater action this generation has another destination.
+    // Blue did not remove the floater spent by the Observatory draw: the generation-end photo still
+    // shows it, and every flexible floater action this generation has another destination.
     blue.exMachina("Floater<$RedSpotObservatory>")
-    with(yellow) {
+    yellow.turn {
       // "Paid two things for Floating Habs. Add to self."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloatingHabs, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingHabs").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm gonna buy some Algae. Cost me 10 money. And I gain one plant and two plant
       // productions."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$Algae").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Energy Market, lose energy production, gain eight."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$EnergyMarket, Action2>").done()
-      // "Spend my thirteen on Asteroid Mining Consortium. ... decrease [Blue]'s titanium
-      // production by one, increase my own."
+      // "Spend my thirteen on Asteroid Mining Consortium. ... decrease [Blue]'s titanium production
+      // by one, increase my own."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$AsteroidMiningConsortium").done()
       fillInTask("Production").choose("Owner" to "Blue").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm gonna play a greenery. ... row eight, column eight. For two money and two plants."
       fillInTask("UseAction").narrow("UseAction<ConvertPlantsAction, Action1>").done()
       fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_8_8").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     yellow.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       // "I take my Red Ships action and I gain one money."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$RedShips, Action1>").done()
@@ -2429,9 +2244,9 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     green.fillInTask("ProjectCard").chooseAmount(3).done()
     blue.fillInTask("ProjectCard").chooseAmount(4).done()
 
-    with(yellow) {
-      // Yellow's applog records two 23-M€ greenery standard projects. "Oxygen to 13 ... 7-3 ...
-      // and 7-4 for a titanium."
+    yellow.turn {
+      // Yellow's applog records two 23-M€ greenery standard projects. "Oxygen to 13 ... 7-3 ... and
+      // 7-4 for a titanium."
       fillInTask("StandardAction").narrow("UseAction<UseStandardProjectAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<GreeneryProject, Action1>").done()
       fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_7_3").done()
@@ -2439,7 +2254,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("UseAction").narrow("UseAction<GreeneryProject, Action1>").done()
       fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_7_4").done()
     }
-    with(green) {
+    green.turn {
       // "Use Water Splitting Plant to use up three energy and take the last oxygen ... I give
       // myself a TR."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
@@ -2454,7 +2269,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
           .choose("LandArea" to "Cimmeria_9_8")
           .done()
     }
-    with(blue) {
+    blue.turn {
       // "Take the city standard project ... this is 8-5."
       fillInTask("StandardAction").narrow("UseAction<UseStandardProjectAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<CityProject, Action1>").done()
@@ -2471,7 +2286,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
           .choose("LandArea" to "Cimmeria_7_8")
           .done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Play Kaguya Tech for 10 ... 7-3 ... flipping the tile ... becoming a city."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$KaguyaTech").done()
@@ -2485,7 +2300,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     }
     // Green forgot to take his Immigrant City effect.
     green.exMachina("PROD[-MC]")
-    with(green) {
+    green.turn {
       // "Play Open City. It cost me 19 ... go to 5-3."
       // Green continues to keep the same steel for his next Space Elevator action.
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
@@ -2495,16 +2310,14 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
           .choose("CityTile" to "NormalCityTile")
           .choose("LandArea" to "Cimmeria_5_3")
           .done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
 
-    with(blue) {
+    blue.turn {
       // "I'm going to plant forest ... at 7-7 ... that gives you two plants."
       fillInTask("UseAction").narrow("UseAction<ConvertPlantsAction, Action1>").done()
       fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_7_7").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Never did a Business Network. ... draw a card? No."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$BusinessNetwork, Action1>").done()
@@ -2513,27 +2326,24 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$TopsoilContract").done()
     }
-    with(green) {
+    green.turn {
       // "Use my Space Elevator to consume a steel and take five real."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$SpaceElevator, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Take my Nitrate Reducing Bacteria action. Remove three microbes, increase my TR."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$NitriteReducingBacteria, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Spend an energy to trade with Miranda ... get two animals ... Livestock."
       fillInTask("StandardAction").narrow("UseAction<TradeAction, Action2>").done()
       fillInTask("Trade").choose("ColonyTile" to "Miranda").done()
       fillInTask("ColonyProduction").chooseAlternative("ColonyProduction", count = 2).done()
       fillInTask("Animal").choose("ResourceHolder" to "Livestock").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Spend three energy to trade with Luna ... get 14 and yellow gets two."
       expectChanges("-3 Energy, 14 MC, 2 MC<Yellow>") {
         fillInTask("StandardAction").narrow("UseAction<TradeAction, Action2>").done()
@@ -2545,7 +2355,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
         fillInTask("Trade").choose("ColonyTile" to "Ganymede").done()
       }
     }
-    with(blue) {
+    blue.turn {
       // "Take my Red Spot Observatory action ... draw a card."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$RedSpotObservatory, Action2>").done()
@@ -2554,7 +2364,7 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("UseAction").narrow("UseAction<SellPatentsProject, Action1>").done()
       fillInTask("MC").chooseAmount(1).done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Take your final nitrite ... and my thing gives me a money."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Ants, Action1>").done()
@@ -2563,94 +2373,79 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
           .choose("Owner" to "Blue")
           .choose("ResourceHolder" to "NitriteReducingBacteria")
           .done()
-
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Now I can plant forest ... six, four to get one titanium and two steel."
       fillInTask("UseAction").narrow("UseAction<ConvertPlantsAction, Action1>").done()
       fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_6_4").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Take my Stratopolis action to add two floaters to Titan Air Scrapping."
-      // Resolve the action on its own eligible card before reproducing Blue's illegal
-      // destination.
+      // Resolve the action on its own eligible card before reproducing Blue's illegal destination.
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Stratopolis, Action1>").done()
       fillInTask("Floater").choose("ResourceCard" to "Stratopolis").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     blue.exMachina("-2 Floater<$Stratopolis>, 2 Floater<$TitanAirScrapping>")
-    with(yellow) {
+    yellow.turn {
       // "Power Infrastructure, spend an energy, gain a money."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$PowerInfrastructure, Action1>").done()
       fillInTask("Energy").chooseAmount(1).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Use Inventors' Guild ... two cards, out of cards."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$InventorsGuild, Action1>").done()
       fillInTask("ProjectCard").chooseAmount(1).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Titan Air Scrapping ... move two floaters and increase my TR."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$TitanAirScrapping, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I'm gonna Livestock."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Livestock, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // The green tableau and the turn order identify Green as the Interstellar Colony Ship player.
       // "Cost me 18, which I'll spend at six titanium." Solar Logistics gives Yellow the card.
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$InterstellarColonyShip").done()
       fillInTask("Pay", "Titanium").chooseAlternative("Pay").chooseAmount(6).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     // Green forgets the Palladin effect for paying a space event
     green.exMachina("-Titanium")
-    with(blue) {
+    blue.turn {
       // "Orbital Cleanup. I gain six monies."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$OrbitalCleanup, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // The clipped "Cloud..." response between Blue's cleanup and Green's turn is Yellow's
       // otherwise-unused Cloud Tourism action, corroborated by its final-tableau floater.
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$CloudTourism, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Use Titan Shuttles to take six titanium."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$TitanShuttles, Action2>").done()
       fillInTask("Floater").chooseAmount(6).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "I'm gonna fund Benefactor ... cost me 20."
       fillInTask("StandardAction").narrow("UseAction<FundAwardAction, Action1>").done()
       fillInTask("Award").choose("Award" to "Benefactor").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Add a floater to Floating Refinery."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloatingRefinery, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I might as well play it ... spend two steel and ... only spent 13. ... draw two cards."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$AiCentral").done()
@@ -2658,103 +2453,89 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$AiCentral, Action1>").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my Dirigibles action to add a floater to Celestic."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Dirigibles, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I'm going to use aerial mappers to add to floating heads."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$AerialMappers, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingHabs").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "Plant forest ... here for a card and two money." The final board identifies 8-7.
       fillInTask("StandardAction").narrow("UseAction<UseStandardProjectAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<GreeneryProject, Action1>").done()
       fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_8_7").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my Floater Technology action to add a floater to Celestic."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$FloaterTechnology, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "I sell a patent."
       fillInTask("StandardAction").narrow("UseAction<UseStandardProjectAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<SellPatentsProject, Action1>").done()
       fillInTask("MC").chooseAmount(1).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(green) {
+    green.turn {
       // "I'm going to sell 5 patentos."
       fillInTask("StandardAction").narrow("UseAction<UseStandardProjectAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<SellPatentsProject, Action1>").done()
       fillInTask("MC").chooseAmount(5).done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Use my Celestic action to add a floater to Celestic."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Celestic, Action1>").done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Plant a forest ... seven, six ... a plant and two steel."
       fillInTask("UseAction").narrow("UseAction<ConvertPlantsAction, Action1>").done()
       fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_7_6").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     green.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(blue) {
+    blue.turn {
       // "Take my Red Ships action ... one, two, three, four."
       expectChanges("4 MC") {
         fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
         fillInTask("UseAction").narrow("UseAction<$RedShips, Action1>").done()
       }
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Spend a steel to gain ... seven real."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$ElectroCatapult, Action2>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Take my Local Shading action to add a floater to Local Shading."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$LocalShading, Action1>").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Pay seven for Robot Pollinators ... three plants."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$RobotPollinators").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(blue) {
+    blue.turn {
       // "Take my Extremophiles action and add a microbe to Extremophiles."
       fillInTask("StandardAction").narrow("UseAction<UseActionOnCardAction, Action1>").done()
       fillInTask("UseAction").narrow("UseAction<$Extremophiles, Action1>").done()
       fillInTask("Microbe").choose("ResourceHolder" to "Extremophiles").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
-    with(yellow) {
+    yellow.turn {
       // "Pay seven for Insects ... increase plant production ... for each plant tag ... three."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$Insects").done()
-      fillInTask("StandardAction").chooseAlternative("PassBaton").done()
     }
     blue.fillInTask("StandardAction").chooseAlternative("Pass").done()
-    with(yellow) {
+    yellow.turn {
       // "Stanford Torus ... four titanium ... reserved area."
       fillInTask("StandardAction").narrow("UseAction<PlayCardAction, Action1>").done()
       fillInTask("PlayCard").choose("CardFront" to "$StanfordTorus").done()

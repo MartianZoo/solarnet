@@ -8,6 +8,21 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   Stable Silicon Point is missing intermediate save 232, but its complete log and final
   state are preserved. Neither conversion has started.
 
+## Game20261111 replay follow-ups
+
+- Generate global-event `ClassName` constants reproducibly from Canon, alongside the existing
+  checked-in card-name constants, and use them in replay `globalEventDeck` lists. There is no
+  current Kotlin-name generator to extend; avoid a second hand-maintained event-name catalogue.
+- Support identifying a payment transmutation by its user-facing resource removal where unique.
+  In Game20261111's starting research, `-21 MC` currently reports no matching task for
+  `21 Pay<> FROM MC`. Settle the omission criterion (`Iconic`, `System`, or another rule) and
+  ambiguity handling as part of the task-matching work below; retain explicit `Pay` meanwhile.
+- Revisit the already-queued MC remainder when titanium or steel clears `Owed`. In
+  Game20261111's generation-2 Asteroid Rights play, removing the following `Ok` leaves
+  `PaymentScope` blocking the card's `MAX 0 Barrier` requirement. The remainder was admitted
+  while money was owed and later evaluates to zero; keep the explicit `Ok` until the payment
+  model can finish that scope without an extra player submission.
+
 ## Gameplay consistency
 
 The [project record](docs/agents/TESTING.md#gameplay-consistency-project) owns the user's decisions,
@@ -241,6 +256,16 @@ the remaining audit items listed there are **not yet discussed or approved**.
   text, notes, and file round trips; the internal AST marker still differs.
 
 ## Engine contract investigations
+
+- Make mandatory Admin processing inseparable from Player task execution, rather than requiring
+  callers such as `AgentImpl.combineAmounts` to remember `runAdmin()` between raw engine calls.
+  Deferred at the user's request. Investigate engine task execution as the owner, including
+  whether direct `ActorEngine` calls should also finish Admin work automatically. Preserve selected-Player priority,
+  failure rollback, and the distinction between executing a task and probing its interpretation.
+  The current loop also retries Agent application-input failures (`AdminInputTest`), so moving it
+  requires an explicit treatment of that session-owned validation. Remove superseded scheduling
+  calls rather than adding another optional wrapper. Verify the combined-TR case and the shared
+  task-execution behavior once the ownership change is implemented.
 
 [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md) describes current behavior and keeps potential
 further work in its appendix. [Implementation evidence](docs/agents/ENGINE_TRANSITION_RESULTS.md)

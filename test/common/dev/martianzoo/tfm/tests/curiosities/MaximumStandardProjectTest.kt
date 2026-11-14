@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 /** A legal solo opening built to maximize the MC gained during one standard-project action. */
 internal class MaximumStandardProjectTest : FullGameTest() {
-  override val firstGlobalEvents =
+  override val globalEventDeck =
       listOf(
           "DemocraticReform",
           "MinimalImpactPolicy",

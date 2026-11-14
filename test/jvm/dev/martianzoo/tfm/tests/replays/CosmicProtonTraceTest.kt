@@ -279,7 +279,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
 
   private fun generation1() {
     p1.doTask("Pass")
-    with(p2) {
+    p2.turn {
       doTasks(
           *playCardTasks("$MoholeArea"),
           "20 Pay<> FROM MC",
@@ -291,15 +291,13 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Titanium",
           "2 MC",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(*playCardTasks("$HomeostasisBureau"), "8 Pay<Class<Steel>> FROM Steel")
       doTask("Ok") // no MC paid
       doTasks("$HomeostasisBureau FROM ProjectCard", "PROD[2 Heat]")
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$FoodFactory"),
           "12 Pay<> FROM MC",
@@ -313,7 +311,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "$ColonizerTrainingCamp FROM ProjectCard",
       )
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *playCardTasks("$ProtectedValley"),
           "Pay<Class<Steel>> FROM Steel",
@@ -335,11 +333,10 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTask("ThawerCredit")
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$StaticHarvesting"),
           "5 Pay<> FROM MC",
@@ -347,14 +344,14 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[Energy]",
           "2 MC",
       )
-      doTask("PassBaton")
     }
     p2.doTask("Pass")
     p3.doTask("Pass")
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Titanium]")
-      doTask("Pass")
     }
+    purple.doTask("Pass")
+
     p1.doTasks("26 MC", "5 Plant", "Heat")
     p2.doTasks("25 MC", "Plant", "Energy", "6 Heat")
     p3.doTasks("22 MC", "2 Steel", "2 Heat")
@@ -399,34 +396,32 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "3 ProjectCard<Hand FROM Selecting>",
       )
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *playCardTasks("$ReleaseOfInertGases"),
           "14 Pay<> FROM MC",
           "$ReleaseOfInertGases FROM ProjectCard",
           "2 TerraformRating",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       draw(EosChasmaNationalPark, Omnicourt)
+
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
           "$Research FROM ProjectCard",
           "2 ProjectCard",
       )
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$ForcedPrecipitation"),
           "8 Pay<> FROM MC",
           "$ForcedPrecipitation FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -436,28 +431,25 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
     p2.doTask("Pass")
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$MercurianAlloys"),
           "Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no MC paid
           "$MercurianAlloys FROM ProjectCard",
       ) // no MC paid
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$Lichen"),
           "7 Pay<> FROM MC",
           "$Lichen FROM ProjectCard",
           "PROD[Plant]",
       )
-      doTask("PassBaton")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$MarsNomads"),
           "13 Pay<> FROM MC",
@@ -470,11 +462,10 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "2 Steel",
       )
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Heat]")
       doTasks(
           *cardActionTasks("$ForcedPrecipitation"),
@@ -482,7 +473,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Floater<$ForcedPrecipitation>",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$GeothermalPower"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -490,9 +481,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "$GeothermalPower FROM ProjectCard",
           "PROD[2 Energy]",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "4 Pay<Class<Titanium>> FROM Titanium",
@@ -505,18 +495,16 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "-3 Plant<Blue>",
       ) // no MC paid
       doTask("ThawerCredit")
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$SpaceMirrors"),
           "Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no MC paid
           "$SpaceMirrors FROM ProjectCard",
       ) // no MC paid
-      doTask("PassBaton")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$FuelFactory"),
           "6 Pay<> FROM MC",
@@ -525,7 +513,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[Titanium]",
           "PROD[-Energy]",
       )
-      doTask("PassBaton")
     }
     p3.doTask("Pass")
     purple.doTask("Pass")
@@ -583,16 +570,15 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "2 ProjectCard<Hand FROM Selecting>",
       )
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "12 Pay<> FROM MC",
           "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *cardActionTasks("$ForcedPrecipitation"),
           "2 Pay<> FROM MC",
@@ -600,28 +586,25 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Titanium]")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Amazonis_09_11 FROM Amazonis_10_11>",
           "Titanium",
       )
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *playCardTasks("$DirectedImpactors"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
           "$DirectedImpactors FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$AstroDrill"), "Steel")
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$Comet"),
           "Pay<Class<Titanium>> FROM Titanium",
@@ -636,26 +619,23 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTask("ThawerCredit")
       giveTask(p3, "2 Plant<Green>") // Arctic Algae after Comet's ocean
-      doTask("PassBaton")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$AdvancedAlloys"),
           "9 Pay<> FROM MC",
           "$AdvancedAlloys FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *cardActionTasks("$DirectedImpactors"),
           "Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
           "Asteroid<$DirectedImpactors>",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$FieldCappedCity"),
           "5 Pay<Class<Steel>> FROM Steel",
@@ -678,16 +658,15 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$BusinessNetwork"),
           "4 Pay<> FROM MC",
           "$BusinessNetwork FROM ProjectCard",
           "PROD[-MC]",
       )
-      doTask("PassBaton")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$VestaShipyard"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -695,13 +674,11 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "$VestaShipyard FROM ProjectCard",
           "PROD[Titanium]",
       )
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(*playCardTasks("$LocalShading"), "4 Pay<> FROM MC", "$LocalShading FROM ProjectCard")
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$IndustrialCenter"),
           "4 Pay<> FROM MC",
@@ -710,17 +687,14 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Plant",
           "2 MC",
       )
-      doTask("PassBaton")
     }
     purple.doTask("Pass")
     p1.doTask("Pass")
-    with(p2) {
+    p2.turn {
       doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$IndustrialCenter"), "7 Pay<> FROM MC", "PROD[Steel]")
-      doTask("PassBaton")
     }
     p2.doTask("Pass")
     p3.doTask("Pass")
@@ -777,7 +751,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "2 ProjectCard<Hand FROM Selecting>",
       )
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *cardActionTasks("$ForcedPrecipitation", "Action2"),
           "-2 Floater<$ForcedPrecipitation>",
@@ -793,7 +767,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "ProjectCard<Hand FROM Selecting>",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$BigAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -809,8 +783,9 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       repeat(2) { doTask("ThawerCredit") }
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Thawer")
     }
-    with(p2) {
+    p2.turn {
       draw(CarbonNanosystems)
+
       doTasks(
           *playCardTasks("$GhgImportFromVenus"),
           "23 Pay<> FROM MC",
@@ -821,13 +796,11 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "TerraformRating",
           "4 MC",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$NaturalPreserve"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -837,9 +810,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "NaturalPreserve_SpecialTile<Amazonis_10_09>",
           "3 Plant",
       )
-      doTask("PassBaton")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -849,18 +821,16 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$IoMiningIndustries"),
           "10 Pay<Class<Titanium>> FROM Titanium",
@@ -869,9 +839,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[2 MC]",
           "PROD[2 Titanium]",
       )
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Steel]")
       doTasks(
           *playCardTasks("$TransNeptuneProbe"),
@@ -880,29 +849,28 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "$TransNeptuneProbe FROM ProjectCard",
       ) // no MC paid
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Amazonis_10_11 FROM Amazonis_09_11>",
           "2 Steel",
       )
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$IndustrialCenter"), "7 Pay<> FROM MC", "PROD[Steel]")
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Metallurgist")
     }
-    with(purple) {
+    purple.turn {
       draw(CarbonateProcessing)
+
       doTasks(
           *playCardTasks("$ConvoyFromEuropa"),
           "15 Pay<> FROM MC",
@@ -924,17 +892,16 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
     }
     p1.doTask("Pass")
-    with(p2) {
+    p2.turn {
       doTasks(
           *cardActionTasks("$DirectedImpactors"),
           "6 Pay<> FROM MC",
           "Asteroid<$DirectedImpactors>",
       )
-      doTask("PassBaton")
     }
     p3.doTask("Pass")
     purple.doTask("Pass")
-    with(p2) {
+    p2.turn {
       doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
       doTasks(
           *playCardTasks("$NuclearPower"),
@@ -943,8 +910,9 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[-2 MC]",
           "PROD[3 Energy]",
       )
-      doTask("Pass")
     }
+    p2.doTask("Pass")
+
     p1.doTasks("31 MC", "6 Plant", "3 Heat FROM Energy", "Heat", "Energy", "2 Titanium")
     p2.doTasks("29 MC", "Plant", "Heat FROM Energy", "4 Energy", "9 Heat")
     p3.doTasks("28 MC", "4 Steel", "Heat FROM Energy", "2 Heat", "Energy", "2 Titanium")
@@ -998,16 +966,15 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "2 ProjectCard<Hand FROM Selecting>",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$RegoPlastics"),
           "2 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
           "$RegoPlastics FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
               *playCardTasks("$Capital"),
               "26 Pay<> FROM MC",
@@ -1022,7 +989,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           .expect("-18 MC") // payment, CrediCor rebate, and ocean adjacency
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Sponsor")
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1055,7 +1022,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTask("2 Plant")
       repeat(3) { doTask("TerraformRating") }
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *cardActionTasks("$ForcedPrecipitation"),
           "2 Pay<> FROM MC",
@@ -1067,7 +1034,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "-ProjectCard<Selecting>",
       ) // no cards bought
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1082,7 +1049,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[-Energy]",
       )
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1096,7 +1063,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$EosChasmaNationalPark"),
           "8 Pay<Class<Steel>> FROM Steel",
@@ -1114,7 +1081,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Ok", // no microbe holder
       ) // no microbe holder
     }
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Energy]")
       doTasks(
           *playCardTasks("$Grass"),
@@ -1124,21 +1091,20 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "3 Plant",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *cardActionTasks("$AsteroidDeflectionSystem"),
           "ProjectCard<Revealed>",
           "Ok", // no space-card reward
           "-ProjectCard<Revealed>",
       ) // Harvest is not a space card
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       draw(PowerInfrastructure)
+
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1157,7 +1123,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "ProjectCard",
       )
     }
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
@@ -1166,7 +1132,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Floater<$ForcedPrecipitation>",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$Bushes"),
           "10 Pay<> FROM MC",
@@ -1174,10 +1140,9 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[2 Plant]",
           "2 Plant",
       )
-      doTask("PassBaton")
     }
     p2.doTask("Pass")
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$FueledGenerators"),
           "Ok", // no steel paid
@@ -1186,9 +1151,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[-MC]",
           "PROD[Energy]",
       )
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$Fish"),
           "9 Pay<> FROM MC",
@@ -1197,7 +1161,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(*cardActionTasks("$Fish"), "Animal<$Fish>")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -1207,23 +1171,20 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$AstroDrill"), "Asteroid<$AstroDrill>")
-      doTask("PassBaton")
     }
     purple.doTask("Pass")
-    with(p1) {
+    p1.turn {
       doTasks(
           *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Amazonis_09_11 FROM Amazonis_10_11>",
           "Titanium",
       )
-      doTask("PassBaton")
     }
     p3.doTask("Pass")
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$RobotPollinators"),
           "9 Pay<> FROM MC",
@@ -1237,8 +1198,9 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
       )
-      doTask("Pass")
     }
+    p1.doTask("Pass")
+
     p1.doTasks("35 MC", "8 Plant", "2 Heat FROM Energy", "Heat", "2 Titanium")
     p2.doTasks("36 MC", "Plant", "4 Heat FROM Energy", "2 Energy", "9 Heat")
     p3.doTasks("37 MC", "4 Steel", "Heat FROM Energy", "2 Heat", "2 Energy", "2 Titanium")
@@ -1292,7 +1254,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "2 ProjectCard<Hand FROM Selecting>",
       )
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1306,7 +1268,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       doTasks(
           *playCardTasks("$Shuttles"),
@@ -1317,7 +1279,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[-Energy]",
       )
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1332,16 +1294,15 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Energy",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *cardActionTasks("$AsteroidDeflectionSystem"),
           "ProjectCard<Revealed>",
           "Ok", // no space-card reward
           "-ProjectCard<Revealed>",
       ) // Vermin is not a space card
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *cardActionTasks("$DirectedImpactors", "Action2"),
           "-Asteroid<$DirectedImpactors>",
@@ -1364,7 +1325,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       giveTask(p3, "2 Plant<Green>", "2 Plant<Green>") // Arctic Algae
       giveTask(p3, "2 Plant<Green>") // Arctic Algae
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$SolarLogistics"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -1381,7 +1342,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "2 MC",
       )
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1392,7 +1353,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Heat]")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1412,11 +1373,10 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
     }
-    with(p2) {
+    p2.turn {
       doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Thermalist")
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$PowerInfrastructure"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -1425,11 +1385,11 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       ) // no MC paid
       doTasks(*cardActionTasks("$PowerInfrastructure"), "-2 Energy", "2 MC")
     }
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Fish"), "Animal<$Fish>")
       doTasks(*playCardTasks("$RedShips"), "2 Pay<> FROM MC", "$RedShips FROM ProjectCard")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -1445,12 +1405,11 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Steel",
       )
     }
-    with(p2) {
+    p2.turn {
       doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
-      doTask("PassBaton")
     }
     p3.doTask("Pass")
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$RedShips"), "6 MC")
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
@@ -1458,17 +1417,16 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "-ProjectCard<Selecting>",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *playCardTasks("$ArtificialPhotosynthesis"),
           "12 Pay<> FROM MC",
           "$ArtificialPhotosynthesis FROM ProjectCard",
           "PROD[2 Energy]",
       )
-      doTask("PassBaton")
     }
     p2.doTask("Pass")
-    with(purple) {
+    purple.turn {
       doTasks(
           *cardActionTasks("$ForcedPrecipitation", "Action2"),
           "-2 Floater<$ForcedPrecipitation>",
@@ -1538,7 +1496,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "3 ProjectCard<Hand FROM Selecting>",
       )
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1548,9 +1506,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$Fish"), "Animal<$Fish>")
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
@@ -1558,7 +1515,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "-ProjectCard<Selecting>",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1576,7 +1533,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *playCardTasks("$LandClaim"),
           "1 Pay<> FROM MC",
@@ -1590,15 +1547,14 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Graphene<$CarbonNanosystems>",
       )
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$PowerInfrastructure"), "-Energy", "MC")
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Steel]")
       doTasks(*cardActionTasks("$RedShips"), "6 MC")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *cardActionTasks("$AsteroidDeflectionSystem"),
           "ProjectCard<Revealed>",
@@ -1611,9 +1567,10 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Plant",
       )
     }
-    with(p2) {
+    p2.turn {
       discard(DomedCrater)
       draw(Casinos)
+
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "8 Pay<> FROM MC",
@@ -1634,7 +1591,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "2 MC",
       )
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$KelpFarming"),
           "17 Pay<> FROM MC",
@@ -1643,9 +1600,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[3 Plant]",
           "2 Plant",
       )
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *cardActionTasks("$ForcedPrecipitation"),
           "2 Pay<> FROM MC",
@@ -1658,7 +1614,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[4 MC]",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -1677,9 +1633,10 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "4 MC",
       )
     }
-    with(p2) {
+    p2.turn {
       discard(Casinos)
       draw(StandardTechnology, EnergyMarket)
+
       doTasks(
           *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
@@ -1701,8 +1658,9 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "ProjectCard",
       )
     }
-    with(p3) {
+    p3.turn {
       draw(NeutralizerFactory)
+
       doTasks(
           *playCardTasks("$ImportedNitrogen"),
           "5 Pay<Class<Titanium>> FROM Titanium",
@@ -1714,9 +1672,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       ) // no MC paid
       doTask("3* Microbe") // no eligible holder
       doTask("2* Animal") // no eligible holder
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$MartianLumberCorp"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -1732,7 +1689,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "$SubCrustMeasurements FROM ProjectCard",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1741,9 +1698,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Plant",
           "2 MC",
       )
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1753,9 +1709,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$AstroDrill"), "Plant")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -1766,14 +1721,15 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
     }
-    with(purple) {
+    purple.turn {
       draw(CityParks)
+
       doTasks(*cardActionTasks("$SubCrustMeasurements"), "ProjectCard")
       discard(DeimosDownPromo, CarbonateProcessing)
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
     }
     p1.doTask("Pass")
-    with(p2) {
+    p2.turn {
       doTasks(
               *playCardTasks("$PublicBaths"),
               "4 Pay<> FROM MC",
@@ -1781,9 +1737,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
               "6 MC",
           )
           .expect("2 MC") // discounted cost and card reward
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1791,9 +1746,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[MC]",
           "Plant",
       )
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Forecaster")
       doTasks(
           *playCardTasks("$Hackers"),
@@ -1804,15 +1758,15 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[-2 MC<Green>]",
       )
     }
-    with(p2) {
+    p2.turn {
       doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
-      doTask("PassBaton")
     }
     p3.doTask("Pass")
     purple.doTask("Pass")
-    with(p2) {
+    p2.turn {
       discard(Cartel)
       draw(Tardigrades)
+
       doTasks(
           *playCardTasks("$StandardTechnology"),
           "6 Pay<> FROM MC",
@@ -1821,10 +1775,14 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "-ProjectCard",
           "ProjectCard",
       )
-      doTasks(*playCardTasks("$EnergyMarket"), "3 Pay<> FROM MC", "$EnergyMarket FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$EnergyMarket"),
+          "3 Pay<> FROM MC",
+          "$EnergyMarket FROM ProjectCard",
+      )
       doTasks(*cardActionTasks("$EnergyMarket", "Action2"), "PROD[-Energy]", "8 MC")
-      doTask("Pass")
     }
+    p2.doTask("Pass")
     p1.doTasks("42 MC", "8 Plant", "2 Heat FROM Energy", "Heat", "2 Titanium", "2 Energy")
     p2.doTasks("45 MC", "Plant", "2 Heat FROM Energy", "9 Heat")
     p3.doTasks("44 MC", "4 Steel", "2 Heat", "Energy", "2 Titanium", "3 Plant")
@@ -1878,12 +1836,13 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "ProjectCard<Hand FROM Selecting>",
       )
     }
-    with(purple) {
+    purple.turn {
       draw(Meltworks)
+
       doTasks(*cardActionTasks("$SubCrustMeasurements"), "ProjectCard")
       doTasks(*cardActionTasks("$Fish"), "Animal<$Fish>")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "7 Pay<Class<Plant>> FROM Plant",
@@ -1900,7 +1859,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "-ProjectCard<Revealed>",
       ) // Supercapacitors is not a space card
     }
-    with(p2) {
+    p2.turn {
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Administrator")
       doTasks(
           *playCardTasks("$Pets"),
@@ -1909,8 +1868,9 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Animal<$Pets>",
       )
     }
-    with(p3) {
+    p3.turn {
       draw(HiTechLab, Steelworks, UndergroundCity)
+
       doTasks(
           *playCardTasks("$AqueductSystems"),
           "4 Pay<Class<Steel>> FROM Steel",
@@ -1920,7 +1880,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$CallistoPenalMines"),
           "8 Pay<Class<Titanium>> FROM Titanium",
@@ -1928,9 +1888,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "$CallistoPenalMines FROM ProjectCard",
           "PROD[3 MC]",
       ) // no MC paid
-      doTask("PassBaton")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Amazonis_05_09 FROM Amazonis_06_10>",
@@ -1946,11 +1905,10 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "OxygenStep",
       )
     }
-    with(p2) {
+    p2.turn {
       doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$UndergroundCity"),
           "9 Pay<Class<Steel>> FROM Steel",
@@ -1962,10 +1920,10 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[-2 Energy]",
       ) // no MC paid
       giveTask(p2, "Animal<$Pets<Yellow>>")
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       discard(WaterSplittingPlant, Meltworks)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
       doTasks(
           *cardActionTasks("$BusinessNetwork"),
@@ -1973,7 +1931,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "-ProjectCard<Selecting>",
       )
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
@@ -1981,18 +1939,16 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PROD[MC]",
       )
       giveTask(p2, "Animal<$Pets<Yellow>>")
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *standardProjectTasks("PowerPlantProject"),
           "11 Pay<> FROM MC",
           "PROD[Energy]",
           "3 MC",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *playCardTasks("$NeutralizerFactory"),
           "7 Pay<> FROM MC",
@@ -2000,9 +1956,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "VenusStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(*cardActionTasks("$RedShips"), "9 MC")
       doTasks(
           *standardProjectTasks("CityProject"),
@@ -2013,7 +1968,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       giveTask(p2, "Animal<$Pets<Yellow>>")
     }
-    with(p1) {
+    p1.turn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -2021,13 +1976,11 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "Plant",
           "OxygenStep",
       )
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(*cardActionTasks("$EnergyMarket", "Action2"), "PROD[-Energy]", "8 MC")
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -2037,21 +1990,20 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(*cardActionTasks("$PowerInfrastructure"), "-Energy", "MC")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *playCardTasks("$AdvancedEcosystems"),
           "11 Pay<> FROM MC",
           "$AdvancedEcosystems FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
     p1.doTask("Pass")
-    with(p2) {
+    p2.turn {
       discard(Tardigrades)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       discard(
           ExtractorBalloons,
           OreProcessor,
@@ -2061,6 +2013,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           HiTechLab,
           Steelworks,
       )
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "7 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$Omnicourt"),
@@ -2069,24 +2022,22 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "2 TerraformRating",
       )
     }
-    with(purple) {
+    purple.turn {
       doTasks(*playCardTasks("$Dirigibles"), "11 Pay<> FROM MC", "$Dirigibles FROM ProjectCard")
       doTasks(*cardActionTasks("$Dirigibles"), "Floater<$ForcedPrecipitation>")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *standardProjectTasks("PowerPlantProject"),
           "11 Pay<> FROM MC",
           "PROD[Energy]",
           "3 MC",
       )
-      doTask("PassBaton")
     }
-    with(p3) {
+    p3.turn {
       doTasks(*cardActionTasks("$AstroDrill"), "MC")
-      doTask("PassBaton")
     }
-    with(purple) {
+    purple.turn {
       doTasks(
           *cardActionTasks("$ForcedPrecipitation", "Action2"),
           "-2 Floater<$ForcedPrecipitation>",
@@ -2095,7 +2046,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Heat]")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *playCardTasks("$SpaceStation"),
           "PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
@@ -2103,15 +2054,14 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "3 Pay<> FROM MC",
           "$SpaceStation FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
     p3.doTask("Pass")
-    with(purple) {
+    purple.turn {
       discard(CityParks)
+
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
-      doTask("PassBaton")
     }
-    with(p2) {
+    p2.turn {
       doTasks(
           *playCardTasks("$LavaTubeSettlement"),
           "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
@@ -2122,7 +2072,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "NormalCityTile<Amazonis_08_09>",
           "Animal<$Pets>",
       )
-      doTask("PassBaton")
     }
     purple.doTask("Pass")
     p2.doTask("Pass")

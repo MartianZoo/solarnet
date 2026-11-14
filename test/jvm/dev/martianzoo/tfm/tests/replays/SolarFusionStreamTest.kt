@@ -23,7 +23,6 @@ internal class SolarFusionStreamTest : FullGameTest() {
           """
           ElysiumMap
           PreludeExpansion, promos:cards
-          fakes:cards
 
           Builder, Philantropist, Spacefarer, Terraformer, Energizer
           Incorporator, Botanist, Founder, Benefactor, Banker
@@ -161,9 +160,13 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
           "$EstablishedMethods FROM PreludeCard",
           "30 MC",
+      )
+      doTasks(
           "UseAction<PowerPlantProject, Action1>",
           "11 Pay<> FROM MC",
           "PROD[Energy]",
+      )
+      doTasks(
           "UseAction<PowerPlantProject, Action1>",
           "11 Pay<> FROM MC",
           "PROD[Energy]",
@@ -190,7 +193,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks("DoRequiredActions", "CityTile<Elysium_5_6>", "PROD[MC]", "3 MC", "3 Plant")
       doTasks(
           *playCardTasks("$MethaneFromTitan"),
@@ -201,7 +204,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$ResearchOutpost"),
           "18 Pay<> FROM MC",
@@ -218,7 +221,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$IndustrialCenter"),
           "4 Pay<> FROM MC",
@@ -231,7 +234,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*cardActionTasks("$IndustrialCenter"), "7 Pay<> FROM MC", "PROD[Steel]")
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *playCardTasks("$TechnologyDemonstration"),
           "5 Pay<> FROM MC",
@@ -248,7 +251,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$RestrictedArea"),
           "10 Pay<> FROM MC",
@@ -259,15 +262,11 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
     }
 
-    with(ER) {
-      doTask("Pass")
-    }
+    ER.doTask("Pass")
 
-    with(JR) {
-      doTask("Pass")
-    }
+    JR.doTask("Pass")
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "2 Pay<> FROM MC",
@@ -276,8 +275,8 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PROD[-Energy<ER>]",
           "0 MC<ER> FROM MC",
       )
-      doTask("Pass")
     }
+    KB.doTask("Pass")
 
     // Production.
     JR.doTasks("24 MC", "2 Heat", "2 Plant", "Energy")
@@ -293,7 +292,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
     KB.doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
     JR.doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
 
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
       doTasks(
           *playCardTasks("$PeroxidePower"),
@@ -304,7 +303,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$TychoMagnetics"),
           "-2 Energy",
@@ -320,7 +319,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       // Consequence reconstruction: JR lost one energy production and two money production.
       doTasks(
           *playCardTasks("$ImmigrantCity"),
@@ -343,7 +342,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$StaticHarvesting"),
           "4 Pay<> FROM MC",
@@ -354,12 +353,11 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Energizer")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(*cardActionTasks("$IndustrialCenter"), "7 Pay<> FROM MC", "PROD[Steel]")
-      doTask("PassBaton")
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *playCardTasks("$SterlingVents"),
           "5 Pay<> FROM MC",
@@ -367,23 +365,16 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PROD[-2 Heat]",
           "PROD[2 Energy]",
       )
-      doTask("PassBaton")
     }
 
-    with(KB) {
-      doTask("Pass")
-    }
+    KB.doTask("Pass")
 
     // Chronology: Heroku records ER's and JR's illegal second-action passes here. Decline those
     // second actions in Solarnet, then perform the no-effect passes at the next legal first-action
     // checkpoint.
-    with(ER) {
-      doTask("Pass")
-    }
+    ER.doTask("Pass")
 
-    with(JR) {
-      doTask("Pass")
-    }
+    JR.doTask("Pass")
 
     // Production.
     JR.doTasks("24 MC", "2 Plant", "Heat FROM Energy", "2 Energy")
@@ -399,7 +390,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
     ER.doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
     KB.doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$TychoMagnetics"),
           "-2 Energy",
@@ -409,7 +400,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*cardActionTasks("$IndustrialCenter"), "7 Pay<> FROM MC", "PROD[Steel]")
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *playCardTasks("$NaturalPreserve"),
           "9 Pay<> FROM MC",
@@ -421,7 +412,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Builder")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
       doTasks(
           *playCardTasks("$OlympusConference"),
@@ -431,16 +422,13 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
-      doTask("Pass")
-    }
+    ER.doTask("Pass")
 
-    with(JR) {
+    JR.turn {
       doTasks(*playCardTasks("$EnergyMarket"), "3 Pay<> FROM MC", "$EnergyMarket FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$QuantumExtractor"),
           "12 Pay<> FROM MC",
@@ -451,14 +439,10 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*playCardTasks("$EarthOffice"), "$EarthOffice FROM ProjectCard")
     }
 
-    with(JR) {
-      // Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
-      doTask("Pass")
-    }
+    // Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
+    JR.doTask("Pass")
 
-    with(KB) {
-      doTask("Pass")
-    }
+    KB.doTask("Pass")
 
     // Production.
     JR.doTasks("25 MC", "2 Plant", "2 Energy", "2 Heat FROM Energy")
@@ -476,7 +460,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
     ER.doTask("Ok") // Keep all four research cards.
     ER.doTasks("12 Pay<> FROM MC", "4 ProjectCard<Hand FROM Selecting>")
 
-    with(JR) {
+    JR.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -500,7 +484,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$MassConverter"),
           "7 Pay<> FROM MC",
@@ -516,7 +500,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$TychoMagnetics"),
           "-2 Energy",
@@ -530,7 +514,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *playCardTasks("$LavaTubeSettlement"),
           "6 Pay<Class<Steel>> FROM Steel",
@@ -554,7 +538,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
       doTasks(
           *playCardTasks("$StandardTechnology"),
@@ -564,7 +548,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
@@ -581,7 +565,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *playCardTasks("$InterplanetaryTrade"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -590,10 +574,9 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "EACH @WildTagElection<JR> { Tag<@WildTagElection>? }",
           "PROD[9 MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$AdaptedLichen"),
           "8 Pay<> FROM MC",
@@ -611,7 +594,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       // User recollection: ER used all eight titanium and retained 11 M€ after this play.
       doTasks(
           *playCardTasks("$WaterImportFromEuropa"),
@@ -623,15 +606,11 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(JR) {
-      doTask("Pass")
-    }
+    JR.doTask("Pass")
 
-    with(KB) {
-      doTask("Pass")
-    }
+    KB.doTask("Pass")
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$WaterImportFromEuropa"),
           "12 Pay<> FROM MC",
@@ -639,8 +618,8 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "TerraformRating",
           "2 Plant",
       )
-      doTask("Pass")
     }
+    ER.doTask("Pass")
 
     // Production.
     JR.doTasks("43 MC", "2 Plant", "Energy", "2 Heat FROM Energy")
@@ -656,7 +635,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
     KB.doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
     ER.doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
 
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
       doTasks(
           *playCardTasks("$BusinessContacts"),
@@ -667,7 +646,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$TychoMagnetics"),
           "-Energy",
@@ -681,7 +660,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Philantropist")
       doTasks(
           *playCardTasks("$SpaceElevator"),
@@ -691,7 +670,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$HiredRaiders"),
           "$HiredRaiders FROM ProjectCard",
@@ -707,7 +686,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(*playCardTasks("$DustSeals"), "2 Pay<> FROM MC", "$DustSeals FROM ProjectCard")
       doTasks(
           *playCardTasks("$Sponsors"),
@@ -717,17 +696,16 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *playCardTasks("$Archaebacteria"),
           "6 Pay<> FROM MC",
           "$Archaebacteria FROM ProjectCard",
           "PROD[Plant]",
       )
-      doTask("PassBaton")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$EquatorialMagnetizer"),
@@ -736,7 +714,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$WaterImportFromEuropa"),
           "4 Pay<Class<Titanium>> FROM Titanium",
@@ -760,22 +738,15 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
-      doTask("Pass")
-    }
+    JR.doTask("Pass")
 
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
-      doTask("PassBaton")
     }
 
-    with(ER) {
-      doTask("Pass")
-    }
+    ER.doTask("Pass")
 
-    with(KB) {
-      doTask("Pass")
-    }
+    KB.doTask("Pass")
 
     // Production.
     JR.doTasks("43 MC", "3 Plant", "Energy", "Heat FROM Energy", "Titanium")
@@ -792,7 +763,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
     KB.doTasks("12 Pay<> FROM MC", "4 ProjectCard<Hand FROM Selecting>")
     JR.doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
@@ -807,7 +778,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -831,7 +802,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -847,7 +818,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$WaterImportFromEuropa"),
           "12 Pay<> FROM MC",
@@ -867,7 +838,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -898,7 +869,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -914,27 +885,26 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(*playCardTasks("$RedShips"), "2 Pay<> FROM MC", "$RedShips FROM ProjectCard")
       doTasks(*cardActionTasks("$RedShips"), "7 MC")
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *playCardTasks("$SpaceMirrors"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // No MC remainder.
           "$SpaceMirrors FROM ProjectCard",
       )
-      doTask("PassBaton")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
       doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$Greenhouses"),
           "3 Pay<Class<Steel>> FROM Steel",
@@ -953,11 +923,9 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
-      doTask("Pass")
-    }
+    JR.doTask("Pass")
 
-    with(KB) {
+    KB.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$IceAsteroid"),
@@ -976,7 +944,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$StripMine"),
           "25 Pay<> FROM MC",
@@ -991,10 +959,9 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$NoctisFarming"),
           "9 Pay<> FROM MC",
@@ -1002,16 +969,11 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PROD[MC]",
           "2 Plant",
       )
-      doTask("PassBaton")
     }
 
-    with(ER) {
-      doTask("Pass")
-    }
+    ER.doTask("Pass")
 
-    with(KB) {
-      doTask("Pass")
-    }
+    KB.doTask("Pass")
 
     // Production.
     JR.doTasks("56 MC", "3 Plant", "2 Energy", "Heat FROM Energy", "Titanium")
@@ -1028,12 +990,12 @@ internal class SolarFusionStreamTest : FullGameTest() {
     ER.doTasks("12 Pay<> FROM MC", "4 ProjectCard<Hand FROM Selecting>")
     KB.doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
 
-    with(JR) {
+    JR.turn {
       doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
       doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Banker")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1045,7 +1007,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$TychoMagnetics"),
           "-Energy",
@@ -1059,7 +1021,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(*playCardTasks("$Mine"), "4 Pay<> FROM MC", "$Mine FROM ProjectCard", "PROD[Steel]")
       doTasks(
           *playCardTasks("$Supermarkets"),
@@ -1069,12 +1031,12 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$AdvancedAlloys"),
           "9 Pay<> FROM MC",
@@ -1090,7 +1052,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *playCardTasks("$MagneticShield"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -1098,10 +1060,9 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "$MagneticShield FROM ProjectCard",
           "4 TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -1111,7 +1072,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
       doTasks(
           *playCardTasks("$AsteroidCard"),
@@ -1127,12 +1088,11 @@ internal class SolarFusionStreamTest : FullGameTest() {
       giveTask(KB, "3 MC<JR> FROM MC")
     }
 
-    with(JR) {
-      doTask("Pass")
-    }
+    JR.doTask("Pass")
+
     admin.assertCounts(8 to "TemperatureStep")
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$DesignedMicroorganisms"),
           "15 Pay<> FROM MC",
@@ -1148,7 +1108,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$SolarWindPower"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1160,7 +1120,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*cardActionTasks("$RedShips"), "8 MC")
     }
 
-    with(KB) {
+    KB.turn {
       // Consequence reconstruction: KB lost two plants.
       doTasks(
           *playCardTasks("$Potatoes"),
@@ -1172,7 +1132,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$SubterraneanReservoir"),
           "11 Pay<> FROM MC",
@@ -1192,11 +1152,9 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
-      doTask("Pass")
-    }
+    KB.doTask("Pass")
 
-    with(ER) {
+    ER.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$LightningHarvest"),
@@ -1205,8 +1163,8 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PROD[Energy]",
           "PROD[MC]",
       )
-      doTask("Pass")
     }
+    ER.doTask("Pass")
 
     // Production.
     JR.doTasks("62 MC", "3 Plant", "3 Energy", "2 Heat FROM Energy", "Titanium", "Steel")
@@ -1223,12 +1181,12 @@ internal class SolarFusionStreamTest : FullGameTest() {
     JR.doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
     KB.doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
 
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
       doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$TychoMagnetics"),
           "-3 Energy",
@@ -1247,12 +1205,12 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "19 Pay<> FROM MC",
@@ -1272,7 +1230,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$GreatDamPromo"),
           "5 Pay<Class<Steel>> FROM Steel",
@@ -1293,7 +1251,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
               *playCardTasks("$Algae"),
               "10 Pay<> FROM MC",
@@ -1315,7 +1273,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1330,7 +1288,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
@@ -1346,7 +1304,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *playCardTasks("$RobotPollinators"),
           "9 Pay<> FROM MC",
@@ -1362,7 +1320,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$NitrogenRichAsteroid"),
           "4 Pay<Class<Titanium>> FROM Titanium",
@@ -1385,7 +1343,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks("-2 Plant<JR>", "0 MC<JR> FROM MC")
     }
 
-    with(ER) {
+    ER.turn {
       // Payment reconstruction: ER spent a fourth steel for the remaining two so the later Gene
       // Repair payment and final dashboard can both be reproduced.
       doTasks(
@@ -1408,7 +1366,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *playCardTasks("$PhobosSpaceHaven"),
           "1 Pay<Class<Titanium>> FROM Titanium",
@@ -1423,12 +1381,12 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Founder")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(*playCardTasks("$Tardigrades"), "1 Pay<> FROM MC", "$Tardigrades FROM ProjectCard")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$GeneRepair"),
           "12 Pay<> FROM MC",
@@ -1440,17 +1398,15 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*cardActionTasks("$RedShips"), "9 MC")
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$Tardigrades"), "Microbe<$Tardigrades>")
-      doTask("PassBaton")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$Shuttles"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1459,20 +1415,13 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PROD[-Energy]",
           "PROD[2 MC]",
       )
-      doTask("PassBaton")
     }
 
-    with(JR) {
-      doTask("Pass")
-    }
+    JR.doTask("Pass")
 
-    with(KB) {
-      doTask("Pass")
-    }
+    KB.doTask("Pass")
 
-    with(ER) {
-      doTask("Pass")
-    }
+    ER.doTask("Pass")
 
     // Production.
     JR.doTasks("70 MC", "6 Plant", "4 Energy", "3 Heat FROM Energy", "2 Titanium", "Steel")
@@ -1488,7 +1437,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
     ER.doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
     JR.doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$DeimosDownPromo"),
           "5 Pay<Class<Titanium>> FROM Titanium",
@@ -1516,12 +1465,12 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
       doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1533,7 +1482,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
@@ -1549,7 +1498,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -1567,7 +1516,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$Research"),
           "8 Pay<> FROM MC",
@@ -1579,7 +1528,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(
           *playCardTasks("$BioPrintingFacility"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -1593,7 +1542,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(JR) {
+    JR.turn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -1602,10 +1551,9 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "Plant",
           "TerraformRating",
       )
-      doTask("PassBaton")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$InventionContest"),
           "$InventionContest FROM ProjectCard",
@@ -1616,7 +1564,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*cardActionTasks("$Tardigrades"), "Microbe<$Tardigrades>")
     }
 
-    with(ER) {
+    ER.turn {
       // Payment reconstruction: ER spent a second steel for the remaining two so the later Callisto
       // Penal Mines payment and final dashboard can both be reproduced.
       doTasks(
@@ -1631,12 +1579,10 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
     }
 
-    with(JR) {
-      // Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
-      doTask("Pass")
-    }
+    // Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
+    JR.doTask("Pass")
 
-    with(KB) {
+    KB.turn {
       // Source log: 14 cards revealed and 14 M€ gained.
       doTasks(
           *playCardTasks("$PublicPlans"),
@@ -1649,7 +1595,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*playCardTasks("$Ants"), "6 Pay<> FROM MC", "$Ants FROM ProjectCard")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(*cardActionTasks("$RedShips"), "9 MC")
       doTasks(
           *playCardTasks("$PublicBaths"),
@@ -1660,17 +1606,17 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*cardActionTasks("$Ants"), "-Microbe<$Tardigrades>", "Microbe<$Ants>")
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Benefactor")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$BactoviralResearch"),
           "7 Pay<> FROM MC",
@@ -1682,17 +1628,17 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       // Consequence reconstruction: ER gained one money production.
       doTasks(
@@ -1707,7 +1653,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTask("Steel")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(
           *playCardTasks("$Worms"),
           "5 Pay<> FROM MC",
@@ -1725,7 +1671,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTask("4 Microbe<$Ants>")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$CallistoPenalMines"),
@@ -1735,17 +1681,16 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
     }
 
-    with(ER) {
+    ER.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-      doTask("PassBaton")
     }
 
-    with(KB) {
+    KB.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "4 MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$SoilFactory"),
@@ -1756,15 +1701,13 @@ internal class SolarFusionStreamTest : FullGameTest() {
       )
     }
 
-    with(ER) {
-      doTask("Pass")
-    }
+    ER.doTask("Pass")
 
-    with(KB) {
+    KB.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
       assertSidebar(gen = 9, temp = 8, oxygen = 14, oceans = 9)
-      doTask("Pass")
     }
+    KB.doTask("Pass")
 
     // Production.
     JR.doTasks("75 MC", "6 Plant", "5 Energy", "4 Heat FROM Energy", "2 Titanium", "Steel")
