@@ -4,11 +4,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Gameplay consistency
 
-- Remove explicit `-SuitableInfrastructureBonus<..., ActionScope>` submissions from gameplay
-  and replay tests using the user's planned fix. The user already has an approach; do not invent
-  replacement helpers or change the model for this until the user selects that work.
-  `SuitableInfrastructureTest` also still uses Player autoexecution: migrating its reward cases
-  currently requires more of these marker removals, so migrate that suite together with the fix.
+- Migrate the remaining `SuitableInfrastructureTest` reward scenarios (Valley Trust and
+  Merger/Manutech) from Player `EAGER` autoexecution to explicit task submissions. The helper
+  removal is now automatic.
 
 The [project record](docs/agents/TESTING.md#gameplay-consistency-project) owns the user's decisions,
 examples, verified findings, and questions. These tasks implement or investigate that direction;

@@ -146,15 +146,18 @@ internal constructor(
 
   /**
    * Applies [changes] as a failure-atomic correction attributed to [actor]. Recursive `::` effects
-   * and final invariant checks still run; queued `:` effects and client task handling do not.
-   * Returns the correction's component changes and surviving new tasks.
+   * and final invariant checks still run; ordinary `:` effects and client task handling do not.
+   * Explicit `SOON` dispatches in `::` effects add pending work. Returns the correction's component
+   * changes and surviving new tasks.
    *
-   * This bypasses ordinary task selection and preserves pending tasks, including any selected
+   * This bypasses ordinary task selection and preserves existing tasks, including any selected
    * instruction. Agent adds correction recording, application validation, and the unfinished-work
    * check around this module-level primitive.
    */
   public fun exMachina(changes: InstructionGroup): TaskResult = worldTransaction.correct {
-    transactions.perform(actor, CLIENT_REQUEST) { instructor.exMachina(changes, actor) }
+    transactions.perform(actor, CLIENT_REQUEST) {
+      instructor.exMachina(changes, actor).forEach(taskQueues::addTasks)
+    }
   }
 
   // TASKS LAYER

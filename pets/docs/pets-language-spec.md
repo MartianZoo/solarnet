@@ -471,8 +471,9 @@ Each ::= "EACH" PlainExpression "{" InstructionGroup "}"
 assignee still supplies the choices inside `I`. Once `I` needs no further narrowing, the task is assigned to the
 single participating Actor, the `BY` wrapper is removed, and that Actor's agent executes it. The
 resulting event therefore records the Actor that actually performed the change; `BY` does not
-merely substitute an attribution label. An automatic `::` effect creates no task and cannot use
-instruction-side `BY`. `BY` may distribute across `THEN` stages that normalize into separate tasks.
+merely substitute an attribution label. An automatic `::` effect does not itself become a task and
+cannot use instruction-side `BY`; it may enqueue work through `SOON` (L2-17). `BY` may distribute
+across `THEN` stages that normalize into separate tasks.
 It is rejected inside a `THEN` that must remain a single task, since such a task cannot change
 assignee between partially executed stages.
 
@@ -524,7 +525,9 @@ perform the recipient's component changes.
 When omitted, the recipient is the rule's lexical `Me`: its owner, an enclosing `EACH Me@…`
 selection, or the submitting player. With no lexical `Me`, it is Admin. The recipient supplies
 `Me` inside the body. `EACH` creates further work for its current assignee; a dispatch names
-who receives that work. Dispatch cannot occur in an automatic `::` effect (L2-15).
+who receives that work. An automatic `::` effect may use `SOON` to enqueue its body as ordinary
+work while its other instructions execute immediately. `NOW`, `LATER`, and `FINALLY` cannot occur
+inside an automatic effect, including inside a nested dispatch body.
 
 The engine may wrap ordinary Player work in `NOW` when the game has an active `TaskScope`:
 that scope's Player owner orders when another Player receives their selected work. The effect's
@@ -979,7 +982,8 @@ Effect ::= Trigger ( ":" | "::" ) InstructionGroup
 event that caused it. Every automatic consequence of an event precedes matching that event's
 ordinary (`:`) triggers, including their `IF` conditions. An ordinary trigger observes the state
 including those automatic consequences. An automatic trigger may observe an intermediate state that the ordinary
-triggers do not observe.
+triggers do not observe. A `SOON` instruction in an automatic effect enqueues its body; the body
+remains ordinary work and can contain choices (L2-17).
 
 > **Non-normative example — Pharmacy Union.** `This:: 54 MC` establishes starting money before
 > queued losses caused by its microbe tags can execute. Printed tags themselves are constructed from

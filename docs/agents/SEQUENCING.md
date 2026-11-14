@@ -144,6 +144,9 @@ legal outcomes and preserve eligibility at the relevant event.
 If automatic listeners depend on each other, express the dependency through resulting events
 instead of batch order or retries. Use trigger-side `IF` for a condition decided by the triggering
 event; put a gate in queued work when intervening changes should decide availability.
+An automatic effect may record eligibility immediately and use `SOON` to queue the resulting
+work. The immediate state change must have its own semantic justification; retaining the queued
+work through corrections or imposing an execution order is not sufficient.
 
 An automatic `Die` can reject a forbidden component change. It cannot generally
 police task selection because selecting or narrowing an open task can change task state without

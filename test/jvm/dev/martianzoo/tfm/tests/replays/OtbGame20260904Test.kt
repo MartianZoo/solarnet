@@ -262,7 +262,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "TerraformRating",
           "TerraformRating",
           "PROD[Heat]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
     }
@@ -302,7 +301,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "1 Pay<> FROM MC",
           "$TitaniumMine FROM ProjectCard",
           "PROD[Titanium]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTask("PassBaton")
@@ -396,7 +394,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$TitaniumMine>",
           "PROD[Titanium]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "ProjectCard FROM Science<$OlympusConference>",
       )
@@ -432,7 +429,6 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *cardActionTasks("$Factorum"),
           "PROD[Energy]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTask("PassBaton")
@@ -770,7 +766,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "11 Pay<> FROM MC",
           "$CloudTourism FROM ProjectCard",
           "PROD[2 MC]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTask("PassBaton")
@@ -1600,7 +1595,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "4 Pay<> FROM MC",
           "$VenusGovernor FROM ProjectCard",
           "PROD[2 MC]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTask("PassBaton")
@@ -1830,7 +1824,6 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *cardActionTasks("$Factorum"),
           "PROD[Energy]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTask("PassBaton")
@@ -1887,7 +1880,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "2 Pay<> FROM MC",
           "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTask("PassBaton")
@@ -2080,7 +2072,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "PROD[2 Plant]",
           "-2 Plant",
           "Microbe<$Decomposers>",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "MC",
           "2 MC",
       )
@@ -2559,7 +2550,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "$CupolaCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "CityTile<Amazonis_06_04>",
           "Animal<$Pets>",
@@ -2831,7 +2821,6 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *cardActionTasks("$Factorum"),
           "PROD[Energy]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTask("PassBaton")
@@ -2967,7 +2956,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "10 Pay<> FROM MC",
           "$FusionPower FROM ProjectCard",
           "PROD[3 Energy]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "ProjectCard FROM Science<$OlympusConference>",
       )
@@ -3606,7 +3594,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "$NoctisCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "CityTile<Amazonis_09_08>",
           "Animal<$Pets>",
@@ -3845,7 +3832,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "6 Pay<> FROM MC",
           "$CorroderSuits FROM ProjectCard",
           "PROD[2 MC]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "Floater<$CloudTourism>",
       )

@@ -172,8 +172,9 @@ an Actor when those sources do not identify the intended recipient.
 
 Instruction-side `BY` remains in an open task until its Actor needs no further narrowing. It then changes
 the current assignee and is removed from the executable instruction. That Actor's engine must
-perform the change. Automatic effects have no task whose assignee could transfer, so they cannot use instruction-side
-`BY`.
+perform the change. Automatic effects have no task whose assignee could transfer, so their immediate
+instructions cannot use instruction-side `BY`. They may enqueue ordinary work with a fixed recipient
+through `SOON`.
 
 A `ChangeEvent` records the Actor that performed the change. Trigger-side `BY` inspects only
 that Actor. It filters event attribution; it does not transfer task control.

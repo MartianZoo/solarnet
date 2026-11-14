@@ -324,8 +324,9 @@ attribution.
 Queued `:` effects produce pending Tasks. Automatic `::` effects execute recursively before queued
 effects from the same change are admitted. The recursion limit is eight nested automatic effects;
 exceeding it raises the shared Pets `ResourceLimitException`.
-Parser and class-loading resource limits use the same exception. Because automatic effects create
-no Task, their instructions cannot use instruction-side `BY`. Read [SEQUENCING.md](SEQUENCING.md)
+Parser and class-loading resource limits use the same exception. An automatic effect does not itself
+become a Task, so its immediate instructions cannot use instruction-side `BY`. It may enqueue
+ordinary work through `SOON { ... }`. Read [SEQUENCING.md](SEQUENCING.md)
 before using `:` versus `::` to force an order.
 
 ### Wild tags

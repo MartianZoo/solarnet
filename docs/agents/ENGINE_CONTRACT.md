@@ -228,9 +228,10 @@ World's restoration depth, with outermost completion/application callbacks. Miss
 card information remains distinct from an engine choice.
 
 `Agent.exMachina` is the correction entry point. It allows System edits, runs required construction,
-dependent removal and immediate effects, suppresses queued effects, and checks final structural
-validity. It rejects added unfinished MustCleanUp work. It preserves pending tasks, their selected
-choices, and previously calculated amounts. There is no separate `sneak` command or completion
+dependent removal and immediate effects, suppresses ordinary `:` effects, and checks final structural
+validity. Explicit `SOON` dispatches inside `::` add pending work. It rejects added unfinished
+MustCleanUp work. It preserves existing tasks, their selected choices, and previously calculated
+amounts. There is no separate `sneak` command or completion
 hook that leaves earlier changes committed after callback failure. See [EX_MACHINA.md](EX_MACHINA.md).
 
 ## Appendix: further work under consideration

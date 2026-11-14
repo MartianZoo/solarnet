@@ -3,13 +3,16 @@ package dev.martianzoo.engine
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Deferral
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -174,8 +177,96 @@ internal class TaskDispatchTest {
   }
 
   @Test
-  internal fun `an automatic effect cannot dispatch`() {
-    shouldThrow<PetSyntaxException> { parse<Effect>("This:: SOON Player1 { Marker }") }
+  internal fun `an automatic effect changes state immediately and queues its SOON body`() {
+    val game = game()
+    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+
+    second.beginOperation("AutomaticDispatch<Player1>")
+
+    first.count("AutomaticDispatch") shouldBe 0
+    first.count("ChoiceA") shouldBe 0
+    first.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player1>!")
+    second.tasks.isEmpty() shouldBe true
+    game.tasks.selectedTask() shouldBe null
+    first.doTask("ChoiceA")
+    first.count("ChoiceA") shouldBe 1
+    game.isIdle() shouldBe true
+  }
+
+  @Test
+  internal fun `exMachina retains SOON work and preserves selected work while suppressing colon effects`() {
+    val game = game()
+    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    first.addTasks("Choice")
+    first.selectTask("Choice")
+    first.narrowTask("ChoiceA")
+    val pending = game.tasks.extract { it }
+    val selected = game.tasks.selectedTask()
+
+    val result = second.exMachina("CorrectionDispatch<Player1>")
+
+    first.count("AutomaticDispatch") shouldBe 0
+    first.count("Token") shouldBe 0
+    val dispatched = game.tasks.getTaskData(result.tasksSpawned.single())
+    dispatched.assignee shouldBe PLAYER1
+    dispatched.instruction.toString() shouldBe "Choice<Player1>!"
+    dispatched.selected shouldBe false
+    game.tasks.extract { it }.filter { it.id !in result.tasksSpawned } shouldBe pending
+    game.tasks.selectedTask() shouldBe selected
+    first.doTask("ChoiceA")
+    first.count("ChoiceA") shouldBe 1
+    first.doTask("ChoiceB")
+    // Ordinary effects apply again when the dispatched work is executed normally.
+    first.doTask("Token")
+    first.count("ChoiceB") shouldBe 1
+    first.count("Token") shouldBe 1
+    game.isIdle() shouldBe true
+  }
+
+  @Test
+  internal fun `exMachina rolls back the correction if SOON admission fails`() {
+    val game = game()
+    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    first.addTasks("Choice")
+    first.selectTask("ChoiceA")
+    val pending = game.tasks.extract { it }
+    val before = game.events.nextOrdinal
+
+    shouldThrow<DeadEndException> {
+      first.exMachina("Token, AutomaticDispatch, InvalidDispatch")
+    }
+
+    first.count("Token") shouldBe 0
+    first.count("InvalidDispatch") shouldBe 0
+    game.tasks.extract { it } shouldBe pending
+    game.events.nextOrdinal shouldBe before
+  }
+
+  @Test
+  internal fun `production corrections queue a single Suitable Infrastructure reward without player autoexecution`() {
+    val game = TfmEngine.newGame(canonicalPremise(cn("SuitableInfrastructure")))
+    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    player.exMachina("SuitableInfrastructure, 11 MC")
+    player.beginOperation("UseAction<UseStandardProjectAction, Action1>")
+    player.doTasks("UseAction<PowerPlantProject, Action1>", "11 Pay<> FROM MC")
+    // The paid project's production stays pending while the correction queues its reward.
+
+    val result = player.exMachina("PROD[2 MC], PROD[Plant]")
+
+    player.count("MC") shouldBe 0
+    val reward = game.tasks.getTaskData(result.tasksSpawned.single())
+    reward.assignee shouldBe PLAYER1
+    reward.instruction shouldBe parse<Instruction>("2! MC<Player1>")
+    reward.deferral shouldBe Deferral.SOON
+    reward.selected shouldBe false
+    player.doTask("PROD[Energy]")
+    player.count("MC") shouldBe 0
+    player.tasks.ids() shouldBe setOf(reward.id)
+    player.doTask("2 MC")
+    player.count("MC") shouldBe 2
+    game.isIdle() shouldBe true
   }
 
   @Test
@@ -228,6 +319,14 @@ internal class TaskDispatchTest {
               CLASS Token : Owned<Player>
               CLASS Marker
               CLASS StartToken : Owned<Player>
+              CLASS AutomaticDispatch : Owned<Player> { This:: -This THEN SOON { Choice } }
+              CLASS CorrectionDispatch : Owned<Player> {
+                This:: AutomaticDispatch
+                This: Token
+                -AutomaticDispatch: Token
+                ChoiceB: Token
+              }
+              CLASS InvalidDispatch : Owned<Player> { This:: -This THEN SOON { Die! } }
               CLASS OwnedDispatch : Owned<Player> { This: SOON { Choice } }
               CLASS UnownedDispatch { This: SOON { Marker } }
               CLASS TriggerDispatch { This BY @Player: SOON @Player { Choice } }

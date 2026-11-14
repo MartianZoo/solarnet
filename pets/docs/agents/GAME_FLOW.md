@@ -148,11 +148,14 @@ an existing scope, preserving current same-action availability. Another player's
 not create elections for that player. See [wild tags](CARD_MODEL.md#wild-tags).
 
 `SuitableInfrastructureBonus` depends on its card and its owner's scope. The card grants the
-helper at scope creation; a production gain consumes it for the bonus, and unused helpers expire
-with the scope. This gives separate rewards for consecutive actions and a single reward when a
-Prelude raises several production tracks. It does not establish a disputed ruling for every
-out-of-turn production interaction; those eligibility questions remain separate from the selected
-lifetime model.
+helper at scope creation. Its `PROD[X StandardResource]:: -This THEN SOON { 2 MC }` effect
+consumes eligibility at the first production gain, before another gain can claim it, and queues
+the reward. The helper removal is never a task; the client submits only the ordinary `2 MC` task.
+`X` prevents a multi-step production increase from multiplying the helper removal and reward.
+Unused helpers expire with the scope. This gives separate rewards for consecutive actions and a
+single reward when a Prelude raises several production tracks. It does not establish a disputed
+ruling for every out-of-turn production interaction; those eligibility questions remain separate
+from the selected lifetime model.
 
 ### Head Start: restored approximation
 

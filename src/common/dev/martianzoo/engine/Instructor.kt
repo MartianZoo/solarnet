@@ -82,10 +82,11 @@ internal constructor(
   )
 
   /**
-   * Applies a correction with required parts and :: effects, but no queued effects. Unlike ordinary
-   * execution, this checks all invariants after the complete group of correction changes.
+   * Applies a correction with required parts and :: effects, suppressing ordinary : effects.
+   * Returns work explicitly dispatched by those immediate effects. Unlike ordinary execution, this
+   * checks all invariants after the complete group of correction changes.
    */
-  internal fun exMachina(changes: InstructionGroup, actor: Actor) {
+  internal fun exMachina(changes: InstructionGroup, actor: Actor): List<PendingTask> = buildList {
     changes.instructions.forEach {
       if (it.needsNarrowing(reader)) {
         throw NotFullySpecifiedException("instruction needs narrowing: `$it`", it.sourceLocation)
@@ -96,7 +97,7 @@ internal constructor(
                   "exMachina accepts only elementary changes; found `$it`",
                   sourceLocation = it.sourceLocation,
               )
-      executeChange(change, null, mutableListOf(), actor, queuedEffects = false)
+      executeChange(change, null, this, actor, queuedEffects = false)
     }
     limiter.checkAllInvariants()
   }

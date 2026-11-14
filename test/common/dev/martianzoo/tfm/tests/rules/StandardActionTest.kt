@@ -186,8 +186,7 @@ internal class StandardActionTest : TfmSandboxTest() {
               "UseAction<PowerPlantProject, Action1>",
           )
           doTask("11 Pay<> FROM MC")
-          doTask("PROD[Energy]")
-          doTask("-SuitableInfrastructureBonus!")
+          kim.doTask("PROD[Energy]").expect("0 MC")
           doTask("2 MC")
         }
         .expect("PROD[Energy], -9 MC")

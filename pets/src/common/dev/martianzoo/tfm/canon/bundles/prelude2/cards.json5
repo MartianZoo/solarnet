@@ -172,7 +172,7 @@
             "Scope@ActionScope<Me@>:: SuitableInfrastructureBonus<This, Scope@>",
           ],
           "components": [
-            "CLASS SuitableInfrastructureBonus<ActionScope> : Cardbound<SuitableInfrastructure<Player>>, System, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>: (This: -This THEN 2 MC) OR (MAX 0 This: Ok) }",
+            "CLASS SuitableInfrastructureBonus<ActionScope> : Cardbound<SuitableInfrastructure<Player>>, System, Atomized { HAS MAX 1 This; PROD[X StandardResource]:: -This THEN SOON { 2 MC } }",
           ],
         },
         {

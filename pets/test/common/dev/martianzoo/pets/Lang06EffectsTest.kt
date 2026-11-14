@@ -42,6 +42,20 @@ internal class Lang06EffectsTest {
     parse<Effect>("CityTile:: 2 MC").toString() shouldBe "CityTile:: 2 MC"
   }
 
+  @Test
+  internal fun `L6-2 automatic effects may dispatch SOON work`() {
+    roundTrip<Effect>("This:: SOON Player1 { Plant OR Heat }")
+    roundTrip<Effect>("This:: -This THEN SOON { 2 MC }")
+  }
+
+  @Test
+  internal fun `L6-2 automatic effects still reject selected and deferred dispatch`() {
+    shouldThrow<PetSyntaxException> { parse<Effect>("This:: NOW Player1 { Plant }") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("This:: -This THEN LATER { Plant }") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("This:: -This THEN FINALLY { Plant }") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("This:: SOON { NOW { Plant } }") }
+  }
+
   // L6-3 The two kinds of trigger
 
   @Test

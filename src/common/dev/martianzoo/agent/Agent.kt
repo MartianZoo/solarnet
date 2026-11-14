@@ -341,10 +341,11 @@ public interface Agent {
 
   /**
    * Atomically applies fully specified elementary corrections, constructs required parts, and
-   * removes dependents. Runs `::` effects and checks every applicable count invariant. Queued
-   * effects, task handling, and idle cleanup are omitted. Explicit System edits are allowed, but no
+   * removes dependents. Runs `::` effects and checks every applicable count invariant. Ordinary `:`
+   * effects, task handling, and idle cleanup are omitted. Explicit `SOON` dispatches in `::`
+   * effects add pending tasks, reported in the result. Explicit System edits are allowed, but no
    * exact MustCleanUp component may increase. Records a replayable correction input and, for a
-   * Player, an Audit. Pending tasks retain their current instructions and selection, including
+   * Player, an Audit. Existing tasks retain their current instructions and selection, including
    * calculated amounts.
    */
   public fun exMachina(changes: String): TaskResult

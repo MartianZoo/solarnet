@@ -43,6 +43,6 @@ internal class WorldTransaction(
     }
   }
 
-  /** Corrections preserve state validity without advancing gameplay. */
+  /** Applies an atomic correction without handling pending tasks. */
   internal fun correct(block: () -> Unit): TaskResult = timeline.atomic(block)
 }

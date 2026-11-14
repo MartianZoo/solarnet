@@ -33,14 +33,20 @@ public data class Effect(
      * Whether this effect was written `::` rather than `:`, marking a consequence that carries no
      * choice and that the rule intends to be inseparable from the event causing it ([rule
      * L6-2](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#6-effects)).
-     * When that distinction matters is `SEQUENCING.md`'s subject.
+     * A `SOON` instruction may enqueue a body containing choices. The dispatch executes
+     * immediately; its body becomes ordinary work. When that distinction matters is
+     * `SEQUENCING.md`'s subject.
      */
     val automatic: Boolean = false,
 ) : PetElement() {
   init {
-    if (automatic && (instruction is Dispatch || instruction.descendantsOfType<Dispatch>().any())) {
+    if (
+        automatic &&
+            ((instruction is Dispatch && instruction.deferral != Deferral.SOON) ||
+                instruction.descendantsOfType<Dispatch>().any { it.deferral != Deferral.SOON })
+    ) {
       throw PetSyntaxException(
-          "`NOW`, `SOON`, `LATER`, and `FINALLY` cannot occur inside an automatic `::` effect"
+          "`NOW`, `LATER`, and `FINALLY` cannot occur inside an automatic `::` effect"
       )
     }
     // A bare Component subscription watches everything and states nothing; rule L6-11 requires it

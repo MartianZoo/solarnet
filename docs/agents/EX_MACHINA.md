@@ -15,9 +15,10 @@ restore an earlier state rather than submit a new game change.
 
 ## Contract
 
-A correction changes concrete state without pretending that normal gameplay caused the change.
-It preserves structural validity, but it does not reproduce costs, rewards, placement bonuses,
-history, or other queued consequences of ordinary play.
+A correction changes concrete state without executing a pending gameplay task. It preserves
+structural validity and suppresses ordinary `:` effects. Automatic `::` effects still run, and
+work they explicitly dispatch with `SOON` enters the normal queue. A correction can therefore
+consume eligibility and queue its associated reward.
 
 Correction facilities are available for local calculation; they are not privileges reserved for
 an authenticated operator. The structural checks below specify what a correction computes, not
@@ -29,18 +30,26 @@ adjustment or assertion; it is not proof of player consent or an external custod
   and derived indexes.
 - Concrete required parts of a newly gained component are constructed before gain reactions.
 - Dependents of a removed owner are removed with it.
-- Recursive automatic (`::`) effects still run because they can establish inseparable state.
+- Recursive automatic (`::`) effects still run. Work they explicitly dispatch with `SOON` uses
+  ordinary task admission and appears in `TaskResult.tasksSpawned`. The correction does not execute
+  those tasks; failure to admit them rejects the whole correction.
 - Queued (`:`) effects are suppressed throughout the correction and its derived changes.
 - Every applicable declared count invariant is checked against the completed World. Validation
   rejects an invalid result; it does not repair it.
 - Corrections do not handle pending tasks.
 - A correction need not enforce game history that is not represented as an invariant. For
-  example, arbitrary delegate edits need not reconstruct political leadership, and a corrected
-  tile does not grant placement rewards.
+  example, arbitrary delegate edits need not reconstruct political leadership, and correcting
+  a tile does not run its ordinary placement effects.
 
 Prefer ordinary `:` effects when a consequence can safely remain normal gameplay. Retain `::`
 only when postponing the consequence would expose incoherent state. Do not add a new effect
 category merely to make unrestricted editing convenient.
+
+Suitable Infrastructure's [action-scoped bonus](../../pets/docs/agents/GAME_FLOW.md#uses-of-the-scope)
+applies through `::`, so corrected production can consume the bonus and queue its reward.
+Later ordinary production in that action does not earn another reward. `TaskDispatchTest` checks
+this composition, recursive dispatch, ordinary-effect suppression,
+selected-task preservation, and rollback when task admission fails.
 
 ## Entry point
 
@@ -51,8 +60,8 @@ and checks application invariants. Explicit
 required parts or immediate effects; existing unfinished work may be removed. This prevents a
 correction from starting work whose ordinary completion effects were suppressed.
 
-Pending tasks remain unchanged, including selection, explicit choices, and previously calculated
-amounts. For example, a selected `Coin / Foo` that already evaluated to `3 Coin` remains `3 Coin`
+Existing pending tasks remain unchanged, including selection, explicit choices, and previously
+calculated amounts. For example, a selected `Coin / Foo` that already evaluated to `3 Coin` remains `3 Coin`
 after correcting Foo. Corrections do not reselect or automatically execute that task. The owner
 asked to keep this consolidation expedient rather than redesign correction-time recalculation.
 

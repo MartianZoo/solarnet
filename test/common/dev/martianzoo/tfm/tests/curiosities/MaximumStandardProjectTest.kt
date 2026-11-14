@@ -93,7 +93,7 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           doTasks("OceanTile<Hellas_5_7>", "3 Heat", "2 Plant", "TerraformRating")
           doTask("20 MC") // Lakefront Resorts, six adjacent oceans, and Terraforming Deal.
           doTask("PROD[MC]")
-          doTasks("-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>", "2 MC")
+          doTask("2 MC")
         }
         .expect("51 MC")
   }
@@ -619,7 +619,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "PROD[2 MC]",
           "4 MC",
           "Science<$Spire>",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "GreeneryTile<Hellas_2_1>",
           "OxygenStep",
@@ -646,7 +645,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTasks(
@@ -665,7 +663,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "$Heather FROM ProjectCard",
           "PROD[Plant]",
           "Plant",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTasks(
@@ -680,7 +677,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "Plant",
           "0 MC",
           "2 MC",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTasks(
@@ -695,7 +691,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "2 Plant",
           "0 MC",
           "2 MC",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTasks(

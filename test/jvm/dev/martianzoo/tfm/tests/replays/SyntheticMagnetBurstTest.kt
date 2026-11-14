@@ -303,7 +303,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "5 Pay<> FROM MC",
           "$PowerSupplyConsortium FROM ProjectCard",
           "PROD[Energy]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "PROD[-Energy<Pink>]",
       )
@@ -501,7 +500,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "12 Pay<> FROM MC",
           "$MirandaResort FROM ProjectCard",
           "PROD[3 MC]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       // Nobel Prize's wild icon counts as Green's eighth distinct tag.
@@ -580,7 +578,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "12 Pay<> FROM MC",
           "$GreatDam FROM ProjectCard",
           "PROD[2 Energy]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTask("PassBaton")
@@ -681,7 +678,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "3 MC",
           "TerraformRating",
           "PROD[Heat]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "-3 Plant<Pink>",
       )
@@ -858,7 +854,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "5 Pay<> FROM MC",
           "$TerraformingContract FROM ProjectCard",
           "PROD[4 MC]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTask("PassBaton")
@@ -935,7 +930,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "18 Pay<> FROM MC",
           "$TectonicStressPower FROM ProjectCard",
           "PROD[3 Energy]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       doTask("Pass")
@@ -1315,7 +1309,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "$CloudSeeding FROM ProjectCard",
           "PROD[-MC]",
           "PROD[2 Plant]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "PROD[-Heat<Pink>]",
       )
@@ -1407,7 +1400,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "$LavaTubeSettlement FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "CityTile<Hellas_8_5>",
           "NOW Pink { Production<Pink, Class<MC>>! }",
@@ -1514,7 +1506,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "10 Pay<> FROM MC",
           "$HousePrinting FROM ProjectCard",
           "PROD[Steel]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
       // Nobel Prize's wild icon counts as Green's second plant tag.
@@ -1523,7 +1514,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "9 Pay<> FROM MC",
           "$Insects FROM ProjectCard",
           "PROD[2 Plant]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
       )
     }
@@ -1654,7 +1644,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "$CommercialDistrict FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "CommercialDistrict_SpecialTile<Hellas_2_4>",
           "Plant",
@@ -1739,7 +1728,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "$NoctisCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
-          "-SuitableInfrastructureBonus<$SuitableInfrastructure, ActionScope>",
           "2 MC",
           "CityTile<Hellas_2_2>",
           "NOW Pink { Production<Pink, Class<MC>>! }",
