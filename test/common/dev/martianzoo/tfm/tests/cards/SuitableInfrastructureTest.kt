@@ -95,12 +95,21 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
     stan.autoExecNow(EAGER)
 
+    kim.autoExecPolicy = NONE
     kim.completeOperation {
-          doTask("DoRequiredActions")
-          doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
-          autoExecNow(EAGER)
+          doTasks(
+              "DoRequiredActions",
+              "3 PreludeCard<Selecting>",
+              "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
+              "$DomeFarming FROM PreludeCard<Selecting>",
+          )
+          kim.doTask("PROD[2 MC]").expect("0 MC")
+          kim.doTask("PROD[Plant]").expect("0 MC")
+          kim.selectTask("2 MC")
+          doTask("2 MC")
         }
-        .expect("PROD[Plant, 2 MC], 2 MC")
+        .expect("PROD[Plant, 2 MC], 2 MC, -RequiredAction, 0 PreludeCard<Selecting>")
+    shouldThrow<TaskException> { kim.doTask("2 MC") }
   }
 
   // https://boardgamegeek.com/thread/3335155/article/44576777#44576777
@@ -109,11 +118,23 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
     newTestGame("PreludeExpansion, SuitableInfrastructure", playerCount = 2)
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$SuitableInfrastructure>>")
 
+    kim.autoExecPolicy = NONE
     kim.completeOperation {
-          doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
-          doTask("PlayCard<Class<CorporationCard>, Class<$Manutech>>")
-          autoExecNow(EAGER)
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+              "$Merger FROM PreludeCard",
+              "4 CorporationCard<Selecting>",
+              "PlayCard<Class<CorporationCard>, Class<$Manutech>>",
+              "$Manutech FROM CorporationCard<Selecting>",
+              "35 MC",
+              "-42 MC",
+          )
+          kim.doTask("PROD[Steel]").expect("0 MC, 0 Steel")
+          doTask("Steel")
+          kim.selectTask("2 MC")
+          doTask("2 MC")
         }
-        .expect("PROD[Steel], Steel, -5 MC")
+        .expect("PROD[Steel], Steel, -5 MC, 0 CorporationCard<Selecting>")
+    shouldThrow<TaskException> { kim.doTask("2 MC") }
   }
 }

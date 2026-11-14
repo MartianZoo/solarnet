@@ -716,7 +716,8 @@ These permissions do not imply removing source resource checkpoints or changing 
 The user deferred further EACH-shorthand matching changes and REPL payment cleanup on 2026-11-12.
 Keep those implementations unchanged until the user reopens that work. Suitable Infrastructure now
 consumes its bonus helper through `::` and queues the reward with `SOON`; clients submit only `2 MC`.
-TODO.md tracks its remaining `EAGER` scenarios to migrate to explicit submissions.
+The Valley Trust and Merger/Manutech scenarios use explicit submissions with Player autoexecution
+disabled throughout the rewarded operations; their setup still uses automatic execution.
 
 - Eliminate `EAGER` for non-Admin players, subject to the limited setup convenience below. Admin
   continues to execute automatically. Minimize temporary policy changes and explicit automatic
