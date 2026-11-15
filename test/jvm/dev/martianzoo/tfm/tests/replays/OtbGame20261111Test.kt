@@ -437,9 +437,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     // "At least it's not later."
     // Completing the event forms the Scientists government: Research Outpost and Research Colony
     // each earn an automatic 1 MC ruling bonus.
-    pink
-        .doTask("8 MC")
-        .expect("Ruling<Scientists>, Chairman<Neutral>, Dominant<MarsFirst>")
+    pink.doTask("8 MC").expect("Ruling<Scientists>, Chairman<Neutral>, Dominant<MarsFirst>")
     // Both app logs briefly missed the Scientists bonus; keep it here.
     green.assertResources(m = 37, s = 3, t = 3, p = 0, e = 1, h = 3)
     pink.assertResources(m = 33, s = 0, t = 1, p = 0, e = 4, h = 18)
@@ -1933,7 +1931,9 @@ internal class OtbGame20261111Test : FullGameTest() {
         // Pink: "Ruling bonus. I get four. You become chairman and earn TR."
         // Green: "Seven for me. My dudes are going back, I get one TR, and dominance shifts to
         // Greens."
-        .expect("7 MC<Green>, 4 MC<Pink>, TerraformRating<Green>, Ruling<MarsFirst>, Dominant<Greens>")
+        .expect(
+            "7 MC<Green>, 4 MC<Pink>, TerraformRating<Green>, Ruling<MarsFirst>, Dominant<Greens>"
+        )
     green.assertResources(m = 60, s = 5, t = 4, p = 11, e = 4, h = 13)
     pink.assertResources(m = 54, s = 0, t = 2, p = 6, e = 5, h = 16)
     green.assertCounts(29 to "TerraformRating")
