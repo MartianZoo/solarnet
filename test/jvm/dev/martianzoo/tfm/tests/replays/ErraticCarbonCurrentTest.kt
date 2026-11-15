@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -9,6 +11,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete database replay: Erratic Carbon Current (gbf986ef543f0)
 // https://terraforming-mars.herokuapp.com/the-end?id=p6674c4a1893d
@@ -63,6 +66,36 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     generation8()
     generation9()
     generation10()
+
+    // _local/replays/Game20260827/player-p6674c4a1893d.json; final Mars map.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             [O]   LPP   LPP   [G1]  [G1]
+        |
+        | 2 -          [O]   [G2]  [S2]  [G1]  [C1]  [G1]
+        |
+        | 3 -       [O]    LP    LS   [G2]  [G1]  [G1]  [G1]
+        |
+        | 4 -    [O]   [G2]  [G2]  [S2]  [G2]  [O]    WP    LP
+        |
+        | 5 -  LC   [G2]  [C2]  [G2]  [G2]  [O]   [O]    W     LP
+        |
+        | 6 -     LT    L    [G2]  [C2]  [G2]  [O]   [O]    L
+        |
+        | 7 -       WTT    L    [G2]  [G2]  [C1]  [G1]  [G1]
+        |
+        | 8 -           LS    LC   LHH   [G1]  [G1]   LT
+        |
+        | 9 -              L    LHH   LO6   LHH   [G1]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -402,7 +435,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC remainder
+          "0 Pay<> FROM MC", // no MC remainder
       )
       draw(Plantation)
       discard(NoctisCity)
@@ -828,7 +861,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ImportOfAdvancedGhg"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC remainder
+          "0 Pay<> FROM MC", // no MC remainder
           "$ImportOfAdvancedGhg FROM ProjectCard",
           "PROD[2 Heat]",
       )
@@ -874,6 +907,37 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "12 Pay<> FROM MC",
         "4 ProjectCard<Hand FROM Selecting>",
     )
+
+    // _local/replays/Game20260827/game-gbf986ef543f0.sqlite; source save 214.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             WPP   LPP   LPP   [G1]   LP
+        |
+        | 2 -          WPP   LPP   [S2]  [G1]  [C1]   LP
+        |
+        | 3 -        WP    LP    LS   [G2]  [G1]  [G1]  LPC
+        |
+        | 4 -    [O]    LP    LS   [S2]  [G2]  [O]    WP    LP
+        |
+        | 5 -  LC    L     L    LSS   [G2]  [O]   [O]    W     LP
+        |
+        | 6 -     LT    L     LS   [C2]  [G2]  [O]   [O]    L
+        |
+        | 7 -       WTT    L     L    [G2]  [C1]   L     LT
+        |
+        | 8 -           LS    LC   LHH   LHH    LT    LT
+        |
+        | 9 -              L    LHH   LO6   LHH    L
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // Database save 214 evidence: after both research purchases.
     blue.assertResources(m = 30, s = 2, t = 0, p = 20, e = 3, h = 9)
     blue.assertProduction(m = 9, s = 2, t = 0, p = 16, e = 3, h = 4)
@@ -1204,7 +1268,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$CarbonNanosystems"),
           "7 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC remainder
+          "0 Pay<> FROM MC", // no MC remainder
       )
       draw(EosChasmaNationalPark)
       discard(Plantation)

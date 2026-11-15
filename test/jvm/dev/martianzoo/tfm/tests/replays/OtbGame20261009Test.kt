@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -8,6 +10,7 @@ import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Sources: _local/replays/Game20261009/{transcript-afternoon,transcript-evening,
 // transcript-middle,transcript-end,sources}.md.
@@ -136,7 +139,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTasks(
           *playCardTasks("$NuclearPower"),
           "5 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$NuclearPower FROM ProjectCard",
           "PROD[-2 MC]",
           "PROD[3 Energy]",
@@ -610,7 +613,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTasks(
           *playCardTasks("$IndustrialMicrobes"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$IndustrialMicrobes FROM ProjectCard",
           "PROD[Energy]",
           "PROD[Steel]",
@@ -678,7 +681,6 @@ internal class OtbGame20261009Test : FullGameTest() {
     p1.assertCounts(
         22 to "TerraformRating",
         2 to "Floater<$TitanFloatingLaunchPad>",
-        4 to "CityTile",
         1 to "Colony<Triton>",
         0 to "Milestone",
     )
@@ -686,8 +688,6 @@ internal class OtbGame20261009Test : FullGameTest() {
         28 to "TerraformRating",
         3 to "Animal<$Pets>",
         0 to "Floater<$LocalShading>",
-        2 to "CityTile",
-        2 to "GreeneryTile",
         1 to "Diversifier",
         1 to "Forester",
     )
@@ -740,7 +740,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTasks(
           *playCardTasks("$SpacePortColony"),
           "12 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$SpacePortColony FROM ProjectCard",
           "Colony<Io>",
           "PROD[Heat]",
@@ -961,7 +961,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTasks(
           *cardActionTasks("$RotatorImpacts"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -1115,6 +1115,36 @@ internal class OtbGame20261009Test : FullGameTest() {
     p1.doTasks("3 Heat FROM Energy", "30 MC", "4 Titanium", "5 Energy", "4 Heat")
     p2.doTasks("53 MC", "3 Steel", "2 Titanium", "3 Plant", "3 Heat")
     p1.doTasks("OxygenStep! BY Admin")
+    // _local/replays/Game20261009/board-11-44-28.jpg.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LP    L     VS    L     L
+        |
+        | 2 -          LPP   LPP    L     L     LP   [S2]
+        |
+        | 3 -        LC   [O]   [O]   LPP    LP    L     L
+        |
+        | 4 -    VSS    LT   [O]   [G2]  [C2]  [G2]   LP    LD
+        |
+        | 5 -  L     L    [O]   [C2]  [G2]  [O]   [O]   WPP   LCC
+        |
+        | 6 -    LCC    L     LP   [O]   [O]   [O]    LP   [C1]
+        |
+        | 7 -        VT    LS    W    WHH   LPP   [C1]   L
+        |
+        | 8 -           LP    L     LP   [C1]  [S2]   LP
+        |
+        | 9 -              LD    L     LC    LT   [C1]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // board-11-44-28.jpg; the logs show these balances before generation 8 Research.
     p1.assertResources(m = 36, s = 1, t = 10, p = 0, e = 5, h = 7)
     p1.assertProduction(m = 1, s = 0, t = 4, p = 0, e = 5, h = 4)
@@ -1187,7 +1217,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MartianLumberCorp"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$MartianLumberCorp FROM ProjectCard",
           "PROD[Plant]",
           "Plant", // Viral Enhancers on the plant tag
@@ -1278,7 +1308,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           *playCardTasks("$OrbitalReflectors"),
           "PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>",
           "10 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$OrbitalReflectors FROM ProjectCard",
           "VenusStep",
           "VenusStep",
@@ -1775,7 +1805,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTasks(
           *cardActionTasks("$RotatorImpacts"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -2141,7 +2171,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTasks(
           *playCardTasks("$CorroderSuits"),
           "2 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>",
-          "Ok", // Nothing remains to pay in MC.
+          "0 Pay<> FROM MC", // Nothing remains to pay in MC.
           "$CorroderSuits FROM ProjectCard",
           "PROD[2 MC]",
           "Floater<$Dirigibles>",
@@ -2196,8 +2226,38 @@ internal class OtbGame20261009Test : FullGameTest() {
     p2.doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
     p2.doTasks("GreeneryTile<Vastitas_2_4>")
     p2.doTask("PassBaton") // no more plants to convert
+    // _local/replays/Game20261009/board-16-47-03.jpg; final Mars map.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LP    L     VS    L     L
+        |
+        | 2 -          LPP   [S2]  [G2]  [G2]   LP   [S2]
+        |
+        | 3 -        LC   [O]   [O]   [C2]  [G2]  [C1]   L
+        |
+        | 4 -    VSS    LT   [O]   [G2]  [C2]  [G2]   LP    LD
+        |
+        | 5 -  L     L    [O]   [C2]  [G2]  [O]   [O]   WPP   [G1]
+        |
+        | 6 -    LCC    L    [G2]  [O]   [O]   [O]   [G1]  [C1]
+        |
+        | 7 -        VT    LS    W    WHH   [G1]  [C1]  [G1]
+        |
+        | 8 -           LP    L     LP   [C1]  [S2]  [G1]
+        |
+        | 9 -              LD    L     LC   [G1]  [C1]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // board-16-47-03.jpg, after final greenery.
-    p2.assertCounts(7 to "GreeneryTile", 3 to "CityTile", 56 to "TerraformRating")
+    p2.assertCounts(56 to "TerraformRating")
     // "Almost completely shut me out, but not quite."
     // "Wow, this is a really meager pile of cards I've got." "It was a fun game." "Always is."
     // "138." "Well, if you take off the one and you reverse the other two digits, you have my

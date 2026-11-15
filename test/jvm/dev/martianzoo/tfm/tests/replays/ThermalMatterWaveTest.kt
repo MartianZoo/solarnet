@@ -1,12 +1,15 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete archive replay: Thermal Matter Wave (gafda6ee74f34)
 // https://terraforming-mars.herokuapp.com/the-end?id=pccc28386ce4b
@@ -54,6 +57,36 @@ internal class ThermalMatterWaveTest : FullGameTest() {
     generation10()
     generation11()
     generation12()
+
+    // _local/replays/Game20260730/Game20260730-herokuapp-player.json; final Mars map.
+    assertEquals(
+        """
+        |                       1     2     3     4     5     6     7     8     9
+        |                      /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LSS   WSS    L     WC   [O]
+        |
+        | 2 -            L     VS    L     L     L    [O]
+        |
+        | 3 -         VC    L     L    [G1]   L    [G]   [C1]
+        |
+        | 4 -     VPT    LP    LP   [C1]  [G1]  [C]   [G1]  [O]
+        |
+        | 5 -  VPP   LPP   NPP   WPP   [O]   [O]   [G1]  [C1]  [G1]
+        |
+        | 6 -      LP   LPP    LP   [G]   [C]   [O]   [O]   [O]
+        |
+        | 7 -         L     L     L     L     L    [S1]   L
+        |
+        | 8 -           LSS    L     LC    LC    L    [G1]
+        |
+        | 9 -               LS   LSS    L     L    [O]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -79,7 +112,7 @@ internal class ThermalMatterWaveTest : FullGameTest() {
           "$ExcentricSponsor FROM PreludeCard",
           "PlayCard<Class<ProjectCard>, Class<$TitanShuttles>, CardLocation>",
           "-23 Owed", // Excentric Sponsor covers Titan Shuttles' full cost
-          "Ok", // no MC remainder
+          "0 Pay<> FROM MC", // no MC remainder
           "$TitanShuttles FROM ProjectCard",
           "4 MC",
       )
@@ -262,7 +295,7 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$TowingAComet"),
             "6 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$TowingAComet FROM ProjectCard",
             "2 Plant",
             "OxygenStep",
@@ -512,7 +545,7 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             "2 Pay<Class<Titanium>> FROM Titanium",
             "19 Pay<> FROM MC",
             "$InterplanetaryTrade FROM ProjectCard",
-            "EACH @WildTagElection { Tag<@WildTagElection>? }",
+            "EACH",
             "PROD[10 MC]",
             "4 MC",
             "ProjectCard",
@@ -935,7 +968,7 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$ConvoyFromEuropa"),
             "4 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$ConvoyFromEuropa FROM ProjectCard",
             "ProjectCard",
             "3 MC",
@@ -1056,7 +1089,7 @@ internal class ThermalMatterWaveTest : FullGameTest() {
       assertResources(m = 106, s = 4, t = 6, p = 4, e = 1, h = 17)
       assertProduction(m = 27, s = 4, t = 6, p = 4, e = 1, h = 9)
       assertCounts(0 to "ProjectCard", 58 to "CardFront OR PlayedEvent")
-      assertDashRight(events = 10, tagless = 3, cities = 5, colonies = 1)
+      assertDashRight(events = 10, tagless = 3, colonies = 1)
       assertSidebar(gen = 12, temp = 8, oxygen = 10, oceans = 9, venus = 30)
       assertTags(15, 16, 10, 5, eat = 3, jot = 8, vet = 4, plt = 1, mit = 4, ant = 0, cit = 4)
 

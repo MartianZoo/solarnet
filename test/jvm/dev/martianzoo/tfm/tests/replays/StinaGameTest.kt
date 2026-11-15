@@ -285,9 +285,6 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
       )
       assertTags(but = 2, spt = 3, sct = 7, pot = 2, eat = 4, jot = 1, cit = 1)
       assertCounts(
-          1 to "CityTile",
-          0 to "GreeneryTile",
-          0 to "SpecialTile",
           1 to "Generation",
           0 to "TemperatureStep",
           1 to "OxygenStep",

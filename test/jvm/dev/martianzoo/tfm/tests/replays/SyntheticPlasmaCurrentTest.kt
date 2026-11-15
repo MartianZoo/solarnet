@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -9,6 +11,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete archive replay: Synthetic Plasma Current (g5625e0252c7c), solo win in generation 12.
 // Source: _local/replays/Game20260908/game-g5625e0252c7c.sqlite and full-log.txt
@@ -40,8 +43,9 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
           "Bloo",
       )
 
+  // Source save 0: cities at 18/52, greenery at 11/58; city then greenery in each pair.
   override val soloTileLocations =
-      listOf("Tharsis_2_4", "Tharsis_3_5", "Tharsis_8_9", "Tharsis_7_9")
+      listOf("Tharsis_3_5", "Tharsis_2_4", "Tharsis_7_9", "Tharsis_8_9")
 
   private val me
     get() = p1
@@ -76,6 +80,36 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
     generation10()
     generation11()
     generation12()
+
+    // _local/replays/Game20260908/player-p145be84b9959.json; final Mars map.
+    assertEquals(
+        """
+        |                       1     2     3     4     5     6     7     8     9
+        |                      /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LSS   WSS    L    [O]    W
+        |
+        | 2 -            L     VS    L    [G]    L    [O]
+        |
+        | 3 -         VC    L     L     L    [C]    L     LS
+        |
+        | 4 -     VPT    LP    LP    LP   LPP    LP    LP   WPP
+        |
+        | 5 -  [G1]  [G1]  NPP   [O]   [O]   [O]   [S1]  LPP   LPP
+        |
+        | 6 -     [C1]  [G1]  [G1]  [C1]  [G1]  [O]   [O]   [O]
+        |
+        | 7 -        [G1]  [C1]  [G1]  [G1]  [C1]  [G1]  [C]
+        |
+        | 8 -           [G1]  [G1]  [C1]  [G1]  [G1]  [G]
+        |
+        | 9 -               LS   [S1]  [G1]  [C1]  [O]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -183,10 +217,10 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       doTask("Pass")
       doTasks("16 MC", "3 Titanium")
       // Riots resolves before the Reds government forms, then the visible events advance.
-      val trBeforeWgt = count("TerraformRating")
-      doTask("OceanTile<Tharsis_5_5>! BY Admin")
-      doTask("-0 MC").expect("MoralMovement, Distant<MoralMovement>, PartyLeader<Reds, Neutral>")
-      count("TerraformRating") shouldBe trBeforeWgt + 1
+      expectChanges("TerraformRating") {
+        doTask("OceanTile<Tharsis_5_5>! BY Admin")
+        doTask("-0 MC").expect("MoralMovement, Distant<MoralMovement>, PartyLeader<Reds, Neutral>")
+      }
       admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
       assertTurmoilState(
           ruling = "Reds",
@@ -243,15 +277,12 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       doTasks("18 MC", "3 Titanium", "3 Energy", "Plant")
       // Revolution is harmless at this influence, Scientists take power, and the visible events
       // advance.
-      val mcBeforeWgt = count("MC")
-      val scienceTagsBeforeWgt = count("ScienceTag")
-      val scientistDelegatesBeforeWgt = count("PartyDelegate<Scientists>")
-      doTask("OceanTile<Tharsis_6_9>! BY Admin")
-          .expect(
-              "MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyFollower<Kelvinists, Neutral>"
-          )
-      count("MC") shouldBe mcBeforeWgt + scienceTagsBeforeWgt
-      count("PartyDelegate<Scientists>") shouldBe scientistDelegatesBeforeWgt - 1
+      expectChanges("MC, -PartyDelegate<Scientists>") {
+        doTask("OceanTile<Tharsis_6_9>! BY Admin")
+            .expect(
+                "MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyFollower<Kelvinists, Neutral>"
+            )
+      }
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Scientists",
@@ -282,7 +313,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$SolarLogistics"),
             "4 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$SolarLogistics FROM ProjectCard",
             "2 Titanium",
         )
@@ -304,7 +335,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$VestaShipyard"),
             "3 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$VestaShipyard FROM ProjectCard",
             "PROD[Titanium]",
         )
@@ -324,17 +355,16 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       doTasks("22 MC", "4 Titanium", "3 Energy", "Plant", "3 Heat FROM Energy")
       // Sponsored Projects draws through its influence effect before Greens form the government;
       // the visible events then advance.
-      val mcBeforeWgt = count("MC")
-      val bioTagsBeforeWgt = count("BioTag")
-      doTask("TemperatureStep! BY Admin")
-      doTasks(
-              "EACH Card@ResourceHolder<Player>(HAS CardResource) { CardResource<Card@ResourceHolder>* BY Admin }",
-              "2 ProjectCard",
-          )
-          .expect(
-              "ExploreFirstDirective, Distant<ExploreFirstDirective>, PartyFollower<Reds, Neutral>"
-          )
-      count("MC") shouldBe mcBeforeWgt + bioTagsBeforeWgt
+      expectChanges("MC") {
+        doTask("TemperatureStep! BY Admin")
+        doTasks(
+                "EACH",
+                "2 ProjectCard",
+            )
+            .expect(
+                "ExploreFirstDirective, Distant<ExploreFirstDirective>, PartyFollower<Reds, Neutral>"
+            )
+      }
       (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Greens",
@@ -378,7 +408,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Satellites"),
             "2 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$Satellites FROM ProjectCard",
             "PROD[6 MC]",
         )
@@ -548,14 +578,14 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       doTasks("31 MC", "4 Titanium", "6 Energy", "5 Plant", "6 Heat FROM Energy", "3 Heat")
       // Scientific Community pays before its discard, Scientists form the government, and the
       // visible events advance.
-      val mcBeforeWgt = count("MC")
-      doTask("VenusStep! BY Admin")
-      doTask("18 MC")
-          .expect(
-              "SolarnetGlobalEvent, Distant<SolarnetGlobalEvent>, 2 PartyFollower<Unity, Neutral>"
-          )
-      // Scientific Community pays 18 M€ for cards and influence; the Scientists bonus pays 4 M€.
-      count("MC") shouldBe mcBeforeWgt + 22
+      expectChanges("22 MC") {
+        doTask("VenusStep! BY Admin")
+        doTask("18 MC")
+            .expect(
+                "SolarnetGlobalEvent, Distant<SolarnetGlobalEvent>, 2 PartyFollower<Unity, Neutral>"
+            )
+        // Scientific Community pays 18 M€ for cards and influence; the Scientists bonus pays 4 M€.
+      }
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Scientists",
@@ -605,12 +635,12 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$CometForVenus"),
             "2 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$CometForVenus FROM ProjectCard",
             "VenusStep",
             "ProjectCard",
             "TerraformRating",
-            "Ok", // no MC remainder
+            "Ok", // decline Comet for Venus's optional MC attack
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
@@ -637,7 +667,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Sabotage"),
             "$Sabotage FROM ProjectCard",
-            "Ok", // no MC remainder
+            "Ok", // decline Sabotage's optional resource attack
         )
         doTasks(*playCardTasks("$Steelworks"), "14 Pay<> FROM MC", "$Steelworks FROM ProjectCard")
         doTasks(
@@ -692,11 +722,11 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
           "2 Steel",
       )
       // Homeworld Support pays, Unity forms the government, and the visible events advance.
-      val mcBeforeWgt = count("MC")
-      doTask("VenusStep! BY Admin")
-      doTask("6 MC").expect("CharismaticWgPresident, Distant<CharismaticWgPresident>")
-      // Homeworld Support pays 6 M€; the Unity bonus pays 10 M€ for planetary tags.
-      count("MC") shouldBe mcBeforeWgt + 16
+      expectChanges("16 MC") {
+        doTask("VenusStep! BY Admin")
+        doTask("6 MC").expect("CharismaticWgPresident, Distant<CharismaticWgPresident>")
+        // Homeworld Support pays 6 M€; the Unity bonus pays 10 M€ for planetary tags.
+      }
       (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Unity",
@@ -715,6 +745,36 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
     with(me) {
       doTask("4 ProjectCard<Selecting>")
       doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+
+      // _local/replays/Game20260908/game-g5625e0252c7c.sqlite; source save 83.
+      assertEquals(
+          """
+          |                       1     2     3     4     5     6     7     8     9
+          |                      /     /     /     /     /     /     /     /     /
+          |
+          | 1 -              LSS   WSS    L     WC    W
+          |
+          | 2 -            L     VS    L    [G]    L    [O]
+          |
+          | 3 -         VC    L     L     L    [C]    L     LS
+          |
+          | 4 -     VPT    LP    LP    LP   LPP    LP    LP   WPP
+          |
+          | 5 -  VPP   LPP   NPP   WPP   [O]   [O]   LPP   LPP   LPP
+          |
+          | 6 -      LP   LPP    LP    LP   [G1]  [O]    WP   [O]
+          |
+          | 7 -         L     L     L     L     L     LP   [C]
+          |
+          | 8 -           LSS    L    [C1]  [G1]   L    [G]
+          |
+          | 9 -               LS   LSS    L     L    WTT
+          """
+              .trimMargin(),
+          TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+              .render()
+              .joinToString("\n"),
+      )
 
       // Save 83: immediately after Research.
       assertResources(m = 58, s = 2, t = 5, p = 9, e = 5, h = 11)
@@ -750,7 +810,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "4 Pay<Class<Titanium>> FROM Titanium",
             "2 Pay<> FROM MC",
             "$InterplanetaryTrade FROM ProjectCard",
-            "EACH @WildTagElection<Bloo> { Tag<@WildTagElection>? }",
+            "EACH",
             "PROD[10 MC]",
         )
         doTasks(
@@ -835,12 +895,12 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       doTask("Pass")
       doTasks("66 MC", "5 Titanium", "5 Energy", "6 Plant", "Heat FROM Energy", "5 Heat", "2 Steel")
       // Pandemic resolves before Kelvinists form the government, then the visible events advance.
-      val mcBeforeWgt = count("MC")
-      doTask("OxygenStep! BY Admin")
-      doTask("-9 MC")
-          .expect("BioengineeringBoom, Distant<BioengineeringBoom>, PartyLeader<Greens, Neutral>")
-      // Pandemic costs 9 M€; the Kelvinists bonus pays 5 M€ for heat production.
-      count("MC") shouldBe mcBeforeWgt - 4
+      expectChanges("-4 MC") {
+        doTask("OxygenStep! BY Admin")
+        doTask("-9 MC")
+            .expect("BioengineeringBoom, Distant<BioengineeringBoom>, PartyLeader<Greens, Neutral>")
+        // Pandemic costs 9 M€; the Kelvinists bonus pays 5 M€ for heat production.
+      }
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Kelvinists",
@@ -955,7 +1015,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Comet"),
             "4 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$Comet FROM ProjectCard",
             "TemperatureStep",
             "ProjectCard",
@@ -1005,14 +1065,14 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
           "3 Steel",
       )
       // Celebrity Leaders pays before Greens take power, then the visible events advance.
-      val mcBeforeWgt = count("MC")
-      doTask("TemperatureStep! BY Admin")
-      doTask("14 MC")
-          .expect(
-              "LocalTerraformingSupport, Distant<LocalTerraformingSupport>, PartyFollower<MarsFirst, Neutral>"
-          )
-      // Celebrity Leaders pays 14 M€; the Greens bonus pays 7 M€ for bio tags.
-      count("MC") shouldBe mcBeforeWgt + 21
+      expectChanges("21 MC") {
+        doTask("TemperatureStep! BY Admin")
+        doTask("14 MC")
+            .expect(
+                "LocalTerraformingSupport, Distant<LocalTerraformingSupport>, PartyFollower<MarsFirst, Neutral>"
+            )
+        // Celebrity Leaders pays 14 M€; the Greens bonus pays 7 M€ for bio tags.
+      }
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Greens",
@@ -1087,7 +1147,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$OpenCity"),
             "5 Pay<Class<Steel>> FROM Steel",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$OpenCity FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[4 MC]",
@@ -1166,7 +1226,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$AsteroidRights"),
             "1 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$AsteroidRights FROM ProjectCard",
             "2 Asteroid<$AsteroidRights>",
         )
@@ -1241,12 +1301,12 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       doTask("Pass")
       doTasks("93 MC", "5 Titanium", "Energy", "12 Plant", "11 Heat", "3 Steel")
       // Interplanetary Trade pays before Mars First takes power, then the visible events advance.
-      val mcBeforeWgt = count("MC")
-      doTask("TemperatureStep! BY Admin")
-      doTasks("10 MC", "0 MC")
-          .expect("PateraBoring, Distant<PateraBoring>, PartyLeader<Scientists, Neutral>")
-      // Interplanetary Trade pays 10 M€; the Mars First bonus pays 18 M€ for building tags.
-      count("MC") shouldBe mcBeforeWgt + 28
+      expectChanges("28 MC") {
+        doTask("TemperatureStep! BY Admin")
+        doTasks("10 MC", "0 MC")
+            .expect("PateraBoring, Distant<PateraBoring>, PartyLeader<Scientists, Neutral>")
+        // Interplanetary Trade pays 10 M€; the Mars First bonus pays 18 M€ for building tags.
+      }
       (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "MarsFirst",
@@ -1295,7 +1355,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$FrontierTown"),
             "2 Pay<Class<Steel>> FROM Steel",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$FrontierTown FROM ProjectCard",
             "FrontierTownBonus",
             "PROD[-Energy]",
@@ -1339,7 +1399,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$BigAsteroid"),
             "5 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$BigAsteroid FROM ProjectCard",
             "TemperatureStep",
             "TemperatureStep",
@@ -1351,7 +1411,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$GiantIceAsteroid"),
             "7 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$GiantIceAsteroid FROM ProjectCard",
             "TemperatureStep",
             "TemperatureStep",
@@ -1398,7 +1458,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$MartianRails"),
             "3 Pay<Class<Steel>> FROM Steel",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$MartianRails FROM ProjectCard",
         )
         doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "5 MC")
@@ -1487,7 +1547,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
           150 to "VictoryPoint",
           1 to "Victory",
       )
-      assertDashRight(events = 16, tagless = 1, cities = 7)
+      assertDashRight(events = 16, tagless = 1)
       assertTags(
           but = 20,
           spt = 12,

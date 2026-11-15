@@ -358,7 +358,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "9 Pay<> FROM MC",
           "$SponsoredAcademies FROM ProjectCard",
           "-ProjectCard",
-          "EACH Other@Player(NOT Green) { ProjectCard<Other@Player, Hand>! }",
+          "EACH",
           "3 ProjectCard",
           "ProjectCard<Yellow, Hand>",
       )
@@ -1628,7 +1628,7 @@ internal class OtbGame20260825Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MartianLumberCorp"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$MartianLumberCorp FROM ProjectCard",
           "PROD[Plant]",
           "Animal<$EcologicalZone>",
@@ -1649,7 +1649,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "4 Pay<> FROM MC",
           "$StratosphericExpedition FROM ProjectCard",
       )
-      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>").expect("2 ProjectCard")
+      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
       doTasks("3 MC", "3 Heat", "2 Floater<$JetStreamMicroscrappers>")
     }
     // "Actually, I think I'm quite out of stuff to do, so I pass."
@@ -1864,7 +1864,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "7 Pay<> FROM MC",
           "$AqueductSystems FROM ProjectCard",
       )
-      doTask("3 SearchForCard<TagFilter<Class<BuildingTag>>>").expect("3 ProjectCard")
+      doTask("3 SearchForCard<TagFilter<Class<BuildingTag>>>")
     }
     yellow.turn {
       // "I suppose I'll spend five monies on Venusian Insects."

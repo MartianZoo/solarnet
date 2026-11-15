@@ -716,6 +716,23 @@ These permissions do not imply removing source resource checkpoints or changing 
   container rather than copying its formula. `:tfm-tests:checkReplayLiterals` rejects `/` in ordinary
   quoted replay strings and runs with replay and check tasks. Configuration/Pets raw strings and
   the separate TaskForm replay are excluded; this rule does not ban expression-focused engine tests.
+- Expected outcomes are literal too. Do not read a tag/resource count from the running game and
+  calculate the expected payout from it. Use literal net changes through the existing
+  `expectChanges` when an observation spans calls, or literal absolute source checkpoints.
+- Keep `.expect` for interesting consequences, especially triggered or automatic work. Omit
+  predictable search-card yields and printed tags that merely restate the submitted card.
+- Prefer `0 Pay<> FROM MC` for an admitted zero cash remainder, and
+  `N ProjectCard<Hand FROM Selecting>` for bought cards. Keep explained `Ok` for optional
+  attacks, unused alternative payment resources, and other genuinely different choices.
+- Use literal ASCII maps through `TfmMapRenderer` to check tile positions and owners against
+  original photographs or saved-game data. Prefer an endpoint map and, when useful and sourced,
+  a checkpoint near the middle of the test. Do not replace missing source evidence with current
+  engine output. A latest available photograph before the endpoint belongs at that earlier
+  checkpoint. Remove scattered tile counts and per-area tile assertions; retain ocean totals as
+  global-parameter checks. Existing maps do not display off-Mars cities or distinguish named
+  special tiles; action submissions retain those identities and placements.
+- Named versus positional assertion arguments are both acceptable. The intentionally different
+  TaskForm replay remains outside this cleanup.
 - Combine simultaneous gains for the same holder/type where existing total matching supports it.
   Preserve intervening choices, checkpoints, handoffs, and genuinely ordered continuations.
 - Remove Summarizer and its score-category, lifetime-accounting, and internal-action-count checks.
@@ -739,6 +756,13 @@ replays passed through a temporary test filter without changing normal suite sel
 passed. Temporarily restoring October 9's `MC / CityTile<Anyone>` submission made
 `checkReplayLiterals` fail at that source line; the literal `11 MC` was then restored. The November 11
 formatting changes from main commit `23f1ea417` are included. No engine behavior changed.
+
+Follow-up verification: all 36 JVM replays passed together with exports enabled through a temporary
+test filter, leaving normal suite selection unchanged. The cleanup added 36 literal maps from
+original saved games and photographs; 26 of the 35 ordinary replays now have map checks. The new
+Synthetic Plasma Current maps exposed swapped neutral cities/greeneries in its setup; source save 0
+establishes the corrected positions, and the sourced final score still passes. Remaining board
+evidence gaps are recorded in `TODO.md`. No engine behavior or TaskForm replay code changed.
 
 ### Agreed direction: execution and task selection
 

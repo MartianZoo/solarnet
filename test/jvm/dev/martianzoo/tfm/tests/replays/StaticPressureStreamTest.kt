@@ -2,9 +2,11 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.fake.FakeCanon
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -13,6 +15,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete database replay: Static Pressure Stream (g1212dda978b8)
 // Source: _local/replays/Game20260912/Heroku-g1212dda978b8/
@@ -314,6 +317,36 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     generation10()
     generation11()
     endgame()
+
+    // _local/replays/Game20260912/Heroku-g1212dda978b8/player-pe1c5cff0c611.json; final Mars map.
+    assertEquals(
+        """
+        |                       1     2     3     4     5     6     7     8     9
+        |                      /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LSS   WSS   [G2]   WC    W
+        |
+        | 2 -            L     VS   [C2]  [G2]  [G1]  [O]
+        |
+        | 3 -        [G1]   L    [G1]  [G1]  [C2]  [G1]  [G1]
+        |
+        | 4 -     [G1]  [C1]  [G1]  [C1]  [G1]  [G1]  [C1]  [O]
+        |
+        | 5 -  [C2]  [G1]  [C2]  [O]   [O]   [O]   [S2]  [G1]  [S1]
+        |
+        | 6 -     [G2]  [C1]  [G1]  [C1]  [G1]  [O]   [O]   [O]
+        |
+        | 7 -         L     L    [G1]  [G1]   L    [S2]  [G2]
+        |
+        | 8 -           LSS    L     LC    LC    L     LT
+        |
+        | 9 -               LS   LSS    L     L    [O]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -404,7 +437,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$FuelFactory"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC remainder
+          "0 Pay<> FROM MC", // no MC remainder
           "$FuelFactory FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Titanium]",
@@ -413,7 +446,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$CarbonateProcessing"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC remainder
+          "0 Pay<> FROM MC", // no MC remainder
           "$CarbonateProcessing FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 Heat]",
@@ -446,12 +479,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertProduction(m = 0, s = 0, t = 0, p = 3, e = 0, h = 0)
     nor.assertDashMiddle(played = 3, actions = 0, tr = 22, hand = 7)
     nor.assertTags(plt = 3, cit = 1)
-    nor.assertDashRight(events = 0, tagless = 0, cities = 1)
+    nor.assertDashRight(events = 0, tagless = 0)
     vin.assertResources(m = 51, s = 0, t = 1, p = 0, e = 0, h = 3)
     vin.assertProduction(m = 5, s = 0, t = 1, p = 0, e = 0, h = 3)
     vin.assertDashMiddle(played = 5, actions = 0, tr = 20, hand = 7)
     vin.assertTags(but = 3, pot = 1)
-    vin.assertDashRight(events = 0, tagless = 1, cities = 0)
+    vin.assertDashRight(events = 0, tagless = 1)
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 1, venus = 2)
     // Research Network's wild tag supplies Cloud Tourism's missing Earth tag.
     vin.turn {
@@ -549,12 +582,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertProduction(m = 0, s = 0, t = 0, p = 3, e = 0, h = 0)
     nor.assertDashMiddle(played = 4, actions = 1, tr = 24, hand = 8)
     nor.assertTags(but = 1, plt = 3, cit = 1)
-    nor.assertDashRight(events = 0, tagless = 0, cities = 1)
+    nor.assertDashRight(events = 0, tagless = 0)
     vin.assertResources(m = 33, s = 0, t = 2, p = 0, e = 0, h = 6)
     vin.assertProduction(m = 9, s = 0, t = 1, p = 0, e = 0, h = 3)
     vin.assertDashMiddle(played = 9, actions = 2, tr = 23, hand = 5)
     vin.assertTags(but = 4, pot = 1, eat = 1, jot = 1, vet = 3)
-    vin.assertDashRight(events = 0, tagless = 1, cities = 0)
+    vin.assertDashRight(events = 0, tagless = 1)
     assertSidebar(gen = 3, temp = -30, oxygen = 3, oceans = 2, venus = 4)
     nor.turn {
       doTasks(
@@ -579,7 +612,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
           "$RoboticWorkforce FROM ProjectCard",
-          "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
+          "EACH",
           "0 BuildingTag<WildTagElection<WildTag<$ResearchNetwork>>>",
           "CopyProductionBox<$CheungShingMars>",
           "PROD[3 MC]",
@@ -632,12 +665,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertProduction(m = 1, s = 0, t = 0, p = 3, e = 1, h = 0)
     nor.assertDashMiddle(played = 7, actions = 3, tr = 25, hand = 6)
     nor.assertTags(but = 1, pot = 1, vet = 2, plt = 3, cit = 1)
-    nor.assertDashRight(events = 0, tagless = 0, cities = 1)
+    nor.assertDashRight(events = 0, tagless = 0)
     vin.assertResources(m = 39, s = 0, t = 3, p = 0, e = 0, h = 9)
     vin.assertProduction(m = 12, s = 0, t = 1, p = 0, e = 0, h = 3)
     vin.assertDashMiddle(played = 10, actions = 2, tr = 23, hand = 8)
     vin.assertTags(but = 4, sct = 1, pot = 1, eat = 1, jot = 1, vet = 3)
-    vin.assertDashRight(events = 0, tagless = 1, cities = 0)
+    vin.assertDashRight(events = 0, tagless = 1)
     assertSidebar(gen = 4, temp = -28, oxygen = 3, oceans = 3, venus = 4)
     vin.turn {
       doTasks(
@@ -788,12 +821,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertProduction(m = 2, s = 0, t = 0, p = 5, e = 0, h = 0)
     nor.assertDashMiddle(played = 9, actions = 3, tr = 28, hand = 7)
     nor.assertTags(but = 1, sct = 1, pot = 1, vet = 2, plt = 4, mit = 1, ant = 1, cit = 1)
-    nor.assertDashRight(events = 0, tagless = 0, cities = 1)
+    nor.assertDashRight(events = 0, tagless = 0)
     vin.assertResources(m = 32, s = 0, t = 1, p = 2, e = 1, h = 16)
     vin.assertProduction(m = 12, s = 0, t = 1, p = 0, e = 1, h = 4)
     vin.assertDashMiddle(played = 14, actions = 2, tr = 28, hand = 8)
     vin.assertTags(but = 4, spt = 1, sct = 1, pot = 2, eat = 2, jot = 1, vet = 3)
-    vin.assertDashRight(events = 1, tagless = 1, cities = 0)
+    vin.assertDashRight(events = 1, tagless = 1)
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 5, venus = 10)
     nor.turn {
       doTasks(
@@ -915,12 +948,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertProduction(m = 3, s = 0, t = 0, p = 4, e = 0, h = 0)
     nor.assertDashMiddle(played = 9, actions = 3, tr = 31, hand = 9)
     nor.assertTags(but = 1, sct = 1, pot = 1, vet = 2, plt = 4, mit = 1, ant = 1, cit = 1)
-    nor.assertDashRight(events = 0, tagless = 0, cities = 1)
+    nor.assertDashRight(events = 0, tagless = 0)
     vin.assertResources(m = 43, s = 0, t = 2, p = 2, e = 1, h = 6)
     vin.assertProduction(m = 16, s = 0, t = 1, p = 0, e = 1, h = 5)
     vin.assertDashMiddle(played = 17, actions = 3, tr = 31, hand = 8)
     vin.assertTags(but = 4, spt = 1, sct = 1, pot = 2, eat = 3, jot = 1, vet = 3, ant = 1)
-    vin.assertDashRight(events = 1, tagless = 2, cities = 0)
+    vin.assertDashRight(events = 1, tagless = 2)
     assertSidebar(gen = 6, temp = -16, oxygen = 6, oceans = 6, venus = 12)
     vin.turn {
       doTasks(
@@ -1035,17 +1068,47 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         "6 Pay<> FROM MC",
         "2 ProjectCard<Hand FROM Selecting>",
     )
+    // _local/replays/Game20260912/Heroku-g1212dda978b8/game-g1212dda978b8.sqlite; source save 201.
+    assertEquals(
+        """
+        |                       1     2     3     4     5     6     7     8     9
+        |                      /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LSS   WSS    L     WC    W
+        |
+        | 2 -            L     VS    L     L    [G1]  [O]
+        |
+        | 3 -         VC    L     L    [G1]   L    [G1]  [G1]
+        |
+        | 4 -     VPT    LP    LP    LP   [G1]  [G1]  [C1]  [O]
+        |
+        | 5 -  VPP   LPP   NPP   WPP   [O]   [O]   [S2]  [G1]  [S1]
+        |
+        | 6 -      LP   LPP    LP    LP    LP   [O]   [O]   [O]
+        |
+        | 7 -         L     L     L     L     L     LP    L
+        |
+        | 8 -           LSS    L     LC    LC    L     LT
+        |
+        | 9 -               LS   LSS    L     L    [O]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // Database save 201: immediately after both Research purchases in generation 7.
     nor.assertResources(m = 38, s = 0, t = 1, p = 6, e = 0, h = 5)
     nor.assertProduction(m = 3, s = 0, t = 1, p = 4, e = 0, h = 0)
     nor.assertDashMiddle(played = 12, actions = 3, tr = 35, hand = 6)
     nor.assertTags(but = 1, sct = 1, pot = 1, vet = 3, plt = 5, mit = 1, ant = 1, cit = 1)
-    nor.assertDashRight(events = 0, tagless = 1, cities = 1)
+    nor.assertDashRight(events = 0, tagless = 1)
     vin.assertResources(m = 49, s = 0, t = 3, p = 2, e = 1, h = 12)
     vin.assertProduction(m = 16, s = 0, t = 1, p = 0, e = 1, h = 5)
     vin.assertDashMiddle(played = 19, actions = 3, tr = 34, hand = 8)
     vin.assertTags(but = 4, spt = 2, sct = 1, pot = 2, eat = 4, jot = 1, vet = 3, ant = 1)
-    vin.assertDashRight(events = 2, tagless = 2, cities = 0)
+    vin.assertDashRight(events = 2, tagless = 2)
     assertSidebar(gen = 7, temp = -14, oxygen = 8, oceans = 8, venus = 16)
     nor.turn {
       doTasks(
@@ -1087,7 +1150,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "1 Pay<Class<Titanium>> FROM Titanium",
           "24 Pay<> FROM MC",
           "$InterplanetaryTrade FROM ProjectCard",
-          "EACH @WildTagElection { Tag<@WildTagElection>? }",
+          "EACH",
           "JovianTag<WildTagElection<WildTag<ResearchCoordination>>>",
           "PROD[10 MC]",
       )
@@ -1178,7 +1241,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         ant = 1,
         cit = 1,
     )
-    nor.assertDashRight(events = 0, tagless = 1, cities = 1)
+    nor.assertDashRight(events = 0, tagless = 1)
     vin.assertResources(m = 52, s = 0, t = 1, p = 4, e = 1, h = 12)
     vin.assertProduction(m = 18, s = 0, t = 1, p = 2, e = 1, h = 7)
     vin.assertDashMiddle(played = 23, actions = 4, tr = 36, hand = 6)
@@ -1193,7 +1256,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         mit = 1,
         ant = 1,
     )
-    vin.assertDashRight(events = 2, tagless = 2, cities = 0)
+    vin.assertDashRight(events = 2, tagless = 2)
     assertSidebar(gen = 8, temp = -10, oxygen = 9, oceans = 9, venus = 18)
     vin.turn {
       doTasks(
@@ -1321,7 +1384,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         ant = 1,
         cit = 2,
     )
-    nor.assertDashRight(events = 0, tagless = 2, cities = 2)
+    nor.assertDashRight(events = 0, tagless = 2)
     vin.assertResources(m = 56, s = 0, t = 2, p = 10, e = 1, h = 12)
     vin.assertProduction(m = 19, s = 0, t = 1, p = 4, e = 1, h = 7)
     vin.assertDashMiddle(played = 24, actions = 4, tr = 37, hand = 6)
@@ -1337,7 +1400,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         mit = 1,
         ant = 1,
     )
-    vin.assertDashRight(events = 2, tagless = 2, cities = 1)
+    vin.assertDashRight(events = 2, tagless = 2)
     assertSidebar(gen = 9, temp = -8, oxygen = 10, oceans = 9, venus = 18)
     nor.turn {
       draw(DuskLaserMining)
@@ -1561,7 +1624,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         ant = 1,
         cit = 2,
     )
-    nor.assertDashRight(events = 1, tagless = 3, cities = 3)
+    nor.assertDashRight(events = 1, tagless = 3)
     vin.assertResources(m = 64, s = 0, t = 3, p = 6, e = 1, h = 12)
     vin.assertProduction(m = 20, s = 0, t = 1, p = 4, e = 1, h = 7)
     vin.assertDashMiddle(played = 24, actions = 4, tr = 41, hand = 7)
@@ -1577,7 +1640,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         mit = 1,
         ant = 1,
     )
-    vin.assertDashRight(events = 2, tagless = 2, cities = 2)
+    vin.assertDashRight(events = 2, tagless = 2)
     assertSidebar(gen = 10, temp = -4, oxygen = 14, oceans = 9, venus = 30)
     vin.turn {
       doTasks(
@@ -1770,7 +1833,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         ant = 1,
         cit = 2,
     )
-    nor.assertDashRight(events = 2, tagless = 4, cities = 5)
+    nor.assertDashRight(events = 2, tagless = 4)
     vin.assertResources(m = 61, s = 0, t = 4, p = 8, e = 1, h = 12)
     vin.assertProduction(m = 21, s = 0, t = 1, p = 6, e = 1, h = 7)
     vin.assertDashMiddle(played = 27, actions = 4, tr = 42, hand = 8)
@@ -1786,7 +1849,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         mit = 1,
         ant = 2,
     )
-    vin.assertDashRight(events = 2, tagless = 2, cities = 3)
+    vin.assertDashRight(events = 2, tagless = 2)
     assertSidebar(gen = 11, temp = 2, oxygen = 14, oceans = 9, venus = 30)
     nor.turn {
       doTasks(*cardActionTasks("$AerialMappers", "Action2"), "-Floater<$AerialMappers>")
@@ -1936,7 +1999,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$StanfordTorus"),
           "4 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC remainder
+          "0 Pay<> FROM MC", // no MC remainder
           "$StanfordTorus FROM ProjectCard",
           "NormalCityTile<StanfordTorus_RemoteArea>",
           "2 MC",

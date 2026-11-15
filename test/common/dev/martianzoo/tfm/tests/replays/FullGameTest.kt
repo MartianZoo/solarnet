@@ -122,13 +122,11 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
   protected fun Agent.assertDashRight(
       events: Int,
       tagless: Int,
-      cities: Int,
       colonies: Int = 0,
   ) {
     assertCounts(
         events to "PlayedEvent",
         tagless to "CardFront(HAS MAX 0 Tag)",
-        cities to "CityTile",
     )
     if (
         game.classTable.isInhabited(cn("ColoniesExpansion")) &&

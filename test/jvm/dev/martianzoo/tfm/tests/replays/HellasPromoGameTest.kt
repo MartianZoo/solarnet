@@ -180,7 +180,7 @@ internal class HellasPromoGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$OlympusConference"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$OlympusConference FROM ProjectCard",
           "Science<$OlympusConference>",
       )
@@ -273,7 +273,6 @@ internal class HellasPromoGameTest : FullGameTest() {
       assertCounts(7 to "ProjectCard", 12 to "CardFront")
       assertCounts(5 to "ActiveCard", 4 to "AutomatedCard", 1 to "PlayedEvent")
       assertTags(but = 5, spt = 1, sct = 3, pot = 1, eat = 4, jot = 1, cit = 1)
-      assertCounts(1 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
     with(p2) {
@@ -283,7 +282,6 @@ internal class HellasPromoGameTest : FullGameTest() {
       assertCounts(9 to "ProjectCard", 5 to "CardFront")
       assertCounts(1 to "ActiveCard", 2 to "AutomatedCard", 2 to "PlayedEvent")
       assertTags(spt = 1, sct = 3, jot = 1, plt = 1)
-      assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
   }
 }

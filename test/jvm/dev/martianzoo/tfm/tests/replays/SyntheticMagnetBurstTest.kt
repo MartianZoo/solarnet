@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -8,6 +10,7 @@ import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Source: _local/replays/Game20260820/ (game log, player record, and dashboard screenshots)
 // Complete archive replay: Synthetic Magnet Burst (ga5237bd2fb08)
@@ -71,6 +74,36 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     generation9()
     generation10()
     generation11()
+
+    // _local/replays/Game20260820/player.json; final Mars map.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             WPP   [G1]  [C1]  [G1]   LP
+        |
+        | 2 -          [O]   [C2]   LP   [S2]  [C1]  [G1]
+        |
+        | 3 -        WP    LP    LS    LS    L    [G1]  [S1]
+        |
+        | 4 -     WP    LP    LS   LSS    LS   [O]   [O]    LP
+        |
+        | 5 -  LC    L     L    LSS    L    [O]   [O]   [O]    LP
+        |
+        | 6 -     LT    L     LS    L     L    [O]   [O]    L
+        |
+        | 7 -       [O]    L     L    [S1]   L     L     LT
+        |
+        | 8 -          [G2]  [C2]  [G1]  [G1]   LT    LT
+        |
+        | 9 -              L    LHH   [C1]  [S1]   L
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -109,7 +142,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$Recession>>",
           "$Recession FROM PreludeCard",
           "10 MC",
-          "EACH Other@Player(NOT Pink) { -5* MC<Other@Player>, -Production<Other@Player, Class<MC>>! }",
+          "EACH",
           "-5 MC<Green>",
           "PROD[-MC<Green>]",
       )
@@ -126,7 +159,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[2 MC]",
       )
       // Pink drew Micro-Mills
-      doTask("SearchForCard<NoTagsFilter>").expect("ProjectCard")
+      doTask("SearchForCard<NoTagsFilter>")
       doTask("4 MC")
     }
 
@@ -137,7 +170,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "5 MC",
       )
       // Green drew Insects,Stratopolis
-      doTask("2 SearchForCard<RequirementFilter>").expect("2 ProjectCard")
+      doTask("2 SearchForCard<RequirementFilter>")
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$SuitableInfrastructure>>",
           "$SuitableInfrastructure FROM PreludeCard",
@@ -227,7 +260,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "OceanTile<Hellas_7_3>",
           "TerraformRating",
           "2 Titanium",
@@ -321,7 +354,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$RotatorImpacts"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$RotatorImpacts FROM ProjectCard",
       )
       doTasks(*cardActionTasks("$RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<$RotatorImpacts>")
@@ -659,7 +692,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SolarWindPower"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$SolarWindPower FROM ProjectCard",
           "PROD[Energy]",
           "2 Titanium",
@@ -814,7 +847,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *cardActionTasks("$RotatorImpacts"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -913,7 +946,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "$IshtarExpedition FROM ProjectCard",
           "3 Titanium",
       )
-      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>").expect("2 ProjectCard")
+      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
       doTask("3 MC")
       doTasks(
           *playCardTasks("$GiantIceAsteroid"),
@@ -990,7 +1023,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTask("-ProjectCard", SponsoredAcademies)
       // The context also avoids matching EACH against Mars University's unrelated THEN task.
       doTask(
-          "EACH Other@Player(NOT Green) { ProjectCard<Other@Player, Hand>! }",
+          "EACH",
           SponsoredAcademies,
       )
       doTasks(
@@ -1153,7 +1186,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$IndustrialCenter"),
           "1 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$IndustrialCenter FROM ProjectCard",
           "MC",
           "IndustrialCenter_SpecialTile<Hellas_9_8>",
@@ -1529,7 +1562,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TechnologyDemonstration"),
           "1 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
       )

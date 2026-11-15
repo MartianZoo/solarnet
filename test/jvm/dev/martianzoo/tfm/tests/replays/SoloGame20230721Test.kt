@@ -104,7 +104,7 @@ internal class SoloGame20230721Test : FullGameTest() {
         doTasks(
             *playCardTasks("$CallistoPenalMines"),
             "6 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$CallistoPenalMines FROM ProjectCard",
             "PROD[3 MC]",
         )
@@ -212,7 +212,7 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertResources(m = 16, s = 0, t = 6, p = 1, e = 1, h = 0)
       // UI says actions 2 because UNMI not currently playable
       assertDashMiddle(played = 10, actions = 3, tr = 20, hand = 5)
-      assertDashRight(events = 1, tagless = 3, cities = 0, colonies = 0)
+      assertDashRight(events = 1, tagless = 3, colonies = 0)
       assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 2, venus = 6)
 
       me.turn {
@@ -265,7 +265,7 @@ internal class SoloGame20230721Test : FullGameTest() {
         doTasks(
             *playCardTasks("$SolarReflectors"),
             "6 Pay<Class<Titanium>> FROM Titanium", // "overpay" 1
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$SolarReflectors FROM ProjectCard",
             "PROD[5 Heat]",
         )
@@ -380,7 +380,7 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertResources(m = 32, s = 2, t = 0, p = 2, e = 4, h = 14)
       // UI says actions 3 because UNMI not currently playable
       assertDashMiddle(played = 18, actions = 4, tr = 28, hand = 3)
-      assertDashRight(events = 3, tagless = 3, cities = 0, colonies = 0)
+      assertDashRight(events = 3, tagless = 3, colonies = 0)
       assertSidebar(gen = 7, temp = -20, oxygen = 2, oceans = 3, venus = 10)
 
       me.turn {
@@ -590,7 +590,7 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertResources(m = 49, s = 0, t = 0, p = 7, e = 6, h = 18)
       // UI says actions 3 because UNMI not currently playable
       assertDashMiddle(played = 25, actions = 4, tr = 45, hand = 7)
-      assertDashRight(events = 5, tagless = 4, cities = 1, colonies = 1)
+      assertDashRight(events = 5, tagless = 4, colonies = 1)
       assertSidebar(gen = 10, temp = -10, oxygen = 6, oceans = 3, venus = 24)
 
       me.turn {
@@ -780,7 +780,7 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertResources(m = 68, s = 8, t = 0, p = 8, e = 6, h = 16)
       // UI says actions 3 because UNMI not currently playable
       assertDashMiddle(played = 31, actions = 4, tr = 62, hand = 4)
-      assertDashRight(events = 6, tagless = 5, cities = 2, colonies = 2)
+      assertDashRight(events = 6, tagless = 5, colonies = 2)
       assertSidebar(gen = 12, temp = 0, oxygen = 9, oceans = 8, venus = 28)
 
       me.turn {
@@ -826,7 +826,7 @@ internal class SoloGame20230721Test : FullGameTest() {
         doTasks(
             *playCardTasks("$SolarPower"),
             "6 Pay<Class<Steel>> FROM Steel", // "overpay" 1
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$SolarPower FROM ProjectCard",
             "PROD[Energy]",
         )
@@ -872,7 +872,7 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertProduction(m = 8, s = 0, t = 0, p = 5, e = 7, h = 10)
       assertResources(m = 82, s = 5, t = 0, p = 1, e = 7, h = 13)
       assertCounts(0 to "ProjectCard", 69 to "TerraformRating", 32 to "CardFront OR PlayedEvent")
-      assertDashRight(events = 6, tagless = 5, cities = 3, colonies = 2)
+      assertDashRight(events = 6, tagless = 5, colonies = 2)
       assertSidebar(gen = 12, temp = 4, oxygen = 12, oceans = 8, venus = 30)
 
       assertTags(5, 7, 0, 5, 5, 1, 3, 2, 1, 0, 0)

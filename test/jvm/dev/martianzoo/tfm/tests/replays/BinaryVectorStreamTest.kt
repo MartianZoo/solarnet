@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -9,6 +11,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete source-backed solo replay: Binary Vector Stream (g57c6739abab5).
 // http://newazure.local:8080/the-end?id=pf66ef32d2f75
@@ -85,7 +88,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
         "LakefrontResorts FROM CorporationCard",
         "54 MC",
         "15 Pay<> FROM MC",
-        "5 ProjectCard FROM ProjectCard<Selecting>",
+        "5 ProjectCard<Hand FROM Selecting>",
     )
     with(p1) {
       draw(EventAnalysts)
@@ -161,7 +164,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     // Database saves 11-12 identify Energy Saving as the sold patent.
     p1.discard(EnergySaving)
@@ -212,7 +215,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks(
         "-3 ProjectCard<Selecting>",
         "3 Pay<> FROM MC",
-        "ProjectCard FROM ProjectCard<Selecting>",
+        "ProjectCard<Hand FROM Selecting>",
     )
     p1.turn {
       doTasks(
@@ -245,7 +248,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       )
       doTask("-ProjectCard<Hand>!", SponsoredAcademies)
       doTask("3 ProjectCard")
-      doTask("EACH Other@Player(NOT Pink) { ProjectCard<Other@Player, Hand>! }")
+      doTask("EACH")
       // No other player draws from Sponsored Academies.
       doTasks(
           *playCardTasks("RotatorImpacts"),
@@ -286,7 +289,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     p1.draw(FrontierTown)
     p1.turn {
@@ -339,7 +342,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks(
         "Ok", // Keep all four Research cards.
         "12 Pay<> FROM MC",
-        "4 ProjectCard FROM ProjectCard<Selecting>",
+        "4 ProjectCard<Hand FROM Selecting>",
     )
     p1.turn {
       doTasks(*cardActionTasks("AerialMappers"), "Floater<AerialMappers>")
@@ -423,7 +426,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     p1.draw(WgProject)
     p1.turn {
@@ -483,7 +486,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     p1.turn {
       doTasks(
@@ -585,13 +588,47 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks("50 MC", "2 Titanium", "5 Plant", "8 Heat")
     p1.doTask("TemperatureStep! BY Admin")
     p1.doTask("-2 TerraformRating") // Revolution's sourced loss.
+    // _local/replays/Game20261102/game-g57c6739abab5.sqlite; source save 89.
+    assertEquals(
+        """
+        |                         1     2     3     4     5     6     7     8     9     10    11
+        |                        /     /     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -                 LS   LSS    LS   [G]   LTT    L
+        |
+        | 2 -              W     LD    LS    L    [C]   WPP   WTT
+        |
+        | 3 -          WSS    L    LCC    L     LP   [O]    L     L
+        |
+        | 4 -        LT   [O]    L     L     LP    LP   LPP    LP   LPC
+        |
+        | 5 -    VSS    LP    LR    LP   [O]    LP   LPP    LP    LR   WPP
+        |
+        | 6 -  LP    LP   [G1]  [C1]  [O]   WPP   LSPP   LP    L     LP    WC
+        |
+        | 7 -     LP   [C1]  [O]   [G1]   LE   LEE    L     LP    LP    VD
+        |
+        | 8 -       [G1]  [O]    LP    LE   LEE    LP   VDD    LS    L
+        |
+        | 9 -          [O]    L     LT    L     L    LPP    L     VT
+        |
+        |10 -             [O]    L     LR    L    L3P   [G]   [C]
+        |
+        |11 -                 L    LST   LSS    L     LP    LC
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // Database save 89, before generation 8 Research.
     p1.assertResources(m = 56, s = 1, t = 2, p = 10, e = 0, h = 13)
     p1.assertProduction(m = 16, s = 0, t = 2, p = 5, e = 0, h = 8)
     p1.assertCounts(32 to "TerraformRating")
     p1.doTask("4 ProjectCard<Selecting>")
     p1.draw(Recruitment, SpaceMirrors, RadChemFactory, ImportedNitrogen)
-    p1.doTasks("Ok", "12 Pay<> FROM MC", "4 ProjectCard FROM ProjectCard<Selecting>") // Keep four.
+    p1.doTasks("Ok", "12 Pay<> FROM MC", "4 ProjectCard<Hand FROM Selecting>") // Keep four.
     p1.turn {
       doTasks(
           *cardActionTasks("NitriteReducingBacteria", "Action2"),
@@ -652,7 +689,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("Heather"),
           "2 PayFromCard<Psychrophiles> FROM Microbe<Psychrophiles>",
-          "Ok", // Card microbes and Earth Catapult cover the printed cost.
+          "0 Pay<> FROM MC", // Card microbes and Earth Catapult cover the printed cost.
           "Heather FROM ProjectCard",
           "PROD[Plant]",
           "Plant",
@@ -726,7 +763,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     p1.draw(VenusShuttles, ConvoyFromEuropa)
     p1.turn {
@@ -799,7 +836,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *cardActionTasks("RotatorImpacts", "Action1"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // Two titanium cover this Rotator Impacts action; pay no MC.
+          "0 Pay<> FROM MC", // Two titanium cover this Rotator Impacts action; pay no MC.
           "Asteroid<RotatorImpacts>",
       )
       doTasks(
@@ -807,7 +844,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "25 Pay<> FROM MC",
           "InterplanetaryTrade FROM ProjectCard",
       )
-      doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
+      doTask("EACH")
       doTask("PROD[11 MC]")
       doTasks(*cardActionTasks("VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
@@ -830,7 +867,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     p1.turn {
       doTasks(
@@ -977,7 +1014,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     p1.turn {
       doTasks(
@@ -1102,7 +1139,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *cardActionTasks("RotatorImpacts", "Action1"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // Two titanium cover this Rotator Impacts action; pay no MC.
+          "0 Pay<> FROM MC", // Two titanium cover this Rotator Impacts action; pay no MC.
           "Asteroid<RotatorImpacts>",
       )
       doTasks(
@@ -1140,7 +1177,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     p1.turn {
       doTasks(
@@ -1196,7 +1233,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("NoctisFarming"),
           "2 Pay<Class<Steel>> FROM Steel",
           "2 PayFromCard<Psychrophiles> FROM Microbe<Psychrophiles>",
-          "Ok", // Steel and Psychrophiles microbes cover the cost; pay no MC.
+          "0 Pay<> FROM MC", // Steel and Psychrophiles microbes cover the cost; pay no MC.
           "NoctisFarming FROM ProjectCard",
           "PROD[MC]",
           "2 Plant",
@@ -1308,5 +1345,39 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.assertResources(m = 129, s = 4, t = 2, p = 1, e = 0, h = 13)
     p1.assertProduction(m = 51, s = 0, t = 2, p = 8, e = 0, h = 10)
     p1.assertCounts(77 to "TerraformRating", 160 to "VictoryPoint", 1 to "Victory")
+
+    // _local/replays/Game20261102/player-pf66ef32d2f75.json; final Mars map.
+    assertEquals(
+        """
+        |                          1     2     3     4     5     6     7     8     9     10    11
+        |                         /     /     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -                  LS   [G1]  [C1]  [G]   [S1]   L
+        |
+        | 2 -               W    [C1]  [G1]  [G1]  [C]   [O]   [O]
+        |
+        | 3 -           WSS   [G1]  [G1]  [C1]  [G1]  [O]    L     L
+        |
+        | 4 -        [G1]  [O]   [C1]  [G1]  [G1]  [C1]  [G1]   LP   LPC
+        |
+        | 5 -     [G1]  [C1]  [G1]  [G1]  [O]   [G1]  [G1]   LP    LR   WPP
+        |
+        | 6 -  [C1]  [G1]  [G1]  [C1]  [O]   [O]   LSPP   LP    L     LP    WC
+        |
+        | 7 -     [G1]  [C1]  [O]   [G1]   LE   LEE    L     LP    LP    VD
+        |
+        | 8 -        [G1]  [O]    LP    LE   LEE    LP   VDD    LS    L
+        |
+        | 9 -           [O]    L     LT    L     L    LPP    L     VT
+        |
+        |10 -              [O]    L     LR    L    L3P   [G]   [C]
+        |
+        |11 -                  L    LST   LSS    L     LP    LC
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 }

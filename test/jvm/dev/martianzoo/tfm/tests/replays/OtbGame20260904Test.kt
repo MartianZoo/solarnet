@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -8,6 +10,7 @@ import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 /**
  * Four-player physical game played across 2026-09-04, 2026-09-05, and 2026-09-09. Comments preserve
@@ -254,7 +257,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$AtmosphericEnhancers>>",
           "$AtmosphericEnhancers FROM PreludeCard",
       )
-      doTask("2 SearchForCard<ReferenceFilter<Class<Floater>>>").expect("2 ProjectCard")
+      doTask("2 SearchForCard<ReferenceFilter<Class<Floater>>>")
       doTasks(
           "2 TemperatureStep",
           "2 TerraformRating",
@@ -273,7 +276,7 @@ internal class OtbGame20260904Test : FullGameTest() {
     rainbow.turn {
       // 2:23:34 PM — Rainbow: "Okay. I draw cards until I get three Venus."
       doTask("DoRequiredActions")
-      doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>").expect("3 ProjectCard")
+      doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>")
     }
 
     blue.turn {
@@ -550,7 +553,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       // I have energy resources, but I can pay three money to draw a building tag. bio printing
       // facility what a strikeout that was discard"
       doTasks(*cardActionTasks("$Factorum", "Action2"), "3 Pay<> FROM MC")
-      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>").expect("ProjectCard")
+      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>")
       // 2:45:34 PM — Green: "that was my well you know let me do one more thing on my turn just in
       // case let's play pets ten minus and I get a pet for that"
       doTasks(
@@ -774,7 +777,7 @@ internal class OtbGame20260904Test : FullGameTest() {
     green.turn {
       // 3:07:06 PM — Green: "I'm going to use Factorum to spend three and get a wielding card."
       doTasks(*cardActionTasks("$Factorum", "Action2"), "3 Pay<> FROM MC")
-      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>").expect("ProjectCard")
+      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>")
     }
     yellow.turn {
       // 3:07:34 PM — Blue: "My turn. Flooding."
@@ -1366,7 +1369,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *playCardTasks("$IcyImpactors"),
           "5 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No M€ needed after paying with titanium.
+          "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
           "$IcyImpactors FROM ProjectCard",
       )
     }
@@ -1532,7 +1535,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       // 4:05:07 PM — Green: "Think? Oh, I spend three to draw a building card, because I totally
       // need more of those. Okay, it's geothermal power."
       doTasks(*cardActionTasks("$Factorum", "Action2"), "3 Pay<> FROM MC")
-      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>").expect("ProjectCard")
+      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>")
       // 4:05:27 PM — Green: "I can indeed cube it. Now, I think the only other thing I'm doing is
       // cloud tourism, so let's do that and I'm done."
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
@@ -1804,7 +1807,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Capital"),
           "12 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$Capital FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[5 MC]",
@@ -2039,7 +2042,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *cardActionTasks("$IcyImpactors", "Action2"),
           "-Asteroid<$IcyImpactors>",
-          "EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player, Green>! }",
+          "EACH",
       )
       giveTask(rainbow, "OceanTile<Amazonis_02_01> BY Green")
       doTasks(
@@ -2066,6 +2069,40 @@ internal class OtbGame20260904Test : FullGameTest() {
   }
 
   private fun generation7() {
+    // _local/replays/Game20260904/board-15-31-15.jpg.
+    assertEquals(
+        """
+        |                         1     2     3     4     5     6     7     8     9     10    11
+        |                        /     /     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -                 LS   [S2]   LS   [S1]  LTT    L
+        |
+        | 2 -             [O]    LD    LS    L     LP   [O]   [G3]
+        |
+        | 3 -          WSS    L    [S3]   L     LP   [O]    L     L
+        |
+        | 4 -        LT    W     L     L     LP    LP   LPP    LP   [C3]
+        |
+        | 5 -    [S2]   LP    LR    LP    WC    LP   LPP    LP    LR   [O]
+        |
+        | 6 -  LP    LP   LPP   LPP   WPP   [O]   LSPP   LP    L     LP   [O]
+        |
+        | 7 -     LP   [C1]  [O]   LEE    LE   LEE    L     LP    LP   [C2]
+        |
+        | 8 -        LP   [O]    LP    LE   LEE    LP   VDD    LS    L
+        |
+        | 9 -          [O]    L     LT    L     L    LPP    L     VT
+        |
+        |10 -              W     L     LR    L    [G1]  [C1]  [G1]
+        |
+        |11 -                 L    LST   LSS    L     LP    LC
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // board-15-31-15.jpg and all four app histories: Generation 7 before Research.
     with(yellow) {
       assertProduction(m = 8, s = 4, t = 0, p = 3, e = 0, h = 1)
@@ -2152,7 +2189,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       // 3:37:59 PM — Green: "Do something basic first. I'll use factotum to spend three and get a
       // William card. Noctis city."
       doTasks(*cardActionTasks("$Factorum", "Action2"), "3 Pay<> FROM MC")
-      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>").expect("ProjectCard")
+      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>")
     }
     yellow.turn {
       // 3:38:47 PM — Blue: "Yeah Yeah get two TRs Um the oshkin will go um here for two um plantis
@@ -2465,7 +2502,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *playCardTasks("$BiomassCombustors"),
           "1 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$BiomassCombustors FROM ProjectCard",
           "PROD[2 Energy]",
           "PROD[-Plant<Blue>]",
@@ -2698,7 +2735,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "9 Pay<> FROM MC",
           "$SponsoredAcademies FROM ProjectCard",
           "-ProjectCard",
-          "EACH Other@Player(NOT Yellow) { ProjectCard<Other@Player, Hand>! }",
+          "EACH",
           "3 ProjectCard",
           "ProjectCard<Rainbow, Hand>",
           "ProjectCard<Blue, Hand>",
@@ -2971,7 +3008,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *playCardTasks("$WaterToVenus"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No M€ needed after paying with titanium.
+          "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
           "$WaterToVenus FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
@@ -3171,7 +3208,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       // card space"
       // 6:12:47 PM — Green: "elevator. Wow. Not super useful."
       doTasks(*cardActionTasks("$Factorum", "Action2"), "3 Pay<> FROM MC")
-      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>").expect("ProjectCard")
+      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>")
     }
 
     yellow.turn {
@@ -3180,7 +3217,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *playCardTasks("$CarbonNanosystems"),
           "7 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$CarbonNanosystems FROM ProjectCard",
           "Graphene<$CarbonNanosystems>",
       )
@@ -3237,7 +3274,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$MarsUniversity FROM ProjectCard",
           "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
@@ -3549,10 +3586,10 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *playCardTasks("$StratosphericExpedition"),
           "4 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No M€ needed after paying with titanium.
+          "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
           "$StratosphericExpedition FROM ProjectCard",
       )
-      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>").expect("2 ProjectCard")
+      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
       doTask("2 Floater<$CloudTourism>")
     }
     // 9:35:59 PM — Yellow: "I pass."
@@ -3631,7 +3668,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "$IshtarExpedition FROM ProjectCard",
           "3 Titanium",
       )
-      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>").expect("2 ProjectCard")
+      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
     }
     // 9:39:08 PM — Green: "Leechifrous Corrodies (Corroder Suits), and Jetstream Microscrappers."
     // 9:39:15 PM — Green: "Your turn, Rainbow."
@@ -3733,6 +3770,42 @@ internal class OtbGame20260904Test : FullGameTest() {
     rainbow.assertResources(m = 60, s = 1, t = 1, p = 5, e = 0, h = 4)
     blue.assertResources(m = 49, s = 0, t = 0, p = 2, e = 13, h = 29)
     green.assertResources(m = 54, s = 1, t = 6, p = 0, e = 3, h = 12)
+
+    // _local/replays/Game20260904/board-0909-21-45-22.jpg; final Mars map.
+    // Greenery owners: board-0909-18-03-31.jpg and transcript-finished-2.md placements;
+    // the final photograph has the greenery ownership cubes removed for scoring.
+    assertEquals(
+        """
+        |                         1     2     3     4     5     6     7     8     9     10    11
+        |                        /     /     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -                 LS   [S2]   LS   [S1]  LTT    L
+        |
+        | 2 -             [O]    LD    LS    L     LP   [O]   [G3]
+        |
+        | 3 -          WSS    L    [S3]   L    [G3]  [O]   [C3]  [G3]
+        |
+        | 4 -        LT    W     L     L    [G3]  [C3]  [G3]  [S1]  [C3]
+        |
+        | 5 -    [S2]   LP    LR   [G4]  [O]   [G3]  LPP    LP   [G3]  [O]
+        |
+        | 6 -  LP   [G1]  LPP   [C4]  [O]   [O]   [C2]   LP   [C1]  [G2]  [O]
+        |
+        | 7 -    [G1]  [C1]  [O]   [G4]   LE   [G2]   L     LP   [G2]  [C2]
+        |
+        | 8 -       [G1]  [O]    LP    LE   LEE    LP   VDD    LS    L
+        |
+        | 9 -          [O]    L     LT    L    [C4]  [G1]   L     VT
+        |
+        |10 -              W     L     LR    L    [G1]  [C1]  [G1]
+        |
+        |11 -                 L    LST   LSS    L    [G1]  [G1]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
 
     // board-0909-21-45-22.jpg: final tile layout and controlling tableau-ownership census.
     // 9:42:17–9:43:44 PM — Green wins Excentric with 28 card resources; Rainbow is second. Yellow

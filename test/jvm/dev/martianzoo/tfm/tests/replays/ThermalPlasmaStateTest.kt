@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -8,6 +10,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Sources: _local/replays/Game20260817/full-log-pb64886c6e682.txt and
 // _local/replays/Game20260817/player-pb64886c6e682.json. The complete Research offers come from the
@@ -61,6 +64,36 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
     generation10()
     generation11()
     generation12()
+
+    // _local/replays/Game20260817/player-pb64886c6e682.json; final Mars map.
+    assertEquals(
+        """
+        |                       1     2     3     4     5     6     7     8     9
+        |                      /     /     /     /     /     /     /     /     /
+        |
+        | 1 -               W     WT   [O]    WS    LC
+        |
+        | 2 -            VT    L     L    [O]   [O]   LSS
+        |
+        | 3 -        [S1]   L     LC   [G1]  [G1]  [O]   [S1]
+        |
+        | 4 -      LP    LP    LP   [O]   [C1]  [O]   [O]   [G1]
+        |
+        | 5 -  LPP   LPP   LPP   [O]   [G1]  [G1]  [G1]  [G1]  VPT
+        |
+        | 6 -      LS    LP   [C]    LP    LP    LP    LP    L
+        |
+        | 7 -         LT    LS   [G]    L     LS    L     L
+        |
+        | 8 -           LSS    L     L    [C]   LSS    L
+        |
+        | 9 -               LS    L     LC   [G]   LSS
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -200,13 +233,13 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         doTasks(
             *playCardTasks("$RotatorImpacts"),
             "2 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$RotatorImpacts FROM ProjectCard",
         )
         doTasks(
             *cardActionTasks("$RotatorImpacts"),
             "2 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "Asteroid<$RotatorImpacts>",
         )
         doTasks(
@@ -402,7 +435,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         doTasks(
             *cardActionTasks("$RotatorImpacts"),
             "2 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "Asteroid<$RotatorImpacts>",
         )
         doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
@@ -464,7 +497,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         doTasks(
             *playCardTasks("$OlympusConference"),
             "5 Pay<Class<Steel>> FROM Steel",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$OlympusConference FROM ProjectCard",
             "Science<$OlympusConference>",
         )
@@ -571,7 +604,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         doTasks(
             *cardActionTasks("$RotatorImpacts"),
             "2 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "Asteroid<$RotatorImpacts>",
         )
         doTasks(
@@ -692,7 +725,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         doTasks(
             *playCardTasks("$CarbonateProcessing"),
             "3 Pay<Class<Steel>> FROM Steel",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$CarbonateProcessing FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[3 Heat]",
@@ -733,7 +766,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         doTasks(
             *playCardTasks("$JovianEmbassy"),
             "7 Pay<Class<Steel>> FROM Steel",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$JovianEmbassy FROM ProjectCard",
             "TerraformRating",
         )
@@ -747,7 +780,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Windmills"),
             "3 Pay<Class<Steel>> FROM Steel",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$Windmills FROM ProjectCard",
             "PROD[Energy]",
         )
@@ -857,7 +890,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         doTasks(
             *cardActionTasks("$RotatorImpacts"),
             "2 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "Asteroid<$RotatorImpacts>",
         )
         doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$Thermophiles>")

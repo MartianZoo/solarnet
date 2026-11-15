@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -8,6 +10,7 @@ import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 /** Physical game played November 11–12, 2026; sources: `_local/replays/Game20261111/`. */
 internal class OtbGame20261111Test : FullGameTest() {
@@ -327,7 +330,7 @@ internal class OtbGame20261111Test : FullGameTest() {
       doTasks(
           *playCardTasks("$AsteroidRights"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$AsteroidRights FROM ProjectCard",
           "2 Asteroid<$AsteroidRights>",
       )
@@ -579,7 +582,7 @@ internal class OtbGame20261111Test : FullGameTest() {
       doTasks(
           *playCardTasks("$CorporateStronghold"),
           "5 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$CorporateStronghold FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
@@ -861,7 +864,7 @@ internal class OtbGame20261111Test : FullGameTest() {
       doTasks(
           *playCardTasks("$SolarWindPower"),
           "Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid; titanium deliberately overpays the 2 MC cost by 1
+          "0 Pay<> FROM MC", // no MC paid; titanium deliberately overpays the 2 MC cost by 1
           "$SolarWindPower FROM ProjectCard",
           "PROD[Energy]",
           "Energy",
@@ -1410,6 +1413,36 @@ internal class OtbGame20261111Test : FullGameTest() {
     pink.doTask("OxygenStep! BY Admin")
     // (4:11:47 PM) "Then picture time, then colonies. Take my ship back. Then walk us through
     // Turmoil."
+    // _local/replays/Game20261111/board-16-11-57.jpg.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LP    L     VS    L     L
+        |
+        | 2 -          LPP   LPP   [C1]   L     LP   [C1]
+        |
+        | 3 -        LC   WPP   WPP   LPP   [C1]   L     L
+        |
+        | 4 -    VSS    LT   WPP    LP    L     LC    LP    LD
+        |
+        | 5 -  L     L    [O]   LPP   LF4   [O]   WPP   [O]   LCC
+        |
+        | 6 -    [C1]   L     LP   WHH   [O]   [O]    LP   LTT
+        |
+        | 7 -        VT    LS    W    WHH   LPP    LP    L
+        |
+        | 8 -           LP    L     LP   LPS    LS    LP
+        |
+        | 9 -              LD    L     LC    LT    LS
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // board-16-11-57.jpg, green-applog-07 and pink-applog-08, before Generous Funding.
     green.assertResources(m = 50, s = 1, t = 10, p = 1, e = 2, h = 10)
     green.assertProduction(m = 19, s = 1, t = 2, p = 0, e = 2, h = 1)
@@ -1539,7 +1572,7 @@ internal class OtbGame20261111Test : FullGameTest() {
       doTasks(
           *playCardTasks("$L1TradeTerminal"),
           "6 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC remains owed
+          "0 Pay<> FROM MC", // no MC remains owed
           "$L1TradeTerminal FROM ProjectCard",
           "EACH",
           "Asteroid<$AsteroidRights>",
@@ -1698,7 +1731,7 @@ internal class OtbGame20261111Test : FullGameTest() {
           *playCardTasks("$LunaMetropolis"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no heat paid
-          "Ok", // no MC remains owed
+          "0 Pay<> FROM MC", // no MC remains owed
           "$LunaMetropolis FROM ProjectCard",
           "PROD[6 MC]",
           "CityTile<LunaMetropolis_RemoteArea>",
@@ -1723,7 +1756,7 @@ internal class OtbGame20261111Test : FullGameTest() {
           *playCardTasks("$RimFreighters"),
           "Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no heat paid
-          "Ok", // no MC remains owed; titanium deliberately overpays by 1
+          "0 Pay<> FROM MC", // no MC remains owed; titanium deliberately overpays by 1
           "$RimFreighters FROM ProjectCard",
       )
     }
@@ -2078,7 +2111,7 @@ internal class OtbGame20261111Test : FullGameTest() {
           *cardActionTasks("$RotatorImpacts"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no heat paid
-          "Ok", // no MC remains owed
+          "0 Pay<> FROM MC", // no MC remains owed
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -2165,7 +2198,7 @@ internal class OtbGame20261111Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Steelworks"),
           "7 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC remains owed
+          "0 Pay<> FROM MC", // no MC remains owed
           "$Steelworks FROM ProjectCard",
       )
       // "Then use it to lose four energy and get an oxygen, a TR, and two steel. Oxygen is on 10
@@ -2357,6 +2390,36 @@ internal class OtbGame20261111Test : FullGameTest() {
     // Green: "Nor do I. What's it going to be? Oxygen is at 11 now. It looks like I accidentally
     // reduced my heat production by one, so I'm going to increase it again. Now it's time for
     // colonies."
+    // _local/replays/Game20261111/board-19-11-27.jpg; latest board photograph.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LP    L     VS    L     L
+        |
+        | 2 -          LPP   LPP   [C1]   L    [G1]  [C1]
+        |
+        | 3 -        LC   [O]   [O]   [G1]  [C1]   L     L
+        |
+        | 4 -    VSS    LT   WPP   [G2]   L    [G1]  [C1]   LD
+        |
+        | 5 -  L     L    [O]   [G2]  [C2]  [O]   [O]   [O]   LCC
+        |
+        | 6 -    [C1]   L     LP   [O]   [O]   [O]   [S1]  LTT
+        |
+        | 7 -        VT    LS    W    WHH   LPP    LP    L
+        |
+        | 8 -           LP    L     LP   LPS    LS    LP
+        |
+        | 9 -              LD    L     LC    LT    LS
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // board-19-11-27.jpg: WGT oxygen 11, before Turmoil; Green 3 greeneries, Pink 2.
     pink.doTask("OxygenStep! BY Admin")
     // (7:11:59 PM) Green: "Then the global event. I get two TR. Does second place happen in a
@@ -2689,7 +2752,7 @@ internal class OtbGame20261111Test : FullGameTest() {
       doTasks(
           *playCardTasks("$TransNeptuneProbe"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC remains owed
+          "0 Pay<> FROM MC", // no MC remains owed
           "$TransNeptuneProbe FROM ProjectCard",
       )
     }
@@ -2753,16 +2816,10 @@ internal class OtbGame20261111Test : FullGameTest() {
     pink.assertResources(m = 68, s = 0, t = 1, p = 6, e = 5, h = 15)
     green.assertProduction(m = 25, s = 1, t = 4, p = 1, e = 4, h = 6)
     pink.assertProduction(m = 15, s = 0, t = 1, p = 2, e = 5, h = 14)
-    green.assertCounts(
-        41 to "TerraformRating",
-        0 to "ProjectCard",
-        4 to "GreeneryTile",
-        4 to "PartyLeader",
-    )
+    green.assertCounts(41 to "TerraformRating", 0 to "ProjectCard", 4 to "PartyLeader")
     pink.assertCounts(
         42 to "TerraformRating",
         0 to "ProjectCard",
-        4 to "GreeneryTile",
         2 to "PartyLeader",
         1 to "Chairman",
     )

@@ -6,6 +6,8 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -15,6 +17,7 @@ import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Source: _local/replays/Game20260811/ (game log, player records, and dashboard screenshots)
 // Complete archive replay: Synthetic Proton Fragment (g9ea8656f1c7e)
@@ -91,6 +94,36 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     generation7()
     generation8()
     generation9()
+
+    // _local/replays/Game20260811/Game20260811-herokuapp-player.json; final Mars map.
+    assertEquals(
+        """
+        |                       1     2     3     4     5     6     7     8     9
+        |                      /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              [G1]  [G1]  [S1]  [G3]  [C1]
+        |
+        | 2 -           [O]   [S2]  [S1]  [C3]  [G3]  [G1]
+        |
+        | 3 -        [O]   [G3]  [G1]   LS   [G3]  [G1]  [S1]
+        |
+        | 4 -     [O]   [G3]  [C3]  [G1]  [C1]  [O]   [O]    LP
+        |
+        | 5 -  [S2]   L    [G3]  LSS   [G1]  [O]   [O]   [O]    LP
+        |
+        | 6 -      LT    L     LS   [C1]  [G1]   W     WS    L
+        |
+        | 7 -        [O]    L     L    [G1]  [C2]  [G2]   LT
+        |
+        | 8 -            LS    LC   LHH   [G2]  [S2]   LT
+        |
+        | 9 -               L    LHH   LO6   LHH    L
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -208,7 +241,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       shouldThrow<TaskException> { doTask("UseAction<PlayCardAction, Action1>") }
 
       doTask("DoRequiredActions")
-      doTask("SearchForCard<TagFilter<Class<MicrobeTag>>>").expect("ProjectCard")
+      doTask("SearchForCard<TagFilter<Class<MicrobeTag>>>")
       doTask("3 ProjectCard")
       doTasks(
           *playCardTasks("$Lichen"),
@@ -503,7 +536,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *cardActionTasks("$DirectedImpactors"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "Asteroid<$DirectedImpactors>",
       )
     }
@@ -686,7 +719,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Mine"),
           "1 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
@@ -846,7 +879,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CallistoPenalMines"),
           "6 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$CallistoPenalMines FROM ProjectCard",
           "PROD[3 MC]",
       )
@@ -1053,7 +1086,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$RadChemFactory"),
           "3 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$RadChemFactory FROM ProjectCard",
           "PROD[-Energy]",
           "2 TerraformRating",
@@ -1126,7 +1159,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$DuskLaserMining"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$DuskLaserMining FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Titanium]",
@@ -1159,7 +1192,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "4 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
@@ -1620,7 +1653,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$HousePrinting"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$HousePrinting FROM ProjectCard",
           "PROD[Steel]",
       )
@@ -1695,7 +1728,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MagneticFieldGeneratorsPromo"),
           "10 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$MagneticFieldGeneratorsPromo FROM ProjectCard",
           "PROD[-4 Energy]",
           "PROD[2 Plant]",

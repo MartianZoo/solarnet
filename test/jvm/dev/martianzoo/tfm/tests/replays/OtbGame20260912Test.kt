@@ -160,14 +160,14 @@ internal class OtbGame20260912Test : FullGameTest() {
           "$NobelPrize FROM PreludeCard",
           "5 MC",
       )
-      doTask("2 SearchForCard<RequirementFilter>").expect("2 ProjectCard")
+      doTask("2 SearchForCard<RequirementFilter>")
       // "Experimental Forest. My greenery. I'm going to go on six two. For dos cardos. And for
       // moneyos."
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ExperimentalForest>>",
           "$ExperimentalForest FROM PreludeCard",
       )
-      doTask("2 SearchForCard<TagFilter<Class<PlantTag>>>").expect("2 ProjectCard")
+      doTask("2 SearchForCard<TagFilter<Class<PlantTag>>>")
       doTasks("GreeneryTile<Vastitas_6_2>", "OxygenStep", "2 ProjectCard", "TerraformRating")
       // The players acknowledged that paying the initial Greens policy during Prelude was a rule
       // mistake. Green nevertheless took 4 M€ here (transcript and Green ledger entry 6).
@@ -814,7 +814,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "9 Pay<> FROM MC",
           "$SponsoredAcademies FROM ProjectCard",
           "-ProjectCard",
-          "EACH Other@Player(NOT Yellow) { ProjectCard<Other@Player, Hand>! }",
+          "EACH",
           "3 ProjectCard",
           "ProjectCard<Green, Hand>",
           "ProjectCard<Blue, Hand>",
@@ -876,7 +876,7 @@ internal class OtbGame20260912Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Mine"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
@@ -1043,7 +1043,7 @@ internal class OtbGame20260912Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MiningArea"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Vastitas_4_2>",
           "Production<Class<Metal>(HAS PlacementBonus<LandArea(HAS MiningArea_SpecialTile)>)>",
@@ -1126,7 +1126,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           *playCardTasks("$InterplanetaryTrade"),
           "27 Pay<> FROM MC",
           "$InterplanetaryTrade FROM ProjectCard",
-          "EACH @WildTagElection { Tag<@WildTagElection>? }",
+          "EACH",
           "JovianTag<WildTagElection<WildTag<$AppliedScience>>>",
           "PlantTag<WildTagElection<WildTag<$ResearchCoordination>>>",
           "PROD[9 MC]",
@@ -1271,7 +1271,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     ) {
       green.doTask("OxygenStep! BY Admin")
       green.doTasks(
-          "EACH Card@ResourceHolder<Player>(HAS CardResource) { CardResource<Card@ResourceHolder>* BY Admin }",
+          "EACH",
           "3 ProjectCard",
       )
       yellow.doTask("ProjectCard")
@@ -1595,6 +1595,36 @@ internal class OtbGame20260912Test : FullGameTest() {
       assertCounts(22 to "TerraformRating")
     }
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 2, venus = 2)
+
+    // _local/replays/Game20260912/board-21-13-22.jpg; before World Government Terraforming.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LP    L     VS    L     L
+        |
+        | 2 -          LPP   LPP    L     L     LP   [S2]
+        |
+        | 3 -        LC   WPP   WPP   LPP    LP    L     L
+        |
+        | 4 -    [S3]  [S3]  WPP    LP    L     LC    LP    LD
+        |
+        | 5 -  L     L     WP   LPP   LF4   WPP   [O]   [O]   [G2]
+        |
+        | 6 -    [G1]   L     LP   WHH   WHHP   WC    LP   [C1]
+        |
+        | 7 -        VT    LS    W    WHH   LPP    LP    L
+        |
+        | 8 -           LP    L     LP   LPS    LS    LP
+        |
+        | 9 -              LD    L     LC    LT    LS
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
 
     // The Admin ocean awards Yellow no TR; the Turmoil phase's TR revision then costs one.
     expectChanges(
@@ -2404,7 +2434,7 @@ internal class OtbGame20260912Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Greenhouses"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$Greenhouses FROM ProjectCard",
           "3 Plant",
           "Animal<$EcologicalZone>",
@@ -3115,7 +3145,7 @@ internal class OtbGame20260912Test : FullGameTest() {
       doTasks(
           *playCardTasks("$NoctisFarming"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$NoctisFarming FROM ProjectCard",
           "PROD[MC]",
           "2 Plant",

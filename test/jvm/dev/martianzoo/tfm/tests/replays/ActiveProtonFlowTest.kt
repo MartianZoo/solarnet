@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -9,6 +11,7 @@ import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Partial database replay through generation 2: Active Proton Flow (gadeac80e6446)
 // Source: _local/replays/Game20260920/Heroku-gadeac80e6446/
@@ -133,8 +136,39 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     pink.cardsHand shouldBe setOf(Flooding, LavaFlows, CupolaCity, HeatTrappers, NitrophilicMoss)
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 2)
-    admin.assertCounts(2 to "Tile")
+
     assertCardTrackingComplete()
+
+    // _local/replays/Game20260920/Heroku-gadeac80e6446/game-gadeac80e6446.sqlite; source save 37,
+    // replay endpoint.
+    assertEquals(
+        """
+        |                       1     2     3     4     5     6     7     8     9
+        |                      /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LSS   WSS    L     WC    W
+        |
+        | 2 -            L     VS    L     L     L    [O]
+        |
+        | 3 -         VC    L     L     L     L     L     LS
+        |
+        | 4 -     VPT    LP    LP    LP   LPP    LP    LP   WPP
+        |
+        | 5 -  VPP   LPP   NPP   WPP   WPP   WPP   LPP   LPP   LPP
+        |
+        | 6 -      LP   LPP    LP    LP    LP    WP    WP    WP
+        |
+        | 7 -         L     L     L     L     L     LP    L
+        |
+        | 8 -           LSS    L     LC    LC    L     LT
+        |
+        | 9 -               LS   LSS    L     L    [O]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -215,7 +249,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$PowerPlant"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no mc paid
+          "0 Pay<> FROM MC", // no mc paid
           "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
       )
