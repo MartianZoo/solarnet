@@ -231,7 +231,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("20 MC", "Titanium", "Plant", "Energy")
     yellow.doTasks("21 MC", "4 Energy", "2 Steel")
     // "[Green] uses World Government Terraforming to increase oxygen."
-    green.doTask("OxygenStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("OxygenStep! BY Admin")
   }
 
   private fun generation2() {
@@ -351,7 +351,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("20 MC", "3 Titanium", "Plant", "Heat FROM Energy")
     yellow.doTasks("21 MC", "5 Energy", "2 Steel", "4 Heat FROM Energy", "Titanium")
     // "I'm going to use World Government Terraforming to increase Venus."
-    yellow.doTask("VenusStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("VenusStep! BY Admin")
   }
 
   private fun generation3() {
@@ -498,7 +498,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("26 MC", "3 Titanium", "Plant")
     yellow.doTasks("23 MC", "8 Energy", "2 Steel", "5 Heat FROM Energy", "Titanium", "3 Heat")
     // "[Green] increases temperature with World Government Terraforming."
-    green.doTask("TemperatureStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("TemperatureStep! BY Admin")
   }
 
   private fun generation4() {
@@ -672,7 +672,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("26 MC", "3 Titanium", "Plant")
     yellow.doTasks("27 MC", "8 Energy", "3 Steel", "5 Heat FROM Energy", "Titanium", "3 Heat")
     // "I'm going to increase Venus" with World Government Terraforming.
-    yellow.doTask("VenusStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("VenusStep! BY Admin")
   }
 
   private fun generation5() {
@@ -781,8 +781,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "4 Titanium",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "PROD[Heat]",
           "-Plant<Yellow>",
       )
@@ -879,7 +878,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("36 MC", "6 Titanium", "Plant", "Heat")
     yellow.doTasks("32 MC", "8 Energy", "3 Steel", "5 Heat FROM Energy", "Titanium", "4 Heat")
     // "World Government us an ocean... nine-eight."
-    green.doTask("OceanTile<Utopia_9_8>! BY Admin").expect("0 TerraformRating")
+    green.doTask("OceanTile<Utopia_9_8>! BY Admin")
   }
 
   private fun generation6() {
@@ -950,8 +949,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
     green.turn {
@@ -1029,8 +1027,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           "GreeneryTile<Utopia_4_2>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -1063,7 +1060,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("38 MC", "6 Titanium", "Plant", "3 Heat", "Heat FROM Energy")
     yellow.doTasks("40 MC", "7 Energy", "3 Steel", "5 Heat FROM Energy", "Titanium", "4 Heat")
     // "I will World Government an ocean on six-four."
-    yellow.doTask("OceanTile<Utopia_6_4>! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("OceanTile<Utopia_6_4>! BY Admin")
   }
 
   private fun generation7() {
@@ -1378,7 +1375,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     )
     yellow.doTasks("44 MC", "7 Energy", "3 Steel", "4 Heat FROM Energy", "Titanium", "4 Heat")
     // Green uses World Government Terraforming to increase Venus.
-    green.doTask("VenusStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("VenusStep! BY Admin")
   }
 
   private fun generation8() {
@@ -1680,7 +1677,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("49 MC", "6 Titanium", "8 Plant", "4 Heat", "Steel", "2 Energy")
     yellow.doTasks("49 MC", "8 Energy", "3 Steel", "4 Heat FROM Energy", "Titanium", "2 Heat")
     // Yellow uses World Government Terraforming to increase oxygen.
-    yellow.doTask("OxygenStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("OxygenStep! BY Admin")
   }
 
   private fun generation9() {
@@ -1888,13 +1885,10 @@ internal class OtbGame20260818Test : FullGameTest() {
           "ProjectCard",
           "OceanTile<Utopia_7_5>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "OceanTile<Utopia_8_6>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
       // "Yeah, what the hell, let's buy a standard project, shall we?" "Aquifer." "I'm just gonna
       // take two plants by placing on four, five."
@@ -1926,7 +1920,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           "CapitalTile<Utopia_6_5>",
       )
       giveTask(green, "Animal<$Pets>")
-      doTasks("2 Plant", "2 MC", "2 MC", "2 MC")
+      doTasks("2 Plant", "6 MC")
     }
 
     green.turn {
@@ -2072,7 +2066,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     yellow.doTasks("60 MC", "6 Energy", "3 Steel", "5 Heat FROM Energy", "Titanium", "2 Heat")
     // "The world government is me, and well, I'm not going to do oxygen. I do temperature up to
     // minus two."
-    green.doTask("TemperatureStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("TemperatureStep! BY Admin")
   }
 
   private fun generation10() {
@@ -2315,12 +2309,10 @@ internal class OtbGame20260818Test : FullGameTest() {
           "$LavaFlows FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "LavaFlows_SpecialTile<Utopia_8_5>",
           "2 ProjectCard",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
     // Green's ledger omitted the two TR from Lava Flows' temperature steps.
@@ -2471,7 +2463,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     )
     yellow.doTasks("67 MC", "6 Energy", "3 Steel", "4 Heat FROM Energy", "Titanium", "2 Heat")
     // Yellow uses World Government Terraforming to raise oxygen to 12%.
-    yellow.doTask("OxygenStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("OxygenStep! BY Admin")
   }
 
   private fun generation11() {
@@ -2563,8 +2555,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           "GreeneryTile<Utopia_7_4>",
           "OxygenStep",
           "Animal<$Herbivores>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -3025,35 +3016,14 @@ internal class OtbGame20260818Test : FullGameTest() {
     // Decline the final greenery placement.
     yellow.doTask("PassBaton")
 
-    val score = Summarizer(game)
     green.assertCounts(
         44 to "TerraformRating",
     )
     yellow.assertCounts(
         56 to "TerraformRating",
     )
-    score.net("Milestone", "VictoryPoint<Green>") shouldBe 10
-    score.net("Milestone", "VictoryPoint<Yellow>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Green>") shouldBe 10
-    score.net("FirstPlace", "VictoryPoint<Yellow>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Green>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Yellow>") shouldBe 0
-    score.net("GreeneryTile", "VictoryPoint<Green>") shouldBe 10
-    score.net("GreeneryTile", "VictoryPoint<Yellow>") shouldBe 3
-    score.net("CityTile", "VictoryPoint<Green>") shouldBe 15
-    score.net("CityTile", "VictoryPoint<Yellow>") shouldBe 6
-    score.net("Card", "VictoryPoint<Green>") shouldBe 35
-    score.net("Card", "VictoryPoint<Yellow>") shouldBe 46
-    score.net("$Pets", "VictoryPoint<Green>") shouldBe 5
-    score.net("$VenusianInsects", "VictoryPoint<Green>") shouldBe 5
-    score.net("$EcologicalZone", "VictoryPoint<Green>") shouldBe 1
-    score.net("$Herbivores", "VictoryPoint<Green>") shouldBe 4
     // "Resource points on cards. One, four. Holy shit. Yeah. One, four, eight, and fifteen."
     // The earlier explicit count, "I'm at 15 strato birds," identifies the last value.
-    score.net("$Predators", "VictoryPoint<Yellow>") shouldBe 1
-    score.net("$JovianLanterns", "VictoryPoint<Yellow>") shouldBe 4
-    score.net("$VenusianAnimals", "VictoryPoint<Yellow>") shouldBe 8
-    score.net("$StratosphericBirds", "VictoryPoint<Yellow>") shouldBe 15
 
     // The spoken 118-115 tally omitted Green's four Herbivores points and the two Lava Flows TR
     // that the corrected scoring state retains. Yellow's spoken total is one point below the

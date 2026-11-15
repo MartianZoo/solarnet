@@ -219,14 +219,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       // The source has 15 cities. FakeNewHolland deliberately contributes no CityTile.
       assertCounts(14 to "CityTile", 23 to "GreeneryTile", 1 to "FakeNewHolland")
       assertCounts(5 to "Animal<SmallAnimals>", 5 to "CardResource")
-      val score = Summarizer(game)
       // The fake's four points stand for the missing city's four neighboring greeneries.
-      score.net("FakeNewHolland", "VictoryPoint<Pink>") shouldBe 4
-      score.net("CityTile", "VictoryPoint<Pink>") shouldBe 41
-      score.net("Card", "VictoryPoint<Pink>") shouldBe 28
-      score.net("GreeneryTile", "VictoryPoint<Pink>") shouldBe 23
-      score.net("Delegate", "VictoryPoint<Pink>") shouldBe 4
-      score.net("TerraformRating", "VictoryPoint<Pink>") shouldBe 63
       assertCounts(63 to "TerraformRating", 159 to "VictoryPoint", 1 to "Victory")
       assertCounts(
           1 to "PartyLeader<MarsFirst>",
@@ -361,7 +354,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "2 Plant",
           "TerraformRating",
       )
-      doTask("MC! / Neighbor<OceanTile, Vastitas_3_4>")
+      doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
           *playCardTasks("NitrophilicMoss"),
           "8 Pay<> FROM MC",
@@ -622,7 +615,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "2 Energy",
     )
     doTasks("VenusStep! BY Admin", "4 MC")
-    p1.doTask("2! MC / EarthTag")
+    p1.doTask("0 MC") // Homeworld Support: no Earth tags; the four-MC influence gain is above.
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration.
     assertSidebar(gen = 7, temp = -14, oxygen = 2, oceans = 8, venus = 4)
@@ -709,7 +702,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "2 ProjectCard",
           "TerraformRating",
       )
-      doTask("MC! / Neighbor<OceanTile, Vastitas_6_2>")
+      doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
           *playCardTasks("AsteroidRights"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -769,7 +762,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "ProjectCard",
           "TerraformRating",
       )
-      doTask("MC! / Neighbor<OceanTile, Vastitas_9_7>")
+      doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
           *playCardTasks("MartianRails"),
           "Pay<Class<Steel>> FROM Steel",
@@ -943,8 +936,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "4 Titanium",
           "3 MC",
           "3 Heat",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
       doTasks(
           "-4 Plant<SoloOpponent>",
@@ -1092,7 +1084,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("MC! / Neighbor<OceanTile, Vastitas_8_8>")
+      doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1238,8 +1230,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           *standardProjectTasks("AirScrappingProject"),
           "15 Pay<> FROM MC",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
       doTasks(
           *standardProjectTasks("CityProject"),

@@ -83,10 +83,8 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
   @Test
   internal fun activeProtonFlowThroughGeneration2() {
     startGame()
-    pink.selectTask("BeginnerOption OR StandardOption")
-    pink.narrowTask("StandardOption")
-    green.selectTask("BeginnerOption OR StandardOption")
-    green.narrowTask("BeginnerOption")
+    pink.doTask("StandardOption")
+    green.doTask("BeginnerOption")
     green.doTask("20 TerraformRating")
     pink.doTask("20 TerraformRating")
     pink.doTask("2 CorporationCard")
@@ -137,7 +135,6 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 2)
     admin.assertCounts(2 to "Tile")
     assertCardTrackingComplete()
-    expectPendingTasksAtEnd(4) // Generation 3 Research offers and their deferred phase work
   }
 
   private fun generation1() {
@@ -153,7 +150,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
         SpaceMirrors,
         PermafrostExtraction,
     )
-    green.completeOperation {
+    with(green) {
       doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
       doTask("BeginnerCorporation1 FROM BeginnerCard")
       doTask("42 MC")

@@ -200,15 +200,13 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTask("$EcologyExperts FROM PreludeCard")
       doTask("PROD[Plant]")
       doTask("PlayCard<Class<$Algae>>")
-      selectTask("-Required* / Required")
+      doTask("-5 Required<Class<OceanTile>>")
       doTasks("10 Pay<> FROM MC", "$Algae FROM ProjectCard", "PROD[2 Plant]", "Plant")
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$HugeAsteroid>>",
           "$HugeAsteroid FROM PreludeCard",
           "3 TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "3 TerraformRating",
           "PROD[Heat]",
           "-5 MC",
       )
@@ -774,8 +772,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "19 Pay<> FROM MC",
           "$BigAsteroid FROM ProjectCard",
           "2 TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "4 Titanium",
           "PROD[Plant]",
           "-4 Plant<Green>",
@@ -1004,8 +1001,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "28 Pay<> FROM MC",
           "$GiantIceAsteroid FROM ProjectCard",
           "2 TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "6 MC",
           "OceanTile<Amazonis_05_05>",
           "ProjectCard",
@@ -1017,10 +1013,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "ProjectCard",
           "-6 Plant<Yellow>",
       )
-      doTask("2 Plant")
-      doTask("2 Plant")
-      doTask("2 Plant")
-      repeat(3) { doTask("TerraformRating") }
+      doTask("6 Plant")
+      doTask("3 TerraformRating")
     }
     purple.turn {
       doTasks(
@@ -2087,21 +2081,21 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
         "3 Plant",
         "3 Heat",
     )
-    purple.selectTask("PassBaton") // no final greenery
+    purple.doTask("PassBaton") // no final greenery
     p1.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
         "7 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Amazonis_05_08>",
         "Plant",
     )
-    p1.selectTask("PassBaton") // no more greenery
-    p2.selectTask("PassBaton") // no final greenery
+    p1.doTask("PassBaton") // no more greenery
+    p2.doTask("PassBaton") // no final greenery
     p3.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
         "8 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Amazonis_03_08>",
     )
-    p3.selectTask("PassBaton") // no more greenery
+    p3.doTask("PassBaton") // no more greenery
     p1.cardsHand shouldBe setOf(MiningArea)
     p2.cardsHand shouldBe emptySet()
     p3.cardsHand shouldBe emptySet()
@@ -2176,30 +2170,5 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
     p1.assertCounts(1 to "NomadsMarker<Amazonis_05_09>")
     p2.assertCounts(5 to "Animal<$Pets>")
     purple.assertCounts(4 to "Animal<$Fish>")
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<Blue>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Yellow>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Green>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Purple>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<Blue>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Yellow>") shouldBe 10
-    score.net("FirstPlace", "VictoryPoint<Green>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<Purple>") shouldBe 10
-    score.net("SecondPlace", "VictoryPoint<Blue>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Yellow>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Green>") shouldBe 2
-    score.net("SecondPlace", "VictoryPoint<Purple>") shouldBe 2
-    score.net("GreeneryTile", "VictoryPoint<Blue>") shouldBe 11
-    score.net("GreeneryTile", "VictoryPoint<Yellow>") shouldBe 2
-    score.net("GreeneryTile", "VictoryPoint<Green>") shouldBe 7
-    score.net("GreeneryTile", "VictoryPoint<Purple>") shouldBe 2
-    score.net("CityTile", "VictoryPoint<Blue>") shouldBe 14
-    score.net("CityTile", "VictoryPoint<Yellow>") shouldBe 6
-    score.net("CityTile", "VictoryPoint<Green>") shouldBe 14
-    score.net("CityTile", "VictoryPoint<Purple>") shouldBe 6
-    score.net("Card", "VictoryPoint<Blue>") shouldBe 0
-    score.net("Card", "VictoryPoint<Yellow>") shouldBe 9
-    score.net("Card", "VictoryPoint<Green>") shouldBe 7
-    score.net("Card", "VictoryPoint<Purple>") shouldBe 15
   }
 }

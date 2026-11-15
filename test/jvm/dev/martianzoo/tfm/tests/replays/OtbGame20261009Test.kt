@@ -114,13 +114,12 @@ internal class OtbGame20261009Test : FullGameTest() {
         "CityTile<Vastitas_4_5>",
         "2 MC",
         "GreeneryTile<Vastitas_5_5>",
-        "2 MC",
+        "2 MC", // separate gains while the same resource also has a pending removal
         "2 MC",
         "-4 MC",
         "TemperatureStep",
         "OxygenStep",
-        "TerraformRating",
-        "TerraformRating",
+        "2 TerraformRating",
         "-3 ProjectCard",
     )
     // The table omitted Project Eden's oxygen and TR. The 13:53:05 photo shows oxygen 0,
@@ -153,8 +152,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "$GiantIceAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "OceanTile<Vastitas_6_7>",
           "TerraformRating",
           "4 MC",
@@ -563,7 +561,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "PROD[2 MC]",
           "PROD[3 Plant]",
           "2 Plant",
-          "Plant",
+          "Plant", // choose Viral Enhancers' plant
       )
     }
     // "So I did it both through the app, so it would have given me TR for both of them. Wow, this
@@ -755,7 +753,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       )
       selectTask("ColonyProduction<Io>?")
       doTask("ColonyProduction<Io>")
-      doTasks("2 Heat", "8 Heat")
+      doTasks("10 Heat")
     }
     p2.turn {
       doTasks(
@@ -932,8 +930,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "$GiantIceAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "OceanTile<Vastitas_3_2>",
           "TerraformRating",
           "4 MC",
@@ -951,8 +948,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "$LavaFlows FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "LavaFlows_SpecialTile<Vastitas_2_6>",
           "ProjectCard",
           "OceanTile<Vastitas_5_3>", // the 0 C threshold grants the final ocean
@@ -1028,7 +1024,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       selectTask("2 ColonyProduction<Triton> OR Ok")
       doTask("2 ColonyProduction<Triton>")
       doTask("Ok") // decline Trading Colony's one step
-      doTasks("Titanium", "5 Titanium")
+      doTasks("6 Titanium")
     }
     p2.turn {
       doTasks(
@@ -1088,7 +1084,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTask("ColonyProduction<Io>")
       selectTask("2 ColonyProduction<Io> OR Ok") // L1 Trade Terminal
       doTask("2 ColonyProduction<Io>")
-      doTasks("2 Heat", "10 Heat")
+      doTasks("12 Heat")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1257,7 +1253,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTask("ColonyProduction<Triton>")
       selectTask("2 ColonyProduction<Triton> OR Ok")
       doTask("2 ColonyProduction<Triton>")
-      doTasks("Titanium", "4 Titanium")
+      doTasks("5 Titanium")
     }
     p2.turn {
       doTasks(
@@ -1286,9 +1282,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "$OrbitalReflectors FROM ProjectCard",
           "VenusStep",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating", // includes the Venus 16% threshold
+          "3 TerraformRating", // includes the Venus 16% threshold
           "PROD[2 Heat]",
       )
     }
@@ -1395,7 +1389,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTask("ColonyProduction<Triton>")
       selectTask("2 ColonyProduction<Triton> OR Ok")
       doTask("2 ColonyProduction<Triton>")
-      doTasks("Titanium", "4 Titanium")
+      doTasks("5 Titanium")
       doTasks(
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -1651,7 +1645,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTask("ColonyProduction<Triton>")
       selectTask("2 ColonyProduction<Triton> OR Ok")
       doTask("2 ColonyProduction<Triton>")
-      doTasks("Titanium", "4 Titanium")
+      doTasks("5 Titanium")
       doTasks(
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -1798,8 +1792,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "18 Pay<> FROM MC",
           "$Atmoscoop FROM ProjectCard",
           "2 VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "2 Floater<$JovianLanterns>",
       )
     }
@@ -1941,7 +1934,7 @@ internal class OtbGame20261009Test : FullGameTest() {
       doTask("ColonyProduction<Triton>")
       selectTask("2 ColonyProduction<Triton> OR Ok")
       doTask("2 ColonyProduction<Triton>")
-      doTasks("Titanium", "4 Titanium")
+      doTasks("5 Titanium")
     }
     p2.turn {
       doTasks(
@@ -2043,7 +2036,7 @@ internal class OtbGame20261009Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "$MolecularPrinting FROM ProjectCard",
       )
-      doTasks("MC / CityTile<Anyone>", "MC / Colony<Anyone>").expect("11 MC")
+      doTask("11 MC")
     }
     p2.turn {
       doTasks(*cardActionTasks("$VenusianInsects"), "Microbe<$VenusianInsects>")

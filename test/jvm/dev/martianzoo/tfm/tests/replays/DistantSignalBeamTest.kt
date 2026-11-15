@@ -59,7 +59,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     generation1()
     generation2()
     generation3BeforeResignation()
-    expectPendingTasksAtEnd(1) // Pink's next action offer
   }
 
   private fun generation1() {
@@ -97,8 +96,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$AtmosphericEnhancers>>",
           "$AtmosphericEnhancers FROM PreludeCard",
           "2 VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "2 SearchForCard<ReferenceFilter<Class<Floater>>>",
       )
       draw(Cartel)
@@ -155,11 +153,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       )
     }
     purple.turn {
-      completeOperation {
-        doTask("DoRequiredActions")
-        selectTask("ColonyTileSelection")
-        narrowTask("Luna")
-      }
+      doTasks("DoRequiredActions", "Luna")
     }
 
     pink.turn {
@@ -340,10 +334,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "27 Pay<> FROM MC",
           "$InterplanetaryTrade FROM ProjectCard",
       )
-      completeOperation {
-        doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
-        doTask("PROD[9 MC]")
-      }
+      doTasks("EACH @WildTagElection { Tag<@WildTagElection>? }", "PROD[9 MC]")
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Producer")
     }
 

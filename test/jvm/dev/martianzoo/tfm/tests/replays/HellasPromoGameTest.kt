@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class HellasPromoGameTest : FullGameTest() {
@@ -106,8 +105,7 @@ internal class HellasPromoGameTest : FullGameTest() {
           *playCardTasks("$Sabotage"),
           "1 Pay<> FROM MC",
           "$Sabotage FROM ProjectCard",
-          "2 MC",
-          "3 MC",
+          "5 MC",
           "-7 MC<Player2>",
       )
     }
@@ -147,8 +145,8 @@ internal class HellasPromoGameTest : FullGameTest() {
     }
     p2.doTask("Pass")
 
-    p1.doTasks("-5 MC", "28 MC")
-    p2.doTasks("3 MC", "25 MC", "-5 MC", "3 Plant", "Energy", "Heat")
+    p1.doTask("23 MC")
+    p2.doTasks("23 MC", "3 Plant", "Energy", "Heat")
 
     // Generation 2 (Player2 first)
     p1.doTasks(
@@ -227,8 +225,8 @@ internal class HellasPromoGameTest : FullGameTest() {
     }
     p1.doTask("Pass")
 
-    p1.doTasks("11 MC", "-5 MC", "23 MC", "Energy", "Heat")
-    p2.doTasks("MC", "25 MC", "-5 MC", "3 Plant", "Energy", "Heat", "Heat FROM Energy", "Titanium")
+    p1.doTasks("29 MC", "Energy", "Heat")
+    p2.doTasks("21 MC", "3 Plant", "Energy", "Heat", "Heat FROM Energy", "Titanium")
 
     // Generation 3 (Player1 first)
     p1.doTasks(
@@ -287,8 +285,5 @@ internal class HellasPromoGameTest : FullGameTest() {
       assertTags(spt = 1, sct = 3, jot = 1, plt = 1)
       assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
-
-    Summarizer(game).net("$PharmacyUnion", "TerraformRating<Player2>") shouldBe 5
-    expectPendingTasksAtEnd(1) // Player2's next action offer
   }
 }

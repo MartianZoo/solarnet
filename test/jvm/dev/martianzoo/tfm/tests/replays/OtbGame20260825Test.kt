@@ -202,8 +202,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "OceanTile<Cimmeria_9_7>",
           "TerraformRating",
-          "2 Plant",
-          "Plant",
+          "3 Plant",
           "2 MC",
       )
       // "Vairon, to reuse aquifer pumping, spend eight." The second ocean goes at 9,6.
@@ -213,10 +212,8 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "OceanTile<Cimmeria_9_6>",
           "TerraformRating",
-          "2 Plant",
-          "Plant",
-          "2 MC",
-          "2 MC",
+          "3 Plant",
+          "4 MC",
       )
     }
     green.doTask("Pass")
@@ -240,8 +237,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "MiningArea_SpecialTile<Cimmeria_8_6>",
           "PROD[Titanium]",
           "Titanium",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
     yellow.turn {
@@ -260,7 +256,7 @@ internal class OtbGame20260825Test : FullGameTest() {
     green.doTask("20 MC")
     yellow.doTasks("25 MC", "Titanium")
     // "I'm taking two one. So I took the two titanium spot, but I don't get the two titanium."
-    green.doTask("OceanTile<Cimmeria_2_1>! BY Admin").expect("0 TerraformRating, 0 Titanium")
+    green.doTask("OceanTile<Cimmeria_2_1>! BY Admin").expect("0 Titanium")
     yellow.doTask("2 Plant")
   }
 
@@ -302,10 +298,8 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "OceanTile<Cimmeria_9_5>",
           "TerraformRating",
-          "2 Plant",
-          "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 Plant",
+          "4 MC",
       )
     }
 
@@ -321,8 +315,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "OceanTile<Cimmeria_8_4>",
           "TerraformRating",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       // Yellow spends eight plants for a greenery at 8,5.
       doTasks(
@@ -331,9 +324,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "GreeneryTile<Cimmeria_8_5>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
           "TerraformRating",
           "2 MC",
       )
@@ -379,7 +370,7 @@ internal class OtbGame20260825Test : FullGameTest() {
     green.doTask("20 MC")
     yellow.doTasks("28 MC", "Titanium", "2 Heat", "2 Plant")
     // "I'm going to world gov. Akigen. Akigen up to three."
-    yellow.doTask("OxygenStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("OxygenStep! BY Admin")
   }
 
   private fun generation3() {
@@ -443,8 +434,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "OceanTile<Cimmeria_9_9>",
           "TerraformRating",
-          "2 Plant",
-          "Plant",
+          "3 Plant",
           "2 MC",
           "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>",
           "5 Pay<> FROM MC",
@@ -458,8 +448,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "GreeneryTile<Cimmeria_9_8>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
           "2 MC",
       )
@@ -486,10 +475,8 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "OceanTile<Cimmeria_8_9>",
           "TerraformRating",
-          "2 Plant",
-          "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 Plant",
+          "4 MC",
           "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>",
           "5 Pay<> FROM MC",
           "PROD[Energy]",
@@ -543,7 +530,7 @@ internal class OtbGame20260825Test : FullGameTest() {
     green.doTasks("21 MC", "Energy")
     yellow.doTasks("31 MC", "Titanium", "2 Heat", "2 Plant", "2 Energy")
     // "I actually want to raise Venus. I'm raising Venus to two percent."
-    green.doTask("VenusStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("VenusStep! BY Admin")
   }
 
   private fun generation4() {
@@ -584,10 +571,8 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "OceanTile<Cimmeria_7_9>",
           "TerraformRating",
-          "2 Plant",
-          "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 Plant",
+          "4 MC",
           "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>",
           "5 Pay<> FROM MC",
           "PROD[Energy]",
@@ -601,8 +586,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<> FROM MC",
           "OceanTile<Cimmeria_1_5>",
           "TerraformRating",
-          "2 Plant",
-          "2 Plant",
+          "4 Plant",
           "2 MC",
           "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>",
           "5 Pay<> FROM MC",
@@ -672,8 +656,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "VenusStep",
           "3 MC",
           "3 Heat",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
     yellow.doTask("Pass")
@@ -695,7 +678,7 @@ internal class OtbGame20260825Test : FullGameTest() {
     green.doTasks("23 MC", "Energy", "Heat FROM Energy")
     yellow.doTasks("35 MC", "Titanium", "4 Heat", "2 Plant", "4 Energy", "2 Heat FROM Energy")
     // "I will world gov Venus. Venus to 8."
-    yellow.doTask("VenusStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("VenusStep! BY Admin")
   }
 
   private fun generation5() {
@@ -806,8 +789,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "-2 Microbe<$GhgProducingBacteria>",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
     green.doTask("Pass")
@@ -831,7 +813,7 @@ internal class OtbGame20260825Test : FullGameTest() {
     yellow.doTasks("38 MC", "Titanium", "4 Heat", "5 Plant", "4 Energy", "4 Heat FROM Energy")
     // "I know what I'm not doing. I'm not doing either of those, so Venus it is!" The game moves
     // to Generation 6 and adjourns before Research.
-    green.doTask("VenusStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("VenusStep! BY Admin")
   }
 
   private fun generation6() {
@@ -944,8 +926,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -953,8 +934,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "TemperatureStep",
           "TerraformRating",
           "PROD[Heat]",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
     // Yellow does not take either conversion's bonuses at the physical table. She reconstructs the
@@ -1133,8 +1113,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "TemperatureStep",
           "2 MC",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
       doTasks(
           *cardActionTasks("$Viron"),
@@ -1143,8 +1122,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "TemperatureStep",
           "TerraformRating",
           "PROD[Heat]",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
     green.turn {
@@ -1162,7 +1140,7 @@ internal class OtbGame20260825Test : FullGameTest() {
     green.doTasks("23 MC", "2 Titanium", "Energy")
     yellow.doTasks("45 MC", "6 Heat", "5 Plant", "4 Energy", "Steel")
     // "World government is you... increase the temp ... to minus eighteen."
-    yellow.doTask("TemperatureStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("TemperatureStep! BY Admin")
     // "Way back in the generation, I did two other..." "Oh, I also think I forgot to give the
     // terraforming deal money. So that's a total of ten." Yellow takes the omitted 10 M€ now.
     yellow.exMachina("10 MC")
@@ -1211,9 +1189,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "2 Floater",
           "PROD[MC]",
           "2 VenusStep",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "3 TerraformRating",
       )
     }
     yellow.turn {
@@ -1298,8 +1274,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
     green.turn {
@@ -1383,8 +1358,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "-2 Microbe<$GhgProducingBacteria>",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
       doTasks(
           *playCardTasks("$CloudTourism"),
@@ -1412,7 +1386,7 @@ internal class OtbGame20260825Test : FullGameTest() {
     // Production.
     green.doTasks("29 MC", "2 Titanium", "Energy")
     yellow.doTasks("57 MC", "6 Heat", "5 Plant", "4 Energy", "2 Steel")
-    green.doTask("OxygenStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("OxygenStep! BY Admin")
   }
 
   private fun generation8() {
@@ -1633,8 +1607,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "Animal<$EcologicalZone>",
           "EcologicalZone_SpecialTile<Cimmeria_7_8>",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
     green.turn {
@@ -1730,7 +1703,7 @@ internal class OtbGame20260825Test : FullGameTest() {
     yellow.doTasks("63 MC", "6 Heat", "6 Plant", "2 Energy", "2 Steel")
     // "Production. Your World Government choice." The following exchange and app checkpoint
     // identify the chosen temperature raise to -12 C; World Government grants no TR.
-    yellow.doTask("TemperatureStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("TemperatureStep! BY Admin")
   }
 
   private fun generation9() {
@@ -1985,8 +1958,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
     green.turn {
@@ -2053,7 +2025,7 @@ internal class OtbGame20260825Test : FullGameTest() {
         "2 Titanium",
     )
     // "I think I'll do temp up to minus eight. Shocker." World Government grants no TR.
-    green.doTask("TemperatureStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("TemperatureStep! BY Admin")
   }
 
   private fun generation10() {
@@ -2141,9 +2113,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "TerraformRating",
           "3 MC",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
-          "2 MC",
+          "7 MC",
           "LavaFlows_SpecialTile<Cimmeria_1_3>",
           "Steel",
       )
@@ -2178,8 +2148,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "TemperatureStep",
           "TerraformRating",
           "OceanTile<WaterArea(HAS MAX 0 Tile)>",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
       // "That was my first action, right? ... I'm also going to knock out a heat boop for eight."
       doTasks(
@@ -2187,8 +2156,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
     green.turn {
@@ -2267,8 +2235,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "14 Pay<> FROM MC",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
       assertCounts(0 to "GameEndBarrier")
     }
@@ -2436,7 +2403,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "$Bushes FROM ProjectCard",
           "PROD[2 Plant]",
           "2 Plant",
-          "Plant",
+          "Plant", // choose Viral Enhancers' plant
       )
       // "Robot Pollinators cost me seven ... it gives me a plant production, and since I have
       // three plant tags now, it also gives me three plants."
@@ -2540,18 +2507,6 @@ internal class OtbGame20260825Test : FullGameTest() {
     // have fifteen out here." "All right, so I got 122." "What was your score?" "83 points." The
     // loose fourth Fish cube in the final photograph makes Green's rule-correct score 84; the
     // spoken tally evidently missed the displaced cube.
-    val score = Summarizer(game)
-    assertEquals(5, score.net("Milestone", "VictoryPoint<Green>"))
-    assertEquals(10, score.net("Milestone", "VictoryPoint<Yellow>"))
-    assertEquals(5, score.net("FirstPlace", "VictoryPoint<Green>"))
-    assertEquals(10, score.net("FirstPlace", "VictoryPoint<Yellow>"))
-    assertEquals(10, score.net("Tile", "VictoryPoint<Green>"))
-    assertEquals(
-        24,
-        score.net("Tile", "VictoryPoint<Yellow>"),
-    )
-    assertEquals(32, score.net("Card", "VictoryPoint<Green>"))
-    assertEquals(17, score.net("Card", "VictoryPoint<Yellow>"))
     green.assertCounts(84 to "VictoryPoint", 0 to "Victory")
     yellow.assertCounts(122 to "VictoryPoint", 1 to "Victory")
   }

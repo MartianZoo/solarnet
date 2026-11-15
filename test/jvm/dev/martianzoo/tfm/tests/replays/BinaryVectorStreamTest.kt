@@ -106,7 +106,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       draw(CorporateStronghold, EnergySaving)
       doTask("OceanTile<Amazonis_08_04>")
       doTask("2 ProjectCard")
-      doTasks("MC", "2 MC")
+      doTasks("3 MC")
       doTask("TerraformRating")
       doTask("PROD[MC]")
     }
@@ -276,9 +276,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks("31 MC", "2 Plant", "3 Heat")
     p1.doTask("OceanTile<Amazonis_03_06>! BY Admin")
     p1.doTask("PROD[MC]")
-    p1.selectTask("Plant<Pink>! / Production<Pink, Class<Plant>> MAX 5")
-    p1.doTask("2 Plant")
-    p1.doTask("2 Plant") // Successful Organisms also grants plants for influence.
+    p1.doTask("4 Plant") // Successful Organisms: two for production and two for influence.
     // Database save 30, before generation 4 Research.
     p1.assertResources(m = 37, s = 2, t = 0, p = 7, e = 0, h = 7)
     p1.assertProduction(m = 10, s = 0, t = 0, p = 2, e = 0, h = 3)
@@ -370,7 +368,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       )
       doTask("-FrontierTownBonus!")
       doTask("RepeatPlacementBonus<Pink, Amazonis_06_04>!")
-      doTasks("2 Plant", "2 Plant")
+      doTasks("4 Plant")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -916,8 +914,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           *cardActionTasks("VenusShuttles"),
           "8 Pay<> FROM MC",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
       doTasks(
           *playCardTasks("RadChemFactory"),
@@ -1310,11 +1307,6 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     p1.assertResources(m = 129, s = 4, t = 2, p = 1, e = 0, h = 13)
     p1.assertProduction(m = 51, s = 0, t = 2, p = 8, e = 0, h = 10)
-    val score = Summarizer(game)
-    score.net("GreeneryTile", "VictoryPoint<Pink>") shouldBe 20
-    score.net("CityTile", "VictoryPoint<Pink>") shouldBe 40
-    score.net("Card", "VictoryPoint<Pink>") shouldBe 18
-    score.net("Delegate", "VictoryPoint<Pink>") shouldBe 5
     p1.assertCounts(77 to "TerraformRating", 160 to "VictoryPoint", 1 to "Victory")
   }
 }

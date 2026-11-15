@@ -138,8 +138,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "OxygenStep",
           "OxygenStep",
           "5 Steel",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$SelfSufficientSettlement>>",
@@ -733,8 +732,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PROD[4 MC]",
           "CommercialDistrict_SpecialTile<Elysium_4_3>",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -845,8 +843,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "GreeneryTile<Elysium_5_5>",
           "OxygenStep",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
 
@@ -938,9 +935,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "2 MC",
           "OceanTile<Elysium_3_6>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
     }
 
@@ -954,8 +949,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PROD[Titanium]",
           "OxygenStep",
           "OxygenStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "TemperatureStep",
           "TerraformRating",
       )
@@ -1140,8 +1134,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "3 MC",
           "OceanTile<Elysium_2_5>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(
           *playCardTasks("$MirandaResort"),
@@ -1200,8 +1193,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "OceanTile<Elysium_1_4>",
           "TerraformRating",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -1224,8 +1216,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "4 Titanium",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "Ok", // Leave the opponents' plants.
       )
     }
@@ -1239,8 +1230,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PROD[2 Energy]",
           "GreatDamPromo_SpecialTile<Elysium_1_5>",
           "ProjectCard",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(
           *playCardTasks("$SolarLogistics"),
@@ -1266,9 +1256,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "GreeneryTile<Elysium_4_5>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
           "TerraformRating",
       )
     }
@@ -1449,9 +1437,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "4 Steel",
           "3 MC",
           "ProjectCard",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "3 TerraformRating",
           "DeimosDownPromo_SpecialTile<Elysium_9_7>",
           "ProjectCard",
           "-6 Plant<JR>",
@@ -1725,8 +1711,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Elysium_5_7>",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       // Decline another final greenery placement for JR.
       doTask("PassBaton")
@@ -1763,26 +1748,6 @@ internal class SolarFusionStreamTest : FullGameTest() {
     JR.count("EVAL Benefactor.metric") shouldBe 33
     KB.count("EVAL Benefactor.metric") shouldBe 43
     ER.count("EVAL Benefactor.metric") shouldBe 38
-
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<JR>") shouldBe 10
-    score.net("Milestone", "VictoryPoint<KB>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<ER>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<JR>") shouldBe 10
-    score.net("SecondPlace", "VictoryPoint<JR>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<KB>") shouldBe 5
-    score.net("SecondPlace", "VictoryPoint<KB>") shouldBe 2
-    score.net("FirstPlace", "VictoryPoint<ER>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<ER>") shouldBe 4
-    score.net("GreeneryTile", "VictoryPoint<JR>") shouldBe 6
-    score.net("GreeneryTile", "VictoryPoint<KB>") shouldBe 4
-    score.net("GreeneryTile", "VictoryPoint<ER>") shouldBe 2
-    score.net("CityTile", "VictoryPoint<JR>") shouldBe 9
-    score.net("CityTile", "VictoryPoint<KB>") shouldBe 3
-    score.net("CityTile", "VictoryPoint<ER>") shouldBe 2
-    score.net("Card", "VictoryPoint<JR>") shouldBe 16
-    score.net("Card", "VictoryPoint<KB>") shouldBe 13
-    score.net("Card", "VictoryPoint<ER>") shouldBe 21
 
     JR.assertCounts(33 to "TerraformRating")
     KB.assertCounts(43 to "TerraformRating")

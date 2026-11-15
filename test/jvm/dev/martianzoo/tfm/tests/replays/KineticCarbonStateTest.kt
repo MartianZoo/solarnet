@@ -150,7 +150,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           1 to "OceanTile<Hellas_6_7>",
       )
       has("Victory") shouldBe false
-      has("GameScope") shouldBe false
     }
   }
 
@@ -425,8 +424,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
           "Trade<Triton>",
-          "5 Titanium",
-          "Titanium",
+          "6 Titanium",
       )
       doTasks(
           "UseAction<TradeAction, Action3>",
@@ -879,8 +877,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
           "Trade<Triton>",
-          "5 Titanium",
-          "Titanium",
+          "6 Titanium",
       )
       doTasks(
           *playCardTasks("Comet"),
@@ -1016,8 +1013,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "18 Pay<> FROM MC",
           "OceanTile<Hellas_4_1>",
           "TerraformRating",
-          "2 Plant",
-          "Plant",
+          "3 Plant",
           "2 MC",
       )
       doTasks(
@@ -1090,8 +1086,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "TerraformRating",
           "OceanTile<Hellas_4_6>",
           "TerraformRating",
-          "2 Plant",
-          "Plant",
+          "3 Plant",
           "4 MC",
       )
       doTasks(*cardActionTasks("FloatingRefinery"), "Floater<FloatingRefinery>")

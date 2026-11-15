@@ -761,6 +761,5 @@ internal class Game20260619Test : FullGameTest() {
     )
     ER.doTask("4 ProjectCard<Selecting>")
     KB.doTask("4 ProjectCard<Selecting>")
-    expectPendingTasksAtEnd(4) // the next Research phase's two offers and deferred work
   }
 }

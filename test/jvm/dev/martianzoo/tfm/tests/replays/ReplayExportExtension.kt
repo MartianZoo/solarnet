@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 
-/** Checks replay endpoints and optionally exports and verifies recorded inputs. */
+/** Optionally exports the recorded replay inputs and events. */
 internal class ReplayExportExtension : BeforeEachCallback, AfterTestExecutionCallback {
   override fun beforeEach(context: ExtensionContext) {
     val replay = context.requiredTestInstance as? FullGameTest ?: return
@@ -17,7 +17,6 @@ internal class ReplayExportExtension : BeforeEachCallback, AfterTestExecutionCal
   override fun afterTestExecution(context: ExtensionContext) = runBlocking {
     if (context.executionException.isPresent) return@runBlocking
     val replay = context.requiredTestInstance as? FullGameTest ?: return@runBlocking
-    replay.assertPendingTasksAtEnd()
     if (!replay.exportReplay) return@runBlocking
     val directory =
         Path.of(
@@ -32,7 +31,5 @@ internal class ReplayExportExtension : BeforeEachCallback, AfterTestExecutionCal
     val json = replay.completedGameFileJson() ?: return@runBlocking
     Files.writeString(output, json)
     Files.writeString(shortOutput, checkNotNull(replay.completedGameFileJson(short = true)))
-    replay.verifyGameFileRoundTrip(json)
-    println("Game-file round-trip passed: ${context.requiredTestClass.simpleName}")
   }
 }

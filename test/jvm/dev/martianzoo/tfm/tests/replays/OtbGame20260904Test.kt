@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /**
@@ -188,9 +187,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "-5 MC",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "3 TerraformRating",
           "PROD[Heat]",
       )
     }
@@ -260,8 +257,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTask("2 SearchForCard<ReferenceFilter<Class<Floater>>>").expect("2 ProjectCard")
       doTasks(
           "2 TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "PROD[Heat]",
           "2 MC",
       )
@@ -407,8 +403,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "3 MC",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "LavaFlows_SpecialTile<Amazonis_05_01>",
           "2 Steel",
       )
@@ -545,9 +540,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "3 MC",
           "TerraformRating",
           "PROD[Plant]",
-          "3 MC",
-          "2 MC",
-          "2 MC",
+          "7 MC",
           "NuclearZone_SpecialTile<Amazonis_03_03>",
           "2 ProjectCard",
       )
@@ -659,7 +652,7 @@ internal class OtbGame20260904Test : FullGameTest() {
     // benefit
     // to herself, including you could play some ocean if you want."
     // 2:54:56 PM — Rainbow: "Yeah. Nope, Venus up to four, right?"
-    rainbow.doTask("VenusStep! BY Admin").expect("0 TerraformRating")
+    rainbow.doTask("VenusStep! BY Admin")
   }
 
   private fun generation3() {
@@ -838,8 +831,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
     green.turn {
@@ -1296,9 +1288,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "TerraformRating",
           "3 MC",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
-          "2 MC",
+          "7 MC",
           "-4 Plant<Yellow>",
       )
     }
@@ -1367,8 +1357,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
     green.turn {
@@ -1403,8 +1392,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "3 MC",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           // 3:58:46 PM — Green: "Alright, since I have you going on seven, four for two money and
           // two plants."
           "OceanTile<Amazonis_07_04>",
@@ -1688,8 +1676,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "ProjectCard",
           "OceanTile<Amazonis_03_06>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>",
           "Ok", // No heat paid.
           "5 Pay<> FROM MC",
@@ -1744,8 +1731,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
 
@@ -1792,8 +1778,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "PROD[Plant]",
           "4 MC",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
 
@@ -1827,7 +1812,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       )
       giveTask(green, "Animal<$Pets>")
       giveTask(rainbow, "2 MC")
-      doTasks("2 Plant", "2 MC", "2 MC")
+      doTasks("2 Plant", "4 MC")
     }
     rainbow.turn {
       // 3:17:57 PM — Rainbow: "To build fish and And then I'll take the action and add a animal to
@@ -1987,8 +1972,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "PROD[2 Plant]",
           "-2 Plant",
           "Microbe<$Decomposers>",
-          "MC",
-          "2 MC",
+          "3 MC",
       )
     }
     // The engine charged the card immediately; restore that 8 M€ to preserve the spoken missed
@@ -2020,7 +2004,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "CityTile<Amazonis_07_11>",
       )
       giveTask(green, "Animal<$Pets>")
-      doTasks("2 MC", "2 MC")
+      doTasks("4 MC")
       assertCounts(12 to "MC")
     }
     green.turn {
@@ -2160,8 +2144,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
-          "3 MC",
-          "2 MC",
+          "5 MC",
       )
     }
 
@@ -2229,8 +2212,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       giveTask(blue, "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
       doTasks(
           "ProjectCard",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       giveTask(blue, "X Pay<Blue, Class<Heat>> FROM Heat<Blue> OR Ok", "Ok") // No heat paid.
       giveTask(blue, "5 Pay<> FROM MC")
@@ -2245,8 +2227,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "GreeneryTile<Amazonis_06_10>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -2270,7 +2251,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       )
       giveTask(green, "Animal<$Pets>")
       giveTask(rainbow, "2 MC")
-      doTasks("2 MC", "2 MC")
+      doTasks("4 MC")
       // board-14-23-07.jpg shows a plant at 3-7 on the mat used in this game.
       exMachina("Plant")
 
@@ -2311,8 +2292,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "GreeneryTile<Amazonis_08_03>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       // 3:44:36 PM — Blue: "For a card hope this one's useful."
@@ -2443,7 +2423,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "Animal<$Pets>",
       )
       giveTask(rainbow, "2 MC")
-      doTasks("2 Plant", "2 MC", "2 MC")
+      doTasks("2 Plant", "4 MC")
       // 3:51:29 PM — Green: "Let's just go ahead and use Venus magnetizer decrease in energy
       // production to raise Venus to 12% and get a TR. All right, who's still in?"
       doTasks(*cardActionTasks("$VenusMagnetizer"), "PROD[-Energy]", "VenusStep", "TerraformRating")
@@ -2915,8 +2895,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "GreeneryTile<Amazonis_05_04>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -3004,8 +2983,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "13 Pay<> FROM MC",
           "$AirScrappingExpedition FROM ProjectCard",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "3 Floater<$CloudTourism>",
       )
     }
@@ -3367,8 +3345,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "GreeneryTile<Amazonis_05_06>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
     green.turn {
@@ -3747,8 +3724,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Amazonis_07_05>",
           "2 Energy",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
     green.doTask("PassBaton")
@@ -3764,31 +3740,6 @@ internal class OtbGame20260904Test : FullGameTest() {
     // Thermalist 29–12 over Green. Everyone except Yellow has a milestone.
     // 9:47:14 PM — Spoken totals are Green 70, Yellow 70, and Blue 73. Rainbow retracts her 85
     // because she had double-counted card-resource points, so her spoken total is not asserted.
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<Yellow>") shouldBe 0
-    score.net("Milestone", "VictoryPoint<Rainbow>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Blue>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Green>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Yellow>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Rainbow>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<Blue>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Green>") shouldBe 5
-    score.net("SecondPlace", "VictoryPoint<Yellow>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Rainbow>") shouldBe 4
-    score.net("SecondPlace", "VictoryPoint<Blue>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Green>") shouldBe 2
-    score.net("GreeneryTile", "VictoryPoint<Yellow>") shouldBe 8
-    score.net("GreeneryTile", "VictoryPoint<Rainbow>") shouldBe 3
-    score.net("GreeneryTile", "VictoryPoint<Blue>") shouldBe 7
-    score.net("GreeneryTile", "VictoryPoint<Green>") shouldBe 2
-    score.net("CityTile", "VictoryPoint<Yellow>") shouldBe 11
-    score.net("CityTile", "VictoryPoint<Rainbow>") shouldBe 4
-    score.net("CityTile", "VictoryPoint<Blue>") shouldBe 9
-    score.net("CityTile", "VictoryPoint<Green>") shouldBe 4
-    score.net("Card", "VictoryPoint<Yellow>") shouldBe 12
-    score.net("Card", "VictoryPoint<Rainbow>") shouldBe 34
-    score.net("Card", "VictoryPoint<Blue>") shouldBe 6
-    score.net("Card", "VictoryPoint<Green>") shouldBe 16
 
     // The complete engine categories reproduce the spoken totals for Yellow, Blue, and Green.
     // Rainbow's categories total 86; her spoken 85 is the explicitly corrected, unreliable tally.

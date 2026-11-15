@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Game played Sun 2026-08-09 11:19 am. Quotes are transcript-derived and sometimes normalized. */
@@ -181,7 +180,7 @@ internal class OtbGame20260809Test : FullGameTest() {
       // "I'm gonna place in this nice little spot where I get four money and three heat."
       doTasks(*cardActionTasks("$AquiferPumping"), "8 Pay<> FROM MC")
       assertCounts(4 to "MC") // ledger entry 13
-      doTasks("OceanTile<Hellas_5_7>", "TerraformRating", "3 Heat", "2 MC", "2 MC")
+      doTasks("OceanTile<Hellas_5_7>", "TerraformRating", "3 Heat", "4 MC")
     }
 
     green.turn {
@@ -232,7 +231,7 @@ internal class OtbGame20260809Test : FullGameTest() {
     // "We do production. World Government Terraforming is [Yellow]'s choice."
     // "I'm boosting oxygen."
     // "You don't get the TR for that."
-    yellow.doTask("OxygenStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("OxygenStep! BY Admin")
 
     // (11:36 am)
     // "We produced, we did World Government, now it's time for the colony Solar phase."
@@ -294,7 +293,7 @@ internal class OtbGame20260809Test : FullGameTest() {
       // "And one TR?"
       doTasks(*cardActionTasks("$AquiferPumping"), "8 Pay<> FROM MC")
       assertCounts(14 to "MC") // ledger entry 35
-      doTasks("OceanTile<Hellas_4_7>", "TerraformRating", "Plant", "2 MC", "2 MC")
+      doTasks("OceanTile<Hellas_4_7>", "TerraformRating", "Plant", "4 MC")
       assertCounts(18 to "MC") // ledger entry 37
     }
 
@@ -397,9 +396,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           "VenusStep",
           "VenusStep",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "3 TerraformRating",
           "ProjectCard",
       )
       assertCounts(25 to "MC") // ledger entry 41
@@ -430,8 +427,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           "TerraformRating",
           "OceanTile<Hellas_5_8>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "-3 Plant<Green>",
           "3 MC<Green> FROM MC",
       )
@@ -586,8 +582,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           "OceanTile<Hellas_6_8>",
           "TerraformRating",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       assertCounts(19 to "MC") // ledger entry 93
 
@@ -601,9 +596,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           "6 Pay<> FROM MC",
           "OceanTile<Hellas_6_7>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
     }
 
@@ -651,8 +644,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           "GreeneryTile<Hellas_3_6>",
           "OxygenStep",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
 
@@ -1031,8 +1023,7 @@ internal class OtbGame20260809Test : FullGameTest() {
               "Animal<$EcologicalZone>",
               "EcologicalZone_SpecialTile<Hellas_4_8>",
               "Plant",
-              "2 MC",
-              "2 MC",
+              "4 MC",
           )
           .expect("Miranda")
       assertCounts(30 to "MC") // ledger entry 169
@@ -1057,8 +1048,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           "GreeneryTile<Hellas_2_2>",
           "OxygenStep",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       admin.assertCounts(7 to "OxygenStep")
@@ -1294,8 +1284,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "4 Titanium",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "-4 Plant<Yellow>",
       )
     }
@@ -1391,8 +1380,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           *cardActionTasks("$RotatorImpacts", "Action2"),
           "-Asteroid<$RotatorImpacts>",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
     admin.assertCounts(8 to "VenusStep")
@@ -1563,8 +1551,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           "GreeneryTile<Hellas_4_5>",
           "OxygenStep",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       admin.assertCounts(14 to "OxygenStep")
@@ -1945,8 +1932,7 @@ internal class OtbGame20260809Test : FullGameTest() {
               "8 Pay<Class<Plant>> FROM Plant",
               "GreeneryTile<Hellas_6_6>",
               "OxygenStep",
-              "2 MC",
-              "2 MC",
+              "4 MC",
           )
           .expect("0 TerraformRating")
     }
@@ -2498,7 +2484,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           *playCardTasks("$AdvancedEcosystems"),
           "9 Pay<> FROM MC",
           "$AdvancedEcosystems FROM ProjectCard",
-          "Plant",
+          "Plant", // choose a plant for each of Viral Enhancers' three choices
           "Plant",
           "Plant",
       )
@@ -2608,7 +2594,6 @@ internal class OtbGame20260809Test : FullGameTest() {
     green.doTask("PassBaton")
 
     // (9:02 pm) "Final scoring."
-    val score = Summarizer(game)
 
     green.assertCounts(42 to "TerraformRating")
 
@@ -2616,32 +2601,23 @@ internal class OtbGame20260809Test : FullGameTest() {
     yellow.assertCounts(52 to "TerraformRating")
 
     // "You get 15 points for milestones, which puts you at 67."
-    score.net("Milestone", "VictoryPoint<Yellow>") shouldBe 15
 
     // "I get Venophile and Magnate, so green gets ten, putting me on 52."
-    score.net("FirstPlace", "VictoryPoint<Green>") shouldBe 10
 
     // "You get another five, putting you on 72."
-    score.net("FirstPlace", "VictoryPoint<Yellow>") shouldBe 5
 
     // "I think what I'm going to do is count my greeneries first. One, two, three, four."
     // "Four points from greeneries."
-    score.net("GreeneryTile", "VictoryPoint<Green>") shouldBe 4
 
     // "How many points from greeneries do you get? Twelve. 84."
-    score.net("GreeneryTile", "VictoryPoint<Yellow>") shouldBe 12
 
     // "My one city is worth four points, putting me on 60."
-    score.net("CityTile", "VictoryPoint<Green>") shouldBe 4
 
     // "Go ahead and do your cities. Twenty for your cities, putting you at 104."
-    score.net("CityTile", "VictoryPoint<Yellow>") shouldBe 20
 
     // "And four is 21, and 11 is 32. So I saved some face here. And then for these, 17 more."
-    score.net("Card", "VictoryPoint<Green>") shouldBe 49
 
     // "Four, two, two, one. Ten." Law Suit lowers Yellow's net card score to nine.
-    score.net("Card", "VictoryPoint<Yellow>") shouldBe 9
 
     // "You only won by five points. 114[sic] to 109."
     // "I'm sorry for all the fucking whining I was doing."

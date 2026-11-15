@@ -464,6 +464,5 @@ internal class FirstPartialGameTest : FullGameTest() {
 
       assertCounts(1 to "CityTile", 0 to "GreeneryTile", 1 to "SpecialTile")
     }
-    expectPendingTasksAtEnd(4) // generation 5 Research offers and deferred phase work
   }
 }

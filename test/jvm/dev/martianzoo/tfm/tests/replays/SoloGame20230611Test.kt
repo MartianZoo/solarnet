@@ -562,8 +562,7 @@ internal class SoloGame20230611Test : FullGameTest() {
             "PROD[Titanium]",
             "OxygenStep",
             "OxygenStep",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(
             *playCardTasks("$Potatoes"),
@@ -637,8 +636,7 @@ internal class SoloGame20230611Test : FullGameTest() {
             "8 Pay<Class<Plant>> FROM Plant",
             "GreeneryTile<Hellas_6_6>",
             "OxygenStep",
-            "2 MC",
-            "2 MC",
+            "4 MC",
             "TerraformRating",
         )
         doTasks(
@@ -765,8 +763,7 @@ internal class SoloGame20230611Test : FullGameTest() {
             *standardProjectTasks("AirScrappingProject"),
             "15 Pay<> FROM MC",
             "VenusStep",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
         doTasks(

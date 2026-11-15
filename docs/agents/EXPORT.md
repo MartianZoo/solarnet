@@ -102,14 +102,15 @@ Run `./gradlew :tfm-tests:replayTest -PreplayExports --tests 'dev.martianzoo.tfm
 to refresh the active replay exports, or replace the filter with the affected replay's fully qualified
 test class when the change is confined to that replay. This writes full `.json` and short
 `.short.json` files under the `tfm-tests` module's `generated/replay-event-logs` build directory
-(relocated under `~/.gradle/solarnet-builds/` locally) and verifies live reconstruction. Require a
+(relocated under `~/.gradle/solarnet-builds/` locally). The export hook does not replay the files or
+compare reconstructed components; import correctness belongs to dedicated tests. Require a
 successful test run before using the files, then refresh any copies bundled by a consuming app.
 If import reports a Catalog or premise hash mismatch, regenerate from the source replay against
 the intended current Catalog; do not patch the exported hash or weaken the check.
 
 ## Adjacent paths
 
-- JVM replay tests emit full `.json` and short `.short.json` files and verify live reconstruction
+- JVM replay tests emit full `.json` and short `.short.json` files
   when run with `-PreplayExports`. Default replay runs skip input recording and this export workflow.
   The former `GameRecordingJson`, standalone TaskLog text export, and standalone `EventLogJson`
   text codec were removed. `EventLogJson` remains an internal part of the full game-file codec.

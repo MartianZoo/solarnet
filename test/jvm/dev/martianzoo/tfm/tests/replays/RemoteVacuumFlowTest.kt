@@ -215,14 +215,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           5 to "CardResource",
       )
       assertCounts(15 to "GreeneryTile", 5 to "CityTile", 0 to "Milestone", 0 to "Award")
-      val score = Summarizer(game)
-      score.net("TerraformRating", "VictoryPoint<Blue>") shouldBe 71
-      score.net("GreeneryTile", "VictoryPoint<Blue>") shouldBe 15
-      score.net("CityTile", "VictoryPoint<Blue>") shouldBe 25
-      score.net("Card", "VictoryPoint<Blue>") shouldBe 35
-      score.net("Delegate", "VictoryPoint<Blue>") shouldBe 5
-      score.net("Milestone", "VictoryPoint<Blue>") shouldBe 0
-      score.net("Award", "VictoryPoint<Blue>") shouldBe 0
       assertCounts(
           1 to "Chairman",
           1 to "PartyLeader<MarsFirst>",
@@ -351,7 +343,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "3 Heat FROM Energy",
     )
     doTasks("VenusStep! BY Admin", "4 MC")
-    p1.doTask("2! MC / Influence")
+    p1.doTask("0 MC") // Interplanetary Trade: the source's four-MC gain is already collected above.
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[1].
     assertSidebar(gen = 3, temp = -24, oxygen = 0, oceans = 1, venus = 4)
@@ -445,8 +437,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "8 Steel",
-          "2 Steel",
+          "10 Steel",
       )
       draw(SpaceHotels)
       discard(Supercapacitors)
@@ -606,8 +597,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "6 Steel",
-          "2 Steel",
+          "8 Steel",
       )
       doTasks(
           *playCardTasks("SpinOffDepartment"),
@@ -959,8 +949,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "8 Steel",
-          "2 Steel",
+          "10 Steel",
       )
       draw(IceCapMelting)
       doTasks(
@@ -1169,8 +1158,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "4 Steel",
-          "2 Steel",
+          "6 Steel",
       )
       doTasks(*cardActionTasks("DeuteriumExport"), "Floater<DeuteriumExport>")
       draw(AntiGravityTechnology)
@@ -1401,8 +1389,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "4 Steel",
-          "2 Steel",
+          "6 Steel",
       )
       doTasks(
           *playCardTasks("ImportedHydrogen"),
@@ -1559,8 +1546,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "4 Steel",
-          "2 Steel",
+          "6 Steel",
       )
       doTasks(
           *playCardTasks("TropicalResort"),

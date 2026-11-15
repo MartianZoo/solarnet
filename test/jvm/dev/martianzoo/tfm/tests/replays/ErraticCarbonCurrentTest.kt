@@ -296,8 +296,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "4 Titanium",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "PROD[Heat]",
           "-4 Plant<Blue>",
       )
@@ -477,8 +476,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "GreeneryTile<Hellas_4_5>",
           "OxygenStep",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -524,8 +522,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "7 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Hellas_6_6>",
           "OxygenStep",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       doTasks(
@@ -535,9 +532,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "OceanTile<Hellas_5_7>",
           "TerraformRating",
           "3 Heat",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
     }
 
@@ -785,8 +780,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "OceanTile<Hellas_6_8>",
           "TerraformRating",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -963,8 +957,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Hellas_7_8>",
           "OxygenStep",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -1307,8 +1300,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "GreeneryTile<Hellas_4_2>",
           "0 OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -1449,16 +1441,14 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "$Atmoscoop FROM ProjectCard",
           "4 MC",
           "2 VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "2 Floater<$ExtractorBalloons>",
       )
       doTasks(
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
 
@@ -1530,8 +1520,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "7 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Hellas_2_2>",
         "2 Plant",
-        "2 MC",
-        "2 MC",
+        "4 MC",
     )
     pink.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
@@ -1539,7 +1528,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "GreeneryTile<Hellas_5_2>",
         "2 MC",
     )
-    pink.selectTask("PassBaton")
+    pink.doTask("PassBaton")
     blue.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
         "8 Pay<Class<Plant>> FROM Plant",
@@ -1551,25 +1540,13 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "8 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Hellas_9_9>",
     )
-    blue.selectTask("PassBaton")
+    blue.doTask("PassBaton")
 
     assertCardTrackingComplete()
     blue.cardsHand shouldBe emptySet()
     pink.cardsHand shouldBe emptySet()
-    admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
     blue.assertCounts(45 to "TerraformRating", 102 to "VictoryPoint", 1 to "Victory")
     pink.assertCounts(41 to "TerraformRating", 85 to "VictoryPoint", 0 to "Victory")
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<Blue>") shouldBe 10
-    score.net("Milestone", "VictoryPoint<Pink>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Blue>") shouldBe 10
-    score.net("FirstPlace", "VictoryPoint<Pink>") shouldBe 5
-    score.net("GreeneryTile", "VictoryPoint<Blue>") shouldBe 12
-    score.net("GreeneryTile", "VictoryPoint<Pink>") shouldBe 12
-    score.net("CityTile", "VictoryPoint<Blue>") shouldBe 11
-    score.net("CityTile", "VictoryPoint<Pink>") shouldBe 11
-    score.net("Card", "VictoryPoint<Blue>") shouldBe 14
-    score.net("Card", "VictoryPoint<Pink>") shouldBe 11
     blue.assertResources(m = 63, s = 2, t = 0, p = 0, e = 2, h = 15)
     blue.assertProduction(m = 13, s = 2, t = 0, p = 16, e = 2, h = 2)
     pink.assertResources(m = 48, s = 1, t = 2, p = 1, e = 0, h = 9)

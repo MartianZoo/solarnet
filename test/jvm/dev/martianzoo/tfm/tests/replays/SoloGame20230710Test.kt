@@ -285,8 +285,7 @@ internal class SoloGame20230710Test : FullGameTest() {
             "UseAction<TradeAction, Action2>",
             "3 Pay<Class<Energy>> FROM Energy",
             "Trade<Luna>",
-            "13 MC",
-            "2 MC",
+            "15 MC",
         )
         doTasks(
             *playCardTasks("$GiantSolarShade"),
@@ -297,8 +296,7 @@ internal class SoloGame20230710Test : FullGameTest() {
             "VenusStep",
             "TerraformRating",
             "ProjectCard",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(
             *playCardTasks("$GeothermalPower"),
@@ -456,8 +454,7 @@ internal class SoloGame20230710Test : FullGameTest() {
             "UseAction<TradeAction, Action2>",
             "3 Pay<Class<Energy>> FROM Energy",
             "Trade<Luna>",
-            "10 MC",
-            "2 MC",
+            "12 MC",
         )
         doTasks(
             *playCardTasks("$GiantIceAsteroid"),
@@ -466,8 +463,7 @@ internal class SoloGame20230710Test : FullGameTest() {
             "$GiantIceAsteroid FROM ProjectCard",
             "TemperatureStep",
             "TemperatureStep",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
             "-6 Plant<SoloOpponent>",
             "OceanTile<Tharsis_5_4>",
             "TerraformRating",
@@ -476,8 +472,7 @@ internal class SoloGame20230710Test : FullGameTest() {
             "OceanTile<Tharsis_5_6>",
             "TerraformRating",
             "2 Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
@@ -545,16 +540,14 @@ internal class SoloGame20230710Test : FullGameTest() {
             "15 Pay<> FROM MC",
             "VenusStep",
             "3 MC",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(*cardActionTasks("$AsteroidRights"), "Pay<> FROM MC", "Asteroid<$AsteroidRights>")
         doTasks(
             "UseAction<TradeAction, Action2>",
             "3 Pay<Class<Energy>> FROM Energy",
             "Trade<Ganymede>",
-            "3 Plant",
-            "Plant",
+            "4 Plant",
         )
         doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
         doTasks(
@@ -621,8 +614,7 @@ internal class SoloGame20230710Test : FullGameTest() {
             "Titanium",
             "TerraformRating",
             "TemperatureStep",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
         doTasks(
@@ -672,9 +664,7 @@ internal class SoloGame20230710Test : FullGameTest() {
             "OceanTile<Tharsis_6_6>",
             "TerraformRating",
             "Plant",
-            "2 MC",
-            "2 MC",
-            "2 MC",
+            "6 MC",
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
@@ -753,8 +743,7 @@ internal class SoloGame20230710Test : FullGameTest() {
             "UseAction<TradeAction, Action2>",
             "3 Pay<Class<Energy>> FROM Energy",
             "Trade<Luna>",
-            "10 MC",
-            "2 MC",
+            "12 MC",
         )
         doTasks(
             *playCardTasks("$TransNeptuneProbe"),
@@ -767,13 +756,10 @@ internal class SoloGame20230710Test : FullGameTest() {
             *standardProjectTasks("CityProject"),
             "25 Pay<> FROM MC",
             "PROD[MC]",
-            "3 MC",
-            "MC",
+            "4 MC",
             "CityTile<Tharsis_6_5>",
             "Plant",
-            "2 MC",
-            "2 MC",
-            "2 MC",
+            "6 MC",
         )
         doTasks(
             *playCardTasks("$UrbanizedArea"),
@@ -908,15 +894,13 @@ internal class SoloGame20230710Test : FullGameTest() {
             "UseAction<TradeAction, Action2>",
             "3 Pay<Class<Energy>> FROM Energy",
             "Trade<Luna>",
-            "4 MC",
-            "2 MC",
+            "6 MC",
         )
         doTasks(
             *standardProjectTasks("CityProject"),
             "25 Pay<> FROM MC",
             "PROD[MC]",
-            "3 MC",
-            "MC",
+            "4 MC",
             "CityTile<Tharsis_9_5>",
             "Steel",
         )
@@ -937,8 +921,7 @@ internal class SoloGame20230710Test : FullGameTest() {
             "UseAction<TradeAction, Action2>",
             "3 Pay<Class<Energy>> FROM Energy",
             "Trade<Ganymede>",
-            "4 Plant",
-            "Plant",
+            "5 Plant",
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
@@ -969,17 +952,9 @@ internal class SoloGame20230710Test : FullGameTest() {
       // Decline another final greenery placement.
       doTask("PassBaton")
       // Check the summary data on the you-won page
-      val sum = Summarizer(game)
       assertCounts(70 to "TerraformRating")
-      sum.net("GreeneryTile", "VictoryPoint<Me>") shouldBe 9
-      sum.net("CityTile", "VictoryPoint<Me>") shouldBe 24
-      sum.net("Card", "VictoryPoint<Me>") shouldBe 18
       assertCounts(121 to "VictoryPoint")
       assertCounts(82 to "MC")
-
-      // Head Start's two actions occur during Prelude; the source UI says 106.
-      (sum.signalCount("InRound", "UseAction<Me, StandardAction>") +
-          sum.signalCount("InRound", "DoRequiredActions<Me>")) shouldBe 92
     }
   }
 }

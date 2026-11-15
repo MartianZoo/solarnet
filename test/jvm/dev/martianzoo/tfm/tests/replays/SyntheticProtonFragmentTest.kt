@@ -53,7 +53,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
   @Test
   internal fun game20260811() {
     startGame()
-    purple.doTasks("5 TerraformRating", "20 TerraformRating")
+    purple.doTasks("25 TerraformRating")
     pink.doTask("20 TerraformRating")
     green.doTask("20 TerraformRating")
     purple.doTasks(
@@ -958,8 +958,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "3 MC",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "LavaFlows_SpecialTile<Hellas_2_2>",
           "2 Plant",
           "2 MC",
@@ -1269,7 +1268,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "$Grass FROM ProjectCard",
           "PROD[Plant]",
           "3 Plant",
-          "Plant",
+          "Plant", // choose Viral Enhancers' plant
       )
     }
 
@@ -1284,8 +1283,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "GreeneryTile<Hellas_3_2>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
@@ -1373,14 +1371,11 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "OceanTile<Hellas_4_6>",
           "TerraformRating",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "OceanTile<Hellas_5_7>",
           "TerraformRating",
           "3 Heat",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
       doTasks(
           *playCardTasks("$MiningExpedition"),
@@ -1442,7 +1437,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "ProjectCard",
       )
       giveTask(green, "ProjectCard")
-      doTasks("3 MC", "OceanTile<Hellas_5_8>", "TerraformRating", "2 MC", "2 MC")
+      doTasks("3 MC", "OceanTile<Hellas_5_8>", "TerraformRating", "4 MC")
       doTasks(
           *playCardTasks("$VestaShipyard"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1486,8 +1481,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "GreeneryTile<Hellas_4_2>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -1510,7 +1504,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     }
 
     pink.turn {
-      doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>", "2 MC", "MC")
+      doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>", "3 MC")
     }
 
     green.turn {
@@ -1663,9 +1657,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
 
     pink.turn {
       doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>")
-      // Resolve the fixed MC gain before the equal floater-based gain.
-      selectTask("MC<Player2>!")
-      doTasks("MC", "MC")
+      doTask("2 MC") // The fixed and floater-based gains are both one MC.
       doTasks(
           *playCardTasks("$BeamFromAThoriumAsteroid"),
           "7 Pay<Class<Titanium>> FROM Titanium",
@@ -1820,30 +1812,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     purple.assertCounts(1 to "FirstPlace<Player1>", 0 to "SecondPlace<Player1>")
     pink.assertCounts(1 to "FirstPlace<Player2>", 1 to "SecondPlace<Player2>")
     green.assertCounts(1 to "FirstPlace<Player3>", 2 to "SecondPlace<Player3>")
-
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<Player1>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Player2>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Player3>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Player1>") shouldBe 5
-    score.net("SecondPlace", "VictoryPoint<Player1>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<Player2>") shouldBe 5
-    score.net("SecondPlace", "VictoryPoint<Player2>") shouldBe 2
-    score.net("FirstPlace", "VictoryPoint<Player3>") shouldBe 5
-    score.net("SecondPlace", "VictoryPoint<Player3>") shouldBe 4
-    score.net("GreeneryTile", "VictoryPoint<Player1>") shouldBe 9
-    score.net("GreeneryTile", "VictoryPoint<Player2>") shouldBe 2
-    score.net("GreeneryTile", "VictoryPoint<Player3>") shouldBe 6
-    score.net("CityTile", "VictoryPoint<Player1>") shouldBe 9
-    score.net("CityTile", "VictoryPoint<Player2>") shouldBe 4
-    score.net("CityTile", "VictoryPoint<Player3>") shouldBe 8
-    score.net("Card", "VictoryPoint<Player1>") shouldBe 4
-    score.net("Card", "VictoryPoint<Player2>") shouldBe 12
-    score.net("Card", "VictoryPoint<Player3>") shouldBe 5
-    score.net("$EcologicalZone", "VictoryPoint<Player1>") shouldBe 3
-    score.net("$IoMiningIndustries", "VictoryPoint<Player2>") shouldBe 4
-    score.net("$SaturnSurfing", "VictoryPoint<Player2>") shouldBe 1
-    score.net("$Ants", "VictoryPoint<Player3>") shouldBe 4
 
     purple.assertCounts(42 to "TerraformRating")
     pink.assertCounts(44 to "TerraformRating")

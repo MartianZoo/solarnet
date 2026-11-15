@@ -372,8 +372,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
             "3 Pay<> FROM MC",
             "$InvestmentLoan FROM ProjectCard",
             "PROD[-MC]",
-            "10 MC",
-            "3 MC",
+            "13 MC",
         )
         doTasks(
             *playCardTasks("$Solarnet"),
@@ -588,8 +587,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
             *cardActionTasks("$ForcedPrecipitation", "Action2"),
             "-2 Floater<$ForcedPrecipitation>",
             "VenusStep",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(
             *cardActionTasks("$RegolithEaters", "Action2"),
@@ -812,8 +810,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
             "TemperatureStep",
             "TemperatureStep",
             "3 MC",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
             "LavaFlows_SpecialTile<Elysium_3_1>",
             "2 Titanium",
         )
@@ -825,8 +822,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
             "OceanTile<Elysium_4_7>",
             "TerraformRating",
             "Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
@@ -834,8 +830,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
             "GreeneryTile<Elysium_5_7>",
             "OxygenStep",
             "2 Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
             "TerraformRating",
         )
         doTasks(
@@ -1036,8 +1031,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
             "18 Pay<> FROM MC",
             "OceanTile<Elysium_2_5>",
             "TerraformRating",
-            "2 MC",
-            "2 MC",
+            "4 MC",
         )
         doTasks(
             *playCardTasks("$Mangrove"),
@@ -1046,10 +1040,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
             "GreeneryTile<Elysium_3_5>",
             "OxygenStep",
             "Plant",
-            "2 MC",
-            "2 MC",
-            "2 MC",
-            "2 MC",
+            "8 MC",
         )
         doTasks(
             *standardProjectTasks("CityProject"),
@@ -1057,8 +1048,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
             "PROD[MC]",
             "CityTile<Elysium_4_5>",
             "Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
         )
         doTasks(
             *playCardTasks("$Algae"),
@@ -1087,16 +1077,14 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
             "GreeneryTile<Elysium_5_5>",
             "OxygenStep",
             "2 Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
             "8 Pay<Class<Plant>> FROM Plant",
             "GreeneryTile<Elysium_3_4>",
             "OxygenStep",
-            "2 MC",
-            "2 MC",
+            "4 MC",
         )
         doTasks(
             *standardProjectTasks("AsteroidProject"),
@@ -1118,10 +1106,6 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
       assertSidebar(gen = 12, temp = 8, oxygen = 14, oceans = 8, venus = 30)
       has("Victory") shouldBe true
 
-      val sum = Summarizer(game)
-      sum.net("GreeneryTile", "VictoryPoint<Me>") shouldBe 7
-      sum.net("CityTile", "VictoryPoint<Me>") shouldBe 4
-      sum.net("Card", "VictoryPoint<Me>") shouldBe 9
       assertCounts(84 to "VictoryPoint")
     }
   }

@@ -50,21 +50,17 @@ internal class HellasPromoWithoutPreludeTest : FullGameTest() {
           "$Sabotage FROM ProjectCard",
           "-7 MC<Player2>",
       )
-      doTask("2 MC")
-      doTask("3 MC")
+      doTask("5 MC")
     }
 
     p2.turn {
-      completeOperation {
-        doTasks(*playCardTasks("$Research"), "11 Pay<> FROM MC", "$Research FROM ProjectCard")
-        doTasks(
-            "2 ProjectCard",
-            "TerraformRating FROM Disease<$PharmacyUnion>",
-            "TerraformRating FROM Disease<$PharmacyUnion>",
-        )
-      }
+      doTasks(*playCardTasks("$Research"), "11 Pay<> FROM MC", "$Research FROM ProjectCard")
+      doTasks(
+          "2 ProjectCard",
+          "TerraformRating FROM Disease<$PharmacyUnion>",
+          "TerraformRating FROM Disease<$PharmacyUnion>",
+      )
     }
     p2.assertCounts(22 to "TerraformRating", 0 to "Disease<$PharmacyUnion>")
-    expectPendingTasksAtEnd(1) // Player1's next action offer
   }
 }

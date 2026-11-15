@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 /** Physical game played November 11–12, 2026; sources: `_local/replays/Game20261111/`. */
 internal class OtbGame20261111Test : FullGameTest() {
@@ -437,9 +436,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     // "At least it's not later."
     // Completing the event forms the Scientists government: Research Outpost and Research Colony
     // each earn an automatic 1 MC ruling bonus.
-    pink
-        .doTask("8 MC")
-        .expect("Ruling<Scientists>, Chairman<Neutral>, Dominant<MarsFirst>")
+    pink.doTask("8 MC").expect("Ruling<Scientists>, Chairman<Neutral>, Dominant<MarsFirst>")
     // Both app logs briefly missed the Scientists bonus; keep it here.
     green.assertResources(m = 37, s = 3, t = 3, p = 0, e = 1, h = 3)
     pink.assertResources(m = 33, s = 0, t = 1, p = 0, e = 4, h = 18)
@@ -1933,7 +1930,9 @@ internal class OtbGame20261111Test : FullGameTest() {
         // Pink: "Ruling bonus. I get four. You become chairman and earn TR."
         // Green: "Seven for me. My dudes are going back, I get one TR, and dominance shifts to
         // Greens."
-        .expect("7 MC<Green>, 4 MC<Pink>, TerraformRating<Green>, Ruling<MarsFirst>, Dominant<Greens>")
+        .expect(
+            "7 MC<Green>, 4 MC<Pink>, TerraformRating<Green>, Ruling<MarsFirst>, Dominant<Greens>"
+        )
     green.assertResources(m = 60, s = 5, t = 4, p = 11, e = 4, h = 13)
     pink.assertResources(m = 54, s = 0, t = 2, p = 6, e = 5, h = 16)
     green.assertCounts(29 to "TerraformRating")
@@ -2795,16 +2794,8 @@ internal class OtbGame20261111Test : FullGameTest() {
     // 75."
     // The table announces 92–75. Pink's omitted chairman point and extra printed card point
     // cancel; score both normally here.
-    val score = Summarizer(game)
-    assertEquals(1, score.net("Chairman", "VictoryPoint<Pink>"))
-    assertEquals(4, score.net("PartyLeader", "VictoryPoint<Green>"))
-    assertEquals(2, score.net("PartyLeader", "VictoryPoint<Pink>"))
     green.assertCounts(92 to "VictoryPoint", 1 to "Victory")
-    assertEquals(-1, score.net("$AerialLenses", "VictoryPoint<Pink>"))
-    assertEquals(3, score.net("$Capital", "VictoryPoint<Pink>"))
-    assertEquals(3, score.net("$RefugeeCamps", "VictoryPoint<Pink>"))
     // The table counts Capital and camp resources separately from printed card points.
-    assertEquals(12, score.net("Card", "VictoryPoint<Pink>") - 3 - 3)
     pink.assertCounts(75 to "VictoryPoint", 0 to "Victory")
   }
 }

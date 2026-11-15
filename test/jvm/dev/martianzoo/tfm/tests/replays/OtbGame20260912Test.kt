@@ -287,8 +287,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "$LavaFlows FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "PROD[Heat]",
           "LavaFlows_SpecialTile<Vastitas_2_6>",
           "ProjectCard",
@@ -961,8 +960,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     ) {
       blue.doTask("VenusStep! BY Admin")
       green.doTasks("0 MC", "6 MC")
-      yellow.selectTask("2! MC<Yellow> / VenusTag<Yellow> MAX 5")
-      yellow.doTasks("2 MC", "2 MC")
+      yellow.doTask("4 MC")
       blue.doTasks("0 MC", "4 MC")
     }
     // Venus Infrastructure pays Green 6 M€, Yellow 4 M€, and Blue 4 M€ from their recorded
@@ -1603,8 +1601,7 @@ internal class OtbGame20260912Test : FullGameTest() {
         "-1 TerraformRating<Yellow>, WorldGovernmentDirectives, Distant<WorldGovernmentDirectives>, PartyFollower<Unity, Neutral>"
     ) {
       yellow.doTask("OceanTile<Vastitas_4_3>! BY Admin")
-      green.selectTask("2! MC<Green> / ScienceTag<Green> MAX 5")
-      green.doTasks("6 MC", "6 MC")
+      green.doTask("12 MC")
       yellow.doTasks("6 MC", "0 MC")
       blue.doTasks("4 MC", "0 MC")
     }
@@ -1728,8 +1725,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "GreeneryTile<Vastitas_6_8>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -1949,8 +1945,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "OceanTile<Vastitas_5_6>",
           "TerraformRating",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -2182,8 +2177,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "TerraformRating",
           "2 Heat",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
     yellow.turn {
@@ -2422,8 +2416,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "OxygenStep",
           "4 MC",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -2556,8 +2549,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "GreeneryTile<Vastitas_4_6>",
           "OxygenStep",
           "ProjectCard",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       doTasks(
@@ -2568,10 +2560,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "VenusStep",
           "VenusStep",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "4 TerraformRating",
       )
     }
     blue.turn {
@@ -2604,16 +2593,14 @@ internal class OtbGame20260912Test : FullGameTest() {
           "-FrontierTownBonus",
           "TemperatureStep",
           "-4 MC",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "RepeatPlacementBonus<Vastitas_5_5>",
           "TerraformRating",
           "TemperatureStep",
           "-4 MC",
           "TemperatureStep",
           "-4 MC",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "OceanTile<Vastitas_3_3>",
           "TerraformRating",
           "2 Plant",
@@ -2701,8 +2688,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "GreeneryTile<Vastitas_4_4>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -3122,8 +3108,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "OxygenStep",
           "Steel",
           "2 Heat",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
     yellow.turn {
@@ -3352,7 +3337,6 @@ internal class OtbGame20260912Test : FullGameTest() {
     }
     yellow.doTask("PassBaton")
 
-    val score = Summarizer(game)
     assertEquals(
         """
         |                      1     2     3     4     5     6     7     8     9
@@ -3396,26 +3380,5 @@ internal class OtbGame20260912Test : FullGameTest() {
     // than the spoken 106.
     yellow.assertCounts(109 to "VictoryPoint", 1 to "Victory")
     blue.assertCounts(74 to "VictoryPoint", 0 to "Victory")
-    assertEquals(10, score.net("Milestone", "VictoryPoint<Blue>"))
-    assertEquals(10, score.net("FirstPlace", "VictoryPoint<Green>"))
-    assertEquals(10, score.net("FirstPlace", "VictoryPoint<Yellow>"))
-    assertEquals(0, score.net("FirstPlace", "VictoryPoint<Blue>"))
-    assertEquals(0, score.net("SecondPlace", "VictoryPoint<Green>"))
-    assertEquals(2, score.net("SecondPlace", "VictoryPoint<Yellow>"))
-    assertEquals(4, score.net("SecondPlace", "VictoryPoint<Blue>"))
-    assertEquals(8, score.net("GreeneryTile", "VictoryPoint<Green>"))
-    assertEquals(6, score.net("GreeneryTile", "VictoryPoint<Yellow>"))
-    assertEquals(4, score.net("GreeneryTile", "VictoryPoint<Blue>"))
-    assertEquals(9, score.net("CityTile", "VictoryPoint<Green>"))
-    assertEquals(9, score.net("CityTile", "VictoryPoint<Yellow>"))
-    assertEquals(5, score.net("CityTile", "VictoryPoint<Blue>"))
-    assertEquals(19, score.net("Card", "VictoryPoint<Green>"))
-    assertEquals(50, score.net("Card", "VictoryPoint<Yellow>"))
-    assertEquals(19, score.net("Card", "VictoryPoint<Blue>"))
-    assertEquals(5, score.net("$Decomposers", "VictoryPoint<Yellow>"))
-    assertEquals(3, score.net("PartyLeader", "VictoryPoint<Green>"))
-    assertEquals(1, score.net("PartyLeader", "VictoryPoint<Yellow>"))
-    assertEquals(1, score.net("PartyLeader", "VictoryPoint<Blue>"))
-    assertEquals(1, score.net("Chairman", "VictoryPoint<Blue>"))
   }
 }

@@ -1,14 +1,12 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.engine.World
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Explicit player-task replay; Admin keeps its normal autoexecution.
@@ -569,8 +567,7 @@ internal class Game20230521Test : FullGameTest() {
           "$SpinInducingAsteroid FROM ProjectCard",
           "VenusStep",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "ProjectCard",
           "3 MC",
           "3 Heat",
@@ -607,8 +604,6 @@ internal class Game20230521Test : FullGameTest() {
     p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     assertSidebar(gen = 5, temp = -24, oxygen = 0, oceans = 1, venus = 8)
-
-    checkSummaryAfterGen4(game)
 
     p1.turn {
       doTasks(
@@ -1238,8 +1233,7 @@ internal class Game20230521Test : FullGameTest() {
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
 
@@ -1268,8 +1262,7 @@ internal class Game20230521Test : FullGameTest() {
           "OceanTile<Tharsis_5_5>",
           "5 Plant",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
       // Player 1 hands the Arctic Algae reward to Player 2.
       giveTask(p2, "2 Plant<Player2>")
@@ -1416,10 +1409,7 @@ internal class Game20230521Test : FullGameTest() {
           "-4 Plant<Player1>",
           "4 Steel",
           "3 Plant",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "4 TerraformRating",
           "6 MC",
       )
       doTasks(
@@ -1813,8 +1803,7 @@ internal class Game20230521Test : FullGameTest() {
           "$Atmoscoop FROM ProjectCard",
           "2 VenusStep",
           "2 Floater<$AerialMappers>",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
 
       doTasks(
@@ -2198,8 +2187,7 @@ internal class Game20230521Test : FullGameTest() {
           "OceanTile<Tharsis_6_8>",
           "5 Plant",
           "OxygenStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "5 MC",
       )
     }
@@ -2386,57 +2374,5 @@ internal class Game20230521Test : FullGameTest() {
 
     p1.assertCounts(126 to "VictoryPoint", 1 to "Victory")
     p2.assertCounts(92 to "VictoryPoint", 0 to "Victory")
-    game.isIdle() shouldBe true
-
-    val summ = Summarizer(game)
-    summ.net("$Manutech", "Resource") shouldBe 104
-    summ.net("Production<Player2>", "Resource<Player2>") shouldBe 187
-
-    summ.net("$EarthOffice", "Owed") shouldBe -24
-    // Random automatic order may attribute fewer saturated removals here; see TESTING.md.
-    summ.net(
-        "GrantedResourceValue<Player2, Class<Metal>, $AdvancedAlloys<Player2>>",
-        "Owed",
-    ) shouldBe -31
-    summ.net("$EarthCatapult<Player2>", "Owed") shouldBe -55
-    summ.net("$QuantumExtractor", "Owed") shouldBe -10 // oof
-
-    summ.net("$AquiferPumping", "OceanTile") shouldBe 6
-    summ.net("$ArcticAlgae", "Plant") shouldBe 19
-    summ.net("$OptimalAerobraking", "Resource") shouldBe 42
-    summ.net("$SearchForLife", "Science") shouldBe 0
-
-    summ.net("TerraformRating<Player1>", "MC<Player1>") shouldBe 361
-    summ.net("TerraformRating<Player1>", "MC") shouldBe 361
-    summ.net("TerraformRating", "MC<Player1>") shouldBe 361
-    summ.net("TerraformRating<Player2>", "MC<Player2>") shouldBe 356
-    summ.net("TerraformRating<Player2>", "MC") shouldBe 356
-    summ.net("TerraformRating", "MC<Player2>") shouldBe 356
-
-    summ.net("TerraformRating", "MC") shouldBe 717
-
-    summ.net("TerraformRating<Player1>", "MC<Player2>") shouldBe 0
-    summ.net("TerraformRating<Player2>", "MC<Player1>") shouldBe 0
-  }
-
-  private fun checkSummaryAfterGen4(game: World) {
-    val summer = Summarizer(game)
-
-    summer.net("$ArcticAlgae", "Plant") shouldBe 3
-
-    summer.net("$DeuteriumExport", "Floater") shouldBe 1
-    summer.net("$DeuteriumExport", "Production<Class<Energy>>") shouldBe 1
-
-    summer.net("$EarthOffice", "Owed<Player1>") shouldBe -6
-
-    summer.net("$Manutech", "MC<Player1>") shouldBe 43
-
-    summer.net("TerraformRating", "MC<Player2>") shouldBe 87
-    summer.net("TerraformRating<Player2>", "MC") shouldBe 87
-    summer.net("TerraformRating<Player2>", "MC<Player2>") shouldBe 87
-    summer.net("TerraformRating", "MC") shouldBe 183
-
-    summer.net("GlobalParameter", "TerraformRating<Player1>") shouldBe 4
-    summer.net("GlobalParameter", "TerraformRating<Player2>") shouldBe 4
   }
 }

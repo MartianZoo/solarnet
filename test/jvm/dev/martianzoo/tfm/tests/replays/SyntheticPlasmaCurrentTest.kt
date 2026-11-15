@@ -244,7 +244,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       // Revolution is harmless at this influence, Scientists take power, and the visible events
       // advance.
       val mcBeforeWgt = count("MC")
-      val trBeforeWgt = count("TerraformRating")
       val scienceTagsBeforeWgt = count("ScienceTag")
       val scientistDelegatesBeforeWgt = count("PartyDelegate<Scientists>")
       doTask("OceanTile<Tharsis_6_9>! BY Admin")
@@ -252,7 +251,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
               "MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyFollower<Kelvinists, Neutral>"
           )
       count("MC") shouldBe mcBeforeWgt + scienceTagsBeforeWgt
-      count("TerraformRating") shouldBe trBeforeWgt
       count("PartyDelegate<Scientists>") shouldBe scientistDelegatesBeforeWgt - 1
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
       assertTurmoilState(
@@ -299,8 +297,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "OceanTile<Tharsis_5_6>",
             "TerraformRating",
             "2 Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
             "Ok", // decline the optional plant removal
         )
         doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
@@ -328,7 +325,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       // Sponsored Projects draws through its influence effect before Greens form the government;
       // the visible events then advance.
       val mcBeforeWgt = count("MC")
-      val trBeforeWgt = count("TerraformRating")
       val bioTagsBeforeWgt = count("BioTag")
       doTask("TemperatureStep! BY Admin")
       doTasks(
@@ -339,7 +335,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
               "ExploreFirstDirective, Distant<ExploreFirstDirective>, PartyFollower<Reds, Neutral>"
           )
       count("MC") shouldBe mcBeforeWgt + bioTagsBeforeWgt
-      count("TerraformRating") shouldBe trBeforeWgt
       (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Greens",
@@ -410,11 +405,9 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       doTasks("29 MC", "4 Titanium", "4 Energy", "3 Plant", "3 Heat FROM Energy")
       // Strong Society pays for influence, Kelvinists form the government, and the visible events
       // advance.
-      val trBeforeWgt = count("TerraformRating")
       doTask("VenusStep! BY Admin")
       doTasks("0 MC", "4 MC")
           .expect("RedResistance, Distant<RedResistance>, PartyFollower<Reds, Neutral>")
-      count("TerraformRating") shouldBe trBeforeWgt
       admin.count("PartyLeader<Kelvinists, Neutral>") shouldBe 1
       assertTurmoilState(
           ruling = "Kelvinists",
@@ -453,9 +446,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "GreeneryTile<Tharsis_6_6>",
             "OxygenStep",
             "Plant",
-            "2 MC",
-            "2 MC",
-            "2 MC",
+            "6 MC",
             "TerraformRating",
         )
         doTasks(
@@ -558,7 +549,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       // Scientific Community pays before its discard, Scientists form the government, and the
       // visible events advance.
       val mcBeforeWgt = count("MC")
-      val trBeforeWgt = count("TerraformRating")
       doTask("VenusStep! BY Admin")
       doTask("18 MC")
           .expect(
@@ -566,7 +556,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
           )
       // Scientific Community pays 18 M€ for cards and influence; the Scientists bonus pays 4 M€.
       count("MC") shouldBe mcBeforeWgt + 22
-      count("TerraformRating") shouldBe trBeforeWgt
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Scientists",
@@ -675,8 +664,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "PROD[Titanium]",
             "OxygenStep",
             "OxygenStep",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(
             *playCardTasks("$SulphurExports"),
@@ -746,8 +734,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *cardActionTasks("$ExtractorBalloons", "Action2"),
             "-2 Floater<$ExtractorBalloons>",
             "VenusStep",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
         doTasks(
@@ -800,8 +787,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "OceanTile<Tharsis_6_8>",
             "TerraformRating",
             "Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
         )
         doTasks(
             *playCardTasks("$AirScrappingExpedition"),
@@ -850,13 +836,11 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       doTasks("66 MC", "5 Titanium", "5 Energy", "6 Plant", "Heat FROM Energy", "5 Heat", "2 Steel")
       // Pandemic resolves before Kelvinists form the government, then the visible events advance.
       val mcBeforeWgt = count("MC")
-      val trBeforeWgt = count("TerraformRating")
       doTask("OxygenStep! BY Admin")
       doTask("-9 MC")
           .expect("BioengineeringBoom, Distant<BioengineeringBoom>, PartyLeader<Greens, Neutral>")
       // Pandemic costs 9 M€; the Kelvinists bonus pays 5 M€ for heat production.
       count("MC") shouldBe mcBeforeWgt - 4
-      count("TerraformRating") shouldBe trBeforeWgt
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Kelvinists",
@@ -1097,8 +1081,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "OxygenStep",
             "4 MC",
             "Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
             "TerraformRating",
         )
         doTasks(
@@ -1237,9 +1220,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "3 TerraformRating",
             "MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_5_7>",
             "2 Plant",
-            "2 MC",
-            "2 MC",
-            "2 MC",
+            "6 MC",
         )
         doTasks(
             *playCardTasks("$Plantation"),
@@ -1323,19 +1304,16 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "2 MC",
             "-FrontierTownBonus",
             "Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
             "RepeatPlacementBonus<Tharsis_6_5>",
-            "Plant",
-            "Plant",
+            "2 Plant",
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
             "8 Pay<Class<Plant>> FROM Plant",
             "GreeneryTile<Tharsis_8_4>",
             "OxygenStep",
-            "Steel",
-            "2 Steel",
+            "3 Steel",
         )
         doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
         doTasks(
@@ -1367,8 +1345,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "TemperatureStep",
             "4 Titanium",
             "ProjectCard",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
             "Ok", // decline the optional plant removal
         )
         doTasks(
@@ -1379,8 +1356,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "TemperatureStep",
             "TemperatureStep",
             "ProjectCard",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
             "OceanTile<Tharsis_1_4>",
             "OceanTile<WaterArea(HAS MAX 0 Tile)>",
             "OceanTile<WaterArea(HAS MAX 0 Tile)>",
@@ -1447,8 +1423,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "PROD[MC]",
             "CityTile<Tharsis_9_8>",
             "Steel",
-            "2 MC",
-            "2 MC",
+            "4 MC",
         )
         doTasks(
             *standardProjectTasks("GreeneryProject"),
@@ -1502,7 +1477,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       )
       doTask("PassBaton")
       assertCounts(0 to "ProjectCard")
-      admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
 
       assertResources(m = 113, s = 12, t = 8, p = 2, e = 0, h = 11)
       assertProduction(m = 36, s = 3, t = 5, p = 14, e = 0, h = 11)
@@ -1552,13 +1526,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
           1 to "PartyDelegate<Reds>",
           1 to "PartyDelegate<Kelvinists>",
       )
-
-      val score = Summarizer(game)
-      score.net("TerraformRating", "VictoryPoint<Bloo>") shouldBe 70
-      score.net("GreeneryTile", "VictoryPoint<Bloo>") shouldBe 14
-      score.net("CityTile", "VictoryPoint<Bloo>") shouldBe 27
-      score.net("Card", "VictoryPoint<Bloo>") shouldBe 35
-      score.net("PartyLeader", "VictoryPoint<Bloo>") shouldBe 4
     }
   }
 

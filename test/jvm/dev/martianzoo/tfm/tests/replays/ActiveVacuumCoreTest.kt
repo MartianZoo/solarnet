@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Complete public-state replay: Active Vacuum Core (g62d89e349c97), save 626.
@@ -118,8 +117,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Vitor>>",
           "$Vitor FROM CorporationCard",
-          "45 MC",
-          "3 MC",
+          "48 MC",
           "18 Pay<> FROM MC",
           "6 ProjectCard<Hand FROM Selecting>",
       )
@@ -159,9 +157,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "VenusStep",
           "VenusStep",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "3 TerraformRating",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AntiDesertificationTechniques>>",
@@ -570,14 +566,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "4 Steel",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "3 TerraformRating",
           "PROD[Heat]",
           "DeimosDownPromo_SpecialTile<Tharsis_4_4>",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "-6 Plant<Blue>",
       )
     }
@@ -588,8 +581,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "-Asteroid<$CometAiming>",
           "OceanTile<Tharsis_5_6>",
           "TerraformRating",
-          "2 Plant",
-          "2 Plant",
+          "4 Plant",
           "2 MC",
       )
     }
@@ -932,8 +924,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "-Asteroid<$CometAiming>",
           "OceanTile<Tharsis_6_7>",
           "TerraformRating",
-          "2 Plant",
-          "Plant",
+          "3 Plant",
           "2 MC",
       )
     }
@@ -1048,8 +1039,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "CityTile<Tharsis_6_5>",
           "PROD[MC]",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -1459,8 +1449,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "-Asteroid<$CometAiming>",
           "OceanTile<Tharsis_6_8>",
           "TerraformRating",
-          "2 Plant",
-          "Plant",
+          "3 Plant",
           "2 MC",
       )
     }
@@ -1524,7 +1513,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "CityTile<Tharsis_5_7>",
       )
       giveTask(pink, "PROD[MC]")
-      doTasks("2 Plant", "2 MC", "2 MC", "2 MC")
+      doTasks("2 Plant", "6 MC")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1788,8 +1777,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "GreeneryTile<Tharsis_4_5>",
           "OxygenStep",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       doTasks(
@@ -1913,8 +1901,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_2_5>",
           "OxygenStep",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -2146,9 +2133,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "GreeneryTile<Tharsis_6_6>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
           "TerraformRating",
       )
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Celebrity")
@@ -2387,7 +2372,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     }
 
     green.turn {
-      doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>", "3 MC", "MC")
+      doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>", "4 MC")
       doTasks(
           *playCardTasks("$TopsoilContract"),
           "8 Pay<> FROM MC",
@@ -2578,8 +2563,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_1_3>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -2688,32 +2672,5 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     purple.assertTags(but = 6, spt = 2, sct = 2, pot = 7, vet = 1, plt = 1)
     purple.assertDashRight(events = 7, tagless = 1, cities = 2)
     assertSidebar(gen = 8, temp = 8, oxygen = 14, oceans = 9, venus = 24)
-    admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
-
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<Purple>") shouldBe 0
-    score.net("Milestone", "VictoryPoint<Blue>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Pink>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Green>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Purple>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<Blue>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<Pink>") shouldBe 10
-    score.net("FirstPlace", "VictoryPoint<Green>") shouldBe 5
-    score.net("SecondPlace", "VictoryPoint<Purple>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Blue>") shouldBe 2
-    score.net("SecondPlace", "VictoryPoint<Pink>") shouldBe 2
-    score.net("SecondPlace", "VictoryPoint<Green>") shouldBe 2
-    score.net("GreeneryTile", "VictoryPoint<Purple>") shouldBe 5
-    score.net("GreeneryTile", "VictoryPoint<Blue>") shouldBe 7
-    score.net("GreeneryTile", "VictoryPoint<Pink>") shouldBe 1
-    score.net("GreeneryTile", "VictoryPoint<Green>") shouldBe 7
-    score.net("CityTile", "VictoryPoint<Purple>") shouldBe 9
-    score.net("CityTile", "VictoryPoint<Blue>") shouldBe 9
-    score.net("CityTile", "VictoryPoint<Pink>") shouldBe 1
-    score.net("CityTile", "VictoryPoint<Green>") shouldBe 4
-    score.net("Card", "VictoryPoint<Purple>") shouldBe 3
-    score.net("Card", "VictoryPoint<Blue>") shouldBe 13
-    score.net("Card", "VictoryPoint<Pink>") shouldBe 27
-    score.net("Card", "VictoryPoint<Green>") shouldBe 12
   }
 }

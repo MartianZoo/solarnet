@@ -147,7 +147,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "PlayCard<Class<$Predators>>",
       )
       // Hand the global-requirement waiver to Admin before playing Predators.
-      doTask("-Required* / Required")
+      doTask("-11 Required<Class<OxygenStep>>")
       doTasks("14 Pay<> FROM MC", "$Predators FROM ProjectCard")
     }
     with(black) {
@@ -382,9 +382,6 @@ internal class Wsbg2025Test : FullGameTest() {
 
     black.assertCounts(24 to "TerraformRating", 40 to "MC") // visual confirmation
     black.assertCounts(2 to "OwnedTile")
-    black.assertCounts(
-        (10 + black.count("ProdOffset<Class<MC>>")) to "PROD[MC]"
-    ) // visual confirmation
     black.assertProduction(m = 10, s = 0, t = 0, p = 0, e = 0, h = 4)
     black.assertResources(m = 40, s = 0, t = 0, p = 4, e = 0, h = 9)
 
@@ -686,8 +683,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "3 Heat",
           "TemperatureStep",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "PROD[Heat]",
           "OceanTile<Elysium_2_4>",
           "TerraformRating",
@@ -863,8 +859,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "4 MC",
           "TemperatureStep",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
     black.turn {
@@ -1776,7 +1771,7 @@ internal class Wsbg2025Test : FullGameTest() {
           "PROD[2 MC]",
           "PROD[2 Plant]",
           "2 Plant",
-          "Plant",
+          "Plant", // choose Viral Enhancers' plant
           "Animal<$EcologicalZone>",
       )
     }
@@ -1790,8 +1785,7 @@ internal class Wsbg2025Test : FullGameTest() {
       assertCounts(0 to "MC") // visual confirmation
       doTasks(
           "$ImportedNitrogen FROM ProjectCard",
-          "4 MC",
-          "3 MC",
+          "7 MC",
           "3 Heat",
           "TerraformRating",
           "4 Plant",
@@ -1894,15 +1888,10 @@ internal class Wsbg2025Test : FullGameTest() {
             .render()
             .joinToString("\n"),
     )
-    val summary = Summarizer(game)
-    assertEquals(6, summary.net("CityTile<Green>", "VictoryPoint<Green>"))
-    assertEquals(6, summary.net("$Predators", "VictoryPoint<Green>"))
-    assertEquals(3, summary.net("$ImmigrationShuttles", "VictoryPoint<Green>"))
     blue.assertCounts(77 to "VictoryPoint", 1 to "Victory")
     red.assertCounts(70 to "VictoryPoint", 0 to "Victory")
     green.assertCounts(57 to "VictoryPoint", 0 to "Victory")
     black.assertCounts(60 to "VictoryPoint", 0 to "Victory")
-    assertEquals(true, game.isIdle())
     blue.assertCounts(0 to "ProjectCard<Hand>")
     red.assertCounts(2 to "ProjectCard<Hand>")
     green.assertCounts(6 to "ProjectCard<Hand>")

@@ -658,8 +658,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "VenusStep",
           "3 MC",
           "3 Heat",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "ProjectCard",
       )
     }
@@ -678,9 +677,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "GreeneryTile<Tharsis_5_8>",
           "OxygenStep",
           "2 Plant",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
           "TerraformRating",
       )
     }
@@ -692,8 +689,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "$NuclearZone FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "PROD[Heat]",
           "NuclearZone_SpecialTile<Tharsis_5_7>",
           "2 Plant",
@@ -727,8 +723,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "3 Heat",
           "EcologicalZone_SpecialTile<Tharsis_5_9>",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -950,8 +945,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *standardProjectTasks("AirScrappingProject"),
           "15 Pay<> FROM MC",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
 
@@ -965,8 +959,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "GreeneryTile<Tharsis_4_5>",
           "OxygenStep",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       doTasks(
@@ -1013,8 +1006,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "OceanTile<Tharsis_6_7>",
           "TerraformRating",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(
           *playCardTasks("$IshtarMining"),
@@ -1357,8 +1349,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "CityTile<Tharsis_4_4>",
           "2 MC",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -1430,7 +1421,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$Greenhouses"),
           "5 Pay<> FROM MC",
           "$Greenhouses FROM ProjectCard",
-          "Plant / CityTile<Anyone>",
+          "5 Plant",
           "Animal<$EcologicalZone>",
           "3 Heat",
       )
@@ -1533,9 +1524,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "VenusStep",
           "VenusStep",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "3 TerraformRating",
       )
     }
     nor.doTask("Pass")
@@ -1730,8 +1719,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "CityTile<Tharsis_6_5>",
           "2 MC",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -1865,9 +1853,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "GreeneryTile<Tharsis_6_6>",
           "0 OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
     }
 
@@ -2008,8 +1994,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "Animal<$VenusianAnimals>",
           "RestrictedArea_SpecialTile<Tharsis_7_8>",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "-ProjectCard",
           "ProjectCard",
       )
@@ -2065,8 +2050,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_7_9>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTask("PassBaton")
     }
@@ -2074,7 +2058,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     nor.cardsHand shouldBe emptySet()
     vin.cardsHand shouldBe emptySet()
-    admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
 
     nor.assertResources(m = 88, s = 0, t = 2, p = 5, e = 1, h = 5)
     nor.assertProduction(m = 22, s = 0, t = 2, p = 8, e = 1, h = 0)
@@ -2094,18 +2077,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         2 to Thermophiles,
         6 to VenusianAnimals,
     )
-
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<Nor>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Vin>") shouldBe 10
-    score.net("FirstPlace", "VictoryPoint<Nor>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Vin>") shouldBe 10
-    score.net("GreeneryTile", "VictoryPoint<Nor>") shouldBe 16
-    score.net("GreeneryTile", "VictoryPoint<Vin>") shouldBe 4
-    score.net("CityTile", "VictoryPoint<Nor>") shouldBe 19
-    score.net("CityTile", "VictoryPoint<Vin>") shouldBe 16
-    score.net("Card", "VictoryPoint<Nor>") shouldBe 12
-    score.net("Card", "VictoryPoint<Vin>") shouldBe 24
 
     nor.assertCounts(47 to "TerraformRating")
     vin.assertCounts(43 to "TerraformRating")

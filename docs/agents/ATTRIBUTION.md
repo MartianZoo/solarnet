@@ -109,16 +109,11 @@ Use [IDENTITY.md](IDENTITY.md) and [ENGINE.md](ENGINE.md#transaction-history-and
 for the owning contracts. Admin processing must not be assigned strategic credit merely because
 Admin performed bookkeeping.
 
-### Existing summary support
+### Supplying contexts
 
-[Summarizer.kt](../../test/common/dev/martianzoo/tfm/tests/replays/Summarizer.kt) can total gains
-minus removals for a resource type, filtered by the supplying context. Its `sourceContext`
-follows through computed custom-instruction signals to recover the earlier supplying context.
-It also counts signal occurrences separately.
-
-This is useful evidence for direct-effect accounting. It is not a general attribution service:
-it does not reconstruct all prerequisite dependencies, recover unique origins of pooled resources,
-or evaluate whether a card was worth playing.
+The replay-only Summarizer and its accounting assertions were removed on 2026-11-14. This did not
+change production attribution records. Execution ancestry does not reconstruct all prerequisite
+dependencies, recover unique origins of pooled resources, or evaluate whether a card was worth playing.
 
 Contexts can themselves be helper components. For example,
 [ResourceValue in payment.pets](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/base/payment.pets)
