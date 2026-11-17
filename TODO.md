@@ -23,6 +23,14 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   while money was owed and later evaluates to zero; keep the explicit `Ok` until the payment
   model can finish that scope without an extra player submission.
 
+## Rules test cleanup
+
+- Review the remaining configuration and synthetic mechanism tests filed under `tests.rules`,
+  especially `PremiseEffectsTest`, `ClassTableSelectionTest`, `PropertyTest`, and `CustomMetricTest`.
+  Identify a distinct configuration or engine contract before retaining or relocating each case;
+  remove assertions of incidental effect strings, counts, and object identity where gameplay or
+  existing technical tests already establish the required behavior.
+
 ## Gameplay consistency
 
 The [project record](docs/agents/TESTING.md#gameplay-consistency-project) owns the user's decisions,

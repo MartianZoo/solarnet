@@ -1,9 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -294,5 +296,45 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     rob.count("MC") shouldBe if (compensateFirst) 3 else 0
     kim.count("MC") shouldBe 0
+  }
+
+  @Test
+  internal fun `Mons compensation must wait until Small Asteroid pays Reds`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.exMachina("$MonsInsurance")
+    // The correction changes government after ActionPhase began, so include its policy.
+    kim.exMachina("Ruling<Reds FROM Greens>, RedsPolicy")
+    kim.setToExMachina(13, "MC")
+    stan.exMachina("Plant")
+
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTasks(*playCardTasks("SmallAsteroid"), "10 Pay<> FROM MC")
+        doTasks(
+            "SmallAsteroid FROM ProjectCard",
+            "-Plant<Stan>",
+            "3* MC<Stan FROM Kim>",
+            "TemperatureStep",
+            "TerraformRating",
+            "-3 MC",
+        )
+      }
+    }
+    kim.count("MC") shouldBe 13
+    kim.count("PlayedEvent<Class<$SmallAsteroid>>") shouldBe 0
+    stan.count("Plant") shouldBe 1
+
+    kim.inTurn {
+          doTasks(*playCardTasks("SmallAsteroid"), "10 Pay<> FROM MC")
+          doTasks(
+              "SmallAsteroid FROM ProjectCard",
+              "-Plant<Stan>",
+              "TemperatureStep",
+              "TerraformRating",
+              "-3 MC",
+              "0 MC<Stan FROM Kim>",
+          )
+        }
+        .expect("0 MC<Stan>")
   }
 }

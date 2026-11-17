@@ -5,19 +5,6 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PoliticianTest : TfmSandboxTest() {
-  @Test
-  internal fun `two player games award no second place points even to the funder`() {
-    newTestGame(addOptions = "TurmoilExpansion, Politician, Thermalist, Miner", playerCount = 2)
-    kim.exMachina("PartyLeader<Scientists>, 1 PartyFollower<Scientists>")
-    stan.exMachina("PartyLeader<Unity>")
-
-    // Kim scores 3, Stan 1. Both also receive their ordinary party-leader VP.
-    stan.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Politician")
-    }
-    victoryPoints() shouldBe listOf(26, 21)
-  }
 
   @Test
   internal fun `Event Analysts breaks a tie even outside the dominant party`() {

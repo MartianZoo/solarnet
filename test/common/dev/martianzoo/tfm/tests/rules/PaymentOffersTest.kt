@@ -3,49 +3,12 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class PaymentOffersTest : TfmSandboxTest() {
-  @Test
-  internal fun `Water Import from Europa can pay its entire action cost in titanium`() {
-    newTestGame()
-    kim.exMachina("$WaterImportFromEuropa, 4 Titanium")
-    kim.setToExMachina(0, "MC")
-
-    kim.inTurn {
-          doTasks(
-              *cardActionTasks("WaterImportFromEuropa"),
-              "4 Pay<Class<Titanium>> FROM Titanium",
-              "Ok", // Nothing remains to pay in MC.
-              "OceanTile<Tharsis_1_2>",
-              "TerraformRating",
-              "2 Steel",
-          )
-        }
-        .expect("0 MC")
-  }
-
-  @Test
-  internal fun `Aquifer Pumping can combine steel with the exact cash remainder`() {
-    newTestGame()
-    kim.exMachina("$AquiferPumping, $EarthCatapult, 3 Steel")
-    kim.setToExMachina(2, "MC")
-
-    kim.inTurn {
-      doTasks(
-          *cardActionTasks("AquiferPumping"),
-          "3 Pay<Class<Steel>> FROM Steel",
-          "2 Pay<> FROM MC",
-          "OceanTile<Tharsis_1_2>",
-          "TerraformRating",
-          "2 Steel",
-      )
-    }
-  }
 
   @Test
   internal fun `A card made free by an earlier tag needs no titanium or graphene decision`() {

@@ -28,17 +28,4 @@ internal class VictoryTest : TfmSandboxTest() {
     finalChanges.drop(1).map { it.change.gaining?.type?.className } shouldBe
         listOf(cn("Victory"), cn("Victory"))
   }
-
-  @Test
-  internal fun mcBreaksAVictoryPointTie() {
-    game = setUpGame()
-    val p1 = agents[PLAYER1]
-    val p2 = agents[PLAYER2]
-    p1.exMachina("MC")
-
-    admin.runOperation("End FROM Phase")
-
-    p1.count("Victory<Player1>") shouldBe 1
-    p2.count("Victory<Player2>") shouldBe 0
-  }
 }

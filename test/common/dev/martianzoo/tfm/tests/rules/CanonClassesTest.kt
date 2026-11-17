@@ -124,16 +124,6 @@ internal class CanonClassesTest {
   }
 
   @Test
-  internal fun preludeSetupRetainsTwoOfFourPreludeCardsForEachPlayer() {
-    val game = setUpGame(canonicalPremise(PreludeExpansion, players = 2))
-
-    game.testAgent(ADMIN).exMachina("PreludePhase FROM SetupPhase")
-
-    game.testAgent(PLAYER1).count("PreludeCard<Player1>") shouldBe 2
-    game.testAgent(PLAYER2).count("PreludeCard<Player2>") shouldBe 2
-  }
-
-  @Test
   internal fun soloSetupUsesPetsOnlyOpponent() {
     val premise = canonicalPremise(players = 1)
     premise.actors.shouldContainExactly(PLAYER1, ADMIN)

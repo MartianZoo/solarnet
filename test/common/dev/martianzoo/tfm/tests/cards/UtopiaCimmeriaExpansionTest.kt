@@ -65,6 +65,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     }
 
     kim.count("CityTile<Cimmeria_3_3>") shouldBe 0
+    kim.count("Colony") shouldBe 5
     kim.count("MC") shouldBe 42
   }
 

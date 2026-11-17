@@ -34,6 +34,6 @@ internal class SteelworksTest : TfmSandboxTest() {
           )
           doTask("OxygenStep")
         }
-        .expect("-4 Energy, 0 OxygenStep, 0 TerraformRating")
+        .expect("-4 Energy, 0 OxygenStep, 0 TerraformRating, 0 Steel<Stan>, 0 Steel<Rob>")
   }
 }

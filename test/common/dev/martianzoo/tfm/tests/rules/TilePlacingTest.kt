@@ -11,6 +11,8 @@ import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.setUpGame
 import dev.martianzoo.tfm.tests.standardProjectTasks
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -187,6 +189,32 @@ internal class TilePlacingTest : TfmSandboxTest() {
           }
         }
       }
+    }
+  }
+
+  @Test
+  internal fun `Amazonis placement can fund Reds but choosing steel leaves the action unpaid`() {
+    newTestGame(addOptions = "AmazonisMap, TurmoilExpansion")
+    // The correction changes government after ActionPhase began, so include its policy.
+    kim.exMachina("Ruling<Reds FROM Greens>, RedsPolicy, 8 Plant")
+    kim.setToExMachina(2, "MC")
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTask("UseAction<ConvertPlantsAction, Action1>")
+        doTask("8 Pay<Class<Plant>> FROM Plant")
+        doTasks("GreeneryTile<Amazonis_05_03>", "Steel", "OxygenStep", "TerraformRating", "-3 MC")
+      }
+    }
+    kim.count("GreeneryTile") shouldBe 0
+    kim.count("Plant") shouldBe 8
+    kim.count("MC") shouldBe 2
+    kim.count("Steel") shouldBe 0
+
+    kim.inTurn {
+      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
+      doTasks("GreeneryTile<Amazonis_05_03>", "MC")
+      doTask("OxygenStep")
+      doTasks("TerraformRating", "-3 MC")
     }
   }
 }

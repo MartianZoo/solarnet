@@ -4,7 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.testsupport.PLAYER3
@@ -16,52 +16,10 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class AwardsTest : TfmSandboxTest() {
-  @Test
-  internal fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
-    game = TfmEngine.newGame(canonicalPremise(players = 1))
-
-    val award = game.classTable.getClass(cn("Award"))
-    game.classTable.allSubclasses(award).filterNot { it.abstract }.shouldBeEmpty()
-    game.classTable.isInhabited(cn("ClaimMilestoneAction")) shouldBe false
-    game.classTable.isInhabited(cn("FundAwardAction")) shouldBe false
-    (cn("ClaimMilestoneAction") in game.classTable.allClassNames) shouldBe false
-    (cn("FundAwardAction") in game.classTable.allClassNames) shouldBe false
-    admin.assertCounts(
-        1 to "AquiferProject",
-    )
-  }
-
-  @Test
-  internal fun incorporatorCountsOnlyCheapActiveAndAutomatedProjects() {
-    game =
-        TfmEngine.newGame(
-            canonicalPremise(
-                Utopia,
-                players = 2,
-            )
-        )
-    val p1 = agents[PLAYER1]
-    val p2 = agents[PLAYER2]
-
-    p1.exMachina("Incorporator, $Ecoline, $InterplanetaryCinematics")
-    p2.exMachina("$MiningGuild, $Mine")
-
-    admin.runOperation("End FROM Phase")
-
-    p1.assertCounts(
-        0 to "FirstPlace<Player1, Incorporator>",
-        0 to "SecondPlace<Player1, Incorporator>",
-    )
-    p2.assertCounts(
-        1 to "FirstPlace<Player2, Incorporator>",
-        0 to "SecondPlace<Player2, Incorporator>",
-    )
-  }
 
   @Test
   internal fun customAwardMetricsAreCountedForEachPlayer() {
@@ -87,35 +45,6 @@ internal class AwardsTest : TfmSandboxTest() {
         0 to "FirstPlace<Player3, Forecaster>",
         0 to "SecondPlace<Player3, Forecaster>",
     )
-  }
-
-  @Test
-  internal fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
-    game = TfmEngine.newGame(canonicalPremise(players = 2))
-    val p1 = agents[PLAYER1]
-    p1.exMachina("100 MC")
-
-    val first = p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Landlord") }
-    first.expect("-8 MC")
-    p1.assertCounts(92 to "MC", 1 to "Landlord")
-
-    shouldThrow<LimitsException> {
-      p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Landlord") }
-    }
-    p1.assertCounts(92 to "MC", 1 to "Landlord")
-
-    val second = p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Scientist") }
-    second.expect("-14 MC")
-    p1.assertCounts(78 to "MC", 1 to "Scientist")
-
-    val third = p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Thermalist") }
-    third.expect("-20 MC")
-    p1.assertCounts(58 to "MC", 1 to "Thermalist", 3 to "Award")
-
-    shouldThrow<DeadEndException> {
-      p1.runOperation("UseAction<FundAwardAction, Action1>") { doTask("Miner") }
-    }
-    p1.assertCounts(58 to "MC", 3 to "Award", 0 to "Miner")
   }
 
   @Test
@@ -203,5 +132,74 @@ internal class AwardsTest : TfmSandboxTest() {
     p1.count("VictoryPoint") shouldBe 5
     p2.count("VictoryPoint") shouldBe 4
     game.isIdle() shouldBe true
+  }
+
+  @Test
+  internal fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
+    newTestGame(playerCount = 2)
+    kim.setToExMachina(100, "MC")
+    kim.inTurn {
+      doTask("UseAction<FundAwardAction, Action1>")
+      shouldThrow<TaskException> { doTask("Landlord") }
+      doTasks("8 Pay<> FROM MC", "Landlord")
+    }
+    kim.assertCounts(92 to "MC", 1 to "Landlord")
+
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Landlord")
+      }
+    }
+    kim.assertCounts(92 to "MC", 1 to "Landlord")
+
+    kim.inTurn {
+      doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC", "Scientist")
+    }
+    kim.assertCounts(78 to "MC", 1 to "Scientist")
+
+    kim.inTurn {
+      doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Thermalist")
+    }
+    kim.assertCounts(58 to "MC", 1 to "Thermalist", 3 to "Award")
+
+    shouldThrow<DeadEndException> {
+      kim.inTurn {
+        doTasks("UseAction<FundAwardAction, Action1>", "Miner")
+      }
+    }
+    kim.assertCounts(58 to "MC", 3 to "Award", 0 to "Miner")
+  }
+
+  @Test
+  internal fun `Tied players receive the appropriate first and second place award points`() {
+    newTestGame()
+    kim.setToExMachina(3, "Heat")
+    kim.setToExMachina(3, "Steel")
+    stan.setToExMachina(2, "Heat")
+    stan.setToExMachina(3, "Steel")
+    rob.setToExMachina(2, "Heat")
+    rob.setToExMachina(2, "Steel")
+    kim.inTurn {
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
+      doTask("Thermalist")
+    }
+    stan.inTurn {
+      doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC")
+      doTask("Miner")
+    }
+
+    victoryPoints() shouldBe listOf(30, 27, 22)
+  }
+
+  @Test
+  internal fun `A two-player game awards no second-place points`() {
+    newTestGame(playerCount = 2)
+    kim.setToExMachina(1, "Heat")
+    kim.inTurn {
+      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
+      doTask("Thermalist")
+    }
+
+    victoryPoints() shouldBe listOf(25, 20)
   }
 }

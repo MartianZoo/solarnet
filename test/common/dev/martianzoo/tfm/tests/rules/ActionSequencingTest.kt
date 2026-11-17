@@ -4,7 +4,6 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -13,19 +12,6 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ActionSequencingTest : TfmSandboxTest() {
-  @Test
-  internal fun `payment completion belongs to the action provider's owner`() {
-    game = setUpGame()
-    val p1 = agents[PLAYER1]
-    val p2 = agents[PLAYER2]
-    p1.runOperation("$Steelworks, 4 Energy")
-    admin.exMachina("ActionPhase FROM SetupPhase")
-
-    p1.runOperation("UseAction<$Steelworks, Action1>")
-
-    p1.count("Steel") shouldBe 2
-    p2.count("Steel") shouldBe 0
-  }
 
   @Test
   internal fun `use-card action rejects a different card after Admin places the marker`() {
