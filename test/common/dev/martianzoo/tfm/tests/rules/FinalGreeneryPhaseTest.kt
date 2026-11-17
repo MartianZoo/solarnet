@@ -2,35 +2,14 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.tests.TestOption.MandatoryVenusVariant
-import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.TfmGameplayTest
-import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.setUpGame
-import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
   // Omit starting production and expansion solar work; these scenarios isolate the base phase flow.
   private val options = "-QuickStartVariant, -ColoniesExpansion, -VenusNextExpansion"
-
-  @Test
-  internal fun normalGreeneryRaisesOxygen() {
-    newTestGame(options, playerCount = 2)
-    // Supply plants for the conversion; how they were collected is irrelevant here.
-    kim.exMachina("8 Plant")
-    kim.completeOperation {
-      doTasks(
-          "UseAction<ConvertPlantsAction, Action1>",
-          "8 Pay<Class<Plant>> FROM Plant",
-          "GreeneryTile<Tharsis_3_6>",
-          "OxygenStep",
-          "TerraformRating",
-      )
-    }
-  }
 
   @Test
   internal fun finalGreeneryDoesNotRaiseOxygen() {
@@ -76,19 +55,6 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
     admin.count("OceanTile") shouldBe 0
     game.tasks.isEmpty() shouldBe true
     game.events.changesSinceSetup().last().change.removing?.type?.className shouldBe cn("GameScope")
-  }
-
-  @Test
-  internal fun multiplayerDoesNotTreatAbsentCountdownAsGameEnd() {
-    newTestGame(options, playerCount = 2)
-    kim.doTask("Pass")
-    stan.doTask("Pass")
-    kim.doTask("20 MC")
-    stan.doTask("20 MC")
-
-    game.classTable.allClassNames.shouldNotContain(cn("SoloGenerationsLeft"))
-    admin.count("ResearchPhase") shouldBe 1
-    admin.count("FinalGreeneryPhase") shouldBe 0
   }
 
   @Test
@@ -193,29 +159,5 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
     }
     kim.selectTask("PassBaton")
     kim.count("GreeneryTile") shouldBe 3
-  }
-
-  // These checks exercise the end conditions directly, without running turns or phases.
-  internal class EndConditions : TfmSandboxTest() {
-    @Test
-    internal fun multiplayerEndConditionIgnoresVenusCompletion() {
-      game = setUpGame(VenusNextExpansion)
-      admin.runOperation(
-          "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
-      )
-      admin.count("GpComplete<Class<VenusStep>>") shouldBe 0
-      admin.count("GameEndBarrier") shouldBe 0
-    }
-
-    @Test
-    internal fun mandatoryVenusVariantKeepsItsOwnBarrierUntilVenusIsComplete() {
-      game = setUpGame(VenusNextExpansion, MandatoryVenusVariant)
-      admin.runOperation(
-          "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
-      )
-      admin.count("GameEndBarrier") shouldBe 1
-      admin.runOperation("GpComplete<Class<VenusStep>>")
-      admin.count("GameEndBarrier") shouldBe 0
-    }
   }
 }

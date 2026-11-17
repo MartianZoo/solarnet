@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -13,24 +13,6 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ProductionPhaseTest {
-  @Test
-  internal fun playerConvertsExistingEnergyBeforeNewEnergyProduction() {
-    val game = setUpGame()
-    val admin = game.testAgent(ADMIN)
-    val p1 = game.testAgent(PLAYER1)
-    p1.runOperation("2 Energy, PROD[Energy]")
-    val manual = admin
-    p1.autoExecPolicy = NONE
-
-    manual.beginOperation("ProductionPhase FROM Phase") {
-      p1.count("Energy") shouldBe 2
-      p1.count("Heat") shouldBe 0
-      p1.doTasks("2 Heat FROM Energy", "Energy")
-    }
-
-    p1.count("Energy") shouldBe 1
-    p1.count("Heat") shouldBe 2
-  }
 
   // Unresolved adjudication (question 19): this exercises real production from a prepared position.
   // https://boardgamegeek.com/thread/1705209/article/44044598#44044598
@@ -59,5 +41,29 @@ internal class ProductionPhaseTest {
 
     shouldThrow<LimitsException> { admin.beginOperation("ProductionPhase FROM Phase") }
     kim.count("MC") shouldBe 1
+  }
+
+  internal class Gameplay : TfmGameplayTest() {
+    @Test
+    internal fun `Production converts existing energy before producing new resources`() {
+      newTestGame(playerCount = 2, addOptions = "-VenusNextExpansion")
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
+      kim.count("Energy") shouldBe 1
+      kim.count("Heat") shouldBe 1
+
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
+
+      kim.count("Energy") shouldBe 1
+      kim.count("Heat") shouldBe 3
+      kim.count("Steel") shouldBe 2
+    }
   }
 }

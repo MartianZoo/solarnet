@@ -228,8 +228,12 @@ container, use `doTask("EACH")` to expose its children, then submit their concre
 > source explicitly states an absolute value.
 
 Terraforming Mars integration tests live under `dev.martianzoo.tfm.tests`: `cards` contains
-component-focused behavior, `rules` contains game-wide and cross-component behavior, and `replays`
-contains whole-game chronologies. Shared integrated-test support lives in the parent
+component-focused behavior, `rules` contains gameplay events outside playing or using a specific card,
+and `replays` contains whole-game chronologies. General milestone claiming belongs in
+`MilestonesTest`; general award funding and scoring belong in `AwardsTest`. Card-specific failures
+and payment cases belong with their cards, even when they exercise shared engine behavior.
+Do not add a separate rule scenario when a retained card or rule scenario already exposes the same
+gameplay mistake. Shared integrated-test support lives in the parent
 package. Test placement follows purpose: a test of engine behavior belongs with engine even when it
 uses Terraforming Mars declarations to construct its scenario, while a test of Terraforming Mars
 rules or content belongs in the Terraforming Mars suites. Test-only dependencies may cross that
@@ -268,7 +272,7 @@ clear coverage of these contracts matters more than preserving every current tes
    A raw call that documents partial failure need not restore itself.
 4. **Player-level card and game-rule tests.** Scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
-   `CoreRulesTest` documents game-wide rules in this same style.
+   Named rule suites cover gameplay events outside individual card plays.
 5. **Whole-game tests.** Long scenarios that show the game flow and many rules operating together,
    especially when reconstructed from independent game records. With `-PreplayExports`, every
    successful JVM replay test also emits a recording. Import verification is separate.
@@ -348,9 +352,9 @@ card into a fixture `TfmCatalog`; premise-only declarations do not populate that
 Sandbox and gameplay scenarios use explicit Agent task submissions. The fixture-specific
 operation and payment conventions are described below.
 
-`CoreRulesTest` uses the same player-level style to document rules that belong to the game rather
-than any individual card. Its scenarios should reproduce only the important preconditions observed
-in whole games and use explicit sandbox tasks with expectations for additional consequences.
+Rule suites use the same player-level style for events outside individual card plays. Their scenarios
+should reproduce only the important preconditions observed in whole games and use explicit sandbox
+tasks with expectations for additional consequences.
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Catalog-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMap`; the parser already trims each

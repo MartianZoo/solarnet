@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -30,18 +29,6 @@ internal class CoreRulesTest : TfmSandboxTest() {
         doTasks(*standardProjectTasks("SellPatentsProject"))
         doTask("0 MC FROM ProjectCard!")
       }
-    }
-  }
-
-  @Test
-  internal fun `Eight heat raises temperature and terraform rating`() {
-    newTestGame()
-    kim.exMachina("8 Heat")
-
-    kim.inTurn {
-      doTasks("UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM Heat")
-      doTask("TemperatureStep")
-      doTask("TerraformRating")
     }
   }
 
@@ -226,65 +213,6 @@ internal class CoreRulesTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `A qualified player can claim a milestone`() {
-    newTestGame()
-    kim.setToExMachina(35, "TerraformRating")
-
-    kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Terraformer35")
-    }
-  }
-
-  @Test
-  internal fun `A milestone cannot be claimed twice`() {
-    newTestGame()
-    kim.setToExMachina(35, "TerraformRating")
-    stan.setToExMachina(35, "TerraformRating")
-    kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Terraformer35")
-    }
-
-    shouldThrow<LimitsException> {
-      stan.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Terraformer35")
-      }
-    }
-  }
-
-  @Test
-  internal fun `Funding successive awards costs eight fourteen and twenty`() {
-    newTestGame()
-
-    kim.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Landlord")
-    }
-    kim.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC")
-      doTask("Scientist")
-    }
-    kim.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC")
-      doTask("Thermalist")
-    }
-  }
-
-  @Test
-  internal fun `A colony trade can be paid for with three energy`() {
-    newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", playerCount = 2)
-    kim.exMachina("3 Energy")
-
-    kim.inTurn {
-      doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
-      doTasks("Trade<Ceres>", "2 Steel")
-    }
-  }
-
-  @Test
   internal fun `A player who passed before the action phase cannot act in it`() {
     newTestGame(addOptions = "PreludeExpansion", playerCount = 2)
     // As when Red Appeasement is played through Head Start during the Prelude phase.
@@ -294,51 +222,5 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> { kim.inTurn { doTask("Pass") } }
     stan.inTurn { doTask("Pass") }
-  }
-
-  internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
-    @Test
-    internal fun `Research cards cost three MC each`() {
-      newTestGame(playerCount = 2, addOptions = "-VenusNextExpansion")
-      kim.doTask("Pass")
-      stan.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      kim.doTasks("-1 ProjectCard<Selecting>").expect("-9 MC, 3 ProjectCard")
-      stan.doTask("-4 ProjectCard<Selecting>")
-      admin.count("Generation") shouldBe 2
-    }
-
-    @Test
-    internal fun `Production converts existing energy before producing new resources`() {
-      newTestGame(playerCount = 2, addOptions = "-VenusNextExpansion")
-      kim.doTask("Pass")
-      stan.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("-4 ProjectCard<Selecting>")
-      stan.doTask("-4 ProjectCard<Selecting>")
-      kim.count("Energy") shouldBe 1
-      kim.count("Heat") shouldBe 1
-
-      stan.doTask("Pass")
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("-4 ProjectCard<Selecting>")
-      stan.doTask("-4 ProjectCard<Selecting>")
-
-      kim.count("Energy") shouldBe 1
-      kim.count("Heat") shouldBe 3
-      kim.count("Steel") shouldBe 2
-    }
-
-    @Test
-    internal fun `World Government terraforming gives no terraform rating`() {
-      newTestGame(playerCount = 2)
-      kim.doTask("Pass")
-      stan.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      kim.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 TerraformRating")
-    }
   }
 }

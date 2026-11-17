@@ -10,20 +10,6 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class RequiredFirstActionTest : TfmGameplayTest(NONE) {
-  @Test
-  internal fun `Can pass the first generation and draw three cards in the second`() {
-    newTestGame(playerCount = 2, kimCorporation = Inventrix)
-    kim.doTask("Pass")
-    stan.doTask("Pass")
-    kim.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
-    stan.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
-    kim.doTask("OxygenStep! BY Admin")
-    kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
-    stan.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
-    stan.doTask("Pass")
-
-    kim.completeOperation { doTasks("DoRequiredActions", "3 ProjectCard") }
-  }
 
   @Test
   internal fun `Can play a project after resolving its mandatory card draw`() {
