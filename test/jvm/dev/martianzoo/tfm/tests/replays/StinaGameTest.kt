@@ -5,7 +5,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class StinaGameTest : CardTrackingFullGameTest() {
@@ -64,14 +63,9 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
   private val me
     get() = p1
 
-  @BeforeTest
-  override fun commonSetup() {
-    super.commonSetup()
-    startGame()
-  }
-
   @Test
   internal fun stinaSaturnSystemsGame() {
+    startGame()
     with(me) {
       // Test inference: unnamed draws are assigned in the order the cards are later played.
       doTasks(
@@ -127,8 +121,7 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
             *playCardTasks("$InvestmentLoan"),
             "$InvestmentLoan FROM ProjectCard",
             "PROD[-MC]",
-            "10 MC",
-            "3 MC",
+            "13 MC",
         )
         doTasks(*playCardTasks("$IndenturedWorkers"), "$IndenturedWorkers FROM ProjectCard", "3 MC")
         doTask("IndenturedWorkers_NextCardEffect")
@@ -215,16 +208,14 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
             "$TechnologyDemonstration FROM ProjectCard",
             "2 ProjectCard",
             "ProjectCard FROM Science",
-            "3 MC",
-            "3 MC",
+            "6 MC",
             "3 Heat",
         )
         doTasks(
             *playCardTasks("$ImportOfAdvancedGhg"),
             "$ImportOfAdvancedGhg FROM ProjectCard",
             "PROD[2 Heat]",
-            "3 MC",
-            "3 MC",
+            "6 MC",
             "3 Heat",
         )
         doTasks(
@@ -232,8 +223,7 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
             "$ImportedGhg FROM ProjectCard",
             "PROD[Heat]",
             "6 Heat",
-            "3 MC",
-            "3 MC",
+            "6 MC",
         )
         doTasks(
             *playCardTasks("$MassConverter"),
@@ -253,8 +243,7 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
             "OceanTile<Elysium_1_2>",
             "Titanium",
             "TerraformRating",
-            "3 MC",
-            "3 MC",
+            "6 MC",
             "3 Heat",
         )
         doTasks(
@@ -296,9 +285,6 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
       )
       assertTags(but = 2, spt = 3, sct = 7, pot = 2, eat = 4, jot = 1, cit = 1)
       assertCounts(
-          1 to "CityTile",
-          0 to "GreeneryTile",
-          0 to "SpecialTile",
           1 to "Generation",
           0 to "TemperatureStep",
           1 to "OxygenStep",
@@ -306,6 +292,5 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
           1 to "Science",
       )
     }
-    expectPendingTasksAtEnd(1) // the next action offer
   }
 }

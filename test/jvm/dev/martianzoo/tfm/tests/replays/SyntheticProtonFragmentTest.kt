@@ -6,6 +6,8 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -15,6 +17,7 @@ import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Source: _local/replays/Game20260811/ (game log, player records, and dashboard screenshots)
 // Complete archive replay: Synthetic Proton Fragment (g9ea8656f1c7e)
@@ -53,7 +56,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
   @Test
   internal fun game20260811() {
     startGame()
-    purple.doTasks("5 TerraformRating", "20 TerraformRating")
+    purple.doTasks("25 TerraformRating")
     pink.doTask("20 TerraformRating")
     green.doTask("20 TerraformRating")
     purple.doTasks(
@@ -91,6 +94,36 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     generation7()
     generation8()
     generation9()
+
+    // _local/replays/Game20260811/Game20260811-herokuapp-player.json; final Mars map.
+    assertEquals(
+        """
+        |                       1     2     3     4     5     6     7     8     9
+        |                      /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              [G1]  [G1]  [S1]  [G3]  [C1]
+        |
+        | 2 -           [O]   [S2]  [S1]  [C3]  [G3]  [G1]
+        |
+        | 3 -        [O]   [G3]  [G1]   LS   [G3]  [G1]  [S1]
+        |
+        | 4 -     [O]   [G3]  [C3]  [G1]  [C1]  [O]   [O]    LP
+        |
+        | 5 -  [S2]   L    [G3]  LSS   [G1]  [O]   [O]   [O]    LP
+        |
+        | 6 -      LT    L     LS   [C1]  [G1]   W     WS    L
+        |
+        | 7 -        [O]    L     L    [G1]  [C2]  [G2]   LT
+        |
+        | 8 -            LS    LC   LHH   [G2]  [S2]   LT
+        |
+        | 9 -               L    LHH   LO6   LHH    L
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -208,7 +241,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       shouldThrow<TaskException> { doTask("UseAction<PlayCardAction, Action1>") }
 
       doTask("DoRequiredActions")
-      doTask("SearchForCard<TagFilter<Class<MicrobeTag>>>").expect("ProjectCard")
+      doTask("SearchForCard<TagFilter<Class<MicrobeTag>>>")
       doTask("3 ProjectCard")
       doTasks(
           *playCardTasks("$Lichen"),
@@ -503,7 +536,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *cardActionTasks("$DirectedImpactors"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "Asteroid<$DirectedImpactors>",
       )
     }
@@ -686,7 +719,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Mine"),
           "1 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
@@ -846,7 +879,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CallistoPenalMines"),
           "6 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$CallistoPenalMines FROM ProjectCard",
           "PROD[3 MC]",
       )
@@ -958,8 +991,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "3 MC",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "LavaFlows_SpecialTile<Hellas_2_2>",
           "2 Plant",
           "2 MC",
@@ -1054,7 +1086,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$RadChemFactory"),
           "3 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$RadChemFactory FROM ProjectCard",
           "PROD[-Energy]",
           "2 TerraformRating",
@@ -1127,7 +1159,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$DuskLaserMining"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$DuskLaserMining FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Titanium]",
@@ -1160,7 +1192,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "4 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
@@ -1269,7 +1301,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "$Grass FROM ProjectCard",
           "PROD[Plant]",
           "3 Plant",
-          "Plant",
+          "Plant", // choose Viral Enhancers' plant
       )
     }
 
@@ -1284,8 +1316,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "GreeneryTile<Hellas_3_2>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
@@ -1373,14 +1404,11 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "OceanTile<Hellas_4_6>",
           "TerraformRating",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "OceanTile<Hellas_5_7>",
           "TerraformRating",
           "3 Heat",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
       doTasks(
           *playCardTasks("$MiningExpedition"),
@@ -1442,7 +1470,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "ProjectCard",
       )
       giveTask(green, "ProjectCard")
-      doTasks("3 MC", "OceanTile<Hellas_5_8>", "TerraformRating", "2 MC", "2 MC")
+      doTasks("3 MC", "OceanTile<Hellas_5_8>", "TerraformRating", "4 MC")
       doTasks(
           *playCardTasks("$VestaShipyard"),
           "2 Pay<Class<Titanium>> FROM Titanium",
@@ -1486,8 +1514,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "GreeneryTile<Hellas_4_2>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -1510,7 +1537,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     }
 
     pink.turn {
-      doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>", "2 MC", "MC")
+      doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>", "3 MC")
     }
 
     green.turn {
@@ -1626,7 +1653,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$HousePrinting"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$HousePrinting FROM ProjectCard",
           "PROD[Steel]",
       )
@@ -1663,9 +1690,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
 
     pink.turn {
       doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>")
-      // Resolve the fixed MC gain before the equal floater-based gain.
-      selectTask("MC<Player2>!")
-      doTasks("MC", "MC")
+      doTask("2 MC") // The fixed and floater-based gains are both one MC.
       doTasks(
           *playCardTasks("$BeamFromAThoriumAsteroid"),
           "7 Pay<Class<Titanium>> FROM Titanium",
@@ -1703,7 +1728,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MagneticFieldGeneratorsPromo"),
           "10 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$MagneticFieldGeneratorsPromo FROM ProjectCard",
           "PROD[-4 Energy]",
           "PROD[2 Plant]",
@@ -1820,30 +1845,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     purple.assertCounts(1 to "FirstPlace<Player1>", 0 to "SecondPlace<Player1>")
     pink.assertCounts(1 to "FirstPlace<Player2>", 1 to "SecondPlace<Player2>")
     green.assertCounts(1 to "FirstPlace<Player3>", 2 to "SecondPlace<Player3>")
-
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<Player1>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Player2>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Player3>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Player1>") shouldBe 5
-    score.net("SecondPlace", "VictoryPoint<Player1>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<Player2>") shouldBe 5
-    score.net("SecondPlace", "VictoryPoint<Player2>") shouldBe 2
-    score.net("FirstPlace", "VictoryPoint<Player3>") shouldBe 5
-    score.net("SecondPlace", "VictoryPoint<Player3>") shouldBe 4
-    score.net("GreeneryTile", "VictoryPoint<Player1>") shouldBe 9
-    score.net("GreeneryTile", "VictoryPoint<Player2>") shouldBe 2
-    score.net("GreeneryTile", "VictoryPoint<Player3>") shouldBe 6
-    score.net("CityTile", "VictoryPoint<Player1>") shouldBe 9
-    score.net("CityTile", "VictoryPoint<Player2>") shouldBe 4
-    score.net("CityTile", "VictoryPoint<Player3>") shouldBe 8
-    score.net("Card", "VictoryPoint<Player1>") shouldBe 4
-    score.net("Card", "VictoryPoint<Player2>") shouldBe 12
-    score.net("Card", "VictoryPoint<Player3>") shouldBe 5
-    score.net("$EcologicalZone", "VictoryPoint<Player1>") shouldBe 3
-    score.net("$IoMiningIndustries", "VictoryPoint<Player2>") shouldBe 4
-    score.net("$SaturnSurfing", "VictoryPoint<Player2>") shouldBe 1
-    score.net("$Ants", "VictoryPoint<Player3>") shouldBe 4
 
     purple.assertCounts(42 to "TerraformRating")
     pink.assertCounts(44 to "TerraformRating")

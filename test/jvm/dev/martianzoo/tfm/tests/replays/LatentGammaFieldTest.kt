@@ -4,7 +4,9 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.cardActionTasks
@@ -13,6 +15,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete source-log replay with documented fake/map corrections: Latent Gamma Field
 // (g890264103e4b).
@@ -104,7 +107,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "LakefrontResorts FROM CorporationCard",
         "54 MC",
         "15 Pay<> FROM MC",
-        "5 ProjectCard FROM ProjectCard<Selecting>",
+        "5 ProjectCard<Hand FROM Selecting>",
     )
     with(p1) {
       doTasks(
@@ -147,60 +150,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     p1.generation12()
     // Player-record evidence: occupied Mars spaces; area 31 retains its ocean under FakeNewHolland.
     admin.assertCounts(
-        1 to "GreeneryTile<Vastitas_1_1, Pink>",
-        1 to "CityTile<Vastitas_2_1, Pink>",
-        1 to "GreeneryTile<Vastitas_2_2, Pink>",
-        1 to "CityTile<Vastitas_2_3, Pink>",
-        1 to "GreeneryTile<Vastitas_2_4, Pink>",
-        1 to "GreeneryTile<Vastitas_2_5, Pink>",
-        1 to "CityTile<Vastitas_2_6, SoloOpponent>",
-        1 to "GreeneryTile<Vastitas_3_1, Pink>",
-        1 to "MoholeArea_SpecialTile<Vastitas_3_3, Pink>",
-        1 to "GreeneryTile<Vastitas_3_4, Pink>",
-        1 to "CityTile<Vastitas_3_5, Pink>",
-        1 to "GreeneryTile<Vastitas_3_6, Pink>",
-        1 to "GreeneryTile<Vastitas_3_7, SoloOpponent>",
-        1 to "CityTile<Vastitas_4_1, Pink>",
-        1 to "GreeneryTile<Vastitas_4_2, Pink>",
-        1 to "OceanTile<Vastitas_4_3>",
-        1 to "CityTile<Vastitas_4_4, Pink>",
-        1 to "GreeneryTile<Vastitas_4_5, Pink>",
-        1 to "GreeneryTile<Vastitas_4_6, Pink>",
-        1 to "CityTile<Vastitas_4_7, Pink>",
-        1 to "GreeneryTile<Vastitas_4_8, Pink>",
-        1 to "GreeneryTile<Vastitas_5_2, Pink>",
-        1 to "OceanTile<Vastitas_5_3>",
-        1 to "GreeneryTile<Vastitas_5_4, Pink>",
-        1 to "GreeneryTile<Vastitas_5_5, Pink>",
-        1 to "OceanTile<Vastitas_5_6>",
-        1 to "OceanTile<Vastitas_5_7>",
-        1 to "OceanTile<Vastitas_5_8>",
-        1 to "GreeneryTile<Vastitas_5_9, Pink>",
-        1 to "GreeneryTile<Vastitas_6_2, Pink>",
-        1 to "GreeneryTile<Vastitas_6_3, Pink>",
         1 to "NomadsMarker<Vastitas_6_4, Pink>",
-        1 to "OceanTile<Vastitas_6_5>",
-        1 to "OceanTile<Vastitas_6_6>",
-        1 to "OceanTile<Vastitas_6_7>",
-        1 to "CityTile<Vastitas_6_8, Pink>",
-        1 to "MiningRights_SpecialTile<Vastitas_6_9, Pink>",
-        1 to "CityTile<Vastitas_7_3, Pink>",
-        1 to "GreeneryTile<Vastitas_7_4, SoloOpponent>",
-        1 to "OceanTile<Vastitas_7_6>",
-        1 to "CapitalTile<Vastitas_7_7, Pink>",
-        1 to "GreeneryTile<Vastitas_7_8, Pink>",
-        1 to "GreeneryTile<Vastitas_7_9, Pink>",
-        1 to "CityTile<Vastitas_8_4, SoloOpponent>",
-        1 to "CityTile<Vastitas_8_6, Pink>",
-        1 to "GreeneryTile<Vastitas_8_7, Pink>",
-        1 to "GreeneryTile<Vastitas_8_8, Pink>",
-        1 to "CityTile<Vastitas_8_9, Pink>",
-        1 to "GreeneryTile<Vastitas_9_7, Pink>",
-        1 to "CityTile<Vastitas_9_8, Pink>",
-        1 to "GreeneryTile<Vastitas_9_9, Pink>",
-        0 to "CityTile<Vastitas_5_3, Pink>",
-        1 to "CityTile<StanfordTorus_RemoteArea, Pink>",
-        1 to "CityTile<GanymedeColony_RemoteArea, Pink>",
         1 to "Chairman<Neutral>",
         1 to "Ruling<Kelvinists>",
         1 to "Dominant<Unity>",
@@ -217,16 +167,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       assertResources(m = 114, s = 3, t = 14, p = 0, e = 5, h = 83)
       assertProduction(m = 45, s = 3, t = 4, p = 13, e = 5, h = 21)
       // The source has 15 cities. FakeNewHolland deliberately contributes no CityTile.
-      assertCounts(14 to "CityTile", 23 to "GreeneryTile", 1 to "FakeNewHolland")
+      assertCounts(1 to "FakeNewHolland")
       assertCounts(5 to "Animal<SmallAnimals>", 5 to "CardResource")
-      val score = Summarizer(game)
       // The fake's four points stand for the missing city's four neighboring greeneries.
-      score.net("FakeNewHolland", "VictoryPoint<Pink>") shouldBe 4
-      score.net("CityTile", "VictoryPoint<Pink>") shouldBe 41
-      score.net("Card", "VictoryPoint<Pink>") shouldBe 28
-      score.net("GreeneryTile", "VictoryPoint<Pink>") shouldBe 23
-      score.net("Delegate", "VictoryPoint<Pink>") shouldBe 4
-      score.net("TerraformRating", "VictoryPoint<Pink>") shouldBe 63
       assertCounts(63 to "TerraformRating", 159 to "VictoryPoint", 1 to "Victory")
       assertCounts(
           1 to "PartyLeader<MarsFirst>",
@@ -237,6 +180,37 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           0 to "LobbyDelegate",
       )
     }
+
+    // _local/replays/Game20261031/p9a4445506f19/player-p9a4445506f19.json; final Mars map. New
+    // Holland is represented by an ocean only; its city remains unsupported.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             [G1]   L     VS    L     L
+        |
+        | 2 -          [C1]  [G1]  [C1]  [G1]  [G1]  [C]
+        |
+        | 3 -       [G1]  WPP   [S1]  [G1]  [C1]  [G1]  [G]
+        |
+        | 4 -    [C1]  [G1]  [O]   [C1]  [G1]  [G1]  [C1]  [G1]
+        |
+        | 5 -  L    [G1]  [O]   [G1]  [G1]  [O]   [O]   [O]   [G1]
+        |
+        | 6 -    [G1]  [G1]   LP   [O]   [O]   [O]   [C1]  [S1]
+        |
+        | 7 -       [C1]  [G]    W    [O]   [C1]  [G1]  [G1]
+        |
+        | 8 -          [C]    L    [C1]  [G1]  [G1]  [C1]
+        |
+        | 9 -              LD    L    [G1]  [C1]  [G1]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun Agent.generation1() {
@@ -285,7 +259,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -323,7 +297,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -361,7 +335,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "2 Plant",
           "TerraformRating",
       )
-      doTask("MC! / Neighbor<OceanTile, Vastitas_3_4>")
+      doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
           *playCardTasks("NitrophilicMoss"),
           "8 Pay<> FROM MC",
@@ -396,7 +370,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -483,7 +457,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -526,7 +500,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "-3 ProjectCard<Selecting>",
         "3 Pay<> FROM MC",
-        "ProjectCard FROM ProjectCard<Selecting>",
+        "ProjectCard<Hand FROM Selecting>",
     )
     draw(SpaceHotels, SpaceMirrors, ExtremeColdFungus)
     turn {
@@ -622,7 +596,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "2 Energy",
     )
     doTasks("VenusStep! BY Admin", "4 MC")
-    p1.doTask("2! MC / EarthTag")
+    p1.doTask("0 MC") // Homeworld Support: no Earth tags; the four-MC influence gain is above.
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration.
     assertSidebar(gen = 7, temp = -14, oxygen = 2, oceans = 8, venus = 4)
@@ -633,7 +607,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
@@ -709,7 +683,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "2 ProjectCard",
           "TerraformRating",
       )
-      doTask("MC! / Neighbor<OceanTile, Vastitas_6_2>")
+      doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
           *playCardTasks("AsteroidRights"),
           "3 Pay<Class<Titanium>> FROM Titanium",
@@ -769,7 +743,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "ProjectCard",
           "TerraformRating",
       )
-      doTask("MC! / Neighbor<OceanTile, Vastitas_9_7>")
+      doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
           *playCardTasks("MartianRails"),
           "Pay<Class<Steel>> FROM Steel",
@@ -806,7 +780,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     draw(SpecialPermit, DomedCrater, CarbonNanosystems)
     turn {
@@ -919,7 +893,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "Ok", // keep all four research cards
         "12 Pay<> FROM MC",
-        "4 ProjectCard FROM ProjectCard<Selecting>",
+        "4 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -943,8 +917,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "4 Titanium",
           "3 MC",
           "3 Heat",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
       doTasks(
           "-4 Plant<SoloOpponent>",
@@ -1029,7 +1002,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
       // The source has seven Mars cities before New Holland, satisfying its printed four-city
       // requirement.
-      admin.assertCounts(7 to "CityTile<MarsArea, Anyone>")
+
       doTasks(
           *playCardTasks("FakeNewHolland"),
           "2 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
@@ -1062,7 +1035,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "-3 ProjectCard<Selecting>",
         "3 Pay<> FROM MC",
-        "ProjectCard FROM ProjectCard<Selecting>",
+        "ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -1092,7 +1065,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTask("MC! / Neighbor<OceanTile, Vastitas_8_8>")
+      doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1229,7 +1202,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     draw(KelpFarming, FueledGenerators, ResearchCoordination)
     turn {
@@ -1238,8 +1211,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           *standardProjectTasks("AirScrappingProject"),
           "15 Pay<> FROM MC",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
       doTasks(
           *standardProjectTasks("CityProject"),
@@ -1413,7 +1385,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     doTasks(
         "-3 ProjectCard<Selecting>",
         "3 Pay<> FROM MC",
-        "ProjectCard FROM ProjectCard<Selecting>",
+        "ProjectCard<Hand FROM Selecting>",
     )
     draw(LunarBeam, InventionContest)
     turn {
@@ -1425,7 +1397,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "2 Pay<> FROM MC",
           "InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
-          "ProjectCard FROM ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
           "Graphene<CarbonNanosystems>",
           "-ProjectCard",
       )

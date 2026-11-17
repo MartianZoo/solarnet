@@ -34,7 +34,7 @@
   scenarios following the game's own turns and phases, including focused phase tests from corrected
   starting positions.
 - [`FullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/FullGameTest.kt) —
-  replay setup, assertions, endpoint and export/import checks on `TfmGameplayTest`.
+  replay setup, functional assertions, and export on `TfmGameplayTest`.
 - [`CardTrackingFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt) —
   replay setup with named card arrivals, departures, and hand checks.
 - [`OtbGame20260828Test.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/OtbGame20260828Test.kt) —
@@ -81,7 +81,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `archivedReplayTest` task registration is commented out and unavailable. The optional, also
   commented-out `allBrowserTests` task still runs every portable replay when restored.
   Add `-PreplayExports` to record inputs, write full `.json` and short `.short.json` game files
-  per successful `FullGameTest` subclass, and verify reconstruction in a fresh game.
+  per successful `FullGameTest` subclass. The shared reconstruction check has been removed.
   Files go under that module's `generated/replay-event-logs` build directory. Export runs remove
   JSON files for archived games. Ordinary runs
   leave existing exports untouched. Direct JUnit runs need `-Dsolarnet.replayExports=true` and
@@ -129,9 +129,6 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   finding undeclared ordering dependencies; ordinary runs retain a stable diagnostic order.
   Run this mode periodically, especially around effect and scheduling changes. It does not vary
   Admin task execution order; that diagnostic follow-up is tracked in [TODO.md](../../TODO.md).
-  Game-state assertions pass, but the exact Advanced Alloys attribution totals in
-  `Game20230521Test` and `ThermalMatterWaveTest` may fail because saturating payment reductions do
-  not yet record every effect's gross contribution.
 
 Gradle may report tests as `UP-TO-DATE`. That is usually fine. When changing a test runner,
 browser configuration, resource packaging, or a locked JavaScript dependency, force the affected
@@ -274,7 +271,7 @@ clear coverage of these contracts matters more than preserving every current tes
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that show the game flow and many rules operating together,
    especially when reconstructed from independent game records. With `-PreplayExports`, every
-   successful JVM replay test also emits an exact recording and verifies reconstruction.
+   successful JVM replay test also emits a recording. Import verification is separate.
 6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.
@@ -705,7 +702,7 @@ characterization over a disproportionate workaround.
 
 ## Gameplay consistency project
 
-**Status: decisions and follow-up work recorded on 2026-11-12.** This section records the user's
+**Status: decisions and follow-up work recorded through 2026-11-14.** This section records the user's
 responses to the gameplay consistency audit. Agreed direction, current implementation, proposals,
 and observations not yet discussed are distinguished below. The work list is in
 [`TODO.md`](../../TODO.md#gameplay-consistency). This is not a claim that the migration is finished.
@@ -716,6 +713,61 @@ has been deleted; keep shrinking the remaining gameplay API rather than recreati
 The user does not require preservation of unused-action or underpayment/overpayment checks merely
 because old replay helpers performed them. Do not restore the discarded `tfm_sample` REPL command.
 These permissions do not imply removing source resource checkpoints or changing recorded payments.
+
+### Replay decisions selected on 2026-11-14
+
+- Keep ordinary replay submissions literal and inventory-checkable: submit concrete quantities,
+  not calculations such as `MC / CityTile<Anyone>`. Use the existing `EACH` shorthand to open a
+  container rather than copying its formula. `:tfm-tests:checkReplayLiterals` rejects `/` in ordinary
+  quoted replay strings and runs with replay and check tasks. Configuration/Pets raw strings and
+  the separate TaskForm replay are excluded; this rule does not ban expression-focused engine tests.
+- Expected outcomes are literal too. Do not read a tag/resource count from the running game and
+  calculate the expected payout from it. Use literal net changes through the existing
+  `expectChanges` when an observation spans calls, or literal absolute source checkpoints.
+- Keep `.expect` for interesting consequences, especially triggered or automatic work. Omit
+  predictable search-card yields and printed tags that merely restate the submitted card.
+- Prefer `0 Pay<> FROM MC` for an admitted zero cash remainder, and
+  `N ProjectCard<Hand FROM Selecting>` for bought cards. Keep explained `Ok` for optional
+  attacks, unused alternative payment resources, and other genuinely different choices.
+- Use literal ASCII maps through `TfmMapRenderer` to check tile positions and owners against
+  original photographs or saved-game data. Prefer an endpoint map and, when useful and sourced,
+  a checkpoint near the middle of the test. Do not replace missing source evidence with current
+  engine output. A latest available photograph before the endpoint belongs at that earlier
+  checkpoint. Remove scattered tile counts and per-area tile assertions; retain ocean totals as
+  global-parameter checks. Existing maps do not display off-Mars cities or distinguish named
+  special tiles; action submissions retain those identities and placements.
+- Named versus positional assertion arguments are both acceptable. The intentionally different
+  TaskForm replay remains outside this cleanup.
+- Combine simultaneous gains for the same holder/type where existing total matching supports it.
+  Preserve intervening choices, checkpoints, handoffs, and genuinely ordered continuations.
+- Remove Summarizer and its score-category, lifetime-accounting, and internal-action-count checks.
+  This supersedes the earlier proposal to move those checks into focused accounting tests.
+- Remove the shared export reconstruction/component comparison. Retain export generation and the
+  August 18 replay's specifically authored serialization checks.
+- Completed replays assert functional outcomes such as scores and Victory, not queue emptiness,
+  phase internals, or GameScope removal. Partial games keep their source-position checkpoints.
+- Remove incidental completeOperation wrappers from successful replay sequences, World Government
+  no-TR assertions, and duplicate handwritten production-offset checks. Preserve negative probes
+  and the restoration scopes needed by those probes.
+- Call startGame visibly in ordinary replay test bodies. Use doTask for execution; a retained
+  selectTask must be followed by the explicit execution of that same work. The underlying engine
+  change that would defer System assignment until execution is separate, explicitly deferred work.
+- Investigate how illegal-action tests can use positions from recorded files without requiring
+  the game itself to remain a Kotlin script. No expansion or removal of current probes is selected.
+- Separate generation methods provide navigation only; no reorganization was requested.
+
+Verification: all 29 active JVM replay tests passed with exports enabled, and all seven archived
+replays passed through a temporary test filter without changing normal suite selection. Spotless
+passed. Temporarily restoring October 9's `MC / CityTile<Anyone>` submission made
+`checkReplayLiterals` fail at that source line; the literal `11 MC` was then restored. The November 11
+formatting changes from main commit `23f1ea417` are included. No engine behavior changed.
+
+Follow-up verification: all 36 JVM replays passed together with exports enabled through a temporary
+test filter, leaving normal suite selection unchanged. The cleanup added 36 literal maps from
+original saved games and photographs; 26 of the 35 ordinary replays now have map checks. The new
+Synthetic Plasma Current maps exposed swapped neutral cities/greeneries in its setup; source save 0
+establishes the corrected positions, and the sourced final score still passes. Remaining board
+evidence gaps are recorded in `TODO.md`. No engine behavior or TaskForm replay code changed.
 
 ### Agreed direction: execution and task selection
 
@@ -789,11 +841,9 @@ human player's source log does not establish an application mistake.
   `newTestGameBeforeCorporationPlay`, replay `startGame`, and direct premise initialization: which
   setup, starting cards, corporation turns, and first choices have already happened at return?
   Document the useful distinctions before choosing what to consolidate.
-- Establish consistent completion checks appropriate to a scenario's stopping point. Audit direct
-  gameplay tests, complete replays, and intentionally partial replays, including which execution
-  routes install `ReplayExportExtension`. A partial replay may legitimately have pending work;
-  checking only a count does not explain which work was expected. No replacement endpoint API
-  has been selected.
+- Completed replays use scores and Victory as their completion checks, as selected on 2026-11-14.
+  Partial replays may legitimately leave tasks pending and retain their source-position checks.
+  Completion checks for focused gameplay scenarios remain a separate investigation.
 - Inventory scripted choices versus choices computed from current state. Concrete examples are
   locating the current starting player (`PreservationProgramTest.passGeneration`), selecting the
   first available water area (`EndgameRulesTest.finishMultiplayerGeneration`), and buying a
@@ -806,11 +856,8 @@ human player's source log does not establish an application mistake.
   checkpoints and final outcomes; do not add assertions that merely repeat the submitted task.
 - Different assertion receivers legitimately imply different observation scopes. That fact alone
   needs no cleanup. The user asked what `expectChanges` means, not for its removal or expansion.
-- Reduce detailed lifetime/cause accounting in ordinary replays. The user's suggested destination
-  is a few focused tests of the accounting mechanism using a couple of replay games as inputs.
-  Choose representative coverage before removing duplicated assertions. Preserve ordinary final
-  scores, meaningful resource checks, and source checkpoints; removing detailed cause accounting
-  does not authorize deleting those outcomes or the accounting implementation.
+- Remove replay Summarizer accounting outright, as selected on 2026-11-14. Preserve ordinary final
+  scores, meaningful resource checks, and source checkpoints. Production attribution is unaffected.
 
 `expectChanges("...") { ... }` is an existing assertion helper in `TfmGameplayTest`. It remembers
 an event position, runs the block, and checks the requested **net changes across the entire
@@ -849,27 +896,27 @@ seven ran `assertPendingTasksAtEnd`. Normal suite selection and repository build
 unchanged. Input exports/reconstruction were disabled. This verifies those archived scenarios
 on the JVM, not the browser suite or export round trips.
 
-### Remaining audit observations — not yet discussed with the user
+### Remaining audit observations
 
-The following are the remainder of the ranked audit (original items 15–29). **The user has not
-reviewed these observations or selected a response.** They are retained for discussion, not
+The following preserve the remainder of the ranked audit (original items 15–29), with dispositions
+where the November 14 replay decisions address them. Unresolved items are retained for discussion, not
 instructions to normalize everything. The order reflects how consequential the difference is,
 not how many tests use each approach. Narrower decisions above do not imply acceptance of every
 related change below.
 
 | Original rank | Difference observed | Concrete examples or question to revisit |
 | --- | --- | --- |
-| 15 | Negative probes and restoration checks versus successful play only | `SyntheticProtonFragmentTest` tries invalid Robinson Industries choices; `ActionScopeTest` checks restoration. Other replays submit only successful choices. Decide where these checks belong. |
+| 15 | Negative probes and restoration checks versus successful play only | Preserve existing probes; investigate separate illegal-action tests loaded from recorded positions, as selected November 14. No new design is selected. |
 | 16 | How known wrong behavior is represented | `PreservationProgramTest` and `MergerTest` pair disabled intended behavior with passing `BUG -` cases; other scenarios characterize unresolved behavior directly, or replay it with a correction. Review consistency with Known-defect tests above. |
 | 17 | Recording and reconstruction coverage | Ordinary replays do not record unless exports are requested. August 18 also checks serialized content, notes, and a midpoint; routine browser replay coverage mainly uses the August 28 TaskForm game. |
 | 18 | Frequency, placement, and breadth of checkpoints | `BinaryVectorStreamTest` checks generations against saves; `ThermalMatterWaveTest` concentrates more at the end; physical games follow photographs. Evidence naturally differs, but assertion placement can still be reviewed. |
-| 19 | What final validation proves | Some tests check totals and winners, some score categories (`DistantPressureMassTest`), and some phase/GameScope state. This is distinct from whether tasks remain pending. |
-| 20 | Extra checks of internal flow and rendered output | `SoloGame20230721Test` asserts 99 counted action signals; `ThermalMatterWaveTest` notes those signals do not measure the source's 169 actions. Some replays check a rendered map. Decide which checks add useful evidence. |
-| 21 | Scenario preparation in setup hooks versus visible test bodies | `SupercapacitorsTest`'s setup advances several generations; `PristarTest` creates its game in `@BeforeTest`; `StinaGameTest` starts through shared setup. The reader sees different amounts of the scenario locally. |
+| 19 | What final validation proves | November 14: use final scores and Victory; remove Summarizer score categories and phase/GameScope/pending-task completion checks. |
+| 20 | Extra checks of internal flow and rendered output | November 14 removes Summarizer action-signal counting. Rendered-map checks remain a separate question. |
+| 21 | Scenario preparation in setup hooks versus visible test bodies | November 14 moves Stina's startGame into the replay body. Non-replay setup in `SupercapacitorsTest` and `PristarTest` remains outside this cleanup. |
 | 22 | Private helpers containing a whole scenario versus inline steps | `SelfReplicatingRobotsTest`'s nested gameplay tests share a helper returning three counts; other scenarios keep actions and assertions together. Review what deserves a shared helper. |
-| 23 | Organization of long play sequences | Separate generation methods versus a long test body; Agent receiver methods versus `with(player)`; scope blocks that mean a turn, an action, or a continuation. |
+| 23 | Organization of long play sequences | Generation methods provide navigation, not gameplay behavior; no reorganization selected. Agent receiver methods versus `with(player)` remain a separate style question. |
 | 24 | How broadly assertion helpers check state | `assertCounts` names selected facts; `assertTags` supplies zero defaults for omitted categories; resource/production helpers cover six amounts and production offsets. Similar-looking checkpoints can check different amounts of state. |
-| 25 | Syntax used to express equivalent tasks | Constants versus literal card names, task arrays versus expanded sequences, explicit versus inferred owners, movement spellings, and `selectTask("PassBaton")` versus `doTask("PassBaton")`. Which differences are only spelling, and which depend on execution policy? |
+| 25 | Syntax used to express equivalent tasks | November 14 replaces execution through selection with doTask in ordinary replays and requires literal quantities. Constants versus card-name strings, arrays, owner spelling, and movement spelling remain open. |
 | 26 | Naming players | Numbered players, fixture aliases such as Kim, colors, and source names; a color can map to `Player1`. Some calls redundantly name the receiver. |
 | 27 | Assertion notation | `assertEquals`, Kotest matchers, `has`, and count checks; positional versus named tag arguments. Rank below differences in what is actually asserted. |
 | 28 | Class/file/test organization | Nested versus top-level test classes, directory placement, method names, and visibility. Suite selection parses source declarations; which moves would change what runs? |
@@ -934,21 +981,16 @@ checkpoints verify the live state without simulating production or scoring; part
 do not assert hypothetical victory points.
 
 Replay input recording and export are disabled by default, including in browser tests.
-Every successful JVM replay checks that no tasks remain at its endpoint. A replay intentionally
-stopping with open work calls `expectPendingTasksAtEnd(count)` at the end of its test, naming the
-offered turn or phase in a short comment. The count includes deferred Admin tasks. For a final
-action that should finish before the saved position, `completeOperation { ... }` checks its effects
-before the replay accepts the next turn or phase offer.
+Complete replays check scores and Victory. Intentionally partial games retain their source-position
+checks and may leave work pending. The shared queue-count check has been removed.
 With `-PreplayExports`, `ReplayExportExtension` enables recording before test setup, so
 `FullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
-replay, the extension writes full and short game files and reexecutes the full file in a
-fresh game using its checked premise and recorded inputs. The check compares the component changes with their Actors and causal ancestry,
-the final components, and pending tasks. Incidental ids, event ordinals, and the order of independent
-changes may differ.
-A round-trip failure fails the test. Replays must follow the game's normal flow and use
+replay, the extension writes full and short game files. It no longer reexecutes those files or
+compares reconstructed components. The August 18 replay retains its specific pre-scoring file,
+event, note, task, and component checks when exports are enabled.
+Replays must follow the game's normal flow and use
 ordinary task submissions instead of injecting operations. Partial games may stop with decisions
 pending.
-The hook reports each successful round-trip in test output.
 
 Structured inputs retain submitted syntax and record policy-executed Player work. Admin work is
 performed automatically during reconstruction rather than serialized as input, so

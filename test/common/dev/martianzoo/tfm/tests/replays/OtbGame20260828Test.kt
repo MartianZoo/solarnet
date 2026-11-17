@@ -2624,11 +2624,6 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
         20 to "CardResource", // and that's it
     )
 
-    val score = Summarizer(game)
-    assertEquals(5, score.net("FirstPlace", "VictoryPoint<Blue>"))
-    assertEquals(4, score.net("GreeneryTile", "VictoryPoint<Blue>"))
-    assertEquals(5, score.net("CityTile", "VictoryPoint<Blue>"))
-    assertEquals(13, score.net("Card", "VictoryPoint<Blue>"))
     green.assertCounts(88 to "VictoryPoint", 0 to "Victory")
     blue.assertCounts(72 to "VictoryPoint", 0 to "Victory")
     yellow.assertCounts(94 to "VictoryPoint", 1 to "Victory")

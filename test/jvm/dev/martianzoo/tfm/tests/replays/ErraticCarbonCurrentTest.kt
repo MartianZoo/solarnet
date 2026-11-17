@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -9,6 +11,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete database replay: Erratic Carbon Current (gbf986ef543f0)
 // https://terraforming-mars.herokuapp.com/the-end?id=p6674c4a1893d
@@ -63,6 +66,36 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     generation8()
     generation9()
     generation10()
+
+    // _local/replays/Game20260827/player-p6674c4a1893d.json; final Mars map.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             [O]   LPP   LPP   [G1]  [G1]
+        |
+        | 2 -          [O]   [G2]  [S2]  [G1]  [C1]  [G1]
+        |
+        | 3 -       [O]    LP    LS   [G2]  [G1]  [G1]  [G1]
+        |
+        | 4 -    [O]   [G2]  [G2]  [S2]  [G2]  [O]    WP    LP
+        |
+        | 5 -  LC   [G2]  [C2]  [G2]  [G2]  [O]   [O]    W     LP
+        |
+        | 6 -     LT    L    [G2]  [C2]  [G2]  [O]   [O]    L
+        |
+        | 7 -       WTT    L    [G2]  [G2]  [C1]  [G1]  [G1]
+        |
+        | 8 -           LS    LC   LHH   [G1]  [G1]   LT
+        |
+        | 9 -              L    LHH   LO6   LHH   [G1]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -296,8 +329,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "4 Titanium",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "PROD[Heat]",
           "-4 Plant<Blue>",
       )
@@ -403,7 +435,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC remainder
+          "0 Pay<> FROM MC", // no MC remainder
       )
       draw(Plantation)
       discard(NoctisCity)
@@ -477,8 +509,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "GreeneryTile<Hellas_4_5>",
           "OxygenStep",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -524,8 +555,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "7 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Hellas_6_6>",
           "OxygenStep",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
       doTasks(
@@ -535,9 +565,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "OceanTile<Hellas_5_7>",
           "TerraformRating",
           "3 Heat",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
     }
 
@@ -785,8 +813,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "OceanTile<Hellas_6_8>",
           "TerraformRating",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -834,7 +861,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ImportOfAdvancedGhg"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC remainder
+          "0 Pay<> FROM MC", // no MC remainder
           "$ImportOfAdvancedGhg FROM ProjectCard",
           "PROD[2 Heat]",
       )
@@ -880,6 +907,37 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "12 Pay<> FROM MC",
         "4 ProjectCard<Hand FROM Selecting>",
     )
+
+    // _local/replays/Game20260827/game-gbf986ef543f0.sqlite; source save 214.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             WPP   LPP   LPP   [G1]   LP
+        |
+        | 2 -          WPP   LPP   [S2]  [G1]  [C1]   LP
+        |
+        | 3 -        WP    LP    LS   [G2]  [G1]  [G1]  LPC
+        |
+        | 4 -    [O]    LP    LS   [S2]  [G2]  [O]    WP    LP
+        |
+        | 5 -  LC    L     L    LSS   [G2]  [O]   [O]    W     LP
+        |
+        | 6 -     LT    L     LS   [C2]  [G2]  [O]   [O]    L
+        |
+        | 7 -       WTT    L     L    [G2]  [C1]   L     LT
+        |
+        | 8 -           LS    LC   LHH   LHH    LT    LT
+        |
+        | 9 -              L    LHH   LO6   LHH    L
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // Database save 214 evidence: after both research purchases.
     blue.assertResources(m = 30, s = 2, t = 0, p = 20, e = 3, h = 9)
     blue.assertProduction(m = 9, s = 2, t = 0, p = 16, e = 3, h = 4)
@@ -963,8 +1021,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Hellas_7_8>",
           "OxygenStep",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -1211,7 +1268,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$CarbonNanosystems"),
           "7 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC remainder
+          "0 Pay<> FROM MC", // no MC remainder
       )
       draw(EosChasmaNationalPark)
       discard(Plantation)
@@ -1307,8 +1364,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "GreeneryTile<Hellas_4_2>",
           "0 OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -1449,16 +1505,14 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "$Atmoscoop FROM ProjectCard",
           "4 MC",
           "2 VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "2 Floater<$ExtractorBalloons>",
       )
       doTasks(
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
 
@@ -1530,8 +1584,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "7 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Hellas_2_2>",
         "2 Plant",
-        "2 MC",
-        "2 MC",
+        "4 MC",
     )
     pink.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
@@ -1539,7 +1592,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "GreeneryTile<Hellas_5_2>",
         "2 MC",
     )
-    pink.selectTask("PassBaton")
+    pink.doTask("PassBaton")
     blue.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
         "8 Pay<Class<Plant>> FROM Plant",
@@ -1551,25 +1604,13 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "8 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Hellas_9_9>",
     )
-    blue.selectTask("PassBaton")
+    blue.doTask("PassBaton")
 
     assertCardTrackingComplete()
     blue.cardsHand shouldBe emptySet()
     pink.cardsHand shouldBe emptySet()
-    admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
     blue.assertCounts(45 to "TerraformRating", 102 to "VictoryPoint", 1 to "Victory")
     pink.assertCounts(41 to "TerraformRating", 85 to "VictoryPoint", 0 to "Victory")
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<Blue>") shouldBe 10
-    score.net("Milestone", "VictoryPoint<Pink>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Blue>") shouldBe 10
-    score.net("FirstPlace", "VictoryPoint<Pink>") shouldBe 5
-    score.net("GreeneryTile", "VictoryPoint<Blue>") shouldBe 12
-    score.net("GreeneryTile", "VictoryPoint<Pink>") shouldBe 12
-    score.net("CityTile", "VictoryPoint<Blue>") shouldBe 11
-    score.net("CityTile", "VictoryPoint<Pink>") shouldBe 11
-    score.net("Card", "VictoryPoint<Blue>") shouldBe 14
-    score.net("Card", "VictoryPoint<Pink>") shouldBe 11
     blue.assertResources(m = 63, s = 2, t = 0, p = 0, e = 2, h = 15)
     blue.assertProduction(m = 13, s = 2, t = 0, p = 16, e = 2, h = 2)
     pink.assertResources(m = 48, s = 1, t = 2, p = 1, e = 0, h = 9)

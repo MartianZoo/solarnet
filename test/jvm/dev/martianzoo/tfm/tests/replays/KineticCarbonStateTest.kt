@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -10,6 +12,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete accepted-log replay: Kinetic Carbon State (g70576ecb7c18), played 2026-10-30.
 // https://terraforming-mars.herokuapp.com/the-end?id=p46f249e3c92d
@@ -65,7 +68,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
         "44 MC",
         "PROD[3 MC]",
         "15 Pay<> FROM MC",
-        "5 ProjectCard FROM ProjectCard<Selecting>",
+        "5 ProjectCard<Hand FROM Selecting>",
     )
     with(p1) {
       draw(CorroderSuits)
@@ -116,42 +119,39 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           ant = 1,
           cit = 3,
       )
-      assertCounts(10 to "GreeneryTile", 3 to "CityTile", 1 to "LavaFlows_SpecialTile")
-      // Player-record evidence: every occupied Mars space, including neutral tiles.
-      assertCounts(
-          1 to "GreeneryTile<Hellas_1_2>",
-          1 to "GreeneryTile<Hellas_2_3>",
-          1 to "GreeneryTile<Hellas_3_2>",
-          1 to "GreeneryTile<Hellas_3_3>",
-          1 to "GreeneryTile<Hellas_4_2>",
-          1 to "GreeneryTile<Hellas_4_4>",
-          1 to "GreeneryTile<Hellas_5_2>",
-          1 to "GreeneryTile<Hellas_5_4>",
-          1 to "GreeneryTile<Hellas_5_5>",
-          1 to "GreeneryTile<Hellas_6_6>",
-          1 to "CityTile<Hellas_1_3>",
-          1 to "CityTile<Hellas_4_3>",
-          1 to "CapitalTile<Hellas_2_2>",
-          1 to "LavaFlows_SpecialTile<Hellas_9_7>",
-      )
-      admin.assertCounts(
-          1 to "CityTile<SoloOpponent, Hellas_3_4>",
-          1 to "CityTile<SoloOpponent, Hellas_7_6>",
-          1 to "GreeneryTile<SoloOpponent, Hellas_2_4>",
-          1 to "GreeneryTile<SoloOpponent, Hellas_7_7>",
-          1 to "OceanTile<Hellas_1_1>",
-          1 to "OceanTile<Hellas_2_1>",
-          1 to "OceanTile<Hellas_3_1>",
-          1 to "OceanTile<Hellas_4_1>",
-          1 to "OceanTile<Hellas_4_6>",
-          1 to "OceanTile<Hellas_5_6>",
-          1 to "OceanTile<Hellas_5_7>",
-          1 to "OceanTile<Hellas_5_8>",
-          1 to "OceanTile<Hellas_6_7>",
-      )
+
       has("Victory") shouldBe false
-      has("GameScope") shouldBe false
     }
+
+    // _local/replays/Game20261030/player-p46f249e3c92d.json; final Mars map.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             [O]   [G1]  [C1]  LPS    LP
+        |
+        | 2 -          [O]   [C1]  [G1]  [G]    LP    LP
+        |
+        | 3 -       [O]   [G1]  [G1]  [C]    L    LPP   LPC
+        |
+        | 4 -    [O]   [G1]  [C1]  [G1]   LS   [O]    WP    LP
+        |
+        | 5 -  LC   [G1]   L    [G1]  [G1]  [O]   [O]   [O]    LP
+        |
+        | 6 -     LT    L     LS    L    [G1]  [O]    WS    L
+        |
+        | 7 -       WTT    L     L    [C]   [G]    L     LT
+        |
+        | 8 -           LS    LC   LHH   LHH    LT    LT
+        |
+        | 9 -              L    LHH   [S1]  LHH    L
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun Agent.generation1() {
@@ -202,7 +202,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -231,7 +231,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -246,7 +246,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "ProjectCard<Selecting>",
           "Ok", // keep the Business Network card
           "3 Pay<> FROM MC",
-          "ProjectCard FROM ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
       )
       doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
       doTasks(
@@ -289,7 +289,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     draw(SulphurEatingBacteria)
     turn {
@@ -298,7 +298,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "ProjectCard<Selecting>",
           "Ok", // keep the Business Network card
           "3 Pay<> FROM MC",
-          "ProjectCard FROM ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
       )
       doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
       draw(Steelworks)
@@ -350,7 +350,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -398,7 +398,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(*cardActionTasks("FloaterTechnology"), "Floater<FloatingRefinery>")
@@ -425,8 +425,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
           "Trade<Triton>",
-          "5 Titanium",
-          "Titanium",
+          "6 Titanium",
       )
       doTasks(
           "UseAction<TradeAction, Action3>",
@@ -475,7 +474,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -560,7 +559,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -604,7 +603,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "ProjectCard<Selecting>",
           "Ok", // keep the Business Network card
           "3 Pay<> FROM MC",
-          "ProjectCard FROM ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
       )
       doTasks(
           *playCardTasks("ImportOfAdvancedGhg"),
@@ -641,7 +640,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -727,7 +726,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -856,7 +855,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -873,14 +872,13 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "ProjectCard<Selecting>",
           "Ok", // keep the Business Network card
           "3 Pay<> FROM MC",
-          "ProjectCard FROM ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
       )
       doTasks(
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
           "Trade<Triton>",
-          "5 Titanium",
-          "Titanium",
+          "6 Titanium",
       )
       doTasks(
           *playCardTasks("Comet"),
@@ -982,7 +980,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "ProjectCard<Selecting>",
           "Ok", // keep the Business Network card
           "3 Pay<> FROM MC",
-          "ProjectCard FROM ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
       )
       // Test inference: the log gives the sale count, but omits the card identities.
       discard(OreProcessor, AerialMappers, DustSeals, VenusOrbitalSurvey)
@@ -1016,8 +1014,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "18 Pay<> FROM MC",
           "OceanTile<Hellas_4_1>",
           "TerraformRating",
-          "2 Plant",
-          "Plant",
+          "3 Plant",
           "2 MC",
       )
       doTasks(
@@ -1090,8 +1087,7 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           "TerraformRating",
           "OceanTile<Hellas_4_6>",
           "TerraformRating",
-          "2 Plant",
-          "Plant",
+          "3 Plant",
           "4 MC",
       )
       doTasks(*cardActionTasks("FloatingRefinery"), "Floater<FloatingRefinery>")

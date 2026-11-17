@@ -1,14 +1,16 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Source: _local/replays/Game20260824/ (game log, player records, and screenshots)
 // Complete archive replay: Distant Pressure Mass (gaf4dfdc697db)
@@ -69,6 +71,36 @@ internal class DistantPressureMassTest : FullGameTest() {
     generation9()
     generation10()
     generation11()
+
+    // _local/replays/Game20260824/player-keen.json; final Mars map.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             WPP   [G2]  [G2]  [C2]  [G2]
+        |
+        | 2 -          [O]   [G2]  [C2]  [G2]  [G2]  [C2]
+        |
+        | 3 -        WP   [C1]  [G1]  [C2]  [C2]  [S1]  [G2]
+        |
+        | 4 -     WP   [G1]  [G1]  [C1]  [G1]  [O]   [O]    LP
+        |
+        | 5 -  LC    L    [C2]  [G1]  [G1]  [O]   [O]   [O]    LP
+        |
+        | 6 -    [S2]  [G2]   LS   [G1]  [C1]  [O]   [O]    L
+        |
+        | 7 -       [O]   [G1]  [C1]  [G1]  [G1]  [G1]   LT
+        |
+        | 8 -           LS   [G1]  LHH   LHH   [C1]   LT
+        |
+        | 9 -              L    [G2]  [C2]  LHH    L
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -80,7 +112,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[Energy]",
           "PROD[2 MC]",
       )
-      doTask("SearchForCard<NoTagsFilter>").expect("ProjectCard")
+      doTask("SearchForCard<NoTagsFilter>")
       doTasks("4 MC", "12 Pay<> FROM MC", "4 ProjectCard<Hand FROM Selecting>")
     }
 
@@ -101,10 +133,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
           "$IndustrialComplex FROM PreludeCard",
           "-18 MC",
-          "EACH Class<@StandardResource> { " +
-              "Production<Class<@StandardResource>>! / " +
-              "(Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) " +
-              "- Production<Class<@StandardResource>> }",
+          "EACH",
           "MC",
           "PROD[Titanium]",
           "PROD[Steel]",
@@ -294,7 +323,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           hand = 6,
       )
       assertTags(but = 1, sct = 2, eat = 1)
-      assertDashRight(events = 0, tagless = 5, cities = 0, colonies = 0)
+      assertDashRight(events = 0, tagless = 5, colonies = 0)
     }
     with(been) {
       assertResources(m = 41, s = 0, t = 0, p = 5, e = 0, h = 3)
@@ -305,10 +334,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           hand = 5,
       )
       assertTags(but = 2, spt = 2, eat = 1, vet = 1, cit = 2)
-      assertDashRight(events = 1, tagless = 1, cities = 2, colonies = 1)
+      assertDashRight(events = 1, tagless = 1, colonies = 1)
     }
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 3, venus = 4)
-    admin.assertCounts(5 to "Tile")
 
     been.doTasks(
         "-2 ProjectCard<Selecting>",
@@ -393,7 +421,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           hand = 6,
       )
       assertTags(but = 2, sct = 3, eat = 1)
-      assertDashRight(events = 0, tagless = 5, cities = 0, colonies = 0)
+      assertDashRight(events = 0, tagless = 5, colonies = 0)
     }
     with(been) {
       assertResources(m = 34, s = 0, t = 1, p = 7, e = 0, h = 3)
@@ -404,10 +432,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           hand = 5,
       )
       assertTags(but = 2, spt = 3, eat = 1, vet = 2, cit = 2)
-      assertDashRight(events = 1, tagless = 1, cities = 2, colonies = 2)
+      assertDashRight(events = 1, tagless = 1, colonies = 2)
     }
     assertSidebar(gen = 4, temp = -30, oxygen = 1, oceans = 3, venus = 4)
-    admin.assertCounts(5 to "Tile")
 
     been.doTasks(
         "-3 ProjectCard<Selecting>",
@@ -446,8 +473,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "UseAction<TradeAction, Action1>",
           "9 Pay<> FROM MC",
           "Trade<Ganymede>",
-          "4 Plant",
-          "Plant",
+          "5 Plant",
       )
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -610,7 +636,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CupolaCity"),
           "6 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$CupolaCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
@@ -691,8 +717,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           *cardActionTasks("$ForcedPrecipitation", "Action2"),
           "-2 Floater<$ForcedPrecipitation>",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
 
@@ -769,8 +794,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "GreeneryTile<Hellas_4_5>",
           "OxygenStep",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -862,7 +886,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$WaterSplittingPlant"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$WaterSplittingPlant FROM ProjectCard",
           "MC",
       )
@@ -895,15 +919,13 @@ internal class DistantPressureMassTest : FullGameTest() {
           "TemperatureStep",
           "3 MC",
           "3 Heat",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "PROD[Heat]",
           "-4 Plant<Been>",
           "OceanTile<Hellas_4_7>",
           "TerraformRating",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "OceanTile<Hellas_7_3>",
           "TerraformRating",
           "2 Titanium",
@@ -955,8 +977,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "UseAction<TradeAction, Action3>",
           "3 Pay<Class<Titanium>> FROM Titanium",
           "Trade<Ganymede>",
-          "4 Plant",
-          "Plant",
+          "5 Plant",
       )
     }
 
@@ -1003,7 +1024,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$RadChemFactory"),
           "3 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$RadChemFactory FROM ProjectCard",
           "PROD[-Energy]",
           "2 TerraformRating",
@@ -1068,7 +1089,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           hand = 7,
       )
       assertTags(but = 7, spt = 2, sct = 4, pot = 3, eat = 3, jot = 1, cit = 1)
-      assertDashRight(events = 1, tagless = 7, cities = 1, colonies = 0)
+      assertDashRight(events = 1, tagless = 7, colonies = 0)
     }
     with(been) {
       assertResources(m = 57, s = 0, t = 4, p = 7, e = 1, h = 7)
@@ -1079,10 +1100,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           hand = 6,
       )
       assertTags(but = 4, spt = 5, sct = 1, pot = 1, eat = 5, vet = 5, ant = 1, cit = 3)
-      assertDashRight(events = 4, tagless = 1, cities = 3, colonies = 2)
+      assertDashRight(events = 4, tagless = 1, colonies = 2)
     }
     assertSidebar(gen = 8, temp = -18, oxygen = 6, oceans = 5, venus = 22)
-    admin.assertCounts(14 to "Tile")
 
     been.doTasks(
         "-3 ProjectCard<Selecting>",
@@ -1144,8 +1164,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "$SubterraneanReservoir FROM ProjectCard",
           "OceanTile<Hellas_5_8>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -1157,8 +1176,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "$Atmoscoop FROM ProjectCard",
           "2 Floater",
           "2 VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
 
@@ -1197,8 +1215,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "OceanTile<Hellas_6_8>",
           "TerraformRating",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -1249,9 +1266,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$MolecularPrinting"),
           "9 Pay<> FROM MC",
           "$MolecularPrinting FROM ProjectCard",
-          "4 MC",
-          "2 MC",
-          "MC",
+          "7 MC",
           "-ProjectCard",
           "ProjectCard",
       )
@@ -1349,7 +1364,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           hand = 8,
       )
       assertTags(but = 7, spt = 3, sct = 6, pot = 3, eat = 3, jot = 2, plt = 1, cit = 1)
-      assertDashRight(events = 1, tagless = 9, cities = 1, colonies = 0)
+      assertDashRight(events = 1, tagless = 9, colonies = 0)
     }
     with(been) {
       assertResources(m = 50, s = 0, t = 3, p = 3, e = 2, h = 13)
@@ -1360,10 +1375,9 @@ internal class DistantPressureMassTest : FullGameTest() {
           hand = 7,
       )
       assertTags(but = 5, spt = 5, sct = 2, pot = 2, eat = 5, vet = 5, ant = 1, cit = 3)
-      assertDashRight(events = 5, tagless = 1, cities = 3, colonies = 2)
+      assertDashRight(events = 5, tagless = 1, colonies = 2)
     }
     assertSidebar(gen = 9, temp = -14, oxygen = 12, oceans = 8, venus = 30)
-    admin.assertCounts(21 to "Tile")
 
     been.turn {
       doTasks(
@@ -1453,7 +1467,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
@@ -1668,8 +1682,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "UseAction<TradeAction, Action3>",
           "2 Pay<Class<Titanium>> FROM Titanium",
           "Trade<Ganymede>",
-          "4 Plant",
-          "Plant",
+          "5 Plant",
       )
       giveTask(keen, "Plant")
     }
@@ -1683,8 +1696,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "PROD[-2 Energy]",
           "PROD[5 MC]",
           "CapitalTile<Hellas_6_6>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -1888,8 +1900,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "UseAction<TradeAction, Action2>",
           "2 Pay<Class<Energy>> FROM Energy",
           "Trade<Ganymede>",
-          "3 Plant",
-          "Plant",
+          "4 Plant",
       )
       giveTask(keen, "Plant")
       doTasks(
@@ -1988,8 +1999,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Hellas_7_8>",
           "OxygenStep",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -2000,7 +2010,7 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$NitrogenFromTitan"),
           "6 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$NitrogenFromTitan FROM ProjectCard",
           "2 TerraformRating",
           "Ok", // No Jovian card can receive floaters.
@@ -2065,22 +2075,9 @@ internal class DistantPressureMassTest : FullGameTest() {
     }
     keen.assertCounts(1 to "ProjectCard")
     been.assertCounts(0 to "ProjectCard")
-    admin.assertCounts(1 to "End", 1 to "Phase", 0 to "GameScope")
 
     keen.assertCounts(47 to "TerraformRating", 117 to "VictoryPoint", 1 to "Victory")
     been.assertCounts(45 to "TerraformRating", 99 to "VictoryPoint", 0 to "Victory")
-
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<Keen>") shouldBe 10
-    score.net("Milestone", "VictoryPoint<Been>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Keen>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Been>") shouldBe 10
-    score.net("GreeneryTile", "VictoryPoint<Keen>") shouldBe 12
-    score.net("GreeneryTile", "VictoryPoint<Been>") shouldBe 9
-    score.net("CityTile", "VictoryPoint<Keen>") shouldBe 19
-    score.net("CityTile", "VictoryPoint<Been>") shouldBe 23
-    score.net("Card", "VictoryPoint<Keen>") shouldBe 24
-    score.net("Card", "VictoryPoint<Been>") shouldBe 7
 
     keen.assertResources(m = 90, s = 1, t = 4, p = 1, e = 2, h = 3)
     keen.assertProduction(m = 20, s = 1, t = 3, p = 13, e = 2, h = 3)

@@ -4,7 +4,9 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.cardActionTasks
@@ -13,6 +15,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete source-log replay: Remote Vacuum Flow (g40fde6455218).
 // http://newazure.local:8080/the-end?id=p5b5fbeff757c
@@ -122,7 +125,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "35 MC",
         "3 Asteroid<AstroDrill>",
         "21 Pay<> FROM MC",
-        "7 ProjectCard FROM ProjectCard<Selecting>",
+        "7 ProjectCard<Hand FROM Selecting>",
     )
     with(p1) {
       doTasks(
@@ -161,44 +164,6 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     p1.generation12()
 
     // Player-record evidence: all occupied Mars spaces.
-    admin.assertCounts(
-        1 to "OceanTile<Cimmeria_1_5>",
-        1 to "OceanTile<Cimmeria_2_1>",
-        1 to "GreeneryTile<Cimmeria_2_6, Blue>",
-        1 to "CityTile<Cimmeria_3_3, SoloOpponent>",
-        1 to "GreeneryTile<Cimmeria_3_4, SoloOpponent>",
-        1 to "GreeneryTile<Cimmeria_3_6, Blue>",
-        1 to "GreeneryTile<Cimmeria_4_5, Blue>",
-        1 to "CapitalTile<Cimmeria_4_6, Blue>",
-        1 to "GreeneryTile<Cimmeria_4_7, Blue>",
-        1 to "GreeneryTile<Cimmeria_5_4, Blue>",
-        1 to "CityTile<Cimmeria_5_5, Blue>",
-        1 to "GreeneryTile<Cimmeria_5_6, Blue>",
-        1 to "GreeneryTile<Cimmeria_5_7, Blue>",
-        1 to "MiningArea_SpecialTile<Cimmeria_5_8, Blue>",
-        1 to "DeimosDownPromo_SpecialTile<Cimmeria_6_2, Blue>",
-        1 to "GreeneryTile<Cimmeria_6_3, SoloOpponent>",
-        1 to "CityTile<Cimmeria_6_4, SoloOpponent>",
-        1 to "GreeneryTile<Cimmeria_6_5, Blue>",
-        1 to "GreeneryTile<Cimmeria_6_6, Blue>",
-        1 to "CityTile<Cimmeria_6_7, Blue>",
-        1 to "GreeneryTile<Cimmeria_7_5, Blue>",
-        1 to "CityTile<Cimmeria_7_6, Blue>",
-        1 to "GreeneryTile<Cimmeria_7_7, Blue>",
-        1 to "GreeneryTile<Cimmeria_7_8, Blue>",
-        1 to "OceanTile<Cimmeria_7_9>",
-        1 to "OceanTile<Cimmeria_8_4>",
-        1 to "MagneticFieldGeneratorsPromo_SpecialTile<Cimmeria_8_5, Blue>",
-        1 to "GreeneryTile<Cimmeria_8_6, Blue>",
-        1 to "GreeneryTile<Cimmeria_8_7, Blue>",
-        1 to "CityTile<Cimmeria_8_8, Blue>",
-        1 to "OceanTile<Cimmeria_8_9>",
-        1 to "OceanTile<Cimmeria_9_5>",
-        1 to "OceanTile<Cimmeria_9_6>",
-        1 to "OceanTile<Cimmeria_9_7>",
-        1 to "GreeneryTile<Cimmeria_9_8, Blue>",
-        1 to "OceanTile<Cimmeria_9_9>",
-    )
 
     with(p1) {
       cardsHand shouldBe emptySet()
@@ -214,15 +179,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           1 to "Floater<DeuteriumExport>",
           5 to "CardResource",
       )
-      assertCounts(15 to "GreeneryTile", 5 to "CityTile", 0 to "Milestone", 0 to "Award")
-      val score = Summarizer(game)
-      score.net("TerraformRating", "VictoryPoint<Blue>") shouldBe 71
-      score.net("GreeneryTile", "VictoryPoint<Blue>") shouldBe 15
-      score.net("CityTile", "VictoryPoint<Blue>") shouldBe 25
-      score.net("Card", "VictoryPoint<Blue>") shouldBe 35
-      score.net("Delegate", "VictoryPoint<Blue>") shouldBe 5
-      score.net("Milestone", "VictoryPoint<Blue>") shouldBe 0
-      score.net("Award", "VictoryPoint<Blue>") shouldBe 0
+      assertCounts(0 to "Milestone", 0 to "Award")
       assertCounts(
           1 to "Chairman",
           1 to "PartyLeader<MarsFirst>",
@@ -232,6 +189,36 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           1 to "PartyFollower<Unity>",
       )
     }
+
+    // _local/replays/Game20261031/player-p5b5fbeff757c.json; final Mars map.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              W     LP    VS    LP   [O]
+        |
+        | 2 -          [O]    L     L     L    LPS   [G1]
+        |
+        | 3 -        L     L    [C]   [G]    L    [G1]   L
+        |
+        | 4 -     VS    L     LS    L    [G1]  [C1]  [G1]   LC
+        |
+        | 5 -  L     L     L    [G1]  [C1]  [G1]  [G1]  [S1]   W
+        |
+        | 6 -    [S1]  [G]   [C]   [G1]  [G1]  [C1]   L    LSS
+        |
+        | 7 -       LPP    LT   [G1]  [C1]  [G1]  [G1]  [O]
+        |
+        | 8 -          [O]   [S1]  [G1]  [G1]  [C1]  [O]
+        |
+        | 9 -             [O]   [O]   [O]   [G1]  [O]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun Agent.generation1() {
@@ -292,7 +279,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(*cardActionTasks("AstroDrill", "Action2"), "-Asteroid<AstroDrill>", "3 Titanium")
@@ -351,7 +338,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "3 Heat FROM Energy",
     )
     doTasks("VenusStep! BY Admin", "4 MC")
-    p1.doTask("2! MC / Influence")
+    p1.doTask("0 MC") // Interplanetary Trade: the source's four-MC gain is already collected above.
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[1].
     assertSidebar(gen = 3, temp = -24, oxygen = 0, oceans = 1, venus = 4)
@@ -362,7 +349,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(
         "Ok", // keep all four research cards
         "12 Pay<> FROM MC",
-        "4 ProjectCard FROM ProjectCard<Selecting>",
+        "4 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
@@ -415,7 +402,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -445,8 +432,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "8 Steel",
-          "2 Steel",
+          "10 Steel",
       )
       draw(SpaceHotels)
       discard(Supercapacitors)
@@ -514,7 +500,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     draw(SearchForLife)
     turn {
@@ -539,7 +525,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "2 Pay<> FROM MC",
           "InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
-          "ProjectCard FROM ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
           "ProjectCard FROM Science<OlympusConference>",
           "-ProjectCard",
       )
@@ -606,8 +592,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "6 Steel",
-          "2 Steel",
+          "8 Steel",
       )
       doTasks(
           *playCardTasks("SpinOffDepartment"),
@@ -647,7 +632,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(
         "-3 ProjectCard<Selecting>",
         "3 Pay<> FROM MC",
-        "ProjectCard FROM ProjectCard<Selecting>",
+        "ProjectCard<Hand FROM Selecting>",
     )
     draw(Archaebacteria)
     turn {
@@ -764,7 +749,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -931,7 +916,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -959,8 +944,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "8 Steel",
-          "2 Steel",
+          "10 Steel",
       )
       draw(IceCapMelting)
       doTasks(
@@ -1161,7 +1145,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(
         "-ProjectCard<Selecting>",
         "9 Pay<> FROM MC",
-        "3 ProjectCard FROM ProjectCard<Selecting>",
+        "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(
@@ -1169,8 +1153,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "4 Steel",
-          "2 Steel",
+          "6 Steel",
       )
       doTasks(*cardActionTasks("DeuteriumExport"), "Floater<DeuteriumExport>")
       draw(AntiGravityTechnology)
@@ -1307,7 +1290,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
       doTasks(*cardActionTasks("FloaterTechnology"), "Floater<AerialMappers>")
@@ -1401,8 +1384,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "4 Steel",
-          "2 Steel",
+          "6 Steel",
       )
       doTasks(
           *playCardTasks("ImportedHydrogen"),
@@ -1512,7 +1494,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     doTasks(
         "-2 ProjectCard<Selecting>",
         "6 Pay<> FROM MC",
-        "2 ProjectCard FROM ProjectCard<Selecting>",
+        "2 ProjectCard<Hand FROM Selecting>",
     )
     draw(MicroMills)
     turn {
@@ -1559,8 +1541,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Ceres>",
           "ColonyProduction<Ceres>",
-          "4 Steel",
-          "2 Steel",
+          "6 Steel",
       )
       doTasks(
           *playCardTasks("TropicalResort"),

@@ -177,6 +177,38 @@ val activeReplayClasses =
         )
         .map { "dev.martianzoo.tfm.tests.replays.$it" }
 
+val checkReplayLiterals by tasks.registering {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Rejects calculated quantities in ordinary replay instruction strings."
+  val sources =
+      rootProject.fileTree("test") {
+        include("common/dev/martianzoo/tfm/tests/replays/*Test.kt")
+        include("jvm/dev/martianzoo/tfm/tests/replays/*Test.kt")
+        exclude("**/OtbGame20260828Test.kt")
+      }
+  inputs.files(sources)
+  doLast {
+    // Skip comments and raw strings containing configuration or embedded Pets declarations.
+    val tokens =
+        Regex(
+            "/\\*.*?\\*/|//[^\\n]*|\"\"\".*?\"\"\"|\"((?:\\\\.|[^\"\\\\])*)\"",
+            RegexOption.DOT_MATCHES_ALL,
+        )
+    sources.files.forEach { file ->
+      val source = file.readText()
+      tokens.findAll(source).forEach { token ->
+        val literal = token.groups[1]?.value ?: return@forEach
+        check('/' !in literal) {
+          val line = source.take(token.range.first).count { it == '\n' } + 1
+          "${file.name}:$line: replay instructions must use literal quantities: $literal"
+        }
+      }
+    }
+  }
+}
+
+tasks.named("check") { dependsOn(checkReplayLiterals) }
+
 val replayTest by
     tasks.registering(Test::class) {
       description = "Runs the curated JVM replay suite."
@@ -192,7 +224,7 @@ val replayCoverageTest by
 listOf(replayTest, replayCoverageTest).forEach { replayTask ->
   replayTask.configure {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
-    dependsOn(jvmTestCompilation.compileTaskProvider)
+    dependsOn(jvmTestCompilation.compileTaskProvider, checkReplayLiterals)
     testClassesDirs = jvmTestCompilation.output.classesDirs
     classpath =
         files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)

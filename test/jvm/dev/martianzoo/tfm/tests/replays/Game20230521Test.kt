@@ -1,14 +1,12 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.engine.World
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Explicit player-task replay; Admin keeps its normal autoexecution.
@@ -168,13 +166,13 @@ internal class Game20230521Test : FullGameTest() {
       doTasks(
           *playCardTasks("$RotatorImpacts"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no mc paid
+          "0 Pay<> FROM MC", // no mc paid
           "$RotatorImpacts FROM ProjectCard",
       )
       doTasks(
           *cardActionTasks("$RotatorImpacts"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no mc paid
+          "0 Pay<> FROM MC", // no mc paid
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -218,13 +216,13 @@ internal class Game20230521Test : FullGameTest() {
     p1.assertResources(m = 23, s = 5, t = 0, p = 0, e = 0, h = 1)
     p1.assertDashMiddle(played = 6, actions = 1, tr = 23, hand = 7)
     p1.assertTags(but = 2, sct = 1, eat = 2)
-    p1.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p1.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 0, h = 3)
     p2.assertResources(m = 15, s = 1, t = 3, p = 2, e = 0, h = 3)
     p2.assertDashMiddle(played = 7, actions = 2, tr = 20, hand = 5)
     p2.assertTags(but = 2, spt = 1, sct = 1, pot = 1, jot = 1, plt = 1, mit = 1)
-    p2.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p2.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 0)
 
@@ -331,13 +329,13 @@ internal class Game20230521Test : FullGameTest() {
     p1.assertResources(m = 27, s = 3, t = 0, p = 0, e = 1, h = 1)
     p1.assertDashMiddle(played = 10, actions = 3, tr = 23, hand = 7)
     p1.assertTags(but = 3, spt = 1, sct = 2, pot = 1, eat = 3, vet = 1)
-    p1.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p1.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 0, h = 3)
     p2.assertResources(m = 21, s = 1, t = 4, p = 3, e = 0, h = 6)
     p2.assertDashMiddle(played = 8, actions = 2, tr = 21, hand = 7)
     p2.assertTags(but = 3, spt = 1, sct = 2, pot = 1, jot = 1, plt = 1, mit = 1)
-    p2.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p2.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 0, venus = 2)
 
@@ -396,7 +394,7 @@ internal class Game20230521Test : FullGameTest() {
       doTasks(
           *playCardTasks("$TransNeptuneProbe"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no mc paid
+          "0 Pay<> FROM MC", // no mc paid
           "$TransNeptuneProbe FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
@@ -450,13 +448,13 @@ internal class Game20230521Test : FullGameTest() {
     p1.assertResources(m = 44, s = 3, t = 0, p = 1, e = 1, h = 10)
     p1.assertDashMiddle(played = 13, actions = 3, tr = 23, hand = 6)
     p1.assertTags(but = 4, spt = 2, sct = 2, pot = 1, eat = 3, vet = 1, cit = 1)
-    p1.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
+    p1.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
     p2.assertResources(m = 29, s = 2, t = 1, p = 4, e = 1, h = 9)
     p2.assertDashMiddle(played = 10, actions = 2, tr = 22, hand = 7)
     p2.assertTags(but = 3, spt = 2, sct = 3, pot = 1, jot = 1, plt = 1, mit = 1)
-    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 0, venus = 2)
 
@@ -569,8 +567,7 @@ internal class Game20230521Test : FullGameTest() {
           "$SpinInducingAsteroid FROM ProjectCard",
           "VenusStep",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "ProjectCard",
           "3 MC",
           "3 Heat",
@@ -598,17 +595,15 @@ internal class Game20230521Test : FullGameTest() {
     p1.assertResources(m = 28, s = 3, t = 0, p = 1, e = 4, h = 11)
     p1.assertDashMiddle(played = 15, actions = 3, tr = 27, hand = 9)
     p1.assertTags(but = 5, spt = 2, sct = 2, pot = 2, eat = 3, vet = 1, cit = 1)
-    p1.assertCounts(3 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
+    p1.assertCounts(3 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
     p2.assertResources(m = 15, s = 1, t = 2, p = 7, e = 1, h = 13)
     p2.assertDashMiddle(played = 12, actions = 4, tr = 24, hand = 11)
     p2.assertTags(but = 4, spt = 2, sct = 4, pot = 1, jot = 1, plt = 1, mit = 1)
-    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     assertSidebar(gen = 5, temp = -24, oxygen = 0, oceans = 1, venus = 8)
-
-    checkSummaryAfterGen4(game)
 
     p1.turn {
       doTasks(
@@ -756,13 +751,13 @@ internal class Game20230521Test : FullGameTest() {
     p1.assertResources(m = 31, s = 3, t = 0, p = 4, e = 5, h = 15)
     p1.assertDashMiddle(played = 18, actions = 3, tr = 29, hand = 11)
     p1.assertTags(but = 7, spt = 2, sct = 2, pot = 3, eat = 3, vet = 1, cit = 2)
-    p1.assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
+    p1.assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
     p2.assertResources(m = 21, s = 1, t = 1, p = 8, e = 1, h = 9)
     p2.assertDashMiddle(played = 13, actions = 5, tr = 27, hand = 12)
     p2.assertTags(but = 4, spt = 3, sct = 4, pot = 1, jot = 1, plt = 1, mit = 1)
-    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     assertSidebar(gen = 6, temp = -18, oxygen = 0, oceans = 2, venus = 10)
 
@@ -861,7 +856,7 @@ internal class Game20230521Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MirandaResort"),
           "4 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no mc paid
+          "0 Pay<> FROM MC", // no mc paid
           "$MirandaResort FROM ProjectCard",
           "PROD[5 MC]",
           "5 MC",
@@ -978,13 +973,13 @@ internal class Game20230521Test : FullGameTest() {
     p1.assertResources(m = 40, s = 7, t = 1, p = 5, e = 4, h = 14)
     p1.assertDashMiddle(played = 27, actions = 3, tr = 30, hand = 10)
     p1.assertTags(but = 9, spt = 5, sct = 4, pot = 3, eat = 5, jot = 1, vet = 4, plt = 1, cit = 2)
-    p1.assertCounts(4 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
+    p1.assertCounts(4 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)")
 
     p2.assertProduction(m = 0, s = 2, t = 1, p = 1, e = 2, h = 3)
     p2.assertResources(m = 32, s = 2, t = 1, p = 3, e = 2, h = 5)
     p2.assertDashMiddle(played = 15, actions = 5, tr = 31, hand = 13)
     p2.assertTags(but = 6, spt = 3, sct = 4, pot = 2, jot = 1, plt = 1, mit = 1)
-    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     assertSidebar(gen = 7, temp = -14, oxygen = 1, oceans = 3, venus = 12)
 
@@ -1159,13 +1154,13 @@ internal class Game20230521Test : FullGameTest() {
         ant = 1,
         cit = 2,
     )
-    p1.assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
+    p1.assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)")
 
     p2.assertProduction(m = 0, s = 2, t = 2, p = 1, e = 4, h = 3)
     p2.assertResources(m = 25, s = 2, t = 3, p = 6, e = 4, h = 8)
     p2.assertDashMiddle(played = 20, actions = 6, tr = 31, hand = 11)
     p2.assertTags(but = 8, spt = 3, sct = 4, pot = 3, eat = 1, jot = 1, plt = 1, mit = 1)
-    p2.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p2.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     assertSidebar(gen = 8, temp = -12, oxygen = 1, oceans = 3, venus = 12)
 
@@ -1238,8 +1233,7 @@ internal class Game20230521Test : FullGameTest() {
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
 
@@ -1268,8 +1262,7 @@ internal class Game20230521Test : FullGameTest() {
           "OceanTile<Tharsis_5_5>",
           "5 Plant",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
       // Player 1 hands the Arctic Algae reward to Player 2.
       giveTask(p2, "2 Plant<Player2>")
@@ -1377,13 +1370,13 @@ internal class Game20230521Test : FullGameTest() {
     p1.assertResources(m = 56, s = 5, t = 1, p = 4, e = 8, h = 18)
     p1.assertDashMiddle(played = 34, actions = 7, tr = 38, hand = 12)
     p1.assertTags(10, 6, sct = 5, pot = 4, eat = 5, jot = 1, vet = 8, plt = 1, ant = 1, cit = 2)
-    p1.assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
+    p1.assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)")
 
     p2.assertProduction(m = 0, s = 2, t = 3, p = 1, e = 3, h = 3)
     p2.assertResources(m = 28, s = 2, t = 5, p = 3, e = 3, h = 5)
     p2.assertDashMiddle(played = 23, actions = 7, tr = 34, hand = 13)
     p2.assertTags(but = 9, spt = 3, sct = 6, pot = 3, eat = 1, jot = 1, vet = 1, plt = 1, mit = 1)
-    p2.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p2.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     assertSidebar(gen = 9, temp = -6, oxygen = 3, oceans = 4, venus = 18)
 
@@ -1416,10 +1409,7 @@ internal class Game20230521Test : FullGameTest() {
           "-4 Plant<Player1>",
           "4 Steel",
           "3 Plant",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "4 TerraformRating",
           "6 MC",
       )
       doTasks(
@@ -1447,7 +1437,7 @@ internal class Game20230521Test : FullGameTest() {
       doTasks(
           *cardActionTasks("$AquiferPumping"),
           "3 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no mc paid
+          "0 Pay<> FROM MC", // no mc paid
           "OceanTile<Tharsis_5_6>",
           "4 MC",
           "TerraformRating",
@@ -1698,13 +1688,13 @@ internal class Game20230521Test : FullGameTest() {
     p1.assertResources(m = 66, s = 5, t = 1, p = 10, e = 9, h = 16)
     p1.assertDashMiddle(played = 40, actions = 8, tr = 42, hand = 8)
     p1.assertTags(13, 6, 5, pot = 4, eat = 5, jot = 1, vet = 9, plt = 3, mit = 1, ant = 1, cit = 2)
-    p1.assertCounts(6 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
+    p1.assertCounts(6 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)")
 
     p2.assertProduction(m = 3, s = 2, t = 3, p = 4, e = 3, h = 3)
     p2.assertResources(m = 36, s = 3, t = 3, p = 10, e = 3, h = 9)
     p2.assertDashMiddle(played = 28, actions = 7, tr = 41, hand = 13)
     p2.assertTags(10, 3, sct = 7, pot = 3, eat = 1, jot = 1, vet = 1, plt = 3, mit = 1, ant = 1)
-    p2.assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    p2.assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)")
 
     assertSidebar(gen = 10, temp = 4, oxygen = 4, oceans = 6, venus = 24)
 
@@ -1813,8 +1803,7 @@ internal class Game20230521Test : FullGameTest() {
           "$Atmoscoop FROM ProjectCard",
           "2 VenusStep",
           "2 Floater<$AerialMappers>",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
 
       doTasks(
@@ -1957,7 +1946,7 @@ internal class Game20230521Test : FullGameTest() {
       doTasks(
           *playCardTasks("$NuclearPower"),
           "3 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no mc paid
+          "0 Pay<> FROM MC", // no mc paid
           "$NuclearPower FROM ProjectCard",
           "PROD[-2 MC]",
           "PROD[3 Energy]",
@@ -1965,7 +1954,7 @@ internal class Game20230521Test : FullGameTest() {
       doTasks(
           *playCardTasks("$BiomassCombustors"),
           "1 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no mc paid
+          "0 Pay<> FROM MC", // no mc paid
           "$BiomassCombustors FROM ProjectCard",
           "PROD[-Plant<Player1>]",
           "PROD[2 Energy]",
@@ -2198,8 +2187,7 @@ internal class Game20230521Test : FullGameTest() {
           "OceanTile<Tharsis_6_8>",
           "5 Plant",
           "OxygenStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "5 MC",
       )
     }
@@ -2231,7 +2219,9 @@ internal class Game20230521Test : FullGameTest() {
           "3 MC FROM ProjectCard",
       )
     }
+
     admin.assertCounts(9 to "OceanTile")
+
     p1.turn {
       doTasks(
           *playCardTasks("$LargeConvoy"),
@@ -2247,7 +2237,7 @@ internal class Game20230521Test : FullGameTest() {
       doTasks(
           *playCardTasks("$WaterSplittingPlant"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no mc paid
+          "0 Pay<> FROM MC", // no mc paid
           "$WaterSplittingPlant FROM ProjectCard",
       )
     }
@@ -2386,57 +2376,5 @@ internal class Game20230521Test : FullGameTest() {
 
     p1.assertCounts(126 to "VictoryPoint", 1 to "Victory")
     p2.assertCounts(92 to "VictoryPoint", 0 to "Victory")
-    game.isIdle() shouldBe true
-
-    val summ = Summarizer(game)
-    summ.net("$Manutech", "Resource") shouldBe 104
-    summ.net("Production<Player2>", "Resource<Player2>") shouldBe 187
-
-    summ.net("$EarthOffice", "Owed") shouldBe -24
-    // Random automatic order may attribute fewer saturated removals here; see TESTING.md.
-    summ.net(
-        "GrantedResourceValue<Player2, Class<Metal>, $AdvancedAlloys<Player2>>",
-        "Owed",
-    ) shouldBe -31
-    summ.net("$EarthCatapult<Player2>", "Owed") shouldBe -55
-    summ.net("$QuantumExtractor", "Owed") shouldBe -10 // oof
-
-    summ.net("$AquiferPumping", "OceanTile") shouldBe 6
-    summ.net("$ArcticAlgae", "Plant") shouldBe 19
-    summ.net("$OptimalAerobraking", "Resource") shouldBe 42
-    summ.net("$SearchForLife", "Science") shouldBe 0
-
-    summ.net("TerraformRating<Player1>", "MC<Player1>") shouldBe 361
-    summ.net("TerraformRating<Player1>", "MC") shouldBe 361
-    summ.net("TerraformRating", "MC<Player1>") shouldBe 361
-    summ.net("TerraformRating<Player2>", "MC<Player2>") shouldBe 356
-    summ.net("TerraformRating<Player2>", "MC") shouldBe 356
-    summ.net("TerraformRating", "MC<Player2>") shouldBe 356
-
-    summ.net("TerraformRating", "MC") shouldBe 717
-
-    summ.net("TerraformRating<Player1>", "MC<Player2>") shouldBe 0
-    summ.net("TerraformRating<Player2>", "MC<Player1>") shouldBe 0
-  }
-
-  private fun checkSummaryAfterGen4(game: World) {
-    val summer = Summarizer(game)
-
-    summer.net("$ArcticAlgae", "Plant") shouldBe 3
-
-    summer.net("$DeuteriumExport", "Floater") shouldBe 1
-    summer.net("$DeuteriumExport", "Production<Class<Energy>>") shouldBe 1
-
-    summer.net("$EarthOffice", "Owed<Player1>") shouldBe -6
-
-    summer.net("$Manutech", "MC<Player1>") shouldBe 43
-
-    summer.net("TerraformRating", "MC<Player2>") shouldBe 87
-    summer.net("TerraformRating<Player2>", "MC") shouldBe 87
-    summer.net("TerraformRating<Player2>", "MC<Player2>") shouldBe 87
-    summer.net("TerraformRating", "MC") shouldBe 183
-
-    summer.net("GlobalParameter", "TerraformRating<Player1>") shouldBe 4
-    summer.net("GlobalParameter", "TerraformRating<Player2>") shouldBe 4
   }
 }

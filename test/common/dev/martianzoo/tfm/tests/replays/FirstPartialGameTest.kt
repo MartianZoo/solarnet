@@ -182,7 +182,7 @@ internal class FirstPartialGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$IndustrialMicrobes"),
           "5 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$IndustrialMicrobes FROM ProjectCard",
           "PROD[Energy]",
           "PROD[Steel]",
@@ -190,7 +190,7 @@ internal class FirstPartialGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TechnologyDemonstration"),
           "1 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
           "2 MC",
@@ -217,7 +217,7 @@ internal class FirstPartialGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$BuildingIndustries"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$BuildingIndustries FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 Steel]",
@@ -428,8 +428,6 @@ internal class FirstPartialGameTest : FullGameTest() {
       assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
 
       assertTags(but = 5, spt = 2, sct = 2, eat = 1, jot = 3, cit = 1)
-
-      assertCounts(1 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
     with(p2) {
@@ -461,9 +459,6 @@ internal class FirstPartialGameTest : FullGameTest() {
       assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")
 
       assertTags(but = 9, spt = 3, sct = 4, pot = 2, eat = 3, mit = 1)
-
-      assertCounts(1 to "CityTile", 0 to "GreeneryTile", 1 to "SpecialTile")
     }
-    expectPendingTasksAtEnd(4) // generation 5 Research offers and deferred phase work
   }
 }

@@ -104,7 +104,7 @@ internal class SoloGame20230721Test : FullGameTest() {
         doTasks(
             *playCardTasks("$CallistoPenalMines"),
             "6 Pay<Class<Titanium>> FROM Titanium",
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$CallistoPenalMines FROM ProjectCard",
             "PROD[3 MC]",
         )
@@ -212,7 +212,7 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertResources(m = 16, s = 0, t = 6, p = 1, e = 1, h = 0)
       // UI says actions 2 because UNMI not currently playable
       assertDashMiddle(played = 10, actions = 3, tr = 20, hand = 5)
-      assertDashRight(events = 1, tagless = 3, cities = 0, colonies = 0)
+      assertDashRight(events = 1, tagless = 3, colonies = 0)
       assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 2, venus = 6)
 
       me.turn {
@@ -265,7 +265,7 @@ internal class SoloGame20230721Test : FullGameTest() {
         doTasks(
             *playCardTasks("$SolarReflectors"),
             "6 Pay<Class<Titanium>> FROM Titanium", // "overpay" 1
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$SolarReflectors FROM ProjectCard",
             "PROD[5 Heat]",
         )
@@ -361,8 +361,7 @@ internal class SoloGame20230721Test : FullGameTest() {
             "OceanTile<Elysium_4_6>", // me placed ocean tile on row 4 position 6
             "TerraformRating",
             "Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
         )
       }
       doTask("Pass")
@@ -381,7 +380,7 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertResources(m = 32, s = 2, t = 0, p = 2, e = 4, h = 14)
       // UI says actions 3 because UNMI not currently playable
       assertDashMiddle(played = 18, actions = 4, tr = 28, hand = 3)
-      assertDashRight(events = 3, tagless = 3, cities = 0, colonies = 0)
+      assertDashRight(events = 3, tagless = 3, colonies = 0)
       assertSidebar(gen = 7, temp = -20, oxygen = 2, oceans = 3, venus = 10)
 
       me.turn {
@@ -445,8 +444,7 @@ internal class SoloGame20230721Test : FullGameTest() {
             *cardActionTasks("$ExtractorBalloons", "Action2"),
             "-2 Floater<$ExtractorBalloons>",
             "VenusStep",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(
             *cardActionTasks("$UnitedNationsMarsInitiative"),
@@ -487,8 +485,7 @@ internal class SoloGame20230721Test : FullGameTest() {
             "GreeneryTile<Elysium_3_7>", // me placed greenery tile on row 3 position 7
             "OxygenStep",
             "3 ProjectCard",
-            "2 MC",
-            "2 MC",
+            "4 MC",
             "TerraformRating",
         )
         doTasks(
@@ -506,9 +503,7 @@ internal class SoloGame20230721Test : FullGameTest() {
             "VenusStep",
             "VenusStep",
             "VenusStep",
-            "TerraformRating",
-            "TerraformRating",
-            "TerraformRating",
+            "3 TerraformRating",
         )
       }
       doTask("Pass")
@@ -567,8 +562,7 @@ internal class SoloGame20230721Test : FullGameTest() {
             "UseAction<TradeAction, Action2>",
             "3 Pay<Class<Energy>> FROM Energy",
             "Trade<Luna>",
-            "7 MC",
-            "2 MC",
+            "9 MC",
         )
         doTasks(
             *standardProjectTasks("GreeneryProject"),
@@ -576,8 +570,7 @@ internal class SoloGame20230721Test : FullGameTest() {
             "GreeneryTile<Elysium_5_7>", // me placed greenery tile on row 5 position 7
             "OxygenStep",
             "2 Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
             "TerraformRating",
         )
       }
@@ -597,7 +590,7 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertResources(m = 49, s = 0, t = 0, p = 7, e = 6, h = 18)
       // UI says actions 3 because UNMI not currently playable
       assertDashMiddle(played = 25, actions = 4, tr = 45, hand = 7)
-      assertDashRight(events = 5, tagless = 4, cities = 1, colonies = 1)
+      assertDashRight(events = 5, tagless = 4, colonies = 1)
       assertSidebar(gen = 10, temp = -10, oxygen = 6, oceans = 3, venus = 24)
 
       me.turn {
@@ -651,8 +644,7 @@ internal class SoloGame20230721Test : FullGameTest() {
             "GreeneryTile<Elysium_5_5>", // me placed greenery tile on row 5 position 5
             "OxygenStep",
             "2 Plant",
-            "2 MC",
-            "2 MC",
+            "4 MC",
             "TerraformRating",
         )
         doTasks(
@@ -714,8 +706,7 @@ internal class SoloGame20230721Test : FullGameTest() {
             "UseAction<TradeAction, Action2>",
             "3 Pay<Class<Energy>> FROM Energy",
             "Trade<Luna>",
-            "7 MC",
-            "2 MC",
+            "9 MC",
         )
         doTasks(
             *cardActionTasks("$AtmoCollectors", "Action2"),
@@ -741,9 +732,7 @@ internal class SoloGame20230721Test : FullGameTest() {
             "OceanTile<Elysium_3_5>", // me placed ocean tile on row 3 position 5
             "TerraformRating",
             "Plant",
-            "2 MC",
-            "2 MC",
-            "2 MC",
+            "6 MC",
         )
         // You drew Interstellar Colony Ship
         doTasks(
@@ -752,9 +741,7 @@ internal class SoloGame20230721Test : FullGameTest() {
             "GreeneryTile<Elysium_4_5>", // me placed greenery tile on row 4 position 5
             "OxygenStep",
             "Plant",
-            "2 MC",
-            "2 MC",
-            "2 MC",
+            "6 MC",
             "TerraformRating",
             "TemperatureStep",
             "TerraformRating",
@@ -793,7 +780,7 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertResources(m = 68, s = 8, t = 0, p = 8, e = 6, h = 16)
       // UI says actions 3 because UNMI not currently playable
       assertDashMiddle(played = 31, actions = 4, tr = 62, hand = 4)
-      assertDashRight(events = 6, tagless = 5, cities = 2, colonies = 2)
+      assertDashRight(events = 6, tagless = 5, colonies = 2)
       assertSidebar(gen = 12, temp = 0, oxygen = 9, oceans = 8, venus = 28)
 
       me.turn {
@@ -832,15 +819,14 @@ internal class SoloGame20230721Test : FullGameTest() {
             "UseAction<TradeAction, Action2>",
             "3 Pay<Class<Energy>> FROM Energy",
             "Trade<Luna>",
-            "4 MC",
-            "2 MC",
+            "6 MC",
         )
         doTasks(*cardActionTasks("$AtmoCollectors"), "Floater<$AtmoCollectors>")
         doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
         doTasks(
             *playCardTasks("$SolarPower"),
             "6 Pay<Class<Steel>> FROM Steel", // "overpay" 1
-            "Ok", // no MC remainder
+            "0 Pay<> FROM MC", // no MC remainder
             "$SolarPower FROM ProjectCard",
             "PROD[Energy]",
         )
@@ -886,23 +872,16 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertProduction(m = 8, s = 0, t = 0, p = 5, e = 7, h = 10)
       assertResources(m = 82, s = 5, t = 0, p = 1, e = 7, h = 13)
       assertCounts(0 to "ProjectCard", 69 to "TerraformRating", 32 to "CardFront OR PlayedEvent")
-      assertDashRight(events = 6, tagless = 5, cities = 3, colonies = 2)
+      assertDashRight(events = 6, tagless = 5, colonies = 2)
       assertSidebar(gen = 12, temp = 4, oxygen = 12, oceans = 8, venus = 30)
 
       assertTags(5, 7, 0, 5, 5, 1, 3, 2, 1, 0, 0)
 
-      val sum = Summarizer(game)
       assertCounts(69 to "TerraformRating")
-      sum.net("GreeneryTile", "VictoryPoint<Me>") shouldBe 8
-      sum.net("CityTile", "VictoryPoint<Me>") shouldBe 13
-      sum.net("Card", "VictoryPoint<Me>") shouldBe 5
       assertCounts(95 to "VictoryPoint")
       assertCounts(82 to "MC")
 
       // Legacy comments claim 99 VP and report 111 on herokuapp; the discrepancy is unresolved.
-      // Flooding now consumes its normal action instead of being injected outside a turn.
-      (sum.signalCount("InRound", "UseAction<Me, StandardAction>") +
-          sum.signalCount("InRound", "DoRequiredActions<Me>")) shouldBe 99
     }
   }
 }

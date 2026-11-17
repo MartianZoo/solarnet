@@ -15,10 +15,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   `21 Pay<> FROM MC`. Settle the omission criterion (`Iconic`, `System`, or another rule) and
   ambiguity handling as part of the task-matching work below; retain explicit `Pay` meanwhile.
 - Revisit the already-queued MC remainder when titanium or steel clears `Owed`. In
-  Game20261111's generation-2 Asteroid Rights play, removing the following `Ok` leaves
+  Game20261111's generation-2 Asteroid Rights play, removing the following zero-MC payment leaves
   `PaymentScope` blocking the card's `MAX 0 Barrier` requirement. The remainder was admitted
-  while money was owed and later evaluates to zero; keep the explicit `Ok` until the payment
-  model can finish that scope without an extra player submission.
+  while money was owed and later evaluates to zero; keep the explicit `0 Pay<> FROM MC` until
+  the payment model can finish that scope without an extra player submission.
 
 ## Gameplay consistency
 
@@ -38,14 +38,30 @@ the remaining audit items listed there are **not yet discussed or approved**.
   retain their execution and chronology for now.
 - Audit replay choices and assertions against original evidence, including expectations copied
   from current engine output.
+- Add source-backed ASCII maps to the remaining older replays when independent board evidence is
+  recovered: `FirstPartialGameTest`, `Game20230521Test`, `Game20260619Test`,
+  `HellasPromoGameTest`, `HellasPromoWithoutPreludeTest`, `SoloGame20230611Test`,
+  `SoloGame20230710Test`, `SoloGame20230721Test`, and `StinaGameTest`. No suitable original
+  board dataset was located in this audit; generated recordings are not independent evidence.
+  The August 9, August 18, and November 11 physical replays now check their middle and latest
+  photographed boards. Their latest photographs precede later placements; establish endpoint
+  maps from additional photographs or a separately verified continuation of the original
+  transcripts. Keep those earlier checkpoints at their actual positions.
 - Investigate what each "start a game" entry point has already done before consolidating setup.
-- Investigate consistent completion checks for focused scenarios, full games, and partial games.
+- Investigate illegal-action coverage using positions loaded from recorded games. Preserve the
+  existing negative replay probes for now. A possible direction is separate functional tests that
+  load a position, attempt an illegal move, and verify rejection and restoration, while the replay
+  itself remains an import/export file. The user has not selected a design or asked for more inline
+  probes yet.
+- Investigate selection and narrowing that leave execution explicitly pending, including concrete
+  System choices such as PassBaton. Today selecting an alternative can transfer it to Admin and
+  execute it before returning. The user selected separate engine work; this replay cleanup must
+  not change the engine/Agent or TaskForm contract.
 - Inventory choices computed from state (starting player, free water area, affordable purchases)
   versus literal recorded choices; decide which adaptations are useful.
-- Adopt combined-total task submissions more thoroughly, preserving choices and required ordering.
+- Review combined-total submissions in focused gameplay tests; ordinary replay gains were combined
+  on 2026-11-14 wherever existing matching permits it. Preserve choices and required ordering.
 - Improve consistency in checking meaningful consequences without repeating submitted tasks.
-- Reduce detailed cause-accounting assertions in ordinary replays after selecting representative
-  inputs for focused mechanism tests; preserve meaningful score/resource outcomes.
 
 ## Other work
 
@@ -197,7 +213,7 @@ the remaining audit items listed there are **not yet discussed or approved**.
 - Resolve order-dependent Advanced Alloys discount attribution: the randomized-effect diagnostic
   reproduced the known `ThermalMatterWaveTest` (-96 versus -92) and `Game20230521Test`
   (-33 versus -31) reporting mismatches. Game-state assertions before those checks passed.
-  See [TESTING.md](docs/agents/TESTING.md#standard-verification) and the
+  Those replay accounting checks were removed on 2026-11-14. See the
   [attribution accounting analysis](docs/agents/ATTRIBUTION.md#capped-effects-make-per-provider-totals-order-dependent);
   this reporting issue is separate from transaction checkpoints and remains deferred.
 - Investigate a diagnostic test mode that varies Admin task execution order, alongside the existing

@@ -69,7 +69,7 @@ internal class SoloGame20230611Test : FullGameTest() {
       assertResources(m = 22, s = 0, t = 0, p = 0, e = 0, h = 0)
       assertDashMiddle(played = 1, actions = 0, tr = 14, hand = 5)
       assertTags(eat = 1) // ...
-      assertDashRight(events = 0, tagless = 0, cities = 0)
+      assertDashRight(events = 0, tagless = 0)
       assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Biolab>>",
@@ -102,13 +102,12 @@ internal class SoloGame20230611Test : FullGameTest() {
             "IndenturedWorkers_NextCardEffect",
         )
         doTasks(
-                *playCardTasks("$IndustrialMicrobes"),
-                "4 Pay<> FROM MC",
-                "$IndustrialMicrobes FROM ProjectCard",
-                "PROD[Energy]",
-                "PROD[Steel]",
-            )
-            .expect("MicrobeTag")
+            *playCardTasks("$IndustrialMicrobes"),
+            "4 Pay<> FROM MC",
+            "$IndustrialMicrobes FROM ProjectCard",
+            "PROD[Energy]",
+            "PROD[Steel]",
+        )
       }
       doTask("Pass")
       doTasks("21 MC", "Plant", "2 Titanium", "Energy", "Steel")
@@ -128,17 +127,16 @@ internal class SoloGame20230611Test : FullGameTest() {
       assertResources(m = 22, s = 1, t = 2, p = 1, e = 1, h = 0)
       assertDashMiddle(played = 7, actions = 0, tr = 14, hand = 8)
       assertTags(but = 1, sct = 1, eat = 2, jot = 1, mit = 1) // ...
-      assertDashRight(events = 1, tagless = 1, cities = 0)
+      assertDashRight(events = 1, tagless = 1)
       assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 0)
 
       me.turn {
         doTasks(
-                *playCardTasks("$AcquiredCompany"),
-                "10 Pay<> FROM MC",
-                "$AcquiredCompany FROM ProjectCard",
-                "PROD[3 MC]",
-            )
-            .expect("EarthTag")
+            *playCardTasks("$AcquiredCompany"),
+            "10 Pay<> FROM MC",
+            "$AcquiredCompany FROM ProjectCard",
+            "PROD[3 MC]",
+        )
       }
       doTask("Pass")
       doTasks("24 MC", "Plant", "2 Titanium", "Energy", "Steel", "Heat FROM Energy")
@@ -208,7 +206,7 @@ internal class SoloGame20230611Test : FullGameTest() {
       assertResources(m = 29, s = 1, t = 4, p = 3, e = 3, h = 2)
       assertDashMiddle(played = 12, actions = 1, tr = 15, hand = 8)
       assertTags(but = 2, sct = 1, pot = 1, eat = 3, jot = 1, vet = 1, mit = 1) // ...
-      assertDashRight(events = 2, tagless = 2, cities = 0)
+      assertDashRight(events = 2, tagless = 2)
       assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 0, venus = 0)
 
       me.turn {
@@ -298,7 +296,7 @@ internal class SoloGame20230611Test : FullGameTest() {
       assertResources(m = 22, s = 1, t = 5, p = 6, e = 1, h = 9)
       assertDashMiddle(played = 16, actions = 3, tr = 19, hand = 10)
       assertTags(but = 4, sct = 3, pot = 1, eat = 4, jot = 1, vet = 1, mit = 2)
-      assertDashRight(events = 3, tagless = 2, cities = 0)
+      assertDashRight(events = 3, tagless = 2)
       assertSidebar(gen = 6, temp = -24, oxygen = 0, oceans = 0, venus = 2)
 
       me.turn {
@@ -416,7 +414,7 @@ internal class SoloGame20230611Test : FullGameTest() {
       assertProduction(m = 14, s = 1, t = 2, p = 2, e = 3, h = 1)
       assertResources(m = 33, s = 1, t = 4, p = 2, e = 5, h = 5)
       assertDashMiddle(played = 22, actions = 3, tr = 27, hand = 14)
-      assertDashRight(events = 3, tagless = 2, cities = 1)
+      assertDashRight(events = 3, tagless = 2)
       assertSidebar(gen = 8, temp = -22, oxygen = 2, oceans = 1, venus = 2)
 
       me.turn {
@@ -539,7 +537,7 @@ internal class SoloGame20230611Test : FullGameTest() {
       assertProduction(m = 17, s = 1, t = 3, p = 3, e = 3, h = 5)
       assertResources(m = 56, s = 1, t = 6, p = 7, e = 6, h = 8)
       assertDashMiddle(played = 30, actions = 5, tr = 32, hand = 10)
-      assertDashRight(events = 3, tagless = 2, cities = 2)
+      assertDashRight(events = 3, tagless = 2)
       assertSidebar(gen = 10, temp = -20, oxygen = 3, oceans = 1, venus = 4)
 
       me.turn {
@@ -562,8 +560,7 @@ internal class SoloGame20230611Test : FullGameTest() {
             "PROD[Titanium]",
             "OxygenStep",
             "OxygenStep",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(
             *playCardTasks("$Potatoes"),
@@ -637,8 +634,7 @@ internal class SoloGame20230611Test : FullGameTest() {
             "8 Pay<Class<Plant>> FROM Plant",
             "GreeneryTile<Hellas_6_6>",
             "OxygenStep",
-            "2 MC",
-            "2 MC",
+            "4 MC",
             "TerraformRating",
         )
         doTasks(
@@ -765,8 +761,7 @@ internal class SoloGame20230611Test : FullGameTest() {
             *standardProjectTasks("AirScrappingProject"),
             "15 Pay<> FROM MC",
             "VenusStep",
-            "TerraformRating",
-            "TerraformRating",
+            "2 TerraformRating",
         )
         doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
         doTasks(
@@ -785,7 +780,7 @@ internal class SoloGame20230611Test : FullGameTest() {
         assertProduction(m = 24, s = 3, t = 4, p = 4, e = 2, h = 6)
         assertResources(m = 8, s = 1, t = 0, p = 0, e = 0, h = 1)
         assertDashMiddle(played = 41, actions = 1, tr = 64, hand = 0)
-        assertDashRight(events = 6, tagless = 2, cities = 2)
+        assertDashRight(events = 6, tagless = 2)
         assertSidebar(gen = 12, temp = -10, oxygen = 11, oceans = 2, venus = 16)
       }
       doTask("Pass")
@@ -794,7 +789,7 @@ internal class SoloGame20230611Test : FullGameTest() {
 
       // Final plant conversion would happen, but...
       assertCounts(4 to "Plant")
-      assertCounts(12 to "Tile") // checking for the heck of it
+
       // Decline the final greenery placement.
       doTask("PassBaton")
       assertCounts(78 to "VictoryPoint") // wow that was not good

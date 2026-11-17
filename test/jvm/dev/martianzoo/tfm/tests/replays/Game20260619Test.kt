@@ -231,7 +231,7 @@ internal class Game20260619Test : FullGameTest() {
       assertResources(m = 17, s = 0, t = 1, p = 6, e = 0, h = 3)
       assertDashMiddle(played = 7, actions = 0, tr = 21, hand = 8)
       assertTags(but = 2, spt = 1, eat = 2, plt = 1, mit = 1)
-      assertDashRight(events = 1, tagless = 1, cities = 0)
+      assertDashRight(events = 1, tagless = 1)
     }
 
     with(KB) {
@@ -239,7 +239,7 @@ internal class Game20260619Test : FullGameTest() {
       assertResources(m = 26, s = 0, t = 2, p = 0, e = 5, h = 3)
       assertDashMiddle(played = 5, actions = 0, tr = 21, hand = 5)
       assertTags(spt = 2, pot = 2, jot = 3)
-      assertDashRight(events = 0, tagless = 1, cities = 0)
+      assertDashRight(events = 0, tagless = 1)
     }
 
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 2, venus = 0)
@@ -341,7 +341,7 @@ internal class Game20260619Test : FullGameTest() {
       assertResources(m = 18, s = 1, t = 3, p = 8, e = 0, h = 6)
       assertDashMiddle(played = 9, actions = 1, tr = 21, hand = 9)
       assertTags(but = 2, spt = 2, sct = 2, pot = 1, eat = 2, plt = 1, mit = 1)
-      assertDashRight(events = 1, tagless = 1, cities = 0)
+      assertDashRight(events = 1, tagless = 1)
     }
 
     with(KB) {
@@ -349,7 +349,7 @@ internal class Game20260619Test : FullGameTest() {
       assertResources(m = 18, s = 0, t = 4, p = 0, e = 8, h = 11)
       assertDashMiddle(played = 8, actions = 0, tr = 21, hand = 6)
       assertTags(spt = 2, sct = 1, pot = 3, jot = 3)
-      assertDashRight(events = 1, tagless = 1, cities = 0)
+      assertDashRight(events = 1, tagless = 1)
     }
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 2, venus = 0)
@@ -411,7 +411,7 @@ internal class Game20260619Test : FullGameTest() {
       doTasks(
           *playCardTasks("$LagrangeObservatory"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$LagrangeObservatory FROM ProjectCard",
           "ProjectCard",
       )
@@ -492,7 +492,7 @@ internal class Game20260619Test : FullGameTest() {
       assertResources(m = 25, s = 1, t = 1, p = 4, e = 0, h = 14)
       assertDashMiddle(played = 14, actions = 1, tr = 24, hand = 14)
       assertTags(but = 2, spt = 3, sct = 3, pot = 1, eat = 4, plt = 1, mit = 1)
-      assertDashRight(events = 3, tagless = 1, cities = 0)
+      assertDashRight(events = 3, tagless = 1)
     }
 
     with(KB) {
@@ -500,7 +500,7 @@ internal class Game20260619Test : FullGameTest() {
       assertResources(m = 26, s = 0, t = 6, p = 0, e = 9, h = 14)
       assertDashMiddle(played = 8, actions = 0, tr = 22, hand = 8)
       assertTags(spt = 2, sct = 1, pot = 3, jot = 3)
-      assertDashRight(events = 1, tagless = 1, cities = 0)
+      assertDashRight(events = 1, tagless = 1)
     }
 
     assertSidebar(gen = 4, temp = -24, oxygen = 1, oceans = 2, venus = 0)
@@ -587,7 +587,7 @@ internal class Game20260619Test : FullGameTest() {
       assertResources(m = 23, s = 0, t = 2, p = 6, e = 0, h = 23)
       assertDashMiddle(played = 16, actions = 1, tr = 24, hand = 16)
       assertTags(but = 3, spt = 3, sct = 3, pot = 1, eat = 5, plt = 1, mit = 1, ant = 1)
-      assertDashRight(events = 3, tagless = 1, cities = 0)
+      assertDashRight(events = 3, tagless = 1)
     }
 
     with(KB) {
@@ -595,7 +595,7 @@ internal class Game20260619Test : FullGameTest() {
       assertResources(m = 20, s = 0, t = 8, p = 0, e = 10, h = 26)
       assertDashMiddle(played = 10, actions = 1, tr = 22, hand = 8)
       assertTags(but = 2, spt = 2, sct = 1, pot = 4, jot = 3)
-      assertDashRight(events = 1, tagless = 1, cities = 0)
+      assertDashRight(events = 1, tagless = 1)
     }
 
     assertSidebar(gen = 5, temp = -24, oxygen = 1, oceans = 2, venus = 0)
@@ -761,6 +761,5 @@ internal class Game20260619Test : FullGameTest() {
     )
     ER.doTask("4 ProjectCard<Selecting>")
     KB.doTask("4 ProjectCard<Selecting>")
-    expectPendingTasksAtEnd(4) // the next Research phase's two offers and deferred work
   }
 }

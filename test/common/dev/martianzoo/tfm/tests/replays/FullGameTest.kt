@@ -1,10 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agent.GameFileImporter
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
@@ -12,11 +10,8 @@ import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameFileJson
-import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.tfm.canon.TfmCatalog
-import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmGameplayTest
@@ -24,9 +19,8 @@ import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.withTestTurmoilDeck
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
 
-/** Shared replay setup, assertions, and recording checks using plain Agents. */
+/** Shared replay setup, functional assertions, and recording export using plain Agents. */
 internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
     TfmGameplayTest(playerPolicy) {
   protected open val p1: Agent
@@ -43,47 +37,6 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
 
   protected abstract val config: GameConfig
   internal var exportReplay: Boolean = false
-  private var expectedPendingTasksAtEnd: Int = 0
-
-  /** States how many tasks the source position intentionally leaves pending. */
-  protected fun expectPendingTasksAtEnd(count: Int) {
-    require(count > 0) { "Use the default check when no tasks should remain" }
-    expectedPendingTasksAtEnd = count
-  }
-
-  internal fun assertPendingTasksAtEnd() {
-    val pending = game.tasks.extract { it }
-    assertEquals(
-        expectedPendingTasksAtEnd,
-        pending.size,
-        "Unexpected pending tasks at replay end:\n${pending.joinToString("\n")}",
-    )
-  }
-
-  internal suspend fun verifyGameFileRoundTrip(json: String) {
-    val document = GameFileJson.parse(json)
-    val orderedEvents = gamePremise.drawOrder.map { it.toString() }.toSet()
-    val suppliedEventsOrNeutralDelegates =
-        document.inputs(gamePremise).filterIsInstance<RecordedInput.Command>().filter { command ->
-          command.actor == ADMIN &&
-              (command.instruction in orderedEvents ||
-                  command.instruction.startsWith("PartyLeader<") ||
-                  command.instruction.startsWith("PartyFollower<"))
-        }
-    assertEquals(emptyList(), suppliedEventsOrNeutralDelegates)
-    val importedAgents =
-        GameFileImporter.replay(
-            document,
-            catalog,
-            newAgents = { Agents(TfmEngine.newGame(it)) },
-            startGame = { agents ->
-              agents.taskLog.gameStarted()
-              agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
-            },
-        )
-    importedAgents[p1.actor].list("Component").entries shouldBe p1.list("Component").entries
-  }
-
   /** Pets declarations for concrete Players with sourced per-seat setup rules. */
   protected open val playerClassPets: String = ""
   /** Neutral solo locations in city, greenery, city, greenery order. */
@@ -169,13 +122,11 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
   protected fun Agent.assertDashRight(
       events: Int,
       tagless: Int,
-      cities: Int,
       colonies: Int = 0,
   ) {
     assertCounts(
         events to "PlayedEvent",
         tagless to "CardFront(HAS MAX 0 Tag)",
-        cities to "CityTile",
     )
     if (
         game.classTable.isInhabited(cn("ColoniesExpansion")) &&

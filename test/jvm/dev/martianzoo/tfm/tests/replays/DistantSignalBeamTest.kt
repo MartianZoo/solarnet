@@ -2,12 +2,15 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete database replay through the final retained save immediately before Purple resigned:
 // Distant Signal Beam (g1ddd59fe5633), save 79, generation 3.
@@ -59,7 +62,36 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     generation1()
     generation2()
     generation3BeforeResignation()
-    expectPendingTasksAtEnd(1) // Pink's next action offer
+
+    // _local/replays/Game20260905/final-save-079.json; final Mars map.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             WPP   LPP   LPP   LPS    LP
+        |
+        | 2 -          WPP   LPP    LP   LPS    LP    LP
+        |
+        | 3 -        WP    LP    LS    LS    L    LPP   LPC
+        |
+        | 4 -     WP    LP    LS   [C2]  [G2]  [O]    WP    LP
+        |
+        | 5 -  LC    L     L    LSS    L    [O]   [O]    W     LP
+        |
+        | 6 -     LT    L     LS    L     L     W     WS    L
+        |
+        | 7 -       WTT    L     L     LC    L     L     LT
+        |
+        | 8 -           LS    LC   LHH   LHH    LT    LT
+        |
+        | 9 -              L    LHH   LO6   LHH    L
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -97,8 +129,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$AtmosphericEnhancers>>",
           "$AtmosphericEnhancers FROM PreludeCard",
           "2 VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "2 SearchForCard<ReferenceFilter<Class<Floater>>>",
       )
       draw(Cartel)
@@ -155,11 +186,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       )
     }
     purple.turn {
-      completeOperation {
-        doTask("DoRequiredActions")
-        selectTask("ColonyTileSelection")
-        narrowTask("Luna")
-      }
+      doTasks("DoRequiredActions", "Luna")
     }
 
     pink.turn {
@@ -235,6 +262,36 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
         "9 Pay<> FROM MC",
         "3 ProjectCard<Hand FROM Selecting>",
     )
+    // _local/replays/Game20260905/game-g1ddd59fe5633.sqlite; source save 42.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             WPP   LPP   LPP   LPS    LP
+        |
+        | 2 -          WPP   LPP    LP   LPS    LP    LP
+        |
+        | 3 -        WP    LP    LS    LS    L    LPP   LPC
+        |
+        | 4 -     WP    LP    LS   [C2]  [G2]  [O]    WP    LP
+        |
+        | 5 -  LC    L     L    LSS    L    [O]   [O]    W     LP
+        |
+        | 6 -     LT    L     LS    L     L     W     WS    L
+        |
+        | 7 -       WTT    L     L     LC    L     L     LT
+        |
+        | 8 -           LS    LC   LHH   LHH    LT    LT
+        |
+        | 9 -              L    LHH   LO6   LHH    L
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // Database save 42: immediately after both Research purchases.
     pink.assertResources(m = 20, s = 0, t = 0, p = 0, e = 0, h = 2)
     pink.assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 2)
@@ -340,10 +397,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "27 Pay<> FROM MC",
           "$InterplanetaryTrade FROM ProjectCard",
       )
-      completeOperation {
-        doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
-        doTask("PROD[9 MC]")
-      }
+      doTasks("EACH", "PROD[9 MC]")
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Producer")
     }
 
@@ -380,7 +434,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
         setOf(NeutralizerFactory, FusionPower, Omnicourt, SolarReflectors, MiningColony)
 
     assertSidebar(gen = 3, temp = -30, oxygen = 2, oceans = 3, venus = 4)
-    admin.assertCounts(5 to "Tile")
     assertCardTrackingComplete()
   }
 

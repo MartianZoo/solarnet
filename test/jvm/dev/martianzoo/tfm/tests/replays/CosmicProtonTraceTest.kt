@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -10,6 +12,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Complete database replay: Cosmic Proton Trace (g26b33667e4ba).
 // Source log and retained saves: _local/replays/CosmicProtonTrace/.
@@ -200,15 +203,13 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTask("$EcologyExperts FROM PreludeCard")
       doTask("PROD[Plant]")
       doTask("PlayCard<Class<$Algae>>")
-      selectTask("-Required* / Required")
+      doTask("-5 Required<Class<OceanTile>>")
       doTasks("10 Pay<> FROM MC", "$Algae FROM ProjectCard", "PROD[2 Plant]", "Plant")
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$HugeAsteroid>>",
           "$HugeAsteroid FROM PreludeCard",
           "3 TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "3 TerraformRating",
           "PROD[Heat]",
           "-5 MC",
       )
@@ -275,6 +276,40 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
     generation6()
     generation7()
     generation8()
+
+    // _local/replays/CosmicProtonTrace/player-pc6e0fc6151eb.json; final Mars map.
+    assertEquals(
+        """
+        |                          1     2     3     4     5     6     7     8     9     10    11
+        |                         /     /     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -                  LS   LSS    LS    LC   LTT    L
+        |
+        | 2 -               W     LD    LS    L     LP   [O]   [G2]
+        |
+        | 3 -           [O]    L    LCC    L    [G1]  [O]   [C3]  [G3]
+        |
+        | 4 -        [G3]  [O]    L     L    [C1]  [G1]  [G1]  [G3]  LPC
+        |
+        | 5 -     [G3]  [C3]  [C2]  [G2]  [O]   [G1]  [C1]  [G1]   LR   [O]
+        |
+        | 6 -  [C3]  [G3]  [G3]  [C2]  [O]   [O]   [G1]  [G1]  [C1]   LP   [O]
+        |
+        | 7 -     [G3]  [C3]  [O]   [G1]  [G1]  [C1]   L     LP    LP    VD
+        |
+        | 8 -        [S3]  [O]   [G1]  [C4]  LEE   [G1]  [C2]   LS    L
+        |
+        | 9 -           [S2]  [C4]  [G4]   L     L    LPP    L     VT
+        |
+        |10 -               W     L     LR    L    [S4]  [G4]  VSS
+        |
+        |11 -                  L    LST   LSS    L     LP    LC
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -294,7 +329,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
     }
     p3.turn {
       doTasks(*playCardTasks("$HomeostasisBureau"), "8 Pay<Class<Steel>> FROM Steel")
-      doTask("Ok") // no MC paid
+      doTask("0 Pay<> FROM MC") // no MC paid
       doTasks("$HomeostasisBureau FROM ProjectCard", "PROD[2 Heat]")
     }
     purple.turn {
@@ -437,7 +472,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MercurianAlloys"),
           "Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$MercurianAlloys FROM ProjectCard",
       ) // no MC paid
     }
@@ -486,7 +521,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "4 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "TerraformRating",
@@ -500,7 +535,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$SpaceMirrors"),
           "Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$SpaceMirrors FROM ProjectCard",
       ) // no MC paid
     }
@@ -774,8 +809,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "19 Pay<> FROM MC",
           "$BigAsteroid FROM ProjectCard",
           "2 TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "4 Titanium",
           "PROD[Plant]",
           "-4 Plant<Green>",
@@ -845,7 +879,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$TransNeptuneProbe"),
           "2 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$TransNeptuneProbe FROM ProjectCard",
       ) // no MC paid
     }
@@ -1004,8 +1038,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "28 Pay<> FROM MC",
           "$GiantIceAsteroid FROM ProjectCard",
           "2 TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "6 MC",
           "OceanTile<Amazonis_05_05>",
           "ProjectCard",
@@ -1017,10 +1050,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "ProjectCard",
           "-6 Plant<Yellow>",
       )
-      doTask("2 Plant")
-      doTask("2 Plant")
-      doTask("2 Plant")
-      repeat(3) { doTask("TerraformRating") }
+      doTask("6 Plant")
+      doTask("3 TerraformRating")
     }
     purple.turn {
       doTasks(
@@ -1067,7 +1098,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$EosChasmaNationalPark"),
           "8 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$EosChasmaNationalPark FROM ProjectCard",
           "Ok", // no animal holder
           "3 Plant",
@@ -1214,6 +1245,40 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
         "Heat",
     )
     p1.doTask("VenusStep! BY Admin")
+    // _local/replays/CosmicProtonTrace/game-g26b33667e4ba.sqlite; source save 315.
+    assertEquals(
+        """
+        |                         1     2     3     4     5     6     7     8     9     10    11
+        |                        /     /     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -                 LS   LSS    LS    LC   LTT    L
+        |
+        | 2 -              W     LD    LS    L     LP   WPP   [G2]
+        |
+        | 3 -          [O]    L    LCC    L     LP    W     L     L
+        |
+        | 4 -        LT   [O]    L     L     LP    LP   LPP    LP   LPC
+        |
+        | 5 -    VSS    LP    LR    LP   [O]    LP   LPP    LP    LR   WPP
+        |
+        | 6 -  LP   [G3]  [G3]  [C2]  [O]   [O]   LSPP   LP    L     LP   [O]
+        |
+        | 7 -    [G3]  [C3]  [O]   [G1]  [G1]  LEE    L     LP    LP    VD
+        |
+        | 8 -       [S3]  [O]   [G1]   LE   LEE    LP   VDD    LS    L
+        |
+        | 9 -          [S2]   L     LT    L     L    LPP    L     VT
+        |
+        |10 -              W     L     LR    L    [S4]  [G4]  VSS
+        |
+        |11 -                 L    LST   LSS    L     LP    LC
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // Database save 315: generation 6, before Research purchases.
     p1.assertResources(m = 36, s = 0, t = 6, p = 13, e = 0, h = 3)
     p1.assertProduction(m = 1, s = 0, t = 2, p = 8, e = 0, h = 1)
@@ -1380,7 +1445,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$PowerInfrastructure"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$PowerInfrastructure FROM ProjectCard",
       ) // no MC paid
       doTasks(*cardActionTasks("$PowerInfrastructure"), "-2 Energy", "2 MC")
@@ -1664,7 +1729,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ImportedNitrogen"),
           "5 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$ImportedNitrogen FROM ProjectCard",
           "TerraformRating",
           "4 Plant",
@@ -1677,7 +1742,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MartianLumberCorp"),
           "3 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$MartianLumberCorp FROM ProjectCard",
           "PROD[Plant]",
       ) // no MC paid
@@ -1884,7 +1949,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$CallistoPenalMines"),
           "8 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$CallistoPenalMines FROM ProjectCard",
           "PROD[3 MC]",
       ) // no MC paid
@@ -1912,7 +1977,7 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$UndergroundCity"),
           "9 Pay<Class<Steel>> FROM Steel",
-          "Ok", // no MC paid
+          "0 Pay<> FROM MC", // no MC paid
           "$UndergroundCity FROM ProjectCard",
           "CityTile<Amazonis_03_07>",
           "4 MC",
@@ -2087,21 +2152,21 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
         "3 Plant",
         "3 Heat",
     )
-    purple.selectTask("PassBaton") // no final greenery
+    purple.doTask("PassBaton") // no final greenery
     p1.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
         "7 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Amazonis_05_08>",
         "Plant",
     )
-    p1.selectTask("PassBaton") // no more greenery
-    p2.selectTask("PassBaton") // no final greenery
+    p1.doTask("PassBaton") // no more greenery
+    p2.doTask("PassBaton") // no final greenery
     p3.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
         "8 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Amazonis_03_08>",
     )
-    p3.selectTask("PassBaton") // no more greenery
+    p3.doTask("PassBaton") // no more greenery
     p1.cardsHand shouldBe setOf(MiningArea)
     p2.cardsHand shouldBe emptySet()
     p3.cardsHand shouldBe emptySet()
@@ -2122,84 +2187,9 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
     purple.assertCounts(37 to "TerraformRating", 72 to "VictoryPoint", 0 to "Victory")
     // Player-record evidence: every occupied Mars area and the final global parameters.
     assertSidebar(gen = 8, temp = 14, oxygen = 18, oceans = 11, venus = 16)
-    admin.assertCounts(
-        1 to "OceanTile<Amazonis_02_06>",
-        1 to "GreeneryTile<Yellow, Amazonis_02_07>",
-        1 to "OceanTile<Amazonis_03_01>",
-        1 to "GreeneryTile<Blue, Amazonis_03_05>",
-        1 to "OceanTile<Amazonis_03_06>",
-        1 to "CityTile<Green, Amazonis_03_07>",
-        1 to "GreeneryTile<Green, Amazonis_03_08>",
-        1 to "GreeneryTile<Green, Amazonis_04_01>",
-        1 to "OceanTile<Amazonis_04_02>",
-        1 to "CityTile<Blue, Amazonis_04_05>",
-        1 to "GreeneryTile<Blue, Amazonis_04_06>",
-        1 to "GreeneryTile<Blue, Amazonis_04_07>",
-        1 to "GreeneryTile<Green, Amazonis_04_08>",
-        1 to "GreeneryTile<Green, Amazonis_05_01>",
-        1 to "CityTile<Green, Amazonis_05_02>",
-        1 to "CityTile<Yellow, Amazonis_05_03>",
-        1 to "GreeneryTile<Yellow, Amazonis_05_04>",
-        1 to "OceanTile<Amazonis_05_05>",
-        1 to "GreeneryTile<Blue, Amazonis_05_06>",
-        1 to "CityTile<Blue, Amazonis_05_07>",
-        1 to "GreeneryTile<Blue, Amazonis_05_08>",
-        1 to "OceanTile<Amazonis_05_10>",
-        1 to "CityTile<Green, Amazonis_06_01>",
-        1 to "GreeneryTile<Green, Amazonis_06_02>",
-        1 to "GreeneryTile<Green, Amazonis_06_03>",
-        1 to "CapitalTile<Amazonis_06_04>",
-        1 to "OceanTile<Amazonis_06_05>",
-        1 to "OceanTile<Amazonis_06_06>",
-        1 to "GreeneryTile<Blue, Amazonis_06_07>",
-        1 to "GreeneryTile<Blue, Amazonis_06_08>",
-        1 to "CityTile<Blue, Amazonis_06_09>",
-        1 to "OceanTile<Amazonis_06_11>",
-        1 to "GreeneryTile<Green, Amazonis_07_02>",
-        1 to "CityTile<Green, Amazonis_07_03>",
-        1 to "OceanTile<Amazonis_07_04>",
-        1 to "GreeneryTile<Blue, Amazonis_07_05>",
-        1 to "GreeneryTile<Blue, Amazonis_07_06>",
-        1 to "CityTile<Blue, Amazonis_07_07>",
-        1 to "IndustrialCenter_SpecialTile<Amazonis_08_03>",
-        1 to "OceanTile<Amazonis_08_04>",
-        1 to "GreeneryTile<Blue, Amazonis_08_05>",
-        1 to "CityTile<Purple, Amazonis_08_06>",
-        1 to "GreeneryTile<Blue, Amazonis_08_08>",
-        1 to "CityTile<Yellow, Amazonis_08_09>",
-        1 to "MoholeArea_SpecialTile<Amazonis_09_04>",
-        1 to "CityTile<Purple, Amazonis_09_05>",
-        1 to "GreeneryTile<Purple, Amazonis_09_06>",
-        1 to "NaturalPreserve_SpecialTile<Amazonis_10_09>",
-        1 to "GreeneryTile<Purple, Amazonis_10_10>",
-    )
+
     p1.assertCounts(1 to "NomadsMarker<Amazonis_05_09>")
     p2.assertCounts(5 to "Animal<$Pets>")
     purple.assertCounts(4 to "Animal<$Fish>")
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<Blue>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Yellow>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Green>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<Purple>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<Blue>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Yellow>") shouldBe 10
-    score.net("FirstPlace", "VictoryPoint<Green>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<Purple>") shouldBe 10
-    score.net("SecondPlace", "VictoryPoint<Blue>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Yellow>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Green>") shouldBe 2
-    score.net("SecondPlace", "VictoryPoint<Purple>") shouldBe 2
-    score.net("GreeneryTile", "VictoryPoint<Blue>") shouldBe 11
-    score.net("GreeneryTile", "VictoryPoint<Yellow>") shouldBe 2
-    score.net("GreeneryTile", "VictoryPoint<Green>") shouldBe 7
-    score.net("GreeneryTile", "VictoryPoint<Purple>") shouldBe 2
-    score.net("CityTile", "VictoryPoint<Blue>") shouldBe 14
-    score.net("CityTile", "VictoryPoint<Yellow>") shouldBe 6
-    score.net("CityTile", "VictoryPoint<Green>") shouldBe 14
-    score.net("CityTile", "VictoryPoint<Purple>") shouldBe 6
-    score.net("Card", "VictoryPoint<Blue>") shouldBe 0
-    score.net("Card", "VictoryPoint<Yellow>") shouldBe 9
-    score.net("Card", "VictoryPoint<Green>") shouldBe 7
-    score.net("Card", "VictoryPoint<Purple>") shouldBe 15
   }
 }

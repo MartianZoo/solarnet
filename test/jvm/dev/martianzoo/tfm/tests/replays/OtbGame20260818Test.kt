@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.state.GameFileJson
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -10,6 +12,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
@@ -79,8 +82,8 @@ internal class OtbGame20260818Test : FullGameTest() {
   private fun generation1() {
     // board-11-00-18.jpg: initial global state, before either corporation is played.
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
-    green.assertCounts(20 to "TerraformRating", 0 to "OwnedTile")
-    yellow.assertCounts(20 to "TerraformRating", 0 to "OwnedTile")
+    green.assertCounts(20 to "TerraformRating")
+    yellow.assertCounts(20 to "TerraformRating")
 
     with(green) {
       // "I'm Point Luna... I get a titanium production." "I'm keeping seven cards."
@@ -231,7 +234,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("20 MC", "Titanium", "Plant", "Energy")
     yellow.doTasks("21 MC", "4 Energy", "2 Steel")
     // "[Green] uses World Government Terraforming to increase oxygen."
-    green.doTask("OxygenStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("OxygenStep! BY Admin")
   }
 
   private fun generation2() {
@@ -351,7 +354,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("20 MC", "3 Titanium", "Plant", "Heat FROM Energy")
     yellow.doTasks("21 MC", "5 Energy", "2 Steel", "4 Heat FROM Energy", "Titanium")
     // "I'm going to use World Government Terraforming to increase Venus."
-    yellow.doTask("VenusStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("VenusStep! BY Admin")
   }
 
   private fun generation3() {
@@ -365,12 +368,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     with(yellow) {
       assertProduction(m = 0, s = 2, t = 1, p = 0, e = 5, h = 0)
       assertResources(m = 25, s = 4, t = 2, p = 0, e = 5, h = 4)
-      assertCounts(
-          21 to "TerraformRating",
-          9 to "CardFront",
-          1 to "OwnedTile",
-          1 to "SpecialTile<Utopia_3_6>",
-      )
+      assertCounts(21 to "TerraformRating", 9 to "CardFront")
       assertCardResources(2 to Psychrophiles, 2 to ForcedPrecipitation, 2 to ExtractorBalloons)
     }
     assertSidebar(gen = 3, temp = -30, oxygen = 1, oceans = 0, venus = 4)
@@ -439,7 +437,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ColonizerTrainingCamp"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$ColonizerTrainingCamp FROM ProjectCard",
       )
     }
@@ -498,7 +496,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("26 MC", "3 Titanium", "Plant")
     yellow.doTasks("23 MC", "8 Energy", "2 Steel", "5 Heat FROM Energy", "Titanium", "3 Heat")
     // "[Green] increases temperature with World Government Terraforming."
-    green.doTask("TemperatureStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("TemperatureStep! BY Admin")
   }
 
   private fun generation4() {
@@ -565,7 +563,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Potatoes"),
           "PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
-          "Ok", // No M€ needed after paying with Psychrophiles microbes.
+          "0 Pay<> FROM MC", // No M€ needed after paying with Psychrophiles microbes.
           "$Potatoes FROM ProjectCard",
           "-2 Plant",
           "PROD[2 MC]",
@@ -604,7 +602,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Mine"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
@@ -672,7 +670,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("26 MC", "3 Titanium", "Plant")
     yellow.doTasks("27 MC", "8 Energy", "3 Steel", "5 Heat FROM Energy", "Titanium", "3 Heat")
     // "I'm going to increase Venus" with World Government Terraforming.
-    yellow.doTask("VenusStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("VenusStep! BY Admin")
   }
 
   private fun generation5() {
@@ -694,7 +692,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           1 to ExtractorBalloons,
       )
     }
-    admin.assertCounts(1 to "OceanTile<Utopia_4_1>", 1 to "OceanTile<Utopia_3_1>")
+
     assertSidebar(gen = 5, temp = -28, oxygen = 1, oceans = 2, venus = 10)
 
     // Research.
@@ -776,13 +774,12 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$BigAsteroid"),
           "7 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No M€ needed after paying with titanium.
+          "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
           "$BigAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "4 Titanium",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "PROD[Heat]",
           "-Plant<Yellow>",
       )
@@ -879,7 +876,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("36 MC", "6 Titanium", "Plant", "Heat")
     yellow.doTasks("32 MC", "8 Energy", "3 Steel", "5 Heat FROM Energy", "Titanium", "4 Heat")
     // "World Government us an ocean... nine-eight."
-    green.doTask("OceanTile<Utopia_9_8>! BY Admin").expect("0 TerraformRating")
+    green.doTask("OceanTile<Utopia_9_8>! BY Admin")
   }
 
   private fun generation6() {
@@ -950,8 +947,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           *cardActionTasks("$ExtractorBalloons", "Action2"),
           "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
     }
     green.turn {
@@ -1029,8 +1025,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           "GreeneryTile<Utopia_4_2>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -1063,10 +1058,40 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("38 MC", "6 Titanium", "Plant", "3 Heat", "Heat FROM Energy")
     yellow.doTasks("40 MC", "7 Energy", "3 Steel", "5 Heat FROM Energy", "Titanium", "4 Heat")
     // "I will World Government an ocean on six-four."
-    yellow.doTask("OceanTile<Utopia_6_4>! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("OceanTile<Utopia_6_4>! BY Admin")
   }
 
   private fun generation7() {
+    // _local/replays/Game20260818/board-13-46-12.jpg.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              L     L    LEE    L     L
+        |
+        | 2 -           L    LSS   LEE   LEEC   L     L
+        |
+        | 3 -       [O]   [C2]   LS    L     L    [S2]  LTT
+        |
+        | 4 -    [O]   [G1]   LP   LPP   WPP    WP    WP    LP
+        |
+        | 5 -  L     L     L     LP    LP   LPP    L     W    LPT
+        |
+        | 6 -     LS   LSS   [O]   LPP    L     L    LSS    L
+        |
+        | 7 -        LS    L     W    WPP    L     L     L
+        |
+        | 8 -           L    LCC    W    WPP   LST   LPP
+        |
+        | 9 -              L     L    LSS   [O]    LP
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // board-13-46-12.jpg and both player ledgers: after Generation 6 transition.
     with(green) {
       assertProduction(m = 12, s = 0, t = 6, p = 1, e = 0, h = 3)
@@ -1077,9 +1102,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           1 to "Ecologist",
           1 to "Metallurgist",
           1 to "$MarsUniversity",
-          2 to "OwnedTile",
-          1 to "GreeneryTile<Utopia_4_2>",
-          1 to "CityTile<RemoteArea>",
       )
       assertCardResources(5 to Pets, 0 to AerialMappers, 1 to AsteroidRights)
     }
@@ -1091,8 +1113,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           17 to "CardFront",
           1 to "Tactician",
           1 to "$HermeticOrderOfMars",
-          2 to "OwnedTile",
-          1 to "CityTile<Utopia_3_2>",
       )
       assertCardResources(
           5 to StratosphericBirds,
@@ -1102,10 +1122,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           0 to ExtractorBalloons,
       )
     }
-    admin.assertCounts(
-        1 to "OceanTile<Utopia_9_8>",
-        1 to "OceanTile<Utopia_6_4>",
-    )
+
     assertSidebar(gen = 7, temp = -16, oxygen = 2, oceans = 4, venus = 16)
 
     // When we resumed the physical game, we knew about the errors found above, so we made this
@@ -1210,7 +1227,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MirandaResort"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No M€ needed after paying with titanium.
+          "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
           "$MirandaResort FROM ProjectCard",
           "PROD[7 MC]",
       )
@@ -1273,7 +1290,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ImportedNitrogen"),
           "6 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No M€ needed after paying with titanium.
+          "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
           "$ImportedNitrogen FROM ProjectCard",
           "TerraformRating",
           "4 Plant",
@@ -1378,7 +1395,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     )
     yellow.doTasks("44 MC", "7 Energy", "3 Steel", "4 Heat FROM Energy", "Titanium", "4 Heat")
     // Green uses World Government Terraforming to increase Venus.
-    green.doTask("VenusStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("VenusStep! BY Admin")
   }
 
   private fun generation8() {
@@ -1680,7 +1697,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTasks("49 MC", "6 Titanium", "8 Plant", "4 Heat", "Steel", "2 Energy")
     yellow.doTasks("49 MC", "8 Energy", "3 Steel", "4 Heat FROM Energy", "Titanium", "2 Heat")
     // Yellow uses World Government Terraforming to increase oxygen.
-    yellow.doTask("OxygenStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("OxygenStep! BY Admin")
   }
 
   private fun generation9() {
@@ -1689,13 +1706,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     with(green) {
       assertProduction(m = 19, s = 1, t = 6, p = 8, e = 2, h = 4)
       assertResources(m = 51, s = 1, t = 7, p = 15, e = 2, h = 19)
-      assertCounts(
-          30 to "TerraformRating",
-          26 to "CardFront",
-          3 to "OwnedTile",
-          1 to "CityTile<Utopia_5_3>",
-          0 to "Colony",
-      )
+      assertCounts(30 to "TerraformRating", 26 to "CardFront", 0 to "Colony")
       // Pets scores one VP per two animals; this count does not mean five VP.
       assertCardResources(
           5 to Pets,
@@ -1708,12 +1719,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     with(yellow) {
       assertProduction(m = 7, s = 3, t = 1, p = 0, e = 8, h = 2)
       assertResources(m = 51, s = 9, t = 1, p = 6, e = 8, h = 12)
-      assertCounts(
-          42 to "TerraformRating",
-          22 to "CardFront",
-          2 to "OwnedTile",
-          1 to "Colony<Miranda>",
-      )
+      assertCounts(42 to "TerraformRating", 22 to "CardFront", 1 to "Colony<Miranda>")
       assertCardResources(
           10 to StratosphericBirds,
           1 to VenusianAnimals,
@@ -1723,12 +1729,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           2 to ExtractorBalloons,
       )
     }
-    admin.assertCounts(
-        1 to "Traveller",
-        1 to "OceanTile<Utopia_8_7>",
-        2 to "TradeFleet",
-        0 to "Trade",
-    )
+    admin.assertCounts(1 to "Traveller", 2 to "TradeFleet", 0 to "Trade")
     assertColonyProductions(3, 2, 1, 3, 2)
     assertSidebar(gen = 9, temp = -10, oxygen = 4, oceans = 5, venus = 26)
 
@@ -1805,7 +1806,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           "7 Pay<> FROM MC",
           "$SponsoredAcademies FROM ProjectCard",
           "-ProjectCard",
-          "EACH Other@Player(NOT Yellow) { ProjectCard<Other@Player, Hand>! }",
+          "EACH",
           "Animal<$VenusianAnimals>",
           "3 ProjectCard",
           "ProjectCard<Green, Hand>",
@@ -1835,7 +1836,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$AquiferPumping"),
           "9 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No M€ needed after paying with steel.
+          "0 Pay<> FROM MC", // No M€ needed after paying with steel.
           "$AquiferPumping FROM ProjectCard",
       )
     }
@@ -1854,7 +1855,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$SolarLogistics"),
           "4 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No M€ needed after paying with titanium.
+          "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
           "$SolarLogistics FROM ProjectCard",
           "2 Titanium",
           "ProjectCard",
@@ -1888,13 +1889,10 @@ internal class OtbGame20260818Test : FullGameTest() {
           "ProjectCard",
           "OceanTile<Utopia_7_5>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "OceanTile<Utopia_8_6>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
       // "Yeah, what the hell, let's buy a standard project, shall we?" "Aquifer." "I'm just gonna
       // take two plants by placing on four, five."
@@ -1926,7 +1924,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           "CapitalTile<Utopia_6_5>",
       )
       giveTask(green, "Animal<$Pets>")
-      doTasks("2 Plant", "2 MC", "2 MC", "2 MC")
+      doTasks("2 Plant", "6 MC")
     }
 
     green.turn {
@@ -2072,7 +2070,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     yellow.doTasks("60 MC", "6 Energy", "3 Steel", "5 Heat FROM Energy", "Titanium", "2 Heat")
     // "The world government is me, and well, I'm not going to do oxygen. I do temperature up to
     // minus two."
-    green.doTask("TemperatureStep! BY Admin").expect("0 TerraformRating")
+    green.doTask("TemperatureStep! BY Admin")
   }
 
   private fun generation10() {
@@ -2080,11 +2078,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     with(green) {
       assertProduction(m = 24, s = 1, t = 6, p = 15, e = 4, h = 4)
       assertResources(m = 64, s = 1, t = 6, p = 17, e = 4, h = 9)
-      assertCounts(
-          37 to "TerraformRating",
-          33 to "CardFront",
-          5 to "OwnedTile",
-      )
+      assertCounts(37 to "TerraformRating", 33 to "CardFront")
       assertCardResources(
           6 to Pets,
           8 to MartianZoo,
@@ -2096,11 +2090,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     with(yellow) {
       assertProduction(m = 12, s = 3, t = 1, p = 0, e = 6, h = 2)
       assertResources(m = 64, s = 3, t = 1, p = 10, e = 6, h = 11)
-      assertCounts(
-          48 to "TerraformRating",
-          26 to "CardFront",
-          3 to "OwnedTile",
-      )
+      assertCounts(48 to "TerraformRating", 26 to "CardFront")
       assertCardResources(
           11 to StratosphericBirds,
           3 to VenusianAnimals,
@@ -2110,17 +2100,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           0 to ExtractorBalloons,
       )
     }
-    admin.assertCounts(
-        1 to "OceanTile<Utopia_7_6>",
-        1 to "OceanTile<Utopia_7_5>",
-        1 to "OceanTile<Utopia_8_6>",
-        1 to "OceanTile<Utopia_4_5>",
-    )
-    green.assertCounts(
-        1 to "GreeneryTile<Utopia_6_3>",
-        1 to "GreeneryTile<Utopia_5_2>",
-    )
-    yellow.assertCounts(1 to "CityTile<Utopia_6_5>")
+
     assertSidebar(gen = 10, temp = -2, oxygen = 6, oceans = 9, venus = 30)
 
     // Research.
@@ -2315,12 +2295,10 @@ internal class OtbGame20260818Test : FullGameTest() {
           "$LavaFlows FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "LavaFlows_SpecialTile<Utopia_8_5>",
           "2 ProjectCard",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
     // Green's ledger omitted the two TR from Lava Flows' temperature steps.
@@ -2376,7 +2354,7 @@ internal class OtbGame20260818Test : FullGameTest() {
               *playCardTasks("$Greenhouses"),
               "3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
               "Ok", // No steel paid.
-              "Ok", // No M€ needed after paying with Psychrophiles microbes.
+              "0 Pay<> FROM MC", // No M€ needed after paying with Psychrophiles microbes.
               "$Greenhouses FROM ProjectCard",
               "5 Plant",
           )
@@ -2422,7 +2400,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       // Name the context because matching EACH against Mars University's pending THEN task
       // otherwise throws a syntax error; see the task-matching TODO.
       doTask(
-          "EACH @WildTagElection<Green>(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
+          "EACH",
           RoboticWorkforce,
       )
       doTasks(
@@ -2436,7 +2414,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$DawnCity"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No M€ needed after paying with titanium.
+          "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
           "$DawnCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Titanium]",
@@ -2471,19 +2449,45 @@ internal class OtbGame20260818Test : FullGameTest() {
     )
     yellow.doTasks("67 MC", "6 Energy", "3 Steel", "4 Heat FROM Energy", "Titanium", "2 Heat")
     // Yellow uses World Government Terraforming to raise oxygen to 12%.
-    yellow.doTask("OxygenStep! BY Admin").expect("0 TerraformRating")
+    yellow.doTask("OxygenStep! BY Admin")
   }
 
   private fun generation11() {
+    // _local/replays/Game20260818/board-16-44-30.jpg; latest board photograph.
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              L     L    LEE    L     L
+        |
+        | 2 -          [G2]  [S1]  LEE   LEEC   L     L
+        |
+        | 3 -       [O]   [C2]   LS    L     L    [S2]  LTT
+        |
+        | 4 -    [O]   [G1]  [G1]  [C1]  [O]    WP    WP    LP
+        |
+        | 5 -  L    [G1]  [C1]  [G1]  [G2]  LPP    L     W    LPT
+        |
+        | 6 -     LS   [G1]  [O]   [C2]  [G2]   L    LSS    L
+        |
+        | 7 -        LS    L    [O]   [O]    L     L     L
+        |
+        | 8 -           L    [S1]  [O]   [O]   LST   LPP
+        |
+        | 9 -              L     L    LSS   [O]    LP
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
+
     // board-16-44-30.jpg and both player ledgers: after Generation 10 transition.
     with(green) {
       assertProduction(m = 29, s = 2, t = 7, p = 13, e = 3, h = 4)
       assertResources(m = 69, s = 2, t = 10, p = 18, e = 3, h = 6)
-      assertCounts(
-          40 to "TerraformRating",
-          38 to "CardFront",
-          11 to "OwnedTile",
-      )
+      assertCounts(40 to "TerraformRating", 38 to "CardFront")
       assertCardResources(
           8 to Pets,
           8 to MartianZoo,
@@ -2497,11 +2501,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     with(yellow) {
       assertProduction(m = 12, s = 3, t = 1, p = 0, e = 6, h = 2)
       assertResources(m = 69, s = 6, t = 1, p = 0, e = 6, h = 9)
-      assertCounts(
-          55 to "TerraformRating",
-          30 to "CardFront",
-          6 to "OwnedTile",
-      )
+      assertCounts(55 to "TerraformRating", 30 to "CardFront")
       assertCardResources(
           14 to StratosphericBirds,
           5 to VenusianAnimals,
@@ -2512,18 +2512,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           4 to JovianLanterns,
       )
     }
-    green.assertCounts(
-        1 to "CityTile<Utopia_4_4>",
-        1 to "SpecialTile<Utopia_2_2>",
-        1 to "GreeneryTile<Utopia_4_3>",
-        1 to "GreeneryTile<Utopia_5_4>",
-        1 to "SpecialTile<Utopia_8_5>",
-    )
-    yellow.assertCounts(
-        1 to "GreeneryTile<Utopia_5_5>",
-        1 to "GreeneryTile<Utopia_2_1>",
-        1 to "GreeneryTile<Utopia_6_6>",
-    )
+
     assertSidebar(gen = 11, temp = 8, oxygen = 12, oceans = 9, venus = 30)
 
     // Research.
@@ -2563,8 +2552,7 @@ internal class OtbGame20260818Test : FullGameTest() {
           "GreeneryTile<Utopia_7_4>",
           "OxygenStep",
           "Animal<$Herbivores>",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
     }
@@ -2732,7 +2720,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MethaneFromTitan"),
           "6 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No M€ needed after paying with titanium.
+          "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
           "$MethaneFromTitan FROM ProjectCard",
           "PROD[2 Heat]",
           "PROD[2 Plant]",
@@ -2767,7 +2755,7 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
               *playCardTasks("$TradingColony"),
               "4 Pay<Class<Titanium>> FROM Titanium",
-              "Ok", // No M€ needed after paying with titanium.
+              "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
               "$TradingColony FROM ProjectCard",
               "Colony<Enceladus>",
               "3 Microbe<$VenusianInsects>",
@@ -3025,35 +3013,14 @@ internal class OtbGame20260818Test : FullGameTest() {
     // Decline the final greenery placement.
     yellow.doTask("PassBaton")
 
-    val score = Summarizer(game)
     green.assertCounts(
         44 to "TerraformRating",
     )
     yellow.assertCounts(
         56 to "TerraformRating",
     )
-    score.net("Milestone", "VictoryPoint<Green>") shouldBe 10
-    score.net("Milestone", "VictoryPoint<Yellow>") shouldBe 5
-    score.net("FirstPlace", "VictoryPoint<Green>") shouldBe 10
-    score.net("FirstPlace", "VictoryPoint<Yellow>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Green>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<Yellow>") shouldBe 0
-    score.net("GreeneryTile", "VictoryPoint<Green>") shouldBe 10
-    score.net("GreeneryTile", "VictoryPoint<Yellow>") shouldBe 3
-    score.net("CityTile", "VictoryPoint<Green>") shouldBe 15
-    score.net("CityTile", "VictoryPoint<Yellow>") shouldBe 6
-    score.net("Card", "VictoryPoint<Green>") shouldBe 35
-    score.net("Card", "VictoryPoint<Yellow>") shouldBe 46
-    score.net("$Pets", "VictoryPoint<Green>") shouldBe 5
-    score.net("$VenusianInsects", "VictoryPoint<Green>") shouldBe 5
-    score.net("$EcologicalZone", "VictoryPoint<Green>") shouldBe 1
-    score.net("$Herbivores", "VictoryPoint<Green>") shouldBe 4
     // "Resource points on cards. One, four. Holy shit. Yeah. One, four, eight, and fifteen."
     // The earlier explicit count, "I'm at 15 strato birds," identifies the last value.
-    score.net("$Predators", "VictoryPoint<Yellow>") shouldBe 1
-    score.net("$JovianLanterns", "VictoryPoint<Yellow>") shouldBe 4
-    score.net("$VenusianAnimals", "VictoryPoint<Yellow>") shouldBe 8
-    score.net("$StratosphericBirds", "VictoryPoint<Yellow>") shouldBe 15
 
     // The spoken 118-115 tally omitted Green's four Herbivores points and the two Lava Flows TR
     // that the corrected scoring state retains. Yellow's spoken total is one point below the

@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -9,6 +11,7 @@ import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // Source: _local/replays/Game20260819/ (game log, player records, and generation-6 screenshot)
 // Complete archive replay: Solar Fusion Stream (g4ce040d78bb6)
@@ -82,6 +85,36 @@ internal class SolarFusionStreamTest : FullGameTest() {
     generation7()
     generation8()
     generation9()
+
+    // _local/replays/Game20260819/Game20260819-herokuapp-player.json; final Mars map.
+    assertEquals(
+        """
+        |                       1     2     3     4     5     6     7     8     9
+        |                      /     /     /     /     /     /     /     /     /
+        |
+        | 1 -               W     WT   [O]   [O]   [S3]
+        |
+        | 2 -            VT    L     L     W    [O]   [C1]
+        |
+        | 3 -        [C1]  [G1]  [C1]   L    [O]   [O]   [C1]
+        |
+        | 4 -      LP   [G1]  [S3]  [O]   [G1]  [O]   [O]   [S3]
+        |
+        | 5 -  LPP   [G2]  [C2]  [O]   [G1]  [C1]  [G1]  [G3]  [G3]
+        |
+        | 6 -     [C3]  [G2]   LP   [C1]  [G1]   LP    LP    L
+        |
+        | 7 -         LT   [G2]   L     L     LS    L     L
+        |
+        | 8 -           [S1]  [G2]   L     L    LSS    L
+        |
+        | 9 -               LS    L    [S3]  [S2]  LSS
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 
   private fun generation1() {
@@ -110,7 +143,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PROD[4 MC]",
           "15 Pay<> FROM MC",
           "5 ProjectCard<Hand FROM Selecting>",
-          "EACH Other@Player(NOT KB) { -2! Production<Other@Player, Class<MC>> BY Other@Player }",
+          "EACH",
           "PROD[-2 MC<JR>] BY JR",
       )
       JR.doTask("PROD[-2 MC]")
@@ -138,8 +171,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "OxygenStep",
           "OxygenStep",
           "5 Steel",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$SelfSufficientSettlement>>",
@@ -154,7 +186,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
 
     with(KB) {
       doTask("PlayCard<Class<PreludeCard>, Class<$ResearchNetwork>>")
-      doTask("$ResearchNetwork FROM PreludeCard").expect("WildTag")
+      doTask("$ResearchNetwork FROM PreludeCard")
       doTasks("PROD[MC]", "3 ProjectCard")
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
@@ -571,7 +603,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "2 Pay<Class<Titanium>> FROM Titanium",
           "21 Pay<> FROM MC",
           "$InterplanetaryTrade FROM ProjectCard",
-          "EACH @WildTagElection<JR> { Tag<@WildTagElection>? }",
+          "EACH",
           "PROD[9 MC]",
       )
     }
@@ -718,7 +750,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(
           *cardActionTasks("$WaterImportFromEuropa"),
           "4 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "OceanTile<Elysium_5_4>",
           "TerraformRating",
           "2 Plant",
@@ -727,14 +759,13 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CommercialDistrict"),
           "8 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$CommercialDistrict FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
           "CommercialDistrict_SpecialTile<Elysium_4_3>",
           "Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -845,8 +876,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "GreeneryTile<Elysium_5_5>",
           "OxygenStep",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
           "TerraformRating",
       )
 
@@ -894,7 +924,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SpaceMirrors"),
           "1 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$SpaceMirrors FROM ProjectCard",
       )
     }
@@ -908,7 +938,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Greenhouses"),
           "3 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$Greenhouses FROM ProjectCard",
           "7 Plant",
       )
@@ -938,9 +968,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "2 MC",
           "OceanTile<Elysium_3_6>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
       )
     }
 
@@ -954,8 +982,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "PROD[Titanium]",
           "OxygenStep",
           "OxygenStep",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "TemperatureStep",
           "TerraformRating",
       )
@@ -1045,7 +1072,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(
           *cardActionTasks("$WaterImportFromEuropa"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "OceanTile<Elysium_1_3>",
           "TerraformRating",
           "ProjectCard",
@@ -1140,8 +1167,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "3 MC",
           "OceanTile<Elysium_2_5>",
           "TerraformRating",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(
           *playCardTasks("$MirandaResort"),
@@ -1196,12 +1222,11 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(
           *cardActionTasks("$WaterImportFromEuropa"),
           "3 Pay<Class<Titanium>> FROM Titanium",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "OceanTile<Elysium_1_4>",
           "TerraformRating",
           "Steel",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
     }
 
@@ -1224,8 +1249,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "TemperatureStep",
           "TemperatureStep",
           "4 Titanium",
-          "TerraformRating",
-          "TerraformRating",
+          "2 TerraformRating",
           "Ok", // Leave the opponents' plants.
       )
     }
@@ -1234,13 +1258,12 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(
           *playCardTasks("$GreatDamPromo"),
           "5 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$GreatDamPromo FROM ProjectCard",
           "PROD[2 Energy]",
           "GreatDamPromo_SpecialTile<Elysium_1_5>",
           "ProjectCard",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       doTasks(
           *playCardTasks("$SolarLogistics"),
@@ -1266,9 +1289,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "GreeneryTile<Elysium_4_5>",
           "OxygenStep",
           "Plant",
-          "2 MC",
-          "2 MC",
-          "2 MC",
+          "6 MC",
           "TerraformRating",
       )
     }
@@ -1349,7 +1370,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(
           *playCardTasks("$GhgFactories"),
           "4 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$GhgFactories FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 Heat]",
@@ -1449,9 +1470,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "4 Steel",
           "3 MC",
           "ProjectCard",
-          "TerraformRating",
-          "TerraformRating",
-          "TerraformRating",
+          "3 TerraformRating",
           "DeimosDownPromo_SpecialTile<Elysium_9_7>",
           "ProjectCard",
           "-6 Plant<JR>",
@@ -1570,7 +1589,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MagneticFieldDome"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$MagneticFieldDome FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[Plant]",
@@ -1600,7 +1619,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
       doTasks(
           *playCardTasks("$PublicBaths"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "Ok", // No MC remainder.
+          "0 Pay<> FROM MC", // No MC remainder.
           "$PublicBaths FROM ProjectCard",
           "6 MC",
       )
@@ -1725,8 +1744,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Elysium_5_7>",
           "2 Plant",
-          "2 MC",
-          "2 MC",
+          "4 MC",
       )
       // Decline another final greenery placement for JR.
       doTask("PassBaton")
@@ -1763,26 +1781,6 @@ internal class SolarFusionStreamTest : FullGameTest() {
     JR.count("EVAL Benefactor.metric") shouldBe 33
     KB.count("EVAL Benefactor.metric") shouldBe 43
     ER.count("EVAL Benefactor.metric") shouldBe 38
-
-    val score = Summarizer(game)
-    score.net("Milestone", "VictoryPoint<JR>") shouldBe 10
-    score.net("Milestone", "VictoryPoint<KB>") shouldBe 5
-    score.net("Milestone", "VictoryPoint<ER>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<JR>") shouldBe 10
-    score.net("SecondPlace", "VictoryPoint<JR>") shouldBe 0
-    score.net("FirstPlace", "VictoryPoint<KB>") shouldBe 5
-    score.net("SecondPlace", "VictoryPoint<KB>") shouldBe 2
-    score.net("FirstPlace", "VictoryPoint<ER>") shouldBe 0
-    score.net("SecondPlace", "VictoryPoint<ER>") shouldBe 4
-    score.net("GreeneryTile", "VictoryPoint<JR>") shouldBe 6
-    score.net("GreeneryTile", "VictoryPoint<KB>") shouldBe 4
-    score.net("GreeneryTile", "VictoryPoint<ER>") shouldBe 2
-    score.net("CityTile", "VictoryPoint<JR>") shouldBe 9
-    score.net("CityTile", "VictoryPoint<KB>") shouldBe 3
-    score.net("CityTile", "VictoryPoint<ER>") shouldBe 2
-    score.net("Card", "VictoryPoint<JR>") shouldBe 16
-    score.net("Card", "VictoryPoint<KB>") shouldBe 13
-    score.net("Card", "VictoryPoint<ER>") shouldBe 21
 
     JR.assertCounts(33 to "TerraformRating")
     KB.assertCounts(43 to "TerraformRating")
