@@ -62,30 +62,6 @@ internal class BugsTest {
   }
 
   @Test
-  internal fun `automatic narrowing incorrectly counts a subclass excluded by a dependency difference`() {
-    val table =
-        loadTypes(
-            """
-            ABSTRACT CLASS Area {
-              CLASS Land
-              CLASS Water
-            }
-            ABSTRACT CLASS Tile<Area> {
-              CLASS Greenery : Tile<Land>
-              CLASS Ocean : Tile<Water>
-            }
-            """
-        )
-    val requested = table.resolve(parse<Expression>("Tile<Area(NOT Land)>"))
-    val ocean = table.resolve(parse<Expression>("Ocean"))
-    ocean.isSubtypeOf(requested) shouldBe true
-    table.allConcreteSubtypes(requested).toList() shouldBe listOf(ocean)
-
-    // T11-3 requires Ocean. Land(NOT Land) has no candidate, yet Greenery counts as a rival.
-    table.singleConcreteSubtype(requested, fullWorld) shouldBe null
-  }
-
-  @Test
   internal fun `class-literal narrowing incorrectly treats a changed bound as a different predicate`() {
     val table = loadTypes("ABSTRACT CLASS Tag { CLASS BuildingTag }")
     val general = table.resolve(parse<Expression>("Class<@Tag>(HAS @Tag)"))

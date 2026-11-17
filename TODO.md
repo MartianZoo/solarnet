@@ -11,8 +11,9 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 ## Game20261111 replay follow-ups
 
 - Generate global-event `ClassName` constants reproducibly from Canon, alongside the existing
-  checked-in card-name constants, and use them in replay `globalEventDeck` lists. There is no
-  current Kotlin-name generator to extend; avoid a second hand-maintained event-name catalogue.
+  checked-in card-name constants, and use them in replay `globalEventDeck` lists. Locate or restore
+  generation of that constants file; the existing `PetsTypeGenerator` generates Kotlin types instead.
+  Avoid a second hand-maintained event-name catalogue.
 - Support identifying a payment transmutation by its user-facing resource removal where unique.
   In Game20261111's starting research, `-21 MC` currently reports no matching task for
   `21 Pay<> FROM MC`. Settle the omission criterion (`Iconic`, `System`, or another rule) and
@@ -159,8 +160,10 @@ the remaining audit items listed there are **not yet discussed or approved**.
 - Decide whether Agent submissions must use concrete amounts instead of arithmetic over `Owed`.
 - Give beginner and standard players the same ten-card `Selecting` offer; beginners keep it free,
   while standard players discard and buy their choices.
-- Clarify Astra Mechanica's zero/one/two eligible-event behavior and reconcile its modeled return
-  with printed and derived English.
+  Also investigate playing initial corporations and Preludes directly from `Selecting`. First
+  settle whether unplayed Preludes count as cards in hand for Public Plans played during Prelude
+  setup; the collected rulebooks and Jacob posts do not explicitly settle that interaction.
+  Research: `_local/research/prelude-hand-and-todo-followups-2026-11-17.md`.
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
 - Replace ordering-only `::` protocols in pricing/acceptance, wild-tag preparation, and

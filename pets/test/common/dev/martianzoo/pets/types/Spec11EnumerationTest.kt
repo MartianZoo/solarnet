@@ -183,6 +183,15 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
+  internal fun `T11-3 automatic narrowing excludes subclasses with impossible dependencies`() {
+    val requested = type("Tile<Area(NOT LandArea)>")
+    val ocean = type("OceanTile<Tharsis_1_1>")
+
+    mars.allConcreteSubtypes(requested).toList() shouldContainExactly listOf(ocean)
+    mars.singleConcreteSubtype(requested, fullWorld) shouldBe ocean
+  }
+
+  @Test
   internal fun `T11-3 a difference is applied after dependencies are specialized`() {
     val table =
         loadTypes(

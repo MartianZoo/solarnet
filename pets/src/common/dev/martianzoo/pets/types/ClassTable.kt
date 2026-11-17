@@ -495,6 +495,7 @@ public abstract class ClassTable {
             .filterNot(Class::abstract)
             .filter { it in inhabitedConcreteClasses }
             .mapNotNull { klass -> glb(unrefined, klass.baseType) }
+            .filter(::isInhabited)
             .take(2)
             .singleOrNull() ?: return null
     val dependencies = intersection.dependencies.singleConcreteSubtype(info, this) ?: return null
