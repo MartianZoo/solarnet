@@ -39,16 +39,16 @@ internal class OtbGame20261111Test : FullGameTest() {
 
   override val globalEventDeck =
       listOf(
-          "ExploreFirstDirective",
-          "HeatFirstPolicy",
-          "FreeAcademiaTreaty",
-          "ViralModificationsApproved",
-          "TerraformingLobbying",
-          "DemocraticReform",
-          "SelfSufficiencyProgram",
-          "Diaspora",
-          "IncreasedInterplanetaryTrade",
-          "MoralMovement",
+          ExploreFirstDirective,
+          HeatFirstPolicy,
+          FreeAcademiaTreaty,
+          ViralModificationsApproved,
+          TerraformingLobbying,
+          DemocraticReform,
+          SelfSufficiencyProgram,
+          Diaspora,
+          IncreasedInterplanetaryTrade,
+          MoralMovement,
       )
 
   // (11:53:15 AM) "The start player is Green and the second player is Pink. You made your

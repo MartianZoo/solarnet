@@ -20,24 +20,24 @@ import kotlin.test.Test
 internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
   override val globalEventDeck =
       listOf(
-          "CharismaticWgPresident",
-          "MoholeLakeGlobalEvent",
-          "ImmigrationToVenus",
-          "ExperimentalLifeforms",
-          "PateraBoring",
-          "ExploreFirstDirective",
-          "WorldGovernmentDirectives",
-          "HeatFirstPolicy",
-          "RedResistance",
-          "ViralModificationsApproved",
-          "ThawMining",
-          "IncreasedInterplanetaryTrade",
-          "SolarnetGlobalEvent",
+          CharismaticWgPresident,
+          MoholeLakeGlobalEvent,
+          ImmigrationToVenus,
+          ExperimentalLifeforms,
+          PateraBoring,
+          ExploreFirstDirective,
+          WorldGovernmentDirectives,
+          HeatFirstPolicy,
+          RedResistance,
+          ViralModificationsApproved,
+          ThawMining,
+          IncreasedInterplanetaryTrade,
+          SolarnetGlobalEvent,
       )
 
   override val soloTileLocations =
       listOf("Cimmeria_3_3", "Cimmeria_3_4", "Cimmeria_6_4", "Cimmeria_6_3")
-  private val ShipmentToEarth = cn("ShipmentToEarth")
+  private val NewHolland = cn("NewHolland") // Identity-only card supplied by this replay catalog.
   override val config =
       GameConfig(
           """

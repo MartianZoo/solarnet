@@ -16,16 +16,16 @@ import kotlin.test.assertEquals
 internal class OtbGame20260912Test : FullGameTest() {
   override val globalEventDeck =
       listOf(
-          "ThawMining",
-          "MartianProtectionism",
-          "ScienceSummit",
-          "BioengineeringBoom",
-          "FreeAcademiaTreaty",
-          "SecondEnergyCrisis",
-          "WorldGovernmentDirectives",
-          "MoholeLakeGlobalEvent",
-          "ExperimentalLifeforms",
-          "CharismaticWgPresident",
+          ThawMining,
+          MartianProtectionism,
+          ScienceSummit,
+          BioengineeringBoom,
+          FreeAcademiaTreaty,
+          SecondEnergyCrisis,
+          WorldGovernmentDirectives,
+          MoholeLakeGlobalEvent,
+          ExperimentalLifeforms,
+          CharismaticWgPresident,
       )
   // The physical deck included Summit Logistics without Colonies, and the recorded game had no
   // colony board. Name the ordinary card explicitly because its colony count contributes zero,

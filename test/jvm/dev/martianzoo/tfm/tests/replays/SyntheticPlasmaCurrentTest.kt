@@ -16,19 +16,19 @@ import kotlin.test.Test
 internal class SyntheticPlasmaCurrentTest : FullGameTest() {
   override val globalEventDeck =
       listOf(
-          "IndependenceMovement",
-          "WorldGovernmentDirectives",
-          "ScienceSummit",
-          "MoralMovement",
-          "MoholeLakeGlobalEvent",
-          "ExploreFirstDirective",
-          "RedResistance",
-          "ViralModificationsApproved",
-          "SolarnetGlobalEvent",
-          "CharismaticWgPresident",
-          "BioengineeringBoom",
-          "LocalTerraformingSupport",
-          "PateraBoring",
+          IndependenceMovement,
+          WorldGovernmentDirectives,
+          ScienceSummit,
+          MoralMovement,
+          MoholeLakeGlobalEvent,
+          ExploreFirstDirective,
+          RedResistance,
+          ViralModificationsApproved,
+          SolarnetGlobalEvent,
+          CharismaticWgPresident,
+          BioengineeringBoom,
+          LocalTerraformingSupport,
+          PateraBoring,
       )
   override val config =
       GameConfig(

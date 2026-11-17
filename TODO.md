@@ -10,10 +10,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Game20261111 replay follow-ups
 
-- Generate global-event `ClassName` constants reproducibly from Canon, alongside the existing
-  checked-in card-name constants, and use them in replay `globalEventDeck` lists. Locate or restore
-  generation of that constants file; the existing `PetsTypeGenerator` generates Kotlin types instead.
-  Avoid a second hand-maintained event-name catalogue.
 - Support identifying a payment transmutation by its user-facing resource removal where unique.
   In Game20261111's starting research, `-21 MC` currently reports no matching task for
   `21 Pay<> FROM MC`. Settle the omission criterion (`Iconic`, `System`, or another rule) and

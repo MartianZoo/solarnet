@@ -42,6 +42,19 @@ tasks.withType<Test>().configureEach {
   systemProperty("solarnet.root", rootProject.layout.projectDirectory.asFile.absolutePath)
 }
 
+tasks.register<JavaExec>("generateCardNameConstants") {
+  group = "generation"
+  description = "Refreshes checked-in card and global-event ClassName constants for tests."
+  classpath = sourceSets.main.get().runtimeClasspath
+  mainClass.set("dev.martianzoo.tfm.tools.GenerateCardNameConstantsKt")
+  args(
+      rootProject.layout.projectDirectory
+          .file("test/common/dev/martianzoo/tfm/tests/cards/cardnames/cardNameConstants.kt")
+          .asFile
+          .absolutePath
+  )
+}
+
 tasks.register<JavaExec>("typeStructureReport") {
   group = "application"
   description = "Reports encoding-relevant type statistics for an all-expansions five-player game."

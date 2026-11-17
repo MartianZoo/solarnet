@@ -99,6 +99,11 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   sources. A benchmark error fails the task instead of producing an empty successful report.
 - `./gradlew spotlessApply` formats the source tree. CI runs `spotlessCheck`, and a normal build
   also reports formatting violations.
+- `./gradlew :tools:generateCardNameConstants` refreshes the checked-in
+  `test/common/dev/martianzoo/tfm/tests/cards/cardnames/cardNameConstants.kt` from Canon and FakeCanon.
+  It includes concrete card faces and global events, sorted by class name. Run it after adding,
+  removing, or renaming those declarations; review and commit the generated diff with the source
+  change. Normal compilation reads the checked-in file without running the generator.
 - `./gradlew :tools:kotlinFileComplexity` writes a TSV of Detekt cyclomatic complexity for each
   production Kotlin file and each test-support file without test-case methods to
   `reports/kotlin-file-complexity.tsv` under the root build directory. The report covers source physically present in this checkout, including `pets/src/` and `pets/test/`.

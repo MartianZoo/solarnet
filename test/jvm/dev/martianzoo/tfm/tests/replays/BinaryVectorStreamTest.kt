@@ -16,19 +16,19 @@ import kotlin.test.Test
 internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
   override val globalEventDeck =
       listOf(
-          "FreeAcademiaTreaty",
-          "LocalTerraformingSupport",
-          "ViralModificationsApproved",
-          "TerraformingLobbying",
-          "IndependenceMovement",
-          "WorldGovernmentDirectives",
-          "HeatFirstPolicy",
-          "ExperimentalLifeforms",
-          "ScientificConsensus",
-          "ThawMining",
-          "SelfSufficiencyProgram",
-          "RisingAlloyDemand",
-          "MartianProtectionism",
+          FreeAcademiaTreaty,
+          LocalTerraformingSupport,
+          ViralModificationsApproved,
+          TerraformingLobbying,
+          IndependenceMovement,
+          WorldGovernmentDirectives,
+          HeatFirstPolicy,
+          ExperimentalLifeforms,
+          ScientificConsensus,
+          ThawMining,
+          SelfSufficiencyProgram,
+          RisingAlloyDemand,
+          MartianProtectionism,
       )
   override val soloTileLocations =
       listOf("Amazonis_02_05", "Amazonis_01_04", "Amazonis_10_11", "Amazonis_10_10")

@@ -21,19 +21,19 @@ import kotlin.test.Test
 internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
   override val globalEventDeck =
       listOf(
-          "MiningRestrictions",
-          "ExperimentalLifeforms",
-          "MoholeLakeGlobalEvent",
-          "ThawMining",
-          "RedResistance",
-          "HeatFirstPolicy",
-          "FreeAcademiaTreaty",
-          "TerraformingLobbying",
-          "PateraBoring",
-          "ScientificConsensus",
-          "CorporateAlliance",
-          "CharismaticWgPresident",
-          "BioengineeringBoom",
+          MiningRestrictions,
+          ExperimentalLifeforms,
+          MoholeLakeGlobalEvent,
+          ThawMining,
+          RedResistance,
+          HeatFirstPolicy,
+          FreeAcademiaTreaty,
+          TerraformingLobbying,
+          PateraBoring,
+          ScientificConsensus,
+          CorporateAlliance,
+          CharismaticWgPresident,
+          BioengineeringBoom,
       )
 
   private val FakeNewHolland = cn("FakeNewHolland")

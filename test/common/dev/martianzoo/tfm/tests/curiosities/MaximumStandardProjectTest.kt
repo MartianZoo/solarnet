@@ -13,17 +13,17 @@ import kotlin.test.Test
 internal class MaximumStandardProjectTest : FullGameTest() {
   override val globalEventDeck =
       listOf(
-          "DemocraticReform",
-          "MinimalImpactPolicy",
-          "FreeAcademiaTreaty",
-          "PateraBoring",
-          "ScienceSummit",
-          "TerraformingLobbying",
-          "CharismaticWgPresident",
-          "SolarnetGlobalEvent",
-          "BioengineeringBoom",
-          "SelfSufficiencyProgram",
-          "RedResistance",
+          DemocraticReform,
+          MinimalImpactPolicy,
+          FreeAcademiaTreaty,
+          PateraBoring,
+          ScienceSummit,
+          TerraformingLobbying,
+          CharismaticWgPresident,
+          SolarnetGlobalEvent,
+          BioengineeringBoom,
+          SelfSufficiencyProgram,
+          RedResistance,
       )
   override val config =
       GameConfig(

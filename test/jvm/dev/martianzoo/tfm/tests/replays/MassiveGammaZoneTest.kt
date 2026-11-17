@@ -19,19 +19,19 @@ import kotlin.test.Test
 internal class MassiveGammaZoneTest : FullGameTest() {
   override val globalEventDeck =
       listOf(
-          "ScienceSummit",
-          "AiResearch",
-          "RedResistance",
-          "LocalTerraformingSupport",
-          "MinimalImpactPolicy",
-          "DemocraticReform",
-          "MoholeLakeGlobalEvent",
-          "TerraformingLobbying",
-          "ThawMining",
-          "PateraBoring",
-          "ExperimentalLifeforms",
-          "CorporateAlliance",
-          "HeatFirstPolicy",
+          ScienceSummit,
+          AiResearch,
+          RedResistance,
+          LocalTerraformingSupport,
+          MinimalImpactPolicy,
+          DemocraticReform,
+          MoholeLakeGlobalEvent,
+          TerraformingLobbying,
+          ThawMining,
+          PateraBoring,
+          ExperimentalLifeforms,
+          CorporateAlliance,
+          HeatFirstPolicy,
       )
   override val config =
       GameConfig(
