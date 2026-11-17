@@ -394,7 +394,9 @@ Choose the fixture by what the scenario proves, not the kind of card:
 
 Gameplay tests submit the turns the game offers through plain `Agent`s. Use `doTask`/`doTasks`
 for explicit choices, or `completeOperation { ... }` when the whole operation must finish before
-returning. Do not use `inTurn`: it can create an out-of-turn offer when the actor has no pending
+returning. A success scenario must actually complete the action or phase it claims to prove;
+submitting an intermediate choice is insufficient. Negative scenarios may stop at the expected
+failure. Do not use `inTurn`: it can create an out-of-turn offer when the actor has no pending
 work. Use `player.turn { ... }` for complete action-phase turns. It declines an unused second
 action only while opponents remain. Setup, final greenery, and generation passes stay outside it.
 Keep explicit `PassBaton` submissions in focused tests whose subject is the handoff itself.
@@ -706,7 +708,7 @@ characterization over a disproportionate workaround.
 
 ## Gameplay consistency project
 
-**Status: decisions and follow-up work recorded through 2026-11-14.** This section records the user's
+**Status: decisions and follow-up work recorded through 2026-11-17.** This section records the user's
 responses to the gameplay consistency audit. Agreed direction, current implementation, proposals,
 and observations not yet discussed are distinguished below. The work list is in
 [`TODO.md`](../../TODO.md#gameplay-consistency). This is not a claim that the migration is finished.
@@ -717,6 +719,40 @@ has been deleted; keep shrinking the remaining gameplay API rather than recreati
 The user does not require preservation of unused-action or underpayment/overpayment checks merely
 because old replay helpers performed them. Do not restore the discarded `tfm_sample` REPL command.
 These permissions do not imply removing source resource checkpoints or changing recorded payments.
+
+### Remaining migration acceptance criteria, November 17, 2026
+
+The user selected these criteria for completing the migration. Apply them together when revising
+or reviewing each batch; the narrower historical decisions below are superseded where noted.
+
+- Keep the four intended gameplay families. Ordinary Player work is explicit; Admin remains
+  automatic, and the TaskForm replay retains its deliberately different interaction style.
+- When the corporation turn is incidental, the shared fixture may use scoped `EAGER` execution
+  for the entire standard opening, including starting-card setup, corporation play, and buying
+  five of ten offered projects on the nonbeginner path. Eliminating otherwise valid Player
+  choices is explicitly acceptable in this convenience. Tests of those choices or consequences
+  must instead show them. Do not extend this exception to ordinary scenario execution.
+- Use visible `exMachina` setup instead of manufacturing an implausible long gameplay history
+  merely to reach the tested position. EndgameRulesTest's corrected setup replaces its former
+  41 preparation generations. Exercise the subsequent action or phase through the game's real flow.
+- A successful intermediate step does not prove an action succeeds. Success scenarios must
+  actually complete the action or phase they claim to prove; unrelated later turns need not run.
+  Negative scenarios may stop at the expected failure. Assertions may inspect intermediate state,
+  but a successful path must then finish its action.
+- Remove counterfactual illegal-action probes from ordinary replays now. Do not replace them
+  during this migration. A future approach to testing illegal moves from recorded positions is
+  separate work. This does not remove focused negative card/rule tests or corrections reproducing
+  actual recorded mistakes.
+- Historical authentication is a separate project. Passing tests and imports demonstrate a game
+  the current model can execute; they do not by themselves establish that it is the game actually
+  played. Preserve source checkpoints, discrepancy comments, and visible corrections, but do not
+  block this migration on resolving historical scores or recovering missing map evidence. An
+  unauthenticated discrepancy may conceal a real Solarnet defect; that uncertainty is accepted
+  for this migration, not a reason to describe the record as independently verified.
+
+These criteria do not authorize rewriting replay chronology, changing recorded payments, inventing
+source evidence, or adding a new gameplay API. Keep literal submissions and meaningful consequence
+assertions, and review the final diff as well as running the affected suites.
 
 ### Replay decisions selected on 2026-11-14
 
@@ -751,13 +787,14 @@ These permissions do not imply removing source resource checkpoints or changing 
 - Completed replays assert functional outcomes such as scores and Victory, not queue emptiness,
   phase internals, or GameScope removal. Partial games keep their source-position checkpoints.
 - Remove incidental completeOperation wrappers from successful replay sequences, World Government
-  no-TR assertions, and duplicate handwritten production-offset checks. Preserve negative probes
-  and the restoration scopes needed by those probes.
+  no-TR assertions, and duplicate handwritten production-offset checks. The November 17 decision
+  also removes counterfactual negative probes and their now-unneeded restoration scopes.
 - Call startGame visibly in ordinary replay test bodies. Use doTask for execution; a retained
   selectTask must be followed by the explicit execution of that same work. The underlying engine
   change that would defer System assignment until execution is separate, explicitly deferred work.
-- Investigate how illegal-action tests can use positions from recorded files without requiring
-  the game itself to remain a Kotlin script. No expansion or removal of current probes is selected.
+- Future work may investigate illegal-action tests using positions from recorded files without
+  requiring the game itself to remain a Kotlin script. November 17 explicitly permits removing
+  current counterfactual replay probes without replacing that coverage in this migration.
 - Separate generation methods provide navigation only; no reorganization was requested.
 
 Verification: all 29 active JVM replay tests passed with exports enabled, and all seven archived
@@ -787,16 +824,16 @@ disabled throughout the rewarded operations; their setup still uses automatic ex
   gameplay tests as much as possible: optimize for reading every noteworthy event, not for ease
   of writing the test. Prefer `NONE` and explicit task submissions outside the setup convenience.
   Start with test callers; a replacement global Agent default or new smart policy has not been
-  selected. Preserve the TaskForm replay as a test of forms when removing its Player `EAGER`
-  dependency. Use explicit Player choices when testing engine semantics independently of policy.
+  selected. The TaskForm replay remains outside the ordinary replay cleanup. Use explicit Player
+  choices when testing engine semantics independently of policy.
 - A superclass setup helper may perform corporation setup with automatic execution when the caller
   only needs the corporation to exist and is not testing its turn. Keep this behavior scoped to
   that helper and make its purpose clear. Tests of corporation choices or consequences need those
   steps visible. Today `chooseStartingCards` and `playStartingCorporations` in `TfmGameplayTest`
   use bounded `autoExecNow(EAGER)` calls; they do not permanently change the configured Player
-  policy. Starting-card setup also uses automatic execution today; whether it belongs in the
-  same permitted convenience remains to be clarified. Do not treat its current implementation as
-  approval of that scope. A replacement helper or new policy-switching API has not been selected.
+  policy. November 17 explicitly includes starting-card setup and the default five-of-ten project
+  purchase in this convenience, even when `EAGER` eliminates otherwise valid choices. A replacement
+  helper or new policy-switching API has not been selected.
 - High priority: remove gameplay tests' inspection of task collections to choose IDs wherever
   existing named task submissions suffice. When unavoidable, explain why at the use site. Also
   reduce assumptions that the only pending task must be the intended task: they reveal less about
@@ -815,11 +852,13 @@ disabled throughout the rewarded operations; their setup still uses automatic ex
 - Fake or substitute cards are an accepted necessity where the real card is unsupported. Their
   mere presence is not an inconsistency to eliminate. Keep limitations visible and avoid treating
   the substitute as proof of the real card's complete behavior.
-- Different games inevitably have different evidence. Audit replay assertions and choices against
-  the available original logs, screenshots, recordings, and saves to find possible mistakes; do
+- Different games inevitably have different evidence. In the separate authentication project,
+  audit replay assertions and choices against the available original logs, screenshots, recordings,
+  and saves to find possible mistakes; do
   not try to make the evidence formats uniform. An assertion copied from an engine run is not
   independent source confirmation. For example, `SyntheticProtonFragmentTest` explicitly says its
-  generation 7 values lack a screenshot and reflect the engine's current results.
+  generation 7 values lack a screenshot and reflect the engine's current results. Missing evidence
+  and unresolved historical discrepancies do not block this test-style migration.
 - Inventory every way a replay reconciles the model with its source, then simplify those uses.
   Prefer explicit `exMachina` adjustments with comments explaining the reason: a table mistake,
   an unsupported part of a fake card, or another evidenced mismatch. Ordinary task execution is
@@ -847,14 +886,14 @@ human player's source log does not establish an application mistake.
   Document the useful distinctions before choosing what to consolidate.
 - Completed replays use scores and Victory as their completion checks, as selected on 2026-11-14.
   Partial replays may legitimately leave tasks pending and retain their source-position checks.
-  Completion checks for focused gameplay scenarios remain a separate investigation.
-- Inventory scripted choices versus choices computed from current state. Concrete examples are
-  locating the current starting player (`PreservationProgramTest.passGeneration`), selecting the
-  first available water area (`EndgameRulesTest.finishMultiplayerGeneration`), and buying a
-  standard project repeatedly while MC permits (`EndgameRulesTest`). Compare these with a replay
-  that names the recorded player, location, and purchase count. Some loops only traverse players in the game's
-  order; others let the scenario adapt when the engine changes. Decide which are useful rather
-  than imposing a blanket ban on loops or queries.
+  Focused success scenarios must complete the action or phase they claim to prove, as selected on
+  November 17; focused negative scenarios may stop at the expected failure.
+- Continue reviewing scripted choices versus choices computed from current state, such as locating
+  the current starting player (`PreservationProgramTest.passGeneration`). EndgameRulesTest now
+  uses corrected positions instead of its former first-available-area and buy-while-affordable
+  game drivers. It retains full generation traversal where the solo countdown is the rule under
+  test. Keep traversal and gameplay whose history is itself relevant; replace artificial histories
+  used merely to prepare a position with explicit corrections.
 - Improve consistency in checking consequences beyond "the task call succeeded": useful automatic
   gains, effects on another player, and quantities that should stay unchanged. Preserve source
   checkpoints and final outcomes; do not add assertions that merely repeat the submitted task.
@@ -910,7 +949,7 @@ related change below.
 
 | Original rank | Difference observed | Concrete examples or question to revisit |
 | --- | --- | --- |
-| 15 | Negative probes and restoration checks versus successful play only | Preserve existing probes; investigate separate illegal-action tests loaded from recorded positions, as selected November 14. No new design is selected. |
+| 15 | Negative probes and restoration checks versus successful play only | November 17: remove counterfactual replay probes now; a separate approach to illegal-action coverage is deferred. |
 | 16 | How known wrong behavior is represented | `PreservationProgramTest` and `MergerTest` pair disabled intended behavior with passing `BUG -` cases; other scenarios characterize unresolved behavior directly, or replay it with a correction. Review consistency with Known-defect tests above. |
 | 17 | Recording and reconstruction coverage | Ordinary replays do not record unless exports are requested. August 18 also checks serialized content, notes, and a midpoint; routine browser replay coverage mainly uses the August 28 TaskForm game. |
 | 18 | Frequency, placement, and breadth of checkpoints | `BinaryVectorStreamTest` checks generations against saves; `ThermalMatterWaveTest` concentrates more at the end; physical games follow photographs. Evidence naturally differs, but assertion placement can still be reviewed. |
@@ -1037,7 +1076,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   file search is not evidence that the test's local sources are absent. A plan supplies procedure,
   not game facts: establish all setup, chronology, values, and reconciliations from original sources.
 - For a herokuapp archive, read `docs/agents/HEROKUAPP_GAME_LOGS.md` before implementation. Its API,
-  payment-reconstruction, screenshot, counterfactual, and endgame rules supplement this section.
+  payment-reconstruction, screenshot, and endgame rules supplement this section.
 - For a recorded physical game, read [`_local/OTB_GAME_RECORDS.md`](../../_local/OTB_GAME_RECORDS.md)
   before implementation. Its
   source-preservation, mixed-evidence, photograph, reconciliation, and endgame rules supplement this

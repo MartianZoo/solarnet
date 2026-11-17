@@ -1,25 +1,24 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class CorrosiveRainTest : TfmGameplayTest() {
+internal class CorrosiveRainTest : TfmGameplayTest(NONE) {
   @BeforeTest
   fun prepareCurrentEvent() {
     newTestGame(
-        addOptions = "TurmoilExpansion",
+        addOptions = "-QuickStartVariant, TurmoilExpansion",
         playerCount = 2,
         firstGlobalEvents = listOf("ImmigrationToVenus", "RedResistance", "ScientificProgress"),
     )
     kim.doTask("Pass")
     stan.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    players.forEach { it.doTask("20 MC") }
     kim.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
   }
 
   @Test
@@ -27,11 +26,12 @@ internal class CorrosiveRainTest : TfmGameplayTest() {
     kim.exMachina("EventAnalysts, AerialMappers, 2 Floater<AerialMappers>")
     stan.doTask("Pass")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    players.forEach { it.doTask("19 MC") }
     stan.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-    kim.doTask("-10 MC").expect("-10 MC, 0 Floater, ProjectCard")
+    kim.doTasks("-10 MC", "ProjectCard").expect("0 Floater")
+    stan.doTasks("-10 MC", "0 ProjectCard")
     kim.count("Floater<AerialMappers>") shouldBe 2
+    players.forEach { it.doTask("4 ProjectCard<Selecting>") }
   }
 
   @Test
@@ -41,11 +41,12 @@ internal class CorrosiveRainTest : TfmGameplayTest() {
     )
     stan.doTask("Pass")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    players.forEach { it.doTask("19 MC") }
     stan.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-    kim.doTask("-2 Floater<FloatingHabs>").expect("-2 Floater<FloatingHabs>, 0 MC, ProjectCard")
+    kim.doTasks("-2 Floater<FloatingHabs>", "ProjectCard").expect("0 MC")
+    stan.doTasks("-10 MC", "0 ProjectCard")
     kim.count("Floater<AerialMappers>") shouldBe 2
     kim.count("Floater<FloatingHabs>") shouldBe 1
+    players.forEach { it.doTask("4 ProjectCard<Selecting>") }
   }
 }

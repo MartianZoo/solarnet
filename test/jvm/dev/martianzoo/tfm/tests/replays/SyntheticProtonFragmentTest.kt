@@ -1,11 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -14,8 +9,6 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -231,15 +224,10 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "$EarthCatapult FROM ProjectCard",
       )
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC")
-      // Titanium production is not tied for lowest, so Robinson Industries cannot raise it.
-      shouldThrow<NarrowingException> { doTask("PROD[Titanium]") }
       doTask("PROD[Heat]")
     }
 
     green.turn {
-      // Splice Tactical Genomics' mandatory first action prevents Green from playing Lichen first.
-      shouldThrow<TaskException> { doTask("UseAction<PlayCardAction, Action1>") }
-
       doTask("DoRequiredActions")
       doTask("SearchForCard<TagFilter<Class<MicrobeTag>>>")
       doTask("3 ProjectCard")
@@ -490,12 +478,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     }
 
     green.turn {
-      // Green does not meet Diversifier before Corporate Stronghold enters play.
-      shouldThrow<RequirementException> {
-        continueOperation {
-          doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Diversifier")
-        }
-      }
       doTasks(
           *playCardTasks("$CorporateStronghold"),
           "2 Pay<Class<Steel>> FROM Steel",
@@ -647,9 +629,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "$HeatTrappers FROM ProjectCard",
           "PROD[Energy]",
       )
-      // Purple has only one heat production, so Green cannot choose her instead.
-      shouldThrow<LimitsException> { doTask("PROD[-2 Heat<Player1>]") }
-      shouldThrow<TaskException> { doTask("PROD[-Heat<Player1>]") }
       doTask("PROD[-2 Heat<Player2>]")
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
@@ -771,12 +750,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     )
 
     pink.turn {
-      // Pink does not meet Tycoon before Hermetic Order of Mars enters play.
-      shouldThrow<RequirementException> {
-        continueOperation {
-          doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Tycoon")
-        }
-      }
       doTasks(
           *playCardTasks("$HermeticOrderOfMars"),
           "8 Pay<> FROM MC",
@@ -1045,13 +1018,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     }
 
     green.turn {
-      // Green cannot pay Designed Microorganisms' 16 MC price with the remaining 9 MC.
-      shouldThrow<TaskException> {
-        continueOperation {
-          doTasks(*playCardTasks("$DesignedMicroorganisms"), "16 Pay<> FROM MC")
-        }
-      }
-      green.count("MC") shouldBe 9
       // Viral Enhancers reacts to its own tag.
       doTasks(
           *playCardTasks("$ViralEnhancers"),
@@ -1742,8 +1708,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
 
     green.turn {
       doTasks(*cardActionTasks("$Ants"))
-      // Protected Habitats now prevents Green from removing Purple's microbe.
-      shouldThrow<DeadEndException> { doTask("-Microbe<Player1, $Psychrophiles<Player1>>") }
       doTasks("-Microbe<$Ants>", "Microbe<$Ants>")
       doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
     }

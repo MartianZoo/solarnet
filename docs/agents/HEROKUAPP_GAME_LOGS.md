@@ -277,19 +277,12 @@ player records expose them. Aggregate flat card VP when the archive reports only
 variable-card assertions are useful when observable. Cross-check final tile ownership and map
 locations against the archived board instead of relying only on aggregate points.
 
-## Preserve valuable counterfactuals
+## Keep counterfactual probes out of replays
 
-A historical replay contains exact states that are expensive to recreate in a small test. Add a few
-negative assertions when they prove a non-obvious state constraint that was tempting at that moment:
-
-- a requirement or milestone threshold is almost, but not yet, met;
-- a target is protected, has an insufficient amount, or is excluded by narrowing;
-- a second action could not legally have been performed first for a non-obvious reason.
-
-Use the precise domain exception (`RequirementException`, `NarrowingException`, `LimitsException`,
-or another specific result). Put a choice-level failure inside the action lambda
-beside the successful choice. Skip obvious cases that only require the card or resources gained by the
-preceding action, and do not turn the whole-game test into a substitute for focused rule tests.
+Human direction, November 17, 2026: remove illegal-action probes that insert attempts absent from
+the recorded game. Do not add replacement coverage as part of the test migration. Testing illegal
+moves from recorded positions is deferred; focused negative card and rule scenarios remain valid.
+Corrections reproducing actual recorded mistakes are a separate concern and remain visible.
 
 ## Map coordinates
 
