@@ -1083,7 +1083,7 @@ internal class ThermalMatterWaveTest : FullGameTest() {
       doTask("Pass")
       doTasks("102 MC", "4 Plant", "9 Heat", "4 Steel", "6 Titanium", "Energy")
       // Decline the final greenery placement.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
       assertCounts(0 to "ProjectCard")
 
       assertResources(m = 106, s = 4, t = 6, p = 4, e = 1, h = 17)

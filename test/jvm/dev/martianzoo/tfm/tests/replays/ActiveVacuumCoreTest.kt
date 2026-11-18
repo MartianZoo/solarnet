@@ -2632,11 +2632,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    purple.doTask("PassBaton")
+    purple.doTask("Ok") // decline final greenery
 
-    blue.doTask("PassBaton")
+    blue.doTask("Ok") // decline final greenery
 
-    pink.doTask("PassBaton")
+    pink.doTask("Ok") // decline final greenery
 
     with(green) {
       doTasks(
@@ -2656,7 +2656,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
     }
 
-    green.doTask("PassBaton")
+    green.doTask("Ok") // decline final greenery
 
     // Database save 626 and the final player API record: completed public boards and scores.
     blue.assertResources(m = 58, s = 1, t = 3, p = 5, e = 0, h = 12)

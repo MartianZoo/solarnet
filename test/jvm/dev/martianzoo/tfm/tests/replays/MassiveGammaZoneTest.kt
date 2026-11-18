@@ -1507,7 +1507,7 @@ internal class MassiveGammaZoneTest : FullGameTest() {
           "0 MC",
       )
       // Decline another final greenery with only 5 plants remaining.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
       assertCounts(0 to "ProjectCard")
 
       // Player-record evidence: complete final dashboard and score table.

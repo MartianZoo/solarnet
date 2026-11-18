@@ -142,7 +142,8 @@ inventing an amount range.
 
 Each candidate is tried in a disposable World through its complete requested transaction. This
 includes immediate effects, required/dependent parts, final checks, continuation admission, and
-transaction-completion promotion. Trials leave the source World and its listeners untouched.
+transaction-completion dispatch of eligible deferred instructions. Trials leave the source World
+and its listeners untouched.
 Custom Kotlin effect objects and their external side effects are not copied.
 
 - A complete analysis with exactly a single successful closed instruction permits execution.
@@ -173,8 +174,8 @@ immediate effects that repair a temporary violation.
 | P0 | The selected task, for any Actor |
 | P1 | Ordinary Admin tasks |
 | P2 | Ordinary Player tasks |
-| P3 | LATER tasks |
-| P4 | FINALLY tasks |
+| P3 | LATER tasks, Admin before Player |
+| P4 | FINALLY tasks, Admin before Player |
 
 Selected work excludes competing tasks. If the selected task becomes System work needing no narrowing or has
 an explicit Admin assignment, Admin executes that same selected task. Separately created Admin
@@ -183,21 +184,28 @@ work waits for it to finish. A selected Player task takes precedence over ordina
 ### Admin's choices and retries
 
 Agent always runs Admin; Player policy and replay settings cannot disable it. Admin attempts
-ordinary tasks FIFO. After a success it starts a fresh pass, retrying earlier failures. A complete
-nonempty pass with no success throws, even if Player work could make a task executable. An unfixed
+eligible tasks FIFO at the earliest pending deferral. After a success it starts a fresh pass,
+retrying earlier failures. A complete nonempty pass with no success throws, even if Player work
+could make a task executable. An unfixed
 choice, false gate, or unavailable change does not authorize returning control to ordinary Player
 work. On a stalled pass, missing application input takes precedence, then incomplete analysis,
 then a retained rule failure. Escaping failure restores the whole Agent call.
 
 The raw engine's Player-priority check probes whether Admin can execute; it is not a replacement
 for Agent's mandatory loop. Clients use Agent for the complete processing and recovery behavior.
-Admin finishes when no ordinary Admin work remains or selected Player work takes priority.
-Deferred Admin work does not participate until promoted.
+Admin finishes when no eligible Admin work remains or selected Player work takes priority.
+Deferred Admin work participates only when no earlier work remains anywhere in the World.
 
-When ordinary work is empty, all existing LATER tasks promote together to ordinary Actor priorities.
-When ordinary and LATER work are empty, all FINALLY tasks promote together. Promotion happens at
-transaction completion; new deferred work waits for a later promotion. Solar Probe's deferred flip,
-for example, waits for its draw and other ordinary work.
+Pending tasks retain their `LATER` or `FINALLY` priority until selected. `LATER` is eligible only
+while no ordinary task remains; `FINALLY` is eligible only while neither ordinary nor `LATER`
+work remains. Selection makes that task ordinary and selected (P0); it does not promote siblings.
+If execution queues earlier work, that work delays the remaining deferred tasks. Newly admitted
+work at the same deferral shares its priority with existing work; there are no deferred batches.
+Eligible nested LATER/FINALLY dispatch instructions are performed at transaction completion.
+
+Solar Probe's deferred flip waits for its draw and other ordinary work.
+[Canon game flow](../../pets/docs/agents/GAME_FLOW.md#baton-action-offers-and-rotation) describes
+how Baton uses these priorities to complete turns.
 
 ### Task handoffs during an active Player's turn
 

@@ -139,8 +139,8 @@ CLASS NextPlayer<Previous@Owner, Next@Player> : System {
   ResearchPhase IF MultiplayerMode, StartToken<Previous@>: StartToken<Next@ FROM Previous@>*
 
   // Continue cyclically during the action phase; otherwise stop at the start player.
-  PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, InRound<Anyone>) OR (MAX 0 ActionPhase, MAX 0 StartToken<Next@>)): FINALLY { Baton<Next@ FROM Previous@> }
-  PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, MAX 0 InRound<Anyone>) OR (MAX 0 ActionPhase, StartToken<Next@>)): FINALLY { -Baton<Previous@> }
+  PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, InRound<Anyone>) OR (MAX 0 ActionPhase, MAX 0 StartToken<Next@>)): Baton<Next@ FROM Previous@>
+  PassBaton<Previous@> IF Baton<Previous@>, ((ActionPhase, MAX 0 InRound<Anyone>) OR (MAX 0 ActionPhase, StartToken<Next@>)): -Baton<Previous@>
 }
 
 "The current game phase; exactly one exists from bootstrap onward"
@@ -160,7 +160,6 @@ ABSTRACT CLASS Phase : System, Iconic {
       PlayCard<Me@Player, Class<CorporationCard>, Class<CardFront>, Hand>
     Baton<Me@Player> OR OfferAction<Me@Player> IF BeginnerCard<Hand>: \
       PlayCard<Me@Player, Class<BeginnerCard>, Class<CardFront>, Hand>
-    OfferAction IF MAX 0 CorporationCard<Hand>, MAX 0 BeginnerCard<Hand>: PassBaton
     CardFront<Class<CorporationCard>>: BuySelectedCards
     CardFront<Class<BeginnerCard>>: BuySelectedCards
   }
@@ -187,7 +186,7 @@ ABSTRACT CLASS Phase : System, Iconic {
   }
   CLASS FinalGreeneryPhase : TurnBasedPhase {
     Baton: OfferAction
-    OfferAction: UseAction<ConvertPlantsAction, Action1> OR PassBaton
+    OfferAction: UseAction<ConvertPlantsAction, Action1>?
     -Baton IF MAX 0 Baton: FINALLY { End FROM This }
   }
 
@@ -209,7 +208,8 @@ CLASS OfferAction : Owned<Player>, Signal, System
 "Held during a table turn; transferred to the next player or removed when the phase ends"
 CLASS Baton : Owned<Player>, System {
   HAS MAX 1 Baton
-  -ActionScope<Me@>: FINALLY { OfferAction }
+  This: FINALLY { MAX 0 ActionScope: PassBaton }
+  -ActionScope<Me@>: LATER { OfferAction }
 }
 
 "An accepted action and all of its consequences, including responses by other players"
@@ -236,17 +236,13 @@ CLASS InRound<ActionPhase> : RoundStatus, System {
   Baton OR (OfferAction IF MAX 0 Baton OR MAX 1 InRound<Anyone>) IF MAX 0 RequiredAction: UseAction<StandardAction> OR Pass
   Baton OR (OfferAction IF MAX 0 Baton OR MAX 1 InRound<Anyone>) IF RequiredAction: DoRequiredActions OR Pass
   OfferAction IF Baton, SecondAction: -SecondAction
-  OfferAction IF Baton, 2 InRound<Anyone>, MAX 0 SecondAction: PassBaton
-  -SecondAction IF Baton, MAX 0 RequiredAction: UseAction<StandardAction> OR PassBaton
-  -SecondAction IF Baton, RequiredAction: DoRequiredActions OR PassBaton
+  -SecondAction IF Baton, MAX 0 RequiredAction: UseAction<StandardAction>?
+  -SecondAction IF Baton, RequiredAction: DoRequiredActions?
 }
 
 "Instead of taking an action you can gain this, and be out for the rest of the generation"
 CLASS Pass<GenerationScope> : RoundStatus {
   This:: -InRound*
-
-  This IF ActionPhase, Baton, MAX 0 ActionScope<Me@>: FINALLY { PassBaton }
-  Baton OR OfferAction IF ActionPhase: PassBaton
 }
 
 "Tells what generation we're in"

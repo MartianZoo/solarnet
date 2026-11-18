@@ -97,32 +97,32 @@ internal class DeferredWorkTest {
   }
 
   @Test
-  internal fun `deferred work becomes ordinary together and stays unordered`() {
+  internal fun `pending deferred siblings wait for newly created ordinary work`() {
     p1.addTasks("Choice, LATER { First }, LATER { Cleanup }")
     p1.doTask("ChoiceA")
     p1.doTask("First")
 
-    // Cleanup was deferred alongside First, so it does not wait for First's reaction.
-    p1.doTask("Cleanup")
-    p1.count("Reaction") shouldBe 0
+    // First creates ordinary Reaction work, which now precedes the still-deferred Cleanup.
+    shouldThrow<TaskException> { p1.doTask("Cleanup") }
     p1.doTask("Reaction")
+    p1.doTask("Cleanup")
   }
 
   @Test
-  internal fun `work deferred while a batch runs waits for that batch`() {
+  internal fun `newly deferred work shares priority with existing deferred work`() {
     p1.addTasks("Choice, LATER { First }, LATER { Cleanup }")
     p1.doTask("ChoiceA")
     p1.doTask("First")
 
     shouldThrow<TaskException> { p1.doTask("Second") }
     p1.doTask("Reaction")
-    shouldThrow<TaskException> { p1.doTask("Second") }
-    p1.doTask("Cleanup")
+    // Second was queued later than Cleanup, but both are LATER work.
     p1.doTask("Second")
+    p1.doTask("Cleanup")
   }
 
   @Test
-  internal fun `a deferred instruction is evaluated when it becomes ordinary`() {
+  internal fun `a deferred instruction is evaluated when selected`() {
     p1.addTasks("Start, LATER { Done / Flag }")
     p1.doTask("Start")
     p1.doTask("ChoiceA")
@@ -132,7 +132,7 @@ internal class DeferredWorkTest {
   }
 
   @Test
-  internal fun `a deferred fanout enumerates when it becomes ordinary`() {
+  internal fun `a deferred fanout enumerates when selected`() {
     p1.addTasks("Start, LATER { EACH Flag<Anyone> { Done } }")
     p1.doTask("Start")
     p1.doTask("ChoiceA")
@@ -153,16 +153,15 @@ internal class DeferredWorkTest {
   }
 
   @Test
-  internal fun `a nested LATER defers its body again when it becomes ordinary`() {
+  internal fun `a nested LATER shares the existing deferred priority`() {
     p1.addTasks("Choice, LATER { LATER { Cleanup } }, LATER { First }")
     p1.doTask("ChoiceA")
 
-    // The inner LATER became ordinary alongside First, so Cleanup waits for First's work.
-    shouldThrow<TaskException> { p1.doTask("Cleanup") }
-    p1.doTask("First")
-    shouldThrow<TaskException> { p1.doTask("Cleanup") }
-    p1.doTask("Reaction")
+    // Nesting does not create another priority or preserve an earlier batch.
     p1.doTask("Cleanup")
+    p1.doTask("First")
+    p1.doTask("Reaction")
+    p1.doTask("Second")
   }
 
   @Test
@@ -188,7 +187,7 @@ internal class DeferredWorkTest {
 
     p2.doTask("ChoiceA")
 
-    // Nothing ordinary remains, so the FINALLY cleanup is promoted and Admin performs it itself.
+    // Nothing earlier remains, so Admin performs the eligible FINALLY cleanup itself.
     admin.count("WorkScope") shouldBe 0
     admin.count("Allocation") shouldBe 0
     shouldThrow<TaskException> { p2.doTask("Done") }
@@ -203,6 +202,18 @@ internal class DeferredWorkTest {
   }
 
   @Test
+  internal fun `pending final siblings wait for new LATER work`() {
+    p1.addTasks("FINALLY { First }, FINALLY { Cleanup }")
+    p1.doTask("First")
+
+    shouldThrow<TaskException> { p1.doTask("Cleanup") }
+    p1.doTask("Reaction")
+    shouldThrow<TaskException> { p1.doTask("Cleanup") }
+    p1.doTask("Second")
+    p1.doTask("Cleanup")
+  }
+
+  @Test
   internal fun `rollback restores deferral`() {
     p1.addTasks("Choice, LATER { Cleanup }")
     val beforeChoice = game.timeline.checkpoint()
@@ -213,6 +224,12 @@ internal class DeferredWorkTest {
 
     shouldThrow<TaskException> { p1.doTask("Cleanup") }
     p1.doTask("ChoiceB")
+    val beforeSelection = game.timeline.checkpoint()
+    val deferredTasks = game.tasks.extract { it }
+    p1.selectOnlyTask()
+    game.timeline.seek(beforeSelection)
+    game.timeline.truncate()
+    game.tasks.extract { it } shouldBe deferredTasks
     p1.doTask("Cleanup")
   }
 }

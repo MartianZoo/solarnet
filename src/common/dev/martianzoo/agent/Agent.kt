@@ -28,12 +28,12 @@ import kotlin.reflect.KClass
  *
  * A gameplay call may make several engine calls. Mandatory Admin handling runs before and after
  * Player decisions, including nested calls, while [autoExecPolicy] controls Player work. A selected
- * task retains priority. A nonempty pass through ordinary Admin work must succeed at a task;
+ * task retains priority. A nonempty pass through eligible Admin work must succeed at a task;
  * otherwise the submitted step throws and restores its game changes, even if Player work could
- * unblock it. Deferred Admin work is handled after promotion. Complete enumeration of legal Admin
- * choices is not implemented. Admin retries unfinished analysis after other work progresses; if a
- * pass stalls with an unfinished proof, [IncompleteAnalysisException] fails the submitted step and
- * restores its game changes.
+ * unblock it. Deferred Admin work participates once no earlier work remains. Complete enumeration
+ * of legal Admin choices is not implemented. Admin retries unfinished analysis after other work
+ * progresses; if a pass stalls with an unfinished proof, [IncompleteAnalysisException] fails the
+ * submitted step and restores its game changes.
  *
  * A returned [TaskResult] covers every retained change during that call, including Admin handling
  * and configured Player work. A [Throwable] escaping the call restores its game changes, including
@@ -145,14 +145,14 @@ public interface Agent {
   public fun selectTask(taskId: TaskId): TaskResult
 
   /**
-   * Selects this Actor's sole pending task that is not [deferred][Task.deferred], using
+   * Selects this Actor's sole pending task at the World's current task priority, using
    * [selectTask]'s evaluation and assignee transfer rules, without narrowing it. Throws
    * [TaskException] without changing the World if this Actor has no such task or more than one.
    */
   public fun selectOnlyTask(): TaskResult {
     val id =
-        tasks.matching { !it.deferred }.singleOrNull()
-            ?: throw TaskException("Expected exactly one pending task that is not deferred")
+        tasks.matching { it.deferral == tasks.earliestDeferral }.singleOrNull()
+            ?: throw TaskException("Expected exactly one pending task at the current priority")
     return selectTask(id)
   }
 
@@ -187,15 +187,16 @@ public interface Agent {
    * must be compatible with the task's quantifier.
    *
    * With no selected task, a concrete gain/removal (including an atomized group) can instead name
-   * the signed total of this Actor's current nondeferred gains/removals of exactly that Type. Agent
-   * considers fixed amounts and `/` calculations directly wrapping a change, ignores zero amounts,
-   * and requires at least two matches with a shared quantifier. An unspecified amount prevents
-   * combining; an explicit submitted quantifier must match. Agent uses all such matches, never
-   * searches subsets, and prefers their total even when an individual task has that amount. It
-   * executes each matched task separately by ID, gains before removals, preserving its effects and
-   * continuation. Newly caused tasks cannot join the total. Any failure rolls back this call. If
-   * the total does not match, ordinary task matching applies. Explicit task IDs bypass totals; the
-   * context-Class overload restricts the considered tasks to that Class.
+   * the signed total of this Actor's gains/removals at the currently eligible deferral of exactly
+   * that Type. Agent considers fixed amounts and `/` calculations directly wrapping a change,
+   * ignores zero amounts, and requires at least two matches with a shared quantifier. An
+   * unspecified amount prevents combining; an explicit submitted quantifier must match. Agent uses
+   * all such matches, never searches subsets, and prefers their total even when an individual task
+   * has that amount. It executes each matched task separately by ID, gains before removals,
+   * preserving its effects and continuation. Newly caused tasks cannot join the total. Any failure
+   * rolls back this call. If the total does not match, ordinary task matching applies. Explicit
+   * task IDs bypass totals; the context-Class overload restricts the considered tasks to that
+   * Class.
    *
    * A submitted zero count retains its Type constraint: `0 Foo` can match `Foo / metric` when the
    * metric evaluates to zero. An unrelated `Ok` alternative does not identify a matching task. A

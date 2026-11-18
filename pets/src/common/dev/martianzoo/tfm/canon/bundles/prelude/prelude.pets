@@ -17,6 +17,5 @@ CLASS SelectablePreludeCount : System
 CLASS PreludePhase : TurnBasedPhase {
   Baton<Me@Player> OR OfferAction<Me@Player> IF PreludeCard<Hand>: PlayPrelude<Me@Player>
   -PreludeCard<@Player> IF MAX 0 ActionScope:: ActionScope<@Player>
-  OfferAction IF MAX 0 PreludeCard<Hand>: PassBaton
   -Baton IF MAX 0 Baton: FINALLY { ActionPhase FROM This }
 }

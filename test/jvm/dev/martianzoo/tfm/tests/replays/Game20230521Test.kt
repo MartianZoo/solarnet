@@ -2366,13 +2366,13 @@ internal class Game20230521Test : FullGameTest() {
         "Plant",
         "4 MC",
     )
-    p1.doTask("PassBaton") // no more greenery
+    p1.doTask("Ok") // no more greenery
     p2.doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
     p2.doTasks(
         "GreeneryTile<Tharsis_8_8>",
         "2 MC",
     )
-    p2.doTask("PassBaton") // no more greenery
+    p2.doTask("Ok") // no more greenery
 
     p1.assertCounts(126 to "VictoryPoint", 1 to "Victory")
     p2.assertCounts(92 to "VictoryPoint", 0 to "Victory")

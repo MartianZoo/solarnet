@@ -134,7 +134,8 @@ internal class ActionScopeRemovalInvariantTest {
             playerEffects =
                 """
                 -ActionScope<This>: FINALLY { -Baton<This> }
-                -Baton<This>: UseAction<This, StandardAction> OR PassBaton<This>
+                -Baton<This>: UseAction<This, StandardAction>?
+                -ActionScope<This>: DoRequiredActions<This>?
                 -ActionScope<This>: FINALLY { \
                   SOON This { \
                     UseAction<This, StandardAction> OR DoRequiredActions<This> \
@@ -158,7 +159,7 @@ internal class ActionScopeRemovalInvariantTest {
         table(
             """
             CLASS NextPlayer<Previous@Player, Next@Player> {
-              PassBaton<Previous@>: FINALLY { Baton<Next@ FROM Previous@> }
+              PassBaton<Previous@>: Baton<Next@ FROM Previous@>
             }
             """
         )

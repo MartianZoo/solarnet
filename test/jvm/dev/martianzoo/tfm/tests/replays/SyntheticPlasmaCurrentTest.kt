@@ -1535,7 +1535,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
           "GreeneryTile<Tharsis_5_1>",
           "2 Plant",
       )
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
       assertCounts(0 to "ProjectCard")
 
       assertResources(m = 113, s = 12, t = 8, p = 2, e = 0, h = 11)

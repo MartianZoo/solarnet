@@ -231,33 +231,29 @@ See [Canon game flow](../../pets/docs/agents/GAME_FLOW.md#facts-in-components-fu
 
 ### Engine obligations
 
-**Transition note:** the dispatch/promotion mechanics below describe current behavior. The selected
-[separation of selection and execution](ENGINE_CONTRACT.md#selection-narrowing-and-execution)
-now retains groups and dispatches exposed by selection until execution. Admission and promotion
-still perform LATER/FINALLY dispatches as described below; NOW/SOON wait for execution. Deferred priority and continuation meaning remain
-unchanged.
+A pending task's deferral records which dispatch admitted it: `SOON`, `LATER`, or `FINALLY`.
+NOW gives selected ordinary work. Selection changes only the selected task to ordinary work;
+pending siblings retain their deferral. See the [scheduling contract](ENGINE_CONTRACT.md#which-task-acts-next).
 
-The language rules state what deferral means. A task's deferral records which dispatch admitted it:
-`SOON`, `LATER`, or `FINALLY`. NOW gives selected ordinary work. A selected task is always ordinary. Beyond those rules:
-
-- The engine performs LATER/FINALLY as soon as the work holding it is ordinary, as it releases a
-  `THEN` continuation: the body is admitted with that deferral. A deferred LATER/FINALLY dispatch
-  is performed when its containing work is promoted. NOW/SOON remain tasks until execution. Only promotion changes a task's deferral afterward; authored Pets
-  cannot defer or promote another task.
-- Deferral restricts selection only. It does not order Player tasks with the same deferral:
-  legal sibling orders stay available.
-- Promotion edits the task's deferral and is reproduced from the event history.
+- LATER/FINALLY schedule their bodies at ordinary admission. Deferred LATER/FINALLY dispatch
+  instructions run when eligible at transaction completion. NOW/SOON wait for execution, as do
+  dispatches exposed by selecting an existing task.
+- Only the earliest pending deferral is eligible anywhere in the World. New ordinary work delays
+  pending LATER tasks; new ordinary or LATER work delays pending FINALLY tasks.
+- Work at the same deferral shares priority regardless of when it was admitted. Admin has priority
+  within the eligible deferral; legal Player sibling orders remain available.
+- Becoming eligible does not edit pending tasks. Selection's change to ordinary priority is
+  recorded in the task history and restored with it. Authored Pets cannot reprioritize another task.
 
 Playing Solar Probe creates its effects as ordinary work and its flip as `LATER` work. Its own
 science tag therefore counts for every consequence of its effects, and it reaches the played-event
 pile before the game offers another turn.
 
-L2-18 promotes a whole batch at once. The alternative leaves deferral fixed and makes deferred work
-selectable only while no ordinary work exists. The two differ only when a promoted task creates
-ordinary work while others from its batch still wait: under L2-18 those others stay selectable
-beside the new work; under the alternative they wait for it. No Terraforming Mars case is known to
-distinguish them. Batch promotion is preferred because "a deferred batch becomes ordinary work" is
-the simpler statement.
+Baton now owns turn completion through a pending, gated FINALLY task. Scope removal admits the
+next offer at LATER priority. That new work must precede the still-pending completion, which is
+why promoting an entire deferred batch to ordinary work would be wrong here. No turn marker or
+additional scheduling tier is needed. The [Canon flow](../../pets/docs/agents/GAME_FLOW.md#baton-action-offers-and-rotation)
+owns the authored rules.
 
 Deferral is neither `THEN` nor a gate. `A THEN B` admits B when A's own task finishes, without
 waiting for A's reactions; deferred work waits for all ordinary work in the World. `Owed` and
@@ -266,17 +262,15 @@ initiated work incomplete.
 
 ### Why `FINALLY`
 
-A `LATER` nested in another defers its body again when it runs. That body then waits for the
-ordinary work pending at that moment, but not for work deferred by the same batch: if a trade
-completion deferred more work, that work and the inner body would become ordinary together. Making
-a nested `LATER` mean "later than later" would need a depth rule. `FINALLY` states the ordering
-directly: final work follows every consequence of the work before it, including work that `LATER`
-work defers. It exists for turn and phase handoffs.
+A `LATER` nested in another admits its body at the same LATER priority when the containing dispatch
+becomes eligible. It creates no additional delay relative to other LATER work. `FINALLY` states a
+different priority directly: final work follows all ordinary and LATER work, including further work
+those tasks defer. It exists for cleanup and turn and phase handoffs.
 
 ### Current Agent completion check
 
 `AgentImpl.requireComplete` currently accepts the work started by a call when no new task remains,
-or when World `FINALLY` work has begun since that call's last decision. The first final promotion
+or when World `FINALLY` work has begun since that call's last decision. The first final selection
 occurs after all preceding ordinary and `LATER` work, and the cleanup-component check uses that
 same point in the event log. Agents record each call's beginning and decisions.
 
@@ -298,10 +292,16 @@ cleanup choices, remain open; they add no engine completion requirement.
 
 ### Decisions and open questions
 
+- **Persistent priorities and Baton completion.** On 2026-11-17 the owner approved implementing
+  Baton-owned completion and updating the scheduling contract after reviewing the prototype.
+  Pending LATER/FINALLY tasks now keep their priority until selected, replacing whole-batch
+  promotion. Baton provides the concrete Canon reason: scope removal must admit a LATER next-action
+  offer ahead of the still-pending FINALLY completion. Selection makes only the selected task
+  ordinary; new earlier work delays its deferred siblings. No turn marker or scheduling tier was added.
 - **Dispatch is not a step.** On 2026-10-12 the owner ruled that a pure dispatch should never sit in
   a queue as current work; the engine performs it, as it releases a `THEN` continuation. This
   replaced the earlier rule that each dispatch was a task of its own. The October 29 review retains
-  that admission/promotion rule, while a dispatch exposed by selecting an existing task waits for
+  that admission and eligible-dispatch rule, while a dispatch exposed by selecting an existing task waits for
   that task's execution. Selecting an OR arm or opening a gate is not admission.
 - **`FINALLY` for game flow.** On 2026-10-11 the owner ruled out a band below `LATER`. On
   2026-10-12, once nested `LATER` proved to need either a depth rule or a lowest band, he chose
@@ -310,7 +310,8 @@ cleanup choices, remain open; they add no engine completion requirement.
 - **Present components answer.** On 2026-10-13 the owner asked that active behavior come from
   components that are present rather than from conditions: an effect that relies on a player not
   having passed belongs on `InRound`, so its presence says so. The baton itself does not decide
-  which action to offer: `InRound` or the phase answers, while `Pass` releases it.
+  which action to offer: `InRound` or the phase answers. Baton now owns completion; `Pass` removes
+  `InRound` so it stops offering actions.
 - **Game flow.** On 2026-10-12 the owner ruled that the Pets model must never be shaped by turning
   the flow on or off, that tests be either clear sandbox or clear gameplay scenarios, and that
   modules contribute phase order without a central orchestrator. He proposed `NoPreludes` so that
@@ -323,7 +324,7 @@ cleanup choices, remain open; they add no engine completion requirement.
 
 ### Evidence
 
-- `DeferredWorkTest`: selection, promotion batches, every Actor's work, late evaluation of metrics
+- `DeferredWorkTest`: selection, persistent priorities, every Actor's work, late evaluation of metrics
   and fanouts, groups, nesting, and final work.
 - `Lang02InstructionsTest`: L2-18 and L2-19 syntax; `TaskDispatchTest`: dispatch recipients.
 - `SolarProbeTest`, `TradeEnvoysTest`, `L1TradeTerminalTest`, `SolarPhaseOrderingTest`,
@@ -345,6 +346,6 @@ cleanup choices, remain open; they add no engine completion requirement.
 - [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) and
   [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): transactions and automatic task handling.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt): admission and
-  promotion of deferred work.
+  dispatch of eligible deferred instructions.
 - `TaskDispatchTest`, `PhilaresTest`, `DeferredWorkTest`, and the Neptunian cases in
   `FloodingTest`: payment and task ordering.

@@ -397,7 +397,8 @@ for explicit choices, or `completeOperation { ... }` when the whole operation mu
 returning. Do not use `inTurn`: it can create an out-of-turn offer when the actor has no pending
 work. Use `player.turn { ... }` for complete action-phase turns. It declines an unused second
 action only while opponents remain. Setup, final greenery, and generation passes stay outside it.
-Keep explicit `PassBaton` submissions in focused tests whose subject is the handoff itself.
+Focused handoff tests decline the optional offer with `doTask("Ok")` and assert the resulting turn
+holder. Players never submit `PassBaton`; Baton owns completion.
 
 `TfmGameplayTest` exercises authentic game flow. The fixture owns its `World` and `Agents`
 directly and exposes Admin and all players as plain Agents.
@@ -960,8 +961,9 @@ follower. Avoid repeating those expectations as later absolute assertions, while
 source-backed resource checkpoints and final board/scoring checks.
 
 The turn wrapper checks that the actor holds the turn and that each action finishes, including
-other players' responses. It submits `PassBaton` only when the actor still holds the turn and
-opponents remain. It creates no offers and does not roll back previously submitted work on failure.
+other players' responses. It declines the optional second action with `Ok` only when the actor still
+holds the turn and opponents remain. It creates no offers and does not roll back previously submitted
+work on failure.
 Keep ordinary `doTask("Pass")` submissions outside the block. Red Appeasement's required Pass
 belongs inside because it completes that card action; the wrapper then needs no extra handoff.
 Keep each original task submission and its order, including cross-player responses.
@@ -1046,7 +1048,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   happened when the task calls for an independent reconstruction. Repository code and other tests
   may teach the Solarnet API only.
 - In multiplayer action phases, group each player's turn in `with(player) { ... }` and submit
-  `PassBaton` when the player declines their second action. Preserve sourced fast-mode choices,
+  `Ok` when the player declines their optional second action. Preserve sourced fast-mode choices,
   including explicit passes and declined second actions. Once every other player has passed, the
   remaining player's actions through `Pass` may share a scope block; the game keeps offering actions.
 - When an Event card's sibling tasks require explicit replay ordering, record only the gameplay

@@ -18,7 +18,7 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     shouldThrow<TaskException> { stan.doTask("Pass") }
     kim.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
     shouldThrow<TaskException> { kim.doTask("Pass") }
-    val handoff = kim.doTask("PassBaton")
+    val handoff = kim.doTask("Ok")
     handoff.expect("-Baton<Kim>, Baton<Stan>")
     val batonChanges =
         handoff.changes
@@ -33,11 +33,11 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
     admin.count("ActionPhase") shouldBe 1
     stan.doTask("Pass")
     rob.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
-    rob.doTask("PassBaton")
+    rob.doTask("Ok")
 
     // Declining the second action did not pass Kim; Stan is skipped on the next circuit.
     kim.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
-    kim.doTask("PassBaton")
+    kim.doTask("Ok")
     rob.doTask("Pass")
     val lastPlayerActions = game.events.nextOrdinal
 

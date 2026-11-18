@@ -301,7 +301,7 @@ internal class GameFlowTest : TfmGameplayTest(EAGER) {
     }
 
     p1.doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-    p1.selectTask("PassBaton")
+    p1.doTask("Ok")
     p2.doTask("Pass")
     p1.doTask("Pass")
 

@@ -48,8 +48,8 @@ import dev.martianzoo.state.Transaction
  *   former assignee; explicit `BY` retains its own continuation scope. Changes still needing
  *   narrowing remain for the current assignee to choose. Selected tasks cannot be replaced by
  *   independent siblings
- * * Once a completed transaction leaves no ordinary task, every task with the earliest remaining
- *   [Task.deferral] becomes ordinary at once
+ * * Pending work retains its [Task.deferral] until selected. Only the earliest remaining deferral
+ *   is eligible, so newly admitted earlier work delays pending deferred siblings
  * * NOW and SOON stay queued until executed. Unselected LATER and FINALLY retain their immediate
  *   scheduling behavior. A NOW recipient must execute even a LATER/FINALLY first step. NOW admits a
  *   selected child and SOON admits ordinary work.
@@ -82,11 +82,11 @@ internal class TaskQueues(
   }
 
   /**
-   * Adds [instruction]'s tasks without promoting deferred work, so that a whole group is admitted
-   * before promotion is considered. Unselected LATER and FINALLY schedule their bodies at
-   * admission; NOW and SOON remain tasks until execution. When [includeDispatchedTasks] is false,
-   * its resulting tasks are excluded from the return value so group execution does not consume
-   * later work.
+   * Adds [instruction]'s tasks without dispatching newly eligible deferred work, so that a whole
+   * group is admitted before deferred eligibility is considered. Unselected LATER and FINALLY
+   * schedule their bodies at ordinary admission; NOW and SOON remain tasks until execution. When
+   * [includeDispatchedTasks] is false, its resulting tasks are excluded from the return value so
+   * group execution does not consume later work.
    */
   private fun admit(
       instruction: InstructionGroup,
@@ -119,7 +119,7 @@ internal class TaskQueues(
       }
 
   /**
-   * Performs [dispatch], the instruction of ordinary [task]: its body becomes work for its
+   * Performs [dispatch], the eligible instruction of [task]: its body becomes work for its
    * recipient with its deferral (L2-17 to L2-19), and any continuation of [task] follows at once,
    * as it would after any finished task. Nothing about a dispatch is left to decide.
    */
@@ -137,37 +137,28 @@ internal class TaskQueues(
   }
 
   /**
-   * Makes the earliest remaining deferred work ordinary once no ordinary task remains: all `LATER`
-   * work, or when none remains, all `FINALLY` work ([rules L2-18 and
-   * L2-19](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#2-instructions)).
-   * Work deferred while that batch runs waits for the whole batch. A promoted dispatch is performed
-   * at once, before it is removed, so its body joins the batch's work. Promotion is an ordinary
-   * task edit, so recorded-event restoration also restores the previous deferral.
+   * Performs LATER/FINALLY dispatch instructions at the earliest pending deferral once no ordinary
+   * work remains. Their bodies retain the dispatch's priority; other pending tasks are not edited.
+   * Nesting LATER therefore admits more LATER work without creating another priority or batch.
    *
-   * [Transactions] calls this when a transaction completes successfully, so these edits belong to
-   * the transaction that made the work eligible. Individual queue edits no longer promote: a
-   * transaction that empties the queue only momentarily, before adding its own ordinary work, does
-   * not promote deferred work it has not finished competing with.
+   * [Transactions] calls this at successful transaction completion, so a temporarily empty queue
+   * inside a compound command cannot dispatch work before that command finishes. Dispatch events
+   * belong to the transaction that made them eligible. Selection, rather than eligibility, makes an
+   * individual deferred task ordinary.
    */
-  internal fun promoteDeferredWork() {
+  internal fun dispatchEligibleDeferredWork() {
     while (true) {
       val pending = gameWorld.tasks.extract { it }
       if (pending.isEmpty() || pending.any { !it.deferred }) return
       val earliest = pending.minOf { it.deferral }
-      val batch = pending.filter { it.deferral == earliest }
-      batch.forEach { editTask(it.copy(deferral = Deferral.SOON)) }
-      val dispatches =
-          batch
-              .map { gameWorld.tasks.getTaskData(it.id) }
-              .filter {
+      val dispatch =
+          pending.firstOrNull {
+            it.deferral == earliest &&
                 (it.instruction as? Instruction.Dispatch)?.deferral in
                     setOf(Deferral.LATER, Deferral.FINALLY)
-              }
-      if (dispatches.isEmpty()) return
-      for (task in dispatches) {
-        perform(task.instruction as Instruction.Dispatch, task)
-        gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
-      }
+          } ?: return
+      perform(dispatch.instruction as Instruction.Dispatch, dispatch)
+      gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, dispatch, transactionForEvent()))
     }
   }
 
@@ -190,7 +181,7 @@ internal class TaskQueues(
       assignChangeNeedingNoNarrowingToAdmin(normalizeTask(task, isAbstract))
 
   internal fun assigneeAfterContextualSelection(task: Task): Actor {
-    val selected = task.copy(selected = true)
+    val selected = task.copy(selected = true, deferral = Deferral.SOON)
     return normalizeForSelection(selected).assignee
   }
 

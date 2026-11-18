@@ -259,7 +259,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
           doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
         }
         .expect("0 MC, 0 Delegate")
-    stan.selectTask("PassBaton") // Decline the second action.
+    stan.doTask("Ok") // Decline the second action.
     kim.doTask("Pass")
     stan.doTask("Pass")
     autoExecutePlayers()
@@ -288,13 +288,13 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
           doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
         }
         .expect("0 MC, 0 Delegate")
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan
         .completeOperation {
           doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Kelvinists> FROM LobbyDelegate")
         }
         .expect("0 MC, 0 Delegate")
-    stan.selectTask("PassBaton") // Decline the second action.
+    stan.doTask("Ok") // Decline the second action.
     kim.doTask("Pass")
     stan.doTask("Pass")
     autoExecutePlayers()
@@ -327,7 +327,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
         firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy", "RedResistance"),
     )
     kim.doTasks(*playCardTasks("$Mine")).expect("PROD[Steel]")
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
     kim.doTask("Pass")
     autoExecutePlayers()
@@ -493,7 +493,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     stan.completeOperation {
       doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Reds>")
     }
-    stan.selectTask("PassBaton") // Decline the second action.
+    stan.doTask("Ok") // Decline the second action.
     kim.completeOperation {
       doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Greens>")
     }

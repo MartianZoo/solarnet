@@ -2220,12 +2220,12 @@ internal class OtbGame20261009Test : FullGameTest() {
     // The phone app advances its display to generation 12; Solarnet keeps the final played
     // generation.
     assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
-    p1.doTask("PassBaton") // only three plants; no final greenery
+    p1.doTask("Ok") // only three plants; no final greenery
     // "Do you replace, you don't." "I do actually." "You do." "Probably on two four."
     // The final photo shows Pink's last greenery here.
     p2.doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
     p2.doTasks("GreeneryTile<Vastitas_2_4>")
-    p2.doTask("PassBaton") // no more plants to convert
+    p2.doTask("Ok") // no more plants to convert
     // _local/replays/Game20261009/board-16-47-03.jpg; final Mars map.
     assertEquals(
         """

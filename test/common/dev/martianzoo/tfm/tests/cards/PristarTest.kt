@@ -59,7 +59,7 @@ internal class PristarTest : TfmGameplayTest(NONE) {
           "TerraformRating",
       )
     }
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
 
     kim.doTask("Pass")

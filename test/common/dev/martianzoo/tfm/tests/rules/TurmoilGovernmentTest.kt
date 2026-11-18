@@ -39,12 +39,12 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
       doTasks("UseAction<PaidLobbyAction, Action1>")
       doTask("PartyFollower<MarsFirst>")
     }
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.completeOperation {
       doTasks("UseAction<PaidLobbyAction, Action1>")
       doTask("PartyFollower<MarsFirst>")
     }
-    stan.selectTask("PassBaton") // Decline the second action.
+    stan.doTask("Ok") // Decline the second action.
     kim.doTask("Pass")
     stan.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -74,7 +74,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
         }
         .expect("0 MC, 0 Delegate")
 
-    stan.selectTask("PassBaton") // Decline the second action.
+    stan.doTask("Ok") // Decline the second action.
     kim.completeOperation {
           doTask("UseAction<LobbyAction, Action1>")
           doTask("PartyFollower<Unity> FROM LobbyDelegate")

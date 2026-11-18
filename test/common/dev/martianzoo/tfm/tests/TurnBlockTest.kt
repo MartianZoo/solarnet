@@ -58,7 +58,7 @@ internal class TurnBlockTest : TfmGameplayTest(NONE) {
         .message shouldContain "Finish"
     kim.assertCounts(1 to "Baton", 1 to "ActionScope")
     kim.doTasks("11 Pay<> FROM MC", "PROD[Energy]")
-    kim.doTask("PassBaton")
+    kim.doTask("Ok")
     stan.assertCounts(1 to "Baton")
   }
 
@@ -139,7 +139,7 @@ internal class TurnBlockTest : TfmGameplayTest(NONE) {
     kim.assertCounts(1 to "Baton", 1 to "ActionScope")
     stan.doTask("2 Plant")
     kim.doTask("2 ProjectCard")
-    kim.doTask("PassBaton")
+    kim.doTask("Ok")
     stan.assertCounts(1 to "Baton")
   }
 }

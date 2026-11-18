@@ -2827,8 +2827,8 @@ internal class OtbGame20261111Test : FullGameTest() {
     // (7:30:41 PM) Pink: "I have six plants."
     // Green: "I have less than that, so no greeneries to place."
     // Neither player has eight plants. There is no final Turmoil phase.
-    green.doTask("PassBaton")
-    pink.doTask("PassBaton")
+    green.doTask("Ok") // decline final greenery
+    pink.doTask("Ok") // decline final greenery
     // (7:30:53 PM) Green: "I think I won both awards."
     // Pink: "I think so. And I rejected Thermalist. Special tile points: I believe I get three."
     // Green: "No special tile points for me."

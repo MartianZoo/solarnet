@@ -51,6 +51,19 @@ internal class SelectOnlyTaskTest {
     player.tasks.isEmpty() shouldBe true
   }
 
+  @Test
+  internal fun `Selecting the sole eligible task respects deferred priorities`() {
+    val player = player()
+    player.addTasks("LATER { Coin? }, FINALLY { Marker }")
+    player.selectOnlyTask()
+    player.doTask("Ok")
+    player.selectOnlyTask()
+    player.doTask("Marker")
+    player.count("Coin") shouldBe 0
+    player.count("Marker") shouldBe 1
+    player.tasks.isEmpty() shouldBe true
+  }
+
   private fun player(): Agent =
       Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))[PLAYER1].also {
         it.autoExecPolicy = NONE

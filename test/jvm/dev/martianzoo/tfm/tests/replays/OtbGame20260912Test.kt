@@ -3353,8 +3353,8 @@ internal class OtbGame20260912Test : FullGameTest() {
     assertSidebar(gen = 9, temp = 8, oxygen = 14, oceans = 9, venus = 20)
     // Final greenery placement in start-player order. Blue and Green each have fewer than eight
     // plants; Yellow's photographed greenery is adjacent to Dawn City at 8-6.
-    blue.doTask("PassBaton")
-    green.doTask("PassBaton")
+    blue.doTask("Ok") // decline final greenery
+    green.doTask("Ok") // decline final greenery
 
     with(yellow) {
       doTasks(
@@ -3365,7 +3365,7 @@ internal class OtbGame20260912Test : FullGameTest() {
           "2 MC",
       )
     }
-    yellow.doTask("PassBaton")
+    yellow.doTask("Ok") // decline final greenery
 
     assertEquals(
         """

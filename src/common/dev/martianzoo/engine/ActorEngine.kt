@@ -11,6 +11,7 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
@@ -59,7 +60,7 @@ import dev.martianzoo.state.TaskResult
  * restore an enclosing batch of completed transactions. Kotlin side effects and observer callbacks
  * are not undone.
  *
- * Player selection is refused while an ordinary Admin task can complete under the existing
+ * Player selection is refused while an eligible Admin task can complete under the existing
  * selection probe. A selected task retains priority and can retain partial choices. Agent's
  * mandatory Admin loop throws after a complete unsuccessful pass; Player inference is limited.
  *
@@ -172,8 +173,9 @@ internal constructor(
    *
    * Refused while any task is selected: that task must finish before the queue changes around it.
    *
-   * Adding work does not execute its ordinary task bodies. Eligible deferred work is promoted at
-   * transaction completion. A failed transaction restores its additions.
+   * Adding work does not execute its ordinary task bodies. Eligible deferred dispatches are
+   * performed at transaction completion; pending task priorities are unchanged. A failed
+   * transaction restores its additions.
    */
   // TODO(ENGINE_CONTRACT): Review whether direct queue editing belongs in the public API.
   public fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
@@ -189,7 +191,7 @@ internal constructor(
    * Refused while a different task is selected. Dropping the selected task itself is permitted:
    * that is how a client abandons work it has started.
    *
-   * Current limitation: removing work may promote deferred tasks and perform their dispatches, and
+   * Current limitation: removing work may make deferred dispatches eligible and perform them, and
    * does not handle newly eligible Admin work by itself.
    */
   // TODO(ENGINE_CONTRACT): Review removing direct task deletion from the engine's public API.
@@ -245,7 +247,7 @@ internal constructor(
           allTasks.ids().firstOrNull {
             val task = allTasks.getTaskData(it)
             task.assignee == Actor.ADMIN &&
-                !task.deferred &&
+                task.deferral == allTasks.earliestDeferral &&
                 try {
                   canSelectTask(it, queueForAnyTask(it), requireConcrete = true)
                 } catch (e: IncompleteAnalysisException) {
@@ -324,9 +326,9 @@ internal constructor(
    * omitted quantifier when [quantifierOmitted] is true. Evaluates and stores the result without
    * executing component changes, leaving the task pending for its current assignee.
    *
-   * Rejects a competing selection, deferred work, an incompatible narrowing, or narrowing that
-   * belongs to a different Actor after selection. Groups and `EACH` retain their parent until
-   * execution. A failed transaction restores its changes.
+   * Rejects a competing selection, work deferred behind earlier tasks, an incompatible narrowing,
+   * or narrowing that belongs to a different Actor after selection. Groups and `EACH` retain their
+   * parent until execution. A failed transaction restores its changes.
    */
   public fun narrowTask(
       taskId: TaskId,
@@ -383,7 +385,7 @@ internal constructor(
       quantifierOmitted: Boolean,
   ) {
     val task = tasks.getTaskData(taskId)
-    if (task.deferred) {
+    if (task.deferral > allTasks.earliestDeferral) {
       throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
     }
     val effectiveNarrowing = prepareNarrowing(taskId, narrowing, quantifierOmitted)
@@ -485,10 +487,10 @@ internal constructor(
    * the receiving Actor's execution. That Actor performs the instruction in a later transaction,
    * which may fail independently of this selection.
    *
-   * Rejects deferred work, a different selected task, and Player selection while the existing probe
-   * finds an executable ordinary Admin task. If no Admin task is proven executable but an Admin
-   * proof remains unfinished, [IncompleteAnalysisException] propagates. A failed transaction
-   * restores its changes.
+   * Rejects work deferred behind earlier tasks, a different selected task, and Player selection
+   * while the existing probe finds an executable eligible Admin task. If no Admin task is proven
+   * executable but an Admin proof remains unfinished, [IncompleteAnalysisException] propagates. A
+   * failed transaction restores its changes.
    */
   public fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
@@ -555,7 +557,7 @@ internal constructor(
 
   private fun selectTask(task: Task): TaskId {
     requireNoOtherSelectedTask(task.id)
-    if (task.deferred) {
+    if (task.deferral > allTasks.earliestDeferral) {
       throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
     }
     val evaluated =
@@ -590,7 +592,12 @@ internal constructor(
   ) {
     var updated =
         taskQueues.normalizeForSelection(
-            original.copy(selected = true, instruction = evaluated, then = then)
+            original.copy(
+                selected = true,
+                instruction = evaluated,
+                then = then,
+                deferral = Deferral.SOON,
+            )
         )
     val instruction = updated.instruction
     if (!instruction.needsNarrowing(reader) && instruction is By) {
@@ -623,9 +630,9 @@ internal constructor(
    * Worlds. Optional changes also try zero and every positive count up to the requested amount.
    * Repeated concrete requests across alternatives count once. Multiple successful choices throw
    * [NotFullySpecifiedException]; an unfinished trial throws [IncompleteAnalysisException]. Trials
-   * include immediate effects and task admission/promotion, but do not execute subsequently queued
-   * work. A failed transaction restores its changes; for example, rejecting removal of an
-   * opponent's protected plant leaves that plant intact.
+   * include immediate effects and task admission and eligible deferred dispatch, but do not execute
+   * subsequently queued work. A failed transaction restores its changes; for example, rejecting
+   * removal of an opponent's protected plant leaves that plant intact.
    */
   public fun doTask(taskId: TaskId) {
     transactions.perform(actor, CLIENT_REQUEST) { doTask(tasks, taskId) }

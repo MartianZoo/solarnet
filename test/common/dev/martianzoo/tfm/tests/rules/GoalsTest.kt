@@ -217,7 +217,7 @@ internal class GoalsTest : TfmSandboxTest() {
         doTask("OceanTile<Tharsis_1_2>")
         autoExecNow(EAGER)
       }
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }

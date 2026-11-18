@@ -120,7 +120,7 @@ wrong. Verify phase transitions before adding resources to compensate.
 
 Check whether the archived game used fast mode. In fast-mode multiplayer games, a player must take two
 actions on every turn unless passing. Group each player's turn in `with(player) { ... }` and
-submit `doTask("PassBaton")` only when the player declines their second action. The scope itself
+submit `doTask("Ok")` only when the player declines their second action. The scope itself
 performs no gameplay. Once every other player has passed, the remaining player's actions through
 `doTask("Pass")` may share a scope block. Group both of a player's Preludes in the same scope.
 
@@ -129,7 +129,7 @@ order. After taking one action, a player can combine three declarations in one r
 second action, end the current turn, and commit to passing when their next turn arrives. Herokuapp logs
 the pass immediately to save a later client/server round trip. When such a line follows a player's
 first action, determine whether it is this early declaration before translating it. In Solarnet, let
-the player decline their second action with `doTask("PassBaton")`, then submit `doTask("Pass")`
+the player decline their second action with `doTask("Ok")`, then submit `doTask("Pass")`
 only when that player's next turn is actually selected; the executable pass-call order can therefore differ from the source log order. Preserve the
 verbatim log lines in their source order near the relevant scope, but do not treat every logged
 pass as a gameplay event at that point.
@@ -266,7 +266,7 @@ explicit in the canon data and cover every opponent in a focused multiplayer reg
 
 Confirm that every player has actually passed and that final production completed before translating
 final greenery. Preserve final-generation player order. After each player's last greenery, explicitly
-decline the remaining final-greenery choice with `doTask("PassBaton")` before advancing to the
+decline the remaining final-greenery choice with `doTask("Ok")` before advancing to the
 next player. Do not try
 to predict whether bonuses could enable another greenery; the game asks the player to decline.
 

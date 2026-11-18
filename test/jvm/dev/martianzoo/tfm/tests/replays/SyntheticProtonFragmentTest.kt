@@ -1803,7 +1803,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "2 MC",
       )
       // Decline another final greenery placement for Green.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
 
     with(purple) {
@@ -1814,7 +1814,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "Plant",
       )
       // Decline another final greenery placement for Purple.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
 
     with(pink) {
@@ -1824,7 +1824,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "GreeneryTile<Hellas_7_8>",
       )
       // Decline another final greenery placement for Pink.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
     purple.assertCounts(0 to "ProjectCard")
     pink.assertCounts(0 to "ProjectCard")

@@ -62,7 +62,7 @@ the remaining audit items listed there are **not yet discussed or approved**.
   itself remains an import/export file. The user has not selected a design or asked for more inline
   probes yet.
 - Investigate selection and narrowing that leave execution explicitly pending, including concrete
-  System choices such as PassBaton. Today selecting an alternative can transfer it to Admin and
+  System choices such as UseAction. Today selecting an alternative can transfer it to Admin and
   execute it before returning. The user selected separate engine work; this replay cleanup must
   not change the engine/Agent or TaskForm contract.
 - Inventory choices computed from state (starting player, free water area, affordable purchases)

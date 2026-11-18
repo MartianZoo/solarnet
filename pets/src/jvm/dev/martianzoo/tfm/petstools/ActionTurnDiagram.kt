@@ -381,7 +381,7 @@ internal object ActionTurnDiagram {
     appendLine("## Reading routes")
     appendLine()
     appendLine(
-        "Normal play starts at 1; follow the numbered destinations. Panel 6 schedules the next offer after an action finishes; panel 3 uses SecondAction to decide whether to offer another action or pass the baton. Passing enters panel 8. Panel 2 explains why a player carrying Pass immediately forwards the Baton. Panel 9 covers rotation, solo play, and the final release into production."
+        "Normal play starts at 1; follow the numbered destinations. Panel 2 schedules Baton's gated FINALLY completion. Panel 6 schedules the next offer at LATER priority after an action finishes; panel 3 uses SecondAction to offer an optional second action. Declining that offer with Ok, or receiving no offer, lets the pending completion run. Passing enters panel 8 and removes InRound, preventing further offers. Panel 9 covers rotation, solo play, and the final release into production."
     )
     appendLine()
     appendLine("## Scope of this view")

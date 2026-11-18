@@ -115,7 +115,7 @@ internal class AgentImpl(
           tasks
               .extract { it }
               .singleOrNull {
-                !it.deferred &&
+                it.deferral == allTasks.earliestDeferral &&
                     it.instruction is Each &&
                     (selected == null || it.id == selected) &&
                     (taskId == null || it.id == taskId) &&
@@ -235,7 +235,8 @@ internal class AgentImpl(
       autoExecLoop.runAdmin()
       // Initial routing may assign the task to another Actor before task handling begins, and a
       // dispatch admits work that may wait.
-      if (taskId !in tasks || tasks.getTaskData(taskId).deferred) return@forEach
+      if (taskId !in tasks || tasks.getTaskData(taskId).deferral > allTasks.earliestDeferral)
+          return@forEach
       try {
         engine.doTask(taskId)
       } catch (_: NotFullySpecifiedException) {
@@ -438,7 +439,7 @@ internal class AgentImpl(
             .extract { it }
             .mapNotNull { task ->
               if (
-                  task.deferred ||
+                  task.deferral > allTasks.earliestDeferral ||
                       (contextClass != null && task.cause?.context?.className != contextClass)
               ) {
                 return@mapNotNull null
@@ -579,8 +580,8 @@ internal class AgentImpl(
 
   /**
    * Checks pending work after this Agent call. Once `FINALLY` work begins, later tasks belong to
-   * subsequent work; cleanup is checked at the first such promotion, not at the current World
-   * state. Whether that promotion is always the right completion point remains open.
+   * subsequent work; cleanup is checked at the first such selection, not at the current World
+   * state. Whether that selection is always the right completion point remains open.
    */
   private fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) {
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }

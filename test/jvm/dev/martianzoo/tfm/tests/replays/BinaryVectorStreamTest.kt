@@ -1338,7 +1338,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
         "GreeneryTile<Amazonis_02_04>",
         "0 MC",
     )
-    p1.doTask("PassBaton")
+    p1.doTask("Ok") // decline final greenery
     // Database save 220 and player-record evidence for the 160-point solo win.
     p1.cardsHand shouldBe emptySet()
     assertCardTrackingComplete()

@@ -20,7 +20,7 @@ internal class SupercapacitorsTest : TfmGameplayTest(NONE) {
         "$Supercapacitors FROM ProjectCard",
         "PROD[MC]",
     )
-    kim.doTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
     kim.doTask("Pass")
     kim.doTasks("22 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")

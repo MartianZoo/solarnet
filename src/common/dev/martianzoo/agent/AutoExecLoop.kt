@@ -49,7 +49,7 @@ internal class AutoExecLoop(
   private fun actOnce(): Boolean {
     if (allTasks.isEmpty()) return false
     val selected = allTasks.selectedTask()
-    val pending = selected?.let(::listOf) ?: allTasks.ids().filterNot(::isDeferred)
+    val pending = selected?.let(::listOf) ?: allTasks.ids().filterNot(::waitsForEarlierWork)
 
     // Selection probes execute in disposable copies. Probe only when automatic work is possible.
     if (pending.none { policy(it) != NONE }) return false
@@ -72,7 +72,7 @@ internal class AutoExecLoop(
       0 -> {
         val taskId =
             allTasks.ids().firstOrNull { taskId ->
-              !isAdmin(taskId) && policy(taskId) != NONE && !isDeferred(taskId)
+              !isAdmin(taskId) && policy(taskId) != NONE && !waitsForEarlierWork(taskId)
             } ?: return false
         if (selected != null || candidates.isNotEmpty()) return false
         val engine = engineFor(taskId)
@@ -184,7 +184,7 @@ internal class AutoExecLoop(
       if (selected != null && !isAdmin(selected)) return
       val pending =
           (selected?.let(::listOf) ?: allTasks.ids().toList()).filter {
-            isAdmin(it) && !isDeferred(it)
+            isAdmin(it) && !waitsForEarlierWork(it)
           }
       waiting.retainAll(pending.toSet())
       waiting.addAll(pending.filterNot { it in waiting })
@@ -236,7 +236,8 @@ internal class AutoExecLoop(
 
   private fun canSelectTask(taskId: TaskId): Boolean = engineFor(taskId).canSelectTask(taskId)
 
-  private fun isDeferred(taskId: TaskId): Boolean = allTasks.getTaskData(taskId).deferred
+  private fun waitsForEarlierWork(taskId: TaskId): Boolean =
+      allTasks.getTaskData(taskId).deferral > allTasks.earliestDeferral
 
   private fun <T> command(taskId: TaskId, kind: Kind, block: () -> T): T {
     val task = allTasks.getTaskData(taskId)

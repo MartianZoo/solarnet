@@ -20,7 +20,7 @@ import dev.martianzoo.state.Transaction
 internal class Transactions(
     private val gameWorld: GameWorld,
     private val restore: (Int) -> Unit,
-    private val promoteDeferredWork: () -> Unit,
+    private val dispatchEligibleDeferredWork: () -> Unit,
 ) {
   private var open: Transaction? = null
   private var depth = 0
@@ -53,17 +53,17 @@ internal class Transactions(
    * Records [block]'s events as one transaction attributed to [actor]. A nested call joins the
    * transaction already open instead of starting its own, and initialization opens none at all.
    *
-   * Deferred work is promoted once this transaction is complete, so its task edits belong to the
-   * transaction that made the work eligible rather than to a moment when the queue happened to be
-   * empty. A [Throwable] restores the transaction's events and leaves its serial available for
-   * reuse. Nested calls join the outer transaction and share its restoration scope.
+   * Newly eligible deferred dispatches run once this transaction is complete, so their events
+   * belong to the transaction that made the work eligible rather than to a moment when the queue
+   * happened to be empty. A [Throwable] restores the transaction's events and leaves its serial
+   * available for reuse. Nested calls join the outer transaction and share its restoration scope.
    */
   internal fun <T> perform(actor: Actor, motivation: Motivation, block: () -> T): T {
     if (depth == 0 && !initializing) open = Transaction(nextSerial(), actor, motivation)
     val start = gameWorld.events.nextOrdinal
     depth++
     return try {
-      block().also { if (depth == 1) promoteDeferredWork() }
+      block().also { if (depth == 1) dispatchEligibleDeferredWork() }
     } catch (e: Throwable) {
       if (depth == 1 && gameWorld.events.nextOrdinal > start) restore(start)
       throw e

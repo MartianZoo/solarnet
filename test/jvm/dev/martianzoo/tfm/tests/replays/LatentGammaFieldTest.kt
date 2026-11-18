@@ -1564,7 +1564,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "GreeneryTile<Vastitas_7_9>",
         "0 MC",
     )
-    doTask("PassBaton")
+    doTask("Ok") // decline final greenery
     // Player-record evidence: globalsPerGeneration.
     assertSidebar(gen = 12, temp = 8, oxygen = 14, oceans = 9, venus = 30)
   }

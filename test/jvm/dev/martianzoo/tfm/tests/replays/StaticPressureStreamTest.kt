@@ -2105,7 +2105,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "7 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_7_6>",
       )
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
 
     with(vin) {
@@ -2115,7 +2115,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "GreeneryTile<Tharsis_7_9>",
           "4 MC",
       )
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
 
     assertCardTrackingComplete()

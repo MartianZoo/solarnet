@@ -867,7 +867,7 @@ internal class SoloGame20230721Test : FullGameTest() {
           "2 Steel",
       )
       // Decline another final greenery placement.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
 
       assertProduction(m = 8, s = 0, t = 0, p = 5, e = 7, h = 10)
       assertResources(m = 82, s = 5, t = 0, p = 1, e = 7, h = 13)
