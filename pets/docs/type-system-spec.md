@@ -1037,6 +1037,11 @@ Thus `Class<@BuildingTag>(HAS @BuildingTag)` narrows `Class<@Tag>(HAS @Tag)`: th
 narrower, and both predicates test the same candidate class. This is the same-predicate case
 of T8-1 and T8-8, not inference between different predicates.
 
+Specialization preserves the reference's dependency bounds. If those bounds cannot meet the
+selected class's declared bounds, narrowing fails and a meet requiring that specialization is
+absent (T7-1). For example, if `FixedTag : Tag<Player1>`, it cannot satisfy the marked reference
+in `Class<@Tag>(HAS @Tag<Player2>)`.
+
 Within a class-literal refinement, an expression that cannot accept the class-literal candidate as
 a dependency is left unchanged after explicit represented-class substitution. It is still evaluated as part
 of the requirement; unlike an ordinary component refinement (T8-3), the unmatched binding does not

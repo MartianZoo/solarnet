@@ -171,6 +171,172 @@ internal class Spec05TypesTest {
   // T5-6 Round-tripping
 
   @Test
+  internal fun `T5-6 represented-class predicates survive text after narrowing the class`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
+            "ABSTRACT CLASS Tag : Owned { CLASS BuildingTag\nCLASS SpaceTag }",
+        )
+    val refined = table.resolve(te("Class<@Tag>(HAS @Tag<Player1>, HAS Tag<Player2>)"))
+    val building = table.resolve(te("Class<BuildingTag>"))
+    val intersection = table.glb(refined, building)!!
+
+    for (expression in listOf(intersection.expression, intersection.expressionFull)) {
+      table.resolve(expression) shouldBe intersection
+      val reparsed = table.resolve(te(expression.toString()))
+      reparsed shouldBe intersection
+      val world = RecordingWorld()
+      building.narrows(reparsed, world) shouldBe true
+      world.questions shouldBe listOf("BuildingTag<Player1>", "Tag<Player2>")
+    }
+  }
+
+  @Test
+  internal fun `T5-6 represented-class predicates retain dependencies fixed by the selected class`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
+            "ABSTRACT CLASS Tag : Owned { CLASS FixedTag : Tag<Player1> }",
+        )
+    val refined = table.resolve(te("Class<@Tag>(HAS @Tag<Player1>, HAS Tag<Player2>)"))
+    val fixed = table.resolve(te("Class<FixedTag>"))
+    val intersection = table.glb(refined, fixed)!!
+
+    for (expression in listOf(intersection.expression, intersection.expressionFull)) {
+      val reparsed = table.resolve(te(expression.toString()))
+      reparsed shouldBe intersection
+      val world = RecordingWorld()
+      fixed.narrows(reparsed, world) shouldBe true
+      world.questions shouldBe listOf("FixedTag", "Tag<Player2>")
+    }
+  }
+
+  @Test
+  internal fun `T5-6 a represented class used as a literal operand remains a bare name`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Card : Owned { CLASS Project }",
+            "CLASS Staged<Class<Card>>",
+        )
+    val refined = table.resolve(te("Class<@Card>(HAS Staged<Class<@Card>>)"))
+    val project = table.resolve(te("Class<Project>"))
+    val intersection = table.glb(refined, project)!!
+
+    for (expression in listOf(intersection.expression, intersection.expressionFull)) {
+      val reparsed = table.resolve(te(expression.toString()))
+      reparsed shouldBe intersection
+      val world = RecordingWorld()
+      project.narrows(reparsed, world) shouldBe true
+      world.questions shouldBe listOf("Staged<Class<Project>>")
+    }
+  }
+
+  @Test
+  internal fun `T5-6 nested class-literal bindings remain distinct after rendering`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
+            "ABSTRACT CLASS Tag : Owned { CLASS BuildingTag\nCLASS SpaceTag }",
+        )
+    val refined =
+        table.resolve(
+            te(
+                "Class<Outer@Tag>(HAS Outer@Tag<Player1>, HAS Class<Candidate@BuildingTag>(HAS Candidate@BuildingTag<Player2>, HAS Outer@Tag<Player1>))"
+            )
+        )
+    val building = table.resolve(te("Class<BuildingTag>"))
+    val intersection = table.glb(refined, building)!!
+    for (expression in listOf(intersection.expression, intersection.expressionFull)) {
+      val reparsed = table.resolve(te(expression.toString()))
+      reparsed shouldBe intersection
+      val world = RecordingWorld()
+      building.narrows(reparsed, world) shouldBe true
+      world.questions shouldBe
+          listOf(
+              "BuildingTag<Player1>",
+              "Class<Candidate@BuildingTag>(HAS Candidate@BuildingTag<Player2>, HAS BuildingTag<Player1>)",
+          )
+    }
+  }
+
+  @Test
+  internal fun `T5-6 a candidate reference inside an ordinary refinement survives rendering`() {
+    val table = loadTypes("ABSTRACT CLASS Tag : Owned { CLASS BuildingTag }")
+    val refined = table.resolve(te("Class<@Tag>(HAS Owner(HAS @Tag))"))
+    val building = table.resolve(te("Class<BuildingTag>"))
+    val intersection = table.glb(refined, building)!!
+
+    for (expression in listOf(intersection.expression, intersection.expressionFull)) {
+      val reparsed = table.resolve(te(expression.toString()))
+      reparsed shouldBe intersection
+      val world = RecordingWorld()
+      building.narrows(reparsed, world) shouldBe true
+      world.questions shouldBe listOf("Owner(HAS BuildingTag<Owner>)")
+    }
+  }
+
+  @Test
+  internal fun `T5-6 nested literals with different bounds keep their own candidate references`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
+            "ABSTRACT CLASS Tag : Owned { CLASS BuildingTag\nCLASS SpaceTag }",
+        )
+    val refined =
+        table.resolve(
+            te(
+                "Class<Outer@Tag>(HAS Class<Inner@SpaceTag>(HAS Inner@SpaceTag<Player2>, HAS Outer@Tag<Player1>))"
+            )
+        )
+    val building = table.resolve(te("Class<BuildingTag>"))
+    val intersection = table.glb(refined, building)!!
+    intersection shouldBe
+        table.resolve(
+            te(
+                "Class<Outer@BuildingTag>(HAS Class<Inner@SpaceTag>(HAS Inner@SpaceTag<Player2>, HAS Outer@BuildingTag<Player1>))"
+            )
+        )
+
+    for (expression in listOf(intersection.expression, intersection.expressionFull)) {
+      val reparsed = table.resolve(te(expression.toString()))
+      reparsed shouldBe intersection
+      val world = RecordingWorld()
+      building.narrows(reparsed, world) shouldBe true
+      world.questions shouldBe
+          listOf(
+              "Class<Candidate@SpaceTag>(HAS Candidate@SpaceTag<Player2>, HAS BuildingTag<Player1>)"
+          )
+    }
+  }
+
+  @Test
+  internal fun `T5-6 an unmarked nested literal does not adopt the outer candidate reference`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Tag : Owned { CLASS BuildingTag\nCLASS SpaceTag }",
+        )
+    val refined =
+        table.resolve(
+            te("Class<Outer@BuildingTag>(HAS Class<SpaceTag>(HAS Outer@BuildingTag<Player1>))")
+        )
+    val building = table.resolve(te("Class<BuildingTag>"))
+
+    for (expression in listOf(refined.expression, refined.expressionFull)) {
+      val reparsed = table.resolve(te(expression.toString()))
+      reparsed shouldBe refined
+      val world = RecordingWorld()
+      building.narrows(reparsed, world) shouldBe true
+      world.questions shouldBe listOf("Class<SpaceTag>(HAS BuildingTag<Player1>)")
+    }
+  }
+
+  @Test
   internal fun `T5-6 both forms resolve back to the same type`() {
     listOf(
             "GreeneryTile",

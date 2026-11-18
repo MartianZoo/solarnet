@@ -593,7 +593,8 @@ internal constructor(
               "`${className.of(dependencies.expressionsFull())}`"
       )
 
-  private fun normalizeVariableEqualities(original: DependencySet): DependencySet {
+  /** Propagates shared-variable bounds, or returns null when they have no common narrowing. */
+  internal fun normalizeVariableEqualities(original: DependencySet): DependencySet? {
     val classTable =
         original.classTable?.let {
           requireNotNull(loader.commonTable(it)) {
@@ -609,15 +610,15 @@ internal constructor(
         val intersectionByPath =
             if (occurrences.map(Dependency::key).distinct().size == 1) {
               val intersection = occurrences.reduce { left, right ->
-                classTable.glb(left, right) ?: equalityError(equality, dependencies)
+                classTable.glb(left, right) ?: return null
               }
               equality.paths.associateWith { intersection }
             } else {
               val typed = occurrences.filterIsInstance<TypeDependency>()
-              if (typed.size != occurrences.size) equalityError(equality, dependencies)
+              if (typed.size != occurrences.size) return null
               val bound =
                   typed.map(TypeDependency::boundType).reduce { left, right ->
-                    classTable.glb(left, right) ?: equalityError(equality, dependencies)
+                    classTable.glb(left, right) ?: return null
                   }
               equality.paths.associateWith { path ->
                 (dependencies.at(path) as TypeDependency).map { bound }
@@ -1065,7 +1066,13 @@ internal constructor(
         requireNotNull(classTable.glb(dependencies, projected)) {
           "`$deps` does not satisfy the declared dependency bounds of `$className`"
         }
-    return GroundType(this, normalizeVariableEqualities(bounded))
+    return GroundType(
+        this,
+        normalizeVariableEqualities(bounded)
+            ?: throw ExpressionException(
+                "type-variable dependencies disagree in `${className.of(bounded.expressionsFull())}`"
+            ),
+    )
   }
 
   private val baseTypeLazy = lazy { withAllDependencies(dependencies) }

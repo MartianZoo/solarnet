@@ -1,5 +1,7 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -7,6 +9,51 @@ import kotlin.test.Test
 
 /** Section 11 of `docs/type-system-spec.md`: enumeration and automatic narrowing. */
 internal class Spec11EnumerationTest {
+
+  @Test
+  internal fun `T11-1 incompatible subclass equalities do not abort type queries`() {
+    for (sameFirst in listOf(false, true)) {
+      val subclasses =
+          listOf("CLASS Independent : Pair", "CLASS Same : Pair<@Area, @Area>").let {
+            if (sameFirst) it.reversed() else it
+          }
+      val table =
+          loadTypes(
+              "ABSTRACT CLASS Area { CLASS First\nCLASS Second }",
+              "ABSTRACT CLASS Pair<Area, Area>",
+              *subclasses.toTypedArray(),
+          )
+      val requested = table.resolve(te("Pair<First, Second>"))
+      val independent = table.resolve(te("Independent<First, Second>"))
+      val same = table.resolve(te("Same"))
+
+      table.allConcreteSubtypes(requested).toList() shouldBe listOf(independent)
+      table.allConcreteSubtypes(requested) { table.allConcreteSubtypes(it) }.toList() shouldBe
+          listOf(independent)
+      table.singleConcreteSubtype(requested, fullWorld) shouldBe independent
+      table.isInhabited(requested) shouldBe true
+      table.glb(requested, same) shouldBe null
+      table.glb(same, requested) shouldBe null
+      shouldThrow<ExpressionException> { table.resolve(te("Same<First, Second>")) }
+    }
+  }
+
+  @Test
+  internal fun `T11-1 a type incompatible with its only subclass has no candidates`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Area { CLASS First\nCLASS Second }",
+            "ABSTRACT CLASS Pair<Area, Area>",
+            "CLASS Same : Pair<@Area, @Area>",
+        )
+    val requested = table.resolve(te("Pair<First, Second>"))
+
+    table.allConcreteSubtypes(requested).toList() shouldBe emptyList()
+    table.singleConcreteSubtype(requested, fullWorld) shouldBe null
+    table.isInhabited(requested) shouldBe false
+    table.allConcreteSubtypes(table.resolve(te("Same"))).map { "$it" }.toList() shouldBe
+        listOf("Same<First>", "Same<Second>")
+  }
 
   private val mars =
       loadTypes(
