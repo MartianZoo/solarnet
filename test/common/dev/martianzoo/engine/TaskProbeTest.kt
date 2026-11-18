@@ -52,16 +52,16 @@ internal class TaskProbeTest {
   }
 
   @Test
-  internal fun selectionPropagatesFailureDuringDeferredPromotion() {
-    checkFailedPromotion { engine, task -> engine.canSelectTask(task) }
+  internal fun selectionPropagatesFailureDuringDeferredDispatch() {
+    checkFailedDeferredDispatch { engine, task -> engine.canSelectTask(task) }
   }
 
   @Test
-  internal fun executionPropagatesFailureDuringDeferredPromotion() {
-    checkFailedPromotion { engine, task -> engine.canExecuteTask(task) }
+  internal fun executionPropagatesFailureDuringDeferredDispatch() {
+    checkFailedDeferredDispatch { engine, task -> engine.canExecuteTask(task) }
   }
 
-  private fun checkFailedPromotion(probe: (ActorEngine, TaskId) -> Boolean) {
+  private fun checkFailedDeferredDispatch(probe: (ActorEngine, TaskId) -> Boolean) {
     val world = Engine.newGame(testGamePremise("CLASS Token", players = 2))
     val engine = world.actorEngine(ADMIN)
     val task =

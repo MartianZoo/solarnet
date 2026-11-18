@@ -134,7 +134,7 @@ public object Engine {
         Effector(elaborator, customClasses, overlaySource?.effector) { reader }
     private val transactions =
         Transactions(gameWorld, { timeline.rollBackStateTo(it) }) {
-          taskQueues.promoteDeferredWork()
+          taskQueues.dispatchEligibleDeferredWork()
         }
     private val taskQueues: TaskQueues =
         TaskQueues(gameWorld, transactions::forEvent) { timeline.requireAtEnd() }

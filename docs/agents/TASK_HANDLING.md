@@ -22,10 +22,10 @@ being evaluated and closed does not prove successful execution or action clearan
 | Admission and queue edits | Normalize syntax, split independent work, manage continuations, route concrete work, perform ordinary dispatches. | [newTasks](../../src/common/dev/martianzoo/engine/newTasks.kt), [TaskQueues](../../src/common/dev/martianzoo/engine/TaskQueues.kt) |
 | Matching, selection, narrowing | Identify the task, evaluate current-world questions, bind shared choices, record selection or assignee transfer, retain exposed groups; execution requires an execution command. | [ActorEngine](../../src/common/dev/martianzoo/engine/ActorEngine.kt), [Instructor](../../src/common/dev/martianzoo/engine/Instructor.kt) |
 | Execution and consequences | Change components, remove dependents, construct required parts, run immediate effects, collect queued effects, check invariants. | Instructor, [Changer](../../src/common/dev/martianzoo/engine/Changer.kt), [Effector](../../src/common/dev/martianzoo/engine/Effector.kt), [Limiter](../../src/common/dev/martianzoo/engine/Limiter.kt) |
-| Completion and subsequent work | Admit effects and continuation, remove the task, promote deferred work, let drivers handle eligible tasks. | ActorEngine, TaskQueues, [AutoExecLoop](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt), [WorldTransaction](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) |
+| Completion and subsequent work | Admit effects and continuation, remove the task, dispatch eligible deferred instructions, let drivers handle eligible tasks. | ActorEngine, TaskQueues, [AutoExecLoop](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt), [WorldTransaction](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) |
 
 The inventory follows every case in `normalizeForTask`, `normalizeTask`, `Instructor.evaluate`,
-and `doExecuteEvaluated`, plus the paths that create, edit, remove, dispatch, or promote tasks.
+and `doExecuteEvaluated`, plus the paths that create, edit, remove, or dispatch tasks.
 Initialization, corrections, probes, and history restoration are included separately because they
 do not all take the ordinary path. Static language lowering is owned by Pets; its runtime entry
 points are identified here rather than redefined as another engine processing stage.
@@ -41,13 +41,13 @@ required when an execution command is actually submitted.
 | Entry or condition | What currently happens without another execute call | Component changes? |
 | --- | --- | --- |
 | Task admission or replacement | Remove no-ops, reject direct mandatory `Die`, simplify alternatives, and separate eligible `THEN` continuations. | No; this can fail before a body executes. |
-| Ordinary pure dispatch admitted or exposed by an edit/promotion path that admits it | Enqueue its body for its recipient and admit its continuation; do not retain a separate ordinary dispatch task. | No. |
+| Ordinary pure dispatch admitted or exposed by an edit or deferred-eligibility path that admits it | Enqueue its body for its recipient and admit its continuation; do not retain a separate ordinary dispatch task. | No. |
 | `selectTask` or `narrowTask` | Evaluate and retain closed or open instructions; component changes wait for an execution command. Assignee transfer can still occur; structural expansion waits for execution. | No requested component execution; existing priority probes are reviewed separately below. |
 | Selection/narrowing evaluates to a retained zero or `Ok` instruction | Keep it selected until execution. Admission can eliminate no-ops structurally. | No. |
 | Selection/narrowing exposes a group other than `EACH`, including a gated group | Retain the group on the selected task. Execution admits independent children and the continuation, then removes the parent. | No. |
 | Selection/narrowing reaches `EACH` | Retain the parent, selected, without creating children. An explicit execution or applicable Actor policy admits all children and consumes the parent. | No component change from expanding the parent. |
 | Selection produces a `BY` or System assignee transfer after narrowing is complete | Change the assignee; the receiving Actor executes later. | No in this step. |
-| Any successful outer engine transaction, including queue edits | Promote eligible `LATER`/`FINALLY` batches and perform dispatches exposed by promotion. | No direct component changes; tasks can be created/removed. |
+| Any successful outer engine transaction, including queue edits | Perform eligible deferred LATER/FINALLY dispatch instructions; leave other pending priorities unchanged. | No direct component changes; tasks can be created/removed. |
 | `doTask` with an explicit group | Execute only the submitted members after executing their parent admits them; leave their reactions and continuations pending. | Yes, for the submitted members. |
 | Combined scalar totals | Engine has no total command. Agent expands an explicitly submitted total into individual engine calls. | Yes, only after an execution request. |
 | `canSelectTask` or `canExecuteTask` | Try work in a disposable World, including completion and deferred admission. | Only in the copy; source listeners are not notified. |
@@ -69,7 +69,7 @@ choice; it does not authorize execution. Agent policy can submit a separate exec
 
 Sources: ActorEngine `selectTask`, `narrowSelectedTask`, `applyEvaluation`,
 `selectionTransfersTask`, `requireNoOtherSelectedTask`, and `doTask`; TaskQueues `admit`, `perform`,
-`promoteDeferredWork`; Transactions `perform`; Initializer `drainBootstrapTasks`; AutoExecLoop.
+`dispatchEligibleDeferredWork`; Transactions `perform`; Initializer `drainBootstrapTasks`; AutoExecLoop.
 The sections below describe each path and the remaining direct execution and correction paths.
 
 ### Submitted groups on the experiment branch
@@ -232,9 +232,10 @@ does not keep the dispatch open. Recipient validation is evaluation of the dispa
   including a calculated amount, but retains the entire original instruction and continuation.
 - A recipient must identify a fixed, participating Actor. An abstract selector is not a recipient
   merely because it currently matches a single component.
-- LATER and FINALLY retain immediate scheduling when their containing task is ordinary, including
-  at promotion. NOW's selected recipient executes even a LATER/FINALLY first step. Their bodies
-  enter the corresponding deferred batch. An inner LATER can defer again.
+- LATER and FINALLY schedule immediately at ordinary admission, or when a deferred dispatch
+  instruction becomes eligible at transaction completion. NOW's selected recipient executes even
+  a LATER/FINALLY first step. The body retains its deferred priority until selected. A nested LATER
+  admits more LATER work at the same priority.
 - A TaskScope owner orders another Player's ordinary work through a NOW wrapper. The wrapper holds
   the original instruction, before its first step and continuation were separated. Already-authored
   dispatches retain their explicit recipients. Admin work keeps its automatic scheduling.
@@ -433,28 +434,33 @@ Sources: Instructor `executeChange`, `constructPartsAndFire`, `executeAutomaticE
 Changer `change`; Effector `fire`. Required-part eligibility is defined by
 [ClassLimitTable](../../pets/src/common/dev/martianzoo/pets/types/ClassLimitTable.kt).
 
-## 6. Finishing tasks and promoting deferred work
+## 6. Finishing tasks and deferred eligibility
 
 Normal completion admits `Task.then` before removing the old task. The continuation has the old
 task's current assignee and cause, is ordinary, and undergoes all admission rewrites, including
 dispatch and System routing. Queued reactions from execution have already been admitted.
 The continuation has no special priority over those reactions.
 
-At successful transaction completion, TaskQueues checks the whole World's pending work:
+Task selection checks the whole World's earliest pending deferral. Pending tasks retain their
+priority until selected. Selecting an eligible deferred task makes only that task ordinary and
+selected; it does not edit its siblings. Earlier work created by execution therefore delays the
+remaining deferred tasks.
+
+At successful transaction completion, `TaskQueues.dispatchEligibleDeferredWork` handles nested
+LATER/FINALLY dispatch instructions:
 
 - If any ordinary task remains, do nothing.
-- Otherwise take all tasks in the earliest remaining deferral together: `LATER` before
-  `FINALLY`. Record edits making that entire batch ordinary before performing its dispatches.
-- Perform promoted dispatches, admit their bodies/continuations, and remove their dispatcher
-  tasks. If no ordinary work remains afterward, repeat promotion.
-- Newly deferred work waits while any ordinary member or consequence of the current batch
-  remains. A batch belongs to the World, not a particular Player's queue.
+- Otherwise inspect the earliest pending deferral: LATER before FINALLY.
+- Perform a LATER/FINALLY dispatch instruction at that priority, admit its body and continuation,
+  and remove the dispatcher task. Recheck priorities before dispatching another instruction.
+- Leave all other pending tasks at their authored deferral. Newly admitted work at the same
+  deferral shares that priority without a batch barrier.
 
-Promotion belongs to the completed transaction that made it eligible. A temporarily empty queue
-inside a compound command does not promote deferred work before that command finishes.
+Dispatch events belong to the transaction that made the instruction eligible. A temporarily empty
+queue inside a compound command does not dispatch deferred work before that command finishes.
 
 Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
-`promoteDeferredWork`. A bare `dropTask` uses removal directly and does not admit its continuation.
+`dispatchEligibleDeferredWork`. A bare `dropTask` uses removal directly and does not admit its continuation.
 
 ## 7. Other entry paths and automatic conveniences
 
@@ -462,8 +468,8 @@ Sources: ActorEngine `handleTask`; TaskQueues `addTasks`, `removeTask`,
 | --- | --- |
 | `doTask` with an explicit group | Execute the supplied members after executing their parent; admission identifies normalized dispatches so their bodies and continuations remain pending too. Do not sweep newly queued reactions or continuations. |
 | Combined scalar totals | Agent only: a submitted total can consume matching current fixed gains/removals, including amounts calculated with `/`. Gains execute first, each through its own task ID. No subset search; newly queued effects do not join the total. Selected tasks and explicit IDs remain individual requests. See `Agent.doTask` for the full contract. |
-| `canSelectTask` | Trial selection, including execution if the instruction closes and stays with the original Actor, in a disposable World through transaction completion and deferred promotion. A selection needing narrowing or an assignee transfer can return true. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
-| `canExecuteTask` | Trial execution in a disposable World through transaction completion and deferred promotion; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
+| `canSelectTask` | Trial selection, including execution if the instruction closes and stays with the original Actor, in a disposable World through transaction completion and eligible deferred dispatch. A selection needing narrowing or an assignee transfer can return true. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
+| `canExecuteTask` | Trial execution in a disposable World through transaction completion and eligible deferred dispatch; true only if the original task disappears. Later queued tasks are not executed. Gameplay rejection and known missing choices become false; incomplete analysis and other failures propagate. |
 | Agent `tryTask` | Call engine `doTask` within an atomic block; restore when choices/unavailability prevent completion, or a selection remains as specified by the overload. Other failures restore and propagate. This includes unavailable outer `PER` evaluation. Incomplete analysis propagates distinctly from a known missing choice. No engine try-policy method remains. |
 | `exMachina` correction | Execute closed elementary changes, required parts, dependent removals, and immediate effects, suppressing ordinary `:` reactions. Retain work explicitly dispatched with `SOON` inside `::`. Check all invariants after the whole correction group, using a failure-restoring wrapper. No ordinary task handling. |
 | Initialization | Create the Admin seed directly, then admit configured work through ordinary Admin task commands. Retry dependency-blocked component creation; drain choice-free bootstrap tasks, retry incomplete analysis after other tasks progress, report unfinished proof if stalled (before known leftover choices), audit required counts, and establish the history floor. |
@@ -497,7 +503,7 @@ These explain behavior seen through agent calls; they are not additional engine 
   from ordinary nested calls. Results include all retained changes; an exception escaping subsequent
   Admin handling restores the initiating Player change too. The unused completion hook is removed.
 - AgentImpl's `requireComplete` does not execute tasks. It checks outstanding work and `MustCleanUp`,
-  with a current exception once `FINALLY` promotion has occurred since the last decision. That check
+  with a current exception once `FINALLY` selection has occurred since the last decision. That check
   can precede scope removal and is not the proposed action-completion definition.
 
 The engine does not search a Single-Action Decision Graph or prune choices by future completion.
@@ -528,7 +534,7 @@ identify concrete scenarios. The terminology migration's test evidence belongs i
 | Normalization and variable scopes | [TaskNormalizationTest](../../test/common/dev/martianzoo/engine/TaskNormalizationTest.kt): terminal rewrites, meaningful gated/no-op choices, edits preserving continuation scope. |
 | Dispatch and assignee transfer | [TaskDispatchTest](../../test/common/dev/martianzoo/engine/TaskDispatchTest.kt): explicit NOW/SOON transfer, recipient choice, and deferred dispatch; [TaskAssignmentCharacterizationTest](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt): System routing, choices requiring narrowing, `BY` Actor wrappers. |
 | Selection and quantities | [TaskEvaluationTest](../../test/common/dev/martianzoo/engine/TaskEvaluationTest.kt), [TaskNarrowingTest](../../test/common/dev/martianzoo/engine/TaskNarrowingTest.kt), [ZeroCountTaskTest](../../test/common/dev/martianzoo/engine/ZeroCountTaskTest.kt): current-world evaluation, chosen-target AMAP, typed zero. |
-| Deferred work | [DeferredWorkTest](../../test/common/dev/martianzoo/engine/DeferredWorkTest.kt): whole-World batches, nested deferrals, delayed metric/fanout evaluation, restoration. |
+| Deferred work | [DeferredWorkTest](../../test/common/dev/martianzoo/engine/DeferredWorkTest.kt): whole-World persistent priorities, nested deferrals, delayed metric/fanout evaluation, restoration. |
 | Effects and construction | [TriggerScalingTest](../../test/common/dev/martianzoo/engine/TriggerScalingTest.kt), [AutomaticEffectOrderTest](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt), [InvariantCompletionTest](../../test/common/dev/martianzoo/engine/InvariantCompletionTest.kt): multiplicity, shared trigger snapshots, required parts, immediate repairs, per-change checks. |
 | Computed gains | [PerAtomizationTest](../../test/common/dev/martianzoo/engine/PerAtomizationTest.kt), [EffectAtomizationTest](../../test/common/dev/martianzoo/engine/EffectAtomizationTest.kt): separate gains and choices. |
 | Call completion and rollback | [WorldTransactionTest](../../test/common/dev/martianzoo/engine/WorldTransactionTest.kt), [ActorEngineTransactionTest](../../test/common/dev/martianzoo/engine/ActorEngineTransactionTest.kt): restoring scopes; `AgentCallCharacterizationTest` covers whole-call recovery. |

@@ -2454,7 +2454,7 @@ internal class OtbGame20260825Test : FullGameTest() {
     }
     assertSidebar(gen = 10, temp = 8, oxygen = 14, oceans = 9, venus = 30)
     // "Do you get to plant a forest?" "I do not because you took me down to seven."
-    yellow.doTask("PassBaton")
+    yellow.doTask("Ok") // decline final greenery
 
     with(green) {
       // "Okay, I get to plant a forest. And there's not that many places I can put it. I think
@@ -2467,7 +2467,7 @@ internal class OtbGame20260825Test : FullGameTest() {
           "Steel",
       )
     }
-    green.doTask("PassBaton")
+    green.doTask("Ok") // decline final greenery
     // board-18-47-04.jpg is the replacement final photograph after this greenery. It also confirms
     // Asteroid Deflection System in Yellow's tableau, directly below Shuttles.
 

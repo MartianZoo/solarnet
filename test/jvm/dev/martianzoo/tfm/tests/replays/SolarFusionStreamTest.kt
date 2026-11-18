@@ -1735,7 +1735,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
 
     with(ER) {
       // Decline ER's final greenery placement.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
 
     with(JR) {
@@ -1747,7 +1747,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "4 MC",
       )
       // Decline another final greenery placement for JR.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
 
     with(KB) {
@@ -1763,7 +1763,7 @@ internal class SolarFusionStreamTest : FullGameTest() {
           "GreeneryTile<Elysium_8_5>",
       )
       // Decline another final greenery placement for KB.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
     JR.assertCounts(1 to "ProjectCard")
     KB.assertCounts(0 to "ProjectCard")

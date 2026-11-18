@@ -11,7 +11,7 @@ CLASS SoloMode : GameMode {
   This: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft
 
-  PassBaton<@Player> IF Baton<@Player>: FINALLY { -Baton<@Player> }
+  PassBaton<@Player> IF Baton<@Player>: -Baton<@Player>
   // Only a won solo game has final greenery and scoring.
   Victory IF ProductionPhase: FinalGreeneryPhase FROM ProductionPhase BY Admin
 }

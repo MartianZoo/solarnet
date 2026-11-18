@@ -1,6 +1,7 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.state.Task.TaskId
 
@@ -14,6 +15,14 @@ internal constructor(
     private val store: TaskStore,
     private val assignee: Actor?,
 ) {
+  /**
+   * Earliest pending deferral across the World, ignoring this queue's assignee filter; SOON when
+   * empty. Tasks at this priority are eligible for selection, subject to selection and Admin rules.
+   * This reports scheduling priority, not whether an instruction can succeed.
+   */
+  public val earliestDeferral: Deferral
+    get() = store.getAll().minOfOrNull { it.deferral } ?: Deferral.SOON
+
   private fun filtered(): List<Task> =
       store.getAll().filter { assignee == null || it.assignee == assignee }
 

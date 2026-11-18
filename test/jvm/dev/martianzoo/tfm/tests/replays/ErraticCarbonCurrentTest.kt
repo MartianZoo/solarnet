@@ -1592,7 +1592,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "GreeneryTile<Hellas_5_2>",
         "2 MC",
     )
-    pink.doTask("PassBaton")
+    pink.doTask("Ok") // decline final greenery
     blue.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
         "8 Pay<Class<Plant>> FROM Plant",
@@ -1604,7 +1604,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         "8 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Hellas_9_9>",
     )
-    blue.doTask("PassBaton")
+    blue.doTask("Ok") // decline final greenery
 
     assertCardTrackingComplete()
     blue.cardsHand shouldBe emptySet()

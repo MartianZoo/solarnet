@@ -5,6 +5,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.recording
 import dev.martianzoo.engine.testGamePremise
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -21,6 +22,49 @@ import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
 internal class GameFileImporterTest {
+  @Test
+  internal fun deferredPrioritiesSurviveFullAndShortReplay() = runTest {
+    val premise =
+        testGamePremise(
+            """
+        CLASS Start : Owned<Player>, Signal { This: LATER { First, Remaining }, FINALLY { Done } }
+        CLASS First : Owned<Player> { This: Coin? }
+        CLASS Coin : Owned<Player>
+        CLASS Remaining : Owned<Player>
+        CLASS Done : Owned<Player>
+        """
+        )
+    val source = Agents(Engine.newGame(premise)) { NONE }
+    source.taskLog.start()
+    source.taskLog.gameStarted()
+    source[PLAYER1].addTasks("Start")
+    source[PLAYER1].doTasks("Start", "First")
+
+    // First has begun, but its ordinary optional reward still holds up the deferred siblings.
+    for (short in listOf(false, true)) {
+      val file =
+          GameFileJson.parse(
+              GameFileJson.encode(source.world.recording(), source.taskLog.inputs(), short = short)
+          )
+      val imported =
+          GameFileImporter.replay(
+              file,
+              premise.catalog,
+              newAgents = { Agents(Engine.newGame(it)) },
+              startGame = { it[PLAYER1].addTasks("Start") },
+          )
+      val player = imported[PLAYER1]
+      shouldThrow<TaskException> { player.doTask("Remaining") }
+      player.doTask("Ok")
+      shouldThrow<TaskException> { player.doTask("Done") }
+      player.doTasks("Remaining", "Done")
+      player.count("Coin") shouldBe 0
+      player.count("Remaining") shouldBe 1
+      player.count("Done") shouldBe 1
+      imported.world.tasks.isEmpty() shouldBe true
+    }
+  }
+
   @Test
   internal fun contextClassChoiceSurvivesFullAndShortReplay() = runTest {
     val premise =

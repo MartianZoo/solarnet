@@ -438,8 +438,9 @@ public sealed class Instruction : InstructionTree() {
    * L2-19](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#2-instructions)).
    * The body may stay open. A missing recipient is filled from lexical `Me`, or Admin, during
    * elaboration. Executing NOW creates selected work and executing SOON creates ordinary work;
-   * merely selecting either dispatch does not admit its body. LATER/FINALLY schedule deferred work
-   * as soon as their containing work becomes ordinary.
+   * merely selecting either dispatch does not admit its body. Unselected LATER/FINALLY schedule
+   * deferred work at ordinary admission, or when a deferred containing task becomes eligible. A
+   * dispatch exposed by selecting an existing task waits for that task's execution.
    */
   public data class Dispatch(
       val actor: Expression?,

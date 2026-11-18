@@ -38,7 +38,7 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
         *standardProjectTasks("SellPatentsProject"),
         "MC FROM ProjectCard",
     )
-    stan.selectTask("PassBaton")
+    stan.doTask("Ok")
 
     kim.doTasks(
         *playCardTasks("RedAppeasement"),
@@ -60,7 +60,7 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
         *standardProjectTasks("SellPatentsProject"),
         "MC FROM ProjectCard",
     )
-    stan.selectTask("PassBaton")
+    stan.doTask("Ok")
 
     kim.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
     kim.doTasks(

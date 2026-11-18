@@ -42,10 +42,10 @@ public data class Task(
     val cause: Cause?,
 
     /**
-     * Whether `LATER` or `FINALLY` admitted this task ([rules L2-18 and
+     * Scheduling priority while pending ([rules L2-18 and
      * L2-19](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#2-instructions)).
-     * No task may be selected while a task with an earlier [Deferral] remains. When no ordinary
-     * task remains, every task with the earliest remaining deferral becomes ordinary at once.
+     * No task may be selected while a task with an earlier [Deferral] remains. Pending tasks keep
+     * their deferral; selection changes only the selected task to ordinary work.
      */
     val deferral: Deferral = Deferral.SOON,
 ) {
@@ -54,7 +54,10 @@ public data class Task(
     require(!deferred || !selected) { "a deferred task cannot be selected: $this" }
   }
 
-  /** Whether this task waits for ordinary, or earlier-deferred, work to finish. */
+  /**
+   * Whether this task retains LATER/FINALLY priority; it may be eligible if no earlier work
+   * remains.
+   */
   val deferred: Boolean
     get() = deferral != Deferral.SOON
 

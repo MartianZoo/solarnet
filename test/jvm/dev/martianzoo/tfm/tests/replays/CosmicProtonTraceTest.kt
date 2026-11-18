@@ -2152,21 +2152,21 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
         "3 Plant",
         "3 Heat",
     )
-    purple.doTask("PassBaton") // no final greenery
+    purple.doTask("Ok") // no final greenery
     p1.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
         "7 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Amazonis_05_08>",
         "Plant",
     )
-    p1.doTask("PassBaton") // no more greenery
-    p2.doTask("PassBaton") // no final greenery
+    p1.doTask("Ok") // no more greenery
+    p2.doTask("Ok") // no final greenery
     p3.doTasks(
         "UseAction<ConvertPlantsAction, Action1>",
         "8 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Amazonis_03_08>",
     )
-    p3.doTask("PassBaton") // no more greenery
+    p3.doTask("Ok") // no more greenery
     p1.cardsHand shouldBe setOf(MiningArea)
     p2.cardsHand shouldBe emptySet()
     p3.cardsHand shouldBe emptySet()

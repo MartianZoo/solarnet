@@ -37,7 +37,7 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
               listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
       )
       kim.doTasks(*playCardTasks("$ColonialRepresentation"))
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }

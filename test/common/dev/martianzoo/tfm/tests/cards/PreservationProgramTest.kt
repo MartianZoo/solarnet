@@ -61,15 +61,15 @@ internal class PreservationProgramTest : TfmGameplayTest() {
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating")
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-    stan.selectTask("PassBaton") // Decline the second action.
+    stan.doTask("Ok") // Decline the second action.
     kim.completeOperation {
           doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TerraformRating")
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
     passGeneration()
     stan.doTask("Pass")
@@ -210,7 +210,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
 
     kim.doTask("Pass")
@@ -321,20 +321,20 @@ internal class PreservationProgramTest : TfmGameplayTest() {
           autoExecNow(EAGER)
         }
         .expect("TerraformRating")
-    stan.selectTask("PassBaton") // Decline the second action.
+    stan.doTask("Ok") // Decline the second action.
     kim.completeOperation {
           doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("0 TerraformRating")
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan
         .completeOperation {
           doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
         }
         .expect("TerraformRating")
-    stan.selectTask("PassBaton") // Decline the second action.
+    stan.doTask("Ok") // Decline the second action.
     kim.completeOperation {
           doTasks(*standardProjectTasks("AsteroidProject"))
           autoExecNow(EAGER)
@@ -469,7 +469,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
     kim.completeOperation {
           doTasks(*cardActionTasks("$BoardOfDirectors"))
@@ -533,7 +533,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
           doTask("GreeneryTile<Tharsis_2_4>")
         }
         .expect("0 OxygenStep, 0 TerraformRating")
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
 
     kim.completeOperation {
@@ -569,7 +569,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(*playCardTasks("$Research"))
       autoExecNow(EAGER)
     }
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
     passGeneration()
     stan.doTask("Pass")
@@ -594,7 +594,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(*standardProjectTasks("AsteroidProject"))
       autoExecNow(EAGER)
     }
-    kim.selectTask("PassBaton") // Decline the second action.
+    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
 
     kim.completeOperation {
@@ -962,7 +962,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       kim.doTasks(
           *playCardTasks("$GiantSpaceMirror"),
       )
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
     }
     stan.doTask("Pass")
     if (deal && rulingParty != null)

@@ -2060,7 +2060,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "ProjectCard",
       )
 
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
 
     with(been) {
@@ -2071,7 +2071,7 @@ internal class DistantPressureMassTest : FullGameTest() {
           "2 MC",
       )
 
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
     keen.assertCounts(1 to "ProjectCard")
     been.assertCounts(0 to "ProjectCard")

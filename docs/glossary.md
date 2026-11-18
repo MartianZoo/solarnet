@@ -26,7 +26,7 @@ Runtime, task, and history terms. Language, type, and Canon terms are in the
 - **decision graph:** The Agent's possible sequences of decisions, submitted tasks, and resulting game states from a current choice through the relevant endpoint. For a game-flow action, that endpoint is clearance.
 - **dependent removal:** Automatic removal of Components that depend on a Component being removed, performed first and cascading as necessary.
 - **direct driver:** The planned test adapter that exercises the interaction API directly, following the same interaction script as a UI driver.
-- **drain:** To become empty. Once no ordinary task remains, the earliest remaining deferred work (`LATER`, then `FINALLY`) becomes ordinary.
+- **drain:** To become empty. Once no ordinary task remains, the earliest remaining deferred work (`LATER`, then `FINALLY`) becomes eligible.
 - **elective narrowing:** A client or authorized policy supplying a permitted choice that makes part of an open task's instruction more specific. Evaluation may follow and expose further decisions.
 - **engine:** The passive mechanism that validates Actor-attributed mutations and calculates their state consequences. It is not an Actor or Component.
 - **engine transaction:** A command attributed to an Actor, including its task edits, component changes, required parts, immediate effects, invariant checks, and admission of resulting tasks. An Agent call can perform several engine transactions.

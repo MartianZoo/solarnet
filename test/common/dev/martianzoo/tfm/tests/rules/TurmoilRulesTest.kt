@@ -262,12 +262,12 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
         doTasks("UseAction<PaidLobbyAction, Action1>")
         doTask("PartyFollower<Scientists>")
       }
-      stan.selectTask("PassBaton") // Decline the second action.
+      stan.doTask("Ok") // Decline the second action.
       kim.completeOperation {
         doTasks("UseAction<PaidLobbyAction, Action1>")
         doTask("PartyFollower<Kelvinists>")
       }
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }
@@ -289,7 +289,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
           }
           .expect("0 Delegate, 0 MC")
 
-      stan.selectTask("PassBaton") // Decline the second action.
+      stan.doTask("Ok") // Decline the second action.
       shouldThrow<LimitsException> {
         kim.completeOperation {
           doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Unity> FROM LobbyDelegate")
@@ -309,12 +309,12 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
         doTask("UseAction<LobbyAction, Action1>")
         doTask("PartyLeader<Scientists> FROM LobbyDelegate")
       }
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
       stan.completeOperation {
         doTask("UseAction<LobbyAction, Action1>")
         doTask("PartyFollower<Scientists> FROM LobbyDelegate")
       }
-      stan.selectTask("PassBaton") // Decline the second action.
+      stan.doTask("Ok") // Decline the second action.
       kim.doTask("Pass")
       stan.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }
@@ -349,12 +349,12 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
         doTask("UseAction<LobbyAction, Action1>")
         doTask("PartyFollower<Scientists> FROM LobbyDelegate")
       }
-      stan.selectTask("PassBaton") // Decline the second action.
+      stan.doTask("Ok") // Decline the second action.
       kim.completeOperation {
         doTasks(*playCardTasks("$VoteOfNoConfidence"))
         autoExecNow(EAGER)
       }
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }
@@ -384,7 +384,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
         doTask("UseAction<LobbyAction, Action1>")
         doTask("PartyLeader<Unity> FROM LobbyDelegate")
       }
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
       stan.completeOperation {
         doTask("UseAction<LobbyAction, Action1>")
         doTask("PartyLeader<Scientists> FROM LobbyDelegate")

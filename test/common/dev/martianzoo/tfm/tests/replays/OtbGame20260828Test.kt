@@ -2589,11 +2589,11 @@ internal class OtbGame20260828Test : FullGameTest(EAGER) {
     // Final greenery placement, in start-player order.
     yellow.fillInTask("UseAction").narrow("UseAction<ConvertPlantsAction, Action1>").done()
     yellow.fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_6_3").done()
-    yellow.fillInTask("ConvertPlantsAction").chooseAlternative("PassBaton").done()
-    green.fillInTask("ConvertPlantsAction").chooseAlternative("PassBaton").done()
+    yellow.fillInTask("ConvertPlantsAction").chooseAmount(0).done()
+    green.fillInTask("ConvertPlantsAction").chooseAmount(0).done()
     blue.fillInTask("UseAction").narrow("UseAction<ConvertPlantsAction, Action1>").done()
     blue.fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_6_8").done()
-    blue.fillInTask("ConvertPlantsAction").chooseAlternative("PassBaton").done()
+    blue.fillInTask("ConvertPlantsAction").chooseAmount(0).done()
 
     green.assertCounts(
         0 to "ProjectCard",

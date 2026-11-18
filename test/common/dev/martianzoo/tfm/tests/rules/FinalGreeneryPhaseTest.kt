@@ -87,6 +87,7 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
       )
     }
     kim.count("Plant") shouldBe 7
+    kim.count("Baton") shouldBe 1
     kim.completeOperation {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
@@ -95,7 +96,10 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
           "2 Plant",
       )
     }
-    kim.selectTask("PassBaton")
+    kim.count("Baton") shouldBe 1
+    kim.doTask("Ok")
+    kim.count("Baton") shouldBe 0
+    stan.count("Baton") shouldBe 1
     kim.count("GreeneryTile") shouldBe 2
   }
 
@@ -128,7 +132,7 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
       selectTask("Plant!")
       doTasks("Plant", "Plant")
     }
-    kim.selectTask("PassBaton")
+    kim.doTask("Ok")
     stan.doTask("Pass")
     kim.doTask("Pass")
     kim.doTask("21 MC")
@@ -157,7 +161,7 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
       selectTask("Plant!")
       doTasks("Plant", "Plant", "Plant")
     }
-    kim.selectTask("PassBaton")
+    kim.doTask("Ok")
     kim.count("GreeneryTile") shouldBe 3
   }
 }

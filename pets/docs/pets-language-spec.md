@@ -538,15 +538,17 @@ TaskDispatch ::= ( "NOW" | "SOON" | "LATER" | "FINALLY" ) Expression? "{" Instru
 ```
 
 **L2-18. `LATER Recipient { body }` dispatches deferred work.** It uses SOON's recipient rules
-(L2-17), but schedules its body as deferred work immediately when its containing work becomes
-ordinary, at admission or promotion. If NOW gives an Actor a selected LATER instruction, that Actor
-must execute it before its body is scheduled. No actor may carry out deferred work while ordinary
-work is pending, whichever actor that work belongs to. When no ordinary task remains, all `LATER`
-work becomes ordinary at once, unordered among itself; work deferred after that moment, including by
-that work, waits for the next such moment. Deferred work is still pending work, so anything that
-waits for all pending work also waits for it. A `LATER` nested in another is performed when the
-work containing it becomes ordinary: it defers its body again, behind the ordinary work pending
-then.
+(L2-17). At ordinary admission it schedules its body immediately with `LATER` priority. A deferred
+LATER/FINALLY dispatch instruction schedules its body when its containing task becomes eligible,
+at transaction completion. If NOW gives an Actor a selected LATER instruction, that Actor must
+execute it before its body is scheduled.
+
+No actor may select deferred work while ordinary work is pending, whichever actor that work
+belongs to. Pending deferred tasks retain their priority until selected; selection makes only that
+task ordinary and selected. If it creates ordinary work, that work precedes the remaining deferred
+tasks. Newly admitted LATER work shares priority with existing LATER work: there are no batches.
+A nested LATER therefore adds work at the same priority, not an additional scheduling tier.
+Deferred work is still pending work, so anything that waits for all pending work also waits for it.
 
 Deferral evaluates nothing early. Admitted work is evaluated when it is carried out, like any task, so
 `LATER { Done / Flag }` counts the flags present then.
@@ -566,8 +568,9 @@ Deferral evaluates nothing early. Admitted work is evaluated when it is carried 
 
 **L2-19. `FINALLY Recipient { body }` dispatches final work.** It is `LATER` (L2-18), except that
 final work also waits for `LATER` work: no actor may carry out final work while ordinary or `LATER`
-work is pending. When none remains, all final work becomes ordinary at once. Final work therefore
-follows every consequence of the work pending before it, including work that `LATER` work defers.
+work is pending. Pending final tasks retain their priority until selected. Any ordinary or LATER
+work created by a final task precedes the remaining final tasks. Final work therefore follows every
+consequence of earlier work, including work that `LATER` work defers.
 
 ---
 

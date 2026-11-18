@@ -1716,12 +1716,12 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     with(pink) {
       // Final greenery placement
       // Pink declines the final greenery placement.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
 
     with(green) {
       // Green declines the final greenery placement.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
     }
     pink.assertCounts(0 to "ProjectCard")
     green.assertCounts(0 to "ProjectCard")

@@ -950,7 +950,7 @@ internal class SoloGame20230710Test : FullGameTest() {
       doTasks("79 MC", "4 Steel", "5 Heat", "3 Energy", "3 Plant", "2 Titanium")
       has("Victory") shouldBe true
       // Decline another final greenery placement.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
       // Check the summary data on the you-won page
       assertCounts(70 to "TerraformRating")
       assertCounts(121 to "VictoryPoint")

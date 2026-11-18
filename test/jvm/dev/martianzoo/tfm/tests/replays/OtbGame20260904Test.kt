@@ -3748,10 +3748,10 @@ internal class OtbGame20260904Test : FullGameTest() {
           "Plant",
       )
     }
-    yellow.doTask("PassBaton")
+    yellow.doTask("Ok") // decline final greenery
     // 9:41:26 PM — Rainbow: "I do not. I only have five."
-    rainbow.doTask("PassBaton")
-    blue.doTask("PassBaton")
+    rainbow.doTask("Ok") // decline final greenery
+    blue.doTask("Ok") // decline final greenery
 
     with(green) {
       // 9:41:51 PM — Green: "I guess I might as well take four money here on seven five."
@@ -3764,7 +3764,7 @@ internal class OtbGame20260904Test : FullGameTest() {
           "4 MC",
       )
     }
-    green.doTask("PassBaton")
+    green.doTask("Ok") // decline final greenery
 
     yellow.assertResources(m = 46, s = 4, t = 0, p = 2, e = 3, h = 9)
     rainbow.assertResources(m = 60, s = 1, t = 1, p = 5, e = 0, h = 4)

@@ -99,9 +99,6 @@ private fun isScopeRemovalHandoff(
         expression.typeVariableName == null
   }
 
-  fun decline(tree: InstructionTree): Boolean =
-      tree is Instruction.Gain && target(tree.gaining, "PassBaton") && fixedAmount(tree)
-
   fun standardActionOffer(expression: Expression): Boolean =
       expression.className == cn("UseAction") &&
           expression.refinement == null &&
@@ -113,7 +110,8 @@ private fun isScopeRemovalHandoff(
         is Instruction.Gated -> nextAction(tree.inner)
         is Instruction.Gain ->
             (standardActionOffer(tree.gaining) || target(tree.gaining, "DoRequiredActions")) &&
-                fixedAmount(tree)
+                !tree.count.needsNarrowing &&
+                (fixedAmount(tree) || tree.quantifier == Instruction.Quantifier.OPTIONAL)
         else -> false
       }
 
@@ -126,25 +124,16 @@ private fun isScopeRemovalHandoff(
     is Instruction.Gated -> isScopeRemovalHandoff(tree.inner, table, owner)
     is Instruction.Per -> isScopeRemovalHandoff(tree.inner, table, owner)
     // Choosing the next action is allowed; choosing whether/how to clean up the old action is not.
-    is Instruction.Or ->
-        tree.instructions.any(::nextAction) &&
-            tree.instructions.all { nextAction(it) || decline(it) }
+    is Instruction.Or -> tree.instructions.all(::nextAction)
     is Instruction.Change ->
-        when (tree) {
-          is Instruction.Remove -> target(tree.removing, "Baton", "SecondAction")
-          is Instruction.Gain ->
-              standardActionOffer(tree.gaining) ||
-                  target(
-                      tree.gaining,
-                      "Baton",
-                      "OfferAction",
-                      "PassBaton",
-                      "DoRequiredActions",
-                  )
-          is Instruction.Transmute ->
-              (target(tree.removing, "Baton") && target(tree.gaining, "Baton")) ||
-                  (phase(tree.removing) && phase(tree.gaining))
-        } && fixedAmount(tree)
+        nextAction(tree) ||
+            (when (tree) {
+              is Instruction.Remove -> target(tree.removing, "Baton", "SecondAction")
+              is Instruction.Gain -> target(tree.gaining, "Baton", "OfferAction", "PassBaton")
+              is Instruction.Transmute ->
+                  (target(tree.removing, "Baton") && target(tree.gaining, "Baton")) ||
+                      (phase(tree.removing) && phase(tree.gaining))
+            } && fixedAmount(tree))
     else -> false
   }
 }

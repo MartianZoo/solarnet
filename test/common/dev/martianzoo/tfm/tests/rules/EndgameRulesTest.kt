@@ -33,8 +33,8 @@ internal class EndgameRulesTest : TfmGameplayTest(NONE) {
           )
         }
         .expect("0 OxygenStep, 0 TerraformRating")
-    kim.doTask("PassBaton") // No further final greenery.
-    stan.doTask("PassBaton") // No final greenery.
+    kim.doTask("Ok") // No further final greenery.
+    stan.doTask("Ok") // No final greenery.
 
     kim.count("VictoryPoint") shouldBe 21
     stan.count("VictoryPoint") shouldBe 20
@@ -53,8 +53,8 @@ internal class EndgameRulesTest : TfmGameplayTest(NONE) {
     stan.doTask("Pass")
     kim.doTask("Pass")
     players.forEach { it.doTask("20 MC") }
-    kim.doTask("PassBaton") // No final greenery.
-    stan.doTask("PassBaton") // No final greenery.
+    kim.doTask("Ok") // No final greenery.
+    stan.doTask("Ok") // No final greenery.
 
     kim.count("VictoryPoint") shouldBe 20
     stan.count("VictoryPoint") shouldBe 20
@@ -86,8 +86,8 @@ internal class EndgameRulesTest : TfmGameplayTest(NONE) {
     stan.doTask("Pass")
     kim.doTask("Pass")
     players.forEach { it.doTask("20 MC") }
-    stan.doTask("PassBaton") // No final greenery.
-    kim.doTask("PassBaton") // No final greenery.
+    stan.doTask("Ok") // No final greenery.
+    kim.doTask("Ok") // No final greenery.
     kim.count("Victory") shouldBe 1
     stan.count("Victory") shouldBe 1
   }
@@ -172,7 +172,7 @@ internal class EndgameRulesTest : TfmGameplayTest(NONE) {
     kim.doTask("Pass")
     kim.doTask("15 MC")
     kim.count("Victory") shouldBe 1
-    kim.doTask("PassBaton") // No final greenery.
+    kim.doTask("Ok") // No final greenery.
     kim.count("VictoryPoint") shouldBe 15
   }
 
@@ -220,7 +220,7 @@ internal class EndgameRulesTest : TfmGameplayTest(NONE) {
     kim.doTask("Pass")
     kim.doTask("16 MC")
     kim.count("Victory") shouldBe 1
-    kim.doTask("PassBaton") // No final greenery.
+    kim.doTask("Ok") // No final greenery.
     kim.count("VictoryPoint") shouldBe 16
   }
 
@@ -246,7 +246,7 @@ internal class EndgameRulesTest : TfmGameplayTest(NONE) {
           )
         }
         .expect("0 OxygenStep, 0 TerraformRating")
-    kim.doTask("PassBaton") // No further final greenery.
+    kim.doTask("Ok") // No further final greenery.
     kim.count("TerraformRating") shouldBe 63
     kim.count("VictoryPoint") shouldBe 64
   }

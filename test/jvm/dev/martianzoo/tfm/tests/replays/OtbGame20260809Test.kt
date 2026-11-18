@@ -2647,9 +2647,9 @@ internal class OtbGame20260809Test : FullGameTest() {
       )
     }
     // Decline another final greenery placement.
-    yellow.doTask("PassBaton")
+    yellow.doTask("Ok") // decline final greenery
     // Decline the final greenery placement.
-    green.doTask("PassBaton")
+    green.doTask("Ok") // decline final greenery
 
     // (9:02 pm) "Final scoring."
 

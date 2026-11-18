@@ -3009,9 +3009,9 @@ internal class OtbGame20260818Test : FullGameTest() {
       )
     }
     // Decline another final greenery placement.
-    green.doTask("PassBaton")
+    green.doTask("Ok") // decline final greenery
     // Decline the final greenery placement.
-    yellow.doTask("PassBaton")
+    yellow.doTask("Ok") // decline final greenery
 
     green.assertCounts(
         44 to "TerraformRating",

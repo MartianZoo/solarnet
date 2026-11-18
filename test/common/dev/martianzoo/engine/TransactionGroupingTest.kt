@@ -112,31 +112,39 @@ internal class TransactionGroupingTest {
   }
 
   @Test
-  internal fun promotionBelongsToTheTransactionThatMadeItEligible() {
+  internal fun eligibleDeferredWorkChangesOnlyWhenSelected() {
     val game = Engine.newGame(premise)
-    val agent = game.testAgent(PLAYER1)
+    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val token = agent.addTasks("Token, LATER { Coin }").first()
     val before = game.events.nextOrdinal
 
     agent.doTask(token)
 
-    // Coin stays deferred while Admin still owes the Reward, so the edit that makes it ordinary
-    // belongs to Admin's transaction, not to the Player's and not to a queue edit of its own.
-    val promotion =
+    // Admin finishes Reward, but becoming eligible does not edit the pending Coin task.
+    val admin =
+        game.events
+            .entriesSince(before)
+            .filterIsInstance<TaskRemovedEvent>()
+            .single { it.task.assignee == ADMIN }
+            .transaction
+    checkNotNull(admin).motivation shouldBe ADMIN_EAGER_POLICY
+    agent.tasks.extract { it }.single().deferred shouldBe true
+    game.events.entriesSince(before).filterIsInstance<TaskEditedEvent>().none {
+      it.oldTask.deferred && !it.task.deferred
+    } shouldBe true
+
+    agent.selectOnlyTask()
+
+    // Selection makes this task ordinary in the requesting Player's own transaction.
+    val selection =
         game.events.entriesSince(before).filterIsInstance<TaskEditedEvent>().single {
           it.oldTask.deferred && !it.task.deferred
         }
-    val admin = checkNotNull(promotion.transaction)
-    admin.actor shouldBe ADMIN
-    admin.motivation shouldBe ADMIN_EAGER_POLICY
-
-    // That same transaction is the one that finished the Reward.
-    game.events
-        .entriesSince(before)
-        .filterIsInstance<TaskRemovedEvent>()
-        .single { it.task.assignee == ADMIN }
-        .transaction shouldBe admin
-
+    selection.task.selected shouldBe true
+    checkNotNull(selection.transaction).actor shouldBe PLAYER1
+    selection.transaction?.motivation shouldBe CLIENT_REQUEST
+    agent.count("Coin") shouldBe 0
+    agent.doTask("Coin")
     agent.count("Coin") shouldBe 1
   }
 

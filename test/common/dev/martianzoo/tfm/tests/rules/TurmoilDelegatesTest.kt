@@ -154,7 +154,7 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
         val challenger = players[1 - incumbentSeat]
         if (incumbentSeat == 1) {
           kim.completeOperation { doTasks(*standardProjectTasks("PowerPlantProject")) }
-          kim.selectTask("PassBaton")
+          kim.doTask("Ok")
         }
         incumbent.completeOperation {
           doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
@@ -171,11 +171,11 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
         incumbent.completeOperation {
           doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
         }
-        incumbent.selectTask("PassBaton")
+        incumbent.doTask("Ok")
         challenger.completeOperation {
           doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
         }
-        challenger.selectTask("PassBaton")
+        challenger.doTask("Ok")
         incumbent.doTask("Pass")
         challenger.doTask("Pass")
         players.forEach { it.autoExecNow(EAGER) }
@@ -206,7 +206,7 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
       kim.completeOperation {
         doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
       }
-      kim.selectTask("PassBaton")
+      kim.doTask("Ok")
       stan.completeOperation {
         doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
       }
@@ -232,7 +232,7 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
       kim.completeOperation {
         doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
       }
-      kim.selectTask("PassBaton")
+      kim.doTask("Ok")
       stan.doTask("Pass")
       kim.completeOperation {
         doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")

@@ -73,9 +73,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         nextEvent = "ScientificProgress",
     ) {
       kim.doTasks(*playCardTasks("$AdaptedLichen"))
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
       stan.doTasks(*playCardTasks("$Archaebacteria"))
-      stan.selectTask("PassBaton") // Decline the second action.
+      stan.doTask("Ok") // Decline the second action.
     }
     admin.count("Current<ExperimentalLifeforms>") shouldBe 1
     admin.count("Coming<ExploreFirstDirective>") shouldBe 1
@@ -590,7 +590,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         doTasks(*playCardTasks("$Research"))
         autoExecNow(EAGER)
       }
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
       stan.doTasks(*playCardTasks("$TitanShuttles"))
       stan.completeOperation {
         doTasks(*cardActionTasks("$TitanShuttles"))
@@ -699,9 +699,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         ),
     ) {
       kim.doTasks(*playCardTasks("$EarthOffice"))
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
       stan.doTasks(*playCardTasks("$Sponsors"))
-      stan.selectTask("PassBaton") // Decline the second action.
+      stan.doTask("Ok") // Decline the second action.
     }
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -729,9 +729,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         doTasks(*playCardTasks("$Research"))
         autoExecNow(EAGER)
       }
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("Ok") // Decline the second action.
       stan.doTasks(*playCardTasks("$TitanShuttles"))
-      stan.selectTask("PassBaton") // Decline the second action.
+      stan.doTask("Ok") // Decline the second action.
     }
     kim.doTasks(*playCardTasks("$FloatingHabs"))
     kim.doTasks(*playCardTasks("$AerialMappers"))
@@ -1137,7 +1137,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
           doTasks("UseAction<PaidLobbyAction, Action1>")
           doTask("PartyFollower<Scientists>")
         }
-        player.selectTask("PassBaton") // Decline the second action.
+        player.doTask("Ok") // Decline the second action.
       }
       first.doTask("Pass")
       other.doTask("Pass")

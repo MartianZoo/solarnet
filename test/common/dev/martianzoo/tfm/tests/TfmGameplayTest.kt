@@ -57,7 +57,7 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
     check(has("MAX 0 ActionScope")) {
       "Finish $actor's action, including payments and other players' responses, inside turn { ... }"
     }
-    if (has("Baton, 2 InRound<Anyone>")) doTask("PassBaton")
+    if (has("Baton, 2 InRound<Anyone>")) doTask("Ok")
   }
 
   protected fun Agent.auditGainsSince(eventCursor: Int): Int =

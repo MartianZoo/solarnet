@@ -1130,7 +1130,7 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
       doTask("Pass")
       doTasks("67 MC", "Steel", "2 Titanium", "11 Energy", "13 Heat", "4 Plant", "Heat FROM Energy")
       // Decline the final greenery placement.
-      doTask("PassBaton")
+      doTask("Ok") // decline final greenery
       assertCounts(0 to "ProjectCard")
       // Final state and score come from /api/player?id=pb64886c6e682.
       assertProduction(m = 3, s = 1, t = 2, p = 4, e = 11, h = 13)

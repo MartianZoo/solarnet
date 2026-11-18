@@ -1722,7 +1722,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "GreeneryTile<Cimmeria_5_4>",
         "Steel",
     )
-    doTask("PassBaton")
+    doTask("Ok") // decline final greenery
     // Player-record evidence: globalsPerGeneration[11].
     assertSidebar(gen = 12, temp = 4, oxygen = 14, oceans = 9, venus = 30)
   }
