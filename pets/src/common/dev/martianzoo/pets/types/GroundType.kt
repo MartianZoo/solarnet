@@ -10,6 +10,8 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.RepresentedClassReference
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
@@ -184,9 +186,12 @@ internal constructor(
           that.refinement == null -> refinement
           else -> Refinement.join(refinement, that.refinement)
         }
-    val completeDeps = classTable.glb(glbClass.dependencies, glbDeps) ?: return null
+    val completeDeps =
+        glbClass.normalizeVariableEqualities(
+            classTable.glb(glbClass.dependencies, glbDeps) ?: return null
+        ) ?: return null
     val unrefined = glbClass.withAllDependencies(completeDeps).inTable(classTable)
-    return unrefined.refine(glbRefin)
+    return unrefined.refineOrNull(glbRefin)
   }
 
   internal fun specialize(
@@ -203,7 +208,11 @@ internal constructor(
   internal fun inTable(classTable: ClassTable): GroundType =
       if (this.classTable === classTable) this else copy(resolutionTable = classTable)
 
-  internal fun refine(newRef: Refinement?): GroundType {
+  internal fun refine(newRef: Refinement?): GroundType =
+      refineOrNull(newRef)
+          ?: throw ExpressionException("`$newRef` cannot describe `$representedClass`")
+
+  private fun refineOrNull(newRef: Refinement?): GroundType? {
     val combined =
         when {
           refinement == null -> newRef
@@ -213,7 +222,8 @@ internal constructor(
     val applicable = combined?.retaining {
       it !is Not || overlapsStructurally(classTable.resolve(it.excluded))
     }
-    return copy(refinement = applicable)
+    val rebound = applicable?.let { refinementForRepresentedClass(it) ?: return null }
+    return copy(refinement = rebound)
   }
 
   private var cachedExpression: Expression? = null
@@ -299,7 +309,87 @@ internal constructor(
   internal val argumentDependencies: DependencySet
     get() = dependencies.subMapInOrder(rootClass.argumentDependencies.keys)
 
-  private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
+  private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
+    val expression = className.of(specs).has(refinement)
+    val references = refinement?.descendantsOfType<Expression>().orEmpty()
+    if (references.none { it.typeVariableName is RepresentedClassReference }) return expression
+    val represented = representedClass?.className ?: return expression
+    // Keep the generated name distinct from nested declarations, including declarations of the
+    // same bound. Their references must not capture this literal's candidate when parsed again.
+    val names = references.mapNotNull { it.typeVariableName?.name }.toSet()
+    val name = generateSequence("Candidate") { "${it}_" }.first { it !in names }
+    val restored =
+        object : PetTransformer() {
+              override fun transformNode(node: PetNode): PetNode =
+                  if (node is Expression && node.typeVariableName is RepresentedClassReference) {
+                    transformChildren(
+                        node.copy(
+                            typeVariableName = Reference(name, represented, node.argumentsSpecified)
+                        )
+                    )
+                  } else transformChildren(node)
+            }
+            .transformRefinement(checkNotNull(refinement))
+    return className
+        .of(listOf(represented.expression.copy(typeVariableName = Declaration(name, represented))))
+        .has(restored)
+  }
+
+  /**
+   * Rebinds marked predicates to this literal's domain, or returns null for incompatible bounds.
+   */
+  private fun refinementForRepresentedClass(
+      refinement: Refinement,
+      classTable: ClassTable = this.classTable,
+  ): Refinement? {
+    val represented = representedClass ?: return refinement
+    if (
+        refinement.descendantsOfType<Expression>().none {
+          it.typeVariableName is RepresentedClassReference
+        }
+    )
+        return refinement
+    var compatible = true
+    val rebound =
+        object : PetTransformer() {
+              override fun transformNode(node: PetNode): PetNode {
+                if (
+                    node is Expression &&
+                        node.className == CLASS &&
+                        node.arguments.singleOrNull()?.typeVariableName is RepresentedClassReference
+                ) {
+                  // A literal names the class itself, without the component type's dependencies.
+                  return node.copy(
+                      arguments =
+                          listOf(
+                              represented.className.expression.copy(
+                                  typeVariableName =
+                                      RepresentedClassReference(represented.className)
+                              )
+                          ),
+                      refinement = node.refinement?.let(::transformRefinement),
+                  )
+                }
+                if (node !is Expression || node.typeVariableName !is RepresentedClassReference) {
+                  val transformed = transformChildren(node)
+                  // Keep untouched choice occurrences attached to their lexical scopes.
+                  return if (transformed == node) node else transformed
+                }
+                val original = classTable.resolve(node.copy(typeVariableName = null))
+                val specialized =
+                    classTable.glb(original, represented.baseType)
+                        ?: run {
+                          compatible = false
+                          return node
+                        }
+                return specialized.expressionFull.copy(
+                    typeVariableName = RepresentedClassReference(represented.className)
+                )
+              }
+            }
+            .transformRefinement(refinement)
+    return rebound.takeIf { compatible }
+  }
 
   /**
    * Checks a pending instruction's choice. Aggregate `HAS` answers do not discharge predicates
@@ -309,7 +399,7 @@ internal constructor(
     fun retain(narrow: GroundType, wide: GroundType) {
       if (narrow.rootClass.abstract || narrow.dependencies.abstract) {
         wide.refinement?.conjuncts()?.filterIsInstance<Has>()?.forEach { predicate ->
-          if (!narrow.alreadyGuarantees(predicate)) {
+          if (!narrow.alreadyGuarantees(predicate, narrow.requireSameClassTable(wide))) {
             throw NarrowingException("abstract choice `$narrow` must retain `$predicate`")
           }
         }
@@ -349,7 +439,7 @@ internal constructor(
         }
         is Has -> {
           if (refinement != null) {
-            if (!alreadyGuarantees(targetRefinement)) {
+            if (!alreadyGuarantees(targetRefinement, comparisonTable)) {
               throw NarrowingException("`$this` does not have refinement `$targetRefinement`")
             }
           } else {
@@ -392,7 +482,7 @@ internal constructor(
                 isDisjointFrom(targetRefinement.excluded, comparisonTable)
         is Has -> {
           if (refinement != null) {
-            alreadyGuarantees(targetRefinement)
+            alreadyGuarantees(targetRefinement, comparisonTable)
           } else {
             val requirement =
                 try {
@@ -413,7 +503,7 @@ internal constructor(
   }
 
   /** Whether our own refinement conjoins at least all of [target]'s requirements. */
-  private fun alreadyGuarantees(target: Has): Boolean {
+  private fun alreadyGuarantees(target: Has, comparisonTable: ClassTable): Boolean {
     val own =
         refinement
             ?.withoutChoiceNames()
@@ -421,7 +511,10 @@ internal constructor(
             ?.filterIsInstance<Has>()
             ?.flatMap { split(it.requirement) }
             .orEmpty()
-    return own.containsAll(split((target.withoutChoiceNames() as Has).requirement))
+    val comparable =
+        (refinementForRepresentedClass(target, comparisonTable) ?: return false)
+            .withoutChoiceNames() as Has
+    return own.containsAll(split(comparable.requirement))
   }
 
   /** Whether our own refinement explicitly includes [target]. */
@@ -516,17 +609,19 @@ internal constructor(
     fun specializeRepresentedClassReferences(requirement: Requirement): Requirement {
       if (wide.className != CLASS) return requirement
       check(narrow.className == CLASS)
-      val specific = narrow.arguments.single().className
+      val specialized =
+          refinementForRepresentedClass(Has(requirement), comparisonTable) as Has?
+              ?: throw ExpressionException("`$requirement` cannot describe `$representedClass`")
       return object : PetTransformer() {
             override fun transformNode(node: PetNode): PetNode =
                 when {
                   node is Metric.Rank -> node
                   node is Expression && node.typeVariableName is RepresentedClassReference ->
-                      transformChildren(node.copy(className = specific, typeVariableName = null))
+                      transformChildren(node.copy(typeVariableName = null))
                   else -> transformChildren(node)
                 }
           }
-          .transformRequirement(requirement)
+          .transformRequirement(specialized.requirement)
     }
 
     val specializedRequirement = specializeRepresentedClassReferences(refinement.requirement)

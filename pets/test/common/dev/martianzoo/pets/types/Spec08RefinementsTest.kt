@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
@@ -512,6 +513,66 @@ internal class Spec08RefinementsTest {
   }
 
   // T8-10 Refined class literals
+
+  @Test
+  internal fun `T8-10 a shared class candidate resolves marked predicates in the game universe`() {
+    val master = loadTypes("ABSTRACT CLASS Tag : Owned { CLASS BuildingTag }")
+    val game =
+        ClassLoader.forPremise(
+            premiseTable = PremiseClassTable(master, parseClasses("CLASS Player1 : Owner").toSet()),
+            roots = setOf(cn("BuildingTag"), cn("Player1")),
+        )
+    val candidate = master.resolve(te("Class<BuildingTag>"))
+    val predicate = game.resolve(te("Class<@Tag>(HAS @Tag<Player1>)"))
+    val world = RecordingWorld()
+
+    candidate.narrows(predicate, world) shouldBe true
+    candidate.ensureNarrows(predicate, world)
+    world.questions shouldBe listOf("BuildingTag<Player1>", "BuildingTag<Player1>")
+  }
+
+  @Test
+  internal fun `T8-10 incompatible candidate dependencies reject comparison and meet`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
+            "ABSTRACT CLASS Tag : Owned { CLASS FixedTag : Tag<Player1> }",
+        )
+    val required = table.resolve(te("Class<@Tag>(HAS @Tag<Player2>)"))
+    val fixed = table.resolve(te("Class<FixedTag>"))
+    val refined = table.resolve(te("Class<@FixedTag>(HAS @FixedTag)"))
+    val world = RecordingWorld()
+
+    for (candidate in listOf(fixed, refined)) {
+      candidate.narrows(required, world) shouldBe false
+      shouldThrow<NarrowingException> { candidate.ensureNarrows(required, world) }
+      table.glb(candidate, required) shouldBe null
+      table.glb(required, candidate) shouldBe null
+    }
+    refined.isSubtypeOf(required) shouldBe false
+    world.questions shouldBe emptyList()
+  }
+
+  @Test
+  internal fun `T8-10 narrowing the represented bound preserves the same predicate`() {
+    val table = loadTypes("ABSTRACT CLASS Tag { CLASS BuildingTag }")
+    val general = table.resolve(te("Class<@Tag>(HAS @Tag)"))
+    val specific = table.resolve(te("Class<@BuildingTag>(HAS @BuildingTag)"))
+    val candidate = table.resolve(te("Class<BuildingTag>"))
+    val world = RecordingWorld()
+
+    specific.isSubtypeOf(general) shouldBe true
+    specific.ensureNarrows(general, world)
+    specific.ensureSelectionNarrows(general, world)
+    world.questions shouldBe emptyList()
+    general.isSubtypeOf(specific) shouldBe false
+    for (refined in listOf(general, specific)) {
+      val questions = RecordingWorld()
+      candidate.narrows(refined, questions) shouldBe true
+      questions.questions shouldBe listOf("BuildingTag")
+    }
+  }
 
   @Test
   internal fun `T8-10 a refined class literal tests the class the candidate names`() {

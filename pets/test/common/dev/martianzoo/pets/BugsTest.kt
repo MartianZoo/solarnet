@@ -10,107 +10,32 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.types.RecordingWorld
 import dev.martianzoo.pets.types.fullWorld
 import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect Pets behavior. */
 internal class BugsTest {
   @Test
-  internal fun `an equality-incompatible subclass incorrectly aborts concrete-type queries`() {
-    // Synthetic subtype composition; only the order of the concrete declarations changes.
-    for (sameFirst in listOf(false, true)) {
-      val subclasses =
-          listOf("CLASS Independent : Pair", "CLASS Same : Pair<@Area, @Area>").let {
-            if (sameFirst) it.reversed() else it
-          }
-      val table =
-          loadTypes(
-              """
-              ABSTRACT CLASS Area {
-                CLASS First
-                CLASS Second
-              }
-              ABSTRACT CLASS Pair<Area, Area>
-              """,
-              *subclasses.toTypedArray(),
-          )
-      val requested = table.resolve(parse<Expression>("Pair<First, Second>"))
-      val independent = table.resolve(parse<Expression>("Independent<First, Second>"))
-      independent.isSubtypeOf(requested) shouldBe true
-
-      // T11-1/T11-3 require Independent alone. Same's equality excludes Same;
-      // constructing the incompatible candidate incorrectly aborts the query.
-      shouldThrow<ExpressionException> { table.allConcreteSubtypes(requested).toList() }
-          .detail shouldContain "dependencies disagree in `Same<First, Second>`"
-      shouldThrow<ExpressionException> { table.singleConcreteSubtype(requested, fullWorld) }
-          .detail shouldContain "dependencies disagree in `Same<First, Second>`"
-
-      // T12-4 requires true in either order. An early valid candidate hides the exception.
-      if (sameFirst) {
-        shouldThrow<ExpressionException> { table.isInhabited(requested) }.detail shouldContain
-            "dependencies disagree in `Same<First, Second>`"
-      } else {
-        table.isInhabited(requested) shouldBe true
-      }
-    }
-  }
-
-  @Test
-  internal fun `class-literal narrowing incorrectly treats a changed bound as a different predicate`() {
-    val table = loadTypes("ABSTRACT CLASS Tag { CLASS BuildingTag }")
-    val general = table.resolve(parse<Expression>("Class<@Tag>(HAS @Tag)"))
-    val specific = table.resolve(parse<Expression>("Class<@BuildingTag>(HAS @BuildingTag)"))
-    val candidate = table.resolve(parse<Expression>("Class<BuildingTag>"))
-
-    for (refined in listOf(general, specific)) {
-      val world = RecordingWorld()
-      candidate.narrows(refined, world) shouldBe true
-      world.questions shouldBe listOf("BuildingTag")
-    }
-    specific.isSubtypeOf(table.resolve(parse<Expression>("Class<Tag>"))) shouldBe true
-
-    // T8-1 and T8-10 require true: the domain narrows while the predicate still tests
-    // the same candidate class. The implementation instead compares the original bounds.
-    specific.isSubtypeOf(general) shouldBe false
-  }
-
-  @Test
-  internal fun `rendering a class-literal meet incorrectly loses its represented-class binding`() {
+  internal fun `a candidate rejected by a containing dependency incorrectly aborts a meet`() {
     val table =
         loadTypes(
-            """
-            CLASS Player1 : Owner
-            CLASS Player2 : Owner
-            ABSTRACT CLASS Tag : Owned {
-              CLASS BuildingTag
-              CLASS SpaceTag
-            }
-            """
+            "ABSTRACT CLASS Card { ABSTRACT CLASS Project { CLASS P1 }\nCLASS Other }",
+            "CLASS Staged<Class<Project>>",
         )
-    val refined =
-        table.resolve(parse<Expression>("Class<@Tag>(HAS @Tag<Player1>, HAS Tag<Player2>)"))
-    val building = table.resolve(parse<Expression>("Class<BuildingTag>"))
-    val intersection = table.glb(refined, building)!!
+    // Project is abstract, so Staged has an open argument position. Both operands are valid.
+    val filtered = table.resolve(parse<Expression>("Class<@Card>(HAS Staged<Class<@Card>>)"))
+    val other = table.resolve(parse<Expression>("Class<Other>"))
+    other.narrows(filtered, fullWorld) shouldBe false
 
-    for (expression in listOf(intersection.expression, intersection.expressionFull)) {
-      table.resolve(expression) shouldBe intersection
-      val retainedWorld = RecordingWorld()
-      building.narrows(table.resolve(expression), retainedWorld) shouldBe true
-      retainedWorld.questions shouldBe listOf("BuildingTag<Player1>", "Tag<Player2>")
-
-      val reparsed = table.resolve(parse<Expression>(expression.toString()))
-      val reparsedWorld = RecordingWorld()
-      building.narrows(reparsed, reparsedWorld) shouldBe true
-      // T5-6 requires the same type and world questions. Text instead loses the T8-10
-      // candidate binding; the unmarked Player2 predicate stays unchanged.
-      reparsed shouldNotBe intersection
-      reparsedWorld.questions shouldBe listOf("Tag<Player1>", "Tag<Player2>")
+    // The candidate cannot fill Staged's argument. The meet should be absent, but validation
+    // of the rewritten Staged<Class<Other>> escapes as an expression error instead.
+    for ((left, right) in listOf(filtered to other, other to filtered)) {
+      shouldThrow<ExpressionException> { table.glb(left, right) }.detail shouldContain
+          "argument `Class<Other>` does not match an available dependency"
     }
   }
 

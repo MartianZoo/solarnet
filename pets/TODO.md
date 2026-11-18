@@ -50,20 +50,12 @@ Delete entries when they are done.
   dependency/default expansion, concrete-type enumeration, and automatic-effect cascades. The
   current depth and subtraction limits are not a general execution-work budget.
 
-- Skip equality-incompatible subclasses in concrete-type queries (T11-1, T11-3, and T12-4).
-  Pets `BugsTest` shows `Pair<First, Second>` should retain `Independent<First, Second>` and omit
-  `Same`, whose two arguments must agree. Enumeration and automatic narrowing instead throw while
-  constructing `Same<First, Second>`; inhabitance returns true or throws depending on declaration order.
-
-- Preserve represented-class bindings when rendered types are parsed again (T5-6 and T8-10).
-  Pets `BugsTest` shows a predicate that asks about `BuildingTag<Player1>` before rendering
-  incorrectly asks about `Tag<Player1>` afterward. A repair must also handle candidate classes
-  with fixed dependencies and nested declarations sharing the candidate's bound without losing
-  their distinct bindings.
-
-- Recognize the same represented-class predicate under a narrower bound (T8-1 and T8-10).
-  Pets `BugsTest` shows `Class<@BuildingTag>(HAS @BuildingTag)` incorrectly fails to narrow
-  `Class<@Tag>(HAS @Tag)`, although both predicates ask about the selected class.
+- Return an absent meet when a represented-class reference cannot fill a containing dependency.
+  Pets `BugsTest` has valid operands `Class<@Card>(HAS Staged<Class<@Card>>)` and `Class<Other>`
+  with `Staged<Class<Project>>`, where Project is abstract and Other is not a Project. Narrowing
+  correctly returns false, but both meet orders throw while validating `Staged<Class<Other>>`.
+  Fix through the existing argument matcher; do not duplicate matching or swallow arbitrary
+  expression errors. This remains separate from conflicts in the reference's own dependencies.
 
 - Improve the bracketed English fragments exposed by removing the exact-expression phrase table,
   using ordinary composition only where it stays small. Marker effects, distinct-type filters,

@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.RepresentedClassReference
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
@@ -430,12 +431,7 @@ public abstract class ClassTable {
             .filterNot(Class::abstract)
             .filter(concreteClassIsInhabited)
             .flatMap { klass ->
-              val dependencies = glb(unrefined.dependencies, klass.dependencies)
-              if (dependencies == null) {
-                emptySequence()
-              } else {
-                concretizeDependencies(klass.withAllDependencies(dependencies))
-              }
+              glb(unrefined, klass.baseType)?.let(concretizeDependencies) ?: emptySequence()
             }
     return applyStructuralRefinement(type, candidates)
   }
@@ -517,12 +513,28 @@ public abstract class ClassTable {
    *
    * @throws ExpressionException if any expression in [node] is invalid in this universe.
    */
-  public fun checkAllTypes(node: PetNode): Unit = node.visitDescendants {
-    if (it is Expression) {
-      resolve(it).expression
-      false
-    } else {
-      true
+  public fun checkAllTypes(node: PetNode) {
+    // Already-expanded references belong to an enclosing class literal. Validate their types
+    // without letting a nested literal adopt them as its own candidate references.
+    val unmarkOuterReferences =
+        object : PetTransformer() {
+          override fun transformNode(node: PetNode): PetNode {
+            val transformed = transformChildren(node)
+            return if (
+                transformed is Expression &&
+                    transformed.typeVariableName is RepresentedClassReference
+            ) {
+              transformed.copy(typeVariableName = null)
+            } else if (transformed == node) node else transformed
+          }
+        }
+    node.visitDescendants {
+      if (it is Expression) {
+        resolve(unmarkOuterReferences.transformExpression(it)).expression
+        false
+      } else {
+        true
+      }
     }
   }
 
