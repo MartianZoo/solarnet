@@ -76,6 +76,8 @@ ABSTRACT CLASS GameMode : Module {
     HAS 2 Player
     autoSelectWhen = HAS "2 Player"
 
+    SetupPhase: EACH Me@Player { SOON { 20 TerraformRating } }
+
     This: ClaimMilestoneAction, FundAwardAction
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
 
@@ -99,6 +101,7 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<This, Class<Steel>>, 3 BaseResourceValue<This, Class<Titanium>>
 
+  SetupPhase: 10 ProjectCard<This, Selecting>
   SetupPhase IF MAX 0 BeginnerVariant: StandardOption<This>
   SetupPhase IF BeginnerVariant: BeginnerOption<This> OR StandardOption<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4? ProjectCard<This, Selecting> THEN BuySelectedCards<This>
@@ -106,10 +109,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 }
 
 "A player's persistent choice of starting procedure"
-ABSTRACT CLASS CorporationOption : Owned<Player>, System {
-  This IF MultiplayerMode: 20 TerraformRating
-  This IF SoloMode: 14 TerraformRating
-}
+ABSTRACT CLASS CorporationOption : Owned<Player>, System
 
 "A unit in the configured number of corporation cards offered to each player"
 CLASS SelectableCorporationCount : System
@@ -118,7 +118,7 @@ CLASS SelectableCorporationCount : System
 CLASS StandardOption : CorporationOption {
   This: CorporationCard / SelectableCorporationCount, \
     -CorporationCard / (SelectableCorporationCount - 1), \
-    10 ProjectCard<Selecting>, -10? ProjectCard<Selecting>
+    -10? ProjectCard<Selecting>
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
@@ -162,7 +162,6 @@ ABSTRACT CLASS Phase : System, Iconic {
       PlayCard<Me@Player, Class<BeginnerCard>, Class<CardFront>, Hand>
     OfferAction IF MAX 0 CorporationCard<Hand>, MAX 0 BeginnerCard<Hand>: PassBaton
     CardFront<Class<CorporationCard>>: BuySelectedCards
-    CardFront<Class<BeginnerCard>>: BuySelectedCards
   }
   CLASS ResearchPhase {
     This: Generation

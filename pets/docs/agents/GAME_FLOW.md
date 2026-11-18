@@ -39,7 +39,7 @@ actions belong to the same player.
 
 | Activity | ActionScope lifetime |
 | --- | --- |
-| Initial corporation play | Includes starting project-card payment and transfer |
+| Initial corporation play | Includes the paid or free transfer of starting project cards |
 | Each Prelude played during the Prelude phase | Includes its effects and nested plays |
 | Each accepted action-phase opportunity | A fresh scope, including the optional second action |
 | Each final greenery placement | Includes placement effects; passing the baton creates no scope |

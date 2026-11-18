@@ -178,12 +178,10 @@ the remaining audit items listed there are **not yet discussed or approved**.
 - Replace the archived *Life of an Effect* walkthrough with a current account of lexical `Me`
   and the transformation pipeline.
 - Decide whether Agent submissions must use concrete amounts instead of arithmetic over `Owed`.
-- Give beginner and standard players the same ten-card `Selecting` offer; beginners keep it free,
-  while standard players discard and buy their choices.
-  Also investigate playing initial corporations and Preludes directly from `Selecting`. First
-  settle whether unplayed Preludes count as cards in hand for Public Plans played during Prelude
-  setup; the collected rulebooks and Jacob posts do not explicitly settle that interaction.
-  Research: `_local/research/prelude-hand-and-todo-followups-2026-11-17.md`.
+- Replace the starting-project purchase listener on gaining a corporation with an explicit
+  continuation after actual corporation play. `PlayCard THEN BuySelectedCards` currently bills
+  before the corporation and its purchase modifiers enter play. The TerraLabs experiment and
+  retained test are recorded in [card handling](pets/docs/agents/CARD_MODEL.md#external-offer-procedures).
 - Investigate selecting tasks by their main class without narrowing them, including grouped
   instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
 - Replace ordering-only `::` protocols in pricing/acceptance, wild-tag preparation, and

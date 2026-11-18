@@ -240,11 +240,11 @@ internal abstract class TfmSandboxTest {
           else "BeginnerOption"
       )
       player.doTask(if (players.size == 1) "14 TerraformRating" else "20 TerraformRating")
+      player.doTask("10 ProjectCard<Selecting>")
       if (index == 0 && (kimCorporation != null || !playCorporations)) {
         player.doTasks(
             "2 CorporationCard",
             "-CorporationCard",
-            "10 ProjectCard<Selecting>",
             "-5 ProjectCard<Selecting>",
         )
       } else {
@@ -269,7 +269,7 @@ internal abstract class TfmSandboxTest {
               "PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation${index + 1}>, Hand>",
               "BeginnerCorporation${index + 1} FROM BeginnerCard",
               "42 MC",
-              "10 ProjectCard",
+              "10 ProjectCard<Hand FROM Selecting>",
           )
         }
       }

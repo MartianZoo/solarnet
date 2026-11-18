@@ -5,6 +5,8 @@ CLASS SoloMode : GameMode {
 
   HAS =1 SoloObjective
 
+  SetupPhase: EACH Me@Player { SOON { 14 TerraformRating } }
+
   This: SoloOpponent
   This: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft

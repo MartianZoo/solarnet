@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -120,15 +121,22 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     players.forEach { it.doTask("4 ProjectCard<Selecting>") }
     kim.doTask("-4 ProjectCard<Selecting>")
     admin.count("ActionScope") shouldBe 0
-    stan.doTask("-4 ProjectCard<Selecting>")
+    // The beginner's free starting cards do not make later Research purchases free.
+    stan.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    stan.assertCounts(12 to "ProjectCard<Hand>", 0 to "ProjectCard<Selecting>", 57 to "MC")
     admin.count("ActionPhase") shouldBe 1
     stan.count("Baton") shouldBe 1
     admin.count("ActionScope") shouldBe 0
   }
 
   @Test
-  internal fun `A corporation scope includes its starting project purchase`() {
+  internal fun `Corporation scopes include paid and free starting project transfers`() {
     newTestGameBeforeCorporationPlay(playerCount = 2)
+    stan.assertCounts(10 to "ProjectCard<Selecting>", 0 to "ProjectCard<Hand>")
     kim.doTask("PlayCard<Class<CorporationCard>, Class<CrediCor>>")
     admin.count("ActionScope<Kim>") shouldBe 1
     kim.doTasks("CrediCor FROM CorporationCard", "57 MC")
@@ -137,10 +145,22 @@ internal class ActionScopeTest : TfmGameplayTest(NONE) {
     admin.count("ActionScope<Kim>") shouldBe 1
     kim.doTask("5 ProjectCard<Hand FROM Selecting>")
     admin.count("ActionScope") shouldBe 0
+    // Kim's cleanup leaves Stan's starting offer available for his corporation turn.
+    stan.assertCounts(10 to "ProjectCard<Selecting>", 0 to "ProjectCard<Hand>")
 
     stan.doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
     admin.count("ActionScope<Stan>") shouldBe 1
     admin.count("ActionScope<Kim>") shouldBe 0
+    stan.doTasks("BeginnerCorporation2 FROM BeginnerCard", "42 MC")
+    admin.count("ActionScope<Stan>") shouldBe 1
+    stan.doTask("10 ProjectCard<Hand FROM Selecting>")
+    admin.count("ActionScope") shouldBe 0
+    stan.assertCounts(
+        10 to "ProjectCard<Hand>",
+        0 to "ProjectCard<Selecting>",
+        42 to "MC",
+        0 to "Owed",
+    )
   }
 
   @Test

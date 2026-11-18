@@ -33,17 +33,23 @@ internal class GameFlowTest : TfmGameplayTest(EAGER) {
   @Test
   internal fun startingPurchasesUseTheCorporationAlreadyInPlay() {
     for ((corporation, cost) in listOf(TerraLabsResearch to 2, Polyphemos to 10)) {
-      initializeGame(withTestSoloSetup(Canon.gamePremise(GameConfig("$corporation", "Player1"))))
+      initializeGame(
+          withTestSoloSetup(
+              Canon.gamePremise(GameConfig("$corporation, BeginnerVariant", "Player1"))
+          )
+      )
       val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
       agents.taskLog.gameStarted()
       admin.beginOperation("SetupPhase FROM BootstrapPhase")
-      player.doTasks(
-          "14 TerraformRating",
-          "2 CorporationCard",
-          "-CorporationCard",
-          "10 ProjectCard<Selecting>",
-          "-8 ProjectCard<Selecting>",
+      player.doTasks("14 TerraformRating", "10 ProjectCard<Selecting>")
+      player.assertCounts(
+          14 to "TerraformRating",
+          10 to "ProjectCard<Selecting>",
+          0 to "CorporationOption",
       )
+      player.selectTask("BeginnerOption OR StandardOption")
+      player.narrowTask("StandardOption")
+      player.doTasks("2 CorporationCard", "-CorporationCard", "-8 ProjectCard<Selecting>")
       admin.count("CorporationPhase") shouldBe 1
 
       player.doTasks("PlayCard<Class<CorporationCard>, Class<$corporation>>")
@@ -89,17 +95,28 @@ internal class GameFlowTest : TfmGameplayTest(EAGER) {
         0 to "ProjectCard",
         0 to "CorporationOption",
     )
+    // Common setup is available before either player chooses a corporation procedure.
+    listOf(p1, p2).forEach { player ->
+      player.doTasks("20 TerraformRating", "10 ProjectCard<Selecting>", "4 PreludeCard")
+      player.assertCounts(
+          20 to "TerraformRating",
+          10 to "ProjectCard<Selecting>",
+          0 to "ProjectCard<Hand>",
+          4 to "PreludeCard",
+          0 to "CorporationOption",
+      )
+    }
     p1.selectTask("BeginnerOption OR StandardOption")
     p1.narrowTask("BeginnerOption")
-    p1.assertCounts(1 to "BeginnerOption", 0 to "BeginnerCard", 0 to "PreludeCard")
+    p1.assertCounts(1 to "BeginnerOption", 0 to "BeginnerCard")
     p1.doTask("BeginnerCard")
-    p1.doTask("4 PreludeCard")
     p2.selectTask("BeginnerOption OR StandardOption")
     p2.narrowTask("StandardOption")
-    p2.assertCounts(1 to "StandardOption", 0 to "CorporationCard", 0 to "PreludeCard")
+    p2.assertCounts(1 to "StandardOption", 0 to "CorporationCard")
     p2.doTask("2 CorporationCard")
-    p2.doTask("4 PreludeCard")
-    p2.doTask("10 ProjectCard<Selecting>")
+    shouldThrow<TaskException> { p1.doTask("-ProjectCard<Selecting>") }
+    p1.count("ProjectCard<Selecting>") shouldBe 10
+
     p2.doTask("-CorporationCard")
     p2.doTask("-5 ProjectCard<Selecting>")
     p1.doTask("-2 PreludeCard")
@@ -108,7 +125,8 @@ internal class GameFlowTest : TfmGameplayTest(EAGER) {
     p1.assertCounts(
         1 to "BeginnerCard<Hand>",
         0 to "CorporationCard",
-        0 to "ProjectCard<Selecting>",
+        10 to "ProjectCard<Selecting>",
+        0 to "ProjectCard<Hand>",
         2 to "PreludeCard",
     )
     p2.assertCounts(
@@ -118,20 +136,18 @@ internal class GameFlowTest : TfmGameplayTest(EAGER) {
         2 to "PreludeCard",
     )
 
-    p1.doTask("20 TerraformRating")
-    p2.doTask("20 TerraformRating")
-
     shouldThrow<TaskException> {
       p1.doTask("PlayCard<Class<CorporationCard>, Class<CrediCor>, Hand>")
     }
     p1.doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
     p1.doTask("BeginnerCorporation1 FROM BeginnerCard<Hand>")
     p1.doTask("42 MC")
-    p1.doTask("10 ProjectCard")
+    p1.doTask("10 ProjectCard<Hand FROM Selecting>")
     p1.assertCounts(
         1 to "BeginnerCorporation1",
         42 to "MC",
-        10 to "ProjectCard",
+        10 to "ProjectCard<Hand>",
+        0 to "ProjectCard<Selecting>",
         0 to "Owed",
     )
 
@@ -162,25 +178,27 @@ internal class GameFlowTest : TfmGameplayTest(EAGER) {
       player.selectTask("BeginnerOption OR StandardOption")
       player.narrowTask("BeginnerOption")
       player.doTask("BeginnerCard")
+      player.doTask("10 ProjectCard<Selecting>")
       player.doTask("20 TerraformRating")
     }
 
     p1.doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
     p1.doTask("BeginnerCorporation1 FROM BeginnerCard<Hand>")
     p1.doTask("42 MC")
-    p1.doTask("10 ProjectCard")
+    p1.doTask("10 ProjectCard<Hand FROM Selecting>")
 
     shouldThrow<LimitsException> { p2.runOperation("BeginnerCorporation1") }
     p2.assertCounts(
         0 to "BeginnerCorporation1",
         1 to "BeginnerCard",
-        0 to "ProjectCard",
+        10 to "ProjectCard<Selecting>",
+        0 to "ProjectCard<Hand>",
     )
 
     p2.doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
     p2.doTask("BeginnerCorporation2 FROM BeginnerCard<Hand>")
     p2.doTask("42 MC")
-    p2.doTask("10 ProjectCard")
+    p2.doTask("10 ProjectCard<Hand FROM Selecting>")
 
     p1.assertCounts(
         1 to "BeginnerOption",

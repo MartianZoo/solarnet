@@ -66,7 +66,7 @@ internal class OtbGame20261111Test : FullGameTest() {
   fun game20261111() {
     startGame()
     // Colonies and Turmoil give both players their fleets and lobby delegates through Admin's setup
-    // effects. Starting TR comes from each player's CorporationOption, so we submit it.
+    // effects. Each player submits their starting TR from the shared setup rules.
     green.doTask("20 TerraformRating")
     pink.doTask("20 TerraformRating")
 

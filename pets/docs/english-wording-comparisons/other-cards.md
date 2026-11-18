@@ -14,7 +14,7 @@ Class: `BeginnerCorporation`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 42 M€. INSTEAD OF CHOOSING FROM 10 CARDS DURING SETUP, YOU GET 10 CARDS FOR FREE. | — |
-| Generated text | Gain 42 M€. Draw 10 cards. | — |
+| Generated text | Gain 42 M€. Keep 10 cards from the selection. | — |
 
 Pets declaration:
 
@@ -22,7 +22,7 @@ Pets declaration:
 "A beginner corporation supplies 42 M€ and all ten starting project cards for free"
 ABSTRACT CLASS BeginnerCorporation : CardFront<Class<BeginnerCard>> {
   cost = 0
-  This: 42 MC, 10 ProjectCard
+  This: 42 MC, 10 ProjectCard<Hand FROM Selecting>
 }
 ```
 

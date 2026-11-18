@@ -5,8 +5,8 @@ CLASS PreludeExpansion : Module {
   // Premise adjustments, including negative counts, run immediately after module creation.
   This:: 4 SelectablePreludeCount
 
-  CorporationOption: PreludeCard / SelectablePreludeCount, \
-    -PreludeCard / (SelectablePreludeCount - 2)
+  SetupPhase: EACH Me@Player { SOON { \
+    PreludeCard / SelectablePreludeCount, -PreludeCard / (SelectablePreludeCount - 2) } }
 
   -Baton IF MAX 0 Baton, CorporationPhase: FINALLY { PreludePhase FROM CorporationPhase }
 }

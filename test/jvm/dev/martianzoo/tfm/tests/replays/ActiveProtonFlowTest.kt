@@ -28,6 +28,20 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
           "KB",
           "ER",
       )
+  private val greenStartingCards =
+      listOf(
+          GreatDam,
+          GeothermalPower,
+          IceCapMelting,
+          OptimalAerobraking,
+          Predators,
+          NuclearPower,
+          EquatorialMagnetizer,
+          ConvoyFromEuropa,
+          SpaceMirrors,
+          PermafrostExtraction,
+      )
+
   override val cardArrivalOrder =
       mapOf(
           cn("BeginnerCard") to mapOf(cn("KB") to listOf(cn("BeginnerCorporation1"))),
@@ -57,7 +71,9 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
                           HeatTrappers,
                           Farming,
                       ),
-                  cn("KB") to listOf(ImmigrantCity, MagneticFieldGenerators, Ants, LargeConvoy),
+                  cn("KB") to
+                      greenStartingCards +
+                          listOf(ImmigrantCity, MagneticFieldGenerators, Ants, LargeConvoy),
               ),
       )
   override val selectingDepartureOrder =
@@ -95,6 +111,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     pink.doTask("-CorporationCard")
     pink.doTask("-5 ProjectCard<Selecting>")
     green.doTask("BeginnerCard")
+    green.doTask("10 ProjectCard<Selecting>")
 
     generation1()
     generation2()
@@ -172,23 +189,12 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
   }
 
   private fun generation1() {
-    green.draw(
-        GreatDam,
-        GeothermalPower,
-        IceCapMelting,
-        OptimalAerobraking,
-        Predators,
-        NuclearPower,
-        EquatorialMagnetizer,
-        ConvoyFromEuropa,
-        SpaceMirrors,
-        PermafrostExtraction,
-    )
+    green.draw(*greenStartingCards.toTypedArray())
     with(green) {
       doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
       doTask("BeginnerCorporation1 FROM BeginnerCard")
       doTask("42 MC")
-      doTask("10 ProjectCard")
+      doTask("10 ProjectCard<Hand FROM Selecting>")
     }
     pink.draw(
         PowerPlant,

@@ -23,14 +23,19 @@ generic card backs by Player and location, never by printed identity:
   after the event's other work finishes. Optional flips, such as Pharmacy Union's, and recipient
   choices, such as Law Suit's, still require Player selection before Admin executes the transfer.
 
-Modeled reveal effects explicitly empty their temporary locations. Retained
-starting project cards rest in `Selecting` after setup until their Corporation-phase purchase is
-paid and transferred. Project cards selected for a purchase also stay there while payment or the
+Modeled reveal effects explicitly empty their temporary locations. Starting project cards rest
+in `Selecting` after setup until their Corporation-phase purchase or free beginner transfer
+finishes. Project cards selected for a purchase also stay there while payment or the
 transfer task is outstanding. Each `ActionScope` schedules Admin cleanup under `LATER`: after the
 action's ordinary work, Admin discards remaining card backs in that Player's `Selecting` before
 scope removal. Research schedules the same cleanup for project backs after every Player's purchase
 work and before its phase handoff. Setup selections still wait for the corporation phase. An
 isolated sandbox action receives scope cleanup even when it has no seat-order continuation.
+
+Retained starting corporations and Preludes deliberately stay in `Hand`. An unplayed starting
+Prelude must survive its owner's corporation and earlier Prelude actions, while unused temporary
+offers such as New Partner's must be discarded. Keep that distinction rather than moving the
+starting cards into `Selecting` or adding exceptions to its action cleanup.
 
 Fixed-size project-card purchase offers enter `Selecting` first. Searches intentionally have no
 selection pool: the matching card enters the hand, and skipped cards have no relevant
@@ -78,17 +83,29 @@ Prelude plays use `PlayPrelude`: play the chosen face, or discard its anonymous 
 signal serves the Prelude phase and additional Prelude plays granted by cards. Offered cards in the
 fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in `Selecting`. Their
 chosen cards are played directly from there; turn cleanup discards the others.
-Each Player first gains the persistent, owned `CorporationOption` recording their chosen setup path.
-Both choices are `System`: Admin records the standard choice when the variant is disabled, while
-the beginner-versus-standard choice remains a Player task when `BeginnerVariant` is enabled.
-The `StandardOption` path then puts both offered
-corporations in `Hand` and ten project cards in `Selecting`; one corporation and any unwanted
-project cards are discarded. The `BeginnerOption` path creates only `BeginnerCard`; the beginner
-corporation later adds ten project cards directly to `Hand`, without moving cards from `Selecting`.
-Prelude's setup rule reacts to `CorporationOption` and owns its deal and discard.
-Corporation phase plays the retained corporation or beginner card from `Hand`. Gaining that
-`CardFront` triggers `BuySelectedCards`, so the corporation's purchase modifiers are already live
-when Admin starts the purchase. Completing the earlier `PlayCard` signal is not sufficient.
+Every Player's `SetupPhase` rule offers ten project cards. `MultiplayerMode` and `SoloMode`
+supply 20 and 14 starting TR respectively through their own `SetupPhase` rules. These grants are
+independent of corporation procedure choice. The persistent, owned `CorporationOption` records
+only that choice and supplies its procedure-specific work. Both choices are `System`: Admin
+records the standard choice when
+the variant is disabled, while the beginner-versus-standard choice remains a Player task when
+`BeginnerVariant` is enabled.
+`StandardOption` also puts the offered corporations in `Hand`; the player discards all but their
+chosen corporation and any unwanted project cards. `BeginnerOption` supplies `BeginnerCard` and no
+project-card discard choice. The beginner corporation later transfers all ten project cards from
+`Selecting` to `Hand` for free, alongside its 42 M€. Both paths use the ordinary Research purchase
+procedure in later generations.
+Prelude's own `SetupPhase` rule deals its offer to every Player and supplies the discard choice.
+Corporation phase plays the retained corporation or beginner card from `Hand`. Gaining a standard
+corporation's `CardFront` triggers `BuySelectedCards`, so its purchase modifiers are already live
+when Admin starts the purchase. This inventory-triggered continuation is a sequencing workaround;
+the intended workflow should explicitly continue after corporation play. A direct
+`PlayCard THEN BuySelectedCards` experiment billed two starting cards at 6 M€ while TerraLabs was
+still unplayed, before its discount could make the bill 2 M€. `PlayCard` completes its signal task
+before the queued card-play work; `THEN` does not wait for those reactions. See
+[sequencing](../../../docs/agents/SEQUENCING.md#what-then-does) and
+`GameFlowTest.startingPurchasesUseTheCorporationAlreadyInPlay`. The replacement remains deferred
+until actual card-play completion can be expressed cleanly.
 Gameplay callers choose the card face without repeating its location. `PlayCard` has no location
 default: `doTask` intersects the caller's choice with the pending task, which supplies the authorized
 source (`Hand` or a stored project for ordinary plays, `Selecting` for plays from a card's offer).

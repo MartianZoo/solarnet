@@ -107,8 +107,3 @@ Delete entries when they are done.
   initial offer, an exception in Baton's shared completion rule, and a separate first-action
   completion listener in `InRound`; it was reverted rather than exchanging repetition for exceptions.
   Consolidate corporation/beginner offers only if the result is clearer.
-  A guarded starting-Preludes-in-`Selecting` experiment did not provide the hoped-for generic hand
-  check: corporation cleanup discarded them, excluding Preludes from cleanup retained New Partner's
-  unused offer, and purchased project cards kept `CardBack<Hand>` nonempty after corporation play.
-  The experiment was reverted; any follow-up must distinguish retained cards from temporary offers
-  without adding disproportionate machinery.
