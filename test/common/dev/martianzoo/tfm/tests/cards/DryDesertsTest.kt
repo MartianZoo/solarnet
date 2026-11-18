@@ -1,25 +1,24 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class DryDesertsTest : TfmGameplayTest() {
+internal class DryDesertsTest : TfmGameplayTest(NONE) {
   @BeforeTest
   fun prepareCurrentEvent() {
     newTestGame(
-        addOptions = "TurmoilExpansion",
+        addOptions = "-QuickStartVariant, TurmoilExpansion",
         playerCount = 2,
         firstGlobalEvents = listOf("MinimalImpactPolicy", "RedResistance", "ScientificProgress"),
     )
     kim.doTask("Pass")
     stan.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    players.forEach { it.doTask("20 MC") }
     kim.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
   }
 
   @Test
@@ -29,12 +28,15 @@ internal class DryDesertsTest : TfmGameplayTest() {
     kim.exMachina("EventAnalysts, Chairman FROM Chairman<Neutral>")
     stan.doTask("Pass")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    // The Reds' first government restored both players' rating after Turmoil's reduction.
+    players.forEach { it.doTask("20 MC") }
     stan.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
     stan.doTask("-OceanTile<Tharsis_1_5>").expect("0 TerraformRating")
     admin.count("OceanTile<Tharsis_1_2>") shouldBe 1
     admin.count("OceanTile<Tharsis_1_5>") shouldBe 0
-    kim.doTasks("Heat", "Plant").expect("Heat, Plant, 0 Steel")
+    kim.doTask("EACH")
+    kim.doTasks("Heat", "Plant").expect("0 Steel")
+    stan.doTask("EACH") // No influence rewards for Stan.
+    players.forEach { it.doTask("4 ProjectCard<Selecting>") }
   }
 }

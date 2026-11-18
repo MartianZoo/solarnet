@@ -1,85 +1,107 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class EndgameRulesTest : TfmGameplayTest() {
+internal class EndgameRulesTest : TfmGameplayTest(NONE) {
+  // Omit unrelated production and colony choices; each scenario supplies its relevant position.
+  private val options = "-QuickStartVariant, -ColoniesExpansion"
+
   @Test
   internal fun `Final production supplies plants before final greenery without further terraforming`() {
-    reachMultiplayerEnd()
+    newTestGame("$options, -VenusNextExpansion", playerCount = 2)
+    // The earlier resource collection and terraforming are incidental to the final phase order.
+    kim.exMachina("7 Plant, PROD[Plant]")
+    admin.exMachina(
+        "-GpGameEndBarrier<Class<TemperatureStep>>, " +
+            "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
+    )
+
+    kim.doTask("Pass")
     stan.doTask("Pass")
-    expectChanges("1 Plant<Kim>, 1 Steel<Kim>") {
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
-    admin.count("ActionScope") shouldBe 0
-    kim.count("Pass") shouldBe 1
-    stan.selectTask("PassBaton") // Decline Stan's final greenery.
-    admin.count("ActionScope") shouldBe 0
+    kim.doTasks("20 MC", "Plant")
+    stan.doTask("20 MC")
     kim.completeOperation {
-          doTasks("UseAction<ConvertPlantsAction, Action1>")
-          admin.count("ActionScope<Kim>") shouldBe 1
-          doTask("GreeneryTile<Tharsis_3_3>")
+          doTasks(
+              "UseAction<ConvertPlantsAction, Action1>",
+              "8 Pay<Class<Plant>> FROM Plant",
+              "GreeneryTile<Tharsis_3_3>",
+          )
         }
-        .expect("-8 Plant, GreeneryTile, 0 OxygenStep, 0 TerraformRating")
-    admin.count("ActionScope") shouldBe 0
-    kim.count("Pass") shouldBe 1
-    kim.selectTask("PassBaton") // Decline another final greenery.
-    admin.count("ActionScope") shouldBe 0
+        .expect("0 OxygenStep, 0 TerraformRating")
+    kim.doTask("PassBaton") // No further final greenery.
+    stan.doTask("PassBaton") // No final greenery.
+
     kim.count("VictoryPoint") shouldBe 21
     stan.count("VictoryPoint") shouldBe 20
+    kim.count("Victory") shouldBe 1
   }
 
   @Test
   internal fun `MC breaks an otherwise tied multiplayer final score`() {
-    reachMultiplayerEnd()
+    newTestGame("$options, -VenusNextExpansion", playerCount = 2)
+    // Equal corporations and resources give a tied score; the patent sale supplies the tiebreaker.
+    admin.exMachina(
+        "-GpGameEndBarrier<Class<TemperatureStep>>, " +
+            "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
+    )
+    kim.turn { doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard") }
     stan.doTask("Pass")
-    kim.doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-        .expect("MC, -ProjectCard")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    stan.selectTask("PassBaton") // No final greenery.
-    kim.selectTask("PassBaton") // No final greenery.
+    players.forEach { it.doTask("20 MC") }
+    kim.doTask("PassBaton") // No final greenery.
+    stan.doTask("PassBaton") // No final greenery.
+
     kim.count("VictoryPoint") shouldBe 20
     stan.count("VictoryPoint") shouldBe 20
-    kim.count("MC") shouldBe stan.count("MC") + 1
+    kim.count("MC") shouldBe 63
+    stan.count("MC") shouldBe 62
     kim.count("Victory") shouldBe 1
     stan.count("Victory") shouldBe 0
   }
 
   @Test
   internal fun `Mandatory Venus keeps multiplayer going after the base parameters are complete`() {
-    reachMultiplayerEnd("MandatoryVenusVariant")
-    // Generation 42 still has a Solar phase because Venus is unfinished.
-    repeat(15) { finishMultiplayerGeneration("VenusStep") }
-    admin.count("Generation") shouldBe 57
+    newTestGame("$options, MandatoryVenusVariant", playerCount = 2)
+    // Prepare the base end conditions and leave Venus a step short; earlier terraforming is
+    // incidental.
+    admin.exMachina(
+        "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>, -GpGameEndBarrier<Class<TemperatureStep>>, " +
+            "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>, 14 VenusStep"
+    )
     kim.doTask("Pass")
     stan.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    kim.selectTask("PassBaton") // No final greenery.
-    stan.selectTask("PassBaton") // No final greenery.
-    admin.count("End") shouldBe 1
-    admin.count("GameScope") shouldBe 0
+    players.forEach { it.doTask("20 MC") }
+    admin.count("SolarPhase") shouldBe 1
+
+    // Real World Government terraforming clears the remaining end condition.
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("Generation") shouldBe 2
+    stan.doTask("Pass")
+    kim.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    stan.doTask("PassBaton") // No final greenery.
+    kim.doTask("PassBaton") // No final greenery.
+    kim.count("Victory") shouldBe 1
+    stan.count("Victory") shouldBe 1
   }
 
   @Test
   internal fun `An unfinished standard solo game loses after fourteen generations`() {
-    newTestGame(addOptions = "-VenusNextExpansion", playerCount = 1)
+    newTestGame("$options, -VenusNextExpansion", playerCount = 1)
+    // Here the countdown itself is under test, so exercise every generation.
     repeat(13) {
       kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("-4 ProjectCard<Selecting>")
+      kim.doTasks("14 MC", "4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
     }
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    kim.doTask("14 MC")
     admin.count("Generation") shouldBe 14
     kim.count("Victory") shouldBe 0
     admin.count("FinalGreeneryPhase") shouldBe 0
@@ -88,18 +110,22 @@ internal class EndgameRulesTest : TfmGameplayTest() {
 
   @Test
   internal fun `Prelude shortens the standard solo game to twelve generations`() {
-    newTestGame(addOptions = "PreludeExpansion, -VenusNextExpansion", playerCount = 1)
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$AlliedBank>>")
-    kim.autoExecNow(EAGER)
-
+    newTestGame("$options, PreludeExpansion, -VenusNextExpansion", playerCount = 1)
+    kim.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<Donation>>",
+        "Donation FROM PreludeCard",
+        "21 MC",
+        "PlayCard<Class<PreludeCard>, Class<AlliedBank>>",
+        "AlliedBank FROM PreludeCard",
+        "PROD[4 MC]",
+        "3 MC",
+    )
     repeat(11) {
       kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("-4 ProjectCard<Selecting>")
+      kim.doTasks("18 MC", "4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
     }
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    kim.doTask("18 MC")
     admin.count("Generation") shouldBe 12
     kim.count("Victory") shouldBe 0
     admin.count("GameScope") shouldBe 0
@@ -108,20 +134,24 @@ internal class EndgameRulesTest : TfmGameplayTest() {
   @Test
   internal fun `Prelude also shortens the TR63 game to twelve generations`() {
     newTestGame(
-        addOptions = "PreludeExpansion, Tr63SoloObjective, -VenusNextExpansion",
+        "$options, PreludeExpansion, Tr63SoloObjective, -VenusNextExpansion",
         playerCount = 1,
     )
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$AlliedBank>>")
-    kim.autoExecNow(EAGER)
-
+    kim.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<Donation>>",
+        "Donation FROM PreludeCard",
+        "21 MC",
+        "PlayCard<Class<PreludeCard>, Class<AlliedBank>>",
+        "AlliedBank FROM PreludeCard",
+        "PROD[4 MC]",
+        "3 MC",
+    )
     repeat(11) {
       kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("-4 ProjectCard<Selecting>")
+      kim.doTasks("18 MC", "4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
     }
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    kim.doTask("18 MC")
     admin.count("Generation") shouldBe 12
     kim.count("Victory") shouldBe 0
     admin.count("GameScope") shouldBe 0
@@ -129,216 +159,178 @@ internal class EndgameRulesTest : TfmGameplayTest() {
 
   @Test
   internal fun `Completing the base parameters wins standard solo without Venus`() {
-    prepareSoloEconomy("-VenusNextExpansion")
-    playSoloTerraforming(completeVenus = false)
+    newTestGame("$options, -VenusNextExpansion", playerCount = 1)
+    prepareFinalSoloTemperature()
+    kim.completeOperation {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+    }
+    kim.doTask("Pass")
+    kim.doTask("15 MC")
     kim.count("Victory") shouldBe 1
-    admin.count("GameScope") shouldBe 1
-    kim.selectTask("PassBaton") // Decline final greenery.
-    admin.count("End") shouldBe 1
-    admin.count("GameScope") shouldBe 0
-    game.events.changesSinceSetup().last().change.removing?.type?.className shouldBe cn("GameScope")
+    kim.doTask("PassBaton") // No final greenery.
+    kim.count("VictoryPoint") shouldBe 15
   }
 
   @Test
   internal fun `Completing only the base parameters loses standard solo with Venus`() {
-    prepareSoloEconomy("")
-    playSoloTerraforming(completeVenus = false)
-    admin.count("Generation") shouldBe 12
+    newTestGame(options, playerCount = 1)
+    prepareFinalSoloTemperature()
+    kim.completeOperation {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+    }
+    kim.doTask("Pass")
+    kim.doTask("15 MC")
     kim.count("Victory") shouldBe 0
-    admin.count("TemperatureStep") shouldBe 19
-    admin.count("OxygenStep") shouldBe 14
-    admin.count("OceanTile") shouldBe 9
     admin.count("VenusStep") shouldBe 0
+    admin.count("GameScope") shouldBe 0
   }
 
   @Test
   internal fun `Completing Venus as well wins standard solo`() {
-    prepareSoloEconomy("")
-    playSoloTerraforming(completeVenus = true)
+    newTestGame(options, playerCount = 1)
+    prepareFinalSoloTemperature()
+    // Leave Venus a step short too; both final increases happen through normal projects.
+    admin.exMachina("14 VenusStep")
+    kim.completeOperation {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+    }
+    kim.completeOperation {
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+    }
+    kim.doTask("Pass")
+    kim.doTask("16 MC")
     kim.count("Victory") shouldBe 1
-    kim.selectTask("PassBaton") // Decline final greenery.
+    kim.doTask("PassBaton") // No final greenery.
+    kim.count("VictoryPoint") shouldBe 16
   }
 
   @Test
   internal fun `TR63 wins with incomplete parameters and final greenery scores without TR`() {
     // Jacob corrected his earlier TR63 ruling: https://boardgamegeek.com/article/37132579
-    prepareSoloEconomy("Tr63SoloObjective, -VenusNextExpansion")
-    playSoloBufferGas(63)
+    newTestGame("$options, Tr63SoloObjective, -VenusNextExpansion", playerCount = 1)
+    // Prepare 62 TR and plants; the last rating increase and final greenery are the subject.
+    kim.exMachina("48 TerraformRating, 8 Plant")
+    admin.exMachina("-13 SoloGenerationsLeft")
+    kim.completeOperation {
+      doTasks(*standardProjectTasks("BufferGasProject"), "16 Pay<> FROM MC", "TerraformRating")
+    }
+    kim.doTask("Pass")
+    kim.doTask("63 MC")
     kim.count("Victory") shouldBe 1
     admin.count("OxygenStep") shouldBe 0
     kim.completeOperation {
-          doTasks("UseAction<ConvertPlantsAction, Action1>")
-          doTask("GreeneryTile<Tharsis_3_3>")
+          doTasks(
+              "UseAction<ConvertPlantsAction, Action1>",
+              "8 Pay<Class<Plant>> FROM Plant",
+              "GreeneryTile<Tharsis_3_3>",
+          )
         }
-        .expect("GreeneryTile, -8 Plant, 0 OxygenStep, 0 TerraformRating")
-    kim.selectTask("PassBaton") // Decline further final greeneries.
+        .expect("0 OxygenStep, 0 TerraformRating")
+    kim.doTask("PassBaton") // No further final greenery.
     kim.count("TerraformRating") shouldBe 63
-    // Miranda Resort supplies one printed VP in addition to the final greenery.
-    kim.count("VictoryPoint") shouldBe 65
+    kim.count("VictoryPoint") shouldBe 64
   }
 
   @Test
   internal fun `TR63 loses at sixty two despite abundant money and plants`() {
-    prepareSoloEconomy("Tr63SoloObjective, -VenusNextExpansion")
-    playSoloBufferGas(62)
-    admin.count("Generation") shouldBe 12
+    newTestGame("$options, Tr63SoloObjective, -VenusNextExpansion", playerCount = 1)
+    // Resources cannot substitute for the missing rating at the end of the final generation.
+    kim.exMachina("48 TerraformRating, 100 MC, 16 Plant")
+    admin.exMachina("-13 SoloGenerationsLeft")
+    kim.doTask("Pass")
+    kim.doTask("62 MC")
     kim.count("TerraformRating") shouldBe 62
     kim.count("Victory") shouldBe 0
     admin.count("FinalGreeneryPhase") shouldBe 0
+    admin.count("GameScope") shouldBe 0
   }
 
   @Test
   internal fun `Completing Mars below sixty three TR does not win the TR63 objective`() {
-    prepareSoloEconomy("Tr63SoloObjective, -VenusNextExpansion")
-    playSoloTerraforming(completeVenus = false)
-    admin.count("Generation") shouldBe 12
+    newTestGame("$options, Tr63SoloObjective, -VenusNextExpansion", playerCount = 1)
+    prepareFinalSoloTemperature()
+    kim.completeOperation {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+    }
+    kim.doTask("Pass")
+    kim.doTask("15 MC")
+    kim.count("Victory") shouldBe 0
     admin.count("TemperatureStep") shouldBe 19
     admin.count("OxygenStep") shouldBe 14
     admin.count("OceanTile") shouldBe 9
-    kim.count("TerraformRating") shouldBe 56
-    kim.count("Victory") shouldBe 0
+    kim.count("TerraformRating") shouldBe 15
+    admin.count("GameScope") shouldBe 0
   }
 
   @Test
   internal fun `Losing rating after reaching sixty three still loses the solo game`() {
-    prepareSoloEconomy(
-        "Tr63SoloObjective, -VenusNextExpansion, BoardOfDirectors, Pristar",
-        BoardOfDirectors,
+    newTestGame(
+        "$options, Tr63SoloObjective, -VenusNextExpansion, BoardOfDirectors, Pristar",
+        playerCount = 1,
     )
-    repeat(11) {
-      while (kim.count("MC") >= 16 && kim.count("TerraformRating") < 63) kim.completeOperation {
-        doTasks(
-            *standardProjectTasks("BufferGasProject"),
-        )
-        autoExecNow(EAGER)
-      }
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("-4 ProjectCard<Selecting>")
-    }
-    while (kim.count("TerraformRating") < 63) kim.completeOperation {
-      doTasks(
-          *standardProjectTasks("BufferGasProject"),
-      )
-      autoExecNow(EAGER)
+    // Only the late rating loss matters; install the Board and its unused director directly.
+    kim.exMachina("48 TerraformRating, BoardOfDirectors, Director<BoardOfDirectors>")
+    admin.exMachina("-13 SoloGenerationsLeft")
+    kim.completeOperation {
+      doTasks(*standardProjectTasks("BufferGasProject"), "16 Pay<> FROM MC", "TerraformRating")
     }
     kim.count("TerraformRating") shouldBe 63
     kim.completeOperation {
-          doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
-          autoExecNow(EAGER)
-          doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
-          doTask("PlayCard<Class<CorporationCard>, Class<$Pristar>>")
-          autoExecNow(EAGER)
-        }
-        .expect("-2 TerraformRating")
+      doTasks(
+          *cardActionTasks("BoardOfDirectors"),
+          "PreludeCard",
+          "-12 MC",
+          "-Director<BoardOfDirectors>",
+          "PlayCard<Class<PreludeCard>, Class<Merger>>",
+          "Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+          "PlayCard<Class<CorporationCard>, Class<Pristar>>",
+          "Pristar FROM CorporationCard<Selecting>",
+          "53 MC",
+          "-2 TerraformRating",
+          "-42 MC",
+      )
+    }
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    admin.count("Generation") shouldBe 12
+    kim.doTask("61 MC")
     kim.count("TerraformRating") shouldBe 61
     kim.count("Victory") shouldBe 0
+    admin.count("GameScope") shouldBe 0
   }
 
-  private fun reachMultiplayerEnd(options: String = "") {
-    newTestGame(addOptions = options, playerCount = 2)
-    // World Government completes Mars without giving either player TR or owned tiles.
-    repeat(19) { finishMultiplayerGeneration("TemperatureStep") }
-    repeat(8) { finishMultiplayerGeneration("OceanTile") }
-    repeat(14) { finishMultiplayerGeneration("OxygenStep") }
-    admin.count("Generation") shouldBe 42
-  }
-
-  private fun finishMultiplayerGeneration(parameter: String) {
-    val first = players.single { it.count("StartToken") == 1 }
-    val other = players.single { it != first }
-    first.doTask("Pass")
-    other.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    val temperature = admin.count("TemperatureStep")
-    if (parameter == "OceanTile") {
-      first.doTask("OceanTile<${kim.list("WaterArea(HAS MAX 0 Tile)").first()}>! BY Admin")
-    } else {
-      first.doTask("$parameter! BY Admin")
-
-      if (parameter == "TemperatureStep" && temperature == 14) {
-        first.doTask("OceanTile<Tharsis_1_2> BY Admin")
-      }
-    }
-    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-  }
-
-  private fun prepareSoloEconomy(options: String, secondPrelude: ClassName = AlliedBank) {
-    val worldGovernment = if ("-VenusNextExpansion" in options) "" else "-WorldGovernmentRule, "
-    newTestGame(addOptions = "PreludeExpansion, $worldGovernment$options", playerCount = 1)
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$BusinessEmpire>>")
-    kim.autoExecNow(EAGER)
-
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$secondPrelude>>")
-    kim.autoExecNow(EAGER)
-    // Ordinary early investments fund the later standard projects within twelve generations.
-    kim.doTasks(*playCardTasks("$EarthOffice"))
-    kim.doTasks(*playCardTasks("$LunaGovernor"))
-    kim.doTasks(*playCardTasks("$Sponsors"))
-    kim.doTasks(*playCardTasks("$AcquiredCompany"))
-    kim.doTasks(*playCardTasks("$Cartel"))
-    kim.doTasks(*playCardTasks("$MirandaResort"))
-    kim.doTasks(*playCardTasks("$StandardTechnology"))
-  }
-
-  private fun playSoloBufferGas(target: Int) {
-    repeat(12) { generation ->
-      while (kim.count("MC") >= 16 && kim.count("TerraformRating") < target) {
-        kim.completeOperation {
-          doTasks(*standardProjectTasks("BufferGasProject"))
-          autoExecNow(EAGER)
-        }
-      }
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      if (generation < 11) kim.doTask("-4 ProjectCard<Selecting>")
-    }
-  }
-
-  private fun playSoloTerraforming(completeVenus: Boolean) {
-    repeat(12) { generation ->
-      while (kim.count("MC") >= 14 && admin.count("TemperatureStep") < 19) {
-        val temperature = admin.count("TemperatureStep")
-        kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-
-          if (temperature == 14)
-              doTask("OceanTile<${kim.list("WaterArea(HAS MAX 0 Tile)").first()}>")
-          autoExecNow(EAGER)
-        }
-      }
-      while (kim.count("MC") >= 18 && admin.count("OceanTile") < 9) {
-        kim.completeOperation {
-          doTasks(*standardProjectTasks("AquiferProject"))
-          doTask("OceanTile<${kim.list("WaterArea(HAS MAX 0 Tile)").first()}>")
-          autoExecNow(EAGER)
-        }
-      }
-      while (kim.count("MC") >= 23 && admin.count("OxygenStep") < 14) {
-        val adjacent = kim.list("LandArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)")
-        val area = (adjacent.ifEmpty { kim.list("LandArea(HAS MAX 0 Tile)") }).first()
-        kim.completeOperation {
-          doTasks(*standardProjectTasks("GreeneryProject"))
-          doTask("GreeneryTile<$area>")
-          autoExecNow(EAGER)
-        }
-      }
-      if (completeVenus) {
-        while (kim.count("MC") >= 15 && admin.count("VenusStep") < 15) {
-          kim.completeOperation {
-            doTasks(*standardProjectTasks("AirScrappingProject"))
-            autoExecNow(EAGER)
-          }
-        }
-      }
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      if (generation < 11) kim.doTask("-4 ProjectCard<Selecting>")
-    }
+  private fun prepareFinalSoloTemperature() {
+    // Shared end-condition setup: oxygen and oceans are complete, temperature is a step short.
+    // Corrections suppress the incidental terraforming rewards; the final project remains real.
+    admin.exMachina(
+        "-13 SoloGenerationsLeft, 18 TemperatureStep, 14 OxygenStep, " +
+            "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_3>, OceanTile<Tharsis_1_4>, " +
+            "OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_1>, OceanTile<Tharsis_2_6>, " +
+            "OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>, OceanTile<Tharsis_4_8>"
+    )
   }
 }

@@ -19,8 +19,8 @@ import dev.martianzoo.tfm.engine.TfmEngine
 /**
  * Scenarios following the game's own turns and phases. Focused phase tests may prepare their
  * starting position with visible corrections, then follow the real game flow. Players submit
- * offered tasks through plain Agents with a fixed policy. Explicit autoExecNow calls handle
- * competing consequences when their order is not the subject.
+ * offered tasks through plain Agents. The shared standard opening may use scoped automatic
+ * execution when corporation setup is incidental; scenario choices and consequences stay explicit.
  */
 internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy = SOLE_TASK) {
   lateinit var game: World

@@ -35,8 +35,10 @@ examples, verified findings, and questions. These tasks implement or investigate
 the remaining audit items listed there are **not yet discussed or approved**.
 
 - Remove non-Admin `EAGER` and as much `SOLE_TASK` use as possible in gameplay tests. Prefer visible
-  noteworthy events over shorter test-writing. Preserve the scoped corporation-setup convenience;
-  the scope of automatic starting-card setup still needs clarification.
+  noteworthy events over shorter test-writing. Preserve scoped automatic standard opening setup,
+  including corporation play and buying five of ten projects when those choices are incidental.
+- Ensure focused success scenarios actually complete the action or phase they claim to prove.
+  Negative scenarios may stop at the expected failure.
 - Prioritize replacing task collection/ID selection, then sole-task assumptions; explain retained
   uses. A broader scan also found `PropertyTest`'s raw synthetic requirement probe: it locates a
   blocked task by rendered instruction and drops it. Review that mechanism test separately from
@@ -44,8 +46,25 @@ the remaining audit items listed there are **not yet discussed or approved**.
 - Inventory replay corrections and task drops, then apply the recorded correction/comment policy.
   Keep retcons to `//` comments identifying correction pairs that could safely be rewritten later;
   retain their execution and chronology for now.
+- Investigate what each "start a game" entry point has already done before consolidating setup.
+- Investigate selection and narrowing that leave execution explicitly pending, including concrete
+  System choices such as PassBaton. Today selecting an alternative can transfer it to Admin and
+  execute it before returning. The user selected separate engine work; this replay cleanup must
+  not change the engine/Agent or TaskForm contract.
+- Inventory remaining state-dependent scenario choices; replace incidental artificial preparation
+  with corrections while retaining gameplay whose history is itself under test.
+- Review combined-total submissions in focused gameplay tests; ordinary replay gains were combined
+  on 2026-11-14 wherever existing matching permits it. Preserve choices and required ordering.
+- Improve consistency in checking meaningful consequences without repeating submitted tasks.
+
+## Replay authentication and future coverage
+
+These are separate from completing the test-style migration. A working replay proves a game the
+current model can execute; authenticating it against the actual historical game can still expose
+a Solarnet defect. Preserve that uncertainty without treating it as a migration blocker.
+
 - Audit replay choices and assertions against original evidence, including expectations copied
-  from current engine output.
+  from current engine output and unresolved historical score discrepancies.
 - Add source-backed ASCII maps to the remaining older replays when independent board evidence is
   recovered: `FirstPartialGameTest`, `Game20230521Test`, `Game20260619Test`,
   `HellasPromoGameTest`, `HellasPromoWithoutPreludeTest`, `SoloGame20230611Test`,
@@ -55,21 +74,11 @@ the remaining audit items listed there are **not yet discussed or approved**.
   photographed boards. Their latest photographs precede later placements; establish endpoint
   maps from additional photographs or a separately verified continuation of the original
   transcripts. Keep those earlier checkpoints at their actual positions.
-- Investigate what each "start a game" entry point has already done before consolidating setup.
-- Investigate illegal-action coverage using positions loaded from recorded games. Preserve the
-  existing negative replay probes for now. A possible direction is separate functional tests that
-  load a position, attempt an illegal move, and verify rejection and restoration, while the replay
-  itself remains an import/export file. The user has not selected a design or asked for more inline
-  probes yet.
-- Investigate selection and narrowing that leave execution explicitly pending, including concrete
-  System choices such as PassBaton. Today selecting an alternative can transfer it to Admin and
-  execute it before returning. The user selected separate engine work; this replay cleanup must
-  not change the engine/Agent or TaskForm contract.
-- Inventory choices computed from state (starting player, free water area, affordable purchases)
-  versus literal recorded choices; decide which adaptations are useful.
-- Review combined-total submissions in focused gameplay tests; ordinary replay gains were combined
-  on 2026-11-14 wherever existing matching permits it. Preserve choices and required ordering.
-- Improve consistency in checking meaningful consequences without repeating submitted tasks.
+- Investigate illegal-action coverage using positions loaded from recorded games. Current
+  counterfactual replay probes may be removed without replacement. A possible future direction is
+  separate functional tests that load a position, attempt an illegal move, and verify rejection
+  and restoration, while the replay itself remains an import/export file. No replacement design
+  is selected.
 
 ## Other work
 
