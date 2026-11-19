@@ -879,8 +879,7 @@ The remaining execution differences are intentional:
 - A selection may identify otherwise ambiguous work before explicit execution. For example, two
   zero-valued global-event rewards cannot both be identified by `0 MC`; `TurmoilEventsTest` selects
   the influence term and then submits `0 MC`. Linked choices, requirement failures, and Admin
-  handoffs retain locally explained selections. Concrete `PassBaton` and Pharmacy Union flips use
-  `doTask`.
+  handoffs retain locally explained selections. Use `doTask` for Pharmacy Union flips.
 
 The replay inventory finds 147 visible `exMachina` calls across eleven replay files, including the
 TaskForm replay, and no remaining task drops or counterfactual illegal-action probes in replay
