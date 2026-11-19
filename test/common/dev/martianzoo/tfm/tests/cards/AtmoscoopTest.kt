@@ -16,10 +16,13 @@ internal class AtmoscoopTest : TfmSandboxTest() {
     kim.setToExMachina(15, "VenusStep")
 
     kim.inTurn {
-          doTasks(*playCardTasks("Atmoscoop"), "22 Pay<> FROM MC")
-          doTasks("Atmoscoop FROM ProjectCard")
-          doTask("2* Floater")
-          doTask("2 VenusStep")
+          doTasks(
+              *playCardTasks("$Atmoscoop"),
+              "22 Pay<> FROM MC",
+              "$Atmoscoop FROM ProjectCard",
+              "2* Floater",
+              "2 VenusStep",
+          )
         }
         .expect("0 TemperatureStep, 0 VenusStep")
   }

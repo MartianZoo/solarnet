@@ -18,15 +18,15 @@ internal class StrategicBasePlanningTest : TfmSandboxTest() {
     shouldThrow<DependencyException> {
       kim.inTurn {
         doTasks(
-            "PlayCard<Class<PreludeCard>, Class<StrategicBasePlanning>>",
-            "StrategicBasePlanning FROM PreludeCard",
+            "PlayCard<Class<PreludeCard>, Class<$StrategicBasePlanning>>",
+            "$StrategicBasePlanning FROM PreludeCard",
+            "-3 MC",
+            "CityTile<Cimmeria_3_3>",
+            "CimmeriaPlacementBonus!",
+            "-5 MC",
+            "Colony<Callisto>",
+            "PROD[Energy]",
         )
-        doTask("-3 MC")
-        doTask("CityTile<Cimmeria_3_3>")
-        doTask("CimmeriaPlacementBonus!")
-        doTask("-5 MC")
-        doTask("Colony<Callisto>")
-        doTask("PROD[Energy]")
         // Resolve the remaining colony offer to expose the exhausted colony choices.
         selectTask("Colony<>")
       }
@@ -37,8 +37,8 @@ internal class StrategicBasePlanningTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<StrategicBasePlanning>>",
-          "StrategicBasePlanning FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$StrategicBasePlanning>>",
+          "$StrategicBasePlanning FROM PreludeCard",
           "-3 MC",
           "CityTile<Cimmeria_3_4>",
           "Colony<Callisto>",

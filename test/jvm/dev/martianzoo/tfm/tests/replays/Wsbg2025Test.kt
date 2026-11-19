@@ -147,8 +147,11 @@ internal class Wsbg2025Test : FullGameTest() {
           "PlayCard<Class<$Predators>>",
       )
       // Hand the global-requirement waiver to Admin before playing Predators.
-      doTask("-11 Required<Class<OxygenStep>>")
-      doTasks("14 Pay<> FROM MC", "$Predators FROM ProjectCard")
+      doTasks(
+          "-11 Required<Class<OxygenStep>>",
+          "14 Pay<> FROM MC",
+          "$Predators FROM ProjectCard",
+      )
     }
     with(black) {
       doTasks(
@@ -355,8 +358,15 @@ internal class Wsbg2025Test : FullGameTest() {
     black.turn {
 
       // Greenery timing inferred between 00:38:30 and 00:43:30.
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_4_3>", "OxygenStep", "TerraformRating", "Plant", "4 MC")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_4_3>",
+          "OxygenStep",
+          "TerraformRating",
+          "Plant",
+          "4 MC",
+      )
       assertCounts(6 to "MC", 24 to "TerraformRating") // visual confirmation
     }
     black.doTask("Pass")
@@ -485,8 +495,9 @@ internal class Wsbg2025Test : FullGameTest() {
       )
     }
     red.turn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Elysium_5_5>",
           "OxygenStep",
           "2 Plant",
@@ -505,8 +516,9 @@ internal class Wsbg2025Test : FullGameTest() {
     }
     black.doTask("Pass")
     blue.turn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Elysium_2_6>",
           "OxygenStep",
           "2 Steel",
@@ -695,8 +707,9 @@ internal class Wsbg2025Test : FullGameTest() {
           "4 MC",
           "-5 Plant<Black>",
       )
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Elysium_1_5>",
           "OxygenStep",
           "TerraformRating",
@@ -714,8 +727,15 @@ internal class Wsbg2025Test : FullGameTest() {
           "4 Plant",
           "Microbe<$Decomposers>",
       )
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_4_5>", "OxygenStep", "TerraformRating", "Plant", "4 MC")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_4_5>",
+          "OxygenStep",
+          "TerraformRating",
+          "Plant",
+          "4 MC",
+      )
     }
     black.turn {
       doTasks(
@@ -962,8 +982,14 @@ internal class Wsbg2025Test : FullGameTest() {
     )
     red.turn {
       // Southern greenery placement order is provisional.
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_6_6>", "OxygenStep", "TerraformRating", "Plant")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_6_6>",
+          "OxygenStep",
+          "TerraformRating",
+          "Plant",
+      )
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -983,8 +1009,9 @@ internal class Wsbg2025Test : FullGameTest() {
           "Animal<$Herbivores>",
           "PROD[-Plant<Blue>]",
       )
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Elysium_9_9>",
           "OxygenStep",
           "TerraformRating",
@@ -1016,8 +1043,16 @@ internal class Wsbg2025Test : FullGameTest() {
           "$ArtificialPhotosynthesis FROM ProjectCard",
           "PROD[2 Energy]",
       )
-      doTasks(*playCardTasks("$CupolaCity"), "14 Pay<> FROM MC", "$CupolaCity FROM ProjectCard")
-      doTasks("NormalCityTile<Elysium_6_5>", "Plant", "2 MC", "PROD[-Energy]", "PROD[3 MC]")
+      doTasks(
+          *playCardTasks("$CupolaCity"),
+          "14 Pay<> FROM MC",
+          "$CupolaCity FROM ProjectCard",
+          "NormalCityTile<Elysium_6_5>",
+          "Plant",
+          "2 MC",
+          "PROD[-Energy]",
+          "PROD[3 MC]",
+      )
       giveTask(red, "2 MC<Red>")
     }
     red.turn {
@@ -1052,8 +1087,15 @@ internal class Wsbg2025Test : FullGameTest() {
           "PROD[3 Plant]",
           "2 Plant",
       )
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_3_3>", "OxygenStep", "TerraformRating", "ProjectCard", "2 MC")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_3_3>",
+          "OxygenStep",
+          "TerraformRating",
+          "ProjectCard",
+          "2 MC",
+      )
     }
     red.turn {
       // Investment Loan / Noctis Farming turn grouping is provisional.
@@ -1260,8 +1302,15 @@ internal class Wsbg2025Test : FullGameTest() {
     }
     black.turn {
       // 01:40:05 shows a greenery, despite commentary calling it a city spot.
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_6_4>", "OxygenStep", "TerraformRating", "Plant", "2 MC")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_6_4>",
+          "OxygenStep",
+          "TerraformRating",
+          "Plant",
+          "2 MC",
+      )
       doTasks(
           *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
@@ -1335,8 +1384,14 @@ internal class Wsbg2025Test : FullGameTest() {
     }
     red.turn {
       // Small Animals timing inferred.
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_8_4>", "OxygenStep", "TerraformRating", "2 Steel")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_8_4>",
+          "OxygenStep",
+          "TerraformRating",
+          "2 Steel",
+      )
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
     }
     green.turn {
@@ -1554,13 +1609,23 @@ internal class Wsbg2025Test : FullGameTest() {
           "Plant",
           "Ok", // provisionally decline the Mars University exchange
       )
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_5_2>", "2 Plant", "OxygenStep", "TerraformRating")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_5_2>",
+          "2 Plant",
+          "OxygenStep",
+          "TerraformRating",
+      )
     }
     blue.turn {
       // Catapult timing/payment inferred.
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_7_6>", "0 OxygenStep")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_7_6>",
+          "0 OxygenStep",
+      )
       doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
     }
     red.turn {
@@ -1698,8 +1763,14 @@ internal class Wsbg2025Test : FullGameTest() {
       )
     }
     red.turn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_5_7>", "2 Plant", "2 MC", "0 OxygenStep")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_5_7>",
+          "2 Plant",
+          "2 MC",
+          "0 OxygenStep",
+      )
     }
     green.doTask("Pass")
     black.turn {
@@ -1783,12 +1854,16 @@ internal class Wsbg2025Test : FullGameTest() {
           "3 Heat",
           "TerraformRating",
           "4 Plant",
+          "3* Microbe",
+          "2* Animal",
       )
-      doTask("3* Microbe")
-      doTask("2* Animal")
       assertCounts(7 to "MC") // visual confirmation
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Elysium_7_5>", "0 OxygenStep")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Elysium_7_5>",
+          "0 OxygenStep",
+      )
     }
     red.doTask("Pass")
     black.turn {

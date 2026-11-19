@@ -9,38 +9,40 @@ import kotlin.test.Test
 internal class CarbonNanosystemsTest : TfmSandboxTest() {
   @Test
   internal fun `Its graphene payment resource works without the Promo card pack`() {
-    newTestGame(addOptions = "-promos:cards, CarbonNanosystems")
+    newTestGame(addOptions = "-promos:cards, $CarbonNanosystems")
     kim.exMachina("$CarbonNanosystems, 2 Graphene<$CarbonNanosystems>")
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("AsteroidCard"),
-          "2 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          *playCardTasks("$AsteroidCard"),
+          "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "6 Pay<> FROM MC",
-          "AsteroidCard FROM ProjectCard",
+          "$AsteroidCard FROM ProjectCard",
+          "TemperatureStep",
+          "2 Titanium",
       )
-      doTask("TemperatureStep")
-      doTask("2 Titanium")
       // Resolve the optional attack: no unprotected plant target is available.
-      doTask("-3? Plant<Anyone>")
-      doTask("TerraformRating")
+      doTasks(
+          "-3? Plant<Anyone>",
+          "TerraformRating",
+      )
     }
   }
 
   @Test
   internal fun `A card with both city and space tags accepts graphene only once`() {
-    newTestGame(addOptions = "CarbonNanosystems, StanfordTorus")
+    newTestGame(addOptions = "$CarbonNanosystems, $StanfordTorus")
     kim.setToExMachina(4, "MC")
     kim.exMachina("$CarbonNanosystems, 2 Graphene<$CarbonNanosystems>")
     kim.inTurn {
       doTasks(
-          *playCardTasks("StanfordTorus"),
-          "2 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          *playCardTasks("$StanfordTorus"),
+          "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "4 Pay<> FROM MC",
-          "StanfordTorus FROM ProjectCard",
+          "$StanfordTorus FROM ProjectCard",
           "NormalCityTile<StanfordTorus_RemoteArea>",
       )
     }
-    kim.assertCounts(1 to "CityTile", 0 to "Graphene<CarbonNanosystems>", 0 to "MC")
+    kim.assertCounts(1 to "CityTile", 0 to "Graphene<$CarbonNanosystems>", 0 to "MC")
   }
 }

@@ -13,7 +13,7 @@ import kotlin.test.Test
 internal class L1TradeTerminalTest : TfmSandboxTest() {
   @Test
   internal fun `L1 Trade Terminal chooses three distinct cards when more are eligible`() {
-    newTestGame("L1TradeTerminal, FloatingTradeHub, FloatingRefinery, CloudTourism")
+    newTestGame("$L1TradeTerminal, $FloatingTradeHub, $FloatingRefinery, $CloudTourism")
     kim.exMachina(
         "$FloatingHabs, Floater<$FloatingHabs>, " +
             "$AerialMappers, Floater<$AerialMappers>, " +
@@ -25,42 +25,55 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     shouldThrow<DeadEndException> {
       kim.inTurn {
         // Decline the remaining Floating Habs.
-        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
-        doTasks("L1TradeTerminal FROM ProjectCard")
+        doTasks(
+            *playCardTasks("$L1TradeTerminal"),
+            "25 Pay<> FROM MC",
+            "$L1TradeTerminal FROM ProjectCard",
+        )
         // Expand the bonus into a separate resource choice for each eligible card.
-        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
-        doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>")
-        doTask("0 Floater<CloudTourism>")
-        doTask("0 Floater<FloatingHabs>")
+        doTasks(
+            "EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }",
+            "Floater<$AerialMappers>",
+            "Floater<$FloatingRefinery>",
+            "0 Floater<$CloudTourism>",
+            "0 Floater<$FloatingHabs>",
+        )
       }
     }
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
-        doTasks("L1TradeTerminal FROM ProjectCard")
+        doTasks(
+            *playCardTasks("$L1TradeTerminal"),
+            "25 Pay<> FROM MC",
+            "$L1TradeTerminal FROM ProjectCard",
+        )
         // Expand the bonus into a separate resource choice for each eligible card.
-        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
-        doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>", "Floater<CloudTourism>")
-        doTask("Floater<FloatingHabs>")
+        doTasks(
+            "EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }",
+            "Floater<$AerialMappers>",
+            "Floater<$FloatingRefinery>",
+            "Floater<$CloudTourism>",
+            "Floater<$FloatingHabs>",
+        )
       }
     }
     kim.count("$L1TradeTerminal") shouldBe 0
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("L1TradeTerminal"),
+              *playCardTasks("$L1TradeTerminal"),
               "25 Pay<> FROM MC",
-              "L1TradeTerminal FROM ProjectCard",
+              "$L1TradeTerminal FROM ProjectCard",
           )
           // Expand the bonus into a separate resource choice for each eligible card.
           doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
           shouldThrow<TaskException> {
             doTask("Floater<Stan, $JetStreamMicroscrappers<Stan>>")
           }
-          doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>", "Floater<CloudTourism>")
+          doTasks("Floater<$AerialMappers>", "Floater<$FloatingRefinery>", "Floater<$CloudTourism>")
           // Decline the remaining Floating Habs.
-          doTask("0 Floater<FloatingHabs>")
+          doTask("0 Floater<$FloatingHabs>")
         }
         .expect(
             "Floater<$AerialMappers>, Floater<$FloatingRefinery>, Floater<$CloudTourism>, " +
@@ -71,31 +84,41 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
   @Test
   internal fun `L1 Trade Terminal must give to its sole eligible card`() {
-    newTestGame("L1TradeTerminal")
+    newTestGame("$L1TradeTerminal")
     kim.exMachina("$FloatingHabs, Floater<$FloatingHabs>")
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
-        doTasks("L1TradeTerminal FROM ProjectCard")
+        doTasks(
+            *playCardTasks("$L1TradeTerminal"),
+            "25 Pay<> FROM MC",
+            "$L1TradeTerminal FROM ProjectCard",
+        )
         // Expand the bonus into a separate resource choice for each eligible card.
-        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
-        doTask("0 Floater<FloatingHabs>")
+        doTasks(
+            "EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }",
+            "0 Floater<$FloatingHabs>",
+        )
       }
     }
 
     kim.inTurn {
-      doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
-      doTasks("L1TradeTerminal FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$L1TradeTerminal"),
+          "25 Pay<> FROM MC",
+          "$L1TradeTerminal FROM ProjectCard",
+      )
       // Expand the bonus into a separate resource choice for each eligible card.
-      doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
-      doTask("Floater<FloatingHabs>")
+      doTasks(
+          "EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }",
+          "Floater<$FloatingHabs>",
+      )
     }
   }
 
   @Test
   internal fun `L1 Trade Terminal must give to all three eligible cards`() {
-    newTestGame("L1TradeTerminal")
+    newTestGame("$L1TradeTerminal")
     kim.exMachina(
         "$FloatingHabs, Floater<$FloatingHabs>, " +
             "$AerialMappers, Floater<$AerialMappers>, " +
@@ -104,28 +127,40 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
-        doTasks("L1TradeTerminal FROM ProjectCard")
+        doTasks(
+            *playCardTasks("$L1TradeTerminal"),
+            "25 Pay<> FROM MC",
+            "$L1TradeTerminal FROM ProjectCard",
+        )
         // Expand the bonus into a separate resource choice for each eligible card.
-        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
-        doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
-        doTask("0 Floater<AerialMappers>")
+        doTasks(
+            "EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }",
+            "Floater<$FloatingHabs>",
+            "Microbe<$VenusianInsects>",
+            "0 Floater<$AerialMappers>",
+        )
       }
     }
 
     kim.inTurn {
-      doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
-      doTasks("L1TradeTerminal FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$L1TradeTerminal"),
+          "25 Pay<> FROM MC",
+          "$L1TradeTerminal FROM ProjectCard",
+      )
       // Expand the bonus into a separate resource choice for each eligible card.
-      doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
-      doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
-      doTask("Floater<AerialMappers>")
+      doTasks(
+          "EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }",
+          "Floater<$FloatingHabs>",
+          "Microbe<$VenusianInsects>",
+          "Floater<$AerialMappers>",
+      )
     }
   }
 
   @Test
   internal fun `L1 Trade Terminal cannot give twice to one card or skip one of two`() {
-    newTestGame("L1TradeTerminal, FloatingTradeHub")
+    newTestGame("$L1TradeTerminal, $FloatingTradeHub")
     kim.exMachina(
         "$FloatingHabs, Floater<$FloatingHabs>, " +
             "$VenusianInsects, Microbe<$VenusianInsects>, " +
@@ -134,46 +169,64 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
-        doTasks("L1TradeTerminal FROM ProjectCard")
+        doTasks(
+            *playCardTasks("$L1TradeTerminal"),
+            "25 Pay<> FROM MC",
+            "$L1TradeTerminal FROM ProjectCard",
+        )
         // Expand the bonus into a separate resource choice for each eligible card.
-        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
-        doTask("Floater<FloatingHabs>")
-        doTask("Floater<FloatingHabs>")
+        doTasks(
+            "EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }",
+            "Floater<$FloatingHabs>",
+            "Floater<$FloatingHabs>",
+        )
       }
     }
     kim.count("$L1TradeTerminal") shouldBe 0
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
-        doTasks("L1TradeTerminal FROM ProjectCard")
+        doTasks(
+            *playCardTasks("$L1TradeTerminal"),
+            "25 Pay<> FROM MC",
+            "$L1TradeTerminal FROM ProjectCard",
+        )
         // Expand the bonus into a separate resource choice for each eligible card.
-        doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
-        doTask("Floater<FloatingHabs>")
-        doTask("0 Microbe<VenusianInsects>")
+        doTasks(
+            "EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }",
+            "Floater<$FloatingHabs>",
+            "0 Microbe<$VenusianInsects>",
+        )
       }
     }
 
     kim.inTurn {
-          doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
-          doTasks("L1TradeTerminal FROM ProjectCard")
+          doTasks(
+              *playCardTasks("$L1TradeTerminal"),
+              "25 Pay<> FROM MC",
+              "$L1TradeTerminal FROM ProjectCard",
+          )
           // Expand the bonus into a separate resource choice for each eligible card.
-          doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
-          doTask("Floater<FloatingHabs>")
-          doTask("Microbe<VenusianInsects>")
+          doTasks(
+              "EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }",
+              "Floater<$FloatingHabs>",
+              "Microbe<$VenusianInsects>",
+          )
         }
         .expect("0 Floater<$FloatingTradeHub>")
   }
 
   @Test
   internal fun `L1 Trade Terminal can be played without an eligible card`() {
-    newTestGame("L1TradeTerminal, FloatingTradeHub")
+    newTestGame("$L1TradeTerminal, $FloatingTradeHub")
     stan.exMachina("$FloatingTradeHub, Floater<$FloatingTradeHub>")
 
     kim.inTurn {
-          doTasks(*playCardTasks("L1TradeTerminal"), "25 Pay<> FROM MC")
-          doTasks("L1TradeTerminal FROM ProjectCard")
+          doTasks(
+              *playCardTasks("$L1TradeTerminal"),
+              "25 Pay<> FROM MC",
+              "$L1TradeTerminal FROM ProjectCard",
+          )
           // Expand the bonus into a separate resource choice for each eligible card.
           doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
         }

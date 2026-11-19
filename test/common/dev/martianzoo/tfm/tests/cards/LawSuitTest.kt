@@ -12,15 +12,15 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class LawSuitTest : TfmSandboxTest() {
-  @BeforeTest fun setUp() = newTestGame(addOptions = "-promos:cards, LawSuit, SmallAsteroid")
+  @BeforeTest fun setUp() = newTestGame(addOptions = "-promos:cards, $LawSuit, $SmallAsteroid")
 
   @Test
   internal fun `Can charge an opponent who lowered the owner's production`() {
     stan.inTurn {
       doTasks(
-          *playCardTasks("EnergyTapping"),
+          *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "EnergyTapping FROM ProjectCard",
+          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -28,11 +28,11 @@ internal class LawSuitTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("LawSuit"),
+              *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "LawSuit FROM ProjectCard",
+              "$LawSuit FROM ProjectCard",
+              "3 MC<Kim FROM Stan>",
           )
-          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -41,9 +41,9 @@ internal class LawSuitTest : TfmSandboxTest() {
   internal fun `Transfers the event to the attacker selected for payment`() {
     stan.inTurn {
       doTasks(
-          *playCardTasks("EnergyTapping"),
+          *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "EnergyTapping FROM ProjectCard",
+          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -51,11 +51,11 @@ internal class LawSuitTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("LawSuit"),
+              *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "LawSuit FROM ProjectCard",
+              "$LawSuit FROM ProjectCard",
+              "3 MC<Kim FROM Stan>",
           )
-          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("0 PlayedEvent<Kim, Class<$LawSuit>>, PlayedEvent<Stan, Class<$LawSuit>>")
   }
@@ -64,21 +64,24 @@ internal class LawSuitTest : TfmSandboxTest() {
   internal fun `Can charge an opponent who removed the owner's resources`() {
     kim.exMachina("Plant")
     stan.inTurn {
-      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
-          "AsteroidCard FROM ProjectCard",
+          *playCardTasks("$AsteroidCard"),
+          "14 Pay<> FROM MC",
+          "$AsteroidCard FROM ProjectCard",
+          "TemperatureStep",
+          "2 Titanium",
+          "TerraformRating",
+          "-Plant<Kim>",
       )
-      doTask("TemperatureStep")
-      doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
     }
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("LawSuit"),
+              *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "LawSuit FROM ProjectCard",
+              "$LawSuit FROM ProjectCard",
+              "3 MC<Kim FROM Stan>",
           )
-          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -87,9 +90,9 @@ internal class LawSuitTest : TfmSandboxTest() {
   internal fun `Can be played with only enough money for the card cost`() {
     stan.inTurn {
       doTasks(
-          *playCardTasks("EnergyTapping"),
+          *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "EnergyTapping FROM ProjectCard",
+          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -98,11 +101,11 @@ internal class LawSuitTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("LawSuit"),
+              *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "LawSuit FROM ProjectCard",
+              "$LawSuit FROM ProjectCard",
+              "3 MC<Kim FROM Stan>",
           )
-          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -112,9 +115,9 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.exMachina("$MediaGroup")
     stan.inTurn {
       doTasks(
-          *playCardTasks("EnergyTapping"),
+          *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "EnergyTapping FROM ProjectCard",
+          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -122,12 +125,12 @@ internal class LawSuitTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("LawSuit"),
+              *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "LawSuit FROM ProjectCard",
+              "$LawSuit FROM ProjectCard",
               "3 MC",
+              "3 MC<Kim FROM Stan>",
           )
-          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("4 MC<Kim>, -3 MC<Stan>")
   }
@@ -137,9 +140,9 @@ internal class LawSuitTest : TfmSandboxTest() {
     stan.exMachina("$MediaGroup")
     stan.inTurn {
       doTasks(
-          *playCardTasks("EnergyTapping"),
+          *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "EnergyTapping FROM ProjectCard",
+          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -147,11 +150,11 @@ internal class LawSuitTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("LawSuit"),
+              *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "LawSuit FROM ProjectCard",
+              "$LawSuit FROM ProjectCard",
+              "3 MC<Kim FROM Stan>",
           )
-          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -160,9 +163,10 @@ internal class LawSuitTest : TfmSandboxTest() {
   internal fun `Cannot qualify by lowering the owner's own production`() {
     kim.setToExMachina(2, "PROD[Heat]")
     kim.inTurn {
-      doTasks(*playCardTasks("HeatTrappers"), "6 Pay<> FROM MC")
       doTasks(
-          "HeatTrappers FROM ProjectCard",
+          *playCardTasks("$HeatTrappers"),
+          "6 Pay<> FROM MC",
+          "$HeatTrappers FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-2 Heat]",
       )
@@ -170,13 +174,13 @@ internal class LawSuitTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("LawSuit"))
+        doTasks(*playCardTasks("$LawSuit"))
 
         doTasks(
             "2 Pay<> FROM MC",
-            "LawSuit FROM ProjectCard",
+            "$LawSuit FROM ProjectCard",
+            "3 MC<Kim FROM Stan>",
         )
-        doTask("3 MC<Kim FROM Stan>")
       }
     }
     kim.assertCounts(36 to "MC", 9 to "ProjectCard")
@@ -186,9 +190,9 @@ internal class LawSuitTest : TfmSandboxTest() {
   internal fun `Cannot charge for an attack in the previous generation`() {
     stan.inTurn {
       doTasks(
-          *playCardTasks("EnergyTapping"),
+          *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "EnergyTapping FROM ProjectCard",
+          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -198,13 +202,13 @@ internal class LawSuitTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("LawSuit"))
+        doTasks(*playCardTasks("$LawSuit"))
 
         doTasks(
             "2 Pay<> FROM MC",
-            "LawSuit FROM ProjectCard",
+            "$LawSuit FROM ProjectCard",
+            "3 MC<Kim FROM Stan>",
         )
-        doTask("3 MC<Kim FROM Stan>")
       }
     }
     kim.assertCounts(20 to "MC", 10 to "ProjectCard")
@@ -214,33 +218,38 @@ internal class LawSuitTest : TfmSandboxTest() {
   internal fun `Cannot charge when every attacker has less than three MC`() {
     kim.exMachina("2 Plant")
     stan.inTurn {
-      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
-          "AsteroidCard FROM ProjectCard",
+          *playCardTasks("$AsteroidCard"),
+          "14 Pay<> FROM MC",
+          "$AsteroidCard FROM ProjectCard",
+          "TemperatureStep",
+          "2 Titanium",
+          "TerraformRating",
+          "-Plant<Kim>",
       )
-      doTask("TemperatureStep")
-      doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
     }
     rob.inTurn {
-      doTasks(*playCardTasks("SmallAsteroid"), "10 Pay<> FROM MC")
       doTasks(
-          "SmallAsteroid FROM ProjectCard",
+          *playCardTasks("$SmallAsteroid"),
+          "10 Pay<> FROM MC",
+          "$SmallAsteroid FROM ProjectCard",
+          "TemperatureStep",
+          "TerraformRating",
+          "-Plant<Kim>",
       )
-      doTask("TemperatureStep")
-      doTasks("TerraformRating", "-Plant<Kim>")
     }
     stan.setToExMachina(2, "MC")
     rob.setToExMachina(2, "MC")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("LawSuit"))
+        doTasks(*playCardTasks("$LawSuit"))
 
         doTasks(
             "2 Pay<> FROM MC",
-            "LawSuit FROM ProjectCard",
+            "$LawSuit FROM ProjectCard",
+            "3 MC<Kim FROM Stan>",
         )
-        doTask("3 MC<Kim FROM Stan>")
       }
     }
     kim.assertCounts(42 to "MC", 10 to "ProjectCard")
@@ -252,29 +261,34 @@ internal class LawSuitTest : TfmSandboxTest() {
   internal fun `Can choose among multiple attackers`() {
     kim.exMachina("2 Plant")
     stan.inTurn {
-      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
-          "AsteroidCard FROM ProjectCard",
+          *playCardTasks("$AsteroidCard"),
+          "14 Pay<> FROM MC",
+          "$AsteroidCard FROM ProjectCard",
+          "TemperatureStep",
+          "2 Titanium",
+          "TerraformRating",
+          "-Plant<Kim>",
       )
-      doTask("TemperatureStep")
-      doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
     }
     rob.inTurn {
-      doTasks(*playCardTasks("SmallAsteroid"), "10 Pay<> FROM MC")
       doTasks(
-          "SmallAsteroid FROM ProjectCard",
+          *playCardTasks("$SmallAsteroid"),
+          "10 Pay<> FROM MC",
+          "$SmallAsteroid FROM ProjectCard",
+          "TemperatureStep",
+          "TerraformRating",
+          "-Plant<Kim>",
       )
-      doTask("TemperatureStep")
-      doTasks("TerraformRating", "-Plant<Kim>")
     }
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("LawSuit"),
+              *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "LawSuit FROM ProjectCard",
+              "$LawSuit FROM ProjectCard",
+              "3 MC<Kim FROM Stan>",
           )
-          doTask("3 MC<Kim FROM Stan>")
         }
         .expect("MC<Kim>, -3 MC<Stan>, 0 MC<Rob>")
   }
@@ -283,9 +297,9 @@ internal class LawSuitTest : TfmSandboxTest() {
   internal fun `Cannot charge a funded player who did not attack`() {
     stan.inTurn {
       doTasks(
-          *playCardTasks("EnergyTapping"),
+          *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "EnergyTapping FROM ProjectCard",
+          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -294,9 +308,9 @@ internal class LawSuitTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("LawSuit"),
+            *playCardTasks("$LawSuit"),
             "2 Pay<> FROM MC",
-            "LawSuit FROM ProjectCard",
+            "$LawSuit FROM ProjectCard",
         )
         // Stan attacked, but the omitted gate must still reject charging uninvolved Rob.
         doTask("3 MC<Kim FROM Rob>")
@@ -311,20 +325,20 @@ internal class LawSuitTest : TfmSandboxTest() {
   internal fun `Costs the charged player a victory point`() {
     stan.inTurn {
       doTasks(
-          *playCardTasks("EnergyTapping"),
+          *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "EnergyTapping FROM ProjectCard",
+          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
     }
     kim.inTurn {
       doTasks(
-          *playCardTasks("LawSuit"),
+          *playCardTasks("$LawSuit"),
           "2 Pay<> FROM MC",
-          "LawSuit FROM ProjectCard",
+          "$LawSuit FROM ProjectCard",
+          "3 MC<Kim FROM Stan>",
       )
-      doTask("3 MC<Kim FROM Stan>")
     }
 
     // Energy Tapping and Law Suit each cost Stan a point.

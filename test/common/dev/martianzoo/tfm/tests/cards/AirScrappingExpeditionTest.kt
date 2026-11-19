@@ -17,15 +17,15 @@ internal class AirScrappingExpeditionTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("AirScrappingExpedition"))
+        doTasks(*playCardTasks("$AirScrappingExpedition"))
 
         doTasks(
             "13 Pay<> FROM MC",
-            "AirScrappingExpedition FROM ProjectCard",
+            "$AirScrappingExpedition FROM ProjectCard",
+            "VenusStep",
+            "TerraformRating",
+            "3* Floater<$AtmoCollectors>",
         )
-        doTask("VenusStep")
-        doTask("TerraformRating")
-        doTask("3* Floater<AtmoCollectors>")
       }
     }
   }

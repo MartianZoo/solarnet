@@ -10,19 +10,21 @@ import kotlin.test.Test
 internal class OldMiningColonyTest : TfmSandboxTest() {
   @Test
   internal fun `Old Mining Colony needs Pluto's cards when the hand is empty`() {
-    newTestGame(addOptions = "PreludeExpansion, OldMiningColony, Pluto, Io, Luna, Ceres, Triton")
+    newTestGame(addOptions = "PreludeExpansion, $OldMiningColony, Pluto, Io, Luna, Ceres, Triton")
     kim.setToExMachina(0, "ProjectCard")
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTasks(
-            "PlayCard<Class<PreludeCard>, Class<OldMiningColony>>",
-            "OldMiningColony FROM PreludeCard",
+            "PlayCard<Class<PreludeCard>, Class<$OldMiningColony>>",
+            "$OldMiningColony FROM PreludeCard",
+            "PROD[Titanium]",
         )
-        doTask("PROD[Titanium]")
 
-        doTask("Colony<Io>")
-        doTask("PROD[Heat]")
-        doTask("-ProjectCard<Kim, Hand>")
+        doTasks(
+            "Colony<Io>",
+            "PROD[Heat]",
+            "-ProjectCard<Hand>",
+        )
       }
     }
     kim.count("$OldMiningColony") shouldBe 0
@@ -31,13 +33,13 @@ internal class OldMiningColonyTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<OldMiningColony>>",
-              "OldMiningColony FROM PreludeCard",
+              "PlayCard<Class<PreludeCard>, Class<$OldMiningColony>>",
+              "$OldMiningColony FROM PreludeCard",
               "PROD[Titanium]",
               "Colony<Pluto>",
+              "2 ProjectCard<Hand>",
+              "-ProjectCard<Hand>",
           )
-          doTask("2 ProjectCard<Kim, Hand>")
-          doTask("-ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
   }

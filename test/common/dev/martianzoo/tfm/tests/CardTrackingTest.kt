@@ -13,6 +13,7 @@ import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.CardTracking
 import dev.martianzoo.tfm.engine.CardTracking.NamesRequiredException
 import dev.martianzoo.tfm.engine.TfmEngine
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -33,34 +34,41 @@ internal class CardTrackingTest : TfmSandboxTest() {
 
   @Test
   internal fun aStoredCardCanBePlayedDirectlyFromItsTrackedStagingLocation() {
-    val (tracking, player) = newTrackedGame("SelfReplicatingRobots")
-    val agent = agents[player]
+    val (tracking, player) = newTrackedGame("$SelfReplicatingRobots")
+    val agent = agents[player].also { it.autoExecPolicy = NONE }
     admin.runOperation("Generation")
-    agent.runOperation("SelfReplicatingRobots, 2 MC")
-    tracking.expectArrivals(player, cn("Mine"))
+    agent.runOperation("$SelfReplicatingRobots, 2 MC")
+    tracking.expectArrivals(player, Mine)
     agent.runOperation("ProjectCard")
 
     agent.runOperation("UseAction<UseActionOnCardAction, Action1>") {
-      doTask("UseAction<SelfReplicatingRobots, Action1>")
+      doTask("UseAction<$SelfReplicatingRobots, Action1>")
 
-      doTask("StageForReplicatedProject<Class<Mine>>")
-      autoExecNow(EAGER)
+      doTasks(
+          "StageForReplicatedProject<Class<$Mine>>",
+          "ProjectCard<StagedProject<Class<$Mine>> FROM Hand>",
+          "2 RobotUnit<StagedProject<Class<$Mine>>>",
+      )
     }
     tracking.hand(player) shouldBe emptySet()
-    agent.count("ProjectCard<StagedProject<Class<Mine>>>") shouldBe 1
-    agent.count("RobotUnit<StagedProject<Class<Mine>>>") shouldBe 2
+    agent.count("ProjectCard<StagedProject<Class<$Mine>>>") shouldBe 1
+    agent.count("RobotUnit<StagedProject<Class<$Mine>>>") shouldBe 2
 
     agent.runOperation("UseAction<PlayCardAction, Action1>") {
-      doTask("PlayCard<Class<ProjectCard>, Class<Mine>, StagedProject<Class<Mine>>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<$Mine>, StagedProject<Class<$Mine>>>")
 
-      autoExecNow(EAGER)
+      doTasks(
+          "2 Pay<> FROM MC",
+          "$Mine FROM ProjectCard<StagedProject<Class<$Mine>>>",
+          "PROD[Steel]",
+      )
     }
     tracking.hand(player) shouldBe emptySet()
-    agent.count("Mine") shouldBe 1
+    agent.count("$Mine") shouldBe 1
     agent.count("RobotUnit") shouldBe 0
     agent.count("MC") shouldBe 0
     val afterPlay = game.events.nextOrdinal
-    tracking.expectArrivals(player, cn("Mine"))
+    tracking.expectArrivals(player, Mine)
     shouldThrow<IllegalStateException> { agent.runOperation("ProjectCard") }
     game.events.nextOrdinal shouldBe afterPlay
     tracking.replacePendingArrivals(player)
@@ -69,30 +77,37 @@ internal class CardTrackingTest : TfmSandboxTest() {
 
   @Test
   internal fun stagingIdentifiesWhichCardLeftTheTrackedHand() {
-    val (tracking, player) = newTrackedGame("SelfReplicatingRobots")
-    val agent = agents[player]
+    val (tracking, player) = newTrackedGame("$SelfReplicatingRobots")
+    val agent = agents[player].also { it.autoExecPolicy = NONE }
     admin.runOperation("Generation")
-    agent.runOperation("SelfReplicatingRobots, 2 MC")
-    tracking.expectArrivals(player, cn("Mine"), cn("TitaniumMine"))
+    agent.runOperation("$SelfReplicatingRobots, 2 MC")
+    tracking.expectArrivals(player, Mine, TitaniumMine)
     agent.runOperation("ProjectCard")
     agent.runOperation("ProjectCard")
 
     agent.runOperation("UseAction<UseActionOnCardAction, Action1>") {
-      doTask("UseAction<SelfReplicatingRobots, Action1>")
+      doTask("UseAction<$SelfReplicatingRobots, Action1>")
 
-      doTask("StageForReplicatedProject<Class<Mine>>")
-      autoExecNow(EAGER)
+      doTasks(
+          "StageForReplicatedProject<Class<$Mine>>",
+          "ProjectCard<StagedProject<Class<$Mine>> FROM Hand>",
+          "2 RobotUnit<StagedProject<Class<$Mine>>>",
+      )
     }
-    tracking.hand(player) shouldBe setOf(cn("TitaniumMine"))
+    tracking.hand(player) shouldBe setOf(TitaniumMine)
     val afterStaging = game.events.nextOrdinal
     shouldThrow<IllegalStateException> {
       agent.runOperation("UseAction<PlayCardAction, Action1>") {
-        doTask("PlayCard<Class<ProjectCard>, Class<Mine>, Hand>")
-        autoExecNow(EAGER)
+        doTasks(
+            "PlayCard<Class<ProjectCard>, Class<$Mine>, Hand>",
+            "2 Pay<> FROM MC",
+            "$Mine FROM ProjectCard",
+            "PROD[Steel]",
+        )
       }
     }
     game.events.nextOrdinal shouldBe afterStaging
-    agent.count("ProjectCard<StagedProject<Class<Mine>>>") shouldBe 1
+    agent.count("ProjectCard<StagedProject<Class<$Mine>>>") shouldBe 1
     tracking.requireComplete()
   }
 
@@ -100,24 +115,24 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun trackedHandsFollowBackwardAndForwardSeeking() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    tracking.expectArrivals(player, cn("AcquiredCompany"), cn("AdaptedLichen"))
+    tracking.expectArrivals(player, AcquiredCompany, AdaptedLichen)
     agent.runOperation("ProjectCard")
     val first = game.timeline.checkpoint()
     agent.runOperation("ProjectCard")
     val second = game.timeline.checkpoint()
-    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"), cn("AdaptedLichen"))
+    tracking.hand(player) shouldBe setOf(AcquiredCompany, AdaptedLichen)
 
     game.timeline.seek(first)
-    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.hand(player) shouldBe setOf(AcquiredCompany)
     game.timeline.seek(second)
-    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"), cn("AdaptedLichen"))
+    tracking.hand(player) shouldBe setOf(AcquiredCompany, AdaptedLichen)
     tracking.requireComplete()
   }
 
   @Test
   internal fun anOverlayDrawsAnonymousCardsWithoutChangingTrackedSource() {
     val (sourceTracking, player) = newTrackedGame()
-    val firstCard = cn("AcquiredCompany")
+    val firstCard = AcquiredCompany
     sourceTracking.expectArrivals(player, firstCard)
     agents[player].runOperation("ProjectCard")
 
@@ -135,7 +150,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
   @Test
   internal fun fullCopyOfTrackedWorldCanDrawAnonymousCards() {
     val (sourceTracking, player) = newTrackedGame()
-    val firstCard = cn("AcquiredCompany")
+    val firstCard = AcquiredCompany
     sourceTracking.expectArrivals(player, firstCard)
     agents[player].runOperation("ProjectCard")
 
@@ -165,10 +180,10 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun aDifferentChangeAtTheSameOrdinalDoesNotReuseDiscardedCardLocations() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     agent.runOperation("ProjectCard")
     val beforeDiscard = game.timeline.checkpoint()
-    tracking.expectDepartures(player, cn("AcquiredCompany"))
+    tracking.expectDepartures(player, AcquiredCompany)
     agent.runOperation("-ProjectCard")
     val discarded = game.events.nextOrdinal
     tracking.hand(player) shouldBe emptySet()
@@ -178,7 +193,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
     agent.runOperation("MC")
 
     game.events.nextOrdinal shouldBe discarded
-    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.hand(player) shouldBe setOf(AcquiredCompany)
     agent.count("MC") shouldBe 1
   }
 
@@ -197,14 +212,14 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun unnamedHandRemovalFailsWithoutCommitting() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    tracking.expectArrivals(player, cn("AdaptedLichen"))
+    tracking.expectArrivals(player, AdaptedLichen)
     agent.runOperation("ProjectCard")
     val before = game.events.nextOrdinal
 
     shouldThrow<AgentInputRequiredException> { agent.runOperation("-ProjectCard") }
 
     game.events.nextOrdinal shouldBe before
-    tracking.hand(player) shouldBe setOf(cn("AdaptedLichen"))
+    tracking.hand(player) shouldBe setOf(AdaptedLichen)
   }
 
   @Test
@@ -217,16 +232,16 @@ internal class CardTrackingTest : TfmSandboxTest() {
     shouldThrow<AgentInputRequiredException> { agent.runOperation("PreludeCard") }
 
     game.events.nextOrdinal shouldBe before
-    tracking.expectArrivals(player, cn("Ecoline"), back = cn("CorporationCard"))
-    tracking.expectArrivals(player, cn("Biolab"), back = cn("PreludeCard"))
+    tracking.expectArrivals(player, Ecoline, back = cn("CorporationCard"))
+    tracking.expectArrivals(player, Biolab, back = cn("PreludeCard"))
     agent.runOperation("CorporationCard")
     agent.runOperation("PreludeCard")
-    tracking.expectDepartures(player, cn("Ecoline"), back = cn("CorporationCard"))
+    tracking.expectDepartures(player, Ecoline, back = cn("CorporationCard"))
     agent.runOperation("-CorporationCard")
 
-    tracking.hand(player) shouldBe setOf(cn("Biolab"))
+    tracking.hand(player) shouldBe setOf(Biolab)
     game.events.changesSince(before).map { it.notes } shouldBe
-        listOf("Cards: Ecoline", "Cards: Biolab", "Cards: Ecoline")
+        listOf("Cards: $Ecoline", "Cards: $Biolab", "Cards: $Ecoline")
     tracking.requireComplete()
   }
 
@@ -239,14 +254,14 @@ internal class CardTrackingTest : TfmSandboxTest() {
     }
     shouldThrow<IllegalArgumentException> { tracking.expectArrivals(player, cn("MC")) }
     shouldThrow<IllegalArgumentException> { tracking.expectArrivals(player, cn("CardFront")) }
-    shouldThrow<IllegalArgumentException> { tracking.expectArrivals(player, cn("Ecoline")) }
+    shouldThrow<IllegalArgumentException> { tracking.expectArrivals(player, Ecoline) }
     shouldThrow<IllegalArgumentException> {
-      tracking.expectDepartures(player, cn("Biolab"), back = cn("CorporationCard"))
+      tracking.expectDepartures(player, Biolab, back = cn("CorporationCard"))
     }
     shouldThrow<IllegalArgumentException> {
       tracking.expectArrivals(
           player,
-          cn("Biolab"),
+          Biolab,
           back = cn("ProjectCard"),
           location = cn("Selecting"),
       )
@@ -259,7 +274,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
   @Test
   internal fun suppliedNameCountMustMatchTheActualMovement() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     val before = game.events.nextOrdinal
 
     shouldThrow<AgentInputRequiredException> { agents[player].runOperation("2 ProjectCard") }
@@ -273,7 +288,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
   @Test
   internal fun unusedSuppliedNamesFailTheFinalCountCheck() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("AcquiredCompany"), cn("AdaptedLichen"))
+    tracking.expectArrivals(player, AcquiredCompany, AdaptedLichen)
 
     agents[player].runOperation("ProjectCard")
 
@@ -284,17 +299,17 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun rejectedArrivalNameCanBeCorrectedWithoutChangingRecordedNames() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    tracking.expectArrivals(player, cn("AdaptedLichen"))
+    tracking.expectArrivals(player, AdaptedLichen)
     agent.runOperation("ProjectCard")
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
 
     shouldThrow<IllegalStateException> {
       agent.runOperation("SearchForCard<TagFilter<Class<PlantTag>>>")
     }
-    tracking.replacePendingArrivals(player, cn("EcologicalZone"))
+    tracking.replacePendingArrivals(player, EcologicalZone)
     agent.runOperation("SearchForCard<TagFilter<Class<PlantTag>>>")
 
-    tracking.hand(player) shouldBe setOf(cn("AdaptedLichen"), cn("EcologicalZone"))
+    tracking.hand(player) shouldBe setOf(AdaptedLichen, EcologicalZone)
     tracking.requireComplete()
   }
 
@@ -302,12 +317,12 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun rejectedDepartureNameCanBeCorrected() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    tracking.expectArrivals(player, cn("AdaptedLichen"))
+    tracking.expectArrivals(player, AdaptedLichen)
     agent.runOperation("ProjectCard")
-    tracking.expectDepartures(player, cn("AcquiredCompany"))
+    tracking.expectDepartures(player, AcquiredCompany)
 
     shouldThrow<IllegalStateException> { agent.runOperation("-ProjectCard") }
-    tracking.replacePendingDepartures(player, cn("AdaptedLichen"))
+    tracking.replacePendingDepartures(player, AdaptedLichen)
     agent.runOperation("-ProjectCard")
 
     tracking.hand(player) shouldBe emptySet()
@@ -317,22 +332,24 @@ internal class CardTrackingTest : TfmSandboxTest() {
   @Test
   internal fun aNamedCorporationPlayMustComeFromTheCorporationHand() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("Ecoline"), back = cn("CorporationCard"))
+    tracking.expectArrivals(player, Ecoline, back = cn("CorporationCard"))
     val agent = agents[player]
     agent.runOperation("CorporationCard")
     val before = game.events.nextOrdinal
 
-    shouldThrow<IllegalStateException> { agent.runOperation("CrediCor FROM CorporationCard") }
+    shouldThrow<IllegalStateException> {
+      agent.runOperation("$CrediCor FROM CorporationCard") { doTask("57 MC") }
+    }
 
     game.events.nextOrdinal shouldBe before
-    tracking.hand(player) shouldBe setOf(cn("Ecoline"))
+    tracking.hand(player) shouldBe setOf(Ecoline)
   }
 
   @Test
   internal fun astraMechanicaReturnsLawSuitFromTheAttackersEventPileToHand() {
     val config =
         GameConfig(
-            "PreludeExpansion, LawSuit, AstraMechanica, MineralDeposit",
+            "PreludeExpansion, $LawSuit, $AstraMechanica, $MineralDeposit",
             "Player1",
             "Player2",
         )
@@ -342,31 +359,33 @@ internal class CardTrackingTest : TfmSandboxTest() {
     admin.runOperation("Generation")
     agents[attacker].runOperation("3 MC")
     agents[holder].runOperation("ProductionWasAttacked<$holder, Class<Energy>, $attacker>")
-    tracking.expectArrivals(holder, cn("LawSuit"))
+    tracking.expectArrivals(holder, LawSuit)
     agents[holder].runOperation("ProjectCard")
     val before = game.events.nextOrdinal
 
-    agents[holder].runOperation("LawSuit FROM ProjectCard") {
-      selectTask(
-          "3 MC<$holder FROM $attacker> THEN PlayedEvent<$attacker, Class<LawSuit>> FROM LawSuit"
+    agents[holder].runOperation("$LawSuit FROM ProjectCard") {
+      // The payment's continuation transfers the played event through Admin.
+      doTask("3 MC<$holder FROM $attacker>")
+    }
+
+    game.events.changesSince(before).mapNotNull { it.notes } shouldBe listOf("Cards: $LawSuit")
+    agents[attacker].count("PlayedEvent<$attacker, Class<$LawSuit>>") shouldBe 1
+    tracking.expectArrivals(attacker, MineralDeposit, AstraMechanica)
+    agents[attacker].runOperation("2 ProjectCard")
+    agents[attacker].runOperation("$MineralDeposit FROM ProjectCard") { doTask("5 Steel") }
+    val beforeAstra = game.events.nextOrdinal
+
+    agents[attacker].runOperation("$AstraMechanica FROM ProjectCard") {
+      doTasks(
+          "ProjectCard FROM PlayedEvent<Class<$LawSuit>>",
+          "ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>",
       )
     }
 
-    game.events.changesSince(before).mapNotNull { it.notes } shouldBe listOf("Cards: LawSuit")
-    agents[attacker].count("PlayedEvent<$attacker, Class<LawSuit>>") shouldBe 1
-    tracking.expectArrivals(attacker, cn("MineralDeposit"), cn("AstraMechanica"))
-    agents[attacker].runOperation("2 ProjectCard")
-    agents[attacker].runOperation("MineralDeposit FROM ProjectCard")
-    val beforeAstra = game.events.nextOrdinal
-
-    agents[attacker].runOperation("AstraMechanica FROM ProjectCard") {
-      doTask("ProjectCard FROM PlayedEvent<Class<LawSuit>>")
-    }
-
-    tracking.hand(attacker) shouldBe setOf(cn("LawSuit"), cn("MineralDeposit"))
+    tracking.hand(attacker) shouldBe setOf(LawSuit, MineralDeposit)
     tracking.hand(holder) shouldBe emptySet()
     game.events.changesSince(beforeAstra).mapNotNull { it.notes } shouldBe
-        listOf("Cards: AstraMechanica", "Cards: LawSuit", "Cards: MineralDeposit")
+        listOf("Cards: $AstraMechanica", "Cards: $LawSuit", "Cards: $MineralDeposit")
     tracking.requireComplete()
   }
 
@@ -374,35 +393,38 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun astraMechanicaCannotTakePharmacyUnionInATrackedGame() {
     val (tracking, player) =
         newTrackedGame(
-            "PreludeExpansion, AstraMechanica, PharmacyUnion, MineralDeposit, BribedCommittee"
+            "PreludeExpansion, $AstraMechanica, $PharmacyUnion, $MineralDeposit, $BribedCommittee"
         )
     val agent = agents[player]
     tracking.expectArrivals(
         player,
-        cn("MineralDeposit"),
-        cn("BribedCommittee"),
-        cn("AstraMechanica"),
+        MineralDeposit,
+        BribedCommittee,
+        AstraMechanica,
     )
     agent.runOperation("3 ProjectCard")
-    agent.runOperation("MineralDeposit FROM ProjectCard")
-    agent.runOperation("BribedCommittee FROM ProjectCard")
+    agent.runOperation("$MineralDeposit FROM ProjectCard") { doTask("5 Steel") }
+    agent.runOperation("$BribedCommittee FROM ProjectCard") { doTask("2 TerraformRating") }
     // Pharmacy Union can become a PlayedEvent, but it is a corporation rather than an EventCard.
-    agent.exMachina("PlayedEvent<Class<PharmacyUnion>>")
+    agent.exMachina("PlayedEvent<Class<$PharmacyUnion>>")
     val before = game.events.nextOrdinal
 
     shouldThrow<TaskException> {
-      agent.runOperation("AstraMechanica FROM ProjectCard") {
-        doTask("ProjectCard FROM PlayedEvent<Class<PharmacyUnion>>")
+      agent.runOperation("$AstraMechanica FROM ProjectCard") {
+        doTask("ProjectCard FROM PlayedEvent<Class<$PharmacyUnion>>")
       }
     }
 
     game.events.nextOrdinal shouldBe before
-    tracking.hand(player) shouldBe setOf(cn("AstraMechanica"))
-    agent.runOperation("AstraMechanica FROM ProjectCard") {
-      doTask("ProjectCard FROM PlayedEvent<Class<MineralDeposit>>")
+    tracking.hand(player) shouldBe setOf(AstraMechanica)
+    agent.runOperation("$AstraMechanica FROM ProjectCard") {
+      doTasks(
+          "ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>",
+          "ProjectCard FROM PlayedEvent<Class<$BribedCommittee>>",
+      )
     }
-    tracking.hand(player) shouldBe setOf(cn("MineralDeposit"), cn("BribedCommittee"))
-    agent.count("PlayedEvent<Class<PharmacyUnion>>") shouldBe 1
+    tracking.hand(player) shouldBe setOf(MineralDeposit, BribedCommittee)
+    agent.count("PlayedEvent<Class<$PharmacyUnion>>") shouldBe 1
     tracking.requireComplete()
   }
 
@@ -419,11 +441,11 @@ internal class CardTrackingTest : TfmSandboxTest() {
 
     game.events.nextOrdinal shouldBe before
     game.tasks.ids() shouldBe setOf(taskId)
-    tracking.expectArrivals(player, cn("AdaptedLichen"))
+    tracking.expectArrivals(player, AdaptedLichen)
     agent.autoExecNow()
 
-    tracking.hand(player) shouldBe setOf(cn("AdaptedLichen"))
-    game.events.changesSince(before).single().notes shouldBe "Cards: AdaptedLichen"
+    tracking.hand(player) shouldBe setOf(AdaptedLichen)
+    game.events.changesSince(before).single().notes shouldBe "Cards: $AdaptedLichen"
     tracking.requireComplete()
   }
 
@@ -431,7 +453,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun discardedCardMayEnterTheHandAgain() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    val card = cn("AdaptedLichen")
+    val card = AdaptedLichen
     tracking.expectArrivals(player, card)
     agent.runOperation("ProjectCard")
     tracking.expectDepartures(player, card)
@@ -447,23 +469,23 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun aNamedPlayMustBeInThatPlayersHand() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    tracking.expectArrivals(player, cn("AdaptedLichen"))
+    tracking.expectArrivals(player, AdaptedLichen)
     agent.runOperation("ProjectCard")
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
-      agent.runOperation("AcquiredCompany FROM ProjectCard")
+      agent.runOperation("$AcquiredCompany FROM ProjectCard") { doTask("PROD[3 MC]") }
     }
 
     game.events.nextOrdinal shouldBe before
-    tracking.hand(player) shouldBe setOf(cn("AdaptedLichen"))
+    tracking.hand(player) shouldBe setOf(AdaptedLichen)
   }
 
   @Test
   internal fun aResourceExchangeUsesTheNamedHandDeparture() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    val card = cn("AdaptedLichen")
+    val card = AdaptedLichen
     tracking.expectArrivals(player, card)
     agent.runOperation("ProjectCard")
     tracking.expectDepartures(player, card)
@@ -491,7 +513,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
   @Test
   internal fun aFilteredArrivalMustHaveThePrintedTag() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
@@ -505,7 +527,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
   @Test
   internal fun aFilteredBatchChecksEveryCard() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("AdaptedLichen"), cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AdaptedLichen, AcquiredCompany)
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
@@ -519,17 +541,17 @@ internal class CardTrackingTest : TfmSandboxTest() {
   @Test
   internal fun aTaglessFilterUsesPrintedTags() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("MicroMills"), cn("ResearchCoordination"))
+    tracking.expectArrivals(player, MicroMills, ResearchCoordination)
     agents[player].runOperation("2 SearchForCard<NoTagsFilter>")
 
-    tracking.hand(player) shouldBe setOf(cn("MicroMills"), cn("ResearchCoordination"))
+    tracking.hand(player) shouldBe setOf(MicroMills, ResearchCoordination)
     tracking.requireComplete()
   }
 
   @Test
   internal fun anEventIconCountsAsAPrintedTag() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("MiningExpedition"))
+    tracking.expectArrivals(player, MiningExpedition)
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
@@ -543,17 +565,17 @@ internal class CardTrackingTest : TfmSandboxTest() {
   @Test
   internal fun aRequirementFilterAcceptsBothTagAndGlobalRequirements() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("MassConverter"), cn("Algae"))
+    tracking.expectArrivals(player, MassConverter, Algae)
     agents[player].runOperation("2 SearchForCard<RequirementFilter>")
 
-    tracking.hand(player) shouldBe setOf(cn("MassConverter"), cn("Algae"))
+    tracking.hand(player) shouldBe setOf(MassConverter, Algae)
     tracking.requireComplete()
   }
 
   @Test
   internal fun aRequirementFilterRejectsCardsWithoutRequirements() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
@@ -567,17 +589,17 @@ internal class CardTrackingTest : TfmSandboxTest() {
   @Test
   internal fun aReferenceFilterReadsTheCardDeclaration() {
     val (tracking, player) = newTrackedGame("PreludeExpansion, VenusNextExpansion")
-    tracking.expectArrivals(player, cn("Dirigibles"))
+    tracking.expectArrivals(player, Dirigibles)
     agents[player].runOperation("SearchForCard<ReferenceFilter<Class<Floater>>>")
 
-    tracking.hand(player) shouldBe setOf(cn("Dirigibles"))
+    tracking.hand(player) shouldBe setOf(Dirigibles)
     tracking.requireComplete()
   }
 
   @Test
   internal fun aReferenceFilterRejectsAnUnrelatedCard() {
     val (tracking, player) = newTrackedGame("PreludeExpansion, VenusNextExpansion")
-    tracking.expectArrivals(player, cn("VenusGovernor"))
+    tracking.expectArrivals(player, VenusGovernor)
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
@@ -594,10 +616,10 @@ internal class CardTrackingTest : TfmSandboxTest() {
         newTrackedGame(
             "PreludeExpansion, VenusNextExpansion, prelude2:cards, promos:cards, TurmoilExpansion"
         )
-    tracking.expectArrivals(player, cn("SupportedResearch"))
+    tracking.expectArrivals(player, SupportedResearch)
     agents[player].runOperation("SearchForCard<ReferenceFilter<Class<Ruling>>>")
 
-    tracking.hand(player) shouldBe setOf(cn("SupportedResearch"))
+    tracking.hand(player) shouldBe setOf(SupportedResearch)
     tracking.requireComplete()
   }
 
@@ -607,7 +629,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
         newTrackedGame(
             "PreludeExpansion, VenusNextExpansion, prelude2:cards, promos:cards, TurmoilExpansion"
         )
-    tracking.expectArrivals(player, cn("BannedDelegate"))
+    tracking.expectArrivals(player, BannedDelegate)
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
@@ -623,11 +645,11 @@ internal class CardTrackingTest : TfmSandboxTest() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
     agent.runOperation("3 ProjectCard<Selecting>")
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     agent.runOperation("ProjectCard<Hand FROM Selecting>")
     agent.runOperation("-2 ProjectCard<Selecting>")
 
-    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.hand(player) shouldBe setOf(AcquiredCompany)
     tracking.requireComplete()
   }
 
@@ -638,28 +660,28 @@ internal class CardTrackingTest : TfmSandboxTest() {
     val before = game.events.nextOrdinal
     tracking.expectArrivals(
         player,
-        cn("AcquiredCompany"),
-        cn("AdaptedLichen"),
-        cn("MicroMills"),
+        AcquiredCompany,
+        AdaptedLichen,
+        MicroMills,
         location = cn("Selecting"),
     )
     agent.runOperation("3 ProjectCard<Selecting>")
     tracking.expectDepartures(
         player,
-        cn("AdaptedLichen"),
-        cn("MicroMills"),
+        AdaptedLichen,
+        MicroMills,
         location = cn("Selecting"),
     )
     agent.runOperation("-2 ProjectCard<Selecting>")
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     agent.runOperation("ProjectCard<Hand FROM Selecting>")
 
-    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.hand(player) shouldBe setOf(AcquiredCompany)
     game.events.changesSince(before).map { it.notes } shouldBe
         listOf(
-            "Cards: AcquiredCompany, AdaptedLichen, MicroMills",
-            "Cards: AdaptedLichen, MicroMills",
-            "Cards: AcquiredCompany",
+            "Cards: $AcquiredCompany, $AdaptedLichen, $MicroMills",
+            "Cards: $AdaptedLichen, $MicroMills",
+            "Cards: $AcquiredCompany",
         )
     tracking.requireComplete()
   }
@@ -680,52 +702,52 @@ internal class CardTrackingTest : TfmSandboxTest() {
     // The offered cards exist only inside the rolled-back attempt; they are still the candidates.
     tracking.expectArrivals(
         player,
-        cn("AcquiredCompany"),
-        cn("AdaptedLichen"),
-        cn("MicroMills"),
+        AcquiredCompany,
+        AdaptedLichen,
+        MicroMills,
         location = selecting,
     )
-    tracking.expectDepartures(player, cn("AdaptedLichen"), location = selecting)
+    tracking.expectDepartures(player, AdaptedLichen, location = selecting)
     val rejected =
         shouldThrow<NamesRequiredException> {
           agent.exMachina("3 ProjectCard<Selecting>, -2 ProjectCard<Selecting>")
         }
     rejected.arriving shouldBe false
     rejected.count shouldBe 1
-    rejected.candidates shouldBe setOf(cn("AcquiredCompany"), cn("MicroMills"))
+    rejected.candidates shouldBe setOf(AcquiredCompany, MicroMills)
 
-    tracking.expectDepartures(player, cn("MicroMills"), location = selecting)
+    tracking.expectDepartures(player, MicroMills, location = selecting)
     agent.exMachina("3 ProjectCard<Selecting>, -2 ProjectCard<Selecting>")
-    tracking.hand(player, location = selecting) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.hand(player, location = selecting) shouldBe setOf(AcquiredCompany)
 
     val kept =
         shouldThrow<NamesRequiredException> {
           agent.runOperation("ProjectCard<Hand FROM Selecting>")
         }
     kept.arriving shouldBe true
-    kept.candidates shouldBe setOf(cn("AcquiredCompany"))
+    kept.candidates shouldBe setOf(AcquiredCompany)
   }
 
   @Test
   internal fun selectingOfferCannotReuseAHeldCardButCanOfferADiscardedCardAgain() {
     val (tracking, player) = newTrackedGame(requireSelectingNames = true)
     val agent = agents[player]
-    tracking.expectArrivals(player, cn("AdaptedLichen"))
+    tracking.expectArrivals(player, AdaptedLichen)
     agent.runOperation("ProjectCard")
-    tracking.expectArrivals(player, cn("AdaptedLichen"), location = cn("Selecting"))
+    tracking.expectArrivals(player, AdaptedLichen, location = cn("Selecting"))
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> { agent.runOperation("ProjectCard<Selecting>") }
     game.events.nextOrdinal shouldBe before
 
-    tracking.replacePendingArrivals(player, cn("MicroMills"), location = cn("Selecting"))
+    tracking.replacePendingArrivals(player, MicroMills, location = cn("Selecting"))
     agent.runOperation("ProjectCard<Selecting>")
-    tracking.expectDepartures(player, cn("MicroMills"), location = cn("Selecting"))
+    tracking.expectDepartures(player, MicroMills, location = cn("Selecting"))
     agent.runOperation("-ProjectCard<Selecting>")
-    tracking.expectArrivals(player, cn("MicroMills"), location = cn("Selecting"))
+    tracking.expectArrivals(player, MicroMills, location = cn("Selecting"))
     agent.runOperation("ProjectCard<Selecting>")
 
-    tracking.hand(player) shouldBe setOf(cn("AdaptedLichen"))
+    tracking.hand(player) shouldBe setOf(AdaptedLichen)
     tracking.requireComplete()
   }
 
@@ -735,12 +757,12 @@ internal class CardTrackingTest : TfmSandboxTest() {
     val agent = agents[player]
     agent.runOperation("ProjectCard<Selecting>")
     shouldThrow<IllegalArgumentException> {
-      tracking.expectArrivals(player, cn("AcquiredCompany"), location = cn("Selecting"))
+      tracking.expectArrivals(player, AcquiredCompany, location = cn("Selecting"))
     }
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     agent.runOperation("ProjectCard<Hand FROM Selecting>")
 
-    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.hand(player) shouldBe setOf(AcquiredCompany)
     tracking.requireComplete()
   }
 
@@ -750,25 +772,25 @@ internal class CardTrackingTest : TfmSandboxTest() {
     val agent = agents[player]
     tracking.expectArrivals(
         player,
-        cn("AcquiredCompany"),
-        cn("AdaptedLichen"),
+        AcquiredCompany,
+        AdaptedLichen,
         location = cn("Selecting"),
     )
     agent.runOperation("2 ProjectCard<Selecting>")
     val before = game.events.nextOrdinal
 
     shouldThrow<AgentInputRequiredException> { agent.runOperation("-ProjectCard<Selecting>") }
-    tracking.expectArrivals(player, cn("MicroMills"))
+    tracking.expectArrivals(player, MicroMills)
     shouldThrow<IllegalStateException> {
       agent.runOperation("ProjectCard<Hand FROM Selecting>")
     }
 
     game.events.nextOrdinal shouldBe before
-    tracking.expectDepartures(player, cn("AdaptedLichen"), location = cn("Selecting"))
+    tracking.expectDepartures(player, AdaptedLichen, location = cn("Selecting"))
     agent.runOperation("-ProjectCard<Selecting>")
-    tracking.replacePendingArrivals(player, cn("AcquiredCompany"))
+    tracking.replacePendingArrivals(player, AcquiredCompany)
     agent.runOperation("ProjectCard<Hand FROM Selecting>")
-    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.hand(player) shouldBe setOf(AcquiredCompany)
     tracking.requireComplete()
   }
 
@@ -780,19 +802,19 @@ internal class CardTrackingTest : TfmSandboxTest() {
 
     shouldThrow<AgentInputRequiredException> { agent.runOperation("2 ProjectCard<Selecting>") }
     game.events.nextOrdinal shouldBe before
-    tracking.expectArrivals(player, cn("AcquiredCompany"), location = cn("Selecting"))
+    tracking.expectArrivals(player, AcquiredCompany, location = cn("Selecting"))
     shouldThrow<AgentInputRequiredException> { agent.runOperation("2 ProjectCard<Selecting>") }
     game.events.nextOrdinal shouldBe before
     tracking.replacePendingArrivals(
         player,
-        cn("AcquiredCompany"),
-        cn("AdaptedLichen"),
+        AcquiredCompany,
+        AdaptedLichen,
         location = cn("Selecting"),
     )
     agent.runOperation("2 ProjectCard<Selecting>")
-    tracking.expectDepartures(player, cn("AdaptedLichen"), location = cn("Selecting"))
+    tracking.expectDepartures(player, AdaptedLichen, location = cn("Selecting"))
     agent.runOperation("-ProjectCard<Selecting>")
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     agent.runOperation("ProjectCard<Hand FROM Selecting>")
     tracking.requireComplete()
   }
@@ -808,7 +830,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
 
     agent.count("MC") shouldBe 1
     agent.count("ProjectCard<Selecting>") shouldBe 0
-    tracking.expectArrivals(player, cn("AcquiredCompany"), location = cn("Selecting"))
+    tracking.expectArrivals(player, AcquiredCompany, location = cn("Selecting"))
     agent.autoExecNow()
     agent.count("ProjectCard<Selecting>") shouldBe 1
     tracking.requireComplete()
@@ -820,7 +842,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
     val agent = agents[player]
     tracking.expectArrivals(
         player,
-        cn("AlliedBank"),
+        AlliedBank,
         back = cn("PreludeCard"),
         location = cn("Selecting"),
     )
@@ -828,11 +850,11 @@ internal class CardTrackingTest : TfmSandboxTest() {
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
-      agent.runOperation("Biolab FROM PreludeCard<Selecting>")
+      agent.runOperation("$Donation FROM PreludeCard<Selecting>") { doTask("21 MC") }
     }
     game.events.nextOrdinal shouldBe before
-    agent.runOperation("AlliedBank FROM PreludeCard<Selecting>")
-    game.events.changesSince(before).mapNotNull { it.notes } shouldBe listOf("Cards: AlliedBank")
+    agent.runOperation("$AlliedBank FROM PreludeCard<Selecting>") { doTasks("PROD[4 MC]", "3 MC") }
+    game.events.changesSince(before).mapNotNull { it.notes } shouldBe listOf("Cards: $AlliedBank")
     tracking.requireComplete()
   }
 
@@ -844,7 +866,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
         )
     val agent = agents[player]
     agent.runOperation("ProjectCard<Selecting>")
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {
@@ -863,12 +885,14 @@ internal class CardTrackingTest : TfmSandboxTest() {
         )
     val agent = agents[player]
     agent.runOperation("2 ProjectCard<Selecting>, 3 MC")
-    tracking.expectArrivals(player, cn("VenusGovernor"))
+    tracking.expectArrivals(player, VenusGovernor)
     agent.runOperation("TakeSelectedCard<TagFilter<Class<VenusTag>>>")
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
-    agent.runOperation("BuySelectedCards")
+    tracking.expectArrivals(player, AcquiredCompany)
+    agent.runOperation("BuySelectedCards") {
+      doTasks("3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+    }
 
-    tracking.hand(player) shouldBe setOf(cn("VenusGovernor"), cn("AcquiredCompany"))
+    tracking.hand(player) shouldBe setOf(VenusGovernor, AcquiredCompany)
     tracking.requireComplete()
   }
 
@@ -876,24 +900,24 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun aRevealedHandCardReturnsWithoutANewArrival() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    tracking.expectArrivals(player, cn("AcquiredCompany"), cn("AdaptedLichen"))
+    tracking.expectArrivals(player, AcquiredCompany, AdaptedLichen)
     agent.runOperation("2 ProjectCard")
     val before = game.events.nextOrdinal
-    tracking.expectDepartures(player, cn("AcquiredCompany"), cn("AdaptedLichen"))
+    tracking.expectDepartures(player, AcquiredCompany, AdaptedLichen)
 
     agent.runOperation("2 ProjectCard<Revealed FROM Hand>")
     agent.runOperation("2 ProjectCard<Hand FROM Revealed>")
 
-    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"), cn("AdaptedLichen"))
+    tracking.hand(player) shouldBe setOf(AcquiredCompany, AdaptedLichen)
     game.events.changesSince(before).map { it.notes } shouldBe
-        listOf("Cards: AcquiredCompany, AdaptedLichen", "Cards: AcquiredCompany, AdaptedLichen")
+        listOf("Cards: $AcquiredCompany, $AdaptedLichen", "Cards: $AcquiredCompany, $AdaptedLichen")
     tracking.requireComplete()
   }
 
   @Test
   internal fun laterValidationPreservesOtherEventNotesInPlace() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     val before = game.events.nextOrdinal
     agents[player].runOperation("ProjectCard")
     val event = game.events.changesSince(before).single()
@@ -901,21 +925,21 @@ internal class CardTrackingTest : TfmSandboxTest() {
 
     tracking.requireComplete()
 
-    event.notes shouldBe "Source: archive\nCards: AcquiredCompany\nReview: checked separately"
+    event.notes shouldBe "Source: archive\nCards: $AcquiredCompany\nReview: checked separately"
   }
 
   @Test
   internal fun cardAlreadyInAHandCannotBeDrawnAgain() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     agents[player].runOperation("ProjectCard")
-    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    tracking.expectArrivals(player, AcquiredCompany)
     val before = game.events.nextOrdinal
 
     shouldThrow<IllegalStateException> { agents[player].runOperation("ProjectCard") }
 
     game.events.nextOrdinal shouldBe before
-    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.hand(player) shouldBe setOf(AcquiredCompany)
   }
 
   @Test
@@ -924,7 +948,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     val (first, second) = game.actors.filterIsInstance<Player>()
     val tracking = CardTracking.start(agents)
-    val card = cn("AcquiredCompany")
+    val card = AcquiredCompany
     tracking.expectArrivals(first, card)
     agents[first].runOperation("ProjectCard")
     tracking.expectArrivals(second, card)

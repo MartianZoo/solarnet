@@ -256,9 +256,7 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AtmosphericEnhancers>>",
           "$AtmosphericEnhancers FROM PreludeCard",
-      )
-      doTask("2 SearchForCard<ReferenceFilter<Class<Floater>>>")
-      doTasks(
+          "2 SearchForCard<ReferenceFilter<Class<Floater>>>",
           "2 TemperatureStep",
           "2 TerraformRating",
           "PROD[Heat]",
@@ -275,8 +273,10 @@ internal class OtbGame20260904Test : FullGameTest() {
     }
     rainbow.turn {
       // 2:23:34 PM — Rainbow: "Okay. I draw cards until I get three Venus."
-      doTask("DoRequiredActions")
-      doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>")
+      doTasks(
+          "DoRequiredActions",
+          "3 SearchForCard<TagFilter<Class<VenusTag>>>",
+      )
     }
 
     blue.turn {
@@ -552,8 +552,11 @@ internal class OtbGame20260904Test : FullGameTest() {
       // 2:45:05 PM — Green: "I'm going to use my factotum. I cannot take energy production because
       // I have energy resources, but I can pay three money to draw a building tag. bio printing
       // facility what a strikeout that was discard"
-      doTasks(*cardActionTasks("$Factorum", "Action2"), "3 Pay<> FROM MC")
-      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>")
+      doTasks(
+          *cardActionTasks("$Factorum", "Action2"),
+          "3 Pay<> FROM MC",
+          "SearchForCard<TagFilter<Class<BuildingTag>>>",
+      )
       // 2:45:34 PM — Green: "that was my well you know let me do one more thing on my turn just in
       // case let's play pets ten minus and I get a pet for that"
       doTasks(
@@ -776,8 +779,11 @@ internal class OtbGame20260904Test : FullGameTest() {
     }
     green.turn {
       // 3:07:06 PM — Green: "I'm going to use Factorum to spend three and get a wielding card."
-      doTasks(*cardActionTasks("$Factorum", "Action2"), "3 Pay<> FROM MC")
-      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>")
+      doTasks(
+          *cardActionTasks("$Factorum", "Action2"),
+          "3 Pay<> FROM MC",
+          "SearchForCard<TagFilter<Class<BuildingTag>>>",
+      )
     }
     yellow.turn {
       // 3:07:34 PM — Blue: "My turn. Flooding."
@@ -1092,9 +1098,12 @@ internal class OtbGame20260904Test : FullGameTest() {
           "TerraformRating",
           "2 MC",
       )
-      doTask("UseAction<ClaimMilestoneAction, Action1>")
-      doTasks("4 Pay<Class<Heat>> FROM Heat", "4 Pay<> FROM MC")
-      doTask("Landshaper")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "4 Pay<Class<Heat>> FROM Heat",
+          "4 Pay<> FROM MC",
+          "Landshaper",
+      )
     }
     green.turn {
       // 3:33:24 PM — Green: "Okay. I'm gonna sell this card for one money."
@@ -1534,8 +1543,11 @@ internal class OtbGame20260904Test : FullGameTest() {
     green.turn {
       // 4:05:07 PM — Green: "Think? Oh, I spend three to draw a building card, because I totally
       // need more of those. Okay, it's geothermal power."
-      doTasks(*cardActionTasks("$Factorum", "Action2"), "3 Pay<> FROM MC")
-      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>")
+      doTasks(
+          *cardActionTasks("$Factorum", "Action2"),
+          "3 Pay<> FROM MC",
+          "SearchForCard<TagFilter<Class<BuildingTag>>>",
+      )
       // 4:05:27 PM — Green: "I can indeed cube it. Now, I think the only other thing I'm doing is
       // cloud tourism, so let's do that and I'm done."
       doTasks(*cardActionTasks("$CloudTourism"), "Floater<$CloudTourism>")
@@ -2188,8 +2200,11 @@ internal class OtbGame20260904Test : FullGameTest() {
     green.turn {
       // 3:37:59 PM — Green: "Do something basic first. I'll use factotum to spend three and get a
       // William card. Noctis city."
-      doTasks(*cardActionTasks("$Factorum", "Action2"), "3 Pay<> FROM MC")
-      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>")
+      doTasks(
+          *cardActionTasks("$Factorum", "Action2"),
+          "3 Pay<> FROM MC",
+          "SearchForCard<TagFilter<Class<BuildingTag>>>",
+      )
     }
     yellow.turn {
       // 3:38:47 PM — Blue: "Yeah Yeah get two TRs Um the oshkin will go um here for two um plantis
@@ -3207,8 +3222,11 @@ internal class OtbGame20260904Test : FullGameTest() {
       // 6:12:28 PM — Green: "I'm going to use my factotum to spend three money and get a building
       // card space"
       // 6:12:47 PM — Green: "elevator. Wow. Not super useful."
-      doTasks(*cardActionTasks("$Factorum", "Action2"), "3 Pay<> FROM MC")
-      doTask("SearchForCard<TagFilter<Class<BuildingTag>>>")
+      doTasks(
+          *cardActionTasks("$Factorum", "Action2"),
+          "3 Pay<> FROM MC",
+          "SearchForCard<TagFilter<Class<BuildingTag>>>",
+      )
     }
 
     yellow.turn {
@@ -3588,9 +3606,9 @@ internal class OtbGame20260904Test : FullGameTest() {
           "4 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
           "$StratosphericExpedition FROM ProjectCard",
+          "2 SearchForCard<TagFilter<Class<VenusTag>>>",
+          "2 Floater<$CloudTourism>",
       )
-      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
-      doTask("2 Floater<$CloudTourism>")
     }
     // 9:35:59 PM — Yellow: "I pass."
     yellow.doTask("Pass")
@@ -3667,8 +3685,8 @@ internal class OtbGame20260904Test : FullGameTest() {
           "4 Pay<> FROM MC",
           "$IshtarExpedition FROM ProjectCard",
           "3 Titanium",
+          "2 SearchForCard<TagFilter<Class<VenusTag>>>",
       )
-      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
     }
     // 9:39:08 PM — Green: "Leechifrous Corrodies (Corroder Suits), and Jetstream Microscrappers."
     // 9:39:15 PM — Green: "Your turn, Rainbow."

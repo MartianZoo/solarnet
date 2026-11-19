@@ -15,18 +15,18 @@ internal class StandardActionTest : TfmSandboxTest() {
     kim.exMachina("ProjectCard<Selecting>, ProjectCard<Revealed>")
 
     kim.inTurn {
-      kim.doTask("UseAction<PlayCardAction, Action1>")
+      doTask("UseAction<PlayCardAction, Action1>")
       shouldThrow<TaskException> {
-        kim.doTask("PlayCard<Class<ProjectCard>, Class<Mine>, Selecting>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$Mine>, Selecting>")
       }
       shouldThrow<TaskException> {
-        kim.doTask("PlayCard<Class<ProjectCard>, Class<Mine>, Revealed>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$Mine>, Revealed>")
       }
       kim.count("MC") shouldBe 20
-      kim.doTasks(
-          "PlayCard<Class<ProjectCard>, Class<Mine>, Hand>",
+      doTasks(
+          "PlayCard<Class<ProjectCard>, Class<$Mine>, Hand>",
           "4 Pay<> FROM MC",
-          "Mine FROM ProjectCard",
+          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }

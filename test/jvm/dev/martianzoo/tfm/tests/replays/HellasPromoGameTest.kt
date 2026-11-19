@@ -139,9 +139,9 @@ internal class HellasPromoGameTest : FullGameTest() {
           *cardActionTasks("$SearchForLife"),
           "1 Pay<> FROM MC",
           "ProjectCard<Revealed>",
-          "Ok", // decline reward
+          "Ok", // decline reward,
+          "-ProjectCard<Revealed>",
       )
-      doTask("-ProjectCard<Revealed>")
     }
     p2.doTask("Pass")
 

@@ -159,8 +159,10 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "PROD[2 MC]",
       )
       // Pink drew Micro-Mills
-      doTask("SearchForCard<NoTagsFilter>")
-      doTask("4 MC")
+      doTasks(
+          "SearchForCard<NoTagsFilter>",
+          "4 MC",
+      )
     }
 
     with(green) {
@@ -253,7 +255,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
               "CopyProductionBox<$Mine>",
               "PROD[Steel]",
           )
-          .expect("0 Mine")
+          .expect("0 $Mine")
     }
 
     green.turn {
@@ -945,9 +947,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "6 Pay<> FROM MC",
           "$IshtarExpedition FROM ProjectCard",
           "3 Titanium",
+          "2 SearchForCard<TagFilter<Class<VenusTag>>>",
+          "3 MC",
       )
-      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
-      doTask("3 MC")
       doTasks(
           *playCardTasks("$GiantIceAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",

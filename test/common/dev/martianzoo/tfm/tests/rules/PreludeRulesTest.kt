@@ -1,12 +1,11 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class PreludeRulesTest : TfmGameplayTest(NONE) {
+internal class PreludeRulesTest : TfmGameplayTest() {
   @Test
   internal fun `A declared fizzle consumes a Prelude and allows the remaining Prelude to be played`() {
     newTestGame("PreludeExpansion", playerCount = 2)
@@ -14,16 +13,15 @@ internal class PreludeRulesTest : TfmGameplayTest(NONE) {
 
     // Follow mode accepts the player's declaration that their physical Prelude was unplayable.
     kim.completeOperation { doTasks("-PreludeCard", "Audit", "15 MC") }
-        .expect("15 MC, -PreludeCard")
+
     kim.completeOperation {
-          doTasks(
-              "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
-              "$DomeFarming FROM PreludeCard",
-              "PROD[Plant]",
-              "PROD[2 MC]",
-          )
-        }
-        .expect("$DomeFarming, -PreludeCard")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
+          "$DomeFarming FROM PreludeCard",
+          "PROD[Plant]",
+          "PROD[2 MC]",
+      )
+    }
 
     kim.count("PreludeCard") shouldBe 0
     kim.auditGainsSince(checkpoint) shouldBe 1

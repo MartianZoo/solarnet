@@ -77,12 +77,14 @@ internal class MiningGuildTest : TfmSandboxTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_05_03>",
+          "OxygenStep",
+          "PROD[Steel]",
       )
-      doTask("OxygenStep")
-      doTask("PROD[Steel]")
       // Execute the fizzle audit before receiving compensation.
-      doTask("Audit!")
-      doTask("TerraformRating")
+      doTasks(
+          "Audit!",
+          "TerraformRating",
+      )
 
       doTask("Titanium")
     }
@@ -109,12 +111,14 @@ internal class MiningGuildTest : TfmSandboxTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_05_03>",
+          "OxygenStep",
+          "PROD[Steel]",
       )
-      doTask("OxygenStep")
-      doTask("PROD[Steel]")
       // Execute the fizzle audit before receiving compensation.
-      doTask("Audit!")
-      doTask("TerraformRating")
+      doTasks(
+          "Audit!",
+          "TerraformRating",
+      )
 
       doTask("Plant")
     }

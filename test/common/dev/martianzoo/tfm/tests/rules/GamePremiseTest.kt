@@ -20,7 +20,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
-import dev.martianzoo.tfm.tests.cards.cardnames.ColonizerTrainingCamp
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -182,9 +182,9 @@ internal class GamePremiseTest {
             .classTable
 
     table.isInhabited(cn("PreludePhase")) shouldBe true
-    table.isInhabited(cn("SpaceLanes")) shouldBe true
-    table.isInhabited(cn("MartianIndustries")) shouldBe false
-    (cn("MartianIndustries") in table.allClassNames) shouldBe false
+    table.isInhabited(SpaceLanes) shouldBe true
+    table.isInhabited(MartianIndustries) shouldBe false
+    (MartianIndustries in table.allClassNames) shouldBe false
   }
 
   @Test

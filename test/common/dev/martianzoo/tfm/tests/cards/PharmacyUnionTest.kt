@@ -15,15 +15,13 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>",
-          "PharmacyUnion FROM CorporationCard",
-      )
-      doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
+          "$PharmacyUnion FROM CorporationCard",
+          "SearchForCard<TagFilter<Class<ScienceTag>>>!",
           "54 MC",
-          "Disease<PharmacyUnion>",
+          "Disease<$PharmacyUnion>",
           "-4 MC",
-          "Disease<PharmacyUnion>",
+          "Disease<$PharmacyUnion>",
           "-4 MC",
           "15 Pay<> FROM MC",
           "5 ProjectCard<Hand FROM Selecting>",
@@ -39,15 +37,13 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>",
-              "PharmacyUnion FROM CorporationCard",
-          )
-          doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-          doTasks(
+              "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
+              "$PharmacyUnion FROM CorporationCard",
+              "SearchForCard<TagFilter<Class<ScienceTag>>>!",
               "54 MC",
-              "Disease<PharmacyUnion>",
+              "Disease<$PharmacyUnion>",
               "-4 MC",
-              "Disease<PharmacyUnion>",
+              "Disease<$PharmacyUnion>",
               "-4 MC",
               "15 Pay<> FROM MC",
               "5 ProjectCard<Hand FROM Selecting>",
@@ -61,11 +57,11 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>",
-          "PharmacyUnion FROM CorporationCard",
+          "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
+          "$PharmacyUnion FROM CorporationCard",
       )
       shouldThrow<TaskException> { doTask("-4 MC") }
-      doTask("Disease<PharmacyUnion>")
+      doTask("Disease<$PharmacyUnion>")
       shouldThrow<RequirementException> { doTask("54 MC") }
       abort()
     }
@@ -75,9 +71,12 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
   internal fun `A science tag removes disease and raises TR`() {
     initializeGame()
     kim.inTurn {
-          doTasks(*playCardTasks("PhysicsComplex"), "12 Pay<> FROM MC")
-          doTasks("PhysicsComplex FROM ProjectCard")
-          doTask("TerraformRating FROM Disease<PharmacyUnion>")
+          doTasks(
+              *playCardTasks("$PhysicsComplex"),
+              "12 Pay<> FROM MC",
+              "$PhysicsComplex FROM ProjectCard",
+              "TerraformRating FROM Disease<$PharmacyUnion>",
+          )
         }
         .expect("-Disease<$PharmacyUnion>, TerraformRating")
   }
@@ -90,13 +89,13 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              *playCardTasks("Decomposers"),
+              *playCardTasks("$Decomposers"),
               "5 Pay<> FROM MC",
-              "Decomposers FROM ProjectCard",
+              "$Decomposers FROM ProjectCard",
+              "Microbe<$Decomposers>*",
           )
-          doTask("Microbe<Decomposers>*")
           // The active player chooses when to hand this task to its owner.
-          giveTask(kim, "Disease<PharmacyUnion<Kim>>")
+          giveTask(kim, "Disease<$PharmacyUnion<Kim>>")
           // The active player chooses when to hand this task to its owner.
           giveTask(kim, "-4 MC")
         }
@@ -111,15 +110,17 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("Research"),
+              *playCardTasks("$Research"),
               "11 Pay<> FROM MC",
-              "Research FROM ProjectCard",
-              "TerraformRating FROM Disease<PharmacyUnion>",
+              "$Research FROM ProjectCard",
+              "TerraformRating FROM Disease<$PharmacyUnion>",
+              "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
           )
-          selectTask("PlayedEvent FROM PharmacyUnion THEN 3 TerraformRating")
 
-          doTask("2 ProjectCard<Kim, Hand>")
-          doTask("3 TerraformRating")
+          doTasks(
+              "2 ProjectCard<Hand>",
+              "3 TerraformRating",
+          )
         }
         .expect("0 Disease<$Hospitals>")
   }
@@ -131,14 +132,14 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Research"),
+          *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
-          "Research FROM ProjectCard",
+          "$Research FROM ProjectCard",
+          "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
+          "Ok",
+          "2 ProjectCard<Hand>",
+          "3 TerraformRating",
       )
-      selectTask("PlayedEvent FROM PharmacyUnion THEN 3 TerraformRating")
-      doTask("Ok")
-      doTask("2 ProjectCard<Kim, Hand>")
-      doTask("3 TerraformRating")
     }
   }
 
@@ -149,10 +150,13 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     kim.exMachina("$MediaGroup")
 
     kim.inTurn {
-      doTasks(*playCardTasks("PhysicsComplex"), "12 Pay<> FROM MC")
-      doTasks("PhysicsComplex FROM ProjectCard")
-      selectTask("PlayedEvent FROM PharmacyUnion THEN 3 TerraformRating")
-      doTask("3 TerraformRating")
+      doTasks(
+          *playCardTasks("$PhysicsComplex"),
+          "12 Pay<> FROM MC",
+          "$PhysicsComplex FROM ProjectCard",
+          "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
+          "3 TerraformRating",
+      )
     }
   }
 
@@ -166,14 +170,14 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("RegolithEaters"),
+              *playCardTasks("$RegolithEaters"),
               "13 Pay<> FROM MC",
-              "RegolithEaters FROM ProjectCard",
+              "$RegolithEaters FROM ProjectCard",
+              "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
+              "Ok",
+              "-4 MC",
+              "3 TerraformRating",
           )
-          selectTask("PlayedEvent FROM PharmacyUnion THEN 3 TerraformRating")
-          doTask("Ok")
-          doTask("-4 MC")
-          doTask("3 TerraformRating")
         }
         .expect("-17 MC, 0 Disease<$PharmacyUnion>")
   }

@@ -3,28 +3,31 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.CeresTechMarket
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class CeresTechMarketTest : TfmSandboxTest() {
   @Test
   internal fun `Can sell the entire hand but cannot sell more cards than it contains`() {
-    newTestGame(addOptions = "CeresTechMarket")
+    newTestGame(addOptions = "$CeresTechMarket")
     kim.exMachina("$CeresTechMarket")
     kim.setToExMachina(4, "ProjectCard")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("CeresTechMarket"))
-        doTask("-5 ProjectCard")
+        doTasks(
+            *cardActionTasks("$CeresTechMarket"),
+            "-5 ProjectCard",
+        )
       }
     }
     kim.inTurn {
-          doTasks(*cardActionTasks("CeresTechMarket"))
-          doTask("-4 ProjectCard")
-          doTask("8 MC")
-        }
-        .expect("-4 ProjectCard")
+      doTasks(
+          *cardActionTasks("$CeresTechMarket"),
+          "-4 ProjectCard",
+          "8 MC",
+      )
+    }
   }
 }

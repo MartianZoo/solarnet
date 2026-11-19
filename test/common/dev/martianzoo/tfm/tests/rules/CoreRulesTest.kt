@@ -26,8 +26,10 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     shouldThrow<PetSyntaxException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("SellPatentsProject"))
-        doTask("0 MC FROM ProjectCard!")
+        doTasks(
+            *standardProjectTasks("SellPatentsProject"),
+            "0 MC FROM ProjectCard!",
+        )
       }
     }
   }
@@ -38,9 +40,13 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Heat, 2 TemperatureStep")
 
     kim.inTurn {
-      doTasks("UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM Heat")
-      doTask("TemperatureStep")
-      doTasks("TerraformRating", "PROD[Heat]")
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+          "PROD[Heat]",
+      )
     }
   }
 
@@ -72,10 +78,12 @@ internal class CoreRulesTest : TfmSandboxTest() {
       doTask("UseAction<ConvertPlantsAction, Action1>")
       // The placement waits while the Player pays; it must neither execute nor block payment.
       shouldThrow<TaskException> { doTask("GreeneryTile<Tharsis_3_3>") }
-      doTask("8 Pay<Class<Plant>> FROM Plant")
-      doTask("GreeneryTile<Tharsis_3_3>")
-      doTask("OxygenStep")
-      doTask("TerraformRating")
+      doTasks(
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_3_3>",
+          "OxygenStep",
+          "TerraformRating",
+      )
     }
   }
 
@@ -88,20 +96,24 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("UseAction<ConvertPlantsAction, Action1>")
-        doTask("8 Pay<Class<Plant>> FROM Plant")
-        doTask("GreeneryTile<Hellas_1_1>")
+        doTasks(
+            "UseAction<ConvertPlantsAction, Action1>",
+            "8 Pay<Class<Plant>> FROM Plant",
+            "GreeneryTile<Hellas_1_1>",
+        )
       }
     }
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("UseAction<ConvertPlantsAction, Action1>")
-        doTask("8 Pay<Class<Plant>> FROM Plant")
-        doTask("GreeneryTile<Hellas_9_7>")
-        doTask("OxygenStep")
-        doTask("TerraformRating")
-        doTask("OceanTile<Hellas_6_7>")
-        doTask("TerraformRating")
+        doTasks(
+            "UseAction<ConvertPlantsAction, Action1>",
+            "8 Pay<Class<Plant>> FROM Plant",
+            "GreeneryTile<Hellas_9_7>",
+            "OxygenStep",
+            "TerraformRating",
+            "OceanTile<Hellas_6_7>",
+            "TerraformRating",
+        )
         // Resolve the mandatory Hellas placement bill to expose the unaffordable cost.
         doTask("-6 MC")
       }
@@ -110,10 +122,16 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     kim.exMachina("6 MC")
     kim.inTurn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTask("GreeneryTile<Hellas_9_7>")
-      doTask("OxygenStep")
-      doTasks("-6 MC", "TerraformRating", "OceanTile<Hellas_6_7>", "TerraformRating")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_9_7>",
+          "OxygenStep",
+          "-6 MC",
+          "TerraformRating",
+          "OceanTile<Hellas_6_7>",
+          "TerraformRating",
+      )
     }
   }
 
@@ -126,17 +144,21 @@ internal class CoreRulesTest : TfmSandboxTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_1_1>",
+          "OxygenStep",
+          "2 Steel",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTasks("2 Steel", "TerraformRating")
     }
 
     kim.inTurn {
-          doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-          doTask("GreeneryTile<Tharsis_3_3>")
-          doTask("OxygenStep")
+          doTasks(
+              "UseAction<ConvertPlantsAction, Action1>",
+              "8 Pay<Class<Plant>> FROM Plant",
+              "GreeneryTile<Tharsis_3_3>",
+              "OxygenStep",
+          )
         }
-        .expect("-8 Plant, 0 OxygenStep, 0 TerraformRating")
+        .expect("0 OxygenStep, 0 TerraformRating")
   }
 
   @Test
@@ -145,12 +167,15 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant, 7 OxygenStep")
 
     kim.inTurn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTask("GreeneryTile<Tharsis_3_3>")
-      doTask("OxygenStep")
-      doTask("TerraformRating")
-      doTask("TemperatureStep")
-      doTask("TerraformRating")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_3_3>",
+          "OxygenStep",
+          "TerraformRating",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
   }
 
@@ -160,12 +185,17 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant, OceanTile<Tharsis_4_8>")
 
     kim.inTurn {
-          doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-          doTask("GreeneryTile<Tharsis_4_7>")
-          doTask("OxygenStep")
-          doTasks("Plant", "2 MC", "TerraformRating")
+          doTasks(
+              "UseAction<ConvertPlantsAction, Action1>",
+              "8 Pay<Class<Plant>> FROM Plant",
+              "GreeneryTile<Tharsis_4_7>",
+              "OxygenStep",
+              "Plant",
+              "2 MC",
+              "TerraformRating",
+          )
         }
-        .expect("-7 Plant, OxygenStep")
+        .expect("-7 Plant")
   }
 
   @Test
@@ -177,9 +207,12 @@ internal class CoreRulesTest : TfmSandboxTest() {
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
     }
     kim.inTurn {
-      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
-      doTask("TemperatureStep")
-      doTask("TerraformRating")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
     kim.inTurn {
       doTasks(
@@ -206,9 +239,10 @@ internal class CoreRulesTest : TfmSandboxTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_4_5>",
+          "OxygenStep",
+          "2 Plant",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTasks("2 Plant", "TerraformRating")
     }
   }
 

@@ -13,16 +13,16 @@ internal class GmoContractTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("AdvancedEcosystems"),
+          *playCardTasks("$AdvancedEcosystems"),
           "11 Pay<> FROM MC",
-          "AdvancedEcosystems FROM ProjectCard",
+          "$AdvancedEcosystems FROM ProjectCard",
           "2 MC",
+          "Microbe<$Decomposers>*",
+          "2 MC",
+          "Microbe<$Decomposers>*",
+          "2 MC",
+          "Microbe<$Decomposers>*",
       )
-      doTask("Microbe<Decomposers>*")
-      doTask("2 MC")
-      doTask("Microbe<Decomposers>*")
-      doTask("2 MC")
-      doTask("Microbe<Decomposers>*")
     }
   }
 }

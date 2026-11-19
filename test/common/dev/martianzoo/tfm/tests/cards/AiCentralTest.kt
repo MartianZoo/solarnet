@@ -2,8 +2,6 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -23,9 +21,12 @@ internal class AiCentralTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("AiCentral"), "21 Pay<> FROM MC")
-        doTask("AiCentral FROM ProjectCard")
-        doTask("PROD[-Energy]")
+        doTasks(
+            *playCardTasks("$AiCentral"),
+            "21 Pay<> FROM MC",
+            "$AiCentral FROM ProjectCard",
+            "PROD[-Energy]",
+        )
       }
     }
   }
@@ -34,13 +35,15 @@ internal class AiCentralTest : TfmSandboxTest() {
   internal fun `Cannot use its action twice in one generation`() {
     kim.exMachina("$AiCentral")
     kim.inTurn {
-      doTasks(*cardActionTasks("AiCentral"))
-      doTask("2 ProjectCard<Kim, Hand>")
+      doTasks(
+          *cardActionTasks("$AiCentral"),
+          "2 ProjectCard<Hand>",
+      )
     }
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard")
+        doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
       }
     }
   }
@@ -48,26 +51,24 @@ internal class AiCentralTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot use a second action that AI Central does not have`() {
     shouldThrow<DeadEndException> { useSecondAction() }
-    kim.inTurn { doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard") }
+    kim.inTurn { doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard") }
   }
 
   @Test
-  internal fun `Using AI Central cannot mark Inventors Guild as used instead`() {
+  internal fun `Using AI Central leaves Inventors Guild available`() {
     kim.exMachina("$AiCentral, $InventorsGuild")
-    shouldThrow<TaskException> {
-      kim.inTurn {
-        doTask("UseAction<UseActionOnCardAction, Action1>")
-        selectTask("UseAction<AiCentral, Action1> THEN ActionUsedMarker<InventorsGuild>")
-      }
+    kim.inTurn { doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard") }
+    kim.inTurn {
+      doTasks(
+          *cardActionTasks("$InventorsGuild"),
+          "ProjectCard<Selecting>",
+          "-ProjectCard<Selecting>",
+      )
     }
-    kim.assertCounts(0 to "ActionUsedMarker")
-
-    kim.inTurn { doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard") }.expect("2 ProjectCard")
-    kim.assertCounts(1 to "ActionUsedMarker<AiCentral>", 0 to "ActionUsedMarker<InventorsGuild>")
   }
 
   private fun useSecondAction() {
     kim.exMachina("$AiCentral")
-    kim.inTurn { doTasks(*cardActionTasks("AiCentral", "Action2")) }
+    kim.inTurn { doTasks(*cardActionTasks("$AiCentral", "Action2")) }
   }
 }

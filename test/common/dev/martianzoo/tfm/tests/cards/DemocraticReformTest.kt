@@ -1,18 +1,19 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class DemocraticReformTest : TfmGameplayTest(NONE) {
+internal class DemocraticReformTest : TfmGameplayTest() {
   @BeforeTest
   fun prepareCurrentEvent() {
     newTestGame(
         addOptions = "-QuickStartVariant, TurmoilExpansion",
         playerCount = 2,
-        firstGlobalEvents = listOf("DemocraticReform", "BioengineeringBoom", "ScientificProgress"),
+        firstGlobalEvents =
+            listOf("$DemocraticReform", "$BioengineeringBoom", "$ScientificProgress"),
     )
     kim.doTask("Pass")
     stan.doTask("Pass")

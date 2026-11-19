@@ -17,13 +17,14 @@ internal class KaguyaTechTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("KaguyaTech"),
+          *playCardTasks("$KaguyaTech"),
           "10 Pay<> FROM MC",
-          "KaguyaTech FROM ProjectCard",
+          "$KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
+          "ProjectCard<Hand>",
+          "CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>",
+          "Plant",
       )
-      doTask("ProjectCard<Kim, Hand>")
-      doTasks("CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>", "Plant")
     }
   }
 
@@ -33,11 +34,14 @@ internal class KaguyaTechTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("KaguyaTech"))
-        doTasks("10 Pay<> FROM MC", "KaguyaTech FROM ProjectCard")
-        doTask("PROD[2 MC]")
-        doTask("ProjectCard<Kim, Hand>")
-        doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>")
+        doTasks(
+            *playCardTasks("$KaguyaTech"),
+            "10 Pay<> FROM MC",
+            "$KaguyaTech FROM ProjectCard",
+            "PROD[2 MC]",
+            "ProjectCard<Hand>",
+            "CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>",
+        )
       }
     }
   }
@@ -48,13 +52,14 @@ internal class KaguyaTechTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("KaguyaTech"),
+          *playCardTasks("$KaguyaTech"),
           "10 Pay<> FROM MC",
-          "KaguyaTech FROM ProjectCard",
+          "$KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
+          "ProjectCard<Hand>",
+          "CityTile<Tharsis_1_2> FROM GreeneryTile<Tharsis_1_2>",
+          "2 Steel",
       )
-      doTask("ProjectCard<Kim, Hand>")
-      doTasks("CityTile<Tharsis_1_2> FROM GreeneryTile<Tharsis_1_2>", "2 Steel")
     }
   }
 }

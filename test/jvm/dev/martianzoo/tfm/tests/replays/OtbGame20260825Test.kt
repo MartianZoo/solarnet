@@ -1648,9 +1648,11 @@ internal class OtbGame20260825Test : FullGameTest() {
           "2 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
           "$StratosphericExpedition FROM ProjectCard",
+          "2 SearchForCard<TagFilter<Class<VenusTag>>>",
+          "3 MC",
+          "3 Heat",
+          "2 Floater<$JetStreamMicroscrappers>",
       )
-      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
-      doTasks("3 MC", "3 Heat", "2 Floater<$JetStreamMicroscrappers>")
     }
     // "Actually, I think I'm quite out of stuff to do, so I pass."
     yellow.doTask("Pass")
@@ -1863,8 +1865,8 @@ internal class OtbGame20260825Test : FullGameTest() {
           *playCardTasks("$AqueductSystems"),
           "7 Pay<> FROM MC",
           "$AqueductSystems FROM ProjectCard",
+          "3 SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
-      doTask("3 SearchForCard<TagFilter<Class<BuildingTag>>>")
     }
     yellow.turn {
       // "I suppose I'll spend five monies on Venusian Insects."

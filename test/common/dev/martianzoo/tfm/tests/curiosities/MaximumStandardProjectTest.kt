@@ -44,8 +44,8 @@ internal class MaximumStandardProjectTest : FullGameTest() {
   internal fun `one greenery standard project can gain fifty one mc`() {
     startGame()
     with(me) {
-      doTask("14 TerraformRating")
       doTasks(
+          "14 TerraformRating",
           "2 CorporationCard",
           "-CorporationCard",
           "10 ProjectCard<Selecting>",
@@ -54,9 +54,9 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       )
       doTask("Ok") // keep all offered cards
     }
-    admin.count("Coming<DemocraticReform>") shouldBe 1
+    admin.count("Coming<$DemocraticReform>") shouldBe 1
     (admin.count("PartyLeader<MarsFirst, Neutral>") > 0) shouldBe true
-    admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
+    admin.count("Distant<$MinimalImpactPolicy>") shouldBe 1
     (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
     generation1()
     generation2()
@@ -69,7 +69,7 @@ internal class MaximumStandardProjectTest : FullGameTest() {
     generation9()
     generation10()
 
-    me.count("Science<Spire>") shouldBe 12
+    me.count("Science<$Spire>") shouldBe 12
     admin.count("TemperatureStep") shouldBe 14
     admin.count("OxygenStep") shouldBe 7
     admin.count("OceanTile") shouldBe 8
@@ -81,19 +81,26 @@ internal class MaximumStandardProjectTest : FullGameTest() {
     me.completeOperation {
           doTasks(
               *standardProjectTasks("GreeneryProject"),
-              "12 PayFromCard<Spire> FROM Science<Spire>",
+              "12 PayFromCard<$Spire> FROM Science<$Spire>",
               "Ok", // twelve science cover the bill
           )
           doTask("7 MC") // CrediCor and Standard Technology.
-          doTasks("GreeneryTile<Hellas_3_6>", "2 Plant", "Animal<Herbivores>")
+          doTasks("GreeneryTile<Hellas_3_6>", "2 Plant", "Animal<$Herbivores>")
           // Greens, Lakefront Resorts, three adjacent oceans, and Meat Industry.
-          doTask("15 MC")
-          doTasks("OxygenStep", "TerraformRating", "TemperatureStep", "TerraformRating")
+          doTasks(
+              "15 MC",
+              "OxygenStep",
+              "TerraformRating",
+              "TemperatureStep",
+              "TerraformRating",
+          )
           doTask("7 MC") // Two TR rewards from Terraforming Deal, plus Homeostasis Bureau.
           doTasks("OceanTile<Hellas_5_7>", "3 Heat", "2 Plant", "TerraformRating")
           doTask("20 MC") // Lakefront Resorts, six adjacent oceans, and Terraforming Deal.
-          doTask("PROD[MC]")
-          doTask("2 MC")
+          doTasks(
+              "PROD[MC]",
+              "2 MC",
+          )
         }
         .expect("51 MC")
   }
@@ -122,6 +129,9 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "$NewPartner FROM PreludeCard",
           "PROD[MC]",
           "2 PreludeCard<Selecting>",
+      )
+
+      doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
           "$BoardOfDirectors FROM PreludeCard<Selecting>",
           "4 Director<$BoardOfDirectors>",
@@ -209,15 +219,19 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTask("Pass")
       doTask("14 MC")
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.count("Distant<FreeAcademiaTreaty>") shouldBe 1
+      admin.count("Distant<$FreeAcademiaTreaty>") shouldBe 1
       (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation2() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
@@ -243,18 +257,26 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTask("Pass")
       doTask("18 MC")
       // Turmoil: Democratic Reform.
-      doTasks("0 Plant", "0 Steel")
-      doTasks("OceanTile<Hellas_1_1> BY Admin", "PROD[MC]")
+      doTasks(
+          "0 Plant",
+          "0 Steel",
+          "OceanTile<Hellas_1_1> BY Admin",
+          "PROD[MC]",
+      )
       admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
-      admin.count("Distant<PateraBoring>") shouldBe 1
+      admin.count("Distant<$PateraBoring>") shouldBe 1
       (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation3() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
       doTasks(
           *playCardTasks("$AcquiredCompany"),
           "7 Pay<> FROM MC",
@@ -266,15 +288,15 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       // Turmoil: Minimal Impact Policy.
       doTasks("-OceanTile", "EACH Influence<Me> { StandardResource<Me>! }")
       admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
-      admin.count("Distant<ScienceSummit>") shouldBe 1
+      admin.count("Distant<$ScienceSummit>") shouldBe 1
       (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation4() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -296,15 +318,15 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       // Turmoil: Free Academia Treaty.
       doTask("0 MC")
       admin.count("PartyLeader<Kelvinists, Neutral>") shouldBe 1
-      admin.count("Distant<TerraformingLobbying>") shouldBe 1
+      admin.count("Distant<$TerraformingLobbying>") shouldBe 1
       (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation5() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -320,15 +342,15 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       // Turmoil: Patera Boring.
       doTask("PROD[0 Heat]")
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-      admin.count("Distant<CharismaticWgPresident>") shouldBe 1
+      admin.count("Distant<$CharismaticWgPresident>") shouldBe 1
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation6() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -374,7 +396,7 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "0 MC",
       )
       expectChanges(
-          "SolarnetGlobalEvent, Distant<SolarnetGlobalEvent>, 2 PartyFollower<Unity, Neutral>"
+          "$SolarnetGlobalEvent, Distant<$SolarnetGlobalEvent>, 2 PartyFollower<Unity, Neutral>"
       ) {
         doTask("Pass")
         doTasks("24 MC", "4 Heat")
@@ -384,14 +406,18 @@ internal class MaximumStandardProjectTest : FullGameTest() {
             "0 ProjectCard",
         )
       }
-      admin.count("Distant<SolarnetGlobalEvent>") shouldBe 1
+      admin.count("Distant<$SolarnetGlobalEvent>") shouldBe 1
     }
   }
 
   private fun generation7() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -463,15 +489,15 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       selectTask("2! MC<Me> / 5 (TerraformRating<Me> - 15) MAX 5")
       doTasks("0 MC", "0 MC")
       admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
-      admin.count("Distant<BioengineeringBoom>") shouldBe 1
+      admin.count("Distant<$BioengineeringBoom>") shouldBe 1
       (admin.count("PartyLeader<Greens, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation8() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -590,21 +616,21 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "5 Steel",
       )
       expectChanges(
-          "SelfSufficiencyProgram, Distant<SelfSufficiencyProgram>, 2 PartyFollower<Greens, Neutral>"
+          "$SelfSufficiencyProgram, Distant<$SelfSufficiencyProgram>, 2 PartyFollower<Greens, Neutral>"
       ) {
         doTask("Pass")
         doTasks("45 MC", "4 Heat")
         // Turmoil: Charismatic WG President.
         doTasks("4 MC", "0 MC")
       }
-      admin.count("Distant<SelfSufficiencyProgram>") shouldBe 1
+      admin.count("Distant<$SelfSufficiencyProgram>") shouldBe 1
     }
   }
 
   private fun generation9() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -709,15 +735,15 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       // Turmoil: Solarnet Global Event.
       doTasks("10 MC", "2 MC")
       admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
-      admin.count("Distant<RedResistance>") shouldBe 1
+      admin.count("Distant<$RedResistance>") shouldBe 1
       (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation10() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",

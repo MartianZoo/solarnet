@@ -16,10 +16,10 @@ internal class MartianLumberCorporationTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Mine"),
+          *playCardTasks("$Mine"),
           "Pay<Class<Plant>> FROM Plant",
           "1 Pay<> FROM MC",
-          "Mine FROM ProjectCard",
+          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }

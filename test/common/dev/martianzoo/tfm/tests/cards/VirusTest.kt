@@ -18,13 +18,13 @@ internal class VirusTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Virus"))
+        doTasks(*playCardTasks("$Virus"))
 
         doTasks(
             "1 Pay<> FROM MC",
-            "Virus FROM ProjectCard",
+            "$Virus FROM ProjectCard",
+            "-Animal<Stan, $Birds<Stan>>, -Animal<Stan, $Fish<Stan>>",
         )
-        doTask("-Animal<Stan, Birds<Stan>>, -Animal<Stan, Fish<Stan>>")
       }
     }
   }

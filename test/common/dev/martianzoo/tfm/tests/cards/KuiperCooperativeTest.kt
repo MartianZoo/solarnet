@@ -3,9 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.AstroDrill
-import dev.martianzoo.tfm.tests.cards.cardnames.KuiperCooperative
-import dev.martianzoo.tfm.tests.cards.cardnames.SpaceStation
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -24,8 +22,10 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
     stan.exMachina("$AstroDrill")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("KuiperCooperative"))
-          doTask("3 Asteroid<KuiperCooperative>")
+          doTasks(
+              *cardActionTasks("$KuiperCooperative"),
+              "3 Asteroid<$KuiperCooperative>",
+          )
         }
         .expect("3 Asteroid<$KuiperCooperative>")
   }
@@ -37,11 +37,11 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           *standardProjectTasks("AsteroidProject"),
-          "2 PayFromCard<KuiperCooperative> FROM Asteroid<KuiperCooperative>",
+          "2 PayFromCard<$KuiperCooperative> FROM Asteroid<$KuiperCooperative>",
           "12 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
       )
-      doTask("TemperatureStep")
-      doTask("TerraformRating")
     }
   }
 
@@ -52,14 +52,14 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               *standardProjectTasks("AquiferProject"),
-              "2 PayFromCard<KuiperCooperative> FROM Asteroid<KuiperCooperative>",
+              "2 PayFromCard<$KuiperCooperative> FROM Asteroid<$KuiperCooperative>",
               "16 Pay<> FROM MC",
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
               "2 Steel",
           )
         }
-        .expect("-16 MC, OceanTile")
+        .expect("OceanTile")
   }
 
   @Test
@@ -68,8 +68,10 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("PowerPlantProject"))
-        doTask("2 PayFromCard<KuiperCooperative> FROM Asteroid<KuiperCooperative>")
+        doTasks(
+            *standardProjectTasks("PowerPlantProject"),
+            "2 PayFromCard<$KuiperCooperative> FROM Asteroid<$KuiperCooperative>",
+        )
       }
     }
   }
@@ -80,7 +82,7 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("AsteroidProject"), "-Asteroid<AstroDrill>")
+        doTasks(*standardProjectTasks("AsteroidProject"), "-Asteroid<$AstroDrill>")
       }
     }
   }

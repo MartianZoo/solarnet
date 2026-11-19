@@ -123,8 +123,12 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
             "PROD[-MC]",
             "13 MC",
         )
-        doTasks(*playCardTasks("$IndenturedWorkers"), "$IndenturedWorkers FROM ProjectCard", "3 MC")
-        doTask("IndenturedWorkers_NextCardEffect")
+        doTasks(
+            *playCardTasks("$IndenturedWorkers"),
+            "$IndenturedWorkers FROM ProjectCard",
+            "3 MC",
+            "IndenturedWorkers_NextCardEffect",
+        )
         doTasks(
             *playCardTasks("$EarthCatapult"),
             "12 Pay<> FROM MC",
@@ -141,8 +145,8 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
             "2 Pay<Class<Steel>> FROM Steel",
             "1 Pay<> FROM MC",
             "$OlympusConference FROM ProjectCard",
+            "Science<$OlympusConference>",
         )
-        doTask("Science<$OlympusConference>")
         draw(TechnologyDemonstration)
         doTasks(
             *playCardTasks("$AdvancedAlloys"),
@@ -155,8 +159,8 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
             "3 Pay<> FROM MC",
             "$MineralDeposit FROM ProjectCard",
             "5 Steel",
+            "3 MC",
         )
-        doTask("3 MC")
         draw(ImportOfAdvancedGhg)
         doTasks(
             *playCardTasks("$ResearchOutpost"),
@@ -259,8 +263,8 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
             "$SpecialDesign FROM ProjectCard",
             "ProjectCard FROM Science",
             "3 MC",
+            "SpecialDesign_NextCardEffect",
         )
-        doTask("SpecialDesign_NextCardEffect")
         doTasks(
             *playCardTasks("$Shuttles"),
             "Ok", // no titanium paid

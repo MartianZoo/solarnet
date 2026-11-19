@@ -8,7 +8,7 @@ import kotlin.test.Test
 internal class VenusOrbitalSurveyTest : TfmSandboxTest() {
   @Test
   internal fun `Keeps a Venus card free and buys the other revealed card`() {
-    newTestGame("VenusOrbitalSurvey")
+    newTestGame("$VenusOrbitalSurvey")
     kim.exMachina("$VenusOrbitalSurvey")
 
     kim.inTurn {

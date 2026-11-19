@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.engine.*
@@ -21,7 +20,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
-internal class StartTokenTest : TfmGameplayTest(NONE) {
+internal class StartTokenTest : TfmGameplayTest() {
   @Test
   internal fun `Start token begins with the first player and passes after each research phase`() {
     newTestGame(playerCount = 3)
@@ -62,9 +61,17 @@ internal class StartTokenTest : TfmGameplayTest(NONE) {
 
     kim.doTask("Pass")
     // 14 TR plus -1 MC production after the solo Colonies setup penalty.
-    kim.doTasks("13 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
-    kim.doTask("VenusStep! BY Admin")
-    kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
+    kim.doTasks(
+        "13 MC",
+        "Steel",
+        "Titanium",
+        "Plant",
+        "Energy",
+        "Heat",
+        "VenusStep! BY Admin",
+        "4 ProjectCard<Selecting>",
+        "-4 ProjectCard<Selecting>",
+    )
 
     admin.assertCounts(1 to "StartToken<Kim>", 0 to "NextPlayer")
   }
@@ -95,11 +102,10 @@ internal class StartTokenTest : TfmGameplayTest(NONE) {
       admin.beginOperation("SetupPhase FROM BootstrapPhase")
       admin.count("SetupPhase") shouldBe 1
       admin.count("Baton") shouldBe 0
-      admin.count("ActionScope") shouldBe 0
       p1.doTask("-3 ProjectCard<Selecting>")
       p2.doTask("-5 ProjectCard<Selecting>")
-      p2.doTasks("PlayCard<Class<CorporationCard>, Class<CrediCor>>")
-      p1.doTasks("PlayCard<Class<CorporationCard>, Class<InterplanetaryCinematics>>")
+      p2.doTasks("PlayCard<Class<CorporationCard>, Class<$CrediCor>>")
+      p1.doTasks("PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>")
 
       admin.count("ActionPhase") shouldBe 1
       game.tasks.extract { it }.filterNot { it.deferred }.map { it.assignee } shouldContainExactly

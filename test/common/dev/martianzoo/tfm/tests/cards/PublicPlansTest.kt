@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -16,13 +17,13 @@ internal class PublicPlansTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("PublicPlans"),
+          *playCardTasks("$PublicPlans"),
           "7 Pay<> FROM MC",
-          "PublicPlans FROM ProjectCard",
+          "$PublicPlans FROM ProjectCard",
+          "2 ProjectCard<Revealed FROM Hand>",
+          "2 ProjectCard FROM ProjectCard<Revealed>",
+          "2 MC",
       )
-      doTask("2 ProjectCard<Revealed FROM Hand>")
-      doTask("2 ProjectCard FROM ProjectCard<Revealed>")
-      doTask("2 MC")
     }
   }
 
@@ -32,13 +33,13 @@ internal class PublicPlansTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("PublicPlans"),
+          *playCardTasks("$PublicPlans"),
           "7 Pay<> FROM MC",
-          "PublicPlans FROM ProjectCard",
+          "$PublicPlans FROM ProjectCard",
+          "ProjectCard<Revealed FROM Hand>",
+          "ProjectCard FROM ProjectCard<Revealed>",
+          "MC",
       )
-      doTask("ProjectCard<Revealed FROM Hand>")
-      doTask("ProjectCard FROM ProjectCard<Revealed>")
-      doTask("MC")
     }
   }
 
@@ -48,13 +49,13 @@ internal class PublicPlansTest : TfmSandboxTest() {
 
     shouldThrow<NotNowException> {
       kim.inTurn {
-        doTasks(*playCardTasks("PublicPlans"))
+        doTasks(*playCardTasks("$PublicPlans"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "PublicPlans FROM ProjectCard",
+            "$PublicPlans FROM ProjectCard",
+            "ProjectCard<Revealed FROM Hand>",
         )
-        doTask("ProjectCard<Revealed FROM Hand>")
       }
     }
   }

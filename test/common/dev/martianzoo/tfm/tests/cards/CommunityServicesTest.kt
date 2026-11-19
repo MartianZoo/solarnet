@@ -8,7 +8,7 @@ import kotlin.test.Test
 internal class CommunityServicesTest : TfmSandboxTest() {
   @Test
   internal fun `Does not count Ecology Experts or Decomposers as tagless`() {
-    newTestGame(addOptions = "PreludeExpansion, EcologyExperts, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, $EcologyExperts, Unsafe")
     advanceUntilActionPhase()
     kim.exMachina("$EcologyExperts, $Decomposers")
     kim.setToExMachina(13, "MC")
@@ -16,11 +16,11 @@ internal class CommunityServicesTest : TfmSandboxTest() {
     // The beginner corporation and Community Services itself are the two tagless cards.
     kim.inTurn {
       doTasks(
-          *playCardTasks("CommunityServices"),
+          *playCardTasks("$CommunityServices"),
           "13 Pay<> FROM MC",
-          "CommunityServices FROM ProjectCard",
+          "$CommunityServices FROM ProjectCard",
+          "PROD[2 MC]",
       )
-      doTask("PROD[2 MC]")
     }
   }
 }

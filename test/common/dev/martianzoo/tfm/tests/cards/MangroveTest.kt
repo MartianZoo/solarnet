@@ -17,13 +17,14 @@ internal class MangroveTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Mangrove"),
+          *playCardTasks("$Mangrove"),
           "12 Pay<> FROM MC",
-          "Mangrove FROM ProjectCard",
+          "$Mangrove FROM ProjectCard",
           "GreeneryTile<Tharsis_1_2>",
+          "OxygenStep",
+          "2 Steel",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTasks("2 Steel", "TerraformRating")
     }
   }
 }

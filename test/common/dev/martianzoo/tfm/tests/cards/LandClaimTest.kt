@@ -18,8 +18,11 @@ internal class LandClaimTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot claim the Noctis area`() {
     kim.inTurn {
-      doTasks(*playCardTasks("LandClaim"), "1 Pay<> FROM MC")
-      doTask("LandClaim FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$LandClaim"),
+          "1 Pay<> FROM MC",
+          "$LandClaim FROM ProjectCard",
+      )
       shouldThrow<ExpressionException> { doTask("Community<Tharsis_5_3>") }
       doTask("Community<Tharsis_1_1>")
     }
@@ -30,19 +33,21 @@ internal class LandClaimTest : TfmSandboxTest() {
   internal fun `Prevents an opponent from building on the claimed area`() {
     kim.inTurn {
       doTasks(
-          *playCardTasks("LandClaim"),
+          *playCardTasks("$LandClaim"),
           "1 Pay<> FROM MC",
-          "LandClaim FROM ProjectCard",
+          "$LandClaim FROM ProjectCard",
+          "Community<Tharsis_1_1>",
       )
-      doTask("Community<Tharsis_1_1>")
     }
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        doTasks(*standardProjectTasks("CityProject"))
-        doTask("25 Pay<> FROM MC")
-        doTask("PROD[MC]")
-        doTask("CityTile<Tharsis_1_1>")
+        doTasks(
+            *standardProjectTasks("CityProject"),
+            "25 Pay<> FROM MC",
+            "PROD[MC]",
+            "CityTile<Tharsis_1_1>",
+        )
       }
     }
     kim.assertCounts(1 to "Community<Tharsis_1_1>", 0 to "Tile<Tharsis_1_1>")
@@ -57,9 +62,10 @@ internal class LandClaimTest : TfmSandboxTest() {
               *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_1_1>",
+              "OxygenStep",
+              "2 Steel",
+              "TerraformRating",
           )
-          doTask("OxygenStep")
-          doTasks("2 Steel", "TerraformRating")
         }
         .expect("-Community")
   }
@@ -71,9 +77,12 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
-        doTask("ArtificialLake FROM ProjectCard")
-        doTask("OceanTile<Tharsis_1_3>")
+        doTasks(
+            *playCardTasks("$ArtificialLake"),
+            "15 Pay<> FROM MC",
+            "$ArtificialLake FROM ProjectCard",
+            "OceanTile<Tharsis_1_3>",
+        )
       }
     }
     kim.assertCounts(1 to "Community<Tharsis_1_3>", 0 to "OceanTile<Tharsis_1_3>")
@@ -118,9 +127,11 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("GreeneryProject"))
-        doTask("23 Pay<> FROM MC")
-        doTask("GreeneryTile<Tharsis_4_3>")
+        doTasks(
+            *standardProjectTasks("GreeneryProject"),
+            "23 Pay<> FROM MC",
+            "GreeneryTile<Tharsis_4_3>",
+        )
       }
     }
     kim.assertCounts(1 to "Community<Tharsis_4_2>", 0 to "GreeneryTile<Tharsis_4_3>")
@@ -135,9 +146,9 @@ internal class LandClaimTest : TfmSandboxTest() {
               *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_2_1>",
+              "OxygenStep",
+              "TerraformRating",
           )
-          doTask("OxygenStep")
-          doTask("TerraformRating")
         }
         .expect("0 Community")
   }
@@ -152,9 +163,9 @@ internal class LandClaimTest : TfmSandboxTest() {
               *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_9_7>",
+              "OxygenStep",
+              "TerraformRating",
           )
-          doTask("OxygenStep")
-          doTask("TerraformRating")
         }
         .expect("0 Community<Stan>")
   }
@@ -166,9 +177,11 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("GreeneryProject"))
-        doTask("23 Pay<> FROM MC")
-        doTask("GreeneryTile<Tharsis_2_2>")
+        doTasks(
+            *standardProjectTasks("GreeneryProject"),
+            "23 Pay<> FROM MC",
+            "GreeneryTile<Tharsis_2_2>",
+        )
       }
     }
     stan.assertCounts(1 to "Community<Tharsis_2_2>", 0 to "Tile<Tharsis_2_2>")
@@ -181,9 +194,11 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("GreeneryProject"))
-        doTask("23 Pay<> FROM MC")
-        doTask("GreeneryTile<Tharsis_9_7>")
+        doTasks(
+            *standardProjectTasks("GreeneryProject"),
+            "23 Pay<> FROM MC",
+            "GreeneryTile<Tharsis_9_7>",
+        )
       }
     }
     kim.assertCounts(1 to "Community<Tharsis_2_2>", 0 to "Tile<Tharsis_9_7>")
@@ -199,9 +214,10 @@ internal class LandClaimTest : TfmSandboxTest() {
               *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_2_2>",
+              "OxygenStep",
+              "Steel",
+              "TerraformRating",
           )
-          doTask("OxygenStep")
-          doTasks("Steel", "TerraformRating")
         }
         .expect("-Community")
   }
@@ -213,9 +229,11 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("GreeneryProject"))
-        doTask("23 Pay<> FROM MC")
-        doTask("GreeneryTile<Tharsis_9_7>")
+        doTasks(
+            *standardProjectTasks("GreeneryProject"),
+            "23 Pay<> FROM MC",
+            "GreeneryTile<Tharsis_9_7>",
+        )
       }
     }
     kim.assertCounts(0 to "Tile<Tharsis_9_7>")
@@ -231,9 +249,9 @@ internal class LandClaimTest : TfmSandboxTest() {
               *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_2_1>",
+              "OxygenStep",
+              "TerraformRating",
           )
-          doTask("OxygenStep")
-          doTask("TerraformRating")
         }
         .expect("0 Community<Stan>")
   }
@@ -244,13 +262,13 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("LandClaim"))
+        doTasks(*playCardTasks("$LandClaim"))
 
         doTasks(
             "1 Pay<> FROM MC",
-            "LandClaim FROM ProjectCard",
+            "$LandClaim FROM ProjectCard",
+            "Community<Tharsis_1_1>",
         )
-        doTask("Community<Tharsis_1_1>")
       }
     }
     kim.assertCounts(0 to "Community<Tharsis_1_1>", 1 to "GreeneryTile<Tharsis_1_1>")
@@ -262,13 +280,13 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("LandClaim"))
+        doTasks(*playCardTasks("$LandClaim"))
 
         doTasks(
             "1 Pay<> FROM MC",
-            "LandClaim FROM ProjectCard",
+            "$LandClaim FROM ProjectCard",
+            "Community<Tharsis_1_3>",
         )
-        doTask("Community<Tharsis_1_3>")
       }
     }
     stan.assertCounts(1 to "Community<Tharsis_1_3>")

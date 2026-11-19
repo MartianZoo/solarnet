@@ -38,8 +38,10 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     admin.setToExMachina(4, "ColonyProduction<Luna>")
 
     kim.inTurn {
-      doTasks(*cardActionTasks("TitanFloatingLaunchPad", "Action2"))
-      doTask("-Floater<TitanFloatingLaunchPad>")
+      doTasks(
+          *cardActionTasks("$TitanFloatingLaunchPad", "Action2"),
+          "-Floater<$TitanFloatingLaunchPad>",
+      )
 
       doTasks("Trade<Luna>")
       // Hand the colony-track change to Admin before collecting trade income.
@@ -63,8 +65,10 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
 
           doTasks("Trade<Luna>")
           // Resolve the zero colony-track change before collecting trade income.
-          doTask("0 ColonyProduction<Luna>")
-          doTask("17 MC")
+          doTasks(
+              "0 ColonyProduction<Luna>",
+              "17 MC",
+          )
         }
         .expect("8 MC")
 

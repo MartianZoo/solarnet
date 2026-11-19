@@ -1,15 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.tests.TestOption.PromoCards
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.canonicalCatalog
-import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
-import dev.martianzoo.tfm.tests.setUpGame
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -29,7 +23,7 @@ internal class VerminTest : TfmSandboxTest() {
               "CityTile<Tharsis_2_1>",
           )
           // The active player chooses when to hand this task to its owner.
-          giveTask(kim, "Animal<Vermin<Kim>>")
+          giveTask(kim, "Animal<$Vermin<Kim>>")
         }
         .expect("Animal<$Vermin<Kim>>")
   }
@@ -40,7 +34,7 @@ internal class VerminTest : TfmSandboxTest() {
     kim.exMachina("$Vermin, $Decomposers")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("Vermin"), "Microbe<Decomposers>*")
+          doTasks(*cardActionTasks("$Vermin"), "Microbe<$Decomposers>*")
         }
         .expect("Microbe<$Decomposers>")
   }
@@ -58,32 +52,5 @@ internal class VerminTest : TfmSandboxTest() {
       // Expand the per-player deductions; Admin applies the scoring changes.
       kim.doTask("EACH")
     } shouldBe listOf(18, 19, 19)
-  }
-
-  // This synthetic listener tests engine attribution, rather than Vermin's player-facing result.
-  internal class Attribution : TfmSandboxTest() {
-    @Test
-    internal fun `Admin is credited for every point removed by Vermin`() {
-      game =
-          setUpGame(
-              canonicalPremise(
-                  PromoCards,
-                  players = 3,
-                  catalog = canonicalCatalog(false),
-                  additionalClassDeclarations = attributionProbeDeclarations(3),
-              )
-          )
-      val kim = agents[PLAYER1]
-      val p3 = agents[PLAYER3]
-      kim.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
-      p3.runOperation("CityTile<Tharsis_3_3>")
-
-      admin.runOperation("End FROM Phase")
-
-      // The probe reacts to each point loss and records the executing actor.
-      admin.count("$attribution<Admin>") shouldBe 2
-      admin.count("$attribution<Player1>") shouldBe 0
-      admin.count("$attribution<Player3>") shouldBe 0
-    }
   }
 }

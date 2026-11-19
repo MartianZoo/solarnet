@@ -17,9 +17,9 @@ internal class OutdoorSportsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("OutdoorSports"),
+          *playCardTasks("$OutdoorSports"),
           "8 Pay<> FROM MC",
-          "OutdoorSports FROM ProjectCard",
+          "$OutdoorSports FROM ProjectCard",
           "PROD[2 MC]",
       )
     }
@@ -32,7 +32,7 @@ internal class OutdoorSportsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("OutdoorSports"))
+        doTasks(*playCardTasks("$OutdoorSports"))
       }
     }
   }

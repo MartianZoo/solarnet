@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
@@ -97,11 +98,11 @@ internal class ClassTableSelectionTest {
     val standardGame = gameView("")
     val beginnerGame = gameView("BeginnerVariant")
 
-    assertOmitted(standardGame, setOf(cn("BeginnerCorporation1")))
+    assertOmitted(standardGame, setOf(BeginnerCorporation1))
     assertOmitted(standardGame, setOf(cn("BeginnerCard")))
     assertOmitted(standardGame, setOf(cn("BeginnerOption")))
     assertSelected(standardGame, setOf(cn("StandardOption")))
-    assertSelected(beginnerGame, setOf(cn("BeginnerCorporation1")))
+    assertSelected(beginnerGame, setOf(BeginnerCorporation1))
     assertSelected(beginnerGame, setOf(cn("BeginnerCard")))
     assertSelected(beginnerGame, setOf(cn("BeginnerOption")))
   }
@@ -206,10 +207,10 @@ internal class ClassTableSelectionTest {
     val standardGame = gameView("")
     val promoGame = gameView("promos:cards")
 
-    assertSelected(standardGame, setOf(cn("DeimosDown")))
-    assertOmitted(standardGame, setOf(cn("DeimosDownPromo")))
-    assertOmitted(promoGame, setOf(cn("DeimosDown")))
-    assertSelected(promoGame, setOf(cn("DeimosDownPromo")))
+    assertSelected(standardGame, setOf(DeimosDown))
+    assertOmitted(standardGame, setOf(DeimosDownPromo))
+    assertOmitted(promoGame, setOf(DeimosDown))
+    assertSelected(promoGame, setOf(DeimosDownPromo))
   }
 
   @Test
@@ -271,10 +272,10 @@ internal class ClassTableSelectionTest {
     val prelude2Game = gameView("prelude2:cards")
     val prelude2WithVenus = gameView("prelude2:cards, VenusNextExpansion")
 
-    assertOmitted(standardGame, setOf(cn("Ecotec")))
-    assertSelected(prelude2Game, setOf(cn("Ecotec")))
-    assertOmitted(prelude2Game, setOf(cn("AtmosphericEnhancers")))
-    assertSelected(prelude2WithVenus, setOf(cn("AtmosphericEnhancers")))
+    assertOmitted(standardGame, setOf(Ecotec))
+    assertSelected(prelude2Game, setOf(Ecotec))
+    assertOmitted(prelude2Game, setOf(AtmosphericEnhancers))
+    assertSelected(prelude2WithVenus, setOf(AtmosphericEnhancers))
   }
 
   @Test
@@ -282,7 +283,7 @@ internal class ClassTableSelectionTest {
     assertValidView("TurmoilExpansion, VenusNextExpansion, ColoniesExpansion, Callisto") { view ->
       assertOmitted(
           view,
-          setOf(cn("MartianProtectionism"), cn("JovianColonyBoom"), cn("TitanVenusAlliance")),
+          setOf(MartianProtectionism, JovianColonyBoom, TitanVenusAlliance),
       )
     }
   }
@@ -290,16 +291,16 @@ internal class ClassTableSelectionTest {
   @Test
   internal fun `Venus global events require Venus even with the promo pack`() {
     assertValidView("TurmoilExpansion, promos:cards, ColoniesExpansion, Callisto") { view ->
-      assertSelected(view, setOf(cn("JovianColonyBoom")))
-      assertOmitted(view, setOf(cn("MartianProtectionism"), cn("TitanVenusAlliance")))
+      assertSelected(view, setOf(JovianColonyBoom))
+      assertOmitted(view, setOf(MartianProtectionism, TitanVenusAlliance))
     }
   }
 
   @Test
   internal fun `Colony global events require Colonies even with Venus and the promo pack`() {
     assertValidView("TurmoilExpansion, promos:cards, VenusNextExpansion") { view ->
-      assertSelected(view, setOf(cn("MartianProtectionism")))
-      assertOmitted(view, setOf(cn("JovianColonyBoom"), cn("TitanVenusAlliance")))
+      assertSelected(view, setOf(MartianProtectionism))
+      assertOmitted(view, setOf(JovianColonyBoom, TitanVenusAlliance))
     }
   }
 
@@ -308,7 +309,7 @@ internal class ClassTableSelectionTest {
     assertValidView(
         "TurmoilExpansion, promos:cards, VenusNextExpansion, ColoniesExpansion, Callisto"
     ) { view ->
-      assertSelected(view, setOf(cn("TitanVenusAlliance"), cn("ImmigrationToVenus")))
+      assertSelected(view, setOf(TitanVenusAlliance, ImmigrationToVenus))
     }
   }
 
@@ -345,8 +346,8 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `a Prelude card brings its card back without the Prelude expansion`() {
-    val gameWithPrelude = gameView("AcquiredSpaceAgency")
-    val gameWithCorporation = gameView("CheungShingMars")
+    val gameWithPrelude = gameView("$AcquiredSpaceAgency")
+    val gameWithCorporation = gameView("$CheungShingMars")
 
     assertSelected(gameWithPrelude, setOf(cn("PreludeCard")))
     assertOmitted(gameWithCorporation, setOf(cn("PreludeCard")))
@@ -354,7 +355,7 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `shared promo card resource follows either card without the pack`() {
-    listOf("PharmacyUnion", "Hospitals").forEach { card ->
+    listOf("$PharmacyUnion", "$Hospitals").forEach { card ->
       assertValidView(card) { view ->
         assertSelected(view, setOf(cn(card), cn("Disease")))
       }
@@ -363,18 +364,18 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `card local instruction follows its card without the pack`() {
-    assertValidView("IcyImpactors") { view ->
-      assertSelected(view, setOf(cn("IcyImpactors"), cn("ChooseOceanArea")))
+    assertValidView("$IcyImpactors") { view ->
+      assertSelected(view, setOf(IcyImpactors, cn("ChooseOceanArea")))
     }
   }
 
   @Test
   internal fun `Mars Nomads marker follows its card without the pack`() {
-    assertValidView("MarsNomads") { view ->
-      assertSelected(view, setOf(cn("MarsNomads"), cn("NomadsMarker")))
+    assertValidView("$MarsNomads") { view ->
+      assertSelected(view, setOf(MarsNomads, cn("NomadsMarker")))
     }
-    assertValidView("promos:cards, -MarsNomads") { view ->
-      assertOmitted(view, setOf(cn("MarsNomads"), cn("NomadsMarker")))
+    assertValidView("promos:cards, -$MarsNomads") { view ->
+      assertOmitted(view, setOf(MarsNomads, cn("NomadsMarker")))
     }
   }
 
@@ -428,9 +429,9 @@ internal class ClassTableSelectionTest {
   @Test
   internal fun `explicit inclusion agrees with an already selected module or pack`() {
     listOf(
-            "PreludeExpansion, Vitor" to "Vitor",
-            "prelude:cards, Vitor" to "Vitor",
-            "VenusNextExpansion, Manutech" to "Manutech",
+            "PreludeExpansion, $Vitor" to "$Vitor",
+            "prelude:cards, $Vitor" to "$Vitor",
+            "VenusNextExpansion, $Manutech" to "$Manutech",
         )
         .forEach { (config, card) ->
           assertValidView(config) { view -> assertSelected(view, setOf(cn(card))) }
@@ -439,8 +440,8 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `individual card exclusions also apply to a standalone pack`() {
-    assertValidView("prelude:cards, -Vitor") { view ->
-      assertOmitted(view, setOf(cn("Vitor"), cn("NonNegativeIconsOf")))
+    assertValidView("prelude:cards, -$Vitor") { view ->
+      assertOmitted(view, setOf(Vitor, cn("NonNegativeIconsOf")))
     }
   }
 
@@ -482,16 +483,16 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `Turmoil global events are individual Content with a hard Module dependency`() {
-    assertInvalidView("DemocraticReform")
-    assertValidView("TurmoilExpansion, -DemocraticReform") { view ->
+    assertInvalidView("$DemocraticReform")
+    assertValidView("TurmoilExpansion, -$DemocraticReform") { view ->
       assertSelected(view, setOf(cn("TurmoilExpansion"), cn("GlobalEvent")))
-      assertOmitted(view, setOf(cn("DemocraticReform"), cn("AquiferReleasedByPublicCouncil")))
+      assertOmitted(view, setOf(DemocraticReform, cn("AquiferReleasedByPublicCouncil")))
     }
-    assertValidView("TurmoilExpansion, -MinimalImpactPolicy") { view ->
+    assertValidView("TurmoilExpansion, -$MinimalImpactPolicy") { view ->
       assertOmitted(
           view,
           setOf(
-              cn("MinimalImpactPolicy"),
+              MinimalImpactPolicy,
               cn("DryDeserts"),
           ),
       )
@@ -507,14 +508,14 @@ internal class ClassTableSelectionTest {
             .explicitClassDeclarations
             .mapTo(hashSetOf()) { it.className }
     val cards = Canon.cards.map { it.className }.filterTo(linkedSetOf(), declaredNames::contains)
-    cards.containsAll(setOf(cn("AerialLenses"), cn("LakefrontResorts"))) shouldBe true
+    cards.containsAll(setOf(AerialLenses, LakefrontResorts)) shouldBe true
 
     // A narrower pool choice is resolved into individual exclusions before premise creation.
     val config = (listOf("TurmoilExpansion") + cards.map { "-$it" }).joinToString(", ")
     assertValidView(config) { view ->
       assertSelected(
           view,
-          setOf(cn("TurmoilExpansion"), cn("Party"), cn("GlobalEvent"), cn("DemocraticReform")),
+          setOf(cn("TurmoilExpansion"), cn("Party"), cn("GlobalEvent"), DemocraticReform),
       )
       assertOmitted(view, cards)
     }
@@ -531,8 +532,8 @@ internal class ClassTableSelectionTest {
               cn("TurmoilExpansion"),
               cn("Party"),
               cn("GlobalEvent"),
-              cn("AerialLenses"),
-              cn("DemocraticReform"),
+              AerialLenses,
+              DemocraticReform,
           ),
       )
     }
@@ -602,42 +603,42 @@ internal class ClassTableSelectionTest {
               otherModuleSelections = setOf(cn("PreludePhase"), cn("PreludeCard")),
               standaloneContent =
                   setOf(
-                      cn("ValleyTrust"),
-                      cn("Vitor"),
-                      cn("AcquiredSpaceAgency"),
-                      cn("HousePrinting"),
+                      ValleyTrust,
+                      Vitor,
+                      AcquiredSpaceAgency,
+                      HousePrinting,
                   ),
-              excludedContent = cn("Vitor"),
+              excludedContent = Vitor,
               privateSupport = setOf(cn("NonNegativeIconsOf")),
           ),
           ModuleContentExample(
               module = cn("VenusNextExpansion"),
               otherModuleSelections = setOf(cn("VenusStep"), cn("AirScrappingProject")),
-              standaloneContent = setOf(cn("Manutech")),
-              excludedContent = cn("Manutech"),
+              standaloneContent = setOf(Manutech),
+              excludedContent = Manutech,
           ),
           ModuleContentExample(
               module = cn("ColoniesExpansion"),
               moduleConfig = "ColoniesExpansion, Callisto",
               otherModuleSelections =
                   setOf(cn("TradeAction"), cn("BuildColonyProject"), cn("Callisto")),
-              standaloneContent = setOf(cn("Arklight"), cn("RefugeeCamps")),
-              moduleDependentContent = setOf(cn("CryoSleep")),
-              excludedContent = cn("RefugeeCamps"),
+              standaloneContent = setOf(Arklight, RefugeeCamps),
+              moduleDependentContent = setOf(CryoSleep),
+              excludedContent = RefugeeCamps,
               privateSupport = setOf(cn("Camp")),
           ),
           ModuleContentExample(
               module = cn("TurmoilExpansion"),
-              otherModuleSelections = setOf(cn("GlobalEvent"), cn("Party"), cn("DemocraticReform")),
+              otherModuleSelections = setOf(cn("GlobalEvent"), cn("Party"), DemocraticReform),
               standaloneContent =
                   setOf(
-                      cn("LakefrontResorts"),
-                      cn("Pristar"),
-                      cn("TerraLabsResearch"),
-                      cn("UtopiaInvest"),
+                      LakefrontResorts,
+                      Pristar,
+                      TerraLabsResearch,
+                      UtopiaInvest,
                   ),
-              moduleDependentContent = setOf(cn("AerialLenses")),
-              excludedContent = cn("AerialLenses"),
+              moduleDependentContent = setOf(AerialLenses),
+              excludedContent = AerialLenses,
           ),
       )
 

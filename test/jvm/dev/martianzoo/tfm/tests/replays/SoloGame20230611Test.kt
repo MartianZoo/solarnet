@@ -31,15 +31,15 @@ internal class SoloGame20230611Test : FullGameTest() {
   internal fun letsPlay() {
     startGame()
     with(me) {
-      doTask("14 TerraformRating")
       doTasks(
+          "14 TerraformRating",
           "2 CorporationCard",
           "-CorporationCard",
           "10 ProjectCard<Selecting>",
           "4 PreludeCard",
           "-2 PreludeCard",
+          "-5 ProjectCard<Selecting>",
       )
-      doTask("-5 ProjectCard<Selecting>")
     }
     generation1()
     generation2()
@@ -82,6 +82,9 @@ internal class SoloGame20230611Test : FullGameTest() {
           "$NewPartner FROM PreludeCard",
           "PROD[MC]",
           "2 PreludeCard<Selecting>",
+      )
+
+      doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BusinessEmpire>>",
           "$BusinessEmpire FROM PreludeCard<Selecting>",
           "PROD[6 MC]",
@@ -116,8 +119,8 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation2() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "-2 ProjectCard<Selecting>",
           "6 Pay<> FROM MC",
           "2 ProjectCard<Hand FROM Selecting>",
@@ -145,8 +148,8 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation3() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "-2 ProjectCard<Selecting>",
           "6 Pay<> FROM MC",
           "2 ProjectCard<Hand FROM Selecting>",
@@ -195,8 +198,8 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation4() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "-3 ProjectCard<Selecting>",
           "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
@@ -236,8 +239,8 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation5() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "-2 ProjectCard<Selecting>",
           "6 Pay<> FROM MC",
           "2 ProjectCard<Hand FROM Selecting>",
@@ -285,8 +288,8 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation6() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "-2 ProjectCard<Selecting>",
           "6 Pay<> FROM MC",
           "2 ProjectCard<Hand FROM Selecting>",
@@ -348,8 +351,8 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation7() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "-1 ProjectCard<Selecting>",
           "9 Pay<> FROM MC",
           "3 ProjectCard<Hand FROM Selecting>",
@@ -404,8 +407,8 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation8() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "-1 ProjectCard<Selecting>",
           "9 Pay<> FROM MC",
           "3 ProjectCard<Hand FROM Selecting>",
@@ -473,8 +476,8 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation9() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "-2 ProjectCard<Selecting>",
           "6 Pay<> FROM MC",
           "2 ProjectCard<Hand FROM Selecting>",
@@ -531,8 +534,10 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation10() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTask("-4 ProjectCard<Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-4 ProjectCard<Selecting>",
+      )
 
       assertProduction(m = 17, s = 1, t = 3, p = 3, e = 3, h = 5)
       assertResources(m = 56, s = 1, t = 6, p = 7, e = 6, h = 8)
@@ -606,8 +611,8 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation11() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "-1 ProjectCard<Selecting>",
           "9 Pay<> FROM MC",
           "3 ProjectCard<Hand FROM Selecting>",
@@ -699,8 +704,10 @@ internal class SoloGame20230611Test : FullGameTest() {
 
   private fun generation12() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTask("-4 ProjectCard<Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-4 ProjectCard<Selecting>",
+      )
 
       me.turn {
         doTasks(

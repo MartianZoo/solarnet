@@ -19,9 +19,9 @@ internal class InsulationTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Insulation"),
+          *playCardTasks("$Insulation"),
           "2 Pay<> FROM MC",
-          "Insulation FROM ProjectCard",
+          "$Insulation FROM ProjectCard",
           "PROD[2 MC FROM Heat]",
       )
     }
@@ -35,9 +35,12 @@ internal class InsulationTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Insulation"))
-        doTasks("2 Pay<> FROM MC", "Insulation FROM ProjectCard")
-        doTask("Ok")
+        doTasks(
+            *playCardTasks("$Insulation"),
+            "2 Pay<> FROM MC",
+            "$Insulation FROM ProjectCard",
+            "Ok",
+        )
       }
     }
   }

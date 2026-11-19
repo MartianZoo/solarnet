@@ -15,59 +15,68 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks(*playCardTasks("SummitLogistics"))
+        doTasks(*playCardTasks("$SummitLogistics"))
       }
     }
   }
 
   @Test
   internal fun `Counts Earth tags Jovian tags and colonies when Venus Next is absent`() {
-    newTestGame("SummitLogistics, TurmoilExpansion, -VenusNextExpansion, Luna")
+    newTestGame("$SummitLogistics, TurmoilExpansion, -VenusNextExpansion, Luna")
     kim.exMachina(
         "$EarthOffice, $VestaShipyard, Colony<Luna>, PartyLeader<Scientists>, PartyFollower<Scientists>"
     )
 
     kim.inTurn {
-          doTasks(*playCardTasks("SummitLogistics"), "10 Pay<> FROM MC")
-          doTasks("SummitLogistics FROM ProjectCard")
-          doTask("3 MC")
-          doTask("2 ProjectCard<Kim, Hand>")
+          doTasks(
+              *playCardTasks("$SummitLogistics"),
+              "10 Pay<> FROM MC",
+              "$SummitLogistics FROM ProjectCard",
+              "3 MC",
+              "2 ProjectCard<Hand>",
+          )
         }
         .expect("-7 MC, ProjectCard")
   }
 
   @Test
   internal fun `Two delegates satisfy its requirement without Scientists ruling`() {
-    newTestGame("SummitLogistics, TurmoilExpansion, -ColoniesExpansion")
+    newTestGame("$SummitLogistics, TurmoilExpansion, -ColoniesExpansion")
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("SummitLogistics"))
+        doTasks(*playCardTasks("$SummitLogistics"))
       }
     }
     kim.exMachina("PartyLeader<Scientists>, PartyFollower<Scientists>")
     kim.inTurn {
-          doTasks(*playCardTasks("SummitLogistics"), "10 Pay<> FROM MC")
-          doTasks("SummitLogistics FROM ProjectCard")
-          doTask("0 MC")
-          doTask("2 ProjectCard<Kim, Hand>")
+          doTasks(
+              *playCardTasks("$SummitLogistics"),
+              "10 Pay<> FROM MC",
+              "$SummitLogistics FROM ProjectCard",
+              "0 MC",
+              "2 ProjectCard<Hand>",
+          )
         }
         .expect("ProjectCard")
   }
 
   @Test
   internal fun `Counts all planetary tags and each owned colony`() {
-    newTestGame("SummitLogistics, TurmoilExpansion, Luna, Io")
+    newTestGame("$SummitLogistics, TurmoilExpansion, Luna, Io")
     kim.exMachina(
         "$EarthOffice, $VestaShipyard, $VenusGovernor, Colony<Luna>, Colony<Io>, PartyLeader<Scientists>, PartyFollower<Scientists>"
     )
     stan.exMachina("Colony<Luna>")
 
     kim.inTurn {
-          doTasks(*playCardTasks("SummitLogistics"), "10 Pay<> FROM MC")
-          doTasks("SummitLogistics FROM ProjectCard")
-          doTask("6 MC")
-          doTask("2 ProjectCard<Kim, Hand>")
+          doTasks(
+              *playCardTasks("$SummitLogistics"),
+              "10 Pay<> FROM MC",
+              "$SummitLogistics FROM ProjectCard",
+              "6 MC",
+              "2 ProjectCard<Hand>",
+          )
         }
         .expect("-4 MC, ProjectCard")
   }

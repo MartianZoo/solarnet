@@ -106,9 +106,9 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "10 ProjectCard<Selecting>",
         "6 PreludeCard",
         "-4 PreludeCard",
+        "-SelectedEnceladus",
+        "-3 ProjectCard<Selecting>",
     )
-    p1.doTask("-SelectedEnceladus")
-    p1.doTask("-3 ProjectCard<Selecting>")
     // Test inference: initial kept cards identified by subsequent plays without matching draws.
     p1.draw(
         MartianMediaCenter,
@@ -120,28 +120,28 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         IndenturedWorkers,
     )
     p1.doTasks(
-        "PlayCard<Class<CorporationCard>, Class<AstroDrill>>",
-        "AstroDrill FROM CorporationCard",
+        "PlayCard<Class<CorporationCard>, Class<$AstroDrill>>",
+        "$AstroDrill FROM CorporationCard",
         "35 MC",
-        "3 Asteroid<AstroDrill>",
+        "3 Asteroid<$AstroDrill>",
         "21 Pay<> FROM MC",
         "7 ProjectCard<Hand FROM Selecting>",
     )
     with(p1) {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<Loan>>",
-          "Loan FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$Loan>>",
+          "$Loan FROM PreludeCard",
           "PROD[-2 MC]",
           "30 MC",
       )
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
-          "IndustrialComplex FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
+          "$IndustrialComplex FROM PreludeCard",
           "-18 MC",
       )
       // Expand the production box into its separate resource increases.
-      doTask("EACH")
       doTasks(
+          "EACH",
           "PROD[Titanium]",
           "PROD[Steel]",
           "PROD[Plant]",
@@ -173,10 +173,10 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
       assertProduction(m = 30, s = 3, t = 2, p = 11, e = 2, h = 7)
       assertCounts(71 to "TerraformRating", 151 to "VictoryPoint", 1 to "Victory")
       assertCounts(
-          1 to "Science<OlympusConference>",
-          2 to "Microbe<Extremophiles>",
-          1 to "Science<SearchForLife>",
-          1 to "Floater<DeuteriumExport>",
+          1 to "Science<$OlympusConference>",
+          2 to "Microbe<$Extremophiles>",
+          1 to "Science<$SearchForLife>",
+          1 to "Floater<$DeuteriumExport>",
           5 to "CardResource",
       )
       assertCounts(0 to "Milestone", 0 to "Award")
@@ -223,37 +223,37 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
 
   private fun Agent.generation1() {
     turn {
-      doTasks(*cardActionTasks("AstroDrill", "Action2"), "-Asteroid<AstroDrill>", "3 Titanium")
+      doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       draw(PhobosSpaceHaven, OlympusConference)
       doTasks(
-          *playCardTasks("TechnologyDemonstration"),
+          *playCardTasks("$TechnologyDemonstration"),
           "Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "TechnologyDemonstration FROM ProjectCard",
+          "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
       )
       doTasks(
-          *playCardTasks("IndenturedWorkers"),
-          "IndenturedWorkers FROM ProjectCard",
+          *playCardTasks("$IndenturedWorkers"),
+          "$IndenturedWorkers FROM ProjectCard",
           "IndenturedWorkers_NextCardEffect",
       )
       // Source payment preserves a titanium for the immediately following action.
 
       doTasks(
-          *playCardTasks("CometAiming"),
+          *playCardTasks("$CometAiming"),
           "Pay<Class<Titanium>> FROM Titanium",
           "6 Pay<> FROM MC",
-          "CometAiming FROM ProjectCard",
+          "$CometAiming FROM ProjectCard",
       )
       doTasks(
-          *cardActionTasks("CometAiming"),
+          *cardActionTasks("$CometAiming"),
           "Pay<Class<Titanium>> FROM Titanium",
-          "Asteroid<CometAiming>",
+          "Asteroid<$CometAiming>",
       )
       doTasks(
-          *playCardTasks("PeroxidePower"),
+          *playCardTasks("$PeroxidePower"),
           "7 Pay<> FROM MC",
-          "PeroxidePower FROM ProjectCard",
+          "$PeroxidePower FROM ProjectCard",
           "PROD[-MC]",
           "PROD[2 Energy]",
       )
@@ -267,8 +267,8 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "Plant",
         "Heat",
         "3 Energy",
+        "VenusStep! BY Admin",
     )
-    doTask("VenusStep! BY Admin")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[0].
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 2)
@@ -282,20 +282,20 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
-      doTasks(*cardActionTasks("AstroDrill", "Action2"), "-Asteroid<AstroDrill>", "3 Titanium")
+      doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       doTasks(
-          *cardActionTasks("CometAiming", "Action2"),
-          "-Asteroid<CometAiming>",
+          *cardActionTasks("$CometAiming", "Action2"),
+          "-Asteroid<$CometAiming>",
           "OceanTile<Cimmeria_2_1>",
           "TerraformRating",
           "2 Titanium",
       )
       draw(MarsUniversity, Penguins)
       doTasks(
-          *playCardTasks("DeimosDownPromo"),
+          *playCardTasks("$DeimosDownPromo"),
           "6 Pay<Class<Titanium>> FROM Titanium",
           "7 Pay<> FROM MC",
-          "DeimosDownPromo FROM ProjectCard",
+          "$DeimosDownPromo FROM ProjectCard",
           "3 TemperatureStep",
           "4 Steel",
           "3 TerraformRating",
@@ -307,25 +307,25 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
       draw(WarpDrive)
       discard(PhobosSpaceHaven)
       doTasks(
-          *playCardTasks("MarsUniversity"),
+          *playCardTasks("$MarsUniversity"),
           "4 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "MarsUniversity FROM ProjectCard",
+          "$MarsUniversity FROM ProjectCard",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       // Test inference: the source gives the sale count, not card identities.
       discard(Penguins)
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
       doTasks(
-          *playCardTasks("MartianMediaCenter"),
+          *playCardTasks("$MartianMediaCenter"),
           "Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "MartianMediaCenter FROM ProjectCard",
+          "$MartianMediaCenter FROM ProjectCard",
           "PROD[2 MC]",
       )
-      doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<Reds>")
+      doTasks(*cardActionTasks("$MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<Reds>")
     }
     doTask("Pass")
     doTasks(
@@ -336,8 +336,9 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "2 Heat",
         "3 Energy",
         "3 Heat FROM Energy",
+        "VenusStep! BY Admin",
+        "4 MC",
     )
-    doTasks("VenusStep! BY Admin", "4 MC")
     p1.doTask("0 MC") // Interplanetary Trade: the source's four-MC gain is already collected above.
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[1].
@@ -353,18 +354,18 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     )
     turn {
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
-      doTasks(*cardActionTasks("AstroDrill"), "Asteroid<CometAiming>")
+      doTasks(*cardActionTasks("$AstroDrill"), "Asteroid<$CometAiming>")
       doTasks(
-          *cardActionTasks("CometAiming", "Action2"),
-          "-Asteroid<CometAiming>",
+          *cardActionTasks("$CometAiming", "Action2"),
+          "-Asteroid<$CometAiming>",
           "OceanTile<Cimmeria_7_9>",
           "TerraformRating",
           "2 Plant",
       )
       doTasks(
-          *playCardTasks("Potatoes"),
+          *playCardTasks("$Potatoes"),
           "2 Pay<> FROM MC",
-          "Potatoes FROM ProjectCard",
+          "$Potatoes FROM ProjectCard",
           "-2 Plant",
           "PROD[2 MC]",
       )
@@ -375,7 +376,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "PROD[Energy]",
       )
       doTasks(
-          *cardActionTasks("MartianMediaCenter"),
+          *cardActionTasks("$MartianMediaCenter"),
           "3 Pay<> FROM MC",
           "PartyLeader<Scientists>",
       )
@@ -411,22 +412,22 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("AstroDrill", "Action2"), "-Asteroid<AstroDrill>", "3 Titanium")
+      doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       doTasks(
-          *cardActionTasks("CometAiming"),
+          *cardActionTasks("$CometAiming"),
           "Pay<Class<Titanium>> FROM Titanium",
-          "Asteroid<CometAiming>",
+          "Asteroid<$CometAiming>",
       )
       doTasks(
-          *playCardTasks("PioneerSettlement"),
+          *playCardTasks("$PioneerSettlement"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "Pay<> FROM MC",
-          "PioneerSettlement FROM ProjectCard",
+          "$PioneerSettlement FROM ProjectCard",
           "PROD[-2 MC]",
           "Colony<Ceres>",
           "PROD[Steel]",
       )
-      doTasks(*playCardTasks("TradeEnvoys"), "6 Pay<> FROM MC", "TradeEnvoys FROM ProjectCard")
+      doTasks(*playCardTasks("$TradeEnvoys"), "6 Pay<> FROM MC", "$TradeEnvoys FROM ProjectCard")
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
@@ -437,47 +438,47 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
       draw(SpaceHotels)
       discard(Supercapacitors)
       doTasks(
-          *playCardTasks("OlympusConference"),
+          *playCardTasks("$OlympusConference"),
           "5 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "OlympusConference FROM ProjectCard",
-          "Science<OlympusConference>",
+          "$OlympusConference FROM ProjectCard",
+          "Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       draw(NewHolland, MagneticShield, TopsoilContract, CityParks)
       discard(NewHolland)
       doTasks(
-          *playCardTasks("MartianSurvey"),
+          *playCardTasks("$MartianSurvey"),
           "9 Pay<> FROM MC",
-          "MartianSurvey FROM ProjectCard",
+          "$MartianSurvey FROM ProjectCard",
           "2 ProjectCard",
-          "ProjectCard FROM Science<OlympusConference>",
+          "ProjectCard FROM Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       draw(SpinOffDepartment)
       discard(CityParks)
       doTasks(
-          *playCardTasks("DevelopmentCenter"),
+          *playCardTasks("$DevelopmentCenter"),
           "5 Pay<Class<Steel>> FROM Steel",
           "Pay<> FROM MC",
-          "DevelopmentCenter FROM ProjectCard",
-          "Science<OlympusConference>",
+          "$DevelopmentCenter FROM ProjectCard",
+          "Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
       draw(MiningRights)
       doTasks(
-          *cardActionTasks("DevelopmentCenter"),
+          *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
       // Test inference: the source gives the sale count, not card identities.
       discard(MiningRights)
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
-      doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<MarsFirst>")
+      doTasks(*cardActionTasks("$MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<MarsFirst>")
     }
     doTask("Pass")
     doTasks(
@@ -505,33 +506,33 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     draw(SearchForLife)
     turn {
       doTasks(
-          *cardActionTasks("DevelopmentCenter"),
+          *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
       doTasks(
-          *cardActionTasks("CometAiming", "Action2"),
-          "-Asteroid<CometAiming>",
+          *cardActionTasks("$CometAiming", "Action2"),
+          "-Asteroid<$CometAiming>",
           "OceanTile<Cimmeria_8_9>",
           "TerraformRating",
           "2 Plant",
           "2 MC",
       )
-      doTasks(*cardActionTasks("AstroDrill"), "Asteroid<CometAiming>")
+      doTasks(*cardActionTasks("$AstroDrill"), "Asteroid<$CometAiming>")
       draw(GiantSolarShade, CeosFavoriteProject, VenusWaystation)
       discard(CaretakerContract)
       doTasks(
-          *playCardTasks("InventionContest"),
+          *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
-          "InventionContest FROM ProjectCard",
+          "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
-          "ProjectCard FROM Science<OlympusConference>",
+          "ProjectCard FROM Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       doTasks(
-          *cardActionTasks("MartianMediaCenter"),
+          *cardActionTasks("$MartianMediaCenter"),
           "3 Pay<> FROM MC",
           "PartyFollower<MarsFirst>",
       )
@@ -553,8 +554,9 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "Plant",
         "3 Heat",
         "4 Energy",
+        "OxygenStep! BY Admin",
+        "-Plant",
     )
-    doTasks("OxygenStep! BY Admin", "-Plant")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[4].
     assertSidebar(gen = 6, temp = -26, oxygen = 2, oceans = 3, venus = 6)
@@ -574,19 +576,19 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
       )
       draw(Extremophiles)
       doTasks(
-          *cardActionTasks("DevelopmentCenter"),
+          *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
       doTasks(
-          *cardActionTasks("CometAiming", "Action2"),
-          "-Asteroid<CometAiming>",
+          *cardActionTasks("$CometAiming", "Action2"),
+          "-Asteroid<$CometAiming>",
           "OceanTile<Cimmeria_9_9>",
           "TerraformRating",
           "Plant",
           "-1 MC",
       )
-      doTasks(*cardActionTasks("AstroDrill"), "Asteroid<CometAiming>")
+      doTasks(*cardActionTasks("$AstroDrill"), "Asteroid<$CometAiming>")
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
@@ -595,21 +597,21 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "8 Steel",
       )
       doTasks(
-          *playCardTasks("SpinOffDepartment"),
+          *playCardTasks("$SpinOffDepartment"),
           "5 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "SpinOffDepartment FROM ProjectCard",
+          "$SpinOffDepartment FROM ProjectCard",
           "PROD[2 MC]",
       )
       draw(Dirigibles)
       doTasks(
-          *playCardTasks("ExtractorBalloons"),
+          *playCardTasks("$ExtractorBalloons"),
           "21 Pay<> FROM MC",
-          "ExtractorBalloons FROM ProjectCard",
-          "3 Floater<ExtractorBalloons>",
+          "$ExtractorBalloons FROM ProjectCard",
+          "3 Floater<$ExtractorBalloons>",
           "ProjectCard",
       )
-      doTasks(*cardActionTasks("ExtractorBalloons"), "Floater<ExtractorBalloons>")
+      doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
     }
     doTask("Pass")
@@ -620,8 +622,9 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "Plant",
         "4 Heat",
         "4 Energy",
+        "OxygenStep! BY Admin",
+        "PROD[3 Heat]",
     )
-    doTasks("OxygenStep! BY Admin", "PROD[3 Heat]")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[5].
     assertSidebar(gen = 7, temp = -20, oxygen = 3, oceans = 4, venus = 6)
@@ -637,31 +640,31 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     draw(Archaebacteria)
     turn {
       doTasks(
-          *cardActionTasks("DevelopmentCenter"),
+          *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
       draw(AcquiredCompany)
       doTasks(
-          *cardActionTasks("ExtractorBalloons", "Action2"),
-          "-2 Floater<ExtractorBalloons>",
+          *cardActionTasks("$ExtractorBalloons", "Action2"),
+          "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
           "TerraformRating",
           "ProjectCard",
       )
       doTasks(
-          *cardActionTasks("CometAiming", "Action2"),
-          "-Asteroid<CometAiming>",
+          *cardActionTasks("$CometAiming", "Action2"),
+          "-Asteroid<$CometAiming>",
           "OceanTile<Cimmeria_9_5>",
           "TerraformRating",
           "Steel",
           "2 Plant",
       )
       doTasks(
-          *playCardTasks("ImmigrantCity"),
+          *playCardTasks("$ImmigrantCity"),
           "6 Pay<Class<Steel>> FROM Steel",
           "Pay<> FROM MC",
-          "ImmigrantCity FROM ProjectCard",
+          "$ImmigrantCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[-2 MC]",
           "NormalCityTile<Cimmeria_6_7>",
@@ -680,52 +683,52 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("VenusWaystation"),
+          *playCardTasks("$VenusWaystation"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC",
-          "VenusWaystation FROM ProjectCard",
+          "$VenusWaystation FROM ProjectCard",
       )
-      doTasks(*playCardTasks("Dirigibles"), "9 Pay<> FROM MC", "Dirigibles FROM ProjectCard")
-      doTasks(*cardActionTasks("Dirigibles"), "Floater<Dirigibles>")
+      doTasks(*playCardTasks("$Dirigibles"), "9 Pay<> FROM MC", "$Dirigibles FROM ProjectCard")
+      doTasks(*cardActionTasks("$Dirigibles"), "Floater<$Dirigibles>")
       doTasks(
-          *playCardTasks("Extremophiles"),
+          *playCardTasks("$Extremophiles"),
           "Ok", // no Dirigibles floaters paid
           "Pay<> FROM MC",
-          "Extremophiles FROM ProjectCard",
+          "$Extremophiles FROM ProjectCard",
       )
       doTasks(
-          *playCardTasks("TopsoilContract"),
+          *playCardTasks("$TopsoilContract"),
           "8 Pay<> FROM MC",
-          "TopsoilContract FROM ProjectCard",
+          "$TopsoilContract FROM ProjectCard",
           "3 Plant",
       )
-      doTasks(*cardActionTasks("Extremophiles"), "Microbe<Extremophiles>", "MC")
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$Extremophiles>", "MC")
       draw(SulphurEatingBacteria)
       discard(AcquiredCompany)
       doTasks(
-          *playCardTasks("HiTechLab"),
+          *playCardTasks("$HiTechLab"),
           "8 Pay<Class<Steel>> FROM Steel",
           "Pay<> FROM MC",
-          "HiTechLab FROM ProjectCard",
-          "Science<OlympusConference>",
+          "$HiTechLab FROM ProjectCard",
+          "Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
-      doTasks(*cardActionTasks("AstroDrill"), "Asteroid<CometAiming>")
+      doTasks(*cardActionTasks("$AstroDrill"), "Asteroid<$CometAiming>")
       doTasks(
-          *playCardTasks("Archaebacteria"),
+          *playCardTasks("$Archaebacteria"),
           "6 Pay<> FROM MC",
-          "Archaebacteria FROM ProjectCard",
+          "$Archaebacteria FROM ProjectCard",
           "PROD[Plant]",
       )
       doTasks(
-          *playCardTasks("SulphurEatingBacteria"),
-          "PayFromCard<Dirigibles> FROM Floater<Dirigibles>",
+          *playCardTasks("$SulphurEatingBacteria"),
+          "PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>",
           "Pay<> FROM MC",
-          "SulphurEatingBacteria FROM ProjectCard",
+          "$SulphurEatingBacteria FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>", "MC")
-      doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<MarsFirst>")
+      doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>", "MC")
+      doTasks(*cardActionTasks("$MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<MarsFirst>")
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
     }
     doTask("Pass")
@@ -737,8 +740,9 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "7 Heat",
         "3 Energy",
         "3 Heat FROM Energy",
+        "VenusStep! BY Admin",
+        "19 MC",
     )
-    doTasks("VenusStep! BY Admin", "19 MC")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[6].
     assertSidebar(gen = 8, temp = -20, oxygen = 4, oceans = 5, venus = 10)
@@ -764,27 +768,27 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("Dirigibles"), "Floater<Dirigibles>")
-      doTasks(*cardActionTasks("ExtractorBalloons"), "Floater<ExtractorBalloons>")
+      doTasks(*cardActionTasks("$Dirigibles"), "Floater<$Dirigibles>")
+      doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
       doTasks(
           "UseAction<TradeAction, Action2>",
           "3 Pay<Class<Energy>> FROM Energy",
           "Trade<Titan>",
           "ColonyProduction<Titan>",
-          "3 Floater<Dirigibles>",
+          "3 Floater<$Dirigibles>",
       )
       doTasks(
-          *playCardTasks("AerialMappers"),
+          *playCardTasks("$AerialMappers"),
           "Ok", // no Dirigibles floaters paid
           "9 Pay<> FROM MC",
-          "AerialMappers FROM ProjectCard",
+          "$AerialMappers FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("AerialMappers"), "Floater<Dirigibles>")
+      doTasks(*cardActionTasks("$AerialMappers"), "Floater<$Dirigibles>")
       doTasks(
-          *playCardTasks("GhgShipment"),
+          *playCardTasks("$GhgShipment"),
           "Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC",
-          "GhgShipment FROM ProjectCard",
+          "$GhgShipment FROM ProjectCard",
           "PROD[Heat]",
           "8 Heat",
       )
@@ -797,29 +801,29 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
       draw(FrontierTown, ColonizerTrainingCamp)
       discard(VestaShipyard)
       doTasks(
-          *playCardTasks("SearchForLife"),
+          *playCardTasks("$SearchForLife"),
           "3 Pay<> FROM MC",
-          "SearchForLife FROM ProjectCard",
-          "ProjectCard FROM Science<OlympusConference>",
+          "$SearchForLife FROM ProjectCard",
+          "ProjectCard FROM Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       doTasks(
-          *playCardTasks("Hospitals"),
+          *playCardTasks("$Hospitals"),
           "4 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "Hospitals FROM ProjectCard",
+          "$Hospitals FROM ProjectCard",
           "PROD[-Energy]",
       )
       doTasks(
-          *playCardTasks("FrontierTown"),
+          *playCardTasks("$FrontierTown"),
           "11 Pay<> FROM MC",
-          "FrontierTown FROM ProjectCard",
+          "$FrontierTown FROM ProjectCard",
           "FrontierTownBonus",
           "PROD[-Energy]",
           "NormalCityTile<Cimmeria_7_6>",
           "PROD[MC]",
-          "Disease<Hospitals>",
+          "Disease<$Hospitals>",
           "-FrontierTownBonus",
           "Plant",
           "2 Steel",
@@ -830,71 +834,71 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "2 Steel",
       )
       doTasks(
-          *cardActionTasks("CometAiming", "Action2"),
-          "-Asteroid<CometAiming>",
+          *cardActionTasks("$CometAiming", "Action2"),
+          "-Asteroid<$CometAiming>",
           "OceanTile<Cimmeria_9_6>",
           "TerraformRating",
           "Plant",
           "2 MC",
       )
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
-      doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC", "PartyFollower<Greens>")
-      doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>", "MC")
-      doTasks(*cardActionTasks("Extremophiles"), "Microbe<SulphurEatingBacteria>", "MC")
+      doTasks(*cardActionTasks("$MartianMediaCenter"), "3 Pay<> FROM MC", "PartyFollower<Greens>")
+      doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>", "MC")
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$SulphurEatingBacteria>", "MC")
       doTasks(
-          *playCardTasks("ColonizerTrainingCamp"),
+          *playCardTasks("$ColonizerTrainingCamp"),
           "4 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "ColonizerTrainingCamp FROM ProjectCard",
+          "$ColonizerTrainingCamp FROM ProjectCard",
       )
       doTasks(
-          *playCardTasks("HermeticOrderOfMars"),
+          *playCardTasks("$HermeticOrderOfMars"),
           "10 Pay<> FROM MC",
-          "HermeticOrderOfMars FROM ProjectCard",
+          "$HermeticOrderOfMars FROM ProjectCard",
           "PROD[2 MC]",
           "15 MC",
       )
       draw(AqueductSystems)
       doTasks(
-          *playCardTasks("GiantSolarShade"),
-          "5 PayFromCard<Dirigibles> FROM Floater<Dirigibles>",
+          *playCardTasks("$GiantSolarShade"),
+          "5 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>",
           "10 Pay<> FROM MC",
-          "GiantSolarShade FROM ProjectCard",
+          "$GiantSolarShade FROM ProjectCard",
           "3 VenusStep",
           "ProjectCard",
           "4 TerraformRating",
       )
 
       doTasks(
-          *playCardTasks("EnergySaving"),
+          *playCardTasks("$EnergySaving"),
           "15 Pay<> FROM MC",
-          "EnergySaving FROM ProjectCard",
+          "$EnergySaving FROM ProjectCard",
           "PROD[4 Energy]",
       )
-      doTasks(*cardActionTasks("AstroDrill"), "Asteroid<AstroDrill>")
+      doTasks(*cardActionTasks("$AstroDrill"), "Asteroid<$AstroDrill>")
       doTasks(
-          *playCardTasks("SterlingVents"),
+          *playCardTasks("$SterlingVents"),
           "2 Pay<Class<Steel>> FROM Steel",
           "Pay<> FROM MC",
-          "SterlingVents FROM ProjectCard",
+          "$SterlingVents FROM ProjectCard",
           "PROD[-2 Heat]",
           "PROD[2 Energy]",
       )
       draw(DeuteriumExport, FreyjaBiodomes)
       doTasks(
-          *playCardTasks("IshtarExpedition"),
+          *playCardTasks("$IshtarExpedition"),
           "4 Pay<> FROM MC",
-          "IshtarExpedition FROM ProjectCard",
+          "$IshtarExpedition FROM ProjectCard",
           "3 Titanium",
           "2 SearchForCard<TagFilter<Class<VenusTag>>>",
       )
       doTasks(
-          *playCardTasks("DeuteriumExport"),
+          *playCardTasks("$DeuteriumExport"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC",
-          "DeuteriumExport FROM ProjectCard",
+          "$DeuteriumExport FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("DeuteriumExport"), "Floater<DeuteriumExport>")
+      doTasks(*cardActionTasks("$DeuteriumExport"), "Floater<$DeuteriumExport>")
     }
     doTask("Pass")
     doTasks(
@@ -904,8 +908,8 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "2 Plant",
         "6 Heat",
         "7 Energy",
+        "OxygenStep! BY Admin",
     )
-    doTask("OxygenStep! BY Admin")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[7].
     assertSidebar(gen = 9, temp = -14, oxygen = 5, oceans = 6, venus = 16)
@@ -929,13 +933,13 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *cardActionTasks("DeuteriumExport", "Action2"),
-          "-Floater<DeuteriumExport>",
+          *cardActionTasks("$DeuteriumExport", "Action2"),
+          "-Floater<$DeuteriumExport>",
           "PROD[Energy]",
       )
       doTasks(
-          *cardActionTasks("ExtractorBalloons", "Action2"),
-          "-2 Floater<ExtractorBalloons>",
+          *cardActionTasks("$ExtractorBalloons", "Action2"),
+          "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
           "TerraformRating",
       )
@@ -948,45 +952,45 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
       )
       draw(IceCapMelting)
       doTasks(
-          *cardActionTasks("DevelopmentCenter"),
+          *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
-      doTasks(*cardActionTasks("AstroDrill", "Action2"), "-Asteroid<AstroDrill>", "3 Titanium")
+      doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       doTasks(
-          *cardActionTasks("CometAiming"),
+          *cardActionTasks("$CometAiming"),
           "Pay<Class<Titanium>> FROM Titanium",
-          "Asteroid<CometAiming>",
+          "Asteroid<$CometAiming>",
       )
-      doTasks(*cardActionTasks("Extremophiles"), "Microbe<SulphurEatingBacteria>", "MC")
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$SulphurEatingBacteria>", "MC")
       draw(NitrogenFromTitan)
       discard(RedShips)
       doTasks(
-          *playCardTasks("WarpDrive"),
+          *playCardTasks("$WarpDrive"),
           "14 Pay<> FROM MC",
-          "WarpDrive FROM ProjectCard",
-          "Science<OlympusConference>",
+          "$WarpDrive FROM ProjectCard",
+          "Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
-      doTasks(*cardActionTasks("Dirigibles"), "Floater<AerialMappers>")
+      doTasks(*cardActionTasks("$Dirigibles"), "Floater<$AerialMappers>")
       draw(Moss)
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
       doTasks(
-          *playCardTasks("SkyDocks"),
+          *playCardTasks("$SkyDocks"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "5 Pay<> FROM MC",
-          "SkyDocks FROM ProjectCard",
+          "$SkyDocks FROM ProjectCard",
           "TradeFleet",
       )
       doTasks(
-          *playCardTasks("Algae"),
+          *playCardTasks("$Algae"),
           "9 Pay<> FROM MC",
-          "Algae FROM ProjectCard",
+          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
       )
@@ -1000,62 +1004,65 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("Grass"),
+          *playCardTasks("$Grass"),
           "10 Pay<> FROM MC",
-          "Grass FROM ProjectCard",
+          "$Grass FROM ProjectCard",
           "PROD[Plant]",
           "3 Plant",
       )
       doTasks(
-          *playCardTasks("CorporateStronghold"),
+          *playCardTasks("$CorporateStronghold"),
           "5 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "CorporateStronghold FROM ProjectCard",
+          "$CorporateStronghold FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "NormalCityTile<Cimmeria_8_8>",
           "PROD[MC]",
-          "Disease<Hospitals>",
+          "Disease<$Hospitals>",
           "2 Plant",
           "4 MC",
       )
       draw(FueledGenerators, UrbanizedArea, MartianRails)
       doTasks(
-          *playCardTasks("AqueductSystems"),
+          *playCardTasks("$AqueductSystems"),
           "4 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "AqueductSystems FROM ProjectCard",
+          "$AqueductSystems FROM ProjectCard",
           "3 SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
       doTasks(
-          *playCardTasks("FueledGenerators"),
-          "FueledGenerators FROM ProjectCard",
+          *playCardTasks("$FueledGenerators"),
+          "$FueledGenerators FROM ProjectCard",
           "PROD[-MC]",
           "PROD[Energy]",
       )
       doTasks(
-          *playCardTasks("FreyjaBiodomes"),
+          *playCardTasks("$FreyjaBiodomes"),
           "11 Pay<> FROM MC",
-          "FreyjaBiodomes FROM ProjectCard",
+          "$FreyjaBiodomes FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
-          "2 Microbe<SulphurEatingBacteria>",
+          "2 Microbe<$SulphurEatingBacteria>",
           "2 MC",
       )
-      doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-      doTasks("-6 Microbe<SulphurEatingBacteria>", "18 MC")
-      doTasks(*cardActionTasks("Hospitals"), "-Disease<Hospitals>", "5 MC")
       doTasks(
-          *playCardTasks("Moss"),
+          *cardActionTasks("$SulphurEatingBacteria", "Action2"),
+          "-6 Microbe<$SulphurEatingBacteria>",
+          "18 MC",
+      )
+      doTasks(*cardActionTasks("$Hospitals"), "-Disease<$Hospitals>", "5 MC")
+      doTasks(
+          *playCardTasks("$Moss"),
           "3 Pay<> FROM MC",
-          "Moss FROM ProjectCard",
+          "$Moss FROM ProjectCard",
           "PROD[Plant]",
           "-Plant",
       )
       doTasks(
-          *playCardTasks("RobotPollinators"),
+          *playCardTasks("$RobotPollinators"),
           "8 Pay<> FROM MC",
-          "RobotPollinators FROM ProjectCard",
+          "$RobotPollinators FROM ProjectCard",
           "PROD[Plant]",
           "5 Plant",
       )
@@ -1072,55 +1079,55 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("SpaceHotels"),
+          *playCardTasks("$SpaceHotels"),
           "Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "SpaceHotels FROM ProjectCard",
+          "$SpaceHotels FROM ProjectCard",
           "PROD[4 MC]",
       )
       doTasks(
-          *playCardTasks("MartianRails"),
+          *playCardTasks("$MartianRails"),
           "3 Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
-          "MartianRails FROM ProjectCard",
+          "$MartianRails FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "5 MC")
+      doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "5 MC")
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Kelvinists> FROM LobbyDelegate")
       doTasks(
-          *cardActionTasks("MartianMediaCenter"),
+          *cardActionTasks("$MartianMediaCenter"),
           "3 Pay<> FROM MC",
           "PartyFollower<Scientists>",
       )
       draw(PowerPlant, FloaterTechnology, MarketManipulation, DuskLaserMining)
       discard(UrbanizedArea)
       doTasks(
-          *playCardTasks("SolarProbe"),
+          *playCardTasks("$SolarProbe"),
           "4 Pay<> FROM MC",
-          "SolarProbe FROM ProjectCard",
+          "$SolarProbe FROM ProjectCard",
           "2 ProjectCard",
-          "ProjectCard FROM Science<OlympusConference>",
+          "ProjectCard FROM Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       doTasks(
-          *playCardTasks("DuskLaserMining"),
+          *playCardTasks("$DuskLaserMining"),
           "3 Pay<> FROM MC",
-          "DuskLaserMining FROM ProjectCard",
+          "$DuskLaserMining FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Titanium]",
           "4 Titanium",
       )
       doTasks(
-          *playCardTasks("PowerPlant"),
+          *playCardTasks("$PowerPlant"),
           "3 Pay<> FROM MC",
-          "PowerPlant FROM ProjectCard",
+          "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
       )
       doTasks(
-          *cardActionTasks("SearchForLife"),
+          *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
           "ProjectCard<Revealed>",
-          "ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>",
+          "ClaimCardReward<TagFilter<Class<MicrobeTag>>, $SearchForLife>",
           "-ProjectCard<Revealed>",
       )
     }
@@ -1133,8 +1140,10 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "6 Heat",
         "7 Energy",
         "2 Heat FROM Energy",
+        "TemperatureStep! BY Admin",
+        "-14 Heat",
+        "-6 MC",
     )
-    doTasks("TemperatureStep! BY Admin", "-14 Heat", "-6 MC")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[8].
     assertSidebar(gen = 10, temp = -10, oxygen = 8, oceans = 6, venus = 18)
@@ -1155,36 +1164,36 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "ColonyProduction<Ceres>",
           "6 Steel",
       )
-      doTasks(*cardActionTasks("DeuteriumExport"), "Floater<DeuteriumExport>")
+      doTasks(*cardActionTasks("$DeuteriumExport"), "Floater<$DeuteriumExport>")
       draw(AntiGravityTechnology)
       doTasks(
-          *cardActionTasks("DevelopmentCenter"),
+          *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
-      doTasks(*cardActionTasks("Dirigibles"), "Floater<ExtractorBalloons>")
+      doTasks(*cardActionTasks("$Dirigibles"), "Floater<$ExtractorBalloons>")
       doTasks(
-          *cardActionTasks("ExtractorBalloons", "Action2"),
-          "-2 Floater<ExtractorBalloons>",
+          *cardActionTasks("$ExtractorBalloons", "Action2"),
+          "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("TectonicStressPower"),
+          *playCardTasks("$TectonicStressPower"),
           "8 Pay<Class<Steel>> FROM Steel",
           "Pay<> FROM MC",
-          "TectonicStressPower FROM ProjectCard",
+          "$TectonicStressPower FROM ProjectCard",
           "PROD[3 Energy]",
       )
-      doTasks(*playCardTasks("MercurianAlloys"), "MercurianAlloys FROM ProjectCard")
+      doTasks(*playCardTasks("$MercurianAlloys"), "$MercurianAlloys FROM ProjectCard")
       doTasks(
-          *playCardTasks("MarketManipulation"),
-          "MarketManipulation FROM ProjectCard",
+          *playCardTasks("$MarketManipulation"),
+          "$MarketManipulation FROM ProjectCard",
           "ColonyProduction<Titan> FROM ColonyProduction<Pluto>",
       )
       doTasks(
-          *cardActionTasks("CometAiming", "Action2"),
-          "-Asteroid<CometAiming>",
+          *cardActionTasks("$CometAiming", "Action2"),
+          "-Asteroid<$CometAiming>",
           "OceanTile<Cimmeria_9_7>",
           "TerraformRating",
           "Steel",
@@ -1202,66 +1211,66 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "2 MC",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "5 MC")
-      doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>", "MC")
-      doTasks(*cardActionTasks("Extremophiles"), "Microbe<SulphurEatingBacteria>", "MC")
+      doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "5 MC")
+      doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>", "MC")
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$SulphurEatingBacteria>", "MC")
       doTasks(
-          *playCardTasks("BribedCommittee"),
+          *playCardTasks("$BribedCommittee"),
           "6 Pay<> FROM MC",
-          "BribedCommittee FROM ProjectCard",
+          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
       )
       draw(MagneticFieldGeneratorsPromo)
       doTasks(
-          *playCardTasks("MagneticShield"),
+          *playCardTasks("$MagneticShield"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "MagneticShield FROM ProjectCard",
+          "$MagneticShield FROM ProjectCard",
           "4 TerraformRating",
           "ProjectCard",
       )
       draw(LocalHeatTrapping)
       discard(GiantIceAsteroid)
       doTasks(
-          *playCardTasks("FloaterTechnology"),
+          *playCardTasks("$FloaterTechnology"),
           "6 Pay<> FROM MC",
-          "FloaterTechnology FROM ProjectCard",
-          "Science<OlympusConference>",
+          "$FloaterTechnology FROM ProjectCard",
+          "Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       draw(InterplanetaryColonyShip, ArtificialLake)
       discard(InterplanetaryColonyShip)
       doTasks(
-          *playCardTasks("AntiGravityTechnology"),
+          *playCardTasks("$AntiGravityTechnology"),
           "13 Pay<> FROM MC",
-          "AntiGravityTechnology FROM ProjectCard",
-          "ProjectCard FROM Science<OlympusConference>",
+          "$AntiGravityTechnology FROM ProjectCard",
+          "ProjectCard FROM Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
-      doTasks(*cardActionTasks("Hospitals"), "-Disease<Hospitals>", "5 MC")
-      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<AerialMappers>")
+      doTasks(*cardActionTasks("$Hospitals"), "-Disease<$Hospitals>", "5 MC")
+      doTasks(*cardActionTasks("$FloaterTechnology"), "Floater<$AerialMappers>")
       draw(DiversitySupport)
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
       draw(TropicalResort)
       doTasks(
-          *playCardTasks("NitrogenFromTitan"),
+          *playCardTasks("$NitrogenFromTitan"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "10 Pay<> FROM MC",
-          "NitrogenFromTitan FROM ProjectCard",
+          "$NitrogenFromTitan FROM ProjectCard",
           // No eligible Jovian card can hold these floaters.
           "2* Floater<CardFront(HAS JovianTag)>",
           "2 TerraformRating",
           "ProjectCard",
       )
-      doTasks(*cardActionTasks("AstroDrill"), "Asteroid<AstroDrill>")
+      doTasks(*cardActionTasks("$AstroDrill"), "Asteroid<$AstroDrill>")
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Unity> FROM LobbyDelegate")
-      doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<MarsFirst>")
+      doTasks(*cardActionTasks("$MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<MarsFirst>")
       doTasks(
           *standardProjectTasks("AsteroidProject"),
           "14 Pay<> FROM MC",
@@ -1278,8 +1287,9 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "6 Heat",
         "10 Energy",
         "2 Heat FROM Energy",
+        "TemperatureStep! BY Admin",
+        "12 MC",
     )
-    doTasks("TemperatureStep! BY Admin", "12 MC")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[9].
     assertSidebar(gen = 11, temp = -6, oxygen = 9, oceans = 7, venus = 20)
@@ -1293,45 +1303,45 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "2 ProjectCard<Hand FROM Selecting>",
     )
     turn {
-      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<AerialMappers>")
+      doTasks(*cardActionTasks("$FloaterTechnology"), "Floater<$AerialMappers>")
       doTasks(
-          *cardActionTasks("DeuteriumExport", "Action2"),
-          "-Floater<DeuteriumExport>",
+          *cardActionTasks("$DeuteriumExport", "Action2"),
+          "-Floater<$DeuteriumExport>",
           "PROD[Energy]",
       )
       draw(EcologicalZone)
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
       doTasks(
-          *playCardTasks("Shuttles"),
+          *playCardTasks("$Shuttles"),
           "Ok", // no titanium paid
           "3 Pay<> FROM MC",
-          "Shuttles FROM ProjectCard",
+          "$Shuttles FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
       )
       doTasks(
-          *playCardTasks("ShipmentToEarth"),
+          *playCardTasks("$ShipmentToEarth"),
           "Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "ShipmentToEarth FROM ProjectCard",
+          "$ShipmentToEarth FROM ProjectCard",
           "-3 Plant",
           "-3 Steel",
           "3 TerraformRating",
           "8 MC",
       )
       doTasks(
-          *playCardTasks("DiversitySupport"),
-          "DiversitySupport FROM ProjectCard",
+          *playCardTasks("$DiversitySupport"),
+          "$DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )
-      doTasks(*playCardTasks("EnergyMarket"), "EnergyMarket FROM ProjectCard")
+      doTasks(*playCardTasks("$EnergyMarket"), "$EnergyMarket FROM ProjectCard")
       draw(ImportedHydrogen)
       doTasks(
-          *cardActionTasks("DevelopmentCenter"),
+          *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
@@ -1341,9 +1351,9 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("Dirigibles"), "Floater<ExtractorBalloons>")
-      doTasks(*cardActionTasks("ExtractorBalloons"), "Floater<ExtractorBalloons>")
-      doTasks(*cardActionTasks("EnergyMarket", "Action2"), "PROD[-Energy]", "8 MC")
+      doTasks(*cardActionTasks("$Dirigibles"), "Floater<$ExtractorBalloons>")
+      doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
+      doTasks(*cardActionTasks("$EnergyMarket", "Action2"), "PROD[-Energy]", "8 MC")
       draw(TradingColony, SpinInducingAsteroid, LunarMining, Soletta)
       doTasks(
           "UseAction<TradeAction, Action2>",
@@ -1352,9 +1362,9 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "ColonyProduction<Pluto>",
           "4 ProjectCard",
       )
-      doTasks(*cardActionTasks("Extremophiles"), "Microbe<SulphurEatingBacteria>", "MC")
-      doTasks(*cardActionTasks("SulphurEatingBacteria"), "Microbe<SulphurEatingBacteria>", "MC")
-      doTasks(*cardActionTasks("AstroDrill", "Action2"), "-Asteroid<AstroDrill>", "3 Titanium")
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$SulphurEatingBacteria>", "MC")
+      doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>", "MC")
+      doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
       doTasks(
           *standardProjectTasks("AsteroidProject"),
           "14 Pay<> FROM MC",
@@ -1387,14 +1397,14 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "6 Steel",
       )
       doTasks(
-          *playCardTasks("ImportedHydrogen"),
+          *playCardTasks("$ImportedHydrogen"),
           "Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "ImportedHydrogen FROM ProjectCard",
+          "$ImportedHydrogen FROM ProjectCard",
           "OceanTile<Cimmeria_8_4>",
           "TerraformRating",
           "2 MC",
-          "3 Microbe<SulphurEatingBacteria>",
+          "3 Microbe<$SulphurEatingBacteria>",
           "3 MC",
       )
       doTasks(
@@ -1403,22 +1413,22 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "PROD[MC]",
           "NormalCityTile<Cimmeria_5_5>",
           "PROD[MC]",
-          "Disease<Hospitals>",
+          "Disease<$Hospitals>",
           "Steel",
       )
-      doTasks(*cardActionTasks("Hospitals"), "-Disease<Hospitals>", "6 MC")
-      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "6 MC")
+      doTasks(*cardActionTasks("$Hospitals"), "-Disease<$Hospitals>", "6 MC")
+      doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "6 MC")
       doTasks(
-          *cardActionTasks("CometAiming"),
+          *cardActionTasks("$CometAiming"),
           "Pay<Class<Titanium>> FROM Titanium",
-          "Asteroid<AstroDrill>",
+          "Asteroid<$AstroDrill>",
       )
       draw(QuantumExtractor)
       doTasks(
-          *playCardTasks("MagneticFieldGeneratorsPromo"),
+          *playCardTasks("$MagneticFieldGeneratorsPromo"),
           "8 Pay<Class<Steel>> FROM Steel",
           "3 Pay<> FROM MC",
-          "MagneticFieldGeneratorsPromo FROM ProjectCard",
+          "$MagneticFieldGeneratorsPromo FROM ProjectCard",
           "PROD[-4 Energy]",
           "PROD[2 Plant]",
           "3 TerraformRating",
@@ -1428,7 +1438,7 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "6 MC",
       )
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Unity> FROM LobbyDelegate")
-      doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<Unity>")
+      doTasks(*cardActionTasks("$MartianMediaCenter"), "3 Pay<> FROM MC", "PartyLeader<Unity>")
       // Test inference: the source gives the sale count, not card identities.
       discard(
           ArtificialLake,
@@ -1482,8 +1492,9 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
         "6 Heat",
         "5 Energy",
         "2 Heat FROM Energy",
+        "VenusStep! BY Admin",
+        "-9 MC",
     )
-    doTasks("VenusStep! BY Admin", "-9 MC")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration[10].
     assertSidebar(gen = 12, temp = 0, oxygen = 12, oceans = 9, venus = 26)
@@ -1499,30 +1510,30 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
     draw(MicroMills)
     turn {
       doTasks(
-          *cardActionTasks("DevelopmentCenter"),
+          *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
       draw(LunarExports, EosChasmaNationalPark, FusionPower)
       doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
-      doTasks(*cardActionTasks("DeuteriumExport"), "Floater<DeuteriumExport>")
+      doTasks(*cardActionTasks("$DeuteriumExport"), "Floater<$DeuteriumExport>")
       doTasks(
-          *cardActionTasks("ExtractorBalloons", "Action2"),
-          "-2 Floater<ExtractorBalloons>",
+          *cardActionTasks("$ExtractorBalloons", "Action2"),
+          "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("AstroDrill", "Action2"), "-Asteroid<AstroDrill>", "3 Titanium")
-      doTasks(*cardActionTasks("Extremophiles"), "Microbe<Extremophiles>", "MC")
+      doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
+      doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$Extremophiles>", "MC")
       draw(GhgImportFromVenus)
       discard(FusionPower)
       doTasks(
-          *playCardTasks("TransNeptuneProbe"),
-          "TransNeptuneProbe FROM ProjectCard",
-          "Science<OlympusConference>",
+          *playCardTasks("$TransNeptuneProbe"),
+          "$TransNeptuneProbe FROM ProjectCard",
+          "Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -1544,20 +1555,20 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "6 Steel",
       )
       doTasks(
-          *playCardTasks("TropicalResort"),
+          *playCardTasks("$TropicalResort"),
           "5 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "TropicalResort FROM ProjectCard",
+          "$TropicalResort FROM ProjectCard",
           "PROD[-2 Heat]",
           "PROD[3 MC]",
       )
-      doTasks(*cardActionTasks("EnergyMarket", "Action2"), "PROD[-Energy]", "8 MC")
+      doTasks(*cardActionTasks("$EnergyMarket", "Action2"), "PROD[-Energy]", "8 MC")
       draw(CloudTourism)
       doTasks(
-          *playCardTasks("GhgImportFromVenus"),
+          *playCardTasks("$GhgImportFromVenus"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC",
-          "GhgImportFromVenus FROM ProjectCard",
+          "$GhgImportFromVenus FROM ProjectCard",
           "VenusStep",
           "PROD[3 Heat]",
           "ProjectCard",
@@ -1571,42 +1582,46 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "ColonyProduction<Pluto>",
           "2 ProjectCard",
       )
-      doTasks(*cardActionTasks("FloaterTechnology"), "Floater<AerialMappers>")
+      doTasks(*cardActionTasks("$FloaterTechnology"), "Floater<$AerialMappers>")
       draw(Plantation)
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
       draw(Farming, Sabotage, NitrophilicMoss, SponsoredMohole, TitanAirScrapping)
       // Test inference: Sponsored Academies also requires a discard absent from the source log.
       discard(MicroMills, ProtectedValley)
       doTasks(
-          *playCardTasks("SponsoredAcademies"),
+          *playCardTasks("$SponsoredAcademies"),
           "6 Pay<> FROM MC",
-          "SponsoredAcademies FROM ProjectCard",
+          "$SponsoredAcademies FROM ProjectCard",
       )
       // Resolve the mandatory discard before the optional Mars University exchange.
       doTask("-ProjectCard<Hand>!", SponsoredAcademies)
-      doTasks("ProjectCard FROM Science<OlympusConference>", "3 ProjectCard", "-ProjectCard")
-      doTask("ProjectCard")
+      doTasks(
+          "ProjectCard FROM Science<$OlympusConference>",
+          "3 ProjectCard",
+          "-ProjectCard",
+          "ProjectCard",
+      )
       // Resolve the draw for other players; there are none in this solo game.
       doTask("EACH")
       draw(Mangrove)
       doTasks(
-          *playCardTasks("Capital"),
+          *playCardTasks("$Capital"),
           "5 Pay<Class<Steel>> FROM Steel",
           "13 Pay<> FROM MC",
-          "Capital FROM ProjectCard",
+          "$Capital FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[5 MC]",
           "ProjectCard",
-          "CapitalTile<Cimmeria_4_6, Capital>",
+          "CapitalTile<Cimmeria_4_6, $Capital>",
           "PROD[MC]",
-          "Disease<Hospitals>",
+          "Disease<$Hospitals>",
       )
-      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "7 MC")
-      doTasks(*cardActionTasks("Hospitals"), "-Disease<Hospitals>", "7 MC")
+      doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "7 MC")
+      doTasks(*cardActionTasks("$Hospitals"), "-Disease<$Hospitals>", "7 MC")
       doTasks(
           *standardProjectTasks("AsteroidProject"),
           "14 Pay<> FROM MC",
@@ -1614,28 +1629,31 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("Farming"),
+          *playCardTasks("$Farming"),
           "13 Pay<> FROM MC",
-          "Farming FROM ProjectCard",
+          "$Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",
           "2 Plant",
       )
       doTasks(
-          *playCardTasks("Plantation"),
+          *playCardTasks("$Plantation"),
           "12 Pay<> FROM MC",
-          "Plantation FROM ProjectCard",
+          "$Plantation FROM ProjectCard",
           "GreeneryTile<Cimmeria_5_7>",
           "OxygenStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("SulphurEatingBacteria", "Action2"))
-      doTasks("-7 Microbe<SulphurEatingBacteria>", "21 MC")
+      doTasks(
+          *cardActionTasks("$SulphurEatingBacteria", "Action2"),
+          "-7 Microbe<$SulphurEatingBacteria>",
+          "21 MC",
+      )
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
       doTasks(
-              *playCardTasks("Mangrove"),
+              *playCardTasks("$Mangrove"),
               "9 Pay<> FROM MC",
-              "Mangrove FROM ProjectCard",
+              "$Mangrove FROM ProjectCard",
               "GreeneryTile<Cimmeria_2_6>",
               "0 OxygenStep",
               "Plant",
@@ -1644,20 +1662,20 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
           .expect("0 TerraformRating")
       draw(AtalantaPlanitiaLab)
       doTasks(
-          *playCardTasks("TitanAirScrapping"),
+          *playCardTasks("$TitanAirScrapping"),
           "18 Pay<> FROM MC",
-          "TitanAirScrapping FROM ProjectCard",
+          "$TitanAirScrapping FROM ProjectCard",
           "ProjectCard",
       )
-      doTasks(*cardActionTasks("Dirigibles"), "Floater<TitanAirScrapping>")
+      doTasks(*cardActionTasks("$Dirigibles"), "Floater<$TitanAirScrapping>")
       doTasks(
-          *playCardTasks("CeosFavoriteProject"),
-          "CeosFavoriteProject FROM ProjectCard",
-          "Floater<TitanAirScrapping>",
+          *playCardTasks("$CeosFavoriteProject"),
+          "$CeosFavoriteProject FROM ProjectCard",
+          "Floater<$TitanAirScrapping>",
       )
       doTasks(
-          *cardActionTasks("TitanAirScrapping", "Action2"),
-          "-2 Floater<TitanAirScrapping>",
+          *cardActionTasks("$TitanAirScrapping", "Action2"),
+          "-2 Floater<$TitanAirScrapping>",
           "TerraformRating",
       )
       // Test inference: the source gives the sale count, not card identities.
@@ -1666,19 +1684,19 @@ internal class RemoteVacuumFlowTest : CardTrackingFullGameTest() {
       draw(Satellites, MiningArea, Ants)
       discard(SponsoredMohole)
       doTasks(
-          *playCardTasks("AtalantaPlanitiaLab"),
+          *playCardTasks("$AtalantaPlanitiaLab"),
           "5 Pay<> FROM MC",
-          "AtalantaPlanitiaLab FROM ProjectCard",
+          "$AtalantaPlanitiaLab FROM ProjectCard",
           "2 ProjectCard",
-          "Science<OlympusConference>",
+          "Science<$OlympusConference>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       draw(Decomposers)
       doTasks(
-          *playCardTasks("MiningArea"),
+          *playCardTasks("$MiningArea"),
           "Pay<> FROM MC",
-          "MiningArea FROM ProjectCard",
+          "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Cimmeria_5_8>",
           "PROD[Steel]",
           "Steel",

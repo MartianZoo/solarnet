@@ -16,37 +16,42 @@ internal class PhilaresTest : TfmSandboxTest() {
   fun initializeGame() {
     newTestGame(kimCorporation = Philares)
     kim.inTurn {
-      doTasks("DoRequiredActions", "GreeneryTile<Tharsis_4_2>")
-      doTask("OxygenStep")
-      doTasks("Plant", "TerraformRating")
+      doTasks(
+          "DoRequiredActions",
+          "GreeneryTile<Tharsis_4_2>",
+          "OxygenStep",
+          "Plant",
+          "TerraformRating",
+      )
     }
   }
 
   @Test
   internal fun `Pays its owner when an opponent places an adjacent greenery`() {
-    stan
-        .inTurn {
-          doTasks(
-              *standardProjectTasks("GreeneryProject"),
-              "23 Pay<> FROM MC",
-              "GreeneryTile<Tharsis_3_2>",
-          )
-          shouldThrow<TaskException> { kim.selectTask("StandardResource") }
-          shouldThrow<TaskException> { kim.doTask("Titanium") }
-          shouldThrow<TaskException> { selectTask("Titanium<Kim>") }
-          shouldThrow<TaskException> { doTask("Titanium<Kim>") }
-          // Stan chooses the timing; Kim alone chooses and takes the resource.
-          doTask("NOW Kim { StandardResource<Kim>! }")
-          shouldThrow<TaskException> { doTask("OxygenStep") }
-          shouldThrow<TaskException> { narrowTask("Titanium<Kim>") }
-          kim.narrowTask("Titanium")
-          kim.count("Titanium") shouldBe 0
-          shouldThrow<TaskException> { doTask("Titanium<Kim>") }
-          kim.doTask("Titanium")
-          doTask("OxygenStep")
-          doTask("TerraformRating")
-        }
-        .expect("Titanium<Kim>")
+    stan.inTurn {
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Tharsis_3_2>",
+      )
+      // Check that neither actor can select work belonging to the other's part of the choice.
+      shouldThrow<TaskException> { kim.selectTask("StandardResource") }
+      shouldThrow<TaskException> { kim.doTask("Titanium") }
+      shouldThrow<TaskException> { selectTask("Titanium<Kim>") }
+      shouldThrow<TaskException> { doTask("Titanium<Kim>") }
+      // Stan chooses the timing; Kim alone chooses and takes the resource.
+      doTask("NOW Kim { StandardResource<Kim>! }")
+      shouldThrow<TaskException> { doTask("OxygenStep") }
+      shouldThrow<TaskException> { narrowTask("Titanium<Kim>") }
+      kim.narrowTask("Titanium")
+      kim.count("Titanium") shouldBe 0
+      shouldThrow<TaskException> { doTask("Titanium<Kim>") }
+      kim.doTask("Titanium")
+      doTasks(
+          "OxygenStep",
+          "TerraformRating",
+      )
+    }
   }
 
   @Test
@@ -59,9 +64,9 @@ internal class PhilaresTest : TfmSandboxTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_3_2>",
+          "OxygenStep",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTask("TerraformRating")
 
       doTask("Titanium")
     }
@@ -77,9 +82,9 @@ internal class PhilaresTest : TfmSandboxTest() {
               *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_2_1>",
+              "OxygenStep",
+              "TerraformRating",
           )
-          doTask("OxygenStep")
-          doTask("TerraformRating")
         }
         .expect(
             "0 Steel<Kim>, 0 Titanium<Kim>, 0 MC<Kim>, 0 Plant<Kim>, 0 Energy<Kim>, 0 Heat<Kim>"
@@ -95,9 +100,9 @@ internal class PhilaresTest : TfmSandboxTest() {
               *standardProjectTasks("GreeneryProject"),
               "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_3_2>",
+              "OxygenStep",
+              "TerraformRating",
           )
-          doTask("OxygenStep")
-          doTask("TerraformRating")
         }
         .expect("0 Steel, 0 Titanium, 0 Energy, 0 Heat")
   }
@@ -109,13 +114,13 @@ internal class PhilaresTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              *playCardTasks("KaguyaTech"),
+              *playCardTasks("$KaguyaTech"),
               "10 Pay<> FROM MC",
-              "KaguyaTech FROM ProjectCard",
+              "$KaguyaTech FROM ProjectCard",
               "PROD[2 MC]",
+              "ProjectCard<Hand>",
+              "CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_3>",
           )
-          doTask("ProjectCard<Stan, Hand>")
-          doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_3>")
           // The active player chooses when to hand this task to its owner.
           giveTask(kim, "Titanium")
           doTask("Plant")

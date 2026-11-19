@@ -15,10 +15,10 @@ internal class EcolineTest : TfmSandboxTest() {
     kim.exMachina("4 Plant")
 
     kim.inTurn {
-      kim.doTask("UseAction<ConvertPlantsAction, Action1>")
-      shouldThrow<TaskException> { kim.doTask("PlaceGreeneryTile") }
-      kim.doTask("7 Pay<Class<Plant>> FROM Plant")
-      kim.doTasks(
+      doTask("UseAction<ConvertPlantsAction, Action1>")
+      shouldThrow<TaskException> { doTask("PlaceGreeneryTile") }
+      doTasks(
+          "7 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_1_3>",
           "OxygenStep",
           "TerraformRating",

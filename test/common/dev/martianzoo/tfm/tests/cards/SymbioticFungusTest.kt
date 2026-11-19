@@ -15,7 +15,7 @@ internal class SymbioticFungusTest : TfmSandboxTest() {
     kim.exMachina("$SymbioticFungus")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("SymbioticFungus"))
+          doTasks(*cardActionTasks("$SymbioticFungus"))
           // Resolve the microbe offer: no eligible card can hold it.
           doTask("Microbe")
         }

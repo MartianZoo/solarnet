@@ -21,8 +21,12 @@ internal class IceAsteroidTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("IceAsteroid"), "23 Pay<> FROM MC")
-        doTasks("IceAsteroid FROM ProjectCard", "OceanTile<Tharsis_1_2>")
+        doTasks(
+            *playCardTasks("$IceAsteroid"),
+            "23 Pay<> FROM MC",
+            "$IceAsteroid FROM ProjectCard",
+            "OceanTile<Tharsis_1_2>",
+        )
       }
     }
   }

@@ -4,7 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.ArtificialLake
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
@@ -21,9 +21,12 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
-        doTask("ArtificialLake FROM ProjectCard")
-        doTask("OceanTile<Tharsis_2_3>")
+        doTasks(
+            *playCardTasks("$ArtificialLake"),
+            "15 Pay<> FROM MC",
+            "$ArtificialLake FROM ProjectCard",
+            "OceanTile<Tharsis_2_3>",
+        )
       }
     }
 
@@ -37,9 +40,10 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     kim.exMachina(kim.list("WaterArea").take(8).joinToString { "OceanTile<$it>" })
 
     kim.inTurn {
-      doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
       doTasks(
-          "ArtificialLake FROM ProjectCard",
+          *playCardTasks("$ArtificialLake"),
+          "15 Pay<> FROM MC",
+          "$ArtificialLake FROM ProjectCard",
           "OceanTile<Tharsis_2_3>",
           "TerraformRating",
           "2 MC",
@@ -64,8 +68,11 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
-          doTasks("ArtificialLake FROM ProjectCard")
+          doTasks(
+              *playCardTasks("$ArtificialLake"),
+              "15 Pay<> FROM MC",
+              "$ArtificialLake FROM ProjectCard",
+          )
           // Resolve the placement offer: the full ocean track leaves no legal placement.
           doTask("0 OceanTile<LandArea>")
         }
@@ -80,9 +87,12 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("ArtificialLake"), "15 Pay<> FROM MC")
-        doTask("ArtificialLake FROM ProjectCard")
-        doTask("Ok")
+        doTasks(
+            *playCardTasks("$ArtificialLake"),
+            "15 Pay<> FROM MC",
+            "$ArtificialLake FROM ProjectCard",
+            "Ok",
+        )
       }
     }
     kim.assertCounts(42 to "MC", 10 to "ProjectCard", 9 to "OceanTile")

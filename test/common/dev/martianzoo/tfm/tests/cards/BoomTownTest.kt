@@ -15,23 +15,29 @@ internal class BoomTownTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks("PlayCard<Class<PreludeCard>, Class<BoomTown>>", "BoomTown FROM PreludeCard")
-        doTask("PROD[2 Titanium]")
-        doTask("CityTile<Tharsis_4_2>")
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$BoomTown>>",
+            "$BoomTown FROM PreludeCard",
+            "PROD[2 Titanium]",
+            "CityTile<Tharsis_4_2>",
+        )
       }
     }
     kim.exMachina("NormalCityTile<Tharsis_2_1>")
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks("PlayCard<Class<PreludeCard>, Class<BoomTown>>", "BoomTown FROM PreludeCard")
-        doTask("PROD[2 Titanium]")
-        doTask("CityTile<Tharsis_1_1>")
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$BoomTown>>",
+            "$BoomTown FROM PreludeCard",
+            "PROD[2 Titanium]",
+            "CityTile<Tharsis_1_1>",
+        )
       }
     }
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<BoomTown>>",
-          "BoomTown FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$BoomTown>>",
+          "$BoomTown FROM PreludeCard",
           "PROD[2 Titanium]",
           "CityTile<Tharsis_8_9>",
           "Titanium",
@@ -47,22 +53,24 @@ internal class BoomTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("SmallAsteroid"),
+          *playCardTasks("$SmallAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "SmallAsteroid FROM ProjectCard",
+          "$SmallAsteroid FROM ProjectCard",
+          "TemperatureStep",
       )
-      doTask("TemperatureStep")
       // Resolve the optional attack: no unprotected plant target is available.
-      doTask("-0 Plant<Anyone>")
-      doTask("TerraformRating")
+      doTasks(
+          "-0 Plant<Anyone>",
+          "TerraformRating",
+      )
     }
     stan.inTurn {
       doTasks(
-          *playCardTasks("SpaceStation"),
+          *playCardTasks("$SpaceStation"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "7 Pay<> FROM MC",
-          "SpaceStation FROM ProjectCard",
+          "$SpaceStation FROM ProjectCard",
       )
     }
   }
@@ -72,16 +80,22 @@ internal class BoomTownTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion")
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<BoomTown>>",
-          "BoomTown FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$BoomTown>>",
+          "$BoomTown FROM PreludeCard",
           "PROD[2 Titanium]",
           "CityTile<Tharsis_1_1>",
           "2 Steel",
       )
     }
     kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-      doTasks("CopyPrelude<BoomTown>", "PROD[2 Titanium]", "CityTile<Tharsis_8_9>", "Titanium")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
+          "$DoubleDown FROM PreludeCard",
+          "CopyPrelude<$BoomTown>",
+          "PROD[2 Titanium]",
+          "CityTile<Tharsis_8_9>",
+          "Titanium",
+      )
     }
 
     advanceUntilActionPhase()
@@ -89,15 +103,17 @@ internal class BoomTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("SmallAsteroid"),
+          *playCardTasks("$SmallAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "SmallAsteroid FROM ProjectCard",
+          "$SmallAsteroid FROM ProjectCard",
+          "TemperatureStep",
       )
-      doTask("TemperatureStep")
       // Resolve the optional attack: no unprotected plant target is available.
-      doTask("-0 Plant<Anyone>")
-      doTask("TerraformRating")
+      doTasks(
+          "-0 Plant<Anyone>",
+          "TerraformRating",
+      )
     }
   }
 
@@ -112,11 +128,11 @@ internal class BoomTownTest : TfmSandboxTest() {
     // Titanium is worth 3 - 1 + 1 + 1 + 1 + 1 = 6 MC.
     kim.inTurn {
           doTasks(
-              *cardActionTasks("IcyImpactors"),
+              *cardActionTasks("$IcyImpactors"),
               "1 Pay<Class<Titanium>> FROM Titanium",
               "4 Pay<> FROM MC",
+              "2 Asteroid<$IcyImpactors>",
           )
-          doTask("2 Asteroid<IcyImpactors>")
         }
         .expect("2 Asteroid<$IcyImpactors>")
   }

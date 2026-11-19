@@ -12,24 +12,26 @@ import kotlin.test.Test
 internal class BoardOfDirectorsTest : TfmSandboxTest() {
   @Test
   internal fun `Remains available after Prelude phase and spends a director to play another Prelude`() {
-    newTestGame("PreludeExpansion, BoardOfDirectors")
+    newTestGame("PreludeExpansion, $BoardOfDirectors")
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
-          "BoardOfDirectors FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
+          "$BoardOfDirectors FROM PreludeCard",
+          "4 Director<$BoardOfDirectors>",
       )
-      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTasks(*cardActionTasks("BoardOfDirectors"))
-          doTask("PreludeCard<Kim, Hand>")
-          doTask("-12 MC")
-          doTask("-Director<BoardOfDirectors>")
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<Donation>>",
-              "Donation FROM PreludeCard",
+              *cardActionTasks("$BoardOfDirectors"),
+              "PreludeCard<Hand>",
+              "-12 MC",
+              "-Director<$BoardOfDirectors>",
+          )
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+              "$Donation FROM PreludeCard",
               "21 MC",
           )
         }
@@ -38,65 +40,79 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Still spends its money and director when the selected Prelude fizzles`() {
-    newTestGame("PreludeExpansion, BoardOfDirectors, IndustrialComplex")
+    newTestGame("PreludeExpansion, $BoardOfDirectors, $IndustrialComplex")
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
-          "BoardOfDirectors FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
+          "$BoardOfDirectors FROM PreludeCard",
+          "4 Director<$BoardOfDirectors>",
       )
-      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
     kim.setToExMachina(24, "MC")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("BoardOfDirectors"))
-        doTask("PreludeCard<Kim, Hand>")
-        doTask("-12 MC")
-        doTask("-Director<BoardOfDirectors>")
         doTasks(
-            "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
-            "IndustrialComplex FROM PreludeCard",
+            *cardActionTasks("$BoardOfDirectors"),
+            "PreludeCard<Hand>",
+            "-12 MC",
+            "-Director<$BoardOfDirectors>",
         )
-        doTask("-18 MC")
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
+            "$IndustrialComplex FROM PreludeCard",
+            "-18 MC",
+        )
       }
     }
     kim.inTurn {
-          doTasks(*cardActionTasks("BoardOfDirectors"))
-          doTask("PreludeCard<Kim, Hand>")
-          doTask("-12 MC")
-          doTask("-Director<BoardOfDirectors>")
-          doTask("-PreludeCard")
+          doTasks(
+              *cardActionTasks("$BoardOfDirectors"),
+              "PreludeCard<Hand>",
+              "-12 MC",
+              "-Director<$BoardOfDirectors>",
+              "-PreludeCard",
+          )
           // Execute the fizzle audit before receiving compensation.
-          doTask("Audit!")
-          doTask("15 MC")
+          doTasks(
+              "Audit!",
+              "15 MC",
+          )
         }
         .expect("0 $IndustrialComplex")
   }
 
   @Test
   internal fun `A corporation acquired through Merger requires its first action`() {
-    newTestGame("PreludeExpansion, BoardOfDirectors")
+    newTestGame("PreludeExpansion, $BoardOfDirectors")
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
-          "BoardOfDirectors FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
+          "$BoardOfDirectors FROM PreludeCard",
+          "4 Director<$BoardOfDirectors>",
       )
-      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTasks(*cardActionTasks("BoardOfDirectors"))
-          doTask("PreludeCard<Kim, Hand>")
-          doTask("-12 MC")
-          doTask("-Director<BoardOfDirectors>")
-          doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          doTask("4 CorporationCard<Kim, Selecting>")
-          doTask("PlayCard<Class<CorporationCard>, Class<Inventrix>>")
-          doTask("Inventrix<Kim> FROM CorporationCard<Kim, Selecting>!")
-          doTasks("45 MC", "-42 MC")
+          doTasks(
+              *cardActionTasks("$BoardOfDirectors"),
+              "PreludeCard<Hand>",
+              "-12 MC",
+              "-Director<$BoardOfDirectors>",
+          )
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+              "$Merger FROM PreludeCard",
+              "4 CorporationCard<Selecting>",
+          )
+          doTasks(
+              "PlayCard<Class<CorporationCard>, Class<$Inventrix>>",
+              "$Inventrix FROM CorporationCard<Selecting>!",
+              "45 MC",
+              "-42 MC",
+          )
         }
         .expect("$Inventrix")
     shouldThrow<TaskException> {
@@ -105,8 +121,10 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
       }
     }
     kim.inTurn {
-      doTask("DoRequiredActions")
-      doTask("3 ProjectCard")
+      doTasks(
+          "DoRequiredActions",
+          "3 ProjectCard",
+      )
     }
     kim.inTurn {
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
@@ -115,32 +133,37 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Sky Docks discounts the project played through Ecology Experts`() {
-    newTestGame("PreludeExpansion, BoardOfDirectors, EcologyExperts, Unsafe")
+    newTestGame("PreludeExpansion, $BoardOfDirectors, $EcologyExperts, Unsafe")
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
-          "BoardOfDirectors FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
+          "$BoardOfDirectors FROM PreludeCard",
+          "4 Director<$BoardOfDirectors>",
       )
-      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
     kim.exMachina("$SkyDocks")
     kim.setToExMachina(13, "MC")
 
     kim.inTurn {
-      doTasks(*cardActionTasks("BoardOfDirectors"))
-      doTask("PreludeCard<Kim, Hand>")
-      doTask("-12 MC")
-      doTask("-Director<BoardOfDirectors>")
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-          "EcologyExperts FROM PreludeCard",
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard<Hand>",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
-          "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
+          "PlayCard<Class<ProjectCard>, Class<$DustSeals>>",
       )
       // Execute the requirement waiver before playing the project.
-      doTask("-Required* / Required")
-      doTasks("1 Pay<> FROM MC", "DustSeals FROM ProjectCard")
+      doTasks(
+          "-Required* / Required",
+          "1 Pay<> FROM MC",
+          "$DustSeals FROM ProjectCard",
+      )
     }
   }
 }

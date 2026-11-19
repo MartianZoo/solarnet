@@ -29,8 +29,11 @@ internal class AridorTest : TfmSandboxTest() {
     assertEquals(1, admin.count("Luna"))
     kim.inTurn {
           doTask("DoRequiredActions")
+          // Hand colony selection to Admin so the unused tiles become available.
           selectTask("ColonyTileSelection!")
+          // The Admin handoff must reject a tile that is already active.
           shouldThrow<LimitsException> { selectTask("Luna!") }
+          // Hand the valid tile to Admin to finish the required action.
           selectTask("Europa!")
         }
         .expect("Europa, ColonyProduction, -RequiredAction")
@@ -65,9 +68,10 @@ internal class AridorTest : TfmSandboxTest() {
     kim.setToExMachina(11, "MC")
 
     kim.inTurn {
-      doTasks(*playCardTasks("DevelopmentCenter"), "11 Pay<> FROM MC")
       doTasks(
-          "DevelopmentCenter FROM ProjectCard",
+          *playCardTasks("$DevelopmentCenter"),
+          "11 Pay<> FROM MC",
+          "$DevelopmentCenter FROM ProjectCard",
           "PROD[MC]",
           "PROD[MC]",
       )
@@ -80,12 +84,17 @@ internal class AridorTest : TfmSandboxTest() {
     kim.exMachina("$PharmacyUnion, $EarthCatapult")
 
     kim.inTurn {
-          doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          doTask("4 CorporationCard<Kim, Selecting>")
-          doTask("-42 MC")
-          doTask("PlayCard<Class<CorporationCard>, Class<Aridor>>")
-          doTask("Aridor<Kim> FROM CorporationCard<Kim, Selecting>!")
-          doTask("40 MC")
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+              "$Merger FROM PreludeCard",
+              "4 CorporationCard<Selecting>",
+              "-42 MC",
+          )
+          doTasks(
+              "PlayCard<Class<CorporationCard>, Class<$Aridor>>",
+              "$Aridor FROM CorporationCard<Selecting>!",
+              "40 MC",
+          )
         }
         .expect("PROD[0 MC]")
   }
@@ -106,23 +115,23 @@ internal class AridorTest : TfmSandboxTest() {
     kim.setToExMachina(16, "MC")
     kim.inTurn {
       doTasks(
-          *playCardTasks("CryoSleep"),
+          *playCardTasks("$CryoSleep"),
           "10 Pay<> FROM MC",
-          "CryoSleep FROM ProjectCard",
+          "$CryoSleep FROM ProjectCard",
           "PROD[MC]",
+          "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
+          "3 TerraformRating",
       )
-      selectTask("PlayedEvent FROM PharmacyUnion")
-      doTask("3 TerraformRating")
     }
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Decomposers"),
+          *playCardTasks("$Decomposers"),
           "5 Pay<> FROM MC",
-          "Decomposers FROM ProjectCard",
+          "$Decomposers FROM ProjectCard",
           "PROD[MC]",
+          "Microbe<$Decomposers>*",
       )
-      doTask("Microbe<Decomposers>*")
     }
   }
 
@@ -142,23 +151,24 @@ internal class AridorTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
     kim.inTurn {
       doTasks(
-          *playCardTasks("CryoSleep"),
+          *playCardTasks("$CryoSleep"),
           "10 Pay<> FROM MC",
-          "CryoSleep FROM ProjectCard",
+          "$CryoSleep FROM ProjectCard",
           "PROD[MC]",
+          "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
+          "3 TerraformRating",
       )
-      selectTask("PlayedEvent FROM PharmacyUnion")
-      doTask("3 TerraformRating")
     }
 
     kim.inTurn {
-          doTasks(*playCardTasks("IndustrialMicrobes"), "12 Pay<> FROM MC")
           doTasks(
-              "IndustrialMicrobes FROM ProjectCard",
+              *playCardTasks("$IndustrialMicrobes"),
+              "12 Pay<> FROM MC",
+              "$IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
               "PROD[Steel]",
+              "Microbe<$Decomposers>*",
           )
-          doTask("Microbe<Decomposers>*")
         }
         .expect("PROD[0 MC]")
   }
@@ -176,9 +186,9 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BribedCommittee"),
+              *playCardTasks("$BribedCommittee"),
               "7 Pay<> FROM MC",
-              "BribedCommittee FROM ProjectCard",
+              "$BribedCommittee FROM ProjectCard",
               "2 TerraformRating",
           )
         }
@@ -190,18 +200,23 @@ internal class AridorTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = Aridor)
 
     kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      doTask("4 CorporationCard<Kim, Selecting>")
-      doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
-      doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
-      doTask("54 MC")
-      doTask("-42 MC")
-      doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-      doTask("PROD[MC]")
-      doTask("Disease<PharmacyUnion>")
-      doTask("-4* MC")
-      doTask("Disease<PharmacyUnion>")
-      doTask("-4* MC")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+      )
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
+          "$PharmacyUnion FROM CorporationCard<Selecting>!",
+          "54 MC",
+          "-42 MC",
+          "SearchForCard<TagFilter<Class<ScienceTag>>>!",
+          "PROD[MC]",
+          "Disease<$PharmacyUnion>",
+          "-4* MC",
+          "Disease<$PharmacyUnion>",
+          "-4* MC",
+      )
     }
   }
 
@@ -219,9 +234,9 @@ internal class AridorTest : TfmSandboxTest() {
     kim.setToExMachina(11, "MC")
     kim.inTurn {
       doTasks(
-          *playCardTasks("AerialMappers"),
+          *playCardTasks("$AerialMappers"),
           "11 Pay<> FROM MC",
-          "AerialMappers FROM ProjectCard",
+          "$AerialMappers FROM ProjectCard",
           "PROD[MC]",
       )
     }

@@ -18,9 +18,9 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("CulturalMetropolis"),
+            *playCardTasks("$CulturalMetropolis"),
             "20 Pay<> FROM MC",
-            "CulturalMetropolis FROM ProjectCard",
+            "$CulturalMetropolis FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[3 MC]",
             "CityTile<Tharsis_4_2>",
@@ -44,7 +44,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     shouldThrow<TaskException> { playWithFullReserve(useLobby = true) }
     kim.count("LobbyDelegate") shouldBe 1
     kim.count("Delegate") shouldBe 1
-    kim.count("CulturalMetropolis") shouldBe 0
+    kim.count("$CulturalMetropolis") shouldBe 0
     kim.count("CityTile") shouldBe 0
     kim.count("MC") shouldBe 42
   }
@@ -56,9 +56,9 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     // Kim starts with six reserve delegates and the unused lobby delegate.
     return kim.inTurn {
       doTasks(
-          *playCardTasks("CulturalMetropolis"),
+          *playCardTasks("$CulturalMetropolis"),
           "20 Pay<> FROM MC",
-          "CulturalMetropolis FROM ProjectCard",
+          "$CulturalMetropolis FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Tharsis_4_2>",
@@ -78,9 +78,9 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("CulturalMetropolis"),
+              *playCardTasks("$CulturalMetropolis"),
               "20 Pay<> FROM MC",
-              "CulturalMetropolis FROM ProjectCard",
+              "$CulturalMetropolis FROM ProjectCard",
               "PROD[-Energy]",
               "PROD[3 MC]",
               "CityTile<Tharsis_4_2>",
@@ -102,13 +102,17 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks(*playCardTasks("CulturalMetropolis"), "20 Pay<> FROM MC")
-        doTask("CulturalMetropolis FROM ProjectCard")
-        doTask("PROD[-Energy]")
-        doTask("PROD[3 MC]")
-        doTask("CityTile<Tharsis_4_2>")
-        doTask("Plant")
-        doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
+        doTasks(
+            *playCardTasks("$CulturalMetropolis"),
+            "20 Pay<> FROM MC",
+            "$CulturalMetropolis FROM ProjectCard",
+            "PROD[-Energy]",
+            "PROD[3 MC]",
+            "CityTile<Tharsis_4_2>",
+            "Plant",
+            "PartyLeader<Scientists>",
+            "PartyFollower<Scientists>",
+        )
       }
     }
 
@@ -123,15 +127,17 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     kim.exMachina("Ruling<Unity FROM Greens>")
 
     kim.inTurn {
-          doTasks(*playCardTasks("CulturalMetropolis"), "20 Pay<> FROM MC")
           doTasks(
-              "CulturalMetropolis FROM ProjectCard",
+              *playCardTasks("$CulturalMetropolis"),
+              "20 Pay<> FROM MC",
+              "$CulturalMetropolis FROM ProjectCard",
               "PROD[-Energy]",
               "PROD[3 MC]",
               "CityTile<Tharsis_4_2>",
               "Plant",
+              "PartyLeader<Scientists>",
+              "PartyFollower<Scientists>",
           )
-          doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
         }
         .expect("-LobbyDelegate")
   }

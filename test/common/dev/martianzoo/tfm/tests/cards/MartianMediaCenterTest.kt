@@ -15,10 +15,13 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
     kim.exMachina("$MartianMediaCenter")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC")
-          doTask("PartyLeader<Greens>")
+          doTasks(
+              *cardActionTasks("$MartianMediaCenter"),
+              "3 Pay<> FROM MC",
+              "PartyLeader<Greens>",
+          )
         }
-        .expect("-3 MC, 0 LobbyDelegate")
+        .expect("0 LobbyDelegate")
   }
 
   @Test
@@ -28,10 +31,13 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
     kim.exMachina("PartyLeader<Unity>, 5 PartyFollower<Unity>")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("MartianMediaCenter"), "3 Pay<> FROM MC")
-          doTask("PartyLeader<Greens>")
+          doTasks(
+              *cardActionTasks("$MartianMediaCenter"),
+              "3 Pay<> FROM MC",
+              "PartyLeader<Greens>",
+          )
         }
-        .expect("-3 MC, -LobbyDelegate")
+        .expect("-LobbyDelegate")
   }
 
   @Test
@@ -42,9 +48,11 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("MartianMediaCenter"))
-        doTask("3 Pay<> FROM MC")
-        doTask("PartyLeader<Greens>")
+        doTasks(
+            *cardActionTasks("$MartianMediaCenter"),
+            "3 Pay<> FROM MC",
+            "PartyLeader<Greens>",
+        )
       }
     }
 

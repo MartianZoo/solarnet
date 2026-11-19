@@ -18,12 +18,12 @@ internal class HermeticOrderOfMarsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("HermeticOrderOfMars"),
+              *playCardTasks("$HermeticOrderOfMars"),
               "10 Pay<> FROM MC",
-              "HermeticOrderOfMars FROM ProjectCard",
+              "$HermeticOrderOfMars FROM ProjectCard",
               "PROD[2 MC]",
+              "MC",
           )
-          doTask("MC")
         }
         .expect("-9 MC")
   }

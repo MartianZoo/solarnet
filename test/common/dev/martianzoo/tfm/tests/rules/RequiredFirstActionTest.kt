@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -9,7 +8,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class RequiredFirstActionTest : TfmGameplayTest(NONE) {
+internal class RequiredFirstActionTest : TfmGameplayTest() {
 
   @Test
   internal fun `Can play a project after resolving its mandatory card draw`() {
@@ -18,8 +17,11 @@ internal class RequiredFirstActionTest : TfmGameplayTest(NONE) {
     stan.doTask("Pass")
     kim.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
     stan.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
-    kim.doTask("OxygenStep! BY Admin")
-    kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
+    kim.doTasks(
+        "OxygenStep! BY Admin",
+        "4 ProjectCard<Selecting>",
+        "-4 ProjectCard<Selecting>",
+    )
     stan.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
     stan.doTask("Pass")
     kim.doTasks("DoRequiredActions", "3 ProjectCard")
@@ -52,8 +54,11 @@ internal class RequiredFirstActionTest : TfmGameplayTest(NONE) {
     stan.doTask("Pass")
     kim.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
     stan.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
-    kim.doTask("OxygenStep! BY Admin")
-    kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
+    kim.doTasks(
+        "OxygenStep! BY Admin",
+        "4 ProjectCard<Selecting>",
+        "-4 ProjectCard<Selecting>",
+    )
     stan.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
     stan.doTask("Pass")
 
@@ -99,8 +104,11 @@ internal class RequiredFirstActionTest : TfmGameplayTest(NONE) {
     stan.doTask("Pass")
     kim.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "8 Heat")
     stan.doTasks("21 MC", "Steel", "Titanium", "2 Plant", "Energy", "Heat")
-    kim.doTask("OxygenStep! BY Admin")
-    kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
+    kim.doTasks(
+        "OxygenStep! BY Admin",
+        "4 ProjectCard<Selecting>",
+        "-4 ProjectCard<Selecting>",
+    )
     stan.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
     stan.doTask("Pass")
     kim.count("Heat") shouldBe 8

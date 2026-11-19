@@ -16,13 +16,15 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
     kim.exMachina("PartyLeader<Greens>, 5 PartyFollower<Greens>")
     kim.inTurn {
           doTasks(
-              *playCardTasks("VoteOfNoConfidence"),
+              *playCardTasks("$VoteOfNoConfidence"),
               "5 Pay<> FROM MC",
-              "VoteOfNoConfidence FROM ProjectCard",
+              "$VoteOfNoConfidence FROM ProjectCard",
           )
           // Execute the chairmanship transfer, including the political-state changes.
-          doTask("Chairman<Kim FROM Neutral>!")
-          doTask("TerraformRating")
+          doTasks(
+              "Chairman<Kim FROM Neutral>!",
+              "TerraformRating",
+          )
         }
         .expect("-LobbyDelegate")
   }
@@ -34,9 +36,12 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks(*playCardTasks("VoteOfNoConfidence"))
-        doTasks("5 Pay<> FROM MC", "VoteOfNoConfidence FROM ProjectCard")
-        doTask("TerraformRating")
+        doTasks(
+            *playCardTasks("$VoteOfNoConfidence"),
+            "5 Pay<> FROM MC",
+            "$VoteOfNoConfidence FROM ProjectCard",
+            "TerraformRating",
+        )
         // Execute the chairmanship transfer, including the political-state changes.
         doTask("Chairman<Kim FROM Neutral>!")
       }
@@ -54,9 +59,12 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("VoteOfNoConfidence"))
-        doTasks("5 Pay<> FROM MC", "VoteOfNoConfidence FROM ProjectCard")
-        doTask("TerraformRating")
+        doTasks(
+            *playCardTasks("$VoteOfNoConfidence"),
+            "5 Pay<> FROM MC",
+            "$VoteOfNoConfidence FROM ProjectCard",
+            "TerraformRating",
+        )
         // Execute the chairmanship transfer, including the political-state changes.
         doTask("Chairman<Kim FROM Neutral>!")
       }

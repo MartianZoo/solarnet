@@ -41,16 +41,16 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
   internal fun thermalPlasmaState() {
     startGame()
     with(me) {
-      doTask("14 TerraformRating")
       doTasks(
+          "14 TerraformRating",
           "2 CorporationCard",
           "-CorporationCard",
           "10 ProjectCard<Selecting>",
           "4 PreludeCard",
           "-2 PreludeCard",
+          "-SelectedColonyTile<Class<Miranda>>",
+          "-2 ProjectCard<Selecting>",
       )
-      doTask("-SelectedColonyTile<Class<Miranda>>")
-      doTask("-2 ProjectCard<Selecting>")
     }
     generation1()
     generation2()
@@ -122,27 +122,43 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
 
       assertCounts(0 to "MC")
       doTask("Pass")
-      doTasks("18 MC", "Steel", "Titanium")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "18 MC",
+          "Steel",
+          "Titanium",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation2() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       assertCounts(17 to "MC")
       doTask("Pass")
-      doTasks("18 MC", "Steel", "Titanium")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "18 MC",
+          "Steel",
+          "Titanium",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation3() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "2 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "2 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -179,15 +195,23 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         assertCounts(0 to "MC")
       }
       doTask("Pass")
-      doTasks("17 MC", "Steel", "2 Titanium")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "17 MC",
+          "Steel",
+          "2 Titanium",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation4() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "3 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
@@ -210,15 +234,24 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         assertCounts(0 to "MC")
       }
       doTask("Pass")
-      doTasks("17 MC", "Steel", "2 Titanium", "3 Energy")
-      doTask("TemperatureStep! BY Admin")
+      doTasks(
+          "17 MC",
+          "Steel",
+          "2 Titanium",
+          "3 Energy",
+          "TemperatureStep! BY Admin",
+      )
     }
   }
 
   private fun generation5() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "3 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
@@ -288,15 +321,21 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         assertCounts(0 to "MC")
       }
       doTask("Pass")
-      doTasks("15 MC", "Steel", "2 Titanium", "7 Energy", "2 Heat")
-      doTask("TemperatureStep! BY Admin")
+      doTasks(
+          "15 MC",
+          "Steel",
+          "2 Titanium",
+          "7 Energy",
+          "2 Heat",
+          "TemperatureStep! BY Admin",
+      )
     }
   }
 
   private fun generation6() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "4 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -364,15 +403,21 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         assertCounts(0 to "MC")
       }
       doTask("Pass")
-      doTasks("17 MC", "Steel", "2 Titanium", "7 Energy", "4 Heat")
-      doTask("OceanTile<Elysium_3_6>! BY Admin")
+      doTasks(
+          "17 MC",
+          "Steel",
+          "2 Titanium",
+          "7 Energy",
+          "4 Heat",
+          "OceanTile<Elysium_3_6>! BY Admin",
+      )
     }
   }
 
   private fun generation7() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "4 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -449,15 +494,25 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         assertCounts(2 to "MC")
       }
       doTask("Pass")
-      doTasks("21 MC", "Steel", "2 Titanium", "7 Energy", "5 Heat")
-      doTask("OceanTile<Elysium_2_4>! BY Admin")
+      doTasks(
+          "21 MC",
+          "Steel",
+          "2 Titanium",
+          "7 Energy",
+          "5 Heat",
+          "OceanTile<Elysium_2_4>! BY Admin",
+      )
     }
   }
 
   private fun generation8() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "2 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "2 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -561,15 +616,26 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         assertCounts(2 to "MC")
       }
       doTask("Pass")
-      doTasks("26 MC", "Steel", "2 Titanium", "8 Energy", "7 Heat", "2 Plant")
-      doTask("TemperatureStep! BY Admin")
+      doTasks(
+          "26 MC",
+          "Steel",
+          "2 Titanium",
+          "8 Energy",
+          "7 Heat",
+          "2 Plant",
+          "TemperatureStep! BY Admin",
+      )
     }
   }
 
   private fun generation9() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "3 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -657,15 +723,23 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         assertCounts(0 to "MC")
       }
       doTask("Pass")
-      doTasks("32 MC", "Steel", "2 Titanium", "8 Energy", "7 Heat", "2 Plant", "4 Heat FROM Energy")
-      doTask("TemperatureStep! BY Admin")
+      doTasks(
+          "32 MC",
+          "Steel",
+          "2 Titanium",
+          "8 Energy",
+          "7 Heat",
+          "2 Plant",
+          "4 Heat FROM Energy",
+          "TemperatureStep! BY Admin",
+      )
     }
   }
 
   private fun generation10() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "4 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -788,15 +862,27 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
         assertCounts(6 to "MC")
       }
       doTask("Pass")
-      doTasks("40 MC", "Steel", "2 Titanium", "8 Energy", "13 Heat", "2 Plant", "Heat FROM Energy")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "40 MC",
+          "Steel",
+          "2 Titanium",
+          "8 Energy",
+          "13 Heat",
+          "2 Plant",
+          "Heat FROM Energy",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation11() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -926,15 +1012,19 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
           "13 Heat",
           "2 Plant",
           "5 Heat FROM Energy",
+          "OceanTile<Elysium_4_4>! BY Admin",
       )
-      doTask("OceanTile<Elysium_4_4>! BY Admin")
     }
   }
 
   private fun generation12() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(

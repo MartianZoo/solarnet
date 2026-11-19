@@ -20,22 +20,35 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/2874012/article/40859020#40859020
   @Test
   internal fun `Valley Trust Merger Tharsis currently places the city in the first required action`() {
-    newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
+    newTestGame(addOptions = "PreludeExpansion, $ValleyTrust", kimCorporation = ValleyTrust)
     kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      doTask("4 CorporationCard<Kim, Selecting>")
-      doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
-      doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
-      doTasks("40 MC", "-42 MC")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+      )
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
+          "$TharsisRepublic FROM CorporationCard<Selecting>!",
+          "40 MC",
+          "-42 MC",
+      )
     }
     advanceUntilActionPhase()
 
     kim.inTurn {
-      doTask("DoRequiredActions")
-      doTask("3 PreludeCard<Kim, Selecting>")
-      doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
-      doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
-      doTasks("21 MC", "CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
+      doTasks(
+          "DoRequiredActions",
+          "3 PreludeCard<Selecting>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard<Selecting>!",
+          "21 MC",
+          "CityTile<Tharsis_3_3>",
+          "PROD[MC]",
+          "3 MC",
+      )
     }
     kim.count("CityTile<Tharsis_3_3>") shouldBe 1
     kim.count("RequiredAction") shouldBe 0
@@ -47,29 +60,40 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/2886401/article/44823945#44823945
   @Test
   internal fun `Head Start Board Merger Tharsis currently uses the next granted action for its city`() {
-    newTestGame(addOptions = "PreludeExpansion, fakes:cards, BoardOfDirectors")
+    newTestGame(addOptions = "PreludeExpansion, fakes:cards, $BoardOfDirectors")
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>")
     kim.setToExMachina(54, "MC")
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
-          "FakeHeadStart FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
+          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
+          "20 MC",
       )
-      doTask("20 MC")
-      doTasks(*cardActionTasks("BoardOfDirectors"))
-      doTask("PreludeCard<Kim, Hand>")
-      doTask("-12 MC")
-      doTask("-Director<BoardOfDirectors>")
-      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      doTask("4 CorporationCard<Kim, Selecting>")
-      doTask("-42 MC")
-      doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
-      doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
-      doTask("40 MC")
-      doTask("DoRequiredActions")
-      doTasks("CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
+      doTasks(
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard<Hand>",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+          "-42 MC",
+      )
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
+          "$TharsisRepublic FROM CorporationCard<Selecting>!",
+          "40 MC",
+      )
+      doTasks(
+          "DoRequiredActions",
+          "CityTile<Tharsis_3_3>",
+          "PROD[MC]",
+          "3 MC",
+      )
     }
 
     kim.count("CityTile<Tharsis_3_3>") shouldBe 1
@@ -100,12 +124,17 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   internal fun `Merger Poseidon currently remains acquired when its later first colony is impossible`() {
     newTestGame(addOptions = "PreludeExpansion, Luna, Ceres, Triton, Ganymede, Callisto")
     kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      doTask("4 CorporationCard<Kim, Selecting>")
-      doTask("-42 MC")
-      doTask("PlayCard<Class<CorporationCard>, Class<Poseidon>>")
-      doTask("Poseidon FROM CorporationCard<Selecting>")
-      doTask("45 MC")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+          "-42 MC",
+      )
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$Poseidon>>",
+          "$Poseidon FROM CorporationCard<Selecting>",
+          "45 MC",
+      )
     }
     kim.setToExMachina(20, "MC")
     fillSelectedColonySlots()
@@ -129,20 +158,29 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/2626062
   @Test
   internal fun `New Partner currently permits drawing before raising production`() {
-    newTestGame(addOptions = "PreludeExpansion, IndustrialComplex, -QuickStartVariant")
+    newTestGame(addOptions = "PreludeExpansion, $IndustrialComplex, -QuickStartVariant")
     kim.setToExMachina(0, "PROD[MC]")
     kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<NewPartner>>", "NewPartner FROM PreludeCard")
-      doTask("2 PreludeCard<Selecting>")
-      doTask("PROD[MC]")
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
-          "IndustrialComplex FROM PreludeCard<Selecting>",
+          "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
+          "$NewPartner FROM PreludeCard",
+          "2 PreludeCard<Selecting>",
+          "PROD[MC]",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
+          "$IndustrialComplex FROM PreludeCard<Selecting>",
           "-18 MC",
       )
       // Expand the production box after New Partner has raised MC production to its target.
-      doTask("EACH")
-      doTasks("PROD[Steel]", "PROD[Titanium]", "PROD[Plant]", "PROD[Energy]", "PROD[Heat]")
+      doTasks(
+          "EACH",
+          "PROD[Steel]",
+          "PROD[Titanium]",
+          "PROD[Plant]",
+          "PROD[Energy]",
+          "PROD[Heat]",
+      )
     }
     kim.count("PROD[MC]") - kim.count("ProdOffset<Class<MC>>") shouldBe 1
   }
@@ -151,29 +189,30 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/2626062
   @Test
   internal fun `New Partner currently permits its production increase after Industrial Complex`() {
-    newTestGame(addOptions = "PreludeExpansion, IndustrialComplex, -QuickStartVariant")
+    newTestGame(addOptions = "PreludeExpansion, $IndustrialComplex, -QuickStartVariant")
     kim.setToExMachina(0, "PROD[MC]")
     kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<NewPartner>>", "NewPartner FROM PreludeCard")
-      doTask("2 PreludeCard<Selecting>")
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
-          "IndustrialComplex FROM PreludeCard<Selecting>",
+          "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
+          "$NewPartner FROM PreludeCard",
+          "2 PreludeCard<Selecting>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
+          "$IndustrialComplex FROM PreludeCard<Selecting>",
           "-18 MC",
       )
       // Expand Industrial Complex's per-resource adjustment while New Partner remains pending.
-      doTask(
-          "EACH Class<@StandardResource> { PROD[@StandardResource / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>>] }"
-      )
       doTasks(
+          "EACH Class<@StandardResource> { PROD[@StandardResource / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>>] }",
           "PROD[MC]",
           "PROD[Steel]",
           "PROD[Titanium]",
           "PROD[Plant]",
           "PROD[Energy]",
           "PROD[Heat]",
+          "PROD[MC]",
       )
-      doTask("PROD[MC]")
     }
     kim.count("PROD[MC]") - kim.count("ProdOffset<Class<MC>>") shouldBe 2
   }
@@ -183,20 +222,22 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   @Test
   internal fun `Cyberia currently interleaves Heat Trappers and GHG Factories production`() {
     newTestGame()
-    kim.exMachina("GhgFactories, HeatTrappers")
+    kim.exMachina("$GhgFactories, $HeatTrappers")
     kim.setToExMachina(0, "PROD[Energy]")
     kim.setToExMachina(0, "PROD[Heat]")
     kim.inTurn {
       doTasks(
-          *playCardTasks("CyberiaSystems"),
+          *playCardTasks("$CyberiaSystems"),
           "16 Pay<> FROM MC",
-          "CyberiaSystems FROM ProjectCard",
+          "$CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
+          "CopyProductionBox<$GhgFactories>",
+          "PROD[4 Heat]",
+          "CopyProductionBox<$HeatTrappers>",
+          "PROD[Energy]",
+          "PROD[-2 Heat]",
+          "PROD[-Energy]",
       )
-      doTask("CopyProductionBox<GhgFactories>")
-      doTask("PROD[4 Heat]")
-      doTask("CopyProductionBox<HeatTrappers>")
-      doTasks("PROD[Energy]", "PROD[-2 Heat]", "PROD[-Energy]")
     }
   }
 
@@ -204,30 +245,34 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/3067197
   @Test
   internal fun `Merger currently can be paid before Pharmacy Union takes Recyclon's cash`() {
-    newTestGame(addOptions = "PreludeExpansion, BoardOfDirectors")
+    newTestGame(addOptions = "PreludeExpansion, $BoardOfDirectors")
     advanceUntilActionPhase()
     kim.exMachina(
-        "PharmacyUnion, 2 Disease<PharmacyUnion>, BoardOfDirectors, Director<BoardOfDirectors>"
+        "$PharmacyUnion, 2 Disease<$PharmacyUnion>, $BoardOfDirectors, Director<$BoardOfDirectors>"
     )
     kim.setToExMachina(17, "MC")
     kim.inTurn {
       doTasks(
-          *cardActionTasks("BoardOfDirectors"),
+          *cardActionTasks("$BoardOfDirectors"),
           "PreludeCard<Hand>",
           "-12 MC",
-          "-Director<BoardOfDirectors>",
+          "-Director<$BoardOfDirectors>",
       )
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<Merger>>",
-          "Merger FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
       )
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
-          "Recyclon FROM CorporationCard<Selecting>",
+          "PlayCard<Class<CorporationCard>, Class<$Recyclon>>",
+          "$Recyclon FROM CorporationCard<Selecting>",
           "38 MC",
+          "-42 MC",
+          "Disease<$PharmacyUnion>",
+          "-1 MC",
+          "PROD[Steel]",
+          "Microbe<$Recyclon>",
       )
-      doTasks("-42 MC", "Disease<PharmacyUnion>", "-1 MC", "PROD[Steel]", "Microbe<Recyclon>")
     }
     kim.count("MC") shouldBe 0
   }
@@ -238,26 +283,26 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   @Test
   internal fun `Late Merger currently retains Poseidon even when its first colony is already impossible`() {
     newTestGame(
-        addOptions = "PreludeExpansion, BoardOfDirectors, Luna, Ceres, Triton, Ganymede, Callisto"
+        addOptions = "PreludeExpansion, $BoardOfDirectors, Luna, Ceres, Triton, Ganymede, Callisto"
     )
     advanceUntilActionPhase()
-    kim.exMachina("BoardOfDirectors, Director<BoardOfDirectors>")
+    kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>")
     fillSelectedColonySlots()
     kim.inTurn {
       doTasks(
-          *cardActionTasks("BoardOfDirectors"),
+          *cardActionTasks("$BoardOfDirectors"),
           "PreludeCard<Hand>",
           "-12 MC",
-          "-Director<BoardOfDirectors>",
+          "-Director<$BoardOfDirectors>",
       )
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<Merger>>",
-          "Merger FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
       )
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<Poseidon>>",
-          "Poseidon FROM CorporationCard<Selecting>",
+          "PlayCard<Class<CorporationCard>, Class<$Poseidon>>",
+          "$Poseidon FROM CorporationCard<Selecting>",
           "45 MC",
           "-42 MC",
       )
@@ -265,8 +310,8 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn { doTasks("DoRequiredActions", "Colony<Luna>") }
     }
-    kim.count("Poseidon") shouldBe 1
-    kim.count("Merger") shouldBe 1
+    kim.count("$Poseidon") shouldBe 1
+    kim.count("$Merger") shouldBe 1
     kim.count("RequiredAction") shouldBe 1
     kim.count("MC") shouldBe 33
   }
@@ -278,13 +323,13 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = Manutech)
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<Merger>>",
-          "Merger FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
       )
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<ThorGate>>",
-          "ThorGate FROM CorporationCard<Selecting>",
+          "PlayCard<Class<CorporationCard>, Class<$ThorGate>>",
+          "$ThorGate FROM CorporationCard<Selecting>",
           "48 MC",
           "-42 MC",
           "PROD[Energy]",
@@ -297,31 +342,35 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/3775830/article/48238727#48238727
   @Test
   internal fun `Conscription currently survives a Prelude played through Board of Directors`() {
-    newTestGame(addOptions = "PreludeExpansion, BoardOfDirectors")
+    newTestGame(addOptions = "PreludeExpansion, $BoardOfDirectors")
     advanceUntilActionPhase()
-    kim.exMachina("BoardOfDirectors, Director<BoardOfDirectors>, AcquiredCompany, Sponsors")
+    kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>, $AcquiredCompany, $Sponsors")
     kim.inTurn {
       doTasks(
-          *playCardTasks("Conscription"),
+          *playCardTasks("$Conscription"),
           "5 Pay<> FROM MC",
-          "Conscription FROM ProjectCard",
+          "$Conscription FROM ProjectCard",
           "Conscription_NextCardEffect",
       )
     }
     kim.inTurn {
       doTasks(
-          *cardActionTasks("BoardOfDirectors"),
+          *cardActionTasks("$BoardOfDirectors"),
           "PreludeCard<Hand>",
           "-12 MC",
-          "-Director<BoardOfDirectors>",
+          "-Director<$BoardOfDirectors>",
       )
-      doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard",
+          "21 MC",
+      )
     }
     kim.inTurn {
       doTasks(
-          *playCardTasks("Soletta"),
+          *playCardTasks("$Soletta"),
           "19 Pay<> FROM MC",
-          "Soletta FROM ProjectCard",
+          "$Soletta FROM ProjectCard",
           "PROD[7 Heat]",
       )
     }
@@ -332,12 +381,12 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   @Test
   internal fun `Splice currently permits an uncollectible microbe instead of money`() {
     newTestGame()
-    kim.exMachina("SpliceTacticalGenomics")
+    kim.exMachina("$SpliceTacticalGenomics")
     kim.inTurn {
           doTasks(
-              *playCardTasks("IndustrialMicrobes"),
+              *playCardTasks("$IndustrialMicrobes"),
               "12 Pay<> FROM MC",
-              "IndustrialMicrobes FROM ProjectCard",
+              "$IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
               "PROD[Steel]",
           )
@@ -357,11 +406,11 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     shouldThrow<ExpressionException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("HiredRaiders"),
+            *playCardTasks("$HiredRaiders"),
             "1 Pay<> FROM MC",
-            "HiredRaiders FROM ProjectCard",
+            "$HiredRaiders FROM ProjectCard",
+            "Steel<Kim FROM Kim>",
         )
-        doTask("Steel<Kim FROM Kim>")
       }
     }
     kim.count("Steel") shouldBe 2
@@ -374,8 +423,8 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   @Test
   internal fun `Innovator currently counts corporations and Preludes as well as projects`() {
     newTestGame(addOptions = "PreludeExpansion, Innovator, Thermalist, Miner")
-    kim.exMachina("ThorGate, Donation")
-    stan.exMachina("Mine")
+    kim.exMachina("$ThorGate, $Donation")
+    stan.exMachina("$Mine")
     advanceUntilActionPhase()
     kim.inTurn { doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC", "Innovator") }
     victoryPoints() shouldBe listOf(25, 22, 20)
@@ -386,7 +435,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   @Test
   internal fun `Philanthropist currently excludes Vermin before its penalty activates`() {
     newTestGame(addOptions = "Philantropist, Builder, Engineer")
-    kim.exMachina("Vermin, DustSeals, AdaptationTechnology, CryoSleep, SpaceElevator")
+    kim.exMachina("$Vermin, $DustSeals, $AdaptationTechnology, $CryoSleep, $SpaceElevator")
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Philantropist")
@@ -396,9 +445,9 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.setToExMachina(7, "OxygenStep")
     kim.inTurn {
       doTasks(
-          *playCardTasks("Windmills"),
+          *playCardTasks("$Windmills"),
           "6 Pay<> FROM MC",
-          "Windmills FROM ProjectCard",
+          "$Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
     }
@@ -413,7 +462,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   internal fun `Philanthropist currently excludes Vermin when only opponents lose points`() {
     newTestGame(addOptions = "Philantropist, Builder, Engineer")
     kim.exMachina(
-        "Vermin, 10 Animal<Vermin>, DustSeals, AdaptationTechnology, CryoSleep, SpaceElevator"
+        "$Vermin, 10 Animal<$Vermin>, $DustSeals, $AdaptationTechnology, $CryoSleep, $SpaceElevator"
     )
     stan.exMachina("NormalCityTile<Tharsis_3_3>")
     shouldThrow<RequirementException> {
@@ -425,9 +474,9 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.setToExMachina(7, "OxygenStep")
     kim.inTurn {
       doTasks(
-          *playCardTasks("Windmills"),
+          *playCardTasks("$Windmills"),
           "6 Pay<> FROM MC",
-          "Windmills FROM ProjectCard",
+          "$Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
     }
@@ -441,8 +490,8 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/3544105
   @Test
   internal fun `Philanthropist currently excludes Vitor's effect icon`() {
-    newTestGame(addOptions = "Philantropist, Builder, Engineer, Vitor")
-    kim.exMachina("Vitor, DustSeals, AdaptationTechnology, CryoSleep, SpaceElevator")
+    newTestGame(addOptions = "Philantropist, Builder, Engineer, $Vitor")
+    kim.exMachina("$Vitor, $DustSeals, $AdaptationTechnology, $CryoSleep, $SpaceElevator")
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Philantropist")
@@ -452,9 +501,9 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.setToExMachina(7, "OxygenStep")
     kim.inTurn {
       doTasks(
-          *playCardTasks("Windmills"),
+          *playCardTasks("$Windmills"),
           "6 Pay<> FROM MC",
-          "Windmills FROM ProjectCard",
+          "$Windmills FROM ProjectCard",
           "PROD[Energy]",
           "3 MC",
       )
@@ -468,14 +517,14 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/2663453
   @Test
   internal fun `Copying Mining Rights currently rejects a wild resource space`() {
-    copyWildSpaceMiningBox("MiningRights")
+    copyWildSpaceMiningBox("$MiningRights")
   }
 
   // Unresolved adjudication (question 21); no original metal choice is available to revisit here.
   // https://boardgamegeek.com/thread/2663453
   @Test
   internal fun `Copying Mining Area currently rejects a wild resource space`() {
-    copyWildSpaceMiningBox("MiningArea")
+    copyWildSpaceMiningBox("$MiningArea")
   }
 
   private fun copyWildSpaceMiningBox(card: String) {
@@ -485,16 +534,16 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     shouldThrow<DependencyException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("RoboticWorkforce"),
+            *playCardTasks("$RoboticWorkforce"),
             "9 Pay<> FROM MC",
-            "RoboticWorkforce FROM ProjectCard",
+            "$RoboticWorkforce FROM ProjectCard",
+            "CopyProductionBox<$card>",
         )
-        doTask("CopyProductionBox<$card>")
         // Resolve the metal filter, which does not recognize the wild placement bonus.
         doTask("PROD[Steel]")
       }
     }
-    kim.count("RoboticWorkforce") shouldBe 0
+    kim.count("$RoboticWorkforce") shouldBe 0
     kim.count("MC") shouldBe 42
   }
 
@@ -506,8 +555,10 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Celestic)
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("DoRequiredActions")
-        doTask("SearchForCard<ReferenceFilter<Class<Floater>>>")
+        doTasks(
+            "DoRequiredActions",
+            "SearchForCard<ReferenceFilter<Class<Floater>>>",
+        )
       }
     }
     kim.count("RequiredAction") shouldBe 1
@@ -525,8 +576,10 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = MorningStarInc)
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTask("DoRequiredActions")
-        doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
+        doTasks(
+            "DoRequiredActions",
+            "2 SearchForCard<TagFilter<Class<VenusTag>>>",
+        )
       }
     }
     kim.count("RequiredAction") shouldBe 1
@@ -546,15 +599,15 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("HiredRaiders"),
+            *playCardTasks("$HiredRaiders"),
             "1 Pay<> FROM MC",
-            "HiredRaiders FROM ProjectCard",
+            "$HiredRaiders FROM ProjectCard",
+            "0 MC<Kim FROM Stan>",
         )
-        doTask("0 MC<Kim FROM Stan>")
       }
     }
     kim.count("MC") shouldBe 42
-    kim.count("PlayedEvent<Class<HiredRaiders>>") shouldBe 0
+    kim.count("PlayedEvent<Class<$HiredRaiders>>") shouldBe 0
   }
 
   private fun fillSelectedColonySlots() {

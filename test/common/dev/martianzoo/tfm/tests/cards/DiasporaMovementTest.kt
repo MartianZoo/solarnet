@@ -14,11 +14,11 @@ internal class DiasporaMovementTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("DiasporaMovement"),
+              *playCardTasks("$DiasporaMovement"),
               "7 Pay<> FROM MC",
-              "DiasporaMovement FROM ProjectCard",
+              "$DiasporaMovement FROM ProjectCard",
+              "2 MC",
           )
-          doTask("2 MC")
         }
         .expect("-5 MC")
   }

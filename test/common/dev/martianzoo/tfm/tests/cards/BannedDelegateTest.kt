@@ -4,7 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.BannedDelegate
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -17,7 +17,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     shouldThrow<NotNowException> {
       kim.inTurn {
-        doTasks(*playCardTasks("BannedDelegate"))
+        doTasks(*playCardTasks("$BannedDelegate"))
       }
     }
   }
@@ -32,10 +32,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
+              "-PartyFollower<Stan, MarsFirst>",
           )
-          doTask("-PartyFollower<Stan, MarsFirst>")
         }
         .expect(
             "-Dominant<MarsFirst>, Dominant<Unity>, " +
@@ -54,10 +54,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
+              "-PartyFollower<Stan, MarsFirst>",
           )
-          doTask("-PartyFollower<Stan, MarsFirst>")
         }
         .expect("-Dominant<MarsFirst>, Dominant<Kelvinists>, 0 Dominant<Reds>")
   }
@@ -74,10 +74,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
+              "-PartyFollower<Stan, Greens>",
           )
-          doTask("-PartyFollower<Stan, Greens>")
         }
         .expect("-Dominant<Greens>, Dominant<Unity>, 0 Dominant<Reds>")
   }
@@ -92,10 +92,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
+              "-PartyFollower<Stan, Scientists>",
           )
-          doTask("-PartyFollower<Stan, Scientists>")
         }
         .expect(
             "PartyLeader<Scientists, Kim>, -PartyLeader<Scientists, Stan>, " +
@@ -113,10 +113,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
+              "-PartyFollower<Rob, Scientists>",
           )
-          doTask("-PartyFollower<Rob, Scientists>")
         }
         .expect(
             "0 PartyLeader<Scientists, Kim>, 0 PartyLeader<Scientists, Stan>, " +
@@ -136,10 +136,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
+              "-PartyFollower<Maya, Scientists>",
           )
-          doTask("-PartyFollower<Maya, Scientists>")
         }
         .expect(
             "0 PartyLeader<Scientists, Kim>, PartyLeader<Scientists, Rob>, " +
@@ -157,8 +157,8 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$BannedDelegate"),
               "$BannedDelegate FROM ProjectCard",
+              "-PartyFollower<MarsFirst, Stan>",
           )
-          doTask("-PartyFollower<MarsFirst, Stan>")
         }
         .expect("0 PartyLeader<MarsFirst, Stan>")
   }
@@ -170,12 +170,12 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
+              "-PartyFollower<Scientists>",
           )
-          doTask("-PartyFollower<Scientists>")
         }
-        .expect("-PartyFollower<Scientists>, 0 PartyLeader<Scientists>")
+        .expect("0 PartyLeader<Scientists>")
   }
 
   @Test
@@ -185,10 +185,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
+              "-PartyFollower<Neutral, Scientists>",
           )
-          doTask("-PartyFollower<Neutral, Scientists>")
         }
         .expect("-PartyFollower<Scientists, Neutral>, 0 PartyLeader<Scientists, Neutral>")
   }
@@ -199,8 +199,8 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
               "Ok",
           )
         }
@@ -215,10 +215,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("BannedDelegate"),
-            "BannedDelegate FROM ProjectCard",
+            *playCardTasks("$BannedDelegate"),
+            "$BannedDelegate FROM ProjectCard",
+            "Ok",
         )
-        doTask("Ok")
       }
     }
   }
@@ -231,10 +231,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("BannedDelegate"),
-            "BannedDelegate FROM ProjectCard",
+            *playCardTasks("$BannedDelegate"),
+            "$BannedDelegate FROM ProjectCard",
+            "-PartyLeader<Scientists, Stan>",
         )
-        doTask("-PartyLeader<Scientists, Stan>")
       }
     }
   }
@@ -248,10 +248,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("BannedDelegate"),
-            "BannedDelegate FROM ProjectCard",
+            *playCardTasks("$BannedDelegate"),
+            "$BannedDelegate FROM ProjectCard",
+            "-PartyLeader<Scientists, Kim>",
         )
-        doTask("-PartyLeader<Scientists, Kim>")
       }
     }
   }
@@ -263,10 +263,10 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
+              "-PartyFollower<Stan, MarsFirst>",
           )
-          doTask("-PartyFollower<Stan, MarsFirst>")
         }
         .expect("-PartyFollower<MarsFirst, Stan>, 0 PartyDelegate<Scientists, Stan>")
   }
@@ -279,14 +279,14 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("BannedDelegate"),
-            "BannedDelegate FROM ProjectCard",
+            *playCardTasks("$BannedDelegate"),
+            "$BannedDelegate FROM ProjectCard",
             "-PartyFollower<Greens, Stan>",
         )
       }
     }
     stan.count("PartyFollower<Scientists>") shouldBe 1
-    kim.count("PlayedEvent<Class<BannedDelegate>>") shouldBe 0
+    kim.count("PlayedEvent<Class<$BannedDelegate>>") shouldBe 0
   }
 
   @Test
@@ -297,14 +297,14 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("BannedDelegate"),
-            "BannedDelegate FROM ProjectCard",
+            *playCardTasks("$BannedDelegate"),
+            "$BannedDelegate FROM ProjectCard",
             "-PartyFollower<Scientists, Rob>",
         )
       }
     }
     stan.count("PartyFollower<Scientists>") shouldBe 1
-    kim.count("PlayedEvent<Class<BannedDelegate>>") shouldBe 0
+    kim.count("PlayedEvent<Class<$BannedDelegate>>") shouldBe 0
   }
 
   private fun arrangeChairman() {

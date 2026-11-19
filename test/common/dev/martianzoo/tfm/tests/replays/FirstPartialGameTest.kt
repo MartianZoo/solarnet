@@ -12,7 +12,7 @@ import kotlin.test.Test
 internal class FirstPartialGameTest : FullGameTest() {
   override val config =
       GameConfig(
-          "ElysiumMap, PreludeExpansion, LakefrontResorts",
+          "ElysiumMap, PreludeExpansion, $LakefrontResorts",
           "Player1",
           "Player2",
       )

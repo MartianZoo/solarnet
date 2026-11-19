@@ -13,6 +13,7 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -49,11 +50,11 @@ internal class ModuleSelectionTest {
         excludingItSelectsExactly = multiplayerWith("VenusNextExpansion"),
     )
     resolvesToExactly(
-        "ValleyTrust, prelude2:cards",
+        "$ValleyTrust, prelude2:cards",
         multiplayerWith(),
     )
     resolvesToExactly(
-        "WgProject, TurmoilExpansion, prelude2:cards",
+        "$WgProject, TurmoilExpansion, prelude2:cards",
         multiplayerWith("TurmoilExpansion"),
     )
     defaultMayBeExcluded(
@@ -125,16 +126,16 @@ internal class ModuleSelectionTest {
     resolvesToExactly(config, multiplayerWith("PreludeExpansion", "Prelude2Expansion"))
     val game = TfmEngine.newGame(premise(config, players = 2))
     game.testAgent(ADMIN).count("Prelude2Expansion") shouldBe 1
-    game.classTable.isInhabited(cn("SpaceLanes")) shouldBe true
+    game.classTable.isInhabited(SpaceLanes) shouldBe true
 
     val cardsOnly = classTable("prelude2:cards")
-    cardsOnly.isInhabited(cn("SpaceLanes")) shouldBe true
+    cardsOnly.isInhabited(SpaceLanes) shouldBe true
     cardsOnly.isInhabited(cn("Prelude2Expansion")) shouldBe false
     cardsOnly.isInhabited(cn("PreludePhase")) shouldBe false
 
     val withoutCards = classTable("$config, -prelude2:cards")
     withoutCards.isInhabited(cn("Prelude2Expansion")) shouldBe true
-    withoutCards.isInhabited(cn("SpaceLanes")) shouldBe false
+    withoutCards.isInhabited(SpaceLanes) shouldBe false
   }
 
   @Test
@@ -195,14 +196,14 @@ internal class ModuleSelectionTest {
 
   @Test
   internal fun `named cards may count absent colonies but card packs require Colonies`() {
-    val selected = premise("SummitLogistics, TurmoilExpansion", 2)
+    val selected = premise("$SummitLogistics, TurmoilExpansion", 2)
     (cn("ColoniesExpansion") in selected.modules) shouldBe false
-    TfmEngine.newGame(selected).classTable.isInhabited(cn("SummitLogistics")) shouldBe true
-    classTable("prelude2:cards, TurmoilExpansion").isInhabited(cn("SummitLogistics")) shouldBe false
+    TfmEngine.newGame(selected).classTable.isInhabited(SummitLogistics) shouldBe true
+    classTable("prelude2:cards, TurmoilExpansion").isInhabited(SummitLogistics) shouldBe false
     classTable("prelude2:cards, TurmoilExpansion, ColoniesExpansion, Callisto")
-        .isInhabited(cn("SummitLogistics")) shouldBe true
-    classTable("MolecularPrinting").isInhabited(cn("MolecularPrinting")) shouldBe true
-    rejects("InterplanetaryColonyShip")
+        .isInhabited(SummitLogistics) shouldBe true
+    classTable("$MolecularPrinting").isInhabited(MolecularPrinting) shouldBe true
+    rejects("$InterplanetaryColonyShip")
   }
 
   @Test
@@ -318,141 +319,139 @@ internal class ModuleSelectionTest {
 
   @Test
   internal fun `Amazonis excludes Mining Guild unless Unsafe is selected`() {
-    classTable("AmazonisMap").isInhabited(cn("MiningGuild")) shouldBe false
-    rejects("AmazonisMap, MiningGuild")
-    classTable("AmazonisMap, Unsafe").isInhabited(cn("MiningGuild")) shouldBe true
+    classTable("AmazonisMap").isInhabited(MiningGuild) shouldBe false
+    rejects("AmazonisMap, $MiningGuild")
+    classTable("AmazonisMap, Unsafe").isInhabited(MiningGuild) shouldBe true
   }
 
   @Test
   internal fun `Amazonis excludes Mining Rights unless Unsafe is selected`() {
-    classTable("AmazonisMap").isInhabited(cn("MiningRights")) shouldBe false
-    rejects("AmazonisMap, MiningRights")
-    classTable("AmazonisMap, Unsafe").isInhabited(cn("MiningRights")) shouldBe true
+    classTable("AmazonisMap").isInhabited(MiningRights) shouldBe false
+    rejects("AmazonisMap, $MiningRights")
+    classTable("AmazonisMap, Unsafe").isInhabited(MiningRights) shouldBe true
   }
 
   @Test
   internal fun `Amazonis excludes Mining Area unless Unsafe is selected`() {
-    classTable("AmazonisMap").isInhabited(cn("MiningArea")) shouldBe false
-    rejects("AmazonisMap, MiningArea")
-    classTable("AmazonisMap, Unsafe").isInhabited(cn("MiningArea")) shouldBe true
+    classTable("AmazonisMap").isInhabited(MiningArea) shouldBe false
+    rejects("AmazonisMap, $MiningArea")
+    classTable("AmazonisMap, Unsafe").isInhabited(MiningArea) shouldBe true
   }
 
   @Test
   internal fun `Terraforming Deal stays in the normal Prelude 2 pool`() {
     val safe = classTable("prelude2:cards, TurmoilExpansion")
-    safe.isInhabited(cn("TerraformingDeal")) shouldBe true
-    safe.isInhabited(cn("PreservationProgram")) shouldBe false
+    safe.isInhabited(TerraformingDeal) shouldBe true
+    safe.isInhabited(PreservationProgram) shouldBe false
 
-    rejects("prelude2:cards, PreservationProgram")
-    val explicitPreservation = classTable("prelude2:cards, PreservationProgram, -TerraformingDeal")
-    explicitPreservation.isInhabited(cn("PreservationProgram")) shouldBe true
-    explicitPreservation.isInhabited(cn("TerraformingDeal")) shouldBe false
-    rejects("prelude2:cards, PreservationProgram, TerraformingDeal")
-    rejects("TurmoilExpansion, PreservationProgram")
-    classTable("prelude2:cards, -TerraformingDeal").isInhabited(cn("PreservationProgram")) shouldBe
+    rejects("prelude2:cards, $PreservationProgram")
+    val explicitPreservation =
+        classTable("prelude2:cards, $PreservationProgram, -$TerraformingDeal")
+    explicitPreservation.isInhabited(PreservationProgram) shouldBe true
+    explicitPreservation.isInhabited(TerraformingDeal) shouldBe false
+    rejects("prelude2:cards, $PreservationProgram, $TerraformingDeal")
+    rejects("TurmoilExpansion, $PreservationProgram")
+    classTable("prelude2:cards, -$TerraformingDeal").isInhabited(PreservationProgram) shouldBe true
+    classTable("prelude2:cards, TurmoilExpansion, Unsafe").isInhabited(PreservationProgram) shouldBe
         true
-    classTable("prelude2:cards, TurmoilExpansion, Unsafe")
-        .isInhabited(cn("PreservationProgram")) shouldBe true
   }
 
   @Test
   internal fun `Merger takes precedence when Sagitta is also available`() {
     val normal = classTable("promos:cards, prelude2:cards")
-    normal.isInhabited(cn("Merger")) shouldBe true
-    normal.isInhabited(cn("SagittaFrontierServices")) shouldBe false
+    normal.isInhabited(Merger) shouldBe true
+    normal.isInhabited(SagittaFrontierServices) shouldBe false
 
-    rejects("promos:cards, prelude2:cards, SagittaFrontierServices")
+    rejects("promos:cards, prelude2:cards, $SagittaFrontierServices")
     val explicitSagitta =
-        classTable("promos:cards, prelude2:cards, SagittaFrontierServices, -Merger")
-    explicitSagitta.isInhabited(cn("SagittaFrontierServices")) shouldBe true
-    explicitSagitta.isInhabited(cn("Merger")) shouldBe false
+        classTable("promos:cards, prelude2:cards, $SagittaFrontierServices, -$Merger")
+    explicitSagitta.isInhabited(SagittaFrontierServices) shouldBe true
+    explicitSagitta.isInhabited(Merger) shouldBe false
 
-    val explicitMerger = classTable("prelude2:cards, Merger")
-    explicitMerger.isInhabited(cn("Merger")) shouldBe true
-    explicitMerger.isInhabited(cn("SagittaFrontierServices")) shouldBe false
+    val explicitMerger = classTable("prelude2:cards, $Merger")
+    explicitMerger.isInhabited(Merger) shouldBe true
+    explicitMerger.isInhabited(SagittaFrontierServices) shouldBe false
 
-    rejects("promos:cards, prelude2:cards, Merger, SagittaFrontierServices")
+    rejects("promos:cards, prelude2:cards, $Merger, $SagittaFrontierServices")
     val unsafe = classTable("promos:cards, prelude2:cards, Unsafe")
-    unsafe.isInhabited(cn("Merger")) shouldBe true
-    unsafe.isInhabited(cn("SagittaFrontierServices")) shouldBe true
+    unsafe.isInhabited(Merger) shouldBe true
+    unsafe.isInhabited(SagittaFrontierServices) shouldBe true
   }
 
   @Test
   internal fun `Focused Organization takes precedence when Stormcraft is also available`() {
-    classTable("prelude2:cards").isInhabited(cn("FocusedOrganization")) shouldBe true
-    classTable("ColoniesExpansion, Callisto").isInhabited(cn("StormcraftIncorporated")) shouldBe
-        true
+    classTable("prelude2:cards").isInhabited(FocusedOrganization) shouldBe true
+    classTable("ColoniesExpansion, Callisto").isInhabited(StormcraftIncorporated) shouldBe true
 
     val normal = classTable("ColoniesExpansion, Callisto, prelude2:cards")
-    normal.isInhabited(cn("FocusedOrganization")) shouldBe true
-    normal.isInhabited(cn("StormcraftIncorporated")) shouldBe false
+    normal.isInhabited(FocusedOrganization) shouldBe true
+    normal.isInhabited(StormcraftIncorporated) shouldBe false
 
-    rejects("ColoniesExpansion, Callisto, prelude2:cards, StormcraftIncorporated")
+    rejects("ColoniesExpansion, Callisto, prelude2:cards, $StormcraftIncorporated")
     val explicitStormcraft =
         classTable(
-            "ColoniesExpansion, Callisto, prelude2:cards, StormcraftIncorporated, -FocusedOrganization"
+            "ColoniesExpansion, Callisto, prelude2:cards, $StormcraftIncorporated, -$FocusedOrganization"
         )
-    explicitStormcraft.isInhabited(cn("StormcraftIncorporated")) shouldBe true
-    explicitStormcraft.isInhabited(cn("FocusedOrganization")) shouldBe false
+    explicitStormcraft.isInhabited(StormcraftIncorporated) shouldBe true
+    explicitStormcraft.isInhabited(FocusedOrganization) shouldBe false
 
     val explicitFocusedOrganization =
-        classTable("ColoniesExpansion, Callisto, prelude2:cards, FocusedOrganization")
-    explicitFocusedOrganization.isInhabited(cn("FocusedOrganization")) shouldBe true
-    explicitFocusedOrganization.isInhabited(cn("StormcraftIncorporated")) shouldBe false
+        classTable("ColoniesExpansion, Callisto, prelude2:cards, $FocusedOrganization")
+    explicitFocusedOrganization.isInhabited(FocusedOrganization) shouldBe true
+    explicitFocusedOrganization.isInhabited(StormcraftIncorporated) shouldBe false
 
     rejects(
-        "ColoniesExpansion, Callisto, prelude2:cards, FocusedOrganization, StormcraftIncorporated"
+        "ColoniesExpansion, Callisto, prelude2:cards, $FocusedOrganization, $StormcraftIncorporated"
     )
     val unsafe = classTable("ColoniesExpansion, Callisto, prelude2:cards, Unsafe")
-    unsafe.isInhabited(cn("FocusedOrganization")) shouldBe true
-    unsafe.isInhabited(cn("StormcraftIncorporated")) shouldBe true
+    unsafe.isInhabited(FocusedOrganization) shouldBe true
+    unsafe.isInhabited(StormcraftIncorporated) shouldBe true
   }
 
   @Test
   internal fun `Ecology Experts is absent from normal Prelude 1 selection`() {
-    classTable("prelude:cards").isInhabited(cn("EcologyExperts")) shouldBe false
-    classTable("prelude:cards, Unsafe").isInhabited(cn("EcologyExperts")) shouldBe false
-    classTable("prelude:cards, EcologyExperts, Unsafe").isInhabited(cn("EcologyExperts")) shouldBe
-        true
+    classTable("prelude:cards").isInhabited(EcologyExperts) shouldBe false
+    classTable("prelude:cards, Unsafe").isInhabited(EcologyExperts) shouldBe false
+    classTable("prelude:cards, $EcologyExperts, Unsafe").isInhabited(EcologyExperts) shouldBe true
   }
 
   @Test
   internal fun `Ecology Experts and Viral Enhancers require Unsafe`() {
-    rejects("prelude:cards, EcologyExperts, -EcologicalZone, -Decomposers")
+    rejects("prelude:cards, $EcologyExperts, -$EcologicalZone, -$Decomposers")
   }
 
   @Test
   internal fun `Ecology Experts and Ecological Zone require Unsafe`() {
-    rejects("prelude:cards, EcologyExperts, -ViralEnhancers, -Decomposers")
+    rejects("prelude:cards, $EcologyExperts, -$ViralEnhancers, -$Decomposers")
   }
 
   @Test
   internal fun `Ecology Experts and Decomposers require Unsafe`() {
-    rejects("prelude:cards, EcologyExperts, -ViralEnhancers, -EcologicalZone")
+    rejects("prelude:cards, $EcologyExperts, -$ViralEnhancers, -$EcologicalZone")
   }
 
   @Test
   internal fun `Ecology Experts and GMO Contract require Unsafe`() {
     rejects(
-        "prelude:cards, TurmoilExpansion, EcologyExperts, -ViralEnhancers, " +
-            "-EcologicalZone, -Decomposers"
+        "prelude:cards, TurmoilExpansion, $EcologyExperts, -$ViralEnhancers, " +
+            "-$EcologicalZone, -$Decomposers"
     )
   }
 
   @Test
   internal fun `explicit Ecology Experts conflicts with automatic listeners`() {
-    rejects("prelude:cards, TurmoilExpansion, EcologyExperts")
+    rejects("prelude:cards, TurmoilExpansion, $EcologyExperts")
   }
 
   @Test
   internal fun `Ecology Experts is usable when all four listeners are excluded`() {
     val table =
         classTable(
-            "prelude:cards, TurmoilExpansion, EcologyExperts, -ViralEnhancers, -EcologicalZone, " +
-                "-Decomposers, -GmoContract"
+            "prelude:cards, TurmoilExpansion, $EcologyExperts, -$ViralEnhancers, -$EcologicalZone, " +
+                "-$Decomposers, -$GmoContract"
         )
-    table.isInhabited(cn("EcologyExperts")) shouldBe true
-    listOf("ViralEnhancers", "EcologicalZone", "Decomposers", "GmoContract").forEach {
+    table.isInhabited(EcologyExperts) shouldBe true
+    listOf("$ViralEnhancers", "$EcologicalZone", "$Decomposers", "$GmoContract").forEach {
       table.isInhabited(cn(it)) shouldBe false
     }
   }
@@ -461,7 +460,7 @@ internal class ModuleSelectionTest {
   internal fun `Thawer and Snow Cover are compatible in the normal pool`() {
     val normal = classTable("TurmoilExpansion, Thawer, Builder, Engineer")
     normal.isInhabited(cn("Thawer")) shouldBe true
-    normal.isInhabited(cn("MoholeLakeGlobalEvent")) shouldBe true
+    normal.isInhabited(MoholeLakeGlobalEvent) shouldBe true
   }
 
   @Test
@@ -470,9 +469,8 @@ internal class ModuleSelectionTest {
     val altered =
         ordinary.copy(
             classSelections =
-                ordinary.classSelections
-                    .filterNot { it.className == cn("PreservationProgram") }
-                    .toSet() + ClassSelection(cn("PreservationProgram"))
+                ordinary.classSelections.filterNot { it.className == PreservationProgram }.toSet() +
+                    ClassSelection(PreservationProgram)
         )
 
     shouldThrow<InvalidGameConfigException> { TfmEngine.newGame(altered) }
@@ -480,24 +478,24 @@ internal class ModuleSelectionTest {
 
   @Test
   internal fun `Robots belongs to the normal promo pool`() {
-    classTable("promos:cards").isInhabited(cn("SelfReplicatingRobots")) shouldBe true
+    classTable("promos:cards").isInhabited(SelfReplicatingRobots) shouldBe true
   }
 
   @Test
   internal fun `Robots coexists with all six resource additions without Unsafe`() {
     val compatible =
         classTable(
-            "SelfReplicatingRobots, CeosFavoriteProject, CorroderSuits, MaxwellBase, " +
-                "AppliedScience, L1TradeTerminal, TurmoilExpansion, VenusNextExpansion, ColoniesExpansion, Callisto"
+            "$SelfReplicatingRobots, $CeosFavoriteProject, $CorroderSuits, $MaxwellBase, " +
+                "$AppliedScience, $L1TradeTerminal, TurmoilExpansion, VenusNextExpansion, ColoniesExpansion, Callisto"
         )
     listOf(
-            "SelfReplicatingRobots",
-            "CeosFavoriteProject",
-            "CorroderSuits",
-            "MaxwellBase",
-            "AppliedScience",
-            "L1TradeTerminal",
-            "ScienceSummit",
+            "$SelfReplicatingRobots",
+            "$CeosFavoriteProject",
+            "$CorroderSuits",
+            "$MaxwellBase",
+            "$AppliedScience",
+            "$L1TradeTerminal",
+            "$ScienceSummit",
         )
         .forEach { compatible.isInhabited(cn(it)) shouldBe true }
   }

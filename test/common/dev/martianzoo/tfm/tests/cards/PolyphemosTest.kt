@@ -13,10 +13,13 @@ internal class PolyphemosTest : TfmSandboxTest() {
     kim.setToExMachina(5, "MC")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("InventorsGuild"))
-          doTask("ProjectCard<Selecting>")
-          doTasks("-0 ProjectCard<Selecting>", "5 Pay<> FROM MC")
-          doTask("ProjectCard<Hand FROM Selecting>")
+          doTasks(
+              *cardActionTasks("$InventorsGuild"),
+              "ProjectCard<Selecting>",
+              "-0 ProjectCard<Selecting>",
+              "5 Pay<> FROM MC",
+              "ProjectCard<Hand FROM Selecting>",
+          )
         }
         .expect("ProjectCard")
   }

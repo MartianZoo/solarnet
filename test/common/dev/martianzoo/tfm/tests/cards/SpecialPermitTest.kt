@@ -8,15 +8,15 @@ import kotlin.test.Test
 internal class SpecialPermitTest : TfmSandboxTest() {
   @Test
   internal fun `Takes all four plants from the chosen opponent`() {
-    newTestGame("SpecialPermit, TurmoilExpansion")
+    newTestGame("$SpecialPermit, TurmoilExpansion")
     stan.exMachina("4 Plant")
     rob.exMachina("4 Plant")
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("SpecialPermit"),
+              *playCardTasks("$SpecialPermit"),
               "5 Pay<> FROM MC",
-              "SpecialPermit FROM ProjectCard",
+              "$SpecialPermit FROM ProjectCard",
               "4 Plant<Kim FROM Stan>",
           )
         }

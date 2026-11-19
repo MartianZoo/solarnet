@@ -7,7 +7,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class PsychrophilesTest : TfmSandboxTest() {
-  @BeforeTest fun setUp() = newTestGame(addOptions = "Psychrophiles")
+  @BeforeTest fun setUp() = newTestGame(addOptions = "$Psychrophiles")
 
   @Test
   internal fun `An empty holder needs no payment decision even with microbes on another card`() {
@@ -16,9 +16,9 @@ internal class PsychrophilesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("AdaptedLichen"),
+              *playCardTasks("$AdaptedLichen"),
               "9 Pay<> FROM MC",
-              "AdaptedLichen FROM ProjectCard",
+              "$AdaptedLichen FROM ProjectCard",
               "PROD[Plant]",
           )
         }
@@ -32,10 +32,10 @@ internal class PsychrophilesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("AdaptedLichen"),
+              *playCardTasks("$AdaptedLichen"),
               "Ok", // Keep the microbes.
               "9 Pay<> FROM MC",
-              "AdaptedLichen FROM ProjectCard",
+              "$AdaptedLichen FROM ProjectCard",
               "PROD[Plant]",
           )
         }
@@ -48,13 +48,13 @@ internal class PsychrophilesTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
 
     kim.inTurn {
-      doTasks(*playCardTasks("AdaptedLichen"))
+      doTasks(*playCardTasks("$AdaptedLichen"))
       // Choose to spend microbes while leaving their amount unresolved.
-      selectTask("X PayFromCard<Psychrophiles> FROM Microbe<Psychrophiles>")
+      selectTask("X PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
       doTasks(
-          "5 PayFromCard<Psychrophiles> FROM Microbe<Psychrophiles>",
+          "5 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "Ok", // Nothing remains to pay in MC.
-          "AdaptedLichen FROM ProjectCard",
+          "$AdaptedLichen FROM ProjectCard",
           "PROD[Plant]",
       )
     }

@@ -11,7 +11,7 @@ import kotlin.test.Test
 internal class RobinsonIndustriesTest : TfmSandboxTest() {
   @BeforeTest
   fun initializeGame() {
-    newTestGame(addOptions = "RobinsonIndustries", kimCorporation = RobinsonIndustries)
+    newTestGame(addOptions = "$RobinsonIndustries", kimCorporation = RobinsonIndustries)
     kim.setToExMachina(0, "PROD[MC]")
     kim.setToExMachina(0, "PROD[Steel]")
     kim.setToExMachina(0, "PROD[Titanium]")
@@ -24,18 +24,23 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
   internal fun `Can raise MC production from a negative level`() {
     kim.exMachina("PROD[-1 MC]")
     kim.inTurn {
-          doTasks(*cardActionTasks("RobinsonIndustries"), "4 Pay<> FROM MC")
-          doTask("PROD[MC]")
-        }
-        .expect("PROD[1 MC]")
+      doTasks(
+          *cardActionTasks("$RobinsonIndustries"),
+          "4 Pay<> FROM MC",
+          "PROD[MC]",
+      )
+    }
   }
 
   @Test
   internal fun `Can raise uniquely lowest titanium production`() {
     kim.exMachina("PROD[1 MC, Steel, Plant, Energy, Heat]")
     kim.inTurn {
-      doTasks(*cardActionTasks("RobinsonIndustries"), "4 Pay<> FROM MC")
-      doTask("PROD[Titanium]")
+      doTasks(
+          *cardActionTasks("$RobinsonIndustries"),
+          "4 Pay<> FROM MC",
+          "PROD[Titanium]",
+      )
     }
   }
 
@@ -44,7 +49,7 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
     seedProductionTie()
     kim.inTurn {
       doTasks(
-          *cardActionTasks("RobinsonIndustries"),
+          *cardActionTasks("$RobinsonIndustries"),
           "4 Pay<> FROM MC",
           "PROD[Titanium]",
       )
@@ -57,9 +62,11 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("RobinsonIndustries"))
-        doTask("4 Pay<> FROM MC")
-        doTask("PROD[Steel]")
+        doTasks(
+            *cardActionTasks("$RobinsonIndustries"),
+            "4 Pay<> FROM MC",
+            "PROD[Steel]",
+        )
       }
     }
   }

@@ -15,9 +15,12 @@ internal class TollStationTest : TfmSandboxTest() {
     stan.exMachina("$VestaShipyard, $SpaceElevator, $SolarWindPower")
 
     kim.inTurn {
-      doTasks(*playCardTasks("TollStation"), "12 Pay<> FROM MC")
-      doTasks("TollStation FROM ProjectCard")
-      doTask("PROD[3 MC]")
+      doTasks(
+          *playCardTasks("$TollStation"),
+          "12 Pay<> FROM MC",
+          "$TollStation FROM ProjectCard",
+          "PROD[3 MC]",
+      )
     }
   }
 }

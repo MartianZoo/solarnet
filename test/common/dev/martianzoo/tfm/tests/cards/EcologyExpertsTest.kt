@@ -27,38 +27,42 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
   }
 
   private fun playEcologicalZone(): TaskResult {
-    newTestGame(addOptions = "PreludeExpansion, EcologyExperts, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, $EcologyExperts, Unsafe")
     kim.exMachina("GreeneryTile<Tharsis_4_4>")
 
     return kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-          "EcologyExperts FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
-          "PlayCard<Class<ProjectCard>, Class<EcologicalZone>>",
+          "PlayCard<Class<ProjectCard>, Class<$EcologicalZone>>",
       )
       // Execute the requirement waiver before playing the project.
-      doTask("-Required* / Required")
-      doTasks("12 Pay<> FROM MC", "EcologicalZone FROM ProjectCard")
-      doTask("Animal<EcologicalZone>*")
-      doTask("Animal<EcologicalZone>*")
-      doTasks("EcologicalZone_SpecialTile<Tharsis_4_5>", "2 Plant")
+      doTasks(
+          "-Required* / Required",
+          "12 Pay<> FROM MC",
+          "$EcologicalZone FROM ProjectCard",
+          "Animal<$EcologicalZone>*",
+          "Animal<$EcologicalZone>*",
+          "EcologicalZone_SpecialTile<Tharsis_4_5>",
+          "2 Plant",
+      )
     }
   }
 
   @Test
   internal fun `Cannot choose another Prelude card`() {
-    newTestGame(addOptions = "PreludeExpansion, EcologyExperts, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, $EcologyExperts, Unsafe")
     kim.setToExMachina(2, "PreludeCard")
 
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-            "EcologyExperts FROM PreludeCard",
+            "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+            "$EcologyExperts FROM PreludeCard",
+            "PROD[Plant]",
         )
-        doTask("PROD[Plant]")
-        doTask("PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>")
+        doTask("PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>")
       }
     }
 
@@ -68,44 +72,50 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Plays Decomposers while ignoring its global requirement`() {
-    newTestGame(addOptions = "PreludeExpansion, EcologyExperts, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, $EcologyExperts, Unsafe")
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-          "EcologyExperts FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
-          "PlayCard<Class<ProjectCard>, Class<Decomposers>>",
+          "PlayCard<Class<ProjectCard>, Class<$Decomposers>>",
       )
       // Execute the requirement waiver before playing the project.
-      doTask("-Required* / Required")
-      doTasks("5 Pay<> FROM MC", "Decomposers FROM ProjectCard")
-      doTask("Microbe<Decomposers>*")
+      doTasks(
+          "-Required* / Required",
+          "5 Pay<> FROM MC",
+          "$Decomposers FROM ProjectCard",
+          "Microbe<$Decomposers>*",
+      )
     }
   }
 
   @Test
   internal fun `Splice money from Ecology Experts tags can pay for Decomposers`() {
-    newTestGame(addOptions = "PreludeExpansion, EcologyExperts, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, $EcologyExperts, Unsafe")
     stan.exMachina("$SpliceTacticalGenomics")
     kim.setToExMachina(4, "MC")
     stan.setToExMachina(0, "MC")
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-          "EcologyExperts FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
       )
       // The active player chooses when to hand this task to its owner.
       giveTask(stan, "2 MC<Stan>")
-      doTasks("2 MC", "PlayCard<Class<ProjectCard>, Class<Decomposers>>")
+      doTasks("2 MC", "PlayCard<Class<ProjectCard>, Class<$Decomposers>>")
       // Execute the requirement waiver before playing the project.
-      doTask("-Required* / Required")
-      doTasks("5 Pay<> FROM MC", "Decomposers FROM ProjectCard")
+      doTasks(
+          "-Required* / Required",
+          "5 Pay<> FROM MC",
+          "$Decomposers FROM ProjectCard",
+      )
       // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
-      selectTask("Microbe<Decomposers>*")
-      doTask("Microbe<Decomposers>")
+      selectTask("Microbe<$Decomposers>*")
+      doTask("Microbe<$Decomposers>")
       // The active player chooses when to hand this task to its owner.
       giveTask(stan, "2 MC<Stan>")
       doTask("2 MC")
@@ -117,62 +127,71 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Can play a card without a bio tag`() {
-    newTestGame(addOptions = "PreludeExpansion, EcologyExperts, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, $EcologyExperts, Unsafe")
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-          "EcologyExperts FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
-          "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
+          "PlayCard<Class<ProjectCard>, Class<$DustSeals>>",
       )
       // Execute the requirement waiver before playing the project.
-      doTask("-Required* / Required")
-      doTasks("2 Pay<> FROM MC", "DustSeals FROM ProjectCard")
+      doTasks(
+          "-Required* / Required",
+          "2 Pay<> FROM MC",
+          "$DustSeals FROM ProjectCard",
+      )
     }
   }
 
   @Test
   internal fun `Double Down copies Ecology Experts project play and requirement waiver`() {
-    newTestGame(addOptions = "PreludeExpansion, EcologyExperts, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, $EcologyExperts, Unsafe")
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-          "EcologyExperts FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
-          "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
+          "PlayCard<Class<ProjectCard>, Class<$DustSeals>>",
       )
       // Execute the requirement waiver before playing the project.
-      doTask("-Required* / Required")
-      doTasks("2 Pay<> FROM MC", "DustSeals FROM ProjectCard")
+      doTasks(
+          "-Required* / Required",
+          "2 Pay<> FROM MC",
+          "$DustSeals FROM ProjectCard",
+      )
     }
     kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
+      doTasks("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>", "$DoubleDown FROM PreludeCard")
       doTasks(
-          "CopyPrelude<EcologyExperts>",
+          "CopyPrelude<$EcologyExperts>",
           "PROD[Plant]",
-          "PlayCard<Class<ProjectCard>, Class<Decomposers>>",
+          "PlayCard<Class<ProjectCard>, Class<$Decomposers>>",
       )
       // Execute the requirement waiver before playing the project.
-      doTask("-Required* / Required")
-      doTasks("5 Pay<> FROM MC", "Decomposers FROM ProjectCard")
-      doTask("Microbe<Decomposers>*")
+      doTasks(
+          "-Required* / Required",
+          "5 Pay<> FROM MC",
+          "$Decomposers FROM ProjectCard",
+          "Microbe<$Decomposers>*",
+      )
     }
   }
 
   @Test
   internal fun `Ecology Experts does not waive a political requirement`() {
-    newTestGame(addOptions = "PreludeExpansion, TurmoilExpansion, EcologyExperts, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, TurmoilExpansion, $EcologyExperts, Unsafe")
 
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks(
-            "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-            "EcologyExperts FROM PreludeCard",
+            "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+            "$EcologyExperts FROM PreludeCard",
+            "PROD[Plant]",
         )
-        doTask("PROD[Plant]")
-        doTask("PlayCard<Class<ProjectCard>, Class<SupportedResearch>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$SupportedResearch>>")
       }
     }
     kim.assertCounts(0 to "$EcologyExperts", 0 to "$SupportedResearch", 10 to "ProjectCard")
@@ -191,17 +210,21 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
   }
 
   private fun playViralEnhancers(): TaskResult {
-    newTestGame(addOptions = "PreludeExpansion, CorporateEraExpansion, EcologyExperts, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, CorporateEraExpansion, $EcologyExperts, Unsafe")
     return kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-          "EcologyExperts FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
-          "PlayCard<Class<ProjectCard>, Class<ViralEnhancers>>",
+          "PlayCard<Class<ProjectCard>, Class<$ViralEnhancers>>",
       )
       // Execute the requirement waiver before playing the project.
-      doTask("-Required* / Required")
-      doTasks("9 Pay<> FROM MC", "ViralEnhancers FROM ProjectCard", "Plant")
+      doTasks(
+          "-Required* / Required",
+          "9 Pay<> FROM MC",
+          "$ViralEnhancers FROM ProjectCard",
+          "Plant",
+      )
     }
   }
 }

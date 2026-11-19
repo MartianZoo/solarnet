@@ -11,11 +11,11 @@ internal class RecyclonTest : TfmSandboxTest() {
     newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
-          "Recyclon FROM CorporationCard",
+          "PlayCard<Class<CorporationCard>, Class<$Recyclon>>",
+          "$Recyclon FROM CorporationCard",
           "38 MC",
           "PROD[Steel]",
-          "Microbe<Recyclon>",
+          "Microbe<$Recyclon>",
           "15 Pay<> FROM MC",
           "5 ProjectCard<Hand FROM Selecting>",
       )
@@ -28,9 +28,14 @@ internal class RecyclonTest : TfmSandboxTest() {
     kim.exMachina("Microbe<$Recyclon>")
 
     kim.inTurn {
-      doTasks(*playCardTasks("TitaniumMine"), "7 Pay<> FROM MC")
-      doTasks("TitaniumMine FROM ProjectCard", "PROD[Titanium]")
-      doTasks("-2 Microbe", "PROD[Plant]")
+      doTasks(
+          *playCardTasks("$TitaniumMine"),
+          "7 Pay<> FROM MC",
+          "$TitaniumMine FROM ProjectCard",
+          "PROD[Titanium]",
+          "-2 Microbe",
+          "PROD[Plant]",
+      )
     }
   }
 }

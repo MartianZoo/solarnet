@@ -10,7 +10,7 @@ import kotlin.test.Test
 internal class ProjectEdenTest : TfmSandboxTest() {
   @Test
   internal fun `Project Eden must reserve the only legal city space`() {
-    newTestGame(addOptions = "PreludeExpansion, ProjectEden")
+    newTestGame(addOptions = "PreludeExpansion, $ProjectEden")
     val city = "Tharsis_8_8"
     val greenery = "Tharsis_3_3"
     val blockingCity = "Tharsis_3_2"
@@ -26,12 +26,15 @@ internal class ProjectEdenTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks("PlayCard<Class<PreludeCard>, Class<ProjectEden>>", "ProjectEden FROM PreludeCard")
-        doTask("-3 ProjectCard<Kim, Hand>")
-        doTask("GreeneryTile<Tharsis_8_8>")
-        doTask("OxygenStep")
-        doTask("TerraformRating")
-        doTask("CityTile<Tharsis_3_3>")
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$ProjectEden>>",
+            "$ProjectEden FROM PreludeCard",
+            "-3 ProjectCard<Hand>",
+            "GreeneryTile<Tharsis_8_8>",
+            "OxygenStep",
+            "TerraformRating",
+            "CityTile<Tharsis_3_3>",
+        )
       }
     }
     kim.count("$ProjectEden") shouldBe 0
@@ -40,13 +43,16 @@ internal class ProjectEdenTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<ProjectEden>>",
-              "ProjectEden FROM PreludeCard",
+              "PlayCard<Class<PreludeCard>, Class<$ProjectEden>>",
+              "$ProjectEden FROM PreludeCard",
+              "-3 ProjectCard<Hand>",
+              "CityTile<Tharsis_8_8>",
+              "GreeneryTile<Tharsis_3_3>",
+              "OxygenStep",
+              "TerraformRating",
+              "OceanTile<Tharsis_1_5>",
+              "TerraformRating",
           )
-          doTask("-3 ProjectCard<Kim, Hand>")
-          doTasks("CityTile<Tharsis_8_8>", "GreeneryTile<Tharsis_3_3>")
-          doTask("OxygenStep")
-          doTasks("TerraformRating", "OceanTile<Tharsis_1_5>", "TerraformRating")
         }
         .expect("-3 ProjectCard")
   }

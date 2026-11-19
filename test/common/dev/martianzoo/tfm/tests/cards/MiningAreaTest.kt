@@ -16,12 +16,14 @@ internal class MiningAreaTest : TfmSandboxTest() {
     kim.exMachina("NormalCityTile<Kim, Tharsis_7_9>")
 
     kim.inTurn {
-      doTasks(*playCardTasks("MiningArea"), "4 Pay<> FROM MC")
       doTasks(
-          "MiningArea FROM ProjectCard",
+          *playCardTasks("$MiningArea"),
+          "4 Pay<> FROM MC",
+          "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Tharsis_8_9>",
+          "Titanium",
+          "PROD[Titanium]",
       )
-      doTasks("Titanium", "PROD[Titanium]")
     }
   }
 
@@ -62,9 +64,12 @@ internal class MiningAreaTest : TfmSandboxTest() {
 
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTasks(*playCardTasks("MiningArea"), "4 Pay<> FROM MC")
-        doTask("MiningArea FROM ProjectCard")
-        doTask("MiningArea_SpecialTile<Tharsis_3_2>")
+        doTasks(
+            *playCardTasks("$MiningArea"),
+            "4 Pay<> FROM MC",
+            "$MiningArea FROM ProjectCard",
+            "MiningArea_SpecialTile<Tharsis_3_2>",
+        )
         // Resolve the production choice to check that this area supplies a metal bonus.
         doTask("PROD[Steel]")
       }
@@ -79,8 +84,12 @@ internal class MiningAreaTest : TfmSandboxTest() {
 
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTasks(*playCardTasks("MiningArea"), "4 Pay<> FROM MC", "MiningArea FROM ProjectCard")
-        doTask("MiningArea_SpecialTile<Tharsis_8_9>")
+        doTasks(
+            *playCardTasks("$MiningArea"),
+            "4 Pay<> FROM MC",
+            "$MiningArea FROM ProjectCard",
+            "MiningArea_SpecialTile<Tharsis_8_9>",
+        )
       }
     }
     kim.assertCounts(42 to "MC", 0 to "MiningArea_SpecialTile")
@@ -95,13 +104,13 @@ internal class MiningAreaTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("MiningArea"),
+            *playCardTasks("$MiningArea"),
             "4 Pay<> FROM MC",
-            "MiningArea FROM ProjectCard",
+            "$MiningArea FROM ProjectCard",
             "MiningArea_SpecialTile<Tharsis_8_9>",
             "Titanium",
+            "PROD[Steel]",
         )
-        doTask("PROD[Steel]")
       }
     }
     kim.assertCounts(42 to "MC", 0 to "MiningArea_SpecialTile", 1 to "PROD[Steel]")

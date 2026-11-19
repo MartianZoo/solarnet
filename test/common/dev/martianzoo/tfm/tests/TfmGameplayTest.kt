@@ -4,7 +4,7 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
@@ -22,7 +22,7 @@ import dev.martianzoo.tfm.engine.TfmEngine
  * offered tasks through plain Agents. The shared standard opening may use scoped automatic
  * execution when corporation setup is incidental; scenario choices and consequences stay explicit.
  */
-internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy = SOLE_TASK) {
+internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy = NONE) {
   lateinit var game: World
     private set
 

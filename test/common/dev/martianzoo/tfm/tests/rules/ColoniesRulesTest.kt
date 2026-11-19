@@ -3,10 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.ExtractorBalloons
-import dev.martianzoo.tfm.tests.cards.cardnames.ForcedPrecipitation
-import dev.martianzoo.tfm.tests.cards.cardnames.NitriteReducingBacteria
-import dev.martianzoo.tfm.tests.cards.cardnames.RegolithEaters
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
@@ -44,26 +41,26 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Enceladus", playerCount = 2)
     stan.inTurn {
       doTasks(
-          *playCardTasks("RegolithEaters"),
+          *playCardTasks("$RegolithEaters"),
           "13 Pay<> FROM MC",
-          "RegolithEaters FROM ProjectCard",
+          "$RegolithEaters FROM ProjectCard",
       )
     }
     kim.inTurn {
       doTasks(
-          *playCardTasks("NitriteReducingBacteria"),
+          *playCardTasks("$NitriteReducingBacteria"),
           "11 Pay<> FROM MC",
-          "NitriteReducingBacteria FROM ProjectCard",
+          "$NitriteReducingBacteria FROM ProjectCard",
+          "3 Microbe<$NitriteReducingBacteria>",
       )
-      doTask("3 Microbe<NitriteReducingBacteria>")
     }
     kim.inTurn {
       doTasks(
           *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Enceladus>",
+          "3 Microbe<$NitriteReducingBacteria>",
       )
-      doTask("3 Microbe<NitriteReducingBacteria>")
     }
 
     stan.inTurn {
@@ -90,17 +87,20 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Pluto>",
+          "2 ProjectCard<Hand>",
       )
-      doTask("2 ProjectCard<Kim, Hand>")
     }
     kim.setToExMachina(0, "ProjectCard")
     stan.exMachina("3 Energy")
     stan.setToExMachina(0, "ProjectCard")
 
     stan.inTurn {
-      doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
-      doTasks("Trade<Pluto>")
-      doTask("ProjectCard<Stan, Hand>")
+      doTasks(
+          "UseAction<TradeAction, Action2>",
+          "3 Pay<Class<Energy>> FROM Energy",
+          "Trade<Pluto>",
+          "ProjectCard<Hand>",
+      )
       kim.count("PlutoLock") shouldBe 0
       // Stan chooses when Kim handles this colony task.
       giveTask(kim, "ProjectCard<Kim, Hand>")
@@ -121,8 +121,8 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Pluto>",
+          "2 ProjectCard",
       )
-      doTask("2 ProjectCard")
     }
     stan.setToExMachina(0, "ProjectCard")
     kim.inTurn {
@@ -130,15 +130,18 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Pluto>",
+          "2 ProjectCard<Hand>",
       )
-      doTask("2 ProjectCard<Kim, Hand>")
     }
     kim.inTurn {
-      doTasks(*playCardTasks("ResearchColony"), "20 Pay<> FROM MC")
-      doTasks("ResearchColony FROM ProjectCard")
-      doTask("2 ProjectCard<Kim, Hand>")
-      doTask("Colony<Pluto>")
-      doTask("2 ProjectCard<Kim, Hand>")
+      doTasks(
+          *playCardTasks("$ResearchColony"),
+          "20 Pay<> FROM MC",
+          "$ResearchColony FROM ProjectCard",
+          "2 ProjectCard<Hand>",
+          "Colony<Pluto>",
+          "2 ProjectCard<Hand>",
+      )
     }
     kim.setToExMachina(0, "ProjectCard")
 
@@ -161,7 +164,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       kim.count("PlutoLock") shouldBe 1
       giveTask(stan, "ProjectCard<Stan>")
       stan.count("ProjectCard") shouldBe 3
-      doTask("-ProjectCard<Stan>")
+      doTask("-ProjectCard")
       // Stan chooses when Kim handles this colony task.
       giveTask(kim, "-ProjectCard", "-ProjectCard<Kim>")
       kim.count("PlutoLock") shouldBe 0
@@ -212,16 +215,19 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.exMachina("3 Energy")
     kim.inTurn {
       doTasks(
-          *playCardTasks("RegolithEaters"),
+          *playCardTasks("$RegolithEaters"),
           "13 Pay<> FROM MC",
-          "RegolithEaters FROM ProjectCard",
+          "$RegolithEaters FROM ProjectCard",
       )
     }
 
     stan
         .inTurn {
-          doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
-          doTasks("Trade<Enceladus>")
+          doTasks(
+              "UseAction<TradeAction, Action2>",
+              "3 Pay<Class<Energy>> FROM Energy",
+              "Trade<Enceladus>",
+          )
           // Resolve the trade reward: this player has no card that can hold microbes.
           doTask("Microbe")
         }
@@ -237,50 +243,57 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.exMachina("3 Energy")
     kim.inTurn {
       doTasks(
-          *playCardTasks("ForcedPrecipitation"),
+          *playCardTasks("$ForcedPrecipitation"),
           "8 Pay<> FROM MC",
-          "ForcedPrecipitation FROM ProjectCard",
+          "$ForcedPrecipitation FROM ProjectCard",
       )
     }
     kim.inTurn {
       doTasks(
-          *playCardTasks("ExtractorBalloons"),
+          *playCardTasks("$ExtractorBalloons"),
           "21 Pay<> FROM MC",
-          "ExtractorBalloons FROM ProjectCard",
+          "$ExtractorBalloons FROM ProjectCard",
+          "3 Floater<$ExtractorBalloons>",
       )
-      doTask("3 Floater<ExtractorBalloons>")
     }
     kim.inTurn {
       doTasks(
           *standardProjectTasks("BuildColonyProject"),
           "17 Pay<> FROM MC",
           "Colony<Titan>",
+          "3* Floater<$ForcedPrecipitation>",
       )
-      doTask("3* Floater<ForcedPrecipitation>")
     }
     kim.inTurn {
-      doTasks(*playCardTasks("ResearchColony"), "20 Pay<> FROM MC")
-      doTasks("ResearchColony FROM ProjectCard")
-      doTask("2 ProjectCard<Kim, Hand>")
-      doTask("Colony<Titan>")
-      doTask("3* Floater<ExtractorBalloons>")
+      doTasks(
+          *playCardTasks("$ResearchColony"),
+          "20 Pay<> FROM MC",
+          "$ResearchColony FROM ProjectCard",
+          "2 ProjectCard<Hand>",
+          "Colony<Titan>",
+          "3* Floater<$ExtractorBalloons>",
+      )
     }
     stan.inTurn {
       doTasks(
-          *playCardTasks("Dirigibles"),
+          *playCardTasks("$Dirigibles"),
           "11 Pay<> FROM MC",
-          "Dirigibles FROM ProjectCard",
+          "$Dirigibles FROM ProjectCard",
       )
     }
 
     stan
         .inTurn {
-          doTasks("UseAction<TradeAction, Action2>", "3 Pay<Class<Energy>> FROM Energy")
-          doTasks("Trade<Titan>", "Floater<Dirigibles>")
+          doTasks(
+              "UseAction<TradeAction, Action2>",
+              "3 Pay<Class<Energy>> FROM Energy",
+              "Trade<Titan>",
+              "Floater<$Dirigibles>",
+          )
           // Stan chooses when Kim handles this colony task.
-          giveTask(kim, "Floater<Kim>*", "Floater<ForcedPrecipitation>*")
+          giveTask(kim, "Floater<Kim>*", "Floater<$ForcedPrecipitation>*")
           // Stan chooses when Kim handles this colony task.
-          giveTask(kim, "Floater<ExtractorBalloons>*")
+          giveTask(kim, "Floater<$ExtractorBalloons>*")
         }
         .expect("Floater<$ForcedPrecipitation<Kim>>, Floater<$ExtractorBalloons<Kim>>")
   }

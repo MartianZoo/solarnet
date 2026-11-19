@@ -3,9 +3,7 @@ package dev.martianzoo.tfm.tests.cards.colonies
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.AtmoCollectors
-import dev.martianzoo.tfm.tests.cards.cardnames.JupiterFloatingStation
-import dev.martianzoo.tfm.tests.cards.cardnames.TitanShuttles
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -18,7 +16,7 @@ internal class JupiterFloatingStationTest : TfmSandboxTest() {
     kim.exMachina("$JupiterFloatingStation, $TitanShuttles")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("JupiterFloatingStation"), "Floater<TitanShuttles>*")
+          doTasks(*cardActionTasks("$JupiterFloatingStation"), "Floater<$TitanShuttles>*")
         }
         .expect("Floater<$TitanShuttles>")
   }
@@ -29,10 +27,10 @@ internal class JupiterFloatingStationTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("JupiterFloatingStation"))
+        doTasks(*cardActionTasks("$JupiterFloatingStation"))
         // Select the Jovian-only offer before attempting to use a non-Jovian card.
         selectTask("Floater<CardFront(HAS JovianTag)>*")
-        doTask("Floater<AtmoCollectors>")
+        doTask("Floater<$AtmoCollectors>")
       }
     }
   }
@@ -42,8 +40,10 @@ internal class JupiterFloatingStationTest : TfmSandboxTest() {
     kim.exMachina("$JupiterFloatingStation, 6 Floater<$JupiterFloatingStation>")
 
     kim.inTurn {
-      doTasks(*cardActionTasks("JupiterFloatingStation", "Action2"))
-      doTask("4 MC")
+      doTasks(
+          *cardActionTasks("$JupiterFloatingStation", "Action2"),
+          "4 MC",
+      )
     }
   }
 }

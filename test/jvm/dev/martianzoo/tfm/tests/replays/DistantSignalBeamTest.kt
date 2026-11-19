@@ -154,8 +154,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "OceanTile<Hellas_4_6>",
           "GreeneryTile<Hellas_4_5>",
           "CityTile<Hellas_4_4>",
-      )
-      doTasks(
           "TerraformRating",
           "Plant",
           "2 MC",
@@ -396,8 +394,9 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           *playCardTasks("$InterplanetaryTrade"),
           "27 Pay<> FROM MC",
           "$InterplanetaryTrade FROM ProjectCard",
+          "EACH",
+          "PROD[9 MC]",
       )
-      doTasks("EACH", "PROD[9 MC]")
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Producer")
     }
 

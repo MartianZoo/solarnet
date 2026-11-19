@@ -3,10 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.CarbonNanosystems
-import dev.martianzoo.tfm.tests.cards.cardnames.PhysicsComplex
-import dev.martianzoo.tfm.tests.cards.cardnames.SolarProbe
-import dev.martianzoo.tfm.tests.cards.cardnames.TransNeptuneProbe
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -23,8 +20,10 @@ internal class SolarProbeTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("SolarProbe"))
-        doTask("9 Pay<> FROM MC")
+        doTasks(
+            *playCardTasks("$SolarProbe"),
+            "9 Pay<> FROM MC",
+        )
       }
     }
     kim.assertCounts(
@@ -41,9 +40,10 @@ internal class SolarProbeTest : TfmSandboxTest() {
     kim.setToExMachina(9, "MC")
 
     kim.inTurn {
-          doTasks(*playCardTasks("SolarProbe"), "9 Pay<> FROM MC")
           doTasks(
-              "SolarProbe FROM ProjectCard",
+              *playCardTasks("$SolarProbe"),
+              "9 Pay<> FROM MC",
+              "$SolarProbe FROM ProjectCard",
           )
           // The event must stay face up while its science-tag benefit is pending.
           kim.assertCounts(1 to "$SolarProbe", 0 to "PlayedEvent<Class<$SolarProbe>>")

@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
-internal class TurnBlockTest : TfmGameplayTest(NONE) {
+internal class TurnBlockTest : TfmGameplayTest() {
   @Test
   fun singleActionHandsOverWithoutPassing() {
     newTestGame(playerCount = 2)
@@ -64,7 +64,7 @@ internal class TurnBlockTest : TfmGameplayTest(NONE) {
 
   @Test
   fun cardRequiredPassCompletesItsTurn() {
-    newTestGame("TurmoilExpansion, RedAppeasement", playerCount = 2)
+    newTestGame("TurmoilExpansion, $RedAppeasement", playerCount = 2)
     kim.turn {
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Reds>")
@@ -75,8 +75,8 @@ internal class TurnBlockTest : TfmGameplayTest(NONE) {
     kim.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
       doTasks(
-          *playCardTasks("RedAppeasement"),
-          "RedAppeasement FROM ProjectCard",
+          *playCardTasks("$RedAppeasement"),
+          "$RedAppeasement FROM ProjectCard",
           "PROD[2 MC]",
           "Pass",
       )
@@ -98,14 +98,14 @@ internal class TurnBlockTest : TfmGameplayTest(NONE) {
 
   @Test
   fun opponentResponseFinishesInsideTheInitiatingTurn() {
-    newTestGame("ConvoyFromEuropa", playerCount = 2)
+    newTestGame("$ConvoyFromEuropa", playerCount = 2)
     // Arrange the opponent's tableau; the ocean must resolve their Arctic Algae reward.
-    stan.exMachina("ArcticAlgae")
+    stan.exMachina("$ArcticAlgae")
     kim.turn {
       doTasks(
-          *playCardTasks("ConvoyFromEuropa"),
+          *playCardTasks("$ConvoyFromEuropa"),
           "15 Pay<> FROM MC",
-          "ConvoyFromEuropa FROM ProjectCard",
+          "$ConvoyFromEuropa FROM ProjectCard",
           "ProjectCard",
           "OceanTile<Tharsis_2_6>",
           "TerraformRating",
@@ -119,15 +119,15 @@ internal class TurnBlockTest : TfmGameplayTest(NONE) {
 
   @Test
   fun pendingOpponentResponseCannotEndTurn() {
-    newTestGame("ConvoyFromEuropa", playerCount = 2)
+    newTestGame("$ConvoyFromEuropa", playerCount = 2)
     // Arrange the opponent's tableau; the ocean must resolve their Arctic Algae reward.
-    stan.exMachina("ArcticAlgae")
+    stan.exMachina("$ArcticAlgae")
     shouldThrow<IllegalStateException> {
           kim.turn {
             doTasks(
-                *playCardTasks("ConvoyFromEuropa"),
+                *playCardTasks("$ConvoyFromEuropa"),
                 "15 Pay<> FROM MC",
-                "ConvoyFromEuropa FROM ProjectCard",
+                "$ConvoyFromEuropa FROM ProjectCard",
                 "ProjectCard",
                 "OceanTile<Tharsis_2_6>",
                 "TerraformRating",

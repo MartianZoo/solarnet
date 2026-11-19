@@ -15,9 +15,12 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Stan, Tharsis_4_2>")
 
     kim.inTurn {
-      doTasks(*cardActionTasks("StJosephOfCupertinoMission"), "5 Pay<> FROM MC")
-      doTasks("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
-      doTask("CathedralOffer<Stan>")
+      doTasks(
+          *cardActionTasks("$StJosephOfCupertinoMission"),
+          "5 Pay<> FROM MC",
+          "Cathedral<CityTile<Anyone, Tharsis_4_2>>",
+          "CathedralOffer<Stan>",
+      )
       // The active player chooses when to hand this task to its owner.
       giveTask(stan, "UseAction<CathedralOption, Action1>")
       // The active player chooses when to hand this task to its owner.
@@ -35,9 +38,12 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
 
     kim.inTurn {
       // Decline paying 2 MC for the city owner's card draw.
-      doTasks(*cardActionTasks("StJosephOfCupertinoMission"), "5 Pay<> FROM MC")
-      doTasks("Cathedral<CityTile<Anyone, Tharsis_2_5>>")
-      doTask("CathedralOffer<Stan>")
+      doTasks(
+          *cardActionTasks("$StJosephOfCupertinoMission"),
+          "5 Pay<> FROM MC",
+          "Cathedral<CityTile<Anyone, Tharsis_2_5>>",
+          "CathedralOffer<Stan>",
+      )
       // The active player chooses when to hand this task to its owner.
       giveTask(stan, "0 UseAction<CathedralOption>")
     }
@@ -51,12 +57,12 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
     kim.inTurn {
           // Decline paying 2 MC for the city owner's card draw.
           doTasks(
-              *cardActionTasks("StJosephOfCupertinoMission"),
+              *cardActionTasks("$StJosephOfCupertinoMission"),
               "2 Pay<Class<Steel>> FROM Steel",
               "1 Pay<> FROM MC",
               "Cathedral<CityTile<Anyone, Tharsis_4_2>>",
+              "CathedralOffer",
           )
-          doTask("CathedralOffer")
           doTask("0 UseAction<CathedralOption>")
         }
         .expect("0 ProjectCard")
@@ -69,9 +75,12 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
     kim.exMachina("$StJosephOfCupertinoMission")
 
     kim.inTurn {
-      doTasks(*cardActionTasks("StJosephOfCupertinoMission"), "5 Pay<> FROM MC")
-      doTasks("Cathedral<$city>")
-      doTask("CathedralOffer<SoloOpponent>")
+      doTasks(
+          *cardActionTasks("$StJosephOfCupertinoMission"),
+          "5 Pay<> FROM MC",
+          "Cathedral<$city>",
+          "CathedralOffer<SoloOpponent>",
+      )
     }
 
     game.isIdle() shouldBe true

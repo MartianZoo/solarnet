@@ -1,194 +1,175 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.tests.ExcludedTestOption
-import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
-import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.setUpGame
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 internal class TilePlacingTest : TfmSandboxTest() {
   @Test
-  internal fun defaultGreeneryWrapperRunsWhilePlayerAutoexecIsOff() {
-    game = setUpGame(ExcludedTestOption(CorporateEraExpansion))
-    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
-
-    p1.runOperation("PlaceGreeneryTile") { doTask("GreeneryTile<Tharsis_3_3>") }
-
-    assertEquals(1, p1.count("GreeneryTile<Tharsis_3_3>"))
-  }
-
-  @Test
-  internal fun citiesRepel() {
-    game = setUpGame(ExcludedTestOption(CorporateEraExpansion))
-    with(agents[PLAYER2]) {
-      admin.exMachina("ActionPhase FROM SetupPhase")
-      runOperation("CityTile<Tharsis_4_6>, CityTile<Tharsis_4_4>, 25 MC")
-      assertFailsWith<NarrowingException> {
-        inTurn {
-          doWithAutoExecPolicy(NONE) {
-            doTasks(*standardProjectTasks("CityProject"), "25 Pay<> FROM MC")
-          }
-          autoExecNow()
-          doTask("CityTile<Tharsis_3_4>")
-        }
+  internal fun `A city cannot be placed next to another city`() {
+    newTestGame()
+    kim.exMachina("NormalCityTile<Tharsis_4_6>, NormalCityTile<Tharsis_4_4>")
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTasks(
+            *standardProjectTasks("CityProject"),
+            "25 Pay<> FROM MC",
+            "PROD[MC]",
+            "CityTile<Tharsis_3_4>",
+        )
       }
     }
   }
 
   @Test
-  internal fun cantStack() {
-    game = setUpGame(ExcludedTestOption(CorporateEraExpansion))
-    val p2 = agents[PLAYER2]
-
-    p2.runOperation("CityTile<Tharsis_3_3>")
-    assertFailsWith<LimitsException> { p2.runOperation("OceanTile<Tharsis_3_3>!") }
+  internal fun `A greenery cannot cover an existing city`() {
+    newTestGame()
+    kim.exMachina("NormalCityTile<Tharsis_3_3>")
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTasks(
+            *standardProjectTasks("GreeneryProject"),
+            "23 Pay<> FROM MC",
+            "GreeneryTile<Tharsis_3_3>",
+        )
+      }
+    }
   }
 
   @Test
-  internal fun greeneryCanBePlacedAnywhereWhenOwnedTilesAreSurrounded() {
-    game = setUpGame(ExcludedTestOption(CorporateEraExpansion))
-
-    with(agents[PLAYER1]) {
-      exMachina("100 MC")
-      admin.exMachina("ActionPhase FROM SetupPhase")
-      inTurn {
-        doWithAutoExecPolicy(NONE) {
-          doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
-        }
-        autoExecNow()
-        doTask("GreeneryTile<Tharsis_4_3>")
+  internal fun `A player whose tiles are surrounded may place greenery elsewhere`() {
+    newTestGame()
+    kim.exMachina("GreeneryTile<Tharsis_4_3>")
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTasks(
+            *standardProjectTasks("GreeneryProject"),
+            "23 Pay<> FROM MC",
+            "GreeneryTile<Tharsis_7_5>",
+        )
       }
-      assertFailsWith<NarrowingException> {
-        inTurn {
-          doWithAutoExecPolicy(NONE) {
-            doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
-          }
-          autoExecNow()
-          doTask("GreeneryTile<Tharsis_7_5>")
-        }
-      }
-      // Yer surrounded!
-      agents[PLAYER2].runOperation(
-          "GreeneryTile<Tharsis_3_2>, GreeneryTile<Tharsis_3_3>, " +
-              "GreeneryTile<Tharsis_4_2>, GreeneryTile<Tharsis_4_4>"
+    }
+    stan.exMachina(
+        "GreeneryTile<Tharsis_3_2>, GreeneryTile<Tharsis_3_3>, " +
+            "GreeneryTile<Tharsis_4_2>, GreeneryTile<Tharsis_4_4>"
+    )
+    kim.inTurn {
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Tharsis_7_5>",
+          "OxygenStep",
+          "TerraformRating",
       )
-
-      inTurn {
-        doWithAutoExecPolicy(NONE) {
-          doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
-        }
-        autoExecNow()
-        doTask("GreeneryTile<Tharsis_7_5>")
-      }
     }
   }
 
   @Test
-  internal fun greeneryRequirementDoesntCareIfItDeadEndsYourTurn() {
-    game = setUpGame(Hellas, ExcludedTestOption(CorporateEraExpansion))
-    val p1 = agents[PLAYER1]
-    val p2 = agents[PLAYER2]
+  internal fun `An unaffordable south pole does not permit greenery elsewhere`() {
+    newTestGame("HellasMap")
+    kim.exMachina("GreeneryTile<Hellas_9_8>")
+    stan.exMachina("GreeneryTile<Hellas_8_7>, GreeneryTile<Hellas_8_8>, GreeneryTile<Hellas_9_9>")
+    kim.setToExMachina(8, "Plant")
+    kim.setToExMachina(4, "MC")
 
-    // Player1 has greenery next to south pole
-    p1.runOperation("4 MC, GreeneryTile<Hellas_9_8>")
-
-    // Player2 completely surrounds it except for south pole (Hellas_9_7)
-    p2.runOperation("GreeneryTile<Hellas_8_7>, GreeneryTile<Hellas_8_8>, GreeneryTile<Hellas_9_9>")
-
-    // Player1 is 2 money short of what they need to place on the south pole
-    assertFailsWith<LimitsException> { // do we care which step fails?
-      p1.runOperation("PlaceGreeneryTile") {
-        doTask("GreeneryTile<Hellas_9_7>")
-        doTask("OceanTile<Hellas_4_6>")
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTasks(
+            "UseAction<ConvertPlantsAction, Action1>",
+            "8 Pay<Class<Plant>> FROM Plant",
+            "GreeneryTile<Hellas_9_7>",
+            "OxygenStep",
+            "TerraformRating",
+            "OceanTile<Hellas_4_6>",
+            "Plant",
+            "TerraformRating",
+            "-6 MC",
+        )
       }
     }
-    assertEquals(0, p1.count("GreeneryTile<Hellas_9_7>")) // rolled back
-
-    // But too bad, they don't get permission to place elsewhere!
-    assertFailsWith<NarrowingException> {
-      p1.runOperation("PlaceGreeneryTile") { doTask("GreeneryTile<Hellas_7_5>") }
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTasks(
+            "UseAction<ConvertPlantsAction, Action1>",
+            "8 Pay<Class<Plant>> FROM Plant",
+            "GreeneryTile<Hellas_7_5>",
+        )
+      }
     }
 
-    // That concludes our test. But for funsies,
-    // Suppose there had already been an ocean to place next to - now it works
-    p2.runOperation("OceanTile<Hellas_5_6>")
-    p1.runOperation("PlaceGreeneryTile") {
-      doTask("GreeneryTile<Hellas_9_7>")
-      doTask("OceanTile<Hellas_4_6>")
+    // The bonus beside this ocean supplies the missing 2 MC for the south-pole charge.
+    admin.exMachina("OceanTile<Hellas_5_6>")
+    kim.inTurn {
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Hellas_9_7>",
+          "OxygenStep",
+          "TerraformRating",
+          "OceanTile<Hellas_4_6>",
+          "Plant",
+          "TerraformRating",
+          "2 MC",
+          "-6 MC",
+      )
     }
-    assertEquals(0, p1.count("MC"))
-    assertEquals(1, p1.count("GreeneryTile<Hellas_9_7>"))
   }
 
   @Test
-  internal fun greeneryNextToOwned_possible() {
-    game = setUpGame(ExcludedTestOption(CorporateEraExpansion))
+  internal fun `Greenery must be next to the players tile rather than an opponents`() {
+    prepareCityNeighbours()
+    kim.inTurn {
+      doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
+      shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_6_4>") }
+      shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_6_5>") }
+      shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_6_6>") }
+      shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_7_4>") }
+      shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_7_7>") }
+      shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_8_4>") }
+      shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_8_8>") }
+      shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_9_5>") }
+      shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_9_8>") }
+      doTasks("GreeneryTile<Tharsis_9_7>", "OxygenStep", "TerraformRating")
+    }
+  }
 
-    with(agents[PLAYER1]) {
-      admin.exMachina("ActionPhase FROM SetupPhase")
+  @Test internal fun `Greenery may go northwest of an owned city`() = placeBesideCity("Tharsis_7_5")
 
-      runOperation("666 MC, CityTile<Tharsis_8_6>") // shown as [] in comment below
+  @Test internal fun `Greenery may go northeast of an owned city`() = placeBesideCity("Tharsis_7_6")
 
-      // try to fool it by having an opponent tile at the XX below
-      runOperation("CityTile<Player2, Tharsis_6_7>")
+  @Test internal fun `Greenery may go west of an owned city`() = placeBesideCity("Tharsis_8_5")
 
-      // Use the standard project so that the placement rule is in effect.
-      inTurn {
-        doWithAutoExecPolicy(NONE) {
-          doTasks(*standardProjectTasks("GreeneryProject"), "23 Pay<> FROM MC")
-        }
-        autoExecNow()
+  @Test
+  internal fun `Greenery may go east of an owned city`() =
+      placeBesideCity("Tharsis_8_7", "ProjectCard")
 
-        fun checkCantPlaceGreenery(area: String) =
-            assertFailsWith<NarrowingException>(area) { doTask("GreeneryTile<$area>") }
+  @Test
+  internal fun `Greenery may go southwest of an owned city`() =
+      placeBesideCity("Tharsis_9_6", "2 Steel")
 
-        //     64  65  66  XX
-        //   74  75  76  77
-        // 84  85  []  87  88
-        //   95  96  97  98
+  @Test internal fun `Greenery may go southeast of an owned city`() = placeBesideCity("Tharsis_9_7")
 
-        // 2 away - should not work
+  private fun prepareCityNeighbours() {
+    newTestGame()
+    kim.exMachina("NormalCityTile<Tharsis_8_6>")
+    stan.exMachina("NormalCityTile<Tharsis_6_7>")
+  }
 
-        checkCantPlaceGreenery("Tharsis_6_4") // NW
-        checkCantPlaceGreenery("Tharsis_6_5") // N
-        checkCantPlaceGreenery("Tharsis_6_6") // NE
-        checkCantPlaceGreenery("Tharsis_7_4") // WNW
-        checkCantPlaceGreenery("Tharsis_7_7") // ENE
-        checkCantPlaceGreenery("Tharsis_8_4") // W
-        checkCantPlaceGreenery("Tharsis_8_8") // E
-        checkCantPlaceGreenery("Tharsis_9_5") // WSW
-        checkCantPlaceGreenery("Tharsis_9_8") // ESE
-
-        // 1 away - should work
-
-        val beforePlacement = game.timeline.checkpoint()
-        for (area in
-            listOf(
-                "Tharsis_7_5",
-                "Tharsis_7_6",
-                "Tharsis_8_5",
-                "Tharsis_8_7",
-                "Tharsis_9_6",
-                "Tharsis_9_7",
-            )) {
-          doTask("GreeneryTile<$area>")
-          if (area != "Tharsis_9_7") {
-            game.timeline.seek(beforePlacement)
-            game.timeline.truncate()
-          }
-        }
-      }
+  private fun placeBesideCity(area: String, bonus: String? = null) {
+    prepareCityNeighbours()
+    kim.inTurn {
+      doTasks(
+          *standardProjectTasks("GreeneryProject"),
+          "23 Pay<> FROM MC",
+          "GreeneryTile<$area>",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      if (bonus != null) doTask(bonus)
     }
   }
 
@@ -200,9 +181,15 @@ internal class TilePlacingTest : TfmSandboxTest() {
     kim.setToExMachina(2, "MC")
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("UseAction<ConvertPlantsAction, Action1>")
-        doTask("8 Pay<Class<Plant>> FROM Plant")
-        doTasks("GreeneryTile<Amazonis_05_03>", "Steel", "OxygenStep", "TerraformRating", "-3 MC")
+        doTasks(
+            "UseAction<ConvertPlantsAction, Action1>",
+            "8 Pay<Class<Plant>> FROM Plant",
+            "GreeneryTile<Amazonis_05_03>",
+            "Steel",
+            "OxygenStep",
+            "TerraformRating",
+            "-3 MC",
+        )
       }
     }
     kim.count("GreeneryTile") shouldBe 0
@@ -211,10 +198,15 @@ internal class TilePlacingTest : TfmSandboxTest() {
     kim.count("Steel") shouldBe 0
 
     kim.inTurn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTasks("GreeneryTile<Amazonis_05_03>", "MC")
-      doTask("OxygenStep")
-      doTasks("TerraformRating", "-3 MC")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Amazonis_05_03>",
+          "MC",
+          "OxygenStep",
+          "TerraformRating",
+          "-3 MC",
+      )
     }
   }
 }

@@ -18,13 +18,13 @@ internal class FreyjaBiodomesTest : TfmSandboxTest() {
     kim.inTurn {
           // Decline adding animals to Venusian Animals by choosing the unavailable microbe gain.
           doTasks(
-              *playCardTasks("FreyjaBiodomes"),
+              *playCardTasks("$FreyjaBiodomes"),
               "14 Pay<> FROM MC",
-              "FreyjaBiodomes FROM ProjectCard",
+              "$FreyjaBiodomes FROM ProjectCard",
               "PROD[-Energy]",
               "PROD[2 MC]",
+              "Ok",
           )
-          doTask("Ok")
         }
         .expect("0 Animal<$VenusianAnimals>")
   }

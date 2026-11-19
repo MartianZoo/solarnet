@@ -17,13 +17,13 @@ internal class RecruitmentTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Recruitment"))
+        doTasks(*playCardTasks("$Recruitment"))
 
         doTasks(
             "2 Pay<> FROM MC",
-            "Recruitment FROM ProjectCard",
+            "$Recruitment FROM ProjectCard",
+            "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
         )
-        doTask("PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>")
       }
     }
   }
@@ -39,9 +39,9 @@ internal class RecruitmentTest : TfmSandboxTest() {
     admin.count("Dominant<MarsFirst>") shouldBe 1
     kim.inTurn {
           doTasks(
-              *playCardTasks("Recruitment"),
+              *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "Recruitment FROM ProjectCard",
+              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -59,9 +59,9 @@ internal class RecruitmentTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("Recruitment"),
+              *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "Recruitment FROM ProjectCard",
+              "$Recruitment FROM ProjectCard",
               "PartyLeader<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -79,9 +79,9 @@ internal class RecruitmentTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("Recruitment"),
+              *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "Recruitment FROM ProjectCard",
+              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -99,9 +99,9 @@ internal class RecruitmentTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("Recruitment"),
+              *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "Recruitment FROM ProjectCard",
+              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -141,9 +141,9 @@ internal class RecruitmentTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              *playCardTasks("Recruitment"),
+              *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "Recruitment FROM ProjectCard",
+              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -160,9 +160,9 @@ internal class RecruitmentTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("Recruitment"),
+              *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "Recruitment FROM ProjectCard",
+              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -175,9 +175,9 @@ internal class RecruitmentTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("Recruitment"),
+            *playCardTasks("$Recruitment"),
             "2 Pay<> FROM MC",
-            "Recruitment FROM ProjectCard",
+            "$Recruitment FROM ProjectCard",
             "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>",
         )
       }
@@ -193,9 +193,9 @@ internal class RecruitmentTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("Recruitment"),
+            *playCardTasks("$Recruitment"),
             "2 Pay<> FROM MC",
-            "Recruitment FROM ProjectCard",
+            "$Recruitment FROM ProjectCard",
             "PartyLeader<Scientists> FROM PartyFollower<MarsFirst, Neutral>",
         )
       }
@@ -212,13 +212,13 @@ internal class RecruitmentTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Recruitment"))
+        doTasks(*playCardTasks("$Recruitment"))
 
         doTasks(
             "2 Pay<> FROM MC",
-            "Recruitment FROM ProjectCard",
+            "$Recruitment FROM ProjectCard",
+            "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
         )
-        doTask("PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>")
       }
     }
 

@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -11,7 +10,7 @@ import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class WorldGovernmentTerraformingTest : TfmGameplayTest(NONE) {
+internal class WorldGovernmentTerraformingTest : TfmGameplayTest() {
   @Test
   internal fun `Solar phase is skipped when production ends the game`() {
     newTestGame()

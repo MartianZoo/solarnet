@@ -84,8 +84,8 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
         SubterraneanReservoir,
     )
     p1.doTasks(
-        "PlayCard<Class<CorporationCard>, Class<LakefrontResorts>>",
-        "LakefrontResorts FROM CorporationCard",
+        "PlayCard<Class<CorporationCard>, Class<$LakefrontResorts>>",
+        "$LakefrontResorts FROM CorporationCard",
         "54 MC",
         "15 Pay<> FROM MC",
         "5 ProjectCard<Hand FROM Selecting>",
@@ -93,39 +93,44 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     with(p1) {
       draw(EventAnalysts)
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<HighCircles>>",
-          "HighCircles FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$HighCircles>>",
+          "$HighCircles FROM PreludeCard",
           "TerraformRating",
+          "SearchForCard<Pink, ReferenceFilter<Class<Ruling>>>!",
+          "PartyFollower<MarsFirst>",
+          "PartyLeader<MarsFirst>",
       )
-      doTask("SearchForCard<Pink, ReferenceFilter<Class<Ruling>>>!")
-      doTasks("PartyFollower<MarsFirst>", "PartyLeader<MarsFirst>")
-      doTask("PlayCard<Class<PreludeCard>, Class<GreatAquifer>>")
-      doTask("GreatAquifer FROM PreludeCard")
-      doTask("OceanTile<Amazonis_07_04>")
-      doTask("2 Plant")
-      doTask("TerraformRating")
-      doTask("PROD[MC]")
-      doTask("0 MC")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$GreatAquifer>>",
+          "$GreatAquifer FROM PreludeCard",
+          "OceanTile<Amazonis_07_04>",
+          "2 Plant",
+          "TerraformRating",
+          "PROD[MC]",
+          "0 MC",
+      )
       draw(CorporateStronghold, EnergySaving)
-      doTask("OceanTile<Amazonis_08_04>")
-      doTask("2 ProjectCard")
-      doTasks("3 MC")
-      doTask("TerraformRating")
-      doTask("PROD[MC]")
+      doTasks(
+          "OceanTile<Amazonis_08_04>",
+          "2 ProjectCard",
+          "3 MC",
+          "TerraformRating",
+          "PROD[MC]",
+      )
     }
     p1.turn {
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Reds> FROM LobbyDelegate")
       doTasks(
-          *playCardTasks("EnergyTapping"),
+          *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "EnergyTapping FROM ProjectCard",
+          "$EnergyTapping FROM ProjectCard",
           "PROD[-Energy<SoloOpponent>]",
           "PROD[Energy]",
       )
       doTasks(
-          *playCardTasks("CorporateStronghold"),
+          *playCardTasks("$CorporateStronghold"),
           "11 Pay<> FROM MC",
-          "CorporateStronghold FROM ProjectCard",
+          "$CorporateStronghold FROM ProjectCard",
           "PROD[3 MC]",
           "PROD[-Energy]",
           "CityTile<Amazonis_07_03>",
@@ -133,14 +138,14 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "6 MC",
       )
       doTasks(
-          *playCardTasks("OptimalAerobraking"),
+          *playCardTasks("$OptimalAerobraking"),
           "7 Pay<> FROM MC",
-          "OptimalAerobraking FROM ProjectCard",
+          "$OptimalAerobraking FROM ProjectCard",
       )
       doTasks(
-          *playCardTasks("AerobrakedAmmoniaAsteroid"),
+          *playCardTasks("$AerobrakedAmmoniaAsteroid"),
           "26 Pay<> FROM MC",
-          "AerobrakedAmmoniaAsteroid FROM ProjectCard",
+          "$AerobrakedAmmoniaAsteroid FROM ProjectCard",
           "PROD[Plant]",
           "PROD[3 Heat]",
           "3 MC",
@@ -153,8 +158,13 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       assertCounts(17 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("22 MC", "Plant", "3 Heat")
-    p1.doTasks("OceanTile<Amazonis_10_05>! BY Admin", "PROD[MC]")
+    p1.doTasks(
+        "22 MC",
+        "Plant",
+        "3 Heat",
+        "OceanTile<Amazonis_10_05>! BY Admin",
+        "PROD[MC]",
+    )
     // Database save 10, before generation 2 Research.
     p1.assertResources(m = 28, s = 0, t = 0, p = 5, e = 0, h = 6)
     p1.assertProduction(m = 6, s = 0, t = 0, p = 1, e = 0, h = 3)
@@ -171,9 +181,9 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.turn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
       doTasks(
-          *playCardTasks("TowingAComet"),
+          *playCardTasks("$TowingAComet"),
           "23 Pay<> FROM MC",
-          "TowingAComet FROM ProjectCard",
+          "$TowingAComet FROM ProjectCard",
           "2 Plant",
           "OxygenStep",
           "TerraformRating",
@@ -204,8 +214,14 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       assertCounts(20 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("27 MC", "Plant", "3 Heat")
-    p1.doTasks("OceanTile<Amazonis_06_05>! BY Admin", "PROD[MC]", "10 MC")
+    p1.doTasks(
+        "27 MC",
+        "Plant",
+        "3 Heat",
+        "OceanTile<Amazonis_06_05>! BY Admin",
+        "PROD[MC]",
+        "10 MC",
+    )
     // Database save 18, before generation 3 Research.
     p1.assertResources(m = 41, s = 2, t = 1, p = 8, e = 0, h = 4)
     p1.assertProduction(m = 8, s = 0, t = 0, p = 1, e = 0, h = 3)
@@ -229,9 +245,9 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       )
       draw(SymbioticFungus)
       doTasks(
-          *playCardTasks("SubterraneanReservoir"),
+          *playCardTasks("$SubterraneanReservoir"),
           "11 Pay<> FROM MC",
-          "SubterraneanReservoir FROM ProjectCard",
+          "$SubterraneanReservoir FROM ProjectCard",
           "OceanTile<Amazonis_05_05>",
           "ProjectCard",
           "3 MC",
@@ -242,33 +258,35 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       // Database saves 21-22: Sponsored Academies discards Symbiotic Fungus.
       discard(SymbioticFungus)
       doTasks(
-          *playCardTasks("SponsoredAcademies"),
+          *playCardTasks("$SponsoredAcademies"),
           "9 Pay<> FROM MC",
-          "SponsoredAcademies FROM ProjectCard",
+          "$SponsoredAcademies FROM ProjectCard",
       )
       doTask("-ProjectCard<Hand>!", SponsoredAcademies)
-      doTask("3 ProjectCard")
-      doTask("EACH")
+      doTasks(
+          "3 ProjectCard",
+          "EACH",
+      )
       // No other player draws from Sponsored Academies.
       doTasks(
-          *playCardTasks("RotatorImpacts"),
+          *playCardTasks("$RotatorImpacts"),
           "Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "RotatorImpacts FROM ProjectCard",
+          "$RotatorImpacts FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<RotatorImpacts>")
+      doTasks(*cardActionTasks("$RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<$RotatorImpacts>")
       doTasks(
-          *playCardTasks("Archaebacteria"),
+          *playCardTasks("$Archaebacteria"),
           "6 Pay<> FROM MC",
-          "Archaebacteria FROM ProjectCard",
+          "$Archaebacteria FROM ProjectCard",
           "PROD[Plant]",
       )
       doTasks(
-          *playCardTasks("AerialMappers"),
+          *playCardTasks("$AerialMappers"),
           "11 Pay<> FROM MC",
-          "AerialMappers FROM ProjectCard",
+          "$AerialMappers FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("AerialMappers"), "Floater<AerialMappers>")
+      doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
       // Database save 29, after the last generation 3 action.
       assertResources(m = 5, s = 2, t = 0, p = 1, e = 0, h = 4)
@@ -276,9 +294,13 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       assertCounts(22 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("31 MC", "2 Plant", "3 Heat")
-    p1.doTask("OceanTile<Amazonis_03_06>! BY Admin")
-    p1.doTask("PROD[MC]")
+    p1.doTasks(
+        "31 MC",
+        "2 Plant",
+        "3 Heat",
+        "OceanTile<Amazonis_03_06>! BY Admin",
+        "PROD[MC]",
+    )
     p1.doTask("4 Plant") // Successful Organisms: two for production and two for influence.
     // Database save 30, before generation 4 Research.
     p1.assertResources(m = 37, s = 2, t = 0, p = 7, e = 0, h = 7)
@@ -294,33 +316,37 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.draw(FrontierTown)
     p1.turn {
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
       doTasks(
-          *cardActionTasks("RotatorImpacts", "Action2"),
-          "-Asteroid<RotatorImpacts>",
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
           "VenusStep",
           "TerraformRating",
       )
-      doTasks(*playCardTasks("EventAnalysts"), "5 Pay<> FROM MC", "EventAnalysts FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$EventAnalysts"),
+          "5 Pay<> FROM MC",
+          "$EventAnalysts FROM ProjectCard",
+      )
       draw(StratosphericBirds, HydrogenToVenus)
       doTasks(
-          *playCardTasks("SupportedResearch"),
+          *playCardTasks("$SupportedResearch"),
           "3 Pay<> FROM MC",
-          "SupportedResearch FROM ProjectCard",
+          "$SupportedResearch FROM ProjectCard",
           "2 ProjectCard",
       )
       doTasks(
-          *playCardTasks("NitriteReducingBacteria"),
+          *playCardTasks("$NitriteReducingBacteria"),
           "11 Pay<> FROM MC",
-          "NitriteReducingBacteria FROM ProjectCard",
-          "3 Microbe<NitriteReducingBacteria>",
+          "$NitriteReducingBacteria FROM ProjectCard",
+          "3 Microbe<$NitriteReducingBacteria>",
       )
       doTasks(
-          *cardActionTasks("NitriteReducingBacteria", "Action2"),
-          "-3 Microbe<NitriteReducingBacteria>",
+          *cardActionTasks("$NitriteReducingBacteria", "Action2"),
+          "-3 Microbe<$NitriteReducingBacteria>",
           "TerraformRating",
       )
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
@@ -330,8 +356,12 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       assertCounts(23 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("33 MC", "2 Plant", "3 Heat")
-    p1.doTask("TemperatureStep! BY Admin")
+    p1.doTasks(
+        "33 MC",
+        "2 Plant",
+        "3 Heat",
+        "TemperatureStep! BY Admin",
+    )
     p1.doTask("Ok") // Pandemic has no payable loss at the sourced influence count.
     // Database save 40, before generation 5 Research.
     p1.assertResources(m = 44, s = 2, t = 0, p = 9, e = 0, h = 10)
@@ -345,8 +375,8 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
         "4 ProjectCard<Hand FROM Selecting>",
     )
     p1.turn {
-      doTasks(*cardActionTasks("AerialMappers"), "Floater<AerialMappers>")
-      doTasks(*cardActionTasks("RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<RotatorImpacts>")
+      doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
+      doTasks(*cardActionTasks("$RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<$RotatorImpacts>")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -356,22 +386,20 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       )
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
       doTasks(
-          *playCardTasks("FrontierTown"),
+          *playCardTasks("$FrontierTown"),
           "2 Pay<Class<Steel>> FROM Steel",
           "7 Pay<> FROM MC",
-          "FrontierTown FROM ProjectCard",
-      )
-      doTask("FrontierTownBonus!")
-      doTasks(
+          "$FrontierTown FROM ProjectCard",
+          "FrontierTownBonus!",
           "PROD[-Energy]",
           "CityTile<Amazonis_06_04>",
           "2 Plant",
           "6 MC",
           "Steel",
+          "-FrontierTownBonus!",
+          "RepeatPlacementBonus<Pink, Amazonis_06_04>!",
+          "4 Plant",
       )
-      doTask("-FrontierTownBonus!")
-      doTask("RepeatPlacementBonus<Pink, Amazonis_06_04>!")
-      doTasks("4 Plant")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -392,20 +420,20 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("NitriteReducingBacteria"), "Microbe<NitriteReducingBacteria>")
+      doTasks(*cardActionTasks("$NitriteReducingBacteria"), "Microbe<$NitriteReducingBacteria>")
       doTasks(
-          *playCardTasks("EarthCatapult"),
+          *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
-          "EarthCatapult FROM ProjectCard",
+          "$EarthCatapult FROM ProjectCard",
       )
-      doTasks(*playCardTasks("RedShips"), "RedShips FROM ProjectCard")
-      doTasks(*cardActionTasks("RedShips"))
+      doTasks(*playCardTasks("$RedShips"), "$RedShips FROM ProjectCard")
+      doTasks(*cardActionTasks("$RedShips"))
       doTask("3 MC") // Red Ships pays for the sourced three adjacent tiles.
       doTasks(
-          *playCardTasks("TitaniumMine"),
+          *playCardTasks("$TitaniumMine"),
           "2 Pay<Class<Steel>> FROM Steel",
           "Pay<> FROM MC",
-          "TitaniumMine FROM ProjectCard",
+          "$TitaniumMine FROM ProjectCard",
           "PROD[Titanium]",
       )
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<MarsFirst> FROM LobbyDelegate")
@@ -415,8 +443,16 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       assertCounts(25 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("35 MC", "Titanium", "2 Plant", "4 Heat", "2 Heat FROM Energy")
-    p1.doTasks("OceanTile<Amazonis_04_02>! BY Admin", "PROD[MC]", "10 MC")
+    p1.doTasks(
+        "35 MC",
+        "Titanium",
+        "2 Plant",
+        "4 Heat",
+        "2 Heat FROM Energy",
+        "OceanTile<Amazonis_04_02>! BY Admin",
+        "PROD[MC]",
+        "10 MC",
+    )
     // Database save 56, before generation 6 Research.
     p1.assertResources(m = 47, s = 1, t = 1, p = 3, e = 0, h = 8)
     p1.assertProduction(m = 11, s = 0, t = 1, p = 2, e = 0, h = 4)
@@ -431,42 +467,46 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.draw(WgProject)
     p1.turn {
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
-      doTasks(*playCardTasks("WgProject"), "7 Pay<> FROM MC", "WgProject FROM ProjectCard")
-      doTask("3 PreludeCard<Selecting>")
+      doTasks(
+          *playCardTasks("$WgProject"),
+          "7 Pay<> FROM MC",
+          "$WgProject FROM ProjectCard",
+          "3 PreludeCard<Selecting>",
+      )
       draw(WeatherBalloons)
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<UnmiContractor>>",
-          "UnmiContractor FROM PreludeCard<Selecting>",
+          "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
+          "$UnmiContractor FROM PreludeCard<Selecting>",
           "ProjectCard",
           "3 TerraformRating",
           "-9 MC",
       )
       doTasks(
-          *playCardTasks("MirandaResort"),
+          *playCardTasks("$MirandaResort"),
           "Ok", // Source payment uses no titanium.
           "10 Pay<> FROM MC",
-          "MirandaResort FROM ProjectCard",
+          "$MirandaResort FROM ProjectCard",
           "PROD[5 MC]",
       )
-      doTasks(*cardActionTasks("RedShips"))
+      doTasks(*cardActionTasks("$RedShips"))
       doTask("3 MC") // Three sourced eligible city or special tiles.
       doTasks(
-          *cardActionTasks("RotatorImpacts"),
+          *cardActionTasks("$RotatorImpacts"),
           "Ok", // Pay no titanium for this Rotator Impacts action.
           "6 Pay<> FROM MC",
-          "Asteroid<RotatorImpacts>",
+          "Asteroid<$RotatorImpacts>",
       )
-      doTasks(*cardActionTasks("NitriteReducingBacteria"), "Microbe<NitriteReducingBacteria>")
+      doTasks(*cardActionTasks("$NitriteReducingBacteria"), "Microbe<$NitriteReducingBacteria>")
       doTasks(
-          *playCardTasks("GhgProducingBacteria"),
+          *playCardTasks("$GhgProducingBacteria"),
           "6 Pay<> FROM MC",
-          "GhgProducingBacteria FROM ProjectCard",
+          "$GhgProducingBacteria FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("GhgProducingBacteria"), "Microbe<GhgProducingBacteria>")
+      doTasks(*cardActionTasks("$GhgProducingBacteria"), "Microbe<$GhgProducingBacteria>")
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
       // Database save 67, after the last generation 6 action.
       assertResources(m = 6, s = 1, t = 1, p = 3, e = 0, h = 8)
@@ -474,8 +514,13 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       assertCounts(28 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("44 MC", "Titanium", "2 Plant", "4 Heat")
-    p1.doTask("VenusStep! BY Admin")
+    p1.doTasks(
+        "44 MC",
+        "Titanium",
+        "2 Plant",
+        "4 Heat",
+        "VenusStep! BY Admin",
+    )
     p1.doTask("Ok") // Riots has no payable loss at the sourced influence count.
     // Database save 68, before generation 7 Research.
     p1.assertResources(m = 57, s = 1, t = 2, p = 5, e = 0, h = 12)
@@ -490,17 +535,17 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     )
     p1.turn {
       doTasks(
-          *cardActionTasks("RotatorImpacts", "Action2"),
-          "-Asteroid<RotatorImpacts>",
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
           "VenusStep",
           "TerraformRating",
       )
       draw(WaterImportFromEuropa)
       doTasks(
-          *playCardTasks("SpinInducingAsteroid"),
+          *playCardTasks("$SpinInducingAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "6 Pay<> FROM MC",
-          "SpinInducingAsteroid FROM ProjectCard",
+          "$SpinInducingAsteroid FROM ProjectCard",
           "2 VenusStep",
           "2 TerraformRating",
           "ProjectCard",
@@ -508,14 +553,14 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "3 Heat",
       )
       doTasks(
-          *playCardTasks("HydrogenToVenus"),
+          *playCardTasks("$HydrogenToVenus"),
           "9 Pay<> FROM MC",
-          "HydrogenToVenus FROM ProjectCard",
+          "$HydrogenToVenus FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
           "3 MC",
           "3 Heat",
-          "Floater<AerialMappers>",
+          "Floater<$AerialMappers>",
       )
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
@@ -531,52 +576,52 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "PROD[Heat]",
       )
       doTasks(
-          *playCardTasks("StratosphericBirds"),
+          *playCardTasks("$StratosphericBirds"),
           "10 Pay<> FROM MC",
-          "StratosphericBirds FROM ProjectCard",
-          "-Floater<AerialMappers>",
+          "$StratosphericBirds FROM ProjectCard",
+          "-Floater<$AerialMappers>",
       )
-      doTasks(*cardActionTasks("AerialMappers"), "Floater<AerialMappers>")
-      doTasks(*cardActionTasks("StratosphericBirds"), "Animal<StratosphericBirds>")
-      doTasks(*cardActionTasks("NitriteReducingBacteria"), "Microbe<NitriteReducingBacteria>")
-      doTasks(*playCardTasks("Psychrophiles"), "Psychrophiles FROM ProjectCard")
-      doTasks(*cardActionTasks("Psychrophiles"), "Microbe<Psychrophiles>")
+      doTasks(*cardActionTasks("$AerialMappers"), "Floater<$AerialMappers>")
+      doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
+      doTasks(*cardActionTasks("$NitriteReducingBacteria"), "Microbe<$NitriteReducingBacteria>")
+      doTasks(*playCardTasks("$Psychrophiles"), "$Psychrophiles FROM ProjectCard")
+      doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(
-          *playCardTasks("AstraMechanica"),
+          *playCardTasks("$AstraMechanica"),
           "5 Pay<> FROM MC",
-          "AstraMechanica FROM ProjectCard",
-          "ProjectCard FROM PlayedEvent<Class<TowingAComet>>",
-          "ProjectCard FROM PlayedEvent<Class<AerobrakedAmmoniaAsteroid>>",
+          "$AstraMechanica FROM ProjectCard",
+          "ProjectCard FROM PlayedEvent<Class<$TowingAComet>>",
+          "ProjectCard FROM PlayedEvent<Class<$AerobrakedAmmoniaAsteroid>>",
       )
       doTasks(
-          *playCardTasks("AerobrakedAmmoniaAsteroid"),
+          *playCardTasks("$AerobrakedAmmoniaAsteroid"),
           "24 Pay<> FROM MC",
-          "AerobrakedAmmoniaAsteroid FROM ProjectCard",
+          "$AerobrakedAmmoniaAsteroid FROM ProjectCard",
           "PROD[Plant]",
           "PROD[3 Heat]",
           "3 MC",
           "3 Heat",
-          "2 Microbe<GhgProducingBacteria>",
+          "2 Microbe<$GhgProducingBacteria>",
       )
       doTasks(
-          *cardActionTasks("GhgProducingBacteria", "Action2"),
-          "-2 Microbe<GhgProducingBacteria>",
+          *cardActionTasks("$GhgProducingBacteria", "Action2"),
+          "-2 Microbe<$GhgProducingBacteria>",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("RedShips"))
+      doTasks(*cardActionTasks("$RedShips"))
       doTask("3 MC") // Three eligible tiles in the source board.
       doTasks(
-          *playCardTasks("Worms"),
+          *playCardTasks("$Worms"),
           "6 Pay<> FROM MC",
-          "Worms FROM ProjectCard",
+          "$Worms FROM ProjectCard",
           "PROD[2 Plant]",
       )
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
       doTasks(
-          *playCardTasks("IshtarMining"),
+          *playCardTasks("$IshtarMining"),
           "3 Pay<> FROM MC",
-          "IshtarMining FROM ProjectCard",
+          "$IshtarMining FROM ProjectCard",
           "PROD[Titanium]",
       )
       // Database save 88, after the last generation 7 action.
@@ -585,8 +630,13 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       assertCounts(34 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("50 MC", "2 Titanium", "5 Plant", "8 Heat")
-    p1.doTask("TemperatureStep! BY Admin")
+    p1.doTasks(
+        "50 MC",
+        "2 Titanium",
+        "5 Plant",
+        "8 Heat",
+        "TemperatureStep! BY Admin",
+    )
     p1.doTask("-2 TerraformRating") // Revolution's sourced loss.
     // _local/replays/Game20261102/game-g57c6739abab5.sqlite; source save 89.
     assertEquals(
@@ -631,27 +681,27 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     p1.doTasks("Ok", "12 Pay<> FROM MC", "4 ProjectCard<Hand FROM Selecting>") // Keep four.
     p1.turn {
       doTasks(
-          *cardActionTasks("NitriteReducingBacteria", "Action2"),
-          "-3 Microbe<NitriteReducingBacteria>",
+          *cardActionTasks("$NitriteReducingBacteria", "Action2"),
+          "-3 Microbe<$NitriteReducingBacteria>",
           "TerraformRating",
       )
       doTasks(
-          *cardActionTasks("RotatorImpacts", "Action2"),
-          "-Asteroid<RotatorImpacts>",
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
           "VenusStep",
           "TerraformRating",
       )
       draw(Heather)
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
       doTasks(
-          *playCardTasks("TowingAComet"),
+          *playCardTasks("$TowingAComet"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "15 Pay<> FROM MC",
-          "TowingAComet FROM ProjectCard",
+          "$TowingAComet FROM ProjectCard",
           "2 Plant",
           "OxygenStep",
           "TerraformRating",
@@ -685,12 +735,12 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("Psychrophiles"), "Microbe<Psychrophiles>")
+      doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(
-          *playCardTasks("Heather"),
-          "2 PayFromCard<Psychrophiles> FROM Microbe<Psychrophiles>",
+          *playCardTasks("$Heather"),
+          "2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "0 Pay<> FROM MC", // Card microbes and Earth Catapult cover the printed cost.
-          "Heather FROM ProjectCard",
+          "$Heather FROM ProjectCard",
           "PROD[Plant]",
           "Plant",
       )
@@ -712,29 +762,29 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "5 Pay<> FROM MC",
           "PartyFollower<MarsFirst>",
       )
-      doTasks(*playCardTasks("SpaceMirrors"), "Pay<> FROM MC", "SpaceMirrors FROM ProjectCard")
-      doTasks(*cardActionTasks("SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(*playCardTasks("$SpaceMirrors"), "Pay<> FROM MC", "$SpaceMirrors FROM ProjectCard")
+      doTasks(*cardActionTasks("$SpaceMirrors"), "7 Pay<> FROM MC", "PROD[Energy]")
       draw(Flooding)
       doTasks(
-          *playCardTasks("WeatherBalloons"),
+          *playCardTasks("$WeatherBalloons"),
           "9 Pay<> FROM MC",
-          "WeatherBalloons FROM ProjectCard",
+          "$WeatherBalloons FROM ProjectCard",
           "ProjectCard",
       )
-      doTasks(*cardActionTasks("WeatherBalloons"), "Floater<WeatherBalloons>")
+      doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
       doTasks(
-          *playCardTasks("Flooding"),
+          *playCardTasks("$Flooding"),
           "5 Pay<> FROM MC",
-          "Flooding FROM ProjectCard",
+          "$Flooding FROM ProjectCard",
           "OceanTile<Amazonis_02_07>",
           "2 Titanium",
           "3 MC",
           "TerraformRating",
           "PROD[MC]",
       )
-      doTasks(*cardActionTasks("StratosphericBirds"), "Animal<StratosphericBirds>")
-      doTasks(*cardActionTasks("GhgProducingBacteria"), "Microbe<GhgProducingBacteria>")
-      doTasks(*cardActionTasks("RedShips"))
+      doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
+      doTasks(*cardActionTasks("$GhgProducingBacteria"), "Microbe<$GhgProducingBacteria>")
+      doTasks(*cardActionTasks("$RedShips"))
       doTask("3 MC") // Three eligible tiles in the source board.
       doTasks(
           *standardProjectTasks("GreeneryProject"),
@@ -750,8 +800,14 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       assertCounts(42 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("60 MC", "2 Titanium", "7 Plant", "Energy", "8 Heat")
-    p1.doTask("TemperatureStep! BY Admin")
+    p1.doTasks(
+        "60 MC",
+        "2 Titanium",
+        "7 Plant",
+        "Energy",
+        "8 Heat",
+        "TemperatureStep! BY Admin",
+    )
     p1.doTask("-8 Heat") // Global Dust Storm's sourced loss.
     p1.doTask("Ok") // Four influence cancels the event's MC loss.
     // Database save 113, before generation 9 Research.
@@ -778,35 +834,35 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       doTask("Steel") // Mars First policy after the greenery placement.
       doTask("0 MC") // No adjacent ocean for Lakefront Resorts.
       doTasks(
-          *playCardTasks("VenusShuttles"),
+          *playCardTasks("$VenusShuttles"),
           "7 Pay<> FROM MC",
-          "VenusShuttles FROM ProjectCard",
-          "2 Floater<AerialMappers>",
+          "$VenusShuttles FROM ProjectCard",
+          "2 Floater<$AerialMappers>",
       )
       draw(SearchForLife)
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
-      doTasks(*cardActionTasks("StratosphericBirds"), "Animal<StratosphericBirds>")
-      doTasks(*cardActionTasks("Psychrophiles"), "Microbe<Psychrophiles>")
+      doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
+      doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(
-          *cardActionTasks("NitriteReducingBacteria", "Action1"),
-          "Microbe<NitriteReducingBacteria>",
+          *cardActionTasks("$NitriteReducingBacteria", "Action1"),
+          "Microbe<$NitriteReducingBacteria>",
       )
       doTasks(
-          *cardActionTasks("GhgProducingBacteria", "Action2"),
-          "-2 Microbe<GhgProducingBacteria>",
+          *cardActionTasks("$GhgProducingBacteria", "Action2"),
+          "-2 Microbe<$GhgProducingBacteria>",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks(*playCardTasks("EarthOffice"), "EarthOffice FROM ProjectCard")
+      doTasks(*playCardTasks("$EarthOffice"), "$EarthOffice FROM ProjectCard")
       doTasks(
-          *playCardTasks("LunaMetropolis"),
+          *playCardTasks("$LunaMetropolis"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "LunaMetropolis FROM ProjectCard",
+          "$LunaMetropolis FROM ProjectCard",
           "PROD[7 MC]",
           "CityTile<LunaMetropolis_RemoteArea>",
       )
@@ -819,10 +875,10 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "Steel",
       )
       doTasks(
-          *playCardTasks("CommercialDistrict"),
+          *playCardTasks("$CommercialDistrict"),
           "3 Pay<Class<Steel>> FROM Steel",
           "8 Pay<> FROM MC",
-          "CommercialDistrict FROM ProjectCard",
+          "$CommercialDistrict FROM ProjectCard",
           "PROD[4 MC]",
           "PROD[-Energy]",
           "CommercialDistrict_SpecialTile<Amazonis_01_05>",
@@ -830,23 +886,25 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "3 MC",
           "Steel",
       )
-      doTasks(*cardActionTasks("RedShips"))
-      doTask("5 MC")
-      doTasks(*cardActionTasks("WeatherBalloons", "Action2"), "-Floater<WeatherBalloons>", "5 MC")
       doTasks(
-          *cardActionTasks("RotatorImpacts", "Action1"),
+          *cardActionTasks("$RedShips"),
+          "5 MC",
+      )
+      doTasks(*cardActionTasks("$WeatherBalloons", "Action2"), "-Floater<$WeatherBalloons>", "5 MC")
+      doTasks(
+          *cardActionTasks("$RotatorImpacts", "Action1"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // Two titanium cover this Rotator Impacts action; pay no MC.
-          "Asteroid<RotatorImpacts>",
+          "Asteroid<$RotatorImpacts>",
       )
       doTasks(
-          *playCardTasks("InterplanetaryTrade"),
+          *playCardTasks("$InterplanetaryTrade"),
           "25 Pay<> FROM MC",
-          "InterplanetaryTrade FROM ProjectCard",
+          "$InterplanetaryTrade FROM ProjectCard",
+          "EACH",
+          "PROD[11 MC]",
       )
-      doTask("EACH")
-      doTask("PROD[11 MC]")
-      doTasks(*cardActionTasks("VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
+      doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Greens>")
       // Database save 133, after the last generation 9 action.
@@ -855,8 +913,14 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       assertCounts(45 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("86 MC", "2 Titanium", "7 Plant", "8 Heat", "Heat FROM Energy")
-    p1.doTask("TemperatureStep! BY Admin")
+    p1.doTasks(
+        "86 MC",
+        "2 Titanium",
+        "7 Plant",
+        "8 Heat",
+        "Heat FROM Energy",
+        "TemperatureStep! BY Admin",
+    )
     p1.doTask("-Plant") // Eco Sabotage.
     // Database save 134, before generation 10 Research.
     p1.assertResources(m = 95, s = 1, t = 2, p = 6, e = 0, h = 9)
@@ -871,19 +935,19 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     )
     p1.turn {
       doTasks(
-          *playCardTasks("InventorsGuild"),
+          *playCardTasks("$InventorsGuild"),
           "7 Pay<> FROM MC",
-          "InventorsGuild FROM ProjectCard",
+          "$InventorsGuild FROM ProjectCard",
       )
       doTasks(
-          *cardActionTasks("InventorsGuild"),
+          *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
           "-ProjectCard<Selecting>",
       )
       draw(SnowAlgae)
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
       doTasks(
@@ -892,44 +956,44 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("Psychrophiles"), "Microbe<Psychrophiles>")
+      doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(
-          *cardActionTasks("NitriteReducingBacteria", "Action1"),
-          "Microbe<NitriteReducingBacteria>",
+          *cardActionTasks("$NitriteReducingBacteria", "Action1"),
+          "Microbe<$NitriteReducingBacteria>",
       )
       doTasks(
-          *playCardTasks("ImportedNitrogen"),
+          *playCardTasks("$ImportedNitrogen"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "12 Pay<> FROM MC",
-          "ImportedNitrogen FROM ProjectCard",
+          "$ImportedNitrogen FROM ProjectCard",
           "TerraformRating",
           "4 Plant",
           "3 MC",
           "3 Heat",
-          "3 Microbe<GhgProducingBacteria>",
-          "2 Animal<StratosphericBirds>",
+          "3 Microbe<$GhgProducingBacteria>",
+          "2 Animal<$StratosphericBirds>",
       )
       doTasks(
-          *cardActionTasks("RotatorImpacts", "Action2"),
-          "-Asteroid<RotatorImpacts>",
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
           "VenusStep",
           "TerraformRating",
       )
       doTasks(
-          *cardActionTasks("GhgProducingBacteria", "Action2"),
-          "-2 Microbe<GhgProducingBacteria>",
+          *cardActionTasks("$GhgProducingBacteria", "Action2"),
+          "-2 Microbe<$GhgProducingBacteria>",
           "TemperatureStep",
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("AirScrappingExpedition"),
+          *playCardTasks("$AirScrappingExpedition"),
           "11 Pay<> FROM MC",
-          "AirScrappingExpedition FROM ProjectCard",
+          "$AirScrappingExpedition FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
-          "3 Floater<AerialMappers>",
+          "3 Floater<$AerialMappers>",
       )
-      doTasks(*cardActionTasks("StratosphericBirds"), "Animal<StratosphericBirds>")
+      doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
       doTasks(
           "UseAction<KelvinistsPolicy, Action1>",
           "10 Pay<> FROM MC",
@@ -948,16 +1012,16 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "PROD[MC]",
       )
       doTasks(
-          *cardActionTasks("VenusShuttles"),
+          *cardActionTasks("$VenusShuttles"),
           "8 Pay<> FROM MC",
           "VenusStep",
           "2 TerraformRating",
       )
       doTasks(
-          *playCardTasks("RadChemFactory"),
+          *playCardTasks("$RadChemFactory"),
           "Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "RadChemFactory FROM ProjectCard",
+          "$RadChemFactory FROM ProjectCard",
           "PROD[-Energy]",
           "2 TerraformRating",
       )
@@ -970,25 +1034,27 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "3 MC",
       )
       doTasks(
-          *playCardTasks("MediaArchives"),
+          *playCardTasks("$MediaArchives"),
           "3 Pay<> FROM MC",
-          "MediaArchives FROM ProjectCard",
+          "$MediaArchives FROM ProjectCard",
           "8 MC",
       )
-      doTasks(*cardActionTasks("RedShips"))
-      doTask("6 MC")
-      doTasks(*cardActionTasks("WeatherBalloons", "Action1"), "Floater<WeatherBalloons>")
       doTasks(
-          *playCardTasks("Supermarkets"),
+          *cardActionTasks("$RedShips"),
+          "6 MC",
+      )
+      doTasks(*cardActionTasks("$WeatherBalloons", "Action1"), "Floater<$WeatherBalloons>")
+      doTasks(
+          *playCardTasks("$Supermarkets"),
           "7 Pay<> FROM MC",
-          "Supermarkets FROM ProjectCard",
+          "$Supermarkets FROM ProjectCard",
           "PROD[2 MC]",
       )
       doTasks(
-          *playCardTasks("SnowAlgae"),
-          "2 PayFromCard<Psychrophiles> FROM Microbe<Psychrophiles>",
+          *playCardTasks("$SnowAlgae"),
+          "2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "6 Pay<> FROM MC",
-          "SnowAlgae FROM ProjectCard",
+          "$SnowAlgae FROM ProjectCard",
           "PROD[Plant]",
           "PROD[Heat]",
       )
@@ -1001,8 +1067,13 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       assertCounts(55 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("100 MC", "2 Titanium", "8 Plant", "10 Heat")
-    p1.doTask("VenusStep! BY Admin")
+    p1.doTasks(
+        "100 MC",
+        "2 Titanium",
+        "8 Plant",
+        "10 Heat",
+        "VenusStep! BY Admin",
+    )
     p1.doTask("8 MC") // Paradigm Breakdown.
     p1.doTask("Ok") // Paradigm Breakdown cannot discard cards from an empty hand.
     // Database save 160, before generation 11 Research.
@@ -1018,15 +1089,15 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     )
     p1.turn {
       doTasks(
-          *cardActionTasks("InventorsGuild"),
+          *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
           "-ProjectCard<Selecting>",
       )
-      doTasks(*cardActionTasks("Psychrophiles"), "Microbe<Psychrophiles>")
+      doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       draw(PowerSupplyConsortium)
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
       doTasks(
@@ -1039,10 +1110,10 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("SolarLogistics"),
+          *playCardTasks("$SolarLogistics"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "6 Pay<> FROM MC",
-          "SolarLogistics FROM ProjectCard",
+          "$SolarLogistics FROM ProjectCard",
           "2 Titanium",
       )
       doTasks(
@@ -1085,10 +1156,10 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       )
       draw(SmallAnimals)
       doTasks(
-          *playCardTasks("BigAsteroid"),
+          *playCardTasks("$BigAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "16 Pay<> FROM MC",
-          "BigAsteroid FROM ProjectCard",
+          "$BigAsteroid FROM ProjectCard",
           "4 Titanium",
           "2 TemperatureStep",
           "2 TerraformRating",
@@ -1109,11 +1180,14 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("StratosphericBirds"), "Animal<StratosphericBirds>")
-      doTasks(*cardActionTasks("GhgProducingBacteria", "Action1"), "Microbe<GhgProducingBacteria>")
+      doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
       doTasks(
-          *cardActionTasks("NitriteReducingBacteria", "Action1"),
-          "Microbe<NitriteReducingBacteria>",
+          *cardActionTasks("$GhgProducingBacteria", "Action1"),
+          "Microbe<$GhgProducingBacteria>",
+      )
+      doTasks(
+          *cardActionTasks("$NitriteReducingBacteria", "Action1"),
+          "Microbe<$NitriteReducingBacteria>",
       )
       doTasks(
           *standardProjectTasks("CityProject"),
@@ -1132,15 +1206,17 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       doTask("0 MC") // No adjacent ocean.
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyFollower<Greens>")
-      doTasks(*cardActionTasks("RedShips"))
-      doTask("6 MC")
-      doTasks(*cardActionTasks("WeatherBalloons", "Action2"), "-Floater<WeatherBalloons>", "9 MC")
-      doTasks(*cardActionTasks("VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
       doTasks(
-          *cardActionTasks("RotatorImpacts", "Action1"),
+          *cardActionTasks("$RedShips"),
+          "6 MC",
+      )
+      doTasks(*cardActionTasks("$WeatherBalloons", "Action2"), "-Floater<$WeatherBalloons>", "9 MC")
+      doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
+      doTasks(
+          *cardActionTasks("$RotatorImpacts", "Action1"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // Two titanium cover this Rotator Impacts action; pay no MC.
-          "Asteroid<RotatorImpacts>",
+          "Asteroid<$RotatorImpacts>",
       )
       doTasks(
           *standardProjectTasks("GreeneryProject"),
@@ -1153,20 +1229,25 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       doTask("OxygenStep") // The plain log omits this oxygen step.
       doTask("TerraformRating")
       doTasks(
-          *playCardTasks("SmallAnimals"),
+          *playCardTasks("$SmallAnimals"),
           "4 Pay<> FROM MC",
-          "SmallAnimals FROM ProjectCard",
+          "$SmallAnimals FROM ProjectCard",
           "-Production<SoloOpponent, Class<Plant>>",
       )
-      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
       // Database save 188, after the last generation 11 action.
       assertResources(m = 6, s = 1, t = 2, p = 0, e = 0, h = 1)
       assertProduction(m = 48, s = 0, t = 2, p = 8, e = 0, h = 10)
       assertCounts(66 to "TerraformRating")
     }
     p1.doTask("Pass")
-    p1.doTasks("114 MC", "2 Titanium", "8 Plant", "10 Heat")
-    p1.doTask("VenusStep! BY Admin")
+    p1.doTasks(
+        "114 MC",
+        "2 Titanium",
+        "8 Plant",
+        "10 Heat",
+        "VenusStep! BY Admin",
+    )
     p1.doTask("Ok") // Influence cancels Mud Slides' MC loss.
     // Database save 189, before generation 12 Research.
     p1.assertResources(m = 129, s = 1, t = 4, p = 8, e = 0, h = 11)
@@ -1181,14 +1262,14 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     )
     p1.turn {
       doTasks(
-          *cardActionTasks("InventorsGuild"),
+          *cardActionTasks("$InventorsGuild"),
           "ProjectCard<Selecting>",
           "-ProjectCard<Selecting>",
       )
       draw(Sabotage)
       doTasks(
-          *cardActionTasks("AerialMappers", "Action2"),
-          "-Floater<AerialMappers>",
+          *cardActionTasks("$AerialMappers", "Action2"),
+          "-Floater<$AerialMappers>",
           "ProjectCard",
       )
       doTasks(
@@ -1198,27 +1279,27 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *cardActionTasks("GhgProducingBacteria", "Action2"),
-          "-2 Microbe<GhgProducingBacteria>",
+          *cardActionTasks("$GhgProducingBacteria", "Action2"),
+          "-2 Microbe<$GhgProducingBacteria>",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("Psychrophiles"), "Microbe<Psychrophiles>")
+      doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
       doTasks(
-          *cardActionTasks("NitriteReducingBacteria", "Action2"),
-          "-3 Microbe<NitriteReducingBacteria>",
+          *cardActionTasks("$NitriteReducingBacteria", "Action2"),
+          "-3 Microbe<$NitriteReducingBacteria>",
           "TerraformRating",
       )
       doTasks(
-          *cardActionTasks("RotatorImpacts", "Action2"),
-          "-Asteroid<RotatorImpacts>",
+          *cardActionTasks("$RotatorImpacts", "Action2"),
+          "-Asteroid<$RotatorImpacts>",
           "VenusStep",
           "TerraformRating",
       )
       discard(PowerSupplyConsortium, Sabotage)
       doTasks(*standardProjectTasks("SellPatentsProject"), "2 MC FROM ProjectCard")
-      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
-      doTasks(*cardActionTasks("StratosphericBirds"), "Animal<StratosphericBirds>")
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",
           "8 Pay<Class<Plant>> FROM Plant",
@@ -1227,14 +1308,14 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "4 MC",
           "OxygenStep",
           "TerraformRating",
+          "0 MC",
       )
-      doTask("0 MC")
       doTasks(
-          *playCardTasks("NoctisFarming"),
+          *playCardTasks("$NoctisFarming"),
           "2 Pay<Class<Steel>> FROM Steel",
-          "2 PayFromCard<Psychrophiles> FROM Microbe<Psychrophiles>",
+          "2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "0 Pay<> FROM MC", // Steel and Psychrophiles microbes cover the cost; pay no MC.
-          "NoctisFarming FROM ProjectCard",
+          "$NoctisFarming FROM ProjectCard",
           "PROD[MC]",
           "2 Plant",
       )
@@ -1271,8 +1352,8 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "4 MC", // The source log records no ocean bonus at space 39.
           "OxygenStep",
           "TerraformRating",
+          "0 MC",
       )
-      doTask("0 MC")
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -1295,20 +1376,26 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "PROD[MC]",
           "CityTile<Amazonis_01_03>",
           "Steel",
+          "0 MC",
       )
-      doTask("0 MC")
-      doTasks(*cardActionTasks("RedShips"))
-      doTask("7 MC")
       doTasks(
-          *playCardTasks("Atmoscoop"),
+          *cardActionTasks("$RedShips"),
+          "7 MC",
+      )
+      doTasks(
+          *playCardTasks("$Atmoscoop"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "8 Pay<> FROM MC",
-          "Atmoscoop FROM ProjectCard",
+          "$Atmoscoop FROM ProjectCard",
           "2 VenusStep",
           "2 TerraformRating",
-          "2 Floater<WeatherBalloons>",
+          "2 Floater<$WeatherBalloons>",
       )
-      doTasks(*cardActionTasks("WeatherBalloons", "Action2"), "-Floater<WeatherBalloons>", "11 MC")
+      doTasks(
+          *cardActionTasks("$WeatherBalloons", "Action2"),
+          "-Floater<$WeatherBalloons>",
+          "11 MC",
+      )
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
@@ -1318,7 +1405,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       )
       doTask("0 OxygenStep") // Oxygen is at its Amazonis maximum.
       doTask("0 MC") // No adjacent ocean for Lakefront Resorts.
-      doTasks(*cardActionTasks("VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
+      doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Kelvinists>")
       discard(OutdoorSports)

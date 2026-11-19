@@ -44,7 +44,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
   override val cardArrivalOrder =
       mapOf(
-          cn("BeginnerCard") to mapOf(cn("KB") to listOf(cn("BeginnerCorporation1"))),
+          cn("BeginnerCard") to mapOf(cn("KB") to listOf(BeginnerCorporation1)),
           cn("CorporationCard") to mapOf(cn("ER") to listOf(ThorGate, MiningGuild)),
       )
   override val cardDepartureOrder =
@@ -191,10 +191,12 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
   private fun generation1() {
     green.draw(*greenStartingCards.toTypedArray())
     with(green) {
-      doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
-      doTask("BeginnerCorporation1 FROM BeginnerCard")
-      doTask("42 MC")
-      doTask("10 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "PlayCard<Class<BeginnerCard>, Class<$BeginnerCorporation1>, Hand>",
+          "$BeginnerCorporation1 FROM BeginnerCard",
+          "42 MC",
+          "10 ProjectCard<Hand FROM Selecting>",
+      )
     }
     pink.draw(
         PowerPlant,
@@ -241,12 +243,12 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
           *playCardTasks("$ConvoyFromEuropa"),
           "15 Pay<> FROM MC",
           "$ConvoyFromEuropa FROM ProjectCard",
+          "ProjectCard",
+          "3 MC",
+          "3 Heat",
+          "OceanTile<Tharsis_2_6>",
+          "TerraformRating",
       )
-      doTask("ProjectCard")
-      doTask("3 MC")
-      doTask("3 Heat")
-      doTask("OceanTile<Tharsis_2_6>")
-      doTask("TerraformRating")
 
       green.giveTask(pink, "2 Plant<ER>")
       green.doTask("2 ProjectCard")

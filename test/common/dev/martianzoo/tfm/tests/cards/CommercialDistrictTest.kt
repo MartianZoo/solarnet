@@ -12,9 +12,10 @@ internal class CommercialDistrictTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("NormalCityTile<Kim, Tharsis_3_2>")
     kim.inTurn {
-      doTasks(*playCardTasks("CommercialDistrict"), "16 Pay<> FROM MC")
       doTasks(
-          "CommercialDistrict FROM ProjectCard",
+          *playCardTasks("$CommercialDistrict"),
+          "16 Pay<> FROM MC",
+          "$CommercialDistrict FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
           "CommercialDistrict_SpecialTile<Tharsis_3_3>",

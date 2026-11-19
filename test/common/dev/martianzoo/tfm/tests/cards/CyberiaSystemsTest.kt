@@ -12,43 +12,42 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Copies Research Network using its wild Building tag`() {
-    newTestGame("ResearchNetwork")
-    kim.exMachina("ResearchNetwork, Mine")
+    newTestGame("$ResearchNetwork")
+    kim.exMachina("$ResearchNetwork, $Mine")
     copyResearchNetwork().expect("PROD[MC]")
   }
 
   private fun copyResearchNetwork() = kim.inTurn {
     doTasks(
-        *playCardTasks("CyberiaSystems"),
+        *playCardTasks("$CyberiaSystems"),
         "16 Pay<> FROM MC",
-        "CyberiaSystems FROM ProjectCard",
+        "$CyberiaSystems FROM ProjectCard",
         "PROD[Steel]",
-        "CopyProductionBox<Mine>",
+        "CopyProductionBox<$Mine>",
         "PROD[Steel]",
+        "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
+        "BuildingTag<WildTagElection<WildTag<$ResearchNetwork>>>",
+        "CopyProductionBox<$ResearchNetwork>",
+        "PROD[MC]",
     )
-    doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
-    doTask("BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
-    doTasks("CopyProductionBox<ResearchNetwork>", "PROD[MC]")
   }
 
   @Test
   internal fun `Research Network stays Building while the second copied box counts tags`() {
-    newTestGame("ResearchNetwork")
-    kim.exMachina("ResearchNetwork, MedicalLab")
+    newTestGame("$ResearchNetwork")
+    kim.exMachina("$ResearchNetwork, $MedicalLab")
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("CyberiaSystems"),
+              *playCardTasks("$CyberiaSystems"),
               "16 Pay<> FROM MC",
-              "CyberiaSystems FROM ProjectCard",
+              "$CyberiaSystems FROM ProjectCard",
               "PROD[Steel]",
-          )
-          doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
-          doTask("BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
-          doTasks(
-              "CopyProductionBox<ResearchNetwork>",
+              "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
+              "BuildingTag<WildTagElection<WildTag<$ResearchNetwork>>>",
+              "CopyProductionBox<$ResearchNetwork>",
               "PROD[MC]",
-              "CopyProductionBox<MedicalLab>",
+              "CopyProductionBox<$MedicalLab>",
               "PROD[1 MC]",
           )
         }
@@ -57,23 +56,21 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Copied Gyropolis counts an Earth assignment`() {
-    newTestGame("ResearchCoordination, Gyropolis")
-    kim.exMachina("ResearchCoordination, Gyropolis, Mine")
+    newTestGame("$ResearchCoordination, $Gyropolis")
+    kim.exMachina("$ResearchCoordination, $Gyropolis, $Mine")
     kim.setToExMachina(2, "PROD[Energy]")
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("CyberiaSystems"),
+              *playCardTasks("$CyberiaSystems"),
               "16 Pay<> FROM MC",
-              "CyberiaSystems FROM ProjectCard",
+              "$CyberiaSystems FROM ProjectCard",
               "PROD[Steel]",
-          )
-          doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
-          doTask("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
-          doTasks(
-              "CopyProductionBox<Mine>",
+              "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
+              "EarthTag<WildTagElection<WildTag<$ResearchCoordination>>>",
+              "CopyProductionBox<$Mine>",
               "PROD[Steel]",
-              "CopyProductionBox<Gyropolis>",
+              "CopyProductionBox<$Gyropolis>",
               "PROD[-2 Energy]",
               "PROD[0 MC]",
               "PROD[1 MC]",
@@ -92,13 +89,13 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
     initializeGame()
     kim.inTurn {
       doTasks(
-          *playCardTasks("CyberiaSystems"),
+          *playCardTasks("$CyberiaSystems"),
           "16 Pay<> FROM MC",
-          "CyberiaSystems FROM ProjectCard",
+          "$CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
-          "CopyProductionBox<Mine>",
+          "CopyProductionBox<$Mine>",
           "PROD[Steel]",
-          "CopyProductionBox<IndustrialMicrobes>",
+          "CopyProductionBox<$IndustrialMicrobes>",
           "PROD[Energy]",
           "PROD[Steel]",
       )
@@ -110,12 +107,15 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
     initializeGame()
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("CyberiaSystems"))
-        doTasks("16 Pay<> FROM MC", "CyberiaSystems FROM ProjectCard")
-        doTask("PROD[Steel]")
-        doTask("CopyProductionBox<Mine>")
-        doTask("PROD[Steel]")
-        doTask("CopyProductionBox<Mine>")
+        doTasks(
+            *playCardTasks("$CyberiaSystems"),
+            "16 Pay<> FROM MC",
+            "$CyberiaSystems FROM ProjectCard",
+            "PROD[Steel]",
+            "CopyProductionBox<$Mine>",
+            "PROD[Steel]",
+            "CopyProductionBox<$Mine>",
+        )
       }
     }
   }
@@ -126,19 +126,19 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("CyberiaSystems"),
+            *playCardTasks("$CyberiaSystems"),
             "16 Pay<> FROM MC",
-            "CyberiaSystems FROM ProjectCard",
+            "$CyberiaSystems FROM ProjectCard",
             "PROD[Steel]",
+            "CopyProductionBox<$CyberiaSystems>",
         )
-        doTask("CopyProductionBox<CyberiaSystems>")
       }
     }
   }
 
   @Test
   internal fun `Reducing then restoring energy production gives Manutech energy immediately`() {
-    newTestGame(addOptions = "IndustrialComplex", kimCorporation = Manutech)
+    newTestGame(addOptions = "$IndustrialComplex", kimCorporation = Manutech)
     kim.exMachina("$MagneticFieldGeneratorsPromo, $IndustrialComplex")
     kim.setToExMachina(4, "PROD[Energy]")
     kim.setToExMachina(0, "Energy")
@@ -146,25 +146,23 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("CyberiaSystems"),
+          *playCardTasks("$CyberiaSystems"),
           "16 Pay<> FROM MC",
-          "CyberiaSystems FROM ProjectCard",
+          "$CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
           "Steel",
-          "CopyProductionBox<MagneticFieldGeneratorsPromo>",
+          "CopyProductionBox<$MagneticFieldGeneratorsPromo>",
           "PROD[-4 Energy]",
           "PROD[2 Plant]",
           "2 Plant",
-          "CopyProductionBox<IndustrialComplex>",
+          "CopyProductionBox<$IndustrialComplex>",
       )
       // Expand the copied production box into its separate resource increases.
-      doTask(
-          "EACH Class<@StandardResource> { Production<Kim, Class<@StandardResource>>! " +
-              "/ (Class<@StandardResource> OR QuickStartVariant OR " +
-              "ProdOffset<Kim, Class<@StandardResource>>) - " +
-              "Production<Kim, Class<@StandardResource>> }"
-      )
       doTasks(
+          "EACH Class<@StandardResource> { Production<Class<@StandardResource>>! " +
+              "/ (Class<@StandardResource> OR QuickStartVariant OR " +
+              "ProdOffset<Class<@StandardResource>>) - " +
+              "Production<Class<@StandardResource>> }",
           "PROD[MC]",
           "PROD[Titanium]",
           "PROD[2 Energy]",

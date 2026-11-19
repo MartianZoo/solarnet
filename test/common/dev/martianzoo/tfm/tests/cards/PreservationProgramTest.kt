@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
@@ -19,147 +18,233 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   @Test
   fun `Prelude benefit leaves the Action phase skip available`() {
     newProgramGame()
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
-        .expect("5 TerraformRating")
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-    playStansPreludes()
-
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("TemperatureStep, 0 TerraformRating")
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("TemperatureStep, TerraformRating")
+    playPreludes()
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("TerraformRating")
+    }
   }
 
   @Test
   fun `Earlier Prelude TR leaves the Action phase skip available`() {
     newProgramGame()
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>")
-    kim.autoExecNow(EAGER)
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
-        .expect("5 TerraformRating")
-    playStansPreludes()
-
     kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("TemperatureStep, 0 TerraformRating")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
+          "$UnmiContractor FROM PreludeCard",
+          "3 TerraformRating",
+          "ProjectCard",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
+          "$PreservationProgram FROM PreludeCard",
+          "5 TerraformRating",
+      )
+    }
+    playStansPreludes()
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+    }
   }
 
   @Test
   fun `Prevented TR gain renews each generation rather than each turn`() {
     newProgramGame()
     playPreludes()
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating")
-    kim.doTask("Ok") // Decline the second action.
-    stan.doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
-    stan.doTask("Ok") // Decline the second action.
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("TerraformRating")
-    kim.doTask("Ok") // Decline the second action.
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+    }
+    stan.turn { doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard") }
+    kim.turn {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+    }
     stan.doTask("Pass")
-    passGeneration()
+    kim.doTask("Pass")
+    kim.doTask("26 MC")
+    stan.doTasks("21 MC", "2 Energy", "Steel", "Titanium")
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     stan.doTask("Pass")
-
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating")
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("TerraformRating")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+              "PROD[Heat]",
+          )
+          .expect("0 TerraformRating")
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("TerraformRating")
+    }
   }
 
   @Test
   fun `Earlier Prelude TR does not waive the skip when Valley Trust plays the Program`() {
     newProgramGame(ValleyTrust)
-    playPreludes(UnmiContractor, Donation)
-
     kim.completeOperation {
-          doTask("DoRequiredActions")
-          doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
-          autoExecNow(EAGER)
-        }
-        .expect("4 TerraformRating")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
+          "$UnmiContractor FROM PreludeCard",
+          "3 TerraformRating",
+          "ProjectCard",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard",
+          "21 MC",
+      )
+    }
+    playStansPreludes()
+    kim.turn {
+      doTasks(
+              "DoRequiredActions",
+              "3 PreludeCard<Selecting>",
+              "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
+              "$PreservationProgram FROM PreludeCard<Selecting>",
+              "5 TerraformRating",
+          )
+          .expect("4 TerraformRating")
+    }
   }
 
   @Test
   fun `Playing the Program as a first action skips part of its own benefit`() {
     newProgramGame(ValleyTrust)
-    playPreludes(PowerGeneration, Donation)
-
     kim.completeOperation {
-          doTask("DoRequiredActions")
-          doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
-          autoExecNow(EAGER)
-        }
-        .expect("4 TerraformRating")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>",
+          "$PowerGeneration FROM PreludeCard",
+          "PROD[3 Energy]",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard",
+          "21 MC",
+      )
+    }
+    playStansPreludes()
+    kim.turn {
+      doTasks(
+              "DoRequiredActions",
+              "3 PreludeCard<Selecting>",
+              "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
+              "$PreservationProgram FROM PreludeCard<Selecting>",
+              "5 TerraformRating",
+          )
+          .expect("4 TerraformRating")
+    }
   }
 
   @Test
   fun `Earlier TR in the same turn prevents a skip when Board of Directors plays the Program`() {
-    newProgramGame(extraOptions = "BoardOfDirectors")
-    playPreludes(BoardOfDirectors, Donation)
-
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
+    newTestGame("$PreservationProgram, $BoardOfDirectors, prelude:cards, -QuickStartVariant", 2)
+    kim.exMachina("$BoardOfDirectors, 4 Director<$BoardOfDirectors>, 50 MC")
+    kim.turn {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
+              "$PreservationProgram FROM PreludeCard",
+              "5 TerraformRating",
+          )
+          .expect("5 TerraformRating")
     }
-    kim.completeOperation {
-          doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
-          autoExecNow(EAGER)
-          doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
-          autoExecNow(EAGER)
-        }
-        .expect("5 TerraformRating")
   }
 
   @Test
   fun `Earlier non-TR action leaves the skip available when the Program is played second`() {
-    newProgramGame(extraOptions = "BoardOfDirectors")
-    playPreludes(BoardOfDirectors, Donation)
-
-    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-    kim.completeOperation {
-          doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
-          autoExecNow(EAGER)
-          doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
-          autoExecNow(EAGER)
-        }
-        .expect("4 TerraformRating")
+    newTestGame("$PreservationProgram, $BoardOfDirectors, prelude:cards, -QuickStartVariant", 2)
+    kim.exMachina("$BoardOfDirectors, 4 Director<$BoardOfDirectors>, 50 MC")
+    kim.turn {
+      doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
+              "$PreservationProgram FROM PreludeCard",
+              "5 TerraformRating",
+          )
+          .expect("4 TerraformRating")
+    }
   }
 
   @Test
   fun `UNMI cannot use a prevented gain to satisfy its requirement`() {
     newProgramGame(UnitedNationsMarsInitiative)
     playPreludes()
-    passGeneration()
+    kim.doTask("Pass")
     stan.doTask("Pass")
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
+    kim.doTask("25 MC")
+    stan.doTasks("21 MC", "2 Energy", "Steel", "Titanium")
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    stan.doTask("Pass")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
     }
-
     shouldThrow<RequirementException> {
-      kim.doTasks(*cardActionTasks("$UnitedNationsMarsInitiative"))
+      kim.completeOperation {
+        doTasks(
+            *cardActionTasks("$UnitedNationsMarsInitiative"),
+            "3 Pay<> FROM MC",
+            "TerraformRating",
+        )
+      }
     }
     kim.count("TerraformRating") shouldBe 25
   }
@@ -168,599 +253,666 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   fun `UNMI can act after an actual gain following a prevented gain`() {
     newProgramGame(UnitedNationsMarsInitiative)
     playPreludes()
-    passGeneration()
+    kim.doTask("Pass")
     stan.doTask("Pass")
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
+    kim.doTask("25 MC")
+    stan.doTasks("21 MC", "2 Energy", "Steel", "Titanium")
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    stan.doTask("Pass")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+              *cardActionTasks("$UnitedNationsMarsInitiative"),
+              "3 Pay<> FROM MC",
+              "TerraformRating",
+          )
+          .expect("TerraformRating")
     }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
-    }
-
-    kim.doTasks(*cardActionTasks("$UnitedNationsMarsInitiative")).expect("TerraformRating")
   }
 
   @Test
   fun `Prelude benefit qualifies UNMI before the first Action phase gain`() {
     newProgramGame(UnitedNationsMarsInitiative)
     playPreludes()
-
-    kim.doTasks(*cardActionTasks("$UnitedNationsMarsInitiative")).expect("0 TerraformRating")
+    kim.turn {
+      doTasks(
+              *cardActionTasks("$UnitedNationsMarsInitiative"),
+              "3 Pay<> FROM MC",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+    }
   }
 
   @Test
   fun `Prelude benefit still qualifies UNMI after the first Action phase gain is prevented`() {
     newProgramGame(UnitedNationsMarsInitiative)
     playPreludes()
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+      doTasks(
+              *cardActionTasks("$UnitedNationsMarsInitiative"),
+              "3 Pay<> FROM MC",
+              "TerraformRating",
+          )
+          .expect("TerraformRating")
     }
-
-    kim.doTasks(*cardActionTasks("$UnitedNationsMarsInitiative")).expect("TerraformRating")
   }
 
   @Test
   fun `Prelude benefit still disqualifies Pristar after a prevented Action phase gain`() {
-    newProgramGame(Pristar, extraOptions = "Pristar")
+    newProgramGame(Pristar, extraOptions = "$Pristar")
     playPreludes()
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
     }
-    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
-
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    kim.doTask("23 MC")
+    stan.doTasks("21 MC", "2 Energy", "Steel", "Titanium")
     admin.count("SolarPhase") shouldBe 1
     kim.count("Preservation<$Pristar>") shouldBe 0
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
   }
 
   @Test
   fun `Pristar receives its production bonus after only a prevented gain`() {
-    newProgramGame(Pristar, extraOptions = "Pristar")
+    newProgramGame(Pristar, extraOptions = "$Pristar")
     playPreludes()
-    passGeneration()
+    kim.doTask("Pass")
     stan.doTask("Pass")
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
+    kim.doTask("23 MC")
+    stan.doTasks("21 MC", "2 Energy", "Steel", "Titanium")
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    stan.doTask("Pass")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
     }
-
-    expectChanges("30 MC<Kim>, Preservation<Pristar<Kim>>") {
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    kim.doTask("Pass")
+    kim.doTasks("29 MC", "Preservation<$Pristar>")
+    stan.doTasks("2 Heat FROM Energy", "21 MC", "2 Energy", "Steel", "Titanium")
+    admin.count("SolarPhase") shouldBe 1
+    stan.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
   }
 
   @Test
   fun `Pristar loses its production bonus after an actual gain`() {
-    newProgramGame(Pristar, extraOptions = "Pristar")
+    newProgramGame(Pristar, extraOptions = "$Pristar")
     playPreludes()
-    passGeneration()
-    stan.doTask("Pass")
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
-    }
-
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    stan.doTask("Pass")
+    kim.doTask("23 MC")
+    stan.doTasks("21 MC", "2 Energy", "Steel", "Titanium")
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    stan.doTask("Pass")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+    }
+    kim.doTask("Pass")
+    kim.doTask("24 MC")
+    stan.doTasks("2 Heat FROM Energy", "21 MC", "2 Energy", "Steel", "Titanium")
     admin.count("SolarPhase") shouldBe 1
     kim.count("Preservation<$Pristar>") shouldBe 0
+    stan.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
   }
 
   @Test
   fun `A fixed three-TR gain loses only a single step`() {
-    newProgramGame()
-    playPreludes(PreservationProgram, PowerGeneration)
-
-    kim.completeOperation {
-          doTasks(
+    newTestGame("$PreservationProgram, -QuickStartVariant", 2)
+    kim.exMachina("$PreservationProgram")
+    kim.exMachina("PROD[4 Energy]")
+    kim.turn {
+      doTasks(
               *playCardTasks("$MagneticFieldGeneratorsPromo"),
+              "22 Pay<> FROM MC",
+              "$MagneticFieldGeneratorsPromo FROM ProjectCard",
+              "PROD[-4 Energy]",
+              "PROD[2 Plant]",
+              "3 TerraformRating",
+              "MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>",
           )
-          doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
-          autoExecNow(EAGER)
-        }
-        .expect("2 TerraformRating")
+          .expect("2 TerraformRating")
+    }
   }
 
   @Test
   fun `Terraforming Ganymede skips a single computed TR step`() {
-    newProgramGame(SaturnSystems)
-    playPreludes(PreservationProgram, GalileanMining)
-    passGeneration()
-    stan.doTask("Pass")
-
-    kim.completeOperation {
-          doTasks(
+    newTestGame("$PreservationProgram, $GalileanMining, -QuickStartVariant", 2, SaturnSystems)
+    kim.exMachina("$PreservationProgram, $GalileanMining, 50 MC, 4 Titanium")
+    kim.turn {
+      doTasks(
               *playCardTasks("$TerraformingGanymede"),
-              "Ok", /* No Titanium payment. */
+              "Ok",
+              "33 Pay<> FROM MC", // No titanium payment.
+              "$TerraformingGanymede FROM ProjectCard",
+              "PROD[MC]",
+              "3 TerraformRating",
           )
-          autoExecNow(EAGER)
-        }
-        .expect("2 TerraformRating")
+          .expect("2 TerraformRating")
+    }
   }
 
   @Test
   fun `Terraforming Ganymede awards all computed TR after the skip is used`() {
-    newProgramGame(SaturnSystems)
-    playPreludes(PreservationProgram, GalileanMining)
-    passGeneration()
-    stan.doTask("Pass")
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
-    }
-
-    kim.completeOperation {
-          doTasks(
+    newTestGame("$PreservationProgram, $GalileanMining, -QuickStartVariant", 2, SaturnSystems)
+    kim.exMachina("$PreservationProgram, $GalileanMining, 50 MC, 4 Titanium")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+      doTasks(
               *playCardTasks("$TerraformingGanymede"),
               "4 Pay<Class<Titanium>> FROM Titanium",
+              "21 Pay<> FROM MC",
+              "$TerraformingGanymede FROM ProjectCard",
+              "PROD[MC]",
+              "3 TerraformRating",
           )
-          autoExecNow(EAGER)
-        }
-        .expect("3 TerraformRating")
+          .expect("3 TerraformRating")
+    }
   }
 
   @Test
   fun `Opponents gain TR without consuming the owners skip`() {
     newProgramGame()
     playPreludes()
-    passGeneration()
-    stan
-        .completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("TerraformRating")
-    stan.doTask("Ok") // Decline the second action.
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating")
-    kim.doTask("Ok") // Decline the second action.
-    stan
-        .completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("TerraformRating")
-    stan.doTask("Ok") // Decline the second action.
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("TerraformRating")
+    kim.exMachina("50 MC") // Enough for both of Kim's projects without extra generations.
+    kim.turn { doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard") }
+    stan.turn {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+    }
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+    }
+    stan.turn {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+          "PROD[Heat]",
+      )
+    }
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("TerraformRating")
+    }
   }
 
   @Test
   fun `Double Down copies the Prelude benefit without adding another skip`() {
     newProgramGame()
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
     kim.completeOperation {
-          doTask("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")
-          doTask("CopyPrelude<PreservationProgram>")
-          autoExecNow(EAGER)
-        }
-        .expect("5 TerraformRating")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
+          "$PreservationProgram FROM PreludeCard",
+          "5 TerraformRating",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
+          "$DoubleDown FROM PreludeCard",
+          "CopyPrelude<$PreservationProgram>",
+          "5 TerraformRating",
+      )
+    }
     playStansPreludes()
-
-    kim.completeOperation {
-          doTasks(*playCardTasks("$Comet"), "Ok" /* No Titanium payment. */)
-          doTask("OceanTile<Tharsis_1_2>")
-          autoExecNow(EAGER)
-        }
-        .expect("TerraformRating")
+    kim.turn {
+      doTasks(
+              *playCardTasks("$Comet"),
+              "21 Pay<> FROM MC",
+              "$Comet FROM ProjectCard",
+              "TemperatureStep",
+              "TerraformRating",
+              "OceanTile<Tharsis_1_2>",
+              "TerraformRating",
+              "2 Steel",
+              "Ok",
+          ) // No plant attack.
+          .expect("TerraformRating")
+    }
   }
 
   @Test
   fun `Double Down copies four TR when the Action phase skip is unused`() {
     newProgramGame(ValleyTrust)
     playPreludes()
-
-    kim.completeOperation {
-          doTask("DoRequiredActions")
-          doTask("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")
-          doTask("CopyPrelude<PreservationProgram>")
-          autoExecNow(EAGER)
-        }
-        .expect("4 TerraformRating")
+    kim.turn {
+      doTasks(
+              "DoRequiredActions",
+              "3 PreludeCard<Selecting>",
+              "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
+              "$DoubleDown FROM PreludeCard<Selecting>",
+              "CopyPrelude<$PreservationProgram>",
+              "5 TerraformRating",
+          )
+          .expect("4 TerraformRating")
+    }
   }
 
   @Test
   fun `Double Down copies five TR after the Action phase skip is used`() {
-    newProgramGame(extraOptions = "BoardOfDirectors")
-    playPreludes(PreservationProgram, BoardOfDirectors)
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
+    newTestGame("$PreservationProgram, $BoardOfDirectors, prelude:cards, -QuickStartVariant", 2)
+    kim.exMachina("$BoardOfDirectors, 4 Director<$BoardOfDirectors>, 50 MC")
+    kim.exMachina("$PreservationProgram")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+      doTasks(
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
+              "$DoubleDown FROM PreludeCard",
+              "CopyPrelude<$PreservationProgram>",
+              "5 TerraformRating",
+          )
+          .expect("5 TerraformRating")
     }
-
-    kim.completeOperation {
-          doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
-          autoExecNow(EAGER)
-          doTask("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")
-          doTask("CopyPrelude<PreservationProgram>")
-          autoExecNow(EAGER)
-        }
-        .expect("5 TerraformRating")
   }
 
   @Test
   fun `Pharmacy Union consumes a disease even when its TR gain is prevented`() {
     startPharmacyGame()
-    playPreludes()
-
-    kim.doTasks(*playCardTasks("$PhysicsComplex"))
-        .expect("-Disease<$PharmacyUnion>, 0 TerraformRating")
+    kim.turn {
+      doTasks(
+              *playCardTasks("$PhysicsComplex"),
+              "12 Pay<> FROM MC",
+              "$PhysicsComplex FROM ProjectCard",
+              "TerraformRating FROM Disease<$PharmacyUnion>",
+          )
+          .expect("0 TerraformRating")
+    }
   }
 
   @Test
   fun `World Government Advisor does not consume the skip`() {
-    newProgramGame(extraOptions = "WorldGovernmentAdvisor")
-    playPreludes(PreservationProgram, WorldGovernmentAdvisor)
-    passGeneration()
-    stan.doTask("Pass")
-    kim.completeOperation {
-          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
-          doTask("TemperatureStep BY Admin")
-        }
-        .expect("TemperatureStep, 0 TerraformRating")
-
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating")
+    newTestGame("$PreservationProgram, $WorldGovernmentAdvisor, -QuickStartVariant", 2)
+    kim.exMachina("$PreservationProgram")
+    kim.exMachina("$WorldGovernmentAdvisor")
+    kim.turn {
+      doTasks(*cardActionTasks("$WorldGovernmentAdvisor"), "TemperatureStep BY Admin")
+          .expect("TemperatureStep, 0 TerraformRating")
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+    }
   }
 
   @Test
   fun `Solar chairman TR does not consume the following generations skip`() {
-    newProgramGame(
-        extraOptions = "TurmoilExpansion, Unsafe",
+    newTestGame(
+        "$PreservationProgram, TurmoilExpansion, Unsafe, -QuickStartVariant",
+        2,
         firstGlobalEvents =
-            listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+            listOf("$DemocraticReform", "$MinimalImpactPolicy", "$ExploreFirstDirective"),
     )
-    playPreludes()
-    kim.completeOperation {
-      doTask("UseAction<LobbyAction, Action1>")
-      doTask("PartyLeader<Scientists> FROM LobbyDelegate")
-    }
-    kim.completeOperation {
-      doTask("UseAction<PaidLobbyAction, Action1>")
-
-      doTask("PartyFollower<Scientists>")
-    }
+    kim.exMachina("$PreservationProgram, PartyLeader<Scientists>, PartyFollower<Scientists>")
+    kim.doTask("Pass")
     stan.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("0 TerraformRating<Kim>") {
-      passGeneration(
-          nextEvent = "ExploreFirstDirective",
-          neutralPlacements =
-              listOf("PartyLeader<Greens, Neutral>", "PartyFollower<Reds, Neutral>"),
-      )
-      kim.count("Chairman") shouldBe 1
-      // Turmoil's TR revision loses a step, then becoming chairman restores it.
-    }
+    players.forEach { it.doTask("20 MC") }
+    expectChanges("0 TerraformRating<Kim>") { kim.doTask("VenusStep! BY Admin") }
+    kim.count("Chairman") shouldBe 1 // Revision and the chairman award cancel.
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     stan.doTask("Pass")
-
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+    }
   }
 
   @Test
   fun `A gain followed by a loss still prevents a skip when the Program is acquired`() {
-    newProgramGame(extraOptions = "BoardOfDirectors, Pristar")
-    playPreludes(BoardOfDirectors, Donation)
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
+    newTestGame(
+        "$PreservationProgram, $BoardOfDirectors, $Pristar, prelude:cards, -QuickStartVariant",
+        2,
+    )
+    kim.exMachina("$BoardOfDirectors, 4 Director<$BoardOfDirectors>, 50 MC")
+    kim.turn {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
-    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
-    kim.completeOperation {
-          doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
-          autoExecNow(EAGER)
-          doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
-          doTask("PlayCard<Class<CorporationCard>, Class<$Pristar>>")
-          autoExecNow(EAGER)
-        }
-        .expect("-2 TerraformRating")
-
-    kim.completeOperation {
-          doTasks(*playCardTasks("$ProjectInspection"))
-          doTask("UseAction<$BoardOfDirectors, Action1>")
-          doTask("-12 MC")
-          autoExecNow(EAGER)
-          doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
-          autoExecNow(EAGER)
-        }
-        .expect("5 TerraformRating")
+    kim.turn {
+      doTasks(
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+          "PlayCard<Class<CorporationCard>, Class<$Pristar>>",
+          "$Pristar FROM CorporationCard<Selecting>",
+          "53 MC",
+          "-2 TerraformRating",
+          "-42 MC",
+      )
+      doTasks(
+          *playCardTasks("$ProjectInspection"),
+          "$ProjectInspection FROM ProjectCard",
+          "UseAction<$BoardOfDirectors, Action1>",
+          "PreludeCard",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
+              "$PreservationProgram FROM PreludeCard",
+              "5 TerraformRating",
+          )
+          .expect("5 TerraformRating")
+    }
   }
 
   @Test
   fun `A TR loss does not restore a consumed skip`() {
-    newProgramGame(extraOptions = "BoardOfDirectors, Pristar")
-    playPreludes(PreservationProgram, BoardOfDirectors)
-    passGeneration()
+    newTestGame(
+        "$PreservationProgram, $BoardOfDirectors, $Pristar, prelude:cards, -QuickStartVariant",
+        2,
+    )
+    kim.exMachina("$BoardOfDirectors, 4 Director<$BoardOfDirectors>, 50 MC")
+    kim.exMachina("$PreservationProgram")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+    }
     stan.doTask("Pass")
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
+    kim.turn {
+      doTasks(
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+          "PlayCard<Class<CorporationCard>, Class<$Pristar>>",
+          "$Pristar FROM CorporationCard<Selecting>",
+          "53 MC",
+          "-2 TerraformRating",
+          "-42 MC",
+      )
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+              "PROD[Heat]",
+          )
+          .expect("TerraformRating")
     }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-          doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
-          autoExecNow(EAGER)
-          doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
-          doTask("PlayCard<Class<CorporationCard>, Class<$Pristar>>")
-          autoExecNow(EAGER)
-        }
-        .expect("-2 TerraformRating")
-
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("TerraformRating")
   }
 
   @Test
   fun `A capped global parameter does not consume the skip`() {
-    newProgramGame()
-    playPreludes()
-    repeat(14) { passGeneration("OxygenStep") }
-    kim.completeOperation {
-          doTasks("UseAction<ConvertPlantsAction, Action1>")
-          doTask("GreeneryTile<Tharsis_2_4>")
-        }
-        .expect("0 OxygenStep, 0 TerraformRating")
-    kim.doTask("Ok") // Decline the second action.
-    stan.doTask("Pass")
-
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating")
+    newTestGame("$PreservationProgram, -QuickStartVariant", 2)
+    kim.exMachina("$PreservationProgram")
+    admin.exMachina("14 OxygenStep")
+    kim.exMachina("8 Plant")
+    kim.turn {
+      doTasks(
+              "UseAction<ConvertPlantsAction, Action1>",
+              "8 Pay<Class<Plant>> FROM Plant",
+              "GreeneryTile<Tharsis_2_4>",
+              "0 OxygenStep",
+          )
+          .expect("0 OxygenStep, 0 TerraformRating")
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating")
+    }
   }
 
   @Test
   fun `Linked oxygen temperature and ocean gains skip a single TR`() {
-    newProgramGame()
-    playPreludes()
-    repeat(7) { passGeneration("OxygenStep") }
-    repeat(14) { passGeneration("TemperatureStep") }
-    stan.doTask("Pass")
-
-    kim.completeOperation {
-          doTasks("UseAction<ConvertPlantsAction, Action1>")
-          doTask("GreeneryTile<Tharsis_2_4>")
-          autoExecNow(EAGER)
-          doTask("OceanTile<Tharsis_1_2>")
-          autoExecNow(EAGER)
-        }
-        .expect("OxygenStep, TemperatureStep, OceanTile, 2 TerraformRating")
+    newTestGame("$PreservationProgram, -QuickStartVariant", 2)
+    kim.exMachina("$PreservationProgram")
+    admin.exMachina("7 OxygenStep, 14 TemperatureStep")
+    kim.exMachina("8 Plant")
+    kim.turn {
+      doTasks(
+              "UseAction<ConvertPlantsAction, Action1>",
+              "8 Pay<Class<Plant>> FROM Plant",
+              "GreeneryTile<Tharsis_2_4>",
+              "OxygenStep",
+              "TerraformRating",
+              "TemperatureStep",
+              "TerraformRating",
+              "OceanTile<Tharsis_1_2>",
+              "2 Steel",
+              "TerraformRating",
+          )
+          .expect("2 TerraformRating")
+    }
   }
 
   @Test
   fun `Pharmacy Union flip loses part of its TR and remains a played event`() {
     startPharmacyGame()
-    playPreludes()
-    kim.completeOperation {
-      doTasks(*playCardTasks("$Research"))
-      autoExecNow(EAGER)
+    kim.exMachina(
+        "-2 Disease<$PharmacyUnion>"
+    ) // Prepare the no-disease branch; its earlier consumption is incidental.
+    kim.turn {
+      doTasks(
+              *playCardTasks("$PhysicsComplex"),
+              "12 Pay<> FROM MC",
+              "$PhysicsComplex FROM ProjectCard",
+              "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
+              "3 TerraformRating",
+          )
+          .expect("2 TerraformRating")
     }
-    kim.doTask("Ok") // Decline the second action.
-    stan.doTask("Pass")
-    passGeneration()
-    stan.doTask("Pass")
-
-    kim.completeOperation {
-          doTasks(*playCardTasks("$PhysicsComplex"))
-          doTask("Ok") // Keep the steel before paying the exact MC remainder.
-          autoExecNow(EAGER)
-          selectTask("PlayedEvent FROM $PharmacyUnion THEN 3 TerraformRating")
-          autoExecNow(EAGER)
-        }
-        .expect("2 TerraformRating")
     kim.count("$PharmacyUnion") shouldBe 0
     kim.count("PlayedEvent<Class<$PharmacyUnion>>") shouldBe 1
   }
 
   @Test
   fun `Earlier TR in a prior turn prevents a skip when the Program is acquired`() {
-    newProgramGame(extraOptions = "BoardOfDirectors")
-    playPreludes(BoardOfDirectors, Donation)
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
+    newTestGame("$PreservationProgram, $BoardOfDirectors, prelude:cards, -QuickStartVariant", 2)
+    kim.exMachina("$BoardOfDirectors, 4 Director<$BoardOfDirectors>, 50 MC")
+    kim.turn {
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
-    kim.doTask("Ok") // Decline the second action.
     stan.doTask("Pass")
-
-    kim.completeOperation {
-          doTasks(*cardActionTasks("$BoardOfDirectors"))
-          doTask("-12 MC")
-          autoExecNow(EAGER)
-          doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
-          autoExecNow(EAGER)
-        }
-        .expect("5 TerraformRating")
+    kim.turn {
+      doTasks(
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
+              "$PreservationProgram FROM PreludeCard",
+              "5 TerraformRating",
+          )
+          .expect("5 TerraformRating")
+    }
   }
 
   @Test
   fun `Reds ruling bonus outside the Action phase leaves the next generations skip available`() {
-    newProgramGame(
-        extraOptions = "TurmoilExpansion, Unsafe",
+    newTestGame(
+        "$PreservationProgram, TurmoilExpansion, Unsafe, -QuickStartVariant",
+        2,
         firstGlobalEvents =
-            listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+            listOf("$DemocraticReform", "$MinimalImpactPolicy", "$ExploreFirstDirective"),
     )
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>")
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>")
-    stan.autoExecNow(EAGER)
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-    kim.completeOperation {
-      doTask("UseAction<LobbyAction, Action1>")
-      doTask("PartyFollower<Reds> FROM LobbyDelegate")
-    }
-    kim.completeOperation {
-      doTask("UseAction<PaidLobbyAction, Action1>")
-
-      doTask("PartyLeader<Reds>")
-    }
-    stan.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
-    }
-    stan.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
-    }
+    kim.exMachina(
+        "$PreservationProgram, PartyLeader<Reds> FROM PartyLeader<Reds, Neutral>, 2 PartyFollower<Reds>"
+    )
+    stan.exMachina("5 TerraformRating")
     kim.doTask("Pass")
-    stan.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
-    }
-    // Kim has the lower rating; Reds and the chairmanship each grant TR after revision.
     stan.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("1 TerraformRating<Kim>") {
-      kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
-    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-    admin.count("Distant<ExploreFirstDirective>") shouldBe 1
-    (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
-    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
+    kim.doTask("20 MC")
+    stan.doTask("25 MC")
+    expectChanges("TerraformRating<Kim>") { kim.doTask("VenusStep! BY Admin") }
+    // Kim receives Reds' bonus and the chairmanship after revision.
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     stan.doTask("Pass")
-
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+              "-3 MC",
+          )
+          .expect("0 TerraformRating")
+    }
   }
 
   @Test
   fun `Venus threshold awards its additional TR while skipping a single step`() {
-    newProgramGame()
-    playPreludes()
-    repeat(7) { passGeneration("VenusStep") }
-    stan.doTask("Pass")
-
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AirScrappingProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("VenusStep, TerraformRating")
+    newTestGame("$PreservationProgram, -QuickStartVariant", 2)
+    kim.exMachina("$PreservationProgram")
+    admin.exMachina("7 VenusStep")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AirScrappingProject"),
+              "15 Pay<> FROM MC",
+              "VenusStep",
+              "2 TerraformRating",
+          )
+          .expect("TerraformRating")
+    }
   }
 
   @Test
   fun `Solo Buffer Gas uses the skip while starting TR remains fourteen`() {
-    newTestGame(
-        addOptions = "PreludeExpansion, PreservationProgram, Tr63SoloObjective",
-        playerCount = 1,
-    )
+    newTestGame("PreludeExpansion, $PreservationProgram, Tr63SoloObjective, -QuickStartVariant", 1)
     kim.count("TerraformRating") shouldBe 14
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
-        .expect("5 TerraformRating")
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-
     kim.completeOperation {
-          doTasks(*standardProjectTasks("BufferGasProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating")
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("BufferGasProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("TerraformRating")
-  }
-
-  private fun startPharmacyGame() {
-    newTestGameBeforeCorporationPlay(
-        addOptions = "PreludeExpansion, PreservationProgram",
-        playerCount = 2,
-    )
-    kim.completeOperation {
-      doTask("PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>")
-      autoExecNow(EAGER)
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
+          "$PreservationProgram FROM PreludeCard",
+          "5 TerraformRating",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard",
+          "21 MC",
+      )
     }
-    stan.completeOperation {
-      doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
-      autoExecNow(EAGER)
+    kim.turn {
+      doTasks(*standardProjectTasks("BufferGasProject"), "16 Pay<> FROM MC", "TerraformRating")
+          .expect("0 TerraformRating")
+      doTasks(*standardProjectTasks("BufferGasProject"), "16 Pay<> FROM MC", "TerraformRating")
+          .expect("TerraformRating")
     }
-  }
-
-  private fun newProgramGame(
-      kimCorporation: ClassName? = null,
-      extraOptions: String = "",
-      firstGlobalEvents: List<String> = emptyList(),
-  ) {
-    newTestGame(
-        addOptions = "PreludeExpansion, PreservationProgram, $extraOptions",
-        playerCount = 2,
-        kimCorporation = kimCorporation,
-        firstGlobalEvents = firstGlobalEvents,
-    )
-  }
-
-  private fun playPreludes(first: ClassName = PreservationProgram, second: ClassName = Donation) {
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$first>>")
-    kim.autoExecNow(EAGER)
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$second>>")
-    kim.autoExecNow(EAGER)
-    playStansPreludes()
-  }
-
-  private fun playStansPreludes() {
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
-    stan.autoExecNow(EAGER)
-
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
-    stan.autoExecNow(EAGER)
-  }
-
-  /** Called at the start of a generation, or after Stan has passed and Kim finishes play. */
-  private fun passGeneration(
-      worldGovernment: String = "VenusStep",
-      nextEvent: String? = null,
-      neutralPlacements: List<String> = emptyList(),
-  ) {
-    val first = players.indexOfFirst { it.count("StartToken") == 1 }
-    val order = players.drop(first) + players.take(first)
-    order.filter { it.count("Pass") == 0 }.forEach { it.doTask("Pass") }
-    players.forEach { it.autoExecNow(EAGER) }
-    order.first().doTask("$worldGovernment! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-
-    if (nextEvent != null) {
-      (admin.count(neutralPlacements[0]) > 0) shouldBe true
-      admin.count("Distant<$nextEvent>") shouldBe 1
-      (admin.count(neutralPlacements[1]) > 0) shouldBe true
-    }
-    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
   }
 
   // These pairs explicitly select unsupported combinations with Unsafe.
@@ -772,119 +924,139 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   // https://boardgamegeek.com/thread/2196388/article/31885882#31885882
   @Ignore // The removed TR still triggers Terraforming Deal.
   @Test
-  internal fun `Terraforming Deal pays only for the retained TR in a fixed gain`() {
+  fun `Terraforming Deal pays only for the retained TR in a fixed gain`() {
     startPaymentDefectGame(deal = true)
-    kim.completeOperation {
-          doTasks(
+    kim.turn {
+      doTasks(
               *playCardTasks("$MagneticFieldGeneratorsPromo"),
-              "Ok", /* No Steel payment. */
+              "22 Pay<> FROM MC",
+              "$MagneticFieldGeneratorsPromo FROM ProjectCard",
+              "PROD[-4 Energy]",
+              "PROD[2 Plant]",
+              "3 TerraformRating",
+              "MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>",
+              "4 MC",
           )
-          doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
-          autoExecNow(EAGER)
-        }
-        .expect("2 TerraformRating, -18 MC")
+          .expect("2 TerraformRating, -18 MC")
+    }
   }
 
   @Test
-  internal fun `BUG - Terraforming Deal pays for the reversed TR in a fixed gain`() {
+  fun `BUG - Terraforming Deal pays for the reversed TR in a fixed gain`() {
     startPaymentDefectGame(deal = true)
-    kim.completeOperation {
-          doTasks(
+    kim.turn {
+      doTasks(
               *playCardTasks("$MagneticFieldGeneratorsPromo"),
-              "Ok", /* No Steel payment. */
+              "22 Pay<> FROM MC",
+              "$MagneticFieldGeneratorsPromo FROM ProjectCard",
+              "PROD[-4 Energy]",
+              "PROD[2 Plant]",
+              "3 TerraformRating",
+              "MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>",
+              "6 MC",
           )
-          doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
-          autoExecNow(EAGER)
-        }
-        .expect("2 TerraformRating, -16 MC")
+          .expect("2 TerraformRating, -16 MC")
+    }
   }
 
   @Ignore // Reds charges before Preservation Program removes the TR.
   @Test
-  internal fun `Reds charges nothing for the prevented TR`() {
-    startPaymentDefectGame(
-        deal = false,
-        rulingParty = "Reds",
-        firstRole = "PartyFollower",
-        secondRole = "PartyLeader",
-        neutralRole = "PartyLeader",
-    )
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating, -14 MC")
+  fun `Reds charges nothing for the prevented TR`() {
+    startPaymentDefectGame(deal = false, rulingParty = "Reds")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating, -14 MC")
+    }
   }
 
   @Test
-  internal fun `BUG - Reds charges for the prevented TR`() {
-    startPaymentDefectGame(
-        deal = false,
-        rulingParty = "Reds",
-        firstRole = "PartyFollower",
-        secondRole = "PartyLeader",
-        neutralRole = "PartyLeader",
-    )
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating, -17 MC")
+  fun `BUG - Reds charges for the prevented TR`() {
+    startPaymentDefectGame(deal = false, rulingParty = "Reds")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+              "-3 MC",
+          )
+          .expect("0 TerraformRating, -17 MC")
+    }
   }
 
   @Ignore // Both payments respond before Preservation Program removes the TR.
   @Test
-  internal fun `Reds and Terraforming Deal both count only retained TR`() {
-    startPaymentDefectGame(
-        deal = true,
-        rulingParty = "Reds",
-        firstRole = "PartyFollower",
-        secondRole = "PartyLeader",
-        neutralRole = "PartyLeader",
-    )
-    kim.completeOperation {
-          doTasks(
+  fun `Reds and Terraforming Deal both count only retained TR`() {
+    startPaymentDefectGame(deal = true, rulingParty = "Reds")
+    kim.turn {
+      doTasks(
               *playCardTasks("$MagneticFieldGeneratorsPromo"),
-              "Ok", /* No Steel payment. */
+              "22 Pay<> FROM MC",
+              "$MagneticFieldGeneratorsPromo FROM ProjectCard",
+              "PROD[-4 Energy]",
+              "PROD[2 Plant]",
+              "3 TerraformRating",
+              "MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>",
+              "4 MC",
+              "-6 MC",
           )
-          doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
-          autoExecNow(EAGER)
-        }
-        .expect("2 TerraformRating, -24 MC")
+          .expect("2 TerraformRating, -24 MC")
+    }
   }
 
   @Test
-  internal fun `BUG - Reds and Terraforming Deal both count reversed TR`() {
-    startPaymentDefectGame(
-        deal = true,
-        rulingParty = "Reds",
-        firstRole = "PartyFollower",
-        secondRole = "PartyLeader",
-        neutralRole = "PartyLeader",
-    )
-    kim.completeOperation {
-          doTasks(
+  fun `BUG - Reds and Terraforming Deal both count reversed TR`() {
+    startPaymentDefectGame(deal = true, rulingParty = "Reds")
+    kim.turn {
+      doTasks(
               *playCardTasks("$MagneticFieldGeneratorsPromo"),
-              "Ok", /* No Steel payment. */
+              "22 Pay<> FROM MC",
+              "$MagneticFieldGeneratorsPromo FROM ProjectCard",
+              "PROD[-4 Energy]",
+              "PROD[2 Plant]",
+              "3 TerraformRating",
+              "MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>",
+              "6 MC",
+              "-9 MC",
           )
-          doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
-          autoExecNow(EAGER)
-        }
-        .expect("2 TerraformRating, -25 MC")
+          .expect("2 TerraformRating, -25 MC")
+    }
   }
 
   @Ignore // Reds requires payment for both TR before the first is removed.
   @Test
-  internal fun `Reds permits an affordable two-step gain when the first TR is prevented`() {
+  fun `Reds permits an affordable two-step gain when the first TR is prevented`() {
     prepareAffordableTwoStepGain()
-    kim.doTasks(*playCardTasks("$ReleaseOfInertGases")).expect("TerraformRating, -17 MC")
+    kim.turn {
+      doTasks(
+              *playCardTasks("$ReleaseOfInertGases"),
+              "14 Pay<> FROM MC",
+              "$ReleaseOfInertGases FROM ProjectCard",
+              "2 TerraformRating",
+              "-3 MC",
+          )
+          .expect("TerraformRating, -17 MC")
+    }
   }
 
   @Test
-  internal fun `BUG - Reds rejects an affordable two-step gain when the first TR is prevented`() {
+  fun `BUG - Reds rejects an affordable two-step gain when the first TR is prevented`() {
     prepareAffordableTwoStepGain()
     shouldThrow<LimitsException> {
-      kim.doTasks(*playCardTasks("$ReleaseOfInertGases"))
+      kim.completeOperation {
+        doTasks(
+            *playCardTasks("$ReleaseOfInertGases"),
+            "14 Pay<> FROM MC",
+            "$ReleaseOfInertGases FROM ProjectCard",
+            "2 TerraformRating",
+            "-6 MC",
+        )
+      }
     }
     kim.assertCounts(
         17 to "MC",
@@ -893,86 +1065,125 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     )
   }
 
-  private fun prepareAffordableTwoStepGain() {
-    startPaymentDefectGame(
-        deal = false,
-        rulingParty = "Reds",
-        firstRole = "PartyFollower",
-        secondRole = "PartyLeader",
-        neutralRole = "PartyLeader",
-    )
-    // Ordinary purchases leave exactly 17 MC and a card, without using the generation's TR skip.
-    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-    kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-    kim.doTasks(*standardProjectTasks("SellPatentsProject"), "9 MC FROM ProjectCard")
-  }
-
   // Terraforming Deal outside Action:
   // https://boardgamegeek.com/thread/3343166/article/44660753#44660753
   @Ignore // The earlier Solar-phase gain does not prevent the incorrect payout.
   @Test
-  internal fun `Terraforming Deal ignores prevented TR after a chairman award`() {
+  fun `Terraforming Deal ignores prevented TR after a chairman award`() {
     startPaymentDefectGame(deal = true, rulingParty = "Scientists")
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating, -14 MC")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
+          .expect("0 TerraformRating, -14 MC")
+    }
   }
 
   @Test
-  internal fun `BUG - Terraforming Deal pays for prevented TR after a chairman award`() {
+  fun `BUG - Terraforming Deal pays for prevented TR after a chairman award`() {
     startPaymentDefectGame(deal = true, rulingParty = "Scientists")
-    kim.completeOperation {
-          doTasks(*standardProjectTasks("AsteroidProject"))
-          autoExecNow(EAGER)
-        }
-        .expect("0 TerraformRating, -12 MC")
+    kim.turn {
+      doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+              "2 MC",
+          )
+          .expect("0 TerraformRating, -12 MC")
+    }
   }
 
-  private fun startPaymentDefectGame(
-      deal: Boolean,
-      rulingParty: String? = null,
-      firstRole: String = "PartyLeader",
-      secondRole: String = "PartyFollower",
-      neutralRole: String = "PartyFollower",
+  private fun newProgramGame(
+      kimCorporation: ClassName? = null,
+      extraOptions: String = "",
   ) {
-    val politics = if (rulingParty == null) "" else ", TurmoilExpansion"
-    newProgramGame(
-        extraOptions = "TerraformingDeal, Unsafe$politics",
+    newTestGame(
+        "PreludeExpansion, $PreservationProgram, -QuickStartVariant, $extraOptions",
+        2,
+        kimCorporation,
+    )
+  }
+
+  private fun playPreludes() {
+    kim.completeOperation {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
+          "$PreservationProgram FROM PreludeCard",
+          "5 TerraformRating",
+      )
+
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard",
+          "21 MC",
+      )
+    }
+    playStansPreludes()
+  }
+
+  private fun playStansPreludes() {
+    stan.completeOperation {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
+          "$Supplier FROM PreludeCard",
+          "PROD[2 Energy]",
+          "4 Steel",
+      )
+
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
+          "$MetalsCompany FROM PreludeCard",
+          "PROD[MC]",
+          "PROD[Steel]",
+          "PROD[Titanium]",
+      )
+    }
+    admin.count("ActionPhase") shouldBe 1
+  }
+
+  private fun startPharmacyGame() {
+    // The corporation opening is incidental; its science reaction is exercised by the test.
+    newTestGame("$PreservationProgram, -QuickStartVariant", 2, PharmacyUnion)
+    kim.exMachina("$PreservationProgram")
+  }
+
+  private fun startPaymentDefectGame(deal: Boolean, rulingParty: String? = null) {
+    val politics = if (rulingParty == null) "" else "TurmoilExpansion"
+    newTestGame(
+        "$PreservationProgram, $TerraformingDeal, Unsafe, -QuickStartVariant, $politics",
+        2,
         firstGlobalEvents =
             if (rulingParty == null) emptyList()
-            else listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+            else listOf("$DemocraticReform", "$MinimalImpactPolicy", "$ExploreFirstDirective"),
     )
-    playPreludes(PreservationProgram, if (deal) TerraformingDeal else PowerGeneration)
+    kim.exMachina("$PreservationProgram, PROD[4 Energy], 50 MC")
+    if (deal) kim.exMachina("$TerraformingDeal")
     if (rulingParty != null) {
-      kim.completeOperation {
-        doTask("UseAction<LobbyAction, Action1>")
-        doTask("$firstRole<$rulingParty> FROM LobbyDelegate")
-      }
-      kim.completeOperation {
-        doTask("UseAction<PaidLobbyAction, Action1>")
-
-        doTask("$secondRole<$rulingParty>")
-      }
-    } else {
-      kim.doTasks(
-          *playCardTasks("$GiantSpaceMirror"),
-      )
-      kim.doTask("Ok") // Decline the second action.
+      // The delegates are preparation; the real election must award the chairman TR outside Action.
+      if (rulingParty == "Reds")
+          kim.exMachina("PartyLeader<Reds> FROM PartyLeader<Reds, Neutral>, 2 PartyFollower<Reds>")
+      else kim.exMachina("PartyLeader<Scientists>, PartyFollower<Scientists>")
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      kim.doTasks("20 MC", "4 Energy")
+      stan.doTask("20 MC")
+      kim.doTask("VenusStep! BY Admin")
+      if (deal) kim.doTask(if (rulingParty == "Reds") "4 MC" else "2 MC")
+      kim.count("Chairman") shouldBe 1
+      admin.count("Ruling<$rulingParty>") shouldBe 1
+      players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+      stan.doTask("Pass")
     }
-    stan.doTask("Pass")
-    if (deal && rulingParty != null)
-        kim.doTasks(
-            *playCardTasks("$GiantSpaceMirror"),
-        )
-    passGeneration(
-        nextEvent = if (rulingParty == null) null else "ExploreFirstDirective",
-        neutralPlacements = listOf("PartyLeader<Greens, Neutral>", "$neutralRole<Reds, Neutral>"),
-    )
-    stan.doTask("Pass")
+  }
+
+  private fun prepareAffordableTwoStepGain() {
+    startPaymentDefectGame(deal = false, rulingParty = "Reds")
+    // This affordability test starts with exactly 17 MC and a single project to play.
+    kim.exMachina("-95 MC, -9 ProjectCard<Hand>")
+    kim.assertCounts(17 to "MC", 1 to "ProjectCard<Hand>")
   }
 }

@@ -110,9 +110,9 @@ internal class OtbGame20260912Test : FullGameTest() {
   private fun generation1() {
     // "Our coming global event is Mud Slides, and our distant global event is Venus
     // Infrastructure."
-    admin.count("Coming<ThawMining>") shouldBe 1
+    admin.count("Coming<$ThawMining>") shouldBe 1
     (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
-    admin.count("Distant<MartianProtectionism>") shouldBe 1
+    admin.count("Distant<$MartianProtectionism>") shouldBe 1
     (admin.count("PartyLeader<MarsFirst, Neutral>") > 0) shouldBe true
 
     with(green) {
@@ -159,16 +159,19 @@ internal class OtbGame20260912Test : FullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$NobelPrize>>",
           "$NobelPrize FROM PreludeCard",
           "5 MC",
+          "2 SearchForCard<RequirementFilter>",
       )
-      doTask("2 SearchForCard<RequirementFilter>")
       // "Experimental Forest. My greenery. I'm going to go on six two. For dos cardos. And for
       // moneyos."
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ExperimentalForest>>",
           "$ExperimentalForest FROM PreludeCard",
+          "2 SearchForCard<TagFilter<Class<PlantTag>>>",
+          "GreeneryTile<Vastitas_6_2>",
+          "OxygenStep",
+          "2 ProjectCard",
+          "TerraformRating",
       )
-      doTask("2 SearchForCard<TagFilter<Class<PlantTag>>>")
-      doTasks("GreeneryTile<Vastitas_6_2>", "OxygenStep", "2 ProjectCard", "TerraformRating")
       // The players acknowledged that paying the initial Greens policy during Prelude was a rule
       // mistake. Green nevertheless took 4 M€ here (transcript and Green ledger entry 6).
       green.exMachina("4 MC")
@@ -445,7 +448,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     }
     // "I will world government." "Five, eight." "So just increase oceans by one?"
     expectChanges(
-        "0 TerraformRating<Green>, ScienceSummit, Distant<ScienceSummit>, " +
+        "0 TerraformRating<Green>, $ScienceSummit, Distant<$ScienceSummit>, " +
             "PartyLeader<Scientists, Neutral>, PartyFollower<Greens, Neutral>"
     ) {
       green.doTask("OceanTile<Vastitas_5_8>! BY Admin")
@@ -486,9 +489,9 @@ internal class OtbGame20260912Test : FullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Scientists>",
         1 to "Dominant<Greens>",
-        1 to "Current<ThawMining>",
-        1 to "Coming<MartianProtectionism>",
-        1 to "Distant<ScienceSummit>",
+        1 to "Current<$ThawMining>",
+        1 to "Coming<$MartianProtectionism>",
+        1 to "Distant<$ScienceSummit>",
     )
 
     // Research.
@@ -730,7 +733,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     // "Ellie does World Government ... ocean ... five seven." The Admin ocean awards Yellow no TR;
     // the Turmoil phase then begins at once, and its TR revision costs every player one.
     expectChanges(
-        "-1 TerraformRating<Yellow>, BioengineeringBoom, Distant<BioengineeringBoom>, " +
+        "-1 TerraformRating<Yellow>, $BioengineeringBoom, Distant<$BioengineeringBoom>, " +
             "PartyLeader<Greens, Neutral>, PartyFollower<Unity, Neutral>, -Dominant<Greens>, Dominant<Unity>"
     ) {
       yellow.doTask("OceanTile<Vastitas_5_7>! BY Admin")
@@ -770,9 +773,9 @@ internal class OtbGame20260912Test : FullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Greens>",
         1 to "Dominant<Unity>",
-        1 to "Current<MartianProtectionism>",
-        1 to "Coming<ScienceSummit>",
-        1 to "Distant<BioengineeringBoom>",
+        1 to "Current<$MartianProtectionism>",
+        1 to "Coming<$ScienceSummit>",
+        1 to "Distant<$BioengineeringBoom>",
     )
 
     // Research.
@@ -956,7 +959,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     // "Why not Venus? Venus it is. ... Venus is now at two." The Turmoil phase follows at once:
     // Blue loses one TR to revision and regains it as chairman.
     expectChanges(
-        "0 TerraformRating<Blue>, FreeAcademiaTreaty, Distant<FreeAcademiaTreaty>, PartyFollower<Scientists, Neutral>"
+        "0 TerraformRating<Blue>, $FreeAcademiaTreaty, Distant<$FreeAcademiaTreaty>, PartyFollower<Scientists, Neutral>"
     ) {
       blue.doTask("VenusStep! BY Admin")
       green.doTasks("0 MC", "6 MC")
@@ -968,7 +971,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     // chairman. Diversity—the event headed "Free Academia Treaty"—is revealed with its neutral
     // Scientist delegate.
     (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-    admin.count("Distant<FreeAcademiaTreaty>") shouldBe 1
+    admin.count("Distant<$FreeAcademiaTreaty>") shouldBe 1
     (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
   }
 
@@ -993,9 +996,9 @@ internal class OtbGame20260912Test : FullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Unity>",
         1 to "Dominant<Reds>",
-        1 to "Current<ScienceSummit>",
-        1 to "Coming<BioengineeringBoom>",
-        1 to "Distant<FreeAcademiaTreaty>",
+        1 to "Current<$ScienceSummit>",
+        1 to "Coming<$BioengineeringBoom>",
+        1 to "Distant<$FreeAcademiaTreaty>",
     )
 
     // Research.
@@ -1267,7 +1270,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     // the automatic Turmoil phase then advances Spin-Off Products and Diversity. The newly drawn
     // card is Improved Energy Templates, headed "Second Energy Crisis" in the physical deck.
     expectChanges(
-        "SecondEnergyCrisis, Distant<SecondEnergyCrisis>, 2 PartyFollower<Scientists, Neutral>"
+        "$SecondEnergyCrisis, Distant<$SecondEnergyCrisis>, 2 PartyFollower<Scientists, Neutral>"
     ) {
       green.doTask("OxygenStep! BY Admin")
       green.doTasks(
@@ -1280,7 +1283,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     // At 6:38:48 pm, the table notes that Search for Life has no science to receive a bonus.
     yellow.assertCardResources(0 to SearchForLife)
     (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
-    admin.count("Distant<SecondEnergyCrisis>") shouldBe 1
+    admin.count("Distant<$SecondEnergyCrisis>") shouldBe 1
     (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
   }
 
@@ -1289,9 +1292,9 @@ internal class OtbGame20260912Test : FullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Reds>",
         1 to "Dominant<Scientists>",
-        1 to "Current<BioengineeringBoom>",
-        1 to "Coming<FreeAcademiaTreaty>",
-        1 to "Distant<SecondEnergyCrisis>",
+        1 to "Current<$BioengineeringBoom>",
+        1 to "Coming<$FreeAcademiaTreaty>",
+        1 to "Distant<$SecondEnergyCrisis>",
     )
     // "Yellow, six. Blue has ten. Green has fourteen."
     yellow.assertCounts(6 to "ProjectCard")
@@ -1628,7 +1631,7 @@ internal class OtbGame20260912Test : FullGameTest() {
 
     // The Admin ocean awards Yellow no TR; the Turmoil phase's TR revision then costs one.
     expectChanges(
-        "-1 TerraformRating<Yellow>, WorldGovernmentDirectives, Distant<WorldGovernmentDirectives>, PartyFollower<Unity, Neutral>"
+        "-1 TerraformRating<Yellow>, $WorldGovernmentDirectives, Distant<$WorldGovernmentDirectives>, PartyFollower<Unity, Neutral>"
     ) {
       yellow.doTask("OceanTile<Vastitas_4_3>! BY Admin")
       green.doTask("12 MC")
@@ -1638,7 +1641,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     // Spin-Off Products and the Scientists ruling bonus pay for science tags. Diversity becomes
     // current, Improved Energy Templates becomes coming, and Revolution is revealed.
     admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
-    admin.count("Distant<WorldGovernmentDirectives>") shouldBe 1
+    admin.count("Distant<$WorldGovernmentDirectives>") shouldBe 1
     (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
     // Blue has two printed Science tags, so Spin-Off Products and the Scientists ruling bonus pay
     // 4 M€ and 2 M€. The transcript instead says, consecutively, "you get four money and you get
@@ -2051,7 +2054,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     assertSidebar(gen = 6, temp = -14, oxygen = 6, oceans = 5, venus = 4)
     // The Turmoil phase's TR revision follows World Government at once and costs Blue one TR.
     expectChanges(
-        "-1 TerraformRating<Blue>, MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyLeader<Kelvinists, Neutral>"
+        "-1 TerraformRating<Blue>, $MoholeLakeGlobalEvent, Distant<$MoholeLakeGlobalEvent>, PartyLeader<Kelvinists, Neutral>"
     ) {
       blue.doTask("VenusStep! BY Admin")
       green.doTask("10 MC")
@@ -2060,7 +2063,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     }
     // Diversity resolves, Greens takes government, and Snow Cover is revealed.
     (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
-    admin.count("Distant<MoholeLakeGlobalEvent>") shouldBe 1
+    admin.count("Distant<$MoholeLakeGlobalEvent>") shouldBe 1
     (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
     // The physical Greens delegation makes Yellow chairman; the engine retained the neutral
     // tie-break. The spoken transition awards Yellow the corresponding TR.
@@ -2511,7 +2514,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     }
     assertSidebar(gen = 7, temp = -4, oxygen = 12, oceans = 6, venus = 12)
     expectChanges(
-        "ExperimentalLifeforms, Distant<ExperimentalLifeforms>, PartyFollower<Greens, Neutral>"
+        "$ExperimentalLifeforms, Distant<$ExperimentalLifeforms>, PartyFollower<Greens, Neutral>"
     ) {
       green.doTask("OxygenStep! BY Admin")
       green.doTask("PROD[4 Energy]")
@@ -2519,7 +2522,7 @@ internal class OtbGame20260912Test : FullGameTest() {
       blue.doTask("PROD[2 Energy]")
     }
     (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
-    admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
+    admin.count("Distant<$ExperimentalLifeforms>") shouldBe 1
     (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
     // The two wrong-color Envoys cubes make Green Unity leader with a Green non-leader still in the
     // party. Those supply two rules-correct influence; Event Analysts supplies the third. Five
@@ -2915,7 +2918,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     }
     assertSidebar(gen = 8, temp = 6, oxygen = 14, oceans = 8, venus = 18)
     expectChanges(
-        "CharismaticWgPresident, Distant<CharismaticWgPresident>, PartyFollower<Unity, Neutral>"
+        "$CharismaticWgPresident, Distant<$CharismaticWgPresident>, PartyFollower<Unity, Neutral>"
     ) {
       yellow.doTask("TemperatureStep! BY Admin")
       green.doTask("-2 TerraformRating")
@@ -2924,7 +2927,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     // Revolution resolves, Mars First takes government, and the final photograph identifies
     // Interplanetary Trade as the newly revealed distant event.
     (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
-    admin.count("Distant<CharismaticWgPresident>") shouldBe 1
+    admin.count("Distant<$CharismaticWgPresident>") shouldBe 1
     (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
     // The table announces Green/Yellow counts of eleven/seven; their face-up cards contain
     // twelve/eight Building tags. Yellow's missing tag is most likely Martian Industries, a Prelude

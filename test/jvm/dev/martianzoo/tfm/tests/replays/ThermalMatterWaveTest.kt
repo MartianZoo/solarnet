@@ -34,16 +34,16 @@ internal class ThermalMatterWaveTest : FullGameTest() {
   internal fun game20260730() {
     startGame()
     with(me) {
-      doTask("14 TerraformRating")
       doTasks(
+          "14 TerraformRating",
           "2 CorporationCard",
           "-CorporationCard",
           "10 ProjectCard<Selecting>",
           "4 PreludeCard",
           "-2 PreludeCard",
+          "-SelectedColonyTile<Class<Miranda>>",
+          "-3 ProjectCard<Selecting>",
       )
-      doTask("-SelectedColonyTile<Class<Miranda>>")
-      doTask("-3 ProjectCard<Selecting>")
     }
     generation1()
     generation2()
@@ -134,29 +134,50 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("11 MC", "Plant", "2 Energy", "6 Heat", "Steel")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "11 MC",
+          "Plant",
+          "2 Energy",
+          "6 Heat",
+          "Steel",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation2() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(*cardActionTasks("$TitanShuttles"), "2 Floater<$TitanShuttles>")
       }
       doTask("Pass")
-      doTasks("11 MC", "Plant", "2 Energy", "6 Heat", "Steel", "2 Heat FROM Energy")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "11 MC",
+          "Plant",
+          "2 Energy",
+          "6 Heat",
+          "Steel",
+          "2 Heat FROM Energy",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation3() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -180,15 +201,26 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("12 MC", "Plant", "2 Energy", "6 Heat", "2 Steel", "2 Heat FROM Energy")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "12 MC",
+          "Plant",
+          "2 Energy",
+          "6 Heat",
+          "2 Steel",
+          "2 Heat FROM Energy",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation4() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -220,15 +252,25 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(*cardActionTasks("$TitanShuttles"), "2 Floater<$TitanShuttles>")
       }
       doTask("Pass")
-      doTasks("15 MC", "Plant", "6 Heat", "4 Steel", "Titanium")
-      doTask("OceanTile<Tharsis_6_7>! BY Admin")
+      doTasks(
+          "15 MC",
+          "Plant",
+          "6 Heat",
+          "4 Steel",
+          "Titanium",
+          "OceanTile<Tharsis_6_7>! BY Admin",
+      )
     }
   }
 
   private fun generation5() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         // This temperature step also raises heat production.
@@ -274,15 +316,26 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("18 MC", "Plant", "5 Heat", "4 Steel", "Titanium", "Energy")
-      doTask("OceanTile<Tharsis_6_9>! BY Admin")
+      doTasks(
+          "18 MC",
+          "Plant",
+          "5 Heat",
+          "4 Steel",
+          "Titanium",
+          "Energy",
+          "OceanTile<Tharsis_6_9>! BY Admin",
+      )
     }
   }
 
   private fun generation6() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -334,15 +387,27 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("21 MC", "3 Plant", "5 Heat", "4 Steel", "Titanium", "Energy", "Heat FROM Energy")
-      doTask("OceanTile<Tharsis_4_8>! BY Admin")
+      doTasks(
+          "21 MC",
+          "3 Plant",
+          "5 Heat",
+          "4 Steel",
+          "Titanium",
+          "Energy",
+          "Heat FROM Energy",
+          "OceanTile<Tharsis_4_8>! BY Admin",
+      )
     }
   }
 
   private fun generation7() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
@@ -436,15 +501,26 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
       }
       doTask("Pass")
-      doTasks("33 MC", "3 Plant", "6 Heat", "4 Steel", "Titanium", "Energy")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "33 MC",
+          "3 Plant",
+          "6 Heat",
+          "4 Steel",
+          "Titanium",
+          "Energy",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation8() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -491,15 +567,26 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("39 MC", "3 Plant", "6 Heat", "4 Steel", "Titanium", "Energy")
-      doTask("OceanTile<Tharsis_5_5>! BY Admin")
+      doTasks(
+          "39 MC",
+          "3 Plant",
+          "6 Heat",
+          "4 Steel",
+          "Titanium",
+          "Energy",
+          "OceanTile<Tharsis_5_5>! BY Admin",
+      )
     }
   }
 
   private fun generation9() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -568,15 +655,22 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("54 MC", "4 Plant", "6 Heat", "4 Steel", "Titanium", "Energy")
-      doTask("OceanTile<Tharsis_1_5>! BY Admin")
+      doTasks(
+          "54 MC",
+          "4 Plant",
+          "6 Heat",
+          "4 Steel",
+          "Titanium",
+          "Energy",
+          "OceanTile<Tharsis_1_5>! BY Admin",
+      )
     }
   }
 
   private fun generation10() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -691,15 +785,22 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("68 MC", "4 Plant", "6 Heat", "4 Steel", "3 Titanium", "Energy")
-      doTask("OxygenStep! BY Admin")
+      doTasks(
+          "68 MC",
+          "4 Plant",
+          "6 Heat",
+          "4 Steel",
+          "3 Titanium",
+          "Energy",
+          "OxygenStep! BY Admin",
+      )
     }
   }
 
   private fun generation11() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -832,15 +933,26 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
       }
       doTask("Pass")
-      doTasks("78 MC", "4 Plant", "9 Heat", "4 Steel", "5 Titanium", "3 Energy")
-      doTask("TemperatureStep! BY Admin")
+      doTasks(
+          "78 MC",
+          "4 Plant",
+          "9 Heat",
+          "4 Steel",
+          "5 Titanium",
+          "3 Energy",
+          "TemperatureStep! BY Admin",
+      )
     }
   }
 
   private fun generation12() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(

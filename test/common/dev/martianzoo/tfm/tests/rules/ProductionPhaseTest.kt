@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -8,6 +7,7 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -49,17 +49,24 @@ internal class ProductionPhaseTest {
       newTestGame(playerCount = 2, addOptions = "-VenusNextExpansion")
       kim.doTask("Pass")
       stan.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
+      players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
+      players.forEach { it.doTask("4 ProjectCard<Selecting>") }
       kim.doTask("-4 ProjectCard<Selecting>")
-      stan.doTask("-4 ProjectCard<Selecting>")
+      // The beginner's free starting cards do not make later Research purchases free.
+      stan.doTasks(
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
+      stan.assertCounts(12 to "ProjectCard<Hand>", 0 to "ProjectCard<Selecting>", 57 to "MC")
       kim.count("Energy") shouldBe 1
       kim.count("Heat") shouldBe 1
 
       stan.doTask("Pass")
       kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("-4 ProjectCard<Selecting>")
-      stan.doTask("-4 ProjectCard<Selecting>")
+      players.forEach { it.doTask("Heat FROM Energy") }
+      players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
+      players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
 
       kim.count("Energy") shouldBe 1
       kim.count("Heat") shouldBe 3

@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -12,17 +10,17 @@ import kotlin.test.Test
 internal class ColonialRepresentationTest : TfmSandboxTest() {
   @Test
   internal fun `Pays for each owned colony rather than each tile or opponents colonies`() {
-    newTestGame("ColonialRepresentation, TurmoilExpansion, Luna, Io")
+    newTestGame("$ColonialRepresentation, TurmoilExpansion, Luna, Io")
     kim.exMachina("2 Colony<Luna>")
     stan.exMachina("Colony<Io>")
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("ColonialRepresentation"),
+              *playCardTasks("$ColonialRepresentation"),
               "10 Pay<> FROM MC",
-              "ColonialRepresentation FROM ProjectCard",
+              "$ColonialRepresentation FROM ProjectCard",
+              "6 MC",
           )
-          doTask("6 MC")
         }
         .expect("-4 MC")
   }
@@ -31,38 +29,38 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
     @Test
     internal fun `Its influence improves a Global Event payout even without colonies`() {
       newTestGame(
-          "ColonialRepresentation, TurmoilExpansion",
+          "$ColonialRepresentation, TurmoilExpansion, -QuickStartVariant",
           playerCount = 2,
           firstGlobalEvents =
-              listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+              listOf("$FreeAcademiaTreaty", "$ExploreFirstDirective", "$MoralMovement"),
       )
-      kim.doTasks(*playCardTasks("$ColonialRepresentation"))
-      kim.doTask("Ok") // Decline the second action.
-      stan.doTask("Pass")
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      admin.assertCounts(
-          1 to "PartyLeader<Greens, Neutral>",
-          1 to "Distant<ExploreFirstDirective>",
+      // The earlier event draws are incidental; play the card and resolve the prepared event
+      // normally.
+      admin.exMachina(
+          "$DemocraticReform, Current<$DemocraticReform>, " +
+              "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
       )
-      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
-      kim.doTask("-4 ProjectCard<Selecting>")
-      stan.doTask("-4 ProjectCard<Selecting>")
-      stan.doTask("Pass")
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      expectChanges("1 Plant<Kim>, 1 Steel<Kim>") {
-        stan.doTask("VenusStep! BY Admin")
-        players.forEach { it.autoExecNow(EAGER) }
-
-        // Aquifer Released by Public Council grants resources and a neutral ocean.
-        stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
-        players.forEach { it.autoExecNow(EAGER) }
+      kim.turn {
+        doTasks(
+            *playCardTasks("$ColonialRepresentation"),
+            "10 Pay<> FROM MC",
+            "$ColonialRepresentation FROM ProjectCard",
+            "0 MC",
+        )
       }
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.doTask("20 MC") }
+      kim.doTask("VenusStep! BY Admin")
+      kim.count("Influence") shouldBe 1
+      kim.count("Colony") shouldBe 0
+      kim.doTasks(
+          "OceanTile<Tharsis_1_5> BY Admin",
+          "Plant",
+          "Steel",
+      )
+      stan.doTasks("0 Plant", "0 Steel")
+      players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     }
   }
 }

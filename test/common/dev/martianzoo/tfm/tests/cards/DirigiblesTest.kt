@@ -17,10 +17,10 @@ internal class DirigiblesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("AerialMappers"),
-          "2 PayFromCard<Dirigibles> FROM Floater<Dirigibles>",
+          *playCardTasks("$AerialMappers"),
+          "2 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>",
           "5 Pay<> FROM MC",
-          "AerialMappers FROM ProjectCard",
+          "$AerialMappers FROM ProjectCard",
       )
     }
   }
@@ -32,10 +32,10 @@ internal class DirigiblesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("VenusGovernor"),
-          "PayFromCard<Dirigibles> FROM Floater<Dirigibles>",
+          *playCardTasks("$VenusGovernor"),
+          "PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>",
           "Pay<> FROM MC",
-          "VenusGovernor FROM ProjectCard",
+          "$VenusGovernor FROM ProjectCard",
           "PROD[2 MC]",
       )
     }
@@ -50,12 +50,12 @@ internal class DirigiblesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("StratosphericBirds"),
-              "3 PayFromCard<Dirigibles> FROM Floater<Dirigibles>",
+              *playCardTasks("$StratosphericBirds"),
+              "3 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>",
               "3 Pay<> FROM MC",
-              "StratosphericBirds FROM ProjectCard",
+              "$StratosphericBirds FROM ProjectCard",
+              "-Floater",
           )
-          doTask("-Floater")
         }
         .expect("-4 Floater<$Dirigibles>")
   }

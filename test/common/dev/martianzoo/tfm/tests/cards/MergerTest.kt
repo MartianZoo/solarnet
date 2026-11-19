@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.state.TaskResult
@@ -16,23 +15,36 @@ import kotlin.test.Test
 internal class MergerTest : TfmSandboxTest() {
   @Test
   internal fun `Both corporations retain their required first actions`() {
-    newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
+    newTestGame(addOptions = "PreludeExpansion, $ValleyTrust", kimCorporation = ValleyTrust)
     kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      doTask("4 CorporationCard<Kim, Selecting>")
-      doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
-      doTask("Celestic<Kim> FROM CorporationCard<Kim, Selecting>!")
-      doTasks("42 MC", "-42 MC")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+      )
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$Celestic>>",
+          "$Celestic FROM CorporationCard<Selecting>!",
+          "42 MC",
+          "-42 MC",
+      )
     }
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTask("DoRequiredActions")
-          doTask("2 SearchForCard<ReferenceFilter<Class<Floater>>>")
-          doTask("3 PreludeCard<Kim, Selecting>")
-          doTask("PlayCard<Class<PreludeCard>, Class<SocietySupport>>")
-          doTask("SocietySupport FROM PreludeCard<Selecting>")
-          doTasks("PROD[-MC]", "PROD[Plant]", "PROD[Energy]", "PROD[Heat]")
+          doTasks(
+              "DoRequiredActions",
+              "2 SearchForCard<ReferenceFilter<Class<Floater>>>",
+              "3 PreludeCard<Selecting>",
+          )
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$SocietySupport>>",
+              "$SocietySupport FROM PreludeCard<Selecting>",
+              "PROD[-MC]",
+              "PROD[Plant]",
+              "PROD[Energy]",
+              "PROD[Heat]",
+          )
         }
         .expect("2 ProjectCard, -2 RequiredAction")
   }
@@ -43,18 +55,22 @@ internal class MergerTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<NewPartner>>",
-              "NewPartner FROM PreludeCard",
+              "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
+              "$NewPartner FROM PreludeCard",
               "PROD[MC]",
+              "2 PreludeCard<Selecting>",
           )
-          doTask("2 PreludeCard<Kim, Selecting>")
-          doTask("PlayCard<Class<PreludeCard>, Class<Merger>>")
-          doTask("Merger FROM PreludeCard<Selecting>")
-          doTask("4 CorporationCard<Kim, Selecting>")
-          doTask("-42 MC")
-          doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
-          doTask("Celestic<Kim> FROM CorporationCard<Kim, Selecting>!")
-          doTask("42 MC")
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+              "$Merger FROM PreludeCard<Selecting>",
+              "4 CorporationCard<Selecting>",
+              "-42 MC",
+          )
+          doTasks(
+              "PlayCard<Class<CorporationCard>, Class<$Celestic>>",
+              "$Celestic FROM CorporationCard<Selecting>!",
+              "42 MC",
+          )
         }
         .expect("$Merger, $Celestic, 0 CorporationCard<Selecting>, 0 PreludeCard<Selecting>")
   }
@@ -65,17 +81,22 @@ internal class MergerTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
 
     kim.inTurn {
-          doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          doTask("4 CorporationCard<Kim, Selecting>")
-          doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
-          doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
-          doTask("54 MC")
-          doTask("-42 MC")
-          doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-          doTask("Disease<PharmacyUnion>")
-          doTask("-4* MC")
-          doTask("Disease<PharmacyUnion>")
-          doTask("-4* MC")
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+              "$Merger FROM PreludeCard",
+              "4 CorporationCard<Selecting>",
+          )
+          doTasks(
+              "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
+              "$PharmacyUnion FROM CorporationCard<Selecting>!",
+              "54 MC",
+              "-42 MC",
+              "SearchForCard<TagFilter<Class<ScienceTag>>>!",
+              "Disease<$PharmacyUnion>",
+              "-4* MC",
+              "Disease<$PharmacyUnion>",
+              "-4* MC",
+          )
         }
         .expect("4 MC, 2 Disease<$PharmacyUnion>")
   }
@@ -84,32 +105,37 @@ internal class MergerTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/3067197
   @Test
   internal fun `Pharmacy Union's loss makes Board Merger Recyclon unaffordable`() {
-    newTestGame(addOptions = "PreludeExpansion, BoardOfDirectors")
+    newTestGame(addOptions = "PreludeExpansion, $BoardOfDirectors")
     kim.exMachina("$PharmacyUnion, 2 Disease<$PharmacyUnion>")
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
-          "BoardOfDirectors FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
+          "$BoardOfDirectors FROM PreludeCard",
+          "4 Director<$BoardOfDirectors>",
       )
-      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
     kim.setToExMachina(17, "MC")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("BoardOfDirectors"))
-        doTask("PreludeCard<Kim, Hand>")
-        doTask("-12 MC")
-        doTask("-Director<BoardOfDirectors>")
-        doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-        doTask("4 CorporationCard<Kim, Selecting>")
+        doTasks(
+            *cardActionTasks("$BoardOfDirectors"),
+            "PreludeCard<Hand>",
+            "-12 MC",
+            "-Director<$BoardOfDirectors>",
+        )
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+            "$Merger FROM PreludeCard",
+            "4 CorporationCard<Selecting>",
+        )
 
         doTasks(
-            "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
-            "Recyclon FROM CorporationCard<Selecting>",
+            "PlayCard<Class<CorporationCard>, Class<$Recyclon>>",
+            "$Recyclon FROM CorporationCard<Selecting>",
             "38 MC",
-            "Disease<PharmacyUnion>",
+            "Disease<$PharmacyUnion>",
             "-4* MC",
             "-42 MC",
         )
@@ -128,7 +154,7 @@ internal class MergerTest : TfmSandboxTest() {
     @Ignore // Merger leaves the mandatory city placement for a later action.
     @Test
     internal fun `Resolves Tharsis first action immediately when acquired after Preludes`() {
-      acquireTharsisThroughBoard { doTask("CityTile<Tharsis_3_3>") }.expect("CityTile<Tharsis_3_3>")
+      acquireTharsisThroughBoard { doTasks("CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC") }
     }
 
     // Unresolved adjudication (question 4, 2026-10-14); this records current behavior.
@@ -137,31 +163,38 @@ internal class MergerTest : TfmSandboxTest() {
     internal fun `BUG - Defers Tharsis first action when acquired after Preludes`() {
       acquireTharsisThroughBoard().expect("0 CityTile")
       kim.completeOperation {
-            doTask("DoRequiredActions")
-            doTask("CityTile<Tharsis_3_3>")
-            autoExecNow(EAGER)
-          }
-          .expect("CityTile<Tharsis_3_3>")
+        doTasks(
+            "DoRequiredActions",
+            "CityTile<Tharsis_3_3>",
+            "PROD[MC]",
+            "3 MC",
+        )
+      }
     }
 
     private fun acquireTharsisThroughBoard(cityPlacement: OperationBlock = {}): TaskResult {
-      newTestGame(addOptions = "PreludeExpansion, BoardOfDirectors", playerCount = 2)
-      kim.doTask("PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>")
-      kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
-      stan.autoExecNow(EAGER)
-
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
-      stan.autoExecNow(EAGER)
-
+      newTestGame(addOptions = "$BoardOfDirectors", playerCount = 2)
+      // Prepare the played card; acquiring Tharsis and its required action remain real.
+      kim.exMachina("$BoardOfDirectors, 4 Director<$BoardOfDirectors>, 21 MC")
       return kim.completeOperation {
-        doTasks(*cardActionTasks("$BoardOfDirectors"))
-        doTask("-12 MC")
-        autoExecNow(EAGER)
-        doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
-        doTask("PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>")
+        doTasks(
+            *cardActionTasks("$BoardOfDirectors"),
+            "PreludeCard",
+            "-12 MC",
+            "-Director<$BoardOfDirectors>",
+        )
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+            "$Merger FROM PreludeCard",
+            "4 CorporationCard<Selecting>",
+        )
+        doTasks(
+            "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
+            "$TharsisRepublic FROM CorporationCard<Selecting>",
+            "40 MC",
+            "-42 MC",
+        )
         cityPlacement()
-        autoExecNow(EAGER)
       }
     }
   }

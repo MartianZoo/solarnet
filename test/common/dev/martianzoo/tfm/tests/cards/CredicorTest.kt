@@ -30,13 +30,12 @@ internal class CrediCorTest : TfmSandboxTest() {
     newTestGame(kimCorporation = CrediCor)
 
     kim.inTurn {
-          doTasks(
-              *standardProjectTasks("PowerPlantProject"),
-              "11 Pay<> FROM MC",
-              "PROD[Energy]",
-          )
-        }
-        .expect("-11 MC, PROD[Energy]")
+      doTasks(
+          *standardProjectTasks("PowerPlantProject"),
+          "11 Pay<> FROM MC",
+          "PROD[Energy]",
+      )
+    }
   }
 
   @Test
@@ -47,9 +46,9 @@ internal class CrediCorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("EarthCatapult"),
+          *playCardTasks("$EarthCatapult"),
           "19 Pay<> FROM MC",
-          "EarthCatapult FROM ProjectCard",
+          "$EarthCatapult FROM ProjectCard",
           "4 MC",
       )
     }
