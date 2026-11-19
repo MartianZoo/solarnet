@@ -1,12 +1,8 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
-import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.playCardTasks
-import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -15,15 +11,14 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `premise deck draws both setup events and Admin places their neutral delegates`() {
     newTestGame(
-        addOptions = "TurmoilExpansion",
-        playerCount = 2,
-        firstGlobalEvents = listOf("ExperimentalLifeforms", "SelfSufficiencyProgram"),
+        "TurmoilExpansion",
+        2,
+        firstGlobalEvents = listOf("$ExperimentalLifeforms", "$SelfSufficiencyProgram"),
     )
-
     game.reader.drawOrder.take(2).map { it.toString() } shouldBe
-        listOf("ExperimentalLifeforms", "SelfSufficiencyProgram")
-    admin.count("Coming<ExperimentalLifeforms>") shouldBe 1
-    admin.count("Distant<SelfSufficiencyProgram>") shouldBe 1
+        listOf("$ExperimentalLifeforms", "$SelfSufficiencyProgram")
+    admin.count("Coming<$ExperimentalLifeforms>") shouldBe 1
+    admin.count("Distant<$SelfSufficiencyProgram>") shouldBe 1
     admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
     admin.count("PartyFollower<Greens, Neutral>") shouldBe 1
   }
@@ -31,1415 +26,962 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Democratic Reform cannot place its ocean on land`() {
     newTestGame(
-        addOptions = "TurmoilExpansion",
-        playerCount = 2,
+        "TurmoilExpansion, -QuickStartVariant",
+        2,
         firstGlobalEvents =
-            listOf("DemocraticReform", "MinimalImpactPolicy", "ExperimentalLifeforms"),
+            listOf("$FreeAcademiaTreaty", "$ExploreFirstDirective", "$MoralMovement"),
+    )
+    admin.exMachina(
+        "$DemocraticReform, Current<$DemocraticReform>, " +
+            "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
     )
     kim.doTask("Pass")
     stan.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    players.forEach { it.doTask("20 MC") }
     kim.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-    admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
-    admin.count("PartyFollower<Greens, Neutral>") shouldBe 1
-    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-
-    val first = players.single { it.count("StartToken") == 1 }
-    first.doTask("Pass")
-    players.single { it != first }.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    first.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-
-    shouldThrow<NarrowingException> { first.doTask("OceanTile<Tharsis_3_3> BY Admin") }
+    shouldThrow<TaskException> { kim.doTask("OceanTile<Tharsis_3_3> BY Admin") }
     admin.count("OceanTile") shouldBe 0
-    first.doTask("OceanTile<Tharsis_1_2> BY Admin").expect("OceanTile, 0 TerraformRating")
+    kim.doTask("OceanTile<Tharsis_1_2> BY Admin").expect("OceanTile, 0 TerraformRating")
+    players.forEach { it.doTasks("0 Plant", "0 Steel") }
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `An event stays dormant until Current and is discarded after resolving`() {
-    prepareEvent(
-        "ExperimentalLifeforms",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-        nextEvent = "ScientificProgress",
-    ) {
-      kim.doTasks(*playCardTasks("$AdaptedLichen"))
-      kim.selectTask("PassBaton") // Decline the second action.
-      stan.doTasks(*playCardTasks("$Archaebacteria"))
-      stan.selectTask("PassBaton") // Decline the second action.
-    }
-    admin.count("Current<ExperimentalLifeforms>") shouldBe 1
-    admin.count("Coming<ExploreFirstDirective>") shouldBe 1
-    admin.count("Distant<MoralMovement>") shouldBe 1
-    // Both players already exceed the three plants protected by the event.
-    kim.count("Plant") shouldBe 6
-    stan.count("Plant") shouldBe 6
-    kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    kim.count("Plant") shouldBe 8
-    stan.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
+    // This test is about the event's entire journey, so retain the actual generations.
+    newTestGame(
+        "TurmoilExpansion, -QuickStartVariant",
+        2,
+        firstGlobalEvents =
+            listOf(
+                "$DemocraticReform",
+                "$MinimalImpactPolicy",
+                "$ExperimentalLifeforms",
+                "$ExploreFirstDirective",
+                "$MoralMovement",
+                "$ScientificProgress",
+            ),
+    )
+    players.forEach { it.exMachina("PROD[2 Plant]") }
 
-    kim.count("Plant") shouldBe 3
-    stan.count("Plant") shouldBe 3
-    admin.count("ExperimentalLifeforms") shouldBe 0
-    admin.count("Current<ExploreFirstDirective>") shouldBe 1
-    admin.count("Coming<MoralMovement>") shouldBe 1
-    admin.count("Distant<ScientificProgress>") shouldBe 1
+    kim.doTask("Pass")
+    stan.doTask("Pass")
+    players.forEach { it.doTasks("20 MC", "2 Plant") }
+    kim.doTask("VenusStep! BY Admin")
+    admin.count("Distant<$ExperimentalLifeforms>") shouldBe 1
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+
+    stan.doTask("Pass")
+    kim.doTask("Pass")
+    players.forEach { it.doTasks("19 MC", "2 Plant") }
+    stan.doTasks(
+        "VenusStep! BY Admin",
+        "OceanTile<Tharsis_1_2> BY Admin",
+    )
+    players.forEach { it.doTasks("0 Plant", "0 Steel") }
+    admin.count("Coming<$ExperimentalLifeforms>") shouldBe 1
+    players.forEach { it.count("Plant") shouldBe 4 }
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+
+    kim.doTask("Pass")
+    stan.doTask("Pass")
+    players.forEach { it.doTasks("18 MC", "2 Plant") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-OceanTile<Tharsis_1_2>",
+    )
+    players.forEach { it.doTask("EACH") } // No influence to exchange for resources.
+    admin.count("Current<$ExperimentalLifeforms>") shouldBe 1
+    admin.count("Coming<$ExploreFirstDirective>") shouldBe 1
+    admin.count("Distant<$MoralMovement>") shouldBe 1
+    players.forEach { it.count("Plant") shouldBe 6 }
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+
+    stan.doTask("Pass")
+    kim.doTask("Pass")
+    players.forEach { it.doTasks("18 MC", "2 Plant") }
+    players.forEach { it.count("Plant") shouldBe 8 }
+    stan.doTask("VenusStep! BY Admin")
+    players.forEach { it.doTask("-5 Plant") }
+    players.forEach { it.count("Plant") shouldBe 3 }
+    admin.count("$ExperimentalLifeforms") shouldBe 0
+    admin.count("Current<$ExploreFirstDirective>") shouldBe 1
+    admin.count("Coming<$MoralMovement>") shouldBe 1
+    admin.count("Distant<$ScientificProgress>") shouldBe 1
     admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
     admin.count("PartyFollower<Scientists, Neutral>") shouldBe 1
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Asteroid Mining measures this generation's influence before paying titanium`() {
-    prepareEvent(
-        "MiningRestrictions",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$MiningRestrictions", "AsteroidMiningGlobalEffect")
+    kim.exMachina("$VestaShipyard")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.doTasks(*playCardTasks("$VestaShipyard"), "Ok" /* No Titanium payment. */)
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("3 Titanium<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      // The three titanium reflect a Jovian tag and the influence measured for this event.
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTask("VenusStep! BY Admin")
+    kim.count("Influence") shouldBe 2
+    kim.doTask("3 Titanium")
+    // Both rewards are zero; name the influence term to distinguish them.
+    stan.selectTask("Titanium / Influence")
+    stan.doTasks(
+        "0 Titanium",
+        "0 Titanium",
+    )
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Homeworld Support caps Earth tags at five before adding influence`() {
-    prepareEvent(
-        "RedResistance",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-    )
-    kim.doTasks(*playCardTasks("$EarthOffice"))
-    kim.doTasks(*playCardTasks("$Sponsors"))
-    kim.doTasks(*playCardTasks("$AcquiredCompany"))
-    kim.doTasks(*playCardTasks("$LunaGovernor"))
-    kim.doTasks(*playCardTasks("$Cartel"))
+    prepareEvent("$RedResistance", "HomeworldSupport")
+    kim.exMachina("$EarthOffice, $Sponsors, $AcquiredCompany, $LunaGovernor, $Cartel")
     kim.count("EarthTag") shouldBe 6
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    // Six Earth tags capped at five, plus two influence, at 2 MC each.
-    expectChanges("14 MC<Kim>, 0 MC<Stan>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "14 MC",
+    )
+    // Both rewards are zero; name the influence term to distinguish them.
+    stan.selectTask("2 MC / Influence")
+    stan.doTasks(
+        "0 MC",
+        "0 MC",
+    )
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Productivity pays for steel production plus influence`() {
-    prepareEvent(
-        "ScientificProgress",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$ScientificProgress", "Productivity")
+    kim.exMachina("PROD[3 Steel]")
+    stan.exMachina("PROD[Steel]")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.doTasks(*playCardTasks("$Mine"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$IndustrialMicrobes"), "Ok" /* No Steel payment. */)
-    kim.autoExecNow(EAGER)
-    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    // Three production and two influence.
-    expectChanges("5 Steel<Kim>, 1 Steel<Stan>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTask("3 Steel")
+    stan.doTask("Steel")
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "5 Steel",
+    )
+    stan.doTasks("Steel", "0 Steel")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Successful Organisms pays for plant production plus influence`() {
-    prepareEvent(
-        "LocalTerraformingSupport",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$LocalTerraformingSupport", "SuccessfulOrganisms")
+    kim.exMachina("PROD[2 Plant]")
+    stan.exMachina("PROD[Plant]")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.doTasks(*playCardTasks("$AdaptedLichen"))
-    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("1 Plant<Stan>, 4 Plant<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTask("2 Plant")
+    stan.doTask("Plant")
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "4 Plant",
+    )
+    stan.doTasks("Plant", "0 Plant")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Scientific Community pays for the current hand and influence`() {
-    prepareEvent(
-        "ExploreFirstDirective",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyFollower<Scientists, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-        ),
+    prepareEvent("$ExploreFirstDirective", "ScientificCommunity")
+    kim.exMachina("-7 ProjectCard<Hand>")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.doTasks(*standardProjectTasks("SellPatentsProject"), "7 MC FROM ProjectCard")
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("10 MC<Stan>, 5 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "5 MC",
+    )
+    stan.doTasks("10 MC", "0 MC")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Celebrity Leaders pays the owner of played events`() {
-    prepareEvent(
-        "SolarnetGlobalEvent",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-    )
-    kim.doTasks(*playCardTasks("$InvestmentLoan"))
-    kim.autoExecNow(EAGER)
-    kim.doTasks(*playCardTasks("$BribedCommittee"))
+    prepareEvent("$SolarnetGlobalEvent", "CelebrityLeaders")
+    kim.exMachina("PlayedEvent<Class<$InvestmentLoan>>, PlayedEvent<Class<$BribedCommittee>>")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("0 MC<Stan>, 4 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "4 MC",
+        "0 MC",
+    )
+    // Both rewards are zero; name the influence term to distinguish them.
+    stan.selectTask("2 MC / Influence")
+    stan.doTasks(
+        "0 MC",
+        "0 MC",
+    )
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Strong Society pays only for owned cities`() {
-    prepareEvent(
-        "MoralMovement",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-        ),
-    )
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("CityProject"))
-      doTask("CityTile<Tharsis_3_3>")
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("CityProject"))
-      doTask("CityTile<Tharsis_8_8>")
-      autoExecNow(EAGER)
-    }
+    prepareEvent("$MoralMovement", "StrongSociety")
+    kim.exMachina("NormalCityTile<Tharsis_3_3>, NormalCityTile<Tharsis_8_8>")
+    admin.exMachina("NormalCityTile<Tharsis_6_4, Neutral>")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("0 MC<Stan>, 4 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "4 MC",
+        "0 MC",
+    )
+    // Both rewards are zero; name the influence term to distinguish them.
+    stan.selectTask("2 MC / Influence")
+    stan.doTasks(
+        "0 MC",
+        "0 MC",
+    )
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Global Dust Storm consumes heat and influence reduces the building penalty`() {
-    prepareEvent(
-        "HeatFirstPolicy",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Kelvinists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$HeatFirstPolicy", "GlobalDustStorm")
+    kim.exMachina("$Mine, $PowerPlant, $BuildingIndustries, 7 Heat")
+    stan.exMachina("4 Heat")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.doTasks(*playCardTasks("$Mine"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$PowerPlant"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$BuildingIndustries"), "Ok" /* No Steel payment. */)
-    kim.autoExecNow(EAGER)
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("1 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      kim.count("Heat") shouldBe 0
-      stan.count("Heat") shouldBe 0
-      // Three building tags minus two influence costs 2 MC; Mars First then pays 3 MC.
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-7 Heat",
+        "-2 MC",
+    )
+    stan.doTasks("-4 Heat", "-0 MC")
+    kim.count("Heat") shouldBe 0
+    stan.count("Heat") shouldBe 0
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Pandemic caps six building tags before subtracting influence`() {
-    prepareEvent(
-        "ViralModificationsApproved",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-        ),
+    prepareEvent("$ViralModificationsApproved", "Pandemic")
+    kim.exMachina(
+        "$Mine, $PowerPlant, $IndustrialMicrobes, $BuildingIndustries, $TitaniumMine, $FuelFactory"
     )
-    kim.doTasks(*playCardTasks("$Mine"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$PowerPlant"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$IndustrialMicrobes"), "Ok" /* No Steel payment. */)
-    kim.autoExecNow(EAGER)
-    kim.doTasks(*playCardTasks("$BuildingIndustries"), "Ok" /* No Steel payment. */)
-    kim.autoExecNow(EAGER)
-    kim.doTasks(*playCardTasks("$TitaniumMine"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$FuelFactory"), "Ok" /* No Steel payment. */)
-    kim.autoExecNow(EAGER)
-    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
+    kim.count("BuildingTag") shouldBe 6
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("-3 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      // (Five counted buildings - two influence) costs 9; Mars First pays for all six buildings.
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-9 MC",
+    )
+    stan.doTask("-0 MC")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Solarnet Shutdown counts active cards but excludes automated cards and played events`() {
-    prepareEvent(
-        "AiResearch",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$AiResearch", "SolarnetShutdown")
+    kim.exMachina(
+        "$Pets, $SpaceMirrors, $Tardigrades, $StandardTechnology, $Mine, PlayedEvent<Class<$BribedCommittee>>"
     )
-    kim.doTasks(*playCardTasks("$Pets"))
-    kim.doTasks(*playCardTasks("$SpaceMirrors"), "Ok" /* No Titanium payment. */)
-    kim.doTasks(*playCardTasks("$Tardigrades"))
-    kim.doTasks(*playCardTasks("$StandardTechnology"))
-    kim.doTasks(*playCardTasks("$Mine"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$BribedCommittee"))
-    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("-5 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      // Four active cards minus two influence costs 6; Mars First pays 1 for Mine.
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-6 MC",
+    )
+    stan.doTask("-0 MC")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `War on Earth reduces rating loss for influence while still charging other players`() {
-    prepareEvent(
-        "SeparatistMovement",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Kelvinists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$SeparatistMovement", "WarOnEarth")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    // Kim loses two plus revision, then becomes chairman; Stan loses four plus revision.
-    expectChanges("-2 TerraformRating<Kim>, -5 TerraformRating<Stan>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-2 TerraformRating",
+    )
+    stan.doTask("-4 TerraformRating")
+    kim.count("TerraformRating") shouldBe 18
+    stan.count("TerraformRating") shouldBe 15
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Paradigm Breakdown discards the last card without demanding a second`() {
-    prepareEvent(
-        "ScientificConsensus",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Kelvinists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$ScientificConsensus", "ParadigmBreakdown")
+    kim.exMachina("-9 ProjectCard<Hand>")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.doTasks(*standardProjectTasks("SellPatentsProject"), "9 MC FROM ProjectCard")
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("4 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      kim.count("ProjectCard") shouldBe 0
-      stan.count("ProjectCard") shouldBe 8
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-1 ProjectCard",
+        "4 MC",
+    )
+    stan.doTasks("-2 ProjectCard", "0 MC")
+    kim.count("ProjectCard<Hand>") shouldBe 0
+    stan.count("ProjectCard<Hand>") shouldBe 8
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Sabotage reduces available production without taking energy production below zero`() {
-    prepareEvent(
-        "CorporateAlliance",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$CorporateAlliance", "SabotageGlobalEffect")
+    kim.exMachina("PROD[3 Steel, 0 Energy]")
+    stan.exMachina("PROD[Steel, Energy]")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.doTasks(*playCardTasks("$BuildingIndustries"), "Ok" /* No Steel payment. */)
-    kim.autoExecNow(EAGER)
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("2 Steel<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      kim.count("PROD[Steel]") shouldBe 2
-      kim.count("PROD[Energy]") shouldBe 0
-      stan.count("PROD[Steel]") shouldBe 0
-      stan.count("PROD[Energy]") shouldBe 0
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTask("3 Steel")
+    stan.doTasks("Steel", "Energy")
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "PROD[-Steel]",
+        "PROD[-0 Energy]",
+        "2 Steel",
+    )
+    stan.doTasks("PROD[-Steel]", "PROD[-Energy]", "0 Steel")
+    kim.count("PROD[Steel]") shouldBe 2
+    kim.count("PROD[Energy]") shouldBe 0
+    stan.count("PROD[Steel]") shouldBe 0
+    stan.count("PROD[Energy]") shouldBe 0
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Miners on Strike takes only the titanium available`() {
-    prepareEvent(
-        "RisingAlloyDemand",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-    )
-    kim.doTasks(*playCardTasks("$VestaShipyard"), "3 Pay<Class<Titanium>> FROM Titanium")
-    kim.doTasks(*playCardTasks("$MirandaResort"))
-    kim.doTasks(*playCardTasks("$JovianEmbassy"), "Ok" /* No Steel payment. */)
+    prepareEvent("$RisingAlloyDemand", "MinersOnStrike")
+    kim.exMachina("$VestaShipyard, $MirandaResort, $JovianEmbassy, 2 Titanium")
+    stan.exMachina("4 Titanium")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    kim.count("Titanium") shouldBe 2
-    stan.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-2 Titanium",
+    )
+    stan.doTask("-0 Titanium")
     kim.count("Titanium") shouldBe 0
     stan.count("Titanium") shouldBe 4
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Mud Slides counts each coastal tile once even beside two oceans`() {
-    prepareEvent(
-        "ThawMining",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Kelvinists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-    )
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("CityProject"))
-      doTask("CityTile<Tharsis_4_4>")
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("GreeneryProject"))
-      doTask("GreeneryTile<Tharsis_4_5>")
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AquiferProject"))
-      doTask("OceanTile<Tharsis_5_4>")
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AquiferProject"))
-      doTask("OceanTile<Tharsis_5_5>")
-      autoExecNow(EAGER)
-    }
+    prepareEvent("$ThawMining", "MudSlides")
+    kim.exMachina("NormalCityTile<Tharsis_4_4>, GreeneryTile<Tharsis_4_5>")
+    admin.exMachina("OceanTile<Tharsis_5_4>, OceanTile<Tharsis_5_5>")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("-8 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-8 MC",
+    )
+    stan.doTask("-0 MC")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Diversity does not count duplicate science tags as distinct tags`() {
-    prepareDiversity()
+    prepareEvent("$FreeAcademiaTreaty", "Diversity")
+    kim.exMachina("$Research, $PowerPlant, $VestaShipyard, $EarthOffice")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("1 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      // Six distinct tag kinds plus two influence is short; Mars First pays for Power Plant.
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "0 MC",
+    )
+    stan.doTask("0 MC")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Diversity combines distinct tags with influence to reach nine`() {
-    prepareDiversity()
-    kim.doTasks(*playCardTasks("$AdaptedLichen"))
+    prepareEvent("$FreeAcademiaTreaty", "Diversity")
+    kim.exMachina("$Research, $PowerPlant, $VestaShipyard, $EarthOffice, $AdaptedLichen")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("11 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "10 MC",
+    )
+    stan.doTask("0 MC")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Improved Energy Templates combines power tags and influence before rounding`() {
-    prepareEvent(
-        "SecondEnergyCrisis",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Kelvinists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$SecondEnergyCrisis", "ImprovedEnergyTemplates")
+    kim.exMachina("$PowerPlant, $SpaceMirrors, $SolarWindPower")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.doTasks(*playCardTasks("$PowerPlant"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$SpaceMirrors"), "Ok" /* No Titanium payment. */)
-    kim.completeOperation {
-      doTasks(*playCardTasks("$SolarWindPower"), "Ok" /* No Titanium payment. */)
-      autoExecNow(EAGER)
-    }
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("PROD[2 Energy<Kim>]") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      // Floor of (three tags + two influence)/2.
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "PROD[2 Energy]",
+    )
+    stan.doTask("PROD[0 Energy]")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Sponsored Projects grows occupied cards for both players but skips empty cards`() {
-    prepareEvent(
-        "ScienceSummit",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-    ) {
-      kim.completeOperation {
-        doTasks(*playCardTasks("$Research"))
-        autoExecNow(EAGER)
-      }
-      kim.selectTask("PassBaton") // Decline the second action.
-      stan.doTasks(*playCardTasks("$TitanShuttles"))
-      stan.completeOperation {
-        doTasks(*cardActionTasks("$TitanShuttles"))
-        doTask("2 Floater<$TitanShuttles>")
-      }
-    }
-    kim.doTasks(*playCardTasks("$AerialMappers"))
-    kim.doTasks(*playCardTasks("$FloatingHabs"))
-    kim.doTasks(*playCardTasks("$Tardigrades"))
-    kim.completeOperation {
-      doTasks(*cardActionTasks("$AerialMappers"))
-      doTask("1 Floater<$AerialMappers>")
-    }
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
+    prepareEvent("$ScienceSummit", "SponsoredProjects")
+    kim.exMachina("$AerialMappers, Floater<$AerialMappers>, $FloatingHabs, $Tardigrades")
+    stan.exMachina("$TitanShuttles, 2 Floater<$TitanShuttles>")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("2 ProjectCard<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      kim.count("Floater<$AerialMappers>") shouldBe 2
-      kim.count("Floater<$FloatingHabs>") shouldBe 0
-      kim.count("Microbe<$Tardigrades>") shouldBe 0
-      stan.count("Floater<$TitanShuttles>") shouldBe 3
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTask("VenusStep! BY Admin")
+    kim.doTask("EACH")
+        .expect(
+            "Floater<$AerialMappers>, Floater<$TitanShuttles<Stan>>, 0 Floater<$FloatingHabs>, 0 Microbe<$Tardigrades>"
+        )
+    kim.doTask("2 ProjectCard")
+    stan.doTask("0 ProjectCard")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Election awards tied first places without a second prize`() {
-    prepareEvent(
-        "SelfSufficiencyProgram",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-        ),
-    )
+    prepareEvent("$SelfSufficiencyProgram", "Election")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    // Revision -1, tied first +2.
-    expectChanges("1 TerraformRating<Kim>, 1 TerraformRating<Stan>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "2 TerraformRating",
+    )
+    stan.doTask("2 TerraformRating")
+    kim.count("TerraformRating") shouldBe 21
+    stan.count("TerraformRating") shouldBe 21
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Election awards distinct first and second places`() {
-    prepareEvent(
-        "SelfSufficiencyProgram",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-        ),
-    )
-    kim.doTasks(*playCardTasks("$Mine"), "Ok" /* No Steel payment. */)
+    prepareEvent("$SelfSufficiencyProgram", "Election")
+    kim.exMachina("$Mine")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("1 TerraformRating<Kim>, 0 TerraformRating<Stan>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "2 TerraformRating",
+    )
+    stan.doTask("TerraformRating")
+    kim.count("TerraformRating") shouldBe 21
+    stan.count("TerraformRating") shouldBe 20
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Revolution leaves a zero score alone`() {
-    prepareEvent(
-        "WorldGovernmentDirectives",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-    )
-    kim.doTasks(*playCardTasks("$EarthOffice"))
+    prepareEvent("$WorldGovernmentDirectives", "Revolution")
+    kim.exMachina("$EarthOffice")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    // Revision -1, Revolution -2, Reds +1.
-    expectChanges("-2 TerraformRating<Kim>, -1 TerraformRating<Stan>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-2 TerraformRating",
+    )
+    kim.count("TerraformRating") shouldBe 17
+    stan.count("TerraformRating") shouldBe 19
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Revolution applies the first place penalty to both tied players`() {
-    prepareEvent(
-        "WorldGovernmentDirectives",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-    ) {
-      kim.doTasks(*playCardTasks("$EarthOffice"))
-      kim.selectTask("PassBaton") // Decline the second action.
-      stan.doTasks(*playCardTasks("$Sponsors"))
-      stan.selectTask("PassBaton") // Decline the second action.
-    }
+    prepareEvent("$WorldGovernmentDirectives", "Revolution")
+    kim.exMachina("$EarthOffice")
+    stan.exMachina("$Sponsors")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    // Revision -1, Revolution -2, Reds +1.
-    expectChanges("-2 TerraformRating<Kim>, -2 TerraformRating<Stan>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-2 TerraformRating",
+    )
+    stan.doTask("-2 TerraformRating")
+    kim.count("TerraformRating") shouldBe 17
+    stan.count("TerraformRating") shouldBe 17
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Cloud Societies gives everyone a floater then groups each player's influence on a card`() {
-    prepareEvent(
-        "TitanVenusAlliance",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-    ) {
-      kim.completeOperation {
-        doTasks(*playCardTasks("$Research"))
-        autoExecNow(EAGER)
-      }
-      kim.selectTask("PassBaton") // Decline the second action.
-      stan.doTasks(*playCardTasks("$TitanShuttles"))
-      stan.selectTask("PassBaton") // Decline the second action.
-    }
-    kim.doTasks(*playCardTasks("$FloatingHabs"))
-    kim.doTasks(*playCardTasks("$AerialMappers"))
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
+    prepareEvent("$TitanVenusAlliance", "CloudSocieties")
+    kim.exMachina("$FloatingHabs, $AerialMappers")
+    stan.exMachina("$TitanShuttles")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    stan.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-
-    shouldThrow<NarrowingException> { kim.doTask("2 Floater<$TitanShuttles<Stan>>") }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTask("VenusStep! BY Admin")
+    kim.doTask("EACH")
+        .expect("Floater<$FloatingHabs>, Floater<$AerialMappers>, Floater<$TitanShuttles<Stan>>")
+    shouldThrow<TaskException> { kim.doTask("2 Floater<$TitanShuttles<Stan>>") }
     kim.doTask("2 Floater<$FloatingHabs>")
+    stan.doTask("0 Floater<$TitanShuttles>")
     kim.count("Floater<$FloatingHabs>") shouldBe 3
     kim.count("Floater<$AerialMappers>") shouldBe 1
     stan.count("Floater<$TitanShuttles>") shouldBe 1
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Corrosive Rain consumes two floaters from the same card before drawing for influence`() {
-    prepareEvent(
-        "ImmigrationToVenus",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Kelvinists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$ImmigrationToVenus", "CorrosiveRain")
+    kim.exMachina("$TitanShuttles, 2 Floater<$TitanShuttles>")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.doTasks(*playCardTasks("$TitanShuttles"), "Ok" /* No Titanium payment. */)
-    kim.completeOperation {
-      doTasks(*cardActionTasks("$TitanShuttles"))
-      doTask("2 Floater<$TitanShuttles>")
-    }
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("0 ProjectCard<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
-    expectChanges("0 MC<Kim>, 2 ProjectCard<Kim>") {
-      kim.doTask("-2 Floater<$TitanShuttles>")
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTask("VenusStep! BY Admin")
+    kim.count("ProjectCard<Hand>") shouldBe 10 // Draw waits for the floater payment.
+    kim.doTask("-2 Floater<$TitanShuttles>").expect("0 MC")
+    kim.doTask("2 ProjectCard")
+    stan.doTasks("-10 MC", "0 ProjectCard")
     kim.count("Floater<$TitanShuttles>") shouldBe 0
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Corrosive Rain charges money when floaters are split across cards`() {
-    prepareEvent(
-        "ImmigrationToVenus",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Kelvinists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$ImmigrationToVenus", "CorrosiveRain")
+    kim.exMachina("$FloatingHabs, Floater<$FloatingHabs>, $AerialMappers, Floater<$AerialMappers>")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.completeOperation {
-      doTasks(*playCardTasks("$Research"))
-      autoExecNow(EAGER)
-    }
-    kim.doTasks(*playCardTasks("$FloatingHabs"))
-    kim.doTasks(*playCardTasks("$AerialMappers"))
-    kim.completeOperation {
-      doTasks(*cardActionTasks("$FloatingHabs"))
-      doTask("1 Floater<$FloatingHabs>")
-    }
-    kim.completeOperation {
-      doTasks(*cardActionTasks("$AerialMappers"))
-      doTask("1 Floater<$AerialMappers>")
-    }
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("-10 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-10 MC",
+        "2 ProjectCard",
+    )
+    stan.doTasks("-10 MC", "0 ProjectCard")
     kim.count("Floater<$FloatingHabs>") shouldBe 1
     kim.count("Floater<$AerialMappers>") shouldBe 1
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Jovian Tax Rights pays production for owned colonies and titanium for influence`() {
-    prepareEvent(
-        "JovianColonyBoom",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$JovianColonyBoom", "JovianTaxRights", extraOptions = "Luna, Ceres, Triton")
+    kim.exMachina("Colony<Luna>, Colony<Ceres>, Colony<Triton>")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("BuildColonyProject"), "Colony<Luna>")
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("BuildColonyProject"), "Colony<Ceres>")
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("BuildColonyProject"), "Colony<Triton>")
-      autoExecNow(EAGER)
-    }
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("PROD[0 MC<Stan>], PROD[3 MC<Kim>], 2 Titanium<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "PROD[3 MC]",
+        "2 Titanium",
+    )
+    stan.doTasks("PROD[0 MC]", "0 Titanium")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Microgravity Health Problems subtracts influence from owned colonies`() {
-    prepareEvent(
-        "Diaspora",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$Diaspora", "MicrogravityHealthProblems", extraOptions = "Luna, Ceres, Triton")
+    kim.exMachina("Colony<Luna>, Colony<Ceres>, Colony<Triton>")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("BuildColonyProject"), "Colony<Luna>")
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("BuildColonyProject"), "Colony<Ceres>")
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("BuildColonyProject"), "Colony<Triton>")
-      autoExecNow(EAGER)
-    }
-    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("0 MC<Stan>, -3 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "-3 MC",
+    )
+    stan.doTask("-0 MC")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Venus Infrastructure pays for Venus tags and influence`() {
-    prepareEvent(
-        "MartianProtectionism",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$MartianProtectionism", "VenusInfrastructure")
+    kim.exMachina("$AerialMappers, $Dirigibles")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    kim.doTasks(*playCardTasks("$AerialMappers"))
-    kim.doTasks(*playCardTasks("$Dirigibles"))
-    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("8 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "8 MC",
+    )
+    // Both rewards are zero; name the influence term to distinguish them.
+    stan.selectTask("2 MC / Influence")
+    stan.doTasks(
+        "0 MC",
+        "0 MC",
+    )
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Snow Cover cannot lower a completed temperature track`() {
-    prepareTemperatureEvent("MoholeLakeGlobalEvent", 19)
-    val first = players.single { it.count("StartToken") == 1 }
-    first.doTask("Pass")
-    // Generation 20 starts with Stan; Kim can still lobby before passing.
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
+    prepareEvent("$MoholeLakeGlobalEvent", "SnowCover")
+    admin.exMachina("19 TemperatureStep")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("2 ProjectCard<Kim>") {
-      first.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      admin.count("TemperatureStep") shouldBe 19
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "2 ProjectCard",
+    )
+    stan.doTask("0 ProjectCard")
+    admin.count("TemperatureStep") shouldBe 19
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Volcanic Eruptions pays heat production for measured influence`() {
-    prepareEvent(
-        "PateraBoring",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<Kelvinists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent("$PateraBoring", "VolcanicEruptions")
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
     )
-    admin.count("Current<PateraBoring>") shouldBe 1
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-
-    expectChanges("PROD[2 Heat<Kim>]") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "PROD[2 Heat]",
+    )
+    stan.doTask("PROD[0 Heat]")
+    admin.count("TemperatureStep") shouldBe 2
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Volcanic Eruptions lets the first player place the threshold ocean for Admin`() {
-    prepareTemperatureEvent("PateraBoring", 13)
-    val first = players.single { it.count("StartToken") == 1 }
-    first.doTask("Pass")
+    prepareEvent("$PateraBoring", "VolcanicEruptions")
+    admin.exMachina("13 TemperatureStep")
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("-1 TerraformRating<${first.actor}>") {
-      first.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      shouldThrow<NarrowingException> { first.doTask("OceanTile<Tharsis_3_3> BY Admin") }
-      first.doTask("OceanTile<Tharsis_1_4> BY Admin").expect("OceanTile")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      admin.count("TemperatureStep") shouldBe 15
-      // Only revision; the ocean grants no TR.
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTask("VenusStep! BY Admin")
+    kim.count("TerraformRating") shouldBe 19 // Revision; Admin's temperature gain gives no TR.
+    shouldThrow<TaskException> { kim.doTask("OceanTile<Tharsis_3_3> BY Admin") }
+    kim.doTask("OceanTile<Tharsis_1_4> BY Admin").expect("OceanTile, 0 TerraformRating")
+    players.forEach { it.doTask("PROD[0 Heat]") }
+    admin.count("TemperatureStep") shouldBe 15
+    kim.count("TerraformRating") shouldBe 19
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Generous Funding combines the post-revision rating bracket with influence`() {
-    prepareEvent(
-        "TerraformingLobbying",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Kelvinists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-    )
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
-    }
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("AsteroidProject"))
-      autoExecNow(EAGER)
-    }
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
+    prepareEvent("$TerraformingLobbying", "GenerousFunding")
     kim.count("TerraformRating") shouldBe 20
+    // Leading Mars First and having another delegate supply two influence.
+    kim.exMachina(
+        "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("4 MC<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      // Revision drops TR below the next payout bracket.
-    }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTasks(
+        "VenusStep! BY Admin",
+        "4 MC",
+        "0 MC",
+    )
+    // Both rewards are zero; name the influence term to distinguish them.
+    stan.selectTask("2 MC / Influence")
+    stan.doTasks(
+        "0 MC",
+        "0 MC",
+    )
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Dry Deserts grants independent resource choices for each influence without taking TR`() {
     newTestGame(
-        addOptions = "TurmoilExpansion",
-        playerCount = 2,
+        "TurmoilExpansion, -QuickStartVariant",
+        2,
         firstGlobalEvents =
-            listOf(
-                "DemocraticReform",
-                "MinimalImpactPolicy",
-                "RedResistance",
-                "CharismaticWgPresident",
-            ),
+            listOf("$DemocraticReform", "$FreeAcademiaTreaty", "$ExploreFirstDirective"),
     )
-    kim.completeOperation {
-      doTask("UseAction<LobbyAction, Action1>")
-      doTask("PartyLeader<Scientists> FROM LobbyDelegate")
-    }
-    kim.completeOperation {
-      doTasks("UseAction<PaidLobbyAction, Action1>")
-      doTask("PartyFollower<Scientists>")
-    }
-    stan.doTask("Pass")
+    admin.exMachina(
+        "OceanTile<Tharsis_1_2>, $MinimalImpactPolicy, Current<$MinimalImpactPolicy>, " +
+            "PendingGlobalEffect<Current<$MinimalImpactPolicy>, Class<DryDeserts>>"
+    )
+    kim.exMachina(
+        "Chairman<Kim> FROM Chairman<Neutral>, " +
+            "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 3 PartyFollower<MarsFirst>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
     kim.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-
-    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-    admin.count("Distant<RedResistance>") shouldBe 1
-    admin.count("PartyFollower<Reds, Neutral>") shouldBe 1
-    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-
-    // Kim is chairman and takes Unity's leadership and an ordinary delegate's influence.
-    stan.doTask("Pass")
-    kim.completeOperation {
-      doTask("UseAction<LobbyAction, Action1>")
-      doTask("PartyLeader<Unity> FROM LobbyDelegate")
-    }
-    kim.completeOperation {
-      doTasks("UseAction<PaidLobbyAction, Action1>")
-      doTask("PartyFollower<Unity>")
-    }
-    kim.completeOperation {
-      doTasks("UseAction<PaidLobbyAction, Action1>")
-      doTask("PartyFollower<Unity>")
-    }
-    kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("3 Plant<Kim>, 3 Steel<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
-    admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
-    admin.count("Distant<CharismaticWgPresident>") shouldBe 1
-    admin.count("PartyFollower<Unity, Neutral>") shouldBe 1
-    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-
-    kim.completeOperation {
-      doTask("UseAction<LobbyAction, Action1>")
-      doTask("PartyFollower<MarsFirst> FROM LobbyDelegate")
-    }
-    kim.completeOperation {
-      doTasks("UseAction<PaidLobbyAction, Action1>")
-      doTask("PartyLeader<MarsFirst>")
-    }
-    stan.doTask("Pass")
-    kim.completeOperation {
-      doTasks("UseAction<PaidLobbyAction, Action1>")
-      doTask("PartyFollower<MarsFirst>")
-    }
-    kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("0 TerraformRating<Kim>") {
-      kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      // Spend the three independent resource choices on different resources.
-      kim.doTasks("Heat", "Plant", "Steel")
-      admin.count("OceanTile") shouldBe 0
-      // Revision and chairman TR cancel.
-    }
+    kim.count("Influence") shouldBe 3
+    kim.doTask("-OceanTile<Tharsis_1_2>").expect("0 TerraformRating")
+    kim.doTasks("EACH", "Heat", "Plant", "Steel")
+    stan.doTask("EACH") // No influence to exchange for resources.
+    admin.count("OceanTile") shouldBe 0
+    kim.count("TerraformRating") shouldBe 20 // Revision and chairman TR cancel.
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Revealing events still works when all neutral delegates are on the board`() {
-    val reveals =
-        listOf(
-            "CharismaticWgPresident",
-            "RedResistance",
-            "TerraformingLobbying",
-            "SolarnetGlobalEvent",
-            "WorldGovernmentDirectives",
-            "ExperimentalLifeforms",
-            "ScienceSummit",
-        )
     newTestGame(
-        addOptions = "TurmoilExpansion",
-        playerCount = 2,
-        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy") + reveals,
+        "TurmoilExpansion, -QuickStartVariant",
+        2,
+        firstGlobalEvents = listOf("$DemocraticReform", "$MinimalImpactPolicy", "$ScienceSummit"),
     )
-    repeat(7) { generation ->
-      val first = players.single { it.count("StartToken") == 1 }
-      val other = players.single { it != first }
-      repeat(2) { round ->
-        listOf(first, other).forEachIndexed { seat, player ->
-          val lobbyAction =
-              if (round == 0) "UseAction<LobbyAction, Action1>"
-              else "UseAction<PaidLobbyAction, Action1>"
-          player.completeOperation {
-            doTask(lobbyAction)
-
-            doTask(
-                if (round == 0) {
-                  listOf(
-                      "PartyLeader<Scientists> FROM LobbyDelegate",
-                      "PartyFollower<Scientists> FROM LobbyDelegate",
-                  )[seat]
-                } else "PartyFollower<Scientists>"
-            )
-          }
-          player.completeOperation {
-            doTasks("UseAction<PaidLobbyAction, Action1>")
-            doTask("PartyFollower<Scientists>")
-          }
-        }
-      }
-      listOf(first, other).forEach { player ->
-        player.completeOperation {
-          doTasks("UseAction<PaidLobbyAction, Action1>")
-          doTask("PartyFollower<Scientists>")
-        }
-        player.selectTask("PassBaton") // Decline the second action.
-      }
-      first.doTask("Pass")
-      other.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      if (generation == 6) admin.count("Delegate<Neutral>") shouldBe 14
-      first.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      if (generation == 1) {
-        first.doTask("OceanTile<Tharsis_1_2> BY Admin")
-        players.forEach { it.autoExecNow(EAGER) }
-      }
-      if (generation == 2) {
-        // Dry Deserts: Kim has the party leader and a follower; Stan has the chair and a follower.
-        players.forEach { it.doTasks("Heat", "Heat") }
-      }
-      admin.count("Distant<${reveals[generation]}>") shouldBe 1
-      admin.count("GlobalEventDrawn") shouldBe generation + 3
-      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-    }
+    // Put the complete neutral reserve in parties that will survive this election.
+    kim.exMachina(
+        "Chairman<Kim> FROM Chairman<Neutral>, PartyLeader<Scientists>, 5 PartyFollower<Scientists>"
+    )
+    stan.exMachina("6 PartyFollower<Scientists>")
+    admin.exMachina(
+        "4 PartyFollower<MarsFirst, Neutral>, 4 PartyFollower<Reds, Neutral>, " +
+            "PartyLeader<Unity, Neutral>, 3 PartyFollower<Unity, Neutral>"
+    )
     admin.count("Delegate<Neutral>") shouldBe 14
-    admin.count("Distant<ScienceSummit>") shouldBe 1
+    kim.doTask("Pass")
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
+    kim.doTask("VenusStep! BY Admin")
+    admin.count("Delegate<Neutral>") shouldBe 14
+    admin.count("Current<$DemocraticReform>") shouldBe 1
+    admin.count("Distant<$ScienceSummit>") shouldBe 1
+    admin.count("GlobalEventDrawn") shouldBe 3
+    admin.count("PartyDelegate<Greens, Neutral>") shouldBe 0
+    admin.count("PartyDelegate<Scientists, Neutral>") shouldBe 0
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Solo Election requires five points rather than awarding an automatic first place`() {
-    prepareSoloRankingEvent(
-        "SelfSufficiencyProgram",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-        ),
+    prepareEvent(
+        "$SelfSufficiencyProgram",
+        "Election",
+        playerCount = 1,
+        extraOptions = "-ColoniesExpansion",
     )
-    expectChanges("-1 TerraformRating<Kim>") {
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    kim.doTask("Pass")
+    kim.doTasks(
+        "14 MC",
+        "VenusStep! BY Admin",
+        "0 TerraformRating",
+    )
+    kim.count("TerraformRating") shouldBe 13
+    kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Solo Election combines buildings and city tiles to reach five`() {
-    prepareSoloRankingEvent(
-        "SelfSufficiencyProgram",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyFollower<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-        ),
+    prepareEvent(
+        "$SelfSufficiencyProgram",
+        "Election",
+        playerCount = 1,
+        extraOptions = "-ColoniesExpansion",
     )
-    kim.doTasks(*playCardTasks("$Mine"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$PowerPlant"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$IndustrialMicrobes"), "Ok" /* No Steel payment. */)
-    kim.autoExecNow(EAGER)
-    kim.doTasks(*playCardTasks("$BuildingIndustries"), "Ok" /* No Steel payment. */)
-    kim.autoExecNow(EAGER)
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("CityProject"))
-      doTask("CityTile<Tharsis_8_8>")
-      autoExecNow(EAGER)
-    }
-    expectChanges("0 TerraformRating<Kim>") {
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      // Revision -1 and Election +1.
-    }
+    kim.exMachina(
+        "$Mine, $PowerPlant, $IndustrialMicrobes, $BuildingIndustries, NormalCityTile<Tharsis_8_8>"
+    )
+    kim.doTask("Pass")
+    kim.doTasks(
+        "14 MC",
+        "VenusStep! BY Admin",
+        "TerraformRating",
+    )
+    kim.count("TerraformRating") shouldBe 14
+    kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Solo Revolution does not penalize fewer than four Earth tags and influence`() {
-    prepareSoloRankingEvent(
-        "WorldGovernmentDirectives",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+    prepareEvent(
+        "$WorldGovernmentDirectives",
+        "Revolution",
+        playerCount = 1,
+        extraOptions = "-ColoniesExpansion",
     )
-    kim.doTasks(*playCardTasks("$EarthOffice"))
-    kim.doTasks(*playCardTasks("$Sponsors"))
-    kim.doTasks(*playCardTasks("$AcquiredCompany"))
-    expectChanges("0 TerraformRating<Kim>") {
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      // Revision and Reds bonus cancel.
-    }
+    kim.exMachina("$EarthOffice, $Sponsors, $AcquiredCompany")
+    kim.doTask("Pass")
+    kim.doTasks(
+        "14 MC",
+        "VenusStep! BY Admin",
+    )
+    kim.count("TerraformRating") shouldBe 13
+    kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Solo Revolution penalizes reaching four Earth tags`() {
-    prepareSoloRankingEvent(
-        "WorldGovernmentDirectives",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyFollower<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyLeader<MarsFirst, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
-    )
-    kim.doTasks(*playCardTasks("$EarthOffice"))
-    kim.doTasks(*playCardTasks("$Sponsors"))
-    kim.doTasks(*playCardTasks("$AcquiredCompany"))
-    kim.doTasks(*playCardTasks("$Cartel"))
-    expectChanges("-2 TerraformRating<Kim>") {
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      // Revision and Reds cancel; Revolution costs two.
-    }
-  }
-
-  private fun prepareSoloRankingEvent(event: String, neutralPlacements: List<String>) {
-    val reveals = listOf(event, "ExploreFirstDirective", "MoralMovement")
-    newTestGame(
-        addOptions = "TurmoilExpansion",
-        playerCount = 1,
-        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy") + reveals,
-    )
-    reveals.forEachIndexed { index, reveal ->
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      if (index == 1) {
-        kim.doTask("OceanTile<Tharsis_1_2> BY Admin")
-        players.forEach { it.autoExecNow(EAGER) }
-      }
-      admin.count("Distant<$reveal>") shouldBe 1
-      (admin.count(neutralPlacements[index * 2]) > 0) shouldBe true
-      (admin.count(neutralPlacements[index * 2 + 1]) > 0) shouldBe true
-      kim.doTask("-4 ProjectCard<Selecting>")
-    }
-  }
-
-  private fun prepareDiversity() {
     prepareEvent(
-        "FreeAcademiaTreaty",
-        listOf(
-            "PartyLeader<Greens, Neutral>",
-            "PartyLeader<Scientists, Neutral>",
-            "PartyLeader<Unity, Neutral>",
-            "PartyLeader<Reds, Neutral>",
-            "PartyFollower<Scientists, Neutral>",
-            "PartyFollower<Reds, Neutral>",
-        ),
+        "$WorldGovernmentDirectives",
+        "Revolution",
+        playerCount = 1,
+        extraOptions = "-ColoniesExpansion",
     )
-    kim.completeOperation {
-      doTasks(*playCardTasks("$Research"))
-      autoExecNow(EAGER)
-    }
-    kim.doTasks(*playCardTasks("$PowerPlant"), "Ok" /* No Steel payment. */)
-    kim.doTasks(*playCardTasks("$VestaShipyard"), "Ok" /* No Titanium payment. */)
-    kim.doTasks(*playCardTasks("$EarthOffice"))
-    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
-  }
-
-  private fun lobbyForInfluence(
-      firstRole: String = "PartyLeader",
-      secondRole: String = "PartyFollower",
-      thirdRole: String = "PartyFollower",
-  ) {
-    kim.completeOperation {
-      doTask("UseAction<LobbyAction, Action1>")
-      doTask("$firstRole<MarsFirst> FROM LobbyDelegate")
-    }
-    kim.completeOperation {
-      doTasks("UseAction<PaidLobbyAction, Action1>")
-      doTask("$secondRole<MarsFirst>")
-    }
-    kim.completeOperation {
-      doTasks("UseAction<PaidLobbyAction, Action1>")
-      doTask("$thirdRole<MarsFirst>")
-    }
-    kim.completeOperation {
-      doTasks("UseAction<PaidLobbyAction, Action1>")
-      doTask("PartyFollower<MarsFirst>")
-    }
-    kim.completeOperation {
-      doTasks("UseAction<PaidLobbyAction, Action1>")
-      doTask("PartyFollower<MarsFirst>")
-    }
+    kim.exMachina("$EarthOffice, $Sponsors, $AcquiredCompany, $Cartel")
+    kim.doTask("Pass")
+    kim.doTasks(
+        "14 MC",
+        "VenusStep! BY Admin",
+        "-2 TerraformRating",
+    )
+    kim.count("TerraformRating") shouldBe 11
+    kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
+    admin.count("ActionPhase") shouldBe 1
   }
 
   private fun prepareEvent(
       event: String,
-      neutralPlacements: List<String>,
-      nextEvent: String? = null,
-      setup: () -> Unit = {},
+      effect: String,
+      playerCount: Int = 2,
+      extraOptions: String = "",
   ) {
-    val reveals =
-        listOf(
-            event,
-            if (event == "ExploreFirstDirective") "ScientificProgress" else "ExploreFirstDirective",
-            if (event == "MoralMovement") "BioengineeringBoom" else "MoralMovement",
-        )
-    val firstEvents = listOf("DemocraticReform", "MinimalImpactPolicy")
     newTestGame(
-        addOptions = "TurmoilExpansion, Luna, Ceres, Triton, Ganymede, Callisto",
-        playerCount = 2,
-        firstGlobalEvents = firstEvents + reveals + listOfNotNull(nextEvent),
+        "TurmoilExpansion, -QuickStartVariant, $extraOptions",
+        playerCount,
+        firstGlobalEvents =
+            listOf("$DemocraticReform", "$MinimalImpactPolicy", "$ExperimentalLifeforms"),
     )
-    setup()
-    // Reveal the subject in generation 1; it moves through Coming and Current before generation 4.
-    reveals.forEachIndexed { index, reveal ->
-      val first = players.single { it.count("StartToken") == 1 }
-      first.doTask("Pass")
-      players.single { it != first }.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      expectChanges("Distant<$reveal>") {
-        first.doTask("VenusStep! BY Admin")
-        players.forEach { it.autoExecNow(EAGER) }
-        if (index == 1) {
-          first.doTask("OceanTile<Tharsis_1_2> BY Admin")
-          players.forEach { it.autoExecNow(EAGER) }
-        }
-      } // Democratic Reform.
-      // Minimal Impact Policy removes that sole ocean automatically in generation 3.
-      admin.count("Distant<$reveal>") shouldBe 1
-      (admin.count(neutralPlacements[index * 2]) > 0) shouldBe true
-      (admin.count(neutralPlacements[index * 2 + 1]) > 0) shouldBe true
-      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-    }
-    stan.doTask("Pass") // Kim may now prepare the subject's relevant position in generation 4.
-  }
-
-  private fun prepareTemperatureEvent(
-      event: String,
-      temperature: Int,
-  ) {
-    val laterEvents =
-        listOf(
-            "RedResistance",
-            "CharismaticWgPresident",
-            "BioengineeringBoom",
-            "MiningRestrictions",
-            "SolarnetGlobalEvent",
-            "TerraformingLobbying",
-            "HeatFirstPolicy",
-            "SecondEnergyCrisis",
-            "RisingAlloyDemand",
-            "ThawMining",
-            "ViralModificationsApproved",
-            "ScientificConsensus",
-            "AntarcticaMelts",
-            "WorldGovernmentDirectives",
-            "IndependenceMovement",
-            "CorporateAlliance",
-            "ExploreFirstDirective",
-            "IncreasedInterplanetaryTrade",
-            "AiResearch",
-        )
-    val reveals =
-        laterEvents.filter { it != event }.take(temperature - 3) +
-            event +
-            laterEvents.filter { it != event }.drop(temperature - 3)
-    newTestGame(
-        addOptions = "TurmoilExpansion",
-        playerCount = 2,
-        firstGlobalEvents = listOf("DemocraticReform", "MinimalImpactPolicy") + reveals,
-    )
-    repeat(temperature) { index ->
-      val first = players.single { it.count("StartToken") == 1 }
-      first.doTask("Pass")
-      players.single { it != first }.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      first.doTask("TemperatureStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      if (index == 1) {
-        first.doTask("OceanTile<Tharsis_1_2> BY Admin")
-        players.forEach { it.autoExecNow(EAGER) }
-      } // Democratic Reform.
-      if (index == 14) {
-        first.doTask("OceanTile<Tharsis_1_2> BY Admin")
-        players.forEach { it.autoExecNow(EAGER) }
-      } // Temperature threshold.
-      admin.count("Distant<${reveals[index]}>") shouldBe 1
-      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-    }
-    admin.count("Current<$event>") shouldBe 1
-    admin.count("TemperatureStep") shouldBe temperature
+    // Earlier reveals and their unrelated effects are incidental to these focused event tests.
+    admin.exMachina("$event, Current<$event>, PendingGlobalEffect<Current<$event>, Class<$effect>>")
   }
 }

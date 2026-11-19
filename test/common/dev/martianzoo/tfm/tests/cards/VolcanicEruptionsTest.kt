@@ -1,18 +1,18 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class VolcanicEruptionsTest : TfmGameplayTest(NONE) {
+internal class VolcanicEruptionsTest : TfmGameplayTest() {
   @BeforeTest
   fun prepareCurrentEvent() {
     newTestGame(
         addOptions = "-QuickStartVariant, TurmoilExpansion",
         playerCount = 2,
-        firstGlobalEvents = listOf("PateraBoring", "BioengineeringBoom", "ScientificProgress"),
+        firstGlobalEvents = listOf("$PateraBoring", "$BioengineeringBoom", "$ScientificProgress"),
     )
     kim.doTask("Pass")
     stan.doTask("Pass")

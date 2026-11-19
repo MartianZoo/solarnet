@@ -27,6 +27,7 @@ import dev.martianzoo.tfm.tests.TestOption.Utopia
 import dev.martianzoo.tfm.tests.TestOption.Vastitas
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.TestOption.WorldGovernmentRule
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -89,7 +90,7 @@ internal class CanonAdmissibilityTest {
         TfmEngine.newGame(withTestTurmoilDeck(canonicalPremise(*selected, colonyTiles = colonies)))
 
     selected.mapNotNull { it.className }.forEach { world.classTable.isInhabited(it) shouldBe true }
-    world.classTable.isInhabited(cn("MonsInsurance")) shouldBe true
+    world.classTable.isInhabited(MonsInsurance) shouldBe true
     colonies.forEach { world.classTable.isInhabited(it) shouldBe true }
     world.classTable.isInhabited(cn("CimmeriaMap")) shouldBe true
     world.isIdle() shouldBe true

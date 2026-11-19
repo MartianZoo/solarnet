@@ -26,8 +26,11 @@ internal class CapitalTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Manager")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Manager",
+      )
     }
   }
 
@@ -37,8 +40,11 @@ internal class CapitalTest : TfmSandboxTest() {
     kim.exMachina("$Capital, CapitalTile<$Capital, Cimmeria_3_3>")
     stan.exMachina("GreeneryTile<Stan, Cimmeria_2_2>")
     stan.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Founder")
+      doTasks(
+          "UseAction<FundAwardAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Founder",
+      )
     }
 
     victoryPoints() shouldBe listOf(21, 26)
@@ -55,18 +61,17 @@ internal class CapitalTest : TfmSandboxTest() {
     )
     stan.setToExMachina(2, "PROD[Energy]")
 
-    stan
-        .inTurn {
-          doTasks(*playCardTasks("Capital"), "26 Pay<> FROM MC")
-          doTasks(
-              "Capital FROM ProjectCard",
-              "PROD[-2 Energy]",
-              "PROD[5 MC]",
-              "CapitalTile<Tharsis_3_3>",
-          )
-          // The active player chooses when to hand this task to its owner.
-          giveTask(kim, "PROD[MC<Kim>]")
-        }
-        .expect("PROD[MC<Kim>]")
+    stan.inTurn {
+      doTasks(
+          *playCardTasks("$Capital"),
+          "26 Pay<> FROM MC",
+          "$Capital FROM ProjectCard",
+          "PROD[-2 Energy]",
+          "PROD[5 MC]",
+          "CapitalTile<Tharsis_3_3>",
+      )
+      // The active player chooses when to hand this task to its owner.
+      giveTask(kim, "PROD[MC<Kim>]")
+    }
   }
 }

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.SeptemTribus
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
 internal class SeptemTribusTest : TfmSandboxTest() {
@@ -16,8 +16,10 @@ internal class SeptemTribusTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks(*cardActionTasks("SeptemTribus"))
-      doTask("4 MC")
+      doTasks(
+          *cardActionTasks("$SeptemTribus"),
+          "4 MC",
+      )
     }
   }
 }

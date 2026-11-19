@@ -14,14 +14,16 @@ import kotlin.test.Test
 internal class FocusedOrganizationTest : TfmSandboxTest() {
   @Test
   internal fun `May gain a different resource than it spends`() {
-    newTestGame("FocusedOrganization")
+    newTestGame("$FocusedOrganization")
     kim.exMachina("$FocusedOrganization, Steel")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("FocusedOrganization"))
-          doTask("-ProjectCard<Kim, Hand>")
-          doTask("-Steel")
-          doTask("ProjectCard<Kim, Hand>")
+          doTasks(
+              *cardActionTasks("$FocusedOrganization"),
+              "-ProjectCard<Hand>",
+              "-Steel",
+              "ProjectCard<Hand>",
+          )
 
           doTask("Plant")
         }
@@ -58,15 +60,19 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
   }
 
   private fun setupStormcraftFloater() {
-    newTestGame("FocusedOrganization, Unsafe", kimCorporation = StormcraftIncorporated)
+    newTestGame("$FocusedOrganization, Unsafe", kimCorporation = StormcraftIncorporated)
     kim.exMachina("$FocusedOrganization, Floater<$StormcraftIncorporated>")
   }
 
   private fun useFocusedOrganization(spendResource: OperationBlock): TaskResult = kim.inTurn {
-    doTasks(*cardActionTasks("FocusedOrganization"))
-    doTask("-ProjectCard<Kim, Hand>")
+    doTasks(
+        *cardActionTasks("$FocusedOrganization"),
+        "-ProjectCard<Hand>",
+    )
     spendResource()
-    doTask("ProjectCard<Kim, Hand>")
-    doTask("Plant")
+    doTasks(
+        "ProjectCard<Hand>",
+        "Plant",
+    )
   }
 }

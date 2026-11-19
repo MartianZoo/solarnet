@@ -61,17 +61,21 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
     newTestGame(addOptions = "ElysiumMap")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Generalist2")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Generalist2",
+        )
       }
     }
     kim.exMachina("PROD[MC, Steel, Titanium, Plant, Heat]")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Generalist2")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Generalist2",
+        )
       }
     }
 
@@ -79,8 +83,11 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
     }
     kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Generalist2")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Generalist2",
+      )
     }
   }
 
@@ -90,9 +97,11 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
     kim.exMachina("PROD[MC, Steel, Titanium, Plant, Heat]")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Generalist")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Generalist",
+        )
       }
     }
 
@@ -100,8 +109,11 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
     }
     kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Generalist")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Generalist",
+      )
     }
   }
 }

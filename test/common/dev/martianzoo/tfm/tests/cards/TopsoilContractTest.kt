@@ -14,15 +14,14 @@ internal class TopsoilContractTest : TfmSandboxTest() {
     kim.exMachina("$Decomposers")
 
     kim.inTurn {
-          doTasks(
-              *playCardTasks("TopsoilContract"),
-              "8 Pay<> FROM MC",
-              "TopsoilContract FROM ProjectCard",
-              "3 Plant",
-          )
-          doTask("Microbe<Decomposers>*")
-          doTask("MC")
-        }
-        .expect("Microbe<$Decomposers>")
+      doTasks(
+          *playCardTasks("$TopsoilContract"),
+          "8 Pay<> FROM MC",
+          "$TopsoilContract FROM ProjectCard",
+          "3 Plant",
+          "Microbe<$Decomposers>*",
+          "MC",
+      )
+    }
   }
 }

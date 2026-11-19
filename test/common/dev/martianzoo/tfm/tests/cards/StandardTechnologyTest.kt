@@ -3,8 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.Spire
-import dev.martianzoo.tfm.tests.cards.cardnames.StandardTechnology
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -34,8 +33,10 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("PowerPlantProject"))
-        doTask("11 Pay<> FROM MC")
+        doTasks(
+            *standardProjectTasks("PowerPlantProject"),
+            "11 Pay<> FROM MC",
+        )
       }
     }
 
@@ -52,29 +53,36 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
 
   @Test
   internal fun `Receives a rebate when Spire pays with science after temperature is complete`() {
-    newTestGame(addOptions = "Spire", kimCorporation = Spire)
+    newTestGame(addOptions = "$Spire", kimCorporation = Spire)
     kim.inTurn {
-      doTask("DoRequiredActions")
-      doTask("4 ProjectCard")
-      doTask("-3 ProjectCard<Kim, Hand>")
+      doTasks(
+          "DoRequiredActions",
+          "4 ProjectCard",
+          "-3 ProjectCard<Hand>",
+      )
     }
     kim.exMachina("$StandardTechnology")
     kim.setToExMachina(7, "Science<$Spire>")
     stan.setToExMachina(18, "TemperatureStep")
     stan.inTurn {
-      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
-      doTask("TemperatureStep")
-      doTask("TerraformRating")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
 
     kim.inTurn {
           doTasks(
               *standardProjectTasks("AsteroidProject"),
-              "7 PayFromCard<Spire> FROM Science<Spire>",
+              "7 PayFromCard<$Spire> FROM Science<$Spire>",
           )
           doTask("Ok") // Nothing remains to pay in MC.
-          doTask("TemperatureStep")
-          doTask("3 MC")
+          doTasks(
+              "TemperatureStep",
+              "3 MC",
+          )
         }
         .expect("0 TemperatureStep, 0 TerraformRating")
   }

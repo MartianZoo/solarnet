@@ -13,19 +13,19 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
   internal fun `Follows the designers intended discard-first sequence`() {
     // The source also allows discarding later under the printed icons; no formal erratum
     // revoking that allowance was established. This tests the designer's intended sequence.
-    newTestGame("UnexpectedApplication")
+    newTestGame("$UnexpectedApplication")
     kim.setToExMachina(1, "ProjectCard")
     kim.setToExMachina(3, "VenusStep")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("UnexpectedApplication"))
+        doTasks(*playCardTasks("$UnexpectedApplication"))
 
         doTasks(
             "4 Pay<> FROM MC",
-            "UnexpectedApplication FROM ProjectCard",
+            "$UnexpectedApplication FROM ProjectCard",
+            "-ProjectCard<Hand>",
         )
-        doTask("-ProjectCard<Kim, Hand>")
       }
     }
 
@@ -33,14 +33,14 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
     kim.setToExMachina(2, "ProjectCard")
     kim.inTurn {
       doTasks(
-          *playCardTasks("UnexpectedApplication"),
+          *playCardTasks("$UnexpectedApplication"),
           "4 Pay<> FROM MC",
-          "UnexpectedApplication FROM ProjectCard",
+          "$UnexpectedApplication FROM ProjectCard",
+          "-ProjectCard<Hand>",
+          "VenusStep",
+          "TerraformRating",
+          "ProjectCard<Hand>",
       )
-      doTask("-ProjectCard<Kim, Hand>")
-      doTask("VenusStep")
-      doTask("TerraformRating")
-      doTask("ProjectCard<Kim, Hand>")
     }
   }
 }

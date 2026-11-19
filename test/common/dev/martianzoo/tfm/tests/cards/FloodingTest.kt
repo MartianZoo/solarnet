@@ -7,7 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.NeptunianPowerConsultants
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
@@ -21,14 +21,18 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     kim.inTurn {
           doTasks(
-              *playCardTasks("Flooding"),
+              *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "Flooding FROM ProjectCard",
+              "$Flooding FROM ProjectCard",
           )
+          // Preserve the linked attack choice while selecting the ocean.
           selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Rob>")
-          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating")
-          doTask("-4 MC<Rob>")
-          doTask("2 Plant")
+          doTasks(
+              "OceanTile<Tharsis_5_4>!",
+              "TerraformRating",
+              "-4 MC<Rob>",
+              "2 Plant",
+          )
         }
         .expect("0 MC<Stan>, 0 MC<Maya>")
   }
@@ -38,11 +42,13 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     kim.inTurn {
           doTasks(
-              *playCardTasks("Flooding"),
+              *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "Flooding FROM ProjectCard",
+              "$Flooding FROM ProjectCard",
+              "OceanTile<Tharsis_5_4>",
+              "TerraformRating",
+              "2 Plant",
           )
-          doTasks("OceanTile<Tharsis_5_4>", "TerraformRating", "2 Plant")
         }
         .expect("0 MC<Stan>, 0 MC<Rob>, 0 MC<Maya>")
   }
@@ -54,12 +60,13 @@ internal class FloodingTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
+        doTasks(*playCardTasks("$Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "Flooding FROM ProjectCard",
+            "$Flooding FROM ProjectCard",
         )
+        // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
         doTask("OceanTile<Tharsis_5_4>!")
       }
@@ -74,14 +81,18 @@ internal class FloodingTest : TfmSandboxTest() {
     stan.setToExMachina(2, "MC")
     kim.inTurn {
           doTasks(
-              *playCardTasks("Flooding"),
+              *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "Flooding FROM ProjectCard",
+              "$Flooding FROM ProjectCard",
           )
+          // Preserve the linked attack choice while selecting the ocean.
           selectTask("OceanTile<Tharsis_5_4>! THEN -2! MC<Stan>")
-          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating")
-          doTask("-2 MC<Stan>")
-          doTask("2 Plant")
+          doTasks(
+              "OceanTile<Tharsis_5_4>!",
+              "TerraformRating",
+              "-2 MC<Stan>",
+              "2 Plant",
+          )
         }
         .expect("0 MC<Rob>")
   }
@@ -91,12 +102,13 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
+        doTasks(*playCardTasks("$Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "Flooding FROM ProjectCard",
+            "$Flooding FROM ProjectCard",
         )
+        // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -5! MC<Stan>")
         doTask("OceanTile<Tharsis_5_4>!")
       }
@@ -108,14 +120,20 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
-        doTasks("7 Pay<> FROM MC", "Flooding FROM ProjectCard")
+        doTasks(
+            *playCardTasks("$Flooding"),
+            "7 Pay<> FROM MC",
+            "$Flooding FROM ProjectCard",
+        )
+        // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
-        doTask("OceanTile<Tharsis_5_4>!")
-        doTask("TerraformRating")
-        doTask("-4 MC<Stan>")
-        doTask("2 Plant")
-        doTask("-4 MC<Rob>")
+        doTasks(
+            "OceanTile<Tharsis_5_4>!",
+            "TerraformRating",
+            "-4 MC<Stan>",
+            "2 Plant",
+            "-4 MC<Rob>",
+        )
       }
     }
   }
@@ -125,23 +143,29 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     kim.inTurn {
       doTasks(
-          *playCardTasks("Flooding"),
+          *playCardTasks("$Flooding"),
           "7 Pay<> FROM MC",
-          "Flooding FROM ProjectCard",
+          "$Flooding FROM ProjectCard",
+          "OceanTile<Tharsis_5_4>",
+          "TerraformRating",
+          "2 Plant",
       )
-      doTasks("OceanTile<Tharsis_5_4>", "TerraformRating", "2 Plant")
     }
     kim.setToExMachina(18, "MC")
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("AquiferProject"))
-        doTask("18 Pay<> FROM MC")
+        doTasks(
+            *standardProjectTasks("AquiferProject"),
+            "18 Pay<> FROM MC",
+        )
         // Resolve the ocean offer separately from other pending placement effects.
         selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>*")
-        doTask("OceanTile<Tharsis_1_2>")
-        doTask("TerraformRating")
-        doTask("2 Steel")
-        doTask("-4 MC<Maya>")
+        doTasks(
+            "OceanTile<Tharsis_1_2>",
+            "TerraformRating",
+            "2 Steel",
+            "-4 MC<Maya>",
+        )
       }
     }
     players[3].assertCounts(10 to "MC")
@@ -155,14 +179,18 @@ internal class FloodingTest : TfmSandboxTest() {
     )
     kim.inTurn {
           doTasks(
-              *playCardTasks("Flooding"),
+              *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "Flooding FROM ProjectCard",
+              "$Flooding FROM ProjectCard",
           )
+          // Preserve the linked attack choice while selecting the ocean.
           selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
-          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating")
-          doTask("-4 MC<Stan>")
-          doTask("2 Plant")
+          doTasks(
+              "OceanTile<Tharsis_5_4>!",
+              "TerraformRating",
+              "-4 MC<Stan>",
+              "2 Plant",
+          )
         }
         .expect("0 MC<Rob>, 0 MC<Maya>")
   }
@@ -188,9 +216,9 @@ internal class FloodingTest : TfmSandboxTest() {
     }
     kim.inTurn {
           doTasks(
-              *playCardTasks("Flooding"),
+              *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "Flooding FROM ProjectCard",
+              "$Flooding FROM ProjectCard",
           )
           // The ordinary placement resolves to zero; the mandatory attack arm cannot finish.
           doTask("Ok")
@@ -208,14 +236,19 @@ internal class FloodingTest : TfmSandboxTest() {
     )
     kim.inTurn {
           doTasks(
-              *playCardTasks("Flooding"),
+              *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "Flooding FROM ProjectCard",
+              "$Flooding FROM ProjectCard",
           )
+          // Preserve the linked attack choice while selecting the ocean.
           selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
-          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating")
-          doTask("-4 MC<Stan>")
-          doTasks("2 Plant", "2 MC")
+          doTasks(
+              "OceanTile<Tharsis_5_4>!",
+              "TerraformRating",
+              "-4 MC<Stan>",
+              "2 Plant",
+              "2 MC",
+          )
         }
         .expect("0 MC<Maya>")
   }
@@ -231,12 +264,13 @@ internal class FloodingTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"), "7 Pay<> FROM MC", "Flooding FROM ProjectCard")
+        doTasks(*playCardTasks("$Flooding"), "7 Pay<> FROM MC", "$Flooding FROM ProjectCard")
+        // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
         doTask("OceanTile<Tharsis_5_4>!")
       }
     }
-    kim.assertCounts(7 to "MC", 9 to "OceanTile", 0 to "Flooding")
+    kim.assertCounts(7 to "MC", 9 to "OceanTile", 0 to "$Flooding")
     stan.assertCounts(10 to "MC")
   }
 
@@ -246,11 +280,11 @@ internal class FloodingTest : TfmSandboxTest() {
     kim.exMachina("OceanTile<Tharsis_1_2>")
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
+        doTasks(*playCardTasks("$Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "Flooding FROM ProjectCard",
+            "$Flooding FROM ProjectCard",
         )
         // Select the linked placement and loss before testing a partial narrowing.
         selectOnlyTask()
@@ -264,16 +298,19 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
+        doTasks(*playCardTasks("$Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "Flooding FROM ProjectCard",
+            "$Flooding FROM ProjectCard",
         )
+        // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
-        doTask("OceanTile<Tharsis_5_4>!")
-        doTask("TerraformRating")
-        doTask("2 Plant")
+        doTasks(
+            "OceanTile<Tharsis_5_4>!",
+            "TerraformRating",
+            "2 Plant",
+        )
         // Select Flooding's loss separately from the still-open Neptunian payment.
         selectTask("-4? MC<Stan>")
         doTask("-4! MC<Maya>")
@@ -286,13 +323,13 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
+        doTasks(*playCardTasks("$Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "Flooding FROM ProjectCard",
+            "$Flooding FROM ProjectCard",
+            "Ok",
         )
-        doTask("Ok")
       }
     }
   }
@@ -303,12 +340,13 @@ internal class FloodingTest : TfmSandboxTest() {
     kim.exMachina("OceanTile<Tharsis_1_2>")
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
+        doTasks(*playCardTasks("$Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "Flooding FROM ProjectCard",
+            "$Flooding FROM ProjectCard",
         )
+        // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_1_2>! THEN -4! MC<Maya>")
         doTask("OceanTile<Tharsis_1_2>!")
       }
@@ -320,12 +358,13 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
+        doTasks(*playCardTasks("$Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "Flooding FROM ProjectCard",
+            "$Flooding FROM ProjectCard",
         )
+        // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Maya>")
         doTask("OceanTile<Tharsis_5_4>!")
       }
@@ -337,12 +376,13 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
+        doTasks(*playCardTasks("$Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "Flooding FROM ProjectCard",
+            "$Flooding FROM ProjectCard",
         )
+        // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_1_2>! THEN -4! MC<Stan>")
         doTask("OceanTile<Tharsis_1_2>!")
       }
@@ -354,11 +394,11 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
+        doTasks(*playCardTasks("$Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "Flooding FROM ProjectCard",
+            "$Flooding FROM ProjectCard",
         )
         // Select the linked placement and loss before testing a partial narrowing.
         selectOnlyTask()
@@ -372,11 +412,11 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Flooding"))
+        doTasks(*playCardTasks("$Flooding"))
 
         doTasks(
             "7 Pay<> FROM MC",
-            "Flooding FROM ProjectCard",
+            "$Flooding FROM ProjectCard",
         )
         // Select the linked placement and loss before testing a partial narrowing.
         selectOnlyTask()
@@ -393,10 +433,11 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     kim.inTurn {
           doTasks(
-              *playCardTasks("Flooding"),
+              *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "Flooding FROM ProjectCard",
+              "$Flooding FROM ProjectCard",
           )
+          // Select the linked choice that explicitly declines the attack.
           selectTask("OceanTile<Tharsis_5_4>! THEN Ok")
           doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating", "2 Plant")
         }
@@ -408,13 +449,18 @@ internal class FloodingTest : TfmSandboxTest() {
     arrangeFlooding()
     kim.inTurn {
           doTasks(
-              *playCardTasks("Flooding"),
+              *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "Flooding FROM ProjectCard",
+              "$Flooding FROM ProjectCard",
           )
+          // Preserve the linked attack choice while selecting the ocean.
           selectTask("OceanTile<Tharsis_5_4>! THEN -2? MC<Stan>")
-          doTasks("OceanTile<Tharsis_5_4>!", "TerraformRating", "2 Plant")
-          doTask("-2! MC<Stan>")
+          doTasks(
+              "OceanTile<Tharsis_5_4>!",
+              "TerraformRating",
+              "2 Plant",
+              "-2! MC<Stan>",
+          )
         }
         .expect("0 MC<Rob>, 0 MC<Maya>")
   }
@@ -437,14 +483,18 @@ internal class FloodingTest : TfmSandboxTest() {
     kim.setToExMachina(16, "MC")
     kim.inTurn {
           doTasks(
-              *playCardTasks("Flooding"),
+              *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "Flooding FROM ProjectCard",
+              "$Flooding FROM ProjectCard",
           )
 
-          selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Kim>")
-          doTasks("OceanTile<Tharsis_5_4>!", "UseAction<NeptunianOption, Action1>")
-          doTask("-4 MC")
+          // Preserve the linked attack choice while selecting the ocean.
+          selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC")
+          doTasks(
+              "OceanTile<Tharsis_5_4>!",
+              "UseAction<NeptunianOption, Action1>",
+              "-4 MC",
+          )
           kim.count("Owed") shouldBe 5
           doTasks(
               "5 Pay<> FROM MC",
@@ -454,7 +504,7 @@ internal class FloodingTest : TfmSandboxTest() {
               "2 Plant",
           )
         }
-        .expect("Hydroelectric, PROD[Energy], -16 MC")
+        .expect("Hydroelectric, -16 MC")
   }
 
   @Test
@@ -466,19 +516,21 @@ internal class FloodingTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Flooding"),
+          *playCardTasks("$Flooding"),
           "7 Pay<> FROM MC",
-          "Flooding FROM ProjectCard",
+          "$Flooding FROM ProjectCard",
       )
 
+      // Preserve the linked attack choice while selecting the ocean.
       selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
       doTask("OceanTile<Tharsis_5_4>!")
       // Kim offers the choice to Stan before Stan can accept or decline it.
       doTask("NOW Stan { UseAction<Stan, NeptunianOption>? }")
       shouldThrow<TaskException> { doTask("-4! MC<Stan>") }
       stan.doTask("UseAction<NeptunianOption, Action1>")
-      kim.selectTask("-4? MC<Stan>")
-      kim.doTask("-4! MC<Stan>")
+      // Select Kim's pending attack after the defender has chosen the payment alternative.
+      selectTask("-4? MC<Stan>")
+      doTask("-4! MC<Stan>")
       autoExecNow() // Let Admin open the bill before attempting the cash payment.
       // Kim cannot offer a payment that the attack has made unaffordable.
       shouldThrow<NotNowException> { doTask("NOW Stan { 5 Pay<Stan> FROM MC<Stan> }") }
@@ -502,11 +554,12 @@ internal class FloodingTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Flooding"),
+          *playCardTasks("$Flooding"),
           "7 Pay<> FROM MC",
-          "Flooding FROM ProjectCard",
+          "$Flooding FROM ProjectCard",
       )
 
+      // Preserve the linked attack choice while selecting the ocean.
       selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
       doTask("OceanTile<Tharsis_5_4>!")
       // Kim offers the choice to Stan before Stan can accept or decline it.
@@ -519,8 +572,9 @@ internal class FloodingTest : TfmSandboxTest() {
           "(X Pay<Stan, Class<Steel>> FROM Steel<Stan>) OR Ok",
           "2 Pay<Class<Steel>> FROM Steel",
       )
-      kim.selectTask("-4? MC<Stan>")
-      kim.doTask("-1! MC<Stan>")
+      // Select Kim's pending attack after the defender has chosen the payment alternative.
+      selectTask("-4? MC<Stan>")
+      doTask("-1! MC<Stan>")
       autoExecNow() // Finish removing the steel acceptance before testing the cash remainder.
       // Kim offers the remaining payment, which Stan can no longer afford.
       shouldThrow<NotNowException> { doTask("NOW Stan { Pay<Stan> FROM MC<Stan> }") }

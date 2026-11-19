@@ -12,57 +12,60 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
 
   @Test
   internal fun `Copies Research Network using its wild Building tag`() {
-    newTestGame("ResearchNetwork")
-    kim.exMachina("ResearchNetwork, Mine")
+    newTestGame("$ResearchNetwork")
+    kim.exMachina("$ResearchNetwork, $Mine")
     copyResearchNetwork().expect("PROD[MC]")
   }
 
   private fun copyResearchNetwork() = kim.inTurn {
     doTasks(
-        *playCardTasks("RoboticWorkforce"),
+        *playCardTasks("$RoboticWorkforce"),
         "9 Pay<> FROM MC",
-        "RoboticWorkforce FROM ProjectCard",
+        "$RoboticWorkforce FROM ProjectCard",
+        "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
+        "BuildingTag<WildTagElection<WildTag<$ResearchNetwork>>>",
+        "CopyProductionBox<$ResearchNetwork>",
+        "PROD[MC]",
     )
-    doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
-    doTask("BuildingTag<WildTagElection<WildTag<ResearchNetwork>>>")
-    doTasks("CopyProductionBox<ResearchNetwork>", "PROD[MC]")
   }
 
   @Test
   internal fun `Copied Gyropolis counts an Earth assignment made before copying it`() {
-    newTestGame("ResearchCoordination, Gyropolis")
-    kim.exMachina("ResearchCoordination, Gyropolis")
+    newTestGame("$ResearchCoordination, $Gyropolis")
+    kim.exMachina("$ResearchCoordination, $Gyropolis")
     kim.setToExMachina(2, "PROD[Energy]")
 
     kim.inTurn {
-          doTasks(
-              *playCardTasks("RoboticWorkforce"),
-              "9 Pay<> FROM MC",
-              "RoboticWorkforce FROM ProjectCard",
-          )
-          doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
-          doTask("EarthTag<WildTagElection<WildTag<ResearchCoordination>>>")
-          doTasks("CopyProductionBox<Gyropolis>", "PROD[-2 Energy]", "PROD[0 MC]", "PROD[1 MC]")
-        }
-        .expect("PROD[-2 Energy, 1 MC]")
+      doTasks(
+          *playCardTasks("$RoboticWorkforce"),
+          "9 Pay<> FROM MC",
+          "$RoboticWorkforce FROM ProjectCard",
+          "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
+          "EarthTag<WildTagElection<WildTag<$ResearchCoordination>>>",
+          "CopyProductionBox<$Gyropolis>",
+          "PROD[-2 Energy]",
+          "PROD[0 MC]",
+          "PROD[1 MC]",
+      )
+    }
   }
 
   @Test
   internal fun `Copied Medical Lab counts a Building assignment made before copying it`() {
-    newTestGame("ResearchCoordination")
-    kim.exMachina("ResearchCoordination, MedicalLab")
+    newTestGame("$ResearchCoordination")
+    kim.exMachina("$ResearchCoordination, $MedicalLab")
 
     kim.inTurn {
-          doTasks(
-              *playCardTasks("RoboticWorkforce"),
-              "9 Pay<> FROM MC",
-              "RoboticWorkforce FROM ProjectCard",
-          )
-          doTask("EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }")
-          doTask("BuildingTag<WildTagElection<WildTag<ResearchCoordination>>>")
-          doTasks("CopyProductionBox<MedicalLab>", "PROD[1 MC]")
-        }
-        .expect("PROD[1 MC]")
+      doTasks(
+          *playCardTasks("$RoboticWorkforce"),
+          "9 Pay<> FROM MC",
+          "$RoboticWorkforce FROM ProjectCard",
+          "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
+          "BuildingTag<WildTagElection<WildTag<$ResearchCoordination>>>",
+          "CopyProductionBox<$MedicalLab>",
+          "PROD[1 MC]",
+      )
+    }
   }
 
   @Test
@@ -73,10 +76,10 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("RoboticWorkforce"),
+          *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "RoboticWorkforce FROM ProjectCard",
-          "CopyProductionBox<StripMine>",
+          "$RoboticWorkforce FROM ProjectCard",
+          "CopyProductionBox<$StripMine>",
           "PROD[-2 Energy]",
           "PROD[2 Steel]",
           "PROD[Titanium]",
@@ -91,9 +94,12 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("RoboticWorkforce"))
-        doTasks("9 Pay<> FROM MC", "RoboticWorkforce FROM ProjectCard")
-        doTask("CopyProductionBox<MassConverter>")
+        doTasks(
+            *playCardTasks("$RoboticWorkforce"),
+            "9 Pay<> FROM MC",
+            "$RoboticWorkforce FROM ProjectCard",
+            "CopyProductionBox<$MassConverter>",
+        )
       }
     }
   }
@@ -106,9 +112,12 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("RoboticWorkforce"))
-        doTasks("9 Pay<> FROM MC", "RoboticWorkforce FROM ProjectCard")
-        doTask("CopyProductionBox<Mine<Stan>>")
+        doTasks(
+            *playCardTasks("$RoboticWorkforce"),
+            "9 Pay<> FROM MC",
+            "$RoboticWorkforce FROM ProjectCard",
+            "CopyProductionBox<$Mine<Stan>>",
+        )
       }
     }
   }
@@ -120,9 +129,12 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("RoboticWorkforce"))
-        doTasks("9 Pay<> FROM MC", "RoboticWorkforce FROM ProjectCard")
-        doTask("CopyProductionBox<Mine>")
+        doTasks(
+            *playCardTasks("$RoboticWorkforce"),
+            "9 Pay<> FROM MC",
+            "$RoboticWorkforce FROM ProjectCard",
+            "CopyProductionBox<$Mine>",
+        )
       }
     }
   }
@@ -130,7 +142,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/3430226/article/45396575#45396575
   @Test
   internal fun `Copies Industrial Complex's production adjustment without repeating its cost`() {
-    newTestGame(addOptions = "IndustrialComplex")
+    newTestGame(addOptions = "$IndustrialComplex")
     kim.exMachina("$IndustrialComplex")
     kim.setToExMachina(2, "PROD[Steel]")
     kim.setToExMachina(2, "PROD[Titanium]")
@@ -140,14 +152,16 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("RoboticWorkforce"),
+              *playCardTasks("$RoboticWorkforce"),
               "9 Pay<> FROM MC",
-              "RoboticWorkforce FROM ProjectCard",
-              "CopyProductionBox<IndustrialComplex>",
+              "$RoboticWorkforce FROM ProjectCard",
+              "CopyProductionBox<$IndustrialComplex>",
           )
           // Expand the copied production box into its separate resource increases.
-          doTask("EACH")
-          doTask("PROD[MC]")
+          doTasks(
+              "EACH",
+              "PROD[MC]",
+          )
         }
         .expect("PROD[MC, 0 Steel, 0 Titanium, 0 Plant, 0 Energy, 0 Heat]")
   }
@@ -156,21 +170,24 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
   internal fun `Counts current building tags when copying Medical Lab`() {
     newTestGame()
     kim.inTurn {
-          doTasks(*playCardTasks("MedicalLab"), "13 Pay<> FROM MC")
-          doTasks("MedicalLab FROM ProjectCard")
-          doTask("PROD[0 MC]")
+          doTasks(
+              *playCardTasks("$MedicalLab"),
+              "13 Pay<> FROM MC",
+              "$MedicalLab FROM ProjectCard",
+              "PROD[0 MC]",
+          )
         }
         .expect("PROD[0 MC]")
     kim.exMachina("$Mine, $IndustrialMicrobes, $TitaniumMine")
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("RoboticWorkforce"),
+          *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "RoboticWorkforce FROM ProjectCard",
-          "CopyProductionBox<MedicalLab>",
+          "$RoboticWorkforce FROM ProjectCard",
+          "CopyProductionBox<$MedicalLab>",
+          "PROD[2 MC]",
       )
-      doTask("PROD[2 MC]")
     }
   }
 
@@ -180,9 +197,10 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     kim.setToExMachina(2, "PROD[Heat]")
     stan.setToExMachina(2, "PROD[Heat]")
     kim.inTurn {
-      doTasks(*playCardTasks("HeatTrappers"), "6 Pay<> FROM MC")
       doTasks(
-          "HeatTrappers FROM ProjectCard",
+          *playCardTasks("$HeatTrappers"),
+          "6 Pay<> FROM MC",
+          "$HeatTrappers FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-2 Heat<Stan>]",
       )
@@ -191,10 +209,10 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("RoboticWorkforce"),
+              *playCardTasks("$RoboticWorkforce"),
               "9 Pay<> FROM MC",
-              "RoboticWorkforce FROM ProjectCard",
-              "CopyProductionBox<HeatTrappers>",
+              "$RoboticWorkforce FROM ProjectCard",
+              "CopyProductionBox<$HeatTrappers>",
               "PROD[Energy]",
               "PROD[-2 Heat]",
           )

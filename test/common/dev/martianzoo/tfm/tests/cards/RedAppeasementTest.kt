@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
@@ -10,13 +10,16 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class RedAppeasementTest : TfmGameplayTest(NONE) {
+internal class RedAppeasementTest : TfmGameplayTest() {
   @BeforeTest
   internal fun prepareRedsSupport() {
-    newTestGame("RedAppeasement, TurmoilExpansion", playerCount = 2)
+    newTestGame("$RedAppeasement, TurmoilExpansion", playerCount = 2)
     kim.doTasks(
         "UseAction<LobbyAction, Action1>",
         "PartyFollower<Reds> FROM LobbyDelegate",
+    )
+
+    kim.doTasks(
         "UseAction<PaidLobbyAction, Action1>",
         "5 Pay<> FROM MC",
         "PartyLeader<Reds>",
@@ -28,7 +31,7 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
     stan.doTask("Pass")
 
     shouldThrow<RequirementException> {
-      kim.doTasks(*playCardTasks("RedAppeasement"), "RedAppeasement FROM ProjectCard")
+      kim.doTasks(*playCardTasks("$RedAppeasement"), "$RedAppeasement FROM ProjectCard")
     }
   }
 
@@ -38,17 +41,16 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
         *standardProjectTasks("SellPatentsProject"),
         "MC FROM ProjectCard",
     )
-    stan.selectTask("PassBaton")
+    stan.doTask("PassBaton")
 
     kim.doTasks(
-        *playCardTasks("RedAppeasement"),
-        "RedAppeasement FROM ProjectCard",
+        *playCardTasks("$RedAppeasement"),
+        "$RedAppeasement FROM ProjectCard",
         "PROD[2 MC]",
         "Pass",
     )
     kim.count("Pass") shouldBe 1
-    kim.count("PlayedEvent<Class<RedAppeasement>>") shouldBe 1
-    admin.count("ActionScope") shouldBe 0
+    kim.count("PlayedEvent<Class<$RedAppeasement>>") shouldBe 1
     stan.doTask("Pass")
 
     admin.count("ProductionPhase") shouldBe 1
@@ -60,12 +62,12 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
         *standardProjectTasks("SellPatentsProject"),
         "MC FROM ProjectCard",
     )
-    stan.selectTask("PassBaton")
+    stan.doTask("PassBaton")
 
     kim.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
     kim.doTasks(
-        *playCardTasks("RedAppeasement"),
-        "RedAppeasement FROM ProjectCard",
+        *playCardTasks("$RedAppeasement"),
+        "$RedAppeasement FROM ProjectCard",
         "PROD[2 MC]",
         "Pass",
     )

@@ -7,36 +7,42 @@ import kotlin.test.Test
 internal class NirgalEnterprisesTest : TfmSandboxTest() {
   @Test
   internal fun `Claims a milestone without paying its usual fee`() {
-    newTestGame(addOptions = "NirgalEnterprises", kimCorporation = NirgalEnterprises)
+    newTestGame(addOptions = "$NirgalEnterprises", kimCorporation = NirgalEnterprises)
     kim.setToExMachina(16, "ProjectCard")
 
     kim.inTurn {
-          doTask("UseAction<ClaimMilestoneAction, Action1>")
-          doTask("Planner")
+          doTasks(
+              "UseAction<ClaimMilestoneAction, Action1>",
+              "Planner",
+          )
         }
         .expect("0 MC")
   }
 
   @Test
   internal fun `Funds an award without paying its usual fee`() {
-    newTestGame(addOptions = "NirgalEnterprises", kimCorporation = NirgalEnterprises)
+    newTestGame(addOptions = "$NirgalEnterprises", kimCorporation = NirgalEnterprises)
 
     kim.inTurn {
-          doTask("UseAction<FundAwardAction, Action1>")
-          doTask("Landlord")
+          doTasks(
+              "UseAction<FundAwardAction, Action1>",
+              "Landlord",
+          )
         }
         .expect("0 MC")
   }
 
   @Test
   internal fun `Still pays the twelve MC required by Briber`() {
-    newTestGame("Briber, Builder, Engineer, NirgalEnterprises", kimCorporation = NirgalEnterprises)
+    newTestGame("Briber, Builder, Engineer, $NirgalEnterprises", kimCorporation = NirgalEnterprises)
     kim.setToExMachina(12, "MC")
 
     kim.inTurn {
-      doTask("UseAction<ClaimMilestoneAction, Action1>")
-      doTask("Briber")
-      doTask("-12 MC")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "Briber",
+          "-12 MC",
+      )
     }
   }
 }

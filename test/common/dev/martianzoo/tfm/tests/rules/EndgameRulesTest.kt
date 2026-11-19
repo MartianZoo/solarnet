@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cardActionTasks
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class EndgameRulesTest : TfmGameplayTest(NONE) {
+internal class EndgameRulesTest : TfmGameplayTest() {
   // Omit unrelated production and colony choices; each scenario supplies its relevant position.
   private val options = "-QuickStartVariant, -ColoniesExpansion"
 
@@ -112,11 +112,14 @@ internal class EndgameRulesTest : TfmGameplayTest(NONE) {
   internal fun `Prelude shortens the standard solo game to twelve generations`() {
     newTestGame("$options, PreludeExpansion, -VenusNextExpansion", playerCount = 1)
     kim.doTasks(
-        "PlayCard<Class<PreludeCard>, Class<Donation>>",
-        "Donation FROM PreludeCard",
+        "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+        "$Donation FROM PreludeCard",
         "21 MC",
-        "PlayCard<Class<PreludeCard>, Class<AlliedBank>>",
-        "AlliedBank FROM PreludeCard",
+    )
+
+    kim.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
+        "$AlliedBank FROM PreludeCard",
         "PROD[4 MC]",
         "3 MC",
     )
@@ -138,11 +141,14 @@ internal class EndgameRulesTest : TfmGameplayTest(NONE) {
         playerCount = 1,
     )
     kim.doTasks(
-        "PlayCard<Class<PreludeCard>, Class<Donation>>",
-        "Donation FROM PreludeCard",
+        "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+        "$Donation FROM PreludeCard",
         "21 MC",
-        "PlayCard<Class<PreludeCard>, Class<AlliedBank>>",
-        "AlliedBank FROM PreludeCard",
+    )
+
+    kim.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
+        "$AlliedBank FROM PreludeCard",
         "PROD[4 MC]",
         "3 MC",
     )
@@ -290,11 +296,11 @@ internal class EndgameRulesTest : TfmGameplayTest(NONE) {
   @Test
   internal fun `Losing rating after reaching sixty three still loses the solo game`() {
     newTestGame(
-        "$options, Tr63SoloObjective, -VenusNextExpansion, BoardOfDirectors, Pristar",
+        "$options, Tr63SoloObjective, -VenusNextExpansion, $BoardOfDirectors, $Pristar",
         playerCount = 1,
     )
     // Only the late rating loss matters; install the Board and its unused director directly.
-    kim.exMachina("48 TerraformRating, BoardOfDirectors, Director<BoardOfDirectors>")
+    kim.exMachina("48 TerraformRating, $BoardOfDirectors, Director<$BoardOfDirectors>")
     admin.exMachina("-13 SoloGenerationsLeft")
     kim.completeOperation {
       doTasks(*standardProjectTasks("BufferGasProject"), "16 Pay<> FROM MC", "TerraformRating")
@@ -302,15 +308,15 @@ internal class EndgameRulesTest : TfmGameplayTest(NONE) {
     kim.count("TerraformRating") shouldBe 63
     kim.completeOperation {
       doTasks(
-          *cardActionTasks("BoardOfDirectors"),
+          *cardActionTasks("$BoardOfDirectors"),
           "PreludeCard",
           "-12 MC",
-          "-Director<BoardOfDirectors>",
-          "PlayCard<Class<PreludeCard>, Class<Merger>>",
-          "Merger FROM PreludeCard",
+          "-Director<$BoardOfDirectors>",
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
-          "PlayCard<Class<CorporationCard>, Class<Pristar>>",
-          "Pristar FROM CorporationCard<Selecting>",
+          "PlayCard<Class<CorporationCard>, Class<$Pristar>>",
+          "$Pristar FROM CorporationCard<Selecting>",
           "53 MC",
           "-2 TerraformRating",
           "-42 MC",

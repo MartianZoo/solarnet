@@ -9,25 +9,28 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class CrashSiteCleanupTest : TfmSandboxTest() {
-  @BeforeTest fun setUp() = newTestGame(addOptions = "-promos:cards, CrashSiteCleanup")
+  @BeforeTest fun setUp() = newTestGame(addOptions = "-promos:cards, $CrashSiteCleanup")
 
   @Test
   internal fun `Can be played after removing an opponent's plant`() {
     stan.exMachina("Plant")
     kim.inTurn {
-      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
-          "AsteroidCard FROM ProjectCard",
+          *playCardTasks("$AsteroidCard"),
+          "14 Pay<> FROM MC",
+          "$AsteroidCard FROM ProjectCard",
+          "TemperatureStep",
+          "2 Titanium",
+          "TerraformRating",
+          "-Plant<Stan>",
       )
-      doTask("TemperatureStep")
-      doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
     }
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("CrashSiteCleanup"),
+          *playCardTasks("$CrashSiteCleanup"),
           "4 Pay<> FROM MC",
-          "CrashSiteCleanup FROM ProjectCard",
+          "$CrashSiteCleanup FROM ProjectCard",
           "Titanium",
       )
     }
@@ -37,17 +40,20 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after removing the owner's plant`() {
     kim.exMachina("Plant")
     kim.inTurn {
-      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
-          "AsteroidCard FROM ProjectCard",
+          *playCardTasks("$AsteroidCard"),
+          "14 Pay<> FROM MC",
+          "$AsteroidCard FROM ProjectCard",
+          "TemperatureStep",
+          "2 Titanium",
+          "TerraformRating",
+          "-Plant",
       )
-      doTask("TemperatureStep")
-      doTasks("2 Titanium", "TerraformRating", "-Plant")
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("CrashSiteCleanup"))
+        doTasks(*playCardTasks("$CrashSiteCleanup"))
       }
     }
   }
@@ -56,17 +62,20 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after an opponent removes their own plant`() {
     stan.exMachina("Plant")
     stan.inTurn {
-      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
-          "AsteroidCard FROM ProjectCard",
+          *playCardTasks("$AsteroidCard"),
+          "14 Pay<> FROM MC",
+          "$AsteroidCard FROM ProjectCard",
+          "TemperatureStep",
+          "2 Titanium",
+          "TerraformRating",
+          "-Plant",
       )
-      doTask("TemperatureStep")
-      doTasks("2 Titanium", "TerraformRating", "-Plant")
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("CrashSiteCleanup"))
+        doTasks(*playCardTasks("$CrashSiteCleanup"))
       }
     }
   }
@@ -75,18 +84,21 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after a plant removal in the previous generation`() {
     stan.exMachina("Plant")
     kim.inTurn {
-      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
-          "AsteroidCard FROM ProjectCard",
+          *playCardTasks("$AsteroidCard"),
+          "14 Pay<> FROM MC",
+          "$AsteroidCard FROM ProjectCard",
+          "TemperatureStep",
+          "2 Titanium",
+          "TerraformRating",
+          "-Plant<Stan>",
       )
-      doTask("TemperatureStep")
-      doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
     }
     advanceUntilActionPhase()
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("CrashSiteCleanup"))
+        doTasks(*playCardTasks("$CrashSiteCleanup"))
       }
     }
   }
@@ -95,17 +107,20 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played by a player who did not remove the plant`() {
     stan.exMachina("Plant")
     rob.inTurn {
-      doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
       doTasks(
-          "AsteroidCard FROM ProjectCard",
+          *playCardTasks("$AsteroidCard"),
+          "14 Pay<> FROM MC",
+          "$AsteroidCard FROM ProjectCard",
+          "TemperatureStep",
+          "2 Titanium",
+          "TerraformRating",
+          "-Plant<Stan>",
       )
-      doTask("TemperatureStep")
-      doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("CrashSiteCleanup"))
+        doTasks(*playCardTasks("$CrashSiteCleanup"))
       }
     }
   }
@@ -114,19 +129,21 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after declining an asteroid's plant attack`() {
     stan.exMachina("Plant")
     kim.inTurn {
-          doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
           doTasks(
-              "AsteroidCard FROM ProjectCard",
+              *playCardTasks("$AsteroidCard"),
+              "14 Pay<> FROM MC",
+              "$AsteroidCard FROM ProjectCard",
+              "TemperatureStep",
+              "2 Titanium",
+              "TerraformRating",
+              "-0 Plant<Anyone>",
           )
-          doTask("TemperatureStep")
-          doTasks("2 Titanium", "TerraformRating")
-          doTask("-0 Plant<Anyone>")
         }
         .expect("0 Plant<Stan>")
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("CrashSiteCleanup"))
+        doTasks(*playCardTasks("$CrashSiteCleanup"))
       }
     }
   }

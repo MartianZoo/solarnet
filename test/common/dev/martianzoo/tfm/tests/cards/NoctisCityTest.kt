@@ -12,9 +12,10 @@ internal class NoctisCityTest : TfmSandboxTest() {
     kim.setToExMachina(18, "MC")
 
     kim.inTurn {
-      doTasks(*playCardTasks("NoctisCity"), "18 Pay<> FROM MC")
       doTasks(
-          "NoctisCity FROM ProjectCard",
+          *playCardTasks("$NoctisCity"),
+          "18 Pay<> FROM MC",
+          "$NoctisCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Tharsis_5_3>",
@@ -29,9 +30,10 @@ internal class NoctisCityTest : TfmSandboxTest() {
     kim.setToExMachina(18, "MC")
 
     kim.inTurn {
-      doTasks(*playCardTasks("NoctisCity"), "18 Pay<> FROM MC")
       doTasks(
-          "NoctisCity FROM ProjectCard",
+          *playCardTasks("$NoctisCity"),
+          "18 Pay<> FROM MC",
+          "$NoctisCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Hellas_1_3>",

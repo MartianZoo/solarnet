@@ -12,11 +12,11 @@ import kotlin.test.Test
 internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
   @Test
   internal fun `Its action cannot place an ocean on land`() {
-    newTestGame("WorldGovernmentAdvisor")
+    newTestGame("$WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
           shouldThrow<TaskException> { doTask("OceanTile<Tharsis_3_3> BY Admin") }
           doTask("OceanTile<Tharsis_1_2> BY Admin")
         }
@@ -25,12 +25,12 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
   @Test
   internal fun `Its owner chooses even when another player holds the start token`() {
-    newTestGame("WorldGovernmentAdvisor")
+    newTestGame("$WorldGovernmentAdvisor")
     stan.exMachina("$WorldGovernmentAdvisor")
 
     stan
         .inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
 
           doTask("TemperatureStep BY Admin")
         }
@@ -39,12 +39,12 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
   @Test
   internal fun `Raises Venus and triggers Aphrodite even with World Government disabled`() {
-    newTestGame("WorldGovernmentAdvisor, -WorldGovernmentRule")
+    newTestGame("$WorldGovernmentAdvisor, -WorldGovernmentRule")
     kim.exMachina("$WorldGovernmentAdvisor")
     stan.exMachina("$Aphrodite")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
 
           doTask("VenusStep BY Admin")
           // Kim retains the timing choice after Admin performs the global change.
@@ -55,12 +55,12 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
   @Test
   internal fun `Neutral oceans trigger other players effects but give no ocean credit`() {
-    newTestGame("WorldGovernmentAdvisor, LakefrontResorts, Hydrologist, Builder, Engineer")
+    newTestGame("$WorldGovernmentAdvisor, $LakefrontResorts, Hydrologist, Builder, Engineer")
     kim.exMachina("$WorldGovernmentAdvisor")
     stan.exMachina("$ArcticAlgae, $LakefrontResorts")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
 
           doTask("OceanTile<Tharsis_1_2> BY Admin")
           // Kim retains the timing choice after Admin performs the global change.
@@ -68,16 +68,16 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
           // Kim retains the timing choice after Admin performs the global change.
           giveTask(stan, "PROD[MC<Stan>]")
         }
-        .expect("PROD[MC<Stan>], 0 HydrologistCredit, 0 TerraformRating")
+        .expect("0 HydrologistCredit, 0 TerraformRating")
   }
 
   @Test
   internal fun `Its owner places the neutral ocean awarded at zero degrees`() {
-    newTestGame("WorldGovernmentAdvisor")
+    newTestGame("$WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, 14 TemperatureStep")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
 
           doTask("TemperatureStep BY Admin")
           // Hand the threshold ocean choice to the start player before placing it.
@@ -90,19 +90,23 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
   @Test
   internal fun `Homeostasis Bureau pays for personal terraforming but not this action`() {
-    newTestGame("WorldGovernmentAdvisor")
+    newTestGame("$WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, $HomeostasisBureau")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
 
           doTask("TemperatureStep BY Admin")
         }
         .expect("0 TerraformRating, 0 MC")
     kim.inTurn {
-      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
-      doTask("TemperatureStep")
-      doTasks("TerraformRating", "3 MC")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+          "3 MC",
+      )
     }
   }
 }

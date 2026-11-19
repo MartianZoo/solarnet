@@ -19,17 +19,22 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Merchant3")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Merchant3",
+        )
       }
     }
     kim.inTurn {
       doTasks(*standardProjectTasks("SellPatentsProject"), "1! MC FROM ProjectCard")
     }
     kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Merchant3")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Merchant3",
+      )
     }
   }
 
@@ -41,8 +46,11 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
     stan.setToExMachina(0, "PROD[Steel]")
     stan.setToExMachina(4, "PROD[Heat]")
     kim.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Manufacturer")
+      doTasks(
+          "UseAction<FundAwardAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Manufacturer",
+      )
     }
 
     victoryPoints() shouldBe listOf(25, 20)
@@ -73,8 +81,8 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
               "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Amazonis_02_02>",
+              "PartyLeader<Scientists>",
           )
-          doTask("PartyLeader<Scientists>")
         }
         .expect("0 LobbyDelegate")
   }
@@ -89,10 +97,11 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
               "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Amazonis_08_09>",
+              "PartyLeader<Scientists>",
+              "PartyFollower<Scientists>",
           )
-          doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
         }
-        .expect("PartyLeader<Scientists>, Dominant<Scientists>")
+        .expect("Dominant<Scientists>")
   }
 
   @Test
@@ -123,11 +132,14 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("CityProject"))
-        doTask("25 Pay<> FROM MC")
-        doTask("PROD[MC]")
-        doTask("CityTile<Amazonis_08_09>")
-        doTasks("PartyFollower<MarsFirst>", "PartyLeader<MarsFirst>")
+        doTasks(
+            *standardProjectTasks("CityProject"),
+            "25 Pay<> FROM MC",
+            "PROD[MC]",
+            "CityTile<Amazonis_08_09>",
+            "PartyFollower<MarsFirst>",
+            "PartyLeader<MarsFirst>",
+        )
       }
     }
     kim.count("CityTile") shouldBe 0
@@ -144,8 +156,8 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
               "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Vastitas_4_8>",
+              "PartyLeader<Greens>",
           )
-          doTask("PartyLeader<Greens>")
         }
         .expect("0 LobbyDelegate")
   }
@@ -171,11 +183,13 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("CityProject"))
-        doTask("25 Pay<> FROM MC")
-        doTask("PROD[MC]")
-        doTask("CityTile<Vastitas_4_8>")
-        doTask("PartyLeader<Greens>")
+        doTasks(
+            *standardProjectTasks("CityProject"),
+            "25 Pay<> FROM MC",
+            "PROD[MC]",
+            "CityTile<Vastitas_4_8>",
+            "PartyLeader<Greens>",
+        )
       }
     }
     kim.count("CityTile") shouldBe 0
@@ -188,15 +202,20 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Geologist")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Geologist",
+        )
       }
     }
     kim.exMachina("CommercialDistrict_SpecialTile<Vastitas_4_2>")
     kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Geologist")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Geologist",
+      )
     }
   }
 
@@ -209,8 +228,11 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
 
     kim.count("TileInLargestGroup") shouldBe 3
     kim.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Landscaper")
+      doTasks(
+          "UseAction<FundAwardAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Landscaper",
+      )
     }
   }
 
@@ -224,9 +246,10 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Vastitas_5_5>",
+          "TemperatureStep",
+          "-4 MC",
+          "TerraformRating",
       )
-      doTask("TemperatureStep")
-      doTasks("-4 MC", "TerraformRating")
     }
   }
 
@@ -237,12 +260,14 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
 
     shouldThrow<DomainException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("CityProject"))
-        doTask("25 Pay<> FROM MC")
-        doTask("PROD[MC]")
-        doTask("CityTile<Vastitas_5_5>")
-        doTask("TemperatureStep")
-        doTask("TerraformRating")
+        doTasks(
+            *standardProjectTasks("CityProject"),
+            "25 Pay<> FROM MC",
+            "PROD[MC]",
+            "CityTile<Vastitas_5_5>",
+            "TemperatureStep",
+            "TerraformRating",
+        )
       }
     }
     kim.count("CityTile") shouldBe 0

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -53,20 +52,20 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
   @Test
   internal fun syntheticPlasmaCurrent() {
     startGame()
-    admin.count("Coming<IndependenceMovement>") shouldBe 1
+    admin.count("Coming<$IndependenceMovement>") shouldBe 1
     (admin.count("PartyLeader<MarsFirst, Neutral>") > 0) shouldBe true
-    admin.count("Distant<WorldGovernmentDirectives>") shouldBe 1
+    admin.count("Distant<$WorldGovernmentDirectives>") shouldBe 1
     (admin.count("PartyLeader<Unity, Neutral>") > 0) shouldBe true
     with(me) {
-      doTask("14 TerraformRating")
       doTasks(
+          "14 TerraformRating",
           "2 CorporationCard",
           "-CorporationCard",
           "10 ProjectCard<Selecting>",
           "4 PreludeCard",
           "-2 PreludeCard",
+          "-5 ProjectCard<Selecting>",
       )
-      doTask("-5 ProjectCard<Selecting>")
     }
     generation1()
     generation2()
@@ -171,23 +170,27 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       // The following Turmoil phase forms government and advances the two visible events;
       // generation 1 has no Current event to resolve yet.
       doTask("OceanTile<Tharsis_6_7>! BY Admin")
-          .expect("ScienceSummit, Distant<ScienceSummit>, PartyFollower<Scientists, Neutral>")
+          .expect("$ScienceSummit, Distant<$ScienceSummit>, PartyFollower<Scientists, Neutral>")
       (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "MarsFirst",
           dominant = "Reds",
-          current = "IndependenceMovement",
-          coming = "WorldGovernmentDirectives",
+          current = "$IndependenceMovement",
+          coming = "$WorldGovernmentDirectives",
       )
-      admin.count("Distant<ScienceSummit>") shouldBe 1
+      admin.count("Distant<$ScienceSummit>") shouldBe 1
       (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation2() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       // Save 10: immediately after Research.
       assertResources(m = 13, s = 0, t = 6, p = 2, e = 0, h = 0)
@@ -219,26 +222,29 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       // Riots resolves before the Reds government forms, then the visible events advance.
       expectChanges("TerraformRating") {
         doTask("OceanTile<Tharsis_5_5>! BY Admin")
-        doTask("-0 MC").expect("MoralMovement, Distant<MoralMovement>, PartyLeader<Reds, Neutral>")
+        doTask("-0 MC")
+            .expect("$MoralMovement, Distant<$MoralMovement>, PartyLeader<Reds, Neutral>")
       }
       admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
       assertTurmoilState(
           ruling = "Reds",
           chairman = "Bloo",
           dominant = "Scientists",
-          removed = "IndependenceMovement",
-          current = "WorldGovernmentDirectives",
-          coming = "ScienceSummit",
+          removed = "$IndependenceMovement",
+          current = "$WorldGovernmentDirectives",
+          coming = "$ScienceSummit",
       )
-      admin.count("Distant<MoralMovement>") shouldBe 1
+      admin.count("Distant<$MoralMovement>") shouldBe 1
       (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation3() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTask("-4 ProjectCard<Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-4 ProjectCard<Selecting>",
+      )
 
       // Save 17: immediately after Research.
       assertResources(m = 18, s = 0, t = 9, p = 2, e = 0, h = 0)
@@ -280,26 +286,30 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       expectChanges("MC, -PartyDelegate<Scientists>") {
         doTask("OceanTile<Tharsis_6_9>! BY Admin")
             .expect(
-                "MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyFollower<Kelvinists, Neutral>"
+                "$MoholeLakeGlobalEvent, Distant<$MoholeLakeGlobalEvent>, PartyFollower<Kelvinists, Neutral>"
             )
       }
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Scientists",
           dominant = "Greens",
-          removed = "WorldGovernmentDirectives",
-          current = "ScienceSummit",
-          coming = "MoralMovement",
+          removed = "$WorldGovernmentDirectives",
+          current = "$ScienceSummit",
+          coming = "$MoralMovement",
       )
-      admin.count("Distant<MoholeLakeGlobalEvent>") shouldBe 1
+      admin.count("Distant<$MoholeLakeGlobalEvent>") shouldBe 1
       (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation4() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       // Save 25: immediately after Research.
       assertResources(m = 13, s = 0, t = 9, p = 2, e = 3, h = 0)
@@ -362,26 +372,26 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
                 "2 ProjectCard",
             )
             .expect(
-                "ExploreFirstDirective, Distant<ExploreFirstDirective>, PartyFollower<Reds, Neutral>"
+                "$ExploreFirstDirective, Distant<$ExploreFirstDirective>, PartyFollower<Reds, Neutral>"
             )
       }
       (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Greens",
           dominant = "Kelvinists",
-          removed = "ScienceSummit",
-          current = "MoralMovement",
-          coming = "MoholeLakeGlobalEvent",
+          removed = "$ScienceSummit",
+          current = "$MoralMovement",
+          coming = "$MoholeLakeGlobalEvent",
       )
-      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
+      admin.count("Distant<$ExploreFirstDirective>") shouldBe 1
       (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation5() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -437,24 +447,28 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       // advance.
       doTask("VenusStep! BY Admin")
       doTasks("0 MC", "4 MC")
-          .expect("RedResistance, Distant<RedResistance>, PartyFollower<Reds, Neutral>")
+          .expect("$RedResistance, Distant<$RedResistance>, PartyFollower<Reds, Neutral>")
       admin.count("PartyLeader<Kelvinists, Neutral>") shouldBe 1
       assertTurmoilState(
           ruling = "Kelvinists",
           dominant = "Reds",
-          removed = "MoralMovement",
-          current = "MoholeLakeGlobalEvent",
-          coming = "ExploreFirstDirective",
+          removed = "$MoralMovement",
+          current = "$MoholeLakeGlobalEvent",
+          coming = "$ExploreFirstDirective",
       )
-      admin.count("Distant<RedResistance>") shouldBe 1
+      admin.count("Distant<$RedResistance>") shouldBe 1
       (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation6() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       // Save 44: immediately after Research.
       assertResources(m = 34, s = 0, t = 6, p = 9, e = 4, h = 6)
@@ -519,18 +533,18 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       doTask("VenusStep! BY Admin")
       doTasks("-2 TemperatureStep BY Admin", "ProjectCard")
           .expect(
-              "ViralModificationsApproved, Distant<ViralModificationsApproved>, PartyFollower<Greens, Neutral>"
+              "$ViralModificationsApproved, Distant<$ViralModificationsApproved>, PartyFollower<Greens, Neutral>"
           )
       (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "Reds",
           chairman = "Neutral",
           dominant = "Scientists",
-          removed = "MoholeLakeGlobalEvent",
-          current = "ExploreFirstDirective",
-          coming = "RedResistance",
+          removed = "$MoholeLakeGlobalEvent",
+          current = "$ExploreFirstDirective",
+          coming = "$RedResistance",
       )
-      admin.count("Distant<ViralModificationsApproved>") shouldBe 1
+      admin.count("Distant<$ViralModificationsApproved>") shouldBe 1
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
       // FAQ v1.8 p.100 awards the solo Reds bonus only at 20 TR or below. The archived server
       // nevertheless awarded it at 21 after annual revision; retain that source result explicitly.
@@ -540,8 +554,12 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
 
   private fun generation7() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       // Save 55: immediately after Research.
       assertResources(m = 25, s = 0, t = 5, p = 7, e = 6, h = 13)
@@ -582,7 +600,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTask("VenusStep! BY Admin")
         doTask("18 MC")
             .expect(
-                "SolarnetGlobalEvent, Distant<SolarnetGlobalEvent>, 2 PartyFollower<Unity, Neutral>"
+                "$SolarnetGlobalEvent, Distant<$SolarnetGlobalEvent>, 2 PartyFollower<Unity, Neutral>"
             )
         // Scientific Community pays 18 M€ for cards and influence; the Scientists bonus pays 4 M€.
       }
@@ -590,19 +608,23 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       assertTurmoilState(
           ruling = "Scientists",
           chairman = "Bloo",
-          removed = "ExploreFirstDirective",
-          current = "RedResistance",
-          coming = "ViralModificationsApproved",
+          removed = "$ExploreFirstDirective",
+          current = "$RedResistance",
+          coming = "$ViralModificationsApproved",
       )
-      admin.count("Distant<SolarnetGlobalEvent>") shouldBe 1
+      admin.count("Distant<$SolarnetGlobalEvent>") shouldBe 1
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation8() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       // Save 64: immediately after Research.
       assertResources(m = 51, s = 0, t = 9, p = 12, e = 6, h = 22)
@@ -724,7 +746,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       // Homeworld Support pays, Unity forms the government, and the visible events advance.
       expectChanges("16 MC") {
         doTask("VenusStep! BY Admin")
-        doTask("6 MC").expect("CharismaticWgPresident, Distant<CharismaticWgPresident>")
+        doTask("6 MC").expect("$CharismaticWgPresident, Distant<$CharismaticWgPresident>")
         // Homeworld Support pays 6 M€; the Unity bonus pays 10 M€ for planetary tags.
       }
       (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
@@ -732,19 +754,23 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
           ruling = "Unity",
           chairman = "Neutral",
           dominant = "Kelvinists",
-          removed = "RedResistance",
-          current = "ViralModificationsApproved",
-          coming = "SolarnetGlobalEvent",
+          removed = "$RedResistance",
+          current = "$ViralModificationsApproved",
+          coming = "$SolarnetGlobalEvent",
       )
-      admin.count("Distant<CharismaticWgPresident>") shouldBe 1
+      admin.count("Distant<$CharismaticWgPresident>") shouldBe 1
       admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
     }
   }
 
   private fun generation9() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       // _local/replays/Game20260908/game-g5625e0252c7c.sqlite; source save 83.
       assertEquals(
@@ -898,7 +924,9 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       expectChanges("-4 MC") {
         doTask("OxygenStep! BY Admin")
         doTask("-9 MC")
-            .expect("BioengineeringBoom, Distant<BioengineeringBoom>, PartyLeader<Greens, Neutral>")
+            .expect(
+                "$BioengineeringBoom, Distant<$BioengineeringBoom>, PartyLeader<Greens, Neutral>"
+            )
         // Pandemic costs 9 M€; the Kelvinists bonus pays 5 M€ for heat production.
       }
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
@@ -906,19 +934,23 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
           ruling = "Kelvinists",
           chairman = "Bloo",
           dominant = "Greens",
-          removed = "ViralModificationsApproved",
-          current = "SolarnetGlobalEvent",
-          coming = "CharismaticWgPresident",
+          removed = "$ViralModificationsApproved",
+          current = "$SolarnetGlobalEvent",
+          coming = "$CharismaticWgPresident",
       )
-      admin.count("Distant<BioengineeringBoom>") shouldBe 1
+      admin.count("Distant<$BioengineeringBoom>") shouldBe 1
       (admin.count("PartyLeader<Greens, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation10() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       // Save 107: immediately after Research.
       assertResources(m = 54, s = 6, t = 6, p = 8, e = 5, h = 9)
@@ -1069,7 +1101,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTask("TemperatureStep! BY Admin")
         doTask("14 MC")
             .expect(
-                "LocalTerraformingSupport, Distant<LocalTerraformingSupport>, PartyFollower<MarsFirst, Neutral>"
+                "$LocalTerraformingSupport, Distant<$LocalTerraformingSupport>, PartyFollower<MarsFirst, Neutral>"
             )
         // Celebrity Leaders pays 14 M€; the Greens bonus pays 7 M€ for bio tags.
       }
@@ -1078,19 +1110,23 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
           ruling = "Greens",
           chairman = "Neutral",
           dominant = "MarsFirst",
-          removed = "SolarnetGlobalEvent",
-          current = "CharismaticWgPresident",
-          coming = "BioengineeringBoom",
+          removed = "$SolarnetGlobalEvent",
+          current = "$CharismaticWgPresident",
+          coming = "$BioengineeringBoom",
       )
-      admin.count("Distant<LocalTerraformingSupport>") shouldBe 1
+      admin.count("Distant<$LocalTerraformingSupport>") shouldBe 1
       (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation11() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       // Save 133: immediately after Research.
       assertResources(m = 89, s = 5, t = 9, p = 6, e = 4, h = 13)
@@ -1304,26 +1340,30 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       expectChanges("28 MC") {
         doTask("TemperatureStep! BY Admin")
         doTasks("10 MC", "0 MC")
-            .expect("PateraBoring, Distant<PateraBoring>, PartyLeader<Scientists, Neutral>")
+            .expect("$PateraBoring, Distant<$PateraBoring>, PartyLeader<Scientists, Neutral>")
         // Interplanetary Trade pays 10 M€; the Mars First bonus pays 18 M€ for building tags.
       }
       (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
       assertTurmoilState(
           ruling = "MarsFirst",
           dominant = "Unity",
-          removed = "CharismaticWgPresident",
-          current = "BioengineeringBoom",
-          coming = "LocalTerraformingSupport",
+          removed = "$CharismaticWgPresident",
+          current = "$BioengineeringBoom",
+          coming = "$LocalTerraformingSupport",
       )
-      admin.count("Distant<PateraBoring>") shouldBe 1
+      admin.count("Distant<$PateraBoring>") shouldBe 1
       (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation12() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       // Save 168: immediately after Research.
       assertResources(m = 120, s = 3, t = 9, p = 16, e = 1, h = 16)
@@ -1607,11 +1647,5 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
     chairman?.let { expected += 1 to "Chairman<$it>" }
     removed?.let { expected += 0 to it }
     admin.assertCounts(*expected.toTypedArray())
-  }
-
-  private companion object {
-    val BioengineeringBoom = cn("BioengineeringBoom")
-    val LocalTerraformingSupport = cn("LocalTerraformingSupport")
-    val PateraBoring = cn("PateraBoring")
   }
 }

@@ -199,12 +199,19 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
     }
     with(p1) {
-      doTask("PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>")
-      doTask("$EcologyExperts FROM PreludeCard")
-      doTask("PROD[Plant]")
-      doTask("PlayCard<Class<$Algae>>")
-      doTask("-5 Required<Class<OceanTile>>")
-      doTasks("10 Pay<> FROM MC", "$Algae FROM ProjectCard", "PROD[2 Plant]", "Plant")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "$EcologyExperts FROM PreludeCard",
+          "PROD[Plant]",
+      )
+      doTasks(
+          "PlayCard<Class<$Algae>>",
+          "-5 Required<Class<OceanTile>>",
+          "10 Pay<> FROM MC",
+          "$Algae FROM ProjectCard",
+          "PROD[2 Plant]",
+          "Plant",
+      )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$HugeAsteroid>>",
           "$HugeAsteroid FROM PreludeCard",
@@ -217,15 +224,17 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
     }
     with(p2) {
       draw(Capital, PublicBaths)
-      doTask("PlayCard<Class<PreludeCard>, Class<$GreatAquifer>>")
-      doTask("$GreatAquifer FROM PreludeCard")
-      doTask("OceanTile<Amazonis_08_04>")
-      doTask("2 ProjectCard")
-      doTask("TerraformRating")
-      doTask("OceanTile<Amazonis_07_04>")
-      doTask("2 Plant")
-      doTask("2 MC")
-      doTask("TerraformRating")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$GreatAquifer>>",
+          "$GreatAquifer FROM PreludeCard",
+          "OceanTile<Amazonis_08_04>",
+          "2 ProjectCard",
+          "TerraformRating",
+          "OceanTile<Amazonis_07_04>",
+          "2 Plant",
+          "2 MC",
+          "TerraformRating",
+      )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$SocietySupport>>",
           "$SocietySupport FROM PreludeCard",
@@ -243,8 +252,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "4 Titanium",
           "TemperatureStep",
           "TerraformRating",
+          "ThawerCredit",
       )
-      doTask("ThawerCredit")
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MiningOperations>>",
           "$MiningOperations FROM PreludeCard",
@@ -365,8 +374,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
           "PROD[Heat]",
+          "ThawerCredit",
       )
-      doTask("ThawerCredit")
     }
     p3.turn {
       doTasks(*cardActionTasks("$AstroDrill", "Action2"), "-Asteroid<$AstroDrill>", "3 Titanium")
@@ -651,8 +660,8 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "2 Plant",
           "TerraformRating",
           "-3 Plant<Blue>",
+          "ThawerCredit",
       )
-      doTask("ThawerCredit")
       giveTask(p3, "2 Plant<Green>") // Arctic Algae after Comet's ocean
     }
     p1.turn {
@@ -1049,9 +1058,9 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "OceanTile<Amazonis_06_11>",
           "ProjectCard",
           "-6 Plant<Yellow>",
+          "6 Plant",
+          "3 TerraformRating",
       )
-      doTask("6 Plant")
-      doTask("3 TerraformRating")
     }
     purple.turn {
       doTasks(

@@ -49,13 +49,15 @@ internal class HellasPromoWithoutPreludeTest : FullGameTest() {
           "1 Pay<> FROM MC",
           "$Sabotage FROM ProjectCard",
           "-7 MC<Player2>",
+          "5 MC",
       )
-      doTask("5 MC")
     }
 
     p2.turn {
-      doTasks(*playCardTasks("$Research"), "11 Pay<> FROM MC", "$Research FROM ProjectCard")
       doTasks(
+          *playCardTasks("$Research"),
+          "11 Pay<> FROM MC",
+          "$Research FROM ProjectCard",
           "2 ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
           "TerraformRating FROM Disease<$PharmacyUnion>",

@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.TychoMagnetics
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -16,12 +16,13 @@ internal class TychoMagneticsTest : TfmSandboxTest() {
     kim.setToExMachina(4, "Energy")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("TychoMagnetics"))
-          doTask("-4 Energy")
-          doTask("4 ProjectCard<Kim, Selecting>")
-          doTask("ProjectCard<Hand FROM Selecting>")
-        }
-        .expect("-4 Energy")
+      doTasks(
+          *cardActionTasks("$TychoMagnetics"),
+          "-4 Energy",
+          "4 ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+    }
     kim.assertCounts(0 to "ProjectCard<Selecting>")
   }
 }

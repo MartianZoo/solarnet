@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.LakefrontResorts
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -17,25 +17,29 @@ internal class HellasMapTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-        doTask("GreeneryTile<Hellas_1_5>")
+        doTasks(
+            "UseAction<ConvertPlantsAction, Action1>",
+            "8 Pay<Class<Plant>> FROM Plant",
+            "GreeneryTile<Hellas_1_5>",
+        )
       }
     }
   }
 
   @Test
   internal fun `Ocean income from the south pole bonus can fund its payment`() {
-    newTestGame(addOptions = "HellasMap, LakefrontResorts", kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "HellasMap, $LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
     kim.setToExMachina(0, "MC")
     kim.setToExMachina(8, "Plant")
 
     kim.inTurn {
-          doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-          doTask("GreeneryTile<Hellas_9_7>")
-          doTask("OxygenStep")
-          doTask("0 MC")
           doTasks(
+              "UseAction<ConvertPlantsAction, Action1>",
+              "8 Pay<Class<Plant>> FROM Plant",
+              "GreeneryTile<Hellas_9_7>",
+              "OxygenStep",
+              "0 MC",
               "TerraformRating",
               "OceanTile<Hellas_5_7>",
               "TerraformRating",
@@ -44,8 +48,12 @@ internal class HellasMapTest : TfmSandboxTest() {
           )
           // Separate Lakefront's extra adjacency income from the ordinary ocean bonuses.
           selectTask("MC! / Neighbor<OceanTile, Hellas_5_7>")
-          doTask("2 MC")
-          doTasks("2 MC", "2 MC", "-6 MC")
+          doTasks(
+              "2 MC",
+              "2 MC",
+              "2 MC",
+              "-6 MC",
+          )
         }
         .expect("0 MC")
   }

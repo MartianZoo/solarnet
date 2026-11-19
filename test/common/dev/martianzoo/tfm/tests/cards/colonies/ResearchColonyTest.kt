@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.ResearchColony
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -16,9 +16,12 @@ internal class ResearchColonyTest : TfmSandboxTest() {
     kim.exMachina("Colony<Luna>")
 
     kim.inTurn {
-      doTasks(*playCardTasks("ResearchColony"), "20 Pay<> FROM MC")
-      doTasks("ResearchColony FROM ProjectCard")
-      doTask("2 ProjectCard<Kim, Hand>")
+      doTasks(
+          *playCardTasks("$ResearchColony"),
+          "20 Pay<> FROM MC",
+          "$ResearchColony FROM ProjectCard",
+          "2 ProjectCard<Hand>",
+      )
 
       doTasks("Colony<Luna>", "PROD[2 MC]")
     }

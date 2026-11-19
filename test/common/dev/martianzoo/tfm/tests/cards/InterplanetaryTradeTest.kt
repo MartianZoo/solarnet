@@ -13,9 +13,10 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
     kim.exMachina("$Ecoline, $Mine, $SearchForLife")
     kim.setToExMachina(43, "MC")
     kim.inTurn {
-      doTasks(*playCardTasks("ImportedHydrogen"), "16 Pay<> FROM MC")
       doTasks(
-          "ImportedHydrogen FROM ProjectCard",
+          *playCardTasks("$ImportedHydrogen"),
+          "16 Pay<> FROM MC",
+          "$ImportedHydrogen FROM ProjectCard",
           "3 Plant",
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
@@ -24,10 +25,13 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks(*playCardTasks("InterplanetaryTrade"), "27 Pay<> FROM MC")
-      doTasks("InterplanetaryTrade FROM ProjectCard")
-      doTask("EACH @WildTagElection { Tag<@WildTagElection>? }")
-      doTask("PROD[4 MC]")
+      doTasks(
+          *playCardTasks("$InterplanetaryTrade"),
+          "27 Pay<> FROM MC",
+          "$InterplanetaryTrade FROM ProjectCard",
+          "EACH @WildTagElection { Tag<@WildTagElection>? }",
+          "PROD[4 MC]",
+      )
     }
   }
 
@@ -42,21 +46,21 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
   }
 
   private fun interplanetaryTradeWithWildEvent(venus: Boolean) {
-    newTestGame("ResearchNetwork" + if (venus) "" else ", -VenusNextExpansion")
+    newTestGame("$ResearchNetwork" + if (venus) "" else ", -VenusNextExpansion")
     // Establish the supporting tableau; only Interplanetary Trade's tag count is under test.
     kim.exMachina(
-        "IoMiningIndustries, Lichen, Tardigrades, Research, ResearchNetwork, Pets, PowerPlant, ImmigrantCity"
+        "$IoMiningIndustries, $Lichen, $Tardigrades, $Research, $ResearchNetwork, $Pets, $PowerPlant, $ImmigrantCity"
     )
-    if (venus) kim.exMachina("FloatingHabs")
+    if (venus) kim.exMachina("$FloatingHabs")
     kim.inTurn {
       doTasks(
-          *playCardTasks("InterplanetaryTrade"),
+          *playCardTasks("$InterplanetaryTrade"),
           "27 Pay<> FROM MC",
-          "InterplanetaryTrade FROM ProjectCard",
+          "$InterplanetaryTrade FROM ProjectCard",
+          "EACH",
+          "EventTag<WildTagElection<WildTag<$ResearchNetwork>>>",
+          "PROD[${if (venus) 12 else 11} MC]",
       )
-      doTask("EACH")
-      doTask("EventTag<WildTagElection<WildTag<ResearchNetwork>>>")
-      doTask("PROD[${if (venus) 12 else 11} MC]")
     }
     kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }

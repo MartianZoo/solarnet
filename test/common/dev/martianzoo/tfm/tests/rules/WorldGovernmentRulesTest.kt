@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -19,21 +18,23 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/3775830/article/48242149#48242149
   @Test
   internal fun `Advisor may choose a completed parameter while another is available`() {
-    newTestGame(addOptions = "WorldGovernmentAdvisor")
+    newTestGame(addOptions = "$WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, 14 VenusStep")
     kim.inTurn {
-      doTasks(*standardProjectTasks("AirScrappingProject"), "15 Pay<> FROM MC")
-      doTask("VenusStep")
-      doTask("TerraformRating")
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
     }
 
     kim.inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
 
           doTask("VenusStep BY Admin")
         }
         .expect("0 VenusStep, 0 TemperatureStep, 0 TerraformRating")
-    kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
   }
 
   // Unresolved adjudication (question 23, 2026-10-14); this records current behavior.
@@ -46,10 +47,12 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*standardProjectTasks("AirScrappingProject"))
-        doTask("15 Pay<> FROM MC")
-        doTask("VenusStep")
-        doTask("TerraformRating")
+        doTasks(
+            *standardProjectTasks("AirScrappingProject"),
+            "15 Pay<> FROM MC",
+            "VenusStep",
+            "TerraformRating",
+        )
 
         doTask("Colony<Luna>")
       }
@@ -64,13 +67,13 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
   @Test
   internal fun `Advisor Venus increase proceeds with full colony slots`() {
     newTestGame(
-        addOptions = "AmazonisMap, WorldGovernmentAdvisor, Luna, Ceres, Triton, Ganymede, Callisto"
+        addOptions = "AmazonisMap, $WorldGovernmentAdvisor, Luna, Ceres, Triton, Ganymede, Callisto"
     )
     kim.exMachina("$WorldGovernmentAdvisor, 7 VenusStep")
     fillSelectedColonySlots()
 
     kim.inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
 
           doTask("VenusStep BY Admin")
         }
@@ -81,11 +84,11 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/3407295
   @Test
   internal fun `Advisor Venus increase does not award a player colony`() {
-    newTestGame(addOptions = "AmazonisMap, WorldGovernmentAdvisor")
+    newTestGame(addOptions = "AmazonisMap, $WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, 7 VenusStep")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
 
           doTask("VenusStep BY Admin")
         }
@@ -112,30 +115,37 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/3775830/article/48242149#48242149
   @Test
   internal fun `Advisor action can be spent when every global parameter is complete`() {
-    newTestGame(addOptions = "WorldGovernmentAdvisor")
+    newTestGame(addOptions = "$WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, 18 TemperatureStep, 14 VenusStep, 13 OxygenStep")
     kim.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_3>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_1>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
     )
     kim.setToExMachina(100, "MC")
     kim.inTurn {
-      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
-      doTask("TemperatureStep")
-      doTask("TerraformRating")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
     kim.inTurn {
-      doTasks(*standardProjectTasks("AirScrappingProject"), "15 Pay<> FROM MC")
-      doTask("VenusStep")
-      doTask("TerraformRating")
+      doTasks(
+          *standardProjectTasks("AirScrappingProject"),
+          "15 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
     }
     kim.inTurn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_3_3>",
+          "OxygenStep",
+          "4 MC",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTasks("4 MC", "TerraformRating")
     }
     kim.inTurn {
       doTasks(
@@ -148,15 +158,14 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
           // Resolve the world-government handoff even though all tracks are complete.
           doTask("GlobalParameter(NOT OceanTile<LandArea>)* BY Admin")
         }
         .expect("0 TerraformRating, 0 VenusStep, 0 TemperatureStep, 0 OxygenStep, 0 OceanTile")
-    kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
   }
 
-  internal class Gameplay : TfmGameplayTest(NONE) {
+  internal class Gameplay : TfmGameplayTest() {
     @Test
     internal fun `Solar World Government cannot place its ocean on the Noctis area`() {
       newTestGame(playerCount = 2)
@@ -175,6 +184,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
       kim.doTask("Pass")
       stan.doTask("Pass")
       players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
+      // Keep the government choice selected so the test can exercise rejected narrowing.
       kim.selectTask("GlobalParameter(NOT OceanTile<LandArea>)! BY Admin")
       val before = game.events.nextOrdinal
 
@@ -192,6 +202,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
       stan.doTask("Pass")
       players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
 
+      // Keep the government choice selected so the test can exercise rejected narrowing.
       kim.selectTask("GlobalParameter(NOT OceanTile<LandArea>)! BY Admin")
       shouldThrow<NarrowingException> { kim.narrowTask("OceanTile<Tharsis_3_3>! BY Admin") }
       admin.count("OceanTile") shouldBe 0
@@ -222,7 +233,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
             "PROD[2 Heat]",
         )
       }
-      kim.selectTask("PassBaton") // Decline the second action.
+      kim.doTask("PassBaton") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")
       kim.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "3 Heat")
@@ -300,8 +311,16 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
       newTestGame(addOptions = "-WorldGovernmentRule", playerCount = 1)
       expectChanges("-SoloGenerationsLeft") {
         kim.doTask("Pass")
-        kim.doTasks("13 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
-        kim.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>")
+        kim.doTasks(
+            "13 MC",
+            "Steel",
+            "Titanium",
+            "Plant",
+            "Energy",
+            "Heat",
+            "4 ProjectCard<Selecting>",
+            "-4 ProjectCard<Selecting>",
+        )
       }
       admin.count("VenusStep") shouldBe 0
       admin.count("TemperatureStep") shouldBe 0

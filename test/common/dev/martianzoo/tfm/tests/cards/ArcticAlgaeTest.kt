@@ -36,21 +36,27 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("GiantIceAsteroid"),
+          *playCardTasks("$GiantIceAsteroid"),
           "36 Pay<> FROM MC",
-          "GiantIceAsteroid FROM ProjectCard",
+          "$GiantIceAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "TerraformRating",
           "TerraformRating",
       )
       shouldThrow<TaskException> { stan.doTask("2 Plant") }
-      doTask("OceanTile<Tharsis_1_2>")
-      doTasks("TerraformRating", "2 Steel")
+      doTasks(
+          "OceanTile<Tharsis_1_2>",
+          "TerraformRating",
+          "2 Steel",
+      )
       // The active player chooses when to hand this task to its owner.
       giveTask(stan, "2 Plant<Stan>")
-      doTask("OceanTile<Tharsis_1_4>")
-      doTasks("TerraformRating", "ProjectCard")
+      doTasks(
+          "OceanTile<Tharsis_1_4>",
+          "TerraformRating",
+          "ProjectCard",
+      )
       // The active player chooses when to hand this task to its owner.
       giveTask(stan, "2 Plant<Stan>")
       doTask("-6 Plant<Stan>")
@@ -62,13 +68,12 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
     stan.exMachina("$ArcticAlgae, 2 Plant")
 
     kim.inTurn {
-      doTasks(*playCardTasks("GiantIceAsteroid"), "36 Pay<> FROM MC")
       doTasks(
-          "GiantIceAsteroid FROM ProjectCard",
-      )
-      doTask("TemperatureStep")
-      doTask("TemperatureStep")
-      doTasks(
+          *playCardTasks("$GiantIceAsteroid"),
+          "36 Pay<> FROM MC",
+          "$GiantIceAsteroid FROM ProjectCard",
+          "TemperatureStep",
+          "TemperatureStep",
           "TerraformRating",
           "TerraformRating",
           "-2 Plant<Stan>",
@@ -80,7 +85,7 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       doTasks("2 Steel", "OceanTile<Tharsis_1_4>", "TerraformRating")
       // The active player chooses when to hand this task to its owner.
       giveTask(stan, "2 Plant<Stan>")
-      doTask("ProjectCard<Kim, Hand>")
+      doTask("ProjectCard<Hand>")
     }
   }
 }

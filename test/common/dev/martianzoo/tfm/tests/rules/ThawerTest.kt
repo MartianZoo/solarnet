@@ -1,10 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.WorldGovernmentAdvisor
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -13,42 +12,54 @@ import kotlin.test.Test
 internal class ThawerTest : TfmSandboxTest() {
   @Test
   internal fun `Thawer credits only the player's own temperature increases`() {
-    newTestGame(addOptions = "Thawer, Builder, Engineer, WorldGovernmentAdvisor")
+    newTestGame(addOptions = "Thawer, Builder, Engineer, $WorldGovernmentAdvisor")
     kim.setToExMachina(90, "MC")
     asteroid()
     asteroid()
     asteroid("PROD[Heat]")
     asteroid()
     stan.inTurn {
-      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
-      doTask("TemperatureStep")
-      doTasks("TerraformRating", "PROD[Heat]")
-      doTask("ThawerCredit")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+          "PROD[Heat]",
+          "ThawerCredit",
+      )
     }
     kim.exMachina("$WorldGovernmentAdvisor")
     kim.inTurn {
-          doTasks(*cardActionTasks("WorldGovernmentAdvisor"))
+          doTasks(*cardActionTasks("$WorldGovernmentAdvisor"))
 
           doTask("TemperatureStep BY Admin")
         }
         .expect("0 TerraformRating")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Thawer")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Thawer",
+        )
       }
     }
 
     kim.inTurn {
-      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
-      doTask("TemperatureStep")
-      doTask("TerraformRating")
-      doTask("ThawerCredit")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+          "ThawerCredit",
+      )
     }
     kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Thawer")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Thawer",
+      )
     }
   }
 
@@ -71,101 +82,85 @@ internal class ThawerTest : TfmSandboxTest() {
     @Test
     internal fun `Snow Cover does not undo credit for earlier temperature increases`() {
       newTestGame(
-          addOptions = "TurmoilExpansion, Thawer, Builder, Engineer",
+          "-QuickStartVariant, -ColoniesExpansion, TurmoilExpansion, Thawer, Builder, Engineer",
           playerCount = 2,
           firstGlobalEvents =
-              listOf(
-                  "DemocraticReform",
-                  "MinimalImpactPolicy",
-                  "MoholeLakeGlobalEvent",
-                  "ExploreFirstDirective",
-                  "MoralMovement",
-                  "FreeAcademiaTreaty",
-              ),
+              listOf("$MoholeLakeGlobalEvent", "$MinimalImpactPolicy", "$FreeAcademiaTreaty"),
       )
-      // Generation 1: reveal Mohole Lake; its Snow Cover effect will resolve in generation 4.
-      // Later reveals fix delegate placements but will not resolve during this scenario.
-      kim.doTask("Pass")
-      stan.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.count("Distant<MoholeLakeGlobalEvent>") shouldBe 1
-      (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
-      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-
-      // Generation 2: Democratic Reform gives Stan an Admin ocean, leaving temperature alone.
-      stan.doTask("Pass")
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      admin.count("PartyLeader<Unity, Neutral>") shouldBe 1
-      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
-      (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
-      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-
-      // Generation 3: Minimal Impact Policy removes the sole ocean automatically.
-      kim.doTask("Pass")
-      stan.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
-      admin.count("Distant<MoralMovement>") shouldBe 1
-      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
-      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
-
-      // Generation 4: Kim earns five temperature credits before Snow Cover removes two steps.
-      stan.doTask("Pass")
-      kim.completeOperation {
-        doTasks(*standardProjectTasks("AsteroidProject"))
-        autoExecNow(EAGER)
+      // Prepare enough cash; the temperature increases and their credits remain real actions.
+      kim.exMachina("100 MC")
+      kim.turn {
+        repeat(2) {
+          doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+              "ThawerCredit",
+          )
+        }
       }
-      kim.completeOperation {
-        doTasks(*standardProjectTasks("AsteroidProject"))
-        autoExecNow(EAGER)
-      }
-      kim.completeOperation {
-        doTasks(*standardProjectTasks("AsteroidProject"))
-        autoExecNow(EAGER)
-      }
-      kim.completeOperation {
-        doTasks(*standardProjectTasks("AsteroidProject"))
-        autoExecNow(EAGER)
-      }
-      kim.completeOperation {
-        doTasks(*standardProjectTasks("AsteroidProject"))
-        autoExecNow(EAGER)
+      stan.doTask("Pass")
+      kim.turn {
+        doTasks(
+            *standardProjectTasks("AsteroidProject"),
+            "14 Pay<> FROM MC",
+            "TemperatureStep",
+            "TerraformRating",
+            "ThawerCredit",
+            "PROD[Heat]",
+        )
+        doTasks(
+            *standardProjectTasks("AsteroidProject"),
+            "14 Pay<> FROM MC",
+            "TemperatureStep",
+            "TerraformRating",
+            "ThawerCredit",
+        )
+        doTasks(
+            *standardProjectTasks("AsteroidProject"),
+            "14 Pay<> FROM MC",
+            "TemperatureStep",
+            "TerraformRating",
+            "ThawerCredit",
+            "PROD[Heat]",
+        )
       }
       admin.count("TemperatureStep") shouldBe 5
       kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTasks("25 MC", "2 Heat")
+      stan.doTask("20 MC")
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
 
-      admin.count("PartyLeader<Scientists, Neutral>") shouldBe 1
-      admin.count("Distant<FreeAcademiaTreaty>") shouldBe 1
-      (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
-      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
+      // Snow Cover resolves in the next generation and removes temperature, not earned credit.
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      kim.doTasks("24 MC", "2 Heat")
+      stan.doTasks(
+          "19 MC",
+          "VenusStep! BY Admin",
+      )
+      stan.doTask("-2 TemperatureStep BY Admin").expect("0 ThawerCredit<Kim>")
+      players.forEach { it.doTask("0 ProjectCard") }
+      players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
 
-      // Generation 5: the track fell, but Kim's five earned credits still qualify.
-      // Re-raising a removed step also earns fresh credit.
       admin.count("TemperatureStep") shouldBe 3
-      kim.completeOperation {
-            doTasks(*standardProjectTasks("AsteroidProject"))
-            autoExecNow(EAGER)
-          }
-          .expect("TemperatureStep, ThawerCredit, TerraformRating")
+      kim.count("ThawerCredit") shouldBe 5
+      // Re-raising a removed step earns fresh credit and the milestone claim actually finishes.
+      kim.turn {
+        doTasks(
+            *standardProjectTasks("AsteroidProject"),
+            "14 Pay<> FROM MC",
+            "TemperatureStep",
+            "TerraformRating",
+            "ThawerCredit",
+            "-3 MC", // Reds policy.
+        )
+        doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Thawer")
+      }
       kim.count("ThawerCredit") shouldBe 6
-      kim.doTasks("UseAction<ClaimMilestoneAction, Action1>")
+      kim.count("Thawer") shouldBe 1
     }
   }
 }

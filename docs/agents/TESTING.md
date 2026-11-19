@@ -288,8 +288,9 @@ clear coverage of these contracts matters more than preserving every current tes
    replay checks the shared engine on JavaScript, and production JavaScript compilation and resource
    assembly cover the Web REPL and Almanac.
 
-This list does not itself decide which current tests should be retained. Test-deletion proposals
-are a separate review.
+This list does not itself decide which current tests should be retained. The November 19 direction
+below explicitly authorizes removing artificial gameplay probes and assertions of implementation
+details; it does not require moving those probes into another suite.
 
 Give each scenario variant its own named test, using a private helper for shared steps. Do not put
 variants in a `for` loop inside one test: the failing test name should identify the case. Exercise
@@ -343,9 +344,9 @@ Keep scenarios minimal and legible. Project-card tests that fit the standardized
 migration rules below. Other card tests use the smallest suitable configuration and consistently
 name their gameplay objects. Use `runOperation()` when an operation's resulting setup matters and a
 correction is not suitable. Eligible project-card scenarios use the fixture's explicit `exMachina` setup methods.
-Synthetic engine checks use the existing `canonicalPremise` and `setUpGame` functions, either
-in standalone tests or by assigning a synthetic world to the sandbox's `game`. For example,
-`VerminTest.Attribution` supplies a synthetic listener through the sandbox. `WildTagTest` and
+Generic engine checks belong in the engine suite, rather than synthetic card/rule scenarios.
+Tests of a specific fixture or card-tracking contract may use the existing `canonicalPremise` and
+`setUpGame` functions or assign a prepared world to the sandbox's `game`. `WildTagTest` and
 `WildTagContinuationTest` cover allocation and cleanup through prepared sandbox actions.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
@@ -366,6 +367,8 @@ canonical Player Class Name and use `Player.PLAYER1` in Kotlin.
 The user permits fixed command sequences in otherwise explicit `doTasks` tests, including selecting
 a standard action and then the particular card or project. `standardActionTasks.kt` returns command
 arrays determined only by its arguments. The caller submits them through ordinary `doTasks`.
+Prefer `doTasks` for consecutive submissions within an action, but never group separate actions
+into the same call. Keep separate calls for intervening assertions, comments, and player handoffs.
 These functions receive no Agent or World and must not inspect game state, pending work, resources,
 policies or card data to change their commands. Do not add payment selection, retries, cleanup,
 corrections or missing game effects. Keep payment choices and outcome assertions visible in tests;
@@ -412,8 +415,9 @@ offers before the exact remainder, and explain each `Ok`. Fixed command abbrevia
 shorten repeated invocation steps; payments and gameplay outcomes remain explicit. Loops remain
 appropriate for seat-order traversal and long generation/endgame progressions.
 
-Synthetic sandbox checks may instead assign `game` directly. This creates fresh `Agents` with
-their default policies, without preparing a position or binding `players`, `kim`, `stan`, or `rob`;
+Fixture or tracking checks may instead assign `game` directly. This creates fresh `Agents` with
+Player autoexecution set to `NONE` and Admin set to `EAGER`, without preparing a position or binding
+`players`, `kim`, `stan`, or `rob`;
 use `agents[player]` and `admin`. These subclasses also run under `:tfm-tests:sandboxTest`,
 so that task measures both prepared-position scenarios and synthetic sandbox checks.
 
@@ -448,6 +452,15 @@ The default game has:
 - Kim, Stan, and Rob, in that order, each using a distinct beginner corporation; and
 - the ordinary beginner-corporation starting state, including 42 MC, 10 anonymous project cards,
   20 TR in multiplayer (14 in solo), and production of 1 for each standard resource.
+
+The earlier entry points intentionally do less. `TfmGameplayTest.initializeGame(premise)` only
+constructs the world and binds its Agents; it does not begin Setup. `FullGameTest.commonSetup`
+uses that entry point and optionally starts recording. Its card-tracked counterpart additionally
+registers expected card identities and movements, without choosing or playing those cards.
+Replay `startGame()` begins Setup through Admin. Ordinary replay Players still have to take their
+starting TR, choose their starting cards, and play and pay for their corporations explicitly.
+The TaskForm replay's selected automatic policy intentionally changes how much concrete Player
+work proceeds at that entry point. These differences do not require another shared setup API.
 
 For corporation-named suites, prefer sandbox unless the scenario needs real phase progression.
 Use `kimCorporation` for the subject corporation. In sandbox tests of its initial play, call
@@ -502,9 +515,9 @@ Prefer compact `FROM` expressions, such as `Steel<Kim FROM Rob>` and
 Do not retain Terraforming Mars gameplay helpers in sandbox scenarios, including indirect calls
 through helpers. Preserve payment and card rules through explicit tasks.
 Nested `TfmGameplayTest` suites follow the real game flow.
-Use `selectTask` and `selectOnlyTask` only for a choice still needing narrowing, structural expansion, or
-handoff, never to carry out concrete player work. Every retained selection must have a local
-comment explaining why it is necessary. Prefer a short named selection, such as
+Use `selectTask` and `selectOnlyTask` only for a choice still needing narrowing, structural expansion,
+handoff, or disambiguation, never to carry out concrete player work. Every retained selection must
+have a local comment explaining why it is necessary. Prefer a short named selection, such as
 `selectTask("PlaceGreeneryTile")`, to an anonymous selection. String selection also narrows the
 task; it is not a name-only lookup. Open an `EACH` group with `doTask("EACH")`.
 Keep `selectOnlyTask` when a short instruction would discard part of a linked choice, as in Flooding's
@@ -660,6 +673,15 @@ aborted actions have no successful `TaskResult`, so assert their relevant unchan
 Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert that a particular type did not
 change.
 
+An "as much as possible" submission does not state its actual result. Keep an outcome expectation
+when that result is what the scenario proves: `-5* MC<Rob>` can remove less than five, and
+`Director<BoardOfDirectors>*` can gain zero. Check inherited defaults too: card-resource gains
+and global-parameter gains/removals default to AMAP even without a written `*`; RobotUnit is a
+card resource. Explicit `!` overrides that default. An existing result check or required follow-up
+may already prove the gain: Topsoil Contract's microbe must actually arrive before its MC reward
+can be submitted, and a player's parameter increase must happen before its TR can be submitted.
+Do not remove an outcome check merely because its requested quantity appears in the task text.
+
 A `TaskResult` includes all retained changes through the call's return, including automatic work.
 Gameplay tests use `expectChanges("...") { ... }` when the observation must span several calls or
 choices in the same phase. This assertion reads change events across the block without changing
@@ -708,10 +730,80 @@ characterization over a disproportionate workaround.
 
 ## Gameplay consistency project
 
-**Status: decisions and follow-up work recorded through 2026-11-17.** This section records the user's
-responses to the gameplay consistency audit. Agreed direction, current implementation, proposals,
-and observations not yet discussed are distinguished below. The work list is in
-[`TODO.md`](../../TODO.md#gameplay-consistency). This is not a claim that the migration is finished.
+**Status: November 17 and November 19 selected batches implemented and verified.** This section records the user's
+responses to the gameplay consistency audit, the implemented criteria, and the intentional remaining
+differences. Proposals and observations not yet discussed remain distinct from the completed scope.
+Separate future work is in [`TODO.md`](../../TODO.md#gameplay-consistency).
+
+### Additional decisions, November 19, 2026
+
+- Card and rule tests must describe gameplay a non-engineer player can understand. Remove generic
+  property/metric probes and artificial scenarios without a concrete gameplay purpose; do not
+  preserve them by renaming or relocating them. Keep actual milestone requirements as paid claim
+  scenarios. Repository infrastructure checks still need a specific contract to justify their place.
+- Do not repeat an exact submitted gain, loss, payment, or placement in an expectation.
+  Keep net-result assertions where automatic consequences alter that result, excluded outcomes,
+  resolved AMAP outcomes, rejected-action restoration, and source checkpoints. Action-used markers are bookkeeping;
+  prove availability by actually using the card or attempting another use when that is the subject.
+- The differing scopes of `assertCounts` and `assertTags` are accepted. Do not normalize their
+  coverage or change omitted tag categories merely to make their notation alike.
+- Prefer generated card-name constants in instructions, corrections, and assertions. Preserve
+  the resulting task text. Omit an actor name when the receiving Agent already supplies it;
+  preserve explicit other-player targets and ownership that disambiguates a task.
+- Prefer `doTasks` for consecutive steps of the same action. Never combine separate actions into
+  a call. Keep separate submissions where an intervening assertion, comment, or choice matters.
+- Direct sandbox World assignment must also give Players `NONE`; automatic execution requires
+  an explicit policy test. Ordinary tile placement and tracked-card play are not policy tests.
+- Prepare incidental stocks and cards directly, then execute the phase being proved. In particular,
+  Supercapacitors needs old energy and real production, not an extra preparation generation.
+
+Acceptance checklist for this pass: apply these rules without changing production behavior, retain
+the agreed four test styles and standard-opening exception, preserve meaningful gameplay outcomes,
+and verify both the source diff and the affected JVM/replay/browser suites.
+
+Implemented in this pass:
+
+- Removed `PropertyTest`, `CustomMetricTest`, `PremiseEffectsTest`, `ApiUtilsTest`,
+  `DeterminedZeroCostActionTest`, `GenerationScopeTest`, `ActionSequencingTest`, and Vermin's
+  synthetic attribution probe. These probes were deleted rather than moved.
+- Replaced raw milestone-property queries with four paid claim scenarios in
+  `MilestoneRequirementsTest`. Replaced the internal `ActionScopeTest` checks with two actual
+  turn scenarios in `TurnCompletionTest`: yield after two actions, and finish Philares' reward
+  before proceeding. Existing card and phase scenarios cover the discarded duplicates.
+- Removed expectations repeating explicit task effects and costs, plus incidental action-marker
+  assertions. AI Central now demonstrates that Inventors' Guild remains usable by using it.
+  Net consequences, excluded outcomes, rejected-action restoration, and replay checkpoints remain.
+- Converted ordinary quoted card names to generated constants, omitted redundant actor names,
+  grouped consecutive steps within actions, and split existing calls that combined distinct actions.
+  A nested play granted by Merger, Ecology Experts, Viron, or Project Inspection remains part of
+  its outer action.
+- Made direct sandbox World assignment use explicit Player execution too. Tracked-card and tile
+  scenarios now submit their actual draws, payments, gains, and placement bonuses. Supercapacitors
+  starts with corrected old resources and then runs real production.
+
+The remaining configuration-contract audit in `ClassTableSelectionTest` is recorded separately in
+`TODO.md`. Generic engine, fixture, recording, and tracking tests still have their own technical
+contracts; they are not substitutes for player-level card/rule scenarios.
+
+November 19 verification: `:tfm-tests:jvmTest` ran 1,331 tests: 1,305 passed and the existing 26
+intentional skips remained unchanged. All 29 active replays passed with exports enabled; their 58
+full/short JSON files were byte-for-byte identical to the files saved before this cleanup. All seven
+archived replays passed through a temporary Gradle task without changing normal suite selection.
+`:tfm-tests:compileTestKotlinJs`, both `:web:jsBrowserTest` cases, `spotlessCheck`, and
+`git diff --check` passed. No production files changed. The lower ordinary test count reflects the
+explicitly selected removal of technical probes and their focused gameplay replacements, not new
+skips or reduced suite selection.
+
+The pre-commit review identified removed AMAP outcome checks and an incorrect Tactician test name.
+The follow-up audit compared removed expectations with both the committed tests and the snapshot
+before assertion cleanup, including inherited CardResource and GlobalParameter defaults. It restored
+32 outcome terms at 31 assertion sites: resource gains, Rob's Recession loss, and Admin's parameter
+changes where no remaining check proves the result. Exact commands, retained result checks, and
+required consequence submissions
+remain sufficient elsewhere. Tactician's scenario counts cards with requirements, including a
+production requirement; its name no longer incorrectly restricts them to global requirements.
+After these fixes, `:tfm-tests:jvmTest` passed with 1,305 passed and the same 26 skipped tests;
+`:tfm-tests:compileTestKotlinJs` and `spotlessCheck` also passed.
 
 The intended families remain sandbox, gameplay, gameplay with card tracking, and the separate
 TaskForm style. Differences required by card tracking are not cleanup targets. `TfmGameplay.kt`
@@ -720,7 +812,7 @@ The user does not require preservation of unused-action or underpayment/overpaym
 because old replay helpers performed them. Do not restore the discarded `tfm_sample` REPL command.
 These permissions do not imply removing source resource checkpoints or changing recorded payments.
 
-### Remaining migration acceptance criteria, November 17, 2026
+### Migration acceptance criteria and completion, November 17, 2026
 
 The user selected these criteria for completing the migration. Apply them together when revising
 or reviewing each batch; the narrower historical decisions below are superseded where noted.
@@ -753,6 +845,57 @@ or reviewing each batch; the narrower historical decisions below are superseded 
 These criteria do not authorize rewriting replay chronology, changing recorded payments, inventing
 source evidence, or adding a new gameplay API. Keep literal submissions and meaningful consequence
 assertions, and review the final diff as well as running the affected suites.
+
+The November 17 phase-flow batch also makes starting purchases and milestone claims finish, and
+removes incidental multi-generation preparation from `SolarPhaseOrderingTest`, `GoalsTest`,
+`ThawerTest`, and influence-focused card scenarios. Prepared current-event positions include their
+pending global-effect component explicitly; the tests then exercise real production, World
+Government, event resolution, elections, and research as needed by their claim. They do not inject
+the resulting payout, milestone credit, or phase transition.
+
+`TfmGameplayTest` now defaults to `NONE`, and all ordinary gameplay subclasses use that default.
+The remaining inherited-policy callers have been migrated, including all 42 global-event cases
+and the 43 Preservation Program cases (five remain intentionally ignored known-defect expectations).
+The latter retains real Prelude and generation history where timing is the subject, but uses
+corrected tracks, card resources, and payment positions for incidental preparation. The old
+state-driven `passGeneration`, temperature-preparation loop, and generic Prelude autoexecutor are gone.
+
+The completion audit also covers scenarios that already used `NONE`: action-scope tests now finish
+the newly opened action after inspecting it, and research-purchase tests complete Research. Negative
+tests retain their expected failures. Known-defect pairs still distinguish intended and current
+behavior; this migration changes no production rules.
+
+The remaining execution differences are intentional:
+
+- Sandbox scenarios use explicit player tasks inside an injected action offer; gameplay scenarios
+  use the real turns and phases. Both may prepare incidental positions with visible corrections.
+- The shared standard opening uses scoped `EAGER`; ordinary scenarios do not change player policy.
+- Ordinary replays use explicit tasks. Card-tracked replays additionally supply card identities.
+  The August 28 TaskForm replay retains `EAGER` for its separately tested form interaction style.
+- Technical bootstrap and card-tracking tests may explicitly exercise automatic execution itself.
+  Synthetic World/Agent tests retain their direct setup and mechanism assertions; these are not
+  alternate styles for ordinary card play.
+- A selection may identify otherwise ambiguous work before explicit execution. For example, two
+  zero-valued global-event rewards cannot both be identified by `0 MC`; `TurmoilEventsTest` selects
+  the influence term and then submits `0 MC`. Linked choices, requirement failures, and Admin
+  handoffs retain locally explained selections. Concrete `PassBaton` and Pharmacy Union flips use
+  `doTask`.
+
+The replay inventory finds 147 visible `exMachina` calls across eleven replay files, including the
+TaskForm replay, and no remaining task drops or counterfactual illegal-action probes in replay
+classes. The corrections cover recorded mistakes and later reconciliations, unsupported-card
+approximations, and explicitly unresolved source discrepancies. Their chronology and source
+checkpoints remain intact; historical authentication and any later retcons remain separate work.
+
+Final verification: `:tfm-tests:jvmTest` passed 1,329 tests with the existing 26 intentional skips;
+`:tfm-tests:replayTest -PreplayExports` passed all 29 curated replays and wrote 29 full/short recording
+pairs. `:tfm-tests:compileTestKotlinJs`, `:web:jsBrowserTest` (the August 28 replay and browser history),
+and `spotlessCheck` passed. Temporarily enabling the five Preservation Program intended-behavior
+tests and Merger's intended immediate Tharsis action produced exactly their six documented failures;
+their annotations were then restored. No test cases were removed in that November 17 batch:
+the two incumbent-seat variants
+in `TurmoilDelegatesTest` now have separate names. The final diff changes test support, scenarios,
+and these project records, with no production-rule changes.
 
 ### Replay decisions selected on 2026-11-14
 
@@ -880,16 +1023,16 @@ human player's source log does not establish an application mistake.
 
 ### Agreed follow-up: setup, completion, and assertions
 
-- Investigate what "start a game" hides. Compare `newTestGame`,
-  `newTestGameBeforeCorporationPlay`, replay `startGame`, and direct premise initialization: which
-  setup, starting cards, corporation turns, and first choices have already happened at return?
-  Document the useful distinctions before choosing what to consolidate.
+- The entry-point comparison is documented in
+  [Sandbox and gameplay fixture migration](#sandbox-and-gameplay-fixture-migration). Keep the
+  distinction between a prepared standard opening, explicit corporation play, and an unstarted
+  replay; no further setup consolidation is selected.
 - Completed replays use scores and Victory as their completion checks, as selected on 2026-11-14.
   Partial replays may legitimately leave tasks pending and retain their source-position checks.
   Focused success scenarios must complete the action or phase they claim to prove, as selected on
   November 17; focused negative scenarios may stop at the expected failure.
-- Continue reviewing scripted choices versus choices computed from current state, such as locating
-  the current starting player (`PreservationProgramTest.passGeneration`). EndgameRulesTest now
+- Keep scenario choices scripted rather than locating the current starting player from live state.
+  The former `PreservationProgramTest.passGeneration` driver has been removed. EndgameRulesTest now
   uses corrected positions instead of its former first-available-area and buy-while-affordable
   game drivers. It retains full generation traversal where the solo countdown is the rule under
   test. Keep traversal and gameplay whose history is itself relevant; replace artificial histories
@@ -955,12 +1098,12 @@ related change below.
 | 18 | Frequency, placement, and breadth of checkpoints | `BinaryVectorStreamTest` checks generations against saves; `ThermalMatterWaveTest` concentrates more at the end; physical games follow photographs. Evidence naturally differs, but assertion placement can still be reviewed. |
 | 19 | What final validation proves | November 14: use final scores and Victory; remove Summarizer score categories and phase/GameScope/pending-task completion checks. |
 | 20 | Extra checks of internal flow and rendered output | November 14 removes Summarizer action-signal counting. Rendered-map checks remain a separate question. |
-| 21 | Scenario preparation in setup hooks versus visible test bodies | November 14 moves Stina's startGame into the replay body. Non-replay setup in `SupercapacitorsTest` and `PristarTest` remains outside this cleanup. |
-| 22 | Private helpers containing a whole scenario versus inline steps | `SelfReplicatingRobotsTest`'s nested gameplay tests share a helper returning three counts; other scenarios keep actions and assertions together. Review what deserves a shared helper. |
+| 21 | Scenario preparation in setup hooks versus visible test bodies | Stina starts visibly. November 19 replaces Supercapacitors' extra preparation generation with explicit initial stocks followed by real production. Shared scenario setup remains acceptable when its purpose is clear. |
+| 22 | Private helpers containing a whole scenario versus inline steps | Self-Replicating Robots now keeps the relevant play and assertions together. Private helpers remain appropriate for genuinely shared scenario steps; no blanket inlining rule was selected. |
 | 23 | Organization of long play sequences | Generation methods provide navigation, not gameplay behavior; no reorganization selected. Agent receiver methods versus `with(player)` remain a separate style question. |
-| 24 | How broadly assertion helpers check state | `assertCounts` names selected facts; `assertTags` supplies zero defaults for omitted categories; resource/production helpers cover six amounts and production offsets. Similar-looking checkpoints can check different amounts of state. |
-| 25 | Syntax used to express equivalent tasks | November 14 replaces execution through selection with doTask in ordinary replays and requires literal quantities. Constants versus card-name strings, arrays, owner spelling, and movement spelling remain open. |
-| 26 | Naming players | Numbered players, fixture aliases such as Kim, colors, and source names; a color can map to `Player1`. Some calls redundantly name the receiver. |
+| 24 | How broadly assertion helpers check state | November 19 explicitly accepts the difference: `assertCounts` names selected facts; `assertTags` supplies zero defaults for omitted categories. Resource/production helpers cover six amounts and production offsets. |
+| 25 | Syntax used to express equivalent tasks | November 19 selects generated card constants and `doTasks` for consecutive steps of the same action. Never group distinct actions. November 14's explicit execution and literal-quantity rules still apply. |
+| 26 | Naming players | Source names, colors, and fixture aliases remain intentional. November 19 removes redundant names where the receiving Agent supplies the actor; preserve explicit other-player targets and disambiguating ownership. |
 | 27 | Assertion notation | `assertEquals`, Kotest matchers, `has`, and count checks; positional versus named tag arguments. Rank below differences in what is actually asserted. |
 | 28 | Class/file/test organization | Nested versus top-level test classes, directory placement, method names, and visibility. Suite selection parses source declarations; which moves would change what runs? |
 | 29 | Comments and presentation | Quoted source text, timestamps, database-save references, generation headings, and commented-out assertions vary. Existing replay `Ok` comments already follow a shared convention. |

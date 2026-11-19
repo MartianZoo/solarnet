@@ -133,8 +133,12 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
       )
     }
     kim.inTurn {
-      doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC", "Trade<Miranda>")
-      doTask("Animal<$Pets>")
+      doTasks(
+          "UseAction<TradeAction, Action1>",
+          "9 Pay<> FROM MC",
+          "Trade<Miranda>",
+          "Animal<$Pets>",
+      )
     }
   }
 

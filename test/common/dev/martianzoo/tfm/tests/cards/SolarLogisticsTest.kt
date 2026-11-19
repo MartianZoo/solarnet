@@ -15,13 +15,14 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
     kim.exMachina("$SolarLogistics")
     // The drawn card replaces the played event in hand.
     kim.inTurn {
-          doTasks(*playCardTasks("ImportedGhg"), "5 Pay<> FROM MC")
           doTasks(
-              "ImportedGhg FROM ProjectCard",
+              *playCardTasks("$ImportedGhg"),
+              "5 Pay<> FROM MC",
+              "$ImportedGhg FROM ProjectCard",
               "PROD[Heat]",
               "3 Heat",
+              "ProjectCard<Hand>",
           )
-          doTask("ProjectCard<Kim, Hand>")
         }
         .expect("0 ProjectCard")
   }

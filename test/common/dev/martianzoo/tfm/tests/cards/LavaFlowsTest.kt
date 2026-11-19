@@ -16,13 +16,11 @@ internal class LavaFlowsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("LavaFlows"),
+          *playCardTasks("$LavaFlows"),
           "18 Pay<> FROM MC",
-          "LavaFlows FROM ProjectCard",
-      )
-      doTask("TemperatureStep")
-      doTask("TemperatureStep")
-      doTasks(
+          "$LavaFlows FROM ProjectCard",
+          "TemperatureStep",
+          "TemperatureStep",
           "TerraformRating",
           "TerraformRating",
           "LavaFlows_SpecialTile<Tharsis_2_2>",
@@ -38,13 +36,11 @@ internal class LavaFlowsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("LavaFlows"),
+          *playCardTasks("$LavaFlows"),
           "18 Pay<> FROM MC",
-          "LavaFlows FROM ProjectCard",
-      )
-      doTask("TemperatureStep")
-      doTask("TemperatureStep")
-      doTasks(
+          "$LavaFlows FROM ProjectCard",
+          "TemperatureStep",
+          "TemperatureStep",
           "TerraformRating",
           "TerraformRating",
           "LavaFlows_SpecialTile<Hellas_1_5>",
@@ -65,17 +61,17 @@ internal class LavaFlowsTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("LavaFlows"))
+        doTasks(*playCardTasks("$LavaFlows"))
 
         doTasks(
             "18 Pay<> FROM MC",
-            "LavaFlows FROM ProjectCard",
+            "$LavaFlows FROM ProjectCard",
+            "TemperatureStep",
+            "TemperatureStep",
+            "TerraformRating",
+            "TerraformRating",
+            "LavaFlows_SpecialTile<Tharsis_2_2>",
         )
-        doTask("TemperatureStep")
-        doTask("TemperatureStep")
-        doTask("TerraformRating")
-        doTask("TerraformRating")
-        doTask("LavaFlows_SpecialTile<Tharsis_2_2>")
       }
     }
 

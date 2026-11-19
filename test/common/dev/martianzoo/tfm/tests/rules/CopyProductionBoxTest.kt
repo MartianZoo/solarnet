@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -43,10 +42,8 @@ internal class CopyProductionBoxTest : TfmSandboxTest() {
     val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     p1.runOperation("9 MC, 2 ProjectCard")
     admin.exMachina("ActionPhase FROM SetupPhase")
-    p1.inTurn {
-      doTasks(*playCardTasks("ConditionalBuilding"))
-      autoExecNow(EAGER)
-    }
+    // The original play is incidental to the copy diagnostic. Prepare its resulting production.
+    p1.exMachina("ConditionalBuilding, PROD[MC, Steel, Titanium, Plant, Energy, Heat]")
 
     val error =
         shouldThrow<ExpressionException> {

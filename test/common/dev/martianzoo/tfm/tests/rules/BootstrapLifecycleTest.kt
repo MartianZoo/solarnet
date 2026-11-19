@@ -18,6 +18,7 @@ import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -238,8 +239,8 @@ internal class BootstrapLifecycleTest {
     admin.count("CorporationPhase") shouldBe 1
     p1.autoExecPolicy = NONE
     p1.doTasks(
-        "PlayCard<Class<CorporationCard>, Class<InterplanetaryCinematics>>",
-        "InterplanetaryCinematics FROM CorporationCard",
+        "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
+        "$InterplanetaryCinematics FROM CorporationCard",
         "30 MC",
         "20 Steel",
         "21 Pay<> FROM MC",

@@ -9,26 +9,24 @@ import kotlin.test.Test
 internal class LakefrontResortsTest : TfmSandboxTest() {
   @Test
   internal fun `An opponent's ocean placement raises MC production`() {
-    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "$LakefrontResorts", kimCorporation = LakefrontResorts)
 
-    stan
-        .inTurn {
-          doTasks(
-              *standardProjectTasks("AquiferProject"),
-              "18 Pay<> FROM MC",
-              "OceanTile<Tharsis_1_2>",
-              "TerraformRating",
-          )
-          // The active player chooses when to hand this task to its owner.
-          giveTask(kim, "PROD[MC<Kim>]")
-          doTask("2 Steel")
-        }
-        .expect("PROD[MC<Kim>]")
+    stan.inTurn {
+      doTasks(
+          *standardProjectTasks("AquiferProject"),
+          "18 Pay<> FROM MC",
+          "OceanTile<Tharsis_1_2>",
+          "TerraformRating",
+      )
+      // The active player chooses when to hand this task to its owner.
+      giveTask(kim, "PROD[MC<Kim>]")
+      doTask("2 Steel")
+    }
   }
 
   @Test
   internal fun `Does not pay when an opponent places a tile adjacent to an ocean`() {
-    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "$LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("OceanTile<Tharsis_1_2>")
 
     stan
@@ -47,7 +45,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Pays for each ocean adjacency`() {
-    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "$LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_2_1>")
     kim.setToExMachina(25, "MC")
 
@@ -60,6 +58,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
               "CityTile<Tharsis_2_2>",
               "Steel",
           )
+          // Distinguish Lakefront's computed reward from the equal ordinary adjacency rewards.
           selectTask("MC! / Neighbor<OceanTile, Tharsis_2_2>")
           doTasks("2 MC", "2 MC", "2 MC")
         }

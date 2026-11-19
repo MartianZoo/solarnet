@@ -223,14 +223,19 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "23 Pay<> FROM MC",
           "$EarthCatapult FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC")
-      doTask("PROD[Heat]")
+      doTasks(
+          *cardActionTasks("$RobinsonIndustries"),
+          "4 Pay<> FROM MC",
+          "PROD[Heat]",
+      )
     }
 
     green.turn {
-      doTask("DoRequiredActions")
-      doTask("SearchForCard<TagFilter<Class<MicrobeTag>>>")
-      doTask("3 ProjectCard")
+      doTasks(
+          "DoRequiredActions",
+          "SearchForCard<TagFilter<Class<MicrobeTag>>>",
+          "3 ProjectCard",
+      )
       doTasks(
           *playCardTasks("$Lichen"),
           "7 Pay<> FROM MC",
@@ -628,8 +633,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "2 Pay<> FROM MC",
           "$HeatTrappers FROM ProjectCard",
           "PROD[Energy]",
+          "PROD[-2 Heat<Player2>]",
       )
-      doTask("PROD[-2 Heat<Player2>]")
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
@@ -1707,8 +1712,11 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     }
 
     green.turn {
-      doTasks(*cardActionTasks("$Ants"))
-      doTasks("-Microbe<$Ants>", "Microbe<$Ants>")
+      doTasks(
+          *cardActionTasks("$Ants"),
+          "-Microbe<$Ants>",
+          "Microbe<$Ants>",
+      )
       doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
     }
 

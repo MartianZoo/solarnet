@@ -4,7 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.EnergyMarket
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.BeforeTest
@@ -19,11 +19,12 @@ internal class EnergyMarketTest : TfmSandboxTest() {
     kim.setToExMachina(6, "MC")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("EnergyMarket"))
-          doTask("-6 MC")
-          doTask("3 Energy")
-        }
-        .expect("-6 MC")
+      doTasks(
+          *cardActionTasks("$EnergyMarket"),
+          "-6 MC",
+          "3 Energy",
+      )
+    }
   }
 
   @Test
@@ -33,20 +34,23 @@ internal class EnergyMarketTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
           kim.inTurn {
-            doTasks(*cardActionTasks("EnergyMarket"))
-            doTask("-6 MC")
-            doTask("3 Energy")
+            doTasks(
+                *cardActionTasks("$EnergyMarket"),
+                "-6 MC",
+                "3 Energy",
+            )
           }
         }
         .message
         .shouldContain("cannot remove 6 `MC<Kim>`: maximum available is 5")
-    kim.assertCounts(5 to "MC", 0 to "Energy", 0 to "ActionUsedMarker<EnergyMarket>")
+    kim.assertCounts(5 to "MC", 0 to "Energy")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("EnergyMarket"))
-          doTask("-4 MC")
-          doTask("2 Energy")
-        }
-        .expect("-4 MC")
+      doTasks(
+          *cardActionTasks("$EnergyMarket"),
+          "-4 MC",
+          "2 Energy",
+      )
+    }
   }
 }

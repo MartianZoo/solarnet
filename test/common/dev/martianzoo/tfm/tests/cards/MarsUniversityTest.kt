@@ -17,14 +17,15 @@ internal class MarsUniversityTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("Research"),
+              *playCardTasks("$Research"),
               "11 Pay<> FROM MC",
-              "Research FROM ProjectCard",
+              "$Research FROM ProjectCard",
+              "2 ProjectCard<Hand>",
+              "-ProjectCard",
+              "-ProjectCard",
+              "ProjectCard<Hand>",
+              "ProjectCard<Hand>",
           )
-          doTask("2 ProjectCard<Kim, Hand>")
-          doTasks("-ProjectCard", "-ProjectCard")
-          doTask("ProjectCard<Kim, Hand>")
-          doTask("ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
   }
@@ -35,8 +36,11 @@ internal class MarsUniversityTest : TfmSandboxTest() {
     kim.setToExMachina(8, "MC")
 
     kim.inTurn {
-      doTasks(*playCardTasks("MarsUniversity"), "8 Pay<> FROM MC")
-      doTasks("MarsUniversity FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$MarsUniversity"),
+          "8 Pay<> FROM MC",
+          "$MarsUniversity FROM ProjectCard",
+      )
       // Resolve the exchange offer: the empty hand leaves no card to discard.
       doTask("Ok")
     }
@@ -50,11 +54,11 @@ internal class MarsUniversityTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("SearchForLife"),
+          *playCardTasks("$SearchForLife"),
           "3 Pay<> FROM MC",
-          "SearchForLife FROM ProjectCard",
+          "$SearchForLife FROM ProjectCard",
+          "Ok",
       )
-      doTask("Ok")
     }
   }
 }

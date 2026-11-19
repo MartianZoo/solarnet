@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.NeptunianPowerConsultants
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import kotlin.test.BeforeTest
@@ -25,12 +25,12 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
               "2 Plant",
           )
           doTasks(
-              "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+              "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>",
               "2 Pay<Class<Steel>> FROM Steel",
               "1 Pay<> FROM MC",
               "PROD[Energy]",
+              "Hydroelectric<$NeptunianPowerConsultants>",
           )
-          doTask("Hydroelectric<NeptunianPowerConsultants>")
         }
         .expect("Hydroelectric")
   }
@@ -47,7 +47,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
               "TerraformRating",
           )
           // The active player chooses when to hand this task to its owner.
-          giveTask(kim, "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+          giveTask(kim, "UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
           doTask("2 Steel")
           // The active player chooses when to hand this task to its owner.
           giveTask(kim, "5 Pay<Kim> FROM MC<Kim>")
@@ -56,9 +56,9 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
           // The active player chooses when to hand this task to its owner.
           giveTask(kim, "PROD[Energy<Kim>]", "PROD[Energy<Kim>]")
           // The active player chooses when to hand this task to its owner.
-          giveTask(kim, "Hydroelectric<NeptunianPowerConsultants<Kim>>")
+          giveTask(kim, "Hydroelectric<$NeptunianPowerConsultants<Kim>>")
         }
-        .expect("-5 MC<Kim>, Hydroelectric<Kim>, PROD[Energy<Kim>]")
+        .expect("-5 MC<Kim>, Hydroelectric<Kim>")
   }
 
   @Test
@@ -76,7 +76,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
               "TerraformRating",
           )
           // The active player chooses when to hand this task to its owner.
-          giveTask(kim, "0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
+          giveTask(kim, "0 UseAction<NeptunianOption<$NeptunianPowerConsultants>>")
           doTask("2 Steel")
         }
         .expect("0 Hydroelectric<Kim>")

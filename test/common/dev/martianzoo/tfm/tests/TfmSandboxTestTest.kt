@@ -1,11 +1,7 @@
 package dev.martianzoo.tfm.tests
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.tfm.tests.cards.cardnames.CorporateStronghold
-import dev.martianzoo.tfm.tests.cards.cardnames.Manutech
-import dev.martianzoo.tfm.tests.cards.cardnames.MineralDeposit
-import dev.martianzoo.tfm.tests.cards.cardnames.Pets
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -16,14 +12,18 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion")
 
     kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard",
+          "21 MC",
+      )
     }
     advanceUntilActionPhase()
     kim.inTurn {
       doTasks(
-          *playCardTasks("MineralDeposit"),
+          *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
-          "MineralDeposit FROM ProjectCard",
+          "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
     }
@@ -34,11 +34,11 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     newTestGame()
     newTestGameBeforeCorporationPlay()
 
-    kim.count("BeginnerCorporation1") shouldBe 0
+    kim.count("$BeginnerCorporation1") shouldBe 0
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<Manutech>>",
-          "Manutech FROM CorporationCard",
+          "PlayCard<Class<CorporationCard>, Class<$Manutech>>",
+          "$Manutech FROM CorporationCard",
           "35 MC",
           "PROD[Steel]",
           "Steel",
@@ -46,14 +46,14 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "5 ProjectCard<Hand FROM Selecting>",
       )
     }
-    stan.count("BeginnerCorporation2") shouldBe 0
+    stan.count("$BeginnerCorporation2") shouldBe 0
 
     newTestGame(kimCorporation = Manutech)
     kim.inTurn {
       doTasks(
-          *playCardTasks("MineralDeposit"),
+          *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
-          "MineralDeposit FROM ProjectCard",
+          "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
     }
@@ -71,9 +71,9 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("MineralDeposit"),
+          *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
-          "MineralDeposit FROM ProjectCard",
+          "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
     }
@@ -85,9 +85,9 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("GiantIceAsteroid"),
+              *playCardTasks("$GiantIceAsteroid"),
               "36 Pay<> FROM MC",
-              "GiantIceAsteroid FROM ProjectCard",
+              "$GiantIceAsteroid FROM ProjectCard",
               "TemperatureStep",
               "TemperatureStep",
               "TerraformRating",
@@ -98,8 +98,14 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           val checkpoint = game.events.nextOrdinal
           shouldThrow<IllegalStateException> { victoryPoints() }
           game.events.nextOrdinal shouldBe checkpoint
-          doTasks("OceanTile<Tharsis_1_2>", "TerraformRating", "2 Steel")
-          doTasks("OceanTile<Tharsis_1_4>", "TerraformRating", "ProjectCard")
+          doTasks(
+              "OceanTile<Tharsis_1_2>",
+              "TerraformRating",
+              "2 Steel",
+              "OceanTile<Tharsis_1_4>",
+              "TerraformRating",
+              "ProjectCard",
+          )
         }
         .expect("2 OceanTile")
   }
@@ -141,8 +147,8 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     kim.count("MC") shouldBe 20
     kim.count("PROD[Steel]") shouldBe 2
     kim.count("Steel") shouldBe 1
-    stan.count("BeginnerCorporation2") shouldBe 1
-    rob.count("BeginnerCorporation3") shouldBe 1
+    stan.count("$BeginnerCorporation2") shouldBe 1
+    rob.count("$BeginnerCorporation3") shouldBe 1
   }
 
   @Test
@@ -172,7 +178,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     players.size shouldBe 4
     players[3].actor.toString() shouldBe "Maya"
-    players[3].count("BeginnerCorporation4") shouldBe 1
+    players[3].count("$BeginnerCorporation4") shouldBe 1
   }
 
   @Test
@@ -181,7 +187,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     players.size shouldBe 5
     players[4].actor.toString() shouldBe "Nadia"
-    players[4].count("BeginnerCorporation5") shouldBe 1
+    players[4].count("$BeginnerCorporation5") shouldBe 1
   }
 
   @Test
@@ -191,9 +197,12 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     shouldThrow<IllegalStateException> { stan }.message shouldBe "Stan is sitting this game out"
     shouldThrow<IllegalStateException> { rob }.message shouldBe "Rob is sitting this game out"
     kim.inTurn {
-      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
-      doTask("TemperatureStep")
-      doTask("TerraformRating")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
   }
 
@@ -204,16 +213,33 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
       kim.count("$Manutech") shouldBe 0
       kim.completeOperation {
-            doTask("PlayCard<Class<CorporationCard>, Class<$Manutech>>")
-            autoExecNow(EAGER)
-          }
-          .expect("Steel")
-      stan.count("BeginnerCorporation2") shouldBe 0
-      stan.completeOperation {
-        doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
-        autoExecNow(EAGER)
+        doTasks(
+            "PlayCard<Class<CorporationCard>, Class<$Manutech>>",
+            "$Manutech FROM CorporationCard",
+            "35 MC",
+            "PROD[Steel]",
+            "Steel",
+            "15 Pay<> FROM MC",
+            "5 ProjectCard<Hand FROM Selecting>",
+        )
       }
-      kim.doTasks(*playCardTasks("$MineralDeposit")).expect("5 Steel")
+      stan.count("$BeginnerCorporation2") shouldBe 0
+      stan.completeOperation {
+        doTasks(
+            "PlayCard<Class<BeginnerCard>, Class<$BeginnerCorporation2>, Hand>",
+            "$BeginnerCorporation2 FROM BeginnerCard",
+            "42 MC",
+            "10 ProjectCard",
+        )
+      }
+      kim.turn {
+        doTasks(
+            *playCardTasks("$MineralDeposit"),
+            "5 Pay<> FROM MC",
+            "$MineralDeposit FROM ProjectCard",
+            "5 Steel",
+        )
+      }
     }
   }
 }

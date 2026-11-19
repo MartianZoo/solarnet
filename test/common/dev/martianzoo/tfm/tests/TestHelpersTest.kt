@@ -16,9 +16,10 @@ internal class TestHelpersTest : TfmSandboxTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_6_6>",
+          "OxygenStep",
+          "Plant",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTasks("Plant", "TerraformRating")
     }
 
     result.expect("GreeneryTile, 0 Steel, -0 Titanium, PROD[0 Energy]")

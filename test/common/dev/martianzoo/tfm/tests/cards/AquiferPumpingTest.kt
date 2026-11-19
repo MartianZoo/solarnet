@@ -14,7 +14,7 @@ internal class AquiferPumpingTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *cardActionTasks("AquiferPumping"),
+          *cardActionTasks("$AquiferPumping"),
           "3 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
           "OceanTile<Tharsis_1_2>",

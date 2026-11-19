@@ -23,13 +23,13 @@ import dev.martianzoo.tfm.engine.TfmEngine
  * the game and enters the corporation phase normally, then leaves the game's turn order.
  *
  * Synthetic checks may assign [game] directly and use [agents] and [admin]. This creates fresh
- * Agents with their default policies; it does not prepare a position or bind the named players.
+ * Agents with explicit Player execution; it does not prepare a position or bind the named players.
  */
 internal abstract class TfmSandboxTest {
   protected var game: World
     get() = agents.world
     set(value) {
-      agents = Agents(value)
+      agents = Agents(value) { if (it == ADMIN) EAGER else NONE }
     }
 
   protected lateinit var agents: Agents

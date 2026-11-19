@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
@@ -12,7 +11,8 @@ internal class GlobalParameterCompletionTest : TfmSandboxTest() {
   internal fun atomizedGainStopsWhenTheTrackCompletes() {
     newTestGame()
 
-    kim.runOperation("55 OxygenStep") { autoExecNow(EAGER) }
+    // Deliberately inject an oversized gain to exercise atomization at the track limit.
+    kim.runOperation("55 OxygenStep") { doTasks("TemperatureStep", "15 TerraformRating") }
 
     kim.count("OxygenStep") shouldBe 14
     kim.count("GpComplete<Class<OxygenStep>>") shouldBe 1
@@ -21,17 +21,19 @@ internal class GlobalParameterCompletionTest : TfmSandboxTest() {
   @Test
   internal fun eachTrackRecordsCompletionOnItsFinalStep() {
     newTestGame()
-    val waterAreas = kim.list("WaterArea")
-    val landArea = kim.list("LandArea").first()
 
     kim.exMachina("18 TemperatureStep, 13 OxygenStep, 14 VenusStep")
-    kim.exMachina(waterAreas.take(8).joinToString { "OceanTile<$it>" })
+    admin.exMachina(
+        "OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, " +
+            "OceanTile<Tharsis_4_8>, OceanTile<Tharsis_5_4>, OceanTile<Tharsis_5_5>, " +
+            "OceanTile<Tharsis_5_6>, OceanTile<Tharsis_6_7>"
+    )
 
-    kim.runOperation("TemperatureStep, OxygenStep, VenusStep") { autoExecNow(EAGER) }
+    kim.runOperation("TemperatureStep, OxygenStep, VenusStep") { doTask("3 TerraformRating") }
 
     kim.count("GameEndBarrier") shouldBe 1
 
-    kim.runOperation("OceanTile<${waterAreas.elementAt(8)}>") { autoExecNow(EAGER) }
+    kim.runOperation("OceanTile<Tharsis_1_2>") { doTasks("TerraformRating", "2 Steel") }
 
     kim.count("GpComplete<Class<TemperatureStep>>") shouldBe 1
     kim.count("GpComplete<Class<OxygenStep>>") shouldBe 1
@@ -40,10 +42,10 @@ internal class GlobalParameterCompletionTest : TfmSandboxTest() {
     kim.count("GpIncomplete") shouldBe 0
     kim.count("GameEndBarrier") shouldBe 0
 
-    kim.runOperation("TemperatureStep, OceanTile<$landArea>") { autoExecNow(EAGER) }
+    kim.runOperation("TemperatureStep, OceanTile<Tharsis_3_3>")
     shouldThrow<DeadEndException> { kim.runOperation("-TemperatureStep") }
     shouldThrow<DeadEndException> { kim.runOperation("-OxygenStep") }
-    shouldThrow<DeadEndException> { kim.runOperation("-OceanTile<${waterAreas.first()}>") }
+    shouldThrow<DeadEndException> { kim.runOperation("-OceanTile<Tharsis_1_2>") }
     shouldThrow<DeadEndException> { kim.runOperation("-VenusStep") }
     kim.count("TemperatureStep") shouldBe 19
     kim.count("OxygenStep") shouldBe 14
@@ -54,10 +56,13 @@ internal class GlobalParameterCompletionTest : TfmSandboxTest() {
   @Test
   internal fun extendedOceanTrackRecordsCompletionOnItsEleventhOcean() {
     newTestGame("AmazonisMap")
-    val waterAreas = kim.list("WaterArea")
 
-    kim.exMachina(waterAreas.take(10).joinToString { "OceanTile<$it>" })
-    kim.runOperation("OceanTile<${waterAreas.elementAt(10)}>") { autoExecNow(EAGER) }
+    admin.exMachina(
+        "OceanTile<Amazonis_02_06>, OceanTile<Amazonis_02_07>, OceanTile<Amazonis_03_06>, " +
+            "OceanTile<Amazonis_04_02>, OceanTile<Amazonis_05_05>, OceanTile<Amazonis_05_10>, " +
+            "OceanTile<Amazonis_06_05>, OceanTile<Amazonis_06_06>, OceanTile<Amazonis_06_11>, OceanTile<Amazonis_07_04>"
+    )
+    kim.runOperation("OceanTile<Amazonis_02_01>") { doTask("TerraformRating") }
 
     kim.count("OceanTile") shouldBe 11
     kim.count("GpComplete<Class<OceanTile>>") shouldBe 1

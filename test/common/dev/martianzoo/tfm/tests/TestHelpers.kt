@@ -32,6 +32,7 @@ import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.fake.FakeCanon
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(premise: GamePremise): World =
@@ -56,7 +57,7 @@ internal fun withTestTurmoilDeck(
     return premise
   }
   if (events.isEmpty()) return premise
-  val first = firstEvents.ifEmpty { listOf("DemocraticReform", "MinimalImpactPolicy") }.map(::cn)
+  val first = firstEvents.ifEmpty { listOf("$DemocraticReform", "$MinimalImpactPolicy") }.map(::cn)
   require(first.distinct().size == first.size && first.all { it in events })
   return premise.copy(drawOrder = first + (events - first.toSet()))
 }

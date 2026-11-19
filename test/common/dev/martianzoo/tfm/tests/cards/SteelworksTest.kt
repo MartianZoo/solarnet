@@ -21,19 +21,20 @@ internal class SteelworksTest : TfmSandboxTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_5_2>",
+          "OxygenStep",
+          "2 Plant",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTasks("2 Plant", "TerraformRating")
     }
 
     kim.inTurn {
           doTasks(
-              *cardActionTasks("Steelworks"),
+              *cardActionTasks("$Steelworks"),
               "4 Pay<Class<Energy>> FROM Energy",
               "2 Steel",
+              "OxygenStep",
           )
-          doTask("OxygenStep")
         }
-        .expect("-4 Energy, 0 OxygenStep, 0 TerraformRating, 0 Steel<Stan>, 0 Steel<Rob>")
+        .expect("0 OxygenStep, 0 TerraformRating, 0 Steel<Stan>, 0 Steel<Rob>")
   }
 }

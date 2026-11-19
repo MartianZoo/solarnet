@@ -9,15 +9,15 @@ import kotlin.test.Test
 internal class CorridorsOfPowerTest : TfmSandboxTest() {
   @Test
   internal fun `Banning an opponents follower draws for the automatically promoted leader`() {
-    newTestGame("TurmoilExpansion, CorridorsOfPower")
-    kim.exMachina("CorridorsOfPower, Chairman<Kim FROM Neutral>")
+    newTestGame("TurmoilExpansion, $CorridorsOfPower")
+    kim.exMachina("$CorridorsOfPower, Chairman<Kim FROM Neutral>")
     stan.exMachina("PartyLeader<Scientists>, PartyFollower<Scientists>")
     kim.exMachina("2 PartyFollower<Scientists>")
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("BannedDelegate"),
-              "BannedDelegate FROM ProjectCard",
+              *playCardTasks("$BannedDelegate"),
+              "$BannedDelegate FROM ProjectCard",
               "-PartyFollower<Scientists, Stan>",
               "ProjectCard",
           )
@@ -27,9 +27,9 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
 
   @Test
   internal fun `Demotion at seven delegates neither consumes the lobby nor draws a card`() {
-    newTestGame("TurmoilExpansion, CorridorsOfPower")
+    newTestGame("TurmoilExpansion, $CorridorsOfPower")
     kim.exMachina(
-        "CorridorsOfPower, PartyLeader<Scientists>, PartyLeader<Unity>, 4 PartyFollower<Unity>"
+        "$CorridorsOfPower, PartyLeader<Scientists>, PartyLeader<Unity>, 4 PartyFollower<Unity>"
     )
     stan.inTurn {
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
@@ -52,11 +52,11 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
 
   @Test
   internal fun `Draws for gaining leadership rather than for every delegate placed`() {
-    newTestGame("PreludeExpansion, CorridorsOfPower, TurmoilExpansion")
+    newTestGame("PreludeExpansion, $CorridorsOfPower, TurmoilExpansion")
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<CorridorsOfPower>>",
-          "CorridorsOfPower FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$CorridorsOfPower>>",
+          "$CorridorsOfPower FROM PreludeCard",
           "TerraformRating",
           "4 MC",
       )
@@ -64,9 +64,11 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTask("UseAction<LobbyAction, Action1>")
-          doTask("PartyLeader<Scientists> FROM LobbyDelegate")
-          doTask("ProjectCard<Kim, Hand>")
+          doTasks(
+              "UseAction<LobbyAction, Action1>",
+              "PartyLeader<Scientists> FROM LobbyDelegate",
+              "ProjectCard<Hand>",
+          )
         }
         .expect("ProjectCard")
     kim.inTurn {

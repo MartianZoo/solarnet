@@ -21,9 +21,9 @@ internal class DiversitySupportTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("DiversitySupport"),
+          *playCardTasks("$DiversitySupport"),
           "1 Pay<> FROM MC",
-          "DiversitySupport FROM ProjectCard",
+          "$DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )
     }
@@ -38,7 +38,7 @@ internal class DiversitySupportTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("DiversitySupport"))
+        doTasks(*playCardTasks("$DiversitySupport"))
       }
     }
   }

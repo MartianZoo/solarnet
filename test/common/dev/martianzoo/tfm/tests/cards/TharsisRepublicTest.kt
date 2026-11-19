@@ -11,11 +11,13 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>",
-          "TharsisRepublic FROM CorporationCard",
+          "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
+          "$TharsisRepublic FROM CorporationCard",
           "40 MC",
+          "PROD[2 MC]",
+          "15 Pay<> FROM MC",
+          "5 ProjectCard<Hand FROM Selecting>",
       )
-      doTasks("PROD[2 MC]", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
 
@@ -26,11 +28,17 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion", playerCount = 1, kimCorporation = CrediCor)
 
     kim.inTurn {
-          doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          doTask("4 CorporationCard<Kim, Selecting>")
-          doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
-          doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
-          doTasks("40 MC", "-42 MC")
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+              "$Merger FROM PreludeCard",
+              "4 CorporationCard<Selecting>",
+          )
+          doTasks(
+              "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
+              "$TharsisRepublic FROM CorporationCard<Selecting>!",
+              "40 MC",
+              "-42 MC",
+          )
         }
         .expect("PROD[0 MC]")
   }

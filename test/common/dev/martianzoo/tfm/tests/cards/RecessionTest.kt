@@ -12,7 +12,7 @@ import kotlin.test.Test
 internal class RecessionTest : TfmSandboxTest() {
   @Test
   internal fun `Takes only available money while applying each opponents production loss`() {
-    newTestGame("PreludeExpansion, Recession")
+    newTestGame("PreludeExpansion, $Recession")
     stan.setToExMachina(4, "MC")
     stan.setToExMachina(-4, "PROD[MC]")
     rob.setToExMachina(5, "MC")
@@ -20,29 +20,31 @@ internal class RecessionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<Recession>>",
-              "Recession FROM PreludeCard",
+              "PlayCard<Class<PreludeCard>, Class<$Recession>>",
+              "$Recession FROM PreludeCard",
               "10 MC",
           )
           // Expand the effect into separate losses for each other player.
-          doTask("EACH")
-          doTask("-5* MC<Stan>")
-          doTask("PROD[-MC<Stan>]")
-          doTask("-5* MC<Rob>")
-          doTask("PROD[-MC<Rob>]")
+          doTasks(
+              "EACH",
+              "-5* MC<Stan>",
+              "PROD[-MC<Stan>]",
+              "-5* MC<Rob>",
+              "PROD[-MC<Rob>]",
+          )
         }
         .expect("-4 MC<Stan>, -5 MC<Rob>, PROD[0 MC, -MC<Stan>, -MC<Rob>]")
   }
 
   @Test
   internal fun `An opponent at minimum production prevents play through Board of Directors`() {
-    newTestGame("PreludeExpansion, Recession, BoardOfDirectors")
+    newTestGame("PreludeExpansion, $Recession, $BoardOfDirectors")
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
-          "BoardOfDirectors FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
+          "$BoardOfDirectors FROM PreludeCard",
+          "4 Director<$BoardOfDirectors>",
       )
-      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
     stan.setToExMachina(-5, "PROD[MC]")
@@ -50,18 +52,25 @@ internal class RecessionTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("BoardOfDirectors"))
-        doTask("PreludeCard<Kim, Hand>")
-        doTask("-12 MC")
-        doTask("-Director<BoardOfDirectors>")
-        doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
-        doTask("10 MC")
+        doTasks(
+            *cardActionTasks("$BoardOfDirectors"),
+            "PreludeCard<Hand>",
+            "-12 MC",
+            "-Director<$BoardOfDirectors>",
+        )
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$Recession>>",
+            "$Recession FROM PreludeCard",
+            "10 MC",
+        )
         // Expand the effect into separate losses for each other player.
-        doTask("EACH")
-        doTask("-5* MC<Stan>")
-        doTask("-5* MC<Rob>")
-        doTask("PROD[-MC<Rob>]")
-        doTask("PROD[-MC<Stan>]")
+        doTasks(
+            "EACH",
+            "-5* MC<Stan>",
+            "-5* MC<Rob>",
+            "PROD[-MC<Rob>]",
+            "PROD[-MC<Stan>]",
+        )
       }
     }
     kim.assertCounts(42 to "MC", 4 to "Director<$BoardOfDirectors>", 0 to "$Recession")
@@ -71,19 +80,24 @@ internal class RecessionTest : TfmSandboxTest() {
 
   @Test
   internal fun `A fizzle refunds the owner without taking money or production from opponents`() {
-    newTestGame("PreludeExpansion, Recession")
+    newTestGame("PreludeExpansion, $Recession")
     stan.setToExMachina(-5, "PROD[MC]")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
-        doTask("10 MC")
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$Recession>>",
+            "$Recession FROM PreludeCard",
+            "10 MC",
+        )
         // Expand the effect into separate losses for each other player.
-        doTask("EACH")
-        doTask("-5* MC<Stan>")
-        doTask("-5* MC<Rob>")
-        doTask("PROD[-MC<Rob>]")
-        doTask("PROD[-MC<Stan>]")
+        doTasks(
+            "EACH",
+            "-5* MC<Stan>",
+            "-5* MC<Rob>",
+            "PROD[-MC<Rob>]",
+            "PROD[-MC<Stan>]",
+        )
       }
     }
     kim.inTurn { doTasks("-PreludeCard", "Audit", "15 MC") }

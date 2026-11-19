@@ -19,16 +19,19 @@ internal class LandshaperTest : TfmSandboxTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_05_02>",
+          "OxygenStep",
+          "Plant",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTasks("Plant", "TerraformRating")
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Landshaper")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Landshaper",
+        )
       }
     }
     kim.count("OwnedTile") shouldBe 2
@@ -45,25 +48,29 @@ internal class LandshaperTest : TfmSandboxTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_05_02>",
+          "OxygenStep",
+          "Plant",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTasks("Plant", "TerraformRating")
     }
     kim.inTurn {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_06_01>",
+          "OxygenStep",
+          "Plant",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTasks("Plant", "TerraformRating")
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Landshaper")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Landshaper",
+        )
       }
     }
     kim.count("OwnedTile") shouldBe 3
@@ -80,9 +87,10 @@ internal class LandshaperTest : TfmSandboxTest() {
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
           "GreeneryTile<Amazonis_05_02>",
+          "OxygenStep",
+          "Plant",
+          "TerraformRating",
       )
-      doTask("OxygenStep")
-      doTasks("Plant", "TerraformRating")
     }
     kim.inTurn {
       doTasks(
@@ -95,8 +103,11 @@ internal class LandshaperTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Landshaper")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Landshaper",
+      )
     }
   }
 
@@ -106,9 +117,11 @@ internal class LandshaperTest : TfmSandboxTest() {
     kim.setToExMachina(80, "MC")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Landshaper")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Landshaper",
+        )
       }
     }
   }

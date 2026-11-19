@@ -8,33 +8,33 @@ import kotlin.test.Test
 internal class CloudTourismTest : TfmSandboxTest() {
   @Test
   internal fun `Uses Earth tags when they are fewer than Venus tags`() {
-    newTestGame("CloudTourism")
+    newTestGame("$CloudTourism")
     kim.exMachina("$Sponsors, $EarthOffice, $VenusGovernor, $VenusWaystation, $ForcedPrecipitation")
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("CloudTourism"),
+          *playCardTasks("$CloudTourism"),
           "9 Pay<> FROM MC",
-          "CloudTourism FROM ProjectCard",
+          "$CloudTourism FROM ProjectCard",
+          "PROD[2 MC]",
       )
-      doTask("PROD[2 MC]")
     }
   }
 
   @Test
   internal fun `Uses Venus tags including its own when they are fewer than Earth tags`() {
-    newTestGame("CloudTourism")
+    newTestGame("$CloudTourism")
     kim.exMachina(
         "$Sponsors, $EarthOffice, $EarthCatapult, $AcquiredCompany, $MediaGroup, $ForcedPrecipitation"
     )
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("CloudTourism"),
+          *playCardTasks("$CloudTourism"),
           "9 Pay<> FROM MC",
-          "CloudTourism FROM ProjectCard",
+          "$CloudTourism FROM ProjectCard",
+          "PROD[2 MC]",
       )
-      doTask("PROD[2 MC]")
     }
   }
 }

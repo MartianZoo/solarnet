@@ -5,7 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.PowerInfrastructure
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.BeforeTest
@@ -20,7 +20,7 @@ internal class PowerInfrastructureTest : TfmSandboxTest() {
 
     shouldThrow<NotFullySpecifiedException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("PowerInfrastructure"))
+        doTasks(*cardActionTasks("$PowerInfrastructure"))
       }
     }
   }
@@ -31,11 +31,12 @@ internal class PowerInfrastructureTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("PowerInfrastructure"))
-          doTask("-3 Energy")
-          doTask("3 MC")
-        }
-        .expect("-3 Energy")
+      doTasks(
+          *cardActionTasks("$PowerInfrastructure"),
+          "-3 Energy",
+          "3 MC",
+      )
+    }
   }
 
   @Test
@@ -45,13 +46,15 @@ internal class PowerInfrastructureTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
           kim.inTurn {
-            doTasks(*cardActionTasks("PowerInfrastructure"))
-            doTask("-3 Energy")
-            doTask("3 MC")
+            doTasks(
+                *cardActionTasks("$PowerInfrastructure"),
+                "-3 Energy",
+                "3 MC",
+            )
           }
         }
         .message
         .shouldContain("cannot remove 3 `Energy<Kim>`: maximum available is 2")
-    kim.assertCounts(2 to "Energy", 0 to "MC", 0 to "ActionUsedMarker<PowerInfrastructure>")
+    kim.assertCounts(2 to "Energy", 0 to "MC")
   }
 }

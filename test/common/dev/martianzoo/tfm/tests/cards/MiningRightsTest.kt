@@ -29,9 +29,10 @@ internal class MiningRightsTest : TfmSandboxTest() {
   private fun playOnWildBonus(): TaskResult {
     newTestGame(addOptions = "AmazonisMap, Unsafe")
     return kim.inTurn {
-      doTasks(*playCardTasks("MiningRights"), "9 Pay<> FROM MC")
       doTasks(
-          "MiningRights FROM ProjectCard",
+          *playCardTasks("$MiningRights"),
+          "9 Pay<> FROM MC",
+          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Amazonis_05_03>",
       )
 
@@ -48,9 +49,10 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap")
 
     kim.inTurn {
-      doTasks(*playCardTasks("MiningRights"), "9 Pay<> FROM MC")
       doTasks(
-          "MiningRights FROM ProjectCard",
+          *playCardTasks("$MiningRights"),
+          "9 Pay<> FROM MC",
+          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "Titanium",
           "2 Steel",
@@ -60,10 +62,10 @@ internal class MiningRightsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("RoboticWorkforce"),
+          *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "RoboticWorkforce FROM ProjectCard",
-          "CopyProductionBox<MiningRights>",
+          "$RoboticWorkforce FROM ProjectCard",
+          "CopyProductionBox<$MiningRights>",
           "PROD[Titanium]",
       )
     }
@@ -74,9 +76,12 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame()
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTasks(*playCardTasks("MiningRights"), "9 Pay<> FROM MC")
-        doTask("MiningRights FROM ProjectCard")
-        doTask("MiningRights_SpecialTile<Tharsis_2_1>")
+        doTasks(
+            *playCardTasks("$MiningRights"),
+            "9 Pay<> FROM MC",
+            "$MiningRights FROM ProjectCard",
+            "MiningRights_SpecialTile<Tharsis_2_1>",
+        )
         // Resolve the production choice to check that this area supplies a metal bonus.
         doTask("PROD[Steel]")
       }
@@ -92,13 +97,13 @@ internal class MiningRightsTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks(
-            *playCardTasks("MiningRights"),
+            *playCardTasks("$MiningRights"),
             "9 Pay<> FROM MC",
-            "MiningRights FROM ProjectCard",
+            "$MiningRights FROM ProjectCard",
             "MiningRights_SpecialTile<Tharsis_1_1>",
             "2 Steel",
+            "PROD[Titanium]",
         )
-        doTask("PROD[Titanium]")
       }
     }
     kim.assertCounts(42 to "MC", 0 to "MiningRights_SpecialTile", 1 to "PROD[Titanium]")
@@ -109,9 +114,10 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap")
 
     kim.inTurn {
-      doTasks(*playCardTasks("MiningRights"), "9 Pay<> FROM MC")
       doTasks(
-          "MiningRights FROM ProjectCard",
+          *playCardTasks("$MiningRights"),
+          "9 Pay<> FROM MC",
+          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "Titanium",
           "2 Steel",

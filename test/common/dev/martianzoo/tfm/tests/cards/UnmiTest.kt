@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
@@ -16,14 +15,20 @@ internal class UnmiTest : TfmSandboxTest() {
     newTestGame(kimCorporation = UnitedNationsMarsInitiative)
     kim.setToExMachina(17, "MC")
     kim.inTurn {
-      doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
-      doTask("TemperatureStep")
-      doTask("TerraformRating")
+      doTasks(
+          *standardProjectTasks("AsteroidProject"),
+          "14 Pay<> FROM MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
 
     kim.inTurn {
-      doTasks(*cardActionTasks("UnitedNationsMarsInitiative"), "3 Pay<> FROM MC")
-      doTask("TerraformRating")
+      doTasks(
+          *cardActionTasks("$UnitedNationsMarsInitiative"),
+          "3 Pay<> FROM MC",
+          "TerraformRating",
+      )
     }
   }
 
@@ -33,15 +38,17 @@ internal class UnmiTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("UnitedNationsMarsInitiative"))
-        doTask("3 Pay<> FROM MC")
+        doTasks(
+            *cardActionTasks("$UnitedNationsMarsInitiative"),
+            "3 Pay<> FROM MC",
+        )
         // Resolve the TR reward so the earlier-TR-gain requirement is checked.
         selectTask("TerraformRating")
       }
     }
   }
 
-  internal class Gameplay : TfmGameplayTest(NONE) {
+  internal class Gameplay : TfmGameplayTest() {
     @Test
     internal fun `Can use UNMI acquired after an earlier TR gain in the generation`() {
       newTestGame(addOptions = "PreludeExpansion", playerCount = 2, kimCorporation = CrediCor)
@@ -78,11 +85,10 @@ internal class UnmiTest : TfmSandboxTest() {
       )
 
       kim.doTasks(
-              *cardActionTasks("$UnitedNationsMarsInitiative"),
-              "3 Pay<> FROM MC",
-              "TerraformRating",
-          )
-          .expect("TerraformRating")
+          *cardActionTasks("$UnitedNationsMarsInitiative"),
+          "3 Pay<> FROM MC",
+          "TerraformRating",
+      )
     }
 
     @Test
@@ -119,11 +125,10 @@ internal class UnmiTest : TfmSandboxTest() {
       )
 
       kim.doTasks(
-              *cardActionTasks("$UnitedNationsMarsInitiative"),
-              "3 Pay<> FROM MC",
-              "TerraformRating",
-          )
-          .expect("TerraformRating")
+          *cardActionTasks("$UnitedNationsMarsInitiative"),
+          "3 Pay<> FROM MC",
+          "TerraformRating",
+      )
     }
   }
 }

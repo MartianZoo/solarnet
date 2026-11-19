@@ -8,15 +8,18 @@ import kotlin.test.Test
 internal class VenusShuttlesTest : TfmSandboxTest() {
   @Test
   internal fun `Counts Venus tags including its own to reduce the action cost`() {
-    newTestGame("VenusShuttles")
+    newTestGame("$VenusShuttles")
     kim.exMachina(
         "$VenusGovernor, $VenusWaystation, $ForcedPrecipitation, $VenusMagnetizer, $VenusShuttles"
     )
 
     kim.inTurn {
-      doTasks(*cardActionTasks("VenusShuttles"), "6 Pay<> FROM MC")
-      doTask("VenusStep")
-      doTask("TerraformRating")
+      doTasks(
+          *cardActionTasks("$VenusShuttles"),
+          "6 Pay<> FROM MC",
+          "VenusStep",
+          "TerraformRating",
+      )
     }
   }
 }

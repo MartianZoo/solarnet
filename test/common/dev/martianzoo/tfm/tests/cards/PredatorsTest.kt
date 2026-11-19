@@ -20,7 +20,7 @@ internal class PredatorsTest : TfmSandboxTest() {
     initializeGame()
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("Predators"))
+        doTasks(*cardActionTasks("$Predators"))
         // Resolve the mandatory removal to prove that an empty target set rejects the action.
         selectTask("-Animal")
       }
@@ -33,11 +33,13 @@ internal class PredatorsTest : TfmSandboxTest() {
     stan.exMachina("$Birds, 2 Animal<$Birds>")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("Predators"))
-          doTask("-Animal<Birds<Stan>>")
-          doTask("Animal<Predators>")
+          doTasks(
+              *cardActionTasks("$Predators"),
+              "-Animal<$Birds<Stan>>",
+              "Animal<$Predators>",
+          )
         }
-        .expect("-Animal<$Birds<Stan>>, Animal<$Predators>")
+        .expect("Animal<$Predators>")
   }
 
   @Test
@@ -48,8 +50,10 @@ internal class PredatorsTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("Predators"))
-        doTask("Ok")
+        doTasks(
+            *cardActionTasks("$Predators"),
+            "Ok",
+        )
       }
     }
   }
@@ -62,8 +66,11 @@ internal class PredatorsTest : TfmSandboxTest() {
     kim.exMachina("Animal<$Predators>")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("Predators"), "-Animal<Birds>")
-          doTask("Animal<Predators>")
+          doTasks(
+              *cardActionTasks("$Predators"),
+              "-Animal<$Birds>",
+              "Animal<$Predators>",
+          )
         }
         .expect("Animal<$Predators>")
   }
@@ -74,10 +81,12 @@ internal class PredatorsTest : TfmSandboxTest() {
     kim.exMachina("$Predators, $MeatIndustry, Animal<$Predators>")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("Predators"))
-          doTask("-Animal<Predators>")
-          doTask("Animal<Predators>")
-          doTask("2 MC")
+          doTasks(
+              *cardActionTasks("$Predators"),
+              "-Animal<$Predators>",
+              "Animal<$Predators>",
+              "2 MC",
+          )
         }
         .expect("0 Animal<$Predators>")
   }
@@ -88,9 +97,11 @@ internal class PredatorsTest : TfmSandboxTest() {
     kim.exMachina("$Predators")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("Predators"))
-          doTask("-Animal<SoloCardResourceReserve<Class<Animal>>>")
-          doTask("Animal<Predators>")
+          doTasks(
+              *cardActionTasks("$Predators"),
+              "-Animal<SoloCardResourceReserve<Class<Animal>>>",
+              "Animal<$Predators>",
+          )
         }
         .expect("Animal<$Predators>")
   }

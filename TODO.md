@@ -22,40 +22,27 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Rules test cleanup
 
-- Review the remaining configuration and synthetic mechanism tests filed under `tests.rules`,
-  especially `PremiseEffectsTest`, `ClassTableSelectionTest`, `PropertyTest`, and `CustomMetricTest`.
-  Identify a distinct configuration or engine contract before retaining or relocating each case;
-  remove assertions of incidental effect strings, counts, and object identity where gameplay or
-  existing technical tests already establish the required behavior.
+- Review the configuration-contract cases in `ClassTableSelectionTest`. Keep checks that establish
+  supported configuration choices and rejection of incompatible selections; remove duplicated
+  class inventories and incidental implementation checks. The November 19 gameplay cleanup removes
+  `PropertyTest`, `CustomMetricTest`, and `PremiseEffectsTest` rather than relocating their probes.
 
 ## Gameplay consistency
 
 The [project record](docs/agents/TESTING.md#gameplay-consistency-project) owns the user's decisions,
-examples, verified findings, and questions. These tasks implement or investigate that direction;
+examples, verified findings, and questions. The November 19 batch implements and verifies the user's
+additional gameplay, assertion, and notation decisions;
 the remaining audit items listed there are **not yet discussed or approved**.
 
-- Remove non-Admin `EAGER` and as much `SOLE_TASK` use as possible in gameplay tests. Prefer visible
-  noteworthy events over shorter test-writing. Preserve scoped automatic standard opening setup,
-  including corporation play and buying five of ten projects when those choices are incidental.
-- Ensure focused success scenarios actually complete the action or phase they claim to prove.
-  Negative scenarios may stop at the expected failure.
-- Prioritize replacing task collection/ID selection, then sole-task assumptions; explain retained
-  uses. A broader scan also found `PropertyTest`'s raw synthetic requirement probe: it locates a
-  blocked task by rendered instruction and drops it. Review that mechanism test separately from
-  the gameplay/card-tracked replay migrations.
-- Inventory replay corrections and task drops, then apply the recorded correction/comment policy.
-  Keep retcons to `//` comments identifying correction pairs that could safely be rewritten later;
-  retain their execution and chronology for now.
-- Investigate what each "start a game" entry point has already done before consolidating setup.
+The selected migration now uses explicit player execution in all ordinary gameplay tests, keeps
+the scoped standard-opening and TaskForm exceptions, replaces artificial preparation histories,
+and completes focused success paths. The owning testing document records the retained differences
+and replay correction inventory. The following are separate future work:
+
 - Investigate selection and narrowing that leave execution explicitly pending, including concrete
   System choices such as PassBaton. Today selecting an alternative can transfer it to Admin and
   execute it before returning. The user selected separate engine work; this replay cleanup must
   not change the engine/Agent or TaskForm contract.
-- Inventory remaining state-dependent scenario choices; replace incidental artificial preparation
-  with corrections while retaining gameplay whose history is itself under test.
-- Review combined-total submissions in focused gameplay tests; ordinary replay gains were combined
-  on 2026-11-14 wherever existing matching permits it. Preserve choices and required ordering.
-- Improve consistency in checking meaningful consequences without repeating submitted tasks.
 
 ## Replay authentication and future coverage
 

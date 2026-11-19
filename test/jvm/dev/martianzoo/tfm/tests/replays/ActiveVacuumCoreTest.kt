@@ -161,9 +161,7 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
           "$PharmacyUnion FROM CorporationCard",
-      )
-      doTask("SearchForCard<TagFilter<Class<ScienceTag>>>")
-      doTasks(
+          "SearchForCard<TagFilter<Class<ScienceTag>>>",
           "54 MC",
           "21 Pay<> FROM MC",
           "7 ProjectCard<Hand FROM Selecting>",
@@ -2254,9 +2252,9 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "$StratosphericExpedition FROM ProjectCard",
           // Pink has no card that can hold floaters, so this placement adds none.
           "2 Floater",
+          "2 SearchForCard<TagFilter<Class<VenusTag>>>",
+          "3 MC",
       )
-      doTask("2 SearchForCard<TagFilter<Class<VenusTag>>>")
-      doTask("3 MC")
       doTasks(
           *cardActionTasks("$DevelopmentCenter"),
           "Pay<Class<Energy>> FROM Energy",

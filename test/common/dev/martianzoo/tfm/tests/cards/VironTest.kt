@@ -29,14 +29,19 @@ internal class VironTest : TfmSandboxTest() {
     initializeGame()
 
     kim.inTurn {
-      doTasks(*cardActionTasks("AtmoCollectors"))
-      doTask("Floater<AtmoCollectors>")
+      doTasks(
+          *cardActionTasks("$AtmoCollectors"),
+          "Floater<$AtmoCollectors>",
+      )
     }
 
     kim.inTurn {
-          doTasks(*cardActionTasks("Viron"), "UseAction<AtmoCollectors, Action2>")
-          doTask("-Floater<AtmoCollectors>")
-          doTask("2 Titanium")
+          doTasks(
+              *cardActionTasks("$Viron"),
+              "UseAction<$AtmoCollectors, Action2>",
+              "-Floater<$AtmoCollectors>",
+              "2 Titanium",
+          )
         }
         .expect("-Floater")
   }
@@ -45,8 +50,10 @@ internal class VironTest : TfmSandboxTest() {
   internal fun `Cannot use Viron to repeat Viron's own action`() {
     initializeGame()
     kim.inTurn {
-      doTasks(*cardActionTasks("AtmoCollectors"))
-      doTask("Floater<AtmoCollectors>")
+      doTasks(
+          *cardActionTasks("$AtmoCollectors"),
+          "Floater<$AtmoCollectors>",
+      )
     }
     shouldThrow<TaskException> {
       kim.inTurn {
@@ -61,8 +68,10 @@ internal class VironTest : TfmSandboxTest() {
     initializeGame()
     kim.exMachina("$ExtractorBalloons")
     kim.inTurn {
-      doTasks(*cardActionTasks("AtmoCollectors"))
-      doTask("Floater<AtmoCollectors>")
+      doTasks(
+          *cardActionTasks("$AtmoCollectors"),
+          "Floater<$AtmoCollectors>",
+      )
     }
 
     shouldThrow<NarrowingException> {
@@ -79,12 +88,16 @@ internal class VironTest : TfmSandboxTest() {
     kim.exMachina("$ExtractorBalloons")
     stan.exMachina("$AtmoCollectors, Floater<$AtmoCollectors>")
     kim.inTurn {
-      doTasks(*cardActionTasks("ExtractorBalloons"))
-      doTask("Floater<ExtractorBalloons>")
+      doTasks(
+          *cardActionTasks("$ExtractorBalloons"),
+          "Floater<$ExtractorBalloons>",
+      )
     }
     stan.inTurn {
-      doTasks(*cardActionTasks("AtmoCollectors"))
-      doTask("Floater<AtmoCollectors>")
+      doTasks(
+          *cardActionTasks("$AtmoCollectors"),
+          "Floater<$AtmoCollectors>",
+      )
     }
 
     shouldThrow<TaskException> {
@@ -100,13 +113,18 @@ internal class VironTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Viron)
     kim.exMachina("$Celestic")
     kim.inTurn {
-      doTasks(*cardActionTasks("Celestic"))
-      doTask("Floater<Celestic>*")
+      doTasks(
+          *cardActionTasks("$Celestic"),
+          "Floater<$Celestic>*",
+      )
     }
 
     kim.inTurn {
-          doTasks(*cardActionTasks("Viron"), "UseAction<Celestic, Action1>")
-          doTask("Floater<Celestic>*")
+          doTasks(
+              *cardActionTasks("$Viron"),
+              "UseAction<$Celestic, Action1>",
+              "Floater<$Celestic>*",
+          )
         }
         .expect("Floater<$Celestic>")
   }

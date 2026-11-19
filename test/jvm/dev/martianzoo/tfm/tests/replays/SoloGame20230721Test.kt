@@ -38,8 +38,8 @@ internal class SoloGame20230721Test : FullGameTest() {
   internal fun soloGame20230721() {
     startGame()
     with(me) {
-      doTask("14 TerraformRating")
       doTasks(
+          "14 TerraformRating",
           "2 CorporationCard",
           "-CorporationCard",
           "10 ProjectCard<Selecting>",
@@ -116,16 +116,22 @@ internal class SoloGame20230721Test : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTask("20 MC")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "20 MC",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation2() {
     with(me) {
       // You drew Atmo Collectors
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -153,16 +159,22 @@ internal class SoloGame20230721Test : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTask("20 MC")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "20 MC",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation3() {
     with(me) {
       // You drew Extractor Balloons, Carbonate Processing and Project Inspection
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -197,16 +209,23 @@ internal class SoloGame20230721Test : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("23 MC", "Energy")
-      doTask("TemperatureStep! BY Admin")
+      doTasks(
+          "23 MC",
+          "Energy",
+          "TemperatureStep! BY Admin",
+      )
     }
   }
 
   private fun generation4() {
     with(me) {
       // You drew Nuclear Power, Earth Office and Energy Saving
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       assertProduction(m = 3, s = 0, t = 0, p = 0, e = 1, h = 0)
       assertResources(m = 16, s = 0, t = 6, p = 1, e = 1, h = 0)
@@ -232,16 +251,24 @@ internal class SoloGame20230721Test : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("21 MC", "4 Energy", "Heat FROM Energy")
-      doTask("TemperatureStep! BY Admin")
+      doTasks(
+          "21 MC",
+          "4 Energy",
+          "Heat FROM Energy",
+          "TemperatureStep! BY Admin",
+      )
     }
   }
 
   private fun generation5() {
     with(me) {
       // You drew Solar Reflectors
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -296,16 +323,25 @@ internal class SoloGame20230721Test : FullGameTest() {
         doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
       }
       doTask("Pass")
-      doTasks("24 MC", "4 Energy", "Heat FROM Energy", "9 Heat")
-      doTask("TemperatureStep! BY Admin")
+      doTasks(
+          "24 MC",
+          "4 Energy",
+          "Heat FROM Energy",
+          "9 Heat",
+          "TemperatureStep! BY Admin",
+      )
     }
   }
 
   private fun generation6() {
     with(me) {
       // You drew Flooding and Mining Expedition
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -365,16 +401,25 @@ internal class SoloGame20230721Test : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("29 MC", "4 Energy", "Heat FROM Energy", "10 Heat")
-      doTask("OxygenStep! BY Admin")
+      doTasks(
+          "29 MC",
+          "4 Energy",
+          "Heat FROM Energy",
+          "10 Heat",
+          "OxygenStep! BY Admin",
+      )
     }
   }
 
   private fun generation7() {
     with(me) {
       // You drew Geothermal Power and CEO's Favorite Project
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       assertProduction(m = 1, s = 0, t = 0, p = 0, e = 4, h = 10)
       assertResources(m = 32, s = 2, t = 0, p = 2, e = 4, h = 14)
@@ -428,16 +473,25 @@ internal class SoloGame20230721Test : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("32 MC", "6 Energy", "Heat FROM Energy", "10 Heat")
-      doTask("VenusStep! BY Admin")
+      doTasks(
+          "32 MC",
+          "6 Energy",
+          "Heat FROM Energy",
+          "10 Heat",
+          "VenusStep! BY Admin",
+      )
     }
   }
 
   private fun generation8() {
     with(me) {
       // You drew Interplanetary Colony Ship
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -507,16 +561,25 @@ internal class SoloGame20230721Test : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("46 MC", "6 Energy", "6 Heat FROM Energy", "10 Heat")
-      doTask("OxygenStep! BY Admin")
+      doTasks(
+          "46 MC",
+          "6 Energy",
+          "6 Heat FROM Energy",
+          "10 Heat",
+          "OxygenStep! BY Admin",
+      )
     }
   }
 
   private fun generation9() {
     with(me) {
       // You drew Release of Inert Gases and Moss
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
@@ -575,16 +638,26 @@ internal class SoloGame20230721Test : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("51 MC", "6 Energy", "3 Heat FROM Energy", "10 Heat", "Plant")
-      doTask("OxygenStep! BY Admin")
+      doTasks(
+          "51 MC",
+          "6 Energy",
+          "3 Heat FROM Energy",
+          "10 Heat",
+          "Plant",
+          "OxygenStep! BY Admin",
+      )
     }
   }
 
   private fun generation10() {
     with(me) {
       // You drew Ice Moon Colony, Trees and Dust Seals
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       assertProduction(m = 6, s = 0, t = 0, p = 1, e = 6, h = 10)
       assertResources(m = 49, s = 0, t = 0, p = 7, e = 6, h = 18)
@@ -669,8 +742,12 @@ internal class SoloGame20230721Test : FullGameTest() {
   private fun generation11() {
     with(me) {
       // You drew Venus Waystation
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -765,16 +842,26 @@ internal class SoloGame20230721Test : FullGameTest() {
         )
       }
       doTask("Pass")
-      doTasks("69 MC", "6 Energy", "3 Heat FROM Energy", "10 Heat", "5 Plant")
-      doTask("OxygenStep! BY Admin")
+      doTasks(
+          "69 MC",
+          "6 Energy",
+          "3 Heat FROM Energy",
+          "10 Heat",
+          "5 Plant",
+          "OxygenStep! BY Admin",
+      )
     }
   }
 
   private fun generation12() {
     with(me) {
       // You drew Solar Power
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-3 ProjectCard<Selecting>", "3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+          "3 Pay<> FROM MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
 
       assertProduction(m = 7, s = 0, t = 0, p = 5, e = 6, h = 10)
       assertResources(m = 68, s = 8, t = 0, p = 8, e = 6, h = 16)

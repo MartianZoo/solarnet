@@ -10,22 +10,24 @@ import kotlin.test.Test
 internal class UtopiaInvestTest : TfmSandboxTest() {
   @Test
   internal fun `Decreases and gains the same standard resource`() {
-    newTestGame(addOptions = "UtopiaInvest", kimCorporation = UtopiaInvest)
+    newTestGame(addOptions = "$UtopiaInvest", kimCorporation = UtopiaInvest)
     kim.setToExMachina(2, "PROD[Plant]")
 
     kim.inTurn {
-      doTasks(*cardActionTasks("UtopiaInvest"), "PROD[-Plant]", "4 Plant")
+      doTasks(*cardActionTasks("$UtopiaInvest"), "PROD[-Plant]", "4 Plant")
     }
   }
 
   @Test
   internal fun `Cannot sacrifice plant production to gain a different resource`() {
-    newTestGame(addOptions = "UtopiaInvest", kimCorporation = UtopiaInvest)
+    newTestGame(addOptions = "$UtopiaInvest", kimCorporation = UtopiaInvest)
     kim.setToExMachina(2, "PROD[Plant]")
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("UtopiaInvest"))
+        doTasks(*cardActionTasks("$UtopiaInvest"))
+        // Narrow both linked stages to prove the gained resource must match the sacrificed
+        // production.
         selectTask("PROD[-Plant] THEN 4 Steel")
       }
     }

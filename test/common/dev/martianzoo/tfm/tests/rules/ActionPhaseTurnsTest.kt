@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.ComponentChange
@@ -10,7 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
+internal class ActionPhaseTurnsTest : TfmGameplayTest() {
   @Test
   internal fun `Multiplayer skips passed players and lets the last player continue`() {
     newTestGame(playerCount = 3)

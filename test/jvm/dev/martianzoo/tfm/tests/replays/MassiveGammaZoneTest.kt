@@ -56,20 +56,20 @@ internal class MassiveGammaZoneTest : FullGameTest() {
   @Test
   internal fun massiveGammaZone() {
     startGame()
-    admin.count("Coming<ScienceSummit>") shouldBe 1
+    admin.count("Coming<$ScienceSummit>") shouldBe 1
     (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
-    admin.count("Distant<AiResearch>") shouldBe 1
+    admin.count("Distant<$AiResearch>") shouldBe 1
     (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
     with(me) {
-      doTask("14 TerraformRating")
       doTasks(
+          "14 TerraformRating",
           "2 CorporationCard",
           "-CorporationCard",
           "10 ProjectCard<Selecting>",
           "4 PreludeCard",
           "-2 PreludeCard",
+          "-5 ProjectCard<Selecting>",
       )
-      doTask("-5 ProjectCard<Selecting>")
     }
     generation1()
     generation2()
@@ -182,16 +182,18 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       }
       doTask("Pass")
       doTasks("20 MC", "2 Heat FROM Energy", "Steel")
-          .expect("RedResistance, Distant<RedResistance>, PartyLeader<Reds, Neutral>")
+          .expect("$RedResistance, Distant<$RedResistance>, PartyLeader<Reds, Neutral>")
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-      admin.count("Distant<RedResistance>") shouldBe 1
+      admin.count("Distant<$RedResistance>") shouldBe 1
     }
   }
 
   private fun generation2() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTask("-4 ProjectCard<Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-4 ProjectCard<Selecting>",
+      )
       me.turn {
         doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
         doTasks(
@@ -223,18 +225,22 @@ internal class MassiveGammaZoneTest : FullGameTest() {
               "ProjectCard",
           )
           .expect(
-              "LocalTerraformingSupport, Distant<LocalTerraformingSupport>, PartyFollower<MarsFirst, Neutral>"
+              "$LocalTerraformingSupport, Distant<$LocalTerraformingSupport>, PartyFollower<MarsFirst, Neutral>"
           )
       admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
-      admin.count("Distant<LocalTerraformingSupport>") shouldBe 1
+      admin.count("Distant<$LocalTerraformingSupport>") shouldBe 1
       (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation3() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
       me.turn {
         doTasks(
             *cardActionTasks("$BoardOfDirectors"),
@@ -279,17 +285,21 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       doTasks("23 MC", "Steel", "Titanium", "2 Heat")
       // Turmoil: Solarnet Shutdown.
       doTask("-0 MC")
-          .expect("MinimalImpactPolicy, Distant<MinimalImpactPolicy>, PartyLeader<Reds, Neutral>")
+          .expect("$MinimalImpactPolicy, Distant<$MinimalImpactPolicy>, PartyLeader<Reds, Neutral>")
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
-      admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
+      admin.count("Distant<$MinimalImpactPolicy>") shouldBe 1
       (admin.count("PartyLeader<Reds, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation4() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
       me.turn {
         doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
         doTasks(
@@ -322,17 +332,23 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       doTasks("24 MC", "2 Steel", "Titanium", "2 Heat", "Plant")
       // Turmoil: Homeworld Support.
       doTask("12 MC")
-          .expect("DemocraticReform, Distant<DemocraticReform>, PartyFollower<MarsFirst, Neutral>")
+          .expect(
+              "$DemocraticReform, Distant<$DemocraticReform>, PartyFollower<MarsFirst, Neutral>"
+          )
       (admin.count("PartyFollower<Scientists, Neutral>") > 0) shouldBe true
-      admin.count("Distant<DemocraticReform>") shouldBe 1
+      admin.count("Distant<$DemocraticReform>") shouldBe 1
       (admin.count("PartyFollower<MarsFirst, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation5() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Titanium")
@@ -438,18 +454,22 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       // Turmoil: Successful Organisms.
       doTasks("5 Plant")
           .expect(
-              "MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>, PartyLeader<Kelvinists, Neutral>"
+              "$MoholeLakeGlobalEvent, Distant<$MoholeLakeGlobalEvent>, PartyLeader<Kelvinists, Neutral>"
           )
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
-      admin.count("Distant<MoholeLakeGlobalEvent>") shouldBe 1
+      admin.count("Distant<$MoholeLakeGlobalEvent>") shouldBe 1
       (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation6() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
       me.turn {
         doTasks(
             *cardActionTasks("$BoardOfDirectors"),
@@ -507,22 +527,28 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       // Turmoil: Dry Deserts.
       doTask("EACH")
       // Dry Deserts removes the ocean placed by Project Eden.
-      doTask("-OceanTile<Tharsis_2_6>")
-      doTask("Titanium")
+      doTasks(
+          "-OceanTile<Tharsis_2_6>",
+          "Titanium",
+      )
       doTask("Heat")
           .expect(
-              "TerraformingLobbying, Distant<TerraformingLobbying>, PartyFollower<Kelvinists, Neutral>"
+              "$TerraformingLobbying, Distant<$TerraformingLobbying>, PartyFollower<Kelvinists, Neutral>"
           )
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.count("Distant<TerraformingLobbying>") shouldBe 1
+      admin.count("Distant<$TerraformingLobbying>") shouldBe 1
       (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation7() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
       me.turn {
         doTasks(
             "UseAction<ConvertHeatAction, Action1>",
@@ -678,17 +704,21 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       // Turmoil: Aquifer Released by Public Council.
       doTasks("3 Plant", "3 Steel")
       doTasks("OceanTile<Tharsis_1_5> BY Admin", "2 Plant", "PROD[MC]", "2 MC")
-          .expect("ThawMining, Distant<ThawMining>, 2 PartyFollower<Kelvinists, Neutral>")
+          .expect("$ThawMining, Distant<$ThawMining>, 2 PartyFollower<Kelvinists, Neutral>")
       (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
-      admin.count("Distant<ThawMining>") shouldBe 1
+      admin.count("Distant<$ThawMining>") shouldBe 1
       (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation8() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
       me.turn {
         doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
         doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
@@ -787,17 +817,21 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       )
       // Turmoil: Snow Cover.
       doTasks("-2 TemperatureStep BY Admin", "2 ProjectCard")
-          .expect("PateraBoring, Distant<PateraBoring>, PartyLeader<Scientists, Neutral>")
+          .expect("$PateraBoring, Distant<$PateraBoring>, PartyLeader<Scientists, Neutral>")
       (admin.count("PartyFollower<Unity, Neutral>") > 0) shouldBe true
-      admin.count("Distant<PateraBoring>") shouldBe 1
+      admin.count("Distant<$PateraBoring>") shouldBe 1
       (admin.count("PartyLeader<Scientists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation9() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-2 ProjectCard<Selecting>", "6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-2 ProjectCard<Selecting>",
+          "6 Pay<> FROM MC",
+          "2 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
@@ -884,18 +918,22 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       // The capped TR payout and the influence payout require separate submissions.
       doTasks("14 MC", "2 MC")
           .expect(
-              "ExperimentalLifeforms, Distant<ExperimentalLifeforms>, PartyLeader<Greens, Neutral>"
+              "$ExperimentalLifeforms, Distant<$ExperimentalLifeforms>, PartyLeader<Greens, Neutral>"
           )
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-      admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
+      admin.count("Distant<$ExperimentalLifeforms>") shouldBe 1
       (admin.count("PartyLeader<Greens, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation10() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(
@@ -1109,17 +1147,17 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       doTasks("77 MC", "2 Steel", "2 Titanium", "14 Heat", "10 Plant", "4 Heat FROM Energy")
       // Turmoil: Mud Slides.
       doTasks("-8 MC", "2 MC")
-          .expect("CorporateAlliance, Distant<CorporateAlliance>, PartyLeader<Unity, Neutral>")
+          .expect("$CorporateAlliance, Distant<$CorporateAlliance>, PartyLeader<Unity, Neutral>")
       (admin.count("PartyFollower<Kelvinists, Neutral>") > 0) shouldBe true
-      admin.count("Distant<CorporateAlliance>") shouldBe 1
+      admin.count("Distant<$CorporateAlliance>") shouldBe 1
       (admin.count("PartyLeader<Unity, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation11() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
       doTasks(
+          "4 ProjectCard<Selecting>",
           "Ok", // keep all offered cards
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -1343,17 +1381,21 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       doTasks("96 MC", "2 Steel", "2 Titanium", "14 Heat", "13 Plant", "Energy")
       // Turmoil: Volcanic Eruptions.
       doTasks("PROD[2 Heat]", "2 MC")
-          .expect("HeatFirstPolicy, Distant<HeatFirstPolicy>, PartyLeader<Kelvinists, Neutral>")
+          .expect("$HeatFirstPolicy, Distant<$HeatFirstPolicy>, PartyLeader<Kelvinists, Neutral>")
       (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
-      admin.count("Distant<HeatFirstPolicy>") shouldBe 1
+      admin.count("Distant<$HeatFirstPolicy>") shouldBe 1
       (admin.count("PartyLeader<Kelvinists, Neutral>") > 0) shouldBe true
     }
   }
 
   private fun generation12() {
     with(me) {
-      doTask("4 ProjectCard<Selecting>")
-      doTasks("-1 ProjectCard<Selecting>", "9 Pay<> FROM MC", "3 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "4 ProjectCard<Selecting>",
+          "-1 ProjectCard<Selecting>",
+          "9 Pay<> FROM MC",
+          "3 ProjectCard<Hand FROM Selecting>",
+      )
 
       me.turn {
         doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
@@ -1530,9 +1572,9 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       assertCardResources(5 to SaturnSurfing)
 
       admin.assertCounts(
-          1 to "Current<ExperimentalLifeforms>",
-          1 to "Coming<CorporateAlliance>",
-          1 to "Distant<HeatFirstPolicy>",
+          1 to "Current<$ExperimentalLifeforms>",
+          1 to "Coming<$CorporateAlliance>",
+          1 to "Distant<$HeatFirstPolicy>",
           1 to "Ruling<Kelvinists>",
           1 to "Dominant<Reds>",
           1 to "Chairman<EK>",

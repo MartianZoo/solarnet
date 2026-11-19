@@ -19,14 +19,15 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     stan.exMachina("$Tardigrades, $Pets")
 
     kim.inTurn {
-          doTasks(*playCardTasks("ImportedNitrogen"), "23 Pay<> FROM MC")
           doTasks(
-              "ImportedNitrogen FROM ProjectCard",
+              *playCardTasks("$ImportedNitrogen"),
+              "23 Pay<> FROM MC",
+              "$ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
               "4 Plant",
+              "3* Microbe",
+              "2* Animal",
           )
-          doTask("3* Microbe")
-          doTask("2* Animal")
         }
         .expect(
             "TerraformRating, 4 Plant, 0 Microbe, 0 Animal, -23 MC, " +
@@ -42,15 +43,17 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
 
     kim.inTurn {
-          doTasks(*playCardTasks("ImportedNitrogen"), "23 Pay<> FROM MC")
           doTasks(
-              "ImportedNitrogen FROM ProjectCard",
+              *playCardTasks("$ImportedNitrogen"),
+              "23 Pay<> FROM MC",
+              "$ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
               "4 Plant",
-              "3* Microbe<Tardigrades>",
+              "3* Microbe<$Tardigrades>",
               "3 MC",
+              "2* Animal<$Pets>",
+              "4 MC",
           )
-          doTasks("2* Animal<Pets>", "4 MC")
         }
         .expect(
             "TerraformRating, 4 Plant, 3 Microbe<$Tardigrades>, 2 Animal<$Pets>, " +
@@ -65,14 +68,17 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks(*playCardTasks("ImportedNitrogen"), "23 Pay<> FROM MC")
-        doTask("ImportedNitrogen FROM ProjectCard")
-        doTask("TerraformRating")
-        doTask("4 Plant")
-        doTask("2* Animal")
+        doTasks(
+            *playCardTasks("$ImportedNitrogen"),
+            "23 Pay<> FROM MC",
+            "$ImportedNitrogen FROM ProjectCard",
+            "TerraformRating",
+            "4 Plant",
+            "2* Animal",
+        )
         // Select the full microbe reward before attempting to split it between cards.
         selectTask("3* Microbe")
-        doTask("Microbe<Tardigrades>")
+        doTask("Microbe<$Tardigrades>")
       }
     }
   }

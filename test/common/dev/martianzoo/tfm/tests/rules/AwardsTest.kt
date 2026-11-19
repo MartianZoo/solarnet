@@ -180,12 +180,18 @@ internal class AwardsTest : TfmSandboxTest() {
     rob.setToExMachina(2, "Heat")
     rob.setToExMachina(2, "Steel")
     kim.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Thermalist")
+      doTasks(
+          "UseAction<FundAwardAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Thermalist",
+      )
     }
     stan.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "14 Pay<> FROM MC")
-      doTask("Miner")
+      doTasks(
+          "UseAction<FundAwardAction, Action1>",
+          "14 Pay<> FROM MC",
+          "Miner",
+      )
     }
 
     victoryPoints() shouldBe listOf(30, 27, 22)
@@ -196,8 +202,11 @@ internal class AwardsTest : TfmSandboxTest() {
     newTestGame(playerCount = 2)
     kim.setToExMachina(1, "Heat")
     kim.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Thermalist")
+      doTasks(
+          "UseAction<FundAwardAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Thermalist",
+      )
     }
 
     victoryPoints() shouldBe listOf(25, 20)

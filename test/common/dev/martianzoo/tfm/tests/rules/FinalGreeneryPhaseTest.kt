@@ -1,13 +1,12 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
+internal class FinalGreeneryPhaseTest : TfmGameplayTest() {
   // Omit starting production and expansion solar work; these scenarios isolate the base phase flow.
   private val options = "-QuickStartVariant, -ColoniesExpansion, -VenusNextExpansion"
 
@@ -95,7 +94,7 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
           "2 Plant",
       )
     }
-    kim.selectTask("PassBaton")
+    kim.doTask("PassBaton")
     kim.count("GreeneryTile") shouldBe 2
   }
 
@@ -128,7 +127,7 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
       selectTask("Plant!")
       doTasks("Plant", "Plant")
     }
-    kim.selectTask("PassBaton")
+    kim.doTask("PassBaton")
     stan.doTask("Pass")
     kim.doTask("Pass")
     kim.doTask("21 MC")
@@ -143,8 +142,10 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Elysium_5_6>",
           "3 Plant",
+          "Plant",
+          "Plant",
+          "Plant",
       )
-      doTasks("Plant", "Plant", "Plant")
     }
     kim.count("Plant") shouldBe 8
     kim.completeOperation {
@@ -157,7 +158,7 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest(NONE) {
       selectTask("Plant!")
       doTasks("Plant", "Plant", "Plant")
     }
-    kim.selectTask("PassBaton")
+    kim.doTask("PassBaton")
     kim.count("GreeneryTile") shouldBe 3
   }
 }

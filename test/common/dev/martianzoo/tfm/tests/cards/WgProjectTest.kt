@@ -11,54 +11,64 @@ import kotlin.test.Test
 internal class WgProjectTest : TfmSandboxTest() {
   @Test
   internal fun `Plays the selected Prelude immediately without adding the others to the hand`() {
-    newTestGame("PreludeExpansion, WgProject, HighCircles, TurmoilExpansion")
+    newTestGame("PreludeExpansion, $WgProject, $HighCircles, TurmoilExpansion")
     advanceUntilActionPhase()
     kim.exMachina("-Chairman<Neutral>, Chairman")
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("WgProject"),
+              *playCardTasks("$WgProject"),
               "9 Pay<> FROM MC",
-              "WgProject FROM ProjectCard",
+              "$WgProject FROM ProjectCard",
+              "3 PreludeCard<Selecting>",
           )
-          doTask("3 PreludeCard<Kim, Selecting>")
-          doTask("PlayCard<Class<PreludeCard>, Class<HighCircles>>")
-          doTask("HighCircles FROM PreludeCard<Selecting>")
-          doTask("TerraformRating")
-          doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-          doTasks("PartyLeader<Unity>", "PartyFollower<Unity>")
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$HighCircles>>",
+              "$HighCircles FROM PreludeCard<Selecting>",
+              "TerraformRating",
+              "SearchForCard<ReferenceFilter<Class<Ruling>>>!",
+              "PartyLeader<Unity>",
+              "PartyFollower<Unity>",
+          )
         }
         .expect("$HighCircles, 0 PreludeCard, 0 PreludeCard<Selecting>")
   }
 
   @Test
   internal fun `Refunds fifteen MC when its selected Prelude cannot be afforded`() {
-    newTestGame("PreludeExpansion, WgProject, IndustrialComplex, TurmoilExpansion")
+    newTestGame("PreludeExpansion, $WgProject, $IndustrialComplex, TurmoilExpansion")
     advanceUntilActionPhase()
     kim.exMachina("-Chairman<Neutral>, Chairman")
     kim.setToExMachina(19, "MC")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("WgProject"))
-        doTasks("9 Pay<> FROM MC", "WgProject FROM ProjectCard")
-        doTask("3 PreludeCard<Kim, Selecting>")
-        doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
-        doTask("IndustrialComplex FROM PreludeCard<Selecting>")
-        doTask("-18 MC")
+        doTasks(
+            *playCardTasks("$WgProject"),
+            "9 Pay<> FROM MC",
+            "$WgProject FROM ProjectCard",
+            "3 PreludeCard<Selecting>",
+        )
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
+            "$IndustrialComplex FROM PreludeCard<Selecting>",
+            "-18 MC",
+        )
       }
     }
     kim.inTurn {
           doTasks(
-              *playCardTasks("WgProject"),
+              *playCardTasks("$WgProject"),
               "9 Pay<> FROM MC",
-              "WgProject FROM ProjectCard",
+              "$WgProject FROM ProjectCard",
+              "3 PreludeCard<Selecting>",
+              "-PreludeCard<Selecting>",
           )
-          doTask("3 PreludeCard<Kim, Selecting>")
-          doTask("-PreludeCard<Selecting>")
           // Hand the fizzle audit to Admin before receiving compensation.
-          doTask("Audit!")
-          doTask("15 MC")
+          doTasks(
+              "Audit!",
+              "15 MC",
+          )
         }
         .expect("0 $IndustrialComplex, 0 PreludeCard, 0 PreludeCard<Selecting>")
   }
@@ -69,20 +79,22 @@ internal class WgProjectTest : TfmSandboxTest() {
   }
 
   private fun playDonationWithoutPreludeRules(): TaskResult {
-    newTestGame("WgProject, TurmoilExpansion, prelude:cards")
+    newTestGame("$WgProject, TurmoilExpansion, prelude:cards")
     kim.exMachina("-Chairman<Neutral>, Chairman")
     kim.setToExMachina(9, "MC")
     kim.setToExMachina(1, "ProjectCard")
     return kim.inTurn {
       doTasks(
-          *playCardTasks("WgProject"),
+          *playCardTasks("$WgProject"),
           "9 Pay<> FROM MC",
-          "WgProject FROM ProjectCard",
+          "$WgProject FROM ProjectCard",
+          "3 PreludeCard<Selecting>",
       )
-      doTask("3 PreludeCard<Kim, Selecting>")
-      doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
-      doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
-      doTask("21 MC")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard<Selecting>!",
+          "21 MC",
+      )
     }
   }
 }

@@ -18,10 +18,14 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
     kim.exMachina("$ProtectedHabitats, 8 Plant")
 
     kim.inTurn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
-      doTask("GreeneryTile<Tharsis_1_1>")
-      doTask("OxygenStep")
-      doTasks("2 Steel", "TerraformRating")
+      doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
+          "GreeneryTile<Tharsis_1_1>",
+          "OxygenStep",
+          "2 Steel",
+          "TerraformRating",
+      )
     }
   }
 
@@ -30,11 +34,13 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
     kim.exMachina("$ProtectedHabitats, $Predators, $Fish, Animal<$Fish>")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("Predators"))
-          doTask("-Animal<Fish>")
-          doTask("Animal<Predators>")
+          doTasks(
+              *cardActionTasks("$Predators"),
+              "-Animal<$Fish>",
+              "Animal<$Predators>",
+          )
         }
-        .expect("-Animal<$Fish>, Animal<$Predators>")
+        .expect("Animal<$Predators>")
   }
 
   @Test
@@ -42,11 +48,13 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
     kim.exMachina("$ProtectedHabitats, $Ants, $Tardigrades, Microbe<$Tardigrades>")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("Ants"))
-          doTask("-Microbe<Tardigrades>")
-          doTask("Microbe<Ants>")
+          doTasks(
+              *cardActionTasks("$Ants"),
+              "-Microbe<$Tardigrades>",
+              "Microbe<$Ants>",
+          )
         }
-        .expect("-Microbe<$Tardigrades>, Microbe<$Ants>")
+        .expect("Microbe<$Ants>")
   }
 
   @Test
@@ -55,11 +63,14 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTasks(*playCardTasks("AsteroidCard"), "14 Pay<> FROM MC")
-        doTask("AsteroidCard FROM ProjectCard")
-        doTask("TemperatureStep")
-        doTask("2 Titanium")
-        doTask("TerraformRating")
+        doTasks(
+            *playCardTasks("$AsteroidCard"),
+            "14 Pay<> FROM MC",
+            "$AsteroidCard FROM ProjectCard",
+            "TemperatureStep",
+            "2 Titanium",
+            "TerraformRating",
+        )
         // Resolve the attack before probing a protected target that the offer excludes.
         selectTask("-3? Plant<Anyone>")
         doTask("-Plant<Kim>")
@@ -75,8 +86,10 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTasks(*cardActionTasks("Predators"))
-        doTask("-Animal<Kim, Fish<Kim>>")
+        doTasks(
+            *cardActionTasks("$Predators"),
+            "-Animal<Kim, $Fish<Kim>>",
+        )
       }
     }
     kim.assertCounts(1 to "Animal<$Fish>")
@@ -89,8 +102,10 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTasks(*cardActionTasks("Ants"))
-        doTask("-Microbe<Kim, Tardigrades<Kim>>")
+        doTasks(
+            *cardActionTasks("$Ants"),
+            "-Microbe<Kim, $Tardigrades<Kim>>",
+        )
       }
     }
     kim.assertCounts(1 to "Microbe<$Tardigrades>")

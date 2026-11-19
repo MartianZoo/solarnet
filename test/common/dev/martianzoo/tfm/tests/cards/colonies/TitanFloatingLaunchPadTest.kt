@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.TitanFloatingLaunchPad
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -14,11 +14,13 @@ internal class TitanFloatingLaunchPadTest : TfmSandboxTest() {
     kim.exMachina("$TitanFloatingLaunchPad, Floater<$TitanFloatingLaunchPad>")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("TitanFloatingLaunchPad", "Action2"))
-          doTask("-Floater<TitanFloatingLaunchPad>")
+          doTasks(
+              *cardActionTasks("$TitanFloatingLaunchPad", "Action2"),
+              "-Floater<$TitanFloatingLaunchPad>",
+          )
 
           doTasks("Trade<Io>", "3 Heat")
         }
-        .expect("-Floater, 3 Heat")
+        .expect("-Floater")
   }
 }

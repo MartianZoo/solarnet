@@ -185,9 +185,12 @@ internal class SolarFusionStreamTest : FullGameTest() {
     }
 
     with(KB) {
-      doTask("PlayCard<Class<PreludeCard>, Class<$ResearchNetwork>>")
-      doTask("$ResearchNetwork FROM PreludeCard")
-      doTasks("PROD[MC]", "3 ProjectCard")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$ResearchNetwork>>",
+          "$ResearchNetwork FROM PreludeCard",
+          "PROD[MC]",
+          "3 ProjectCard",
+      )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
           "$EstablishedMethods FROM PreludeCard",

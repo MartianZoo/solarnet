@@ -11,23 +11,25 @@ import kotlin.test.Test
 internal class SponsoredAcademiesTest : TfmSandboxTest() {
   @Test
   internal fun `Point Luna draw supplies the mandatory discard when it is the only hand card`() {
-    newTestGame(addOptions = "PointLuna", kimCorporation = PointLuna)
+    newTestGame(addOptions = "$PointLuna", kimCorporation = PointLuna)
     kim.setToExMachina(1, "ProjectCard")
     kim.setToExMachina(9, "MC")
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("SponsoredAcademies"),
+              *playCardTasks("$SponsoredAcademies"),
               "9 Pay<> FROM MC",
-              "SponsoredAcademies FROM ProjectCard",
+              "$SponsoredAcademies FROM ProjectCard",
           )
           // Expand the reward into separate tasks for each other player.
-          doTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
-          doTask("ProjectCard<Kim, Hand>")
-          doTask("-ProjectCard<Kim, Hand>")
-          doTask("ProjectCard<Stan, Hand>")
-          doTask("ProjectCard<Rob, Hand>")
-          doTask("3 ProjectCard")
+          doTasks(
+              "EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }",
+              "ProjectCard<Hand>",
+              "-ProjectCard<Hand>",
+              "ProjectCard<Stan, Hand>",
+              "ProjectCard<Rob, Hand>",
+              "3 ProjectCard",
+          )
         }
         .expect("2 ProjectCard<Kim>, ProjectCard<Stan>, ProjectCard<Rob>")
   }
@@ -40,13 +42,18 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("SponsoredAcademies"))
-        doTasks("9 Pay<> FROM MC", "SponsoredAcademies FROM ProjectCard")
+        doTasks(
+            *playCardTasks("$SponsoredAcademies"),
+            "9 Pay<> FROM MC",
+            "$SponsoredAcademies FROM ProjectCard",
+        )
         // Expand the reward into separate tasks for each other player.
-        doTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
-        doTask("ProjectCard<Stan, Hand>")
-        doTask("ProjectCard<Rob, Hand>")
-        doTask("-ProjectCard<Kim, Hand>")
+        doTasks(
+            "EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }",
+            "ProjectCard<Stan, Hand>",
+            "ProjectCard<Rob, Hand>",
+            "-ProjectCard<Hand>",
+        )
       }
     }
 

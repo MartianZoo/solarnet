@@ -13,8 +13,10 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Uses the printed requirement when no adjustment is needed`() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
-      doTask("DoRequiredActions")
-      doTask("3 ProjectCard")
+      doTasks(
+          "DoRequiredActions",
+          "3 ProjectCard",
+      )
     }
     kim.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
@@ -22,9 +24,9 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Algae"),
+          *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
-          "Algae FROM ProjectCard",
+          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
       )
@@ -35,16 +37,18 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Inventrix relaxes minimum global requirements by two`() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
-      doTask("DoRequiredActions")
-      doTask("3 ProjectCard")
+      doTasks(
+          "DoRequiredActions",
+          "3 ProjectCard",
+      )
     }
     kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Algae"),
+          *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
-          "Algae FROM ProjectCard",
+          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
       )
@@ -55,8 +59,10 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Inventrix relaxes maximum global requirements by two`() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
-      doTask("DoRequiredActions")
-      doTask("3 ProjectCard")
+      doTasks(
+          "DoRequiredActions",
+          "3 ProjectCard",
+      )
     }
     kim.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
@@ -64,9 +70,9 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("DustSeals"),
+          *playCardTasks("$DustSeals"),
           "2 Pay<> FROM MC",
-          "DustSeals FROM ProjectCard",
+          "$DustSeals FROM ProjectCard",
       )
     }
   }
@@ -75,26 +81,28 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Stacks Inventrix Adaptation Technology and Special Design`() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
-      doTask("DoRequiredActions")
-      doTask("3 ProjectCard")
+      doTasks(
+          "DoRequiredActions",
+          "3 ProjectCard",
+      )
     }
     kim.exMachina("$AdaptationTechnology")
     kim.setToExMachina(11, "TemperatureStep")
     kim.setToExMachina(30, "MC")
     kim.inTurn {
       doTasks(
-          *playCardTasks("SpecialDesign"),
+          *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "SpecialDesign FROM ProjectCard",
+          "$SpecialDesign FROM ProjectCard",
+          "SpecialDesign_NextCardEffect",
       )
-      doTask("SpecialDesign_NextCardEffect")
     }
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Farming"),
+          *playCardTasks("$Farming"),
           "16 Pay<> FROM MC",
-          "Farming FROM ProjectCard",
+          "$Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",
           "2 Plant",
@@ -108,19 +116,19 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.setToExMachina(15, "TemperatureStep")
     kim.inTurn {
       doTasks(
-          *playCardTasks("SpecialDesign"),
+          *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "SpecialDesign FROM ProjectCard",
+          "$SpecialDesign FROM ProjectCard",
+          "SpecialDesign_NextCardEffect",
       )
-      doTask("SpecialDesign_NextCardEffect")
     }
 
     // Farming needs 17 temperature steps, so Special Design makes it playable at 15.
     kim.inTurn {
       doTasks(
-          *playCardTasks("Farming"),
+          *playCardTasks("$Farming"),
           "16 Pay<> FROM MC",
-          "Farming FROM ProjectCard",
+          "$Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",
           "2 Plant",
@@ -130,9 +138,12 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     // Fish needs 16 steps: it would also be playable if Special Design had survived.
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Fish"))
-        doTask("9 Pay<> FROM MC")
-        selectTask("MAX 0 Barrier: Fish FROM ProjectCard!")
+        doTasks(
+            *playCardTasks("$Fish"),
+            "9 Pay<> FROM MC",
+        )
+        // Select the guarded transfer to check that the requirement itself rejects the card.
+        selectTask("MAX 0 Barrier: $Fish FROM ProjectCard!")
         doTask("PROD[-Plant]")
       }
     }
@@ -142,14 +153,19 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Morning Star adjusts Venus requirements on cards without Venus tags`() {
     newTestGame(kimCorporation = MorningStarInc)
     kim.inTurn {
-      doTask("DoRequiredActions")
-      doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>")
+      doTasks(
+          "DoRequiredActions",
+          "3 SearchForCard<TagFilter<Class<VenusTag>>>",
+      )
     }
     kim.setToExMachina(9, "VenusStep")
 
     kim.inTurn {
-      doTasks(*playCardTasks("RotatorImpacts"), "6 Pay<> FROM MC")
-      doTasks("RotatorImpacts FROM ProjectCard")
+      doTasks(
+          *playCardTasks("$RotatorImpacts"),
+          "6 Pay<> FROM MC",
+          "$RotatorImpacts FROM ProjectCard",
+      )
     }
   }
 
@@ -157,17 +173,21 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   internal fun `Morning Star does not adjust ocean requirements`() {
     newTestGame(kimCorporation = MorningStarInc)
     kim.inTurn {
-      doTask("DoRequiredActions")
-      doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>")
+      doTasks(
+          "DoRequiredActions",
+          "3 SearchForCard<TagFilter<Class<VenusTag>>>",
+      )
     }
     kim.setToExMachina(9, "VenusStep")
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("Algae"))
-        doTask("10 Pay<> FROM MC")
+        doTasks(
+            *playCardTasks("$Algae"),
+            "10 Pay<> FROM MC",
+        )
         // Resolve the pending play to evaluate the card requirement before transferring it.
-        selectTask("Algae FROM ProjectCard")
+        selectTask("$Algae FROM ProjectCard")
       }
     }
   }
@@ -178,23 +198,29 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.setToExMachina(11, "TemperatureStep")
     kim.inTurn {
       doTasks(
-          *playCardTasks("SpecialDesign"),
+          *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "SpecialDesign FROM ProjectCard",
+          "$SpecialDesign FROM ProjectCard",
+          "SpecialDesign_NextCardEffect",
       )
-      doTask("SpecialDesign_NextCardEffect")
     }
     kim.inTurn {
-      doTasks(*playCardTasks("Mine"), "4 Pay<> FROM MC")
-      doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+      doTasks(
+          *playCardTasks("$Mine"),
+          "4 Pay<> FROM MC",
+          "$Mine FROM ProjectCard",
+          "PROD[Steel]",
+      )
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("ArcticAlgae"))
-        doTask("12 Pay<> FROM MC")
+        doTasks(
+            *playCardTasks("$ArcticAlgae"),
+            "12 Pay<> FROM MC",
+        )
         // Resolve the pending play to evaluate the card requirement before transferring it.
-        selectTask("ArcticAlgae FROM ProjectCard")
+        selectTask("$ArcticAlgae FROM ProjectCard")
       }
     }
   }
@@ -205,26 +231,28 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.setToExMachina(11, "TemperatureStep")
     kim.inTurn {
       doTasks(
-          *playCardTasks("SpecialDesign"),
+          *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "SpecialDesign FROM ProjectCard",
+          "$SpecialDesign FROM ProjectCard",
+          "SpecialDesign_NextCardEffect",
       )
-      doTask("SpecialDesign_NextCardEffect")
     }
     kim.inTurn {
       doTasks(
-          *playCardTasks("DustSeals"),
+          *playCardTasks("$DustSeals"),
           "2 Pay<> FROM MC",
-          "DustSeals FROM ProjectCard",
+          "$DustSeals FROM ProjectCard",
       )
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks(*playCardTasks("ArcticAlgae"))
-        doTask("12 Pay<> FROM MC")
+        doTasks(
+            *playCardTasks("$ArcticAlgae"),
+            "12 Pay<> FROM MC",
+        )
         // Resolve the pending play to evaluate the card requirement before transferring it.
-        selectTask("ArcticAlgae FROM ProjectCard")
+        selectTask("$ArcticAlgae FROM ProjectCard")
       }
     }
   }
@@ -239,25 +267,31 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.setToExMachina(13, "TemperatureStep")
     kim.inTurn {
       doTasks(
-          *playCardTasks("SpecialDesign"),
+          *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "SpecialDesign FROM ProjectCard",
+          "$SpecialDesign FROM ProjectCard",
+          "SpecialDesign_NextCardEffect",
       )
-      doTask("SpecialDesign_NextCardEffect")
     }
     kim.inTurn {
-      doTasks(*cardActionTasks("BoardOfDirectors"))
-      doTask("PreludeCard<Kim, Hand>")
-      doTask("-12 MC")
-      doTask("-Director<BoardOfDirectors>")
-      doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
+      doTasks(
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard<Hand>",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard",
+          "21 MC",
+      )
     }
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Farming"),
+          *playCardTasks("$Farming"),
           "16 Pay<> FROM MC",
-          "Farming FROM ProjectCard",
+          "$Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",
           "2 Plant",

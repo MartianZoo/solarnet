@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -22,8 +20,8 @@ internal class HeadStartTest : TfmSandboxTest() {
     kim.setToExMachina(4, "MC")
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
-          "FakeHeadStart FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
+          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
           "20 MC",
       )
@@ -38,22 +36,26 @@ internal class HeadStartTest : TfmSandboxTest() {
   @Test
   internal fun `Head Start must use its first granted action to perform a required action`() {
     newTestGame(
-        addOptions = "PreludeExpansion, fakes:cards, ValleyTrust",
+        addOptions = "PreludeExpansion, fakes:cards, $ValleyTrust",
         kimCorporation = ValleyTrust,
     )
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
-          "FakeHeadStart FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
+          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
+          "10 MC",
       )
-      doTask("10 MC")
       shouldThrow<TaskException> { doTasks(*standardProjectTasks("PowerPlantProject")) }
-      doTask("DoRequiredActions")
-      doTask("3 PreludeCard<Kim, Selecting>")
-      doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
-      doTask("MartianIndustries FROM PreludeCard<Selecting>")
+      doTasks(
+          "DoRequiredActions",
+          "3 PreludeCard<Selecting>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>",
+          "$MartianIndustries FROM PreludeCard<Selecting>",
+      )
       doTasks(
           "PROD[Energy]",
           "PROD[Steel]",
@@ -82,13 +84,16 @@ internal class HeadStartTest : TfmSandboxTest() {
 
     return kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
-          "FakeHeadStart FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
+          "$FakeHeadStart FROM PreludeCard",
       )
       shouldThrow<TaskException> { doTask("Steel") }
       doTasks(
           *standardProjectTasks("SellPatentsProject"),
           "MC FROM ProjectCard",
+      )
+
+      doTasks(
           *standardProjectTasks("SellPatentsProject"),
           "MC FROM ProjectCard",
           "2 MC / ProjectCard",
@@ -115,13 +120,16 @@ internal class HeadStartTest : TfmSandboxTest() {
     kim.exMachina("10 Heat")
     return kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
-          "FakeHeadStart FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
+          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
+          "20 MC",
       )
-      doTask("20 MC")
-      doTasks("UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM Heat")
-      doTask("TemperatureStep")
+      doTasks(
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+      )
       doTasks(
           *standardProjectTasks("AquiferProject"),
           "18 Pay<> FROM MC",
@@ -154,13 +162,13 @@ internal class HeadStartTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
-          "FakeHeadStart FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
+          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
+          "0 MC",
       )
-      doTask("0 MC")
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-      autoExecNow(EAGER)
+      doTask("2 MC") // The first production increase consumes Suitable Infrastructure’s bonus.
       doTasks(
           *standardProjectTasks("PowerPlantProject"),
           "11 Pay<> FROM MC",
@@ -194,25 +202,38 @@ internal class HeadStartTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
-          "FakeHeadStart FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
+          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
+          "0 MC",
       )
-      doTask("0 MC")
-      doTasks(*cardActionTasks("BoardOfDirectors"))
-      doTask("PreludeCard<Kim, Hand>")
-      doTask("-12 MC")
-      doTask("-Director<BoardOfDirectors>")
-      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      doTask("4 CorporationCard<Kim, Selecting>")
-      doTask("-42 MC")
-      doTask("PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>")
-      doTask("SagittaFrontierServices FROM CorporationCard<Selecting>")
-      doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")
-      doTask("SearchForCard<Kim, NoTagsFilter>!")
-      doTasks("4 MC", "UseAction<ConvertHeatAction, Action1>", "8 Pay<Class<Heat>> FROM Heat")
-      doTask("TemperatureStep")
-      doTask("TerraformRating")
+      doTasks(
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard<Hand>",
+          "-12 MC",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+          "-42 MC",
+      )
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$SagittaFrontierServices>>",
+          "$SagittaFrontierServices FROM CorporationCard<Selecting>",
+          "31 MC",
+          "PROD[Energy]",
+          "PROD[2 MC]",
+          "SearchForCard<NoTagsFilter>!",
+      )
+      doTasks(
+          "4 MC",
+          "UseAction<ConvertHeatAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "TemperatureStep",
+          "TerraformRating",
+      )
     }
   }
 
@@ -221,31 +242,51 @@ internal class HeadStartTest : TfmSandboxTest() {
     internal fun `Both granted actions finish before resuming the Prelude sequence`() {
       newTestGame("PreludeExpansion, fakes:cards", playerCount = 2)
       expectChanges("2 Steel<Kim>, 20 MC<Kim>") {
-        kim.doTask("PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>")
-        kim.autoExecNow(EAGER)
+        kim.doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
+            "$FakeHeadStart FROM PreludeCard",
+            "2 Steel",
+            "20 MC",
+        )
       }
 
       shouldThrow<TaskException> {
-        kim.doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
+        kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
       }
       expectChanges("PROD[Energy<Kim>], -11 MC<Kim>") {
-        kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-        kim.autoExecNow(EAGER)
+        kim.doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
       }
       kim.count("Baton") shouldBe 1
       stan.count("Baton") shouldBe 0
-      shouldThrow<NarrowingException> {
-        kim.doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
+      shouldThrow<TaskException> {
+        kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
       }
       expectChanges("PROD[Energy<Kim>], -11 MC<Kim>") {
-        kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-        kim.autoExecNow(EAGER)
+        kim.doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
       }
       kim.count("Baton") shouldBe 1
       stan.count("Baton") shouldBe 0
 
-      kim.doTask("PlayCard<Class<PreludeCard>, Class<Donation>>").expect("21 MC")
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<PowerGeneration>>").expect("PROD[3 Energy]")
+      kim.doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard",
+          "21 MC",
+      )
+      stan.completeOperation {
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>",
+            "$PowerGeneration FROM PreludeCard",
+            "PROD[3 Energy]",
+        )
+
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
+            "$AlliedBank FROM PreludeCard",
+            "PROD[4 MC]",
+            "3 MC",
+        )
+      }
+      admin.count("ActionPhase") shouldBe 1
     }
 
     @Test
@@ -256,16 +297,19 @@ internal class HeadStartTest : TfmSandboxTest() {
 
       repeat(2) {
         expectChanges("PROD[Energy<Kim>], -11 MC<Kim>") {
-          kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-          kim.autoExecNow(EAGER)
+          kim.doTasks(
+              *standardProjectTasks("PowerPlantProject"),
+              "11 Pay<> FROM MC",
+              "PROD[Energy]",
+          )
         }
         kim.count("Baton") shouldBe 1
         stan.count("Baton") shouldBe 0
       }
 
       // Both mandatory actions finished; Kim may now decline the ordinary second action.
-      shouldThrow<NarrowingException> { kim.doTask("Pass") }
-      kim.selectTask("PassBaton")
+      shouldThrow<TaskException> { kim.doTask("Pass") }
+      kim.doTask("PassBaton")
       stan.doTask("Pass")
     }
 
@@ -273,15 +317,17 @@ internal class HeadStartTest : TfmSandboxTest() {
     internal fun `Head Start during the second ordinary action releases the baton after its grants`() {
       prepareBoardOfDirectors()
       expectChanges("PROD[Energy<Kim>], -11 MC<Kim>") {
-        kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-        kim.autoExecNow(EAGER)
+        kim.doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
       }
       playHeadStartThroughBoard()
 
       repeat(2) {
         expectChanges("PROD[Energy<Kim>], -11 MC<Kim>") {
-          kim.doTasks(*standardProjectTasks("PowerPlantProject"))
-          kim.autoExecNow(EAGER)
+          kim.doTasks(
+              *standardProjectTasks("PowerPlantProject"),
+              "11 Pay<> FROM MC",
+              "PROD[Energy]",
+          )
         }
       }
       kim.count("Baton") shouldBe 0
@@ -290,21 +336,25 @@ internal class HeadStartTest : TfmSandboxTest() {
     }
 
     private fun prepareBoardOfDirectors() {
-      newTestGame("PreludeExpansion, BoardOfDirectors, fakes:cards", playerCount = 2)
-      kim.doTask("PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>")
-      kim.doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<PowerGeneration>>")
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<AlliedBank>>")
-      stan.autoExecNow(EAGER)
+      newTestGame("$BoardOfDirectors, fakes:cards", playerCount = 2)
+      // Earlier Prelude plays and their funding are incidental to the granted-action order.
+      kim.exMachina("$BoardOfDirectors, 4 Director<$BoardOfDirectors>, 21 MC")
     }
 
     private fun playHeadStartThroughBoard() {
-      expectChanges("2 Steel<Kim>, 8 MC<Kim>, -Director<BoardOfDirectors<Kim>>") {
-        kim.doTasks(*cardActionTasks("BoardOfDirectors"))
-        kim.doTask("PreludeCard")
-        kim.doTask("-12 MC")
-        kim.doTask("PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>")
-        kim.autoExecNow(EAGER)
+      expectChanges("2 Steel<Kim>, 8 MC<Kim>, -Director<$BoardOfDirectors<Kim>>") {
+        kim.doTasks(
+            *cardActionTasks("$BoardOfDirectors"),
+            "PreludeCard",
+            "-12 MC",
+            "-Director<$BoardOfDirectors>",
+        )
+        kim.doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
+            "$FakeHeadStart FROM PreludeCard",
+            "2 Steel",
+            "20 MC",
+        )
       }
     }
   }

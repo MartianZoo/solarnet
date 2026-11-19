@@ -17,9 +17,9 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("LocalHeatTrapping"),
+              *playCardTasks("$LocalHeatTrapping"),
               "1 Pay<> FROM MC",
-              "LocalHeatTrapping FROM ProjectCard",
+              "$LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
           )
           // Decline gaining plants by choosing animals when no animal holder exists.
@@ -35,14 +35,14 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks(*playCardTasks("LocalHeatTrapping"))
+        doTasks(*playCardTasks("$LocalHeatTrapping"))
 
         doTasks(
             "1 Pay<> FROM MC",
-            "LocalHeatTrapping FROM ProjectCard",
+            "$LocalHeatTrapping FROM ProjectCard",
+            "-5 Heat",
+            "Ok",
         )
-        doTask("-5 Heat")
-        doTask("Ok")
       }
     }
   }

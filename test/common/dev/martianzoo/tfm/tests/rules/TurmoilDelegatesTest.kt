@@ -1,12 +1,11 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
-import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -79,9 +78,9 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              *playCardTasks("Recruitment"),
+              *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "Recruitment FROM ProjectCard",
+              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -95,10 +94,10 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     newTestGame(
         "TurmoilExpansion",
         firstGlobalEvents =
-            listOf("DemocraticReform", "MinimalImpactPolicy", "ExperimentalLifeforms"),
+            listOf("$DemocraticReform", "$MinimalImpactPolicy", "$ExperimentalLifeforms"),
     )
     kim.exMachina(
-        "-MinimalImpactPolicy, 9 PartyFollower<MarsFirst, Neutral>, " +
+        "-$MinimalImpactPolicy, 9 PartyFollower<MarsFirst, Neutral>, " +
             "PartyLeader<Greens>, PartyFollower<Greens, Neutral>"
     )
     admin.count("Delegate<Neutral>") shouldBe 13
@@ -114,15 +113,15 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     newTestGame(
         "TurmoilExpansion",
         firstGlobalEvents =
-            listOf("DemocraticReform", "MinimalImpactPolicy", "ExperimentalLifeforms"),
+            listOf("$DemocraticReform", "$MinimalImpactPolicy", "$ExperimentalLifeforms"),
     )
     kim.exMachina("11 PartyFollower<MarsFirst, Neutral>")
     admin.count("Delegate<Neutral>") shouldBe 14
 
     admin.runOperation("ChangingTimes").expect("0 Delegate<Neutral>")
-    admin.count("Current<DemocraticReform>") shouldBe 1
-    admin.count("Coming<MinimalImpactPolicy>") shouldBe 1
-    admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
+    admin.count("Current<$DemocraticReform>") shouldBe 1
+    admin.count("Coming<$MinimalImpactPolicy>") shouldBe 1
+    admin.count("Distant<$ExperimentalLifeforms>") shouldBe 1
   }
 
   @Test
@@ -141,106 +140,74 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
 
   internal class Gameplay : TfmGameplayTest() {
     @Test
-    internal fun `Returning followers during an election does not let a tied challenger take the chair`() {
-      // Exercise both incumbents so the return order cannot conceal an unwanted promotion.
-      for (incumbentSeat in 0..1) {
-        newTestGame(
-            "TurmoilExpansion",
-            playerCount = 2,
-            firstGlobalEvents =
-                listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
-        )
-        val incumbent = players[incumbentSeat]
-        val challenger = players[1 - incumbentSeat]
-        if (incumbentSeat == 1) {
-          kim.completeOperation { doTasks(*standardProjectTasks("PowerPlantProject")) }
-          kim.selectTask("PassBaton")
-        }
-        incumbent.completeOperation {
-          doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
-        }
-        incumbent.completeOperation {
-          doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
-        }
-        challenger.completeOperation {
-          doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
-        }
-        challenger.completeOperation {
-          doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
-        }
-        incumbent.completeOperation {
-          doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
-        }
-        incumbent.selectTask("PassBaton")
-        challenger.completeOperation {
-          doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
-        }
-        challenger.selectTask("PassBaton")
-        incumbent.doTask("Pass")
-        challenger.doTask("Pass")
-        players.forEach { it.autoExecNow(EAGER) }
+    internal fun `Returning followers does not replace Kim with a tied challenger`() =
+        electionReturningFollowers(0)
 
-        // Both players have three delegates. Returning followers must not change the winner.
-        val winner = listOf("Kim", "Stan")[incumbentSeat]
-        val loser = listOf("Stan", "Kim")[incumbentSeat]
-        expectChanges(
-            "Chairman<$winner>, 0 Chairman<$loser>, -6 PartyDelegate<Scientists, Anyone>"
-        ) {
-          kim.doTask("VenusStep! BY Admin")
-          players.forEach { it.autoExecNow(EAGER) }
-        }
-        admin.count("Ruling<Scientists>") shouldBe 1
-        incumbent.count("Delegate") shouldBe 2 // Chairman and the refilled lobby.
-        challenger.count("Delegate") shouldBe 1 // Refilled lobby only.
+    @Test
+    internal fun `Returning followers does not replace Stan with a tied challenger`() =
+        electionReturningFollowers(1)
+
+    private fun electionReturningFollowers(incumbentSeat: Int) {
+      newTestGame(
+          "TurmoilExpansion, -QuickStartVariant",
+          playerCount = 2,
+          firstGlobalEvents =
+              listOf("$DemocraticReform", "$MinimalImpactPolicy", "$ExploreFirstDirective"),
+      )
+      val incumbent = players[incumbentSeat]
+      val challenger = players[1 - incumbentSeat]
+      // Both players already placed three delegates; election cleanup is the behavior under test.
+      incumbent.exMachina("-LobbyDelegate, PartyLeader<Scientists>, 2 PartyFollower<Scientists>")
+      challenger.exMachina("-LobbyDelegate, 3 PartyFollower<Scientists>")
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.doTask("20 MC") }
+
+      val winner = listOf("Kim", "Stan")[incumbentSeat]
+      val loser = listOf("Stan", "Kim")[incumbentSeat]
+      expectChanges("Chairman<$winner>, 0 Chairman<$loser>, -6 PartyDelegate<Scientists, Anyone>") {
+        kim.doTask("VenusStep! BY Admin")
       }
+      admin.count("Ruling<Scientists>") shouldBe 1
+      incumbent.count("Delegate") shouldBe 2 // Chairman and the refilled lobby.
+      challenger.count("Delegate") shouldBe 1 // Refilled lobby only.
+      players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+      admin.count("ActionPhase") shouldBe 1
     }
 
     @Test
     internal fun `A neutral event placement can overtake a player leader`() {
       newTestGame(
-          "TurmoilExpansion",
+          "TurmoilExpansion, -QuickStartVariant",
           playerCount = 2,
           firstGlobalEvents =
-              listOf("DemocraticReform", "MinimalImpactPolicy", "ExperimentalLifeforms"),
+              listOf("$DemocraticReform", "$MinimalImpactPolicy", "$ExperimentalLifeforms"),
       )
-      kim.completeOperation {
-        doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
-      }
-      kim.selectTask("PassBaton")
-      stan.completeOperation {
-        doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
-      }
-      stan.completeOperation {
-        doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
-      }
+      kim.exMachina("PartyLeader<Greens>")
+      stan.exMachina("PartyLeader<Scientists>, PartyFollower<Scientists>")
       kim.doTask("Pass")
       stan.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
+      players.forEach { it.doTask("20 MC") }
       kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
 
       // Democratic Reform becoming current ties Kim's delegate in Greens.
+      // Revealing Experimental Lifeforms adds the second neutral delegate and takes the lead.
       (admin.count("PartyFollower<Greens, Neutral>") > 0) shouldBe true
-      admin.count("Distant<ExperimentalLifeforms>") shouldBe 1
+      admin.count("Distant<$ExperimentalLifeforms>") shouldBe 1
       admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
       kim.count("PartyFollower<Greens>") shouldBe 1
+      players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+      admin.count("ActionPhase") shouldBe 1
     }
 
     @Test
     internal fun `Government returns followers makes the leader chairman and refills the lobby`() {
-      newTestGame("TurmoilExpansion", playerCount = 2)
-      kim.completeOperation {
-        doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Scientists> FROM LobbyDelegate")
-      }
-      kim.selectTask("PassBaton")
-      stan.doTask("Pass")
-      kim.completeOperation {
-        doTasks("UseAction<PaidLobbyAction, Action1>", "PartyFollower<Scientists>")
-      }
+      newTestGame("TurmoilExpansion, -QuickStartVariant", playerCount = 2)
+      kim.exMachina("-LobbyDelegate, PartyLeader<Scientists>, PartyFollower<Scientists>")
       kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
+      stan.doTask("Pass")
+      players.forEach { it.doTask("20 MC") }
       kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
 
       kim.count("Chairman") shouldBe 1
       kim.count("PartyDelegate<Scientists>") shouldBe 0
@@ -248,6 +215,8 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
       kim.count("Delegate") shouldBe 2
       admin.count("Ruling<Scientists>") shouldBe 1
       admin.count("Chairman<Neutral>") shouldBe 0
+      players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+      admin.count("ActionPhase") shouldBe 1
     }
   }
 }

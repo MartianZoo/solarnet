@@ -9,29 +9,39 @@ import kotlin.test.Test
 internal class ValleyTrustTest : TfmSandboxTest() {
   @Test
   internal fun `First action draws a Prelude without Prelude rules`() {
-    newTestGame(addOptions = "ValleyTrust, prelude:cards", kimCorporation = ValleyTrust)
+    newTestGame(addOptions = "$ValleyTrust, prelude:cards", kimCorporation = ValleyTrust)
 
     kim.inTurn {
-          doTask("DoRequiredActions")
-          doTask("3 PreludeCard<Kim, Selecting>")
-          doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
-          doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
-          doTask("21 MC")
+          doTasks(
+              "DoRequiredActions",
+              "3 PreludeCard<Selecting>",
+          )
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+              "$Donation FROM PreludeCard<Selecting>!",
+              "21 MC",
+          )
         }
         .expect("-RequiredAction, 0 PreludeCard<Selecting>")
   }
 
   @Test
   internal fun `First action plays a Prelude after the Prelude phase has ended`() {
-    newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
+    newTestGame(addOptions = "PreludeExpansion, $ValleyTrust", kimCorporation = ValleyTrust)
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTask("DoRequiredActions")
-          doTask("3 PreludeCard<Kim, Selecting>")
-          doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
-          doTask("MartianIndustries<Kim> FROM PreludeCard<Kim, Selecting>!")
-          doTasks("PROD[Energy]", "PROD[Steel]", "6 MC")
+          doTasks(
+              "DoRequiredActions",
+              "3 PreludeCard<Selecting>",
+          )
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>",
+              "$MartianIndustries FROM PreludeCard<Selecting>!",
+              "PROD[Energy]",
+              "PROD[Steel]",
+              "6 MC",
+          )
         }
         .expect("-RequiredAction, 0 PreludeCard<Selecting>")
   }
@@ -39,17 +49,21 @@ internal class ValleyTrustTest : TfmSandboxTest() {
   @Test
   internal fun `First action can draw from Prelude 2 without Prelude 1`() {
     newTestGame(
-        addOptions = "PreludeExpansion, prelude2:cards, -prelude:cards, ValleyTrust",
+        addOptions = "PreludeExpansion, prelude2:cards, -prelude:cards, $ValleyTrust",
         kimCorporation = ValleyTrust,
     )
     advanceUntilActionPhase()
 
     kim.inTurn {
-          doTask("DoRequiredActions")
-          doTask("3 PreludeCard<Kim, Selecting>")
-          doTask("PlayCard<Class<PreludeCard>, Class<SpaceLanes>>")
-          doTask("SpaceLanes FROM PreludeCard<Selecting>")
-          doTask("3 Titanium")
+          doTasks(
+              "DoRequiredActions",
+              "3 PreludeCard<Selecting>",
+          )
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$SpaceLanes>>",
+              "$SpaceLanes FROM PreludeCard<Selecting>",
+              "3 Titanium",
+          )
         }
         .expect("-RequiredAction, 0 PreludeCard<Selecting>, $SpaceLanes")
   }
@@ -57,7 +71,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
   @Test
   internal fun `First action can fizzle an unaffordable Industrial Complex`() {
     newTestGame(
-        addOptions = "PreludeExpansion, prelude2:cards, ValleyTrust",
+        addOptions = "PreludeExpansion, prelude2:cards, $ValleyTrust",
         kimCorporation = ValleyTrust,
     )
     advanceUntilActionPhase()
@@ -65,20 +79,28 @@ internal class ValleyTrustTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTask("DoRequiredActions")
-        doTask("3 PreludeCard<Kim, Selecting>")
-        doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
-        doTask("IndustrialComplex FROM PreludeCard<Selecting>")
-        doTask("-18 MC")
+        doTasks(
+            "DoRequiredActions",
+            "3 PreludeCard<Selecting>",
+        )
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
+            "$IndustrialComplex FROM PreludeCard<Selecting>",
+            "-18 MC",
+        )
       }
     }
     kim.inTurn {
-          doTask("DoRequiredActions")
-          doTask("3 PreludeCard<Kim, Selecting>")
-          doTask("-PreludeCard<Selecting>")
+          doTasks(
+              "DoRequiredActions",
+              "3 PreludeCard<Selecting>",
+              "-PreludeCard<Selecting>",
+          )
           // Hand the fizzle audit to Admin before receiving compensation.
-          doTask("Audit!")
-          doTask("15 MC")
+          doTasks(
+              "Audit!",
+              "15 MC",
+          )
         }
         .expect("-RequiredAction, 0 $IndustrialComplex, 0 PreludeCard<Selecting>")
   }

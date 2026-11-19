@@ -15,9 +15,12 @@ internal class HomeostasisBureauTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks(*standardProjectTasks("AsteroidProject"), "14 Pay<> FROM MC")
-          doTask("TemperatureStep")
-          doTask("TerraformRating")
+          doTasks(
+              *standardProjectTasks("AsteroidProject"),
+              "14 Pay<> FROM MC",
+              "TemperatureStep",
+              "TerraformRating",
+          )
         }
         .expect("0 MC<Kim>")
   }

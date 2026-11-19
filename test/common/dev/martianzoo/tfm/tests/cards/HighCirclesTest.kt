@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -10,108 +9,98 @@ import kotlin.test.Test
 internal class HighCirclesTest : TfmSandboxTest() {
   @Test
   internal fun `Its delegates enable a Scientists project through Excentric Sponsor during Preludes`() {
-    newTestGame("PreludeExpansion, HighCircles, TurmoilExpansion", playerCount = 2)
+    newTestGame("PreludeExpansion, $HighCircles, TurmoilExpansion", playerCount = 2)
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<HighCircles>>",
-          "HighCircles FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$HighCircles>>",
+          "$HighCircles FROM PreludeCard",
           "TerraformRating",
+          "SearchForCard<ReferenceFilter<Class<Ruling>>>!",
+          "PartyLeader<Scientists>",
+          "PartyFollower<Scientists>",
       )
-      doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
     }
 
     kim.inTurn {
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>",
-              "ExcentricSponsor FROM PreludeCard",
-              "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
+              "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
+              "$ExcentricSponsor FROM PreludeCard",
+              "PlayCard<Class<ProjectCard>, Class<$SupportedResearch>>",
           )
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-25* Owed")
           doTask("Ok") // The discount covers the full cost.
-          doTask("SupportedResearch FROM ProjectCard")
-          doTask("2 ProjectCard<Kim, Hand>")
+          doTasks(
+              "$SupportedResearch FROM ProjectCard",
+              "2 ProjectCard<Hand>",
+          )
         }
-        .expect("ProjectCard, $SupportedResearch")
+        .expect("ProjectCard")
   }
 
   @Test
   internal fun `Its delegates enable a Scientists project through Ecology Experts during Preludes`() {
     newTestGame(
-        "PreludeExpansion, HighCircles, TurmoilExpansion, EcologyExperts, Unsafe",
+        "PreludeExpansion, $HighCircles, TurmoilExpansion, $EcologyExperts, Unsafe",
         playerCount = 2,
     )
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<HighCircles>>",
-          "HighCircles FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$HighCircles>>",
+          "$HighCircles FROM PreludeCard",
           "TerraformRating",
+          "SearchForCard<ReferenceFilter<Class<Ruling>>>!",
+          "PartyLeader<Scientists>",
+          "PartyFollower<Scientists>",
       )
-      doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
     }
 
     kim.inTurn {
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-              "EcologyExperts FROM PreludeCard",
+              "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+              "$EcologyExperts FROM PreludeCard",
               "PROD[Plant]",
-              "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
+              "PlayCard<Class<ProjectCard>, Class<$SupportedResearch>>",
           )
           // Execute the requirement waiver before playing the project.
-          doTask("-Required* / Required")
-          doTasks("3 Pay<> FROM MC", "SupportedResearch FROM ProjectCard")
-          doTask("2 ProjectCard<Kim, Hand>")
+          doTasks(
+              "-Required* / Required",
+              "3 Pay<> FROM MC",
+              "$SupportedResearch FROM ProjectCard",
+              "2 ProjectCard<Hand>",
+          )
         }
-        .expect("ProjectCard, $SupportedResearch")
+        .expect("ProjectCard")
   }
 
   internal class Gameplay : TfmGameplayTest() {
     @Test
     internal fun `Its influence adds to the chairmans Global Event payout`() {
       newTestGame(
-          "PreludeExpansion, HighCircles, TurmoilExpansion",
+          "$HighCircles, TurmoilExpansion, -QuickStartVariant, -ColoniesExpansion",
           playerCount = 2,
           firstGlobalEvents =
-              listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+              listOf("$FreeAcademiaTreaty", "$ExploreFirstDirective", "$MoralMovement"),
       )
-      kim.completeOperation {
-        doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
-        doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
-        autoExecNow(EAGER)
-      }
-      kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
-      stan.autoExecNow(EAGER)
-
-      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
-      stan.autoExecNow(EAGER)
-
+      // The card's play and the earlier election are incidental to its continuing influence.
+      kim.exMachina("$HighCircles, Chairman<Kim> FROM Chairman<Neutral>")
+      admin.exMachina(
+          "$DemocraticReform, Current<$DemocraticReform>, " +
+              "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
+      )
       kim.doTask("Pass")
       stan.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
+      players.forEach { it.doTask("20 MC") }
       kim.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      kim.count("Chairman") shouldBe 1
-      admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-      admin.count("Distant<ExploreFirstDirective>") shouldBe 1
-      (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
-      kim.doTask("-4 ProjectCard<Selecting>")
-      stan.doTask("-4 ProjectCard<Selecting>")
-      stan.doTask("Pass")
-      kim.doTask("Pass")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      expectChanges("2 Plant<Kim>, 2 Steel<Kim>") {
-        stan.doTask("VenusStep! BY Admin")
-        players.forEach { it.autoExecNow(EAGER) }
-
-        // Aquifer Released by Public Council pays for both the card and chairman influence.
-        stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
-        players.forEach { it.autoExecNow(EAGER) }
-      }
+      kim.count("Influence") shouldBe 2
+      stan.count("Influence") shouldBe 0
+      kim.doTasks(
+          "OceanTile<Tharsis_1_5> BY Admin",
+          "2 Plant",
+          "2 Steel",
+      )
+      stan.doTasks("0 Plant", "0 Steel")
+      players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     }
   }
 }

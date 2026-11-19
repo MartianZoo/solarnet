@@ -7,11 +7,11 @@ import kotlin.test.Test
 internal class RiseToPowerTest : TfmSandboxTest() {
   @Test
   internal fun `Delegates can lead three different parties and trigger Corridors of Power for each`() {
-    newTestGame("PreludeExpansion, RiseToPower, CorridorsOfPower, TurmoilExpansion")
+    newTestGame("PreludeExpansion, $RiseToPower, $CorridorsOfPower, TurmoilExpansion")
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<CorridorsOfPower>>",
-          "CorridorsOfPower FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$CorridorsOfPower>>",
+          "$CorridorsOfPower FROM PreludeCard",
           "TerraformRating",
           "4 MC",
       )
@@ -19,17 +19,17 @@ internal class RiseToPowerTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<RiseToPower>>",
-              "RiseToPower FROM PreludeCard",
+              "PlayCard<Class<PreludeCard>, Class<$RiseToPower>>",
+              "$RiseToPower FROM PreludeCard",
               "PROD[3 MC]",
               "PartyLeader<Scientists>",
+              "ProjectCard<Hand>",
+              "PartyLeader<Unity>",
+              "ProjectCard<Hand>",
+              "PartyLeader<Greens>",
+              "ProjectCard<Hand>",
           )
-          doTask("ProjectCard<Kim, Hand>")
-          doTask("PartyLeader<Unity>")
-          doTask("ProjectCard<Kim, Hand>")
-          doTask("PartyLeader<Greens>")
-          doTask("ProjectCard<Kim, Hand>")
         }
-        .expect("3 ProjectCard, PartyLeader<Scientists>, PartyLeader<Unity>, PartyLeader<Greens>")
+        .expect("3 ProjectCard")
   }
 }

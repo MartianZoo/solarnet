@@ -15,14 +15,18 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<SpliceTacticalGenomics>>",
-          "SpliceTacticalGenomics FROM CorporationCard",
+          "PlayCard<Class<CorporationCard>, Class<$SpliceTacticalGenomics>>",
+          "$SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
-      doTask("2 MC")
-      doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "2 MC",
+          "2 MC",
+          "15 Pay<> FROM MC",
+          "5 ProjectCard<Hand FROM Selecting>",
+      )
     }
   }
 
@@ -31,14 +35,18 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<SpliceTacticalGenomics>>",
-          "SpliceTacticalGenomics FROM CorporationCard",
+          "PlayCard<Class<CorporationCard>, Class<$SpliceTacticalGenomics>>",
+          "$SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
-      doTask("2 MC")
-      doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "2 MC",
+          "2 MC",
+          "15 Pay<> FROM MC",
+          "5 ProjectCard<Hand FROM Selecting>",
+      )
     }
     advanceUntilActionPhase()
     stan.exMachina("3 OxygenStep")
@@ -48,13 +56,13 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              *playCardTasks("Decomposers"),
+              *playCardTasks("$Decomposers"),
               "5 Pay<> FROM MC",
-              "Decomposers FROM ProjectCard",
+              "$Decomposers FROM ProjectCard",
           )
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
-          selectTask("Microbe<Decomposers>*")
-          doTask("Microbe<Decomposers>!")
+          selectTask("Microbe<$Decomposers>*")
+          doTask("Microbe<$Decomposers>!")
           // The active player chooses when to hand this task to its owner.
           giveTask(kim, "2 MC<Kim>")
           doTask("2 MC")
@@ -67,14 +75,18 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<SpliceTacticalGenomics>>",
-          "SpliceTacticalGenomics FROM CorporationCard",
+          "PlayCard<Class<CorporationCard>, Class<$SpliceTacticalGenomics>>",
+          "$SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
-      doTask("2 MC")
-      doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "2 MC",
+          "2 MC",
+          "15 Pay<> FROM MC",
+          "5 ProjectCard<Hand FROM Selecting>",
+      )
     }
     advanceUntilActionPhase()
     stan.exMachina("3 OxygenStep")
@@ -84,16 +96,16 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              *playCardTasks("Decomposers"),
+              *playCardTasks("$Decomposers"),
               "5 Pay<> FROM MC",
-              "Decomposers FROM ProjectCard",
+              "$Decomposers FROM ProjectCard",
           )
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
-          selectTask("Microbe<Decomposers>*")
-          doTask("Microbe<Decomposers>!")
+          selectTask("Microbe<$Decomposers>*")
+          doTask("Microbe<$Decomposers>!")
           // The active player chooses when to hand this task to its owner.
           giveTask(kim, "2 MC<Kim>")
-          doTask("Microbe<Decomposers>!")
+          doTask("Microbe<$Decomposers>!")
         }
         .expect("-5 MC<Stan>, 2 Microbe<$Decomposers<Stan>>")
   }
@@ -103,14 +115,18 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<SpliceTacticalGenomics>>",
-          "SpliceTacticalGenomics FROM CorporationCard",
+          "PlayCard<Class<CorporationCard>, Class<$SpliceTacticalGenomics>>",
+          "$SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
-      doTask("2 MC")
-      doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "2 MC",
+          "2 MC",
+          "15 Pay<> FROM MC",
+          "5 ProjectCard<Hand FROM Selecting>",
+      )
     }
     advanceUntilActionPhase()
     stan.exMachina("3 OxygenStep, $RegolithEaters")
@@ -120,17 +136,17 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              *playCardTasks("Decomposers"),
+              *playCardTasks("$Decomposers"),
               "5 Pay<> FROM MC",
-              "Decomposers FROM ProjectCard",
+              "$Decomposers FROM ProjectCard",
           )
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
-          selectTask("Microbe<Decomposers>*")
-          doTask("Microbe<Decomposers>!")
+          selectTask("Microbe<$Decomposers>*")
+          doTask("Microbe<$Decomposers>!")
           // The active player chooses when to hand this task to its owner.
           giveTask(kim, "2 MC<Kim>")
           shouldThrow<TaskException> { doTask("Microbe<$RegolithEaters>!") }
-          doTask("Microbe<Decomposers>")
+          doTask("Microbe<$Decomposers>")
         }
         .expect("2 Microbe<$Decomposers<Stan>>, 0 Microbe<$RegolithEaters<Stan>>")
   }
@@ -140,14 +156,18 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<CorporationCard>, Class<SpliceTacticalGenomics>>",
-          "SpliceTacticalGenomics FROM CorporationCard",
+          "PlayCard<Class<CorporationCard>, Class<$SpliceTacticalGenomics>>",
+          "$SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
-      doTask("2 MC")
-      doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks(
+          "2 MC",
+          "2 MC",
+          "15 Pay<> FROM MC",
+          "5 ProjectCard<Hand FROM Selecting>",
+      )
     }
     advanceUntilActionPhase()
     stan.setToExMachina(12, "MC")
@@ -155,9 +175,10 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks(*playCardTasks("IndustrialMicrobes"), "12 Pay<> FROM MC")
           doTasks(
-              "IndustrialMicrobes FROM ProjectCard",
+              *playCardTasks("$IndustrialMicrobes"),
+              "12 Pay<> FROM MC",
+              "$IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
               "PROD[Steel]",
           )

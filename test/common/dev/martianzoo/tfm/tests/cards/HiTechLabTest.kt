@@ -4,7 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.HiTechLab
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -18,7 +18,7 @@ internal class HiTechLabTest : TfmSandboxTest() {
 
     shouldThrow<NotFullySpecifiedException> {
       kim.inTurn {
-        doTasks(*cardActionTasks("HiTechLab"))
+        doTasks(*cardActionTasks("$HiTechLab"))
       }
     }
   }
@@ -29,12 +29,13 @@ internal class HiTechLabTest : TfmSandboxTest() {
     kim.setToExMachina(3, "Energy")
 
     kim.inTurn {
-          doTasks(*cardActionTasks("HiTechLab"))
-          doTask("-3 Energy")
-          doTask("3 ProjectCard<Kim, Selecting>")
-          doTask("ProjectCard<Hand FROM Selecting>")
-        }
-        .expect("-3 Energy")
+      doTasks(
+          *cardActionTasks("$HiTechLab"),
+          "-3 Energy",
+          "3 ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+    }
     kim.assertCounts(0 to "ProjectCard<Selecting>")
   }
 }

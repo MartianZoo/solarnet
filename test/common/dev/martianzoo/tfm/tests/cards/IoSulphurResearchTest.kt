@@ -15,9 +15,9 @@ internal class IoSulphurResearchTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("IoSulphurResearch"),
+              *playCardTasks("$IoSulphurResearch"),
               "17 Pay<> FROM MC",
-              "IoSulphurResearch FROM ProjectCard",
+              "$IoSulphurResearch FROM ProjectCard",
               "ProjectCard",
           )
         }

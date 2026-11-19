@@ -111,9 +111,11 @@ internal class DistantPressureMassTest : FullGameTest() {
           "31 MC",
           "PROD[Energy]",
           "PROD[2 MC]",
+          "SearchForCard<NoTagsFilter>",
+          "4 MC",
+          "12 Pay<> FROM MC",
+          "4 ProjectCard<Hand FROM Selecting>",
       )
-      doTask("SearchForCard<NoTagsFilter>")
-      doTasks("4 MC", "12 Pay<> FROM MC", "4 ProjectCard<Hand FROM Selecting>")
     }
 
     with(been) {

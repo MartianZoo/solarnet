@@ -98,26 +98,26 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "10 ProjectCard<Selecting>",
         "4 PreludeCard",
         "-2 PreludeCard",
+        "-5 ProjectCard<Selecting>",
     )
-    p1.doTask("-5 ProjectCard<Selecting>")
     // Test inference: kept projects identified by subsequent plays without matching draws.
     p1.draw(MarsNomads, BuildingIndustries, GiantIceAsteroid, NitrophilicMoss, OptimalAerobraking)
     p1.doTasks(
-        "PlayCard<Class<CorporationCard>, Class<LakefrontResorts>>",
-        "LakefrontResorts FROM CorporationCard",
+        "PlayCard<Class<CorporationCard>, Class<$LakefrontResorts>>",
+        "$LakefrontResorts FROM CorporationCard",
         "54 MC",
         "15 Pay<> FROM MC",
         "5 ProjectCard<Hand FROM Selecting>",
     )
     with(p1) {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
-          "IndustrialComplex FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
+          "$IndustrialComplex FROM PreludeCard",
           "-18 MC",
       )
       // Expand the production box into its separate resource increases.
-      doTask("EACH")
       doTasks(
+          "EACH",
           "PROD[Titanium]",
           "PROD[Steel]",
           "PROD[Plant]",
@@ -126,8 +126,8 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "PROD[Energy]",
       )
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<PolarIndustries>>",
-          "PolarIndustries FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$PolarIndustries>>",
+          "$PolarIndustries FROM PreludeCard",
           "PROD[2 Heat]",
           "OceanTile<Vastitas_5_6>",
           "TerraformRating",
@@ -168,7 +168,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       assertProduction(m = 45, s = 3, t = 4, p = 13, e = 5, h = 21)
       // The source has 15 cities. FakeNewHolland deliberately contributes no CityTile.
       assertCounts(1 to "FakeNewHolland")
-      assertCounts(5 to "Animal<SmallAnimals>", 5 to "CardResource")
+      assertCounts(5 to "Animal<$SmallAnimals>", 5 to "CardResource")
       // The fake's four points stand for the missing city's four neighboring greeneries.
       assertCounts(63 to "TerraformRating", 159 to "VictoryPoint", 1 to "Victory")
       assertCounts(
@@ -219,22 +219,22 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     // marker.
     turn {
       doTasks(
-          *playCardTasks("MarsNomads"),
+          *playCardTasks("$MarsNomads"),
           "13 Pay<> FROM MC",
-          "MarsNomads FROM ProjectCard",
+          "$MarsNomads FROM ProjectCard",
           "NomadsMarker<Vastitas_5_4>",
       )
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
           "TemperatureStep",
           "-1 MC",
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("BuildingIndustries"),
+          *playCardTasks("$BuildingIndustries"),
           "6 Pay<> FROM MC",
-          "BuildingIndustries FROM ProjectCard",
+          "$BuildingIndustries FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 Steel]",
       )
@@ -247,8 +247,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "3 Steel",
         "Plant",
         "3 Heat",
+        "OceanTile<Vastitas_6_5>! BY Admin",
+        "PROD[MC]",
     )
-    doTasks("OceanTile<Vastitas_6_5>! BY Admin", "PROD[MC]")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration.
     assertSidebar(gen = 2, temp = -28, oxygen = 0, oceans = 2, venus = 0)
@@ -263,7 +264,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     turn {
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
           "2 Plant",
           "3 MC",
@@ -272,8 +273,8 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Greens>")
       doTasks(
           // The required Pass below completes this card action.
-          *playCardTasks("RedAppeasement"),
-          "RedAppeasement FROM ProjectCard",
+          *playCardTasks("$RedAppeasement"),
+          "$RedAppeasement FROM ProjectCard",
           "PROD[2 MC]",
       )
       doTask("Pass")
@@ -301,26 +302,26 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     turn {
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
           "TemperatureStep",
           "2 MC",
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("MiningExpedition"),
+          *playCardTasks("$MiningExpedition"),
           "12 Pay<> FROM MC",
-          "MiningExpedition FROM ProjectCard",
+          "$MiningExpedition FROM ProjectCard",
           "OxygenStep",
           "2 Steel",
           "TerraformRating",
           "-2 Plant<SoloOpponent>",
       )
       doTasks(
-          *playCardTasks("MoholeArea"),
+          *playCardTasks("$MoholeArea"),
           "8 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "MoholeArea FROM ProjectCard",
+          "$MoholeArea FROM ProjectCard",
           "PROD[4 Heat]",
           "MoholeArea_SpecialTile<Vastitas_3_3>",
           "2 Plant",
@@ -337,16 +338,16 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       )
       doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
-          *playCardTasks("NitrophilicMoss"),
+          *playCardTasks("$NitrophilicMoss"),
           "8 Pay<> FROM MC",
-          "NitrophilicMoss FROM ProjectCard",
+          "$NitrophilicMoss FROM ProjectCard",
           "PROD[2 Plant]",
           "-2 Plant",
       )
       doTasks(
-          *playCardTasks("MicroMills"),
+          *playCardTasks("$MicroMills"),
           "3 Pay<> FROM MC",
-          "MicroMills FROM ProjectCard",
+          "$MicroMills FROM ProjectCard",
           "PROD[Heat]",
       )
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
@@ -358,8 +359,10 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "3 Steel",
         "3 Plant",
         "8 Heat",
+        "OceanTile<Vastitas_5_3>! BY Admin",
+        "PROD[MC]",
+        "-0 Plant",
     )
-    doTasks("OceanTile<Vastitas_5_3>! BY Admin", "PROD[MC]", "-0 Plant")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration.
     assertSidebar(gen = 4, temp = -26, oxygen = 2, oceans = 4, venus = 0)
@@ -374,7 +377,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     turn {
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
           "2 Plant",
           "9 MC",
@@ -387,16 +390,16 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "PROD[Heat]",
       )
       doTasks(
-          *playCardTasks("OptimalAerobraking"),
+          *playCardTasks("$OptimalAerobraking"),
           "Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "OptimalAerobraking FROM ProjectCard",
+          "$OptimalAerobraking FROM ProjectCard",
       )
       doTasks(
-          *playCardTasks("GiantIceAsteroid"),
+          *playCardTasks("$GiantIceAsteroid"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "20 Pay<> FROM MC",
-          "GiantIceAsteroid FROM ProjectCard",
+          "$GiantIceAsteroid FROM ProjectCard",
           "2 TemperatureStep",
           "3 MC",
           "3 Heat",
@@ -424,9 +427,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Reds>")
       doTasks(
-          *playCardTasks("CloudSeeding"),
+          *playCardTasks("$CloudSeeding"),
           "11 Pay<> FROM MC",
-          "CloudSeeding FROM ProjectCard",
+          "$CloudSeeding FROM ProjectCard",
           "PROD[-MC]",
           "PROD[2 Plant]",
           "-Production<SoloOpponent, Class<Heat>>",
@@ -461,7 +464,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     turn {
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
           "TemperatureStep",
           "5 MC",
@@ -469,14 +472,14 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "PROD[Heat]",
           "-3 MC",
       )
-      doTasks(*playCardTasks("LocalShading"), "4 Pay<> FROM MC", "LocalShading FROM ProjectCard")
-      doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
+      doTasks(*playCardTasks("$LocalShading"), "4 Pay<> FROM MC", "$LocalShading FROM ProjectCard")
+      doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Greens>")
       doTasks(
-          *playCardTasks("Algae"),
+          *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
-          "Algae FROM ProjectCard",
+          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
       )
@@ -488,8 +491,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "3 Steel",
         "7 Plant",
         "11 Heat",
+        "VenusStep! BY Admin",
+        "-0* MC",
     )
-    doTasks("VenusStep! BY Admin", "-0* MC")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration.
     assertSidebar(gen = 6, temp = -20, oxygen = 2, oceans = 7, venus = 2)
@@ -505,10 +509,10 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     draw(SpaceHotels, SpaceMirrors, ExtremeColdFungus)
     turn {
       doTasks(
-          *playCardTasks("LargeConvoy"),
+          *playCardTasks("$LargeConvoy"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "30 Pay<> FROM MC",
-          "LargeConvoy FROM ProjectCard",
+          "$LargeConvoy FROM ProjectCard",
           "2 ProjectCard",
           "3 MC",
           "3 Heat",
@@ -523,44 +527,44 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Scientists>")
       draw(MarsUniversity, CometForVenus)
       doTasks(
-          *playCardTasks("SupportedResearch"),
+          *playCardTasks("$SupportedResearch"),
           "3 Pay<> FROM MC",
-          "SupportedResearch FROM ProjectCard",
+          "$SupportedResearch FROM ProjectCard",
           "2 ProjectCard",
       )
       draw(ElectroCatapult)
       discard(SpaceMirrors)
       doTasks(
-          *playCardTasks("MarsUniversity"),
+          *playCardTasks("$MarsUniversity"),
           "4 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "MarsUniversity FROM ProjectCard",
+          "$MarsUniversity FROM ProjectCard",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
           "2 Plant",
           "9 MC",
       )
       doTasks(
-          *playCardTasks("GiantSpaceMirror"),
+          *playCardTasks("$GiantSpaceMirror"),
           "17 Pay<> FROM MC",
-          "GiantSpaceMirror FROM ProjectCard",
+          "$GiantSpaceMirror FROM ProjectCard",
           "PROD[3 Energy]",
       )
       doTasks(
-          *playCardTasks("ElectroCatapult"),
+          *playCardTasks("$ElectroCatapult"),
           "5 Pay<Class<Steel>> FROM Steel",
           "7 Pay<> FROM MC",
-          "ElectroCatapult FROM ProjectCard",
+          "$ElectroCatapult FROM ProjectCard",
           "PROD[-Energy]",
       )
       // Test inference: plant cost; all seven actions are constrained by subsequent steel
       // payments.
-      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
-      doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
+      doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
@@ -580,11 +584,11 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("ExtremeColdFungus"),
+          *playCardTasks("$ExtremeColdFungus"),
           "13 Pay<> FROM MC",
-          "ExtremeColdFungus FROM ProjectCard",
+          "$ExtremeColdFungus FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+      doTasks(*cardActionTasks("$ExtremeColdFungus"), "Plant")
     }
     doTask("Pass")
     doTasks(
@@ -594,8 +598,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "7 Plant",
         "11 Heat",
         "2 Energy",
+        "VenusStep! BY Admin",
+        "4 MC",
     )
-    doTasks("VenusStep! BY Admin", "4 MC")
     p1.doTask("0 MC") // Homeworld Support: no Earth tags; the four-MC influence gain is above.
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration.
@@ -610,9 +615,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "3 ProjectCard<Hand FROM Selecting>",
     )
     turn {
-      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>",
           "TemperatureStep",
           "5 MC",
@@ -631,10 +636,10 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("MiningRights"),
+          *playCardTasks("$MiningRights"),
           "3 Pay<Class<Steel>> FROM Steel",
           "3 Pay<> FROM MC",
-          "MiningRights FROM ProjectCard",
+          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Vastitas_6_9>",
           "PROD[Titanium]",
           "2 Titanium",
@@ -654,19 +659,19 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       draw(Casinos, TitaniumMine, EnvoysFromVenus, MartianRails)
       discard(Psychrophiles, EnvoysFromVenus)
       doTasks(
-          *playCardTasks("Research"),
+          *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
-          "Research FROM ProjectCard",
+          "$Research FROM ProjectCard",
           "2 ProjectCard",
           "-ProjectCard",
+          "ProjectCard",
+          "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
-      doTask("-ProjectCard")
-      doTask("ProjectCard")
       doTasks(
-          *playCardTasks("LavaTubeSettlement"),
+          *playCardTasks("$LavaTubeSettlement"),
           "15 Pay<> FROM MC",
-          "LavaTubeSettlement FROM ProjectCard",
+          "$LavaTubeSettlement FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
           "NormalCityTile<Vastitas_7_3>",
@@ -685,40 +690,40 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       )
       doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
-          *playCardTasks("AsteroidRights"),
+          *playCardTasks("$AsteroidRights"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "Pay<> FROM MC",
-          "AsteroidRights FROM ProjectCard",
-          "2 Asteroid<AsteroidRights>",
+          "$AsteroidRights FROM ProjectCard",
+          "2 Asteroid<$AsteroidRights>",
       )
       doTasks(
-          *cardActionTasks("AsteroidRights", "Action2"),
-          "-Asteroid<AsteroidRights>",
+          *cardActionTasks("$AsteroidRights", "Action2"),
+          "-Asteroid<$AsteroidRights>",
           "2 Titanium",
       )
-      doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
-      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+      doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
+      doTasks(*cardActionTasks("$ExtremeColdFungus"), "Plant")
       doTasks(
-          *playCardTasks("Casinos"),
+          *playCardTasks("$Casinos"),
           "5 Pay<> FROM MC",
-          "Casinos FROM ProjectCard",
+          "$Casinos FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
       )
       doTasks(
-          *playCardTasks("NuclearPower"),
+          *playCardTasks("$NuclearPower"),
           "10 Pay<> FROM MC",
-          "NuclearPower FROM ProjectCard",
+          "$NuclearPower FROM ProjectCard",
           "PROD[-2 MC]",
           "PROD[3 Energy]",
       )
       doTasks(
-          *playCardTasks("Capital"),
+          *playCardTasks("$Capital"),
           "26 Pay<> FROM MC",
-          "Capital FROM ProjectCard",
+          "$Capital FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[5 MC]",
-          "CapitalTile<Vastitas_7_7, Capital>",
+          "CapitalTile<Vastitas_7_7, $Capital>",
           "2 Plant",
           "9 MC",
       )
@@ -745,16 +750,16 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       )
       doTask("0 MC") // No adjacent ocean at this greenery.
       doTasks(
-          *playCardTasks("MartianRails"),
+          *playCardTasks("$MartianRails"),
           "Pay<Class<Steel>> FROM Steel",
           "11 Pay<> FROM MC",
-          "MartianRails FROM ProjectCard",
+          "$MartianRails FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "4 MC")
+      doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "4 MC")
       doTasks(
-          *playCardTasks("TitaniumMine"),
+          *playCardTasks("$TitaniumMine"),
           "7 Pay<> FROM MC",
-          "TitaniumMine FROM ProjectCard",
+          "$TitaniumMine FROM ProjectCard",
           "PROD[Titanium]",
       )
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<MarsFirst> FROM LobbyDelegate")
@@ -768,8 +773,10 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "11 Heat",
         "Heat FROM Energy",
         "Energy",
+        "VenusStep! BY Admin",
+        "-12 Heat",
+        "-4 MC",
     )
-    doTasks("VenusStep! BY Admin", "-12 Heat", "-4 MC")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration.
     assertSidebar(gen = 8, temp = -8, oxygen = 6, oceans = 8, venus = 6)
@@ -786,7 +793,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     turn {
       doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>",
           "2 Plant",
           "9 MC",
@@ -796,31 +803,31 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       // Source explicitly preserves steel for later payments.
 
       doTasks(
-          *playCardTasks("CarbonNanosystems"),
+          *playCardTasks("$CarbonNanosystems"),
           "Ok", // no steel paid
           "14 Pay<> FROM MC",
-          "CarbonNanosystems FROM ProjectCard",
-          "Graphene<CarbonNanosystems>",
+          "$CarbonNanosystems FROM ProjectCard",
+          "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       draw(SmallAnimals)
       discard(Potatoes)
       doTasks(
-          *playCardTasks("AdvancedAlloys"),
+          *playCardTasks("$AdvancedAlloys"),
           "9 Pay<> FROM MC",
-          "AdvancedAlloys FROM ProjectCard",
-          "Graphene<CarbonNanosystems>",
+          "$AdvancedAlloys FROM ProjectCard",
+          "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       draw(BigAsteroid)
       doTasks(
-          *playCardTasks("CometForVenus"),
+          *playCardTasks("$CometForVenus"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no graphene paid
           "3 Pay<> FROM MC",
-          "CometForVenus FROM ProjectCard",
+          "$CometForVenus FROM ProjectCard",
           "VenusStep",
           "3 MC",
           "3 Heat",
@@ -829,46 +836,46 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "Ok", // decline Comet for Venus's MC attack
       )
       doTasks(
-          *playCardTasks("ImportOfAdvancedGhg"),
+          *playCardTasks("$ImportOfAdvancedGhg"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no graphene paid
           "Pay<> FROM MC",
-          "ImportOfAdvancedGhg FROM ProjectCard",
+          "$ImportOfAdvancedGhg FROM ProjectCard",
           "PROD[2 Heat]",
           "3 MC",
           "3 Heat",
       )
       doTasks(
-          *playCardTasks("GhgFactories"),
+          *playCardTasks("$GhgFactories"),
           "3 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "GhgFactories FROM ProjectCard",
+          "$GhgFactories FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 Heat]",
       )
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Unity> FROM LobbyDelegate")
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Unity>")
-      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
       doTasks(
-          *cardActionTasks("AsteroidRights", "Action2"),
-          "-Asteroid<AsteroidRights>",
+          *cardActionTasks("$AsteroidRights", "Action2"),
+          "-Asteroid<$AsteroidRights>",
           "2 Titanium",
       )
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
-      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "4 MC")
-      doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
-      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+      doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "4 MC")
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTasks(*cardActionTasks("$ExtremeColdFungus"), "Plant")
       doTasks(
-          *playCardTasks("SmallAnimals"),
+          *playCardTasks("$SmallAnimals"),
           "6 Pay<> FROM MC",
-          "SmallAnimals FROM ProjectCard",
+          "$SmallAnimals FROM ProjectCard",
           "-Production<SoloOpponent, Class<Plant>>",
       )
-      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
       doTasks(
-          *playCardTasks("AsteroidMiningConsortium"),
+          *playCardTasks("$AsteroidMiningConsortium"),
           "13 Pay<> FROM MC",
-          "AsteroidMiningConsortium FROM ProjectCard",
+          "$AsteroidMiningConsortium FROM ProjectCard",
           "PROD[Titanium]",
           "-Production<SoloOpponent, Class<Titanium>>",
       )
@@ -881,8 +888,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "7 Plant",
         "17 Heat",
         "Energy",
+        "VenusStep! BY Admin",
+        "10 MC",
     )
-    doTasks("VenusStep! BY Admin", "10 MC")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration.
     assertSidebar(gen = 9, temp = -8, oxygen = 6, oceans = 8, venus = 10)
@@ -897,29 +905,25 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     turn {
       doTasks(
-          *playCardTasks("Shuttles"),
+          *playCardTasks("$Shuttles"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no graphene paid
           "0 Pay<> FROM MC",
-          "Shuttles FROM ProjectCard",
+          "$Shuttles FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
       )
       doTasks(
-          *playCardTasks("BigAsteroid"),
+          *playCardTasks("$BigAsteroid"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no graphene paid
           "0 Pay<> FROM MC",
-          "BigAsteroid FROM ProjectCard",
+          "$BigAsteroid FROM ProjectCard",
           "2 TemperatureStep",
-      )
-      doTasks(
           "4 Titanium",
           "3 MC",
           "3 Heat",
           "2 TerraformRating",
-      )
-      doTasks(
           "-4 Plant<SoloOpponent>",
       )
       doTasks(
@@ -946,19 +950,19 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_5_4>",
           "Plant",
           "6 MC",
       )
       doTasks(
-          *playCardTasks("PowerSupplyConsortium"),
+          *playCardTasks("$PowerSupplyConsortium"),
           "5 Pay<> FROM MC",
-          "PowerSupplyConsortium FROM ProjectCard",
+          "$PowerSupplyConsortium FROM ProjectCard",
           "-Production<SoloOpponent, Class<Energy>>",
           "PROD[Energy]",
       )
-      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Greens> FROM LobbyDelegate")
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Greens>")
       doTasks(
@@ -988,24 +992,24 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "3 MC",
       )
       doTasks(
-          *playCardTasks("StanfordTorus"),
+          *playCardTasks("$StanfordTorus"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no graphene paid
           "0 Pay<> FROM MC",
-          "StanfordTorus FROM ProjectCard",
+          "$StanfordTorus FROM ProjectCard",
           "NormalCityTile<StanfordTorus_RemoteArea>",
       )
-      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "7 MC")
-      doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
-      doTasks(*cardActionTasks("AsteroidRights"), "Pay<> FROM MC", "Asteroid<AsteroidRights>")
-      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
-      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+      doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "7 MC")
+      doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
+      doTasks(*cardActionTasks("$AsteroidRights"), "Pay<> FROM MC", "Asteroid<$AsteroidRights>")
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTasks(*cardActionTasks("$ExtremeColdFungus"), "Plant")
       // The source has seven Mars cities before New Holland, satisfying its printed four-city
       // requirement.
 
       doTasks(
           *playCardTasks("FakeNewHolland"),
-          "2 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "4 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
           "FakeNewHolland FROM ProjectCard",
@@ -1023,8 +1027,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "7 Plant",
         "17 Heat",
         "Energy",
+        "VenusStep! BY Admin",
+        "16 MC",
     )
-    doTasks("VenusStep! BY Admin", "16 MC")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration.
     assertSidebar(gen = 10, temp = 2, oxygen = 6, oceans = 9, venus = 12)
@@ -1039,7 +1044,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     turn {
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_6_3> FROM NomadsMarker<Vastitas_6_4>",
           "3 MC",
       )
@@ -1079,20 +1084,20 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       draw(AcquiredCompany)
       discard(IceCapMelting)
       doTasks(
-          *playCardTasks("SpecialDesign"),
+          *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "SpecialDesign FROM ProjectCard",
+          "$SpecialDesign FROM ProjectCard",
           "SpecialDesign_NextCardEffect",
-          "Graphene<CarbonNanosystems>",
+          "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       doTasks(
-          *playCardTasks("DomedCrater"),
-          "PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          *playCardTasks("$DomedCrater"),
+          "PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "4 Pay<Class<Steel>> FROM Steel",
           "8 Pay<> FROM MC",
-          "DomedCrater FROM ProjectCard",
+          "$DomedCrater FROM ProjectCard",
           "3 Plant",
           "PROD[-Energy]",
           "PROD[3 MC]",
@@ -1111,9 +1116,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "TerraformRating",
       )
       doTasks(
-          *playCardTasks("SpecialPermit"),
+          *playCardTasks("$SpecialPermit"),
           "5 Pay<> FROM MC",
-          "SpecialPermit FROM ProjectCard",
+          "$SpecialPermit FROM ProjectCard",
           "4 Plant FROM Plant<SoloOpponent>",
       )
       doTasks(
@@ -1132,41 +1137,41 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
       doTasks(
-          *cardActionTasks("AsteroidRights", "Action2"),
-          "-Asteroid<AsteroidRights>",
+          *cardActionTasks("$AsteroidRights", "Action2"),
+          "-Asteroid<$AsteroidRights>",
           "PROD[MC]",
       )
-      doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
       draw(QuantumExtractor)
       discard(ProtectedHabitats)
       doTasks(
-          *playCardTasks("FusionPower"),
+          *playCardTasks("$FusionPower"),
           "14 Pay<> FROM MC",
-          "FusionPower FROM ProjectCard",
+          "$FusionPower FROM ProjectCard",
           "PROD[3 Energy]",
-          "Graphene<CarbonNanosystems>",
+          "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       draw(SolarLogistics)
       discard(AcquiredCompany)
       doTasks(
-          *playCardTasks("QuantumExtractor"),
+          *playCardTasks("$QuantumExtractor"),
           "13 Pay<> FROM MC",
-          "QuantumExtractor FROM ProjectCard",
+          "$QuantumExtractor FROM ProjectCard",
           "PROD[4 Energy]",
-          "Graphene<CarbonNanosystems>",
+          "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       doTasks(
-          *playCardTasks("SolarLogistics"),
+          *playCardTasks("$SolarLogistics"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no graphene paid
           "0 Pay<> FROM MC",
-          "SolarLogistics FROM ProjectCard",
+          "$SolarLogistics FROM ProjectCard",
           "2 Titanium",
       )
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Scientists> FROM LobbyDelegate")
@@ -1176,11 +1181,11 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "PartyFollower<Scientists>",
       )
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Scientists>")
-      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "8 MC")
+      doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "8 MC")
       // Unsupported component: include New Holland in the source city count.
       exMachina("MC")
-      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
-      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
+      doTasks(*cardActionTasks("$ExtremeColdFungus"), "Plant")
     }
     doTask("Pass")
     doTasks(
@@ -1190,8 +1195,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
         "7 Plant",
         "17 Heat",
         "7 Energy",
+        "VenusStep! BY Admin",
+        "PROD[3 Heat]",
     )
-    doTasks("VenusStep! BY Admin", "PROD[3 Heat]")
     p1.doTask("4 ProjectCard<Selecting>")
     // Player-record evidence: globalsPerGeneration.
     assertSidebar(gen = 11, temp = 8, oxygen = 11, oceans = 9, venus = 14)
@@ -1234,46 +1240,46 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       draw(CorroderSuits)
       discard(FueledGenerators)
       doTasks(
-          *playCardTasks("AiCentral"),
+          *playCardTasks("$AiCentral"),
           "5 Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
-          "AiCentral FROM ProjectCard",
+          "$AiCentral FROM ProjectCard",
           "PROD[-Energy]",
-          "Graphene<CarbonNanosystems>",
+          "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       draw(Soletta, HiredRaiders)
-      doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard")
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
       // Test inference: two stolen steel are required by the subsequent payments and final stock.
       doTasks(
-          *playCardTasks("HiredRaiders"),
+          *playCardTasks("$HiredRaiders"),
           "Pay<> FROM MC",
-          "HiredRaiders FROM ProjectCard",
+          "$HiredRaiders FROM ProjectCard",
           "2 Steel FROM Steel<SoloOpponent>",
       )
-      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
+      doTasks(*cardActionTasks("$ExtremeColdFungus"), "Plant")
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
       doTasks(
-          *cardActionTasks("MarsNomads"),
+          *cardActionTasks("$MarsNomads"),
           "NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_6_3>",
           "Plant",
           "6 MC",
       )
-      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
-      doTasks(*cardActionTasks("LocalShading"), "Floater<LocalShading>")
+      doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
       doTasks(
-          *playCardTasks("GanymedeColony"),
+          *playCardTasks("$GanymedeColony"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no graphene paid
           "0 Pay<> FROM MC",
-          "GanymedeColony FROM ProjectCard",
+          "$GanymedeColony FROM ProjectCard",
           "NormalCityTile<GanymedeColony_RemoteArea>",
       )
       doTasks(
-          *playCardTasks("KelpFarming"),
+          *playCardTasks("$KelpFarming"),
           "17 Pay<> FROM MC",
-          "KelpFarming FROM ProjectCard",
+          "$KelpFarming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[3 Plant]",
           "2 Plant",
@@ -1282,17 +1288,17 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
       discard(CorroderSuits, ResearchCoordination, Soletta)
       doTasks(*standardProjectTasks("SellPatentsProject"), "3 MC FROM ProjectCard")
       doTasks(
-          *playCardTasks("EquatorialMagnetizer"),
+          *playCardTasks("$EquatorialMagnetizer"),
           "2 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "EquatorialMagnetizer FROM ProjectCard",
+          "$EquatorialMagnetizer FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
+      doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
       doTasks(
-          *playCardTasks("PublicBaths"),
+          *playCardTasks("$PublicBaths"),
           "6 Pay<> FROM MC",
-          "PublicBaths FROM ProjectCard",
+          "$PublicBaths FROM ProjectCard",
           "6 MC",
       )
       doTasks(
@@ -1336,13 +1342,13 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "3 MC",
           "TerraformRating",
       )
-      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "12 MC")
+      doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "12 MC")
       // Unsupported component: include New Holland in the source city count.
       exMachina("MC")
       doTasks(
-          *playCardTasks("Greenhouses"),
+          *playCardTasks("$Greenhouses"),
           "6 Pay<> FROM MC",
-          "Greenhouses FROM ProjectCard",
+          "$Greenhouses FROM ProjectCard",
           "14 Plant",
       )
       // Unsupported component: New Holland is also a city for Greenhouses.
@@ -1389,23 +1395,23 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
     )
     draw(LunarBeam, InventionContest)
     turn {
-      doTasks(*cardActionTasks("AiCentral"), "2 ProjectCard")
+      doTasks(*cardActionTasks("$AiCentral"), "2 ProjectCard")
       draw(TransNeptuneProbe, GhgShipment)
       discard(LunarBeam)
       doTasks(
-          *playCardTasks("InventionContest"),
+          *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
-          "InventionContest FROM ProjectCard",
+          "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
-          "Graphene<CarbonNanosystems>",
+          "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
+          "ProjectCard",
       )
-      doTask("ProjectCard")
       draw(FieldCappedCity)
       doTasks(
-          *playCardTasks("GhgShipment"),
-          "GhgShipment FROM ProjectCard",
+          *playCardTasks("$GhgShipment"),
+          "$GhgShipment FROM ProjectCard",
           "PROD[Heat]",
           "Heat",
           "3 MC",
@@ -1413,20 +1419,20 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "ProjectCard",
       )
       doTasks(
-          *playCardTasks("TransNeptuneProbe"),
+          *playCardTasks("$TransNeptuneProbe"),
           "Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no graphene paid
           "0 Pay<> FROM MC",
-          "TransNeptuneProbe FROM ProjectCard",
-          "Graphene<CarbonNanosystems>",
+          "$TransNeptuneProbe FROM ProjectCard",
+          "Graphene<$CarbonNanosystems>",
           "Ok", // decline the Mars University exchange
       )
       doTasks(
-          *playCardTasks("FieldCappedCity"),
-          "5 PayFromCard<CarbonNanosystems> FROM Graphene<CarbonNanosystems>",
+          *playCardTasks("$FieldCappedCity"),
+          "5 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "3 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "FieldCappedCity FROM ProjectCard",
+          "$FieldCappedCity FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[Energy]",
           "3 Plant",
@@ -1441,11 +1447,11 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "0 OxygenStep",
           "3 MC",
       )
-      doTasks(*cardActionTasks("LocalShading", "Action2"), "-Floater<LocalShading>", "PROD[MC]")
-      doTasks(*cardActionTasks("EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
-      doTasks(*cardActionTasks("ExtremeColdFungus"), "Plant")
-      doTasks(*cardActionTasks("ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
-      doTasks(*cardActionTasks("SmallAnimals"), "Animal<SmallAnimals>")
+      doTasks(*cardActionTasks("$LocalShading", "Action2"), "-Floater<$LocalShading>", "PROD[MC]")
+      doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
+      doTasks(*cardActionTasks("$ExtremeColdFungus"), "Plant")
+      doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
+      doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Kelvinists> FROM LobbyDelegate")
       doTasks(
           *standardProjectTasks("GreeneryProject"),
@@ -1464,9 +1470,9 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "0 MC",
       )
       doTasks(
-          *playCardTasks("Trees"),
+          *playCardTasks("$Trees"),
           "13 Pay<> FROM MC",
-          "Trees FROM ProjectCard",
+          "$Trees FROM ProjectCard",
           "PROD[3 Plant]",
           "Plant",
       )
@@ -1492,7 +1498,7 @@ internal class LatentGammaFieldTest : CardTrackingFullGameTest() {
           "NormalCityTile<Vastitas_2_3>",
           "0 MC",
       )
-      doTasks(*cardActionTasks("MartianRails"), "Pay<Class<Energy>> FROM Energy", "14 MC")
+      doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "14 MC")
       // Unsupported component: include New Holland in the source city count.
       exMachina("MC")
       doTasks(

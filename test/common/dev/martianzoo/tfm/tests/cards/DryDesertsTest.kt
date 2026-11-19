@@ -1,18 +1,18 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class DryDesertsTest : TfmGameplayTest(NONE) {
+internal class DryDesertsTest : TfmGameplayTest() {
   @BeforeTest
   fun prepareCurrentEvent() {
     newTestGame(
         addOptions = "-QuickStartVariant, TurmoilExpansion",
         playerCount = 2,
-        firstGlobalEvents = listOf("MinimalImpactPolicy", "RedResistance", "ScientificProgress"),
+        firstGlobalEvents = listOf("$MinimalImpactPolicy", "$RedResistance", "$ScientificProgress"),
     )
     kim.doTask("Pass")
     stan.doTask("Pass")
@@ -25,7 +25,7 @@ internal class DryDesertsTest : TfmGameplayTest(NONE) {
   fun `First player chooses which ocean disappears and each influence buys a separate resource`() {
     // Two oceans make removal a choice; Kim has two influence from Event Analysts and the chair.
     admin.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_5>")
-    kim.exMachina("EventAnalysts, Chairman FROM Chairman<Neutral>")
+    kim.exMachina("$EventAnalysts, Chairman FROM Chairman<Neutral>")
     stan.doTask("Pass")
     kim.doTask("Pass")
     // The Reds' first government restored both players' rating after Turmoil's reduction.

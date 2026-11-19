@@ -1,10 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.playCardTasks
-import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -12,71 +9,33 @@ internal class EventAnalystsTest : TfmGameplayTest() {
   @Test
   internal fun `Influence stacks with High Circles and Colonial Representation beyond four`() {
     newTestGame(
-        "PreludeExpansion, HighCircles, TurmoilExpansion, ColonialRepresentation, Luna",
+        "$HighCircles, TurmoilExpansion, $ColonialRepresentation, Luna, -QuickStartVariant",
         playerCount = 2,
         firstGlobalEvents =
-            listOf("DemocraticReform", "MinimalImpactPolicy", "ExploreFirstDirective"),
+            listOf("$FreeAcademiaTreaty", "$ExploreFirstDirective", "$MoralMovement"),
     )
-    kim.completeOperation {
-      doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
-      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
-      autoExecNow(EAGER)
-    }
-    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
-    stan.autoExecNow(EAGER)
-
-    stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
-    stan.autoExecNow(EAGER)
-
-    kim.doTasks(*playCardTasks("$EventAnalysts"))
-    kim.completeOperation {
-      doTasks(*standardProjectTasks("BuildColonyProject"))
-      doTask("Colony<Luna>")
-      autoExecNow(EAGER)
-    }
-    stan.doTask("Pass")
-    kim.doTasks(*playCardTasks("$ColonialRepresentation"))
+    // Prepare the six independent sources; earlier purchases and elections are incidental.
+    kim.exMachina(
+        "$EventAnalysts, $HighCircles, $ColonialRepresentation, Colony<Luna>, " +
+            "Chairman<Kim> FROM Chairman<Neutral>, " +
+            "PartyLeader<Scientists> FROM PartyLeader<Scientists, Neutral>, 3 PartyFollower<Scientists>"
+    )
+    admin.exMachina(
+        "$DemocraticReform, Current<$DemocraticReform>, " +
+            "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
+    )
     kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
+    stan.doTask("Pass")
+    players.forEach { it.doTask("20 MC") }
     kim.doTask("VenusStep! BY Admin")
-    players.forEach { it.autoExecNow(EAGER) }
-
-    admin.count("PartyLeader<Greens, Neutral>") shouldBe 1
-    admin.count("Distant<ExploreFirstDirective>") shouldBe 1
-    (admin.count("PartyFollower<Reds, Neutral>") > 0) shouldBe true
-    kim.doTask("-4 ProjectCard<Selecting>")
-    stan.doTask("-4 ProjectCard<Selecting>")
-    stan.doTask("Pass")
-    // The chairman retains its influence; the dominant party supplies leader and delegate
-    // influence.
-    kim.completeOperation {
-      doTask("UseAction<LobbyAction, Action1>")
-      doTask("PartyLeader<Scientists> FROM LobbyDelegate")
-    }
-    kim.completeOperation {
-      doTask("UseAction<PaidLobbyAction, Action1>")
-
-      doTask("PartyFollower<Scientists>")
-    }
-    kim.completeOperation {
-      doTask("UseAction<PaidLobbyAction, Action1>")
-
-      doTask("PartyFollower<Scientists>")
-    }
-    kim.completeOperation {
-      doTask("UseAction<PaidLobbyAction, Action1>")
-
-      doTask("PartyFollower<Scientists>")
-    }
-    kim.doTask("Pass")
-    players.forEach { it.autoExecNow(EAGER) }
-    expectChanges("6 Steel<Kim>, 6 Plant<Kim>") {
-      stan.doTask("VenusStep! BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-
-      stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
-      players.forEach { it.autoExecNow(EAGER) }
-    }
+    kim.count("Influence") shouldBe 6
+    stan.count("Influence") shouldBe 0
+    kim.doTasks(
+        "OceanTile<Tharsis_1_5> BY Admin",
+        "6 Steel",
+        "6 Plant",
+    )
+    stan.doTasks("0 Steel", "0 Plant")
+    players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
   }
 }

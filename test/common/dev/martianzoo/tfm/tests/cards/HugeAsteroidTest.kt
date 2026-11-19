@@ -13,13 +13,13 @@ internal class HugeAsteroidTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<HugeAsteroid>>",
-              "HugeAsteroid FROM PreludeCard",
+              "PlayCard<Class<PreludeCard>, Class<$HugeAsteroid>>",
+              "$HugeAsteroid FROM PreludeCard",
+              "TemperatureStep",
+              "TemperatureStep",
+              "TemperatureStep",
+              "-5 MC",
           )
-          doTask("TemperatureStep")
-          doTask("TemperatureStep")
-          doTask("TemperatureStep")
-          doTask("-5 MC")
         }
         .expect("0 TemperatureStep, 0 TerraformRating")
   }

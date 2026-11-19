@@ -76,6 +76,9 @@ internal class Game20230521Test : FullGameTest() {
           "PROD[MC]",
           "2 PreludeCard<Selecting>",
           "MC",
+      )
+
+      doTasks(
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
           "$UnmiContractor FROM PreludeCard<Selecting>",
           "3 TerraformRating",
@@ -531,7 +534,7 @@ internal class Game20230521Test : FullGameTest() {
           *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
           "ProjectCard<Revealed>",
-          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, $SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
     }
@@ -762,8 +765,9 @@ internal class Game20230521Test : FullGameTest() {
     assertSidebar(gen = 6, temp = -18, oxygen = 0, oceans = 2, venus = 10)
 
     p2.turn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_8_7>",
           "OxygenStep",
           "TerraformRating",
@@ -874,7 +878,7 @@ internal class Game20230521Test : FullGameTest() {
           *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
           "ProjectCard<Revealed>",
-          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, $SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
     }
@@ -1281,8 +1285,9 @@ internal class Game20230521Test : FullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_8_6>",
           "OxygenStep",
           "TerraformRating",
@@ -1319,8 +1324,9 @@ internal class Game20230521Test : FullGameTest() {
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_3_5>",
           "OxygenStep",
           "TerraformRating",
@@ -1443,8 +1449,9 @@ internal class Game20230521Test : FullGameTest() {
           "TerraformRating",
           "4 Plant",
       )
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_9_7>",
           "OxygenStep",
           "TerraformRating",
@@ -1628,7 +1635,7 @@ internal class Game20230521Test : FullGameTest() {
           *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
           "ProjectCard<Revealed>",
-          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, $SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
     }
@@ -1729,8 +1736,9 @@ internal class Game20230521Test : FullGameTest() {
     }
 
     p2.turn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_9_6>",
           "2 Steel",
           "OxygenStep",
@@ -1827,8 +1835,9 @@ internal class Game20230521Test : FullGameTest() {
           "4 Plant",
       )
 
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_3_3>",
           "OxygenStep",
           "TerraformRating",
@@ -1884,9 +1893,11 @@ internal class Game20230521Test : FullGameTest() {
           "4 Pay<> FROM MC",
           "$PowerInfrastructure FROM ProjectCard",
       )
-      doTasks(*cardActionTasks("$PowerInfrastructure"))
-      doTask("-8 Energy")
-      doTask("8 MC")
+      doTasks(
+          *cardActionTasks("$PowerInfrastructure"),
+          "-8 Energy",
+          "8 MC",
+      )
     }
 
     p2.turn {
@@ -1968,7 +1979,7 @@ internal class Game20230521Test : FullGameTest() {
           *cardActionTasks("$SearchForLife"),
           "Pay<> FROM MC",
           "ProjectCard<Revealed>",
-          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, $SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
     }
@@ -2030,8 +2041,9 @@ internal class Game20230521Test : FullGameTest() {
     }
 
     p1.turn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_2_4>",
           "2 MC",
           "OxygenStep",
@@ -2064,9 +2076,11 @@ internal class Game20230521Test : FullGameTest() {
     }
 
     p1.turn {
-      doTasks(*cardActionTasks("$PowerInfrastructure"))
-      doTask("-5 Energy")
-      doTask("5 MC")
+      doTasks(
+          *cardActionTasks("$PowerInfrastructure"),
+          "-5 Energy",
+          "5 MC",
+      )
       doTasks(
           *cardActionTasks("$ExtractorBalloons"),
           "Floater<$ExtractorBalloons>",
@@ -2114,8 +2128,9 @@ internal class Game20230521Test : FullGameTest() {
           "CityTile<Tharsis_8_5>",
           "PROD[MC]",
       )
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_8_4>",
           "2 Steel",
           "OxygenStep",
@@ -2139,8 +2154,9 @@ internal class Game20230521Test : FullGameTest() {
     }
 
     p2.turn {
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_9_5>",
           "Steel",
           "OxygenStep",
@@ -2251,8 +2267,9 @@ internal class Game20230521Test : FullGameTest() {
           "4 Plant",
       )
 
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_7_4>",
           "OxygenStep",
           "TerraformRating",
@@ -2286,8 +2303,9 @@ internal class Game20230521Test : FullGameTest() {
           "6 Plant",
       )
 
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_9_8>",
           "2 MC",
           "OxygenStep",
@@ -2297,12 +2315,13 @@ internal class Game20230521Test : FullGameTest() {
 
     p1.turn {
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Thermalist")
-      doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
       doTasks(
+          "UseAction<ConvertPlantsAction, Action1>",
+          "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Tharsis_4_4>",
           "Plant",
           "4 MC",
-          "0 OxygenStep", // oxygen maxed
+          "0 OxygenStep", // oxygen maxed,
       )
     }
 
@@ -2360,15 +2379,17 @@ internal class Game20230521Test : FullGameTest() {
     p1.doTasks("7 Energy", "3 Heat", "Titanium", "7 Plant")
 
     // Final greenery placement
-    p1.doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
     p1.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "8 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Tharsis_6_5>",
         "Plant",
         "4 MC",
     )
     p1.doTask("PassBaton") // no more greenery
-    p2.doTasks("UseAction<ConvertPlantsAction, Action1>", "8 Pay<Class<Plant>> FROM Plant")
     p2.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "8 Pay<Class<Plant>> FROM Plant",
         "GreeneryTile<Tharsis_8_8>",
         "2 MC",
     )

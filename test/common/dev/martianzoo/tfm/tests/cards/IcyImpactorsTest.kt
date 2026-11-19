@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
-import dev.martianzoo.tfm.tests.cards.cardnames.IcyImpactors
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -15,16 +15,20 @@ internal class IcyImpactorsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks(*cardActionTasks("IcyImpactors", "Action2"))
-          doTask("-Asteroid<IcyImpactors>")
+          doTasks(
+              *cardActionTasks("$IcyImpactors", "Action2"),
+              "-Asteroid<$IcyImpactors>",
+          )
           // Expand the start-player choice; its System signal is executed by Admin.
           doTask("EACH")
           // The active player chooses when to hand this task to its owner.
           doTask("NOW Kim { OceanTile<WaterArea> BY Stan }")
           kim.selectTask("OceanTile<Tharsis_2_6> BY Stan")
-          doTask("OceanTile<Tharsis_2_6>")
-          doTask("TerraformRating")
-          doTask("2 ProjectCard")
+          doTasks(
+              "OceanTile<Tharsis_2_6>",
+              "TerraformRating",
+              "2 ProjectCard",
+          )
         }
         .expect("0 TerraformRating<Kim>")
   }

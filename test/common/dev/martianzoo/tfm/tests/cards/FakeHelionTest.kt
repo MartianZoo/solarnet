@@ -2,10 +2,10 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
@@ -17,7 +17,7 @@ import kotlin.test.Test
 
 // FakeHelion approximates Helion's payments. Its failures characterize this stand-in, not Canon.
 internal class FakeHelionTest : TfmSandboxTest() {
-  private val fakeHelion = cn("FakeHelion")
+  private val fakeHelion = FakeHelion
 
   @Test
   internal fun `Can buy starting cards with heat`() {
@@ -26,14 +26,16 @@ internal class FakeHelionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              "PlayCard<Class<CorporationCard>, Class<FakeHelion>>",
-              "FakeHelion FROM CorporationCard",
+              "PlayCard<Class<CorporationCard>, Class<$FakeHelion>>",
+              "$FakeHelion FROM CorporationCard",
               "42 MC",
               "PROD[3 Heat]",
+              "15 Pay<Class<Heat>> FROM Heat",
+              "Ok",
+              "5 ProjectCard<Hand FROM Selecting>",
           )
-          doTasks("15 Pay<Class<Heat>> FROM Heat", "Ok", "5 ProjectCard<Hand FROM Selecting>")
         }
-        .expect("42 MC, -15 Heat, 5 ProjectCard")
+        .expect("5 ProjectCard")
   }
 
   @Test
@@ -43,10 +45,15 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(4, "Heat")
 
     kim.inTurn {
-          doTasks(*playCardTasks("Mine"), "4 Pay<Class<Heat>> FROM Heat", "Ok")
-          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+          doTasks(
+              *playCardTasks("$Mine"),
+              "4 Pay<Class<Heat>> FROM Heat",
+              "Ok",
+              "$Mine FROM ProjectCard",
+              "PROD[Steel]",
+          )
         }
-        .expect("Mine, -4 Heat, 0 MC")
+        .expect("0 MC")
   }
 
   @Test
@@ -56,10 +63,15 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(4, "Heat")
 
     kim.inTurn {
-          doTasks(*playCardTasks("Mine"), "4 Pay<Class<Heat>> FROM Heat", "Ok")
-          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+          doTasks(
+              *playCardTasks("$Mine"),
+              "4 Pay<Class<Heat>> FROM Heat",
+              "Ok",
+              "$Mine FROM ProjectCard",
+              "PROD[Steel]",
+          )
         }
-        .expect("Mine, -4 Heat, 0 MC")
+        .expect("0 MC")
   }
 
   @Test
@@ -69,10 +81,14 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(2, "Heat")
 
     kim.inTurn {
-          doTasks(*playCardTasks("Mine"), "2 Pay<Class<Heat>> FROM Heat")
-          doTasks("2 Pay<> FROM MC", "Mine FROM ProjectCard", "PROD[Steel]")
-        }
-        .expect("Mine, -2 Heat, -2 MC")
+      doTasks(
+          *playCardTasks("$Mine"),
+          "2 Pay<Class<Heat>> FROM Heat",
+          "2 Pay<> FROM MC",
+          "$Mine FROM ProjectCard",
+          "PROD[Steel]",
+      )
+    }
   }
 
   @Test
@@ -82,10 +98,15 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(4, "Heat")
 
     kim.inTurn {
-          doTasks(*playCardTasks("Mine"), "Ok", "4 Pay<> FROM MC")
-          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+          doTasks(
+              *playCardTasks("$Mine"),
+              "Ok",
+              "4 Pay<> FROM MC",
+              "$Mine FROM ProjectCard",
+              "PROD[Steel]",
+          )
         }
-        .expect("Mine, 0 Heat, -4 MC")
+        .expect("0 Heat")
   }
 
   @Test
@@ -102,19 +123,19 @@ internal class FakeHelionTest : TfmSandboxTest() {
               "PROD[Energy]",
           )
         }
-        .expect("-11 Heat, PROD[Energy], 0 MC")
+        .expect("0 MC")
   }
 
   @Ignore // Business Empire still removes M€ directly, outside FakeHelion's payment scope.
   @Test
   internal fun `Can use heat for a self-resolved Prelude money removal`() {
-    playBusinessEmpireWithHeat().expect("BusinessEmpire, PROD[6 MC], -6 Heat, 0 MC")
+    playBusinessEmpireWithHeat().expect("$BusinessEmpire, PROD[6 MC], -6 Heat, 0 MC")
   }
 
   @Test
   internal fun `BUG - FakeHelion cannot use heat for Business Empire's money removal`() {
     shouldThrow<TaskException> { playBusinessEmpireWithHeat() }
-    kim.count("BusinessEmpire") shouldBe 0
+    kim.count("$BusinessEmpire") shouldBe 0
     kim.count("Heat") shouldBe 6
   }
 
@@ -125,8 +146,8 @@ internal class FakeHelionTest : TfmSandboxTest() {
 
     return kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<BusinessEmpire>>",
-          "BusinessEmpire FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$BusinessEmpire>>",
+          "$BusinessEmpire FROM PreludeCard",
           "PROD[6 MC]",
           "6 Pay<Class<Heat>> FROM Heat",
           "Ok",
@@ -138,19 +159,19 @@ internal class FakeHelionTest : TfmSandboxTest() {
   @Ignore // Industrial Complex's copied Prelude effect still removes M€ directly.
   @Test
   internal fun `Can use heat for Industrial Complex's money removal`() {
-    playIndustrialComplexWithHeat().expect("IndustrialComplex, -18 Heat, 0 MC")
+    playIndustrialComplexWithHeat().expect("$IndustrialComplex, -18 Heat, 0 MC")
   }
 
   @Test
   internal fun `BUG - FakeHelion cannot use heat for Industrial Complex's money removal`() {
     shouldThrow<TaskException> { playIndustrialComplexWithHeat() }
-    kim.count("IndustrialComplex") shouldBe 0
+    kim.count("$IndustrialComplex") shouldBe 0
     kim.count("Heat") shouldBe 18
   }
 
   private fun playIndustrialComplexWithHeat(): TaskResult {
     newTestGame(
-        addOptions = "fakes:cards, PreludeExpansion, IndustrialComplex",
+        addOptions = "fakes:cards, PreludeExpansion, $IndustrialComplex",
         kimCorporation = fakeHelion,
     )
     kim.setToExMachina(0, "MC")
@@ -158,13 +179,11 @@ internal class FakeHelionTest : TfmSandboxTest() {
 
     return kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
-          "IndustrialComplex FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
+          "$IndustrialComplex FROM PreludeCard",
           "18 Pay<Class<Heat>> FROM Heat",
           "Ok",
-      )
-      doTask("EACH")
-      doTasks(
+          "EACH",
           "PROD[2 MC]",
           "PROD[2 Steel]",
           "PROD[2 Titanium]",
@@ -178,40 +197,43 @@ internal class FakeHelionTest : TfmSandboxTest() {
   @Ignore // The nested action offers a direct M€ removal, not a heat payment.
   @Test
   internal fun `Can use heat for Board of Directors' action payment`() {
-    useBoardOfDirectorsWithHeat().expect("-12 Heat, -Director<BoardOfDirectors>")
+    useBoardOfDirectorsWithHeat().expect("-12 Heat, -Director<$BoardOfDirectors>")
   }
 
   @Test
   internal fun `BUG - FakeHelion cannot use heat for Board of Directors' action payment`() {
     shouldThrow<TaskException> { useBoardOfDirectorsWithHeat() }
-    kim.count("Director<BoardOfDirectors>") shouldBe 4
+    kim.count("Director<$BoardOfDirectors>") shouldBe 4
     kim.count("Heat") shouldBe 12
   }
 
   private fun useBoardOfDirectorsWithHeat(): TaskResult {
     newTestGame(
-        addOptions = "fakes:cards, PreludeExpansion, BoardOfDirectors",
+        addOptions = "fakes:cards, PreludeExpansion, $BoardOfDirectors",
         kimCorporation = fakeHelion,
     )
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
-          "BoardOfDirectors FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
+          "$BoardOfDirectors FROM PreludeCard",
+          "4 Director<$BoardOfDirectors>",
       )
-      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
     kim.setToExMachina(0, "MC")
     kim.setToExMachina(12, "Heat")
 
     return kim.inTurn {
-      doTasks(*cardActionTasks("BoardOfDirectors"))
-      doTask("PreludeCard<Kim, Hand>")
-      doTasks("12 Pay<Class<Heat>> FROM Heat", "Ok")
-      doTask("-Director<BoardOfDirectors>")
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<Donation>>",
-          "Donation FROM PreludeCard",
+          *cardActionTasks("$BoardOfDirectors"),
+          "PreludeCard<Hand>",
+          "12 Pay<Class<Heat>> FROM Heat",
+          "Ok",
+          "-Director<$BoardOfDirectors>",
+      )
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard",
           "21 MC",
       )
     }
@@ -239,40 +261,51 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.setToExMachina(20, "Heat")
 
     return kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<Class<Heat>> FROM Heat", "Ok")
-      doTask("Briber")
-      doTasks("12 Pay<Class<Heat>> FROM Heat", "Ok")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<Class<Heat>> FROM Heat",
+          "Ok",
+          "Briber",
+          "12 Pay<Class<Heat>> FROM Heat",
+          "Ok",
+      )
     }
   }
 
   @Ignore // Merger's 42 M€ is a direct removal after its selected corporation enters play.
   @Test
   internal fun `Can use heat for Merger's corporation payment`() {
-    playMergerWithHeat().expect("Celestic, -42 Heat, 42 MC")
+    playMergerWithHeat().expect("$Celestic, -42 Heat, 42 MC")
   }
 
   @Test
   internal fun `BUG - FakeHelion cannot use heat for Merger's corporation payment`() {
     shouldThrow<TaskException> { playMergerWithHeat() }
-    kim.count("Merger") shouldBe 0
+    kim.count("$Merger") shouldBe 0
     kim.count("Heat") shouldBe 42
   }
 
   private fun playMergerWithHeat(): TaskResult {
     newTestGame(
-        addOptions = "fakes:cards, PreludeExpansion, Merger",
+        addOptions = "fakes:cards, PreludeExpansion, $Merger",
         kimCorporation = fakeHelion,
     )
     kim.setToExMachina(0, "MC")
     kim.setToExMachina(42, "Heat")
 
     return kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      doTask("4 CorporationCard<Kim, Selecting>")
-      doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
-      doTask("Celestic<Kim> FROM CorporationCard<Kim, Selecting>!")
-      doTask("42 MC")
-      doTasks("42 Pay<Class<Heat>> FROM Heat", "Ok")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Merger>>",
+          "$Merger FROM PreludeCard",
+          "4 CorporationCard<Selecting>",
+      )
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<$Celestic>>",
+          "$Celestic FROM CorporationCard<Selecting>!",
+          "42 MC",
+          "42 Pay<Class<Heat>> FROM Heat",
+          "Ok",
+      )
     }
   }
 
@@ -290,17 +323,16 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.count("Heat") shouldBe 6
     kim.count("MC") shouldBe 0
     kim.count("Energy") shouldBe 0
-    kim.count("ActionUsedMarker<EnergyMarket>") shouldBe 0
   }
 
   private fun useEnergyMarketWithHeat(): TaskResult {
     newTestGame(addOptions = "fakes:cards", kimCorporation = fakeHelion)
-    kim.exMachina("EnergyMarket")
+    kim.exMachina("$EnergyMarket")
     kim.setToExMachina(0, "MC")
     kim.setToExMachina(6, "Heat")
 
     return kim.inTurn {
-      doTasks(*cardActionTasks("EnergyMarket"))
+      doTasks(*cardActionTasks("$EnergyMarket"))
       // Choose X = 3 without spending MC; the intended scenario would pay with heat next.
       // This selection currently fails because the variable cost offers no heat payment.
       selectTask("-6 MC")
@@ -311,14 +343,14 @@ internal class FakeHelionTest : TfmSandboxTest() {
   @Ignore // Stormcraft accepts floaters toward Heat debt, but FakeHelion creates M€ debt.
   @Test
   internal fun `Can use Stormcraft floaters as two money each`() {
-    playMineWithStormcraftFloaters().expect("Mine, -2 Floater<StormcraftIncorporated>, 0 MC")
+    playMineWithStormcraftFloaters().expect("$Mine, -2 Floater<$StormcraftIncorporated>, 0 MC")
   }
 
   @Test
   internal fun `BUG - FakeHelion cannot use Stormcraft floaters for a money bill`() {
     shouldThrow<TaskException> { playMineWithStormcraftFloaters() }
-    kim.count("Mine") shouldBe 0
-    kim.count("Floater<StormcraftIncorporated>") shouldBe 2
+    kim.count("$Mine") shouldBe 0
+    kim.count("Floater<$StormcraftIncorporated>") shouldBe 2
   }
 
   private fun playMineWithStormcraftFloaters(): TaskResult {
@@ -326,16 +358,17 @@ internal class FakeHelionTest : TfmSandboxTest() {
         addOptions = "fakes:cards, ColoniesExpansion",
         kimCorporation = fakeHelion,
     )
-    kim.exMachina("StormcraftIncorporated, 2 Floater<StormcraftIncorporated>")
+    kim.exMachina("$StormcraftIncorporated, 2 Floater<$StormcraftIncorporated>")
     kim.setToExMachina(0, "MC")
 
     return kim.inTurn {
       doTasks(
-          *playCardTasks("Mine"),
-          "2 PayFromCard<StormcraftIncorporated> FROM Floater<StormcraftIncorporated>",
+          *playCardTasks("$Mine"),
+          "2 PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>",
           "Ok",
+          "$Mine FROM ProjectCard",
+          "PROD[Steel]",
       )
-      doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
   }
 
@@ -361,9 +394,9 @@ internal class FakeHelionTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              *playCardTasks("HiredRaiders"),
+              *playCardTasks("$HiredRaiders"),
               "1 Pay<> FROM MC",
-              "HiredRaiders FROM ProjectCard",
+              "$HiredRaiders FROM ProjectCard",
               "2 MC<Stan FROM Kim>",
           )
         }
@@ -373,7 +406,7 @@ internal class FakeHelionTest : TfmSandboxTest() {
   @Test
   internal fun `A forced money loss cannot take heat or require more than the money held`() {
     newTestGame(
-        addOptions = "fakes:cards, PreludeExpansion, Recession",
+        addOptions = "fakes:cards, PreludeExpansion, $Recession",
         kimCorporation = fakeHelion,
     )
     kim.setToExMachina(2, "MC")
@@ -382,13 +415,15 @@ internal class FakeHelionTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<Recession>>",
-              "Recession FROM PreludeCard",
+              "PlayCard<Class<PreludeCard>, Class<$Recession>>",
+              "$Recession FROM PreludeCard",
               "10 MC",
+              "EACH",
+              "-5* MC<Kim>",
+              "PROD[-MC<Kim>]",
+              "-5* MC<Rob>",
+              "PROD[-MC<Rob>]",
           )
-          doTask("EACH")
-          doTasks("-5* MC<Kim>", "PROD[-MC<Kim>]")
-          doTasks("-5* MC<Rob>", "PROD[-MC<Rob>]")
         }
         .expect("-2 MC<Kim>, 0 Heat<Kim>")
   }
@@ -434,16 +469,16 @@ internal class FakeHelionTest : TfmSandboxTest() {
 
   private fun makeMonsPayout(money: Int, heat: Int, payout: Int): TaskResult {
     newTestGame(addOptions = "fakes:cards", kimCorporation = fakeHelion)
-    kim.exMachina("MonsInsurance")
+    kim.exMachina("$MonsInsurance")
     kim.setToExMachina(money, "MC")
     kim.setToExMachina(heat, "Heat")
     rob.exMachina("2 Steel")
 
     return stan.inTurn {
       doTasks(
-          *playCardTasks("HiredRaiders"),
+          *playCardTasks("$HiredRaiders"),
           "1 Pay<> FROM MC",
-          "HiredRaiders FROM ProjectCard",
+          "$HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
       giveTask(kim, "$payout MC<Rob FROM Kim>")

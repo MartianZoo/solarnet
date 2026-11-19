@@ -189,8 +189,10 @@ internal class OtbGame20260809Test : FullGameTest() {
     green.turn {
       // "For my first action, I flip cards until I get 3 Venus tags. Let's see how this goes."
       // "I draw Venusian Insects, Air-Scrapping Expedition, and Atalanta Planitia Lab."
-      doTask("DoRequiredActions")
-      doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>")
+      doTasks(
+          "DoRequiredActions",
+          "3 SearchForCard<TagFilter<Class<VenusTag>>>",
+      )
     }
 
     // (11:33 am) "I pitch a card for money, and I spend all my nine money on Robotic Workforce."

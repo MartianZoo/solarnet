@@ -1,18 +1,15 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.Donation
-import dev.martianzoo.tfm.tests.cards.cardnames.IndustrialComplex
-import dev.martianzoo.tfm.tests.cards.cardnames.NewPartner
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class NewPartnerTest : TfmGameplayTest(NONE) {
+internal class NewPartnerTest : TfmGameplayTest() {
 
   @Test
   internal fun `New Partner plays the offered Prelude and leaves the other hand card alone`() {
@@ -21,8 +18,8 @@ internal class NewPartnerTest : TfmGameplayTest(NONE) {
     shouldThrow<TaskException> {
       kim.completeOperation {
         doTasks(
-            "PlayCard<Class<PreludeCard>, Class<NewPartner>>",
-            "NewPartner FROM PreludeCard",
+            "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
+            "$NewPartner FROM PreludeCard",
             "PROD[MC]",
             "2 PreludeCard<Selecting>",
         )
@@ -33,21 +30,23 @@ internal class NewPartnerTest : TfmGameplayTest(NONE) {
 
     kim.completeOperation {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<NewPartner>>",
-          "NewPartner FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
+          "$NewPartner FROM PreludeCard",
           "PROD[MC]",
+          "2 PreludeCard<Selecting>",
       )
-      doTask("2 PreludeCard<Selecting>")
-      doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
-      doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
-      doTask("21 MC")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$Donation>>",
+          "$Donation FROM PreludeCard<Selecting>!",
+          "21 MC",
+      )
     }
     kim.assertCounts(1 to "PreludeCard<Hand>", 0 to "PreludeCard<Selecting>", 1 to "$Donation")
 
     kim.completeOperation {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<PowerGeneration>>",
-          "PowerGeneration FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>",
+          "$PowerGeneration FROM PreludeCard",
           "PROD[3 Energy]",
       )
     }
@@ -61,12 +60,15 @@ internal class NewPartnerTest : TfmGameplayTest(NONE) {
       kim.setToExMachina(13, "MC")
       shouldThrow<LimitsException> {
         kim.inTurn {
-          doTasks("PlayCard<Class<PreludeCard>, Class<NewPartner>>", "NewPartner FROM PreludeCard")
-          doTask("PROD[MC]")
-          doTask("2 PreludeCard<Selecting>")
           doTasks(
-              "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
-              "IndustrialComplex FROM PreludeCard<Selecting>",
+              "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
+              "$NewPartner FROM PreludeCard",
+              "PROD[MC]",
+              "2 PreludeCard<Selecting>",
+          )
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
+              "$IndustrialComplex FROM PreludeCard<Selecting>",
               "-18 MC",
           )
         }
@@ -74,14 +76,14 @@ internal class NewPartnerTest : TfmGameplayTest(NONE) {
 
       kim.inTurn {
         doTasks(
-            "PlayCard<Class<PreludeCard>, Class<NewPartner>>",
-            "NewPartner FROM PreludeCard",
+            "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
+            "$NewPartner FROM PreludeCard",
             "PROD[MC]",
+            "2 PreludeCard<Selecting>",
+            "-PreludeCard<Selecting>",
+            "Audit",
+            "15 MC",
         )
-        doTask("2 PreludeCard<Selecting>")
-        doTask("-PreludeCard<Selecting>")
-        doTask("Audit")
-        doTask("15 MC")
       }
       kim.assertCounts(0 to "PreludeCard<Selecting>")
       kim.assertCounts(1 to "$NewPartner", 0 to "$IndustrialComplex", 1 to "PreludeCard")

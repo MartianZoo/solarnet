@@ -22,8 +22,8 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
               "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Cimmeria_3_3>",
+              "CimmeriaPlacementBonus!",
           )
-          doTask("CimmeriaPlacementBonus!")
         }
         .expect("0 Colony")
   }
@@ -39,9 +39,11 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Cimmeria_3_3>",
+          "CimmeriaPlacementBonus!",
+          "-5 MC",
+          "Colony<Luna>",
+          "PROD[2 MC]",
       )
-      doTask("CimmeriaPlacementBonus!")
-      doTasks("-5 MC", "Colony<Luna>", "PROD[2 MC]")
     }
   }
 
@@ -58,9 +60,9 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
             "25 Pay<> FROM MC",
             "PROD[MC]",
             "CityTile<Cimmeria_3_3>",
+            "CimmeriaPlacementBonus!",
+            "-5 MC",
         )
-        doTask("CimmeriaPlacementBonus!")
-        doTask("-5 MC")
       }
     }
 
@@ -75,19 +77,25 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.exMachina("$Ecoline, $EarthCatapult")
     stan.exMachina("$Mine")
     kim.inTurn {
-      doTasks(*playCardTasks("SmallAsteroid"), "8 Pay<> FROM MC")
       doTasks(
-          "SmallAsteroid FROM ProjectCard",
+          *playCardTasks("$SmallAsteroid"),
+          "8 Pay<> FROM MC",
+          "$SmallAsteroid FROM ProjectCard",
+          "TemperatureStep",
       )
-      doTask("TemperatureStep")
       // Resolve the optional attack: no unprotected plant target is available.
-      doTask("-2? Plant<Anyone>")
-      doTask("TerraformRating")
+      doTasks(
+          "-2? Plant<Anyone>",
+          "TerraformRating",
+      )
     }
 
     kim.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Incorporator")
+      doTasks(
+          "UseAction<FundAwardAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Incorporator",
+      )
     }
     victoryPoints() shouldBe listOf(23, 25)
   }
@@ -99,8 +107,11 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Utopia_5_5>")
 
     kim.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Suburbian")
+      doTasks(
+          "UseAction<FundAwardAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Suburbian",
+      )
     }
     victoryPoints() shouldBe listOf(25, 20)
   }
@@ -114,8 +125,11 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("UseAction<FundAwardAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Founder")
+      doTasks(
+          "UseAction<FundAwardAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Founder",
+      )
     }
     victoryPoints() shouldBe listOf(25, 20)
   }
@@ -127,8 +141,11 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(4, "PROD[Titanium]")
 
     kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Metallurgist")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Metallurgist",
+      )
     }
   }
 
@@ -140,8 +157,11 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Trader")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Trader",
+      )
     }
   }
 
@@ -152,16 +172,21 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Fundraiser")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Fundraiser",
+        )
       }
     }
 
     kim.setToExMachina(12, "PROD[MC]")
     kim.inTurn {
-      doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC")
-      doTask("Fundraiser")
+      doTasks(
+          "UseAction<ClaimMilestoneAction, Action1>",
+          "8 Pay<> FROM MC",
+          "Fundraiser",
+      )
     }
   }
 }

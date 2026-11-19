@@ -8,20 +8,22 @@ import kotlin.test.Test
 internal class ColonialEnvoysTest : TfmSandboxTest() {
   @Test
   internal fun `Each owned colony supplies a delegate even when colonies share a tile`() {
-    newTestGame("ColonialEnvoys, TurmoilExpansion, Luna, Io")
+    newTestGame("$ColonialEnvoys, TurmoilExpansion, Luna, Io")
     kim.exMachina("2 Colony<Luna>, PartyLeader<Unity>, PartyFollower<Unity>")
     stan.exMachina("Colony<Io>")
 
     kim.inTurn {
           doTasks(
-              *playCardTasks("ColonialEnvoys"),
+              *playCardTasks("$ColonialEnvoys"),
               "4 Pay<> FROM MC",
-              "ColonialEnvoys FROM ProjectCard",
+              "$ColonialEnvoys FROM ProjectCard",
           )
           // Expand the per-colony reward into separate delegate choices.
-          doTask("EACH Colony<Kim> { PartyDelegate<Kim>! }")
-          doTask("PartyLeader<Scientists>")
-          doTask("PartyLeader<Greens>")
+          doTasks(
+              "EACH Colony { PartyDelegate! }",
+              "PartyLeader<Scientists>",
+              "PartyLeader<Greens>",
+          )
         }
         .expect("0 PartyDelegate<Stan>")
   }

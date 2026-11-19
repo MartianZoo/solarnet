@@ -23,9 +23,9 @@ internal class CuttingEdgeTechnologyTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          *playCardTasks("Advertising"),
+          *playCardTasks("$Advertising"),
           "4 Pay<> FROM MC",
-          "Advertising FROM ProjectCard",
+          "$Advertising FROM ProjectCard",
       )
     }
   }

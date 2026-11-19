@@ -1,15 +1,15 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class TerraLabsTest : TfmGameplayTest(NONE) {
+internal class TerraLabsTest : TfmGameplayTest() {
   @Test
   internal fun `Buys all four research cards for four MC`() {
     newTestGame(
-        addOptions = "TerraLabsResearch",
+        addOptions = "$TerraLabsResearch",
         playerCount = 2,
         kimCorporation = TerraLabsResearch,
     )
@@ -25,13 +25,15 @@ internal class TerraLabsTest : TfmGameplayTest(NONE) {
             "4 Pay<> FROM MC",
             "4 ProjectCard<Hand FROM Selecting>",
         )
-        .expect("4 ProjectCard, -4 MC")
+        .expect("4 ProjectCard")
+    stan.doTask("-4 ProjectCard<Selecting>")
+    admin.count("ActionPhase") shouldBe 1
   }
 
   @Test
   internal fun `Acquiring Polyphemos cancels the card-purchase discount`() {
     newTestGame(
-        addOptions = "PreludeExpansion, TerraLabsResearch",
+        addOptions = "PreludeExpansion, $TerraLabsResearch",
         playerCount = 2,
         kimCorporation = TerraLabsResearch,
     )
@@ -78,6 +80,8 @@ internal class TerraLabsTest : TfmGameplayTest(NONE) {
             "12 Pay<> FROM MC",
             "4 ProjectCard<Hand FROM Selecting>",
         )
-        .expect("4 ProjectCard, -12 MC")
+        .expect("4 ProjectCard")
+    stan.doTask("-4 ProjectCard<Selecting>")
+    admin.count("ActionPhase") shouldBe 1
   }
 }

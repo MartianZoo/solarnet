@@ -14,7 +14,7 @@ internal class WaterImportFromEuropaTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(
-              *cardActionTasks("WaterImportFromEuropa"),
+              *cardActionTasks("$WaterImportFromEuropa"),
               "4 Pay<Class<Titanium>> FROM Titanium",
               "Ok", // Nothing remains to pay in MC.
               "OceanTile<Tharsis_1_2>",

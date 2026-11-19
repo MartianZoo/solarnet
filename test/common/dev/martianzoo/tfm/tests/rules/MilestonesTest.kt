@@ -17,15 +17,19 @@ internal class MilestonesTest : TfmSandboxTest() {
     kim.inTurn {
       doTask("UseAction<ClaimMilestoneAction, Action1>")
       shouldThrow<TaskException> { doTask("Terraformer35") }
-      doTask("8 Pay<> FROM MC")
-      doTask("Terraformer35")
+      doTasks(
+          "8 Pay<> FROM MC",
+          "Terraformer35",
+      )
     }
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        doTask("UseAction<ClaimMilestoneAction, Action1>")
-        doTask("8 Pay<> FROM MC")
-        doTask("Terraformer35")
+        doTasks(
+            "UseAction<ClaimMilestoneAction, Action1>",
+            "8 Pay<> FROM MC",
+            "Terraformer35",
+        )
       }
     }
   }
@@ -47,7 +51,7 @@ internal class MilestonesTest : TfmSandboxTest() {
       }
       kim.count("Terraformer35") shouldBe 0
       kim.count("MC") shouldBe 8
-      kim.doTask("Pass")
+      doTask("Pass")
     }
     game.isIdle() shouldBe true
   }

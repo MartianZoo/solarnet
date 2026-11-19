@@ -1151,7 +1151,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "24 Pay<> FROM MC",
           "$InterplanetaryTrade FROM ProjectCard",
           "EACH",
-          "JovianTag<WildTagElection<WildTag<ResearchCoordination>>>",
+          "JovianTag<WildTagElection<WildTag<$ResearchCoordination>>>",
           "PROD[10 MC]",
       )
     }

@@ -18,20 +18,26 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<EstablishedMethods>>",
-          "EstablishedMethods FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
+          "$EstablishedMethods FROM PreludeCard",
           "30 MC",
       )
 
       kim.count("MC") shouldBe 30
       shouldThrow<NarrowingException> { doTask("UseAction<SellPatentsProject, Action1>") }
-      shouldThrow<TaskException> { doTasks(*playCardTasks("Mine")) }
-      doTask("UseAction<PowerPlantProject, Action1>")
-      doTasks("11 Pay<> FROM MC", "PROD[Energy]")
+      shouldThrow<TaskException> { doTasks(*playCardTasks("$Mine")) }
+      doTasks(
+          "UseAction<PowerPlantProject, Action1>",
+          "11 Pay<> FROM MC",
+          "PROD[Energy]",
+      )
 
       shouldThrow<TaskException> { doTask("Ok") }
-      doTask("UseAction<PowerPlantProject, Action1>")
-      doTasks("11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks(
+          "UseAction<PowerPlantProject, Action1>",
+          "11 Pay<> FROM MC",
+          "PROD[Energy]",
+      )
     }
 
     kim.assertCounts(10 to "ProjectCard", 1 to "$EstablishedMethods")
@@ -48,16 +54,21 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
-            "PlayCard<Class<PreludeCard>, Class<EstablishedMethods>>",
-            "EstablishedMethods FROM PreludeCard",
+            "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
+            "$EstablishedMethods FROM PreludeCard",
+            "30 MC",
         )
-        doTask("30 MC")
-        doTasks("UseAction<CityProject, Action1>", "25 Pay<> FROM MC")
-        doTask("PROD[MC]")
-        doTask("CityTile<Tharsis_3_3>")
+        doTasks(
+            "UseAction<CityProject, Action1>",
+            "25 Pay<> FROM MC",
+            "PROD[MC]",
+            "CityTile<Tharsis_3_3>",
+        )
 
-        doTask("UseAction<PowerPlantProject, Action1>")
-        doTask("11 Pay<> FROM MC")
+        doTasks(
+            "UseAction<PowerPlantProject, Action1>",
+            "11 Pay<> FROM MC",
+        )
       }
     }
     kim.assertCounts(0 to "$EstablishedMethods", 0 to "CityTile")
@@ -75,15 +86,21 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<EstablishedMethods>>",
-          "EstablishedMethods FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
+          "$EstablishedMethods FROM PreludeCard",
           "30 MC",
+      )
+
+      doTasks(
           "UseAction<CityProject, Action1>",
           "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_3_3>",
           "2 MC",
           "4 MC",
+      )
+
+      doTasks(
           "UseAction<PowerPlantProject, Action1>",
           "11 Pay<> FROM MC",
           "PROD[Energy]",
@@ -99,12 +116,18 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks(
-          "PlayCard<Class<PreludeCard>, Class<EstablishedMethods>>",
-          "EstablishedMethods FROM PreludeCard",
+          "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
+          "$EstablishedMethods FROM PreludeCard",
           "30 MC",
+      )
+
+      doTasks(
           "UseAction<PowerPlantProject, Action1>",
           "11 Pay<> FROM MC",
           "PROD[Energy]",
+      )
+
+      doTasks(
           "UseAction<CityProject, Action1>",
           "25 Pay<> FROM MC",
           "PROD[MC]",

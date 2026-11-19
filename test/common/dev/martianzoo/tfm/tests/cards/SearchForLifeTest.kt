@@ -16,10 +16,13 @@ internal class SearchForLifeTest : TfmSandboxTest() {
     kim.exMachina("$SearchForLife")
 
     val result = kim.inTurn {
-      doTasks(*cardActionTasks("SearchForLife"), "1 Pay<> FROM MC")
-      doTask("ProjectCard<Revealed>")
-      doTask("ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
-      doTask("-ProjectCard<Revealed>")
+      doTasks(
+          *cardActionTasks("$SearchForLife"),
+          "1 Pay<> FROM MC",
+          "ProjectCard<Revealed>",
+          "ClaimCardReward<TagFilter<Class<MicrobeTag>>, $SearchForLife>",
+          "-ProjectCard<Revealed>",
+      )
     }
     result.expect("-MC, Science<$SearchForLife>, 0 ProjectCard<Revealed>")
     result.changes.count { it.change.gaining?.className == AUDIT } shouldBe 1
@@ -30,10 +33,13 @@ internal class SearchForLifeTest : TfmSandboxTest() {
     kim.exMachina("$SearchForLife")
 
     val result = kim.inTurn {
-      doTasks(*cardActionTasks("SearchForLife"), "1 Pay<> FROM MC")
-      doTask("ProjectCard<Revealed>")
-      doTask("0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
-      doTask("-ProjectCard<Revealed>")
+      doTasks(
+          *cardActionTasks("$SearchForLife"),
+          "1 Pay<> FROM MC",
+          "ProjectCard<Revealed>",
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, $SearchForLife>",
+          "-ProjectCard<Revealed>",
+      )
     }
     result.expect("-MC, 0 Science<$SearchForLife>, 0 ProjectCard<Revealed>")
     result.changes.count { it.change.gaining?.className == AUDIT } shouldBe 0
