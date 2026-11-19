@@ -1,0 +1,1638 @@
+// Replay: SyntheticMagnetBurstTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/SyntheticMagnetBurstTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Source: _local/replays/Game20260820/ (game log, player record, and dashboard screenshots)
+// Complete archive replay: Synthetic Magnet Burst (ga5237bd2fb08)
+// https://terraforming-mars.herokuapp.com/the-end?id=pa9f45e80d897
+// Player-record evidence: Hellas, Corporate Era, Venus, Prelude, Prelude 2, drafting, World
+// Government, two players, and these full-random milestone and award pools.
+// Setup retains Solarnet's two-corporation offer; the archive offered three. The rejected-card
+// comments below preserve source identities, but the extra corporation rejection is not modeled.
+// This replay still uses Builder and Sponsor stand-ins for Thawer and Briber.
+// Player-record evidence: Merger was dealt despite promo cards being disabled, so it is included
+// individually without enabling promos:cards.
+Config {
+    Pink, Green
+    HellasMap
+    VenusNextExpansion, PreludeExpansion, Unsafe
+    prelude2:cards, Merger, SagittaFrontierServices
+    Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
+    Scientist, Landscaper, Founder, Contractor, Forecaster, Incorporator
+}
+
+GlobalEventDeck {
+}
+
+Pink: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Pink
+    2 PreludeCard
+    -3 ProjectCard<Selecting>
+}
+
+Green: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Green
+    2 PreludeCard
+    -6 ProjectCard<Selecting>
+}
+
+// Generation 1
+// Pink rejected CrediCor and Ecotec; Venus Contract and Focused Organization; and Windmills,
+// Open City, and Energy Saving.
+Pink: PlayCard(TharsisRepublic) {
+    40 MC VIA TharsisRepublic
+    Pay(21 MC)
+    7 ProjectCard<Hand FROM Selecting>
+}
+
+// Green rejected Ecoline and Morning Star Inc.; Project Eden and Floating Trade Hub; and
+// Magnetic Field Dome, Heather, Insulation, Cartel, Caretaker Contract, and Protected
+// Habitats.
+Green: PlayCard(NirgalEnterprises) {
+    30 MC VIA NirgalEnterprises
+    PROD[Energy]
+    PROD[Plant]
+    PROD[Steel]
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(Recession) {
+    10 MC
+    EACH Other@Player(NOT Pink) { -5* MC<Other@Player>, -Production<Other@Player, Class<MC>>! }
+    -5 MC<Green>
+    PROD[-MC<Green>]
+}
+// You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
+Pink: PlayCard(Merger) {
+    4 CorporationCard<Selecting>
+    PlayCard(SagittaFrontierServices, Selecting)
+    31 MC VIA SagittaFrontierServices
+    -42 MC VIA Merger
+    PROD[Energy]
+    PROD[2 MC]
+    // Pink drew Micro-Mills
+    SearchForCard<NoTagsFilter>
+    4 MC
+}
+
+Green: PlayCard(NobelPrize) {
+    5 MC
+    // Green drew Insects,Stratopolis
+    2 SearchForCard<RequirementFilter>
+}
+Green: PlayCard(SuitableInfrastructure) {
+    5 Steel
+}
+
+// You drew Industrial Center
+Pink: DoRequiredActions {
+    NormalCityTile<Hellas_9_7>
+    PROD[MC]
+    -3 MC
+    OceanTile<Hellas_5_6>
+    TerraformRating
+    ProjectCard
+}
+Pink: PlayCard(MicroMills) {
+    Pay(3 MC)
+    PROD[Heat]
+    4 MC
+}
+
+Green: PlayCard(MineralDeposit) {
+    Pay(5 MC)
+    5 Steel
+}
+
+Pink: PlayCard(Mine) {
+    Pay(4 MC)
+    PROD[Steel]
+    MC
+}
+Pink: PlayCard(GreatEscarpmentConsortium) {
+    Pay(6 MC)
+    PROD[Steel]
+    4 MC
+    PROD[-Steel<Green>]
+}
+
+// The later Aquifer Pumping action requires four of Green's ten steel to remain available.
+Green: PlayCard(AquiferPumping) {
+    Pay(6 Steel, 6 MC)
+}
+
+Pink: PlayCard(Sponsors) {
+    Pay(6 MC)
+    PROD[2 MC]
+    MC
+}
+// Copy Mine's production without creating another Mine.
+Pink: PlayCard(RoboticWorkforce) {
+    Pay(9 MC)
+    MC
+    CopyProductionBox<Mine>
+    PROD[Steel]
+}
+
+// No MC remainder.
+Green: UseAction1(AquiferPumping) {
+    Pay(4 Steel)
+    OceanTile<Hellas_7_3>
+    TerraformRating
+    2 Titanium
+}
+
+// Green declared this pass early after one action; Solarnet executes both passes in turn
+// order.
+Pink: Pass
+
+Green: Pass
+
+// Production.
+Pink: Production {
+    26 MC
+    Energy
+    Heat
+    3 Steel
+}
+
+Green: Production {
+    20 MC
+    Energy
+    Plant
+}
+
+// World Government.
+Pink: WorldGovernment {
+    OceanTile<Hellas_2_1>! BY Admin
+}
+
+// Generation 2
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+// You bought Giant Ice Asteroid,Investment Loan,Earth Office,Power Supply Consortium
+// Keep all four offered cards.
+Green: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(12 MC)
+}
+
+Green: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// Game20260820-dashboards-gen2.png was taken after Green's generation 2 purchase and
+// before Pink's.
+// You bought Invention Contest,Decomposers,Colonizer Training Camp,Imported Hydrogen
+// Keep all four offered cards.
+Pink: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(12 MC)
+}
+
+Pink: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Green: PlayCard(EarthOffice) {
+    Pay(1 MC)
+}
+
+Pink: PlayCard(DesignedMicroorganisms) {
+    Pay(16 MC)
+    PROD[2 Plant]
+}
+
+// Power Supply Consortium requires Nobel Prize's wild icon to count as Green's second power
+// tag.
+Green: PlayCard(PowerSupplyConsortium) {
+    Pay(5 MC)
+    PROD[Energy]
+    2 MC
+    PROD[-Energy<Pink>]
+}
+
+Pink: Pass
+
+Green: PlayCard(InvestmentLoan) {
+    PROD[-MC]
+    10 MC
+}
+Green: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Hellas_5_7>
+    TerraformRating
+    3 Heat
+    2 MC
+}
+// No MC remainder.
+Green: PlayCard(RotatorImpacts) {
+    Pay(2 Titanium)
+}
+Green: UseAction1(RotatorImpacts) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+Green: Pass
+
+// Production.
+Pink: Production {
+    26 MC
+    Heat VIA Production
+    3 Steel
+    Heat FROM Energy
+    2 Plant
+}
+
+Green: Production {
+    20 MC
+    2 Energy VIA Production
+    Plant
+    Heat FROM Energy
+}
+
+// World Government.
+Green: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 3
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+// You bought Mars University,Neutralizer Factory,Great Dam
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// You bought Hackers,ArchaeBacteria
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Game20260820-dashboards-gen3.png was taken after generation 3 purchases and before
+// the first action.
+// You drew Ishtar Mining
+Pink: PlayCard(InventionContest) {
+    Pay(2 MC)
+    3 ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+}
+
+// Green discarded Stratopolis
+// You drew House Printing
+Green: PlayCard(MarsUniversity) {
+    Pay(8 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Pink: PlayCard(Archaebacteria) {
+    Pay(6 MC)
+    PROD[Plant]
+    MC
+}
+
+Green: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+Pink: Pass
+
+Green: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Hellas_4_6>
+    TerraformRating
+    Plant
+    4 MC
+}
+Green: Pass
+
+// Production.
+Pink: Production {
+    26 MC
+    Heat
+    3 Steel
+    3 Plant
+}
+
+Green: Production {
+    22 MC
+    2 Energy VIA Production
+    Plant
+    2 Heat FROM Energy
+}
+
+// World Government.
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 4
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+// You bought Titanium Mine,Ecological Zone
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// You bought Media Group,Ironworks,Research,Miranda Resort
+// Keep all four offered cards.
+Green: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(12 MC)
+}
+
+Green: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Green: PlayCard(MediaGroup) {
+    Pay(3 MC)
+}
+
+// You drew Water Splitting Plant
+Pink: PlayCard(OrbitalReflectors) {
+    Pay(26 MC)
+    VenusStep
+    VenusStep
+    PROD[2 Heat]
+    2 TerraformRating
+    ProjectCard
+}
+Pink: PlayCard(IshtarMining) {
+    Pay(5 MC)
+    PROD[Titanium]
+    MC
+}
+
+// Miranda Resort counted Nobel Prize's wild icon as Green's third earth tag.
+Green: PlayCard(MirandaResort) {
+    Pay(12 MC)
+    PROD[3 MC]
+    2 MC
+}
+// Nobel Prize's wild icon counts as Green's eighth distinct tag.
+// Free with Nirgal Enterprises.
+Green: ClaimMilestone {
+    Diversifier
+}
+
+Pink: PlayCard(TitaniumMine) {
+    Pay(3 Steel, 1 MC)
+    PROD[Titanium]
+    MC
+}
+
+Green: Pass
+
+Pink: Pass
+
+// Production.
+Pink: Production {
+    28 MC
+    3 Heat
+    3 Steel
+    3 Plant
+    2 Titanium
+}
+
+Green: Production {
+    25 MC
+    2 Energy VIA Production
+    Plant
+    2 Heat FROM Energy
+}
+
+// World Government.
+Green: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 5
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Game20260820-dashboards-gen5.png was taken in generation 5 drafting, before purchases.
+// You bought Thermophiles,Rad-Chem Factory,GHG Factories
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// You bought Floating Habs,Nuclear Zone,Space Elevator
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_8_7>
+    OxygenStep
+    2 Heat
+    TerraformRating
+}
+
+Green: PlayCard(GreatDam) {
+    Pay(12 MC)
+    PROD[2 Energy]
+    2 MC
+}
+
+// The later Space Elevator action requires one of Pink's nine steel to remain available.
+Pink: PlayCard(SpaceElevator) {
+    Pay(2 Titanium, 8 Steel, 5 MC)
+    PROD[Titanium]
+}
+
+Green: UseAction1(RotatorImpacts) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+
+Pink: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+Green: Pass
+
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+// You drew Earth Catapult
+Pink: PlayCard(NuclearZone) {
+    Pay(10 MC)
+    TemperatureStep
+    TemperatureStep
+    MC
+    2 TerraformRating
+    PROD[Heat]
+    NuclearZone_SpecialTile<Hellas_3_7>
+    Plant
+    ProjectCard
+}
+Pink: Pass
+
+// Production.
+Pink: Production {
+    32 MC
+    4 Heat
+    3 Steel
+    3 Plant
+    3 Titanium
+}
+
+Green: Production {
+    25 MC
+    4 Energy VIA Production
+    Plant
+    2 Heat FROM Energy
+}
+
+// World Government.
+Pink: WorldGovernment {
+    OceanTile<Hellas_4_7>! BY Admin
+}
+
+// Generation 6
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+// You bought Solar Wind Power,Aerobraked Ammonia Asteroid
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// You bought Asteroid,Nitrite Reducing Bacteria
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Green: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Green: PlayCard(AsteroidCard) {
+    Pay(14 MC)
+    TemperatureStep
+    2 Titanium
+    3 MC
+    TerraformRating
+    PROD[Heat]
+    2 MC
+    -3 Plant<Pink>
+}
+
+Pink: PlayCard(EarthCatapult) {
+    Pay(23 MC)
+    MC
+}
+
+Green: PlayCard(Ironworks) {
+    Pay(11 MC)
+}
+
+// No MC remainder.
+Pink: PlayCard(SolarWindPower) {
+    Pay(3 Titanium)
+    PROD[Energy]
+    2 Titanium
+}
+Pink: ClaimMilestone {
+    Pay(8 MC)
+    Generalist
+}
+
+Green: UseAction1(Ironworks) {
+    Pay(4 Energy)
+    Steel
+    OxygenStep
+    TerraformRating
+}
+
+Pink: PlayCard(Hackers) {
+    Pay(1 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    4 MC
+    PROD[-2 MC<Green>]
+}
+Pink: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+Green: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+Pink: PlayCard(Decomposers) {
+    Pay(3 MC)
+    MC
+    Microbe<Decomposers>
+}
+// You drew Zeppelins
+Pink: PlayCard(EcologicalZone) {
+    Pay(10 MC)
+    Animal<EcologicalZone>
+    Microbe<Decomposers>
+    Animal<EcologicalZone>
+    Microbe<Decomposers>
+    EcologicalZone_SpecialTile<Hellas_7_6>
+    ProjectCard
+}
+
+// Free with Nirgal Enterprises.
+Green: FundAward {
+    Contractor
+}
+
+Pink: PlayCard(FloatingHabs) {
+    Pay(3 MC)
+    MC
+}
+Pink: PlayCard(ColonizerTrainingCamp) {
+    Pay(2 Steel, 2 MC)
+}
+
+Green: Pass
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Pink: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+Pink: Pass
+
+// Production.
+Pink: Production {
+    34 MC
+    4 Heat
+    3 Steel
+    3 Plant
+    3 Titanium
+}
+
+Green: Production {
+    27 MC
+    4 Energy
+    Plant
+    Heat
+}
+
+// World Government.
+Green: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 7
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+// You bought Lagrange Observatory,Advanced Ecosystems,Deimos Down
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// You bought Terraforming Contract,Sponsored Academies
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Game20260820-dashboards-gen7.png was taken after generation 7 purchases and before actions.
+Pink: PlayCard(DeimosDown) {
+    Pay(5 Titanium, 14 MC)
+    TemperatureStep
+    TemperatureStep
+    TemperatureStep
+    4 Steel
+    3 TerraformRating
+    -7 Plant<Green>
+}
+Pink: ClaimMilestone {
+    Pay(8 MC)
+    Terraformer
+}
+
+Green: PlayCard(TerraformingContract) {
+    Pay(5 MC)
+    PROD[4 MC]
+    2 MC
+}
+
+Pink: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+// No MC remainder.
+Green: UseAction1(RotatorImpacts) {
+    Pay(2 Titanium)
+    Asteroid<RotatorImpacts>
+}
+
+// You drew Gyropolis
+Pink: PlayCard(LagrangeObservatory) {
+    Pay(7 MC)
+    ProjectCard
+}
+
+Green: UseAction1(Ironworks) {
+    Pay(4 Energy)
+    Steel
+    OxygenStep
+    TerraformRating
+}
+
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Green: UseAction1(AquiferPumping) {
+    Pay(2 Steel, 4 MC)
+    OceanTile<Hellas_5_8>
+    TerraformRating
+    4 MC
+}
+
+Pink: Pass
+
+// Nobel Prize's wild icon counts as Green's second science tag.
+Green: PlayCard(TectonicStressPower) {
+    Pay(18 MC)
+    PROD[3 Energy]
+    2 MC
+}
+Green: Pass
+
+// Production.
+Pink: Production {
+    38 MC
+    4 Heat
+    3 Steel
+    3 Plant
+    3 Titanium
+}
+
+Green: Production {
+    33 MC
+    7 Energy
+    Plant
+    Heat
+}
+
+// World Government.
+Pink: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 8
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Game20260820-dashboards-gen8.png was taken during generation 8 drafting, before purchases.
+// You bought Ishtar Expedition,Lava Tube Settlement
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// You bought Rad-Suits,Geothermal Power,Gene Repair
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// Green drew Stratospheric Birds,Floating Refinery
+Green: PlayCard(IshtarExpedition) {
+    Pay(6 MC)
+    3 Titanium
+    2 SearchForCard<TagFilter<Class<VenusTag>>>
+    3 MC
+}
+Green: PlayCard(GiantIceAsteroid) {
+    Pay(3 Titanium, 27 MC)
+    TemperatureStep
+    TemperatureStep
+    3 MC
+    2 TerraformRating
+    OceanTile<Hellas_6_7>
+    TerraformRating
+    4 MC
+    OceanTile<Hellas_6_8>
+    TerraformRating
+    Steel
+    6 MC
+    -6 Plant<Pink>
+}
+
+Pink: PlayCard(GeothermalPower) {
+    Pay(4 Steel, 1 MC)
+    PROD[2 Energy]
+}
+// The later Space Elevator action requires one of Pink's five steel to remain available.
+Pink: PlayCard(ImmigrantCity) {
+    Pay(4 Steel, 3 MC)
+    PROD[-Energy]
+    PROD[-2 MC]
+    NormalCityTile<Hellas_2_5>
+    PROD[MC] VIA TharsisRepublic
+    3 MC
+    PROD[MC]
+    Plant
+}
+
+Green: UseAction1(Ironworks) {
+    Pay(4 Energy)
+    Steel
+    OxygenStep
+    TerraformRating
+}
+
+Pink: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+Pink: PlayCard(RadSuits) {
+    Pay(4 MC)
+    PROD[MC]
+    4 MC
+}
+
+Green: PlayCard(SponsoredAcademies) {
+    Pay(6 MC)
+    // Both cards offer a discard; identify Sponsored Academies explicitly.
+    -ProjectCard VIA SponsoredAcademies
+    // The context also avoids matching EACH against Mars University's unrelated THEN task.
+    EACH Other@Player(NOT Green) { ProjectCard<Other@Player>! } VIA SponsoredAcademies
+    // Green drew Commercial District, Cloud Seeding, and Solarnet.
+    // Pink drew GHG Producing Bacteria.
+    // Mars University: Green discarded Floating Refinery.
+    // Green drew Space Mirrors.
+    3 ProjectCard VIA SponsoredAcademies
+    ProjectCard<Pink> VIA SponsoredAcademies
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Pink: PlayCard(GeneRepair) {
+    Pay(10 MC)
+    PROD[2 MC]
+    MC
+}
+
+Green: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+Pink: PlayCard(GhgProducingBacteria) {
+    Pay(6 MC)
+    Microbe<Decomposers>
+}
+
+Green: PlayCard(RadChemFactory) {
+    Pay(2 Steel, 4 MC)
+    PROD[-Energy]
+    2 TerraformRating
+}
+
+Pink: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+
+Green: Pass
+
+Pink: PlayCard(AerobrakedAmmoniaAsteroid) {
+    Pay(3 Titanium, 15 MC)
+    PROD[3 Heat]
+    PROD[Plant]
+    2 Microbe<GhgProducingBacteria>
+}
+Pink: UseAction2(GhgProducingBacteria) {
+    -2 Microbe<GhgProducingBacteria>
+    TemperatureStep
+    TerraformRating
+}
+Pink: Pass
+
+// Production.
+Pink: Production {
+    42 MC
+    7 Heat
+    3 Steel
+    4 Plant
+    3 Titanium
+    Energy
+}
+
+Green: Production {
+    41 MC
+    6 Energy VIA Production
+    Plant
+    Heat VIA Production
+    3 Heat FROM Energy
+}
+
+// World Government.
+Green: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// All nine oceans are already placed, so the temperature bonus adds no ocean.
+Green: WorldGovernment {
+    OceanTile<WaterArea(HAS MAX 0 Tile)>* BY Admin
+}
+
+// Generation 9
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+// You bought Land Claim,Bribed Committee
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// You bought Herbivores,Dawn City,Beam From A Thorium Asteroid
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Hellas_3_6>
+    OxygenStep
+    2 Plant
+    4 MC
+    TerraformRating
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_8_6>
+    OxygenStep
+    2 Heat
+    TerraformRating
+    TemperatureStep
+    TerraformRating
+}
+
+Green: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+// Game20260820-dashboards-gen9-early.png was taken after Space Elevator and before Ironworks.
+Green: UseAction1(Ironworks) {
+    Pay(4 Energy)
+    Steel
+    OxygenStep
+    TerraformRating
+}
+
+// No MC remainder.
+Pink: PlayCard(IndustrialCenter) {
+    Pay(1 Steel)
+    MC
+    IndustrialCenter_SpecialTile<Hellas_9_8>
+    2 Heat
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Green: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Green: PlayCard(NeutralizerFactory) {
+    Pay(7 MC)
+    VenusStep
+    2 TerraformRating
+}
+
+Pink: PlayCard(DawnCity) {
+    Pay(3 Titanium, 4 MC)
+    PROD[-Energy]
+    PROD[Titanium]
+    NormalCityTile<DawnCity_RemoteArea>
+    3 MC
+    PROD[MC]
+}
+
+Green: UseAction1(RotatorImpacts) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+
+Pink: UseAction1(GhgProducingBacteria) {
+    Microbe<GhgProducingBacteria>
+}
+
+Green: PlayCard(BribedCommittee) {
+    Pay(4 MC)
+    2 TerraformRating
+    3 MC
+}
+
+Pink: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+
+Green: PlayCard(CloudSeeding) {
+    Pay(11 MC)
+    PROD[-MC]
+    PROD[2 Plant]
+    2 MC
+    PROD[-Heat<Pink>]
+}
+
+Pink: PlayCard(Zeppelins) {
+    Pay(11 MC)
+    PROD[2 MC]
+    4 MC
+}
+
+Green: PlayCard(LandClaim) {
+    Pay(1 MC)
+    3 MC
+    Community<Hellas_2_4>
+}
+
+Pink: Pass
+
+// You drew Water to Venus,Noctis City
+Green: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+Green: PlayCard(Solarnet) {
+    Pay(7 MC)
+    2 ProjectCard
+}
+Green: Pass
+
+// Production.
+Pink: Production {
+    50 MC
+    6 Heat VIA Production
+    3 Steel
+    4 Plant
+    4 Titanium
+    Heat FROM Energy
+}
+
+Green: Production {
+    47 MC
+    6 Energy VIA Production
+    3 Plant
+    Heat VIA Production
+    2 Heat FROM Energy
+}
+
+// Game20260820-dashboards-gen9-late.png was taken after production and before World Government.
+// World Government.
+Pink: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 10
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+// You bought Business Network
+Green: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(3 MC)
+}
+
+Green: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// You bought CEO's Favorite Project,Fusion Power
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Green: UseAction1(Ironworks) {
+    Pay(4 Energy)
+    Steel
+    OxygenStep
+    TerraformRating
+}
+// You drew Venusian Insects
+Green: PlayCard(LavaTubeSettlement) {
+    Pay(2 Steel, 11 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    2 MC
+    NormalCityTile<Hellas_8_5>
+    Pink: PROD[2 MC]
+    ProjectCard
+}
+
+Pink: PlayCard(FusionPower) {
+    Pay(4 Steel, 4 MC)
+    PROD[3 Energy]
+}
+
+Green: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Green: PlayCard(BusinessNetwork) {
+    Pay(1 MC)
+    PROD[-MC]
+}
+
+Pink: PlayCard(Herbivores) {
+    Pay(10 MC)
+    Animal<Herbivores> VIA Herbivores
+    MC
+    Animal<EcologicalZone>
+    Microbe<Decomposers>
+    PROD[-Plant<Green>]
+}
+// Three Earth tags and three Venus tags.
+Pink: PlayCard(Gyropolis) {
+    Pay(18 MC)
+    PROD[-2 Energy]
+    PROD[6 MC]
+    NormalCityTile<Hellas_1_3>
+    PROD[MC] VIA TharsisRepublic
+    3 MC
+    PROD[MC]
+    2 Plant
+}
+
+// Decline the revealed Business Network card.
+Green: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+// Energy Tapping and Ice Cap Melting.
+// Mars University: discard Ice Cap Melting.
+// Venus Shuttles.
+// Mars University: discard Venusian Insects.
+// Venus Soils.
+Green: PlayCard(Research) {
+    Pay(11 MC)
+    2 ProjectCard VIA Research
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+// All nine oceans are already placed.
+Pink: PlayCard(ImportedHydrogen) {
+    Pay(4 Titanium, 2 MC)
+    OceanTile<WaterArea(HAS MAX 0 Tile)>*
+    3 Plant
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_1_4>
+    OxygenStep
+    Animal<Herbivores>
+    Plant
+    Steel
+    TerraformRating
+}
+
+Green: PlayCard(HousePrinting) {
+    Pay(10 MC)
+    PROD[Steel]
+    2 MC
+}
+// Nobel Prize's wild icon counts as Green's second plant tag.
+Green: PlayCard(Insects) {
+    Pay(9 MC)
+    PROD[2 Plant]
+    2 MC
+}
+
+Pink: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+Green: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Green: PlayCard(WaterToVenus) {
+    Pay(9 MC)
+    VenusStep
+    3 MC
+    TerraformRating
+}
+
+Pink: FundAward {
+    Pay(14 MC)
+    Landscaper
+}
+
+Green: Pass
+
+Pink: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+Pink: UseAction1(GhgProducingBacteria) {
+    Microbe<GhgProducingBacteria>
+}
+Pink: Pass
+
+// Production.
+Pink: Production {
+    61 MC
+    6 Heat
+    3 Steel
+    4 Plant
+    4 Titanium
+    Energy
+}
+
+Green: Production {
+    51 MC
+    5 Energy VIA Production
+    4 Plant
+    Heat VIA Production
+    2 Heat FROM Energy
+    Steel
+}
+
+// Game20260820-dashboards-gen10.png was taken after production and before World Government.
+// World Government.
+Green: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 11
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+// You bought Technology Demonstration,Birds
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// You bought Giant Solar Shade,Algae
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Hellas_1_2>
+    OxygenStep
+    Animal<Herbivores>
+    2 Plant
+    TerraformRating
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_2_6>
+    OxygenStep
+    Animal<Herbivores>
+    Plant
+    TerraformRating
+}
+
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_8_4>
+    0 OxygenStep
+    Steel
+    2 MC
+}
+// Decline the revealed Business Network card.
+Green: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+// You drew Toll Station,Fueled Generators
+// No MC remainder.
+Pink: PlayCard(TechnologyDemonstration) {
+    Pay(1 Titanium)
+    2 ProjectCard
+}
+Pink: FundAward {
+    Pay(20 MC)
+    Founder
+}
+
+Green: UseAction1(Ironworks) {
+    Pay(4 Energy)
+    Steel
+    0 OxygenStep
+}
+Green: PlayCard(CommercialDistrict) {
+    Pay(3 Steel, 10 MC)
+    PROD[-Energy]
+    PROD[4 MC]
+    2 MC
+    CommercialDistrict_SpecialTile<Hellas_2_4>
+    Plant
+    Steel
+}
+
+Pink: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+Green: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Pink: UseAction1(GhgProducingBacteria) {
+    Microbe<GhgProducingBacteria>
+}
+
+Green: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Pink: PlayCard(AdvancedEcosystems) {
+    Pay(9 MC)
+    Animal<EcologicalZone>
+    Microbe<Decomposers>
+    Microbe<Decomposers>
+    Animal<EcologicalZone>
+    Microbe<Decomposers>
+}
+
+Green: PlayCard(GiantSolarShade) {
+    Pay(27 MC)
+    VenusStep
+    VenusStep
+    VenusStep
+    3 TerraformRating
+}
+
+Pink: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+
+Green: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Green: PlayCard(NoctisCity) {
+    Pay(1 Steel, 16 MC)
+    PROD[-Energy]
+    PROD[3 MC]
+    2 MC
+    NormalCityTile<Hellas_2_2>
+    Pink: PROD[2 MC]
+    2 Plant
+    2 MC
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+// Green declared this pass early after one action; Solarnet executes it on Green's next turn.
+Green: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+
+Pink: PlayCard(Birds) {
+    Pay(8 MC)
+    MC
+    Animal<EcologicalZone>
+    Microbe<Decomposers>
+    PROD[-2 Plant<Green>]
+}
+Pink: UseAction1(Birds) {
+    Animal<Birds>
+}
+
+Green: Pass
+
+Pink: PlayCard(CeosFavoriteProject) {
+    MC
+    Animal<Birds>
+}
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Pink: Pass
+
+// Production.
+Pink: Production {
+    66 MC
+    6 Heat VIA Production
+    3 Steel
+    4 Plant
+    4 Titanium
+    Energy VIA Production
+    Heat FROM Energy
+}
+
+Green: Production {
+    61 MC
+    3 Energy VIA Production
+    2 Plant
+    Heat VIA Production
+    Heat FROM Energy
+    Steel
+}
+
+// Final greenery placement
+// Pink declines the final greenery placement.
+// decline final greenery
+Pink {
+    Ok
+}
+
+// Green declines the final greenery placement.
+// decline final greenery
+Green {
+    Ok
+}
+
+Pink {
+    100 VictoryPoint
+}
+
+Green {
+    75 VictoryPoint
+}
+// _local/replays/Game20260820/player.json; final Mars map.

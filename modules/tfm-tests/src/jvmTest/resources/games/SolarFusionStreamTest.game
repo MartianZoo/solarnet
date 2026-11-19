@@ -1,0 +1,1895 @@
+// Replay: SolarFusionStreamTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/SolarFusionStreamTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Source: _local/replays/Game20260819/ (game log, player records, and generation-6 screenshot)
+// Complete archive replay: Solar Fusion Stream (g4ce040d78bb6)
+// https://terraforming-mars.herokuapp.com/the-end?id=pc2de3208e4ca
+// Player-record evidence: Elysium, Corporate Era, Prelude, promo cards, drafting, fast mode,
+// three players, and these limited-synergy milestone and award pools.
+// Unsupported component: unclaimed Terraformer substitutes for unclaimed Hydrologist.
+// The thresholds select the archived Builder and Terraformer variants.
+Config {
+    JR, KB, ER
+    ElysiumMap
+    PreludeExpansion
+    promos:cards
+    Builder, Philantropist, Spacefarer, Terraformer, Energizer
+    Incorporator, Botanist, Founder, Benefactor, Banker
+}
+
+GlobalEventDeck {
+}
+
+JR: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA JR
+    2 PreludeCard
+    -6 ProjectCard<Selecting>
+}
+
+KB: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA KB
+    2 PreludeCard
+    -5 ProjectCard<Selecting>
+}
+
+ER: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA ER
+    2 PreludeCard
+    -5 ProjectCard<Selecting>
+}
+
+// Generation 1
+// Player-record evidence: JR rejected Teractor and one unsupported corporation; UNMI
+// Contractor and Acquired Space Agency; Crash Site Cleanup, Outdoor Sports, Interstellar
+// Colony Ship, Tropical Resort, Physics Complex, and Weather Balloons.
+JR: PlayCard(TharsisRepublic) {
+    40 MC VIA TharsisRepublic
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// Mons Insurance: each opponent loses 2 MC production.
+// Player-record evidence: KB rejected Utopia Invest and Recyclon; Great Aquifer and Polar
+// Industries; Asteroid Deflection System, Decomposers, Black Polar Dust, Comet Aiming, and
+// Astra Mechanica.
+KB: PlayCard(MonsInsurance) {
+    48 MC VIA MonsInsurance
+    PROD[4 MC]
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+    EACH Other@Player(NOT KB) { -2! Production<Other@Player, Class<MC>> BY Other@Player }
+    -2! Production<JR, Class<MC>> BY JR
+    JR: PROD[-2 MC]
+    -2! Production<ER, Class<MC>> BY ER
+    ER: PROD[-2 MC]
+}
+
+// Player-record evidence: ER rejected Factorum and Viron; Mohole and Huge Asteroid; and Meat
+// Industry, Supercapacitors, Orbital Cleanup, Ice Cap Melting, and Towing A Comet.
+ER: PlayCard(TychoMagnetics) {
+    42 MC VIA TychoMagnetics
+    PROD[Energy]
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+JR: PlayCard(SmeltingPlant) {
+    OxygenStep
+    OxygenStep
+    5 Steel
+    2 TerraformRating
+}
+JR: PlayCard(SelfSufficientSettlement) {
+    PROD[2 MC]
+    NormalCityTile<Elysium_3_7>
+    PROD[MC]
+    3 MC
+    3 ProjectCard
+}
+
+KB: PlayCard(ResearchNetwork) {
+    PROD[MC]
+    3 ProjectCard
+}
+KB: PlayCard(EstablishedMethods) {
+    30 MC
+    UseStandardProject(PowerPlantProject)
+    Pay(11 MC)
+    PROD[Energy]
+    UseStandardProject(PowerPlantProject)
+    Pay(11 MC)
+    PROD[Energy]
+}
+
+// Payment reconstruction: ER spent five.
+ER: PlayCard(GalileanMining) {
+    PROD[2 Titanium]
+    -5 MC
+}
+// Payment reconstruction: ER spent three.
+ER: PlayCard(AquiferTurbines) {
+    PROD[2 Energy]
+    -3 MC
+    OceanTile<Elysium_4_7>
+    TerraformRating
+    Plant
+}
+
+JR: DoRequiredActions {
+    NormalCityTile<Elysium_5_6>
+    PROD[MC]
+    3 MC
+    3 Plant
+}
+JR: PlayCard(MethaneFromTitan) {
+    Pay(28 MC)
+    PROD[2 Heat]
+    PROD[2 Plant]
+}
+
+KB: PlayCard(ResearchOutpost) {
+    Pay(18 MC)
+    NormalCityTile<Elysium_5_3>
+    JR: PROD[MC]
+    2 Plant
+}
+KB: PlayCard(AcquiredCompany) {
+    Pay(9 MC)
+    PROD[3 MC]
+}
+
+ER: PlayCard(IndustrialCenter) {
+    Pay(4 MC)
+    IndustrialCenter_SpecialTile<Elysium_4_8>
+    Plant
+    Steel
+    2 MC
+}
+ER: UseAction1(IndustrialCenter) {
+    Pay(7 MC)
+    PROD[Steel]
+}
+
+JR: PlayCard(TechnologyDemonstration) {
+    Pay(5 MC)
+    2 ProjectCard
+}
+// Pay no steel.
+JR: PlayCard(FueledGenerators) {
+    Pay(1 MC)
+    PROD[-MC]
+    PROD[Energy]
+}
+
+KB: PlayCard(RestrictedArea) {
+    Pay(10 MC)
+    RestrictedArea_SpecialTile<Elysium_9_8>
+    ProjectCard
+}
+KB: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+
+ER: Pass
+
+JR: Pass
+
+KB: PlayCard(EnergyTapping) {
+    Pay(2 MC)
+    PROD[Energy]
+    PROD[-Energy<ER>]
+    0 MC<ER> FROM MC
+}
+KB: Pass
+
+// Production.
+JR: Production {
+    24 MC
+    2 Heat
+    2 Plant
+    Energy
+}
+
+KB: Production {
+    28 MC
+    3 Energy
+}
+
+ER: Production {
+    19 MC
+    2 Energy
+    2 Titanium
+    Steel
+}
+
+// Generation 2
+JR: Research {
+    4 ProjectCard<Selecting>
+}
+
+KB: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    -3 ProjectCard<Selecting>
+}
+
+ER: Research {
+    Pay(3 MC)
+}
+
+ER: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+KB: Research {
+    -2 ProjectCard<Selecting>
+}
+
+KB: Research {
+    Pay(6 MC)
+}
+
+KB: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+JR: Research {
+    -ProjectCard<Selecting>
+}
+
+JR: Research {
+    Pay(9 MC)
+}
+
+JR: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+KB: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+KB: PlayCard(PeroxidePower) {
+    Pay(6 MC)
+    PROD[-MC]
+    PROD[2 Energy]
+}
+
+ER: UseAction1(TychoMagnetics) {
+    SelectTask(-2! Energy THEN (2! ProjectCard<Selecting>, ProjectCard<ER, Hand FROM Selecting>!))
+    -2 Energy
+    2 ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+}
+ER: PlayCard(VestaShipyard) {
+    Pay(2 Titanium, 9 MC)
+    PROD[Titanium]
+}
+
+// Consequence reconstruction: JR lost one energy production and two money production.
+JR: PlayCard(ImmigrantCity) {
+    Pay(5 Steel, 3 MC)
+    PROD[-Energy]
+    PROD[-2 MC]
+    NormalCityTile<Elysium_3_3>
+    PROD[MC] VIA TharsisRepublic
+    3 MC
+    PROD[MC]
+    ProjectCard
+}
+JR: PlayCard(Pets) {
+    Pay(10 MC)
+    Animal<Pets>
+}
+
+KB: PlayCard(StaticHarvesting) {
+    Pay(4 MC)
+    PROD[Energy]
+    3 MC
+}
+KB: ClaimMilestone {
+    Pay(8 MC)
+    Energizer
+}
+
+ER: UseAction1(IndustrialCenter) {
+    Pay(7 MC)
+    PROD[Steel]
+}
+
+JR: PlayCard(SterlingVents) {
+    Pay(5 MC)
+    PROD[-2 Heat]
+    PROD[2 Energy]
+}
+
+KB: Pass
+
+// Chronology: Heroku records ER's and JR's illegal second-action passes here. Decline those
+// second actions in Solarnet, then perform the no-effect passes at the next legal first-action
+// checkpoint.
+ER: Pass
+
+JR: Pass
+
+// Production.
+JR: Production {
+    24 MC
+    2 Plant
+    Heat FROM Energy VIA Energy
+    2 Energy
+}
+
+KB: Production {
+    27 MC
+    6 Energy VIA Production
+    3 Heat FROM Energy
+}
+
+ER: Production {
+    19 MC
+    2 Energy
+    3 Titanium
+    2 Steel
+}
+
+// Generation 3
+JR: Research {
+    4 ProjectCard<Selecting>
+}
+
+KB: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    4 ProjectCard<Selecting>
+}
+
+JR: Research {
+    -3 ProjectCard<Selecting>
+}
+
+JR: Research {
+    Pay(3 MC)
+}
+
+JR: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+ER: Research {
+    -2 ProjectCard<Selecting>
+}
+
+ER: Research {
+    Pay(6 MC)
+}
+
+ER: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+KB: Research {
+    -ProjectCard<Selecting>
+}
+
+KB: Research {
+    Pay(9 MC)
+}
+
+KB: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+ER: UseAction1(TychoMagnetics) {
+    SelectTask(-2! Energy THEN (2! ProjectCard<Selecting>, ProjectCard<ER, Hand FROM Selecting>!))
+    -2 Energy
+    2 ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+}
+ER: UseAction1(IndustrialCenter) {
+    Pay(7 MC)
+    PROD[Steel]
+}
+
+JR: PlayCard(NaturalPreserve) {
+    Pay(9 MC)
+    PROD[MC]
+    NaturalPreserve_SpecialTile<Elysium_8_4>
+    2 Steel
+}
+JR: ClaimMilestone {
+    Pay(8 MC)
+    Builder
+}
+
+KB: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+KB: PlayCard(OlympusConference) {
+    Pay(9 MC)
+    Science<OlympusConference>
+}
+
+ER: Pass
+
+JR: PlayCard(EnergyMarket) {
+    Pay(3 MC)
+}
+
+KB: PlayCard(QuantumExtractor) {
+    Pay(12 MC)
+    PROD[4 Energy]
+    ProjectCard FROM Science<OlympusConference>
+}
+KB: PlayCard(EarthOffice) {
+}
+
+// Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
+JR: Pass
+
+KB: Pass
+
+// Production.
+JR: Production {
+    25 MC
+    2 Plant
+    2 Energy VIA Production
+    2 Heat FROM Energy
+}
+
+KB: Production {
+    27 MC
+    10 Energy VIA Production
+    6 Heat FROM Energy
+}
+
+ER: Production {
+    19 MC
+    2 Energy
+    3 Titanium
+    3 Steel
+}
+
+// Generation 4
+JR: Research {
+    4 ProjectCard<Selecting>
+}
+
+KB: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Keep all four research cards.
+KB: Research {
+    -0 ProjectCard<Selecting>
+}
+
+KB: Research {
+    Pay(12 MC)
+}
+
+KB: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+JR: Research {
+    -3 ProjectCard<Selecting>
+}
+
+JR: Research {
+    Pay(3 MC)
+}
+
+JR: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// Keep all four research cards.
+ER: Research {
+    -0 ProjectCard<Selecting>
+}
+
+ER: Research {
+    Pay(12 MC)
+}
+
+ER: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+JR: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Elysium_2_6>
+    OxygenStep
+    2 Steel
+    TerraformRating
+}
+JR: PlayCard(KaguyaTech) {
+    Pay(10 MC)
+    PROD[2 MC]
+    ProjectCard
+    NormalCityTile<Elysium_2_6> FROM GreeneryTile<Elysium_2_6>
+    PROD[MC] VIA TharsisRepublic
+    3 MC
+    PROD[MC]
+    Animal<Pets>
+    2 Steel
+}
+
+KB: PlayCard(MassConverter) {
+    Pay(7 MC)
+    PROD[6 Energy]
+    Science<OlympusConference>
+}
+KB: PlayCard(InvestmentLoan) {
+    PROD[-MC]
+    10 MC
+}
+
+ER: UseAction1(TychoMagnetics) {
+    SelectTask(-2! Energy THEN (2! ProjectCard<Selecting>, ProjectCard<ER, Hand FROM Selecting>!))
+    -2 Energy
+    2 ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+}
+ER: PlayCard(InventorsGuild) {
+    Pay(9 MC)
+}
+
+JR: PlayCard(LavaTubeSettlement) {
+    Pay(6 Steel, 3 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    NormalCityTile<Elysium_3_1>
+    PROD[MC] VIA TharsisRepublic
+    3 MC
+    PROD[MC]
+    Animal<Pets>
+    2 Titanium
+}
+JR: PlayCard(HermeticOrderOfMars) {
+    Pay(10 MC)
+    PROD[2 MC]
+    22 MC
+}
+
+KB: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+KB: PlayCard(StandardTechnology) {
+    Pay(5 MC)
+    ProjectCard FROM Science<OlympusConference>
+}
+
+ER: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+ER: PlayCard(DuskLaserMining) {
+    Pay(2 Titanium, 2 MC)
+    PROD[-Energy]
+    PROD[Titanium]
+    4 Titanium
+}
+
+JR: PlayCard(InterplanetaryTrade) {
+    Pay(2 Titanium, 21 MC)
+    EACH @WildTagElection { Tag<@WildTagElection>? }
+    PROD[9 MC]
+}
+
+KB: PlayCard(AdaptedLichen) {
+    Pay(8 MC)
+    PROD[Plant]
+}
+KB: PlayCard(Hackers) {
+    Pay(2 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    PROD[-2 MC<JR>]
+    MC<JR> FROM MC
+}
+
+// User recollection: ER used all eight titanium and retained 11 M€ after this play.
+ER: PlayCard(WaterImportFromEuropa) {
+    Pay(8 Titanium, 1 MC)
+}
+ER: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+JR: Pass
+
+KB: Pass
+
+ER: UseAction1(WaterImportFromEuropa) {
+    Pay(12 MC)
+    OceanTile<Elysium_4_4>
+    TerraformRating
+    2 Plant
+}
+ER: Pass
+
+// Production.
+JR: Production {
+    43 MC
+    2 Plant
+    Energy VIA Production
+    2 Heat FROM Energy
+}
+
+KB: Production {
+    28 MC
+    15 Energy VIA Production
+    10 Heat FROM Energy
+    Plant
+}
+
+ER: Production {
+    20 MC
+    Energy
+    4 Titanium
+    3 Steel
+}
+
+// Generation 5
+JR: Research {
+    4 ProjectCard<Selecting>
+}
+
+KB: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    4 ProjectCard<Selecting>
+}
+
+JR: Research {
+    -ProjectCard<Selecting>
+}
+
+JR: Research {
+    Pay(9 MC)
+}
+
+JR: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+KB: Research {
+    -ProjectCard<Selecting>
+}
+
+KB: Research {
+    Pay(9 MC)
+}
+
+KB: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+ER: Research {
+    -2 ProjectCard<Selecting>
+}
+
+ER: Research {
+    Pay(6 MC)
+}
+
+ER: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+KB: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+KB: PlayCard(BusinessContacts) {
+    Pay(3 MC)
+    4 ProjectCard<Selecting>
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+ER: UseAction1(TychoMagnetics) {
+    SelectTask(-Energy! THEN (ProjectCard<Selecting>!, ProjectCard<ER, Hand FROM Selecting>!))
+    -Energy
+    ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+}
+ER: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+JR: ClaimMilestone {
+    Pay(8 MC)
+    Philantropist
+}
+JR: PlayCard(SpaceElevator) {
+    Pay(27 MC)
+    PROD[Titanium]
+}
+
+KB: PlayCard(HiredRaiders) {
+    2 Steel FROM Steel<ER>
+    3 MC<ER> FROM MC
+}
+KB: PlayCard(TitaniumMine) {
+    Pay(2 Steel, 2 MC)
+    PROD[Titanium]
+}
+
+ER: PlayCard(DustSeals) {
+    Pay(2 MC)
+}
+ER: PlayCard(Sponsors) {
+    Pay(6 MC)
+    PROD[2 MC]
+}
+
+JR: PlayCard(Archaebacteria) {
+    Pay(6 MC)
+    PROD[Plant]
+}
+
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+KB: PlayCard(EquatorialMagnetizer) {
+    Pay(10 MC)
+}
+
+// No MC remainder.
+ER: UseAction1(WaterImportFromEuropa) {
+    Pay(4 Titanium)
+    OceanTile<Elysium_5_4>
+    TerraformRating
+    2 Plant
+    2 MC
+}
+// No MC remainder.
+ER: PlayCard(CommercialDistrict) {
+    Pay(8 Steel)
+    PROD[-Energy]
+    PROD[4 MC]
+    CommercialDistrict_SpecialTile<Elysium_4_3>
+    Plant
+    4 MC
+}
+
+JR: Pass
+
+KB: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+
+ER: Pass
+
+KB: Pass
+
+// Production.
+JR: Production {
+    43 MC
+    3 Plant
+    Energy VIA Production
+    Heat FROM Energy
+    Titanium
+}
+
+KB: Production {
+    29 MC
+    14 Energy VIA Production
+    15 Heat FROM Energy
+    Plant
+    Titanium
+}
+
+ER: Production {
+    27 MC
+    4 Titanium
+    3 Steel
+}
+
+// Generation 6
+JR: Research {
+    4 ProjectCard<Selecting>
+}
+
+KB: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    -2 ProjectCard<Selecting>
+}
+
+ER: Research {
+    Pay(6 MC)
+}
+
+ER: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Keep all four research cards.
+KB: Research {
+    -0 ProjectCard<Selecting>
+}
+
+KB: Research {
+    Pay(12 MC)
+}
+
+KB: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+JR: Research {
+    -2 ProjectCard<Selecting>
+}
+
+JR: Research {
+    Pay(6 MC)
+}
+
+JR: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+ER: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+ER: PlayCard(GiantSpaceMirror) {
+    Pay(4 Titanium, 5 MC)
+    PROD[3 Energy]
+}
+
+JR: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+JR: PlayCard(FieldCappedCity) {
+    Pay(29 MC)
+    PROD[2 MC]
+    PROD[Energy]
+    3 Plant
+    NormalCityTile<Elysium_6_5>
+    PROD[MC] VIA TharsisRepublic
+    3 MC VIA TharsisRepublic
+    PROD[MC]
+    Animal<Pets>
+    Plant
+    2 MC
+}
+
+KB: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+KB: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+
+ER: UseAction1(WaterImportFromEuropa) {
+    Pay(12 MC)
+    OceanTile<Elysium_4_6>
+    TerraformRating
+    Plant
+    2 MC
+}
+ER: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Elysium_5_8>
+    OxygenStep
+    2 Plant
+    2 MC
+    TerraformRating
+}
+
+JR: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Elysium_5_5>
+    OxygenStep
+    2 Plant
+    4 MC
+    TerraformRating
+}
+// Screenshot: Game20260819-dashboard-gen6.png, after JR's greenery and before Zeppelins.
+JR: PlayCard(Zeppelins) {
+    Pay(13 MC)
+    PROD[7 MC]
+}
+
+KB: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+KB: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+
+ER: PlayCard(RedShips) {
+    Pay(2 MC)
+}
+ER: UseAction1(RedShips) {
+    7 MC
+}
+
+// No MC remainder.
+JR: PlayCard(SpaceMirrors) {
+    Pay(1 Titanium)
+}
+
+KB: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+KB: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+
+// No MC remainder.
+ER: PlayCard(Greenhouses) {
+    Pay(3 Steel)
+    7 Plant
+}
+ER: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Elysium_5_9>
+    OxygenStep
+    Plant
+    Titanium
+    TerraformRating
+}
+
+JR: Pass
+
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+KB: PlayCard(IceAsteroid) {
+    Pay(1 Titanium, 15 MC)
+    OceanTile<Elysium_3_5>
+    TerraformRating
+    Plant
+    2 MC
+    OceanTile<Elysium_3_6>
+    TerraformRating
+    6 MC
+}
+
+ER: PlayCard(StripMine) {
+    Pay(25 MC)
+    PROD[-2 Energy]
+    PROD[2 Steel]
+    PROD[Titanium]
+    OxygenStep
+    OxygenStep
+    2 TerraformRating
+    TemperatureStep
+    TerraformRating
+}
+
+KB: PlayCard(NoctisFarming) {
+    Pay(9 MC)
+    PROD[MC]
+    2 Plant
+}
+
+ER: Pass
+
+KB: Pass
+
+// Production.
+JR: Production {
+    56 MC
+    3 Plant
+    2 Energy VIA Production
+    Heat FROM Energy
+    Titanium
+}
+
+KB: Production {
+    37 MC
+    13 Energy VIA Production
+    14 Heat FROM Energy VIA Energy
+    Plant
+    Titanium
+    2 Heat
+}
+
+ER: Production {
+    33 MC
+    5 Titanium
+    5 Steel
+    Energy
+}
+
+// Generation 7
+JR: Research {
+    4 ProjectCard<Selecting>
+}
+
+KB: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    4 ProjectCard<Selecting>
+}
+
+JR: Research {
+    -2 ProjectCard<Selecting>
+}
+
+JR: Research {
+    Pay(6 MC)
+}
+
+JR: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Keep all four research cards.
+ER: Research {
+    -0 ProjectCard<Selecting>
+}
+
+ER: Research {
+    Pay(12 MC)
+}
+
+ER: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+KB: Research {
+    -2 ProjectCard<Selecting>
+}
+
+KB: Research {
+    Pay(6 MC)
+}
+
+KB: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+JR: UseAction1(SpaceMirrors) {
+    Pay(7 MC)
+    PROD[Energy]
+}
+JR: FundAward {
+    Pay(8 MC)
+    Banker
+}
+
+KB: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Elysium_5_2>
+    OxygenStep
+    2 Plant
+    TerraformRating
+}
+KB: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+
+ER: UseAction1(TychoMagnetics) {
+    SelectTask(-Energy! THEN (ProjectCard<Selecting>!, ProjectCard<ER, Hand FROM Selecting>!))
+    -Energy
+    ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+}
+ER: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+JR: PlayCard(Mine) {
+    Pay(4 MC)
+    PROD[Steel]
+}
+JR: PlayCard(Supermarkets) {
+    Pay(9 MC)
+    PROD[2 MC]
+}
+
+KB: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+ER: PlayCard(AdvancedAlloys) {
+    Pay(9 MC)
+}
+// No MC remainder.
+ER: UseAction1(WaterImportFromEuropa) {
+    Pay(3 Titanium)
+    OceanTile<Elysium_1_3>
+    TerraformRating
+    ProjectCard
+}
+
+JR: PlayCard(MagneticShield) {
+    Pay(1 Titanium, 21 MC)
+    4 TerraformRating
+}
+
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+KB: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+ER: PlayCard(MediaGroup) {
+    Pay(6 MC)
+}
+ER: PlayCard(AsteroidCard) {
+    Pay(3 Titanium, 2 MC)
+    TemperatureStep
+    2 Titanium
+    3 MC
+    TerraformRating
+    -3 Plant<JR>
+    KB: 3 MC<JR> FROM MC
+}
+
+JR: Pass
+
+KB: PlayCard(DesignedMicroorganisms) {
+    Pay(15 MC)
+    PROD[2 Plant]
+    Science<OlympusConference>
+}
+KB: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+ER: PlayCard(SolarWindPower) {
+    Pay(2 Titanium, 3 MC)
+    PROD[Energy]
+    2 Titanium
+}
+ER: UseAction1(RedShips) {
+    8 MC
+}
+
+// Consequence reconstruction: KB lost two plants.
+KB: PlayCard(Potatoes) {
+    Pay(1 MC)
+    -2 Plant
+    PROD[2 MC]
+}
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+ER: PlayCard(SubterraneanReservoir) {
+    Pay(11 MC)
+    3 MC
+    OceanTile<Elysium_2_5>
+    TerraformRating
+    4 MC
+}
+ER: PlayCard(MirandaResort) {
+    Pay(2 Titanium, 4 MC)
+    PROD[2 MC]
+}
+
+KB: Pass
+
+ER: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+ER: PlayCard(LightningHarvest) {
+    Pay(8 MC)
+    PROD[Energy]
+    PROD[MC]
+}
+ER: Pass
+
+// Production.
+JR: Production {
+    62 MC
+    3 Plant
+    3 Energy VIA Production
+    2 Heat FROM Energy
+    Titanium
+    Steel
+}
+
+KB: Production {
+    43 MC
+    12 Energy VIA Production
+    13 Heat FROM Energy VIA Energy
+    3 Plant
+    Titanium
+    2 Heat
+}
+
+ER: Production {
+    39 MC
+    5 Titanium
+    5 Steel
+    3 Energy
+}
+
+// Generation 8
+JR: Research {
+    4 ProjectCard<Selecting>
+}
+
+KB: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Keep all four research cards.
+ER: Research {
+    -0 ProjectCard<Selecting>
+}
+
+ER: Research {
+    Pay(12 MC)
+}
+
+ER: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+JR: Research {
+    -ProjectCard<Selecting>
+}
+
+JR: Research {
+    Pay(9 MC)
+}
+
+JR: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+KB: Research {
+    -2 ProjectCard<Selecting>
+}
+
+KB: Research {
+    Pay(6 MC)
+}
+
+KB: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+KB: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+KB: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+
+ER: UseAction1(TychoMagnetics) {
+    SelectTask(-3! Energy THEN (3! ProjectCard<Selecting>, ProjectCard<ER, Hand FROM Selecting>!))
+    -3 Energy
+    3 ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+}
+// No MC remainder.
+ER: UseAction1(WaterImportFromEuropa) {
+    Pay(3 Titanium)
+    OceanTile<Elysium_1_4>
+    TerraformRating
+    Steel
+    4 MC
+}
+
+JR: UseAction1(SpaceMirrors) {
+    Pay(7 MC)
+    PROD[Energy]
+}
+JR: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+KB: PlayCard(EarthCatapult) {
+    Pay(19 MC)
+}
+// Leave the opponents' plants.
+KB: PlayCard(BigAsteroid) {
+    Pay(2 Titanium, 14 MC)
+    TemperatureStep
+    TemperatureStep
+    4 Titanium
+    2 TerraformRating
+    -0 Plant<Anyone>
+}
+
+// No MC remainder.
+ER: PlayCard(GreatDamPromo) {
+    Pay(5 Steel)
+    PROD[2 Energy]
+    GreatDamPromo_SpecialTile<Elysium_1_5>
+    ProjectCard
+    4 MC
+}
+ER: PlayCard(SolarLogistics) {
+    Pay(2 Titanium, 12 MC)
+    2 Titanium
+}
+
+JR: PlayCard(Algae) {
+    Pay(10 MC)
+    Plant
+    PROD[2 Plant]
+}
+JR: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Elysium_4_5>
+    OxygenStep
+    Plant
+    6 MC
+    TerraformRating
+}
+
+KB: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+KB: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+ER: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+ER: PlayCard(MarsUniversity) {
+    Pay(2 Steel, 2 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+JR: PlayCard(RobotPollinators) {
+    Pay(9 MC)
+    PROD[Plant]
+    2 Plant
+}
+JR: PlayCard(MedicalLab) {
+    Pay(13 MC)
+    PROD[6 MC]
+}
+
+KB: PlayCard(NitrogenRichAsteroid) {
+    Pay(4 Titanium, 12 MC)
+    2 TerraformRating
+    TemperatureStep
+    ER: ProjectCard
+    TerraformRating
+    PROD[4 Plant]
+}
+KB: PlayCard(SmallAsteroid) {
+    Pay(3 MC)
+    TemperatureStep
+    ER: ProjectCard
+    TerraformRating
+    // All nine oceans are already placed.
+    OceanTile<WaterArea(HAS MAX 0 Tile)>*
+    -2 Plant<JR>
+    0 MC<JR> FROM MC
+}
+
+// Payment reconstruction: ER spent a fourth steel for the remaining two so the later Gene
+// Repair payment and final dashboard can both be reproduced.
+// No MC remainder.
+ER: PlayCard(GhgFactories) {
+    Pay(4 Steel)
+    PROD[-Energy]
+    PROD[4 Heat]
+}
+ER: PlayCard(RoboticWorkforce) {
+    Pay(9 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+    CopyProductionBox<GhgFactories>
+    PROD[-Energy]
+    PROD[4 Heat]
+}
+
+JR: PlayCard(PhobosSpaceHaven) {
+    Pay(1 Titanium, 22 MC)
+    PROD[Titanium]
+    NormalCityTile<PhobosSpaceHaven_RemoteArea>
+    3 MC
+    PROD[MC]
+    Animal<Pets>
+}
+JR: FundAward {
+    Pay(14 MC)
+    Founder
+}
+
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+KB: PlayCard(Tardigrades) {
+    Pay(1 MC)
+}
+
+ER: PlayCard(GeneRepair) {
+    Pay(12 MC)
+    PROD[2 MC]
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+ER: UseAction1(RedShips) {
+    9 MC
+}
+
+JR: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+
+KB: UseAction1(Tardigrades) {
+    Microbe<Tardigrades>
+}
+
+ER: PlayCard(Shuttles) {
+    Pay(2 Titanium, 2 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+}
+
+JR: Pass
+
+KB: Pass
+
+ER: Pass
+
+// Production.
+JR: Production {
+    70 MC
+    6 Plant
+    4 Energy VIA Production
+    3 Heat FROM Energy
+    2 Titanium
+    Steel
+}
+
+KB: Production {
+    52 MC
+    11 Energy VIA Production
+    12 Heat FROM Energy VIA Energy
+    7 Plant
+    Titanium
+    2 Heat
+}
+
+ER: Production {
+    44 MC
+    5 Titanium
+    5 Steel
+    2 Energy
+    8 Heat
+}
+
+// Generation 9
+JR: Research {
+    4 ProjectCard<Selecting>
+}
+
+KB: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    4 ProjectCard<Selecting>
+}
+
+KB: Research {
+    -ProjectCard<Selecting>
+}
+
+KB: Research {
+    Pay(9 MC)
+}
+
+KB: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+ER: Research {
+    -ProjectCard<Selecting>
+}
+
+ER: Research {
+    Pay(9 MC)
+}
+
+ER: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+JR: Research {
+    -3 ProjectCard<Selecting>
+}
+
+JR: Research {
+    Pay(3 MC)
+}
+
+JR: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+ER: PlayCard(DeimosDownPromo) {
+    Pay(5 Titanium, 9 MC)
+    TemperatureStep
+    TemperatureStep
+    TemperatureStep
+    4 Steel
+    3 MC
+    ProjectCard
+    3 TerraformRating
+    DeimosDownPromo_SpecialTile<Elysium_9_7>
+    ProjectCard
+    -6 Plant<JR>
+    KB: 3 MC<JR> FROM MC
+}
+ER: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+JR: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+JR: UseAction1(SpaceMirrors) {
+    Pay(7 MC)
+    PROD[Energy]
+}
+
+KB: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Elysium_6_3>
+    OxygenStep
+    Plant
+    TerraformRating
+}
+KB: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+
+// Keep the offered card.
+ER: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+ER: PlayCard(SmallAnimals) {
+    Pay(6 MC)
+    PROD[-Plant<KB>]
+}
+
+JR: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Elysium_6_6>
+    OxygenStep
+    Plant
+    TerraformRating
+}
+JR: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Elysium_3_2>
+    OxygenStep
+    TerraformRating
+}
+
+KB: PlayCard(Research) {
+    Pay(8 MC)
+    2 ProjectCard VIA Research
+    ProjectCard FROM Science<OlympusConference>
+    Science<OlympusConference>
+}
+KB: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+
+ER: PlayCard(BioPrintingFacility) {
+    Pay(2 Steel, 1 MC)
+}
+ER: UseAction1(BioPrintingFacility) {
+    Pay(2 Energy)
+    Animal<SmallAnimals>
+}
+
+JR: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Elysium_4_2>
+    OxygenStep
+    Plant
+    TerraformRating
+}
+
+KB: PlayCard(InventionContest) {
+    3 ProjectCard<Selecting> VIA InventionContest
+    ProjectCard<Hand FROM Selecting> VIA InventionContest
+    ProjectCard FROM Science<OlympusConference>
+}
+KB: UseAction1(Tardigrades) {
+    Microbe<Tardigrades>
+}
+
+// Payment reconstruction: ER spent a second steel for the remaining two so the later Callisto
+// Penal Mines payment and final dashboard can both be reproduced.
+// No MC remainder.
+ER: PlayCard(MagneticFieldDome) {
+    Pay(2 Steel)
+    PROD[-2 Energy]
+    PROD[Plant]
+    TerraformRating
+}
+ER: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+
+// Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
+JR: Pass
+
+// Source log: 14 cards revealed and 14 M€ gained.
+KB: PlayCard(PublicPlans) {
+    Pay(4 MC)
+    SelectTask(14! ProjectCard<Revealed> FROM ProjectCard THEN 14! ProjectCard<KB, Hand FROM Revealed> THEN 14! MC)
+    14 ProjectCard<Revealed FROM Hand>
+    14 ProjectCard<Hand FROM Revealed>
+    14 MC
+}
+KB: PlayCard(Ants) {
+    Pay(6 MC)
+}
+
+ER: UseAction1(RedShips) {
+    9 MC
+}
+// No MC remainder.
+ER: PlayCard(PublicBaths) {
+    Pay(2 Steel)
+    6 MC
+}
+
+KB: UseAction1(Ants) {
+    -Microbe<Tardigrades>
+    Microbe<Ants>
+}
+KB: FundAward {
+    Pay(20 MC)
+    Benefactor
+}
+
+ER: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+ER: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+KB: PlayCard(BactoviralResearch) {
+    Pay(7 MC)
+    ProjectCard VIA BactoviralResearch
+    Science<OlympusConference>
+    11 Microbe<Ants>
+}
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+ER: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+ER: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+ER: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+// Consequence reconstruction: ER gained one money production.
+ER: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Elysium_6_2>
+    JR: PROD[2 MC]
+    JR: Animal<Pets>
+    Steel
+}
+
+KB: PlayCard(Worms) {
+    Pay(5 MC)
+    PROD[3 Plant]
+}
+KB: PlayCard(ImportedNutrients) {
+    Pay(1 Titanium, 1 MC)
+    4 Plant
+    ER: ProjectCard
+    4 Microbe<Ants>
+}
+
+ER: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+ER: PlayCard(CallistoPenalMines) {
+    Pay(22 MC)
+    PROD[3 MC]
+}
+
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+ER: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+KB: UseStandardProject(SellPatentsProject) {
+    4 MC FROM ProjectCard
+}
+KB: PlayCard(SoilFactory) {
+    Pay(6 MC)
+    PROD[-Energy]
+    PROD[Plant]
+}
+
+ER: Pass
+
+KB: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+KB: Pass
+
+// Production.
+JR: Production {
+    75 MC
+    6 Plant
+    5 Energy VIA Production
+    4 Heat FROM Energy
+    2 Titanium
+    Steel
+}
+
+KB: Production {
+    54 MC
+    9 Energy VIA Production
+    11 Heat FROM Energy VIA Energy
+    10 Plant
+    Titanium
+    2 Heat
+}
+
+ER: Production {
+    53 MC
+    5 Titanium
+    5 Steel
+    8 Heat
+    Plant
+}
+
+// Decline ER's final greenery placement.
+// decline final greenery
+ER {
+    Ok
+}
+
+JR: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Elysium_5_7>
+    2 Plant
+    4 MC
+}
+// Decline another final greenery placement for JR.
+// decline final greenery
+JR {
+    Ok
+}
+
+KB: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Elysium_7_4>
+    Steel
+}
+KB: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Elysium_8_5>
+}
+// Decline another final greenery placement for KB.
+// decline final greenery
+KB {
+    Ok
+}
+
+JR {
+    84 VictoryPoint
+}
+
+KB {
+    75 VictoryPoint
+}
+
+ER {
+    67 VictoryPoint
+}
+// _local/replays/Game20260819/Game20260819-herokuapp-player.json; final Mars map.

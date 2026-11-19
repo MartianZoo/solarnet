@@ -1,0 +1,218 @@
+// Replay: StinaGameTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/StinaGameTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+Config {
+    Me
+    ElysiumMap
+    PreludeExpansion
+    SoloTileLocations
+}
+
+GlobalEventDeck {
+}
+
+SetupRules {
+    CLASS SoloTileLocations : PlaceNeutralTiles<Elysium_5_6, Elysium_5_5, Elysium_7_7, Elysium_7_6>
+}
+
+Cards {
+    // Test inference: the source names only the selected cards. CrediCor, Allied Bank, and
+    // Business Empire are invented identities for the three rejected setup cards, not source facts.
+    // Test assignments: the source does not name the Invention Contest or Business Contacts
+    // rejects. These four late-game cards do not help terraform the planet in generation 1.
+    +CorporationCard<Me, Hand>: SaturnSystems, CrediCor
+    -CorporationCard<Me, Hand>: CrediCor
+    -CorporationCard<Me, Hand>: SaturnSystems
+    +ProjectCard<Me, Selecting>: EarthOffice, MediaGroup, InvestmentLoan, IndenturedWorkers, EarthCatapult, HiredRaiders, OlympusConference, AdvancedAlloys, MineralDeposit, ResearchOutpost
+    // Invention Contest
+    +ProjectCard<Me, Selecting>: MassConverter, SecurityFleet, Penguins
+    // Business Contacts
+    +ProjectCard<Me, Selecting>: TowingAComet, AdaptationTechnology, Herbivores, Predators
+    +PreludeCard<Me, Hand>: Biolab, AcquiredSpaceAgency, AlliedBank, BusinessEmpire
+    -PreludeCard<Me, Hand>: AlliedBank, BusinessEmpire
+    -PreludeCard<Me, Hand>: Biolab
+    -PreludeCard<Me, Hand>: AcquiredSpaceAgency
+    +ProjectCard<Me, Hand>: EarthOffice, MediaGroup, InvestmentLoan, IndenturedWorkers, EarthCatapult, HiredRaiders, OlympusConference, AdvancedAlloys, MineralDeposit, ResearchOutpost
+    +ProjectCard<Me, Hand>: InventionContest, BusinessContacts, QuantumExtractor
+    +ProjectCard<Me, Hand>: SpaceStation, OptimalAerobraking
+    +ProjectCard<Me, Hand>: TechnologyDemonstration
+    +ProjectCard<Me, Hand>: ImportOfAdvancedGhg
+    +ProjectCard<Me, Hand>: ImportedGhg
+    +ProjectCard<Me, Hand>: MassConverter
+    +ProjectCard<Me, Hand>: TowingAComet, AdaptationTechnology
+    +ProjectCard<Me, Hand>: SpecialDesign, Shuttles
+    +ProjectCard<Me, Hand>: LagrangeObservatory
+    +ProjectCard<Me, Hand>: ConvoyFromEuropa
+    -ProjectCard<Me, Selecting>: EarthOffice, MediaGroup, InvestmentLoan, IndenturedWorkers, EarthCatapult, HiredRaiders, OlympusConference, AdvancedAlloys, MineralDeposit, ResearchOutpost
+    -ProjectCard<Me, Selecting>: MassConverter
+    -ProjectCard<Me, Selecting>: SecurityFleet
+    -ProjectCard<Me, Selecting>: Penguins
+    -ProjectCard<Me, Selecting>: TowingAComet, AdaptationTechnology
+    -ProjectCard<Me, Selecting>: Herbivores
+    -ProjectCard<Me, Selecting>: Predators
+    -ProjectCard<Me, Hand>: EarthOffice
+    -ProjectCard<Me, Hand>: MediaGroup
+    -ProjectCard<Me, Hand>: InvestmentLoan
+    -ProjectCard<Me, Hand>: IndenturedWorkers
+    -ProjectCard<Me, Hand>: EarthCatapult
+    -ProjectCard<Me, Hand>: HiredRaiders
+    -ProjectCard<Me, Hand>: OlympusConference
+    -ProjectCard<Me, Hand>: AdvancedAlloys
+    -ProjectCard<Me, Hand>: MineralDeposit
+    -ProjectCard<Me, Hand>: ResearchOutpost
+    -ProjectCard<Me, Hand>: InventionContest
+    -ProjectCard<Me, Hand>: BusinessContacts
+    -ProjectCard<Me, Hand>: QuantumExtractor
+    -ProjectCard<Me, Hand>: SpaceStation
+    -ProjectCard<Me, Hand>: OptimalAerobraking
+    -ProjectCard<Me, Hand>: TechnologyDemonstration
+    -ProjectCard<Me, Hand>: ImportOfAdvancedGhg
+    -ProjectCard<Me, Hand>: ImportedGhg
+    -ProjectCard<Me, Hand>: MassConverter
+    -ProjectCard<Me, Hand>: TowingAComet
+    -ProjectCard<Me, Hand>: AdaptationTechnology
+    -ProjectCard<Me, Hand>: SpecialDesign
+    -ProjectCard<Me, Hand>: Shuttles
+}
+
+// Test inference: unnamed draws are assigned in the order the cards are later played.
+// keep all ten project cards
+Me: Setup {
+    14 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Me
+    2 PreludeCard
+    -0 ProjectCard<Selecting>
+}
+
+Me: PlayCard(SaturnSystems) {
+    42 MC VIA SaturnSystems
+    PROD[Titanium]
+    PROD[MC]
+    Pay(30 MC)
+    10 ProjectCard<Hand FROM Selecting>
+}
+
+Me: PlayCard(Biolab) {
+    PROD[Plant]
+    3 ProjectCard
+}
+Me: PlayCard(AcquiredSpaceAgency) {
+    6 Titanium
+    2 SearchForCard<TagFilter<Class<SpaceTag>>>
+}
+
+Me: PlayCard(EarthOffice) {
+    Pay(1 MC)
+}
+Me: PlayCard(MediaGroup) {
+    Pay(3 MC)
+}
+Me: PlayCard(InvestmentLoan) {
+    PROD[-MC]
+    13 MC
+}
+Me: PlayCard(IndenturedWorkers) {
+    3 MC
+    IndenturedWorkers_NextCardEffect
+}
+Me: PlayCard(EarthCatapult) {
+    Pay(12 MC)
+}
+Me: PlayCard(HiredRaiders) {
+    2 Steel FROM Steel<SoloOpponent>
+    3 MC
+}
+Me: PlayCard(OlympusConference) {
+    Pay(2 Steel, 1 MC)
+    Science<OlympusConference>
+}
+Me: PlayCard(AdvancedAlloys) {
+    Pay(7 MC)
+    ProjectCard FROM Science<OlympusConference>
+}
+Me: PlayCard(MineralDeposit) {
+    Pay(3 MC)
+    5 Steel
+    3 MC
+}
+Me: PlayCard(ResearchOutpost) {
+    Pay(5 Steel, 1 MC)
+    NormalCityTile<Elysium_9_7>
+    Science<OlympusConference>
+    ProjectCard
+}
+Me: PlayCard(InventionContest) {
+    ProjectCard FROM Science<OlympusConference> VIA OlympusConference
+    3 ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+    3 MC
+}
+Me: PlayCard(BusinessContacts) {
+    Pay(1 MC)
+    4 ProjectCard<Selecting>
+    2 ProjectCard<Hand FROM Selecting>
+    3 MC
+}
+Me: PlayCard(QuantumExtractor) {
+    Pay(10 MC)
+    Science<OlympusConference>
+    PROD[4 Energy]
+}
+Me: PlayCard(SpaceStation) {
+    Pay(1 Titanium, 1 MC)
+}
+Me: PlayCard(OptimalAerobraking) {
+}
+// Test inference: Lagrange Observatory is free after the accumulated space discounts and
+// draws twice with Olympus Conference. Convoy from Europa costs 3 M€, rebates 6 M€, draws a
+// replacement card, and places an ocean.
+Me: PlayCard(TechnologyDemonstration) {
+    2 ProjectCard VIA TechnologyDemonstration
+    ProjectCard FROM Science<OlympusConference>
+    6 MC
+    3 Heat
+}
+Me: PlayCard(ImportOfAdvancedGhg) {
+    PROD[2 Heat]
+    6 MC
+    3 Heat
+}
+Me: PlayCard(ImportedGhg) {
+    PROD[Heat]
+    6 Heat
+    6 MC
+}
+Me: PlayCard(MassConverter) {
+    Pay(5 MC)
+    Science<OlympusConference>
+    PROD[6 Energy]
+}
+Me: PlayCard(TowingAComet) {
+    Pay(3 Titanium, 2 MC)
+    2 Plant
+    OxygenStep
+    TerraformRating
+    OceanTile<Elysium_1_2>
+    Titanium
+    TerraformRating
+    6 MC
+    3 Heat
+}
+Me: PlayCard(AdaptationTechnology) {
+    Pay(9 MC)
+    Science<OlympusConference>
+}
+Me: PlayCard(SpecialDesign) {
+    Pay(1 MC)
+    ProjectCard FROM Science<OlympusConference>
+    3 MC
+    SpecialDesign_NextCardEffect
+}
+// no titanium paid
+Me: PlayCard(Shuttles) {
+    Pay(1 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+}

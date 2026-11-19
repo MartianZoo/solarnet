@@ -1,0 +1,963 @@
+// Replay: SoloGame20230710Test
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/SoloGame20230710Test.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Archived scenario: checkpoints are retained from the existing test; no local game log is
+// available.
+Config {
+    Me
+    VenusNextExpansion, PreludeExpansion, ColoniesExpansion, Tr63SoloObjective
+    promos:cards, FakeHeadStart
+    Callisto, Ganymede, Luna, Miranda
+    SoloTileLocations
+}
+
+GlobalEventDeck {
+}
+
+SetupRules {
+    CLASS SoloTileLocations : PlaceNeutralTiles<Tharsis_4_1, Tharsis_5_1, Tharsis_5_8, Tharsis_5_7>
+}
+
+Me: Setup {
+    14 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Me
+    2 PreludeCard
+    -SelectedMiranda
+    // keep all starting projects
+    -0 ProjectCard<Selecting>
+}
+
+// Generation 1
+Me: PlayCard(PharmacyUnion) {
+    SearchForCard<TagFilter<Class<ScienceTag>>>
+    54 MC VIA PharmacyUnion
+    Pay(30 MC)
+    10 ProjectCard<Hand FROM Selecting>
+    Disease<PharmacyUnion>
+    Disease<PharmacyUnion>
+    -4 MC
+    -4 MC
+}
+
+Me: PlayCard(Merger) {
+    4 CorporationCard<Selecting>
+    PlayCard(Manutech, Selecting)
+    -7 MC
+    PROD[Steel]
+    Steel
+}
+Me: PlayCard(FakeHeadStart) {
+    2 Steel
+    22 MC
+    // Head Start grants these two card plays during Prelude setup.
+    PlayCard(OlympusConference)
+    Pay(3 Steel, 4 MC)
+    TerraformRating FROM Disease<PharmacyUnion>
+    Science<OlympusConference>
+    PlayCard(StandardTechnology)
+    Pay(6 MC)
+    TerraformRating FROM Disease<PharmacyUnion>
+    ProjectCard FROM Science<OlympusConference>
+}
+
+Me: PlayCard(AdvancedAlloys) {
+    Pay(9 MC)
+    Science<OlympusConference>
+    SelectTask(PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3! TerraformRating)
+    3 TerraformRating
+}
+Me: PlayCard(IndustrialMicrobes) {
+    Pay(12 MC)
+    PROD[Energy]
+    PROD[Steel]
+    Energy
+    Steel
+}
+Me: Pass
+
+Me: Production {
+    17 MC
+    2 Steel
+    Energy VIA Production
+    Heat FROM Energy
+}
+
+Me: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 2
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(6 MC)
+}
+
+Me: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// The app was showing tagless = 3, so... solarnet found its very first herokuapp bug!
+// https://github.com/terraforming-mars/terraforming-mars/issues/5847
+// no MC remainder
+Me: PlayCard(CarbonateProcessing) {
+    Pay(2 Steel)
+    PROD[-Energy]
+    PROD[3 Heat]
+    3 Heat
+}
+Me: Pass
+
+Me: Production {
+    17 MC
+    2 Steel
+    Heat FROM Energy VIA Energy
+    3 Heat
+}
+
+Me: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 3
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(3 MC)
+}
+
+Me: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Me: PlayCard(DeepWellHeating) {
+    Pay(3 Steel, 4 MC)
+    PROD[Energy]
+    TemperatureStep
+    Energy
+    TerraformRating
+}
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: PlayCard(NoctisCity) {
+    Pay(18 MC)
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Tharsis_5_3>
+    3 MC
+    2 Plant
+}
+Me: PlayCard(FueledGenerators) {
+    Pay(1 MC)
+    PROD[-MC]
+    PROD[Energy]
+    Energy
+}
+Me: Pass
+
+Me: Production {
+    21 MC
+    2 Steel
+    3 Heat VIA Production
+    2 Heat FROM Energy VIA Energy
+    Energy
+}
+
+Me: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 4
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(3 MC)
+}
+
+Me: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Me: PlayCard(EnergySaving) {
+    Pay(15 MC)
+    PROD[3 Energy]
+    3 Energy
+}
+Me: Trade2 {
+    Pay(3 Energy)
+    Trade<Callisto>
+    7 Energy
+}
+Me: Pass
+
+Me: Production {
+    21 MC
+    2 Steel
+    3 Heat VIA Production
+    4 Energy VIA Production
+    8 Heat FROM Energy
+}
+
+Me: WorldGovernment {
+    OceanTile<Tharsis_5_5>! BY Admin
+}
+
+// Generation 5
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(3 MC)
+}
+
+Me: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+    Heat
+}
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: UseStandardProject(BuildColonyProject) {
+    Pay(17 MC)
+    3 MC
+    Colony<Luna>
+    PROD[2 MC]
+    2 MC
+}
+Me: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    15 MC
+}
+Me: PlayCard(GiantSolarShade) {
+    Pay(27 MC)
+    VenusStep
+    VenusStep
+    VenusStep
+    TerraformRating
+    ProjectCard
+    2 TerraformRating
+}
+Me: PlayCard(GeothermalPower) {
+    Pay(3 Steel, 2 MC)
+    PROD[2 Energy]
+    2 Energy
+}
+Me: Pass
+
+Me: Production {
+    28 MC
+    2 Steel
+    4 Heat VIA Production
+    6 Energy VIA Production
+    3 Heat FROM Energy
+}
+
+Me: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 6
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(6 MC)
+}
+
+Me: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+    Heat
+}
+Me: Trade2 {
+    Pay(3 Energy)
+    Trade<Ganymede>
+    6 Plant
+}
+Me: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_6_3>
+    OxygenStep
+    2 Plant
+    TerraformRating
+}
+Me: PlayCard(MineralDeposit) {
+    Pay(5 MC)
+    5 Steel
+}
+Me: PlayCard(FieldCappedCity) {
+    Pay(8 Steel, 5 MC)
+    PROD[2 MC]
+    PROD[Energy]
+    3 Plant
+    2 MC
+    Energy
+    NormalCityTile<Tharsis_7_4>
+}
+Me: Pass
+
+Me: Production {
+    32 MC
+    2 Steel
+    5 Heat VIA Production
+    7 Energy VIA Production
+    4 Heat FROM Energy
+}
+
+Me: WorldGovernment {
+    OceanTile<Tharsis_6_7>! BY Admin
+}
+
+// Generation 7
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(6 MC)
+}
+
+Me: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Me: PlayCard(AsteroidRights) {
+    Pay(10 MC)
+    2 Asteroid<AsteroidRights>
+}
+Me: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: PlayCard(ViralEnhancers) {
+    Pay(9 MC)
+    Plant
+    ProjectCard FROM Science<OlympusConference>
+}
+Me: PlayCard(QuantumExtractor) {
+    Pay(13 MC)
+    PROD[4 Energy]
+    Science<OlympusConference>
+    4 Energy
+}
+Me: PlayCard(SoilFactory) {
+    Pay(2 Steel, 3 MC)
+    PROD[-Energy]
+    PROD[Plant]
+    Plant
+}
+Me: Pass
+
+Me: Production {
+    33 MC
+    2 Steel
+    5 Heat VIA Production
+    10 Energy VIA Production
+    11 Heat FROM Energy
+    Plant
+}
+
+Me: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 8
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(9 MC)
+}
+
+Me: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Me: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    12 MC
+}
+Me: PlayCard(GiantIceAsteroid) {
+    Pay(4 Titanium, 18 MC)
+    TemperatureStep
+    TemperatureStep
+    2 TerraformRating
+    -6 Plant<SoloOpponent>
+    OceanTile<Tharsis_5_4>
+    TerraformRating
+    2 Plant
+    2 MC
+    OceanTile<Tharsis_5_6>
+    TerraformRating
+    2 Plant
+    4 MC
+}
+Me: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_6_4>
+    OxygenStep
+    Plant
+    2 MC
+    TerraformRating
+}
+Me: PlayCard(MagneticShield) {
+    Pay(22 MC)
+    4 TerraformRating
+}
+Me: Pass
+
+Me: Production {
+    44 MC
+    2 Steel
+    5 Heat VIA Production
+    10 Energy VIA Production
+    7 Heat FROM Energy
+    Plant
+}
+
+Me: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 9
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(9 MC)
+}
+
+Me: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: PlayCard(ResearchOutpost) {
+    Pay(4 Steel, 6 MC)
+    ProjectCard FROM Science<OlympusConference>
+    NormalCityTile<Tharsis_8_6>
+    ProjectCard
+}
+Me: PlayCard(IceMoonColony) {
+    Pay(20 MC)
+    Colony<Ganymede>
+    PROD[Plant]
+    Plant
+    OceanTile<Tharsis_2_6>
+    TerraformRating
+    2 ProjectCard
+}
+Me: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    3 MC
+    2 TerraformRating
+}
+Me: UseAction1(AsteroidRights) {
+    Pay(1 MC)
+    Asteroid<AsteroidRights>
+}
+Me: Trade2 {
+    Pay(3 Energy)
+    Trade<Ganymede>
+    4 Plant
+}
+Me: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+Me: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_8_7>
+    OxygenStep
+    ProjectCard
+    TerraformRating
+}
+Me: PlayCard(PermafrostExtraction) {
+    Pay(7 MC)
+    OceanTile<Tharsis_9_9>
+    TerraformRating
+    2 Titanium
+}
+Me: Pass
+
+Me: Production {
+    50 MC
+    2 Steel
+    5 Heat VIA Production
+    10 Energy VIA Production
+    7 Heat FROM Energy
+    2 Plant
+}
+
+Me: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 10
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(6 MC)
+}
+
+Me: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Me: PlayCard(MiningExpedition) {
+    Pay(11 MC)
+    OxygenStep
+    2 Steel
+    TerraformRating
+    -2 Plant<SoloOpponent>
+}
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: PlayCard(StripMine) {
+    Pay(4 Steel, 12 MC)
+    PROD[-2 Energy]
+    PROD[2 Steel]
+    PROD[Titanium]
+    OxygenStep
+    OxygenStep
+    2 Steel
+    Titanium
+    TerraformRating
+    TemperatureStep
+    2 TerraformRating
+}
+Me: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+// Viral Enhancers
+Me: PlayCard(SubZeroSaltFish) {
+    Pay(4 MC)
+    PROD[-Plant<SoloOpponent>]
+    Animal<SubZeroSaltFish>
+}
+Me: UseAction1(SubZeroSaltFish) {
+    Animal<SubZeroSaltFish>
+}
+Me: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+Me: PlayCard(GhgProducingBacteria) {
+    Pay(7 MC)
+    Science<OlympusConference>
+    Plant
+}
+// no MC remainder
+Me: PlayCard(ImportedNitrogen) {
+    Pay(5 Titanium)
+    TerraformRating
+    4 Plant
+    3 Microbe<GhgProducingBacteria>
+    2 Animal<SubZeroSaltFish>
+}
+Me: UseAction2(GhgProducingBacteria) {
+    -2 Microbe<GhgProducingBacteria>
+    TemperatureStep
+    TerraformRating
+    OceanTile<Tharsis_1_2>
+    TerraformRating
+    2 Steel
+}
+Me: PlayCard(ArtificialLake) {
+    Pay(4 Steel, 2 MC)
+    OceanTile<Tharsis_6_6>
+    TerraformRating
+    Plant
+    6 MC
+}
+Me: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_5_2>
+    OxygenStep
+    2 Plant
+    TerraformRating
+}
+Me: PlayCard(RefugeeCamps) {
+    Pay(9 MC)
+}
+Me: UseAction1(RefugeeCamps) {
+    PROD[-MC]
+    Camp<RefugeeCamps>
+}
+Me: Trade2 {
+    Pay(3 Energy)
+    Trade<Callisto>
+    13 Energy
+}
+Me: Pass
+
+Me: Production {
+    60 MC
+    4 Steel
+    5 Heat VIA Production
+    8 Energy VIA Production
+    20 Heat FROM Energy
+    2 Plant
+    Titanium
+}
+
+Me: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 11
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+// keep all four research cards
+Me: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(12 MC)
+}
+
+Me: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: UseAction1(RefugeeCamps) {
+    PROD[-MC]
+    Camp<RefugeeCamps>
+}
+Me: PlayCard(IceCapMelting) {
+    Pay(4 MC)
+    OceanTile<Tharsis_1_4>
+    TerraformRating
+    ProjectCard
+}
+Me: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    12 MC
+}
+// no titanium paid
+Me: PlayCard(TransNeptuneProbe) {
+    Pay(3 MC)
+    ProjectCard FROM Science<OlympusConference>
+}
+Me: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    4 MC
+    NormalCityTile<Tharsis_6_5>
+    Plant
+    6 MC
+}
+// no MC remainder
+Me: PlayCard(UrbanizedArea) {
+    Pay(3 Steel)
+    PROD[-Energy]
+    PROD[2 MC]
+    2 MC
+    NormalCityTile<Tharsis_7_5>
+}
+Me: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_8_5>
+    OxygenStep
+    TerraformRating
+}
+Me: UseAction1(SubZeroSaltFish) {
+    Animal<SubZeroSaltFish>
+}
+Me: UseAction1(GhgProducingBacteria) {
+    Microbe<GhgProducingBacteria>
+}
+Me: UseAction1(AsteroidRights) {
+    Pay(1 MC)
+    Asteroid<AsteroidRights>
+}
+Me: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    3 MC
+    GreeneryTile<Tharsis_8_4>
+    OxygenStep
+    2 Steel
+    TerraformRating
+}
+Me: PlayCard(JovianEmbassy) {
+    Pay(3 Steel, 4 MC)
+    TerraformRating
+}
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+Me: PlayCard(DawnCity) {
+    Pay(1 Titanium, 8 MC)
+    PROD[-Energy]
+    PROD[Titanium]
+    NormalCityTile<DawnCity_RemoteArea>
+    Titanium
+}
+Me: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    3 MC
+    TerraformRating
+}
+Me: Pass
+
+Me: Production {
+    70 MC
+    4 Steel
+    5 Heat VIA Production
+    6 Energy VIA Production
+    5 Heat FROM Energy
+    2 Plant
+    2 Titanium
+}
+
+Me: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 12
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(6 MC)
+}
+
+Me: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// (but = 15, spt = 6, ...)
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+Me: UseAction1(SubZeroSaltFish) {
+    Animal<SubZeroSaltFish>
+}
+Me: UseAction1(RefugeeCamps) {
+    PROD[-MC]
+    Camp<RefugeeCamps>
+}
+// uselessly
+Me: UseAction1(GhgProducingBacteria) {
+    Microbe<GhgProducingBacteria>
+}
+Me: PlayCard(MagneticFieldDome) {
+    Pay(1 Steel, 1 MC)
+    PROD[-2 Energy]
+    PROD[Plant]
+    TerraformRating
+    Plant
+}
+Me: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    3 MC
+    GreeneryTile<Tharsis_9_6>
+    OxygenStep
+    2 Steel
+    TerraformRating
+}
+Me: PlayCard(InterstellarColonyShip) {
+    Pay(5 Titanium, 1 MC)
+}
+Me: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    6 MC
+}
+Me: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    4 MC
+    NormalCityTile<Tharsis_9_5>
+    Steel
+}
+Me: PlayCard(SpacePort) {
+    Pay(6 Steel, 3 MC)
+    TradeFleet
+    PROD[-Energy]
+    PROD[4 MC]
+    4 MC
+    NormalCityTile<Tharsis_6_2>
+    Plant
+}
+Me: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Me: Trade2 {
+    Pay(3 Energy)
+    Trade<Ganymede>
+    5 Plant
+}
+Me: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_7_6>
+    OxygenStep
+    2 MC
+    TerraformRating
+}
+// oxygen is already maxed
+Me: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    3 MC
+    GreeneryTile<Tharsis_7_3>
+    0 OxygenStep
+}
+Me: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    3 MC
+    TerraformRating
+}
+Me: Pass
+
+Me: Production {
+    79 MC
+    4 Steel
+    5 Heat
+    3 Energy
+    3 Plant
+    2 Titanium
+}
+
+// Decline another final greenery placement.
+// decline final greenery
+// Check the summary data on the you-won page
+Me {
+    Ok
+}
+
+Me {
+    121 VictoryPoint
+}

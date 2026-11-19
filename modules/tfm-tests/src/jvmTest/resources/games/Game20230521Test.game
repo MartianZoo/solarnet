@@ -1,0 +1,1949 @@
+// Replay: Game20230521Test
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/Game20230521Test.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Explicit player-task replay; Admin keeps its normal autoexecution.
+// Source: _local/replays/Game20230521/game-replay.rego (game gf386a4cd5de1).
+Config {
+    Player1, Player2
+    VenusNextExpansion, PreludeExpansion
+    promos:cards
+    -WorldGovernmentRule
+}
+
+GlobalEventDeck {
+}
+
+Player1: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Player1
+    2 PreludeCard
+    -5 ProjectCard<Selecting>
+}
+
+Player2: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Player2
+    2 PreludeCard
+    -6 ProjectCard<Selecting>
+}
+
+// Generation 1
+Player1: PlayCard(Manutech) {
+    35 MC VIA Manutech
+    PROD[Steel]
+    Steel
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: PlayCard(Factorum) {
+    37 MC VIA Factorum
+    PROD[Steel]
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: PlayCard(NewPartner) {
+    PROD[MC]
+    2 PreludeCard<Selecting> VIA NewPartner
+    MC VIA Manutech
+    PlayCard(UnmiContractor, Selecting)
+    3 TerraformRating
+    ProjectCard
+}
+Player1: PlayCard(AlliedBank) {
+    PROD[4 MC]
+    7 MC
+}
+
+Player2: PlayCard(AcquiredSpaceAgency) {
+    6 Titanium
+    2 SearchForCard<TagFilter<Class<SpaceTag>>>
+}
+Player2: PlayCard(IoResearchOutpost) {
+    PROD[Titanium]
+    ProjectCard
+}
+
+Player1: PlayCard(InventorsGuild) {
+    Pay(9 MC)
+}
+
+Player2: PlayCard(ArcticAlgae) {
+    Pay(12 MC)
+    Plant
+}
+
+// keep card
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player2: UseAction1(Factorum) {
+    PROD[Energy]
+}
+
+Player1: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+    Energy
+}
+Player1: PlayCard(BuildingIndustries) {
+    Pay(1 Steel, 4 MC)
+    PROD[-Energy]
+    PROD[2 Steel]
+    2 Steel
+}
+
+// no mc paid
+Player2: PlayCard(RotatorImpacts) {
+    Pay(2 Titanium)
+}
+// no mc paid
+Player2: UseAction1(RotatorImpacts) {
+    Pay(2 Titanium)
+    Asteroid<RotatorImpacts>
+}
+
+Player1: Pass
+
+Player2: PlayCard(CarbonateProcessing) {
+    Pay(6 MC)
+    PROD[-Energy]
+    PROD[3 Heat]
+}
+Player2: PlayCard(Archaebacteria) {
+    Pay(6 MC)
+    PROD[Plant]
+}
+Player2: Pass
+
+// Generation 2
+Player1: Production {
+    Heat FROM Energy
+    28 MC
+    3 Steel
+}
+
+Player2: Production {
+    20 MC
+    Steel
+    Titanium
+    3 Heat
+    Plant
+}
+
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(6 MC)
+}
+
+Player1: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    Pay(6 MC)
+}
+
+Player2: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: UseAction2(Factorum) {
+    Pay(3 MC)
+    SearchForCard<TagFilter<Class<BuildingTag>>>
+}
+Player2: PlayCard(MarsUniversity) {
+    Pay(1 Steel, 6 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+// keep card
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+Player1: PlayCard(EarthOffice) {
+    Pay(1 MC)
+}
+
+Player2: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+Player1: PlayCard(DevelopmentCenter) {
+    Pay(5 Steel, 1 MC)
+}
+Player1: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+    Energy
+}
+
+Player2: Pass
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Player1: PlayCard(InvestmentLoan) {
+    PROD[-MC]
+    10 MC
+}
+Player1: PlayCard(DeuteriumExport) {
+    Pay(11 MC)
+}
+Player1: UseAction1(DeuteriumExport) {
+    Floater<DeuteriumExport>
+}
+Player1: Pass
+
+// Generation 3
+Player1: Production {
+    27 MC
+    3 Steel
+    Energy
+}
+
+Player2: Production {
+    21 MC
+    Steel
+    Titanium
+    3 Heat
+    Plant
+}
+
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(6 MC)
+}
+
+Player1: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    Pay(6 MC)
+}
+
+Player2: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+Player2: UseAction1(Factorum) {
+    PROD[Energy]
+}
+// no plants removed
+Player2: PlayCard(AsteroidCard) {
+    Pay(4 Titanium, 2 MC)
+    -0 Plant<Anyone>
+    TemperatureStep
+    TerraformRating
+    2 Titanium
+}
+
+Player1: PlayCard(CorporateStronghold) {
+    Pay(3 Steel, 5 MC)
+    PROD[3 MC]
+    3 MC
+    PROD[-Energy]
+    NormalCityTile<Tharsis_4_6>
+    Plant
+}
+Player1: PlayCard(OptimalAerobraking) {
+    Pay(7 MC)
+}
+
+// no mc paid
+Player2: PlayCard(TransNeptuneProbe) {
+    Pay(2 Titanium)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Player2: UseAction1(RotatorImpacts) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+
+Player1: UseAction2(DeuteriumExport) {
+    -Floater<DeuteriumExport>
+    PROD[Energy]
+    Energy
+}
+Player1: PlayCard(ImportedGhg) {
+    Pay(4 MC)
+    PROD[Heat]
+    7 Heat
+    3 MC
+}
+
+Player2: Pass
+
+Player1: Pass
+
+// Generation 4
+Player1: Production {
+    Heat FROM Energy VIA Energy
+    30 MC
+    3 Steel
+    Energy
+    Heat
+}
+
+Player2: Production {
+    22 MC
+    Steel
+    Titanium
+    3 Heat
+    Plant
+    Energy
+}
+
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(3 MC)
+}
+
+Player1: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player2: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    Pay(6 MC)
+}
+
+Player2: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: UseAction2(Factorum) {
+    Pay(3 MC)
+    SearchForCard<TagFilter<Class<BuildingTag>>>
+}
+Player2: PlayCard(AquiferPumping) {
+    Pay(2 Steel, 14 MC)
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+// keep card
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player2: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Tharsis_2_6>
+    TerraformRating
+    2 ProjectCard
+    2 Plant
+}
+Player2: PlayCard(SearchForLife) {
+    Pay(3 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Player1: UseAction1(DeuteriumExport) {
+    Floater<DeuteriumExport>
+}
+Player1: PlayCard(TectonicStressPower) {
+    Pay(3 Steel, 12 MC)
+    PROD[3 Energy]
+    3 Energy
+}
+
+Player2: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+// no reward
+Player2: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+    Heat
+}
+
+Player2: Pass
+
+Player1: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Player1: PlayCard(SpinInducingAsteroid) {
+    Pay(16 MC)
+    VenusStep
+    VenusStep
+    2 TerraformRating
+    ProjectCard
+    3 MC
+    3 Heat
+}
+Player1: Pass
+
+// Generation 5
+Player1: Production {
+    3 Heat FROM Energy VIA Energy
+    34 MC
+    3 Steel
+    4 Energy
+    2 Heat
+}
+
+Player2: Production {
+    Heat FROM Energy VIA Energy
+    24 MC
+    Steel
+    Titanium
+    3 Heat
+    Plant
+    Energy
+}
+
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(9 MC)
+}
+
+Player1: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: Research {
+    -ProjectCard<Selecting>
+}
+
+Player2: Research {
+    Pay(9 MC)
+}
+
+Player2: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: PlayCard(SmallAsteroid) {
+    Pay(10 MC)
+    -2 Plant<Player2>
+    TemperatureStep
+    3 MC
+    TerraformRating
+    PROD[Heat]
+    4 Heat
+}
+
+Player2: UseAction2(Factorum) {
+    Pay(3 MC)
+    SearchForCard<TagFilter<Class<BuildingTag>>>
+}
+Player2: PlayCard(DirectedImpactors) {
+    Pay(2 Titanium, 2 MC)
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+Player2: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Player2: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Player1: UseAction2(DeuteriumExport) {
+    -Floater<DeuteriumExport>
+    PROD[Energy]
+    Energy
+}
+Player1: PlayCard(DomedCrater) {
+    Pay(3 Steel, 18 MC)
+    3 Plant
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Tharsis_3_4>
+    3 MC
+}
+
+Player2: UseAction1(DirectedImpactors) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+Player2: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+Player1: PlayCard(FueledGenerators) {
+    Pay(1 MC)
+    PROD[-MC]
+    PROD[Energy]
+    Energy
+}
+
+Player2: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player2: UseAction1(AquiferPumping) {
+    Pay(1 Steel, 6 MC)
+    OceanTile<Tharsis_1_4>
+    TerraformRating
+    ProjectCard
+    2 Plant
+}
+
+Player1: Pass
+
+Player2: Pass
+
+// Generation 6
+Player1: Production {
+    5 Heat FROM Energy VIA Energy
+    38 MC
+    3 Steel
+    5 Energy
+    3 Heat
+}
+
+Player2: Production {
+    Heat FROM Energy VIA Energy
+    27 MC
+    Steel
+    Titanium
+    3 Heat
+    Plant
+    Energy
+}
+
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    4 ProjectCard<Selecting>
+}
+
+// keep all four
+Player1: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(12 MC)
+}
+
+Player1: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    Pay(6 MC)
+}
+
+Player2: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_8_7>
+    OxygenStep
+    TerraformRating
+    ProjectCard
+}
+Player2: UseAction2(Factorum) {
+    Pay(3 MC)
+    SearchForCard<TagFilter<Class<BuildingTag>>>
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+// keep card
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player2: PlayCard(PowerPlant) {
+    Pay(1 Steel, 2 MC)
+    PROD[Energy]
+}
+Player2: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Tharsis_1_5>
+    4 MC
+    TerraformRating
+    2 Plant
+}
+
+Player1: PlayCard(OlympusConference) {
+    Pay(3 Steel, 1 MC)
+    Science<OlympusConference>
+}
+Player1: PlayCard(SisterPlanetSupport) {
+    Pay(4 MC)
+    PROD[3 MC]
+    3 MC
+}
+
+Player2: UseAction1(DirectedImpactors) {
+    Pay(1 Titanium, 3 MC)
+    Asteroid<RotatorImpacts>
+}
+Player2: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+Player1: PlayCard(DuskLaserMining) {
+    Pay(8 MC)
+    PROD[Titanium]
+    PROD[-Energy]
+    5 Titanium
+}
+// no mc paid
+Player1: PlayCard(MirandaResort) {
+    Pay(4 Titanium)
+    PROD[5 MC]
+    5 MC
+}
+
+Player2: PlayCard(Mine) {
+    Pay(4 MC)
+    PROD[Steel]
+}
+// no reward
+Player2: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+
+Player1: PlayCard(Solarnet) {
+    Pay(7 MC)
+    2 ProjectCard
+}
+Player1: PlayCard(MiningQuota) {
+    Pay(5 MC)
+    PROD[2 Steel]
+    2 Steel
+}
+
+Player2: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: UseAction1(DeuteriumExport) {
+    Floater<DeuteriumExport>
+}
+
+Player2: Pass
+
+Player1: PlayCard(LagrangeObservatory) {
+    Pay(1 Titanium, 6 MC)
+    ProjectCard FROM Science<OlympusConference> VIA OlympusConference
+    ProjectCard
+}
+Player1: PlayCard(VenusGovernor) {
+    Pay(4 MC)
+    PROD[2 MC]
+    2 MC
+}
+Player1: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Player1: PlayCard(Moss) {
+    Pay(4 MC)
+    -Plant
+    PROD[Plant]
+    Plant
+}
+Player1: Pass
+
+// Generation 7
+Player1: Production {
+    4 Heat FROM Energy VIA Energy
+    49 MC
+    5 Steel
+    4 Energy
+    3 Heat
+    Titanium
+    Plant
+}
+
+Player2: Production {
+    Heat FROM Energy VIA Energy
+    31 MC
+    2 Steel
+    Titanium
+    3 Heat
+    Plant
+    2 Energy
+}
+
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(9 MC)
+}
+
+Player1: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    Pay(3 MC)
+}
+
+Player2: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player1: ClaimMilestone {
+    Pay(8 MC)
+    Builder8
+}
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+
+Player2: PlayCard(EarthCatapult) {
+    Pay(23 MC)
+}
+Player2: PlayCard(InventionContest) {
+    3 ProjectCard<Selecting> VIA InventionContest
+    ProjectCard<Hand FROM Selecting> VIA InventionContest
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Player1: PlayCard(QuantumExtractor) {
+    Pay(13 MC)
+    Science<OlympusConference>
+    PROD[4 Energy]
+    4 Energy
+}
+
+Player2: PlayCard(BioPrintingFacility) {
+    Pay(2 Steel, 1 MC)
+}
+Player2: UseAction1(BioPrintingFacility) {
+    Pay(2 Energy)
+    2 Plant
+}
+
+Player1: UseAction2(DeuteriumExport) {
+    -Floater<DeuteriumExport>
+    PROD[Energy]
+    Energy
+}
+Player1: PlayCard(ProjectInspection) {
+    UseAction1(DevelopmentCenter)
+    Pay(1 Energy)
+    ProjectCard
+}
+
+Player2: UseAction1(Factorum) {
+    PROD[Energy]
+}
+Player2: PlayCard(PowerSupplyConsortium) {
+    Pay(3 MC)
+    PROD[-Energy<Player1>]
+    PROD[Energy]
+}
+
+Player1: PlayCard(FloatingHabs) {
+    Pay(5 MC)
+}
+Player1: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<DeuteriumExport>
+}
+
+Player2: PlayCard(TitaniumMine) {
+    Pay(5 MC)
+    PROD[Titanium]
+}
+
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: PlayCard(StratosphericBirds) {
+    Pay(12 MC)
+    -Floater<DeuteriumExport>
+}
+
+Player2: Pass
+
+Player1: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+Player1: Pass
+
+// Generation 8
+Player1: Production {
+    7 Heat FROM Energy VIA Energy
+    50 MC
+    5 Steel
+    8 Energy
+    3 Heat
+    Titanium
+    Plant
+}
+
+Player2: Production {
+    31 MC
+    2 Steel
+    2 Titanium
+    3 Heat
+    Plant
+    4 Energy
+}
+
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(6 MC)
+}
+
+Player1: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    Pay(6 MC)
+}
+
+Player2: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: PlayCard(AdvancedAlloys) {
+    Pay(7 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Player2: PlayCard(AiCentral) {
+    Pay(2 Steel, 13 MC)
+    PROD[-Energy]
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Player1: PlayCard(ExtractorBalloons) {
+    Pay(21 MC)
+    3 Floater<ExtractorBalloons>
+}
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+
+Player2: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+Player2: UseAction1(DirectedImpactors) {
+    Pay(1 Titanium, 2 MC)
+    Asteroid<RotatorImpacts>
+}
+
+Player1: PlayCard(SulphurExports) {
+    Pay(2 Titanium, 13 MC)
+    VenusStep
+    TerraformRating
+    PROD[8 MC]
+    8 MC
+}
+Player1: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    2 TerraformRating
+}
+
+Player2: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Player2: PlayCard(IshtarMining) {
+    Pay(3 MC)
+    PROD[Titanium]
+}
+
+Player1: PlayCard(MoholeLake) {
+    Pay(12 Steel, 7 MC)
+    OceanTile<Tharsis_5_5>
+    5 Plant
+    TemperatureStep
+    2 TerraformRating
+    // Player 1 hands the Arctic Algae reward to Player 2.
+    Player2: 2 Plant
+}
+Player1: ClaimMilestone {
+    Pay(8 MC)
+    Terraformer35
+}
+
+Player2: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player2: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_8_6>
+    OxygenStep
+    TerraformRating
+    ProjectCard
+}
+
+// keep card
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+Player1: UseAction1(DeuteriumExport) {
+    Floater<DeuteriumExport>
+}
+
+Player2: UseAction1(BioPrintingFacility) {
+    Pay(2 Energy)
+    2 Plant
+}
+
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_3_5>
+    OxygenStep
+    TerraformRating
+}
+
+Player2: Pass
+
+Player1: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+Player1: UseAction1(MoholeLake) {
+    Animal<StratosphericBirds>
+}
+Player1: Pass
+
+// Generation 9
+Player1: Production {
+    7 Heat FROM Energy VIA Energy
+    65 MC
+    5 Steel
+    8 Energy
+    3 Heat
+    Titanium
+    Plant
+}
+
+Player2: Production {
+    2 Heat FROM Energy VIA Energy
+    34 MC
+    2 Steel
+    3 Titanium
+    3 Heat
+    Plant
+    3 Energy
+}
+
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(9 MC)
+}
+
+Player1: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    Pay(6 MC)
+}
+
+Player2: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+// keep card
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player2: PlayCard(DeimosDownPromo) {
+    Pay(5 Titanium, 9 MC)
+    TemperatureStep
+    TemperatureStep
+    TemperatureStep
+    OceanTile<Tharsis_6_7>
+    DeimosDownPromo_SpecialTile<Tharsis_2_5>
+    -4 Plant<Player1> VIA DeimosDownPromo
+    4 Steel
+    3 Plant
+    4 TerraformRating
+    6 MC
+}
+Player2: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+// no mc paid
+Player2: UseAction1(AquiferPumping) {
+    Pay(3 Steel)
+    OceanTile<Tharsis_5_6>
+    4 MC
+    TerraformRating
+    4 Plant
+}
+Player2: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_9_7>
+    OxygenStep
+    TerraformRating
+}
+
+// no steel paid
+Player1: PlayCard(RegoPlastics) {
+    Pay(10 MC)
+}
+Player1: PlayCard(SfMemorial) {
+    Pay(2 Steel, 1 MC)
+    ProjectCard
+}
+
+Player2: ClaimMilestone {
+    Pay(8 MC)
+    Gardener
+}
+Player2: UseAction1(DirectedImpactors) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+
+Player1: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<ExtractorBalloons>
+}
+Player1: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+
+Player2: PlayCard(EcologicalZone) {
+    Pay(10 MC)
+    EcologicalZone_SpecialTile<Tharsis_4_5>
+    Animal<EcologicalZone>
+    Animal<EcologicalZone>
+    4 MC
+    2 Plant
+}
+Player2: PlayCard(Harvest) {
+    Pay(2 MC)
+    Animal<EcologicalZone>
+    12 MC
+}
+
+Player1: PlayCard(NoctisFarming) {
+    Pay(3 Steel, 1 MC)
+    2 Plant
+    PROD[MC]
+    MC
+}
+Player1: UseAction2(DeuteriumExport) {
+    -Floater<DeuteriumExport>
+    PROD[Energy]
+    Energy
+}
+
+Player2: UseAction1(BioPrintingFacility) {
+    Pay(2 Energy)
+    Animal<EcologicalZone>
+}
+Player2: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+Player1: UseAction1(MoholeLake) {
+    Animal<StratosphericBirds>
+}
+Player1: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+
+Player2: UseAction2(Factorum) {
+    Pay(3 MC)
+    SearchForCard<TagFilter<Class<BuildingTag>>>
+}
+Player2: PlayCard(NaturalPreserve) {
+    Pay(2 Steel, 1 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    NaturalPreserve_SpecialTile<Tharsis_3_1>
+    2 ProjectCard
+    PROD[MC]
+}
+
+Player1: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+Player1: PlayCard(WaterToVenus) {
+    Pay(1 Titanium, 4 MC)
+    VenusStep
+    TerraformRating
+    3 MC
+    3 Heat
+}
+
+Player2: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+Player2: PlayCard(KelpFarming) {
+    Pay(15 MC)
+    Animal<EcologicalZone>
+    2 Plant
+    PROD[2 MC]
+    PROD[3 Plant]
+}
+
+Player1: PlayCard(Trees) {
+    Pay(13 MC)
+    PROD[3 Plant]
+    4 Plant
+}
+Player1: FundAward {
+    Pay(8 MC)
+    Banker
+}
+
+// no reward
+Player2: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+
+Player1: PlayCard(VenusianInsects) {
+    Pay(5 MC)
+}
+Player1: UseAction1(VenusianInsects) {
+    Microbe<VenusianInsects>
+}
+
+Player2: Pass
+
+Player1: FundAward {
+    Pay(14 MC)
+    Venuphile
+}
+Player1: Pass
+
+// Generation 10
+Player1: Production {
+    8 Heat FROM Energy VIA Energy
+    70 MC
+    5 Steel
+    9 Energy
+    3 Heat
+    Titanium
+    4 Plant
+}
+
+Player2: Production {
+    Heat FROM Energy VIA Energy
+    44 MC
+    2 Steel
+    3 Titanium
+    3 Heat
+    4 Plant
+    3 Energy
+}
+
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(6 MC)
+}
+
+Player1: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: Research {
+    -ProjectCard<Selecting>
+}
+
+Player2: Research {
+    Pay(9 MC)
+}
+
+Player2: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: PlayCard(HiredRaiders) {
+    2 Steel FROM Steel<Player1>
+}
+Player2: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    NormalCityTile<Tharsis_7_6>
+    PROD[MC]
+    MC
+}
+
+Player2: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_9_6>
+    2 Steel
+    OxygenStep
+    TerraformRating
+}
+Player2: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+// no titanium paid
+Player2: PlayCard(MercurianAlloys) {
+    Pay(1 MC)
+}
+Player2: PlayCard(AerialMappers) {
+    Pay(9 MC)
+}
+
+Player1: PlayCard(LavaTubeSettlement) {
+    Pay(3 Steel, 6 MC)
+    NormalCityTile<Tharsis_2_2>
+    Steel
+    PROD[-Energy]
+    PROD[2 MC]
+    2 MC
+}
+Player1: PlayCard(UrbanizedArea) {
+    Pay(1 Steel, 7 MC)
+    NormalCityTile<Tharsis_2_3>
+    PROD[-Energy]
+    PROD[2 MC]
+    2 MC
+}
+
+Player2: PlayCard(Atmoscoop) {
+    Pay(3 Titanium, 5 MC)
+    VenusStep*, VenusStep*
+    2 Floater<AerialMappers>
+    2 TerraformRating
+}
+Player2: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+
+// temperature maxed
+Player1: PlayCard(NitrogenRichAsteroid) {
+    Pay(1 Titanium, 26 MC)
+    PROD[4 Plant]
+    2 TerraformRating
+    0 TemperatureStep
+    3 MC
+    3 Heat
+    4 Plant
+}
+Player1: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_3_3>
+    OxygenStep
+    TerraformRating
+}
+
+Player2: UseAction1(BioPrintingFacility) {
+    Pay(2 Energy)
+    Animal<EcologicalZone>
+}
+Player2: UseAction1(DirectedImpactors) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+
+Player1: UseAction1(VenusianInsects) {
+    Microbe<VenusianInsects>
+}
+Player1: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+
+Player2: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Player2: UseAction1(AquiferPumping) {
+    Pay(2 Steel, 2 MC)
+    OceanTile<Tharsis_9_9>
+    2 Titanium
+    TerraformRating
+    2 Plant
+}
+
+Player1: PlayCard(PowerInfrastructure) {
+    Pay(4 MC)
+}
+Player1: UseAction1(PowerInfrastructure) {
+    SelectTask(-8! Energy THEN 8! MC)
+    -8 Energy
+    8 MC
+}
+
+Player2: UseAction2(Factorum) {
+    Pay(3 MC)
+    SearchForCard<TagFilter<Class<BuildingTag>>>
+}
+Player2: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+
+Player1: UseAction1(DeuteriumExport) {
+    Floater<DeuteriumExport>
+}
+Player1: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+
+Player2: PlayCard(Bushes) {
+    Pay(8 MC)
+    Animal<EcologicalZone>
+    2 Plant
+    PROD[2 Plant]
+}
+Player2: PlayCard(EnergyTapping) {
+    Pay(1 MC)
+    PROD[-Energy<Player1>]
+    PROD[Energy]
+}
+
+Player1: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+Player1: UseAction1(MoholeLake) {
+    Animal<StratosphericBirds>
+}
+
+// no mc paid
+Player2: PlayCard(NuclearPower) {
+    Pay(3 Steel)
+    PROD[-2 MC]
+    PROD[3 Energy]
+}
+// no mc paid
+Player2: PlayCard(BiomassCombustors) {
+    Pay(1 Steel)
+    PROD[-Plant<Player1>]
+    PROD[2 Energy]
+}
+
+Player1: Pass
+
+// no reward
+Player2: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+Player2: Pass
+
+// Generation 11
+Player1: Production {
+    79 MC
+    5 Steel
+    6 Energy
+    3 Heat
+    Titanium
+    7 Plant
+}
+
+Player2: Production {
+    Heat FROM Energy VIA Energy
+    48 MC
+    2 Steel
+    3 Titanium
+    3 Heat
+    6 Plant
+    9 Energy
+}
+
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(6 MC)
+}
+
+Player1: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player2: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Player2: Research {
+    Pay(3 MC)
+}
+
+Player2: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player1: PlayCard(ImportedNitrogen) {
+    Pay(1 Titanium, 15 MC)
+    3 Microbe<VenusianInsects>
+    2 Animal<StratosphericBirds>
+    TerraformRating
+    4 Plant
+    3 MC
+    3 Heat
+}
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+
+Player2: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+Player2: UseAction2(Factorum) {
+    Pay(3 MC)
+    SearchForCard<TagFilter<Class<BuildingTag>>>
+}
+
+Player1: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_2_4>
+    2 MC
+    OxygenStep
+    TerraformRating
+}
+Player1: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+Player2: PlayCard(MediaGroup) {
+    Pay(4 MC)
+}
+// temperature maxed
+Player2: PlayCard(MiningExpedition) {
+    Pay(10 MC)
+    -2 Plant<Player1>
+    OxygenStep
+    TerraformRating
+    2 Steel
+    3 MC
+    0 TemperatureStep
+}
+
+Player1: UseAction1(PowerInfrastructure) {
+    SelectTask(-5! Energy THEN 5! MC)
+    -5 Energy
+    5 MC
+}
+Player1: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+
+Player2: UseAction1(BioPrintingFacility) {
+    Pay(2 Energy)
+    Animal<EcologicalZone>
+}
+Player2: UseAction1(AquiferPumping) {
+    Pay(2 Steel, 2 MC)
+    OceanTile<Tharsis_5_4>
+    2 MC
+    TerraformRating
+    4 Plant
+}
+
+Player1: PlayCard(BusinessNetwork) {
+    Pay(1 MC)
+    PROD[-MC]
+}
+// keep card
+Player1: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player2: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    NormalCityTile<Tharsis_8_5>
+    PROD[MC]
+}
+Player2: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_8_4>
+    2 Steel
+    OxygenStep
+    TerraformRating
+}
+
+Player1: UseAction2(DeuteriumExport) {
+    -Floater<DeuteriumExport>
+    PROD[Energy]
+    Energy
+}
+Player1: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+
+Player2: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_9_5>
+    Steel
+    OxygenStep
+    TerraformRating
+}
+Player2: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+
+Player1: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+Player1: UseAction1(MoholeLake) {
+    Animal<StratosphericBirds>
+}
+
+Player2: PlayCard(MagneticFieldGeneratorsPromo) {
+    Pay(6 Steel, 2 MC)
+    MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_6_6>
+    PROD[-4 Energy]
+    PROD[2 Plant]
+    3 TerraformRating
+    6 MC
+    Plant
+}
+Player2: PlayCard(TowingAComet) {
+    Pay(4 Titanium, 1 MC)
+    OceanTile<Tharsis_6_8>
+    5 Plant
+    OxygenStep
+    2 TerraformRating
+    5 MC
+}
+
+Player1: UseAction1(VenusianInsects) {
+    Microbe<VenusianInsects>
+}
+Player1: PlayCard(StandardTechnology) {
+    Pay(6 MC)
+    ProjectCard FROM Science<OlympusConference>
+}
+
+Player2: PlayCard(AtalantaPlanitiaLab) {
+    Pay(8 MC)
+    2 ProjectCard VIA AtalantaPlanitiaLab
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Player2: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+
+// oceans full
+Player1: PlayCard(LargeConvoy) {
+    Pay(31 MC)
+    4 Animal<StratosphericBirds>
+    OceanTile<WaterArea(HAS MAX 0 Tile)>*
+    2 ProjectCard
+    3 MC
+    3 Heat
+}
+// no mc paid
+Player1: PlayCard(WaterSplittingPlant) {
+    Pay(4 Steel)
+}
+
+Player2: PlayCard(RobotPollinators) {
+    Pay(7 MC)
+    PROD[Plant]
+    4 Plant
+}
+Player2: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_7_4>
+    OxygenStep
+    TerraformRating
+}
+
+Player1: PlayCard(MediaArchives) {
+    Pay(5 MC)
+    16 MC
+}
+Player1: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Tharsis_5_7>
+    9 MC
+    2 Plant
+    OxygenStep
+    TerraformRating
+}
+
+Player2: PlayCard(Greenhouses) {
+    Pay(4 MC)
+    Animal<EcologicalZone>
+    6 Plant
+}
+Player2: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_9_8>
+    2 MC
+    OxygenStep
+    TerraformRating
+}
+
+Player1: FundAward {
+    Pay(20 MC)
+    Thermalist
+}
+Player1: ConvertPlants {
+    // oxygen maxed
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_4_4>
+    Plant
+    4 MC
+    0 OxygenStep
+}
+
+Player2: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+Player2: PlayCard(Penguins) {
+    Pay(5 MC)
+    Animal<EcologicalZone>
+}
+
+Player1: PlayCard(AdvancedEcosystems) {
+    Pay(11 MC)
+}
+Player1: UseStandardProject(SellPatentsProject) {
+    4 MC FROM ProjectCard
+}
+
+Player2: UseAction1(Penguins) {
+    Animal<Penguins>
+}
+
+Player1: PlayCard(GeneRepair) {
+    Pay(12 MC)
+    PROD[2 MC]
+    Science<OlympusConference>
+    2 MC
+}
+
+Player2: Pass
+
+Player1: Pass
+
+Player1: Production {
+    Heat FROM Energy VIA Energy
+    83 MC
+    5 Steel
+    7 Energy
+    3 Heat
+    Titanium
+    7 Plant
+}
+
+Player2: Production {
+    7 Heat FROM Energy VIA Energy
+    60 MC
+    2 Steel
+    3 Titanium
+    3 Heat
+    9 Plant
+    5 Energy
+}
+
+// Final greenery placement
+Player1: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_6_5>
+    Plant
+    4 MC
+}
+// no more greenery
+Player1 {
+    Ok
+}
+
+Player2: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_8_8>
+    2 MC
+}
+// no more greenery
+Player2 {
+    Ok
+}
+
+Player1 {
+    126 VictoryPoint
+}
+
+Player2 {
+    92 VictoryPoint
+}

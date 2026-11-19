@@ -1,0 +1,1778 @@
+// Replay: RemoteVacuumFlowTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/RemoteVacuumFlowTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Complete source-log replay: Remote Vacuum Flow (g40fde6455218).
+// http://newazure.local:8080/the-end?id=p5b5fbeff757c
+// Source archive: _local/replays/Game20261031/.
+// Identity-only card supplied by this replay catalog.
+// Unsupported component: New Holland is drawn and discarded in generation 4, never played.
+// This identity-only declaration tracks that hand movement without inventing card effects.
+Config {
+    Blue
+    CimmeriaMap
+    VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, TurmoilExpansion, Tr63SoloObjective
+    promos:cards
+    Ceres, Pluto, Titan, Enceladus
+    SoloTileLocations
+    2 SelectableCorporationCount
+    2 SelectablePreludeCount
+}
+
+GlobalEventDeck {
+    CharismaticWgPresident
+    MoholeLakeGlobalEvent
+    ImmigrationToVenus
+    ExperimentalLifeforms
+    PateraBoring
+    ExploreFirstDirective
+    WorldGovernmentDirectives
+    HeatFirstPolicy
+    RedResistance
+    ViralModificationsApproved
+    ThawMining
+    IncreasedInterplanetaryTrade
+    SolarnetGlobalEvent
+}
+
+SetupRules {
+    CLASS SoloTileLocations : PlaceNeutralTiles<Cimmeria_3_3, Cimmeria_3_4, Cimmeria_6_4, Cimmeria_6_3>
+}
+
+Cards {
+    +CorporationCard<Blue, Hand>: Philares, Inventrix, PharmacyUnion, AstroDrill
+    -CorporationCard<Blue, Hand>: Philares, Inventrix, PharmacyUnion
+    -CorporationCard<Blue, Hand>: AstroDrill
+    +PreludeCard<Blue, Hand>: Loan, IndustrialComplex, BoardOfDirectors, MetalRichAsteroid, ExcentricSponsor, SuitableInfrastructure
+    -PreludeCard<Blue, Hand>: BoardOfDirectors, MetalRichAsteroid, ExcentricSponsor, SuitableInfrastructure
+    -PreludeCard<Blue, Hand>: Loan
+    -PreludeCard<Blue, Hand>: IndustrialComplex
+    +ProjectCard<Blue, Hand>: MartianMediaCenter, PeroxidePower, ShipmentToEarth, TechnologyDemonstration, DeimosDownPromo, CometAiming, IndenturedWorkers
+    +ProjectCard<Blue, Hand>: PhobosSpaceHaven, OlympusConference
+    +ProjectCard<Blue, Hand>: PioneerSettlement, MartianSurvey
+    +ProjectCard<Blue, Hand>: MarsUniversity, Penguins
+    +ProjectCard<Blue, Hand>: WarpDrive
+    +ProjectCard<Blue, Hand>: InventionContest, Grass, Potatoes, DevelopmentCenter
+    +ProjectCard<Blue, Hand>: GiantIceAsteroid, IshtarExpedition
+    +ProjectCard<Blue, Hand>: TradeEnvoys, ExtractorBalloons, Supercapacitors
+    +ProjectCard<Blue, Hand>: SpaceHotels
+    +ProjectCard<Blue, Hand>: NewHolland, MagneticShield
+    +ProjectCard<Blue, Hand>: TopsoilContract
+    +ProjectCard<Blue, Hand>: CityParks
+    +ProjectCard<Blue, Hand>: SpinOffDepartment
+    +ProjectCard<Blue, Hand>: MiningRights
+    +ProjectCard<Blue, Hand>: EnergySaving, CaretakerContract, SolarProbe
+    +ProjectCard<Blue, Hand>: SkyDocks, AerialMappers
+    +ProjectCard<Blue, Hand>: SearchForLife
+    +ProjectCard<Blue, Hand>: GiantSolarShade
+    +ProjectCard<Blue, Hand>: CeosFavoriteProject
+    +ProjectCard<Blue, Hand>: VenusWaystation
+    +ProjectCard<Blue, Hand>: RedShips, ImmigrantCity, VestaShipyard, RobotPollinators
+    +ProjectCard<Blue, Hand>: Extremophiles
+    +ProjectCard<Blue, Hand>: Dirigibles
+    +ProjectCard<Blue, Hand>: HiTechLab
+    +ProjectCard<Blue, Hand>: Archaebacteria
+    +ProjectCard<Blue, Hand>: AcquiredCompany
+    +ProjectCard<Blue, Hand>: GhgShipment
+    +ProjectCard<Blue, Hand>: SulphurEatingBacteria
+    +ProjectCard<Blue, Hand>: SterlingVents, Hospitals, HermeticOrderOfMars
+    +ProjectCard<Blue, Hand>: FrontierTown
+    +ProjectCard<Blue, Hand>: ColonizerTrainingCamp
+    +ProjectCard<Blue, Hand>: AqueductSystems
+    +ProjectCard<Blue, Hand>: DeuteriumExport, FreyjaBiodomes
+    +ProjectCard<Blue, Hand>: Algae, CorporateStronghold
+    +ProjectCard<Blue, Hand>: IceCapMelting
+    +ProjectCard<Blue, Hand>: NitrogenFromTitan
+    +ProjectCard<Blue, Hand>: Moss
+    +ProjectCard<Blue, Hand>: FueledGenerators, UrbanizedArea, MartianRails
+    +ProjectCard<Blue, Hand>: PowerPlant, FloaterTechnology
+    +ProjectCard<Blue, Hand>: MarketManipulation
+    +ProjectCard<Blue, Hand>: DuskLaserMining
+    +ProjectCard<Blue, Hand>: MercurianAlloys, BribedCommittee, TectonicStressPower
+    +ProjectCard<Blue, Hand>: AntiGravityTechnology
+    +ProjectCard<Blue, Hand>: RegolithEaters
+    +ProjectCard<Blue, Hand>: MagneticFieldGeneratorsPromo
+    +ProjectCard<Blue, Hand>: LocalHeatTrapping
+    +ProjectCard<Blue, Hand>: InterplanetaryColonyShip
+    +ProjectCard<Blue, Hand>: ArtificialLake
+    +ProjectCard<Blue, Hand>: DiversitySupport
+    +ProjectCard<Blue, Hand>: TropicalResort
+    +ProjectCard<Blue, Hand>: EnergyMarket, Shuttles
+    +ProjectCard<Blue, Hand>: EcologicalZone
+    +ProjectCard<Blue, Hand>: ImportedHydrogen
+    +ProjectCard<Blue, Hand>: TradingColony, SpinInducingAsteroid, LunarMining, Soletta
+    +ProjectCard<Blue, Hand>: QuantumExtractor
+    +ProjectCard<Blue, Hand>: TransNeptuneProbe, ProtectedValley
+    +ProjectCard<Blue, Hand>: MicroMills
+    +ProjectCard<Blue, Hand>: LunarExports, EosChasmaNationalPark, FusionPower
+    +ProjectCard<Blue, Hand>: GhgImportFromVenus
+    +ProjectCard<Blue, Hand>: CloudTourism
+    +ProjectCard<Blue, Hand>: Capital, SponsoredAcademies
+    +ProjectCard<Blue, Hand>: Plantation
+    +ProjectCard<Blue, Hand>: Farming
+    +ProjectCard<Blue, Hand>: Sabotage, NitrophilicMoss, SponsoredMohole
+    +ProjectCard<Blue, Hand>: TitanAirScrapping
+    +ProjectCard<Blue, Hand>: Mangrove
+    +ProjectCard<Blue, Hand>: AtalantaPlanitiaLab
+    +ProjectCard<Blue, Hand>: Satellites, MiningArea
+    +ProjectCard<Blue, Hand>: Ants
+    +ProjectCard<Blue, Hand>: Decomposers
+    -ProjectCard<Blue, Hand>: TechnologyDemonstration
+    -ProjectCard<Blue, Hand>: IndenturedWorkers
+    -ProjectCard<Blue, Hand>: CometAiming
+    -ProjectCard<Blue, Hand>: PeroxidePower
+    -ProjectCard<Blue, Hand>: DeimosDownPromo
+    -ProjectCard<Blue, Hand>: MarsUniversity
+    -ProjectCard<Blue, Hand>: PhobosSpaceHaven
+    -ProjectCard<Blue, Hand>: Penguins
+    -ProjectCard<Blue, Hand>: MartianMediaCenter
+    -ProjectCard<Blue, Hand>: Potatoes
+    -ProjectCard<Blue, Hand>: PioneerSettlement
+    -ProjectCard<Blue, Hand>: TradeEnvoys
+    -ProjectCard<Blue, Hand>: OlympusConference
+    -ProjectCard<Blue, Hand>: Supercapacitors
+    -ProjectCard<Blue, Hand>: MartianSurvey
+    -ProjectCard<Blue, Hand>: NewHolland
+    -ProjectCard<Blue, Hand>: DevelopmentCenter
+    -ProjectCard<Blue, Hand>: CityParks
+    -ProjectCard<Blue, Hand>: MiningRights
+    -ProjectCard<Blue, Hand>: InventionContest
+    -ProjectCard<Blue, Hand>: CaretakerContract
+    -ProjectCard<Blue, Hand>: SpinOffDepartment
+    -ProjectCard<Blue, Hand>: ExtractorBalloons
+    -ProjectCard<Blue, Hand>: ImmigrantCity
+    -ProjectCard<Blue, Hand>: VenusWaystation
+    -ProjectCard<Blue, Hand>: Dirigibles
+    -ProjectCard<Blue, Hand>: Extremophiles
+    -ProjectCard<Blue, Hand>: TopsoilContract
+    -ProjectCard<Blue, Hand>: HiTechLab
+    -ProjectCard<Blue, Hand>: AcquiredCompany
+    -ProjectCard<Blue, Hand>: Archaebacteria
+    -ProjectCard<Blue, Hand>: SulphurEatingBacteria
+    -ProjectCard<Blue, Hand>: AerialMappers
+    -ProjectCard<Blue, Hand>: GhgShipment
+    -ProjectCard<Blue, Hand>: SearchForLife
+    -ProjectCard<Blue, Hand>: VestaShipyard
+    -ProjectCard<Blue, Hand>: Hospitals
+    -ProjectCard<Blue, Hand>: FrontierTown
+    -ProjectCard<Blue, Hand>: ColonizerTrainingCamp
+    -ProjectCard<Blue, Hand>: HermeticOrderOfMars
+    -ProjectCard<Blue, Hand>: GiantSolarShade
+    -ProjectCard<Blue, Hand>: EnergySaving
+    -ProjectCard<Blue, Hand>: SterlingVents
+    -ProjectCard<Blue, Hand>: IshtarExpedition
+    -ProjectCard<Blue, Hand>: DeuteriumExport
+    -ProjectCard<Blue, Hand>: WarpDrive
+    -ProjectCard<Blue, Hand>: RedShips
+    -ProjectCard<Blue, Hand>: SkyDocks
+    -ProjectCard<Blue, Hand>: Algae
+    -ProjectCard<Blue, Hand>: Grass
+    -ProjectCard<Blue, Hand>: CorporateStronghold
+    -ProjectCard<Blue, Hand>: AqueductSystems
+    -ProjectCard<Blue, Hand>: FueledGenerators
+    -ProjectCard<Blue, Hand>: FreyjaBiodomes
+    -ProjectCard<Blue, Hand>: Moss
+    -ProjectCard<Blue, Hand>: RobotPollinators
+    -ProjectCard<Blue, Hand>: SpaceHotels
+    -ProjectCard<Blue, Hand>: MartianRails
+    -ProjectCard<Blue, Hand>: SolarProbe
+    -ProjectCard<Blue, Hand>: UrbanizedArea
+    -ProjectCard<Blue, Hand>: DuskLaserMining
+    -ProjectCard<Blue, Hand>: PowerPlant
+    -ProjectCard<Blue, Hand>: TectonicStressPower
+    -ProjectCard<Blue, Hand>: MercurianAlloys
+    -ProjectCard<Blue, Hand>: MarketManipulation
+    -ProjectCard<Blue, Hand>: BribedCommittee
+    -ProjectCard<Blue, Hand>: MagneticShield
+    -ProjectCard<Blue, Hand>: FloaterTechnology
+    -ProjectCard<Blue, Hand>: GiantIceAsteroid
+    -ProjectCard<Blue, Hand>: AntiGravityTechnology
+    -ProjectCard<Blue, Hand>: InterplanetaryColonyShip
+    -ProjectCard<Blue, Hand>: NitrogenFromTitan
+    -ProjectCard<Blue, Hand>: Shuttles
+    -ProjectCard<Blue, Hand>: ShipmentToEarth
+    -ProjectCard<Blue, Hand>: DiversitySupport
+    -ProjectCard<Blue, Hand>: EnergyMarket
+    -ProjectCard<Blue, Hand>: ImportedHydrogen
+    -ProjectCard<Blue, Hand>: MagneticFieldGeneratorsPromo
+    -ProjectCard<Blue, Hand>: ArtificialLake, EcologicalZone, IceCapMelting, LocalHeatTrapping, LunarMining, QuantumExtractor, RegolithEaters, Soletta, SpinInducingAsteroid, TradingColony
+    -ProjectCard<Blue, Hand>: TransNeptuneProbe
+    -ProjectCard<Blue, Hand>: FusionPower
+    -ProjectCard<Blue, Hand>: TropicalResort
+    -ProjectCard<Blue, Hand>: GhgImportFromVenus
+    -ProjectCard<Blue, Hand>: SponsoredAcademies
+    -ProjectCard<Blue, Hand>: MicroMills
+    -ProjectCard<Blue, Hand>: ProtectedValley
+    -ProjectCard<Blue, Hand>: Capital
+    -ProjectCard<Blue, Hand>: Farming
+    -ProjectCard<Blue, Hand>: Plantation
+    -ProjectCard<Blue, Hand>: Mangrove
+    -ProjectCard<Blue, Hand>: TitanAirScrapping
+    -ProjectCard<Blue, Hand>: CeosFavoriteProject
+    -ProjectCard<Blue, Hand>: CloudTourism, EosChasmaNationalPark, LunarExports, NitrophilicMoss
+    -ProjectCard<Blue, Hand>: AtalantaPlanitiaLab
+    -ProjectCard<Blue, Hand>: SponsoredMohole
+    -ProjectCard<Blue, Hand>: MiningArea
+    -ProjectCard<Blue, Hand>: Ants, Decomposers, Sabotage, Satellites
+}
+
+Blue: Setup {
+    14 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Blue
+    2 PreludeCard
+    -SelectedEnceladus
+    -3 ProjectCard<Selecting>
+}
+
+// Test inference: initial kept cards identified by subsequent plays without matching draws.
+Blue: PlayCard(AstroDrill) {
+    35 MC VIA AstroDrill
+    3 Asteroid<AstroDrill>
+    Pay(21 MC)
+    7 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: PlayCard(Loan) {
+    PROD[-2 MC]
+    30 MC
+}
+Blue: PlayCard(IndustrialComplex) {
+    -18 MC
+    // Expand the production box into its separate resource increases.
+    EACH Class<@StandardResource> { Production<Class<@StandardResource>>! / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>> }
+    PROD[Titanium]
+    PROD[Steel]
+    PROD[Plant]
+    PROD[5 MC]
+    PROD[Heat]
+    PROD[Energy]
+}
+
+// Generation 1
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: PlayCard(TechnologyDemonstration) {
+    Pay(1 Titanium, 2 MC)
+    2 ProjectCard
+}
+Blue: PlayCard(IndenturedWorkers) {
+    IndenturedWorkers_NextCardEffect
+}
+// Source payment preserves a titanium for the immediately following action.
+Blue: PlayCard(CometAiming) {
+    Pay(1 Titanium, 6 MC)
+}
+Blue: UseAction1(CometAiming) {
+    Pay(1 Titanium)
+    Asteroid<CometAiming>
+}
+Blue: PlayCard(PeroxidePower) {
+    Pay(7 MC)
+    PROD[-MC]
+    PROD[2 Energy]
+}
+Blue: SendDelegate0 {
+    PartyLeader<MarsFirst> FROM LobbyDelegate
+}
+Blue: Pass
+
+Blue: Production {
+    14 MC
+    Titanium
+    Steel
+    Plant
+    Heat
+    3 Energy
+}
+
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 2
+// Player-record evidence: globalsPerGeneration[0].
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: UseAction2(CometAiming) {
+    -Asteroid<CometAiming>
+    OceanTile<Cimmeria_2_1>
+    TerraformRating
+    2 Titanium
+}
+Blue: PlayCard(DeimosDownPromo) {
+    Pay(6 Titanium, 7 MC)
+    TemperatureStep
+    TemperatureStep
+    TemperatureStep
+    4 Steel
+    3 TerraformRating
+    PROD[Heat]
+    -6 Plant<SoloOpponent>
+    DeimosDownPromo_SpecialTile<Cimmeria_6_2>
+    2 ProjectCard
+}
+Blue: PlayCard(MarsUniversity) {
+    Pay(4 Steel)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+// Test inference: the source gives the sale count, not card identities.
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Blue: SendDelegate0 {
+    PartyFollower<MarsFirst> FROM LobbyDelegate
+}
+Blue: PlayCard(MartianMediaCenter) {
+    Pay(1 Steel, 5 MC)
+    PROD[2 MC]
+}
+Blue: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyLeader<Reds>
+}
+Blue: Pass
+
+Blue: Production {
+    19 MC
+    Titanium
+    Steel
+    Plant
+    2 Heat VIA Production
+    3 Energy VIA Production
+    3 Heat FROM Energy
+}
+
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Blue: GlobalEvent {
+    4 MC
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 3
+// Player-record evidence: globalsPerGeneration[1].
+// keep all four research cards
+Blue: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(12 MC)
+}
+
+Blue: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: SendDelegate0 {
+    PartyFollower<Reds> FROM LobbyDelegate
+}
+Blue: UseAction1(AstroDrill) {
+    Asteroid<CometAiming>
+}
+Blue: UseAction2(CometAiming) {
+    -Asteroid<CometAiming>
+    OceanTile<Cimmeria_7_9>
+    TerraformRating
+    2 Plant
+}
+Blue: PlayCard(Potatoes) {
+    Pay(2 MC)
+    -2 Plant
+    PROD[2 MC]
+}
+Blue: UsePolicy {
+    Pay(10 MC)
+    PROD[Heat]
+    PROD[Energy]
+}
+Blue: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyLeader<Scientists>
+}
+Blue: Pass
+
+Blue: Production {
+    21 MC
+    Titanium
+    Steel
+    Plant
+    3 Heat VIA Production
+    4 Energy VIA Production
+    3 Heat FROM Energy
+}
+
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Blue: GlobalEvent {
+    -2* TemperatureStep BY Admin
+    2 ProjectCard
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 4
+// Player-record evidence: globalsPerGeneration[2].
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: UseAction1(CometAiming) {
+    Pay(1 Titanium)
+    Asteroid<CometAiming>
+}
+Blue: PlayCard(PioneerSettlement) {
+    Pay(4 Titanium, 1 MC)
+    PROD[-2 MC]
+    Colony<Ceres>
+    PROD[Steel]
+}
+Blue: PlayCard(TradeEnvoys) {
+    Pay(6 MC)
+}
+Blue: Trade2 {
+    Pay(3 Energy)
+    Trade<Ceres>
+    ColonyProduction<Ceres>
+    10 Steel
+}
+Blue: PlayCard(OlympusConference) {
+    Pay(5 Steel)
+    Science<OlympusConference>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: PlayCard(MartianSurvey) {
+    Pay(9 MC)
+    2 ProjectCard VIA MartianSurvey
+    ProjectCard FROM Science<OlympusConference> VIA OlympusConference
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: PlayCard(DevelopmentCenter) {
+    Pay(5 Steel, 1 MC)
+    Science<OlympusConference>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: SendDelegate0 {
+    PartyFollower<Scientists> FROM LobbyDelegate
+}
+Blue: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+// Test inference: the source gives the sale count, not card identities.
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Blue: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyLeader<MarsFirst>
+}
+Blue: Pass
+
+Blue: Production {
+    20 MC
+    Titanium
+    2 Steel
+    Plant
+    3 Heat
+    4 Energy
+}
+
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+Blue: GlobalEvent {
+    -10 MC
+}
+
+Blue: GlobalEvent {
+    3 ProjectCard
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 5
+// Player-record evidence: globalsPerGeneration[3].
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Blue: UseAction2(CometAiming) {
+    -Asteroid<CometAiming>
+    OceanTile<Cimmeria_8_9>
+    TerraformRating
+    2 Plant
+    2 MC
+}
+Blue: UseAction1(AstroDrill) {
+    Asteroid<CometAiming>
+}
+Blue: PlayCard(InventionContest) {
+    Pay(2 MC)
+    3 ProjectCard<Selecting> VIA InventionContest
+    ProjectCard<Hand FROM Selecting> VIA InventionContest
+    ProjectCard FROM Science<OlympusConference> VIA OlympusConference
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyFollower<MarsFirst>
+}
+Blue: SendDelegate0 {
+    PartyFollower<MarsFirst> FROM LobbyDelegate
+}
+Blue: Trade2 {
+    Pay(3 Energy)
+    Trade<Pluto>
+    ColonyProduction<Pluto>
+    4 ProjectCard
+}
+Blue: Pass
+
+Blue: Production {
+    21 MC
+    Titanium
+    2 Steel
+    Plant
+    3 Heat
+    4 Energy
+}
+
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+Blue: GlobalEvent {
+    -Plant
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 6
+// Player-record evidence: globalsPerGeneration[4].
+Blue: Research {
+    -4 ProjectCard<Selecting>
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+    -3 MC
+}
+Blue: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Blue: UseAction2(CometAiming) {
+    -Asteroid<CometAiming>
+    OceanTile<Cimmeria_9_9>
+    TerraformRating
+    Plant
+    -MC
+}
+Blue: UseAction1(AstroDrill) {
+    Asteroid<CometAiming>
+}
+Blue: Trade2 {
+    Pay(3 Energy)
+    Trade<Ceres>
+    ColonyProduction<Ceres>
+    8 Steel
+}
+Blue: PlayCard(SpinOffDepartment) {
+    Pay(5 Steel)
+    PROD[2 MC]
+}
+Blue: PlayCard(ExtractorBalloons) {
+    Pay(21 MC)
+    3 Floater<ExtractorBalloons>
+    ProjectCard
+}
+Blue: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+Blue: SendDelegate0 {
+    PartyLeader<Scientists> FROM LobbyDelegate
+}
+Blue: Pass
+
+Blue: Production {
+    26 MC
+    Titanium
+    2 Steel
+    Plant
+    4 Heat
+    4 Energy
+}
+
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+Blue: GlobalEvent {
+    PROD[3 Heat]
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 7
+// Player-record evidence: globalsPerGeneration[5].
+Blue: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(3 MC)
+}
+
+Blue: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Blue: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Blue: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+    ProjectCard
+}
+Blue: UseAction2(CometAiming) {
+    -Asteroid<CometAiming>
+    OceanTile<Cimmeria_9_5>
+    TerraformRating
+    Steel
+    2 Plant
+}
+Blue: PlayCard(ImmigrantCity) {
+    Pay(6 Steel, 1 MC)
+    PROD[-Energy]
+    PROD[-2 MC]
+    NormalCityTile<Cimmeria_6_7>
+    Steel VIA MarsFirstPolicy
+    PROD[MC]
+    2 Steel
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_5_6>
+    OxygenStep
+    Steel
+    ProjectCard
+    TerraformRating
+}
+Blue: PlayCard(VenusWaystation) {
+    Pay(3 Titanium)
+}
+Blue: PlayCard(Dirigibles) {
+    Pay(9 MC)
+}
+Blue: UseAction1(Dirigibles) {
+    Floater<Dirigibles>
+}
+// no Dirigibles floaters paid
+Blue: PlayCard(Extremophiles) {
+    Pay(1 MC)
+}
+Blue: PlayCard(TopsoilContract) {
+    Pay(8 MC)
+    3 Plant
+}
+Blue: UseAction1(Extremophiles) {
+    Microbe<Extremophiles>
+    MC
+}
+Blue: PlayCard(HiTechLab) {
+    Pay(8 Steel, 1 MC)
+    Science<OlympusConference>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: UseAction1(AstroDrill) {
+    Asteroid<CometAiming>
+}
+Blue: PlayCard(Archaebacteria) {
+    Pay(6 MC)
+    PROD[Plant]
+}
+Blue: PlayCard(SulphurEatingBacteria) {
+    Pay(1 Floater<Dirigibles>, 1 MC)
+}
+Blue: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+    MC
+}
+Blue: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyLeader<MarsFirst>
+}
+Blue: SendDelegate0 {
+    PartyFollower<MarsFirst> FROM LobbyDelegate
+}
+Blue: Pass
+
+Blue: Production {
+    28 MC
+    Titanium
+    2 Steel
+    2 Plant
+    7 Heat VIA Production
+    3 Energy VIA Production
+    3 Heat FROM Energy
+}
+
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Blue: GlobalEvent {
+    19 MC
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 8
+// Player-record evidence: globalsPerGeneration[6].
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseAction1(Dirigibles) {
+    Floater<Dirigibles>
+}
+Blue: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+Blue: Trade2 {
+    Pay(3 Energy)
+    Trade<Titan>
+    ColonyProduction<Titan>
+    3 Floater<Dirigibles>
+}
+// no Dirigibles floaters paid
+Blue: PlayCard(AerialMappers) {
+    Pay(9 MC)
+}
+Blue: UseAction1(AerialMappers) {
+    Floater<Dirigibles>
+}
+Blue: PlayCard(GhgShipment) {
+    Pay(1 Titanium)
+    PROD[Heat]
+    8 Heat
+}
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: PlayCard(SearchForLife) {
+    Pay(3 MC)
+    ProjectCard FROM Science<OlympusConference> VIA OlympusConference
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: PlayCard(Hospitals) {
+    Pay(4 Steel)
+    PROD[-Energy]
+}
+Blue: PlayCard(FrontierTown) {
+    Pay(11 MC)
+    FrontierTownBonus
+    PROD[-Energy]
+    NormalCityTile<Cimmeria_7_6>
+    PROD[MC]
+    Disease<Hospitals>
+    -FrontierTownBonus
+    Plant
+    2 Steel
+    RepeatPlacementBonus<Cimmeria_7_6>
+    Plant
+    2 Steel
+    Plant
+    2 Steel
+}
+Blue: UseAction2(CometAiming) {
+    -Asteroid<CometAiming>
+    OceanTile<Cimmeria_9_6>
+    TerraformRating
+    Plant
+    2 MC
+}
+Blue: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+Blue: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyFollower<Greens>
+}
+Blue: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+    MC
+}
+Blue: UseAction1(Extremophiles) {
+    Microbe<SulphurEatingBacteria>
+    MC
+}
+Blue: PlayCard(ColonizerTrainingCamp) {
+    Pay(4 Steel)
+}
+Blue: PlayCard(HermeticOrderOfMars) {
+    Pay(10 MC)
+    PROD[2 MC]
+    15 MC
+}
+Blue: PlayCard(GiantSolarShade) {
+    Pay(5 Floater<Dirigibles>, 10 MC)
+    VenusStep
+    VenusStep
+    VenusStep
+    ProjectCard
+    4 TerraformRating
+}
+Blue: PlayCard(EnergySaving) {
+    Pay(15 MC)
+    PROD[4 Energy]
+}
+Blue: UseAction1(AstroDrill) {
+    Asteroid<AstroDrill>
+}
+Blue: PlayCard(SterlingVents) {
+    Pay(2 Steel, 1 MC)
+    PROD[-2 Heat]
+    PROD[2 Energy]
+}
+Blue: PlayCard(IshtarExpedition) {
+    Pay(4 MC)
+    3 Titanium
+    2 SearchForCard<TagFilter<Class<VenusTag>>>
+}
+Blue: PlayCard(DeuteriumExport) {
+    Pay(3 Titanium)
+}
+Blue: UseAction1(DeuteriumExport) {
+    Floater<DeuteriumExport>
+}
+Blue: Pass
+
+Blue: Production {
+    38 MC
+    Titanium
+    2 Steel
+    2 Plant
+    6 Heat
+    7 Energy
+}
+
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 9
+// Player-record evidence: globalsPerGeneration[7].
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_7_7>
+    OxygenStep
+    4 MC
+    2 Plant
+    TerraformRating
+}
+Blue: UseAction2(DeuteriumExport) {
+    -Floater<DeuteriumExport>
+    PROD[Energy]
+}
+Blue: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+Blue: Trade2 {
+    Pay(3 Energy)
+    Trade<Ceres>
+    ColonyProduction<Ceres>
+    10 Steel
+}
+Blue: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: UseAction1(CometAiming) {
+    Pay(1 Titanium)
+    Asteroid<CometAiming>
+}
+Blue: UseAction1(Extremophiles) {
+    Microbe<SulphurEatingBacteria>
+    MC
+}
+Blue: PlayCard(WarpDrive) {
+    Pay(14 MC)
+    Science<OlympusConference>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: UseAction1(Dirigibles) {
+    Floater<AerialMappers>
+}
+Blue: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+Blue: PlayCard(SkyDocks) {
+    Pay(3 Titanium, 5 MC)
+    TradeFleet
+}
+Blue: PlayCard(Algae) {
+    Pay(9 MC)
+    Plant
+    PROD[2 Plant]
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_6_6>
+    OxygenStep
+    4 MC
+    Titanium
+    TerraformRating
+}
+Blue: PlayCard(Grass) {
+    Pay(10 MC)
+    PROD[Plant]
+    3 Plant
+}
+Blue: PlayCard(CorporateStronghold) {
+    Pay(5 Steel)
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Cimmeria_8_8>
+    PROD[MC]
+    Disease<Hospitals>
+    2 Plant
+    4 MC
+}
+Blue: PlayCard(AqueductSystems) {
+    Pay(4 Steel)
+    3 SearchForCard<TagFilter<Class<BuildingTag>>>
+}
+Blue: PlayCard(FueledGenerators) {
+    PROD[-MC]
+    PROD[Energy]
+}
+Blue: PlayCard(FreyjaBiodomes) {
+    Pay(11 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    2 Microbe<SulphurEatingBacteria>
+    2 MC
+}
+Blue: UseAction2(SulphurEatingBacteria) {
+    SelectTask(-6! Microbe<SulphurEatingBacteria> THEN 18! MC)
+    -6 Microbe<SulphurEatingBacteria>
+    18 MC
+}
+Blue: UseAction1(Hospitals) {
+    -Disease<Hospitals>
+    5 MC
+}
+Blue: PlayCard(Moss) {
+    Pay(3 MC)
+    PROD[Plant]
+    -Plant
+}
+Blue: PlayCard(RobotPollinators) {
+    Pay(8 MC)
+    PROD[Plant]
+    5 Plant
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_7_8>
+    OxygenStep
+    4 MC VIA GreensPolicy
+    Plant
+    4 MC
+    TerraformRating
+    TemperatureStep
+    TerraformRating
+}
+Blue: PlayCard(SpaceHotels) {
+    Pay(1 Titanium, 4 MC)
+    PROD[4 MC]
+}
+Blue: PlayCard(MartianRails) {
+    Pay(3 Steel, 6 MC)
+}
+Blue: UseAction1(MartianRails) {
+    Pay(1 Energy)
+    5 MC
+}
+Blue: SendDelegate0 {
+    PartyLeader<Kelvinists> FROM LobbyDelegate
+}
+Blue: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyFollower<Scientists>
+}
+Blue: PlayCard(SolarProbe) {
+    Pay(4 MC)
+    2 ProjectCard VIA SolarProbe
+    ProjectCard FROM Science<OlympusConference> VIA OlympusConference
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: PlayCard(DuskLaserMining) {
+    Pay(3 MC)
+    PROD[-Energy]
+    PROD[Titanium]
+    4 Titanium
+}
+Blue: PlayCard(PowerPlant) {
+    Pay(3 MC)
+    PROD[Energy]
+}
+Blue: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+Blue: Pass
+
+Blue: Production {
+    51 MC
+    2 Titanium
+    2 Steel
+    7 Plant
+    6 Heat VIA Production
+    7 Energy VIA Production
+    2 Heat FROM Energy
+}
+
+Blue: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+Blue: GlobalEvent {
+    -14 Heat
+    -6 MC
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 10
+// Player-record evidence: globalsPerGeneration[8].
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Trade2 {
+    Pay(3 Energy)
+    Trade<Ceres>
+    ColonyProduction<Ceres>
+    6 Steel
+}
+Blue: UseAction1(DeuteriumExport) {
+    Floater<DeuteriumExport>
+}
+Blue: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Blue: UseAction1(Dirigibles) {
+    Floater<ExtractorBalloons>
+}
+Blue: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+Blue: PlayCard(TectonicStressPower) {
+    Pay(8 Steel, 1 MC)
+    PROD[3 Energy]
+}
+Blue: PlayCard(MercurianAlloys) {
+}
+Blue: PlayCard(MarketManipulation) {
+    ColonyProduction<Titan> FROM ColonyProduction<Pluto>
+}
+Blue: UseAction2(CometAiming) {
+    -Asteroid<CometAiming>
+    OceanTile<Cimmeria_9_7>
+    TerraformRating
+    Steel
+    Plant
+    2 MC
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_8_7>
+    OxygenStep
+    Steel
+    ProjectCard
+    2 MC
+    TerraformRating
+}
+Blue: UseAction1(MartianRails) {
+    Pay(1 Energy)
+    5 MC
+}
+Blue: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+    MC
+}
+Blue: UseAction1(Extremophiles) {
+    Microbe<SulphurEatingBacteria>
+    MC
+}
+Blue: PlayCard(BribedCommittee) {
+    Pay(6 MC)
+    2 TerraformRating
+}
+Blue: PlayCard(MagneticShield) {
+    Pay(4 Titanium, 3 MC)
+    4 TerraformRating
+    ProjectCard
+}
+Blue: PlayCard(FloaterTechnology) {
+    Pay(6 MC)
+    Science<OlympusConference>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: PlayCard(AntiGravityTechnology) {
+    Pay(13 MC)
+    ProjectCard FROM Science<OlympusConference> VIA OlympusConference
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: UseAction1(Hospitals) {
+    -Disease<Hospitals>
+    5 MC
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<AerialMappers>
+}
+Blue: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+Blue: PlayCard(NitrogenFromTitan) {
+    Pay(2 Titanium, 10 MC)
+    2* Floater<CardFront(HAS JovianTag)>
+    2 TerraformRating
+    ProjectCard
+}
+// No eligible Jovian card can hold these floaters.
+Blue: UseAction1(AstroDrill) {
+    Asteroid<AstroDrill>
+}
+Blue: SendDelegate0 {
+    PartyFollower<Unity> FROM LobbyDelegate
+}
+Blue: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyLeader<MarsFirst>
+}
+Blue: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+}
+Blue: Pass
+
+Blue: Production {
+    63 MC
+    2 Titanium
+    2 Steel
+    7 Plant
+    6 Heat VIA Production
+    10 Energy VIA Production
+    2 Heat FROM Energy
+}
+
+Blue: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+Blue: GlobalEvent {
+    12 MC
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 11
+// Player-record evidence: globalsPerGeneration[9].
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: UseAction1(FloaterTechnology) {
+    Floater<AerialMappers>
+}
+Blue: UseAction2(DeuteriumExport) {
+    -Floater<DeuteriumExport>
+    PROD[Energy]
+}
+Blue: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+// no titanium paid
+Blue: PlayCard(Shuttles) {
+    Pay(3 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+}
+Blue: PlayCard(ShipmentToEarth) {
+    Pay(1 Titanium, 3 MC)
+    -3 Plant
+    -3 Steel
+    3 TerraformRating
+    8 MC
+}
+Blue: PlayCard(DiversitySupport) {
+    TerraformRating
+}
+Blue: PlayCard(EnergyMarket) {
+}
+Blue: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseAction1(Dirigibles) {
+    Floater<ExtractorBalloons>
+}
+Blue: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+Blue: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+Blue: Trade2 {
+    Pay(3 Energy)
+    Trade<Pluto>
+    ColonyProduction<Pluto>
+    4 ProjectCard
+}
+Blue: UseAction1(Extremophiles) {
+    Microbe<SulphurEatingBacteria>
+    MC
+}
+Blue: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+    MC
+}
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+    OceanTile<Cimmeria_1_5>
+    TerraformRating
+    2 Plant
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_8_6>
+    OxygenStep
+    Titanium
+    4 MC
+    TerraformRating
+}
+Blue: Trade2 {
+    Pay(3 Energy)
+    Trade<Ceres>
+    ColonyProduction<Ceres>
+    6 Steel
+}
+Blue: PlayCard(ImportedHydrogen) {
+    Pay(1 Titanium, 2 MC)
+    OceanTile<Cimmeria_8_4>
+    TerraformRating
+    2 MC
+    3 Microbe<SulphurEatingBacteria>
+    3 MC
+}
+Blue: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Cimmeria_5_5>
+    PROD[MC]
+    Disease<Hospitals>
+    Steel
+}
+Blue: UseAction1(Hospitals) {
+    -Disease<Hospitals>
+    6 MC
+}
+Blue: UseAction1(MartianRails) {
+    Pay(1 Energy)
+    6 MC
+}
+Blue: UseAction1(CometAiming) {
+    Pay(1 Titanium)
+    Asteroid<AstroDrill>
+}
+Blue: PlayCard(MagneticFieldGeneratorsPromo) {
+    Pay(8 Steel, 3 MC)
+    PROD[-4 Energy]
+    PROD[2 Plant]
+    3 TerraformRating
+    ProjectCard
+    MagneticFieldGeneratorsPromo_SpecialTile<Cimmeria_8_5>
+    Plant
+    6 MC
+}
+Blue: SendDelegate0 {
+    PartyFollower<Unity> FROM LobbyDelegate
+}
+Blue: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyLeader<Unity>
+}
+// Test inference: the source gives the sale count, not card identities.
+Blue: UseStandardProject(SellPatentsProject) {
+    10 MC FROM ProjectCard
+}
+Blue: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Blue: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Cimmeria_4_5>
+    OxygenStep
+    2 Steel
+    TerraformRating
+}
+Blue: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Cimmeria_9_8>
+    OxygenStep
+    Plant
+    4 MC
+    TerraformRating
+}
+Blue: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Blue: Pass
+
+Blue: Production {
+    83 MC
+    2 Titanium
+    2 Steel
+    9 Plant
+    6 Heat VIA Production
+    5 Energy VIA Production
+    2 Heat FROM Energy
+}
+
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Blue: GlobalEvent {
+    -9 MC
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 12
+// Player-record evidence: globalsPerGeneration[10].
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Blue: UsePolicy {
+    Pay(10 MC)
+    3 ProjectCard
+}
+Blue: UseAction1(DeuteriumExport) {
+    Floater<DeuteriumExport>
+}
+Blue: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: UseAction1(Extremophiles) {
+    Microbe<Extremophiles>
+    MC
+}
+Blue: PlayCard(TransNeptuneProbe) {
+    Science<OlympusConference>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_6_5>
+    OxygenStep
+    TerraformRating
+}
+Blue: Trade2 {
+    Pay(3 Energy)
+    Trade<Ceres>
+    ColonyProduction<Ceres>
+    6 Steel
+}
+Blue: PlayCard(TropicalResort) {
+    Pay(5 Steel)
+    PROD[-2 Heat]
+    PROD[3 MC]
+}
+Blue: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+Blue: PlayCard(GhgImportFromVenus) {
+    Pay(3 Titanium)
+    VenusStep
+    PROD[3 Heat]
+    ProjectCard
+    TerraformRating
+}
+Blue: Trade3 {
+    Pay(3 Titanium)
+    Trade<Pluto>
+    ColonyProduction<Pluto>
+    2 ProjectCard
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<AerialMappers>
+}
+Blue: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+// Test inference: Sponsored Academies also requires a discard absent from the source log.
+Blue: PlayCard(SponsoredAcademies) {
+    Pay(6 MC)
+    // Resolve the mandatory discard before the optional Mars University exchange.
+    -ProjectCard VIA SponsoredAcademies
+    ProjectCard FROM Science<OlympusConference> VIA OlympusConference
+    3 ProjectCard VIA SponsoredAcademies
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard VIA MarsUniversity
+    ProjectCard VIA MarsUniversity
+    // Resolve the draw for other players; there are none in this solo game.
+    EACH Other@Player(NOT Blue) { ProjectCard<Other@Player>! }
+}
+Blue: PlayCard(Capital) {
+    Pay(5 Steel, 13 MC)
+    PROD[-2 Energy]
+    PROD[5 MC]
+    ProjectCard
+    CapitalTile<Cimmeria_4_6, Capital>
+    PROD[MC]
+    Disease<Hospitals>
+}
+Blue: UseAction1(MartianRails) {
+    Pay(1 Energy)
+    7 MC
+}
+Blue: UseAction1(Hospitals) {
+    -Disease<Hospitals>
+    7 MC
+}
+Blue: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+}
+Blue: PlayCard(Farming) {
+    Pay(13 MC)
+    PROD[2 MC]
+    PROD[2 Plant]
+    2 Plant
+}
+Blue: PlayCard(Plantation) {
+    Pay(12 MC)
+    GreeneryTile<Cimmeria_5_7>
+    OxygenStep
+    TerraformRating
+}
+Blue: UseAction2(SulphurEatingBacteria) {
+    SelectTask(-7! Microbe<SulphurEatingBacteria> THEN 21! MC)
+    -7 Microbe<SulphurEatingBacteria>
+    21 MC
+}
+Blue: SendDelegate0 {
+    PartyLeader<Scientists> FROM LobbyDelegate
+}
+Blue: PlayCard(Mangrove) {
+    Pay(9 MC)
+    GreeneryTile<Cimmeria_2_6>
+    0 OxygenStep
+    Plant
+    2 MC
+}
+Blue: PlayCard(TitanAirScrapping) {
+    Pay(18 MC)
+    ProjectCard
+}
+Blue: UseAction1(Dirigibles) {
+    Floater<TitanAirScrapping>
+}
+Blue: PlayCard(CeosFavoriteProject) {
+    Floater<TitanAirScrapping>
+}
+Blue: UseAction2(TitanAirScrapping) {
+    -2 Floater<TitanAirScrapping>
+    TerraformRating
+}
+// Test inference: the source gives the sale count, not card identities.
+Blue: UseStandardProject(SellPatentsProject) {
+    4 MC FROM ProjectCard
+}
+Blue: PlayCard(AtalantaPlanitiaLab) {
+    Pay(5 MC)
+    2 ProjectCard VIA AtalantaPlanitiaLab
+    Science<OlympusConference>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Blue: PlayCard(MiningArea) {
+    Pay(1 MC)
+    MiningArea_SpecialTile<Cimmeria_5_8>
+    PROD[Steel]
+    Steel
+    ProjectCard
+}
+// Test inference: the source gives the sale count, not card identities.
+Blue: UseStandardProject(SellPatentsProject) {
+    4 MC FROM ProjectCard
+}
+Blue: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Cimmeria_3_6>
+    0 OxygenStep
+    Plant
+}
+Blue: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Cimmeria_7_5>
+    0 OxygenStep
+}
+Blue: Pass
+
+Blue: Production {
+    101 MC
+    2 Titanium
+    3 Steel
+    11 Plant
+    7 Heat
+    2 Energy
+}
+
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_4_7>
+    2 Titanium
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_5_4>
+    Steel
+}
+// decline final greenery
+// Player-record evidence: globalsPerGeneration[11].
+Blue {
+    Ok
+}
+
+// Player-record evidence: all occupied Mars spaces.
+// Player-record evidence: after final production and both final greenery placements.
+Blue {
+    151 VictoryPoint
+}
+// _local/replays/Game20261031/player-p5b5fbeff757c.json; final Mars map.

@@ -1,0 +1,1514 @@
+// Replay: BinaryVectorStreamTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/BinaryVectorStreamTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Complete source-backed solo replay: Binary Vector Stream (g57c6739abab5).
+// http://newazure.local:8080/the-end?id=pf66ef32d2f75
+// Source archive: _local/replays/Game20261102/.
+Config {
+    Pink
+    AmazonisMap
+    VenusNextExpansion, PreludeExpansion, Prelude2Expansion, TurmoilExpansion, Tr63SoloObjective
+    promos:cards
+    SoloTileLocations
+    1 SelectableCorporationCount
+}
+
+GlobalEventDeck {
+    FreeAcademiaTreaty
+    LocalTerraformingSupport
+    ViralModificationsApproved
+    TerraformingLobbying
+    IndependenceMovement
+    WorldGovernmentDirectives
+    HeatFirstPolicy
+    ExperimentalLifeforms
+    ScientificConsensus
+    ThawMining
+    SelfSufficiencyProgram
+    RisingAlloyDemand
+    MartianProtectionism
+}
+
+SetupRules {
+    CLASS SoloTileLocations : PlaceNeutralTiles<Amazonis_02_05, Amazonis_01_04, Amazonis_10_11, Amazonis_10_10>
+}
+
+Cards {
+    +CorporationCard<Pink, Hand>: InterplanetaryCinematics, LakefrontResorts, PointLuna
+    -CorporationCard<Pink, Hand>: InterplanetaryCinematics, PointLuna
+    -CorporationCard<Pink, Hand>: LakefrontResorts
+    +PreludeCard<Pink, Hand>: SelfSufficientSettlement, HighCircles, SpaceLanes, GreatAquifer
+    -PreludeCard<Pink, Hand>: SelfSufficientSettlement, SpaceLanes
+    -PreludeCard<Pink, Hand>: HighCircles
+    -PreludeCard<Pink, Hand>: GreatAquifer
+    +ProjectCard<Pink, Hand>: OptimalAerobraking, SponsoredAcademies, EnergyTapping, AerobrakedAmmoniaAsteroid, SubterraneanReservoir
+    +ProjectCard<Pink, Hand>: EventAnalysts
+    +ProjectCard<Pink, Hand>: CorporateStronghold, EnergySaving
+    +ProjectCard<Pink, Hand>: AerialMappers, TowingAComet
+    +ProjectCard<Pink, Hand>: RedShips
+    +ProjectCard<Pink, Hand>: SymbioticFungus
+    +ProjectCard<Pink, Hand>: RotatorImpacts, AstraMechanica, Archaebacteria
+    +ProjectCard<Pink, Hand>: SupportedResearch, NitriteReducingBacteria, SpinInducingAsteroid
+    +ProjectCard<Pink, Hand>: FrontierTown
+    +ProjectCard<Pink, Hand>: StratosphericBirds, HydrogenToVenus
+    +ProjectCard<Pink, Hand>: IshtarMining, TitaniumMine, CommercialDistrict, EarthCatapult
+    +ProjectCard<Pink, Hand>: GhgProducingBacteria, MirandaResort
+    +ProjectCard<Pink, Hand>: WgProject
+    +ProjectCard<Pink, Hand>: WeatherBalloons
+    +ProjectCard<Pink, Hand>: Psychrophiles, Worms
+    +ProjectCard<Pink, Hand>: WaterImportFromEuropa
+    +ProjectCard<Pink, Hand>: TowingAComet
+    +ProjectCard<Pink, Hand>: AerobrakedAmmoniaAsteroid
+    +ProjectCard<Pink, Hand>: Recruitment, SpaceMirrors, RadChemFactory, ImportedNitrogen
+    +ProjectCard<Pink, Hand>: Heather
+    +ProjectCard<Pink, Hand>: EarthOffice
+    +ProjectCard<Pink, Hand>: Flooding
+    +ProjectCard<Pink, Hand>: Supermarkets, LunaMetropolis, InterplanetaryTrade
+    +ProjectCard<Pink, Hand>: VenusShuttles, ConvoyFromEuropa
+    +ProjectCard<Pink, Hand>: SearchForLife
+    +ProjectCard<Pink, Hand>: MediaArchives, InventorsGuild, AirScrappingExpedition
+    +ProjectCard<Pink, Hand>: SnowAlgae
+    +ProjectCard<Pink, Hand>: SolarLogistics, BigAsteroid
+    +ProjectCard<Pink, Hand>: PowerSupplyConsortium
+    +ProjectCard<Pink, Hand>: SmallAnimals
+    +ProjectCard<Pink, Hand>: OutdoorSports, NoctisFarming, Atmoscoop
+    +ProjectCard<Pink, Hand>: Sabotage
+    -ProjectCard<Pink, Hand>: EnergyTapping
+    -ProjectCard<Pink, Hand>: CorporateStronghold
+    -ProjectCard<Pink, Hand>: OptimalAerobraking
+    -ProjectCard<Pink, Hand>: AerobrakedAmmoniaAsteroid
+    -ProjectCard<Pink, Hand>: EnergySaving
+    -ProjectCard<Pink, Hand>: TowingAComet
+    -ProjectCard<Pink, Hand>: SubterraneanReservoir
+    -ProjectCard<Pink, Hand>: SponsoredAcademies
+    -ProjectCard<Pink, Hand>: SymbioticFungus
+    -ProjectCard<Pink, Hand>: RotatorImpacts
+    -ProjectCard<Pink, Hand>: Archaebacteria
+    -ProjectCard<Pink, Hand>: AerialMappers
+    -ProjectCard<Pink, Hand>: EventAnalysts
+    -ProjectCard<Pink, Hand>: SupportedResearch
+    -ProjectCard<Pink, Hand>: NitriteReducingBacteria
+    -ProjectCard<Pink, Hand>: FrontierTown
+    -ProjectCard<Pink, Hand>: EarthCatapult
+    -ProjectCard<Pink, Hand>: RedShips
+    -ProjectCard<Pink, Hand>: TitaniumMine
+    -ProjectCard<Pink, Hand>: WgProject
+    -ProjectCard<Pink, Hand>: MirandaResort
+    -ProjectCard<Pink, Hand>: GhgProducingBacteria
+    -ProjectCard<Pink, Hand>: SpinInducingAsteroid
+    -ProjectCard<Pink, Hand>: HydrogenToVenus
+    -ProjectCard<Pink, Hand>: StratosphericBirds
+    -ProjectCard<Pink, Hand>: Psychrophiles
+    -ProjectCard<Pink, Hand>: AstraMechanica
+    -ProjectCard<Pink, Hand>: AerobrakedAmmoniaAsteroid
+    -ProjectCard<Pink, Hand>: Worms
+    -ProjectCard<Pink, Hand>: IshtarMining
+    -ProjectCard<Pink, Hand>: TowingAComet
+    -ProjectCard<Pink, Hand>: Heather
+    -ProjectCard<Pink, Hand>: SpaceMirrors
+    -ProjectCard<Pink, Hand>: WeatherBalloons
+    -ProjectCard<Pink, Hand>: Flooding
+    -ProjectCard<Pink, Hand>: VenusShuttles
+    -ProjectCard<Pink, Hand>: EarthOffice
+    -ProjectCard<Pink, Hand>: LunaMetropolis
+    -ProjectCard<Pink, Hand>: CommercialDistrict
+    -ProjectCard<Pink, Hand>: InterplanetaryTrade
+    -ProjectCard<Pink, Hand>: InventorsGuild
+    -ProjectCard<Pink, Hand>: ImportedNitrogen
+    -ProjectCard<Pink, Hand>: AirScrappingExpedition
+    -ProjectCard<Pink, Hand>: RadChemFactory
+    -ProjectCard<Pink, Hand>: MediaArchives
+    -ProjectCard<Pink, Hand>: Supermarkets
+    -ProjectCard<Pink, Hand>: SnowAlgae
+    -ProjectCard<Pink, Hand>: WaterImportFromEuropa, Recruitment, ConvoyFromEuropa, SearchForLife
+    -ProjectCard<Pink, Hand>: SolarLogistics
+    -ProjectCard<Pink, Hand>: BigAsteroid
+    -ProjectCard<Pink, Hand>: SmallAnimals
+    -ProjectCard<Pink, Hand>: PowerSupplyConsortium, Sabotage
+    -ProjectCard<Pink, Hand>: NoctisFarming
+    -ProjectCard<Pink, Hand>: Atmoscoop
+    -ProjectCard<Pink, Hand>: OutdoorSports
+}
+
+Pink: Setup {
+    14 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Pink
+    2 PreludeCard
+    // Database save 0: neutral greenery/city at source spaces 06/13 and 86/87.
+    -5 ProjectCard<Selecting>
+}
+
+// Player-record evidence: these five offered projects are kept and played later.
+Pink: PlayCard(LakefrontResorts) {
+    54 MC VIA LakefrontResorts
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(HighCircles) {
+    TerraformRating
+    SearchForCard<ReferenceFilter<Class<Ruling>>>
+    SelectTask(PartyFollower<MarsFirst>! THEN PartyDelegate<MarsFirst>!)
+    PartyFollower<MarsFirst>
+    PartyLeader<MarsFirst>
+}
+Pink: PlayCard(GreatAquifer) {
+    OceanTile<Amazonis_07_04>
+    2 Plant
+    TerraformRating
+    PROD[MC]
+    0 MC
+    OceanTile<Amazonis_08_04>
+    2 ProjectCard
+    3 MC
+    TerraformRating
+    PROD[MC]
+}
+
+Pink: SendDelegate0 {
+    PartyLeader<Reds> FROM LobbyDelegate
+}
+Pink: PlayCard(EnergyTapping) {
+    Pay(3 MC)
+    PROD[-Energy<SoloOpponent>]
+    PROD[Energy]
+}
+Pink: PlayCard(CorporateStronghold) {
+    Pay(11 MC)
+    PROD[3 MC]
+    PROD[-Energy]
+    NormalCityTile<Amazonis_07_03>
+    2 Plant
+    6 MC
+}
+Pink: PlayCard(OptimalAerobraking) {
+    Pay(7 MC)
+}
+Pink: PlayCard(AerobrakedAmmoniaAsteroid) {
+    Pay(26 MC)
+    PROD[Plant]
+    PROD[3 Heat]
+    3 MC
+    3 Heat
+    // No microbe card receives the optional two microbes.
+    // Database save 9, after the last generation 1 action and before passing.
+    2* Microbe
+}
+Pink: Pass
+
+Pink: Production {
+    22 MC
+    Plant
+    3 Heat
+}
+
+Pink: WorldGovernment {
+    OceanTile<Amazonis_10_05>! BY Admin
+}
+
+Pink: WorldGovernment {
+    PROD[MC]
+}
+
+// Database save 10, before generation 2 Research.
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database saves 11-12 identify Energy Saving as the sold patent.
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Pink: PlayCard(TowingAComet) {
+    Pay(23 MC)
+    2 Plant
+    OxygenStep
+    TerraformRating
+    3 MC
+    3 Heat
+    OceanTile<Amazonis_09_04>
+    2 Steel
+    Titanium
+    6 MC
+    TerraformRating
+    PROD[MC]
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Greens>
+}
+// Database save 17, after the last generation 2 action.
+Pink: Pass
+
+Pink: Production {
+    27 MC
+    Plant
+    3 Heat
+}
+
+Pink: WorldGovernment {
+    OceanTile<Amazonis_06_05>! BY Admin
+}
+
+Pink: WorldGovernment {
+    PROD[MC]
+}
+
+Pink: GlobalEvent {
+    10 MC
+}
+
+// Database save 18, before generation 3 Research.
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(3 MC)
+}
+
+Pink: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_08_03>
+    Plant
+    10 MC
+    OxygenStep
+    TerraformRating
+}
+Pink: PlayCard(SubterraneanReservoir) {
+    Pay(11 MC)
+    OceanTile<Amazonis_05_05>
+    ProjectCard
+    3 MC
+    TerraformRating
+    PROD[MC]
+}
+// Database saves 21-22: Sponsored Academies discards Symbiotic Fungus.
+Pink: PlayCard(SponsoredAcademies) {
+    Pay(9 MC)
+    -ProjectCard
+    3 ProjectCard
+    EACH Other@Player(NOT Pink) { ProjectCard<Other@Player>! }
+}
+// No other player draws from Sponsored Academies.
+Pink: PlayCard(RotatorImpacts) {
+    Pay(1 Titanium, 3 MC)
+}
+Pink: UseAction1(RotatorImpacts) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+Pink: PlayCard(Archaebacteria) {
+    Pay(6 MC)
+    PROD[Plant]
+}
+Pink: PlayCard(AerialMappers) {
+    Pay(11 MC)
+}
+Pink: UseAction1(AerialMappers) {
+    Floater<AerialMappers>
+}
+Pink: SendDelegate0 {
+    PartyLeader<Greens> FROM LobbyDelegate
+}
+// Database save 29, after the last generation 3 action.
+Pink: Pass
+
+Pink: Production {
+    31 MC
+    2 Plant
+    3 Heat
+}
+
+Pink: WorldGovernment {
+    OceanTile<Amazonis_03_06>! BY Admin
+}
+
+Pink: WorldGovernment {
+    PROD[MC]
+}
+
+// Successful Organisms: two for production and two for influence.
+// Database save 30, before generation 4 Research.
+Pink: GlobalEvent {
+    4 Plant
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+Pink: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Pink: PlayCard(EventAnalysts) {
+    Pay(5 MC)
+}
+Pink: PlayCard(SupportedResearch) {
+    Pay(3 MC)
+    2 ProjectCard
+}
+Pink: PlayCard(NitriteReducingBacteria) {
+    Pay(11 MC)
+    3 Microbe<NitriteReducingBacteria>
+}
+Pink: UseAction2(NitriteReducingBacteria) {
+    -3 Microbe<NitriteReducingBacteria>
+    TerraformRating
+}
+Pink: SendDelegate0 {
+    PartyFollower<Reds> FROM LobbyDelegate
+}
+// Database save 39, after the last generation 4 action.
+Pink: Pass
+
+Pink: Production {
+    33 MC
+    2 Plant
+    3 Heat
+}
+
+Pink: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Pandemic has no payable loss at the sourced influence count.
+// Database save 40, before generation 5 Research.
+Pink: GlobalEvent {
+    -0* MC
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Keep all four Research cards.
+Pink: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(12 MC)
+}
+
+Pink: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(AerialMappers) {
+    Floater<AerialMappers>
+}
+Pink: UseAction1(RotatorImpacts) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+Pink: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+Pink: PlayCard(FrontierTown) {
+    Pay(2 Steel, 7 MC)
+    FrontierTownBonus
+    PROD[-Energy]
+    NormalCityTile<Amazonis_06_04>
+    2 Plant
+    6 MC
+    Steel
+    -FrontierTownBonus
+    RepeatPlacementBonus<Amazonis_06_04>
+    4 Plant
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_06_03>
+    2 Plant
+    3 MC
+    Steel
+    OxygenStep
+    TerraformRating
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_07_05>
+    2 Energy
+    6 MC
+    Steel
+    OxygenStep
+    TerraformRating
+}
+Pink: UseAction1(NitriteReducingBacteria) {
+    Microbe<NitriteReducingBacteria>
+}
+Pink: PlayCard(EarthCatapult) {
+    Pay(23 MC)
+}
+Pink: PlayCard(RedShips) {
+}
+Pink: UseAction1(RedShips) {
+    // Red Ships pays for the sourced three adjacent tiles.
+    3 MC
+}
+Pink: PlayCard(TitaniumMine) {
+    Pay(2 Steel, 1 MC)
+    PROD[Titanium]
+}
+Pink: SendDelegate0 {
+    PartyLeader<MarsFirst> FROM LobbyDelegate
+}
+// Database save 55, after the last generation 5 action.
+Pink: Pass
+
+Pink: Production {
+    35 MC
+    Titanium
+    2 Plant
+    4 Heat VIA Production
+    2 Heat FROM Energy
+}
+
+Pink: WorldGovernment {
+    OceanTile<Amazonis_04_02>! BY Admin
+}
+
+Pink: WorldGovernment {
+    PROD[MC]
+}
+
+Pink: GlobalEvent {
+    10 MC
+}
+
+// Database save 56, before generation 6 Research.
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+Pink: PlayCard(WgProject) {
+    Pay(7 MC)
+    3 PreludeCard<Selecting> VIA WgProject
+    PlayCard(UnmiContractor, Selecting)
+    ProjectCard
+    3 TerraformRating
+    -9 MC
+}
+// Source payment uses no titanium.
+Pink: PlayCard(MirandaResort) {
+    Pay(10 MC)
+    PROD[5 MC]
+}
+Pink: UseAction1(RedShips) {
+    // Three sourced eligible city or special tiles.
+    3 MC
+}
+// Pay no titanium for this Rotator Impacts action.
+Pink: UseAction1(RotatorImpacts) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+Pink: UseAction1(NitriteReducingBacteria) {
+    Microbe<NitriteReducingBacteria>
+}
+Pink: PlayCard(GhgProducingBacteria) {
+    Pay(6 MC)
+}
+Pink: UseAction1(GhgProducingBacteria) {
+    Microbe<GhgProducingBacteria>
+}
+Pink: SendDelegate0 {
+    PartyLeader<Scientists> FROM LobbyDelegate
+}
+// Database save 67, after the last generation 6 action.
+Pink: Pass
+
+Pink: Production {
+    44 MC
+    Titanium
+    2 Plant
+    4 Heat
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Riots has no payable loss at the sourced influence count.
+// Database save 68, before generation 7 Research.
+Pink: GlobalEvent {
+    -0* MC
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Pink: PlayCard(SpinInducingAsteroid) {
+    Pay(2 Titanium, 6 MC)
+    VenusStep
+    VenusStep
+    2 TerraformRating
+    ProjectCard
+    3 MC
+    3 Heat
+}
+Pink: PlayCard(HydrogenToVenus) {
+    Pay(9 MC)
+    VenusStep
+    TerraformRating
+    3 MC
+    3 Heat
+    Floater<AerialMappers>
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+Pink: PlayCard(StratosphericBirds) {
+    Pay(10 MC)
+    -Floater<AerialMappers>
+}
+Pink: UseAction1(AerialMappers) {
+    Floater<AerialMappers>
+}
+Pink: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+Pink: UseAction1(NitriteReducingBacteria) {
+    Microbe<NitriteReducingBacteria>
+}
+Pink: PlayCard(Psychrophiles) {
+}
+Pink: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+Pink: PlayCard(AstraMechanica) {
+    Pay(5 MC)
+    ProjectCard FROM PlayedEvent<Class<TowingAComet>>
+    ProjectCard FROM PlayedEvent<Class<AerobrakedAmmoniaAsteroid>>
+}
+Pink: PlayCard(AerobrakedAmmoniaAsteroid) {
+    Pay(24 MC)
+    PROD[Plant]
+    PROD[3 Heat]
+    3 MC
+    3 Heat
+    2 Microbe<GhgProducingBacteria>
+}
+Pink: UseAction2(GhgProducingBacteria) {
+    -2 Microbe<GhgProducingBacteria>
+    TemperatureStep
+    TerraformRating
+}
+Pink: UseAction1(RedShips) {
+    // Three eligible tiles in the source board.
+    3 MC
+}
+Pink: PlayCard(Worms) {
+    Pay(6 MC)
+    PROD[2 Plant]
+}
+Pink: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+Pink: PlayCard(IshtarMining) {
+    Pay(3 MC)
+    PROD[Titanium]
+}
+// Database save 88, after the last generation 7 action.
+Pink: Pass
+
+Pink: Production {
+    50 MC
+    2 Titanium
+    5 Plant
+    8 Heat
+}
+
+Pink: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Revolution's sourced loss.
+// _local/replays/Game20261102/game-g57c6739abab5.sqlite; source save 89.
+Pink: GlobalEvent {
+    -2 TerraformRating
+}
+
+// Database save 89, before generation 8 Research.
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Keep four.
+Pink: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(12 MC)
+}
+
+Pink: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction2(NitriteReducingBacteria) {
+    -3 Microbe<NitriteReducingBacteria>
+    TerraformRating
+}
+Pink: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Pink: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+Pink: PlayCard(TowingAComet) {
+    Pay(2 Titanium, 15 MC)
+    2 Plant
+    OxygenStep
+    TerraformRating
+    3 MC
+    3 Heat
+    OceanTile<Amazonis_02_06>
+    2 Plant
+    3 MC
+    TerraformRating
+    PROD[MC]
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Plant]
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_05_04>
+    Plant
+    10 MC
+    OxygenStep
+    TerraformRating
+}
+Pink: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+// Card microbes and Earth Catapult cover the printed cost.
+Pink: PlayCard(Heather) {
+    Pay(2 Microbe<Psychrophiles>)
+    PROD[Plant]
+    Plant
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_06_02>
+    Plant
+    4 MC
+    OxygenStep
+    TerraformRating
+    ProjectCard
+}
+// The 4 MC total also consumed the zero ocean bonus at space 44.
+Pink: SendDelegate0 {
+    PartyFollower<MarsFirst> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyFollower<MarsFirst>
+}
+Pink: PlayCard(SpaceMirrors) {
+    Pay(1 MC)
+}
+Pink: UseAction1(SpaceMirrors) {
+    Pay(7 MC)
+    PROD[Energy]
+}
+Pink: PlayCard(WeatherBalloons) {
+    Pay(9 MC)
+    ProjectCard
+}
+Pink: UseAction1(WeatherBalloons) {
+    Floater<WeatherBalloons>
+}
+Pink: PlayCard(Flooding) {
+    Pay(5 MC)
+    OceanTile<Amazonis_02_07>
+    2 Titanium
+    3 MC
+    TerraformRating
+    PROD[MC]
+}
+Pink: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+Pink: UseAction1(GhgProducingBacteria) {
+    Microbe<GhgProducingBacteria>
+}
+Pink: UseAction1(RedShips) {
+    // Three eligible tiles in the source board.
+    3 MC
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Amazonis_04_04>
+    7 MC
+    OxygenStep
+    TerraformRating
+}
+// Database save 112, after the last generation 8 action.
+Pink: Pass
+
+Pink: Production {
+    60 MC
+    2 Titanium
+    7 Plant
+    Energy
+    8 Heat
+}
+
+Pink: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Global Dust Storm's sourced loss.
+Pink: GlobalEvent {
+    -8 Heat
+    // Four influence cancels the event's MC loss.
+    // Database save 113, before generation 9 Research.
+    -0* MC
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_03_03>
+    2 ProjectCard
+    OxygenStep
+    TerraformRating
+    // Mars First policy after the greenery placement.
+    Steel
+    // No adjacent ocean for Lakefront Resorts.
+    0 MC
+}
+Pink: PlayCard(VenusShuttles) {
+    Pay(7 MC)
+    2 Floater<AerialMappers>
+}
+Pink: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+Pink: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+Pink: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+Pink: UseAction1(NitriteReducingBacteria) {
+    Microbe<NitriteReducingBacteria>
+}
+Pink: UseAction2(GhgProducingBacteria) {
+    -2 Microbe<GhgProducingBacteria>
+    TemperatureStep
+    TerraformRating
+}
+Pink: PlayCard(EarthOffice) {
+}
+Pink: PlayCard(LunaMetropolis) {
+    Pay(4 Titanium, 4 MC)
+    PROD[7 MC]
+    NormalCityTile<LunaMetropolis_RemoteArea>
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Amazonis_04_03>
+    3 MC
+    Steel
+}
+Pink: PlayCard(CommercialDistrict) {
+    Pay(3 Steel, 8 MC)
+    PROD[4 MC]
+    PROD[-Energy]
+    CommercialDistrict_SpecialTile<Amazonis_01_05>
+    2 Titanium
+    3 MC
+    Steel
+}
+Pink: UseAction1(RedShips) {
+    5 MC
+}
+Pink: UseAction2(WeatherBalloons) {
+    -Floater<WeatherBalloons>
+    5 MC
+}
+// Two titanium cover this Rotator Impacts action; pay no MC.
+Pink: UseAction1(RotatorImpacts) {
+    Pay(2 Titanium)
+    Asteroid<RotatorImpacts>
+}
+Pink: PlayCard(InterplanetaryTrade) {
+    Pay(25 MC)
+    EACH @WildTagElection { Tag<@WildTagElection>? }
+    PROD[11 MC]
+}
+Pink: UseAction1(VenusShuttles) {
+    Pay(8 MC)
+    VenusStep
+    TerraformRating
+}
+Pink: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Greens>
+}
+// Database save 133, after the last generation 9 action.
+Pink: Pass
+
+Pink: Production {
+    86 MC
+    2 Titanium
+    7 Plant
+    8 Heat VIA Production
+    Heat FROM Energy
+}
+
+Pink: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Eco Sabotage.
+// Database save 134, before generation 10 Research.
+Pink: GlobalEvent {
+    -Plant
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(InventorsGuild) {
+    Pay(7 MC)
+}
+Pink: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Pink: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+Pink: UseAction1(NitriteReducingBacteria) {
+    Microbe<NitriteReducingBacteria>
+}
+Pink: PlayCard(ImportedNitrogen) {
+    Pay(2 Titanium, 12 MC)
+    TerraformRating
+    4 Plant
+    3 MC
+    3 Heat
+    3 Microbe<GhgProducingBacteria>
+    2 Animal<StratosphericBirds>
+}
+Pink: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Pink: UseAction2(GhgProducingBacteria) {
+    -2 Microbe<GhgProducingBacteria>
+    TemperatureStep
+    TerraformRating
+}
+Pink: PlayCard(AirScrappingExpedition) {
+    Pay(11 MC)
+    VenusStep
+    TerraformRating
+    3 Floater<AerialMappers>
+}
+Pink: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+Pink: UsePolicy {
+    Pay(10 MC)
+    PROD[Heat]
+    PROD[Energy]
+}
+Pink: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+    OceanTile<Amazonis_06_06>
+    2 Plant
+    6 MC
+    TerraformRating
+    PROD[MC]
+}
+Pink: UseAction1(VenusShuttles) {
+    Pay(8 MC)
+    VenusStep
+    2 TerraformRating
+}
+Pink: PlayCard(RadChemFactory) {
+    Pay(1 Steel, 4 MC)
+    PROD[-Energy]
+    2 TerraformRating
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Amazonis_05_02>
+    Plant
+    3 MC
+}
+Pink: PlayCard(MediaArchives) {
+    Pay(3 MC)
+    8 MC
+}
+Pink: UseAction1(RedShips) {
+    6 MC
+}
+Pink: UseAction1(WeatherBalloons) {
+    Floater<WeatherBalloons>
+}
+Pink: PlayCard(Supermarkets) {
+    Pay(7 MC)
+    PROD[2 MC]
+}
+Pink: PlayCard(SnowAlgae) {
+    Pay(2 Microbe<Psychrophiles>, 6 MC)
+    PROD[Plant]
+    PROD[Heat]
+}
+Pink: SendDelegate0 {
+    PartyLeader<Unity> FROM LobbyDelegate
+}
+Pink: UseStandardProject(SellPatentsProject) {
+    4 MC FROM ProjectCard
+}
+// Database save 159, after the last generation 10 action.
+Pink: Pass
+
+Pink: Production {
+    100 MC
+    2 Titanium
+    8 Plant
+    10 Heat
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Paradigm Breakdown.
+Pink: GlobalEvent {
+    8 MC
+    // Paradigm Breakdown cannot discard cards from an empty hand.
+    // Database save 160, before generation 11 Research.
+    -0 ProjectCard
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Pink: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+Pink: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+// Two from the ocean, four from Greens, one from Lakefront Resorts.
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_05_03>
+    Titanium
+    7 MC
+    OxygenStep
+    TerraformRating
+}
+Pink: PlayCard(SolarLogistics) {
+    Pay(3 Titanium, 6 MC)
+    2 Titanium
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Amazonis_06_01>
+    Plant
+    // No adjacent ocean.
+    0 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_07_02>
+    Plant
+    4 MC
+    OxygenStep
+    TerraformRating
+    // Oxygen's threshold raises temperature.
+    TemperatureStep
+    TerraformRating
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Amazonis_04_05>
+    Plant
+    7 MC
+    OxygenStep
+    TerraformRating
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_04_01>
+    Titanium
+    7 MC
+    OxygenStep
+    TerraformRating
+}
+// Big Asteroid removes no optional plants from another player.
+Pink: PlayCard(BigAsteroid) {
+    Pay(3 Titanium, 16 MC)
+    4 Titanium
+    TemperatureStep
+    TemperatureStep
+    2 TerraformRating
+    3 MC
+    3 Heat
+    ProjectCard
+    -0 Plant<Anyone>
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+Pink: UseAction1(GhgProducingBacteria) {
+    Microbe<GhgProducingBacteria>
+}
+Pink: UseAction1(NitriteReducingBacteria) {
+    Microbe<NitriteReducingBacteria>
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Amazonis_03_04>
+    // Lakefront Resorts finds no adjacent ocean.
+    0 MC
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Amazonis_02_02>
+    // The map space grants a delegate.
+    PartyFollower<Greens>
+    // No adjacent ocean.
+    0 MC
+}
+Pink: SendDelegate0 {
+    PartyLeader<Greens> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyFollower<Greens>
+}
+Pink: UseAction1(RedShips) {
+    6 MC
+}
+Pink: UseAction2(WeatherBalloons) {
+    -Floater<WeatherBalloons>
+    9 MC
+}
+Pink: UseAction1(VenusShuttles) {
+    Pay(8 MC)
+    VenusStep
+    TerraformRating
+}
+// Two titanium cover this Rotator Impacts action; pay no MC.
+Pink: UseAction1(RotatorImpacts) {
+    Pay(2 Titanium)
+    Asteroid<RotatorImpacts>
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Amazonis_02_03>
+    Steel
+    4 MC
+    // The plain log omits this oxygen step.
+    OxygenStep
+    TerraformRating
+}
+Pink: PlayCard(SmallAnimals) {
+    Pay(4 MC)
+    PROD[-Plant<SoloOpponent>]
+}
+Pink: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+// Database save 188, after the last generation 11 action.
+Pink: Pass
+
+Pink: Production {
+    114 MC
+    2 Titanium
+    8 Plant
+    10 Heat
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Influence cancels Mud Slides' MC loss.
+// Database save 189, before generation 12 Research.
+Pink: GlobalEvent {
+    -0* MC
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Pink: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: UseAction2(GhgProducingBacteria) {
+    -2 Microbe<GhgProducingBacteria>
+    TemperatureStep
+    TerraformRating
+}
+Pink: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+Pink: UseAction2(NitriteReducingBacteria) {
+    -3 Microbe<NitriteReducingBacteria>
+    TerraformRating
+}
+Pink: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Pink: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+Pink: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+Pink: UseAction1(StratosphericBirds) {
+    Animal<StratosphericBirds>
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_05_01>
+    2 Steel
+    4 MC
+    OxygenStep
+    TerraformRating
+}
+// Steel and Psychrophiles microbes cover the cost; pay no MC.
+Pink: PlayCard(NoctisFarming) {
+    Pay(2 Steel, 2 Microbe<Psychrophiles>)
+    PROD[MC]
+    2 Plant
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Amazonis_03_02>
+    7 MC
+    OxygenStep
+    TerraformRating
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Amazonis_04_06>
+    Plant
+    3 MC
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Amazonis_04_07>
+    2 Plant
+    7 MC
+    OxygenStep
+    TerraformRating
+}
+// The source log records no ocean bonus at space 39.
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Amazonis_05_07>
+    2 Plant
+    4 MC
+    OxygenStep
+    TerraformRating
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Amazonis_05_06>
+    Plant
+    10 MC
+    // Oxygen is at its Amazonis maximum.
+    0 OxygenStep
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_03_05>
+    Plant
+    7 MC
+    // Oxygen is at its Amazonis maximum.
+    0 OxygenStep
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Amazonis_01_03>
+    Steel
+    0 MC
+}
+Pink: UseAction1(RedShips) {
+    7 MC
+}
+Pink: PlayCard(Atmoscoop) {
+    Pay(4 Titanium, 8 MC)
+    VenusStep*, VenusStep*
+    2 TerraformRating
+    2 Floater<WeatherBalloons>
+}
+Pink: UseAction2(WeatherBalloons) {
+    -Floater<WeatherBalloons>
+    11 MC
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Amazonis_01_02>
+    2 Steel
+    4 MC
+    // Oxygen is at its Amazonis maximum.
+    0 OxygenStep
+}
+Pink: UseAction1(VenusShuttles) {
+    Pay(8 MC)
+    VenusStep
+    TerraformRating
+}
+Pink: SendDelegate0 {
+    PartyLeader<Greens> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Kelvinists>
+}
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+// Database save 217, after the last generation 12 action.
+Pink: Pass
+
+Pink: Production {
+    128 MC
+    2 Titanium
+    8 Plant
+    10 Heat
+}
+
+// Database save 218, after final production.
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Amazonis_02_04>
+    0 MC
+}
+// decline final greenery
+// Database save 220 and player-record evidence for the 160-point solo win.
+Pink {
+    Ok
+}
+
+Pink {
+    160 VictoryPoint
+}
+// _local/replays/Game20261102/player-pf66ef32d2f75.json; final Mars map.

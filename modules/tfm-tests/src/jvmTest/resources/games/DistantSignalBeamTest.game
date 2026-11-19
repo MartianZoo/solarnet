@@ -1,0 +1,380 @@
+// Replay: DistantSignalBeamTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/DistantSignalBeamTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Complete database replay through the final retained save immediately before Purple resigned:
+// Distant Signal Beam (g1ddd59fe5633), save 79, generation 3.
+// Source: _local/replays/Game20260905/game-g1ddd59fe5633.sqlite
+// https://terraforming-mars.herokuapp.com/the-end?id=p35d2aed733c5
+Config {
+    Pink, Purple
+    HellasMap
+    VenusNextExpansion, PreludeExpansion, ColoniesExpansion
+    prelude2:cards, promos:cards, Aridor
+    Ceres, Enceladus, Europa, Miranda, Triton
+    Diversifier, Merchant, Fundraiser, Terraformer, Producer, Trader
+    Manufacturer, Cultivator, Banker, Collector, Founder, Forecaster
+}
+
+GlobalEventDeck {
+}
+
+Cards {
+    // Source save 0: the third corporation offers were PolderTECH Dutch for Pink and
+    // Point Luna for Purple.
+    // Source setup saves and saves 41-42, 73-74 identify these modeled offers.
+    +CorporationCard<Pink, Hand>: Vitor, MorningStarInc
+    -CorporationCard<Pink, Hand>: Vitor
+    -CorporationCard<Pink, Hand>: MorningStarInc
+    +ProjectCard<Pink, Selecting>: HousePrinting, CloudSeeding, MicroMills, Pets, LagrangeObservatory, GhgImportFromVenus, IoSulphurResearch, Insects, EcologyResearch, SecurityFleet
+    +ProjectCard<Pink, Selecting>: GeothermalPower, HeatTrappers, PhobosSpaceHaven, DirectedHeatUsage
+    +ProjectCard<Pink, Selecting>: TerraformingContract, ElectroCatapult, UndergroundCity, Shuttles
+    +PreludeCard<Pink, Hand>: PolarIndustries, AtmosphericEnhancers, Loan, PowerGeneration
+    -PreludeCard<Pink, Hand>: Loan, PowerGeneration
+    -PreludeCard<Pink, Hand>: AtmosphericEnhancers
+    -PreludeCard<Pink, Hand>: PolarIndustries
+    -ProjectCard<Pink, Selecting>: Insects, EcologyResearch, SecurityFleet
+    -ProjectCard<Pink, Selecting>: HousePrinting, CloudSeeding, MicroMills, Pets, LagrangeObservatory, GhgImportFromVenus, IoSulphurResearch
+    -ProjectCard<Pink, Selecting>: GeothermalPower, PhobosSpaceHaven, DirectedHeatUsage
+    -ProjectCard<Pink, Selecting>: HeatTrappers
+    -ProjectCard<Pink, Selecting>: ElectroCatapult, UndergroundCity, Shuttles
+    -ProjectCard<Pink, Selecting>: TerraformingContract
+    +CorporationCard<Purple, Hand>: Aridor, Ecoline
+    -CorporationCard<Purple, Hand>: Ecoline
+    -CorporationCard<Purple, Hand>: Aridor
+    +ProjectCard<Purple, Selecting>: RotatorImpacts, PowerSupplyConsortium, Tardigrades, InterplanetaryTrade, Casinos, AdaptationTechnology, FusionPower, BreathingFilters, PeroxidePower, NeutralizerFactory
+    +ProjectCard<Purple, Selecting>: Omnicourt, SolarReflectors, SoilFactory, BactoviralResearch
+    +ProjectCard<Purple, Selecting>: RedSpotObservatory, MiningColony, OutdoorSports, SoilEnrichment
+    +PreludeCard<Purple, Hand>: BiosphereSupport, FocusedOrganization, ProjectEden, AlliedBank
+    -PreludeCard<Purple, Hand>: BiosphereSupport, FocusedOrganization
+    -PreludeCard<Purple, Hand>: ProjectEden
+    -PreludeCard<Purple, Hand>: AlliedBank
+    +ProjectCard<Pink, Hand>: HousePrinting, CloudSeeding, MicroMills, Pets, LagrangeObservatory, GhgImportFromVenus, IoSulphurResearch
+    +ProjectCard<Pink, Hand>: TitanShuttles, AtmoCollectors
+    +ProjectCard<Pink, Hand>: Cartel
+    +ProjectCard<Pink, Hand>: VenusSoils, SulphurEatingBacteria, StratosphericExpedition
+    +ProjectCard<Pink, Hand>: HeatTrappers
+    +ProjectCard<Pink, Hand>: StaticHarvesting
+    +ProjectCard<Pink, Hand>: TerraformingContract
+    +ProjectCard<Purple, Hand>: RotatorImpacts, PowerSupplyConsortium, Tardigrades, InterplanetaryTrade, Casinos, AdaptationTechnology, FusionPower, BreathingFilters, PeroxidePower, NeutralizerFactory
+    +ProjectCard<Purple, Hand>: Omnicourt, BactoviralResearch, SolarReflectors
+    +ProjectCard<Purple, Hand>: LocalShading
+    +ProjectCard<Purple, Hand>: MiningColony
+    -ProjectCard<Purple, Selecting>: RotatorImpacts, PowerSupplyConsortium, Tardigrades, InterplanetaryTrade, Casinos, AdaptationTechnology, FusionPower, BreathingFilters, PeroxidePower, NeutralizerFactory
+    -ProjectCard<Purple, Selecting>: SoilFactory
+    -ProjectCard<Purple, Selecting>: Omnicourt, BactoviralResearch, SolarReflectors
+    -ProjectCard<Purple, Selecting>: RedSpotObservatory, OutdoorSports, SoilEnrichment
+    -ProjectCard<Purple, Selecting>: MiningColony
+    -ProjectCard<Purple, Hand>: PowerSupplyConsortium, AdaptationTechnology, BreathingFilters
+    -ProjectCard<Purple, Hand>: PeroxidePower
+    -ProjectCard<Purple, Hand>: Casinos
+    -ProjectCard<Purple, Hand>: Tardigrades
+    -ProjectCard<Purple, Hand>: RotatorImpacts
+    -ProjectCard<Purple, Hand>: BactoviralResearch
+    -ProjectCard<Purple, Hand>: LocalShading
+    -ProjectCard<Purple, Hand>: InterplanetaryTrade
+    -ProjectCard<Pink, Hand>: TitanShuttles
+    -ProjectCard<Pink, Hand>: SulphurEatingBacteria
+    -ProjectCard<Pink, Hand>: LagrangeObservatory
+    -ProjectCard<Pink, Hand>: HousePrinting
+    -ProjectCard<Pink, Hand>: StaticHarvesting
+    -ProjectCard<Pink, Hand>: MicroMills
+}
+
+Pink: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Pink
+    2 PreludeCard
+    -3 ProjectCard<Selecting>
+}
+
+Purple: Setup {
+    20 TerraformRating
+    // Keep all ten starting project cards.
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Purple
+    2 PreludeCard
+    -0 ProjectCard<Selecting>
+}
+
+// Generation 1
+Pink: PlayCard(MorningStarInc) {
+    50 MC VIA MorningStarInc
+    Pay(21 MC)
+    7 ProjectCard<Hand FROM Selecting>
+}
+
+Purple: PlayCard(Aridor) {
+    40 MC VIA Aridor
+    Pay(30 MC)
+    10 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(AtmosphericEnhancers) {
+    VenusStep*, VenusStep*
+    2 TerraformRating
+    2 SearchForCard<ReferenceFilter<Class<Floater>>>
+}
+Pink: PlayCard(PolarIndustries) {
+    OceanTile<Hellas_5_6>
+    TerraformRating
+    PROD[2 Heat]
+    ProjectCard
+}
+
+Purple: PlayCard(ProjectEden) {
+    -3 ProjectCard
+    PROD[2 MC]
+    OceanTile<Hellas_4_6>
+    GreeneryTile<Hellas_4_5>
+    NormalCityTile<Hellas_4_4>
+    TerraformRating
+    Plant
+    2 MC
+    OxygenStep
+    TerraformRating
+    Steel VIA Hellas_4_5
+    4 MC
+    2 Steel
+}
+// Database save 4: Project Eden introduced Purple's first city and plant tags.
+Purple: PlayCard(AlliedBank) {
+    3 MC
+    PROD[5 MC]
+}
+
+// Database save 5: Allied Bank introduced Purple's first Earth tag.
+Pink: DoRequiredActions {
+    3 SearchForCard<TagFilter<Class<VenusTag>>>
+}
+Pink: PlayCard(TitanShuttles) {
+    Pay(23 MC)
+}
+
+Purple: DoRequiredActions {
+    Luna
+}
+
+Pink: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+
+Purple: PlayCard(PeroxidePower) {
+    Pay(3 Steel, 1 MC)
+    PROD[-MC] VIA PeroxidePower
+    PROD[2 Energy] VIA PeroxidePower
+    PROD[2 MC]
+}
+
+// Database save 15: Peroxide Power introduced Purple's first power and building tags.
+Pink: PlayCard(SulphurEatingBacteria) {
+    Pay(6 MC)
+}
+
+Purple: PlayCard(Casinos) {
+    Pay(5 MC)
+    PROD[-Energy]
+    PROD[4 MC]
+}
+
+Pink: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+
+Purple: PlayCard(Tardigrades) {
+    Pay(4 MC)
+    PROD[MC]
+}
+
+// Database save 27: Tardigrades introduced Purple's first microbe tag.
+Pink: Pass
+
+Purple: UseAction1(Tardigrades) {
+    Microbe<Tardigrades>
+}
+Purple: PlayCard(RotatorImpacts) {
+    Pay(6 MC)
+    PROD[MC]
+}
+// Database save 33: Rotator Impacts introduced Purple's first space tag.
+Purple: Pass
+
+Pink: Production {
+    23 MC
+    2 Heat
+}
+
+Purple: Production {
+    36 MC
+    Energy
+}
+
+Pink: WorldGovernment {
+    OceanTile<Hellas_5_7>! BY Admin
+}
+
+// Generation 2
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(3 MC)
+}
+
+Pink: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Purple: Research {
+    -ProjectCard<Selecting>
+}
+
+Purple: Research {
+    Pay(9 MC)
+}
+
+Purple: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// _local/replays/Game20260905/game-g1ddd59fe5633.sqlite; source save 42.
+// Database save 42: immediately after both Research purchases.
+Purple: ClaimMilestone {
+    Pay(8 MC)
+    Fundraiser
+}
+
+Pink: UseAction2(TitanShuttles) {
+    SelectTask(-2! Floater<TitanShuttles> THEN 2! Titanium)
+    -2 Floater<TitanShuttles>
+    2 Titanium
+}
+Pink: PlayCard(LagrangeObservatory) {
+    Pay(2 Titanium, 3 MC)
+    ProjectCard
+}
+
+Purple: PlayCard(BactoviralResearch) {
+    Pay(10 MC)
+    ProjectCard
+    Microbe<Tardigrades>
+    PROD[MC]
+}
+// Database save 49: Bactoviral Research introduced Purple's first science tag.
+Purple: ClaimMilestone {
+    Pay(8 MC)
+    Diversifier
+}
+
+Pink: PlayCard(HousePrinting) {
+    Pay(10 MC)
+    PROD[Steel]
+}
+Pink: PlayCard(StaticHarvesting) {
+    Pay(5 MC)
+    PROD[Energy]
+    2 MC
+}
+
+Purple: UseAction1(Tardigrades) {
+    Microbe<Tardigrades>
+}
+Purple: PlayCard(LocalShading) {
+    Pay(4 MC)
+    PROD[MC]
+}
+
+// Database save 56: Local Shading introduced Purple's first Venus tag.
+Pink: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+Pink: PlayCard(MicroMills) {
+    Pay(3 MC)
+    PROD[Heat]
+}
+
+Purple: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+
+Pink: Pass
+
+Purple: Pass
+
+Purple: Production {
+    38 MC
+    Energy VIA Production
+    Heat FROM Energy
+}
+
+Pink: Production {
+    23 MC
+    3 Heat
+    Steel
+    Energy
+}
+
+Purple: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 3
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(3 MC)
+}
+
+Pink: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Purple: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    Pay(3 MC)
+}
+
+Purple: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 74: immediately after both Research purchases.
+Pink: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+
+Purple: PlayCard(InterplanetaryTrade) {
+    Pay(27 MC)
+    EACH @WildTagElection { Tag<@WildTagElection>? }
+    PROD[9 MC]
+}
+Purple: ClaimMilestone {
+    Pay(8 MC)
+    Producer
+}
+// _local/replays/Game20260905/final-save-079.json; final Mars map.
+// Save 79 is the last retained state. User recollection supplies the subsequent resignation;
+// the database contains no resignation save or log entry.

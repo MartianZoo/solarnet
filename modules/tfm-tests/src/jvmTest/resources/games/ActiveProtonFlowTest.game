@@ -1,0 +1,223 @@
+// Replay: ActiveProtonFlowTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/ActiveProtonFlowTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Partial database replay through generation 2: Active Proton Flow (gadeac80e6446)
+// Source: _local/replays/Game20260920/Heroku-gadeac80e6446/
+// http://newazure.local:8080/the-end?id=pf8b6b214192d
+Config {
+    KB, ER
+    TharsisMap
+    BeginnerVariant, QuickStartVariant
+    Sponsor, Producer, Engineer, Fundraiser, Spacefarer
+    Forecaster, EstateDealer, SpaceBaron, Suburbian, Celebrity
+}
+
+GlobalEventDeck {
+}
+
+Cards {
+    // Source save 0 and saves 27-28 identify these modeled setup and Research offers.
+    +CorporationCard<ER, Hand>: ThorGate, MiningGuild
+    +ProjectCard<ER, Selecting>: ArcticAlgae, ReleaseOfInertGases, Flooding, LavaFlows, RadChemFactory, PowerPlant, RegolithEaters, Greenhouses, AsteroidMining, CupolaCity
+    +ProjectCard<ER, Selecting>: BlackPolarDust, NitrophilicMoss, HeatTrappers, Farming
+    -CorporationCard<ER, Hand>: ThorGate
+    -CorporationCard<ER, Hand>: MiningGuild
+    -ProjectCard<ER, Selecting>: ReleaseOfInertGases, RadChemFactory, RegolithEaters, Greenhouses, AsteroidMining
+    -ProjectCard<ER, Selecting>: PowerPlant, Flooding, ArcticAlgae, LavaFlows, CupolaCity
+    -ProjectCard<ER, Selecting>: Farming
+    -ProjectCard<ER, Selecting>: HeatTrappers, NitrophilicMoss, BlackPolarDust
+    +BeginnerCard<KB, Hand>: BeginnerCorporation1
+    +ProjectCard<KB, Selecting>: GreatDam, GeothermalPower, IceCapMelting, OptimalAerobraking, Predators, NuclearPower, EquatorialMagnetizer, ConvoyFromEuropa, SpaceMirrors, PermafrostExtraction
+    +ProjectCard<KB, Selecting>: ImmigrantCity, MagneticFieldGenerators, Ants, LargeConvoy
+    -BeginnerCard<KB, Hand>: BeginnerCorporation1
+    +ProjectCard<KB, Hand>: GreatDam, GeothermalPower, IceCapMelting, OptimalAerobraking, Predators, NuclearPower, EquatorialMagnetizer, ConvoyFromEuropa, SpaceMirrors, PermafrostExtraction
+    +ProjectCard<KB, Hand>: OreProcessor
+    +ProjectCard<KB, Hand>: ImportedHydrogen, ResearchOutpost
+    +ProjectCard<KB, Hand>: MagneticFieldGenerators, ImmigrantCity
+    -ProjectCard<KB, Selecting>: GreatDam, GeothermalPower, IceCapMelting, OptimalAerobraking, Predators, NuclearPower, EquatorialMagnetizer, ConvoyFromEuropa, SpaceMirrors, PermafrostExtraction
+    -ProjectCard<KB, Selecting>: Ants, LargeConvoy
+    -ProjectCard<KB, Selecting>: MagneticFieldGenerators, ImmigrantCity
+    +ProjectCard<ER, Hand>: PowerPlant, Flooding, ArcticAlgae, LavaFlows, CupolaCity
+    +ProjectCard<ER, Hand>: HeatTrappers, NitrophilicMoss, BlackPolarDust
+    -ProjectCard<KB, Hand>: SpaceMirrors
+    -ProjectCard<KB, Hand>: OptimalAerobraking
+    -ProjectCard<KB, Hand>: ConvoyFromEuropa
+    -ProjectCard<KB, Hand>: GeothermalPower
+    -ProjectCard<ER, Hand>: ArcticAlgae
+    -ProjectCard<ER, Hand>: PowerPlant
+    -ProjectCard<ER, Hand>: BlackPolarDust
+}
+
+ER: Setup {
+    StandardOption
+    20 TerraformRating
+}
+
+KB: Setup {
+    BeginnerOption
+    20 TerraformRating
+}
+
+ER: Setup {
+    2 CorporationCard
+    10 ProjectCard<Selecting> VIA ER
+    -CorporationCard
+    -5 ProjectCard<Selecting>
+}
+
+KB: Setup {
+    BeginnerCard
+    10 ProjectCard<Selecting>
+}
+
+// Generation 1
+KB: PlayCard(BeginnerCorporation1) {
+    42 MC
+    10 ProjectCard<Hand FROM Selecting>
+}
+
+ER: PlayCard(MiningGuild) {
+    30 MC VIA MiningGuild
+    5 Steel
+    PROD[Steel]
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+KB: PlayCard(SpaceMirrors) {
+    Pay(3 MC)
+}
+
+ER: PlayCard(ArcticAlgae) {
+    Pay(12 MC)
+    Plant
+}
+
+KB: PlayCard(OptimalAerobraking) {
+    Pay(7 MC)
+}
+KB: PlayCard(ConvoyFromEuropa) {
+    Pay(15 MC)
+    ProjectCard
+    3 MC
+    3 Heat
+    OceanTile<Tharsis_2_6>
+    TerraformRating
+    ER: 2 Plant
+    2 ProjectCard
+}
+
+// no mc paid
+ER: PlayCard(PowerPlant) {
+    Pay(2 Steel)
+    PROD[Energy]
+}
+
+KB: PlayCard(GeothermalPower) {
+    Pay(11 MC)
+    PROD[2 Energy]
+}
+
+ER: Pass
+
+KB: UseAction1(SpaceMirrors) {
+    Pay(7 MC)
+    PROD[Energy]
+}
+KB: Pass
+
+// Generation 2
+KB: Production {
+    22 MC
+    Steel
+    Titanium
+    Plant
+    4 Energy
+    Heat
+}
+
+ER: Production {
+    21 MC
+    2 Steel
+    Titanium
+    Plant
+    2 Energy
+    Heat
+}
+
+ER: Research {
+    4 ProjectCard<Selecting>
+}
+
+KB: Research {
+    4 ProjectCard<Selecting>
+}
+
+ER: Research {
+    -ProjectCard<Selecting>
+}
+
+ER: Research {
+    Pay(9 MC)
+}
+
+ER: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+KB: Research {
+    -2 ProjectCard<Selecting>
+}
+
+KB: Research {
+    Pay(6 MC)
+}
+
+KB: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 28: immediately after both generation 2 Research purchases.
+ER: PlayCard(BlackPolarDust) {
+    Pay(15 MC)
+    OceanTile<Tharsis_9_9>
+    TerraformRating
+    2 Plant
+    PROD[-2 MC] VIA BlackPolarDust
+    PROD[3 Heat] VIA BlackPolarDust
+    PROD[Steel]
+    2 Titanium
+}
+
+KB: UseAction1(SpaceMirrors) {
+    Pay(7 MC)
+    PROD[Energy]
+}
+
+ER: Pass
+
+KB: Pass
+
+KB: Production {
+    22 MC
+    Steel
+    Titanium
+    Plant
+    4 Heat FROM Energy VIA Energy
+    5 Energy
+    Heat
+}
+
+ER: Production {
+    20 MC
+    3 Steel
+    Titanium
+    Plant
+    2 Heat FROM Energy VIA Energy
+    2 Energy
+    4 Heat
+}
+// Database save 37: generation 3 Research, immediately after generation 2 production.
+// _local/replays/Game20260920/Heroku-gadeac80e6446/game-gadeac80e6446.sqlite; source save 37,
+// replay endpoint.

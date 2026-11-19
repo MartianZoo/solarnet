@@ -1,0 +1,1161 @@
+// Replay: ThermalMatterWaveTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/ThermalMatterWaveTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Complete archive replay: Thermal Matter Wave (gafda6ee74f34)
+// https://terraforming-mars.herokuapp.com/the-end?id=pccc28386ce4b
+// Source log and final player record: _local/replays/Game20260730/
+Config {
+    Player1
+    VenusNextExpansion, PreludeExpansion, ColoniesExpansion, Tr63SoloObjective
+    promos:cards
+    Ceres, Io, Miranda, Triton
+    SoloTileLocations
+}
+
+GlobalEventDeck {
+}
+
+SetupRules {
+    CLASS SoloTileLocations : PlaceNeutralTiles<Tharsis_4_6, Tharsis_3_6, Tharsis_6_6, Tharsis_6_5>
+}
+
+Player1: Setup {
+    14 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Player1
+    2 PreludeCard
+    -SelectedMiranda
+    -3 ProjectCard<Selecting>
+}
+
+// Generation 1
+Player1: PlayCard(CrediCor) {
+    57 MC VIA CrediCor
+    Pay(21 MC)
+    7 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: PlayCard(SocietySupport) {
+    PROD[-MC]
+    PROD[Plant]
+    PROD[Energy]
+    PROD[Heat]
+}
+// CrediCor still pays its rebate when Excentric Sponsor pays the project cost.
+// Excentric Sponsor covers Titan Shuttles' full cost
+// no MC remainder
+Player1: PlayCard(ExcentricSponsor) {
+    PlayCard(TitanShuttles)
+    -23 Owed<Class<MC>>
+    0 Pay<Class<MC>> FROM MC
+    4 MC
+}
+
+Player1: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+Player1: PlayCard(IndustrialMicrobes) {
+    Pay(12 MC)
+    PROD[Energy]
+    PROD[Steel]
+}
+Player1: PlayCard(SolarReflectors) {
+    Pay(23 MC)
+    PROD[5 Heat]
+    4 MC
+}
+Player1: Pass
+
+Player1: Production {
+    11 MC
+    Plant
+    2 Energy
+    6 Heat
+    Steel
+}
+
+Player1: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 2
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(9 MC)
+}
+
+Player1: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+Player1: Pass
+
+Player1: Production {
+    11 MC
+    Plant
+    2 Energy VIA Production
+    6 Heat VIA Production
+    Steel
+    2 Heat FROM Energy
+}
+
+Player1: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 3
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(6 MC)
+}
+
+Player1: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+Player1: PlayCard(AdvancedAlloys) {
+    Pay(9 MC)
+}
+Player1: PlayCard(HousePrinting) {
+    Pay(2 Steel, 4 MC)
+    PROD[Steel]
+}
+Player1: Pass
+
+Player1: Production {
+    12 MC
+    Plant
+    2 Energy VIA Production
+    6 Heat VIA Production
+    2 Steel
+    2 Heat FROM Energy
+}
+
+Player1: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 4
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(3 MC)
+}
+
+Player1: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: PlayCard(CryoSleep) {
+    Pay(10 MC)
+}
+Player1: Trade2 {
+    Pay(2 Energy)
+    Trade<Ceres>
+    6 Steel
+}
+Player1: PlayCard(StripMine) {
+    Pay(8 Steel, 1 MC)
+    PROD[-2 Energy]
+    PROD[2 Steel]
+    PROD[Titanium]
+    OxygenStep
+    OxygenStep
+    4 MC
+    2 TerraformRating
+}
+Player1: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+Player1: Pass
+
+Player1: Production {
+    15 MC
+    Plant
+    6 Heat
+    4 Steel
+    Titanium
+}
+
+Player1: WorldGovernment {
+    OceanTile<Tharsis_6_7>! BY Admin
+}
+
+// Generation 5
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(9 MC)
+}
+
+Player1: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// This temperature step also raises heat production.
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+Player1: UseAction2(TitanShuttles) {
+    SelectTask(-8! Floater<TitanShuttles> THEN 8! Titanium)
+    -8 Floater<TitanShuttles>
+    8 Titanium
+}
+Player1: Trade3 {
+    Pay(2 Titanium)
+    Trade<Triton>
+    4 Titanium
+}
+Player1: PlayCard(SterlingVents) {
+    Pay(1 Steel, 2 MC)
+    PROD[-2 Heat]
+    PROD[2 Energy]
+}
+Player1: PlayCard(ElectroCatapult) {
+    Pay(3 Steel, 8 MC)
+    PROD[-Energy]
+}
+Player1: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Player1: PlayCard(CorroderSuits) {
+    Pay(8 MC)
+    PROD[2 MC]
+}
+Player1: Pass
+
+Player1: Production {
+    18 MC
+    Plant
+    5 Heat
+    4 Steel
+    Titanium
+    Energy
+}
+
+Player1: WorldGovernment {
+    OceanTile<Tharsis_6_9>! BY Admin
+}
+
+// Generation 6
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(3 MC)
+}
+
+Player1: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+// no MC remainder
+Player1: PlayCard(TowingAComet) {
+    Pay(6 Titanium)
+    2 Plant
+    OxygenStep
+    4 MC
+    TerraformRating
+    OceanTile<Tharsis_6_8>
+    TerraformRating
+    Plant
+    4 MC
+}
+Player1: PlayCard(SaturnSurfing) {
+    Pay(13 MC)
+    Floater<SaturnSurfing>
+}
+Player1: UseAction1(TitanShuttles) {
+    2 Floater<SaturnSurfing>
+}
+Player1: UseAction1(SaturnSurfing) {
+    -Floater<SaturnSurfing>
+    3 MC
+}
+Player1: PlayCard(DesignedMicroorganisms) {
+    Pay(16 MC)
+    PROD[2 Plant]
+}
+Player1: PlayCard(RotatorImpacts) {
+    Pay(1 Titanium, 2 MC)
+}
+Player1: UseAction1(RotatorImpacts) {
+    Pay(1 Titanium, 2 MC)
+    Asteroid<RotatorImpacts>
+}
+Player1: Pass
+
+Player1: Production {
+    21 MC
+    3 Plant
+    5 Heat VIA Production
+    4 Steel
+    Titanium
+    Energy VIA Production
+    Heat FROM Energy
+}
+
+Player1: WorldGovernment {
+    OceanTile<Tharsis_4_8>! BY Admin
+}
+
+// Generation 7
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(3 MC)
+}
+
+Player1: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Player1: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Player1: PlayCard(DevelopmentCenter) {
+    Pay(3 Steel, 2 MC)
+}
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Player1: PlayCard(CorporateStronghold) {
+    Pay(3 Steel, 2 MC)
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Tharsis_5_8>
+    2 Plant
+    6 MC
+}
+Player1: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_5_9>
+    OxygenStep
+    2 Plant
+    4 MC
+    TerraformRating
+}
+Player1: UseAction1(TitanShuttles) {
+    2 Floater<SaturnSurfing>
+}
+Player1: UseAction1(SaturnSurfing) {
+    -Floater<SaturnSurfing>
+    4 MC
+}
+Player1: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+    ProjectCard
+}
+Player1: Trade3 {
+    Pay(2 Titanium)
+    Trade<Io>
+    13 Heat
+}
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: PlayCard(SpinOffDepartment) {
+    Pay(2 Steel, 4 MC)
+    PROD[2 MC]
+}
+Player1: PlayCard(Tardigrades) {
+    Pay(4 MC)
+}
+Player1: UseAction1(Tardigrades) {
+    Microbe<Tardigrades>
+}
+// Payment reconstruction: retain one titanium for Interplanetary Trade; that allocation is
+// required to reproduce the later archived balance without a state adjustment.
+// decline removing an opponent's plants
+Player1: PlayCard(DeimosDownPromo) {
+    Pay(2 Titanium, 23 MC)
+    TemperatureStep
+    TemperatureStep
+    TemperatureStep
+    4 Steel
+    4 MC
+    ProjectCard
+    3 TerraformRating
+    -0 Plant<Anyone>
+    DeimosDownPromo_SpecialTile<Tharsis_7_8>
+    Plant
+    4 MC
+}
+Player1: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+Player1: Pass
+
+Player1: Production {
+    33 MC
+    3 Plant
+    6 Heat
+    4 Steel
+    Titanium
+    Energy
+}
+
+Player1: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 8
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(6 MC)
+}
+
+Player1: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Player1: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_4_7>
+    OxygenStep
+    Plant
+    2 MC
+    TerraformRating
+}
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Player1: UseAction1(TitanShuttles) {
+    2 Floater<SaturnSurfing>
+}
+Player1: UseAction1(SaturnSurfing) {
+    -Floater<SaturnSurfing>
+    5 MC
+}
+Player1: UseAction1(RotatorImpacts) {
+    Pay(1 Titanium, 2 MC)
+    Asteroid<RotatorImpacts>
+}
+Player1: UseAction1(Tardigrades) {
+    Microbe<Tardigrades>
+}
+Player1: PlayCard(BribedCommittee) {
+    Pay(7 MC)
+    2 TerraformRating
+}
+Player1: PlayCard(ReleaseOfInertGases) {
+    Pay(14 MC)
+    2 TerraformRating
+}
+Player1: Pass
+
+Player1: Production {
+    39 MC
+    3 Plant
+    6 Heat
+    4 Steel
+    Titanium
+    Energy
+}
+
+Player1: WorldGovernment {
+    OceanTile<Tharsis_5_5>! BY Admin
+}
+
+// Generation 9
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(6 MC)
+}
+
+Player1: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+Player1: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Player1: UseAction1(TitanShuttles) {
+    2 Floater<SaturnSurfing>
+}
+Player1: UseAction1(SaturnSurfing) {
+    -Floater<SaturnSurfing>
+    5 MC
+}
+Player1: UseAction1(Tardigrades) {
+    Microbe<Tardigrades>
+}
+Player1: PlayCard(VenusSoils) {
+    Pay(20 MC)
+    VenusStep
+    PROD[Plant]
+    4 MC
+    ProjectCard
+    TerraformRating
+    2 Microbe<Tardigrades>
+}
+// Payment reconstruction: using the retained titanium here avoids the earlier two-unit
+// overpayment and is required by the later archived balance.
+Player1: PlayCard(InterplanetaryTrade) {
+    Pay(2 Titanium, 19 MC)
+    EACH @WildTagElection { Tag<@WildTagElection>? } VIA InterplanetaryTrade
+    PROD[10 MC]
+    4 MC
+    ProjectCard
+}
+Player1: PlayCard(ForcedPrecipitation) {
+    Pay(8 MC)
+}
+Player1: UseAction1(ForcedPrecipitation) {
+    Pay(2 MC)
+    Floater<ForcedPrecipitation>
+}
+Player1: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    2 TerraformRating
+}
+Player1: Pass
+
+Player1: Production {
+    54 MC
+    4 Plant
+    6 Heat
+    4 Steel
+    Titanium
+    Energy
+}
+
+Player1: WorldGovernment {
+    OceanTile<Tharsis_1_5>! BY Admin
+}
+
+// Generation 10
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+// keep all offered cards
+Player1: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(12 MC)
+}
+
+Player1: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Player1: PlayCard(MarsUniversity) {
+    Pay(2 Steel, 2 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Player1: Trade1 {
+    Pay(8 MC)
+    Trade<Triton>
+    4 Titanium
+}
+// decline removing an opponent's plants
+Player1: PlayCard(Comet) {
+    Pay(5 Titanium, 1 MC)
+    TemperatureStep
+    4 MC
+    ProjectCard
+    TerraformRating
+    -0 Plant<Anyone>
+    OceanTile<Tharsis_2_6>
+    TerraformRating
+    2 ProjectCard
+    2 MC
+}
+Player1: UseAction1(SaturnSurfing) {
+    -Floater<SaturnSurfing>
+    5 MC
+}
+Player1: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+Player1: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+Player1: PlayCard(IoMiningIndustries) {
+    Pay(41 MC)
+    PROD[2 Titanium]
+    PROD[2 MC]
+    4 MC
+    ProjectCard
+}
+Player1: PlayCard(SolarPower) {
+    Pay(3 Steel, 2 MC)
+    PROD[Energy]
+}
+Player1: PlayCard(Gyropolis) {
+    Pay(6 Steel, 2 MC)
+    PROD[-2 Energy]
+    PROD[4 MC]
+    4 MC
+    ProjectCard
+    NormalCityTile<Tharsis_3_7>
+    Steel
+    4 MC
+}
+// Payment reconstruction: the steel retained on Solar Power is worth its full value here.
+Player1: PlayCard(MedicalLab) {
+    Pay(4 Steel, 1 MC)
+    PROD[6 MC]
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Player1: PlayCard(AsteroidRights) {
+    Pay(10 MC)
+    2 Asteroid<AsteroidRights>
+}
+Player1: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+Player1: UseAction1(RotatorImpacts) {
+    Pay(1 Titanium, 2 MC)
+    Asteroid<RotatorImpacts>
+}
+Player1: UseAction1(Tardigrades) {
+    Microbe<Tardigrades>
+}
+Player1: PlayCard(PowerSupplyConsortium) {
+    Pay(5 MC)
+    PROD[-Energy<SoloOpponent>]
+    PROD[Energy]
+}
+Player1: UseAction1(ForcedPrecipitation) {
+    Pay(2 MC)
+    Floater<ForcedPrecipitation>
+}
+Player1: Pass
+
+Player1: Production {
+    68 MC
+    4 Plant
+    6 Heat
+    4 Steel
+    3 Titanium
+    Energy
+}
+
+Player1: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 11
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+// keep all offered cards
+Player1: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(12 MC)
+}
+
+Player1: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Player1: PlayCard(SearchForLife) {
+    Pay(3 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Player1: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+Player1: UseAction1(SaturnSurfing) {
+    -Floater<SaturnSurfing>
+    4 MC
+}
+// Payment reconstruction: retain one titanium for Magnetic Shield, where it avoids the
+// Rotator Impacts overpayment and receives full value.
+Player1: PlayCard(SixteenPsyche) {
+    Pay(5 Titanium, 11 MC)
+    PROD[2 Titanium]
+    3 Titanium
+    4 MC
+    ProjectCard
+}
+Player1: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+Player1: UseAction1(Tardigrades) {
+    Microbe<Tardigrades>
+}
+Player1: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+}
+Player1: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+// Payment reconstruction: the titanium retained on Rotator Impacts is worth its full value
+// here, avoiding the action's two-unit overpayment.
+Player1: PlayCard(MagneticShield) {
+    Pay(4 Titanium, 8 MC)
+    4 TerraformRating
+    4 MC
+    ProjectCard
+}
+Player1: PlayCard(BeamFromAThoriumAsteroid) {
+    Pay(32 MC)
+    PROD[3 Heat]
+    PROD[3 Energy]
+    4 MC
+    ProjectCard
+}
+Player1: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+Player1: PlayCard(Thermophiles) {
+    Pay(9 MC)
+}
+Player1: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_8_9>
+    OxygenStep
+    Titanium
+    TerraformRating
+}
+Player1: PlayCard(OptimalAerobraking) {
+    Pay(1 Titanium, 3 MC)
+}
+Player1: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Player1: PlayCard(ImportedNutrients) {
+    Pay(14 MC)
+    4 Plant
+    3 MC
+    3 Heat
+    4 Microbe<Thermophiles>
+}
+Player1: UseAction2(Thermophiles) {
+    -2 Microbe<Thermophiles>
+    VenusStep
+    TerraformRating
+}
+Player1: PlayCard(EquatorialMagnetizer) {
+    Pay(3 Steel, 2 MC)
+}
+Player1: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+Player1: Pass
+
+Player1: Production {
+    78 MC
+    4 Plant
+    9 Heat
+    4 Steel
+    5 Titanium
+    3 Energy
+}
+
+Player1: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 12
+Player1: Research {
+    4 ProjectCard<Selecting>
+}
+
+Player1: Research {
+    -ProjectCard<Selecting>
+}
+
+Player1: Research {
+    Pay(9 MC)
+}
+
+Player1: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Player1: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Player1: PlayCard(Research) {
+    Pay(11 MC)
+    2 ProjectCard VIA Research
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    OceanTile<Tharsis_5_6>
+    TerraformRating
+    2 Plant
+    4 MC
+}
+Player1: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_5_7>
+    OxygenStep
+    2 Plant
+    6 MC
+    TerraformRating
+    TemperatureStep
+    TerraformRating
+}
+Player1: PlayCard(Shuttles) {
+    Pay(2 Titanium, 2 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+}
+Player1: PlayCard(PioneerSettlement) {
+    Pay(2 Titanium, 3 MC)
+    PROD[-2 MC]
+    Colony<Triton>
+    3 Titanium
+}
+Player1: Trade2 {
+    Pay(2 Energy)
+    Trade<Io>
+    10 Heat
+}
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Player1: PlayCard(TitanFloatingLaunchPad) {
+    Pay(18 MC)
+    2 Floater<TitanShuttles>
+}
+Player1: UseAction1(TitanFloatingLaunchPad) {
+    Floater<TitanShuttles>
+}
+// no microbe tag on the revealed card
+Player1: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+// Payment reconstruction: retain the titanium from Pioneer Settlement for Terraforming
+// Ganymede, where it receives full value.
+Player1: PlayCard(Atmoscoop) {
+    Pay(3 Titanium, 8 MC)
+    4 MC
+    ProjectCard
+    VenusStep*, VenusStep*
+    2 TerraformRating
+    2 Floater<TitanShuttles>
+}
+Player1: PlayCard(FloaterPrototypes) {
+    Pay(2 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+    2 Floater<TitanShuttles>
+}
+Player1: UseAction2(TitanShuttles) {
+    SelectTask(-11! Floater<TitanShuttles> THEN 11! Titanium)
+    -11 Floater<TitanShuttles>
+    11 Titanium
+}
+// Payment reconstruction: retain one titanium for Terraforming Ganymede rather than
+// overpaying for Ganymede Colony.
+Player1: PlayCard(GanymedeColony) {
+    Pay(4 Titanium, 2 MC)
+    NormalCityTile<GanymedeColony_RemoteArea>
+    4 MC
+    ProjectCard
+}
+// no MC remainder
+Player1: PlayCard(ConvoyFromEuropa) {
+    Pay(4 Titanium)
+    ProjectCard
+    3 MC
+    3 Heat
+    OceanTile<Tharsis_9_9>
+    TerraformRating
+    2 Titanium
+}
+// Payment reconstruction: the titanium retained on Pioneer Settlement and Ganymede Colony
+// is worth its full value here, avoiding three units of combined overpayment.
+Player1: PlayCard(TerraformingGanymede) {
+    Pay(6 Titanium, 7 MC)
+    8 TerraformRating
+    4 MC
+    ProjectCard
+}
+Player1: PlayCard(HiTechLab) {
+    Pay(4 Steel, 5 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Player1: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+// decline removing an opponent's plants
+Player1: PlayCard(AsteroidCard) {
+    Pay(12 MC)
+    TemperatureStep
+    2 Titanium
+    3 MC
+    3 Heat
+    TerraformRating
+    -0 Plant<Anyone>
+}
+Player1: UseAction1(SaturnSurfing) {
+    -Floater<SaturnSurfing>
+    3 MC
+}
+Player1: UseAction2(Thermophiles) {
+    -2 Microbe<Thermophiles>
+    VenusStep
+    TerraformRating
+}
+Player1: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+Player1: PlayCard(ProjectInspection) {
+    UseAction1(ElectroCatapult)
+    Pay(1 Plant)
+    7 MC
+}
+Player1: PlayCard(MediaArchives) {
+    Pay(8 MC)
+    10 MC
+}
+Player1: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    4 MC
+    PROD[MC]
+    NormalCityTile<Tharsis_4_4>
+    Plant
+    2 MC
+}
+Player1: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    4 MC
+    GreeneryTile<Tharsis_4_5>
+    OxygenStep
+    2 Plant
+    4 MC
+    TerraformRating
+}
+Player1: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_3_4>
+    OxygenStep
+    TerraformRating
+}
+Player1: PlayCard(DawnCity) {
+    Pay(2 Titanium, 5 MC)
+    PROD[-Energy]
+    PROD[Titanium]
+    NormalCityTile<DawnCity_RemoteArea>
+}
+Player1: UseAction1(AsteroidRights) {
+    Pay(1 MC)
+    Asteroid<RotatorImpacts>
+}
+Player1: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+Player1: UseAction1(Tardigrades) {
+    Microbe<Tardigrades>
+}
+Player1: PlayCard(Windmills) {
+    Pay(6 MC)
+    PROD[Energy]
+}
+Player1: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Player1: Pass
+
+Player1: Production {
+    102 MC
+    4 Plant
+    9 Heat
+    4 Steel
+    6 Titanium
+    Energy
+}
+
+// Decline the final greenery placement.
+// decline final greenery
+Player1 {
+    Ok
+}
+
+Player1 {
+    131 VictoryPoint
+}
+// _local/replays/Game20260730/Game20260730-herokuapp-player.json; final Mars map.

@@ -1,0 +1,3153 @@
+// Replay: OtbGame20260828Test
+// Kotlin scenario: test/common/dev/martianzoo/tfm/tests/replays/OtbGame20260828Test.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Three-player physical game begun Friday, 2026-08-28.
+Config {
+    Green, Blue, Yellow
+    CimmeriaMap
+    VenusNextExpansion, PreludeExpansion, ColoniesExpansion
+    prelude2:cards, promos:cards
+    Ganymede, Io, Luna, Miranda, Titan
+    Engineer, Fundraiser, Landshaper, Merchant, Metallurgist
+    Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron
+}
+
+GlobalEventDeck {
+}
+
+Green: Setup {
+    10 ProjectCard<Selecting> VIA Green
+    CorporationCard
+    2 PreludeCard
+    20 TerraformRating
+    -6 ProjectCard<Selecting>
+}
+
+Blue: Setup {
+    10 ProjectCard<Selecting> VIA Blue
+    CorporationCard
+    2 PreludeCard
+    20 TerraformRating
+    -5 ProjectCard<Selecting>
+}
+
+Yellow: Setup {
+    10 ProjectCard<Selecting> VIA Yellow
+    CorporationCard
+    2 PreludeCard
+    20 TerraformRating
+    -5 ProjectCard<Selecting>
+}
+
+// "Okay, I am the start player, and I play Paladin Shipping. That gives me 36 money and five
+// titanium. Then I use this little buy-cards slider to buy four cards."
+Green: PlayCard(PalladinShipping) {
+    36 MC VIA PalladinShipping
+    5 Titanium
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// "I play Celestic, so I start with 42 megacredits." "You do get 42 money and then buy how many
+// cards? Five cards?" "Oh, yes."
+Blue: PlayCard(Celestic) {
+    42 MC VIA Celestic
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+// "And I am Point Luna." "Oh, man. That corp is strong." "Start with 38 money, titanium
+// production. It immediately gives me a card. And I slide five cards. Boop."
+Yellow: PlayCard(PointLuna) {
+    38 MC VIA PointLuna
+    PROD[Titanium]
+    ProjectCard
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+// "I've played Biofuels and Supplier. I get two energy production and four steel, and then I
+// get one energy production, one plant production, and two plants."
+Green: PlayCard(Biofuels) {
+    PROD[Plant]
+    PROD[Energy]
+    2 Plant
+}
+Green: PlayCard(Supplier) {
+    PROD[2 Energy]
+    4 Steel
+}
+
+// "First I'm going to play Great Aquifer. I place two ocean tiles." "I'll put one here.
+// That's row two, column one, for two titanium." The second placement is stated below.
+Blue: PlayCard(GreatAquifer) {
+    OceanTile<Cimmeria_2_1>
+    TerraformRating
+    2 Titanium
+    OceanTile<Cimmeria_9_5>
+    TerraformRating
+    2 Plant
+}
+// "I'm going to put this one on row nine, column five. That gives me two plants." "And then
+// Atmospheric Enhancers. I'm enhancing our atmosphere. I'm gonna go ahead and raise Venus two
+// steps."
+Blue: PlayCard(AtmosphericEnhancers) {
+    2 SearchForCard<ReferenceFilter<Class<Floater>>>
+    VenusStep*, VenusStep*
+    2 TerraformRating
+}
+
+// "Orbital Construction Yard: I gain titanium production and four titanium."
+Yellow: PlayCard(OrbitalConstructionYard) {
+    PROD[Titanium]
+    4 Titanium
+}
+// "Early Colonization: I place a colony on Luna, which means I gain 2 money production, I
+// gain 3 energy—not energy production, 3 energy—and raise all colony tracks 2 steps."
+Yellow: PlayCard(EarlyColonization) {
+    3 Energy
+    EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }
+    Colony<Luna>
+    PROD[2 MC]
+}
+
+// board-17-33-49.jpg: post-Prelude setup, before the first project action.
+// "I'm gonna play Titan Shuttles." "Oh, shit, that's competition." "Yep. Floater on floater
+// warfare. Floatfare." "I will spend three titanium, which counts as nine money, so I need 14
+// more. That's my turn."
+// Green explicitly considers keeping titanium for Palladin Shipping, then keeps two.
+Green: PlayCard(TitanShuttles) {
+    Pay(3 Titanium, 14 MC)
+}
+
+// "I had a plan; it's gone now." "Your first action should be to draw this stuff."
+// "There's one: Jet Stream Microscrappers. And Floater Technology. Very cool."
+Blue: DoRequiredActions {
+    2 SearchForCard<ReferenceFilter<Class<Floater>>>
+}
+// "Now I'm gonna play Local Shading. Pay four for it. And I guess that's my two actions."
+Blue: PlayCard(LocalShading) {
+    Pay(4 MC)
+}
+
+Yellow: PlayCard(RimFreighters) {
+    Pay(1 Titanium, 1 MC)
+}
+
+// "I'm going to use the Titan Shuttles action to put two floaters on Titan Shuttles."
+Green: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+
+// "Where's my plan? FML. You have all these floater cards now. I'm going to play Floater
+// Technology for seven."
+Blue: PlayCard(FloaterTechnology) {
+    Pay(7 MC)
+}
+// "I'm going to use the Local Shading action to add a floater to Local Shading. Wait, no,
+// you're right. I'm going to use the Floater Technology action to add it to Local Shading."
+Blue: UseAction1(FloaterTechnology) {
+    Floater<LocalShading>
+}
+
+// "For some reason, I thought I was rushing to trade. It occurs to me now that it's probably
+// not worth it for you guys to trade. I probably should have played Business Network first.
+// That's four real monies and an Earth-tag discount card."
+Yellow: PlayCard(BusinessNetwork) {
+    Pay(4 MC)
+    PROD[-MC]
+    ProjectCard
+}
+Yellow {
+    Ok
+}
+
+// She forgot to reduce her money production (fixed later)
+Yellow: ExMachina {
+    PROD[MC]
+}
+
+Green: Pass
+
+// "I'm going to play Nitrite Reducing Bacteria. That costs me 11 money."
+// "You immediately get three free microbes on Nitrite Reducing Bacteria."
+Blue: PlayCard(NitriteReducingBacteria) {
+    Pay(11 MC)
+    3 Microbe<NitriteReducingBacteria>
+}
+// "For my next trick, I will use the Local Shading action to remove a floater and increase my
+// money production one step."
+Blue: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+// "I use Business Network action. I look at a card... not feeling it."
+Yellow: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+// "I will use my Nitrite Reducing Bacteria action to spend three microbes and increase my TR
+// one step. I guess I pass." "No, you have one more action."
+Blue: UseAction2(NitriteReducingBacteria) {
+    -3 Microbe<NitriteReducingBacteria>
+    TerraformRating
+}
+// "Oh, my Celestic action. I forgot. I will use my Celestic action to add a floater to Local
+// Shading."
+Blue: UseAction1(Celestic) {
+    Floater<LocalShading>
+}
+
+// "I will spend two energy to trade with Luna. That's seven from the track plus my bonus of
+// two, so nine." "Jesus."
+Yellow: Trade2 {
+    Pay(2 Energy)
+    Trade<Luna>
+    9 MC
+}
+// "One more thing. I spent one for Fuel Generators, lose a money production, and gain energy
+// production. And I think that's it."
+Yellow: PlayCard(FueledGenerators) {
+    Pay(1 MC)
+    PROD[-MC]
+    PROD[Energy]
+}
+
+Blue: Pass
+
+Yellow: Pass
+
+Green: Production {
+    20 MC
+    Plant
+    3 Energy
+}
+
+Blue: Production {
+    26 MC
+}
+
+Yellow: Production {
+    21 MC
+    2 Titanium
+    Heat FROM Energy VIA Energy
+    Energy
+}
+
+// "I will raise the oxygen to one percent as my World Government step."
+Green: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    4 ProjectCard<Selecting>
+}
+
+// board-17-45-16.jpg and all three app histories: Generation 2 before Research.
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Yellow: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    Pay(6 MC)
+}
+
+Yellow: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// "I'm going to start by taking my Local Shading action, spending a floater to increase my
+// money production."
+Blue: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+// "I'm going to use my Business Network. And I will buy it."
+Yellow: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    // Keep the offered project.
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+// "Minority Refuge. I'll spend one titanium and two real money. I lose two money production,
+// and I get to place a colony, which I'm going to place on Titan."
+Green: PlayCard(MinorityRefuge) {
+    Pay(1 Titanium, 2 MC)
+    PROD[-2 MC]
+    Colony<Titan>
+    3 Floater<TitanShuttles>
+}
+// "Then I'm going to use my second action to grab all these floaters." "Remember to get 3 for
+// your placing." "Holy shit. I get three and three and one. I get seven floaters."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Titan>
+    3 Floater<TitanShuttles>
+    Floater<TitanShuttles>
+}
+
+// "I'm going to play Jet Stream Microscrappers. Pay 12 for it." "You want me to actually pay
+// for the things that I place? You're crazy."
+Blue: PlayCard(JetStreamMicroscrappers) {
+    Pay(12 MC)
+}
+
+// "I'm going to pay five titanium and five real for Solar Logistics." "Oh, man. She gets to
+// draw a card any time any one of us plays a space event. Plus she gets a discount on Earth
+// tags."
+Yellow: PlayCard(SolarLogistics) {
+    Pay(5 Titanium, 5 MC)
+    2 Titanium
+    ProjectCard
+}
+
+// "You'll never imagine what I'm going to do. I'm going to use Titan Shuttles to spend nine
+// floaters and get nine titanium." "Gawah."
+Green: UseAction2(TitanShuttles) {
+    SelectTask(-9! Floater<TitanShuttles> THEN 9! Titanium)
+    -9 Floater<TitanShuttles>
+    9 Titanium
+}
+
+// "I'm going to play Dirigibles, which costs 11 money."
+Blue: PlayCard(Dirigibles) {
+    Pay(11 MC)
+}
+
+// "On top of Solar Logistics, I will place Optimal Aerobraking. For that, I will spend
+// seven." "We cannot let her get space events."
+// Yellow keeps Solar Logistics' two titanium to trade with Io next generation.
+Yellow: PlayCard(OptimalAerobraking) {
+    // No titanium paid.
+    Pay(7 MC)
+}
+
+// "Here we go. Spache Elevator." "Am I spending all titanium for it? I'm gonna hold back one
+// titanium. I'm gonna spend nine titanium. Not 99, just nine." "Stupid fucking Spache
+// Elevator."
+// The retained titanium and Space Elevator's new production pay for Palladin Shipping next
+// generation.
+Green: PlayCard(SpaceElevator) {
+    // No steel paid.
+    Pay(9 Titanium)
+    PROD[Titanium]
+}
+
+// "I'm going to take my Nitrite Reducing Bacteria action to add a microbe."
+Blue: UseAction1(NitriteReducingBacteria) {
+    Microbe<NitriteReducingBacteria>
+}
+
+// "Solar Logistics also gives me a discount of two on my Earth tag. I'm gonna pay seven for
+// Imported Advanced GHG. Increase heat production two steps. I get a card for Solar
+// Logistics, and from Optimal Aerobraking I get three money and three heat."
+// Yellow continues to keep two titanium to trade with Io next generation.
+Yellow: PlayCard(ImportOfAdvancedGhg) {
+    // No titanium paid.
+    Pay(7 MC)
+    PROD[2 Heat]
+    ProjectCard VIA SolarLogistics
+    3 MC
+    3 Heat
+    ProjectCard
+}
+
+// "I am going to use my Spache Elevator action to lose one steel and gain five real."
+Green: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+// "Oh my god, I'm an idiot. Dude, I have plants. I can plant Potatoes. Why didn't I do this
+// last freaking generation? That cost me two money. I lose two plants, and I get two money
+// production." "Yep. Potatoes are mine. Andy Weir up in here."
+Blue: PlayCard(Potatoes) {
+    Pay(2 MC)
+    -2 Plant
+    PROD[2 MC]
+}
+
+Yellow: Pass
+
+// "I'm spending three steel and 12 real on Research Outpost, which lets me place a city tile.
+// I can place it right here, pay five money, and get another colony, which I'm just gonna
+// drop on Luna. That gives me two money production, getting me back to zero again."
+Green: PlayCard(ResearchOutpost) {
+    Pay(3 Steel, 12 MC)
+    NormalCityTile<Cimmeria_3_3>
+    CimmeriaPlacementBonus
+    -5 MC
+    Colony<Luna>
+    PROD[2 MC]
+}
+
+// "I'm going to use my Floater Technology action to add a floater to Local Shading."
+Blue: UseAction1(FloaterTechnology) {
+    Floater<LocalShading>
+}
+
+// "[Yellow]'s already passed, so I'm the one holding things up. We play Peroxide Power, which
+// costs me six real money. I lose one money production and add two energy production."
+Green: PlayCard(PeroxidePower) {
+    Pay(6 MC)
+    PROD[-MC]
+    PROD[2 Energy]
+}
+
+// "I'm going to take my Dirigibles action, which lets me add a floater to any card, and add
+// it to Jet Stream Microscrappers. Then I take my Celestic action to add another floater to
+// Jet Stream Microscrappers." "I forgot I'm supposed to pay titanium for both of those." "You
+// don't have to pay." "I don't have to pay, thank God."
+Blue: UseAction1(Dirigibles) {
+    Floater<JetStreamMicroscrappers>
+}
+Blue: UseAction1(Celestic) {
+    Floater<JetStreamMicroscrappers>
+}
+
+Green: Pass
+
+// "Then I'm going to use my Jet Stream Microscrappers action to remove two floaters and raise
+// Venus one step." "Ah shit, I made it easier for [Yellow] to get the bonus."
+Blue: UseAction2(JetStreamMicroscrappers) {
+    -2 Floater<JetStreamMicroscrappers>
+    VenusStep
+    TerraformRating
+}
+Blue: Pass
+
+Yellow: Production {
+    21 MC
+    2 Titanium
+    Energy VIA Production
+    Heat FROM Energy VIA Energy
+    2 Heat
+}
+
+Green: Production {
+    19 MC
+    Plant
+    5 Energy
+    Titanium
+}
+
+Blue: Production {
+    30 MC
+}
+
+// "I'm going to raise Venus." "Venus is now at eight. No one gets the card. We're still at one
+// oxygen, two oceans, and no temperature raises yet."
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    4 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    -ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    Pay(9 MC)
+}
+
+Yellow: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(3 MC)
+}
+
+Blue: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// "I think I will start by paying two titanium to trade with Io. That's ten heat for me."
+Yellow: Trade3 {
+    Pay(2 Titanium)
+    Trade<Io>
+    10 Heat
+}
+// "Probably should have done this sooner, but Business Network."
+Yellow: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+// "What I'm gonna do is fly my boat. I'm gonna spend three energy, fly my boat to Ganymede,
+// take five planta. When you want to convert plants to greenery, you hit plants, but then
+// there's this 'plant forest'—for whatever reason they call it plant forest. It automatically
+// gives me the TR and takes away the eight plants and everything."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Ganymede>
+    5 Plant
+}
+// "My forest is gonna go on 3-2, so that it's next to my city and gets two money from ocean.
+// That raises oxygen to two percent, and we got my TR already. That was my two actions."
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_3_2>
+    OxygenStep
+    2 MC
+    TerraformRating
+}
+
+// "How much money do I have? Fuck. Okay, FML. I guess I'm playing Io Sulphur Research. I pay
+// for it first, then draw three cards. I have two Venus tags."
+// "I'll buy Reno."
+Blue: PlayCard(IoSulphurResearch) {
+    Pay(17 MC)
+    3 ProjectCard
+}
+
+// "For six monies, Carbonate Processing. Lose energy production, gain three heat production."
+Yellow: PlayCard(CarbonateProcessing) {
+    Pay(6 MC)
+    PROD[-Energy]
+    PROD[3 Heat]
+}
+
+// "This is really cool, actually. I play Mining Area. It costs three money. That solves both
+// my—because I need steels for this thing, you know? It gives me one for this turn and solves
+// my problem for the future as well. That gives me one steel and one steel production."
+Green: PlayCard(MiningArea) {
+    Pay(3 MC)
+    MiningArea_SpecialTile<Cimmeria_4_3>
+    PROD[Steel]
+    Steel
+}
+// "As my second action, I can spend eight on the Land Shaper."
+Green: ClaimMilestone {
+    Pay(8 MC)
+    Landshaper
+}
+
+// "I'm going to play Mars University."
+// "Did you get that from the—"
+// "When I just drew three cards from Io Sulphur Research, I did draw Mars University, and I'm
+// playing it now. I lose eight money. I get a science tag and an Earth tag."
+// "It doesn't have anything that happens right now."
+// "Well, it does, if you would like to pitch a card and draw a card."
+// "Nah, I like my cards."
+// "The struggle is real."
+Blue: PlayCard(MarsUniversity) {
+    Pay(8 MC)
+    // Decline Mars University's discard and draw.
+    Ok
+}
+
+// "For Power Infrastructure."
+Yellow: PlayCard(PowerInfrastructure) {
+    Pay(4 MC)
+}
+
+// "Now I can use Spache Elevator to use one steel and get five real. Was there anything else
+// I was in a hurry to do? No."
+// "Look, guys, I'm jet-lagged. Jet lag makes me stupid, okay? We know this. This is a true
+// fact about me."
+Green: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+// "I'm just gonna use my Nitrite Reducing Bacteria action to add a microbe."
+Blue: UseAction1(NitriteReducingBacteria) {
+    Microbe<NitriteReducingBacteria>
+}
+
+// "I now have two power tags, so I can play Fusion Tower [Fusion Power]."
+// "Dang it, I didn't think you were gonna be able to play that. I thought it might come back
+// to me."
+// "Increase energy production three steps."
+Yellow: PlayCard(FusionPower) {
+    Pay(14 MC)
+    PROD[3 Energy]
+}
+
+// "I'm gonna use Titan Shuttles to add two floaters."
+Green: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+
+// "You'll never guess: I'm gonna use my Local Shading action to spend a floater to increase
+// my money production by one."
+Blue: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+// "I will use my remaining ten money to play House Printing, gain steel production."
+Yellow: PlayCard(HousePrinting) {
+    Pay(10 MC)
+    PROD[Steel]
+}
+
+// "I will use my Paladin Shipping action to pay two titanium to raise the temperature to
+// minus 28 and get my second TR."
+Green: UseAction1(PalladinShipping) {
+    Pay(2 Titanium)
+    TemperatureStep
+    TerraformRating
+}
+
+// "I'm gonna use my Floater Technology action to add one floater to Local Shading."
+Blue: UseAction1(FloaterTechnology) {
+    Floater<LocalShading>
+}
+
+// "I have 17 heat."
+// Yellow's app and the photographed track require both ordinary heat conversions.
+Yellow: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Yellow: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+
+Green: Pass
+
+// The recording goes silent here. Blue's app adds one TR, and these three unused actions are
+// the ordinary card sequence that produces exactly that result.
+Blue: UseAction1(Dirigibles) {
+    Floater<JetStreamMicroscrappers>
+}
+Blue: UseAction1(Celestic) {
+    Floater<JetStreamMicroscrappers>
+}
+
+Yellow: Pass
+
+Blue: UseAction2(JetStreamMicroscrappers) {
+    -2 Floater<JetStreamMicroscrappers>
+    VenusStep
+    TerraformRating
+}
+Blue: Pass
+
+Green: Production {
+    21 MC
+    Plant
+    5 Energy VIA Production
+    Titanium
+    2 Heat FROM Energy
+    Steel
+}
+
+Blue: Production {
+    32 MC
+}
+
+Yellow: Production {
+    23 MC
+    2 Titanium
+    Heat FROM Energy VIA Energy
+    6 Heat
+    3 Energy
+    Steel
+}
+
+// board-18-39-07.jpg: end of the Generation 3 action phase, before production.
+// Venus is the only World Government choice consistent with the stated Generation 4 values.
+Yellow: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    4 ProjectCard<Selecting>
+}
+
+// "I think I'll buy just one."
+// "Much to think about."
+// "Is it crazy if I buy three?"
+// "Three is just a lot, because that's nine money."
+// "Three clicks."
+// "I think I'm also buying three. Three cards for nine money."
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Yellow: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    Pay(3 MC)
+}
+
+Yellow: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// "Research Colony. One titanium and 16 real money. Not only does it let me place another
+// colony, it lets me go somewhere that I'm already at. I get another two money production, so
+// I'm back to positive money production again."
+Green: PlayCard(ResearchColony) {
+    Pay(1 Titanium, 16 MC)
+    2 ProjectCard
+    Colony<Luna>
+    PROD[2 MC]
+}
+// "When I use my second action to fly my boat, I get ten plus two plus two, and [Yellow] gets
+// two. So I get 14. And that was my two actiones. Oh, and I draw two cards."
+// "They're just lousy Earth-tag cards."
+// "Are you saying that to piss me off?"
+// "Yes."
+// "Nice."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    10 MC
+    Yellow: 2 MC
+    4 MC
+}
+
+// "I'm gonna play Ice Moon Colony. I'm gonna spend two titanium, which equals six money, and
+// 17 money. I'm gonna place an ocean first: row eight, column nine. I get two plants and one
+// TR."
+// "I'm a little behind on my boops here. We have two oxygen, and we have three temperature
+// boops. We're at negative 24."
+// "Let the record show I just caught up on my boops."
+// "So did I."
+// "As did I. We all did."
+// "Then I place my colony on Titan. I immediately get three floaters for one card, so I'm
+// gonna put them on Jet Stream Microscrappers."
+Blue: PlayCard(IceMoonColony) {
+    Pay(2 Titanium, 17 MC)
+    OceanTile<Cimmeria_8_9>
+    TerraformRating
+    2 Plant
+    Colony<Titan>
+    3 Floater<JetStreamMicroscrappers>
+}
+
+// "This is a lot of colonies on the board."
+// "I need more money. Why do I have so little money? And so little everything? Why are all my
+// productions so low? I feel like I never draw any cards that just give me productions
+// without also costing other productions that I already don't have."
+// "Business Network. A card to inspect. Inspect, protect, detect."
+// "You know what I just realized. Minus one money—"
+// "You never did that?"
+// "I never."
+// "Wow. Take yourself a minus one money production now and maybe minus two or three money."
+// "I know I played this first gen, and it is gen four. So that means minus three money.
+// Thanks for noticing that. We would have caught it later."
+// "What are you going to do with that card?"
+// "Nah. Booped."
+Yellow: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Yellow {
+    Ok
+}
+
+// Yellow then corrected Business Network's previously omitted production loss and the three
+// generations of extra income it had caused.
+Yellow: ExMachina {
+    -3 MC
+    PROD[-MC]
+}
+
+// "Space Elevate. A steel for five money."
+Green: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+// "I will do my Nitrite Reducing Bacteria action to add a microbe."
+Blue: UseAction1(NitriteReducingBacteria) {
+    Microbe<NitriteReducingBacteria>
+}
+
+// "I will pay 15 money for Love Tube Settlement [Lava Tube Settlement]. Lose energy
+// production, gain two money production, and place a city tile."
+// "I will place it on Hadriacus Mons, 6-2, for two cards."
+// "I'm 6'2”, by the way."
+// "Oh no, I dropped my feminist literature."
+// "You did all your stuff you had to do?"
+// "Yes."
+// "I have money."
+// "Yeah, yeah, fuck you."
+// No reason for keeping the steel is evident. Yellow next spends it, together with one steel
+// from production, to buy Electro Catapult; both cards accept steel at the same value.
+Yellow: PlayCard(LavaTubeSettlement) {
+    // No steel paid.
+    Pay(15 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    NormalCityTile<Cimmeria_6_2>
+    2 ProjectCard
+}
+
+// "With this money that, as previously observed, I have. How did I get that money, by the
+// way? Oh, Space Elevating. Spillivate."
+// "It's your lucky day, [Yellow]. I'm playing a space event. That cost me 22. Paladin
+// Shipping gives me a titanium. You get a card. I'll take a titanium, take two plants, raise
+// oxygen to three and get a TR, and place an ocean tile and get a TR. The ocean tile will be
+// 7-9 for two plants and two money. Au revoir."
+Green: PlayCard(TowingAComet) {
+    Pay(22 MC)
+    2 Plant
+    OxygenStep
+    Titanium
+    Yellow: ProjectCard
+    TerraformRating
+    OceanTile<Cimmeria_7_9>
+    TerraformRating
+    2 Plant
+    2 MC
+}
+
+// "I'm gonna take my Local Shading action to remove a floater and gain a money production."
+Blue: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+// "When did we get a third oxygen?"
+// "Just now."
+// "Good, because I wasn't paying attention."
+// "I pitch a card."
+// "You sell a Patento? As your turn?"
+// "Yes."
+Yellow: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+// "I am going to Titan Shuttles to place two floaters."
+Green: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+
+// "I'm going to use my Floater Technology action to add a floater to Local Shading."
+// "Keep in mind, it can be useful to park them on Dirigibles too, because then you have the
+// option of using them as money. Local Shading, you can always next turn put it on and take
+// it off, so it doesn't really do any advantage to have it there this turn. On the other
+// hand, there might be a card that does even better that collects floaters."
+Blue: UseAction1(FloaterTechnology) {
+    Floater<LocalShading>
+}
+
+// "I use Power Infrastructure: spend an energy to gain money."
+Yellow: UseAction1(PowerInfrastructure) {
+    SelectTask(-Energy! THEN MC!)
+    -Energy
+    MC
+}
+
+Green: Pass
+
+// "I will take my Jet Stream Microscrappers action to remove two floaters and raise Venus to
+// 14."
+Blue: UseAction2(JetStreamMicroscrappers) {
+    -2 Floater<JetStreamMicroscrappers>
+    VenusStep
+    TerraformRating
+}
+
+// "Water to Venus. Spend three titanium."
+// "She always gets it. Such an asshole."
+// "I raise it to 16, which gives an extra TR. And I get three money and three heat from
+// Optimal Aerobraking."
+// "I never told you that I hate you."
+Yellow: PlayCard(WaterToVenus) {
+    Pay(3 Titanium)
+    VenusStep
+    ProjectCard
+    3 MC
+    3 Heat
+    2 TerraformRating
+}
+
+// "I use my Dirigibles action to put a floater on Jet Stream Microscrappers, and my Celestic
+// action to put a floater on Dirigibles. And that's all, folks."
+Blue: UseAction1(Dirigibles) {
+    Floater<JetStreamMicroscrappers>
+}
+Blue: UseAction1(Celestic) {
+    Floater<Dirigibles>
+}
+
+Yellow: Pass
+
+Blue: Pass
+
+Green: Production {
+    25 MC
+    Plant
+    5 Energy VIA Production
+    Titanium
+    2 Heat FROM Energy
+    Steel
+}
+
+Blue: Production {
+    35 MC
+}
+
+Yellow: Production {
+    26 MC
+    2 Titanium
+    6 Heat VIA Production
+    2 Energy VIA Production
+    Steel
+    2 Heat FROM Energy
+}
+
+// board-18-58-23.jpg: end of the Generation 4 action phase.
+// "I'll put another ocean out here at 1-1. Oceans go up to five."
+// "Oceans rise and pass fall."
+Green: WorldGovernment {
+    OceanTile<Cimmeria_1_1>! BY Admin
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    4 ProjectCard<Selecting>
+}
+
+// All three app histories: post-production Generation 5 pause, before Research.
+// "Six, nine, and eight. Perfect. Perfect."
+// The resumed table forms to the right. The app histories record the resulting purchases.
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Yellow: Research {
+    -ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    Pay(9 MC)
+}
+
+Yellow: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// "I'm gonna play Protected Valley."
+// "We're gonna save the River Valley. Yay."
+// "I pay 23 money. I don't give myself 23 money. I pay 23 money. I gain two money production,
+// and I place a greenery on an area reserved for ocean."
+// "Row nine, column nine. This is a city. Oh, it flips. Yes. Row nine, column nine, greenery.
+// Number nine, which gets me a plant."
+// "And two money."
+Blue: PlayCard(ProtectedValley) {
+    Pay(23 MC)
+    PROD[2 MC]
+    GreeneryTile<Cimmeria_9_9>
+    OxygenStep
+    Plant
+    2 MC
+    TerraformRating
+}
+
+// "This feels like getting in the way of doing actual stuff, but I'm a bit paranoid. So,
+// Subterranean Reservoir."
+// "I know what you're doing."
+// "Yep. Pay 11 for an ocean to go top right, 1-5. Oceans are now at 6. Give myself TR as
+// well. Can't forget."
+Yellow: PlayCard(SubterraneanReservoir) {
+    Pay(11 MC)
+    OceanTile<Cimmeria_1_5>
+    TerraformRating
+    2 Plant
+}
+// "And then pay 8."
+// "Eight money."
+// "Yes."
+// "And you claim the Merchant."
+// "As you could see, I was very close to being able to get that."
+// "Yeah. I just needed to place a greenery there. [Yellow] gets the Merchant."
+Yellow: ClaimMilestone {
+    Pay(8 MC)
+    Merchant
+}
+
+// "Oh, yeah. I was going to try to steal [Yellow]'s milestone."
+// "I'm afraid I'm going to spend three energy and fly my boat to Titan. Three floaters and a
+// floater. And [Blue], you get one floater."
+// "Yay!"
+// "I put my three and one on my only floater card, Titan Travels."
+// "I'm going to put my floater on Dirigibles."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Titan>
+    Blue: Floater<Dirigibles>
+    3 Floater<TitanShuttles>
+    Floater<TitanShuttles>
+}
+
+// "Okay, so let me think. So that's now six money. Using 16 money and two floaters for my
+// Dirigibles card, I am going to play Stratopolis."
+// "Nice."
+// "And so I pay my 16 money first. And then I gain two money production. And I place a city
+// on Stratopolis."
+// "You are the floater queen."
+Blue: PlayCard(Stratopolis) {
+    Pay(2 Floater<Dirigibles>, 16 MC)
+    PROD[2 MC]
+    NormalCityTile<Stratopolis_RemoteArea>
+}
+
+// "Now that I have much enticed, spend two energies to trade with Luna. I get 12. You get 12
+// and I get four."
+Yellow: Trade2 {
+    Pay(2 Energy)
+    Trade<Luna>
+    12 MC
+    Green: 4 MC
+}
+// "And I will Business Network."
+// "You are business networking."
+// "Nah."
+Yellow: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+// "Well, I'll do my thing where I spend one steel to get five real by using Spache Elevator.
+// That's my turn. Go off."
+Green: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+// "I'm out of money, so I am going to use my Nitrite Reducing Bacteria action to remove three
+// microbes and raise my TR one step."
+Blue: UseAction2(NitriteReducingBacteria) {
+    -3 Microbe<NitriteReducingBacteria>
+    TerraformRating
+}
+
+// "Man, I want to do stuff, but—wait. Wait. I think I can. You know what? I can always just
+// start by—can't really lose anything if I—yes, I will spend my two steel and 13 real. Then
+// immediately spend a plant to gain seven."
+// "Oh, I should remember to lose an energy production."
+// "Oh, yeah. Almost wrong."
+Yellow: PlayCard(ElectroCatapult) {
+    Pay(2 Steel, 13 MC)
+    PROD[-Energy]
+}
+Yellow: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+
+// "I think I should probably use Titan Shuttles to take eight titanium. Oyga."
+Green: UseAction2(TitanShuttles) {
+    SelectTask(-8! Floater<TitanShuttles> THEN 8! Titanium)
+    -8 Floater<TitanShuttles>
+    8 Titanium
+}
+
+// "I am going to use my Local Shading action. I remove a floater and I get a money
+// production."
+Blue: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+// "Robotic Workforce."
+// "Yeah, I didn't like giving that to you."
+// "Spend nine. You have so many building production cards."
+// "Yeah, I will replicate Fusion Power."
+// "Fuck. I didn't see that one."
+Yellow: PlayCard(RoboticWorkforce) {
+    Pay(9 MC)
+    CopyProductionBox<FusionPower>
+    PROD[3 Energy]
+}
+
+// "On my turn, it's time to play Io Mining Industries. That cost me ten titanium, which is
+// worth three, and I get two titanium production, two money production, and I'm going to get
+// bank on Jupiter tags."
+Green: PlayCard(IoMiningIndustries) {
+    Pay(10 Titanium, 10 MC)
+    PROD[2 Titanium]
+    PROD[2 MC]
+}
+
+// "I'm using Jet Stream Microscrappers to spend two floaters and raise the Venus."
+// "To 18."
+// "To 18, and I give myself a TR for that."
+Blue: UseAction2(JetStreamMicroscrappers) {
+    -2 Floater<JetStreamMicroscrappers>
+    VenusStep
+    TerraformRating
+}
+
+// "Alright, I think I've done the urgent stuff. Now I can double heat boop."
+// "Okay. Boop. That takes temp to minus 20, and I get a heat product."
+Yellow: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Yellow: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+
+// "Let's just direct some impactors. Direct impact. I pay seven for that."
+Green: PlayCard(DirectedImpactors) {
+    Pay(7 MC)
+}
+
+// "I'm going to use Floater Technology to add one floater to Dirigibles."
+// "Okay. Alright. Dirigibles."
+Blue: UseAction1(FloaterTechnology) {
+    Floater<Dirigibles>
+}
+
+// "Actually, you know what the hell. Why not? I'm going to sell a card for a money and then
+// pay five for Floating Habs."
+// "Ah, that's the one that's two floaters to a victory point."
+// "Yep. I has it. I finally have one, two science tags."
+Yellow: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Yellow: PlayCard(FloatingHabs) {
+    Pay(5 MC)
+}
+
+// "I'm going to Release my Inert Gases, which costs all 13 of my money. And it just gives me
+// two TR. And it flips."
+// "Oh, I forgot to use Directed Impactors. Built it for nothing."
+// "Yeah, I think I'm kind of fading too. In terms of my awareness."
+Green: PlayCard(ReleaseOfInertGases) {
+    Pay(13 MC)
+    2 TerraformRating
+}
+
+// "I'm going to use my Stratopolis action to add two floaters to my Dirigibles. Sweet."
+Blue: UseAction1(Stratopolis) {
+    2 Floater<Dirigibles>
+}
+
+// "I'm going to pitch two cards for two money. Then spend two money to add a floater to any
+// card, and that will be Floating Habs."
+Yellow: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+Yellow: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+
+Green: Pass
+
+// "I'm going to use my Extremophiles action to add two floaters to my Dirigibles."
+// "I'm going to play Extremophiles."
+// "Does that have a requirement?"
+// "Two science tags?"
+// The app history shows that a Dirigibles floater paid the three-M€ cost; Blue had no M€.
+Blue: PlayCard(Extremophiles) {
+    Pay(1 Floater<Dirigibles>)
+}
+// "Awesome. Okay, I'm going to use my Extremophiles action to add one microbe to Nitrite
+// Reducing Bacteria."
+Blue: UseAction1(Extremophiles) {
+    Microbe<NitriteReducingBacteria>
+}
+
+Yellow: Pass
+
+// "I guess I'm going to use my Celestic action to add a dirigible."
+Blue: UseAction1(Celestic) {
+    Floater<Dirigibles>
+}
+// "And I'm probably going to use my Dirigibles action to add another dirigible. Right? Do I
+// even have enough Venus tags for that to be worth it? No. So I'm going to use my Dirigibles
+// action to add a floater to Local Shading."
+// "Wait, no, that's not true. I did math wrong. Actually, I am going to, instead of adding it
+// to Local Shading, I'm going to add this floater to Dirigibles. So be it."
+Blue: UseAction1(Dirigibles) {
+    Floater<Dirigibles>
+}
+// "Now that's $12 worth. And then I'm going to use them to pay for Venus Trade Hub."
+// "Damn."
+Blue: PlayCard(VenusTradeHub) {
+    Pay(4 Floater<Dirigibles>)
+}
+Blue: Pass
+
+Green: Production {
+    29 MC
+    Plant
+    5 Energy VIA Production
+    3 Titanium
+    2 Heat FROM Energy
+    Steel
+}
+
+Blue: Production {
+    43 MC
+}
+
+Yellow: Production {
+    29 MC
+    2 Titanium
+    7 Heat
+    4 Energy
+    Steel
+}
+
+// "Okay, Jaybird, what do you want to move for World Government? Venus, temperature, oxygen,
+// ocean."
+// "Let's move oxygen."
+// "Okay. Oxygen to five percent."
+// board-21-08-05.jpg is after production and this World Government step.
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    4 ProjectCard<Selecting>
+}
+
+// "Motherfucker. Bro, I don't want any of these fuck-ass things."
+// "Yeah, I like fuck-ass things."
+// "I'm going to buy two cards."
+// "You know what? I have too many fucking cards. I'm going to buy four cards."
+// "Yay! I'm going to live a little and do that, too, I think. I'm going to buy four cards for
+// 12 money. Boop."
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Keep all four Research cards.
+Yellow: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    Pay(12 MC)
+}
+
+Yellow: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// Keep all four Research cards.
+Green: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(12 MC)
+}
+
+Green: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// "Well, why don't I go ahead and pay eight for Engineer. And I think I will pay two energies
+// to trade with Luna. I'll collect my ten—no, twelve monies. You get your four."
+// "Oh, put your boat on."
+// "Yes, thank you."
+Yellow: ClaimMilestone {
+    Pay(8 MC)
+    Engineer
+}
+Yellow: Trade2 {
+    Pay(2 Energy)
+    Trade<Luna>
+    12 MC
+    Green: 4 MC
+}
+
+// "This kind of sucks. I shouldn't have taken so many cards. Okay, well, alright. I'm not
+// racing for anything anymore. I'll use Space Elevator to spend one steel and take five
+// real."
+Green: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+// "I am going to buy some Red Ships. Oh, wait, that does—okay, which costs me two money."
+// "I should actually warn you that it doesn't pay out anything just yet."
+// "I know. Why would I not know that?"
+// "It will. It will, yeah."
+Blue: PlayCard(RedShips) {
+    Pay(2 MC)
+}
+
+// "Alright, let me start with Imported GHG. Pay one titanium, two monies. Increase heat
+// production one, gain three heat, get a card from Earth card, from space event—yes, both
+// Earth and space. Doesn't make any sense. And gain three money, three heat. Jesus Christ,
+// that's insane. Be nicer if I got more space events."
+Yellow: PlayCard(ImportedGhg) {
+    Pay(1 Titanium, 2 MC)
+    PROD[Heat]
+    3 Heat VIA ImportedGhg
+    ProjectCard VIA SolarLogistics
+    3 MC
+    3 Heat
+    ProjectCard
+}
+// "Sure, Business Network to inspect the card."
+// "Wait, didn't we say we can't—"
+// "I decided to put it in."
+// "Aw, thank you."
+// "The thing is that the card I think would be best with that I'd kind of want to play soon,
+// so I'm gonna reject anyways."
+// "Reject."
+Yellow: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+// "I'm gonna play Research Coordination for three."
+// "Oh God, you like the wild tags."
+// "I love them. They're so useful."
+// "You like to live on the wild side."
+Green: PlayCard(ResearchCoordination) {
+    Pay(3 MC)
+}
+
+// "I'm going to play Snow Algae, which costs me 12 money, and it gives me one plant
+// production and one heat production."
+Blue: PlayCard(SnowAlgae) {
+    Pay(12 MC)
+    PROD[Plant]
+    PROD[Heat]
+}
+
+// "Spend a plant to gain seven money production—no, not money production, seven money
+// resource. That would be ridiculous."
+Yellow: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+// "I probably may as well Cartel. One, two, three, four. Be nice if I had more good Point
+// Luna, but whatever. Four money production, yes, and the card."
+Yellow: PlayCard(Cartel) {
+    Pay(6 MC)
+    PROD[4 MC]
+    ProjectCard
+}
+
+// She forgot to pay for Cartel (fixed later)
+Yellow: ExMachina {
+    6 MC
+}
+
+// "I am going to play Olympus Conferencia, which costs nine, and it gives me a science
+// resource because it's a science tag."
+Green: PlayCard(OlympusConference) {
+    Pay(9 MC)
+    Science<OlympusConference>
+}
+
+// "Okay, I'm now going to play Red Spot Observatory, which costs 17 monies, and with Mars
+// University, can I draw the two cards that I get from this first and then decide how to
+// discard one?"
+// "Okay, good. I draw two cards."
+// "Come on. Dropped card. Stupid-ass card."
+// "Let the record show that [Blue] dropped her stupid-ass card."
+// "Fuck you guys."
+// "I'm going to discard this one to draw a new card because of my Mars University effect.
+// Thanks. That is better."
+Blue: PlayCard(RedSpotObservatory) {
+    Pay(17 MC)
+    2 ProjectCard VIA RedSpotObservatory
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+// "I realize, you know, I got some cash flow. Stratospheric Expedition. Pay four titaniums."
+// "Add two floaters to any card. That will be Floating Habs. Draw two Venus cards. But also
+// save a card for me to draw because of—"
+// "Do you want that first or do you want the Venus cards first?"
+// "Venus cards first."
+Yellow: PlayCard(StratosphericExpedition) {
+    Pay(4 Titanium)
+    2 SearchForCard<TagFilter<Class<VenusTag>>>
+    ProjectCard
+    3 MC
+    3 Heat
+    2 Floater<FloatingHabs>
+}
+
+// "I am going to spend three energy to fly my boat to Titan."
+// "To Titan."
+// "And [Blue] gets one floater, and I get two plus one floaters."
+// "I guess I'll go ahead and put my floater onto Local Shading."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Titan>
+    Blue: Floater<LocalShading>
+    2 Floater<TitanShuttles>
+    Floater<TitanShuttles>
+}
+
+// "I don't have money to pay for any of my cards. I'm just doing actions."
+// "I'm going to take my Nitrate Reducing Bacteria action and add a microbe to my Nitrate
+// Reducing Bacteria. Bet you guys never would have guessed that I'm going to do something
+// crazy like that."
+Blue: UseAction1(NitriteReducingBacteria) {
+    Microbe<NitriteReducingBacteria>
+}
+
+// "Can I see your player board?"
+// "You suck. Apparently not. No, you can't see it."
+// "You know what? I don't have shit for my ass. I don't have anything. You know what? Leave
+// me alone."
+// "[Green], I'm hiring raiders. Stealing three money from you. Boop. Boop, boop, doot, doot.
+// And pay them one money for it."
+Yellow: PlayCard(HiredRaiders) {
+    Pay(1 MC)
+    3 MC FROM MC<Green>
+}
+
+// "That might just possibly screw me up, actually."
+// "Yay! Everybody dance! Everybody dance! Life is good!"
+// "God, I keep forgetting. Every time I trade, I forget to play Market Manipulation first.
+// Over and over."
+// "I'm gonna use Titan Shuttles to take three titanium."
+Green: UseAction2(TitanShuttles) {
+    SelectTask(-3! Floater<TitanShuttles> THEN 3! Titanium)
+    -3 Floater<TitanShuttles>
+    3 Titanium
+}
+
+// "I'm gonna use my Local Shading action to—not to add a floater—to spend a floater to add a
+// money production."
+Blue: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+// "I will play Cutting Edge Technology for 12."
+// "Nice. Love it?"
+// "Yeah."
+Yellow: PlayCard(CuttingEdgeTechnology) {
+    Pay(12 MC)
+}
+
+// "I'm gonna plant a forest, as they say. Oxygen is now six, and my forest will go right
+// where you think it will go, 2-2."
+// "Then, for my next trick, what I'm gonna do is I'm gonna play Sky Docks."
+// "Do you actually say 'for my next trick'? Did you take that from me, or did I take that
+// from you?"
+// "I used to say that all the time."
+// "Okay, I took it from you."
+// "I do have the two Earth tags. I have to assign my wild tag as an Earth tag when I play it.
+// I'm gonna pay four titanium and five real. And I get a trade fleet."
+// "Yeah, you do. Heck. H-E-K-K."
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_2_2>
+    OxygenStep
+    4 MC
+    TerraformRating
+}
+// Green keeps exactly the two titanium used for Palladin Shipping later this generation.
+Green: PlayCard(SkyDocks) {
+    Pay(4 Titanium, 5 MC)
+    TradeFleet
+}
+
+// "I'm using my Floater Technology action to put a floater somewhere fun, I guess. I don't
+// know."
+// "You're starting to drown in floaters."
+// "Put it on Celestic."
+// The spoken choice conflicts with the later definite Observatory draw, which establishes the
+// physical floater's destination.
+Blue: UseAction1(FloaterTechnology) {
+    Floater<RedSpotObservatory>
+}
+
+// "Expat Ishtar for four. I gain three titanium, and it requires Venus ten percent."
+// "Yeah, we got that."
+// "Draw two Venus cards. What gives you a two discount?"
+// "Cutting Edge."
+Yellow: PlayCard(IshtarExpedition) {
+    Pay(4 MC)
+    3 Titanium
+    2 SearchForCard<TagFilter<Class<VenusTag>>>
+}
+
+// "I'm gonna play Inventors' Guild. I call it Inventioner's Guild. That cost me seven money."
+// "And then I'm gonna use it."
+// "Use it tonight."
+// "Yeah, that's not bad. I'll pay three for that."
+Green: PlayCard(InventorsGuild) {
+    Pay(7 MC)
+    ProjectCard FROM Science<OlympusConference>
+}
+Green: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    // Keep the offered project.
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+// "I'm gonna use my Extremophiles action to put a microbe on my sulfite reducing bacteria.
+// Bet you weren't expecting that."
+Blue: UseAction1(Extremophiles) {
+    Microbe<NitriteReducingBacteria>
+}
+
+// "I am now realizing I miscalculated. Bummer, dude. How dare I miscalculate."
+// "In multiple ways, I really could have played my cards better, quite literally."
+// "We probably have at least three more generations left in this game, right?"
+// "Probably. Maybe even four? I don't know. It's hard to say."
+// "We're kind of focusing on not terraforming."
+// "Well, except for Venus, man."
+// "By the way, Venus doesn't need to be completed to end the game. Only the other three."
+// "But it's raising my terraforming."
+// "I know, I know. It's fun, yeah."
+// "11-4, Aerial Mappers. It's like the only way I have to conveniently raise my TR right now.
+// It's working wonders for me."
+Yellow: PlayCard(AerialMappers) {
+    Pay(11 MC)
+}
+
+// "I am gonna use Paladin Shipping for almost the first time ever to get a Temp Boop to minus
+// 18."
+// "I don't know about that. It's at least the second."
+Green: UseAction1(PalladinShipping) {
+    Pay(2 Titanium)
+    TemperatureStep
+    TerraformRating
+}
+
+// "Wait a minute. When I played Inventor's Guild, I should have lost a Science Cube and drawn
+// a card. But it's still your turn."
+// "I'm going to use my Red Spot Observatory action to spend a floater and draw a card. Card
+// me."
+// "Card. Cardi B."
+Blue: UseAction2(RedSpotObservatory) {
+    -Floater<RedSpotObservatory>
+    ProjectCard
+}
+
+// "All right, for two, I had to actually get my second Venus tag down. Venus Governator."
+// "Governator."
+// "I gain two money per Earth."
+Yellow: PlayCard(VenusGovernor) {
+    Pay(2 MC)
+    PROD[2 MC]
+}
+
+Green: Pass
+
+// "I'm going to use my Stratopolis action to add two floaters to Jet Stream Microscrappers."
+Blue: UseAction1(Stratopolis) {
+    2 Floater<JetStreamMicroscrappers>
+}
+
+// "You know, before I forget, I can do this. Power Infrastructure. Spend two monies. Get—no,
+// spend two energies. Get two monies."
+Yellow: UseAction1(PowerInfrastructure) {
+    SelectTask(-2! Energy THEN 2! MC)
+    -2 Energy
+    2 MC
+}
+
+// "I'm going to use my Jet Stream Microscrappers action to raise the Venus. [Yellow], can you
+// move the Venus? And I get a TR."
+// "Yay! Yay! Life is good."
+Blue: UseAction2(JetStreamMicroscrappers) {
+    -2 Floater<JetStreamMicroscrappers>
+    VenusStep
+    TerraformRating
+}
+
+// "I spend seven money on Floating Refinery. And I get one, two, three, four, five floaters
+// immediately added."
+// "Damn. And where are you adding them?"
+// "To Floating Refinery. It makes you add them there."
+Yellow: PlayCard(FloatingRefinery) {
+    Pay(7 MC)
+    5 Floater<FloatingRefinery>
+}
+
+// "[Blue] would have really liked that card because it lets you pull floaters off of any card
+// you want."
+// "Oh, that would have been cool."
+// "Anyway, I'm going to use my Dirigibles action to add a floater to Dirigibles."
+Blue: UseAction1(Dirigibles) {
+    Floater<Dirigibles>
+}
+
+// "You know what? Before I forget, I'm going to heat boop. Boop up to minus 16."
+Yellow: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+// "I'm going to use my Celestic action to add a cube to—to add a floater to, I guess, to
+// Celestic."
+// "I've never seen so many float boys."
+// "So many what?"
+// "Floater cards in my life. Did you say float boys?"
+// "Yeah, float boys. That's what [Yellow] calls them."
+Blue: UseAction1(Celestic) {
+    Floater<Celestic>
+}
+
+// "I'm going to add an Aerial Mapper."
+Yellow: UseAction1(AerialMappers) {
+    Floater<AerialMappers>
+}
+
+// "Okay, for one Dirigible and two monies, I'm gonna play Ishtar Mining, and I get a titanium
+// production."
+// "Yay! Yay! Yay! Yay! Kermit the Frog. Kermit the Frog goes, 'Yay!'"
+Blue: PlayCard(IshtarMining) {
+    Pay(1 Floater<Dirigibles>, 2 MC)
+    PROD[Titanium]
+}
+
+// "I am feeling like I did not play this generation optimally."
+// "Nope. Sure didn't."
+// "Floating Refinery. Remove two from Floating Refinery to gain a titanium and two money."
+Yellow: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+
+// "Just to have something to do, I'm gonna take my Red Ships action, which doesn't give me
+// anything."
+Blue: UseAction1(RedShips) {
+    0 MC
+}
+
+// "I'm gonna use Floating Habs. Spend two money, add to Floating Habs."
+// "How do you have so much shit to do? I freaking pass."
+Yellow: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+
+Blue: Pass
+
+// "Heat boop. Heat up to 14—minus 14."
+// "Oh shit, I have not been tracking the temperature or anything up to minus 14."
+// "And then six and six."
+// "There's six oceans now?"
+// "Yeah."
+// "Has been for a while. Always has been."
+Yellow: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Yellow: Pass
+
+Green: Production {
+    31 MC
+    Plant
+    5 Energy VIA Production
+    3 Titanium
+    2 Heat FROM Energy
+    Steel
+}
+
+Blue: Production {
+    45 MC
+    Plant
+    Heat
+    Titanium
+}
+
+Yellow: Production {
+    37 MC
+    2 Titanium
+    8 Heat
+    4 Energy
+    Steel
+}
+
+// "We decided that we would do World Government, which is whose choice?"
+// "Me."
+// "Okay, what are you gonna choose?"
+// "Venus. Venus to 22. Then it's picture time. Picture pages, picture pages."
+// board-21-40-27.jpg follows production and this WGT step.
+Yellow: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    4 ProjectCard<Selecting>
+}
+
+// "We made [Yellow] pay six to account for her previous mistake. And then I bought three cards
+// and [Yellow] bought three cards. Yeah, and [Blue]'s buying one card."
+Yellow: ExMachina {
+    -6 MC
+}
+
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Yellow: Research {
+    -ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    Pay(9 MC)
+}
+
+Yellow: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(3 MC)
+}
+
+Blue: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// "Do you mind if we say that I played Market Manipulation just before I did that?" "Sure."
+// "I'll reduce Titan." Luna's raised track makes the following trade worth three more M€.
+Green: PlayCard(MarketManipulation) {
+    ColonyProduction<Luna> FROM ColonyProduction<Titan>
+}
+// "I want to fly my boat to Luna. And I get 14 money and yellow gets two." After correcting
+// Market Manipulation's order, Green records the full 17 M€ trade result.
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    13 MC
+    Yellow: 2 MC
+    4 MC
+}
+
+// "I'm going to play Indentured Workers, Giant Ice Asteroid."
+Blue: PlayCard(IndenturedWorkers) {
+    IndenturedWorkers_NextCardEffect
+}
+// "I'm going to pay one titanium and 25 money." "I took your one plant, and I'm going to
+// place two oceans." "Row nine, column ... six and seven."
+Blue: PlayCard(GiantIceAsteroid) {
+    Pay(1 Titanium, 25 MC)
+    TemperatureStep
+    TemperatureStep
+    Yellow: ProjectCard
+    2 TerraformRating
+    -Plant<Green>
+    OceanTile<Cimmeria_9_6>
+    TerraformRating
+    Plant
+    2 MC
+    OceanTile<Cimmeria_9_7>
+    TerraformRating
+    Plant
+    2 MC
+}
+
+// "I will Business Network. Look at the card. Keep."
+Yellow: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+// Keep the offered project.
+// "Technology Demonstration. I paid five, which will be one titanium, two real. Draw two
+// cards, but actually I draw three because of that. And I gain my three money, three heat."
+Yellow: PlayCard(TechnologyDemonstration) {
+    Pay(1 Titanium, 2 MC)
+    3 ProjectCard
+    3 MC
+    3 Heat
+}
+
+// "Play Invention Contest for free. That gives me a little ... science resource on Olympus
+// Conference. And then I look at three cards from the deck. And I get to keep ... this one."
+Green: PlayCard(InventionContest) {
+    3 ProjectCard<Selecting> VIA InventionContest
+    ProjectCard<Hand FROM Selecting> VIA InventionContest
+    Science<OlympusConference>
+}
+
+// "Use my Nitrite Reducing Bacteria action to remove three microbes and raise my TR."
+Blue: UseAction2(NitriteReducingBacteria) {
+    -3 Microbe<NitriteReducingBacteria>
+    TerraformRating
+}
+
+// "I will Asteroid. That's four titanium and two real." "[Blue], you lose three plants."
+Yellow: PlayCard(AsteroidCard) {
+    Pay(4 Titanium, 2 MC)
+    TemperatureStep
+    2 Titanium
+    ProjectCard
+    3 MC
+    3 Heat
+    TerraformRating
+    -3 Plant<Blue>
+}
+
+// "Quantum Extractor. That costs me 11. It gives me four energy production."
+Green: PlayCard(QuantumExtractor) {
+    Pay(11 MC)
+    PROD[4 Energy]
+    ProjectCard FROM Science<OlympusConference>
+}
+
+// "Use my Floater Technology action to add a floater to Local Shading."
+Blue: UseAction1(FloaterTechnology) {
+    Floater<LocalShading>
+}
+
+// "Use Floating Refinery. Remove two things ... to take a titanium and two money."
+Yellow: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+
+// Green applog entry 170 starts from three titanium.
+// "Use two titanium and my Paladin action ... to raise the temperature to minus six."
+Green: UseAction1(PalladinShipping) {
+    Pay(2 Titanium)
+    TemperatureStep
+    TerraformRating
+}
+
+// "Take my Local Shading action to turn that floater into a money production."
+Blue: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+// "Pay four titanium and thirteen real money for L1 Trade Terminal."
+// "I add one to Floating Habs ... and add Aerial Mapper, add Floating Refineries."
+Yellow: PlayCard(L1TradeTerminal) {
+    Pay(4 Titanium, 13 MC)
+    EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }
+    Floater<FloatingHabs>
+    Floater<AerialMappers>
+    Floater<FloatingRefinery>
+}
+
+// "Use my Space Elevator to destroy one steel and gain five real."
+Green: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+// "Use my Stratopolis action to add two floaters to Jetstream Microscrapper."
+Blue: UseAction1(Stratopolis) {
+    2 Floater<JetStreamMicroscrappers>
+}
+
+// "Spend two energies to trade with Io ... 13 heateroonies for me."
+Yellow: Trade2 {
+    Pay(2 Energy)
+    Trade<Io>
+    2 ColonyProduction<Io>
+    13 Heat
+}
+
+// "Use my Inventors' Guild and decide whether to buy this ... card. Nothing."
+Green: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+// "Spend two floaters and raise Venus one step. Venus is at 24 and I get a TR."
+Blue: UseAction2(JetStreamMicroscrappers) {
+    -2 Floater<JetStreamMicroscrappers>
+    VenusStep
+    TerraformRating
+}
+
+// "I will spend a steel to gain seven real."
+Yellow: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+
+// "I will play Molecular Printing. That cost me nine ... it gives me eight."
+Green: PlayCard(MolecularPrinting) {
+    Pay(9 MC)
+    8 MC
+    Science<OlympusConference>
+}
+
+// "Use my Extremophiles action to add a microbe to Nitrate Reducing Bacteria."
+Blue: UseAction1(Extremophiles) {
+    Microbe<NitriteReducingBacteria>
+}
+
+// "Aerial Mappers remove to card."
+Yellow: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+
+// "Anti-Gravity Technology. I pay 12 for that."
+// "I have one, two, three, four, five, six, seven science tags."
+// The seven are Research Outpost, Research Colony, Olympus Conference, Inventors' Guild,
+// Quantum Extractor, Molecular Printing, and Research Coordination's wild tag.
+Green: PlayCard(AntiGravityTechnology) {
+    Pay(12 MC)
+    ProjectCard FROM Science<OlympusConference>
+}
+
+// "Get ready for some grass. Grass is grass production and three plants."
+Blue: PlayCard(Grass) {
+    Pay(11 MC)
+    PROD[Plant]
+    3 Plant
+}
+
+// "Comet for Venus. I pay 11. Raise Venus one step ... you lose four money."
+Yellow: PlayCard(CometForVenus) {
+    Pay(11 MC)
+    VenusStep
+    ProjectCard
+    3 MC VIA OptimalAerobraking
+    3 Heat
+    TerraformRating
+    -4 MC<Blue>
+}
+
+// "Take my Titan Shuttles action to put two Jovian floaters on Titan Shuttles."
+Green: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+
+// "Take my Red Spot Observatory action to add a floater to Red Spot Observatory."
+Blue: UseAction1(RedSpotObservatory) {
+    Floater<RedSpotObservatory>
+}
+
+// "Five for Sister Planet Support ... increase money production three steps and take a card."
+Yellow: PlayCard(SisterPlanetSupport) {
+    Pay(3 MC)
+    PROD[3 MC]
+    ProjectCard
+}
+
+// "This makes it four Earth tags. And that cost me seven money ... two titanium production."
+Green: PlayCard(LunarMining) {
+    Pay(7 MC)
+    PROD[2 Titanium]
+}
+
+// "Use the Dirigibles action to add a floater to Celestic."
+Blue: UseAction1(Dirigibles) {
+    Floater<Celestic>
+}
+
+// "Luna Governor ... for free. Two money production, two cards."
+Yellow: PlayCard(LunaGovernor) {
+    PROD[2 MC]
+    2 ProjectCard
+}
+
+// "Atmoscoop ... one titanium and 13 real. ... two floaters on Titan Shuttles. I raise the
+// temperature to minus two and get my two TR."
+Green: PlayCard(Atmoscoop) {
+    Pay(1 Titanium, 13 MC)
+    TemperatureStep*, TemperatureStep*
+    2 TerraformRating
+    2 Floater<TitanShuttles>
+}
+// "I convert heat ... another TR for the ocean ... two-six for one plant and two money."
+Green: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    OceanTile<Cimmeria_2_6>
+    TerraformRating
+    Plant
+    2 MC
+}
+
+// "Use my Celestic action to add a floater to Celestic."
+Blue: UseAction1(Celestic) {
+    Floater<Celestic>
+}
+
+// "I do two heat boops. Temp is at plus four now."
+Yellow: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Yellow: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Green: Pass
+
+// "Take my Red Ships action, for which I get nothing."
+Blue: UseAction1(RedShips) {
+    0 MC
+}
+
+// "I'm going to do two heat boops. Another two heat? ... temp is maxed."
+Yellow: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Yellow: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Blue: Pass
+
+// "Power Infrastructure, spend two energy, gain two money."
+Yellow: UseAction1(PowerInfrastructure) {
+    SelectTask(-2! Energy THEN 2! MC)
+    -2 Energy
+    2 MC
+}
+// "Pay three for Energy Market. Use the effect of lose an energy production. Gain eight."
+Yellow: PlayCard(EnergyMarket) {
+    Pay(3 MC)
+}
+Yellow: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+// "Floating Habs, spend two and add ... to itself."
+Yellow: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+// "Spend my 11 monies on Cloud Tourism, increase money production one step per set of Earth
+// and Venus tags." "Cloud Tourism, add to self."
+Yellow: PlayCard(CloudTourism) {
+    Pay(11 MC)
+    PROD[7 MC]
+}
+Yellow: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+// board-16-51-02.jpg: all players have passed in generation 7, before production.
+Yellow: Pass
+
+Blue: Production {
+    52 MC
+    2 Plant
+    Heat
+    Titanium
+}
+
+Green: Production {
+    36 MC
+    Plant
+    9 Energy VIA Production
+    5 Titanium
+    2 Heat FROM Energy
+    Steel
+}
+
+Yellow: Production {
+    55 MC
+    2 Titanium
+    8 Heat
+    3 Energy
+    Steel
+}
+
+// "It is my turn to be the world government ... I'm going to eat up a Venus slot."
+Green: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Research: "I buy one card." "I'm gonna buy two cards." "I buy one card."
+Blue: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(3 MC)
+}
+
+Blue: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Yellow: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    Pay(3 MC)
+}
+
+Yellow: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// "Use my Stratopolis action to add two floaters to Jetstream Microscrappers and then my
+// Jetstream Microscrappers action to raise Venus."
+Blue: UseAction1(Stratopolis) {
+    2 Floater<JetStreamMicroscrappers>
+}
+Blue: UseAction2(JetStreamMicroscrappers) {
+    -2 Floater<JetStreamMicroscrappers>
+    VenusStep
+    TerraformRating
+}
+
+// "Suppose I can start with a Business Network."
+Yellow: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+// "Atalanta Planitia Lab. For a ten. I draw two cards. ... Only eight because my cutting
+// edge."
+Yellow: PlayCard(AtalantaPlanitiaLab) {
+    Pay(8 MC)
+    2 ProjectCard
+}
+
+// "I'm gonna pay 22. Damn, two awards. Industrialist and Space Baron."
+Green: FundAward {
+    Pay(8 MC)
+    Industrialist
+}
+Green: FundAward {
+    Pay(14 MC)
+    SpaceBaron
+}
+
+// "I'm gonna play Gene Repair. So it costs 12 money and I gain two money production."
+Blue: PlayCard(GeneRepair) {
+    Pay(12 MC)
+    PROD[2 MC]
+    // Decline Mars University's discard and draw.
+    Ok
+}
+
+// "I'm gonna play Cry Yourself to Sleep for 10."
+Yellow: PlayCard(CryoSleep) {
+    Pay(10 MC)
+}
+// "Solar Probe: two titanium, three monies. ... I get two, but then a third for Solar, and I
+// also get three money, three heat from the thing."
+Yellow: PlayCard(SolarProbe) {
+    Pay(2 Titanium, 3 MC)
+    3 ProjectCard
+    3 MC
+    3 Heat
+}
+
+// "I pay three energy to fly my boat to Luna. I get 14 and [Yellow] gets two."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    10 MC
+    Yellow: 2 MC
+    4 MC
+}
+// "Pay three energy to fly another boat to Ganymede for five plants."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Ganymede>
+    5 Plant
+}
+
+// "I'm gonna play Orbital Cleanup. ... I put 17. ... give myself three more money. ... my
+// titanium ... three more money."
+Blue: PlayCard(OrbitalCleanup) {
+    Pay(1 Titanium, 11 MC)
+    PROD[-2 MC]
+}
+
+// "First remove an Aerial Mapper to draw another card."
+Yellow: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+
+// "Something's waiting for us in the bushes of love. And that cost me six money. It gives me
+// two plant production and two plants."
+Green: PlayCard(Bushes) {
+    Pay(6 MC)
+    PROD[2 Plant]
+    2 Plant
+}
+// "Then I plant forest ... three, four to the right of my city."
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_3_4>
+    OxygenStep
+    TerraformRating
+}
+
+// "For 10 money, I'm going to play Bacto Viral Research. ... discard a card from hand to draw
+// a card. ... add all six of mine to my nitrate reducing bacteria."
+Blue: PlayCard(BactoviralResearch) {
+    Pay(10 MC)
+    ProjectCard VIA BactoviralResearch
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+    6 Microbe<NitriteReducingBacteria>
+}
+
+// "Pitch a steel for seven real."
+Yellow: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+
+// "Pitch a steel for five real."
+Green: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+// "Now I'm going to play Titan Air Scrapping for 21 money."
+Blue: PlayCard(TitanAirScrapping) {
+    Pay(21 MC)
+}
+
+// "Floating Refinery, spend two floaters ... gain a titanium and two monies."
+Yellow: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+
+// "Play Quantum Communications because it costs me four and it gives me five money
+// production."
+Green: PlayCard(QuantumCommunications) {
+    Pay(4 MC)
+    PROD[5 MC]
+}
+
+// "Use my nitrate reducing bacteria action to ... increase my TR."
+Blue: UseAction2(NitriteReducingBacteria) {
+    -3 Microbe<NitriteReducingBacteria>
+    TerraformRating
+}
+
+// "Spend two energy, get two money."
+Yellow: UseAction1(PowerInfrastructure) {
+    SelectTask(-2! Energy THEN 2! MC)
+    -2 Energy
+    2 MC
+}
+
+// "I'm going to use Inventor's Guild. No. I'm not going to buy it."
+Green: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+// "I use Floater Technology to add a floater to Local Shading."
+Blue: UseAction1(FloaterTechnology) {
+    Floater<LocalShading>
+}
+
+// "Add a Cloud Tourism, if you will."
+Yellow: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+// "Water Splitting Plant. That costs me eight."
+Green: PlayCard(WaterSplittingPlant) {
+    Pay(8 MC)
+}
+
+// "Take my Local Shading action ... increase my money production by one step."
+Blue: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+// "For 12 plus 4, Mangrove. ... that'll be 8-4. Get two money. Get a TR."
+Yellow: PlayCard(Mangrove) {
+    Pay(10 MC)
+    GreeneryTile<Cimmeria_8_4>
+    OxygenStep
+    2 MC
+    TerraformRating
+    0 TemperatureStep
+}
+
+// "Use my Water Splitting Plant ... lose three energy."
+Green: UseAction1(WaterSplittingPlant) {
+    Pay(3 Energy)
+    OxygenStep
+    TerraformRating
+}
+
+// "Use my Dirigibles action to add a floater to Titan Air Scrapping."
+Blue: UseAction1(Dirigibles) {
+    Floater<TitanAirScrapping>
+}
+
+// "Tundra Farming. Right, for 16. ... increase plant production one step, increase money
+// production two steps, and gain a plant."
+Yellow: PlayCard(TundraFarming) {
+    Pay(14 MC)
+    PROD[Plant]
+    PROD[2 MC]
+    Plant
+}
+// "I got Livestock. ... Decrease your plant production one step. Increase your money
+// production two steps."
+Yellow: PlayCard(Livestock) {
+    Pay(11 MC)
+    PROD[-Plant]
+    PROD[2 MC]
+}
+
+// "I've spent seven on Breathing Filters and I'm putting a science resource on Olympus
+// Conference."
+Green: PlayCard(BreathingFilters) {
+    Pay(7 MC)
+    Science<OlympusConference>
+}
+
+// "I take my Extremophiles action and put a microbe on Nitrate Reducing Bacteria."
+Blue: UseAction1(Extremophiles) {
+    Microbe<NitriteReducingBacteria>
+}
+
+// L1 Trade Terminal: "I boost the thing two things first."
+// "Because I have two of these bonuses, only pay one energy to trade. And it'll be with
+// Miranda. ... I get two animals to Livestock."
+Yellow: Trade2 {
+    Pay(1 Energy)
+    Trade<Miranda>
+    2 ColonyProduction<Miranda>
+    2 Animal<Livestock>
+}
+
+// "I'm going to play a Trans-Neptune Probe ... it's free. ... remove a science resource from
+// Olympus Conference and I draw a card."
+Green: PlayCard(TransNeptuneProbe) {
+    ProjectCard FROM Science<OlympusConference>
+}
+
+// "I'm going to take my Orbital Cleanup action and I gain six money because I have six
+// science tags."
+Blue: UseAction1(OrbitalCleanup) {
+    6 MC
+}
+
+// "Spend 5 for Mineral Deposit, gain 5 steel."
+Yellow: PlayCard(MineralDeposit) {
+    Pay(5 MC)
+    5 Steel
+}
+// "Spend 4 steel and 1 real on Mining Rights. ... 8, 6."
+Yellow: PlayCard(MiningRights) {
+    Pay(4 Steel, 1 MC)
+    MiningRights_SpecialTile<Cimmeria_8_6>
+    PROD[Titanium]
+    Titanium
+    4 MC
+}
+
+// "Use Titan Shuttles to add 2 floaters to Titan Shuttles."
+Green: UseAction1(TitanShuttles) {
+    2 Floater<TitanShuttles>
+}
+
+// "Use my Celestic action to add a floater to Titan Air Scrapping."
+Blue: UseAction1(Celestic) {
+    Floater<TitanAirScrapping>
+}
+
+// "Ants, pay 7, remember my Cutting Edge this time. ... immediately ants one of your
+// nitrites."
+Yellow: PlayCard(Ants) {
+    Pay(7 MC)
+}
+Yellow: UseAction1(Ants) {
+    -Microbe<NitriteReducingBacteria<Blue>>
+    Microbe<Ants>
+}
+
+Green: Pass
+
+// "I take my Titan Air Scrapping action. I remove two floaters and I gain a TR."
+Blue: UseAction2(TitanAirScrapping) {
+    -2 Floater<TitanAirScrapping>
+    TerraformRating
+}
+
+// "I add a Livestock."
+Yellow: UseAction1(Livestock) {
+    Animal<Livestock>
+}
+
+// "I take my Red Spot Observatory action and I draw a card, please."
+Blue: UseAction2(RedSpotObservatory) {
+    -Floater<RedSpotObservatory>
+    ProjectCard
+}
+Blue {
+    Ok
+}
+
+// Blue did not remove the floater spent by the Observatory draw: the generation-end photo still
+// shows it, and every flexible floater action this generation has another destination.
+Blue: ExMachina {
+    Floater<RedSpotObservatory>
+}
+
+// "Paid two things for Floating Habs. Add to self."
+Yellow: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+
+// "I'm gonna buy some Algae. Cost me 10 money. And I gain one plant and two plant
+// productions."
+Blue: PlayCard(Algae) {
+    Pay(10 MC)
+    Plant
+    PROD[2 Plant]
+}
+
+// "Energy Market, lose energy production, gain eight."
+Yellow: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+// "Spend my thirteen on Asteroid Mining Consortium. ... decrease [Blue]'s titanium production
+// by one, increase my own."
+Yellow: PlayCard(AsteroidMiningConsortium) {
+    Pay(11 MC)
+    PROD[Titanium]
+    PROD[-Titanium<Blue>]
+}
+
+// "I'm gonna play a greenery. ... row eight, column eight. For two money and two plants."
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_8_8>
+    OxygenStep
+    2 Plant
+    2 MC
+    TerraformRating
+}
+
+Yellow: Pass
+
+// "I take my Red Ships action and I gain one money."
+Blue: UseAction1(RedShips) {
+    MC
+}
+// "I can sell these three ... patents."
+Blue: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+// "I have seven money and I can play my Lichen! ... one more plant production."
+Blue: PlayCard(Lichen) {
+    Pay(7 MC)
+    PROD[Plant]
+}
+// board-17-27-05.jpg: generation 8 is complete; app ledgers provide the exact pre-production
+// resource checkpoint because the photograph was captured while players were pressing Produce.
+Blue: Pass
+
+Green: Production {
+    43 MC
+    3 Plant
+    9 Energy
+    5 Titanium
+    Steel
+}
+
+Blue: Production {
+    57 MC
+    5 Plant
+    Heat
+}
+
+Yellow: Production {
+    60 MC
+    4 Titanium
+    8 Heat
+    2 Energy
+    Steel
+}
+
+// "[Blue] would be the world government, but there's no choice. ... raise the oxygen."
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Research: Yellow buys one, Green buys one, and Blue buys none.
+Yellow: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Yellow: Research {
+    Pay(3 MC)
+}
+
+Yellow: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(3 MC)
+}
+
+Green: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -4 ProjectCard<Selecting>
+}
+
+// Yellow's applog records two 23-M€ greenery standard projects. "Oxygen to 13 ... 7-3 ... and
+// 7-4 for a titanium."
+Yellow: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Cimmeria_7_3>
+    OxygenStep
+    2 Plant
+    TerraformRating
+}
+Yellow: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Cimmeria_7_4>
+    OxygenStep
+    Titanium
+    TerraformRating
+}
+
+// "Use Water Splitting Plant to use up three energy and take the last oxygen ... I give
+// myself a TR."
+Green: UseAction1(WaterSplittingPlant) {
+    Pay(3 Energy)
+    OxygenStep
+    TerraformRating
+}
+// "Build the Immigrant City ... cost me nine ... 9-8 for two money and a plant."
+// Green keeps his steel for Space Elevator, where it is worth five M€ instead of two.
+Green: PlayCard(ImmigrantCity) {
+    // No steel paid.
+    Pay(9 MC)
+    PROD[-Energy]
+    PROD[-2 MC]
+    NormalCityTile<Cimmeria_9_8>
+    PROD[MC]
+    Plant
+    2 MC
+}
+
+// "Take the city standard project ... this is 8-5."
+Blue: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Cimmeria_8_5>
+    Green: PROD[MC]
+    Plant
+    4 MC
+}
+// "Place a city for 25 more money ... 6-8." [sic]
+Blue: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Cimmeria_7_8>
+    Green: PROD[MC]
+    Plant
+    4 MC
+}
+
+// "Play Kaguya Tech for 10 ... 7-3 ... flipping the tile ... becoming a city."
+Yellow: PlayCard(KaguyaTech) {
+    Pay(10 MC)
+    PROD[2 MC]
+    ProjectCard
+    NormalCityTile<Cimmeria_7_3> FROM GreeneryTile<Cimmeria_7_3>
+    Green: PROD[MC]
+    2 Plant
+}
+// "Energy Market an energy production into eight monies."
+Yellow: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+
+// Green forgot to take his Immigrant City effect.
+Green: ExMachina {
+    PROD[-MC]
+}
+// "Play Open City. It cost me 19 ... go to 5-3."
+// Green continues to keep the same steel for his next Space Elevator action.
+Green: PlayCard(OpenCity) {
+    // No steel paid.
+    Pay(19 MC)
+    PROD[-Energy]
+    PROD[4 MC]
+    2 Plant
+    NormalCityTile<Cimmeria_5_3>
+    PROD[MC]
+}
+
+// "I'm going to plant forest ... at 7-7 ... that gives you two plants."
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_7_7>
+    0 OxygenStep
+    2 Plant
+}
+
+// "Never did a Business Network. ... draw a card? No."
+Yellow: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+// "Topsoil Contract for eight. ... no, no, no. Six. Solar Logistics."
+Yellow: PlayCard(TopsoilContract) {
+    Pay(6 MC)
+    3 Plant
+    ProjectCard
+}
+
+// "Use my Space Elevator to consume a steel and take five real."
+Green: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+// "Take my Nitrate Reducing Bacteria action. Remove three microbes, increase my TR."
+Blue: UseAction2(NitriteReducingBacteria) {
+    -3 Microbe<NitriteReducingBacteria>
+    TerraformRating
+}
+
+// "Spend an energy to trade with Miranda ... get two animals ... Livestock."
+Yellow: Trade2 {
+    Pay(1 Energy)
+    Trade<Miranda>
+    2 ColonyProduction<Miranda>
+    2 Animal<Livestock>
+}
+
+// "Spend three energy to trade with Luna ... get 14 and yellow gets two."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    10 MC
+    Yellow: 2 MC
+    4 MC
+}
+// "Spend three energy to fly to Ganymede and take one plant."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Ganymede>
+    Plant
+}
+
+// "Take my Red Spot Observatory action ... draw a card."
+Blue: UseAction2(RedSpotObservatory) {
+    -Floater<RedSpotObservatory>
+    ProjectCard
+}
+// "Sell this patent for one money."
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+// "Take your final nitrite ... and my thing gives me a money."
+Yellow: UseAction1(Ants) {
+    -Microbe<NitriteReducingBacteria<Blue>>
+    Microbe<Ants>
+    MC
+}
+
+// "Now I can plant forest ... six, four to get one titanium and two steel."
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_6_4>
+    0 OxygenStep
+    Titanium
+    2 Steel
+}
+
+// "Take my Stratopolis action to add two floaters to Titan Air Scrapping."
+// Resolve the action on its own eligible card before reproducing Blue's illegal destination.
+Blue: UseAction1(Stratopolis) {
+    2 Floater<Stratopolis>
+}
+Blue {
+    Ok
+}
+
+Blue: ExMachina {
+    -2 Floater<Stratopolis>
+    2 Floater<TitanAirScrapping>
+}
+
+// "Power Infrastructure, spend an energy, gain a money."
+Yellow: UseAction1(PowerInfrastructure) {
+    SelectTask(-Energy! THEN MC!)
+    -Energy
+    MC
+}
+
+// "Use Inventors' Guild ... two cards, out of cards."
+Green: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+// "Titan Air Scrapping ... move two floaters and increase my TR."
+Blue: UseAction2(TitanAirScrapping) {
+    -2 Floater<TitanAirScrapping>
+    TerraformRating
+}
+
+// "I'm gonna Livestock."
+Yellow: UseAction1(Livestock) {
+    Animal<Livestock>
+}
+
+// The green tableau and the turn order identify Green as the Interstellar Colony Ship player.
+// "Cost me 18, which I'll spend at six titanium." Solar Logistics gives Yellow the card.
+Green: PlayCard(InterstellarColonyShip) {
+    Pay(6 Titanium)
+    Titanium
+    Yellow: ProjectCard
+}
+Green {
+    Ok
+}
+
+// Green forgets the Palladin effect for paying a space event
+Green: ExMachina {
+    -Titanium
+}
+
+// "Orbital Cleanup. I gain six monies."
+Blue: UseAction1(OrbitalCleanup) {
+    6 MC
+}
+
+// The clipped "Cloud..." response between Blue's cleanup and Green's turn is Yellow's
+// otherwise-unused Cloud Tourism action, corroborated by its final-tableau floater.
+Yellow: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+// "Use Titan Shuttles to take six titanium."
+Green: UseAction2(TitanShuttles) {
+    SelectTask(-6! Floater<TitanShuttles> THEN 6! Titanium)
+    -6 Floater<TitanShuttles>
+    6 Titanium
+}
+
+// "I'm gonna fund Benefactor ... cost me 20."
+Blue: FundAward {
+    Pay(20 MC)
+    Benefactor
+}
+
+// "Add a floater to Floating Refinery."
+Yellow: UseAction1(FloatingRefinery) {
+    Floater<FloatingRefinery>
+}
+
+// "I might as well play it ... spend two steel and ... only spent 13. ... draw two cards."
+Green: PlayCard(AiCentral) {
+    Pay(2 Steel, 13 MC)
+    PROD[-Energy]
+    Science<OlympusConference>
+}
+Green: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+
+// "Use my Dirigibles action to add a floater to Celestic."
+Blue: UseAction1(Dirigibles) {
+    Floater<Celestic>
+}
+
+// "I'm going to use aerial mappers to add to floating heads."
+Yellow: UseAction1(AerialMappers) {
+    Floater<FloatingHabs>
+}
+
+// "Plant forest ... here for a card and two money." The final board identifies 8-7.
+Green: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Cimmeria_8_7>
+    0 OxygenStep
+    ProjectCard
+    2 MC
+}
+
+// "Use my Floater Technology action to add a floater to Celestic."
+Blue: UseAction1(FloaterTechnology) {
+    Floater<Celestic>
+}
+
+// "I sell a patent."
+Yellow: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+// "I'm going to sell 5 patentos."
+Green: UseStandardProject(SellPatentsProject) {
+    5 MC FROM ProjectCard
+}
+
+// "Use my Celestic action to add a floater to Celestic."
+Blue: UseAction1(Celestic) {
+    Floater<Celestic>
+}
+
+// "Plant a forest ... seven, six ... a plant and two steel."
+Yellow: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_7_6>
+    0 OxygenStep
+    Plant
+    2 Steel
+}
+
+Green: Pass
+
+// "Take my Red Ships action ... one, two, three, four."
+Blue: UseAction1(RedShips) {
+    4 MC
+}
+
+// "Spend a steel to gain ... seven real."
+Yellow: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+
+// "Take my Local Shading action to add a floater to Local Shading."
+Blue: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+
+// "Pay seven for Robot Pollinators ... three plants."
+Yellow: PlayCard(RobotPollinators) {
+    Pay(7 MC)
+    PROD[Plant]
+    3 Plant
+}
+
+// "Take my Extremophiles action and add a microbe to Extremophiles."
+Blue: UseAction1(Extremophiles) {
+    Microbe<Extremophiles>
+}
+
+// "Pay seven for Insects ... increase plant production ... for each plant tag ... three."
+Yellow: PlayCard(Insects) {
+    Pay(7 MC)
+    PROD[3 Plant]
+}
+
+Blue: Pass
+
+// "Stanford Torus ... four titanium ... reserved area."
+Yellow: PlayCard(StanfordTorus) {
+    Pay(4 Titanium)
+    NormalCityTile<StanfordTorus_RemoteArea>
+    Green: PROD[MC]
+}
+// "Sell one, two, three, four, five patents."
+Yellow: UseStandardProject(SellPatentsProject) {
+    5 MC FROM ProjectCard
+}
+// "Carbon Nanosystems ... four steel ... and then six real."
+Yellow: PlayCard(CarbonNanosystems) {
+    Pay(4 Steel, 6 MC)
+    Graphene<CarbonNanosystems>
+}
+// "Vesta's Shipyard ... three titanium ... Carbon Nano is worth four ... my two real."
+Yellow: PlayCard(VestaShipyard) {
+    Pay(1 Graphene<CarbonNanosystems>, 3 Titanium, 2 MC)
+    PROD[Titanium]
+}
+// Yellow's app ledger records one final M€ after Vesta and before Pass.
+Yellow: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+// Floating Habs being unused makes sense since it has an even number of floaters (eight).
+Yellow: Pass
+
+Green: Production {
+    51 MC
+    3 Plant
+    6 Energy
+    5 Titanium
+    Steel
+}
+
+Blue: Production {
+    61 MC
+    5 Plant
+    Heat
+}
+
+Yellow: Production {
+    64 MC
+    5 Titanium
+    8 Heat
+    Energy
+    Steel
+    4 Plant
+}
+
+// All three applogs after the final production phase and before final greenery placement.
+// Final greenery placement, in start-player order.
+Yellow: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_6_3>
+}
+Yellow {
+    Ok
+}
+
+Green {
+    Ok
+}
+
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Cimmeria_6_8>
+    2 MC
+}
+Blue {
+    Ok
+}
+
+Green {
+    88 VictoryPoint
+}
+
+Blue {
+    72 VictoryPoint
+}
+
+Yellow {
+    94 VictoryPoint
+}
+// and that's it
+// and that's it
+// and that's it

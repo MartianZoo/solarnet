@@ -1,0 +1,1158 @@
+// Replay: KineticCarbonStateTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/KineticCarbonStateTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Complete accepted-log replay: Kinetic Carbon State (g70576ecb7c18), played 2026-10-30.
+// https://terraforming-mars.herokuapp.com/the-end?id=p46f249e3c92d
+// Raw log, player record, and per-generation JSON: _local/replays/Game20261030/.
+// Payments below are recorded quantities, not reconstructed allocations.
+Config {
+    Blue
+    HellasMap
+    VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, Tr63SoloObjective
+    promos:cards
+    Enceladus, Titan, Triton, Miranda
+    SoloTileLocations
+    1 SelectableCorporationCount
+}
+
+GlobalEventDeck {
+}
+
+SetupRules {
+    CLASS SoloTileLocations : PlaceNeutralTiles<Hellas_3_4, Hellas_2_4, Hellas_7_6, Hellas_7_7>
+}
+
+Cards {
+    +CorporationCard<Blue, Hand>: CheungShingMars, Inventrix, SaturnSystems
+    -CorporationCard<Blue, Hand>: Inventrix, SaturnSystems
+    -CorporationCard<Blue, Hand>: CheungShingMars
+    +PreludeCard<Blue, Hand>: FloatingTradeHub, AppliedScience, VenusContract, SpaceLanes
+    -PreludeCard<Blue, Hand>: FloatingTradeHub, SpaceLanes
+    -PreludeCard<Blue, Hand>: VenusContract
+    -PreludeCard<Blue, Hand>: AppliedScience
+    +ProjectCard<Blue, Hand>: EarthOffice, FloatingRefinery, AdaptedLichen, OptimalAerobraking, Lichen
+    +ProjectCard<Blue, Hand>: CorroderSuits
+    +ProjectCard<Blue, Hand>: FloaterTechnology, PioneerSettlement
+    +ProjectCard<Blue, Hand>: MartianSurvey, LunarMining, BusinessNetwork
+    +ProjectCard<Blue, Hand>: Capital
+    +ProjectCard<Blue, Hand>: Flooding, SkyDocks
+    +ProjectCard<Blue, Hand>: BribedCommittee, ArcticAlgae
+    +ProjectCard<Blue, Hand>: SulphurEatingBacteria
+    +ProjectCard<Blue, Hand>: Steelworks
+    +ProjectCard<Blue, Hand>: SubCrustMeasurements, GhgImportFromVenus
+    +ProjectCard<Blue, Hand>: WaterSplittingPlant
+    +ProjectCard<Blue, Hand>: AirRaid, TransNeptuneProbe
+    +ProjectCard<Blue, Hand>: LavaFlows
+    +ProjectCard<Blue, Hand>: Grass, RobotPollinators, FloaterPrototypes
+    +ProjectCard<Blue, Hand>: MiningColony
+    +ProjectCard<Blue, Hand>: ImportOfAdvancedGhg, ForcedPrecipitation
+    +ProjectCard<Blue, Hand>: VenusSoils
+    +ProjectCard<Blue, Hand>: OreProcessor
+    +ProjectCard<Blue, Hand>: Heather
+    +ProjectCard<Blue, Hand>: ResearchColony, TerraformingContract
+    +ProjectCard<Blue, Hand>: AerialMappers
+    +ProjectCard<Blue, Hand>: ResearchOutpost, DustSeals
+    +ProjectCard<Blue, Hand>: VenusOrbitalSurvey, Gyropolis, Pets
+    +ProjectCard<Blue, Hand>: InvestmentLoan
+    +ProjectCard<Blue, Hand>: Greenhouses, Comet, MiningExpedition
+    +ProjectCard<Blue, Hand>: NitrogenRichAsteroid
+    +ProjectCard<Blue, Hand>: SoilStudies
+    +ProjectCard<Blue, Hand>: BioPrintingFacility
+    +ProjectCard<Blue, Hand>: Teslaract
+    -ProjectCard<Blue, Hand>: EarthOffice
+    -ProjectCard<Blue, Hand>: CorroderSuits
+    -ProjectCard<Blue, Hand>: FloatingRefinery
+    -ProjectCard<Blue, Hand>: AdaptedLichen
+    -ProjectCard<Blue, Hand>: OptimalAerobraking
+    -ProjectCard<Blue, Hand>: FloaterTechnology
+    -ProjectCard<Blue, Hand>: BusinessNetwork
+    -ProjectCard<Blue, Hand>: MartianSurvey
+    -ProjectCard<Blue, Hand>: SkyDocks
+    -ProjectCard<Blue, Hand>: LunarMining
+    -ProjectCard<Blue, Hand>: Flooding
+    -ProjectCard<Blue, Hand>: PioneerSettlement
+    -ProjectCard<Blue, Hand>: BribedCommittee
+    -ProjectCard<Blue, Hand>: GhgImportFromVenus
+    -ProjectCard<Blue, Hand>: SubCrustMeasurements
+    -ProjectCard<Blue, Hand>: AirRaid
+    -ProjectCard<Blue, Hand>: SulphurEatingBacteria
+    -ProjectCard<Blue, Hand>: ArcticAlgae
+    -ProjectCard<Blue, Hand>: TransNeptuneProbe
+    -ProjectCard<Blue, Hand>: MiningColony
+    -ProjectCard<Blue, Hand>: Lichen
+    -ProjectCard<Blue, Hand>: Steelworks
+    -ProjectCard<Blue, Hand>: LavaFlows
+    -ProjectCard<Blue, Hand>: ForcedPrecipitation
+    -ProjectCard<Blue, Hand>: FloaterPrototypes
+    -ProjectCard<Blue, Hand>: ImportOfAdvancedGhg
+    -ProjectCard<Blue, Hand>: ResearchColony
+    -ProjectCard<Blue, Hand>: ResearchOutpost
+    -ProjectCard<Blue, Hand>: WaterSplittingPlant
+    -ProjectCard<Blue, Hand>: TerraformingContract
+    -ProjectCard<Blue, Hand>: InvestmentLoan
+    -ProjectCard<Blue, Hand>: Pets
+    -ProjectCard<Blue, Hand>: VenusSoils
+    -ProjectCard<Blue, Hand>: Grass
+    -ProjectCard<Blue, Hand>: Heather
+    -ProjectCard<Blue, Hand>: RobotPollinators
+    -ProjectCard<Blue, Hand>: Gyropolis
+    -ProjectCard<Blue, Hand>: Comet
+    -ProjectCard<Blue, Hand>: Greenhouses
+    -ProjectCard<Blue, Hand>: SoilStudies
+    -ProjectCard<Blue, Hand>: Capital
+    -ProjectCard<Blue, Hand>: OreProcessor, AerialMappers, DustSeals, VenusOrbitalSurvey
+    -ProjectCard<Blue, Hand>: MiningExpedition
+    -ProjectCard<Blue, Hand>: Teslaract
+    -ProjectCard<Blue, Hand>: NitrogenRichAsteroid
+    -ProjectCard<Blue, Hand>: BioPrintingFacility
+}
+
+Blue: Setup {
+    14 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Blue
+    2 PreludeCard
+    // Player-record evidence: neutral cities at 17 and 49, greenery at 11 and 50.
+    -SelectedMiranda
+    -5 ProjectCard<Selecting>
+}
+
+// Test inference: these offered cards are played later without intervening matching draws.
+Blue: PlayCard(CheungShingMars) {
+    44 MC VIA CheungShingMars
+    PROD[3 MC]
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: PlayCard(VenusContract) {
+    SearchForCard<TagFilter<Class<VenusTag>>>
+    TerraformRating
+}
+Blue: PlayCard(AppliedScience) {
+    6 Science<AppliedScience>
+}
+
+// Generation 1
+Blue: PlayCard(EarthOffice) {
+    Pay(1 MC)
+}
+Blue: PlayCard(CorroderSuits) {
+    Pay(8 MC)
+    PROD[2 MC]
+    Science<AppliedScience>
+}
+Blue: PlayCard(FloatingRefinery) {
+    Pay(7 MC)
+    4 Floater<FloatingRefinery>
+}
+Blue: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+Blue: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+Blue: PlayCard(AdaptedLichen) {
+    Pay(9 MC)
+    PROD[Plant]
+}
+Blue: PlayCard(OptimalAerobraking) {
+    Pay(2 Titanium, 1 MC)
+}
+Blue: Pass
+
+Blue: Production {
+    18 MC
+    Plant
+}
+
+Blue: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 2
+// Player-record evidence: globalsPerGeneration[0], after World Government.
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+Blue: PlayCard(FloaterTechnology) {
+    Pay(7 MC)
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<FloatingRefinery>
+}
+Blue: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+Blue: Pass
+
+Blue: Production {
+    18 MC
+    Plant
+}
+
+Blue: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 3
+// Player-record evidence: globalsPerGeneration[1], after World Government.
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: PlayCard(BusinessNetwork) {
+    Pay(1 MC)
+    PROD[-MC]
+}
+// keep the Business Network card
+Blue: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<FloatingRefinery>
+}
+Blue: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+Blue: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+Blue: PlayCard(MartianSurvey) {
+    Pay(9 MC)
+    2 ProjectCard
+}
+Blue: PlayCard(SkyDocks) {
+    Pay(4 Titanium, 3 MC)
+    TradeFleet
+}
+Blue: PlayCard(LunarMining) {
+    Pay(7 MC)
+    PROD[2 Titanium]
+}
+Blue: Pass
+
+Blue: Production {
+    17 MC
+    Plant
+    2 Titanium
+}
+
+Blue: WorldGovernment {
+    OceanTile<Hellas_6_7>! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 4
+// Player-record evidence: globalsPerGeneration[2], after World Government.
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// keep the Business Network card
+Blue: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<FloatingRefinery>
+}
+Blue: PlayCard(Flooding) {
+    Pay(6 MC)
+    OceanTile<Hellas_5_6>
+    TerraformRating
+    ProjectCard
+    2 MC
+}
+Blue: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Floater<FloatingRefinery>
+}
+Blue: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+Blue: PlayCard(PioneerSettlement) {
+    Pay(3 Titanium, 3 MC)
+    PROD[-2 MC]
+    Colony<Triton>
+    3 Titanium
+}
+Blue: PlayCard(BribedCommittee) {
+    Pay(3 MC)
+    2 TerraformRating
+}
+Blue: Pass
+
+Blue: Production {
+    18 MC
+    Plant
+    2 Titanium
+}
+
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 5
+// Player-record evidence: globalsPerGeneration[3], after World Government.
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Blue: UseAction1(FloatingRefinery) {
+    Floater<FloatingRefinery>
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<FloatingRefinery>
+}
+Blue: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+Blue: PlayCard(GhgImportFromVenus) {
+    Pay(6 Titanium, 4 MC)
+    VenusStep
+    PROD[3 Heat]
+    3 MC VIA OptimalAerobraking
+    3 Heat
+    TerraformRating
+    3 MC
+}
+Blue: PlayCard(SubCrustMeasurements) {
+    Pay(14 MC)
+}
+Blue: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Blue: Pass
+
+Blue: Production {
+    19 MC
+    Plant
+    2 Titanium
+    3 Heat
+}
+
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 6
+// Player-record evidence: globalsPerGeneration[4], after World Government.
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: UseAction1(FloaterTechnology) {
+    Floater<FloatingRefinery>
+}
+Blue: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Blue: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Blue: PlayCard(AirRaid) {
+    -Floater<FloatingRefinery>
+    5 MC FROM MC<SoloOpponent>
+}
+Blue: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+Blue: Trade3 {
+    Pay(3 Titanium)
+    Trade<Triton>
+    6 Titanium
+}
+Blue: Trade3 {
+    Pay(3 Titanium)
+    Trade<Titan>
+    4 Floater<FloatingRefinery>
+}
+Blue: PlayCard(SulphurEatingBacteria) {
+    Pay(5 MC)
+}
+Blue: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+Blue: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Microbe<SulphurEatingBacteria>
+}
+Blue: PlayCard(ArcticAlgae) {
+    Pay(11 MC)
+    Plant
+}
+Blue: PlayCard(TransNeptuneProbe) {
+    Pay(1 Titanium, 2 MC)
+}
+Blue: Pass
+
+Blue: Production {
+    19 MC
+    Plant
+    2 Titanium
+    3 Heat
+}
+
+Blue: WorldGovernment {
+    OceanTile<Hellas_5_8>! BY Admin
+}
+
+Blue: WorldGovernment {
+    2 Plant
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 7
+// Player-record evidence: globalsPerGeneration[5], after World Government.
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+Blue: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+Blue: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Blue: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Blue: PlayCard(MiningColony) {
+    Pay(5 Titanium, 4 MC)
+    PROD[Titanium]
+    Colony<Enceladus>
+    3 Microbe<SulphurEatingBacteria>
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<FloatingRefinery>
+}
+Blue: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Microbe<SulphurEatingBacteria>
+}
+Blue: UseAction2(SulphurEatingBacteria) {
+    SelectTask(-6! Microbe<SulphurEatingBacteria> THEN 18! MC)
+    -6 Microbe<SulphurEatingBacteria>
+    18 MC
+}
+Blue: PlayCard(Lichen) {
+    Pay(6 MC)
+    PROD[Plant]
+}
+// Test inference: the log gives the sale count, but omits the card identities.
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Blue: PlayCard(LavaFlows) {
+    Pay(17 MC)
+    TemperatureStep
+    TemperatureStep
+    2 TerraformRating
+    PROD[Heat]
+    LavaFlows_SpecialTile<Hellas_9_7>
+    -6 MC
+    OceanTile<Hellas_5_7>
+    TerraformRating
+    2 Plant
+    3 Heat
+    6 MC
+}
+Blue: Pass
+
+Blue: Production {
+    23 MC
+    2 Plant
+    3 Titanium
+    5 Heat
+}
+
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 8
+// Player-record evidence: globalsPerGeneration[6], after World Government.
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+Blue: PlayCard(ForcedPrecipitation) {
+    Pay(7 MC)
+}
+Blue: PlayCard(FloaterPrototypes) {
+    Pay(1 MC)
+    2 Floater<ForcedPrecipitation>
+}
+Blue: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+    ProjectCard
+    3 MC
+}
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<ForcedPrecipitation>
+}
+// keep the Business Network card
+Blue: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+Blue: PlayCard(ImportOfAdvancedGhg) {
+    Pay(1 Titanium, 2 MC)
+    PROD[2 Heat]
+    3 MC
+    3 Heat
+}
+Blue: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+Blue: UseStandardProject(AquiferProject) {
+    Pay(18 MC)
+    OceanTile<Hellas_1_1>
+    TerraformRating
+    4 Plant
+}
+Blue: Pass
+
+Blue: Production {
+    26 MC
+    2 Plant
+    3 Titanium
+    7 Heat
+}
+
+Blue: WorldGovernment {
+    OceanTile<Hellas_3_1>! BY Admin
+}
+
+Blue: WorldGovernment {
+    2 Plant
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 9
+// Player-record evidence: globalsPerGeneration[7], after World Government.
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<ForcedPrecipitation>
+}
+Blue: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+    3 MC
+}
+Blue: UseAction1(FloatingRefinery) {
+    Floater<FloatingRefinery>
+}
+Blue: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Blue: PlayCard(ResearchColony) {
+    Pay(6 Titanium, 1 MC)
+    2 ProjectCard
+    Colony<Titan>
+    3 Floater<ForcedPrecipitation>
+}
+Blue: PlayCard(ResearchOutpost) {
+    Pay(15 MC)
+    NormalCityTile<Hellas_4_3>
+    Steel
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_4_4>
+    OxygenStep
+    2 Steel
+    TerraformRating
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_5_4>
+    OxygenStep
+    2 Steel
+    TerraformRating
+}
+// Test inference: the log gives the sale count, but omits the card identities.
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Blue: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+Blue: PlayCard(TerraformingContract) {
+    Pay(3 MC)
+    PROD[4 MC]
+}
+Blue: Pass
+
+Blue: Production {
+    34 MC
+    2 Plant
+    3 Titanium
+    7 Heat
+}
+
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 10
+// Player-record evidence: globalsPerGeneration[8], after World Government.
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Blue: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+Blue: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+    3 MC
+}
+Blue: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Blue: PlayCard(InvestmentLoan) {
+    PROD[-MC]
+    10 MC
+}
+Blue: PlayCard(Pets) {
+    Pay(5 MC)
+    Animal<Pets>
+}
+Blue: PlayCard(VenusSoils) {
+    Pay(18 MC)
+    VenusStep
+    PROD[Plant]
+    TerraformRating
+    3 MC
+    2 Microbe<SulphurEatingBacteria>
+}
+Blue: Trade3 {
+    Pay(3 Titanium)
+    Trade<Enceladus>
+    Microbe<SulphurEatingBacteria>
+    4 Microbe<SulphurEatingBacteria>
+}
+Blue: UseAction2(SulphurEatingBacteria) {
+    SelectTask(-9! Microbe<SulphurEatingBacteria> THEN 27! MC)
+    -9 Microbe<SulphurEatingBacteria>
+    27 MC
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<ForcedPrecipitation>
+}
+Blue: PlayCard(Grass) {
+    Pay(9 MC)
+    PROD[Plant]
+    3 Plant
+}
+Blue: PlayCard(Heather) {
+    Pay(4 MC)
+    PROD[Plant]
+    Plant
+}
+Blue: PlayCard(RobotPollinators) {
+    Pay(7 MC)
+    PROD[Plant]
+    7 Plant
+}
+Blue: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+Blue: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+Blue: PlayCard(Gyropolis) {
+    Pay(5 Steel, 6 MC)
+    PROD[-2 Energy]
+    PROD[14 MC]
+    NormalCityTile<Hellas_1_3>
+    Animal<Pets>
+    2 Plant
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_1_2>
+    OxygenStep
+    2 Plant
+    2 MC
+    TerraformRating
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_3_3>
+    OxygenStep
+    Steel
+    TerraformRating
+}
+Blue: Pass
+
+Blue: Production {
+    52 MC
+    6 Plant
+    3 Titanium
+    7 Heat
+}
+
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 11
+// Player-record evidence: globalsPerGeneration[9], after World Government.
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+// keep the Business Network card
+Blue: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+Blue: Trade3 {
+    Pay(3 Titanium)
+    Trade<Triton>
+    6 Titanium
+}
+Blue: PlayCard(Comet) {
+    Pay(6 Titanium, 1 MC)
+    TemperatureStep
+    3 MC
+    3 Heat
+    TerraformRating
+    -3 Plant<SoloOpponent>
+    OceanTile<Hellas_2_1>
+    TerraformRating
+    4 Plant
+    4 MC
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_3_2>
+    OxygenStep
+    Plant
+    4 MC
+    TerraformRating
+    TemperatureStep
+    TerraformRating
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_2_3>
+    OxygenStep
+    Plant
+    TerraformRating
+}
+Blue: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+Blue: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    2 TerraformRating
+    3 MC
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<ForcedPrecipitation>
+}
+Blue: UseAction1(FloatingRefinery) {
+    Floater<FloatingRefinery>
+}
+Blue: PlayCard(Greenhouses) {
+    Pay(1 Steel)
+    4 Plant
+}
+Blue: PlayCard(SoilStudies) {
+    Pay(11 MC)
+    18 Plant
+}
+Blue: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+Blue: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+Blue: PlayCard(Capital) {
+    Pay(22 MC)
+    PROD[-2 Energy]
+    PROD[5 MC]
+    CapitalTile<Hellas_2_2, Capital>
+    Animal<Pets>
+    2 Plant
+    4 MC
+}
+Blue: Pass
+
+Blue: Production {
+    65 MC
+    6 Plant
+    3 Titanium
+    7 Heat
+}
+
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 12
+// Player-record evidence: globalsPerGeneration[10], after World Government.
+Blue: Research {
+    -4 ProjectCard<Selecting>
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+// keep the Business Network card
+Blue: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+// Test inference: the log gives the sale count, but omits the card identities.
+Blue: UseStandardProject(SellPatentsProject) {
+    4 MC FROM ProjectCard
+}
+Blue: Trade3 {
+    Pay(3 Titanium)
+    Trade<Enceladus>
+    Microbe<SulphurEatingBacteria>
+    3 Microbe<SulphurEatingBacteria>
+}
+Blue: UseAction1(FloaterTechnology) {
+    Floater<ForcedPrecipitation>
+}
+Blue: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+    3 MC
+}
+Blue: PlayCard(MiningExpedition) {
+    Pay(10 MC)
+    OxygenStep
+    2 Steel
+    TerraformRating
+    -2 Plant<SoloOpponent>
+}
+Blue: UseStandardProject(AquiferProject) {
+    Pay(18 MC)
+    OceanTile<Hellas_4_1>
+    TerraformRating
+    3 Plant
+    2 MC
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_4_2>
+    OxygenStep
+    Plant
+    4 MC
+    TerraformRating
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_5_5>
+    OxygenStep
+    2 MC
+    TerraformRating
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_6_6>
+    OxygenStep
+    4 MC
+    TerraformRating
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_5_2>
+    OxygenStep
+    2 MC
+    TerraformRating
+}
+Blue: UseAction2(SulphurEatingBacteria) {
+    SelectTask(-5! Microbe<SulphurEatingBacteria> THEN 15! MC)
+    -5 Microbe<SulphurEatingBacteria>
+    15 MC
+}
+Blue: PlayCard(Teslaract) {
+    Pay(2 Steel, 6 MC)
+    TerraformRating
+}
+Blue: PlayCard(NitrogenRichAsteroid) {
+    Pay(1 Titanium, 26 MC)
+    2 TerraformRating
+    TemperatureStep
+    3 MC
+    3 Heat
+    TerraformRating
+    PROD[4 Plant]
+}
+Blue: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+    OceanTile<Hellas_4_6>
+    TerraformRating
+    3 Plant
+    4 MC
+}
+Blue: UseAction1(FloatingRefinery) {
+    Floater<FloatingRefinery>
+}
+// Test inference: the log gives the sale count, but omits the card identities.
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Blue: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+    3 MC
+}
+Blue: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+}
+Blue: Pass
+
+Blue: Production {
+    82 MC
+    10 Plant
+    3 Titanium
+    7 Heat
+}
+// Player-record evidence: final production completed, final greenery skipped after solo loss.
+// The source displays 90 VP (60 TR + 10 greenery + 12 cities + 8 cards).
+// Solarnet skips scoring on a solo loss. Do not inject End or final greenery.
+// _local/replays/Game20261030/player-p46f249e3c92d.json; final Mars map.

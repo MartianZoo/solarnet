@@ -1,0 +1,808 @@
+// Replay: SoloGame20230611Test
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/SoloGame20230611Test.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Archived scenario: checkpoints are retained from the existing test; no local game log is
+// available.
+Config {
+    Me
+    HellasMap
+    VenusNextExpansion, PreludeExpansion, Tr63SoloObjective
+    promos:cards
+    SoloTileLocations
+    -WorldGovernmentRule
+}
+
+GlobalEventDeck {
+}
+
+SetupRules {
+    CLASS SoloTileLocations : PlaceNeutralTiles<Hellas_5_1, Hellas_6_2, Hellas_8_4, Hellas_9_5>
+}
+
+Me: Setup {
+    14 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Me
+    2 PreludeCard
+    -5 ProjectCard<Selecting>
+}
+
+// Generation 1
+Me: PlayCard(ValleyTrust) {
+    37 MC VIA ValleyTrust
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+// ...
+Me: PlayCard(Biolab) {
+    PROD[Plant]
+    3 ProjectCard
+}
+Me: PlayCard(NewPartner) {
+    PROD[MC]
+    2 PreludeCard<Selecting> VIA NewPartner
+    PlayCard(BusinessEmpire, Selecting)
+    PROD[6 MC]
+    -6 MC
+}
+
+Me: DoRequiredActions {
+    3 PreludeCard<Selecting> VIA ValleyTrust_RequiredAction
+    PlayCard(GalileanMining, Selecting)
+    PROD[2 Titanium]
+    -5 MC
+}
+Me: PlayCard(IndenturedWorkers) {
+    IndenturedWorkers_NextCardEffect
+}
+Me: PlayCard(IndustrialMicrobes) {
+    Pay(4 MC)
+    PROD[Energy]
+    PROD[Steel]
+}
+Me: Pass
+
+Me: Production {
+    21 MC
+    Plant
+    2 Titanium
+    Energy
+    Steel
+}
+
+// Generation 2
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(6 MC)
+}
+
+Me: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// ...
+Me: PlayCard(AcquiredCompany) {
+    Pay(10 MC)
+    PROD[3 MC]
+}
+Me: Pass
+
+Me: Production {
+    24 MC
+    Plant
+    2 Titanium
+    Energy VIA Production
+    Steel
+    Heat FROM Energy
+}
+
+// Generation 3
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(6 MC)
+}
+
+Me: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Me: PlayCard(AsteroidCard) {
+    Pay(4 Titanium, 2 MC)
+    TemperatureStep
+    2 Titanium
+    TerraformRating
+    -2 Plant<SoloOpponent>
+}
+Me: PlayCard(PeroxidePower) {
+    Pay(2 Steel, 3 MC)
+    PROD[-MC]
+    PROD[2 Energy]
+}
+Me: PlayCard(ForcedPrecipitation) {
+    Pay(8 MC)
+}
+Me: UseAction1(ForcedPrecipitation) {
+    Pay(2 MC)
+    Floater<ForcedPrecipitation>
+}
+Me: PlayCard(Solarnet) {
+    Pay(7 MC)
+    2 ProjectCard
+}
+Me: Pass
+
+Me: Production {
+    24 MC
+    Plant
+    2 Titanium
+    3 Energy VIA Production
+    Steel
+    Heat FROM Energy
+}
+
+// Generation 4
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(3 MC)
+}
+
+Me: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// ...
+Me: PlayCard(RegolithEaters) {
+    Pay(11 MC)
+}
+Me: UseAction1(RegolithEaters) {
+    Microbe<RegolithEaters>
+}
+Me: UseAction1(ForcedPrecipitation) {
+    Pay(2 MC)
+    Floater<ForcedPrecipitation>
+}
+Me: PlayCard(SubCrustMeasurements) {
+    Pay(1 Steel, 16 MC)
+}
+Me: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Me: Pass
+
+Me: Production {
+    24 MC
+    Plant
+    2 Titanium
+    3 Energy VIA Production
+    Steel
+    3 Heat FROM Energy
+}
+
+// Generation 5
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(6 MC)
+}
+
+Me: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Me: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Me: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+}
+Me: UseAction1(RegolithEaters) {
+    Microbe<RegolithEaters>
+}
+Me: PlayCard(SmallAsteroid) {
+    Pay(3 Titanium, 1 MC)
+    TemperatureStep
+    TerraformRating
+    -2 Plant<SoloOpponent>
+}
+Me: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+Me: PlayCard(MagneticFieldDome) {
+    Pay(1 Steel, 3 MC)
+    PROD[-2 Energy]
+    PROD[Plant]
+    TerraformRating
+}
+Me: Pass
+
+Me: Production {
+    28 MC
+    2 Plant
+    2 Titanium
+    Energy VIA Production
+    Steel
+    3 Heat FROM Energy VIA Energy
+    Heat
+}
+
+// Generation 6
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(6 MC)
+}
+
+Me: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Me: UseAction2(RegolithEaters) {
+    -2 Microbe<RegolithEaters>
+    OxygenStep
+    TerraformRating
+}
+// no steel paid
+Me: PlayCard(FueledGenerators) {
+    Pay(1 MC)
+    PROD[-MC]
+    PROD[Energy]
+}
+Me: PlayCard(EnergyTapping) {
+    Pay(3 MC)
+    PROD[Energy]
+    PROD[-Energy<SoloOpponent>]
+}
+Me: PlayCard(MagneticShield) {
+    Pay(5 Titanium, 9 MC)
+    4 TerraformRating
+}
+Me: UseAction1(ForcedPrecipitation) {
+    Pay(2 MC)
+    Floater<ForcedPrecipitation>
+}
+Me: Pass
+
+Me: Production {
+    33 MC
+    2 Plant
+    2 Titanium
+    3 Energy VIA Production
+    Steel
+    Heat FROM Energy VIA Energy
+    Heat
+}
+
+// Generation 7
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(9 MC)
+}
+
+Me: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Me: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_9_7>
+    OxygenStep
+    -6 MC
+    TerraformRating
+    OceanTile<Hellas_5_6>
+    TerraformRating
+    ProjectCard
+}
+Me: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Me: UseAction1(ForcedPrecipitation) {
+    Pay(2 MC)
+    Floater<ForcedPrecipitation>
+}
+Me: UseAction1(RegolithEaters) {
+    Microbe<RegolithEaters>
+}
+Me: PlayCard(ResearchOutpost) {
+    Pay(2 Steel, 12 MC)
+    NormalCityTile<Hellas_7_6>
+    ProjectCard
+}
+Me: PlayCard(Cartel) {
+    Pay(7 MC)
+    PROD[5 MC]
+}
+Me: PlayCard(Supercapacitors) {
+    Pay(3 MC)
+    PROD[MC]
+}
+Me: Pass
+
+Me: Production {
+    41 MC
+    2 Plant
+    2 Titanium
+    3 Energy VIA Production
+    Steel
+    3 Heat FROM Energy VIA Energy
+    Heat VIA Production
+}
+
+// The player chose to convert only one of three energy with Supercapacitors.
+Me: Production {
+    2 Energy FROM Heat
+}
+
+// Generation 8
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(9 MC)
+}
+
+Me: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Me: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Me: PlayCard(AtalantaPlanitiaLab) {
+    Pay(7 MC)
+    2 ProjectCard
+}
+Me: UseAction1(RegolithEaters) {
+    Microbe<RegolithEaters>
+}
+Me: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+}
+Me: PlayCard(CarbonateProcessing) {
+    Pay(1 Steel, 3 MC)
+    PROD[-Energy]
+    PROD[3 Heat]
+}
+Me: PlayCard(EquatorialMagnetizer) {
+    Pay(10 MC)
+}
+Me: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+Me: PlayCard(VestaShipyard) {
+    Pay(4 Titanium, 2 MC)
+    PROD[Titanium]
+}
+Me: UseStandardProject(SellPatentsProject) {
+    4 MC FROM ProjectCard
+}
+Me: PlayCard(CorporateStronghold) {
+    Pay(10 MC)
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Hellas_5_5>
+    2 MC
+}
+Me: Pass
+
+Me: Production {
+    46 MC
+    2 Plant
+    3 Titanium
+    Steel
+    5 Heat FROM Energy VIA Energy
+    4 Heat VIA Production
+}
+
+// The player chose to convert none of five energy with Supercapacitors.
+Me: Production {
+    5 Energy FROM Heat
+}
+
+// Generation 9
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(6 MC)
+}
+
+Me: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+Me: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Me: UseAction2(RegolithEaters) {
+    -2 Microbe<RegolithEaters>
+    OxygenStep
+    TerraformRating
+}
+Me: PlayCard(Archaebacteria) {
+    Pay(5 MC)
+    PROD[Plant]
+}
+Me: PlayCard(PowerGrid) {
+    Pay(17 MC)
+    PROD[5 Energy]
+}
+Me: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+Me: PlayCard(AiCentral) {
+    Pay(1 Steel, 16 MC)
+    PROD[-Energy]
+}
+Me: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+Me: UseAction1(ForcedPrecipitation) {
+    Pay(2 MC)
+    Floater<ForcedPrecipitation>
+}
+Me: Pass
+
+Me: Production {
+    49 MC
+    3 Plant
+    3 Titanium
+    Steel
+    5 Heat VIA Production
+    5 Heat FROM Energy VIA Energy
+    3 Energy VIA Production
+}
+
+// The player chose to convert only two of five energy with Supercapacitors.
+Me: Production {
+    3 Energy FROM Heat
+}
+
+// Generation 10
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -4 ProjectCard<Selecting>
+}
+
+Me: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+Me: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Me: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: PlayCard(StripMine) {
+    Pay(1 Steel, 22 MC)
+    PROD[-2 Energy]
+    PROD[2 Steel]
+    PROD[Titanium]
+    OxygenStep
+    OxygenStep
+    2 TerraformRating
+}
+Me: PlayCard(Potatoes) {
+    Pay(1 MC)
+    -2 Plant
+    PROD[2 MC]
+}
+Me: PlayCard(MirandaResort) {
+    Pay(3 Titanium, 2 MC)
+    PROD[5 MC]
+}
+Me: UseAction1(RegolithEaters) {
+    Microbe<RegolithEaters>
+}
+Me: UseAction1(ForcedPrecipitation) {
+    Pay(2 MC)
+    Floater<ForcedPrecipitation>
+}
+Me: UseStandardProject(AquiferProject) {
+    Pay(18 MC)
+    OceanTile<Hellas_6_7>
+    TerraformRating
+    2 MC
+}
+Me: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+Me: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Me: Pass
+
+Me: Production {
+    62 MC
+    3 Plant
+    4 Titanium
+    3 Steel
+    5 Heat VIA Production
+    6 Heat FROM Energy
+}
+
+// The player chose to convert only three of six energy with Supercapacitors.
+Me: Production {
+    3 Energy FROM Heat
+}
+
+// Generation 11
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -ProjectCard<Selecting>
+}
+
+Me: Research {
+    Pay(9 MC)
+}
+
+Me: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+Me: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Me: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+    ProjectCard
+}
+Me: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_6_6>
+    OxygenStep
+    4 MC
+    TerraformRating
+}
+Me: PlayCard(WaterSplittingPlant) {
+    Pay(3 Steel, 5 MC)
+}
+Me: UseAction1(WaterSplittingPlant) {
+    Pay(3 Energy)
+    OxygenStep
+    TerraformRating
+}
+Me: PlayCard(BribedCommittee) {
+    Pay(6 MC)
+    2 TerraformRating
+}
+Me: PlayCard(QuantumExtractor) {
+    Pay(10 MC)
+    PROD[4 Energy]
+}
+Me: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+Me: PlayCard(ImportedGhg) {
+    Pay(1 Titanium, 1 MC)
+    PROD[Heat]
+    3 Heat
+}
+Me: PlayCard(NitrogenRichAsteroid) {
+    Pay(6 Titanium, 10 MC)
+    2 TerraformRating
+    TemperatureStep
+    PROD[Plant]
+    TerraformRating
+}
+Me: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Hellas_7_7>
+    OxygenStep
+    2 MC
+    TerraformRating
+    TemperatureStep
+    TerraformRating
+}
+Me: UseAction1(RegolithEaters) {
+    Microbe<RegolithEaters>
+}
+Me: Pass
+
+Me: Production {
+    74 MC
+    4 Plant
+    4 Titanium
+    3 Steel
+    6 Heat
+    3 Energy
+}
+
+// Generation 12
+Me: Research {
+    4 ProjectCard<Selecting>
+}
+
+Me: Research {
+    -4 ProjectCard<Selecting>
+}
+
+Me: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Me: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+Me: UseAction1(SubCrustMeasurements) {
+    ProjectCard
+}
+Me: UseAction1(WaterSplittingPlant) {
+    Pay(3 Energy)
+    OxygenStep
+    TerraformRating
+}
+Me: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+Me: UseAction2(RegolithEaters) {
+    -2 Microbe<RegolithEaters>
+    OxygenStep
+    TerraformRating
+}
+Me: PlayCard(Greenhouses) {
+    Pay(2 Steel, 1 MC)
+    4 Plant
+}
+Me: PlayCard(TerraformingGanymede) {
+    Pay(4 Titanium, 18 MC)
+    4 TerraformRating
+}
+Me: UseStandardProject(SellPatentsProject) {
+    6 MC FROM ProjectCard
+}
+Me: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Me: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Me: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Me: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    2 TerraformRating
+}
+Me: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+Me: PlayCard(TransNeptuneProbe) {
+    Pay(1 MC)
+}
+Me: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_6_5>
+    OxygenStep
+    TerraformRating
+}
+Me: Pass
+
+Me: Production {
+    88 MC
+    4 Plant
+    4 Titanium
+    3 Steel
+    6 Heat
+    2 Energy
+}
+
+// Final plant conversion would happen, but...
+// Decline the final greenery placement.
+// decline final greenery
+Me {
+    Ok
+}
+
+Me {
+    78 VictoryPoint
+}
+// wow that was not good

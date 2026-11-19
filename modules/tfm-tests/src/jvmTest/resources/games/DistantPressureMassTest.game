@@ -1,0 +1,1864 @@
+// Replay: DistantPressureMassTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/DistantPressureMassTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Source: _local/replays/Game20260824/ (game log, player records, and screenshots)
+// Complete archive replay: Distant Pressure Mass (gaf4dfdc697db)
+// http://newazure.local:8080/the-end?id=paffe109dfc39
+// Solarnet's Terran is the archive's Terran5 milestone. It was available but never claimed.
+Config {
+    Keen, Been
+    HellasMap
+    VenusNextExpansion, PreludeExpansion, ColoniesExpansion
+    prelude2:cards, promos:cards, SagittaFrontierServices
+    Ceres, Ganymede, Io, Miranda, Titan
+    Ecologist, Terraformer, Terran, Mayor, Merchant, Researcher
+    Electrician, Industrialist, Highlander, Investor, Scientist, Manufacturer
+    -Merger
+}
+
+GlobalEventDeck {
+}
+
+Keen: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Keen
+    2 PreludeCard
+    -6 ProjectCard<Selecting>
+}
+
+Been: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Been
+    2 PreludeCard
+    -6 ProjectCard<Selecting>
+}
+
+// Generation 1
+Keen: PlayCard(SagittaFrontierServices) {
+    31 MC VIA SagittaFrontierServices
+    PROD[Energy]
+    PROD[2 MC]
+    SearchForCard<NoTagsFilter>
+    4 MC VIA SagittaFrontierServices
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Been: PlayCard(Polyphemos) {
+    50 MC VIA Polyphemos
+    5 Titanium
+    PROD[5 MC]
+    Pay(20 MC)
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Keen: PlayCard(IndustrialComplex) {
+    -18 MC VIA IndustrialComplex
+    EACH Class<@StandardResource> { Production<Class<@StandardResource>>! / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>> } VIA IndustrialComplex
+    MC
+    PROD[Titanium]
+    PROD[Steel]
+    PROD[Plant]
+    PROD[Heat]
+}
+Keen: PlayCard(AppliedScience) {
+    6 Science<AppliedScience>
+    4 MC
+}
+
+Been: PlayCard(StrategicBasePlanning) {
+    -3 MC
+    Colony<Ganymede>
+    PROD[Plant]
+    NormalCityTile<Hellas_9_7>
+    -6 MC
+    OceanTile<Hellas_5_6>
+    TerraformRating
+    ProjectCard
+}
+Been: PlayCard(EarlySettlement) {
+    PROD[Plant]
+    NormalCityTile<Hellas_2_6>
+    Plant
+}
+
+Keen: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+
+Been: PlayCard(LunarExports) {
+    Pay(5 Titanium, 4 MC)
+    PROD[5 MC]
+}
+
+Keen: Pass
+
+Been: PlayCard(Flooding) {
+    Pay(7 MC)
+    OceanTile<Hellas_5_7>
+    TerraformRating
+    3 Heat
+    2 MC
+}
+Been: Pass
+
+// Production.
+Keen: Production {
+    22 MC
+    Energy
+    Titanium
+    Steel
+    Plant
+    Heat
+}
+
+Been: Production {
+    32 MC
+    2 Plant
+}
+
+Keen: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 2
+Keen: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    4 ProjectCard<Selecting>
+}
+
+Keen: Research {
+    -ProjectCard<Selecting>
+}
+
+Keen: Research {
+    Pay(9 MC)
+}
+
+Keen: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Been: Research {
+    -ProjectCard<Selecting>
+}
+
+Been: Research {
+    Pay(15 MC)
+}
+
+Been: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Been: PlayCard(ExtractorBalloons) {
+    Pay(21 MC)
+    3 Floater<ExtractorBalloons>
+}
+
+Keen: PlayCard(CuttingEdgeTechnology) {
+    Pay(12 MC)
+    MC
+}
+
+Been: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+
+Keen: PlayCard(DustSeals) {
+    4 MC
+}
+
+Been: Pass
+
+Keen: PlayCard(DirectedHeatUsage) {
+    Pay(1 MC)
+    4 MC
+}
+Keen: PlayCard(CommunityServices) {
+    Pay(13 MC)
+    PROD[5 MC]
+    4 MC
+}
+Keen: PlayCard(BusinessNetwork) {
+    Pay(4 MC)
+    PROD[-MC]
+    MC
+}
+Keen: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Keen: PlayCard(SearchForLife) {
+    Pay(1 MC)
+    MC
+}
+// No microbe tag on the revealed card.
+Keen: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+Keen: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+Keen: Pass
+
+// Production.
+Keen: Production {
+    26 MC
+    Energy VIA Production
+    Titanium
+    Steel
+    Plant
+    Heat VIA Production
+    Heat FROM Energy
+}
+
+Been: Production {
+    33 MC
+    2 Plant
+}
+
+Been: WorldGovernment {
+    OceanTile<Hellas_4_6>! BY Admin
+}
+
+// Generation 3
+Keen: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Keep all four research cards.
+Keen: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Keen: Research {
+    Pay(12 MC)
+}
+
+Keen: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// Screenshot evidence: generation-3-research.png, after Keen's purchase and before Been's.
+Been: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Been: Research {
+    Pay(10 MC)
+}
+
+Been: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Keen: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Energy
+}
+Keen: ClaimMilestone {
+    Pay(8 MC)
+    Merchant
+}
+
+Been: PlayCard(ForcedPrecipitation) {
+    Pay(8 MC)
+}
+Been: PlayCard(MiningColony) {
+    Pay(20 MC)
+    PROD[Titanium]
+    Colony<Titan>
+    3 Floater<ForcedPrecipitation>
+}
+
+Keen: PlayCard(MarsUniversity) {
+    Pay(2 Steel, 4 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Keen: ClaimMilestone {
+    Pay(8 MC)
+    Researcher
+}
+
+Been: UseAction1(ForcedPrecipitation) {
+    Pay(2 MC)
+    Floater<ForcedPrecipitation>
+}
+Been: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+
+Keen: UseAction1(DirectedHeatUsage) {
+    Pay(3 Heat)
+    4 MC
+}
+// Keep the offered card.
+Keen: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+Been: Pass
+
+Keen: Pass
+
+// Production.
+Keen: Production {
+    26 MC
+    Energy VIA Production
+    Titanium
+    Steel
+    Plant
+    Heat VIA Production
+    2 Heat FROM Energy
+}
+
+Been: Production {
+    33 MC
+    2 Plant
+    Titanium
+}
+
+Keen: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 4
+Keen: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Screenshot evidence: generation-4-research.png, before either player's purchase.
+Been: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Been: Research {
+    Pay(5 MC)
+}
+
+Been: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Keen: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Keen: Research {
+    Pay(6 MC)
+}
+
+Keen: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Been: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+Been: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+    ProjectCard
+}
+
+Keen: UseAction1(DirectedHeatUsage) {
+    Pay(3 Heat)
+    4 MC
+}
+
+Been: Trade1 {
+    Pay(9 MC)
+    Trade<Ganymede>
+    5 Plant
+}
+Been: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_3_7>
+    OxygenStep
+    Plant
+    ProjectCard
+    TerraformRating
+}
+
+Keen: PlayCard(EarthCatapult) {
+    Pay(23 MC)
+    MC
+}
+
+Been: PlayCard(MiningRights) {
+    Pay(9 MC)
+    MiningRights_SpecialTile<Hellas_6_2>
+    PROD[Titanium]
+    Titanium
+}
+
+Keen: PlayCard(ResearchCoordination) {
+    Pay(2 MC)
+    4 MC
+}
+
+Been: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+
+Keen: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+// No microbe tag on the revealed card.
+Keen: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+
+Been: Pass
+
+Keen: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+Keen: Pass
+
+// Production.
+Keen: Production {
+    26 MC
+    Energy VIA Production
+    Titanium
+    Steel
+    Plant
+    Heat VIA Production
+    Heat FROM Energy
+}
+
+Been: Production {
+    36 MC
+    2 Plant
+    2 Titanium
+    Energy
+}
+
+Been: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 5
+Keen: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Been: Research {
+    Pay(10 MC)
+}
+
+Been: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Keen: Research {
+    -ProjectCard<Selecting>
+}
+
+Keen: Research {
+    Pay(9 MC)
+}
+
+Keen: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Keen: Trade3 {
+    Pay(3 Titanium)
+    Trade<Ceres>
+    8 Steel
+}
+
+Been: PlayCard(CorporateStronghold) {
+    Pay(11 MC)
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Hellas_3_5>
+    2 MC
+}
+Been: ClaimMilestone {
+    Pay(8 MC)
+    Mayor
+}
+
+Keen: PlayCard(FueledGenerators) {
+    PROD[-MC]
+    PROD[Energy]
+}
+
+Been: Trade3 {
+    Pay(3 Titanium)
+    Trade<Titan>
+    Floater<ExtractorBalloons>
+    3 Floater<ForcedPrecipitation>
+}
+
+Keen: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+
+Been: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+
+Keen: PlayCard(LunarMining) {
+    Pay(9 MC)
+    PROD[2 Titanium]
+    MC
+}
+
+Been: PlayCard(SisterPlanetSupport) {
+    Pay(7 MC)
+    PROD[3 MC]
+}
+
+// No MC remainder.
+Keen: PlayCard(CupolaCity) {
+    Pay(6 Steel)
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Hellas_4_4>
+    2 Steel
+}
+
+Been: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+}
+
+Keen: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+Been: Pass
+
+// No microbe tag on the revealed card.
+Keen: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+Keen: PlayCard(MethaneFromTitan) {
+    Pay(5 Titanium, 9 MC)
+    PROD[2 Heat]
+    PROD[2 Plant]
+}
+Keen: Pass
+
+// Production.
+Keen: Production {
+    28 MC
+    Energy VIA Production
+    3 Titanium
+    Steel
+    3 Plant
+    3 Heat VIA Production
+    Heat FROM Energy
+}
+
+Been: Production {
+    43 MC
+    2 Plant
+    2 Titanium
+    Heat FROM Energy
+}
+
+Keen: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 6
+Keen: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    4 ProjectCard<Selecting>
+}
+
+Keen: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Keen: Research {
+    Pay(6 MC)
+}
+
+Keen: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Been: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Been: Research {
+    Pay(10 MC)
+}
+
+Been: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Been: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+Been: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    2 TerraformRating
+}
+
+Keen: Trade3 {
+    Pay(3 Titanium)
+    Trade<Io>
+    13 Heat
+}
+
+Been: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_2_5>
+    OxygenStep
+    Plant
+    TerraformRating
+}
+
+// Keep the offered card.
+Keen: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+Been: PlayCard(EarthOffice) {
+    Pay(1 MC)
+}
+
+Keen: PlayCard(RestrictedArea) {
+    Pay(9 MC)
+    MC
+    RestrictedArea_SpecialTile<Hellas_3_6>
+    2 Plant
+    2 MC
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Been: PlayCard(LunaGovernor) {
+    PROD[2 MC]
+}
+
+Keen: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+
+// Pay no titanium.
+Been: PlayCard(SolarReflectors) {
+    Pay(23 MC)
+    PROD[5 Heat]
+}
+
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_4_5>
+    OxygenStep
+    Steel
+    4 MC
+    TerraformRating
+}
+
+// Pay no titanium.
+Been: PlayCard(SpaceMirrors) {
+    Pay(3 MC)
+}
+
+Keen: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+
+Been: UseAction1(SpaceMirrors) {
+    Pay(7 MC)
+    PROD[Energy]
+}
+
+Keen: PlayCard(LightningHarvest) {
+    Pay(4 MC)
+    PROD[Energy]
+    PROD[MC]
+    MC
+}
+
+Been: Pass
+
+Keen: PlayCard(OptimalAerobraking) {
+    Pay(1 Titanium, 2 MC)
+    MC
+}
+Keen: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Keen: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+Keen: Pass
+
+// Production.
+Keen: Production {
+    31 MC
+    3 Energy VIA Production
+    3 Titanium
+    Steel
+    3 Plant
+    3 Heat VIA Production
+    Heat FROM Energy
+}
+
+Been: Production {
+    49 MC
+    2 Plant
+    2 Titanium
+    5 Heat
+    Energy
+}
+
+Been: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 7
+Keen: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    -ProjectCard<Selecting>
+}
+
+Been: Research {
+    Pay(15 MC)
+}
+
+Been: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// Keep all four research cards.
+Keen: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Keen: Research {
+    Pay(12 MC)
+}
+
+Keen: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Keen: PlayCard(RadSuits) {
+    Pay(2 MC)
+    PROD[MC]
+    4 MC
+}
+// No MC remainder.
+Keen: PlayCard(WaterSplittingPlant) {
+    Pay(4 Steel)
+    MC
+}
+
+Been: PlayCard(VenusianAnimals) {
+    Pay(15 MC)
+    Animal<VenusianAnimals>
+}
+Been: PlayCard(InventionContest) {
+    Pay(2 MC)
+    3 ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+    Animal<VenusianAnimals>
+}
+
+Keen: PlayCard(GiantIceAsteroid) {
+    Pay(3 Titanium, 25 MC)
+    TemperatureStep
+    TemperatureStep
+    3 MC
+    3 Heat
+    2 TerraformRating
+    PROD[Heat]
+    -4 Plant<Been>
+    OceanTile<Hellas_4_7>
+    TerraformRating
+    Plant
+    4 MC
+    OceanTile<Hellas_7_3>
+    TerraformRating
+    2 Titanium
+}
+
+Been: PlayCard(BusinessContacts) {
+    Pay(4 MC)
+    4 ProjectCard<Selecting>
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Keen: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Keen: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+
+Been: PlayCard(CorroderSuits) {
+    Pay(8 MC)
+    PROD[2 MC]
+    Animal<VenusianAnimals>
+}
+
+Keen: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+
+Been: Trade3 {
+    Pay(3 Titanium)
+    Trade<Ganymede>
+    5 Plant
+}
+
+Keen: PlayCard(SterlingVents) {
+    Pay(1 Steel, 1 MC)
+    PROD[-2 Heat]
+    PROD[2 Energy]
+}
+
+Been: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Keen: UseAction1(WaterSplittingPlant) {
+    Pay(3 Energy)
+    OxygenStep
+    TerraformRating
+}
+
+Been: PlayCard(FloaterPrototypes) {
+    Pay(2 MC)
+    Animal<VenusianAnimals>
+    2 Floater<ForcedPrecipitation>
+}
+
+// No MC remainder.
+Keen: PlayCard(RadChemFactory) {
+    Pay(3 Steel)
+    PROD[-Energy]
+    2 TerraformRating
+    MC
+}
+
+Been: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+}
+
+// Keep the offered card.
+Keen: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+Been: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+
+// No microbe tag on the revealed card.
+Keen: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+
+Been: Pass
+
+Keen: Pass
+
+// Production.
+Keen: Production {
+    41 MC
+    4 Energy
+    3 Titanium
+    Steel
+    3 Plant
+    3 Heat
+}
+
+Been: Production {
+    53 MC
+    2 Plant
+    2 Titanium
+    5 Heat VIA Production
+    Energy VIA Production
+    Heat FROM Energy
+}
+
+Keen: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 8
+Keen: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Screenshot evidence: generation-8-research.png, before either player's purchase.
+Been: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Been: Research {
+    Pay(5 MC)
+}
+
+Been: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Keen: Research {
+    -ProjectCard<Selecting>
+}
+
+Keen: Research {
+    Pay(9 MC)
+}
+
+Keen: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Been: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Hellas_2_4>
+    OxygenStep
+    Plant
+    Steel
+    TerraformRating
+}
+Been: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_1_5>
+    OxygenStep
+    Plant
+    TerraformRating
+    TemperatureStep
+    TerraformRating
+}
+
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_5_4>
+    OxygenStep
+    2 Steel
+    TerraformRating
+}
+Keen: FundAward {
+    Pay(8 MC)
+    Scientist
+}
+
+Been: Trade3 {
+    Pay(3 Titanium)
+    Trade<Titan>
+    Floater<ExtractorBalloons>
+    3 Floater<ForcedPrecipitation>
+}
+Been: PlayCard(SubterraneanReservoir) {
+    Pay(11 MC)
+    OceanTile<Hellas_5_8>
+    TerraformRating
+    4 MC
+}
+
+Keen: PlayCard(Atmoscoop) {
+    Pay(5 Titanium, 3 MC)
+    2* Floater
+    VenusStep*, VenusStep*
+    2 TerraformRating
+}
+
+Been: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+Been: UseAction2(ForcedPrecipitation) {
+    -2 Floater<ForcedPrecipitation>
+    VenusStep
+    TerraformRating
+}
+
+Keen: PlayCard(ProductiveOutpost) {
+    4 MC
+}
+
+Been: PlayCard(AstraMechanica) {
+    Pay(7 MC)
+    Animal<VenusianAnimals>
+    ProjectCard FROM PlayedEvent<Class<InventionContest>>
+    ProjectCard FROM PlayedEvent<Class<Flooding>>
+}
+Been: PlayCard(Flooding) {
+    Pay(7 MC)
+    OceanTile<Hellas_6_8>
+    TerraformRating
+    Steel
+    4 MC
+}
+
+Keen: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+
+Been: PlayCard(InventionContest) {
+    Pay(2 MC)
+    3 ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+    Animal<VenusianAnimals>
+}
+Been: PlayCard(DeepWellHeating) {
+    Pay(2 Steel, 9 MC)
+    PROD[Energy]
+    TemperatureStep
+    TerraformRating
+}
+
+// Keep the offered card.
+Keen: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+Been: Pass
+
+Keen: UseAction1(WaterSplittingPlant) {
+    Pay(3 Energy)
+    OxygenStep
+    TerraformRating
+}
+Keen: PlayCard(MolecularPrinting) {
+    Pay(9 MC)
+    7 MC
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+// No microbe tag on the revealed card.
+Keen: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+Keen: PlayCard(Hackers) {
+    Pay(1 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    4 MC
+    PROD[-2 MC<Been>]
+}
+Keen: PlayCard(BreathingFilters) {
+    Pay(7 MC)
+    MC
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Keen: PlayCard(KelpFarming) {
+    Pay(13 MC)
+    PROD[2 MC]
+    PROD[3 Plant]
+    2 Plant
+    MC
+}
+Keen: Pass
+
+// Production.
+Keen: Production {
+    49 MC
+    3 Energy VIA Production
+    3 Titanium
+    Steel
+    6 Plant
+    3 Heat VIA Production
+    Heat FROM Energy
+}
+
+Been: Production {
+    59 MC
+    2 Plant
+    2 Titanium
+    5 Heat VIA Production
+    2 Energy VIA Production
+    Heat FROM Energy
+}
+
+Been: WorldGovernment {
+    OceanTile<Hellas_6_7>! BY Admin
+}
+
+// Generation 9
+Keen: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Been: Research {
+    Pay(10 MC)
+}
+
+Been: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Keen: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Keen: Research {
+    Pay(6 MC)
+}
+
+Keen: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_5_5>
+    OxygenStep
+    2 MC
+    TerraformRating
+}
+Keen: UseAction1(WaterSplittingPlant) {
+    Pay(3 Energy)
+    OxygenStep
+    TerraformRating
+}
+
+// Screenshot evidence: generation-9-actions.png, after Keen's opening turn and before Been's.
+Been: PlayCard(RimFreighters) {
+    Pay(1 Titanium, 1 MC)
+}
+Been: Trade3 {
+    Pay(2 Titanium)
+    Trade<Ceres>
+    6 Steel
+}
+
+Keen: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+
+Been: PlayCard(UndergroundCity) {
+    Pay(6 Steel, 6 MC)
+    PROD[-2 Energy]
+    PROD[2 Steel]
+    NormalCityTile<Hellas_1_4>
+    Plant
+    Steel
+}
+Been: FundAward {
+    Pay(14 MC)
+    Highlander
+}
+
+Keen: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Keen: PlayCard(AdvancedAlloys) {
+    Pay(7 MC)
+    MC
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Been: PlayCard(LunarBeam) {
+    Pay(10 MC)
+    PROD[-2 MC]
+    PROD[2 Heat]
+    PROD[2 Energy]
+}
+
+// The archive pays Solar Probe entirely in M€ despite Keen retaining usable titanium.
+// Pay no titanium.
+Keen: PlayCard(SolarProbe) {
+    Pay(7 MC)
+    3 ProjectCard VIA SolarProbe
+    3 MC
+    3 Heat
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Been: PlayCard(AerialMappers) {
+    Pay(11 MC)
+}
+
+// No MC remainder.
+Keen: PlayCard(AsteroidCard) {
+    Pay(3 Titanium)
+    TemperatureStep
+    2 Titanium
+    3 MC
+    3 Heat
+    TerraformRating
+    -3 Plant<Been>
+}
+Keen: PlayCard(IceMoonColony) {
+    Pay(2 Titanium, 13 MC)
+    MC
+    Colony<Ganymede>
+    PROD[Plant]
+    OceanTile<Hellas_2_1>
+    TerraformRating
+    2 Plant
+}
+
+// No card can receive microbes.
+Been: PlayCard(UrbanDecomposers) {
+    Pay(6 MC)
+    PROD[Plant]
+    2* Microbe
+}
+
+Keen: PlayCard(Harvest) {
+    12 MC
+}
+
+Been: UseAction1(AerialMappers) {
+    Floater<AerialMappers>
+}
+
+Keen: PlayCard(VenusMagnetizer) {
+    Pay(3 MC)
+    MC
+}
+
+Been: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+
+// No microbe tag on the revealed card.
+Keen: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+
+Been: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Keen: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Been: Pass
+
+Keen: PlayCard(SpecialDesign) {
+    Pay(2 MC)
+    SpecialDesign_NextCardEffect
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Keen: PlayCard(Trees) {
+    Pay(9 MC)
+    PROD[3 Plant]
+    Plant
+    MC
+}
+Keen: PlayCard(Algae) {
+    Pay(6 MC)
+    Plant
+    PROD[2 Plant]
+    MC
+}
+Keen: PlayCard(LocalHeatTrapping) {
+    -5 Heat
+    MC
+    4 Plant
+}
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_3_3>
+    OxygenStep
+    Steel
+    TerraformRating
+}
+Keen: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Keen: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Hellas_4_3>
+    OxygenStep
+    Steel
+    TerraformRating
+}
+Keen: Pass
+
+// Production.
+Keen: Production {
+    56 MC
+    3 Energy
+    3 Titanium
+    Steel
+    12 Plant
+    3 Heat
+}
+
+Been: Production {
+    58 MC
+    3 Plant
+    2 Titanium
+    7 Heat VIA Production
+    2 Heat FROM Energy VIA Energy
+    2 Steel
+    2 Energy
+}
+
+Keen: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 10
+Keen: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Been: Research {
+    Pay(5 MC)
+}
+
+Been: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Keen: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Keen: Research {
+    Pay(6 MC)
+}
+
+Keen: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Been: PlayCard(FieldCappedCity) {
+    Pay(3 Steel, 23 MC)
+    PROD[2 MC]
+    PROD[Energy]
+    3 Plant
+    NormalCityTile<Hellas_2_3>
+    Plant
+}
+Been: PlayCard(UrbanizedArea) {
+    Pay(10 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    NormalCityTile<Hellas_3_4>
+    Steel
+}
+
+Keen: Trade2 {
+    Pay(3 Energy)
+    Trade<Io>
+    8 Heat
+}
+// Oxygen is already maxed.
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_6_5>
+    0 OxygenStep
+}
+
+Been: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+Been: Trade3 {
+    Pay(2 Titanium)
+    Trade<Ganymede>
+    5 Plant
+    Keen: Plant
+}
+
+Keen: PlayCard(Capital) {
+    Pay(7 Steel, 1 MC)
+    PROD[-2 Energy]
+    PROD[5 MC]
+    CapitalTile<Hellas_6_6, Capital>
+    4 MC
+}
+
+Been: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_9_6>
+    0 OxygenStep
+    2 Heat
+}
+Been: PlayCard(EcologyResearch) {
+    Pay(21 MC)
+    PROD[2 Plant]
+    2* Microbe
+    // Science-tag reward.
+    Animal<VenusianAnimals> VIA VenusianAnimals
+    // Ecology Research.
+    Animal<VenusianAnimals>
+}
+
+Keen: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Been: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+// No ocean tiles remain.
+Been: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    OceanTile<WaterArea(HAS MAX 0 Tile)>*
+}
+
+Keen: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+
+Been: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+
+// Keep the offered card.
+Keen: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+Keen: PlayCard(Grass) {
+    Pay(7 MC)
+    PROD[Plant]
+    3 Plant
+    MC
+}
+
+Been: Pass
+
+Keen: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Hellas_3_2>
+    Plant
+    2 MC
+}
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_4_2>
+    0 OxygenStep
+    Plant
+}
+Keen: PlayCard(PeroxidePower) {
+    Pay(1 Steel, 2 MC)
+    PROD[-MC]
+    PROD[2 Energy]
+}
+// No microbe tag on the revealed card.
+Keen: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+Keen: PlayCard(LuxuryFoods) {
+    Pay(4 MC)
+    4 MC
+}
+Keen: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+}
+Keen: Pass
+
+// Production.
+Keen: Production {
+    63 MC
+    3 Energy
+    3 Titanium
+    Steel
+    13 Plant
+    3 Heat
+}
+
+Been: Production {
+    64 MC
+    5 Plant
+    2 Titanium
+    7 Heat VIA Production
+    2 Steel
+    2 Energy VIA Production
+    2 Heat FROM Energy
+}
+
+Been: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 11
+Keen: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    4 ProjectCard<Selecting>
+}
+
+Been: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Been: Research {
+    Pay(5 MC)
+}
+
+Been: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Keen: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Keen: Research {
+    Pay(6 MC)
+}
+
+Keen: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Keen: PlayCard(SubZeroSaltFish) {
+    Pay(1 MC)
+    MC
+    PROD[-Plant<Been>]
+}
+Keen: Trade2 {
+    Pay(3 Energy)
+    Trade<Miranda>
+    3 Animal<SubZeroSaltFish>
+}
+
+Been: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Been: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Hellas_5_3>
+}
+
+Keen: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Keen: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Hellas_7_5>
+}
+
+Been: Trade2 {
+    Pay(2 Energy)
+    Trade<Ganymede>
+    4 Plant
+    Keen: Plant
+}
+Been: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_1_3>
+    0 OxygenStep
+    2 Plant
+}
+
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_7_6>
+    0 OxygenStep
+    ProjectCard
+}
+Keen: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Hellas_8_8>
+    Titanium
+}
+
+Been: PlayCard(Plantation) {
+    Pay(15 MC)
+    GreeneryTile<Hellas_1_2>
+    0 OxygenStep
+    2 Plant
+}
+Been: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_2_2>
+    0 OxygenStep
+    2 Plant
+    2 MC
+}
+
+Keen: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_7_7>
+    0 OxygenStep
+    2 MC
+}
+
+Been: FundAward {
+    Pay(20 MC)
+    Investor
+}
+Been: UseAction1(AerialMappers) {
+    Floater<AerialMappers>
+}
+
+Keen: PlayCard(InvestmentLoan) {
+    Pay(1 MC)
+    PROD[-MC]
+    10 MC
+}
+
+Been: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+
+Keen: UseAction1(SubZeroSaltFish) {
+    Animal<SubZeroSaltFish>
+}
+
+Been: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Keen: PlayCard(Greenhouses) {
+    Pay(1 Steel, 1 MC)
+    12 Plant
+}
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_7_8>
+    0 OxygenStep
+    4 MC
+}
+
+// The archive records Been passing as a second action; defer it to Been's next legal turn.
+Been: Pass
+
+// No MC remainder.
+// No Jovian card can receive floaters.
+Keen: PlayCard(NitrogenFromTitan) {
+    Pay(6 Titanium)
+    2 TerraformRating
+    2* Floater<CardFront(HAS JovianTag)>
+}
+Keen: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Keen: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+// No microbe tag on the revealed card.
+Keen: UseAction1(SearchForLife) {
+    Pay(1 MC)
+    ProjectCard<Revealed>
+    0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
+    -ProjectCard<Revealed>
+}
+// Venus is already maxed.
+Keen: UseAction1(VenusMagnetizer) {
+    PROD[-Energy]
+    0 VenusStep
+}
+Keen: Pass
+
+// Production.
+Keen: Production {
+    67 MC
+    2 Energy
+    3 Titanium
+    Steel
+    13 Plant
+    3 Heat
+}
+
+Been: Production {
+    66 MC
+    4 Plant
+    2 Titanium
+    7 Heat
+    2 Steel
+    2 Energy
+}
+
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_7_4>
+    2 MC
+}
+Keen: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_8_5>
+    ProjectCard
+}
+// decline final greenery
+Keen {
+    Ok
+}
+
+Been: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_6_3>
+    2 MC
+}
+// decline final greenery
+Been {
+    Ok
+}
+
+Keen {
+    117 VictoryPoint
+}
+
+Been {
+    99 VictoryPoint
+}
+// _local/replays/Game20260824/player-keen.json; final Mars map.

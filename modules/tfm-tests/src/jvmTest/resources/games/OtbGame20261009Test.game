@@ -1,0 +1,2150 @@
+// Replay: OtbGame20261009Test
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/OtbGame20261009Test.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Sources: _local/replays/Game20261009/{transcript-afternoon,transcript-evening,
+// transcript-middle,transcript-end,sources}.md.
+// Player tasks are explicit. Admin retains normal autoexecution, as in Game20230521Test.
+Config {
+    Aqua, Pink
+    VastitasMap
+    CorporateEraExpansion, PreludeExpansion, VenusNextExpansion, ColoniesExpansion
+    prelude2:cards, promos:cards
+    Callisto, Enceladus, Io, Miranda, Triton
+    Diversifier, Engineer, Forester, Legend, Researcher
+    Botanist, Investor, Landscaper, Manufacturer, Traveller
+}
+
+GlobalEventDeck {
+}
+
+// Each player takes their starting TR before their other setup tasks.
+Aqua: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Aqua
+    2 PreludeCard
+    -5 ProjectCard<Selecting>
+}
+
+Pink: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Pink
+    2 PreludeCard
+    -2 ProjectCard<Selecting>
+}
+
+// Afternoon 13:44:57–13:45:37: Kevin/Aqua keeps five; Ellie/Pink keeps eight.
+// "Arcadian communities. That gives me 40 money and 10 steel. And then I'm keeping five
+// cards, so I spend 15." "I believe I am Tractor [Teractor], and I'm buying eight cards.
+// I know, crazy." "Oh, damn, money bags."
+Aqua: PlayCard(ArcadianCommunities) {
+    40 MC VIA ArcadianCommunities
+    10 Steel
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(Teractor) {
+    60 MC VIA Teractor
+    Pay(24 MC)
+    8 ProjectCard<Hand FROM Selecting>
+}
+
+// "I chose my preludes because they rhyme. I'm just kidding."
+// "Boomtown!" "Oh wow." "You need to help me remember that my titanium is only worth two,
+// just like my steel."
+Aqua: PlayCard(BoomTown) {
+    PROD[2 Titanium]
+    NormalCityTile<Vastitas_6_9>
+    2 Titanium
+}
+// "Oh, is it double down?" "Double down!" "It's actually pretty funny."
+Aqua: PlayCard(DoubleDown) {
+    CopyPrelude<BoomTown>
+    PROD[2 Titanium]
+    NormalCityTile<Vastitas_8_7>
+    Plant
+    Steel
+}
+
+// "That has altered my plans. This is a little wild." "Yeah, that's why I bought a bunch."
+Pink: PlayCard(AquiferTurbines) {
+    OceanTile<Vastitas_5_6>
+    TerraformRating
+    2 Plant
+    PROD[2 Energy]
+    -3 MC
+}
+// 13:52:07: revised ocean choice is 6-6; city 4-5; greenery 5-5.
+// separate gains while the same resource also has a pending removal
+Pink: PlayCard(ProjectEden) {
+    OceanTile<Vastitas_6_6>
+    TerraformRating
+    2 MC
+    2 Heat
+    Plant
+    NormalCityTile<Vastitas_4_5>
+    2 MC
+    GreeneryTile<Vastitas_5_5>
+    0 MC
+    TemperatureStep
+    OxygenStep
+    2 TerraformRating
+    -3 ProjectCard
+}
+
+// The table omitted Project Eden's oxygen and TR. The 13:53:05 photo shows oxygen 0,
+// TR 23; at 22:31:08 they notice the missing oxygen, but never restore this TR.
+Pink: ExMachina {
+    -OxygenStep
+    -TerraformRating
+}
+
+// board-13-53-05.jpg, after Preludes.
+Aqua: DoRequiredActions {
+    Community<Vastitas_7_8>
+}
+// no MC paid
+Aqua: PlayCard(NuclearPower) {
+    Pay(5 Steel)
+    PROD[-2 MC]
+    PROD[3 Energy]
+}
+
+// "Giant ice asteroid. Crazy play for first turn." "I knew you had something that would get
+// you two temperature, obviously." "Amazing play."
+Pink: PlayCard(GiantIceAsteroid) {
+    Pay(36 MC)
+    TemperatureStep
+    TemperatureStep
+    2 TerraformRating
+    OceanTile<Vastitas_6_7>
+    TerraformRating
+    4 MC
+    ProjectCard
+    OceanTile<Vastitas_5_7>
+    TerraformRating
+    4 MC
+    2 Plant VIA Vastitas_5_7
+    -Plant<Aqua>
+    PROD[Heat]
+    // Pink's logs show no heat production and +1 heat (entry 27), apparently confusing
+    // the −24°C production bonus with a resource.
+    ExMachina {
+        PROD[-Heat]
+    }
+}
+
+Aqua: PlayCard(ImmigrantCity) {
+    Pay(6 Steel, 1 MC)
+    PROD[-Energy]
+    PROD[-2 MC]
+    NormalCityTile<Vastitas_7_8>
+    PROD[MC]
+    5 MC
+    Plant
+}
+// "I just want you to see how sad this is and it may even make you wonder why I'm even doing
+// it." "Immigrant city. Can you believe that three cities already got played before it?"
+Aqua {
+    Ok
+}
+
+// Pink log entry 27 records +1 heat before Pets' payment at entry 28.
+Pink: ExMachina {
+    Heat
+}
+// "I think I may as well pets for a sec." "Oh, pets. I can see why you would not have expected
+// me to be playing more cities already."
+Pink: PlayCard(Pets) {
+    Pay(7 MC)
+    Animal<Pets>
+}
+
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_7_7>
+}
+
+Pink: Pass
+
+Aqua: Pass
+
+Aqua: Production {
+    17 MC
+    4 Titanium
+    2 Energy
+}
+
+Pink: Production {
+    27 MC
+    2 Energy
+}
+
+Aqua: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// board-13-59-21.jpg; app logs: Aqua 25–30, Pink 30–35. Break before Research.
+// Generation 2. Evening 21:55:19–21:55:55; drafting is represented by its kept counts.
+Aqua: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    Pay(3 MC)
+}
+
+Aqua: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// "Just in case you have any ideas, I'm gonna immediately spend plant gain seven."
+// "I think it's time for me to play a city tile, maybe. Yep. Research outpost."
+Pink: PlayCard(ElectroCatapult) {
+    Pay(17 MC)
+    PROD[-Energy]
+}
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+
+Aqua: PlayCard(ResearchOutpost) {
+    Pay(18 MC)
+    NormalCityTile<Vastitas_9_9>
+    Steel
+    PROD[MC]
+    // Aqua hands Pink the Pets reward before Pink takes it.
+    Pink: Animal<Pets>
+}
+
+Pink: PlayCard(Casinos) {
+    Pay(5 MC)
+    PROD[-Energy]
+    PROD[4 MC]
+}
+
+// "It's so weird that I did this Boomtown thing in a game where the only decent colony is
+// Triton." "I shouldn't be laughing."
+// Include the five-MC payment correction acknowledged at 22:00:27–22:00:47 here.
+Aqua: PlayCard(TradingColony) {
+    Pay(5 Titanium, 7 MC)
+    Colony<Triton>
+    3 Titanium
+}
+
+Pink: Pass
+
+Aqua: PlayCard(GiantSpaceMirror) {
+    Pay(4 Titanium, 8 MC)
+    PROD[3 Energy]
+}
+// "Then, my Arcadian community, let me put a little cubie bobber right here on 6, 8."
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_6_8>
+}
+Aqua: Pass
+
+// Production 2 -> 3: each player's 2 remaining energy becomes heat.
+Aqua: Production {
+    2 Heat FROM Energy VIA Energy
+    18 MC
+    4 Titanium
+    5 Energy
+}
+
+Pink: Production {
+    2 Heat FROM Energy
+    31 MC
+}
+
+Pink: WorldGovernment {
+    OceanTile<Vastitas_3_3>! BY Admin
+}
+
+// board-22-02-46.jpg; Aqua entries 46–51, Pink 49–54.
+// Generation 3, 22:05:39–22:11:19.
+// "It is now round three. That was a really fast generation."
+Aqua: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    -ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    Pay(9 MC)
+}
+
+Aqua: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Aqua: Trade2 {
+    Pay(3 Energy)
+    Trade<Io>
+    ColonyProduction<Io>
+    8 Heat
+}
+
+Pink: PlayCard(IndustrialCenter) {
+    Pay(4 MC)
+    IndustrialCenter_SpecialTile<Vastitas_8_8>
+    Steel
+}
+
+// "Oh, I should have taken my turn to put the Arcadian down." "To do the Arcadian thing and
+// just grab more of the spots that you could take away from me."
+// The coordinate is unspoken at 22:07:33; board-22-11-07.jpg shows the cube at 9-8.
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_9_8>
+}
+
+Pink: UseAction1(IndustrialCenter) {
+    Pay(7 MC)
+    PROD[Steel]
+}
+
+Aqua: PlayCard(InventionContest) {
+    Pay(1 MC)
+    3 ProjectCard<Selecting>
+    ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+
+Aqua: Pass
+
+Pink: Pass
+
+// Production 3 -> 4: Aqua's 2 remaining energy becomes heat.
+Aqua: Production {
+    2 Heat FROM Energy VIA Energy
+    18 MC
+    4 Titanium
+    5 Energy
+}
+
+Pink: Production {
+    31 MC
+    Steel
+}
+
+Aqua: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// board-22-11-07.jpg; Aqua entries 62–67, Pink 68–73.
+// Generation 4, 22:13:17–22:22:15.
+Aqua: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    Pay(6 MC)
+}
+
+Aqua: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// keep all four research cards
+Pink: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(12 MC)
+}
+
+Pink: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(LocalShading) {
+    Pay(4 MC)
+}
+
+Aqua: PlayCard(MarketManipulation) {
+    ColonyProduction<Triton> FROM ColonyProduction<Miranda>
+}
+Aqua: Trade2 {
+    Pay(3 Energy)
+    Trade<Triton>
+    ColonyProduction<Triton>
+    6 Titanium
+}
+
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+
+// "I will also play a catapult." "Is it earth?" "Earth catapult. Earth catapult. Cost me
+// 22. Back to you."
+Aqua: PlayCard(EarthCatapult) {
+    Pay(22 MC)
+}
+
+Pink: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+
+Aqua: PlayCard(ResearchCoordination) {
+    Pay(1 MC)
+}
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_8_9>
+}
+
+// "I'm gonna pay nine. For viral enhancement-ers, which the effect automatically gives me a
+// planta. Now, I have building energy, earth, Venus, science, animal, microbe, and city.
+// That's eight thingy thing eight." "So it is done."
+Pink: PlayCard(ViralEnhancers) {
+    Pay(9 MC)
+    Plant
+}
+Pink: ClaimMilestone {
+    Pay(8 MC)
+    Diversifier
+}
+
+// 22:18:07: the wild tag supplies Conscription's second Earth tag.
+Aqua: PlayCard(Conscription) {
+    Pay(2 MC)
+    Conscription_NextCardEffect
+}
+
+Pink: UseAction1(IndustrialCenter) {
+    Pay(7 MC)
+    PROD[Steel]
+}
+
+// "Titan floating launch pad for free. That doesn't happen every day, does it? And add two
+// floaters and a Joveen card. I choose to add them to Titan floating launch pad."
+Aqua: PlayCard(TitanFloatingLaunchPad) {
+    2 Floater<TitanFloatingLaunchPad>
+}
+
+Pink: Pass
+
+Aqua: UseAction1(TitanFloatingLaunchPad) {
+    Floater<TitanFloatingLaunchPad>
+}
+// Pink's phone in board-22-21-43.jpg still displays this pre-production balance.
+Aqua: Pass
+
+// Production 4 -> 5: Aqua's 2 remaining energy becomes heat.
+Aqua: Production {
+    2 Heat FROM Energy VIA Energy
+    18 MC
+    4 Titanium
+    5 Energy
+}
+
+Pink: Production {
+    31 MC
+    2 Steel
+}
+
+Pink: WorldGovernment {
+    OceanTile<Vastitas_4_3>! BY Admin
+}
+
+// Aqua entries 77–82; Pink 88–93. Spoken production is at 22:20:10;
+// Pink's app timestamps this at 22:12:12 and its photographed display lags the ledger.
+// Generation 5, 22:24:37–22:33:16.
+// "Oh my God, I have eighteen titanium. I can't believe I used energy to trade last time."
+// "I have got to stop laughing at you." "I know."
+Aqua: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    Pay(6 MC)
+}
+
+Aqua: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// At 22:25:50 both players agree to undo the titanium payment for this trade and
+// use the Launch-Pad instead. Replay the accepted choice at the original trade.
+Aqua: UseAction2(TitanFloatingLaunchPad) {
+    -Floater<TitanFloatingLaunchPad>
+    Trade<Callisto>
+    ColonyProduction<Callisto>
+    13 Energy
+}
+
+// "Requires six ocean tiles. Thank you, me. Gain two money production, gain three plant
+// production, gain two plants, and viral enhancements gives me a third."
+// choose Viral Enhancers' plant
+Pink: PlayCard(KelpFarming) {
+    Pay(17 MC)
+    PROD[2 MC]
+    PROD[3 Plant]
+    2 Plant VIA KelpFarming
+    Plant
+}
+
+// "So I did it both through the app, so it would have given me TR for both of them. Wow, this
+// is the first TR I've ever gotten."
+Aqua: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+}
+Aqua: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+
+// Aqua never recorded the −20°C production bonus: entries 97 and 106 show
+// 6 heat before production, then 24 from converting 18 energy, with no heat income.
+Aqua: ExMachina {
+    PROD[-Heat]
+}
+
+Pink: ClaimMilestone {
+    Pay(8 MC)
+    Forester
+}
+
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_7_9>
+}
+
+Pink: PlayCard(AdvancedAlloys) {
+    Pay(9 MC)
+}
+
+Aqua: Pass
+
+// no MC paid
+Pink: PlayCard(IndustrialMicrobes) {
+    Pay(4 Steel)
+    PROD[Energy]
+    PROD[Steel]
+    Plant
+}
+Pink: PlayCard(CorporateStronghold) {
+    Pay(11 MC)
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Vastitas_5_4>
+    2 MC
+    2 Plant
+    Animal<Pets>
+    // Pink hands Aqua the city-triggered production reward.
+    Aqua: PROD[MC]
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_4_4>
+    Plant
+    4 MC
+    OxygenStep
+    TerraformRating
+    // "Oh good, there won't be any more six times as many cities as there are greeneries. Now
+    // it's only three times as many cities."
+    // "Oh gosh! We need to raise this two times." "They both should have raised the oxygen."
+    // 22:31:08–22:31:24: both greeneries' oxygen is finally recorded. This greenery's
+    // step has just resolved normally; restore the missed Project Eden step without its TR.
+    ExMachina {
+        OxygenStep
+    }
+}
+// "You haven't even used your electrocatapult yet?" "Who are you?" "I know, I'm crazy."
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Pink: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+Pink: PlayCard(TerraformingContract) {
+    Pay(5 MC)
+    PROD[4 MC]
+    // 22:31:26–22:32:20: Pink says "pay eight", missing Teractor's 3 MC discount.
+    ExMachina {
+        -3 MC
+    }
+}
+Pink: Pass
+
+// Production 5 -> 6: Aqua's 18 remaining energy becomes heat.
+Aqua: Production {
+    18 Heat FROM Energy VIA Energy
+    21 MC
+    4 Titanium
+    5 Energy
+}
+
+Pink: Production {
+    42 MC
+    3 Steel
+    3 Plant
+}
+
+Aqua: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// board-22-32-56.jpg; Aqua entries 102–107; Pink 126–131. No generation-6 draws yet.
+// Counts from the recorded purchases, draws, discards, and plays; identities are incomplete.
+// October 10, before generation 6 Research: the players apply the agreed corrections.
+// Aqua's -20 C bonus was missed at generation 5 production.
+Aqua: ExMachina {
+    PROD[Heat]
+    Heat
+}
+
+// Project Eden's generation-1 TR missed five productions; Pink's -24 C bonus was
+// entered as one heat resource rather than production, missing four further heat.
+Pink: ExMachina {
+    TerraformRating
+    5 MC
+    PROD[Heat]
+    4 Heat
+}
+
+// "I pay 11 for research. I get two cards."
+// "I believe I have 1, 2, 3, 4 science tags. Yep. So I'd also spend eight to claim Risocha."
+// "How do you feel about that?" "I guess I won't do those things."
+// Generation 6 Research: Aqua buys two cards; Pink buys four.
+Aqua: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    Pay(6 MC)
+}
+
+Aqua: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// keep all four
+Pink: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(12 MC)
+}
+
+Pink: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(Research) {
+    Pay(11 MC)
+    2 ProjectCard
+}
+Pink: ClaimMilestone {
+    Pay(8 MC)
+    Researcher
+}
+
+// "Since I have so much titanium, I took spaceport colony and it cost me 24 and I can do that
+// as 12 titanium." "Oh, are you just not getting a lot of space cards?"
+// "I still have 10 left." Space Port Colony costs twelve titanium after discounts.
+// no MC paid
+Aqua: PlayCard(SpacePortColony) {
+    Pay(12 Titanium)
+    Colony<Io>
+    PROD[Heat]
+    TradeFleet
+}
+Aqua: UseAction2(TitanFloatingLaunchPad) {
+    -Floater<TitanFloatingLaunchPad>
+    Trade<Io>
+    ColonyProduction<Io>
+    10 Heat
+}
+
+Pink: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_5_9>
+}
+// "And I'm very sorry for this, but it just looks too good for you."
+// "Goodbye animals from Miranda, they all go away." "Well played."
+// "I have to push this colony advantage, that's kind of all I got. Your milestone advantage."
+// Miranda's trade empties its track; Aqua has no animal card to receive animals.
+Aqua: Trade3 {
+    Pay(3 Titanium)
+    Trade<Miranda>
+    ColonyProduction<Miranda>
+    // The printed three-animal trade reward had no legal holder and yielded nothing.
+    3* Animal
+}
+
+Pink: PlayCard(SixteenPsyche) {
+    Pay(31 MC)
+    PROD[2 Titanium]
+    3 Titanium
+}
+
+Aqua: PlayCard(EnergyMarket) {
+}
+
+Pink: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+
+Aqua: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Aqua: PlayCard(CommunityServices) {
+    Pay(10 MC)
+    PROD[4 MC]
+}
+
+Pink: Pass
+
+Aqua: PlayCard(LunarBeam) {
+    Pay(10 MC)
+    PROD[-2 MC]
+    PROD[2 Heat]
+    PROD[2 Energy]
+}
+Aqua: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Aqua: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Aqua: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Aqua: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Aqua: Pass
+
+// Production 6 -> 7: Aqua's 5 remaining energy becomes heat.
+Aqua: Production {
+    5 Heat FROM Energy VIA Energy
+    27 MC
+    4 Titanium
+    6 Energy
+    4 Heat
+}
+
+Pink: Production {
+    44 MC
+    3 Steel
+    2 Titanium
+    3 Plant
+    Heat
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// board-11-23-10.jpg; phone logs at the generation 7 checkpoint.
+// "They're all reasonable." "How terrible. I think I'll buy one." "I'm buying them all."
+// Generation 7 Research. Aqua keeps four cards; Pink keeps one.
+Aqua: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// keep all four
+Aqua: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    Pay(12 MC)
+}
+
+Aqua: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(3 MC)
+}
+
+Pink: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// The transcript's "Rune Chatter in Tax" is Rotator Impacts: its three-M€
+// discounted price and the asteroid action used later identify it.
+Aqua: PlayCard(RotatorImpacts) {
+    Pay(1 Titanium, 1 MC)
+}
+
+// "Oh, I hate that card when I don't have it."
+Pink: PlayCard(SolarLogistics) {
+    Pay(4 Titanium, 1 MC)
+    2 Titanium
+}
+// no titanium paid
+// Solar Logistics sees the space event
+Pink: PlayCard(ImportedGhg) {
+    Pay(2 MC)
+    PROD[Heat]
+    3 Heat
+    ProjectCard
+}
+
+Aqua: PlayCard(Dirigibles) {
+    Pay(8 MC)
+}
+
+Pink: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+Pink: PlayCard(AstraMechanica) {
+    Pay(7 MC)
+    ProjectCard FROM PlayedEvent<Class<GiantIceAsteroid>>
+    ProjectCard FROM PlayedEvent<Class<ImportedGhg>>
+}
+
+Aqua: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+
+// "There goes my plan." "The final ocean already?" "Oh my god."
+// "Yeah, this game is wild." "If by wild you mean I'm losing badly, yeah."
+// Giant Ice Asteroid's two oceans are 3-2 and 6-5. The transcript and app
+// record their bonuses separately, although the app combines nearby money changes.
+// Solar Logistics sees the space event
+Pink: PlayCard(GiantIceAsteroid) {
+    Pay(3 Titanium, 24 MC)
+    TemperatureStep
+    TemperatureStep
+    2 TerraformRating
+    OceanTile<Vastitas_3_2>
+    TerraformRating
+    4 MC
+    2 Plant VIA Vastitas_3_2
+    OceanTile<Vastitas_6_5>
+    TerraformRating
+    2 MC
+    2 Heat
+    -Plant<Aqua>
+    ProjectCard
+}
+// the 0 C threshold grants the final ocean
+Pink: PlayCard(LavaFlows) {
+    Pay(18 MC)
+    TemperatureStep
+    TemperatureStep
+    2 TerraformRating
+    LavaFlows_SpecialTile<Vastitas_2_6>
+    ProjectCard
+    OceanTile<Vastitas_5_3>
+    TerraformRating
+    Plant
+    2 MC
+}
+
+// no MC paid
+Aqua: UseAction1(RotatorImpacts) {
+    Pay(3 Titanium)
+    Asteroid<RotatorImpacts>
+}
+
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_4_6>
+    ProjectCard
+    4 MC
+    OxygenStep
+    TerraformRating
+}
+
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_9_7>
+}
+
+Pink: PlayCard(FloatingRefinery) {
+    Pay(7 MC)
+    2 Floater<FloatingRefinery>
+}
+
+Aqua: UseAction1(Dirigibles) {
+    Floater<Dirigibles>
+}
+
+Pink: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+
+// "I've come to my big play, which is so silly. But I have all this titanium."
+// "Which as you can see I just spent the last several turns making sure I would be able to
+// do that."
+// The L1 gift is placed on the three cards Aqua prepared in the preceding turns.
+Aqua: PlayCard(L1TradeTerminal) {
+    Pay(7 Titanium, 8 MC)
+    // L1's three distinct holders
+    EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }
+    Asteroid<RotatorImpacts>
+    Floater<Dirigibles>
+    Floater<TitanFloatingLaunchPad>
+}
+// Choose L1's two track steps and decline Trading Colony's optional third step.
+Aqua: UseAction2(TitanFloatingLaunchPad) {
+    -Floater<TitanFloatingLaunchPad>
+    Trade<Triton>
+    2 ColonyProduction<Triton> VIA L1TradeTerminal
+    // decline Trading Colony's one step
+    0 ColonyProduction<Triton>
+    6 Titanium
+}
+
+// no titanium paid
+// Solar Logistics
+Pink: PlayCard(ImportedGhg) {
+    Pay(2 MC)
+    PROD[Heat]
+    3 Heat
+    ProjectCard
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Aqua: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+// six science tags
+// Solar Logistics
+Pink: PlayCard(SolarProbe) {
+    Pay(1 Titanium, 5 MC)
+    3 ProjectCard
+}
+
+Aqua: PlayCard(InventorsGuild) {
+    Pay(6 MC)
+}
+
+Pink: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+
+Aqua: Trade2 {
+    Pay(3 Energy)
+    Trade<Io>
+    // Trading Colony
+    ColonyProduction<Io> VIA TradingColony
+    // L1 Trade Terminal
+    2 ColonyProduction<Io>
+    12 Heat
+}
+Aqua: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Pink: Pass
+
+Aqua: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+// "Check out this badass card. It's potatoes. I can't build it because it needs plants."
+// Inventors' Guild reveals Potatoes; Aqua declines the purchase.
+Aqua: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+Aqua: Pass
+
+// Production 7 -> 8: Aqua's 3 remaining energy becomes heat.
+Aqua: Production {
+    3 Heat FROM Energy VIA Energy
+    30 MC
+    4 Titanium
+    5 Energy
+    4 Heat
+}
+
+Pink: Production {
+    53 MC
+    3 Steel
+    2 Titanium
+    3 Plant
+    3 Heat
+}
+
+Aqua: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// _local/replays/Game20261009/board-11-44-28.jpg.
+// board-11-44-28.jpg; the logs show these balances before generation 8 Research.
+// "Show me greenery tiles." "Show me the greenery."
+// Generation 8 Research. Aqua buys four cards; Pink buys three.
+Aqua: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    Pay(12 MC)
+}
+
+Aqua: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(RedSpotObservatory) {
+    Pay(17 MC)
+    2 ProjectCard
+}
+
+Aqua: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+// Venus 8% bonus
+Aqua: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+    ProjectCard
+}
+
+// Viral Enhancers on the microbe tag
+Pink: PlayCard(SulphurEatingBacteria) {
+    Pay(6 MC)
+    Microbe<SulphurEatingBacteria>
+}
+
+Aqua: PlayCard(HiredRaiders) {
+    3 MC FROM MC<Pink>
+}
+Aqua: PlayCard(Decomposers) {
+    Pay(2 MC)
+    Microbe<Decomposers>
+}
+
+// no MC paid
+// Viral Enhancers on the plant tag
+Pink: PlayCard(MartianLumberCorp) {
+    Pay(2 Steel)
+    PROD[Plant]
+    Plant
+}
+
+Aqua: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+
+Pink: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+
+Aqua: Trade2 {
+    Pay(3 Energy)
+    Trade<Enceladus>
+    ColonyProduction<Enceladus> VIA TradingColony
+    2 ColonyProduction<Enceladus>
+    4 Microbe<Decomposers>
+}
+
+Pink: PlayCard(VenusShuttles) {
+    Pay(9 MC)
+    2 Floater<FloatingRefinery>
+}
+
+// "I don't love how this game is going. Okay. I'm gonna use Inventor's Guild to look at the
+// best card in the game." "And it requires two Jovian."
+// Inventors' Guild reveals an unaffordable card; Aqua lets it go.
+Aqua: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+Pink: PlayCard(CoronaExtractor) {
+    Pay(2 Titanium, 2 MC)
+    PROD[4 Energy]
+}
+
+Aqua: UseAction2(TitanFloatingLaunchPad) {
+    -Floater<TitanFloatingLaunchPad>
+    Trade<Triton>
+    ColonyProduction<Triton> VIA TradingColony
+    2 ColonyProduction<Triton>
+    5 Titanium
+}
+
+Pink: UseAction1(VenusShuttles) {
+    Pay(8 MC)
+    VenusStep
+    TerraformRating
+}
+
+// The agreed Dirigibles discount replaces Aqua's initial four-M€ payment.
+Aqua: PlayCard(NeutralizerFactory) {
+    Pay(1 Floater<Dirigibles>, 1 MC)
+    VenusStep
+    TerraformRating
+}
+// no MC paid
+// includes the Venus 16% threshold
+Aqua: PlayCard(OrbitalReflectors) {
+    Pay(1 Floater<Dirigibles>, 10 Titanium)
+    VenusStep
+    VenusStep
+    3 TerraformRating
+    PROD[2 Heat]
+}
+
+Pink: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+
+// This floater was placed later than Aqua first recalled in the conversation.
+Aqua: UseAction1(Dirigibles) {
+    Floater<Dirigibles>
+}
+
+Pink: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+// Decomposers reacts to the microbe tag
+Aqua: PlayCard(UrbanDecomposers) {
+    Pay(3 MC)
+    PROD[Plant]
+    2 Microbe<Decomposers> VIA UrbanDecomposers
+    Microbe<Decomposers>
+}
+
+Pink: UseAction1(RedSpotObservatory) {
+    Floater<RedSpotObservatory>
+}
+
+// Viking 2's delegate space is visible in the final photograph; "5-9" was a slip.
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_4_8>
+}
+
+Pink: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+
+// "How are we ever going to get this oxygen up? It's going to be stuck like this forever."
+Aqua: Pass
+
+// "So you have 23 mega credit production and I have one."
+// "I get 36. Hey, they're the same with the digits reversed." "You're the inverse."
+Pink: PlayCard(Sponsors) {
+    Pay(1 MC)
+    PROD[2 MC]
+}
+Pink: PlayCard(Cartel) {
+    Pay(3 MC)
+    PROD[6 MC]
+}
+Pink: Pass
+
+// Production 8 -> 9: Aqua's 2 remaining energy becomes heat.
+Aqua: Production {
+    2 Heat FROM Energy VIA Energy
+    36 MC
+    4 Titanium
+    Plant
+    4 Energy
+    6 Heat
+}
+
+Pink: Production {
+    63 MC
+    3 Steel
+    2 Titanium
+    4 Plant
+    4 Energy
+    3 Heat
+}
+
+Pink: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// board-12-00-57.jpg; before generation 9 Research.
+// Generation 9. Both players buy three of the drafted cards.
+Aqua: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    -ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    Pay(9 MC)
+}
+
+Aqua: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// "I'll go to Triton, bump it up three times, which gives me five, gives me four plus one,
+// and then might as well spend three titanium too, to then go to enchiladas, bump it up three
+// times, and get four. Microbials." "Pretty crazy."
+Aqua: Trade2 {
+    Pay(3 Energy)
+    Trade<Triton>
+    ColonyProduction<Triton> VIA TradingColony
+    2 ColonyProduction<Triton>
+    5 Titanium
+}
+Aqua: Trade3 {
+    Pay(3 Titanium)
+    Trade<Enceladus>
+    ColonyProduction<Enceladus> VIA TradingColony
+    2 ColonyProduction<Enceladus>
+    4 Microbe<Decomposers>
+}
+
+// "I think I will fund the investor and the traveler, which will be a total of 22."
+// "You're winning in all five awards, so except the one we're tied."
+Pink: FundAward {
+    Pay(8 MC)
+    Investor
+}
+Pink: FundAward {
+    Pay(14 MC)
+    Traveller
+}
+
+Aqua: PlayCard(HeavyTaxation) {
+    PROD[2 MC]
+    4 MC
+}
+
+Pink: UseAction2(RedSpotObservatory) {
+    -Floater<RedSpotObservatory>
+    ProjectCard
+}
+
+// "I'm gonna spend the twenty three to plant a forest, which raised the oxygen to seven."
+// "Seven seven?" "Which gives me seven money and two plants."
+Aqua: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_7_7>
+    7 MC
+    2 Plant
+    OxygenStep
+    TerraformRating
+}
+
+Pink: Trade2 {
+    Pay(3 Energy)
+    Trade<Miranda>
+    2 Animal<Pets>
+}
+
+// "I'm going to use my inventor's guild to look at a shitty card. It is a shitty card."
+// "But it's a shitty time."
+Aqua: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+Pink: ConvertPlants {
+    // decline TemperatureStep. at the oxygen threshold
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_6_4>
+    4 MC
+    Plant
+    OxygenStep
+    TerraformRating
+    0 TemperatureStep
+}
+
+// "You got the non-existent bonus." The table does not take the 8% temperature bonus.
+Aqua: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+
+Pink: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+
+Aqua: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+Pink: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+
+// Aqua first says Titan Floating Launch-Pad, then corrects the floater to Dirigibles.
+Aqua: UseAction1(Dirigibles) {
+    Floater<Dirigibles>
+}
+
+Pink: UseAction2(FloatingRefinery) {
+    -2 Floater<LocalShading>
+    Titanium
+    2 MC
+}
+
+Aqua: UseAction1(TitanFloatingLaunchPad) {
+    Floater<TitanFloatingLaunchPad>
+}
+
+Pink: PlayCard(JovianLanterns) {
+    Pay(20 MC)
+    TerraformRating
+    2 Floater<JovianLanterns>
+}
+
+Aqua: PlayCard(IoSulphurResearch) {
+    Pay(14 MC)
+    3 ProjectCard
+}
+
+Pink: UseAction1(JovianLanterns) {
+    Pay(1 Titanium)
+    2 Floater<JovianLanterns>
+}
+
+Aqua: PlayCard(ImmigrationShuttles) {
+    Pay(11 Titanium, 6 MC)
+    PROD[5 MC]
+}
+
+Pink: UseAction1(VenusShuttles) {
+    Pay(8 MC)
+    VenusStep
+    TerraformRating
+}
+
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_4_7>
+}
+
+Pink: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+
+Aqua: PlayCard(AdaptedLichen) {
+    Pay(6 MC)
+    PROD[Plant]
+    Microbe<Decomposers>
+}
+
+Pink: PlayCard(MethaneFromTitan) {
+    Pay(3 Titanium, 16 MC)
+    PROD[2 Heat]
+    PROD[2 Plant]
+}
+
+Aqua: Pass
+
+// Keep the plants.
+Pink: PlayCard(MedicalLab) {
+    Pay(4 Steel, 1 MC)
+    PROD[3 MC]
+}
+Pink: Pass
+
+// Production 9 -> 10; Aqua chooses oxygen in the world-government phase.
+Aqua: Production {
+    Heat FROM Energy VIA Energy
+    45 MC
+    4 Titanium
+    2 Plant
+    3 Energy
+    6 Heat
+}
+
+Pink: Production {
+    Heat FROM Energy VIA Energy
+    69 MC
+    3 Steel
+    2 Titanium
+    6 Plant
+    4 Energy
+    5 Heat
+}
+
+Aqua: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// board-16-04-56.jpg, before generation 10 Research.
+// Generation 10. Aqua says "I'm buying one card"; Pink's phone log records two purchases.
+Aqua: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    Pay(3 MC)
+}
+
+Aqua: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// "Oh my god." "You're placing so many late colonies."
+Pink: UseStandardProject(BuildColonyProject) {
+    Pay(17 MC)
+    Colony<Miranda>
+    Animal<Pets>
+}
+Pink: PlayCard(ResearchColony) {
+    Pay(1 Titanium, 16 MC)
+    Colony<Miranda>
+    Animal<Pets>
+    2 ProjectCard
+}
+
+// "I have considered flying my boat to Miranda, but not that mean."
+// "Why is that so hard to say? And then my boat will go, let's do the same thing as last
+// time. It goes to Triton and it gets five titanium."
+// "I'm not gonna win the game like this, but I'm not gonna win the game anyway."
+Aqua: UseAction2(TitanFloatingLaunchPad) {
+    -Floater<TitanFloatingLaunchPad>
+    Trade<Triton>
+    ColonyProduction<Triton> VIA TradingColony
+    2 ColonyProduction<Triton>
+    5 Titanium
+}
+Aqua: Trade3 {
+    Pay(3 Titanium)
+    Trade<Enceladus>
+    ColonyProduction<Enceladus> VIA TradingColony
+    2 ColonyProduction<Enceladus>
+    4 Microbe<Decomposers>
+}
+
+Pink: PlayCard(MediaGroup) {
+    Pay(1 MC)
+}
+
+Aqua: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+// Viral Enhancers
+Pink: PlayCard(VenusianInsects) {
+    Pay(5 MC)
+    Microbe<VenusianInsects>
+}
+
+Aqua: PlayCard(SubZeroSaltFish) {
+    Pay(2 MC)
+    PROD[-Plant<Pink>]
+    Microbe<Decomposers>
+}
+
+Pink: UseAction1(JovianLanterns) {
+    Pay(1 Titanium)
+    2 Floater<JovianLanterns>
+}
+
+Aqua: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_6_8>
+    7 MC
+    Plant
+    OxygenStep
+    TerraformRating
+}
+
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_3_4>
+    2 MC
+    2 Plant
+    OxygenStep
+    TerraformRating
+}
+
+Aqua: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_5_9>
+    3 MC
+    2 ProjectCard
+    OxygenStep
+    TerraformRating
+}
+
+// "I am doubting you'll have two more greeneries up your sleeve."
+// "With 12 money that would be a little difficult."
+// Media Group
+// Solar Logistics
+Pink: PlayCard(HydrogenToVenus) {
+    Pay(11 MC)
+    VenusStep
+    TerraformRating
+    3 Floater<LocalShading>
+    3 MC
+    ProjectCard
+}
+
+Aqua: PlayCard(MineralDeposit) {
+    Pay(2 MC)
+    5 Steel
+}
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_3_6>
+}
+
+Pink: UseAction2(FloatingRefinery) {
+    -2 Floater<LocalShading>
+    Titanium
+    2 MC
+}
+
+Aqua: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+
+Pink: Trade2 {
+    Pay(3 Energy)
+    Trade<Miranda>
+    Animal<Pets>
+    2 ProjectCard
+}
+
+// no MC paid
+Aqua: UseAction1(RotatorImpacts) {
+    Pay(3 Titanium)
+    Asteroid<RotatorImpacts>
+}
+
+Pink: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+
+Aqua: UseAction1(Dirigibles) {
+    Floater<TitanFloatingLaunchPad>
+}
+
+Pink: PlayCard(Atmoscoop) {
+    Pay(1 Titanium, 18 MC)
+    VenusStep*, VenusStep*
+    2 TerraformRating
+    2 Floater<JovianLanterns>
+}
+
+// "I pass. Wish I hadn't passed now."
+Aqua: Pass
+
+Pink: UseAction2(ElectroCatapult) {
+    Pay(1 Steel)
+    7 MC
+}
+Pink: UseAction1(VenusShuttles) {
+    Pay(7 MC)
+    VenusStep
+    TerraformRating
+}
+Pink: UseAction1(RedSpotObservatory) {
+    Floater<RedSpotObservatory>
+}
+Pink: UseAction1(VenusianInsects) {
+    Microbe<VenusianInsects>
+}
+Pink: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+Pink: Pass
+
+// Production 10 -> 11. The phone logs combine energy conversion and new production.
+Aqua: Production {
+    3 Heat FROM Energy VIA Energy
+    47 MC
+    4 Titanium
+    2 Plant
+    2 Energy
+    6 Heat
+}
+
+Pink: Production {
+    Heat FROM Energy VIA Energy
+    74 MC
+    3 Steel
+    2 Titanium
+    5 Plant
+    4 Energy
+    5 Heat
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// board-16-22-18.jpg, before generation 11 Research.
+// "This will surely be the last generation." "These are all so bad."
+// "I think I'm buying none of them." "I think I'm buying three of them."
+// Generation 11. Pink buys nothing; Aqua keeps three cards.
+Aqua: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    -ProjectCard<Selecting>
+}
+
+Aqua: Research {
+    Pay(9 MC)
+}
+
+Aqua: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -4 ProjectCard<Selecting>
+}
+
+// "Well, I think I'm going to plant a forest. She takes oxygen to 13."
+// "Then I'd better hurry up and pay 23 as well. That maxes out the oxygen."
+Aqua: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_9_8>
+    Titanium
+    3 MC
+    OxygenStep
+    TerraformRating
+}
+Aqua: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_8_9>
+    Plant
+    3 MC
+    OxygenStep
+    TerraformRating
+}
+
+// "I'm a landscaper, so you had to do it."
+// "Well you swept every award and every milestone. Amazing."
+Pink: UseAction2(RedSpotObservatory) {
+    -Floater<RedSpotObservatory>
+    ProjectCard
+}
+Pink: FundAward {
+    Pay(20 MC)
+    Landscaper
+}
+
+Aqua: PlayCard(LunaGovernor) {
+    Pay(1 MC)
+    PROD[2 MC]
+}
+
+// "This time I get two animals, so I get gold pets and two cards. Cool."
+Pink: Trade2 {
+    Pay(3 Energy)
+    Trade<Miranda>
+    2 Animal<Pets>
+    2 ProjectCard
+}
+
+Aqua: PlayCard(AsteroidRights) {
+    Pay(3 Titanium, 1 MC)
+    2 Asteroid<AsteroidRights>
+}
+
+// "Flip a greenery into a city."
+// "Oh, I should have used my thing to block you. Damn it. I gotta think more clearly."
+Pink: PlayCard(KaguyaTech) {
+    Pay(10 MC)
+    PROD[2 MC]
+    ProjectCard
+    NormalCityTile<Vastitas_3_4> FROM GreeneryTile<Vastitas_3_4>
+    2 Plant VIA Vastitas_3_4
+    2 MC
+    Animal<Pets>
+    // Pink records only the two placement plants, missing Viral Enhancers' optional plant.
+    // decline Viral Enhancers' plant
+    Ok VIA ViralEnhancers
+    Aqua: PROD[MC]
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_3_5>
+    Plant
+    // oxygen is already maxed
+    0 OxygenStep
+}
+
+Aqua: UseAction2(TitanFloatingLaunchPad) {
+    -Floater<TitanFloatingLaunchPad>
+    Trade<Triton>
+    ColonyProduction<Triton> VIA TradingColony
+    2 ColonyProduction<Triton>
+    5 Titanium
+}
+
+Pink: PlayCard(WarpDrive) {
+    Pay(14 MC)
+}
+
+Aqua: Trade3 {
+    Pay(3 Titanium)
+    Trade<Enceladus>
+    ColonyProduction<Enceladus> VIA TradingColony
+    2 ColonyProduction<Enceladus>
+    4 Microbe<Decomposers>
+}
+
+// Media Group
+// Solar Logistics
+Pink: PlayCard(ImportedNutrients) {
+    Pay(1 Titanium, 1 MC)
+    4 Plant
+    4 Microbe<VenusianInsects>
+    3 MC
+    ProjectCard
+}
+
+// "Whoo, this is what I'm reduced to." "You are reduced to produce."
+Aqua: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    PROD[MC]
+}
+
+Pink: UseAction2(FloatingRefinery) {
+    -2 Floater<LocalShading>
+    Titanium
+    2 MC
+}
+
+Aqua: PlayCard(Advertising) {
+    Pay(1 MC)
+}
+
+Pink: UseAction1(JovianLanterns) {
+    Pay(1 Titanium)
+    2 Floater<JovianLanterns>
+}
+
+// decline OxygenStep.; oxygen is already maxed
+Aqua: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_7_9>
+    3 MC
+    0 OxygenStep
+}
+
+// Viral Enhancers
+Pink: PlayCard(BactoviralResearch) {
+    Pay(10 MC)
+    ProjectCard
+    10 Microbe<VenusianInsects>
+    Plant
+}
+
+Aqua: UseAction2(EnergyMarket) {
+    PROD[-Energy]
+    8 MC
+}
+
+Pink: PlayCard(TerraformingGanymede) {
+    Pay(1 Titanium, 25 MC)
+    5 TerraformRating
+    // 16:34:22: Pink pays one titanium and 29 MC, missing Warp Drive's 4 MC discount.
+    ExMachina {
+        -4 MC
+    }
+}
+
+Aqua: PlayCard(MolecularPrinting) {
+    Pay(8 MC)
+    11 MC
+}
+
+Pink: UseAction1(VenusianInsects) {
+    Microbe<VenusianInsects>
+}
+
+// "This card is going to be the thing that saves everything. Natural preserve. That did not
+// save everything." "I don't buy it."
+Aqua: UseAction1(InventorsGuild) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+Pink: UseAction2(SulphurEatingBacteria) {
+    SelectTask(-4! Microbe<SulphurEatingBacteria> THEN 12! MC)
+    -4 Microbe<SulphurEatingBacteria>
+    12 MC
+}
+
+Aqua: UseAction1(Dirigibles) {
+    Floater<Dirigibles>
+}
+
+Pink: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+// Keep the plants.
+Pink: PlayCard(MagneticFieldGeneratorsPromo) {
+    Pay(7 Steel, 1 MC)
+    PROD[-4 Energy]
+    PROD[2 Plant]
+    3 TerraformRating
+    MagneticFieldGeneratorsPromo_SpecialTile<Vastitas_2_2>
+    4 MC
+    2 Plant
+}
+
+Aqua: UseAction1(ArcadianCommunities) {
+    Community<Vastitas_8_6>
+}
+
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+
+Aqua: PlayCard(MediaArchives) {
+    Pay(5 MC)
+    11 MC
+}
+
+// "I'm kind of surprised I'm even able to do this." "I pitched two cards."
+// "Oh my. You spent all your money exactly." "I should have waited."
+// Pink sells two cards to pay for Large Convoy.
+Pink: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+Pink: PlayCard(LargeConvoy) {
+    Pay(27 MC)
+    // all oceans are already placed
+    // Media Group
+    // Solar Logistics
+    OceanTile<WaterArea(HAS MAX 0 Tile)>*
+    2 ProjectCard VIA LargeConvoy
+    4 Animal<Pets>
+    3 MC
+    ProjectCard
+}
+
+// "Probably not actually better but I'm just gonna do it anyway to be different."
+// "I think if not for your pet, it would have been a total wash which way I went."
+// "I don't get more animals. I just like that my four dinky little bronzes are upgraded to a
+// silver."
+// Arcadian community
+// Immigrant City
+Aqua: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    NormalCityTile<Vastitas_3_6>
+    3 MC
+    PROD[MC] VIA CityProject
+    Pink: Animal<Pets>
+    // the city's own production, in addition to Immigrant City
+    PROD[MC]
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+// Venus is already maxed
+Aqua: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    0 VenusStep
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+// "It's all about the tiebreaker, which I'm definitely going to need in this game for sure."
+// Nothing remains to pay in MC.
+Aqua: PlayCard(CorroderSuits) {
+    Pay(2 Floater<Dirigibles>)
+    PROD[2 MC]
+    Floater<Dirigibles>
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Aqua: UseAction1(SubZeroSaltFish) {
+    Animal<SubZeroSaltFish>
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+// "I pitch a card." "So looks like you're pretty much out."
+// "Yeah, I think there's nothing else I can do. Now what are you gonna do?"
+// Aqua's final sale accounts for the recorded extra M€.
+Aqua: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Pink: ConvertPlants {
+    // decline OxygenStep.; oxygen is maxed
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_2_3>
+    2 MC
+    0 OxygenStep
+}
+Pink: UseStandardProject(SellPatentsProject) {
+    5 MC FROM ProjectCard
+}
+
+Aqua: Pass
+
+Pink: PlayCard(BreathingFilters) {
+    Pay(11 MC)
+}
+Pink: Pass
+
+// The last production is recorded before Pink's final greenery.
+Aqua: Production {
+    2 Heat FROM Energy VIA Energy
+    57 MC
+    4 Titanium
+    2 Plant
+    Energy
+    6 Heat
+}
+
+Pink: Production {
+    Heat FROM Energy VIA Energy
+    84 MC
+    3 Steel
+    2 Titanium
+    7 Plant
+    5 Heat
+}
+
+// The phone app advances its display to generation 12; Solarnet keeps the final played
+// generation.
+// only three plants; no final greenery
+// "Do you replace, you don't." "I do actually." "You do." "Probably on two four."
+// The final photo shows Pink's last greenery here.
+Aqua {
+    Ok
+}
+
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_2_4>
+}
+// no more plants to convert
+// _local/replays/Game20261009/board-16-47-03.jpg; final Mars map.
+Pink {
+    Ok
+}
+
+// board-16-47-03.jpg, after final greenery.
+// "Almost completely shut me out, but not quite."
+// "Wow, this is a really meager pile of cards I've got." "It was a fun game." "Always is."
+// "138." "Well, if you take off the one and you reverse the other two digits, you have my
+// score. Congratulations, son." "Good game."
+Aqua {
+    83 VictoryPoint
+}
+
+Pink {
+    139 VictoryPoint
+}
+// Engine categories total 139: 56 TR, 15 milestones, 10 awards, 7 greeneries,
+// 11 cities, and 40 card points. The spoken 138 has no supplied category breakdown.

@@ -1,0 +1,1846 @@
+// Replay: StaticPressureStreamTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/StaticPressureStreamTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Complete database replay: Static Pressure Stream (g1212dda978b8)
+// Source: _local/replays/Game20260912/Heroku-g1212dda978b8/
+// http://newazure.local:8080/the-end?id=pe1c5cff0c611
+Config {
+    Nor, Vin
+    TharsisMap
+    VenusNextExpansion, PreludeExpansion
+    prelude2:cards, promos:cards, FakeFloydContinuum, ResearchCoordination, ResearchNetwork
+    Fundraiser, Philantropist, Planetologist, Sponsor, Briber, Terran
+    Scientist, Landlord, Industrialist, Benefactor, Forecaster, Excentric
+}
+
+GlobalEventDeck {
+}
+
+Cards {
+    // Source save 0: Nor also saw Mons Insurance and Point Luna; Vin also saw CrediCor
+    // and Sagitta Frontier Services.
+    // Source save 0 and the final Research drafts in saves 17, 46, 74, 116, 159, 200, 245,
+    // 292, 356, and 416 identify every modeled ProjectCard Selecting offer in this replay.
+    +CorporationCard<Nor, Hand>: Ecoline, MiningGuild
+    -CorporationCard<Nor, Hand>: MiningGuild
+    -CorporationCard<Nor, Hand>: Ecoline
+    // Setup
+    +ProjectCard<Nor, Selecting>: Insulation, DesignedMicroorganisms, ResearchOutpost, RedShips, UndergroundCity, ExtractorBalloons, Supermarkets, FoodFactory, AquiferPumping, PowerSupplyConsortium
+    // Generation 2
+    +ProjectCard<Nor, Selecting>: EquatorialMagnetizer, AerialMappers, AerosportTournament, StaticHarvesting
+    // Generation 3
+    +ProjectCard<Nor, Selecting>: Research, LocalShading, PublicPlans, Satellites
+    // Generation 4
+    +ProjectCard<Nor, Selecting>: StratosphericExpedition, Comet, ResearchCoordination, AdaptationTechnology
+    // Generation 5
+    +ProjectCard<Nor, Selecting>: RobotPollinators, InterplanetaryTrade, Plantation, Shuttles
+    // Generation 6
+    +ProjectCard<Nor, Selecting>: IshtarMining, Greenhouses, LavaFlows, Zeppelins
+    // Generation 7
+    +ProjectCard<Nor, Selecting>: ProjectInspection, VestaShipyard, VenusSoils, HermeticOrderOfMars
+    // Generation 8
+    +ProjectCard<Nor, Selecting>: Trees, MoholeArea, RoverConstruction, IceCapMelting
+    // Generation 9
+    +ProjectCard<Nor, Selecting>: IndenturedWorkers, GiantSolarShade, SelfReplicatingRobots, DomedCrater
+    // Generation 10
+    +ProjectCard<Nor, Selecting>: FakeFloydContinuum, RadSuits, DeepWellHeating, LandClaim
+    // Generation 11
+    +ProjectCard<Nor, Selecting>: OlympusConference, GhgProducingBacteria, FloatingHabs, ColonizerTrainingCamp
+    +PreludeCard<Nor, Hand>: ProjectEden, EcologyExperts, AlbedoPlants, AppliedScience
+    -PreludeCard<Nor, Hand>: EcologyExperts, AppliedScience
+    -PreludeCard<Nor, Hand>: AlbedoPlants
+    -PreludeCard<Nor, Hand>: ProjectEden
+    +CorporationCard<Vin, Hand>: CheungShingMars, Viron
+    -CorporationCard<Vin, Hand>: Viron
+    -CorporationCard<Vin, Hand>: CheungShingMars
+    // Setup
+    +ProjectCard<Vin, Selecting>: Decomposers, CarbonateProcessing, StJosephOfCupertinoMission, OptimalAerobraking, CloudTourism, FuelFactory, BreathingFilters, IoSulphurResearch, OrbitalCleanup, Tardigrades
+    // Generation 2
+    +ProjectCard<Vin, Selecting>: VenusShuttles, LightningHarvest, Omnicourt, OpenCity
+    // Generation 3
+    +ProjectCard<Vin, Selecting>: RoboticWorkforce, SoilEnrichment, SmallAnimals, Meltworks
+    // Generation 4
+    +ProjectCard<Vin, Selecting>: NuclearZone, MarsUniversity, SpinInducingAsteroid, Bushes
+    // Generation 5
+    +ProjectCard<Vin, Selecting>: Cartel, MethaneFromTitan, CloudSeeding, LuxuryFoods
+    // Generation 6
+    +ProjectCard<Vin, Selecting>: InterstellarColonyShip, SolarLogistics, Sabotage, NaturalPreserve
+    // Generation 7
+    +ProjectCard<Vin, Selecting>: Thermophiles, GeneRepair, MagneticFieldGeneratorsPromo, OreProcessor
+    // Generation 8
+    +ProjectCard<Vin, Selecting>: VenusianAnimals, TundraFarming, PowerGrid, Hospitals
+    // Generation 9
+    +ProjectCard<Vin, Selecting>: AtalantaPlanitiaLab, MiningArea, CrashSiteCleanup, ArtificialLake
+    // Generation 10
+    +ProjectCard<Vin, Selecting>: InventorsGuild, SpaceStation, CallistoPenalMines, ProtectedGrowth
+    // Generation 11
+    +ProjectCard<Vin, Selecting>: IshtarExpedition, AdvancedAlloys, BlackPolarDust, Advertising
+    +PreludeCard<Vin, Hand>: GalileanMining, Supplier, ResearchNetwork, FloatingTradeHub
+    -PreludeCard<Vin, Hand>: GalileanMining, FloatingTradeHub
+    -PreludeCard<Vin, Hand>: Supplier
+    -PreludeCard<Vin, Hand>: ResearchNetwork
+    // Setup
+    -ProjectCard<Nor, Selecting>: Insulation, RedShips, FoodFactory, PowerSupplyConsortium
+    -ProjectCard<Nor, Selecting>: DesignedMicroorganisms, ResearchOutpost, AquiferPumping, UndergroundCity, ExtractorBalloons, Supermarkets
+    // Generation 2
+    -ProjectCard<Nor, Selecting>: EquatorialMagnetizer, AerosportTournament
+    -ProjectCard<Nor, Selecting>: StaticHarvesting, AerialMappers
+    // Generation 3
+    -ProjectCard<Nor, Selecting>: PublicPlans, Satellites
+    -ProjectCard<Nor, Selecting>: LocalShading, Research
+    // Generation 4
+    -ProjectCard<Nor, Selecting>: StratosphericExpedition, Comet, AdaptationTechnology
+    -ProjectCard<Nor, Selecting>: ResearchCoordination
+    // Generation 5
+    -ProjectCard<Nor, Selecting>: Shuttles
+    -ProjectCard<Nor, Selecting>: RobotPollinators, Plantation, InterplanetaryTrade
+    // Generation 6
+    -ProjectCard<Nor, Selecting>: LavaFlows, Zeppelins
+    -ProjectCard<Nor, Selecting>: IshtarMining, Greenhouses
+    // Generation 7
+    -ProjectCard<Nor, Selecting>: ProjectInspection, VestaShipyard, VenusSoils, HermeticOrderOfMars
+    // Generation 8
+    -ProjectCard<Nor, Selecting>: MoholeArea, IceCapMelting
+    -ProjectCard<Nor, Selecting>: RoverConstruction, Trees
+    // Generation 9
+    -ProjectCard<Nor, Selecting>: SelfReplicatingRobots, DomedCrater
+    -ProjectCard<Nor, Selecting>: IndenturedWorkers, GiantSolarShade
+    -ProjectCard<Nor, Selecting>: LandClaim, FakeFloydContinuum, RadSuits, DeepWellHeating
+    // Generation 11
+    -ProjectCard<Nor, Selecting>: FloatingHabs, ColonizerTrainingCamp
+    -ProjectCard<Nor, Selecting>: GhgProducingBacteria, OlympusConference
+    // Setup
+    -ProjectCard<Vin, Selecting>: Decomposers, StJosephOfCupertinoMission, BreathingFilters, IoSulphurResearch, OrbitalCleanup, Tardigrades
+    -ProjectCard<Vin, Selecting>: FuelFactory, CarbonateProcessing, OptimalAerobraking, CloudTourism
+    // Generation 2
+    -ProjectCard<Vin, Selecting>: LightningHarvest, OpenCity
+    -ProjectCard<Vin, Selecting>: Omnicourt, VenusShuttles
+    // Generation 3
+    -ProjectCard<Vin, Selecting>: SoilEnrichment, Meltworks
+    -ProjectCard<Vin, Selecting>: RoboticWorkforce, SmallAnimals
+    -ProjectCard<Vin, Selecting>: NuclearZone, MarsUniversity, SpinInducingAsteroid, Bushes
+    // Generation 5
+    -ProjectCard<Vin, Selecting>: LuxuryFoods
+    -ProjectCard<Vin, Selecting>: Cartel, MethaneFromTitan, CloudSeeding
+    // Generation 6
+    -ProjectCard<Vin, Selecting>: NaturalPreserve
+    -ProjectCard<Vin, Selecting>: SolarLogistics, InterstellarColonyShip, Sabotage
+    // Generation 7
+    -ProjectCard<Vin, Selecting>: MagneticFieldGeneratorsPromo, OreProcessor
+    -ProjectCard<Vin, Selecting>: GeneRepair, Thermophiles
+    // Generation 8
+    -ProjectCard<Vin, Selecting>: PowerGrid, Hospitals
+    -ProjectCard<Vin, Selecting>: TundraFarming, VenusianAnimals
+    // Generation 9
+    -ProjectCard<Vin, Selecting>: MiningArea, CrashSiteCleanup, ArtificialLake
+    -ProjectCard<Vin, Selecting>: AtalantaPlanitiaLab
+    // Generation 10
+    -ProjectCard<Vin, Selecting>: SpaceStation, CallistoPenalMines, ProtectedGrowth
+    -ProjectCard<Vin, Selecting>: InventorsGuild
+    // Generation 11
+    -ProjectCard<Vin, Selecting>: BlackPolarDust, Advertising
+    -ProjectCard<Vin, Selecting>: IshtarExpedition, AdvancedAlloys
+    +ProjectCard<Nor, Hand>: DesignedMicroorganisms, ResearchOutpost, AquiferPumping, UndergroundCity, ExtractorBalloons, Supermarkets
+    +ProjectCard<Nor, Hand>: SfMemorial, EcologicalZone
+    +ProjectCard<Nor, Hand>: StaticHarvesting, AerialMappers
+    +ProjectCard<Nor, Hand>: LocalShading, Research
+    +ProjectCard<Nor, Hand>: ResearchCoordination
+    +ProjectCard<Nor, Hand>: RobotPollinators, Plantation, InterplanetaryTrade
+    +ProjectCard<Nor, Hand>: IshtarMining, Greenhouses
+    +ProjectCard<Nor, Hand>: TitaniumMine
+    +ProjectCard<Nor, Hand>: RoverConstruction, Trees
+    +ProjectCard<Nor, Hand>: StanfordTorus, PowerPlant
+    +ProjectCard<Nor, Hand>: IndenturedWorkers, GiantSolarShade
+    +ProjectCard<Nor, Hand>: DuskLaserMining
+    +ProjectCard<Nor, Hand>: HeatTrappers
+    +ProjectCard<Nor, Hand>: LandClaim, FakeFloydContinuum, RadSuits, DeepWellHeating
+    +ProjectCard<Nor, Hand>: GhgProducingBacteria, OlympusConference
+    +ProjectCard<Nor, Hand>: WeatherBalloons
+    +ProjectCard<Nor, Hand>: MoholeLake
+    +ProjectCard<Nor, Hand>: GiantIceAsteroid
+    +ProjectCard<Vin, Hand>: FuelFactory, CarbonateProcessing, OptimalAerobraking, CloudTourism
+    +ProjectCard<Vin, Hand>: ProtectedHabitats, SisterPlanetSupport, PhysicsComplex
+    +ProjectCard<Vin, Hand>: Omnicourt, VenusShuttles
+    +ProjectCard<Vin, Hand>: RoboticWorkforce, SmallAnimals
+    +ProjectCard<Vin, Hand>: NuclearZone, MarsUniversity, SpinInducingAsteroid, Bushes
+    +ProjectCard<Vin, Hand>: EnergyTapping
+    +ProjectCard<Vin, Hand>: Cartel, MethaneFromTitan, CloudSeeding
+    +ProjectCard<Vin, Hand>: SolarLogistics, InterstellarColonyShip, Sabotage
+    +ProjectCard<Vin, Hand>: GeneRepair, Thermophiles
+    +ProjectCard<Vin, Hand>: VenusGovernor
+    +ProjectCard<Vin, Hand>: TundraFarming, VenusianAnimals
+    +ProjectCard<Vin, Hand>: AtalantaPlanitiaLab
+    +ProjectCard<Vin, Hand>: InventorsGuild
+    +ProjectCard<Vin, Hand>: Gyropolis
+    +ProjectCard<Vin, Hand>: WaterSplittingPlant, Algae
+    +ProjectCard<Vin, Hand>: NoctisCity
+    +ProjectCard<Vin, Hand>: IshtarExpedition, AdvancedAlloys
+    +ProjectCard<Vin, Hand>: FreyjaBiodomes, GhgImportFromVenus
+    +ProjectCard<Vin, Hand>: RestrictedArea
+    +ProjectCard<Vin, Hand>: CorporateStronghold
+    +ProjectCard<Vin, Hand>: MagneticFieldDome
+    +ProjectCard<Vin, Hand>: Teslaract
+    -ProjectCard<Nor, Hand>: ExtractorBalloons, UndergroundCity, SfMemorial
+    -ProjectCard<Nor, Hand>: AquiferPumping
+    -ProjectCard<Nor, Hand>: StaticHarvesting
+    -ProjectCard<Nor, Hand>: AerialMappers
+    -ProjectCard<Nor, Hand>: LocalShading
+    -ProjectCard<Nor, Hand>: DesignedMicroorganisms
+    -ProjectCard<Nor, Hand>: EcologicalZone
+    -ProjectCard<Nor, Hand>: ResearchCoordination
+    -ProjectCard<Nor, Hand>: Plantation
+    -ProjectCard<Nor, Hand>: IshtarMining
+    -ProjectCard<Nor, Hand>: InterplanetaryTrade
+    -ProjectCard<Nor, Hand>: RoverConstruction
+    -ProjectCard<Nor, Hand>: ResearchOutpost
+    -ProjectCard<Nor, Hand>: Research
+    -ProjectCard<Nor, Hand>: Supermarkets
+    -ProjectCard<Nor, Hand>: PowerPlant
+    -ProjectCard<Nor, Hand>: DuskLaserMining
+    -ProjectCard<Nor, Hand>: Greenhouses
+    -ProjectCard<Nor, Hand>: Trees
+    -ProjectCard<Nor, Hand>: RobotPollinators
+    -ProjectCard<Nor, Hand>: IndenturedWorkers
+    -ProjectCard<Nor, Hand>: GiantSolarShade
+    -ProjectCard<Nor, Hand>: LandClaim
+    -ProjectCard<Nor, Hand>: FakeFloydContinuum
+    -ProjectCard<Nor, Hand>: DeepWellHeating
+    -ProjectCard<Nor, Hand>: RadSuits
+    -ProjectCard<Nor, Hand>: OlympusConference
+    -ProjectCard<Nor, Hand>: GhgProducingBacteria
+    -ProjectCard<Nor, Hand>: MoholeLake
+    -ProjectCard<Nor, Hand>: WeatherBalloons
+    -ProjectCard<Nor, Hand>: StanfordTorus
+    -ProjectCard<Nor, Hand>: GiantIceAsteroid
+    -ProjectCard<Nor, Hand>: HeatTrappers
+    -ProjectCard<Nor, Hand>: TitaniumMine
+    -ProjectCard<Vin, Hand>: FuelFactory
+    -ProjectCard<Vin, Hand>: CarbonateProcessing
+    -ProjectCard<Vin, Hand>: CloudTourism
+    -ProjectCard<Vin, Hand>: SisterPlanetSupport
+    -ProjectCard<Vin, Hand>: Omnicourt
+    -ProjectCard<Vin, Hand>: VenusShuttles
+    -ProjectCard<Vin, Hand>: RoboticWorkforce
+    -ProjectCard<Vin, Hand>: OptimalAerobraking
+    -ProjectCard<Vin, Hand>: SpinInducingAsteroid
+    -ProjectCard<Vin, Hand>: NuclearZone
+    -ProjectCard<Vin, Hand>: EnergyTapping
+    -ProjectCard<Vin, Hand>: Cartel
+    -ProjectCard<Vin, Hand>: SmallAnimals
+    -ProjectCard<Vin, Hand>: ProtectedHabitats
+    -ProjectCard<Vin, Hand>: Sabotage
+    -ProjectCard<Vin, Hand>: SolarLogistics
+    -ProjectCard<Vin, Hand>: MethaneFromTitan
+    -ProjectCard<Vin, Hand>: Thermophiles
+    -ProjectCard<Vin, Hand>: MarsUniversity
+    -ProjectCard<Vin, Hand>: PhysicsComplex
+    -ProjectCard<Vin, Hand>: VenusGovernor
+    -ProjectCard<Vin, Hand>: Bushes
+    -ProjectCard<Vin, Hand>: VenusianAnimals
+    -ProjectCard<Vin, Hand>: CloudSeeding
+    -ProjectCard<Vin, Hand>: AtalantaPlanitiaLab
+    -ProjectCard<Vin, Hand>: WaterSplittingPlant
+    -ProjectCard<Vin, Hand>: Algae
+    -ProjectCard<Vin, Hand>: IshtarExpedition
+    -ProjectCard<Vin, Hand>: GhgImportFromVenus
+    -ProjectCard<Vin, Hand>: FreyjaBiodomes
+    -ProjectCard<Vin, Hand>: InterstellarColonyShip
+    -ProjectCard<Vin, Hand>: NoctisCity
+    -ProjectCard<Vin, Hand>: Gyropolis
+    -ProjectCard<Vin, Hand>: AdvancedAlloys
+    -ProjectCard<Vin, Hand>: RestrictedArea
+    -ProjectCard<Vin, Hand>: TundraFarming
+    -ProjectCard<Vin, Hand>: GeneRepair
+    -ProjectCard<Vin, Hand>: MagneticFieldDome
+    -ProjectCard<Vin, Hand>: InventorsGuild, CorporateStronghold, Teslaract
+}
+
+Nor: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Nor
+    2 PreludeCard
+    -4 ProjectCard<Selecting>
+}
+
+Vin: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Vin
+    2 PreludeCard
+    -6 ProjectCard<Selecting>
+}
+
+// Generation 1
+Nor: PlayCard(Ecoline) {
+    36 MC VIA Ecoline
+    3 Plant
+    PROD[2 Plant]
+    Pay(18 MC)
+    6 ProjectCard<Hand FROM Selecting>
+}
+
+Vin: PlayCard(CheungShingMars) {
+    44 MC VIA CheungShingMars
+    PROD[3 MC]
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Nor: PlayCard(AlbedoPlants) {
+    PROD[Plant]
+    Plant
+    3 Heat
+}
+Nor: PlayCard(ProjectEden) {
+    3 Heat
+    OceanTile<Tharsis_2_6>
+    TerraformRating
+    // Project Eden opens all three placement choices together.
+    NormalCityTile<Tharsis_4_7>
+    2 ProjectCard VIA Tharsis_2_6
+    Plant
+    // Save 6 identifies Project Eden's three discarded cards.
+    GreeneryTile<Tharsis_3_7>
+    OxygenStep
+    Steel
+    2 MC
+    TerraformRating
+    -3 ProjectCard
+}
+
+Vin: PlayCard(Supplier) {
+    PROD[2 Energy]
+    4 Steel
+}
+Vin: PlayCard(ResearchNetwork) {
+    PROD[MC]
+    3 ProjectCard
+}
+
+Nor: Pass
+
+// no MC remainder
+Vin: PlayCard(FuelFactory) {
+    Pay(2 Steel)
+    PROD[-Energy]
+    PROD[Titanium]
+    PROD[MC]
+}
+// no MC remainder
+Vin: PlayCard(CarbonateProcessing) {
+    Pay(2 Steel)
+    PROD[-Energy]
+    PROD[3 Heat]
+}
+Vin: Pass
+
+Nor: Production {
+    22 MC
+    3 Plant
+}
+
+Vin: Production {
+    25 MC
+    Titanium
+    3 Heat
+}
+
+Nor: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 2
+Nor: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    Pay(6 MC)
+}
+
+Vin: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Nor: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    Pay(6 MC)
+}
+
+Nor: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 18: immediately after both Research purchases in generation 2.
+// Research Network's wild tag supplies Cloud Tourism's missing Earth tag.
+Vin: PlayCard(CloudTourism) {
+    Pay(11 MC)
+    EarthTag<WildTagElection<WildTag<ResearchNetwork>, ActionScope>>
+    PROD[MC]
+}
+
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_3_6>
+    OxygenStep
+    2 MC
+    TerraformRating
+}
+Nor: PlayCard(AquiferPumping) {
+    Pay(1 Steel, 16 MC)
+}
+
+// Research Network supplies Sister Planet Support's missing Earth tag.
+Vin: PlayCard(SisterPlanetSupport) {
+    Pay(7 MC)
+    PROD[3 MC]
+}
+
+Nor: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Tharsis_6_9>
+    TerraformRating
+    Plant
+}
+
+Vin: PlayCard(Omnicourt) {
+    Pay(9 MC)
+    2 TerraformRating
+}
+
+Nor: Pass
+
+Vin: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+Vin: PlayCard(VenusShuttles) {
+    Pay(9 MC)
+    2 Floater<CloudTourism>
+}
+Vin: UseAction1(VenusShuttles) {
+    Pay(8 MC)
+    VenusStep
+    TerraformRating
+}
+Vin: Pass
+
+Nor: Production {
+    24 MC
+    3 Plant
+}
+
+Vin: Production {
+    32 MC
+    Titanium
+    3 Heat
+}
+
+Vin: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 3
+Nor: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    4 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    Pay(6 MC)
+}
+
+Nor: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Vin: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    Pay(6 MC)
+}
+
+Vin: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 47: immediately after both Research purchases in generation 3.
+Nor: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Tharsis_6_8>
+    TerraformRating
+    Plant
+    2 MC
+}
+Nor: PlayCard(StaticHarvesting) {
+    Pay(5 MC)
+    PROD[Energy]
+    MC
+}
+
+Vin: PlayCard(RoboticWorkforce) {
+    Pay(9 MC)
+    EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }
+    0 BuildingTag<WildTagElection<WildTag<ResearchNetwork>, ActionScope>>
+    CopyProductionBox<CheungShingMars>
+    PROD[3 MC]
+}
+Vin: ClaimMilestone {
+    Pay(8 MC)
+    Fundraiser
+}
+
+Nor: PlayCard(AerialMappers) {
+    Pay(11 MC)
+}
+
+Vin: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+Nor: PlayCard(LocalShading) {
+    Pay(4 MC)
+}
+
+Vin: Pass
+
+Nor: UseAction1(AerialMappers) {
+    Floater<LocalShading>
+}
+Nor: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+Nor: Pass
+
+Nor: Production {
+    26 MC
+    3 Plant
+    Energy
+}
+
+Vin: Production {
+    35 MC
+    Titanium
+    3 Heat
+}
+
+Nor: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 4
+Nor: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    4 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    Pay(3 MC)
+}
+
+Nor: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// discard no research cards
+Vin: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    Pay(12 MC)
+}
+
+Vin: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 75: immediately after both Research purchases in generation 4.
+Vin: PlayCard(OptimalAerobraking) {
+    Pay(2 Titanium, 1 MC)
+}
+Vin: PlayCard(SpinInducingAsteroid) {
+    Pay(1 Titanium, 13 MC)
+    VenusStep
+    VenusStep
+    3 MC
+    3 Heat
+    2 TerraformRating
+    ProjectCard
+}
+
+Nor: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Tharsis_4_8>
+    TerraformRating
+    2 Plant
+}
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_5_8>
+    OxygenStep
+    2 Plant
+    6 MC
+    TerraformRating
+}
+
+Vin: PlayCard(NuclearZone) {
+    Pay(10 MC)
+    TemperatureStep
+    TemperatureStep
+    2 TerraformRating
+    PROD[Heat]
+    NuclearZone_SpecialTile<Tharsis_5_7>
+    2 Plant
+    2 MC
+}
+// Research Network supplies Planetologist's second Jovian tag.
+Vin: ClaimMilestone {
+    Pay(8 MC)
+    Planetologist
+}
+
+Nor: PlayCard(DesignedMicroorganisms) {
+    Pay(16 MC)
+    PROD[2 Plant]
+}
+
+Vin: UseAction1(VenusShuttles) {
+    Pay(8 MC)
+    VenusStep
+    TerraformRating
+}
+
+Nor: PlayCard(EcologicalZone) {
+    Pay(12 MC)
+    Animal<EcologicalZone>
+    Animal<EcologicalZone>
+    3 Heat
+    EcologicalZone_SpecialTile<Tharsis_5_9>
+    2 Plant
+    4 MC
+}
+
+Vin: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_2_5>
+    OxygenStep
+    2 MC
+    TerraformRating
+}
+
+Vin: PlayCard(EnergyTapping) {
+    Pay(3 MC)
+    PROD[-Energy<Nor>]
+    PROD[Energy]
+}
+
+Nor: UseAction1(AerialMappers) {
+    Floater<LocalShading>
+}
+
+Vin: Pass
+
+Nor: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+Nor: Pass
+
+Nor: Production {
+    30 MC
+    5 Plant
+    Heat FROM Energy
+}
+
+Vin: Production {
+    40 MC
+    Titanium
+    4 Heat
+    Energy
+}
+
+Vin: WorldGovernment {
+    OceanTile<Tharsis_5_5>! BY Admin
+}
+
+// Generation 5
+Nor: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    -ProjectCard<Selecting>
+}
+
+Vin: Research {
+    Pay(9 MC)
+}
+
+Vin: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Nor: Research {
+    -ProjectCard<Selecting>
+}
+
+Nor: Research {
+    Pay(9 MC)
+}
+
+Nor: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 117: immediately after both Research purchases in generation 5.
+Nor: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Tharsis_5_6>
+    TerraformRating
+    2 Plant
+    2 MC
+}
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_4_6>
+    OxygenStep
+    Plant
+    2 MC
+    TerraformRating
+}
+
+Vin: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Vin: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+
+Nor: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Vin: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+Nor: UseAction1(AerialMappers) {
+    Floater<LocalShading>
+}
+
+Vin: PlayCard(Cartel) {
+    Pay(8 MC)
+    PROD[4 MC]
+}
+
+Nor: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+Vin: UseAction1(VenusShuttles) {
+    Pay(8 MC)
+    VenusStep
+    TerraformRating
+}
+
+Nor: ClaimMilestone {
+    Pay(8 MC)
+    Briber
+    -12 MC
+}
+
+Vin: PlayCard(SmallAnimals) {
+    Pay(6 MC)
+    PROD[-Plant<Nor>]
+}
+
+Nor: Pass
+
+Vin: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+Vin: PlayCard(ProtectedHabitats) {
+    Pay(5 MC)
+}
+Vin: Pass
+
+Vin: Production {
+    47 MC
+    Titanium
+    5 Heat VIA Production
+    Energy VIA Production
+    Heat FROM Energy
+}
+
+Nor: Production {
+    34 MC
+    4 Plant
+}
+
+Nor: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 6
+Nor: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    -ProjectCard<Selecting>
+}
+
+Vin: Research {
+    Pay(9 MC)
+}
+
+Vin: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Nor: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    Pay(6 MC)
+}
+
+Nor: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 160: immediately after both Research purchases in generation 6.
+Vin: PlayCard(Sabotage) {
+    Pay(1 MC)
+    -7 MC<Nor>
+}
+
+Nor: PlayCard(ResearchCoordination) {
+    Pay(4 MC)
+}
+
+Vin: UseAction1(VenusShuttles) {
+    Pay(8 MC)
+    VenusStep
+    TerraformRating
+}
+Vin: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    2 TerraformRating
+}
+
+Nor: PlayCard(Plantation) {
+    Pay(15 MC)
+    Animal<EcologicalZone>
+    3 Heat
+    GreeneryTile<Tharsis_4_5>
+    OxygenStep
+    2 Plant
+    4 MC
+    TerraformRating
+}
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_3_4>
+    OxygenStep
+    TerraformRating
+    TemperatureStep
+    TerraformRating
+}
+
+Vin: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+
+Nor: UseAction1(AerialMappers) {
+    Floater<AerialMappers>
+}
+
+Vin: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+Nor: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+
+Vin: PlayCard(SolarLogistics) {
+    Pay(2 Titanium, 14 MC)
+    2 Titanium
+}
+
+Nor: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Tharsis_6_7>
+    TerraformRating
+    Plant
+    4 MC
+}
+Nor: PlayCard(IshtarMining) {
+    Pay(5 MC)
+    PROD[Titanium]
+}
+
+Vin: Pass
+
+Nor: Pass
+
+Vin: Production {
+    50 MC
+    Titanium
+    5 Heat VIA Production
+    Energy VIA Production
+    Heat FROM Energy
+}
+
+Nor: Production {
+    38 MC
+    4 Plant
+    Titanium
+}
+
+Vin: WorldGovernment {
+    OceanTile<Tharsis_9_9>! BY Admin
+}
+
+// Generation 7
+Nor: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    4 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    -4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    Pay(6 MC)
+}
+
+Vin: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// _local/replays/Game20260912/Heroku-g1212dda978b8/game-g1212dda978b8.sqlite; source save 201.
+// Database save 201: immediately after both Research purchases in generation 7.
+Nor: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Tharsis_5_4>
+    TerraformRating
+    2 Plant
+    2 MC
+}
+Nor: FundAward {
+    Pay(8 MC)
+    Landlord
+}
+
+Vin: PlayCard(MethaneFromTitan) {
+    Pay(3 Titanium, 19 MC)
+    PROD[2 Heat]
+    PROD[2 Plant]
+}
+
+Nor: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+
+Vin: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+
+// Research Coordination supplies Interplanetary Trade's tenth distinct tag.
+Nor: PlayCard(InterplanetaryTrade) {
+    Pay(1 Titanium, 24 MC)
+    EACH @WildTagElection { Tag<@WildTagElection>? }
+    JovianTag<WildTagElection<WildTag<ResearchCoordination>, ActionScope>>
+    PROD[10 MC]
+}
+
+Vin: PlayCard(Thermophiles) {
+    Pay(9 MC)
+}
+
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_3_3>
+    OxygenStep
+    TerraformRating
+}
+
+Vin: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+Nor: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+Vin: UseAction1(Thermophiles) {
+    Microbe<Thermophiles>
+}
+
+Nor: Pass
+
+Vin: UseAction1(VenusShuttles) {
+    Pay(7 MC)
+    VenusStep
+    TerraformRating
+}
+Vin: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Vin: PlayCard(MarsUniversity) {
+    Pay(6 MC)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Vin: PlayCard(VenusGovernor) {
+    Pay(4 MC)
+    PROD[2 MC]
+}
+Vin: Pass
+
+Nor: Production {
+    51 MC
+    4 Plant
+    Titanium
+}
+
+Vin: Production {
+    54 MC
+    Titanium
+    7 Heat VIA Production
+    Energy VIA Production
+    Heat FROM Energy
+    2 Plant
+}
+
+Nor: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 8
+Nor: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    Pay(6 MC)
+}
+
+Vin: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Nor: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    Pay(6 MC)
+}
+
+Nor: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 246: immediately after both Research purchases in generation 8.
+Vin: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Tharsis_3_5>
+}
+Vin: FundAward {
+    Pay(14 MC)
+    Excentric
+}
+
+Nor: PlayCard(RoverConstruction) {
+    Pay(8 MC)
+}
+Nor: PlayCard(ResearchOutpost) {
+    Pay(18 MC)
+    NormalCityTile<Tharsis_4_2>
+    2 MC
+    Plant
+}
+
+Vin: PlayCard(Bushes) {
+    Pay(10 MC)
+    PROD[2 Plant]
+    2 Plant
+}
+
+Nor: UseAction1(AerialMappers) {
+    Floater<AerialMappers>
+}
+
+Vin: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Nor: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+
+Vin: UseAction1(Thermophiles) {
+    Microbe<Thermophiles>
+}
+
+Nor: PlayCard(Research) {
+    Pay(10 MC)
+    2 ProjectCard
+}
+
+Vin: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+
+Nor: PlayCard(Supermarkets) {
+    Pay(8 MC)
+    PROD[2 MC]
+}
+
+Vin: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+Nor: PlayCard(PowerPlant) {
+    Pay(3 MC)
+    PROD[Energy]
+}
+
+Vin: Pass
+
+Nor: Pass
+
+Nor: Production {
+    53 MC
+    4 Plant
+    Titanium
+    Energy
+}
+
+Vin: Production {
+    56 MC
+    Titanium
+    7 Heat VIA Production
+    Energy VIA Production
+    Heat FROM Energy
+    4 Plant
+}
+
+Vin: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 9
+Nor: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    Pay(3 MC)
+}
+
+Vin: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Nor: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    Pay(6 MC)
+}
+
+Nor: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 293: immediately after both Research purchases in generation 9.
+Nor: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Tharsis_4_4>
+    2 MC VIA RoverConstruction
+    Plant
+    4 MC
+}
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_3_1>
+    OxygenStep
+    ProjectCard
+    TerraformRating
+}
+
+Vin: FundAward {
+    Pay(20 MC)
+    Forecaster
+}
+
+Nor: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+
+Vin: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Nor: PlayCard(DuskLaserMining) {
+    Pay(2 Titanium, 1 MC)
+    PROD[-Energy]
+    PROD[Titanium]
+    4 Titanium
+}
+
+Vin: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Tharsis_2_3>
+    Nor: 2 MC
+}
+
+Nor: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+Vin: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_2_4>
+    OxygenStep
+    TerraformRating
+}
+
+Nor: PlayCard(Greenhouses) {
+    Pay(5 MC)
+    5 Plant
+    Animal<EcologicalZone>
+    3 Heat
+}
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_4_3>
+    OxygenStep
+    Plant
+    2 MC
+    TerraformRating
+}
+
+Vin: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+Nor: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Vin: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+
+Nor: PlayCard(Trees) {
+    Pay(12 MC)
+    PROD[3 Plant]
+    Plant
+    Animal<EcologicalZone>
+    3 Heat
+}
+
+Vin: UseAction2(Thermophiles) {
+    -2 Microbe<Thermophiles>
+    VenusStep
+    TerraformRating
+}
+
+// Research Coordination supplies the eighth Plant tag counted by Robot Pollinators.
+Nor: PlayCard(RobotPollinators) {
+    Pay(8 MC)
+    PROD[Plant]
+    8 Plant
+}
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_5_2>
+    OxygenStep
+    2 Plant
+    TerraformRating
+}
+
+Vin: UseAction1(VenusShuttles) {
+    Pay(5 MC)
+    VenusStep
+    TerraformRating
+}
+
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_4_1>
+    0 OxygenStep
+    Plant
+    Titanium
+}
+
+Vin: Pass
+
+Nor: PlayCard(IndenturedWorkers) {
+    IndenturedWorkers_NextCardEffect
+}
+Nor: PlayCard(GiantSolarShade) {
+    Pay(5 Titanium, 3 MC)
+    VenusStep
+    VenusStep
+    VenusStep
+    3 TerraformRating
+}
+Nor: Pass
+
+Vin: Production {
+    61 MC
+    Titanium
+    7 Heat VIA Production
+    Energy VIA Production
+    Heat FROM Energy
+    4 Plant
+}
+
+Nor: Production {
+    62 MC
+    8 Plant
+    2 Titanium
+    Heat FROM Energy
+}
+
+Nor: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 10
+// Source Floyd Continuum is represented by FakeFloydContinuum here.
+Nor: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    Pay(3 MC)
+}
+
+Vin: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// discard no research cards
+Nor: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    Pay(12 MC)
+}
+
+Nor: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 357: immediately after both Research purchases in generation 10.
+Vin: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Tharsis_5_1>
+    Nor: 2 MC
+    2 Plant
+}
+Vin: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_6_2>
+    0 OxygenStep
+    Plant
+}
+
+Nor: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Tharsis_6_3>
+    2 MC
+    2 Plant
+}
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_6_4>
+    0 OxygenStep
+    Plant
+    2 MC
+}
+
+Vin: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Nor: PlayCard(LandClaim) {
+    Community<Tharsis_2_2>
+}
+
+Vin: PlayCard(VenusianAnimals) {
+    Pay(15 MC)
+    Animal<VenusianAnimals>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Nor: PlayCard(FakeFloydContinuum) {
+    Pay(3 MC)
+}
+
+// Research Network supplies Atalanta Planitia Lab's third Science tag.
+Vin: PlayCard(AtalantaPlanitiaLab) {
+    Pay(10 MC)
+    Animal<VenusianAnimals>
+    2 ProjectCard VIA AtalantaPlanitiaLab
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Nor: UseAction1(AerialMappers) {
+    Floater<AerialMappers>
+}
+
+Vin: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+
+Nor: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+
+Vin: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+// oceans are already complete
+Nor: PlayCard(DeepWellHeating) {
+    Pay(12 MC)
+    PROD[Energy]
+    TemperatureStep
+    TerraformRating
+    OceanTile<WaterArea(HAS MAX 0 Tile)>*
+}
+
+Vin: UseAction1(Thermophiles) {
+    Microbe<Thermophiles>
+}
+
+Nor: UseAction1(FakeFloydContinuum) {
+    9 MC
+}
+
+Vin: PlayCard(Algae) {
+    Pay(10 MC)
+    Plant
+    PROD[2 Plant]
+}
+
+Nor: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Tharsis_6_5>
+    2 MC VIA RoverConstruction
+    Plant
+    4 MC
+}
+
+Vin: Pass
+
+Nor: PlayCard(RadSuits) {
+    Pay(5 MC)
+    PROD[MC]
+}
+Nor: Pass
+
+Nor: Production {
+    66 MC
+    8 Plant
+    2 Titanium
+    Energy
+}
+
+Vin: Production {
+    63 MC
+    Titanium
+    7 Heat VIA Production
+    Energy VIA Production
+    Heat FROM Energy
+    6 Plant
+}
+
+Vin: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 11
+Nor: Research {
+    4 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    4 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Nor: Research {
+    Pay(6 MC)
+}
+
+Nor: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Vin: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Vin: Research {
+    Pay(6 MC)
+}
+
+Vin: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 417: immediately after both Research purchases in generation 11.
+Nor: UseAction2(AerialMappers) {
+    -Floater<AerialMappers>
+    ProjectCard
+}
+Nor: PlayCard(OlympusConference) {
+    Pay(9 MC)
+    Science<OlympusConference>
+}
+
+Vin: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Vin: PlayCard(IshtarExpedition) {
+    Pay(6 MC)
+    3 Titanium
+    2 SearchForCard<TagFilter<Class<VenusTag>>>
+}
+
+Nor: PlayCard(GhgProducingBacteria) {
+    Pay(7 MC)
+    ProjectCard FROM Science<OlympusConference>
+}
+Nor: PlayCard(MoholeLake) {
+    Pay(30 MC)
+    OceanTile<WaterArea(HAS MAX 0 Tile)>*
+    TemperatureStep
+    3 Plant
+    TerraformRating
+}
+
+Vin: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_1_3>
+    0 OxygenStep
+}
+
+Nor: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+}
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_6_6>
+    0 OxygenStep
+    Plant
+    6 MC
+}
+
+Vin: UseAction1(Thermophiles) {
+    Microbe<Thermophiles>
+}
+
+Nor: PlayCard(WeatherBalloons) {
+    Pay(10 MC)
+    Science<OlympusConference>
+    ProjectCard
+}
+
+Vin: UseAction1(CloudTourism) {
+    Floater<CloudTourism>
+}
+
+Nor: UseAction1(FakeFloydContinuum) {
+    12 MC
+}
+
+Vin: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_7_5>
+    0 OxygenStep
+}
+
+Vin: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Nor: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+
+Vin: PlayCard(FreyjaBiodomes) {
+    Pay(14 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    2 Animal<VenusianAnimals>
+}
+
+Nor: UseAction1(GhgProducingBacteria) {
+    Microbe<GhgProducingBacteria>
+}
+
+// Research Network supplies Interstellar Colony Ship's fifth Science tag.
+Vin: PlayCard(InterstellarColonyShip) {
+    Pay(7 Titanium, 1 MC)
+    3 MC
+    3 Heat
+    ProjectCard
+}
+
+Nor: UseAction1(WeatherBalloons) {
+    Floater<WeatherBalloons>
+}
+
+Vin: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+
+// no MC remainder
+Nor: PlayCard(StanfordTorus) {
+    Pay(4 Titanium)
+    NormalCityTile<StanfordTorus_RemoteArea>
+    2 MC
+}
+
+Vin: PlayCard(NoctisCity) {
+    Pay(16 MC)
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Tharsis_5_3>
+    Nor: 2 MC
+    2 Plant
+    2 MC
+}
+
+Nor: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Vin: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Nor: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Vin: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Nor: UseAction1(MoholeLake) {
+    Animal<EcologicalZone>
+}
+
+Vin: PlayCard(RestrictedArea) {
+    Pay(11 MC)
+    Animal<VenusianAnimals>
+    RestrictedArea_SpecialTile<Tharsis_7_8>
+    Plant
+    4 MC
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Nor: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Vin: UseAction1(RestrictedArea) {
+    Pay(2 MC)
+    ProjectCard
+}
+
+Nor: Pass
+
+Vin: PlayCard(GeneRepair) {
+    Pay(12 MC)
+    PROD[2 MC]
+    Animal<VenusianAnimals>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Vin: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+Vin: Pass
+
+Nor: Production {
+    69 MC
+    8 Plant
+    2 Titanium
+    Energy VIA Production
+    Heat FROM Energy
+}
+
+Vin: Production {
+    71 MC
+    Titanium
+    7 Heat VIA Production
+    Heat FROM Energy
+    6 Plant
+}
+
+Nor: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Tharsis_7_6>
+}
+// decline final greenery
+Nor {
+    Ok
+}
+
+Vin: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_7_9>
+    4 MC
+}
+// decline final greenery
+Vin {
+    Ok
+}
+
+Nor {
+    104 VictoryPoint
+}
+
+Vin {
+    107 VictoryPoint
+}
+// _local/replays/Game20260912/Heroku-g1212dda978b8/player-pe1c5cff0c611.json; final Mars map.

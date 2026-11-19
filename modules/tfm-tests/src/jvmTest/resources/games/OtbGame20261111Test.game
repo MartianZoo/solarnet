@@ -1,0 +1,2542 @@
+// Replay: OtbGame20261111Test
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/OtbGame20261111Test.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Physical game played November 11–12, 2026; sources: `_local/replays/Game20261111/`.
+// (11:51:55 AM) "Here begins our Veterans Day game of Terraforming Mars. We're playing on the
+// Vastitas Borealis board. Our milestones are Builder, Coast Guard, Legend, Merchant,
+// Pioneer, and Hoverlord. Our awards are Benefactor, Celebrity, Incorporator, Scientist,
+// Zoologist, and Venuphile."
+// "Our coming global event is Scientific Community and our distant global event is Global Dust
+// Storm. Reds are dominant. We pulled up Scientific Community first, and so that made Reds
+// dominant, and nobody else has taken the dominance away. So yeah, the order of those matters.
+// And our colonies are Luna, Ceres, Triton, Titan, and Enceladus, although Enceladus and Titan
+// are not really in play yet."
+// (11:53:15 AM) "The start player is Green and the second player is Pink. You made your
+// discards?"
+// "Yeah, we're ready to play."
+Config {
+    Green, Pink
+    VastitasMap
+    CorporateEraExpansion, PreludeExpansion, Prelude2Expansion, VenusNextExpansion, ColoniesExpansion, TurmoilExpansion
+    promos:cards, FakeHelion
+    Luna, Ceres, Triton, Titan, Enceladus
+    Builder, Coastguard, Legend, Merchant, Pioneer, Hoverlord
+    Benefactor, Celebrity, Incorporator, Scientist, Zoologist, Venuphile
+    1 SelectableCorporationCount
+}
+
+GlobalEventDeck {
+    ExploreFirstDirective
+    HeatFirstPolicy
+    FreeAcademiaTreaty
+    ViralModificationsApproved
+    TerraformingLobbying
+    DemocraticReform
+    SelfSufficiencyProgram
+    Diaspora
+    IncreasedInterplanetaryTrade
+    MoralMovement
+}
+
+// Colonies and Turmoil give both players their fleets and lobby delegates through Admin's setup
+// effects. Each player submits their starting TR from the shared setup rules.
+Green: Setup {
+    20 TerraformRating
+    3 CorporationCard
+    4 PreludeCard
+    10 ProjectCard<Selecting> VIA Green
+    -2 CorporationCard
+    -2 PreludeCard
+    -5 ProjectCard<Selecting>
+}
+
+Pink: Setup {
+    20 TerraformRating
+    3 CorporationCard
+    4 PreludeCard
+    10 ProjectCard<Selecting> VIA Pink
+    -2 CorporationCard
+    -2 PreludeCard
+    -3 ProjectCard<Selecting>
+}
+
+// (11:54:46 AM) "Manutech, suffering a building tag, but I get a steel production which gives
+// me a steel. I hit 35 minus 15."
+Green: PlayCard(Manutech) {
+    35 MC VIA Manutech
+    PROD[Steel]
+    Steel
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+// (11:55:24 AM) "Pink is Helion. Get 42 money. I buy seven cards."
+// 11:55:25: Helion is represented by the explicitly requested FakeHelion.
+Pink: PlayCard(FakeHelion) {
+    42 MC VIA FakeHelion
+    PROD[3 Heat]
+    Pay(21 MC)
+    7 ProjectCard<Hand FROM Selecting>
+}
+
+// (11:56:10 AM) "We're ready for preludies. For my first preludy, Orbital Construction Yard,
+// I get one titanium production and five titanium."
+Green: PlayCard(OrbitalConstructionYard) {
+    PROD[Titanium]
+    5 Titanium
+}
+// "For my other one, Rise to Power, I get three megacredit production, three megacredits, and
+// I get to choose three delegates anywhere I want them to go. We know Scientists is going to
+// happen when they meet, so I'll put one in Scientists to get in there ahead of them. As far
+// as what I want to be in power, Unity, Mars First, or do I want to take over my existing
+// ones? I'm just going to put one in Scientists, one in Unity, and..."
+Green: PlayCard(RiseToPower) {
+    PROD[3 MC]
+    3 MC
+    PartyLeader<Scientists>
+    PartyLeader<Unity>
+    PartyLeader<MarsFirst>
+}
+
+// (11:58:11 AM) "I think I got good preludes. Power Generation: increase energy production
+// three steps."
+Pink: PlayCard(PowerGeneration) {
+    PROD[3 Energy]
+}
+// (11:58:20 AM) "Gonna be trading. And Old Mining Colony: increase titanium production one
+// step. Place a colony, which will go on Luna for two money production. Discard a card."
+Pink: PlayCard(OldMiningColony) {
+    PROD[Titanium]
+    Colony<Luna>
+    PROD[2 MC]
+    -ProjectCard
+}
+
+// (11:58:53 AM) "Now it's time for a picture. I hope that's got everything in the frame."
+// board-11-59-13.jpg, before action play. Helion's heat production was entered late.
+// (11:59:26 AM) "Even though it's a building tag, it's probably worth it. Research Outpost,
+// costing me 18 of my 23 money, and I place a shitty tile."
+// "Sometimes it's not worth it to try and not play building tags because they're generally
+// good; it's easy to get the five anyways."
+// "I'm placing it at six two on the edge of the board to draw two cards."
+// no steel paid
+Green: PlayCard(ResearchOutpost) {
+    Pay(18 MC)
+    NormalCityTile<Vastitas_6_2>
+    2 ProjectCard
+}
+
+// (12:01:23 PM) "Pink places a guy from lobby in Kelvinists."
+// "With the first placement, dominance moved from Reds to Kelvinists."
+// "Yes. Oh, I forgot to give myself the three production."
+// "Pretty sure you got everything else?"
+// "Yeah."
+Pink: SendDelegate0 {
+    PartyFollower<Kelvinists> FROM LobbyDelegate
+}
+// "And pays five to place a dude in Kelvinists and kick the party leader out."
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Kelvinists>
+}
+
+// (12:02:31 PM) "I'll play Vesta Shipyard for 14, which will be 4 titanium and 2 real. That
+// gives me a titanium production and a titanium."
+Green: PlayCard(VestaShipyard) {
+    Pay(4 Titanium, 2 MC)
+    PROD[Titanium]
+    Titanium
+}
+// Remembered and accepted at 12:06:16–12:06:29. User authorizes recording the agreed lobby
+// action before passing; use this unused second action.
+Green: SendDelegate0 {
+    PartyLeader<Greens> FROM LobbyDelegate
+}
+
+// (12:03:21 PM) "Now I can play my own building tag. Sponsored Mohole requires Kelvinists are
+// ruling or that you have two delegates there. I pay five, get two heat production."
+Pink: PlayCard(SponsoredMohole) {
+    Pay(5 MC)
+    PROD[2 Heat]
+}
+
+// (12:03:33 PM) "I pass."
+Green: Pass
+
+// (12:03:45 PM) "I pay two for Aerial Lenses, which is the same thing, except that you don't
+// lose any plants, and it's minus a point."
+// "And you're going to make a bunch of money when Kelvinists come into power."
+// no plants removed
+Pink: PlayCard(AerialLenses) {
+    Pay(2 MC)
+    PROD[2 Heat]
+    -0 Plant<Anyone>
+}
+// (12:04:26 PM) "Then you pass after that?"
+// "Yeah."
+Pink: Pass
+
+// (12:04:28 PM) "We hit generation plus. That does production."
+Green: Production {
+    23 MC
+    Steel
+    2 Titanium
+}
+
+Pink: Production {
+    22 MC
+    Titanium
+    3 Energy
+    7 Heat
+}
+
+// (12:04:39 PM) "Then I choose world governmentation. I think I'll stick an ocean at 5.3.
+// Oceans plus one. Then we start moving all the colonies."
+// 12:04:45: World Government ocean at 5,3, with no player placement bonus or TR. Turmoil
+// removes a TR from both; Pink immediately regains hers as new chairman.
+// (12:05:02 PM) "No current event. Do we need to refer to the rules to do this in the right
+// order?"
+// "It wouldn't hurt. Scientific Community moves to current. Neutral in Scientists. We reveal
+// Free Academia Treaty, also known as Diversity. Add neutral to Scientists."
+// "I got demoted. Wait, we're not doing things in order. We were supposed to start by losing a
+// TR after production, then do the global event, but there wasn't one. Now Kelvinists come into
+// power. Pink becomes chairperson. Pink gets a TR."
+// Green: "Oh, I forgot to ever..."
+// Pink: "Use your lobby."
+// Green: "I would just put them in Greens. Can I just do that?"
+// Pink: "Sure."
+// Green: "I meant to use my free lobby action to put a person in there. That doesn't affect
+// anything."
+// "Dominance might have briefly moved to Reds, but it would have soon moved to Scientists.
+// Scientists are dominant. Follow the order. We should change the policy tile."
+// Green: "Would now be a good time for you to take your seven freaking money and me to take my
+// nothing?"
+// Pink: "Yeah. Seven plus. And TR for being chairman."
+// Green: "So you're back to 20 TR?"
+// Pink: "I believe that is all good, and I start."
+Green: WorldGovernment {
+    OceanTile<Vastitas_5_3>! BY Admin
+}
+
+// green-applog-01 entry 27: we don't know why green did this, maybe a stray tap
+Green: ExMachina {
+    PROD[-MC]
+}
+
+// (12:08:06 PM) "Generation becomes two, button moves to Pink. We would take cubes off cards if
+// we had them, and we've done all our colony stuff already. We're good for research. Two for
+// you, two for me, two for you, two for me. We usually would have taken a picture by now, so
+// we're taking the picture during research."
+// 12:08:25: both research offers were dealt before the photograph.
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// board-12-08-47.jpg: Research has begun, neither player has bought cards yet.
+// (12:10:55 PM) "Time to go into stupid mode. Buying all four cards."
+// no research cards rejected
+Green: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(12 MC)
+}
+
+Green: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// (12:11:08 PM) "I'm buying two. I will play Research Colony for titanium and citrine real."
+// no heat paid
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// (12:11:37 PM) "Place a colony; may be placed where you already have a colony. Luna for two
+// money production. Would have been fun to do that last gen. Draw two cards."
+// "You paid the 20 money for that? Draw yourself two cards."
+// no heat paid
+Pink: PlayCard(ResearchColony) {
+    Pay(1 Titanium, 17 MC)
+    Colony<Luna>
+    PROD[2 MC]
+    2 ProjectCard
+}
+
+// (12:12:13 PM) "I'm playing Smasteroid Rites. It costs me nine, which I will pay as three
+// titanium. I gain two asteroids on Asteroid Rights."
+// no MC paid
+Green: PlayCard(AsteroidRights) {
+    Pay(3 Titanium)
+    2 Asteroid<AsteroidRights>
+}
+
+// (12:12:32 PM) "Do you need to refill the lobby?"
+// "Yes."
+// Pink: "Lobby and reserve guy both in Mars First."
+Pink: SendDelegate0 {
+    PartyFollower<MarsFirst> FROM LobbyDelegate
+}
+// Green: "That kicks me out of the leadership for Mars First, and you spend five. You did
+// spend five already?"
+// Pink: "I will get that spent."
+// no heat paid
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<MarsFirst>
+}
+
+// (12:13:12 PM) "Probably best if I spend 10 to raise my energy and heat production, which
+// gives me an energy and a heat."
+Green: UsePolicy {
+    Pay(10 MC)
+    PROD[Energy]
+    PROD[Heat]
+    Energy
+    Heat
+}
+
+// (12:14:06 PM) "If I do that too, I have just enough. Spend 10 money, gain energy production
+// and heat production."
+// no heat paid
+Pink: UsePolicy {
+    Pay(10 MC)
+    PROD[Energy]
+    PROD[Heat]
+}
+
+// (12:14:15 PM) "I'm going to use Asteroid Rights to remove an asteroid. I think I'll take
+// the money production. And the money."
+Green: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    PROD[MC]
+    MC
+}
+
+// (12:14:33 PM) "Oh yeah, Manutech. I pass."
+Pink: Pass
+
+// (12:14:50 PM) "I use my free lobby action. Let's put someone in Unity. I have a second
+// person in Unity now."
+Green: SendDelegate0 {
+    PartyFollower<Unity> FROM LobbyDelegate
+}
+// "Then I think I'm out of stuff to do."
+// "So am I."
+Green: Pass
+
+// (12:15:18 PM) "We hit production."
+Green: Production {
+    22 MC
+    Steel
+    2 Titanium
+    Heat FROM Energy VIA Energy
+    Energy
+    Heat
+}
+
+Pink: Production {
+    24 MC
+    Titanium
+    3 Heat FROM Energy VIA Energy
+    4 Energy
+    8 Heat
+}
+
+// "You choose your world governmentation, then I take a picture."
+// "Venus. Maybe that's not the smartest. Sure, why not? Venus."
+// "Venus to 2%. We don't have to type anything for that. Then the picture, and then we do
+// colonies."
+// WGT starts Turmoil, but its global-event payouts still await the players below. Check
+// government formation on the last payout, when it actually happens.
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// board-12-16-00.jpg: resource/tableau snapshot after Venus WGT, before event payouts.
+// (12:16:08 PM) "All players lose one TR. Perform the current global event: gain one money for
+// each card in hand, no limit, and influence."
+// "We each have one influence. You because you're chairman, me because I'm in Scientists."
+// Pink: "Seven cards, so I get eight monies."
+// Green: "I have eight cards, so I get nine monies."
+// 12:16:33–12:16:42: seven/eight cards, plus an influence each.
+Green: GlobalEvent {
+    9 MC
+}
+
+// (12:16:51 PM) "Dominant party becomes ruling. Change policy tile. Scientists. Chairman earns
+// a TR."
+// "That's nobody. Dominance is now Mars First. Move events; we get a neutral Green. Pandemic
+// was revealed, so I get kicked out of the leadership of Greens. I've gotten kicked out as the
+// leader of almost everything. We're getting punished for building tags again?"
+// "At least it's not later."
+// Completing the event forms the Scientists government: Research Outpost and Research Colony
+// each earn an automatic 1 MC ruling bonus.
+Pink: GlobalEvent {
+    8 MC
+}
+
+// Both app logs briefly missed the Scientists bonus; keep it here.
+// (12:18:18 PM) "Generation moves, button moves, cubes come off cards."
+// Correct Green's accidental MC-production decrease and its missed production.
+Green: ExMachina {
+    PROD[MC]
+    MC
+}
+
+// (12:56:15 PM) "Green has eight cards in hand. Pink has seven cards in hand. We're ready to
+// draft."
+// Green: "I'll buy one card."
+// Pink: "I will buy two cards."
+// Green forgot the research payment; pay it here. His generation 3 checkpoints are
+// therefore 3 MC below the app log.
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(3 MC)
+}
+
+Green: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// Pink paid for research late and canceled her last Martian Media Center action to afford
+// it. Pay here and omit the canceled action; her balance agrees again before production.
+// no heat paid
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// (1:01:01 PM) "I think I might as well play Convoy from Europa for 14, which I'm going to
+// spend as 3 titanium and 5 real. I'm going to place an ocean tile, so ocean goes up and my
+// TR goes up. I'm probably going to place it 6,7 for a card. I'm drawing that card now. Oh,
+// and I get to draw a card because of Convoy from Europa. That's my turn."
+Green: PlayCard(ConvoyFromEuropa) {
+    Pay(3 Titanium, 5 MC)
+    OceanTile<Vastitas_6_7>
+    TerraformRating
+    2 ProjectCard
+}
+
+// (1:03:03 PM) "We should have refilled the lobby. We've been forgetting that."
+// "Next time let's follow the whole thing, because we missed two things at least."
+// "I'm gonna lobby in Kelvinists. I've taken the party leadership."
+Pink: SendDelegate0 {
+    PartyLeader<Kelvinists> FROM LobbyDelegate
+}
+
+// (1:04:26 PM) "I should have taken my free titanium first, but I didn't. I'll use Asteroid
+// Rights, remove an asteroid, and take two titanium."
+Green: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+
+// (1:04:43 PM) "I'm going to do a standard project asteroid. I'm going to hit the asteroid
+// standard project button, then manually remove two heat and gain two money. Temp is at minus
+// 28."
+Pink: UseStandardProject(AsteroidProject) {
+    Pay(2 Heat, 12 MC)
+    TemperatureStep
+    TerraformRating
+}
+
+// (1:06:06 PM) "I think I'll play Mars Nomads for 12. I'm going to put it on 6-9."
+Green: PlayCard(MarsNomads) {
+    Pay(12 MC)
+    NomadsMarker<Vastitas_6_9>
+}
+// "For my second action, I'm going to use Mars Nomads to move it to 5-9 and draw my two
+// cards."
+Green: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_9> FROM NomadsMarker<Vastitas_6_9>! THEN Placement<Vastitas_5_9>!)
+    NomadsMarker<Vastitas_5_9> FROM NomadsMarker<Vastitas_6_9>
+    2 ProjectCard
+}
+
+// (1:07:13 PM) "I have 16 heat with which to do two heat boops. Accidentally decreased my heat
+// production by one."
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+// "Another heat boop, which increases my heat production one. We're at negative 24."
+// "And you got your bonus heat production?"
+// "Yeah."
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+
+// (1:07:39 PM) "I'm going to play Mineral Deposit and spend four to take five steel."
+Green: PlayCard(MineralDeposit) {
+    Pay(4 MC)
+    5 Steel
+}
+
+// (1:08:29 PM) "I may as well pay seven. I've got my two delegates in Mars First, so I gain two
+// money production."
+// 13:08: the spoken card name is missing; board-13-19-37.jpg identifies it.
+Pink: PlayCard(MartianMediaCenter) {
+    Pay(7 MC)
+    PROD[2 MC]
+}
+
+// (1:08:55 PM) "I want to play Corporate Stronghold, paying just five steel. I lose an energy
+// production. I gain three megacredit production, which gives me three megacredits. Then I
+// have to place a shitty tile. I think we'll go to 3-5 for one plant."
+// no MC paid
+Green: PlayCard(CorporateStronghold) {
+    Pay(5 Steel)
+    PROD[-Energy]
+    PROD[3 MC]
+    3 MC
+    NormalCityTile<Vastitas_3_5>
+    Plant
+}
+
+// (1:10:31 PM) "I'm gonna spend three energy to trade with Luna for seven, two, two: eleven
+// money."
+Pink: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    11 MC
+}
+
+// (1:11:23 PM) "Hermetic Order of Mars costs me nine. I get two money production, which gives
+// me two money, and then I get ten money."
+Green: PlayCard(HermeticOrderOfMars) {
+    Pay(9 MC)
+    PROD[2 MC]
+    12 MC
+}
+
+// (1:12:17 PM) "I will spend a titanium and three real for Rotator Impacts."
+Pink: PlayCard(RotatorImpacts) {
+    Pay(1 Titanium, 3 MC)
+}
+
+// (1:12:53 PM) "Corroder Suits for seven. It gives me another two money production and two
+// money."
+Green: PlayCard(CorroderSuits) {
+    Pay(7 MC)
+    PROD[2 MC]
+    2 MC
+}
+
+// (1:12:54 PM) "Get those tags going. I'm gonna spend six to add an asteroid to Rotator
+// Impacts."
+Pink: UseAction1(RotatorImpacts) {
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+
+// (1:13:10 PM) "More importantly, it gives me a tag. I think I'll put my lobby dude in
+// Greens."
+Green: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+// "And then spend five to take over the Greens. Greens also become dominant."
+Green: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Greens>
+}
+
+// (1:14:20 PM) "Pay nine for Sponsored Academies, and draw a card. Oh wait, I draw three
+// cards, you draw one. I thought I was doing the University thing."
+// "There's your three, and here's my one."
+Pink: PlayCard(SponsoredAcademies) {
+    Pay(9 MC)
+    -ProjectCard
+    3 ProjectCard
+    EACH Other@Player(NOT Pink) { ProjectCard<Other@Player>! }
+    ProjectCard<Green>
+}
+
+// (1:16:04 PM) "For my turn, I will spend the ten to get three more cards."
+Green: UsePolicy {
+    Pay(10 MC)
+    3 ProjectCard
+}
+
+// (1:16:30 PM) "I spend a money on CEO's Favorite Project. Add a resource to a card with at
+// least one. I add an asteroid to Rotator Impacts."
+Pink: PlayCard(CeosFavoriteProject) {
+    Pay(1 MC)
+    Asteroid<RotatorImpacts>
+}
+
+// (1:17:42 PM) "I don't have many options left. I think I'm prepared to pass."
+Green: Pass
+
+// (1:17:52 PM) Pink: "Whoops, wait. I forgot to buy my freaking cards."
+// Green: "We're making it so that you did not use Martian Media Center."
+// Pink: "I just don't use this."
+// The research payment is already included above.
+// (1:19:15 PM) "Then hit your production."
+// "Now I pass. Pro Duck."
+Pink: Pass
+
+Green: Production {
+    30 MC
+    Steel
+    2 Titanium
+    Heat FROM Energy VIA Energy
+    Heat
+}
+
+Pink: Production {
+    28 MC
+    Titanium
+    Heat FROM Energy VIA Energy
+    4 Energy
+    9 Heat
+}
+
+// (1:19:22 PM) "I am going to increase Venus to four percent for my world government. Then it's
+// picture time. Then colonies go zhwee, and trade fleet goes back. Let's do Turmoil carefully,
+// one step at a time. Read it off the thing."
+Green: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// board-13-19-37.jpg and both app logs, before Global Dust Storm. Green's 30 MC is the
+// photographed/logged 33 MC less the retconned research payment.
+// (1:19:54 PM) "All players lose one TR. Perform the current global event."
+// Green: "I'm down to 18 TR. Looks like you have no influence, and I have two. So I only lose
+// two money."
+// Pink: "I lose my 10 heat and four monies."
+// Green: "Oh, I lose two money and five heat."
+// Influence 2 for Green, 0 for Pink; three/two building tags respectively.
+Green: GlobalEvent {
+    -5 Heat
+    -2 MC
+}
+
+Pink: GlobalEvent {
+    -10 Heat
+    // (1:20:36 PM) "The dominant party becomes ruling. Change policy tiles: Greens."
+    // Green: "I get no bonus, but Greens are now in power."
+    // Pink: "Me neither. Dominant party leader becomes chairman."
+    // "Green becomes chairman and gains one TR. Remove the other delegates, shift dominance,
+    // restore lobby. Move coming global to current, add neutral. We get a neutral Scientist.
+    // Scientist party leader is neutral. Reveal and add a neutral Kelvinist. We revealed Generous
+    // Funding."
+    -4 MC
+}
+
+// (1:21:47 PM) "I have so little TR. Generation marker moves, the button moves, cubes come off
+// cards. We would be ready to draft, but we're pausing. I have 11 cards in hand."
+// (4:51:38 PM) "I'm gonna buy one card."
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(3 MC)
+}
+
+Pink: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// (4:54:46 PM) Green: "I mean two cards."
+// Pink: "I started."
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// (4:56:05 PM) "Minority Refuge for five, which I will pay with a titanium and two real.
+// Decrease money production two steps, place a colony. This will be Triton for three
+// titanium."
+Pink: PlayCard(MinorityRefuge) {
+    Pay(1 Titanium, 2 MC)
+    PROD[-2 MC]
+    Colony<Triton>
+    3 Titanium
+}
+// "I'll spend three energy to trade with Triton for four titanium."
+Pink: Trade2 {
+    Pay(3 Energy)
+    Trade<Triton>
+    4 Titanium
+}
+
+// (4:56:47 PM) "I'm going to do Solar Logistics for 19, which I pay as 12 worth of titanium
+// and seven real, and it gives me two titanium."
+Green: PlayCard(SolarLogistics) {
+    Pay(4 Titanium, 7 MC)
+    2 Titanium
+}
+// (4:57:19 PM) "Then Spin-Inducing Asteroid. 15, of which I pay six worth of titanium and
+// nine real. Venus goes up two steps to eight percent. I get two TR and two cards."
+// "One from the bonus track and one from Solar Logistics."
+Green: PlayCard(SpinInducingAsteroid) {
+    Pay(2 Titanium, 9 MC)
+    VenusStep
+    VenusStep
+    2 TerraformRating
+    2 ProjectCard
+}
+
+// (4:57:57 PM) "Acquired Company: gain three money production."
+// The transcript omits the payment; pink-applog-05 entry 97 records ten MC.
+Pink: PlayCard(AcquiredCompany) {
+    Pay(10 MC)
+    PROD[3 MC]
+}
+
+// (4:59:30 PM) "I'm going to need to sell a patent."
+// Sell an extra patent to afford Legend after the corrected research payment.
+Green: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+
+// (4:59:42 PM) "Use Rotator Impacts, remove an asteroid, raise Venus a step, and I get TR."
+Pink: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+// (5:00:06 PM) "Indentured Workers."
+Green: PlayCard(IndenturedWorkers) {
+    IndenturedWorkers_NextCardEffect
+}
+// "Can you guess what I'm gonna pay for now? Legend of Zelda. I played Indentured Workers and
+// then I funded the Legend milestone."
+Green: ClaimMilestone {
+    Pay(8 MC)
+    Legend
+}
+
+// (5:01:36 PM) "I will use Lobby to send a guy to Greens."
+Pink: SendDelegate0 {
+    PartyLeader<Greens> FROM LobbyDelegate
+}
+
+// (5:02:25 PM) "Tectonic Stress Power costs nine, which I'm paying eight worth of steel. I
+// get three energy production and three energy."
+// At 17:02 the table played TSP without its required second science tag. User-approved
+// retcon: move Nomads earlier, then play Solar Wind Power instead. Research Outpost and
+// Indentured Workers reduce SWP to 2 MC; a titanium pays it.
+Green: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_6_9> FROM NomadsMarker<Vastitas_5_9>! THEN Placement<Vastitas_6_9>!)
+    NomadsMarker<Vastitas_6_9> FROM NomadsMarker<Vastitas_5_9>
+    2 Titanium
+}
+// no MC paid; titanium deliberately overpays the 2 MC cost by 1
+Green: PlayCard(SolarWindPower) {
+    Pay(1 Titanium)
+    PROD[Energy]
+    Energy
+    2 Titanium
+}
+
+// (5:02:31 PM) "I don't really have much to do, so I'll pass."
+Pink: Pass
+
+// (5:03:02 PM) "I might as well spend the three energy to pick up the six steel from Ceres.
+// I'm not going to use it yet, but I need to use my lobby action. And Asteroid Rights: I
+// gotta pay one to put an asteroid on it. And I gotta use Nomads. I could have used that
+// titanium earlier. I'm moving it to 6-9 to get two titanium."
+// "Dominance moves to your left, clockwise, right? It'll go to Kelvinists. Well, I'm going to
+// put my lobby person in Unity."
+// "Did I reach the end of everything I can do? I did my lobby action, I can't convert stuff,
+// I've used all my card actions, and I don't have enough money to do anything. And I flew my
+// boat. It's crazy that we still haven't gotten those colonies. Ready to hit production?"
+// The corrected play omits the Ceres trade and Asteroid Rights refill.
+// Nomads has already moved; only the Unity lobby remains.
+Green: SendDelegate0 {
+    PartyFollower<Unity> FROM LobbyDelegate
+}
+Green: Pass
+
+Green: Production {
+    32 MC
+    Steel
+    2 Titanium
+    Heat FROM Energy VIA Energy
+    Energy
+    Heat
+}
+
+Pink: Production {
+    29 MC
+    Titanium
+    Heat FROM Energy VIA Energy
+    4 Energy
+    9 Heat
+}
+
+// (5:05:45 PM) "You must world governmentalize."
+// "I think I will oxygenate."
+// "Oxygen is up to one percent."
+Pink: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// (5:06:02 PM) "Now it's time for the picture, then colonies. Oops, why did I move it down? Up,
+// up, up. Luna is on the 10 money spot now. Walk us through Turmoil."
+// "All players lose one TR. Perform the current global event."
+// board-17-06-16.jpg and the final app logs anchor the original production checkpoint. Green's
+// resources/tableau below incorporate the agreed SWP/no-trade retcon; Pink's values still match
+// the photo. Automatic Turmoil has already removed each TR.
+// (5:06:45 PM) Green: "Do we agree that I have two influence?"
+// Pink: "And I have two."
+// Green: "I have ten, in fact, so I made it easily. I get 10 money for having enough tags and
+// influence."
+// Pink: "I have five unique tag types. Just wasn't in the cards."
+// 17:06–17:08: Diversity still pays only Green. Without TSP's building tag, Mars First pays
+// Green 3 MC rather than the recorded 4; Pink's outcome is unchanged.
+Green: GlobalEvent {
+    10 MC
+}
+
+// (5:07:32 PM) Pink: "The dominant party becomes ruling. Change policy tile. We each get a
+// money per building. I have two."
+// Green: "I have four. I'm going to get screwed in a minute, but four for now."
+// Pink: "I become chairman. I earn TR."
+// no Diversity payout: five distinct tags plus two influence
+Pink: GlobalEvent {
+    0 MC
+}
+
+// Corrected hand count: 11 before Research + 2 purchases + 2 draws - 4 plays - 2 sales.
+// (5:08:08 PM) "Kelvinists become dominant. Nope, Unity. That was the point. Unity becomes
+// dominant. Restore lobby. Move coming to current. A neutral Mars First person, and a neutral
+// Mars First person. What was just revealed is Aquifer Released by Public Council. The current
+// event this next generation is going to be Pandemic. Generation moves. Button moves. Cubes off
+// cards."
+// Play resumed on November 12, before generation 5.
+// (3:34:23 PM) "We're going to make it as if I didn't play Tectonic Stress Power, but
+// played Solar Wind Power instead, and undo the trade with Ceres. Return Tectonic Stress Power
+// to my hand, move Solar Wind Power into my tableau, and sell an extra patent. I should finish
+// with nine cards in hand; I do. Remove the asteroid from Asteroid Rights because I wouldn't
+// have had the one money to do that."
+// Both players applied the corrections already included above; Green has nine cards.
+// (3:37:59 PM) "We have building tags coming up."
+// "I'm going to actually buy my cards. Buy two cards."
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// (3:45:34 PM) "Keep three cards."
+// no heat paid
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// (3:46:00 PM) "Tectonic Stress Power. This time I do have the two science tags. It costs 17,
+// which I'll pay as 10 worth of steel and 7 real. That gives me three energy production and
+// three energy."
+Green: PlayCard(TectonicStressPower) {
+    Pay(5 Steel, 7 MC)
+    PROD[3 Energy]
+    3 Energy
+}
+// "For my second action, I'm going to fly my boat to Ceres and get even more than before. I
+// lose three energy and get eight steel."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Ceres>
+    8 Steel
+}
+
+// (3:46:50 PM) "I'm gonna use Rotator Impacts, remove the thingy, raise Venus a step, which
+// gives me a TR."
+Pink: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+// "Then Venus Allies."
+// "You made that card pay off. Pay for it first."
+// "I'm trying to decide if I hold back all my... I'm gonna live on the edge. Spend it all as
+// real money. Raise Venus two steps; the 16 gives me a bonus. Gain four money per colony, so
+// that's 12. That was two actions."
+Pink: PlayCard(VenusAllies) {
+    // Titanium and heat payments both offer Ok; select titanium before declining it.
+    // no titanium paid
+    // no heat paid
+    Pay(30 MC)
+    VenusStep
+    VenusStep
+    3 TerraformRating
+    12 MC
+}
+
+// (3:48:27 PM) "I'll play Floating Refinery for six. Because I have two Venus tags, it puts
+// two floaters on itself. Oops, those aren't floaters. Where are the squares? Titan has now
+// come into play."
+// The tableau photos identify Floating Refinery as Green's.
+Green: PlayCard(FloatingRefinery) {
+    Pay(6 MC)
+    2 Floater<FloatingRefinery>
+}
+
+// (3:49:25 PM) "My lobby guy to Reds."
+Pink: SendDelegate0 {
+    PartyFollower<Reds> FROM LobbyDelegate
+}
+// "Martian Media Center, spend three, go to Reds. That kicked out the neutral leader."
+// no heat paid
+Pink: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyLeader<Reds>
+}
+
+// (3:50:22 PM) "I'm going to use Mars Nomads, move back to 5-9 again and draw my two cards.
+// They're not good."
+Green: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_9> FROM NomadsMarker<Vastitas_6_9>! THEN Placement<Vastitas_5_9>!)
+    NomadsMarker<Vastitas_5_9> FROM NomadsMarker<Vastitas_6_9>
+    2 ProjectCard
+}
+
+// (3:50:28 PM) "I will spend three energy to trade with Luna. I get 10 plus two bonuses of
+// two, so 14 money."
+Pink: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    14 MC
+}
+// "I may as well pay eighteen for Aquifer Pumping."
+// no heat paid
+Pink: PlayCard(AquiferPumping) {
+    Pay(18 MC)
+}
+
+// (3:51:38 PM) "Cupola City for seven steel and one real. We are under nine percent. I lose
+// an energy production, gain three megacredit production and three megacredits, and place a
+// shitty tile. Where do I want to put it? At 2,3 for nothing. No bonus."
+Green: PlayCard(CupolaCity) {
+    Pay(7 Steel, 1 MC)
+    PROD[-Energy]
+    PROD[3 MC]
+    3 MC
+    NormalCityTile<Vastitas_2_3>
+    Steel
+    // Green forgot the Mars First party's bonus steel
+    ExMachina {
+        -Steel
+    }
+}
+
+// (3:52:36 PM) "Spend six money and two heat on Aquifer Pumping to place an ocean for two
+// money and a plant."
+// "Two money and a plant, and two money because it went on 6-6."
+// "No, two heat and a plant. The whole heat-for-money thing. Wait, one more action."
+Pink: UseAction1(AquiferPumping) {
+    Pay(2 Heat, 6 MC)
+    OceanTile<Vastitas_6_6>
+    TerraformRating
+    2 Heat
+    Plant
+    2 MC
+    Steel
+    // Pink also forgot the Mars First party's bonus steel
+    ExMachina {
+        -Steel
+    }
+}
+// (3:53:30 PM) "Red Appeasement, and no other player has passed."
+// "I haven't passed yet, so you can't play that. Oh, no other player. Right."
+// "I pay no money, get two money production, and I pass."
+Pink: PlayCard(RedAppeasement) {
+    PROD[2 MC]
+    Pass
+}
+
+// (3:53:49 PM) "I guess I'll play Mining Expedition for 11, which raises oxygen to 2 and
+// gives me a TR. And you can lose your one plant."
+Green: PlayCard(MiningExpedition) {
+    Pay(11 MC)
+    OxygenStep
+    TerraformRating
+    -Plant<Pink>
+    2 Steel
+}
+// (3:54:34 PM) "Then Supermarkets for eight. That gives me two money production and two
+// money. We do have two city tiles in play."
+Green: PlayCard(Supermarkets) {
+    Pay(8 MC)
+    PROD[2 MC]
+    2 MC
+}
+// (3:54:59 PM) "I might as well do Power Plant for three, except I'll spend one money and one
+// steel. I get an energy production and an energy. I have nothing to convert. I have a lobby
+// action to do."
+Green: PlayCard(PowerPlant) {
+    Pay(1 Steel, 1 MC)
+    PROD[Energy]
+    Energy
+}
+// (3:55:21 PM) "And use Floating Refinery to remove two floaters, take one titanium and two
+// money."
+Green: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+// "Then use Asteroid Rights, spend one money to put an asteroid on it. Then my lobby dude."
+Green: UseAction1(AsteroidRights) {
+    Pay(1 MC)
+    Asteroid<AsteroidRights>
+}
+// (3:56:37 PM) "I'm gonna move the lobby dude to Reds, which makes Reds dominant."
+Green: SendDelegate0 {
+    PartyFollower<Reds> FROM LobbyDelegate
+}
+// (3:56:49 PM) "I could add two more lobby dudes. That'd be pretty expensive. What the hell,
+// I'm gonna do it. I'm spending 10, adding a regular dude and then a leader, kicking out the
+// Pink leader."
+Green: SendDelegate5 {
+    Pay(5 MC)
+    PartyFollower<Reds>
+}
+Green: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Reds>
+}
+// (3:57:17 PM) "Now I'm out of stuff to do. I've flown my boat, converted things I can convert,
+// I have money for cards, and I've used all my actions. Production?"
+Green: Pass
+
+Green: Production {
+    37 MC
+    Steel
+    2 Titanium
+    2 Heat FROM Energy VIA Energy
+    4 Energy
+    Heat
+}
+
+Pink: Production {
+    36 MC
+    Titanium
+    Heat FROM Energy VIA Energy
+    4 Energy
+    9 Heat
+}
+
+// "Then I need to world governmentalize. How about an ocean at 5-8?"
+Green: WorldGovernment {
+    OceanTile<Vastitas_5_8>! BY Admin
+}
+
+// (3:58:06 PM) "Oceans are at four now. Picture time. Colonies: two boats return, everything
+// has slid up. Then Turmoil: all players lose one TR."
+// board-15-58-19.jpg: after production/WGT, before Pandemic and the Reds government.
+// (3:58:46 PM) Pink: "Perform the current global event, taking influence into account. I
+// believe we each have two, so I lose three."
+// Green: "I lose three times three. You mean you only lose three money? I lose nine money."
+Green: GlobalEvent {
+    -9 MC
+}
+
+// (3:59:22 PM) Pink: "The dominant party becomes ruling. Change policy tile. You get a TR
+// bonus. You become chairman and earn another. Move everything else out and restore the lobby."
+// Green: "That gives me a TR, right? I'm now at 21 TR. I become chairman, and dominance moves
+// to Unity."
+Pink: GlobalEvent {
+    -3 MC
+}
+
+// The spoken "21 TR" conflicts with green-applog-06 entry 156: two TR gained, ending at 22.
+// (4:00:19 PM) "Move the event, add neutral Unity. It is still dominant. Shift over and reveal
+// Election. Add a dude to Greens. I think we know who's winning that one: influence plus
+// building tags plus cities."
+// "That's a shoo-in for me."
+// "I've added the neutral delegate. That's all the Turmoil stuff."
+// (4:01:02 PM) "Generation becomes six. Button moves to Pink. We're each taking three cubes off
+// cards. We're ready to research. Two for you, two for me, two for you, two for me. I want most
+// of these; I want two of these."
+// 16:03: the mixed-speaker research sentence is resolved by both logs: three purchases each.
+// no heat paid
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// (4:03:59 PM) Pink: "I may have been a little unsmart. I'm going to raise temp two times. I
+// have to lose six for it, but I do get the heat bonus."
+// Green: "You lost six what?"
+// Pink: "Money. Reds' bonus."
+// Green: "Of course I did."
+// Pink: "Did you forget? You just wanted the TR?"
+// Green: "Thank you for realizing that."
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    -3 MC
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    -3 MC
+    PROD[Heat]
+}
+
+// (4:05:09 PM) "Lavatory Settlement costs 14, which I'll spend as 6 worth of steel and 8
+// real. I lose an energy production, gain 2 money production, which gains me 2 money, and
+// place a shitty tile. I don't even want these stupid cities, but I do want to claim Builder.
+// I'm placing it on Elysium Mons to draw one card. Oh great, another city."
+// 16:05: "Lavatory settlement" at Elysium Mons (photo:2,6), then Builder.
+Green: PlayCard(LavaTubeSettlement) {
+    Pay(3 Steel, 8 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    2 MC
+    NormalCityTile<Vastitas_2_6>
+    ProjectCard
+}
+// "I count seven. For my second action, I pay eight and claim Builder."
+// "I keep forgetting about Merchant, but I've never had two plants together at the same time
+// in this whole game."
+Green: ClaimMilestone {
+    Pay(8 MC)
+    Builder
+}
+
+// (4:06:19 PM) "Spend three energy and trade with Luna for 11."
+Pink: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    11 MC
+}
+
+// (4:06:40 PM) "Use Asteroid Rights, remove an asteroid, and give myself a money production."
+Green: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    PROD[MC]
+    MC
+}
+
+// (4:07:06 PM) "Pay six real money for Rotator Impacts, add a resource to it."
+Pink: UseAction1(RotatorImpacts) {
+    // Titanium and heat payments both offer Ok; select titanium before declining it.
+    // no titanium paid
+    // no heat paid
+    Pay(6 MC)
+    Asteroid<RotatorImpacts>
+}
+
+// (4:07:24 PM) "I'm going to use Floating Refinery to add a floater."
+Green: UseAction1(FloatingRefinery) {
+    Floater<FloatingRefinery>
+}
+
+// (4:07:47 PM) "Spend thirteen on Lunar Beam. Lose two money production, gain two energy
+// production, gain two heat production."
+// no heat paid
+Pink: PlayCard(LunarBeam) {
+    Pay(13 MC)
+    PROD[-2 MC]
+    PROD[2 Energy]
+    PROD[2 Heat]
+}
+
+// (4:08:00 PM) "I'm going to use Mars Nomads, move to 4,8 for two money and place a delegate
+// for free, which I'll do in Reds to grab the leadership."
+// "I thought about placing my thing for that, but there's a good chance you'll get into Reds
+// again. That benefits you anyways."
+Green: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_4_8> FROM NomadsMarker<Vastitas_5_9>! THEN Placement<Vastitas_4_8>!)
+    NomadsMarker<Vastitas_4_8> FROM NomadsMarker<Vastitas_5_9>
+    2 MC
+    PartyLeader<Reds>
+}
+
+// (4:08:35 PM) "I'm going to place my lobby guy in Greens."
+Pink: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+
+// (4:08:46 PM) "I'll place my lobby guy in Mars First."
+Green: SendDelegate0 {
+    PartyFollower<MarsFirst> FROM LobbyDelegate
+}
+
+// (4:09:39 PM) "Aquifer Pumping. Spend eight, place an ocean."
+// "Don't forget your TR."
+// "Increase ocean and TR, for two plants and four money. 5,6. Then I lose three from the
+// thing. It's not great."
+// no heat paid
+Pink: UseAction1(AquiferPumping) {
+    Pay(8 MC)
+    OceanTile<Vastitas_5_6>
+    TerraformRating
+    -3 MC VIA RedsPolicy
+    2 Plant
+    4 MC
+}
+
+// (4:10:14 PM) "I don't see anything worth trading with, so I think I'm done. I pass."
+Green: Pass
+
+// (4:10:35 PM) Pink: "I believe I have two energy tags, so I can pay five for Power Supply
+// Consortium."
+// Green: "I lost an energy production."
+// Pink: "And I gained one. Now I think I'm out."
+// no heat paid
+Pink: PlayCard(PowerSupplyConsortium) {
+    Pay(5 MC)
+    PROD[-Energy<Green>]
+    PROD[Energy]
+}
+Pink: Pass
+
+// (4:11:22 PM) "Ready for production?"
+// "Yeah."
+Green: Production {
+    41 MC
+    Steel
+    2 Titanium
+    4 Heat FROM Energy VIA Energy
+    2 Energy
+    Heat
+}
+
+Pink: Production {
+    36 MC
+    Titanium
+    Heat FROM Energy VIA Energy
+    7 Energy
+    12 Heat
+}
+
+// (4:11:27 PM) "Then world government."
+// Pink: "I will increase oxygen to three percent."
+// Green: "I'm belatedly raising the temp for my thing too."
+Pink: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// (4:11:47 PM) "Then picture time, then colonies. Take my ship back. Then walk us through
+// Turmoil."
+// _local/replays/Game20261111/board-16-11-57.jpg.
+// board-16-11-57.jpg, green-applog-07 and pink-applog-08, before Generous Funding.
+// (4:12:18 PM) "All players lose one TR. Perform the current global event."
+// Green: "I have three influence plus one bundle of TR, so I get eight money."
+// Pink: "I have one bundle, so I get two."
+// Green: "You have two bundles over 15."
+// Pink: "28. Yes, I do. I thought I had to get to 30. Our new government: Unity."
+Green: GlobalEvent {
+    8 MC
+}
+
+Pink: GlobalEvent {
+    4 MC
+}
+
+// (4:13:09 PM) "Perform the ruling bonus."
+// Green: "I think I get five."
+// Pink: "I believe I get four. Dominant party... you gain a TR. Restore lobby. Move coming to
+// current. We get neutral in Greens."
+// (4:13:32 PM) "Mars First becomes dominant. Now dominance moves to Greens. Another person to
+// Mars First. We revealed Microgravity Health Problems. Lose three money for it. Let's end the
+// game real quick."
+// "At the end of this round we're going to get stuff per influence, and you're going to place
+// an ocean. That's the end of Turmoil. Generation becomes seven. I'm the start player; we
+// haven't moved the button yet. Three cubes off cards for me. Ready to research."
+// (4:15:09 PM) Green: "I am going to purchase two cards."
+// Pink: "I as well purchase two. I believe I will pay a titanium for Rim Freighters."
+// Green: "Is it my turn?"
+// Pink: "Oh wait, it is. Sorry, your turn."
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// no heat paid
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// (4:18:22 PM) "Pay one for an asteroid on Asteroid Rights."
+Green: UseAction1(AsteroidRights) {
+    Pay(1 MC)
+    Asteroid<AsteroidRights>
+}
+
+// (4:18:29 PM) "For now I'm not going to play Rim Freighters. I'll spend the full three
+// energy to fly my boat to Ceres for three steel."
+Pink: Trade2 {
+    Pay(3 Energy)
+    Trade<Ceres>
+    3 Steel
+}
+// "I believe I have two of each resource. I claim Merchant."
+// "Did you pay your eight for that? Merchant is claimed. Now Coast Guard and Pioneer will not
+// be claimed. You're so close to Pioneer."
+// "Yeah, but you have those things."
+// no heat paid
+Pink: ClaimMilestone {
+    Pay(8 MC)
+    Merchant
+}
+
+// (4:19:24 PM) "Let's play Standard Technology for five money. Oops, not 51."
+Green: PlayCard(StandardTechnology) {
+    Pay(5 MC)
+}
+// "Then standard project aquifer and take three money. I'm going to place it you know where:
+// 5,7, for six money and two plants, and a TR. That's our sixth ocean on the board."
+Green: UseStandardProject(AquiferProject) {
+    Pay(18 MC)
+    3 MC
+    OceanTile<Vastitas_5_7>
+    6 MC
+    2 Plant
+    TerraformRating
+}
+
+// Green accidentally gained the ocean's TR twice.
+Green: ExMachina {
+    TerraformRating
+}
+
+// (4:20:22 PM) "You like to stall and I like to be aggressive. I want to do things in one
+// order, but I want to make sure I get to them. I guess I will play Sky Docks. Had it since
+// the start. Requires two Earth tags. Four titanium as 16, and two real. I get a universal
+// discount of one and another trade fleet."
+// no heat paid
+Pink: PlayCard(SkyDocks) {
+    Pay(4 Titanium, 2 MC)
+    TradeFleet
+}
+// "I'm worried you'll want to trade right away, so I'll spend three energy to trade with
+// Triton, get four titanium."
+Pink: Trade2 {
+    Pay(3 Energy)
+    Trade<Triton>
+    4 Titanium
+}
+
+// (4:23:53 PM) "I am going to play L1 Trade Terminal for 24, which I'll spend as 6 titanium.
+// I add an asteroid to Asteroid Rights and a floater to Floating Refinery."
+// no MC remains owed
+Green: PlayCard(L1TradeTerminal) {
+    Pay(6 Titanium)
+    EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }
+    Asteroid<AsteroidRights>
+    Floater<FloatingRefinery>
+}
+// (4:24:17 PM) "Then I'm going to buy a standard project power plant, which gives me three
+// back from Standard Technology, an energy production, and an energy."
+Green: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    3 MC
+    PROD[Energy]
+    Energy
+}
+
+// Green accidentally gained the energy production twice, but took Manutech's energy once.
+Green: ExMachina {
+    PROD[Energy]
+}
+
+// (4:24:28 PM) "Steel and two real to use Aquifer Pumping. Place an ocean: two heat, two
+// money on 6,5. Ooh, not heat production."
+// "Did you get your TR?"
+// "Oh, thank you. Yeah."
+// no heat paid
+Pink: UseAction1(AquiferPumping) {
+    Pay(3 Steel, 2 MC)
+    OceanTile<Vastitas_6_5>
+    2 Heat
+    2 MC
+    TerraformRating
+}
+// (4:25:37 PM) "Five for Capital. A special tile, right on 5,5. I collect six money, then
+// lose four, so I get two money and a temp."
+// no heat paid
+// six adjacency MC less the four MC placement cost
+Pink: PlayCard(Capital) {
+    Pay(25 MC)
+    PROD[-2 Energy]
+    PROD[5 MC]
+    CapitalTile<Vastitas_5_5, Capital>
+    2 MC
+    TemperatureStep
+    TerraformRating
+}
+
+// (4:26:19 PM) Green: "I am ready to trade for three energy with Luna. I think I will raise
+// it two spots. I get 13, you get four."
+// Pink: "I get four."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    2 ColonyProduction<Luna>
+    13 MC
+    // Each of Pink's two colony bonuses is dispatched from Green's trade to Pink.
+    Pink: 4 MC
+}
+// (4:26:41 PM) "Astromechanica for six. I want this one."
+// "Astromechanica" is Astra Mechanica. The two returned events are replayed below.
+Green: PlayCard(AstraMechanica) {
+    Pay(6 MC)
+    ProjectCard FROM PlayedEvent<Class<IndenturedWorkers>>
+    ProjectCard FROM PlayedEvent<Class<ConvoyFromEuropa>>
+}
+
+// (4:27:41 PM) "You bought Refugee Camps. I never buy that."
+// "I feel like now I'm getting somewhere production-wise."
+// pink-applog-09's net -5 combines Luna +4 with the discounted 9 MC card bill.
+// no heat paid
+Pink: PlayCard(RefugeeCamps) {
+    Pay(9 MC)
+}
+
+// (4:27:51 PM) "Use Floating Refinery to remove two floaters, take a titanium and two money."
+Green: UseAction2(FloatingRefinery) {
+    -2 Floater<FloatingRefinery>
+    Titanium
+    2 MC
+}
+// "Now I'm going to play Indentured Workers for free."
+Green: PlayCard(IndenturedWorkers) {
+    IndenturedWorkers_NextCardEffect
+}
+
+// (4:28:22 PM) "I'll use Refugee Camps, lose money production, gain a camp."
+Pink: UseAction1(RefugeeCamps) {
+    PROD[-MC]
+    Camp<RefugeeCamps>
+}
+
+// (4:28:30 PM) "Now I'm going to play 16 Psyche for twenty-two. Five titanium will count for
+// twenty, so I pay two real. I get three titanium, and two titanium production, which gives
+// me another two titanium. Come right back where I was with titanium."
+// "Might have been wrong for me to refrigerate."
+Green: PlayCard(SixteenPsyche) {
+    Pay(5 Titanium, 2 MC)
+    3 Titanium
+    PROD[2 Titanium]
+    2 Titanium
+}
+
+// (4:29:16 PM) "I will use Rotator Impacts, lose titane."
+// The transcript's "lose titane" is the asteroid on Rotator Impacts; Venus reaches 18.
+Pink: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+// (4:29:24 PM) "Venus is now at 18%. I'll play Nuclear Zone for nine."
+Green: PlayCard(NuclearZone) {
+    // Green forgot Solar Logistics' 2 MC Earth-tag discount.
+    Pay(7 MC)
+    ExMachina {
+        -2 MC
+    // (4:29:48 PM) "I'm going to place it at 6,8 for one plant and six money, and raise the temp
+    // to minus 14, which gives me two TR. My cube on it. Let me check if there's anything else I
+    // want to do. I'm fine."
+    }
+    NuclearZone_SpecialTile<Vastitas_6_8>
+    Plant
+    6 MC
+    TemperatureStep
+    TemperatureStep
+    2 TerraformRating
+}
+
+// (4:30:23 PM) "I can now spend five titanium on Luna Metropolis. I have six Earth tags. And
+// place a shitty tile."
+// no heat paid
+// no MC remains owed
+Pink: PlayCard(LunaMetropolis) {
+    Pay(5 Titanium)
+    PROD[6 MC]
+    NormalCityTile<LunaMetropolis_RemoteArea>
+}
+
+// (4:31:07 PM) "I'm going to play Miranda Resort. Costs 11. Two titanium counts for eight,
+// and three real. I have three Earth tags? Three megacredit production, three megacredits."
+Green: PlayCard(MirandaResort) {
+    Pay(2 Titanium, 3 MC)
+    PROD[3 MC]
+    3 MC
+}
+
+// (4:31:39 PM) "I've decided to spend the full titanium on Rim Freighters. Figure I'll want
+// to get aggressive next."
+// no heat paid
+// no MC remains owed; titanium deliberately overpays by 1
+Pink: PlayCard(RimFreighters) {
+    Pay(1 Titanium)
+}
+
+// (4:31:50 PM) "Solar Reflectors for 22: 12 worth of titanium and 10 real. I get 5 heat
+// production and 5 heat."
+Green: PlayCard(SolarReflectors) {
+    Pay(3 Titanium, 10 MC)
+    PROD[5 Heat]
+    5 Heat
+}
+
+// (4:32:31 PM) "Is it minus twelve?"
+// "Yeah."
+// 16:33: Pink's logged heat conversion raises temperature to -12.
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+// (4:33:46 PM) "I guess I'll do a heat boop too. Since you haven't done anything yet, I'm
+// going to go next."
+Green: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+// "Convoy from Europa costs me 14. I have no titanium left, so I'm going to spend 14 real. I
+// place the penultimate ocean tile on 3-3 for two plants and a TR, and draw two cards."
+Green: PlayCard(ConvoyFromEuropa) {
+    Pay(14 MC)
+    OceanTile<Vastitas_3_3>
+    2 Plant
+    TerraformRating
+    2 ProjectCard
+}
+
+// (4:34:46 PM) "I pay a heat for Virus, so you lose five plants. Wait, no, I don't pay for
+// Virus."
+// "That makes me sad."
+// Sky Docks reduces the Virus bill to 0.
+Pink: PlayCard(Virus) {
+    -5 Plant<Green>
+}
+
+// (4:35:31 PM) "Regardless of my sadness, I'm still going to play Grass. The Convoy is
+// flipped. Grass for 10 real gives me three plants, a plant production, and a plant."
+Green: PlayCard(Grass) {
+    Pay(10 MC)
+    3 Plant
+    PROD[Plant]
+    Plant
+}
+
+// (4:36:18 PM) "Put my free dude in Greens just to hold the lead."
+Pink: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+
+// (4:36:29 PM) "Let's get weird. It's Jovian Envoys. Pay one. I finally have the two Jupiter
+// tags that I need. I place two delegates into Mars First."
+Green: PlayCard(JovianEnvoys) {
+    Pay(1 MC)
+    SelectTask(PartyFollower<MarsFirst>! THEN PartyDelegate<MarsFirst>!)
+    PartyFollower<MarsFirst>
+    PartyFollower<MarsFirst>
+}
+// "Then use my lobby action in Mars First, which both takes the leadership and moves the
+// dominance."
+Green: SendDelegate0 {
+    PartyLeader<MarsFirst> FROM LobbyDelegate
+}
+
+// (4:37:12 PM) "Do another heat boop. Temp is at minus eight."
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+// (4:37:54 PM) "I use Mars Nomads. I forgot to do this earlier. Move back to 5,9 again, take
+// two money and kick that out of there."
+// 16:37: two adjacent-ocean MC are spoken; Nomads also draws the two printed cards.
+Green: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_9> FROM NomadsMarker<Vastitas_4_8>! THEN Placement<Vastitas_5_9>!)
+    NomadsMarker<Vastitas_5_9> FROM NomadsMarker<Vastitas_4_8>
+    2 MC
+    2 ProjectCard
+}
+
+// (4:39:09 PM) "Is that all you're doing?"
+// "Yeah, for now."
+// 16:38: pink-applog-10 entry 227 confirms the 1 MC patent sale.
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+// (4:39:22 PM) "I'm taking two money."
+Green: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+// "Now spending all seven of my money on Permafrost Extraction. Puts oceans at nine, my TR at
+// twenty-nine. That ocean is going at 3.2 for two plants and two money."
+Green: PlayCard(PermafrostExtraction) {
+    Pay(7 MC)
+    OceanTile<Vastitas_3_2>
+    2 Plant
+    2 MC
+    TerraformRating
+}
+
+// (4:39:46 PM) "I spend three titanium and one real on Imported Nutrients. Gain four plants,
+// and the microbes don't happen."
+// no heat paid
+Pink: PlayCard(ImportedNutrients) {
+    Pay(3 Titanium, 1 MC)
+    4 Plant
+    4* Microbe
+    // No microbe holder; Solar Logistics still awards Green a card for Pink's space event. Keep
+    // the handoff separate so we can check Green's hand before the missed draw.
+    Green: ProjectCard
+}
+
+// At 16:43 Green explicitly counts 4 cards, not 5. The user confirms forgetting this Solar
+// Logistics draw; retain the observed hand until the correction is actually applied.
+Green: ExMachina {
+    -ProjectCard
+}
+
+// (4:40:05 PM) "I am all out of stuff to do. Pass."
+Green: Pass
+
+// (4:40:18 PM) "I as well pass."
+Pink: Pass
+
+Green: Production {
+    51 MC
+    Steel
+    4 Titanium
+    Plant
+    4 Energy
+    6 Heat
+}
+
+Pink: Production {
+    50 MC
+    Titanium
+    Heat FROM Energy VIA Energy
+    5 Energy
+    12 Heat
+}
+
+// board-16-40-53.jpg is after production, before WGT and Turmoil; boats are still out.
+// (4:40:21 PM) "I will world governmentalize Venus to 20. This game needs to end sometime; I'm
+// gonna do oxygen to four instead. Then colonies: three boats go back. Everyone loses a TR."
+Green: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// (4:41:21 PM) Pink: "Perform the current global event. First player, no ocean placed. Gain one
+// plant and one steel per influence. You keep winning the Turmoil stuff."
+// Green: "That's three of each for me."
+// All nine oceans are already placed; Aquifer Released only awards influence resources.
+Green: GlobalEvent {
+    3 Plant
+    3 Steel
+}
+
+// zero influence
+Pink: GlobalEvent {
+    0 Plant
+    // zero influence
+    // (4:41:47 PM) "Dominant party becomes ruling. Change to Mars First tile. Do we do the
+    // bonus now?"
+    // Pink: "Ruling bonus. I get four. You become chairman and earn TR."
+    // Green: "Seven for me. My dudes are going back, I get one TR, and dominance shifts to
+    // Greens."
+    0 Steel
+}
+
+// (4:42:13 PM) "Restore lobby. Election moves into current, and we get a Mars First leader. We
+// reveal Solar Flare, which adds a leader for Unity. Generation becomes eight."
+// (4:43:01 PM) Green: "Button moves. I'm removing three cubes from cards. We're adjourning with
+// four cards left in my hand."
+// Pink: "I as well remove three cubes from cards. I am adjourning with one card left in hand."
+// Generation 8, 18:43: both players confirm applying the previously identified corrections.
+// (6:43:34 PM) Green: "I've made the necessary adjustments. My resources are 61, 6, 4, 11, 3,
+// 13, and my productions are 22, 1, 4, 1, 3, 6."
+// Pink: "My resources are 54, 1, 2, 6, 5, 16. Productions 17, 0, 1, 0, 5, 12."
+Green: ExMachina {
+    MC
+    Steel
+    -TerraformRating
+    PROD[-Energy]
+    -Energy
+}
+
+Pink: ExMachina {
+    Steel
+}
+
+// (6:43:59 PM) Green: "I've got four cards in hand. To put things right, because I forgot Solar
+// Logistics, I get to draw a free card. Then we're ready to draft. Two for you, two for me, two
+// for you, two for me."
+// Pink: "And I have my one card."
+// 18:43:59: Green draws the forgotten Solar Logistics card before drafting.
+Green: ExMachina {
+    ProjectCard
+}
+
+// (6:46:19 PM) "I'm buying two cards."
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// (6:47:09 PM) "Did you buy your cards?"
+// no heat paid
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// (6:48:10 PM) "I should block you. I'm gonna do a greenery standard project here. Oxygen is
+// now at five. At 5,4 for two plants and four money."
+// no heat paid
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_5_4>
+    2 Plant
+    4 MC
+    OxygenStep
+    TerraformRating
+    Steel
+}
+// (6:48:46 PM) "Then I'll convert plants to greenery at 4,4 for a plant and two money.
+// Unfortunately, I do have to do this."
+// "Did you get two steel for placing?"
+// "Oh right, that was part of the point."
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_4_4>
+    Plant
+    2 MC
+    OxygenStep
+    TerraformRating
+    Steel
+}
+
+// (6:49:52 PM) "I'm just going to win Election? I have two more cities than you and quite a
+// few more building tags."
+// "Pretty much."
+// "I'll use Asteroid Rights to remove an asteroid and take two titanium."
+Green: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+// "I'll spend that titanium on Imported Nitrogen, 18 worth, plus two money because of Solar
+// Logistics. Then I get a TR, four plants. I don't get any of the other stuff, but I do get a
+// card. Those were my two actions, right?"
+Green: PlayCard(ImportedNitrogen) {
+    Pay(6 Titanium, 2 MC)
+    TerraformRating
+    4 Plant
+    3* Microbe
+    2* Animal
+    ProjectCard
+}
+
+// Pink trades with Titan despite having no floater holder, explicitly to block Green.
+// (6:52:44 PM) "I'm gonna be a little mean: spend two energy to trade with Titan."
+// "Oh, you jerk. I didn't expect that. Anything else?"
+// "Your turn."
+Pink: Trade2 {
+    Pay(2 Energy)
+    Trade<Titan>
+    3* Floater
+}
+
+// (6:53:13 PM) "I'm going to convert plants. That raises oxygen to seven, and I place a
+// greenery at 3-4 to get 2 money and 2 plants."
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_3_4>
+    2 Plant
+    2 MC
+    OxygenStep
+    TerraformRating
+    Steel
+}
+// "Then I convert plants again. Oxygen is at 8 and temperature also increases. I raise
+// temperature one more time and give myself one more TR, because it gave me one. This
+// greenery goes at 4,6 to get a card and four money."
+// "We placed our greeneries before the thing that gives us money for that, but I was paranoid
+// about you making me lose plants."
+// "I guess I do get two steel."
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_4_6>
+    ProjectCard
+    4 MC
+    OxygenStep
+    TerraformRating
+    TemperatureStep
+    TerraformRating
+    Steel
+}
+
+// (6:54:29 PM) "Do I have a lead on any of the awards? I'm gonna spend two titanium to add to
+// Rotator Impacts."
+// no heat paid
+// no MC remains owed
+Pink: UseAction1(RotatorImpacts) {
+    Pay(2 Titanium)
+    Asteroid<RotatorImpacts>
+}
+
+// (6:56:22 PM) "I'm going to Sabotage you for free. Lose seven money."
+Green: PlayCard(Sabotage) {
+    -7 MC<Pink>
+}
+
+// (6:56:39 PM) "I'm gonna send a free dude and use Martian Media Center: spend three money
+// and place two dudes in Scientists, which I am now leading."
+Pink: SendDelegate0 {
+    PartyFollower<Scientists> FROM LobbyDelegate
+}
+// no heat paid
+Pink: UseAction1(MartianMediaCenter) {
+    Pay(3 MC)
+    PartyLeader<Scientists>
+}
+
+// (6:57:44 PM) "I'm going to pay 23 for a greenery. It raised oxygen to nine automatically
+// and gave me a TR, I think. Put it at 2,5 for one plant. I get a steel for placing that."
+Green: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    3 MC
+    GreeneryTile<Vastitas_2_5>
+    Plant
+    OxygenStep
+    TerraformRating
+    Steel
+    // Green forgot Standard Technology's 3 MC rebate.
+    ExMachina {
+        -3 MC
+    }
+}
+// "Harvest costs me three, and gives me 12."
+Green: PlayCard(Harvest) {
+    Pay(3 MC)
+    12 MC
+}
+
+// (6:59:15 PM) "Refugee Camps: lose money production, add a camp."
+Pink: UseAction1(RefugeeCamps) {
+    PROD[-MC]
+    Camp<RefugeeCamps>
+}
+
+// (7:00:08 PM) "Atmo Collectors for 14, which automatically puts two floaters on itself."
+Green: PlayCard(AtmoCollectors) {
+    Pay(14 MC)
+    2 Floater<AtmoCollectors>
+}
+// "Then I'll use it to remove a floater and take three energy."
+Green: UseAction2(AtmoCollectors) {
+    -Floater<AtmoCollectors>
+    3 Energy
+}
+
+// (7:00:44 PM) "Spend two energy, fly my boat to Luna, collect my eleven monies."
+Pink: Trade2 {
+    Pay(2 Energy)
+    Trade<Luna>
+    11 MC
+}
+
+// (7:00:49 PM) "I'm going to pay 14 for Steelworks, but really only pay seven steel."
+// no MC remains owed
+Green: PlayCard(Steelworks) {
+    Pay(7 Steel)
+}
+// "Then use it to lose four energy and get an oxygen, a TR, and two steel. Oxygen is on 10
+// now."
+Green: UseAction1(Steelworks) {
+    Pay(4 Energy)
+    OxygenStep
+    TerraformRating
+    2 Steel
+}
+
+// (7:01:27 PM) "Heat boop."
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+// (7:01:36 PM) "I'll do a heat boop too. At zero."
+Green: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+// "I will use Floating Refinery to add a floater."
+Green: UseAction1(FloatingRefinery) {
+    Floater<FloatingRefinery>
+}
+
+// Pink ledger entries 275–278 supply a second heat conversion omitted from the words at 19:03.
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    OceanTile<WaterArea(HAS MAX 0 Tile)>*
+}
+// (7:03:01 PM) "Methane from Titan. Increase heat production two steps, increase plant
+// production two."
+Pink: PlayCard(MethaneFromTitan) {
+    Pay(27 MC)
+    PROD[2 Heat]
+    PROD[2 Plant]
+}
+
+// (7:03:16 PM) "I will move Mars Nomads to the spot where I get two money and two titanium.
+// Should have done it before."
+Green: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_6_9> FROM NomadsMarker<Vastitas_5_9>! THEN Placement<Vastitas_6_9>!)
+    NomadsMarker<Vastitas_6_9> FROM NomadsMarker<Vastitas_5_9>
+    2 MC
+    2 Titanium
+}
+
+// (7:04:41 PM) "Money to put another delegate in Kelvinists and ensure my lead."
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyFollower<Kelvinists>
+}
+
+// Pink says she is out by 19:06; record her pass after Green’s two lobby actions.
+// (7:05:25 PM) "I'm gonna move my lobby dude to Unity."
+Green: SendDelegate0 {
+    PartyFollower<Unity> FROM LobbyDelegate
+}
+// "And pay five to put another dude in Unity. Now I took over Unity."
+Green: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Unity>
+}
+
+// (7:06:08 PM) Pink: "Still out."
+// Green: "Oh, you're out."
+Pink: Pass
+
+// (7:06:10 PM) "I'm going to play Cultural Metropolis. Costs 19, but I pay 8 worth of steel,
+// so that costs me 11. I lose an energy production, get 3 money production and 3 money, place
+// a shitty tile at 4,7 for one plant and four money."
+// "You've been gaining your steels?"
+// "I'm getting one now."
+Green: PlayCard(CulturalMetropolis) {
+    Pay(4 Steel, 11 MC)
+    PROD[-Energy]
+    PROD[3 MC]
+    3 MC
+    NormalCityTile<Vastitas_4_7>
+    Plant
+    4 MC
+    Steel
+    SelectTask(PartyFollower<MarsFirst>! THEN PartyDelegate<MarsFirst>!)
+    PartyFollower<MarsFirst>
+    PartyLeader<MarsFirst>
+}
+// (7:07:26 PM) "Then I place two delegates in the same party. I don't really know
+// what party I want. I could take stuff away from you, but then I'm going to be thin
+// on delegates. I'm just going to dump them in Mars First. I took it over from the
+// neutral."
+// "Then a power plant, which gives me an energy production, an energy, and three money from
+// Standard Technology."
+Green: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    3 MC
+    PROD[Energy]
+    Energy
+}
+// "Then trade with Ceres. I get to increase it two, so I get eight steel. That's a lot of
+// steel."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Ceres>
+    2 ColonyProduction<Ceres>
+    4 Steel
+}
+// (7:09:08 PM) Pink: "It was at two, I believe. You increased it four."
+// Green: "Oh, I get four steel."
+// Pink: "Did you multiply it by two?"
+// (7:09:19 PM) "I don't know what I did. Now I can play Jovian Embassy for thirteen, but
+// spend ten of it as steel. Three real. I get a TR. I might finally be done."
+Green: PlayCard(JovianEmbassy) {
+    Pay(5 Steel, 3 MC)
+    TerraformRating
+}
+// (7:09:58 PM) "Or I might pitch one card and then asteroid, get three money from that, and
+// temperature is now two."
+Green: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Green: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    3 MC
+    TemperatureStep
+    TerraformRating
+}
+// (7:10:15 PM) "Now I'm out of stuff to do, and I've only one card left."
+Green: Pass
+
+Green: Production {
+    62 MC
+    Steel
+    4 Titanium
+    Plant
+    3 Energy
+    6 Heat
+}
+
+Pink: Production {
+    52 MC
+    Titanium
+    2 Plant
+    Heat FROM Energy VIA Energy
+    5 Energy
+    14 Heat
+}
+
+// (7:10:25 PM) Pink: "Part of me wants to raise Venus and see if we can keep the game going. I
+// don't feel confident about my chances of winning."
+// Green: "Nor do I. What's it going to be? Oxygen is at 11 now. It looks like I accidentally
+// reduced my heat production by one, so I'm going to increase it again. Now it's time for
+// colonies."
+// _local/replays/Game20261111/board-19-11-27.jpg; latest board photograph.
+// board-19-11-27.jpg: WGT oxygen 11, before Turmoil; Green 3 greeneries, Pink 2.
+Pink: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// (7:11:59 PM) Green: "Then the global event. I get two TR. Does second place happen in a
+// two-player game?"
+// Pink: "Good question. Where's the rulebook?"
+// Green: "It doesn't say anything on the card. We're going with yes, you do get a TR."
+// Pink: "That's what I thought."
+Green: GlobalEvent {
+    2 TerraformRating
+}
+
+Pink: GlobalEvent {
+    TerraformRating
+}
+
+// (7:14:01 PM) "All players lose one TR, but we've already done the current event. New
+// government: dominant party becomes ruling, Greens."
+// Green: "That was supposed to happen first. Greens are ruling, so we count our bio tags. I
+// have one."
+// Pink: "I have zero."
+// Green: "This is a very unbiological game. You become chairman."
+// Pink: "Get TR back. Restore lobby. We get a neutral Scientist and dominance shifts."
+// "Scientists are dominant. Then we get a neutral Red, because we revealed Strong Society."
+// (7:15:21 PM) Green: "Generation moves to nine, button moves to me. Taking five off cards.
+// Ready to draft?"
+// Pink: "I'm taking three off cards."
+// (7:17:25 PM) "I'm buying one card."
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(3 MC)
+}
+
+Green: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// (7:17:27 PM) "I'm keeping three. Living on the edge."
+// no heat paid
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// The first award is identified indirectly: Green sings The Scientist while paying 8 MC.
+// (7:17:36 PM) "I'm going to spend eight. Come up to meet you, tell you I'm sorry. You don't
+// know how lovely you are."
+Green: FundAward {
+    Pay(8 MC)
+    Scientist
+}
+// "What do I want to hurry up and trade with? I'm gonna spend three energy to fly my boat to
+// Luna. You get four money, I get 13 money."
+Green: Trade2 {
+    Pay(3 Energy)
+    Trade<Luna>
+    2 ColonyProduction<Luna>
+    13 MC
+    Pink: 4 MC
+}
+
+// (7:18:29 PM) "I'm gonna heat boop."
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+// "Then play Asteroid for 13, which I will spend as a titanium and 10 real. Gain two titanium
+// back."
+// no heat paid
+Pink: PlayCard(AsteroidCard) {
+    Pay(1 Titanium, 10 MC)
+    TemperatureStep
+    TerraformRating
+    2 Titanium
+    -3 Plant<Green>
+    Green: ProjectCard
+}
+
+// (7:18:50 PM) "I lost three points. I better heat boop."
+Green: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+// "Then use Atmo Collectors to remove a floater and take three energy."
+Green: UseAction2(AtmoCollectors) {
+    -Floater<AtmoCollectors>
+    3 Energy
+}
+
+// (7:19:35 PM) "Before we forget, I'm gonna pop my lobby boy in Greens."
+// "Anything else?"
+// "Your turn."
+Pink: SendDelegate0 {
+    PartyLeader<Greens> FROM LobbyDelegate
+}
+
+// (7:20:27 PM) "I'm going to buy a standard project power plant, which gives me an extra
+// energy and three money back."
+Green: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    3 MC
+    PROD[Energy]
+    Energy
+}
+// (7:20:44 PM) "Then use Steelworks to delete four energy, take two steel, raise oxygen to
+// 12, and give myself a TR."
+Green: UseAction1(Steelworks) {
+    Pay(4 Energy)
+    OxygenStep
+    TerraformRating
+    2 Steel
+}
+
+// (7:21:23 PM) "Standard project greenery. Oxygen to 13. At 6,4 for a plant, four money, and
+// the Greens bonus gives four more."
+// no heat paid
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_6_4>
+    Plant
+    8 MC
+    OxygenStep
+    TerraformRating
+}
+// (7:22:03 PM) "I remembered a big brain move: spend seven heat and 16 real. That's the end
+// of oxygen."
+// "Make sure to give yourself the TR manually."
+// "I go at 4,5 for two money, and then four from what's-its-face."
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(7 Heat, 16 MC)
+    GreeneryTile<Vastitas_4_5>
+    6 MC
+    OxygenStep
+    TerraformRating
+}
+
+// (7:22:51 PM) "I should have done things in a different order. I'm going to spend 23 on a
+// greenery, which it should not have given me a TR for. Greenery goes at 3.6 for nothing, but
+// I do get four money."
+Green: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    3 MC
+    GreeneryTile<Vastitas_3_6>
+    4 MC
+    0 OxygenStep
+    // Green again forgot Standard Technology's 3 MC rebate.
+    ExMachina {
+        -3 MC
+    }
+}
+// (7:23:32 PM) "Use Mars Nomads, move this guy back to take two money and two cards. Please
+// be good. No."
+Green: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_9> FROM NomadsMarker<Vastitas_6_9>! THEN Placement<Vastitas_5_9>!)
+    NomadsMarker<Vastitas_5_9> FROM NomadsMarker<Vastitas_6_9>
+    2 MC
+    2 ProjectCard
+}
+
+// (7:23:51 PM) "Two energy to trade with Ceres for two steel."
+Pink: Trade2 {
+    Pay(2 Energy)
+    Trade<Ceres>
+    2 Steel
+}
+// "Then two energy to trade with Triton for three titanium. I don't know why I did both those
+// trades so urgently; you don't have another trade fleet."
+Pink: Trade2 {
+    Pay(2 Energy)
+    Trade<Triton>
+    3 Titanium
+}
+
+// (7:24:29 PM) Green: "Pay 14 to fund Venuphile. You only have one Venus tag, right?"
+// Pink: "Yes."
+// Green: "And I have two. That's how badly I'm doing on all the other ones."
+Green: FundAward {
+    Pay(14 MC)
+    Venuphile
+}
+
+// (7:25:01 PM) "Two titanium and two real for Lagrange Observatory. Draw a card."
+Pink: PlayCard(LagrangeObservatory) {
+    Pay(2 Titanium, 2 MC)
+    ProjectCard
+}
+
+// (7:25:22 PM) "I am going to play Research for ten."
+Green: PlayCard(Research) {
+    Pay(10 MC)
+    2 ProjectCard
+}
+
+// The unnamed 11-MC, two-city requirement play is Martian Zoo, named by its later
+// trigger/action.
+// (7:25:24 PM) "I'm going to play for five steel and one real. Requires two cities in play. I
+// think we have that."
+Pink: PlayCard(MartianZoo) {
+    Pay(5 Steel, 1 MC)
+}
+
+// (7:26:11 PM) "Ganymede Colony for six titanium and one real. Place a shitty tile on the
+// reserved area. That wouldn't count for Mars First if it was Mars First, right?"
+// "Don't think so."
+Green: PlayCard(GanymedeColony) {
+    Pay(6 Titanium, 1 MC)
+    NormalCityTile<GanymedeColony_RemoteArea>
+}
+
+// (7:26:42 PM) "I'll spend three titanium as nine money and four real on Orbital Cleanup.
+// It's an Earth tag, so it gives Martian Zoo a marshmallow."
+Pink: PlayCard(OrbitalCleanup) {
+    Pay(3 Titanium, 4 MC)
+    PROD[-2 MC]
+    Animal<MartianZoo>
+    // Pink forgot Orbital Cleanup's 2 MC-production decrease.
+    ExMachina {
+        PROD[2 MC]
+    }
+}
+
+// (7:27:24 PM) "Neutralizer Factory for six. Venus goes to 20, and I get a TR."
+Green: PlayCard(NeutralizerFactory) {
+    Pay(6 MC)
+    VenusStep
+    TerraformRating
+}
+
+// (7:27:40 PM) "I use Rotator Impacts, remove the asteroid, and increase Venus."
+Pink: UseAction2(RotatorImpacts) {
+    -Asteroid<RotatorImpacts>
+    VenusStep
+    TerraformRating
+}
+
+// (7:27:50 PM) "Venus is at 22. I'll use Asteroid Rights to remove an asteroid and give
+// myself two titanium."
+Green: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+
+// (7:27:59 PM) "I will use Refugee Camps, remove money production, and add a thing."
+Pink: UseAction1(RefugeeCamps) {
+    PROD[-MC]
+    Camp<RefugeeCamps>
+}
+
+// (7:28:52 PM) "I'll spend five on top of my lobby action and go to Greens for both, so
+// you're kicked out."
+Green: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+Green: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Greens>
+}
+
+// (7:29:00 PM) "I had the thought that I could use Martian Media to increase my lead. Great
+// job, Pink. Anyways, Martian Zoo: use action and take a money."
+Pink: UseAction1(MartianZoo) {
+    MC
+}
+
+// (7:29:24 PM) "Trans-Neptune Probe using two titanium."
+// no MC remains owed
+Green: PlayCard(TransNeptuneProbe) {
+    Pay(2 Titanium)
+}
+
+// (7:29:33 PM) "Orbital Cleanup for three."
+Pink: UseAction1(OrbitalCleanup) {
+    3 MC
+}
+
+// (7:29:41 PM) "I'm going to play City Parks because I do have three city tiles. Spend six,
+// and I get two plants."
+Green: PlayCard(CityParks) {
+    Pay(6 MC)
+    2 Plant
+}
+
+// (7:29:44 PM) "I think I'm just gonna sell two patents and pass. There's nothing I can hope
+// for."
+Pink: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+
+// (7:30:09 PM) "Same here, two patents, and there's nothing I can do. I could pointlessly add
+// a floater to Floating Refinery, but it makes no difference. We're done, and we don't do any
+// Turmoil stuff."
+Green: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+
+Pink: Pass
+
+Green: Pass
+
+// (7:30:35 PM) "We do hit production."
+// 19:30 final production. The apps label it generation 10; the game ends in generation 9.
+Green: Production {
+    66 MC
+    Steel
+    4 Titanium
+    Plant
+    4 Energy
+    6 Heat
+}
+
+Pink: Production {
+    57 MC
+    Titanium
+    2 Plant
+    Heat FROM Energy VIA Energy
+    5 Energy
+    14 Heat
+}
+
+// (7:30:41 PM) Pink: "I have six plants."
+// Green: "I have less than that, so no greeneries to place."
+// Neither player has eight plants. There is no final Turmoil phase.
+// decline final greenery
+Green {
+    Ok
+}
+
+// decline final greenery
+// (7:30:53 PM) Green: "I think I won both awards."
+// Pink: "I think so. And I rejected Thermalist. Special tile points: I believe I get three."
+// Green: "No special tile points for me."
+// Pink: "Also three city points and four greeneries."
+// Green: "We only had four greeneries."
+// Pink: "You got a city almost completely surrounded."
+// Green: "No resource points."
+// Pink: "Three resource points."
+// Green: "I get one VP per Jupiter tag, and I have four Jupiter tags."
+// "Make sure your preludes don't have victory points on them. I'm not used to having to check
+// for that."
+// Pink: "I have 13 VP on cards, which takes me to 73."
+// Green: "I have 88 VP. 88 to 73. Oh, I didn't do these points. I get four, you get two, right?
+// Or do you get one for the chairman too?"
+// Pink: "I feel like I get one for the chairman."
+// Green: "No, I don't think so, because you already got TR when you went there. You can look it
+// up. I think I actually got 92. How did you add it?"
+// Pink: "75. I put it in VP on cards."
+// Green: "I'll go back to VP on cards and add four. Or I could have done it as resources. 92 to
+// 75."
+// The table announces 92–75. Pink's omitted chairman point and extra printed card point
+// cancel; score both normally here.
+Pink {
+    Ok
+}
+
+Green {
+    92 VictoryPoint
+}
+
+Pink {
+    75 VictoryPoint
+}
+// The table counts Capital and camp resources separately from printed card points.

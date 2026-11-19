@@ -1,0 +1,1645 @@
+// Replay: ErraticCarbonCurrentTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/ErraticCarbonCurrentTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Complete database replay: Erratic Carbon Current (gbf986ef543f0)
+// https://terraforming-mars.herokuapp.com/the-end?id=p6674c4a1893d
+Config {
+    Blue, Pink
+    HellasMap
+    VenusNextExpansion, PreludeExpansion
+    promos:cards
+    RimSettler, Ecologist, Producer, Fundraiser, Philantropist, Terraformer
+    Traveller, Collector, Excentric, Investor, Suburbian, Magnate
+}
+
+GlobalEventDeck {
+}
+
+Cards {
+    // Source save 0: Blue's third corporation was Splice, Pink's was Mons Insurance.
+    // Source save 0 and the final Research drafts in saves 22, 47, 68, 97, 132, 172, 213,
+    // 256, and 306 identify the setup and Research offers. The source also identifies the
+    // Business Network offers. Test assignments: Herbivores and Predators are invented
+    // Invention Contest rejects; the archive names only the retained Media Archives.
+    +CorporationCard<Blue, Hand>: Viron, CrediCor
+    -CorporationCard<Blue, Hand>: Viron
+    -CorporationCard<Blue, Hand>: CrediCor
+    // Setup
+    +ProjectCard<Blue, Selecting>: Hackers, Lichen, NeutralizerFactory, OrbitalCleanup, Potatoes, Trees, Supermarkets, CityParks, SpaceHotels, ExtractorBalloons
+    // Generation 2
+    +ProjectCard<Blue, Selecting>: SmallAsteroid, HermeticOrderOfMars, CallistoPenalMines, EnergyMarket
+    // Generation 3
+    +ProjectCard<Blue, Selecting>: ResearchCoordination, GreatEscarpmentConsortium, Worms, CaretakerContract
+    // Generation 4
+    +ProjectCard<Blue, Selecting>: AdaptedLichen, EnergyTapping, ResearchOutpost, OutdoorSports
+    // Generation 5
+    +ProjectCard<Blue, Selecting>: NitrogenRichAsteroid, DeuteriumExport, ElectroCatapult, BeamFromAThoriumAsteroid
+    // Generation 6
+    +ProjectCard<Blue, Selecting>: Insects, PowerGrid, JovianEmbassy, SoilFactory
+    // Generation 7
+    +ProjectCard<Blue, Selecting>: IoSulphurResearch, AiCentral, SpaceElevator, IndustrialCenter
+    // Generation 8
+    +ProjectCard<Blue, Selecting>: OlympusConference, NoctisFarming, AqueductSystems, VenusSoils
+    // Generation 9
+    +ProjectCard<Blue, Selecting>: HiredRaiders, Algae, MiningExpedition, Livestock
+    // Invention Contest
+    +ProjectCard<Blue, Selecting>: MediaArchives, Herbivores, Predators
+    // Generation 10
+    +ProjectCard<Blue, Selecting>: AirScrappingExpedition, TropicalResort, ProtectedValley, AcquiredCompany
+    +PreludeCard<Blue, Hand>: UnmiContractor, AlbedoPlants, NewPartner, ResearchNetwork
+    -PreludeCard<Blue, Hand>: UnmiContractor, NewPartner
+    -PreludeCard<Blue, Hand>: AlbedoPlants
+    -PreludeCard<Blue, Hand>: ResearchNetwork
+    +CorporationCard<Pink, Hand>: Ecoline, Inventrix
+    -CorporationCard<Pink, Hand>: Inventrix
+    -CorporationCard<Pink, Hand>: Ecoline
+    // Setup
+    +ProjectCard<Pink, Selecting>: DustSeals, RadSuits, Shuttles, MiningRights, BuildingIndustries, Penguins, VestaShipyard, BactoviralResearch, UrbanizedArea, Ants
+    // Generation 2
+    +ProjectCard<Pink, Selecting>: BigAsteroid, MarsUniversity, ExtremeColdFungus, Bushes
+    // Generation 3
+    +ProjectCard<Pink, Selecting>: Casinos, NitrophilicMoss, QuantumExtractor, ArtificialLake
+    // Generation 4
+    +ProjectCard<Pink, Selecting>: EarthOffice, LargeConvoy, EquatorialMagnetizer, SulphurExports
+    // Generation 5
+    +ProjectCard<Pink, Selecting>: ReleaseOfInertGases, BusinessNetwork, MarsNomads, BioPrintingFacility
+    // Generation 6
+    +ProjectCard<Pink, Selecting>: LavaTubeSettlement, KelpFarming, ImportedGhg, Ironworks
+    // Generation 7
+    +ProjectCard<Pink, Selecting>: EcologicalZone, CarbonNanosystems, CeosFavoriteProject, VenusWaystation
+    // Business Network, generation 7
+    +ProjectCard<Pink, Selecting>: ImportOfAdvancedGhg
+    // Generation 8
+    +ProjectCard<Pink, Selecting>: AsteroidCard, Pets, FreyjaBiodomes, WaterImportFromEuropa
+    // Business Network, generation 8
+    +ProjectCard<Pink, Selecting>: LawSuit
+    // Generation 9
+    +ProjectCard<Pink, Selecting>: Comet, PeroxidePower, Virus, DesignedMicroorganisms
+    // Business Network, generation 9
+    +ProjectCard<Pink, Selecting>: MiningQuota
+    // Generation 10
+    +ProjectCard<Pink, Selecting>: PublicBaths, InvestmentLoan, OreProcessor, LightningHarvest
+    // Business Network, generation 10
+    +ProjectCard<Pink, Selecting>: AerialMappers
+    +PreludeCard<Pink, Hand>: MetalsCompany, BiosphereSupport, GiantSolarCollector, Biolab
+    -PreludeCard<Pink, Hand>: MetalsCompany, GiantSolarCollector
+    -PreludeCard<Pink, Hand>: BiosphereSupport
+    -PreludeCard<Pink, Hand>: Biolab
+    // Setup
+    -ProjectCard<Blue, Selecting>: OrbitalCleanup, Trees, Supermarkets, CityParks
+    -ProjectCard<Blue, Selecting>: Potatoes, Hackers, Lichen, NeutralizerFactory, SpaceHotels, ExtractorBalloons
+    // Generation 2
+    -ProjectCard<Blue, Selecting>: CallistoPenalMines, EnergyMarket
+    -ProjectCard<Blue, Selecting>: SmallAsteroid, HermeticOrderOfMars
+    // Generation 3
+    -ProjectCard<Blue, Selecting>: CaretakerContract
+    -ProjectCard<Blue, Selecting>: ResearchCoordination, GreatEscarpmentConsortium, Worms
+    // Generation 4
+    -ProjectCard<Blue, Selecting>: EnergyTapping, OutdoorSports
+    -ProjectCard<Blue, Selecting>: AdaptedLichen, ResearchOutpost
+    // Generation 5
+    -ProjectCard<Blue, Selecting>: DeuteriumExport, ElectroCatapult, BeamFromAThoriumAsteroid
+    -ProjectCard<Blue, Selecting>: NitrogenRichAsteroid
+    // Generation 6
+    -ProjectCard<Blue, Selecting>: JovianEmbassy, SoilFactory
+    -ProjectCard<Blue, Selecting>: Insects, PowerGrid
+    // Generation 7
+    -ProjectCard<Blue, Selecting>: SpaceElevator, IndustrialCenter
+    -ProjectCard<Blue, Selecting>: IoSulphurResearch, AiCentral
+    -ProjectCard<Blue, Selecting>: AqueductSystems, OlympusConference, NoctisFarming, VenusSoils
+    // Generation 9
+    -ProjectCard<Blue, Selecting>: MiningExpedition, Livestock
+    -ProjectCard<Blue, Selecting>: HiredRaiders, Algae
+    -ProjectCard<Blue, Selecting>: MediaArchives
+    // Invention Contest
+    -ProjectCard<Blue, Selecting>: Herbivores
+    -ProjectCard<Blue, Selecting>: Predators
+    // Generation 10
+    -ProjectCard<Blue, Selecting>: ProtectedValley, AcquiredCompany
+    -ProjectCard<Blue, Selecting>: AirScrappingExpedition, TropicalResort
+    // Setup
+    -ProjectCard<Pink, Selecting>: DustSeals, RadSuits, Shuttles, Penguins, BactoviralResearch, UrbanizedArea
+    -ProjectCard<Pink, Selecting>: VestaShipyard, MiningRights, BuildingIndustries, Ants
+    // Generation 2
+    -ProjectCard<Pink, Selecting>: Bushes
+    -ProjectCard<Pink, Selecting>: ExtremeColdFungus, MarsUniversity, BigAsteroid
+    // Generation 3
+    -ProjectCard<Pink, Selecting>: Casinos, QuantumExtractor, ArtificialLake
+    -ProjectCard<Pink, Selecting>: NitrophilicMoss
+    // Generation 4
+    -ProjectCard<Pink, Selecting>: EquatorialMagnetizer, SulphurExports
+    -ProjectCard<Pink, Selecting>: EarthOffice, LargeConvoy
+    // Generation 5
+    -ProjectCard<Pink, Selecting>: BioPrintingFacility
+    -ProjectCard<Pink, Selecting>: MarsNomads, BusinessNetwork, ReleaseOfInertGases
+    // Generation 6
+    -ProjectCard<Pink, Selecting>: Ironworks
+    -ProjectCard<Pink, Selecting>: ImportedGhg, KelpFarming, LavaTubeSettlement
+    // Generation 7
+    -ProjectCard<Pink, Selecting>: CeosFavoriteProject, VenusWaystation
+    -ProjectCard<Pink, Selecting>: CarbonNanosystems, EcologicalZone
+    -ProjectCard<Pink, Selecting>: ImportOfAdvancedGhg
+    // Generation 8
+    -ProjectCard<Pink, Selecting>: FreyjaBiodomes, WaterImportFromEuropa
+    -ProjectCard<Pink, Selecting>: Pets, AsteroidCard
+    // Business Network, generation 8
+    -ProjectCard<Pink, Selecting>: LawSuit
+    // Generation 9
+    -ProjectCard<Pink, Selecting>: PeroxidePower, DesignedMicroorganisms
+    -ProjectCard<Pink, Selecting>: Virus, Comet
+    // Business Network, generation 9
+    -ProjectCard<Pink, Selecting>: MiningQuota
+    // Generation 10
+    -ProjectCard<Pink, Selecting>: OreProcessor, LightningHarvest
+    -ProjectCard<Pink, Selecting>: InvestmentLoan, PublicBaths
+    // Business Network, generation 10
+    -ProjectCard<Pink, Selecting>: AerialMappers
+    +ProjectCard<Blue, Hand>: Potatoes, Hackers, Lichen, NeutralizerFactory, SpaceHotels, ExtractorBalloons
+    +ProjectCard<Blue, Hand>: Windmills, UndergroundCity, AerobrakedAmmoniaAsteroid
+    +ProjectCard<Blue, Hand>: SmallAsteroid, HermeticOrderOfMars
+    +ProjectCard<Blue, Hand>: ResearchCoordination, GreatEscarpmentConsortium, Worms
+    +ProjectCard<Blue, Hand>: AdaptedLichen, ResearchOutpost
+    +ProjectCard<Blue, Hand>: NitrogenRichAsteroid
+    +ProjectCard<Blue, Hand>: Insects, PowerGrid
+    +ProjectCard<Blue, Hand>: IoSulphurResearch, AiCentral
+    +ProjectCard<Blue, Hand>: AqueductSystems, OlympusConference, NoctisFarming, VenusSoils
+    +ProjectCard<Blue, Hand>: InterstellarColonyShip
+    +ProjectCard<Blue, Hand>: UndergroundDetonations, HeatTrappers, MagneticFieldGeneratorsPromo
+    +ProjectCard<Blue, Hand>: FloatingHabs, ArcticAlgae
+    +ProjectCard<Blue, Hand>: HiredRaiders, Algae
+    +ProjectCard<Blue, Hand>: InventionContest, Zeppelins
+    +ProjectCard<Blue, Hand>: MediaArchives
+    +ProjectCard<Blue, Hand>: AirScrappingExpedition, TropicalResort
+    +ProjectCard<Blue, Hand>: ConvoyFromEuropa, Grass
+    +ProjectCard<Blue, Hand>: Atmoscoop
+    +ProjectCard<Pink, Hand>: VestaShipyard, MiningRights, BuildingIndustries, Ants
+    +ProjectCard<Pink, Hand>: AstraMechanica, Moss, SymbioticFungus
+    +ProjectCard<Pink, Hand>: ExtremeColdFungus, MarsUniversity, BigAsteroid
+    +ProjectCard<Pink, Hand>: NitrophilicMoss
+    +ProjectCard<Pink, Hand>: EarthOffice, LargeConvoy
+    +ProjectCard<Pink, Hand>: NoctisCity, MartianSurvey
+    +ProjectCard<Pink, Hand>: Harvest
+    +ProjectCard<Pink, Hand>: Plantation
+    +ProjectCard<Pink, Hand>: MarsNomads, BusinessNetwork, ReleaseOfInertGases
+    +ProjectCard<Pink, Hand>: ImportedGhg, KelpFarming, LavaTubeSettlement
+    +ProjectCard<Pink, Hand>: CarbonNanosystems, EcologicalZone
+    +ProjectCard<Pink, Hand>: FieldCappedCity
+    +ProjectCard<Pink, Hand>: ImportOfAdvancedGhg
+    +ProjectCard<Pink, Hand>: Pets, AsteroidCard
+    +ProjectCard<Pink, Hand>: Virus, Comet
+    +ProjectCard<Pink, Hand>: EosChasmaNationalPark
+    +ProjectCard<Pink, Hand>: InvestmentLoan, PublicBaths
+    +ProjectCard<Pink, Hand>: Decomposers
+    +ProjectCard<Pink, Hand>: InvestmentLoan
+    +ProjectCard<Pink, Hand>: Harvest
+    +ProjectCard<Pink, Hand>: GreatDamPromo
+    +ProjectCard<Pink, Hand>: ColonizerTrainingCamp
+    -ProjectCard<Blue, Hand>: AerobrakedAmmoniaAsteroid
+    -ProjectCard<Blue, Hand>: Potatoes
+    -ProjectCard<Blue, Hand>: SmallAsteroid
+    -ProjectCard<Blue, Hand>: Lichen
+    -ProjectCard<Blue, Hand>: ResearchCoordination
+    -ProjectCard<Blue, Hand>: SpaceHotels
+    -ProjectCard<Blue, Hand>: ResearchOutpost
+    -ProjectCard<Blue, Hand>: HermeticOrderOfMars
+    -ProjectCard<Blue, Hand>: AdaptedLichen
+    -ProjectCard<Blue, Hand>: Hackers
+    -ProjectCard<Blue, Hand>: NitrogenRichAsteroid
+    -ProjectCard<Blue, Hand>: Windmills
+    -ProjectCard<Blue, Hand>: ExtractorBalloons
+    -ProjectCard<Blue, Hand>: Insects
+    -ProjectCard<Blue, Hand>: Worms
+    -ProjectCard<Blue, Hand>: PowerGrid
+    -ProjectCard<Blue, Hand>: UndergroundCity
+    -ProjectCard<Blue, Hand>: OlympusConference
+    -ProjectCard<Blue, Hand>: AiCentral
+    -ProjectCard<Blue, Hand>: AqueductSystems
+    -ProjectCard<Blue, Hand>: FloatingHabs
+    -ProjectCard<Blue, Hand>: UndergroundDetonations
+    -ProjectCard<Blue, Hand>: InventionContest
+    -ProjectCard<Blue, Hand>: InterstellarColonyShip
+    -ProjectCard<Blue, Hand>: HiredRaiders
+    -ProjectCard<Blue, Hand>: ArcticAlgae
+    -ProjectCard<Blue, Hand>: AirScrappingExpedition
+    -ProjectCard<Blue, Hand>: NoctisFarming
+    -ProjectCard<Blue, Hand>: Atmoscoop
+    -ProjectCard<Blue, Hand>: GreatEscarpmentConsortium
+    -ProjectCard<Blue, Hand>: MediaArchives
+    -ProjectCard<Blue, Hand>: TropicalResort
+    -ProjectCard<Blue, Hand>: Grass, MagneticFieldGeneratorsPromo, HeatTrappers, VenusSoils, IoSulphurResearch, ConvoyFromEuropa, Zeppelins, Algae
+    -ProjectCard<Blue, Hand>: NeutralizerFactory
+    -ProjectCard<Pink, Hand>: MiningRights
+    -ProjectCard<Pink, Hand>: VestaShipyard
+    -ProjectCard<Pink, Hand>: SymbioticFungus
+    -ProjectCard<Pink, Hand>: BigAsteroid
+    -ProjectCard<Pink, Hand>: EarthOffice
+    -ProjectCard<Pink, Hand>: LargeConvoy
+    -ProjectCard<Pink, Hand>: MarsUniversity
+    -ProjectCard<Pink, Hand>: NoctisCity
+    -ProjectCard<Pink, Hand>: Harvest
+    -ProjectCard<Pink, Hand>: MarsNomads
+    -ProjectCard<Pink, Hand>: LavaTubeSettlement
+    -ProjectCard<Pink, Hand>: ImportedGhg
+    -ProjectCard<Pink, Hand>: BuildingIndustries, MartianSurvey
+    -ProjectCard<Pink, Hand>: Moss
+    -ProjectCard<Pink, Hand>: EcologicalZone
+    -ProjectCard<Pink, Hand>: BusinessNetwork
+    -ProjectCard<Pink, Hand>: ImportOfAdvancedGhg
+    -ProjectCard<Pink, Hand>: Ants, ExtremeColdFungus
+    -ProjectCard<Pink, Hand>: NitrophilicMoss
+    -ProjectCard<Pink, Hand>: Pets
+    -ProjectCard<Pink, Hand>: KelpFarming
+    -ProjectCard<Pink, Hand>: AsteroidCard
+    -ProjectCard<Pink, Hand>: Comet
+    -ProjectCard<Pink, Hand>: Virus
+    -ProjectCard<Pink, Hand>: FieldCappedCity
+    -ProjectCard<Pink, Hand>: CarbonNanosystems
+    -ProjectCard<Pink, Hand>: Plantation
+    -ProjectCard<Pink, Hand>: InvestmentLoan
+    -ProjectCard<Pink, Hand>: AstraMechanica
+    -ProjectCard<Pink, Hand>: Decomposers
+    -ProjectCard<Pink, Hand>: Harvest
+    -ProjectCard<Pink, Hand>: InvestmentLoan
+    -ProjectCard<Pink, Hand>: PublicBaths
+    -ProjectCard<Pink, Hand>: EosChasmaNationalPark, GreatDamPromo, ColonizerTrainingCamp
+    -ProjectCard<Pink, Hand>: ReleaseOfInertGases
+}
+
+Blue: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Blue
+    2 PreludeCard
+    -4 ProjectCard<Selecting>
+}
+
+Pink: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Pink
+    2 PreludeCard
+    -6 ProjectCard<Selecting>
+}
+
+// Generation 1
+Blue: PlayCard(CrediCor) {
+    57 MC VIA CrediCor
+    Pay(18 MC)
+    6 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(Ecoline) {
+    36 MC VIA Ecoline
+    3 Plant
+    PROD[2 Plant]
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: PlayCard(AlbedoPlants) {
+    PROD[Plant]
+    Plant
+    3 Heat
+}
+Blue: PlayCard(ResearchNetwork) {
+    PROD[MC]
+    3 ProjectCard
+}
+
+Pink: PlayCard(BiosphereSupport) {
+    PROD[-MC]
+    PROD[2 Plant]
+}
+Pink: PlayCard(Biolab) {
+    PROD[Plant]
+    3 ProjectCard
+}
+
+Blue: PlayCard(AerobrakedAmmoniaAsteroid) {
+    Pay(26 MC)
+    2* Microbe
+    PROD[3 Heat]
+    PROD[Plant]
+    4 MC
+}
+
+Pink: PlayCard(MiningRights) {
+    Pay(9 MC)
+    MiningRights_SpecialTile<Hellas_4_4>
+    PROD[Steel]
+    2 Steel
+}
+
+Blue: Pass
+
+Pink: PlayCard(VestaShipyard) {
+    Pay(15 MC)
+    PROD[Titanium]
+}
+Pink: Pass
+
+Blue: Production {
+    21 MC
+    2 Plant
+    3 Heat
+}
+
+Pink: Production {
+    19 MC
+    5 Plant
+    Steel
+    Titanium
+}
+
+Blue: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 2
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 23 evidence: after both research purchases.
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_3_4>
+    OxygenStep
+    Steel
+    TerraformRating
+}
+
+Blue: PlayCard(Potatoes) {
+    Pay(2 MC)
+    -2 Plant
+    PROD[2 MC]
+    3 Heat
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: PlayCard(SmallAsteroid) {
+    Pay(10 MC)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+    -Plant<Pink>
+}
+
+Pink: Pass
+
+Blue: PlayCard(Lichen) {
+    Pay(7 MC)
+    PROD[Plant]
+    3 Heat
+}
+// Test inference: Research Network's wild tag supplies the fourth bio tag.
+Blue: ClaimMilestone {
+    Pay(8 MC)
+    Ecologist
+}
+Blue: Pass
+
+Blue: Production {
+    25 MC
+    3 Plant
+    4 Heat
+}
+
+Pink: Production {
+    20 MC
+    5 Plant
+    Steel
+    Titanium
+}
+
+Pink: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 3
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(3 MC)
+}
+
+Pink: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 48 evidence: after both research purchases.
+Blue: PlayCard(ResearchCoordination) {
+    Pay(4 MC)
+}
+
+Pink: PlayCard(BigAsteroid) {
+    Pay(2 Titanium, 21 MC)
+    TemperatureStep
+    TemperatureStep
+    4 Titanium
+    2 TerraformRating
+    PROD[Heat]
+    -4 Plant<Blue>
+}
+
+// Blue has no printed Earth tags yet, so Space Hotels needs both wild tags.
+Blue: PlayCard(SpaceHotels) {
+    Pay(12 MC)
+    PROD[4 MC]
+}
+
+Pink: Pass
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: Pass
+
+Blue: Production {
+    30 MC
+    3 Plant
+    4 Heat
+}
+
+Pink: Production {
+    22 MC
+    5 Plant
+    Steel
+    Titanium
+    Heat
+}
+
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 4
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 69 evidence: after both research purchases.
+Pink: PlayCard(EarthOffice) {
+    Pay(1 MC)
+}
+
+Blue: PlayCard(ResearchOutpost) {
+    Pay(18 MC)
+    NormalCityTile<Hellas_2_5>
+    Plant
+}
+
+Pink: PlayCard(LargeConvoy) {
+    Pay(5 Titanium, 18 MC)
+    5 Plant
+    2 ProjectCard
+    OceanTile<Hellas_5_6>
+    TerraformRating
+    ProjectCard
+}
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_5_5>
+    OxygenStep
+    2 MC
+    TerraformRating
+}
+
+Blue: PlayCard(HermeticOrderOfMars) {
+    Pay(9 MC)
+    PROD[2 MC]
+    6 MC
+}
+
+// no MC remainder
+Pink: PlayCard(MarsUniversity) {
+    Pay(4 Steel)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Blue: PlayCard(AdaptedLichen) {
+    Pay(8 MC)
+    PROD[Plant]
+    3 Heat
+}
+
+Pink: Pass
+
+Blue: Pass
+
+Pink: Production {
+    24 MC
+    5 Plant
+    Steel
+    Titanium
+    Heat
+}
+
+Blue: Production {
+    32 MC
+    4 Plant
+    4 Heat
+}
+
+Pink: WorldGovernment {
+    OceanTile<Hellas_6_7>! BY Admin
+}
+
+// Generation 5
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(3 MC)
+}
+
+Blue: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 98 evidence: after both research purchases.
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Blue: PlayCard(NitrogenRichAsteroid) {
+    Pay(30 MC)
+    2 TerraformRating
+    TemperatureStep
+    4 MC
+    TerraformRating
+    PROD[4 Plant]
+}
+
+Pink: UseStandardProject(AquiferProject) {
+    Pay(18 MC)
+    OceanTile<Hellas_4_6>
+    TerraformRating
+    Plant
+    2 MC
+}
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_4_5>
+    OxygenStep
+    Steel
+    4 MC
+    TerraformRating
+}
+
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_3_5>
+    OxygenStep
+    2 MC
+    TerraformRating
+}
+
+Pink: PlayCard(Harvest) {
+    Pay(4 MC)
+    12 MC
+}
+Pink: PlayCard(MarsNomads) {
+    Pay(13 MC)
+    NomadsMarker<Hellas_8_7>
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_6_6>
+    OxygenStep
+    4 MC
+    TerraformRating
+}
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Hellas_9_7> FROM NomadsMarker<Hellas_8_7>! THEN Placement<Hellas_9_7>!)
+    NomadsMarker<Hellas_9_7> FROM NomadsMarker<Hellas_8_7>
+    -6 MC
+    OceanTile<Hellas_5_7>
+    TerraformRating
+    3 Heat
+    6 MC
+}
+
+Blue: PlayCard(Windmills) {
+    Pay(5 MC)
+    PROD[Energy]
+}
+
+Pink: ClaimMilestone {
+    Pay(8 MC)
+    Terraformer
+}
+
+Blue: Pass
+
+Pink: Pass
+
+Blue: Production {
+    37 MC
+    8 Plant
+    4 Heat
+    Energy
+}
+
+Pink: Production {
+    28 MC
+    5 Plant
+    Steel
+    Titanium
+    Heat
+}
+
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 6
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 133 evidence: after both research purchases.
+Pink: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+Pink: PlayCard(LavaTubeSettlement) {
+    Pay(5 Steel, 5 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    NormalCityTile<Hellas_6_5>
+}
+
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_2_4>
+    OxygenStep
+    Plant
+    Steel
+    TerraformRating
+}
+
+Pink: PlayCard(ImportedGhg) {
+    Pay(1 Titanium, 1 MC)
+    PROD[Heat]
+    3 Heat
+}
+
+Blue: PlayCard(ExtractorBalloons) {
+    Pay(20 MC)
+    3 Floater<ExtractorBalloons>
+    4 MC
+}
+
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Hellas_8_6> FROM NomadsMarker<Hellas_9_7>! THEN Placement<Hellas_8_6>!)
+    NomadsMarker<Hellas_8_6> FROM NomadsMarker<Hellas_9_7>
+    2 Heat
+}
+
+Blue: PlayCard(Insects) {
+    Pay(8 MC)
+    PROD[6 Plant]
+}
+Blue: PlayCard(Worms) {
+    Pay(7 MC)
+    PROD[2 Plant]
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+
+Blue: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+
+Pink: PlayCard(Moss) {
+    Pay(4 MC)
+    PROD[Plant]
+    -Plant
+}
+
+Blue: Pass
+
+Pink: Pass
+
+Blue: Production {
+    39 MC
+    16 Plant
+    4 Heat VIA Production
+    Energy VIA Production
+    Heat FROM Energy
+}
+
+Pink: Production {
+    30 MC
+    6 Plant
+    Steel
+    Titanium
+    2 Heat
+}
+
+Pink: WorldGovernment {
+    OceanTile<Hellas_4_1>! BY Admin
+}
+
+// Generation 7
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 173 evidence: after both research purchases.
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_3_6>
+    OxygenStep
+    2 Plant
+    2 MC
+    TerraformRating
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_1_4>
+    OxygenStep
+    Plant
+    Steel
+    TerraformRating
+}
+
+Pink: PlayCard(EcologicalZone) {
+    Pay(12 MC)
+    Animal<EcologicalZone>
+    Animal<EcologicalZone>
+    EcologicalZone_SpecialTile<Hellas_2_3>
+    Plant
+}
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_7_6>
+    OxygenStep
+    ProjectCard
+    TerraformRating
+}
+
+Blue: PlayCard(PowerGrid) {
+    Pay(17 MC)
+    PROD[4 Energy]
+}
+Blue: PlayCard(UndergroundCity) {
+    Pay(2 Steel, 13 MC)
+    PROD[-2 Energy]
+    PROD[2 Steel]
+    NormalCityTile<Hellas_7_7>
+    2 MC
+}
+
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Hellas_9_7> FROM NomadsMarker<Hellas_8_6>! THEN Placement<Hellas_9_7>!)
+    NomadsMarker<Hellas_9_7> FROM NomadsMarker<Hellas_8_6>
+    -6 MC
+    OceanTile<Hellas_6_8>
+    TerraformRating
+    Steel
+    4 MC
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Blue: ClaimMilestone {
+    Pay(8 MC)
+    Producer
+}
+
+Pink: PlayCard(BusinessNetwork) {
+    Pay(1 MC)
+    PROD[-MC]
+}
+// keep the offered Business Network card
+Pink: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -0 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+// no MC remainder
+Pink: PlayCard(ImportOfAdvancedGhg) {
+    Pay(2 Titanium)
+    PROD[2 Heat]
+}
+Pink: UseStandardProject(SellPatentsProject) {
+    2 MC FROM ProjectCard
+}
+
+Blue: UseAction1(ExtractorBalloons) {
+    Floater<ExtractorBalloons>
+}
+
+Pink: PlayCard(NitrophilicMoss) {
+    Pay(8 MC)
+    PROD[2 Plant]
+    -2 Plant
+    Animal<EcologicalZone>
+}
+
+Blue: Pass
+
+Pink: Pass
+
+Blue: Production {
+    42 MC
+    16 Plant
+    4 Heat VIA Production
+    3 Energy VIA Production
+    Heat FROM Energy
+    2 Steel
+}
+
+Pink: Production {
+    32 MC
+    8 Plant
+    Steel
+    Titanium
+    4 Heat
+}
+
+Blue: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Generation 8
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// discard no research cards
+Blue: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(12 MC)
+}
+
+Blue: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// _local/replays/Game20260827/game-gbf986ef543f0.sqlite; source save 214.
+// Database save 214 evidence: after both research purchases.
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_5_4>
+    OxygenStep
+    2 Steel
+    TerraformRating
+}
+Pink: PlayCard(Pets) {
+    Pay(7 MC)
+    Animal<Pets> VIA Pets
+    Animal<EcologicalZone>
+}
+
+Blue: PlayCard(OlympusConference) {
+    Pay(2 Steel, 5 MC)
+    Science<OlympusConference>
+}
+// Research Outpost and Olympus Conference supply the other two science tags.
+Blue: PlayCard(AiCentral) {
+    Pay(20 MC)
+    PROD[-Energy]
+    4 MC
+    ProjectCard FROM Science<OlympusConference>
+}
+
+Pink: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+Blue: PlayCard(AqueductSystems) {
+    Pay(8 MC)
+    3 SearchForCard<TagFilter<Class<BuildingTag>>>
+}
+Blue: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Hellas_8_7> FROM NomadsMarker<Hellas_9_7>! THEN Placement<Hellas_8_7>!)
+    NomadsMarker<Hellas_8_7> FROM NomadsMarker<Hellas_9_7>
+    2 Heat
+}
+
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_7_8>
+    0 OxygenStep
+    4 MC
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_1_5>
+    0 OxygenStep
+    Plant
+}
+
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Blue: PlayCard(FloatingHabs) {
+    Pay(4 MC)
+}
+
+Pink: PlayCard(KelpFarming) {
+    Pay(17 MC)
+    PROD[2 MC]
+    PROD[3 Plant]
+    2 Plant
+    Animal<EcologicalZone>
+}
+
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Blue: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<ExtractorBalloons>
+}
+
+Pink: Pass
+
+Blue: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: Pass
+
+Blue: Production {
+    44 MC
+    16 Plant
+    4 Heat VIA Production
+    2 Energy VIA Production
+    3 Heat FROM Energy
+    2 Steel
+}
+
+Pink: Production {
+    36 MC
+    11 Plant
+    Steel
+    Titanium
+    4 Heat
+}
+
+Pink: WorldGovernment {
+    OceanTile<Hellas_3_1>! BY Admin
+}
+
+// Generation 9
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 257 evidence: after both research purchases.
+Blue: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Blue: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+    OceanTile<Hellas_2_1>
+    TerraformRating
+    2 Plant
+    2 MC
+}
+
+Pink: PlayCard(AsteroidCard) {
+    Pay(2 Titanium, 8 MC)
+    TemperatureStep
+    2 Titanium
+    TerraformRating
+    -3 Plant<Blue>
+}
+Pink: PlayCard(Comet) {
+    Pay(2 Titanium, 15 MC)
+    TemperatureStep
+    TerraformRating
+    OceanTile<Hellas_1_1>
+    TerraformRating
+    2 Plant VIA Hellas_1_1
+    2 MC
+    -3 Plant<Blue>
+}
+
+Blue: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+Blue: PlayCard(InventionContest) {
+    Pay(1 MC)
+    3 ProjectCard<Selecting> VIA InventionContest
+    Science<OlympusConference>
+    ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(Virus) {
+    Pay(1 MC)
+    -5 Plant<Blue>
+}
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_6_4>
+    0 OxygenStep
+    Steel
+}
+
+// Three printed science tags remain in play; Invention Contest is already an event.
+Blue: PlayCard(InterstellarColonyShip) {
+    Pay(23 MC)
+    4 MC
+}
+
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Hellas_8_6> FROM NomadsMarker<Hellas_8_7>! THEN Placement<Hellas_8_6>!)
+    NomadsMarker<Hellas_8_6> FROM NomadsMarker<Hellas_8_7>
+    2 Heat
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Blue: PlayCard(HiredRaiders) {
+    3 MC FROM MC<Pink>
+}
+
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_7_5>
+    0 OxygenStep
+}
+
+Blue: FundAward {
+    Pay(8 MC)
+    Magnate
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_8_8>
+    0 OxygenStep
+    Titanium
+}
+
+Pink: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+// no MC remainder
+Pink: PlayCard(CarbonNanosystems) {
+    Pay(7 Steel)
+    Graphene<CarbonNanosystems>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Pink: Pass
+
+Blue: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<ExtractorBalloons>
+}
+Blue: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    TerraformRating
+}
+Blue: Pass
+
+Pink: Production {
+    40 MC
+    11 Plant
+    Steel
+    Titanium
+    4 Heat
+}
+
+Blue: Production {
+    48 MC
+    16 Plant
+    4 Heat VIA Production
+    2 Energy VIA Production
+    2 Heat FROM Energy
+    2 Steel
+}
+
+Blue: WorldGovernment {
+    TemperatureStep! BY Admin
+}
+
+// Generation 10
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 307 evidence: after both research purchases.
+Pink: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+    ProjectCard
+}
+Pink: UseAction1(BusinessNetwork) {
+    ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+}
+
+Blue: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+
+// The source records an explicit unused second action.
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Hellas_5_3>
+    Animal<Pets>
+}
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_4_2>
+    0 OxygenStep
+    Plant
+    4 MC
+}
+
+Blue: PlayCard(AirScrappingExpedition) {
+    Pay(12 MC)
+    VenusStep
+    TerraformRating
+    3 Floater<FloatingHabs>
+}
+
+Pink: PlayCard(InvestmentLoan) {
+    PROD[-MC]
+    10 MC
+}
+Pink: PlayCard(AstraMechanica) {
+    Pay(7 MC)
+    Graphene<CarbonNanosystems>
+    ProjectCard FROM PlayedEvent<Class<InvestmentLoan>> VIA TakeEventCard
+    ProjectCard FROM PlayedEvent<Class<Harvest>> VIA TakeEventCard
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+
+Blue: FundAward {
+    Pay(14 MC)
+    Suburbian
+}
+
+Pink: PlayCard(Harvest) {
+    Pay(4 MC)
+    12 MC
+    Animal<EcologicalZone>
+}
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Hellas_8_5> FROM NomadsMarker<Hellas_8_6>! THEN Placement<Hellas_8_5>!)
+    NomadsMarker<Hellas_8_5> FROM NomadsMarker<Hellas_8_6>
+    ProjectCard
+}
+
+Blue: PlayCard(NoctisFarming) {
+    Pay(4 Steel, 1 MC)
+    PROD[MC]
+    2 Plant
+    3 Heat
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_2_6>
+    0 OxygenStep
+    Plant
+}
+
+Pink: PlayCard(InvestmentLoan) {
+    PROD[-MC]
+    10 MC
+}
+Pink: FundAward {
+    Pay(20 MC)
+    Excentric
+}
+
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_3_7>
+    0 OxygenStep
+    Plant
+    ProjectCard
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_7_9>
+    0 OxygenStep
+    Titanium
+    2 MC
+}
+
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_4_3>
+    0 OxygenStep
+    Steel
+}
+Pink: PlayCard(PublicBaths) {
+    Pay(2 Steel, 2 MC)
+    6 MC
+}
+
+Blue: PlayCard(Atmoscoop) {
+    Pay(2 Titanium, 15 MC)
+    4 MC
+    VenusStep*, VenusStep*
+    2 TerraformRating
+    2 Floater<ExtractorBalloons>
+}
+Blue: UseAction2(ExtractorBalloons) {
+    -2 Floater<ExtractorBalloons>
+    VenusStep
+    2 TerraformRating
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+Pink: PlayCard(ReleaseOfInertGases) {
+    Pay(14 MC)
+    2 TerraformRating
+}
+
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Blue: PlayCard(MediaArchives) {
+    Pay(7 MC)
+    17 MC
+}
+
+Pink: Pass
+
+Blue: PlayCard(TropicalResort) {
+    Pay(12 MC)
+    PROD[-2 Heat]
+    PROD[3 MC]
+}
+Blue: UseStandardProject(SellPatentsProject) {
+    8 MC FROM ProjectCard
+}
+Blue: UseAction1(FloatingHabs) {
+    Pay(2 MC)
+    Floater<FloatingHabs>
+}
+Blue: PlayCard(NeutralizerFactory) {
+    Pay(6 MC)
+    VenusStep
+    TerraformRating
+}
+Blue: Pass
+
+Blue: Production {
+    58 MC
+    16 Plant
+    2 Heat VIA Production
+    2 Energy VIA Production
+    2 Heat FROM Energy
+    2 Steel
+}
+
+Pink: Production {
+    42 MC
+    11 Plant
+    Steel
+    Titanium
+    4 Heat
+}
+
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_2_2>
+    2 Plant
+    4 MC
+}
+Pink: ConvertPlants {
+    Pay(7 Plant)
+    GreeneryTile<Hellas_5_2>
+    2 MC
+}
+// decline final greenery
+Pink {
+    Ok
+}
+
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_8_7>
+    2 Heat
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Hellas_9_9>
+}
+// decline final greenery
+Blue {
+    Ok
+}
+
+Blue {
+    102 VictoryPoint
+}
+
+Pink {
+    85 VictoryPoint
+}
+// _local/replays/Game20260827/player-p6674c4a1893d.json; final Mars map.

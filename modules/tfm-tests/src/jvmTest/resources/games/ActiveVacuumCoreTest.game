@@ -1,0 +1,2208 @@
+// Replay: ActiveVacuumCoreTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/ActiveVacuumCoreTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Complete public-state replay: Active Vacuum Core (g62d89e349c97), save 626.
+// Private hands, drafts, and deck order are intentionally unnamed.
+// Source: _local/replays/Game20260914/Heroku-g62d89e349c97/
+// http://newazure.local:8080/the-end?id=p6f50f47be7e8
+// Keep the public-state replay setup: private offers and drafts are not reconstructed.
+// The archive offered 3 corporations; this fixture retains its default offer of 2.
+// Initial database save: Blue starts at 24 TR and Purple at 22 TR.
+Config {
+    Blue, Pink, Green, Purple
+    TharsisMap
+    VenusNextExpansion, PreludeExpansion
+    prelude2:cards, promos:cards
+    Diversifier, Mayor, Builder, Coastguard, Terran, Metallurgist
+    Visionary, Landlord, Investor, Forecaster, Traveller, Celebrity
+}
+
+GlobalEventDeck {
+}
+
+SetupRules {
+    CLASS Blue : Player {
+      SetupPhase: 4 TerraformRating<This>
+    }
+    CLASS Purple : Player {
+      SetupPhase: 2 TerraformRating<This>
+    }
+}
+
+Blue: Setup {
+    24 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Blue
+    2 PreludeCard
+    -5 ProjectCard<Selecting>
+}
+
+Purple: Setup {
+    22 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Purple
+    2 PreludeCard
+    -7 ProjectCard<Selecting>
+}
+
+Pink: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Pink
+    2 PreludeCard
+    -4 ProjectCard<Selecting>
+}
+
+Green: Setup {
+    20 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Green
+    2 PreludeCard
+    -3 ProjectCard<Selecting>
+}
+
+// Generation 1
+Blue: PlayCard(AstroDrill) {
+    35 MC VIA AstroDrill
+    3 Asteroid<AstroDrill>
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(Vitor) {
+    48 MC
+    Pay(18 MC)
+    6 ProjectCard<Hand FROM Selecting>
+}
+
+Green: PlayCard(PharmacyUnion) {
+    SearchForCard<TagFilter<Class<ScienceTag>>>
+    54 MC VIA PharmacyUnion
+    Pay(21 MC)
+    7 ProjectCard<Hand FROM Selecting>
+    Disease<PharmacyUnion>
+    Disease<PharmacyUnion>
+    -4 MC
+    -4 MC
+}
+
+Purple: PlayCard(Inventrix) {
+    45 MC VIA Inventrix
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: PlayCard(VenusL1Shade) {
+    VenusStep
+    VenusStep
+    VenusStep
+    3 TerraformRating
+}
+Blue: PlayCard(AntiDesertificationTechniques) {
+    3 MC VIA AntiDesertificationTechniques
+    PROD[Plant]
+    PROD[Steel]
+    Green: Disease<PharmacyUnion>
+    Green: -4 MC
+}
+
+Pink: PlayCard(BusinessEmpire) {
+    PROD[6 MC]
+    -6 MC
+}
+Pink: PlayCard(ExcentricSponsor) {
+    PlayCard(ImmigrationShuttles)
+    -25 Owed<Class<MC>>
+    Pay(6 MC)
+    PROD[5 MC]
+    3 MC
+}
+
+Green: PlayCard(IoResearchOutpost) {
+    PROD[Titanium]
+    ProjectCard
+    TerraformRating FROM Disease<PharmacyUnion>
+}
+Green: PlayCard(AppliedScience) {
+    6 Science<AppliedScience>
+}
+
+Purple: PlayCard(MetalsCompany) {
+    PROD[MC]
+    PROD[Steel]
+    PROD[Titanium]
+}
+Purple: PlayCard(GiantSolarCollector) {
+    PROD[2 Energy]
+    VenusStep
+    TerraformRating
+    ProjectCard
+}
+
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: PlayCard(CometAiming) {
+    Pay(1 Titanium, 14 MC)
+}
+
+Pink: DoRequiredActions {
+    Investor
+}
+Pink: PlayCard(IndustrialMicrobes) {
+    Pay(12 MC)
+    PROD[Energy]
+    PROD[Steel]
+    Green: Disease<PharmacyUnion>
+    Green: -4 MC
+}
+
+Green: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+
+Purple: DoRequiredActions {
+    3 ProjectCard
+}
+Purple: PlayCard(BribedCommittee) {
+    Pay(7 MC)
+    2 TerraformRating
+}
+
+Blue: UseAction1(CometAiming) {
+    Pay(1 Titanium)
+    Asteroid<AstroDrill>
+}
+
+Pink: Pass
+
+Green: PlayCard(CuttingEdgeTechnology) {
+    Pay(12 MC)
+    TerraformRating FROM Disease<PharmacyUnion>
+}
+
+Purple: PlayCard(WaterToVenus) {
+    Pay(9 MC)
+    VenusStep
+    TerraformRating
+}
+Purple: PlayCard(NeutralizerFactory) {
+    Pay(7 MC)
+    VenusStep
+    TerraformRating
+}
+
+Blue: Pass
+
+Green: PlayCard(SulphurEatingBacteria) {
+    Pay(4 MC)
+    Disease<PharmacyUnion>
+    -MC
+}
+
+Purple: Pass
+
+Green: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+Green: Pass
+
+// Production.
+Blue: Production {
+    27 MC
+    Plant
+    Steel
+}
+
+Pink: Production {
+    31 MC
+    Energy
+    Steel
+}
+
+Green: Production {
+    22 MC
+    Titanium
+}
+
+Purple: Production {
+    28 MC
+    Steel
+    Titanium
+    2 Energy
+}
+
+// World Government.
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 2
+// Research.
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Purple: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    Pay(6 MC)
+}
+
+Purple: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 59: public player boards after generation 2 Research purchases.
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Pink: PlayCard(Soletta) {
+    Pay(35 MC)
+    PROD[7 Heat]
+}
+
+Green: PlayCard(Omnicourt) {
+    Pay(9 MC)
+    2 TerraformRating
+}
+
+Purple: PlayCard(SolarPower) {
+    Pay(1 Steel, 9 MC)
+    PROD[Energy]
+}
+
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: UseAction1(CometAiming) {
+    Pay(1 Titanium)
+    Asteroid<CometAiming>
+}
+
+Pink: Pass
+
+Green: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+
+Purple: PlayCard(MagneticFieldDome) {
+    Pay(5 MC)
+    PROD[-2 Energy]
+    PROD[Plant]
+    TerraformRating
+}
+
+Blue: PlayCard(IceAsteroid) {
+    Pay(2 Titanium, 17 MC)
+    OceanTile<Tharsis_5_4>
+    TerraformRating
+    2 Plant
+    OceanTile<Tharsis_5_5>
+    TerraformRating
+    2 Plant
+    2 MC
+}
+
+Green: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Microbe<SulphurEatingBacteria>
+}
+
+Purple: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+
+Blue: PlayCard(ArcticAlgae) {
+    Pay(12 MC)
+    Plant
+}
+Blue: PlayCard(Psychrophiles) {
+    Pay(2 MC)
+    Green: Disease<PharmacyUnion>
+    Green: -4 MC
+}
+
+Green: Pass
+
+Purple: Pass
+
+Blue: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+Blue: Pass
+
+// Production.
+Blue: Production {
+    29 MC
+    Plant
+    Steel
+}
+
+Pink: Production {
+    31 MC
+    Energy VIA Production
+    Steel
+    Heat FROM Energy VIA Energy
+    7 Heat
+}
+
+Green: Production {
+    24 MC
+    Titanium
+}
+
+Purple: Production {
+    29 MC
+    Steel
+    Titanium
+    2 Energy VIA Production
+    2 Heat FROM Energy
+    Plant
+}
+
+// World Government.
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Generation 3
+// Research.
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    4 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    -ProjectCard<Selecting>
+}
+
+Purple: Research {
+    Pay(9 MC)
+}
+
+Purple: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+// Database save 111: public player boards after generation 3 Research purchases.
+Green: PlayCard(LightningHarvest) {
+    Pay(6 MC)
+    PROD[Energy]
+    PROD[MC]
+}
+
+Purple: PlayCard(DeimosDownPromo) {
+    Pay(2 Titanium, 25 MC)
+    TemperatureStep
+    TemperatureStep
+    TemperatureStep
+    4 Steel
+    3 TerraformRating
+    PROD[Heat]
+    DeimosDownPromo_SpecialTile<Tharsis_4_4>
+    Plant VIA Tharsis_4_4
+    4 MC
+    -6 Plant<Blue>
+}
+
+Blue: UseAction2(CometAiming) {
+    -Asteroid<CometAiming>
+    OceanTile<Tharsis_5_6>
+    TerraformRating
+    4 Plant
+    2 MC
+}
+
+Pink: PlayCard(DirectedImpactors) {
+    Pay(8 MC)
+}
+
+Green: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Plant
+}
+Green: PlayCard(Moss) {
+    Pay(2 MC)
+    PROD[Plant]
+    -Plant
+}
+
+Purple: PlayCard(PowerSupplyConsortium) {
+    Pay(5 MC)
+    PROD[Energy]
+    PROD[-Energy<Pink>]
+}
+
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+
+Pink: UseAction1(DirectedImpactors) {
+    Pay(6 MC)
+    Asteroid<DirectedImpactors>
+}
+
+Green: ClaimMilestone {
+    Pay(8 MC)
+    Diversifier
+}
+
+Purple: PlayCard(Teslaract) {
+    Pay(5 Steel, 4 MC)
+    TerraformRating
+}
+
+Blue: PlayCard(MiningExpedition) {
+    Pay(12 MC)
+    OxygenStep
+    2 Steel
+    TerraformRating
+    -2 Plant<Purple>
+}
+
+Pink: Pass
+
+Green: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+
+Purple: UseAction1(Teslaract) {
+    PROD[-Energy]
+    PROD[Plant]
+}
+
+Blue: PlayCard(WeatherBalloons) {
+    Pay(11 MC)
+    ProjectCard
+}
+
+Green: Pass
+
+Purple: Pass
+
+Blue: UseAction1(WeatherBalloons) {
+    Floater<WeatherBalloons>
+}
+Blue: Pass
+
+// Production.
+Blue: Production {
+    31 MC
+    Plant
+    Steel
+}
+
+Pink: Production {
+    31 MC
+    Steel
+    Heat FROM Energy VIA Energy
+    7 Heat
+}
+
+Green: Production {
+    25 MC
+    Titanium
+    Energy
+    Plant
+}
+
+Purple: Production {
+    33 MC
+    Steel
+    Titanium
+    2 Energy VIA Production
+    2 Heat FROM Energy VIA Energy
+    2 Plant
+    Heat
+}
+
+// World Government.
+Green: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Database save 162: the public state at the start of generation 4 drafting. This checkpoint
+// precedes Research, so it neither names nor models cards that were still private then.
+// Research.
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Purple: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    Pay(3 MC)
+}
+
+Purple: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Purple: PlayCard(DeepWellHeating) {
+    Pay(1 Steel, 11 MC)
+    PROD[Energy]
+    TemperatureStep
+    TerraformRating
+}
+Purple: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+
+Blue: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+Blue: UseAction1(WeatherBalloons) {
+    Floater<WeatherBalloons>
+}
+
+Pink: PlayCard(EarthCatapult) {
+    Pay(23 MC)
+    3 MC
+}
+
+Green: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Microbe<SulphurEatingBacteria>
+}
+
+Purple: Pass
+
+Blue: UseAction1(AstroDrill) {
+    Asteroid<CometAiming>
+}
+
+Pink: PlayCard(HomeostasisBureau) {
+    Pay(3 Steel, 8 MC)
+    PROD[2 Heat]
+}
+
+Green: PlayCard(VenusianPlants) {
+    Pay(11 MC)
+    VenusStep
+    TerraformRating
+    Microbe<SulphurEatingBacteria>
+}
+
+// No Psychrophiles microbes paid.
+// No M€ needed after paying with steel.
+Blue: PlayCard(NoctisFarming) {
+    Pay(5 Steel)
+    PROD[MC]
+    2 Plant
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_6_4>
+    OxygenStep
+    Plant
+    2 MC
+    TerraformRating
+}
+
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    3 MC
+}
+
+// No M€ needed after paying with titanium.
+Green: PlayCard(TransNeptuneProbe) {
+    Pay(2 Titanium)
+    TerraformRating FROM Disease<PharmacyUnion>
+}
+
+Blue: PlayCard(MethaneFromTitan) {
+    Pay(4 Titanium, 16 MC)
+    PROD[2 Heat]
+    PROD[2 Plant]
+}
+
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    3 MC
+}
+
+Green: UseAction2(SulphurEatingBacteria) {
+    SelectTask(-6! Microbe<SulphurEatingBacteria> THEN 18! MC)
+    -6 Microbe<SulphurEatingBacteria>
+    18 MC
+}
+
+Blue: PlayCard(TerraformingContract) {
+    Pay(8 MC)
+    PROD[4 MC]
+}
+
+Pink: UseAction2(DirectedImpactors) {
+    -Asteroid<DirectedImpactors>
+    TemperatureStep
+    TerraformRating
+    3 MC
+}
+
+Green: PlayCard(Solarnet) {
+    Pay(5 MC)
+    2 ProjectCard
+}
+
+Blue: UseAction2(CometAiming) {
+    -Asteroid<CometAiming>
+    OceanTile<Tharsis_6_7>
+    TerraformRating
+    3 Plant
+    2 MC
+}
+
+Pink: Pass
+
+Green: PlayCard(SnowAlgae) {
+    Pay(10 MC)
+    PROD[Plant]
+    PROD[Heat]
+}
+
+Blue: Pass
+
+Green: Pass
+
+// Production.
+Blue: Production {
+    38 MC
+    3 Plant
+    Steel
+    2 Heat
+}
+
+Pink: Production {
+    34 MC
+    Steel
+    9 Heat
+}
+
+Green: Production {
+    27 MC
+    Titanium
+    Energy VIA Production
+    2 Plant
+    Heat FROM Energy VIA Energy
+    Heat
+}
+
+Purple: Production {
+    35 MC
+    Steel
+    Titanium
+    3 Energy VIA Production
+    2 Heat FROM Energy VIA Energy
+    2 Plant
+    2 Heat
+}
+
+// World Government.
+Purple: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// Database save 237: the public state at the start of generation 5 drafting. This checkpoint
+// precedes Research, so it neither names nor models cards that are still private.
+// Research.
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+// Keep all four Research cards.
+Pink: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(12 MC)
+}
+
+Pink: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+Purple: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    Pay(6 MC)
+}
+
+Purple: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+Blue: UseAction1(WeatherBalloons) {
+    Floater<WeatherBalloons>
+}
+
+Pink: PlayCard(SterlingVents) {
+    Pay(1 Steel, 1 MC)
+    PROD[-2 Heat]
+    PROD[2 Energy]
+    3 MC
+}
+Pink: PlayCard(ImmigrantCity) {
+    Pay(11 MC)
+    PROD[-Energy]
+    PROD[-2 MC]
+    NormalCityTile<Tharsis_6_5>
+    PROD[MC]
+    Plant
+    4 MC
+}
+
+Green: PlayCard(MiningRights) {
+    Pay(9 MC)
+    MiningRights_SpecialTile<Tharsis_8_4>
+    PROD[Steel]
+    2 Steel
+}
+
+Purple: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: UseAction1(CometAiming) {
+    Pay(1 Titanium)
+    Asteroid<CometAiming>
+}
+
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    3 MC
+}
+
+Green: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+
+Purple: PlayCard(Comet) {
+    Pay(2 Titanium, 15 MC)
+    TemperatureStep
+    TerraformRating
+    OceanTile<Tharsis_2_6>
+    TerraformRating
+    Blue: 2 Plant
+    2 ProjectCard
+    -3 Plant<Blue>
+}
+
+Blue: PlayCard(ResearchCoordination) {
+    Pay(4 MC)
+}
+Blue: PlayCard(Satellites) {
+    Pay(2 Titanium, 4 MC)
+    PROD[6 MC]
+}
+
+Pink: UseAction1(DirectedImpactors) {
+    Pay(6 MC)
+    Asteroid<DirectedImpactors>
+}
+
+Green: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+
+// Database save 282: complete public state after Green's Applied Science action. Private hands
+// are represented only by their public aggregate counts.
+Purple: PlayCard(PowerGrid) {
+    Pay(18 MC)
+    PROD[6 Energy]
+}
+
+Blue: PlayCard(WavePower) {
+    Pay(8 MC)
+    PROD[Energy]
+}
+
+Pink: PlayCard(FieldCappedCity) {
+    Pay(27 MC)
+    PROD[2 MC]
+    PROD[Energy]
+    3 Plant
+    NormalCityTile<Tharsis_7_4>
+    PROD[MC]
+}
+
+Green: PlayCard(NitrogenRichAsteroid) {
+    Pay(4 Titanium, 19 MC)
+    2 TerraformRating
+    TemperatureStep
+    TerraformRating
+    PROD[4 Plant]
+}
+
+Purple: UseAction1(Teslaract) {
+    PROD[-Energy]
+    PROD[Plant]
+}
+
+Blue: Pass
+
+Pink: Pass
+
+// No M€ needed after paying with steel.
+Green: PlayCard(MiningArea) {
+    Pay(2 Steel)
+    MiningArea_SpecialTile<Tharsis_9_5>
+    PROD[Steel]
+    Steel
+}
+
+Purple: Pass
+
+Green: Pass
+
+// Production.
+Blue: Production {
+    44 MC
+    3 Plant
+    Steel
+    2 Heat
+    Energy
+}
+
+Pink: Production {
+    37 MC
+    Steel
+    7 Heat
+    2 Energy
+}
+
+Green: Production {
+    30 MC
+    Titanium
+    Energy VIA Production
+    6 Plant
+    Heat FROM Energy VIA Energy
+    Heat
+    2 Steel
+}
+
+Purple: Production {
+    38 MC
+    Steel
+    Titanium
+    8 Energy VIA Production
+    3 Heat FROM Energy VIA Energy
+    3 Plant
+    2 Heat
+}
+
+// World Government.
+Blue: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+// _local/replays/Game20260914/Heroku-g62d89e349c97/game-g62d89e349c97-save310.sqlite; source
+// save 310.
+// Database save 310: complete public state at the start of generation 6 drafting. Research has
+// not begun, so private offers and hands remain represented only by aggregate hand counts.
+// Research.
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    4 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Purple: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    Pay(6 MC)
+}
+
+Purple: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(VenusianAnimals) {
+    Pay(13 MC)
+    3 MC
+    Animal<VenusianAnimals>
+}
+
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_9_6>
+    OxygenStep
+    2 Steel
+    TerraformRating
+}
+
+Purple: PlayCard(BusinessContacts) {
+    Pay(7 MC)
+    4 ProjectCard<Selecting>
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: PlayCard(SpaceElevator) {
+    Pay(1 Steel, 25 MC)
+    PROD[Titanium]
+}
+Blue: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+Pink: PlayCard(CeosFavoriteProject) {
+    Asteroid<DirectedImpactors>
+}
+
+Green: PlayCard(RegoPlastics) {
+    Pay(1 Steel, 8 MC)
+}
+
+Purple: PlayCard(FuelFactory) {
+    Pay(2 Steel, 2 MC)
+    PROD[-Energy]
+    PROD[Titanium]
+    PROD[MC]
+}
+
+Blue: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    3 MC
+}
+
+Green: PlayCard(CarbonNanosystems) {
+    Pay(4 Steel, 2 MC)
+    TerraformRating FROM Disease<PharmacyUnion>
+    Graphene<CarbonNanosystems>
+}
+
+Purple: PlayCard(GiantSpaceMirror) {
+    Pay(1 Titanium, 14 MC)
+    PROD[3 Energy]
+}
+
+Blue: UseAction1(AstroDrill) {
+    Titanium
+}
+
+Pink: UseAction2(DirectedImpactors) {
+    -Asteroid<DirectedImpactors>
+    TemperatureStep
+    TerraformRating
+    3 MC
+}
+Pink: UseStandardProject(AsteroidProject) {
+    Pay(14 MC)
+    TemperatureStep
+    TerraformRating
+    3 MC
+    OceanTile<Tharsis_1_2>
+    TerraformRating
+    Blue: 2 Plant
+    2 Steel
+}
+
+Green: PlayCard(ArtificialPhotosynthesis) {
+    Pay(12 MC)
+    TerraformRating FROM Disease<PharmacyUnion>
+    Graphene<CarbonNanosystems>
+    PROD[2 Energy]
+}
+
+Purple: PlayCard(SmallAsteroid) {
+    Pay(10 MC)
+    TemperatureStep
+    TerraformRating
+    -2 Plant<Blue>
+}
+
+Blue: UseAction2(CometAiming) {
+    -Asteroid<CometAiming>
+    OceanTile<Tharsis_6_8>
+    TerraformRating
+    3 Plant
+    2 MC
+}
+
+Pink: PlayCard(DevelopmentCenter) {
+    Pay(3 Steel, 3 MC)
+    Animal<VenusianAnimals>
+}
+Pink: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+
+Green: UseAction1(AppliedScience) {
+    -Science<AppliedScience>
+    Titanium
+}
+
+Purple: UseAction1(Teslaract) {
+    PROD[-Energy]
+    PROD[Plant]
+}
+
+Blue: UseAction2(WeatherBalloons) {
+    -Floater<WeatherBalloons>
+    2 MC
+}
+
+Pink: PlayCard(JovianEmbassy) {
+    Pay(12 MC)
+    TerraformRating
+    3 MC
+}
+Pink: ClaimMilestone {
+    Pay(8 MC)
+    Builder
+}
+
+// No M€ needed after paying with graphene and titanium.
+Green: PlayCard(OrbitalCleanup) {
+    Pay(2 Graphene<CarbonNanosystems>, 2 Titanium)
+    PROD[-2 MC]
+}
+
+Purple: Pass
+
+Blue: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Tharsis_5_7>
+    Pink: PROD[MC]
+    2 Plant
+    6 MC
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_4_6>
+    OxygenStep
+    Plant
+    2 MC
+    TerraformRating
+}
+
+Pink: Pass
+
+Green: UseAction1(OrbitalCleanup) {
+    6 MC
+}
+
+Blue: ClaimMilestone {
+    Pay(8 MC)
+    Coastguard
+}
+
+Green: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+}
+
+Blue: PlayCard(SecurityFleet) {
+    Pay(1 Titanium, 9 MC)
+}
+
+Green: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Blue: Pass
+
+Green: PlayCard(AdaptedLichen) {
+    Pay(9 MC)
+    PROD[Plant]
+}
+Green: Pass
+
+// Production.
+Blue: Production {
+    47 MC
+    3 Plant
+    Steel
+    2 Heat VIA Production
+    Energy VIA Production
+    Heat FROM Energy
+    Titanium
+}
+
+Pink: Production {
+    43 MC
+    Steel
+    7 Heat VIA Production
+    2 Energy VIA Production
+    Heat FROM Energy
+}
+
+Green: Production {
+    31 MC
+    Titanium
+    3 Energy VIA Production
+    7 Plant
+    Heat FROM Energy VIA Energy
+    Heat
+    2 Steel
+}
+
+Purple: Production {
+    40 MC
+    Steel
+    2 Titanium
+    9 Energy VIA Production
+    8 Heat FROM Energy VIA Energy
+    4 Plant
+    2 Heat
+}
+
+// World Government.
+Pink: WorldGovernment {
+    OceanTile<Tharsis_1_4>! BY Admin
+}
+
+// Arctic Algae gives Blue 2 plants when World Government places the ocean.
+Blue: WorldGovernment {
+    2 Plant
+}
+
+// Database save 414: complete public state at the start of generation 7 drafting.
+// Research.
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(9 MC)
+}
+
+Blue: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Purple: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    Pay(3 MC)
+}
+
+Purple: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    -ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(9 MC)
+}
+
+Green: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Green: PlayCard(SubterraneanReservoir) {
+    Pay(11 MC)
+    OceanTile<Tharsis_9_9>
+    TerraformRating
+    Blue: 2 Plant
+    2 Titanium
+}
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_8_6>
+    OxygenStep
+    ProjectCard
+    TerraformRating
+}
+
+Purple: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Purple: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+
+// No M€ needed after paying with Psychrophiles microbes.
+Blue: PlayCard(KaguyaTech) {
+    Pay(5 Microbe<Psychrophiles>)
+    PROD[2 MC]
+    ProjectCard
+    NormalCityTile<Tharsis_6_4> FROM GreeneryTile<Tharsis_6_4>
+    Pink: PROD[MC]
+    Plant
+    2 MC
+}
+
+Pink: UseAction2(DirectedImpactors) {
+    -Asteroid<DirectedImpactors>
+    TemperatureStep
+    TerraformRating
+    3 MC
+}
+Pink: FundAward {
+    Pay(14 MC)
+    Traveller
+}
+
+Green: PlayCard(SolarWindPower) {
+    Pay(3 Titanium, 2 MC)
+    PROD[Energy]
+    2 Titanium
+    TerraformRating FROM Disease<PharmacyUnion>
+    Graphene<CarbonNanosystems>
+}
+
+Purple: PlayCard(PhysicsComplex) {
+    Pay(1 Steel, 10 MC)
+}
+Purple: UseAction1(PhysicsComplex) {
+    Pay(6 Energy)
+    Science<PhysicsComplex>
+}
+
+Blue: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+
+Pink: PlayCard(Trees) {
+    Pay(11 MC)
+    PROD[3 Plant]
+    Plant
+    3 MC
+}
+Pink: PlayCard(AdvancedEcosystems) {
+    Pay(9 MC)
+    3 MC VIA Vitor
+    Green: Disease<PharmacyUnion>
+    Green: -4 MC
+}
+
+Green: UseAction1(OrbitalCleanup) {
+    7 MC
+}
+
+Purple: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_4_5>
+    OxygenStep
+    2 Plant
+    4 MC
+    TerraformRating
+}
+Purple: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Tharsis_3_5>
+    Pink: PROD[MC]
+}
+
+// No titanium paid.
+Blue: PlayCard(MercurianAlloys) {
+    Pay(3 MC)
+}
+Blue: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Tharsis_3_7>
+    Pink: PROD[MC]
+    Steel
+    2 MC
+}
+
+Pink: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+Pink: PlayCard(HiredRaiders) {
+    3 MC FROM MC<Blue>
+}
+
+Green: PlayCard(SisterPlanetSupport) {
+    Pay(5 MC)
+    PROD[3 MC]
+}
+Green: PlayCard(Insects) {
+    Pay(7 MC)
+    PROD[5 Plant]
+    Disease<PharmacyUnion>
+    -0 MC
+}
+
+Purple: UseAction1(Teslaract) {
+    PROD[-Energy]
+    PROD[Plant]
+}
+
+Blue: UseAction1(CometAiming) {
+    Pay(1 Titanium)
+    Asteroid<AstroDrill>
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_4_7>
+    OxygenStep
+    Plant
+    TerraformRating
+    0 TemperatureStep
+}
+
+Pink: PlayCard(SponsoredAcademies) {
+    Pay(7 MC)
+    -ProjectCard
+    EACH Other@Player(NOT Pink) { ProjectCard<Other@Player>! } VIA SponsoredAcademies
+    3 MC
+    Animal<VenusianAnimals>
+    3 ProjectCard
+    ProjectCard<Blue>
+    ProjectCard<Green>
+    ProjectCard<Purple>
+}
+
+Green: UseAction2(SulphurEatingBacteria) {
+    SelectTask(-2! Microbe<SulphurEatingBacteria> THEN 6! MC)
+    -2 Microbe<SulphurEatingBacteria>
+    6 MC
+}
+Green: PlayCard(Worms) {
+    Pay(6 MC)
+    PROD[3 Plant]
+    Disease<PharmacyUnion>
+    -0 MC
+}
+
+Purple: PlayCard(ProtectedGrowth) {
+    Pay(2 MC)
+    7 Plant
+}
+Purple: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_2_5>
+    OxygenStep
+    4 MC
+    TerraformRating
+}
+
+Blue: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+
+Pink: PlayCard(SoilFactory) {
+    Pay(1 Steel, 5 MC)
+    PROD[-Energy]
+    PROD[Plant]
+    3 MC
+}
+
+Green: Pass
+
+Purple: PlayCard(Lichen) {
+    Pay(7 MC)
+    PROD[Plant]
+}
+
+Blue: UseAction2(WeatherBalloons) {
+    -Floater<WeatherBalloons>
+    6 MC
+}
+
+Pink: PlayCard(CorroderSuits) {
+    Pay(6 MC)
+    PROD[2 MC]
+    Animal<VenusianAnimals>
+}
+
+Purple: Pass
+
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+Blue: UseAction1(SecurityFleet) {
+    Pay(1 Titanium)
+    Fighter<SecurityFleet>
+}
+
+Pink: Pass
+
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Blue: UseStandardProject(SellPatentsProject) {
+    4 MC FROM ProjectCard
+}
+Blue: PlayCard(NoctisCity) {
+    Pay(1 Steel, 16 MC)
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Tharsis_5_3>
+    Pink: PROD[MC]
+    2 Plant
+    2 MC
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_4_3>
+    OxygenStep
+    Plant
+    2 MC
+    TerraformRating
+}
+Blue: PlayCard(Mangrove) {
+    Pay(1 Microbe<Psychrophiles>, 10 MC)
+    GreeneryTile<Tharsis_4_8>
+    OxygenStep
+    2 Plant
+    TerraformRating
+}
+Blue: Pass
+
+// Production.
+Blue: Production {
+    56 MC
+    3 Plant
+    Steel
+    2 Heat VIA Production
+    Heat FROM Energy
+    Titanium
+}
+
+Pink: Production {
+    50 MC
+    Steel
+    7 Heat VIA Production
+    Energy VIA Production
+    Heat FROM Energy
+    4 Plant
+}
+
+Green: Production {
+    37 MC
+    Titanium
+    4 Energy VIA Production
+    15 Plant
+    3 Heat FROM Energy VIA Energy
+    Heat
+    2 Steel
+}
+
+Purple: Production {
+    45 MC
+    Steel
+    2 Titanium
+    8 Energy VIA Production
+    3 Heat FROM Energy VIA Energy
+    6 Plant
+    2 Heat
+}
+
+// World Government.
+Green: WorldGovernment {
+    OxygenStep! BY Admin
+}
+
+// Database save 513: public state before generation 8 Research.
+// Research.
+Blue: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+}
+
+Purple: Research {
+    4 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Blue: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Blue: Research {
+    Pay(6 MC)
+}
+
+Blue: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Purple: Research {
+    -4 ProjectCard<Selecting>
+}
+
+Green: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Green: Research {
+    Pay(6 MC)
+}
+
+Green: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Purple: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_2_4>
+    OxygenStep
+    2 MC
+    TerraformRating
+}
+Purple: UseAction1(PhysicsComplex) {
+    Pay(6 Energy)
+    Science<PhysicsComplex>
+}
+
+Blue: UseAction1(SpaceElevator) {
+    Pay(1 Steel)
+    5 MC
+}
+Blue: UseAction1(SecurityFleet) {
+    Pay(1 Titanium)
+    Fighter<SecurityFleet>
+}
+
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_6_6>
+    OxygenStep
+    Plant
+    6 MC
+    TerraformRating
+}
+Pink: FundAward {
+    Pay(20 MC)
+    Celebrity
+}
+
+Green: PlayCard(UndergroundCity) {
+    Pay(1 Graphene<CarbonNanosystems>, 4 Steel, 2 MC)
+    PROD[-2 Energy]
+    PROD[2 Steel]
+    NormalCityTile<Tharsis_4_1>
+    Pink: PROD[MC]
+    Plant
+    Titanium
+}
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_5_1>
+    0 OxygenStep
+    2 Plant
+}
+
+Purple: UseAction1(Teslaract) {
+    PROD[-Energy]
+    PROD[Plant]
+}
+Purple: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Tharsis_2_3>
+    Pink: PROD[MC]
+    2 MC
+}
+
+Blue: UseAction1(CometAiming) {
+    Pay(1 Titanium)
+    Asteroid<AstroDrill>
+}
+Blue: UseAction2(AstroDrill) {
+    -Asteroid<AstroDrill>
+    3 Titanium
+}
+
+Pink: PlayCard(StratosphericExpedition) {
+    Pay(10 MC)
+    2* Floater
+    // Pink has no card that can hold floaters, so this placement adds none.
+    2 SearchForCard<TagFilter<Class<VenusTag>>>
+    3 MC
+}
+Pink: UseAction1(DevelopmentCenter) {
+    Pay(1 Energy)
+    ProjectCard
+}
+
+// Generation 8 (continued)
+// Database save 546: after Pink plays Stratospheric Expedition and uses Development Center.
+Green: PlayCard(CallistoPenalMines) {
+    Pay(4 Titanium, 12 MC)
+    PROD[3 MC]
+}
+
+Purple: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Tharsis_3_4>
+    0 OxygenStep
+}
+
+Blue: UseAction1(Psychrophiles) {
+    Microbe<Psychrophiles>
+}
+Blue: UseAction2(WeatherBalloons) {
+    -Floater<WeatherBalloons>
+    9 MC
+}
+
+Pink: PlayCard(Research) {
+    Pay(9 MC)
+    2 ProjectCard
+    3 MC
+    Animal<VenusianAnimals>
+    Animal<VenusianAnimals>
+}
+Pink: PlayCard(Sabotage) {
+    -3 Titanium<Blue>
+}
+
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_3_1>
+    0 OxygenStep
+    ProjectCard
+}
+
+Purple: UseStandardProject(SellPatentsProject) {
+    5 MC FROM ProjectCard
+}
+
+Blue: PlayCard(Grass) {
+    Pay(1 Microbe<Psychrophiles>, 9 MC)
+    PROD[Plant]
+    3 Plant
+}
+Blue: PlayCard(CityParks) {
+    Pay(7 MC)
+    2 Plant
+}
+
+Pink: PlayCard(FreyjaBiodomes) {
+    Pay(12 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    3 MC
+    2 Animal<VenusianAnimals>
+}
+
+Green: PlayCard(SaturnSurfing) {
+    Pay(13 MC)
+    4 Floater<SaturnSurfing>
+}
+
+Purple: Pass
+
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_5_8>
+    0 OxygenStep
+    2 Plant
+    2 MC
+}
+
+Pink: PlayCard(AstraMechanica) {
+    Pay(5 MC)
+    Animal<VenusianAnimals>
+    ProjectCard FROM PlayedEvent<Class<CeosFavoriteProject>>
+    ProjectCard FROM PlayedEvent<Class<Sabotage>>
+}
+Pink: PlayCard(Sabotage) {
+    -7 MC<Blue>
+}
+
+Green: UseAction1(SaturnSurfing) {
+    -Floater<SaturnSurfing>
+    4 MC
+}
+Green: PlayCard(TopsoilContract) {
+    Pay(8 MC)
+    3 Plant
+    Disease<PharmacyUnion>
+    -0 MC
+}
+
+Blue: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+Blue: PlayCard(AsteroidMining) {
+    Pay(1 Titanium, 26 MC)
+    PROD[2 Titanium]
+}
+
+Pink: PlayCard(CeosFavoriteProject) {
+    Animal<VenusianAnimals>
+}
+
+Green: UseAction1(SulphurEatingBacteria) {
+    Microbe<SulphurEatingBacteria>
+    MC
+}
+
+Blue: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Tharsis_5_2>
+    0 OxygenStep
+    2 Plant
+}
+Blue: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_3_6>
+    0 OxygenStep
+    2 MC
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Green: UseAction1(OrbitalCleanup) {
+    7 MC
+}
+Green: PlayCard(SoilEnrichment) {
+    Pay(6 MC)
+    -Microbe<SulphurEatingBacteria>
+    5 Plant
+    Disease<PharmacyUnion>
+    -2 MC
+}
+
+Blue: Pass
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_8_7>
+    0 OxygenStep
+    ProjectCard
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    MC FROM ProjectCard
+}
+
+Green: UseStandardProject(SellPatentsProject) {
+    5 MC FROM ProjectCard
+}
+
+Pink: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+Pink: PlayCard(CometForVenus) {
+    Pay(9 MC)
+    VenusStep
+    TerraformRating
+    -4 MC<Purple>
+}
+
+Green: Pass
+
+Pink: Pass
+
+// Production.
+Blue: Production {
+    56 MC
+    4 Plant
+    Steel
+    2 Heat
+    3 Titanium
+}
+
+Pink: Production {
+    56 MC
+    Steel
+    7 Heat
+    4 Plant
+}
+
+Green: Production {
+    40 MC
+    Titanium
+    2 Energy VIA Production
+    15 Plant
+    4 Heat FROM Energy VIA Energy
+    Heat
+    4 Steel
+}
+
+Purple: Production {
+    47 MC
+    Steel
+    2 Titanium
+    7 Energy VIA Production
+    2 Heat FROM Energy VIA Energy
+    7 Plant
+    2 Heat
+}
+
+// Database save 622: final production, before the remaining greenery placements.
+Purple: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_1_3>
+    4 MC
+}
+// decline final greenery
+Purple {
+    Ok
+}
+
+// decline final greenery
+Blue {
+    Ok
+}
+
+// decline final greenery
+Pink {
+    Ok
+}
+
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_4_2>
+    Plant
+}
+Green: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Tharsis_8_8>
+    2 MC
+}
+// decline final greenery
+Green {
+    Ok
+}
+
+Blue {
+    74 VictoryPoint
+}
+
+Pink {
+    78 VictoryPoint
+}
+
+Green {
+    70 VictoryPoint
+}
+
+Purple {
+    60 VictoryPoint
+}
+// _local/replays/Game20260914/Heroku-g62d89e349c97/player-p6f50f47be7e8-save626.json; final
+// Mars map.
+// Database save 626 and the final player API record: completed public boards and scores.

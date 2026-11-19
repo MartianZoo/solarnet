@@ -1,0 +1,1660 @@
+// Replay: LatentGammaFieldTest
+// Kotlin scenario: test/jvm/dev/martianzoo/tfm/tests/replays/LatentGammaFieldTest.kt
+// Comments retain the source replay's evidence, corrections, and uncertainties.
+
+// Complete source-log replay with documented fake/map corrections: Latent Gamma Field
+// (g890264103e4b).
+// https://terraforming-mars.herokuapp.com/the-end?id=p9a4445506f19
+// Source archive: _local/replays/Game20261031/p9a4445506f19/.
+// Unsupported component: user-authorized stand-in. The ocean stays on the board;
+// this card does not place a city. Missing consequences are corrected where they occur.
+Config {
+    Pink
+    VastitasMap
+    VenusNextExpansion, PreludeExpansion, Prelude2Expansion, TurmoilExpansion, Tr63SoloObjective
+    promos:cards, FakeNewHolland
+    SoloTileLocations
+    1 SelectableCorporationCount
+}
+
+GlobalEventDeck {
+    MiningRestrictions
+    ExperimentalLifeforms
+    MoholeLakeGlobalEvent
+    ThawMining
+    RedResistance
+    HeatFirstPolicy
+    FreeAcademiaTreaty
+    TerraformingLobbying
+    PateraBoring
+    ScientificConsensus
+    CorporateAlliance
+    CharismaticWgPresident
+    BioengineeringBoom
+}
+
+SetupRules {
+    CLASS SoloTileLocations : PlaceNeutralTiles<Vastitas_2_6, Vastitas_3_7, Vastitas_8_4, Vastitas_7_4>
+}
+
+Cards {
+    +CorporationCard<Pink, Hand>: PharmacyUnion, LakefrontResorts, UtopiaInvest
+    -CorporationCard<Pink, Hand>: PharmacyUnion, UtopiaInvest
+    -CorporationCard<Pink, Hand>: LakefrontResorts
+    +PreludeCard<Pink, Hand>: NewPartner, IndustrialComplex, PolarIndustries, MiningOperations
+    -PreludeCard<Pink, Hand>: NewPartner, MiningOperations
+    -PreludeCard<Pink, Hand>: IndustrialComplex
+    -PreludeCard<Pink, Hand>: PolarIndustries
+    +ProjectCard<Pink, Hand>: MarsNomads, BuildingIndustries, GiantIceAsteroid, NitrophilicMoss, OptimalAerobraking
+    +ProjectCard<Pink, Hand>: RedAppeasement, CloudSeeding
+    +ProjectCard<Pink, Hand>: MicroMills, MiningExpedition, MoholeArea
+    +ProjectCard<Pink, Hand>: PublicBaths, GiantSpaceMirror
+    +ProjectCard<Pink, Hand>: SpecialDesign, Algae, NuclearPower
+    +ProjectCard<Pink, Hand>: LocalShading, Capital, LargeConvoy
+    +ProjectCard<Pink, Hand>: SupportedResearch
+    +ProjectCard<Pink, Hand>: SpaceHotels, SpaceMirrors
+    +ProjectCard<Pink, Hand>: ExtremeColdFungus
+    +ProjectCard<Pink, Hand>: MarsUniversity, CometForVenus
+    +ProjectCard<Pink, Hand>: ElectroCatapult
+    +ProjectCard<Pink, Hand>: MiningRights, AsteroidRights, LavaTubeSettlement
+    +ProjectCard<Pink, Hand>: Research, Psychrophiles
+    +ProjectCard<Pink, Hand>: Casinos, TitaniumMine
+    +ProjectCard<Pink, Hand>: EnvoysFromVenus
+    +ProjectCard<Pink, Hand>: MartianRails
+    +ProjectCard<Pink, Hand>: GhgFactories, StanfordTorus
+    +ProjectCard<Pink, Hand>: ImportOfAdvancedGhg
+    +ProjectCard<Pink, Hand>: Potatoes, AsteroidMiningConsortium, FakeNewHolland
+    +ProjectCard<Pink, Hand>: SpecialPermit, DomedCrater, CarbonNanosystems
+    +ProjectCard<Pink, Hand>: AdvancedAlloys
+    +ProjectCard<Pink, Hand>: SmallAnimals
+    +ProjectCard<Pink, Hand>: BigAsteroid
+    +ProjectCard<Pink, Hand>: ProtectedHabitats, PowerSupplyConsortium, Greenhouses, Shuttles
+    +ProjectCard<Pink, Hand>: FusionPower
+    +ProjectCard<Pink, Hand>: IceCapMelting
+    +ProjectCard<Pink, Hand>: AcquiredCompany
+    +ProjectCard<Pink, Hand>: QuantumExtractor
+    +ProjectCard<Pink, Hand>: SolarLogistics
+    +ProjectCard<Pink, Hand>: EquatorialMagnetizer, GanymedeColony
+    +ProjectCard<Pink, Hand>: KelpFarming, FueledGenerators, ResearchCoordination
+    +ProjectCard<Pink, Hand>: AiCentral
+    +ProjectCard<Pink, Hand>: CorroderSuits
+    +ProjectCard<Pink, Hand>: Soletta, HiredRaiders
+    +ProjectCard<Pink, Hand>: Trees
+    +ProjectCard<Pink, Hand>: LunarBeam, InventionContest
+    +ProjectCard<Pink, Hand>: TransNeptuneProbe
+    +ProjectCard<Pink, Hand>: GhgShipment
+    +ProjectCard<Pink, Hand>: FieldCappedCity
+    -ProjectCard<Pink, Hand>: MarsNomads
+    -ProjectCard<Pink, Hand>: BuildingIndustries
+    -ProjectCard<Pink, Hand>: RedAppeasement
+    -ProjectCard<Pink, Hand>: MiningExpedition
+    -ProjectCard<Pink, Hand>: MoholeArea
+    -ProjectCard<Pink, Hand>: NitrophilicMoss
+    -ProjectCard<Pink, Hand>: MicroMills
+    -ProjectCard<Pink, Hand>: OptimalAerobraking
+    -ProjectCard<Pink, Hand>: GiantIceAsteroid
+    -ProjectCard<Pink, Hand>: CloudSeeding
+    -ProjectCard<Pink, Hand>: LocalShading
+    -ProjectCard<Pink, Hand>: Algae
+    -ProjectCard<Pink, Hand>: LargeConvoy
+    -ProjectCard<Pink, Hand>: SupportedResearch
+    -ProjectCard<Pink, Hand>: MarsUniversity
+    -ProjectCard<Pink, Hand>: SpaceMirrors
+    -ProjectCard<Pink, Hand>: GiantSpaceMirror
+    -ProjectCard<Pink, Hand>: ElectroCatapult
+    -ProjectCard<Pink, Hand>: ExtremeColdFungus
+    -ProjectCard<Pink, Hand>: MiningRights
+    -ProjectCard<Pink, Hand>: Research
+    -ProjectCard<Pink, Hand>: Psychrophiles
+    -ProjectCard<Pink, Hand>: EnvoysFromVenus
+    -ProjectCard<Pink, Hand>: LavaTubeSettlement
+    -ProjectCard<Pink, Hand>: AsteroidRights
+    -ProjectCard<Pink, Hand>: Casinos
+    -ProjectCard<Pink, Hand>: NuclearPower
+    -ProjectCard<Pink, Hand>: Capital
+    -ProjectCard<Pink, Hand>: MartianRails
+    -ProjectCard<Pink, Hand>: TitaniumMine
+    -ProjectCard<Pink, Hand>: CarbonNanosystems
+    -ProjectCard<Pink, Hand>: SpaceHotels
+    -ProjectCard<Pink, Hand>: AdvancedAlloys
+    -ProjectCard<Pink, Hand>: Potatoes
+    -ProjectCard<Pink, Hand>: CometForVenus
+    -ProjectCard<Pink, Hand>: ImportOfAdvancedGhg
+    -ProjectCard<Pink, Hand>: GhgFactories
+    -ProjectCard<Pink, Hand>: SmallAnimals
+    -ProjectCard<Pink, Hand>: AsteroidMiningConsortium
+    -ProjectCard<Pink, Hand>: Shuttles
+    -ProjectCard<Pink, Hand>: BigAsteroid
+    -ProjectCard<Pink, Hand>: PowerSupplyConsortium
+    -ProjectCard<Pink, Hand>: StanfordTorus
+    -ProjectCard<Pink, Hand>: FakeNewHolland
+    -ProjectCard<Pink, Hand>: SpecialDesign
+    -ProjectCard<Pink, Hand>: IceCapMelting
+    -ProjectCard<Pink, Hand>: DomedCrater
+    -ProjectCard<Pink, Hand>: SpecialPermit
+    -ProjectCard<Pink, Hand>: FusionPower
+    -ProjectCard<Pink, Hand>: ProtectedHabitats
+    -ProjectCard<Pink, Hand>: QuantumExtractor
+    -ProjectCard<Pink, Hand>: AcquiredCompany
+    -ProjectCard<Pink, Hand>: SolarLogistics
+    -ProjectCard<Pink, Hand>: AiCentral
+    -ProjectCard<Pink, Hand>: FueledGenerators
+    -ProjectCard<Pink, Hand>: HiredRaiders
+    -ProjectCard<Pink, Hand>: GanymedeColony
+    -ProjectCard<Pink, Hand>: KelpFarming
+    -ProjectCard<Pink, Hand>: CorroderSuits, ResearchCoordination, Soletta
+    -ProjectCard<Pink, Hand>: EquatorialMagnetizer
+    -ProjectCard<Pink, Hand>: PublicBaths
+    -ProjectCard<Pink, Hand>: Greenhouses
+    -ProjectCard<Pink, Hand>: InventionContest
+    -ProjectCard<Pink, Hand>: LunarBeam
+    -ProjectCard<Pink, Hand>: GhgShipment
+    -ProjectCard<Pink, Hand>: TransNeptuneProbe
+    -ProjectCard<Pink, Hand>: FieldCappedCity
+    -ProjectCard<Pink, Hand>: Trees
+}
+
+Pink: Setup {
+    14 TerraformRating
+    CorporationCard
+    10 ProjectCard<Selecting> VIA Pink
+    2 PreludeCard
+    -5 ProjectCard<Selecting>
+}
+
+// Test inference: kept projects identified by subsequent plays without matching draws.
+Pink: PlayCard(LakefrontResorts) {
+    54 MC VIA LakefrontResorts
+    Pay(15 MC)
+    5 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(IndustrialComplex) {
+    -18 MC
+    // Expand the production box into its separate resource increases.
+    EACH Class<@StandardResource> { Production<Class<@StandardResource>>! / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>> }
+    PROD[Titanium]
+    PROD[Steel]
+    PROD[Plant]
+    PROD[MC]
+    PROD[Heat]
+    PROD[Energy]
+}
+Pink: PlayCard(PolarIndustries) {
+    PROD[2 Heat]
+    OceanTile<Vastitas_5_6>
+    TerraformRating
+    PROD[MC]
+    2 Plant
+    0 MC
+}
+
+// Generation 1
+// Test inference: Nomads starts at area 32 and follows 33,32,33,32,33,32,33,32,40,39,40.
+// The source omits destinations; this legal route matches every recorded bonus and final
+// marker.
+Pink: PlayCard(MarsNomads) {
+    Pay(13 MC)
+    NomadsMarker<Vastitas_5_4>
+}
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>! THEN Placement<Vastitas_5_5>!)
+    NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>
+    TemperatureStep
+    -MC
+    TerraformRating
+}
+Pink: PlayCard(BuildingIndustries) {
+    Pay(6 MC)
+    PROD[-Energy]
+    PROD[2 Steel]
+}
+Pink: SendDelegate0 {
+    PartyLeader<Unity> FROM LobbyDelegate
+}
+Pink: Pass
+
+Pink: Production {
+    18 MC
+    Titanium
+    3 Steel
+    Plant
+    3 Heat
+}
+
+Pink: WorldGovernment {
+    OceanTile<Vastitas_6_5>! BY Admin
+}
+
+Pink: WorldGovernment {
+    PROD[MC]
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 2
+// Player-record evidence: globalsPerGeneration.
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>! THEN Placement<Vastitas_5_4>!)
+    NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>
+    2 Plant
+    3 MC
+}
+Pink: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Greens>
+}
+Pink: PlayCard(RedAppeasement) {
+    PROD[2 MC]
+    // The required Pass below completes this card action.
+    Pass
+}
+
+Pink: Production {
+    21 MC
+    Titanium
+    3 Steel
+    Plant
+    3 Heat
+}
+
+// Red Appeasement ends participation in this generation; the source then logs the pass.
+Pink: WorldGovernment {
+    OceanTile<Vastitas_4_3>! BY Admin
+}
+
+Pink: WorldGovernment {
+    PROD[MC]
+}
+
+Pink: GlobalEvent {
+    2 Titanium
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 3
+// Player-record evidence: globalsPerGeneration.
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>! THEN Placement<Vastitas_5_5>!)
+    NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>
+    TemperatureStep
+    2 MC
+    TerraformRating
+}
+Pink: PlayCard(MiningExpedition) {
+    Pay(12 MC)
+    OxygenStep
+    2 Steel
+    TerraformRating
+    -2 Plant<SoloOpponent>
+}
+Pink: PlayCard(MoholeArea) {
+    Pay(8 Steel, 4 MC)
+    PROD[4 Heat]
+    MoholeArea_SpecialTile<Vastitas_3_3>
+    2 Plant
+    3 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_3_4>
+    OxygenStep
+    4 MC
+    2 Plant
+    TerraformRating
+}
+Pink: PlayCard(NitrophilicMoss) {
+    Pay(8 MC)
+    PROD[2 Plant]
+    -2 Plant
+}
+Pink: PlayCard(MicroMills) {
+    Pay(3 MC)
+    PROD[Heat]
+}
+Pink: SendDelegate0 {
+    PartyFollower<Reds> FROM LobbyDelegate
+}
+Pink: Pass
+
+Pink: Production {
+    25 MC
+    Titanium
+    3 Steel
+    3 Plant
+    8 Heat
+}
+
+Pink: WorldGovernment {
+    OceanTile<Vastitas_5_3>! BY Admin
+}
+
+Pink: WorldGovernment {
+    PROD[MC]
+}
+
+Pink: GlobalEvent {
+    -0 Plant
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 4
+// Player-record evidence: globalsPerGeneration.
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>! THEN Placement<Vastitas_5_4>!)
+    NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>
+    2 Plant
+    9 MC
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    PROD[Heat]
+}
+Pink: PlayCard(OptimalAerobraking) {
+    Pay(1 Titanium, 3 MC)
+}
+Pink: PlayCard(GiantIceAsteroid) {
+    Pay(4 Titanium, 20 MC)
+    TemperatureStep
+    TemperatureStep
+    3 MC
+    3 Heat
+    2 TerraformRating
+    PROD[Heat]
+    -6 Plant<SoloOpponent>
+    OceanTile<Vastitas_6_6>
+    TerraformRating
+    PROD[MC]
+    2 Heat
+    Plant
+    6 MC
+    OceanTile<Vastitas_7_6>
+    TerraformRating
+    PROD[MC]
+    2 Heat
+    6 MC
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: SendDelegate0 {
+    PartyFollower<Reds> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Reds>
+}
+Pink: PlayCard(CloudSeeding) {
+    Pay(11 MC)
+    PROD[-MC]
+    PROD[2 Plant]
+    PROD[-Heat<SoloOpponent>]
+}
+Pink: Pass
+
+Pink: Production {
+    33 MC
+    Titanium
+    3 Steel
+    5 Plant
+    10 Heat
+}
+
+Pink: WorldGovernment {
+    OceanTile<Vastitas_5_8>! BY Admin
+}
+
+Pink: WorldGovernment {
+    PROD[MC]
+}
+
+Pink: GlobalEvent {
+    -2* TemperatureStep BY Admin
+    3 ProjectCard
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 5
+// Player-record evidence: globalsPerGeneration.
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>! THEN Placement<Vastitas_5_5>!)
+    NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>
+    TemperatureStep
+    5 MC
+    TerraformRating
+    PROD[Heat]
+    -3 MC
+}
+Pink: PlayCard(LocalShading) {
+    Pay(4 MC)
+}
+Pink: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+Pink: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Greens>
+}
+Pink: PlayCard(Algae) {
+    Pay(10 MC)
+    Plant
+    PROD[2 Plant]
+}
+Pink: Pass
+
+Pink: Production {
+    35 MC
+    Titanium
+    3 Steel
+    7 Plant
+    11 Heat
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Pink: GlobalEvent {
+    -0* MC
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 6
+// Player-record evidence: globalsPerGeneration.
+Pink: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(3 MC)
+}
+
+Pink: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Pink: PlayCard(LargeConvoy) {
+    Pay(2 Titanium, 30 MC)
+    2 ProjectCard
+    3 MC
+    3 Heat
+    5 Plant
+    OceanTile<Vastitas_6_7>
+    TerraformRating
+    PROD[MC]
+    ProjectCard
+    6 MC
+}
+Pink: SendDelegate0 {
+    PartyFollower<Scientists> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Scientists>
+}
+Pink: PlayCard(SupportedResearch) {
+    Pay(3 MC)
+    2 ProjectCard
+}
+Pink: PlayCard(MarsUniversity) {
+    Pay(4 Steel)
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>! THEN Placement<Vastitas_5_4>!)
+    NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>
+    2 Plant
+    9 MC
+}
+Pink: PlayCard(GiantSpaceMirror) {
+    Pay(17 MC)
+    PROD[3 Energy]
+}
+Pink: PlayCard(ElectroCatapult) {
+    Pay(5 Steel, 7 MC)
+    PROD[-Energy]
+}
+// Test inference: plant cost; all seven actions are constrained by subsequent steel
+// payments.
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Pink: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: PlayCard(ExtremeColdFungus) {
+    Pay(13 MC)
+}
+Pink: UseAction1(ExtremeColdFungus) {
+    Plant
+}
+Pink: Pass
+
+Pink: Production {
+    40 MC
+    Titanium
+    3 Steel
+    7 Plant
+    11 Heat
+    2 Energy
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Pink: GlobalEvent {
+    4 MC
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 7
+// Player-record evidence: globalsPerGeneration.
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>! THEN Placement<Vastitas_5_5>!)
+    NomadsMarker<Vastitas_5_5> FROM NomadsMarker<Vastitas_5_4>
+    TemperatureStep
+    5 MC
+    TerraformRating
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: PlayCard(MiningRights) {
+    Pay(3 Steel, 3 MC)
+    MiningRights_SpecialTile<Vastitas_6_9>
+    PROD[Titanium]
+    2 Titanium
+    3 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_5_9>
+    OxygenStep
+    4 MC VIA GreensPolicy
+    2 ProjectCard
+    3 MC
+    TerraformRating
+}
+Pink: PlayCard(Research) {
+    Pay(11 MC)
+    2 ProjectCard VIA Research
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Pink: PlayCard(LavaTubeSettlement) {
+    Pay(15 MC)
+    PROD[-Energy]
+    PROD[2 MC]
+    NormalCityTile<Vastitas_7_3>
+    Titanium
+    0 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_6_2>
+    OxygenStep
+    4 MC
+    2 ProjectCard
+    TerraformRating
+}
+Pink: PlayCard(AsteroidRights) {
+    Pay(3 Titanium, 1 MC)
+    2 Asteroid<AsteroidRights>
+}
+Pink: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+Pink: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+Pink: UseAction1(ExtremeColdFungus) {
+    Plant
+}
+Pink: PlayCard(Casinos) {
+    Pay(5 MC)
+    PROD[-Energy]
+    PROD[4 MC]
+}
+Pink: PlayCard(NuclearPower) {
+    Pay(10 MC)
+    PROD[-2 MC]
+    PROD[3 Energy]
+}
+Pink: PlayCard(Capital) {
+    Pay(26 MC)
+    PROD[-2 Energy]
+    PROD[5 MC]
+    CapitalTile<Vastitas_7_7, Capital>
+    2 Plant
+    9 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_8_7>
+    OxygenStep
+    4 MC VIA GreensPolicy
+    Plant
+    Steel
+    3 MC
+    TerraformRating
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_9_7>
+    OxygenStep
+    4 MC
+    ProjectCard
+    TerraformRating
+}
+Pink: PlayCard(MartianRails) {
+    Pay(1 Steel, 11 MC)
+}
+Pink: UseAction1(MartianRails) {
+    Pay(1 Energy)
+    4 MC
+}
+Pink: PlayCard(TitaniumMine) {
+    Pay(7 MC)
+    PROD[Titanium]
+}
+Pink: SendDelegate0 {
+    PartyLeader<MarsFirst> FROM LobbyDelegate
+}
+Pink: Pass
+
+Pink: Production {
+    56 MC
+    3 Titanium
+    3 Steel
+    7 Plant
+    11 Heat VIA Production
+    Heat FROM Energy VIA Energy
+    Energy
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Pink: GlobalEvent {
+    -12 Heat
+    -4 MC
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 8
+// Player-record evidence: globalsPerGeneration.
+Pink: Research {
+    -ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(9 MC)
+}
+
+Pink: Research {
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UsePolicy {
+    Pay(10 MC)
+    3 ProjectCard
+}
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>! THEN Placement<Vastitas_5_4>!)
+    NomadsMarker<Vastitas_5_4> FROM NomadsMarker<Vastitas_5_5>
+    2 Plant
+    9 MC
+}
+// Source explicitly preserves steel for later payments.
+// no steel paid
+Pink: PlayCard(CarbonNanosystems) {
+    Pay(14 MC)
+    Graphene<CarbonNanosystems>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Pink: PlayCard(AdvancedAlloys) {
+    Pay(9 MC)
+    Graphene<CarbonNanosystems>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+// no graphene paid
+// decline Comet for Venus's MC attack
+Pink: PlayCard(CometForVenus) {
+    Pay(2 Titanium, 3 MC)
+    VenusStep
+    3 MC VIA OptimalAerobraking
+    3 Heat
+    TerraformRating
+    ProjectCard
+    -0 MC<Anyone(HAS VenusTag)>
+}
+// no graphene paid
+Pink: PlayCard(ImportOfAdvancedGhg) {
+    Pay(2 Titanium, 1 MC)
+    PROD[2 Heat]
+    3 MC
+    3 Heat
+}
+Pink: PlayCard(GhgFactories) {
+    Pay(3 Steel, 2 MC)
+    PROD[-Energy]
+    PROD[4 Heat]
+}
+Pink: SendDelegate0 {
+    PartyFollower<Unity> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Unity>
+}
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Pink: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    2 Titanium
+}
+Pink: UseStandardProject(PowerPlantProject) {
+    Pay(11 MC)
+    PROD[Energy]
+}
+Pink: UseAction1(MartianRails) {
+    Pay(1 Energy)
+    4 MC
+}
+Pink: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+Pink: UseAction1(ExtremeColdFungus) {
+    Plant
+}
+Pink: PlayCard(SmallAnimals) {
+    Pay(6 MC)
+    PROD[-Plant<SoloOpponent>]
+}
+Pink: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+Pink: PlayCard(AsteroidMiningConsortium) {
+    Pay(13 MC)
+    PROD[Titanium]
+    PROD[-Titanium<SoloOpponent>]
+}
+Pink: Pass
+
+Pink: Production {
+    58 MC
+    4 Titanium
+    3 Steel
+    7 Plant
+    17 Heat
+    Energy
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Pink: GlobalEvent {
+    10 MC
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 9
+// Player-record evidence: globalsPerGeneration.
+// keep all four research cards
+Pink: Research {
+    -0 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(12 MC)
+}
+
+Pink: Research {
+    4 ProjectCard<Hand FROM Selecting>
+}
+
+// no graphene paid
+Pink: PlayCard(Shuttles) {
+    Pay(2 Titanium)
+    PROD[-Energy]
+    PROD[2 MC]
+}
+// no graphene paid
+Pink: PlayCard(BigAsteroid) {
+    Pay(5 Titanium)
+    TemperatureStep
+    TemperatureStep
+    4 Titanium
+    3 MC
+    3 Heat
+    2 TerraformRating
+    -4 Plant<SoloOpponent>
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+    OceanTile<Vastitas_5_7>
+    TerraformRating
+    PROD[MC]
+    2 Plant
+    9 MC
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_5_4>! THEN Placement<Vastitas_6_4>!)
+    NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_5_4>
+    Plant
+    6 MC
+}
+Pink: PlayCard(PowerSupplyConsortium) {
+    Pay(5 MC)
+    PROD[-Energy<SoloOpponent>]
+    PROD[Energy]
+}
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Pink: SendDelegate0 {
+    PartyFollower<Greens> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Greens>
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Vastitas_3_5>
+    Plant
+    0 MC
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Vastitas_9_8>
+    Titanium
+    0 MC
+    // Source map variant: area 62 gives steel; our Vastitas map gives titanium.
+    ExMachina {
+        Steel
+        -Titanium
+    }
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Vastitas_4_4>
+    Plant
+    3 MC
+}
+// no graphene paid
+Pink: PlayCard(StanfordTorus) {
+    Pay(2 Titanium)
+    NormalCityTile<StanfordTorus_RemoteArea>
+}
+Pink: UseAction1(MartianRails) {
+    Pay(1 Energy)
+    7 MC
+}
+Pink: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+Pink: UseAction1(AsteroidRights) {
+    Pay(1 MC)
+    Asteroid<AsteroidRights>
+}
+Pink: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+Pink: UseAction1(ExtremeColdFungus) {
+    Plant
+}
+// The source has seven Mars cities before New Holland, satisfying its printed four-city
+// requirement.
+Pink: PlayCard(FakeNewHolland) {
+    Pay(2 Graphene<CarbonNanosystems>, 4 Steel)
+    PROD[3 MC]
+    // Unsupported component: source area 31 remains an ocean; collect its recorded adjacency
+    // reward.
+    ExMachina {
+        3 MC
+    }
+}
+Pink: Pass
+
+Pink: Production {
+    73 MC
+    4 Titanium
+    3 Steel
+    7 Plant
+    17 Heat
+    Energy
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Pink: GlobalEvent {
+    16 MC
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 10
+// Player-record evidence: globalsPerGeneration.
+Pink: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(3 MC)
+}
+
+Pink: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_6_3> FROM NomadsMarker<Vastitas_6_4>! THEN Placement<Vastitas_6_3>!)
+    NomadsMarker<Vastitas_6_3> FROM NomadsMarker<Vastitas_6_4>
+    3 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_4_6>
+    OxygenStep
+    4 MC VIA GreensPolicy
+    ProjectCard
+    6 MC
+    TerraformRating
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_8_8>
+    OxygenStep
+    4 MC
+    Steel
+    TerraformRating
+    TemperatureStep
+    TerraformRating
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_5_5>
+    OxygenStep
+    4 MC VIA GreensPolicy
+    TemperatureStep
+    5 MC
+    2 TerraformRating
+}
+Pink: PlayCard(SpecialDesign) {
+    Pay(4 MC)
+    SpecialDesign_NextCardEffect
+    Graphene<CarbonNanosystems>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Pink: PlayCard(DomedCrater) {
+    Pay(1 Graphene<CarbonNanosystems>, 4 Steel, 8 MC)
+    3 Plant
+    PROD[-Energy]
+    PROD[3 MC]
+    NormalCityTile<Vastitas_8_9>
+    Plant
+    0 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_5_4>
+    OxygenStep
+    4 MC VIA GreensPolicy
+    2 Plant
+    9 MC
+    TerraformRating
+}
+Pink: PlayCard(SpecialPermit) {
+    Pay(5 MC)
+    4 Plant FROM Plant<SoloOpponent>
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_7_8>
+    OxygenStep
+    4 MC VIA GreensPolicy
+    Plant
+    3 MC
+    TerraformRating
+}
+Pink: ConvertHeat {
+    Pay(8 Heat)
+    TemperatureStep
+    TerraformRating
+}
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Pink: UseAction2(AsteroidRights) {
+    -Asteroid<AsteroidRights>
+    PROD[MC]
+}
+Pink: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+Pink: PlayCard(FusionPower) {
+    Pay(14 MC)
+    PROD[3 Energy]
+    Graphene<CarbonNanosystems>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Pink: PlayCard(QuantumExtractor) {
+    Pay(13 MC)
+    PROD[4 Energy]
+    Graphene<CarbonNanosystems>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+// no graphene paid
+Pink: PlayCard(SolarLogistics) {
+    Pay(4 Titanium)
+    2 Titanium
+}
+Pink: SendDelegate0 {
+    PartyFollower<Scientists> FROM LobbyDelegate
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyFollower<Scientists>
+}
+Pink: SendDelegate5 {
+    Pay(5 MC)
+    PartyLeader<Scientists>
+}
+Pink: UseAction1(MartianRails) {
+    Pay(1 Energy)
+    8 MC
+    // Unsupported component: include New Holland in the source city count.
+    ExMachina {
+        MC
+    }
+}
+Pink: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+Pink: UseAction1(ExtremeColdFungus) {
+    Plant
+}
+Pink: Pass
+
+Pink: Production {
+    86 MC
+    4 Titanium
+    3 Steel
+    7 Plant
+    17 Heat
+    7 Energy
+}
+
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Pink: GlobalEvent {
+    PROD[3 Heat]
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 11
+// Player-record evidence: globalsPerGeneration.
+Pink: Research {
+    -2 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(6 MC)
+}
+
+Pink: Research {
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UsePolicy {
+    Pay(10 MC)
+    3 ProjectCard
+}
+Pink: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    2 TerraformRating
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Vastitas_4_1>
+    2 Steel
+    0 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_3_1>
+    OxygenStep
+    ProjectCard
+    0 MC
+    TerraformRating
+}
+Pink: PlayCard(AiCentral) {
+    Pay(5 Steel, 6 MC)
+    PROD[-Energy]
+    Graphene<CarbonNanosystems>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Pink: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+// Test inference: two stolen steel are required by the subsequent payments and final stock.
+Pink: PlayCard(HiredRaiders) {
+    Pay(1 MC)
+    2 Steel FROM Steel<SoloOpponent>
+}
+Pink: UseAction1(ExtremeColdFungus) {
+    Plant
+}
+Pink: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+Pink: UseAction1(MarsNomads) {
+    SelectTask(NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_6_3>! THEN Placement<Vastitas_6_4>!)
+    NomadsMarker<Vastitas_6_4> FROM NomadsMarker<Vastitas_6_3>
+    Plant
+    6 MC
+}
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Pink: UseAction1(LocalShading) {
+    Floater<LocalShading>
+}
+// no graphene paid
+Pink: PlayCard(GanymedeColony) {
+    Pay(4 Titanium)
+    NormalCityTile<GanymedeColony_RemoteArea>
+}
+Pink: PlayCard(KelpFarming) {
+    Pay(17 MC)
+    PROD[2 MC]
+    PROD[3 Plant]
+    2 Plant
+}
+// Test inference: the source gives the sale count, not card identities.
+Pink: UseStandardProject(SellPatentsProject) {
+    3 MC FROM ProjectCard
+}
+Pink: PlayCard(EquatorialMagnetizer) {
+    Pay(2 Steel, 5 MC)
+}
+Pink: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+Pink: SendDelegate0 {
+    PartyLeader<Greens> FROM LobbyDelegate
+}
+Pink: PlayCard(PublicBaths) {
+    Pay(6 MC)
+    6 MC
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Vastitas_4_7>
+    Plant
+    6 MC
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_4_8>
+    OxygenStep
+    3 MC
+    TerraformRating
+    PartyLeader<Scientists>
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Vastitas_8_6>
+    Plant
+    3 MC
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Vastitas_2_1>
+    2 Plant
+    0 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_4_5>
+    OxygenStep
+    3 MC
+    TerraformRating
+}
+Pink: UseAction1(MartianRails) {
+    Pay(1 Energy)
+    12 MC
+    // Unsupported component: include New Holland in the source city count.
+    ExMachina {
+        MC
+    }
+}
+Pink: PlayCard(Greenhouses) {
+    Pay(6 MC)
+    14 Plant
+    // Unsupported component: New Holland is also a city for Greenhouses.
+    ExMachina {
+        Plant
+    }
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_4_2>
+    0 OxygenStep
+    Titanium
+    6 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_5_2>
+    0 OxygenStep
+    3 MC
+}
+Pink: Pass
+
+Pink: Production {
+    98 MC
+    4 Titanium
+    3 Steel
+    10 Plant
+    20 Heat VIA Production
+    5 Energy VIA Production
+    6 Heat FROM Energy
+}
+
+// No cards remain for Paradigm Breakdown to discard.
+Pink: WorldGovernment {
+    VenusStep! BY Admin
+}
+
+Pink: GlobalEvent {
+    -0 ProjectCard
+    2 MC
+}
+
+Pink: Research {
+    4 ProjectCard<Selecting>
+}
+
+// Generation 12
+// Player-record evidence: globalsPerGeneration.
+Pink: Research {
+    -3 ProjectCard<Selecting>
+}
+
+Pink: Research {
+    Pay(3 MC)
+}
+
+Pink: Research {
+    ProjectCard<Hand FROM Selecting>
+}
+
+Pink: UseAction1(AiCentral) {
+    2 ProjectCard
+}
+Pink: PlayCard(InventionContest) {
+    Pay(2 MC)
+    3 ProjectCard<Selecting> VIA InventionContest
+    ProjectCard<Hand FROM Selecting> VIA InventionContest
+    Graphene<CarbonNanosystems>
+    SelectTask(-ProjectCard! THEN ProjectCard!)
+    -ProjectCard
+    ProjectCard
+}
+Pink: PlayCard(GhgShipment) {
+    PROD[Heat]
+    Heat VIA GhgShipment
+    3 MC
+    3 Heat
+    ProjectCard
+}
+// no graphene paid
+// decline the Mars University exchange
+Pink: PlayCard(TransNeptuneProbe) {
+    Pay(1 Titanium)
+    Graphene<CarbonNanosystems>
+    Ok
+}
+Pink: PlayCard(FieldCappedCity) {
+    Pay(5 Graphene<CarbonNanosystems>, 3 Steel)
+    PROD[2 MC]
+    PROD[Energy]
+    3 Plant
+    NormalCityTile<Vastitas_6_8>
+    Plant
+    9 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_6_3>
+    0 OxygenStep
+    3 MC
+}
+Pink: UseAction2(LocalShading) {
+    -Floater<LocalShading>
+    PROD[MC]
+}
+Pink: UseAction1(EquatorialMagnetizer) {
+    PROD[-Energy]
+    TerraformRating
+}
+Pink: UseAction1(ExtremeColdFungus) {
+    Plant
+}
+Pink: UseAction1(ElectroCatapult) {
+    Pay(1 Plant)
+    7 MC
+}
+Pink: UseAction1(SmallAnimals) {
+    Animal<SmallAnimals>
+}
+Pink: SendDelegate0 {
+    PartyLeader<Kelvinists> FROM LobbyDelegate
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_2_2>
+    0 OxygenStep
+    2 Plant
+    0 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_1_1>
+    0 OxygenStep
+    Plant
+    0 MC
+}
+Pink: PlayCard(Trees) {
+    Pay(13 MC)
+    PROD[3 Plant]
+    Plant
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_2_5>
+    0 OxygenStep
+    Plant
+    0 MC
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_3_6>
+    0 OxygenStep
+    0 MC
+}
+Pink: UseStandardProject(CityProject) {
+    Pay(25 MC)
+    PROD[MC]
+    NormalCityTile<Vastitas_2_3>
+    0 MC
+}
+Pink: UseAction1(MartianRails) {
+    Pay(1 Energy)
+    14 MC
+    // Unsupported component: include New Holland in the source city count.
+    ExMachina {
+        MC
+    }
+}
+Pink: UseStandardProject(GreeneryProject) {
+    Pay(23 MC)
+    GreeneryTile<Vastitas_9_9>
+    0 OxygenStep
+    Steel
+    0 MC
+    // Source map variant: area 63 gives titanium; our Vastitas map gives steel.
+    ExMachina {
+        Titanium
+        -Steel
+    }
+}
+Pink: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Pink: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Pink: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Pink: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Pink: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Pink: UseStandardProject(AirScrappingProject) {
+    Pay(15 MC)
+    VenusStep
+    TerraformRating
+}
+Pink: Pass
+
+Pink: Production {
+    108 MC
+    4 Titanium
+    3 Steel
+    13 Plant
+    21 Heat VIA Production
+    5 Energy VIA Production
+    4 Heat FROM Energy
+}
+
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_2_4>
+    0 MC
+}
+Pink: ConvertPlants {
+    Pay(8 Plant)
+    GreeneryTile<Vastitas_7_9>
+    0 MC
+}
+// decline final greenery
+// Player-record evidence: globalsPerGeneration.
+Pink {
+    Ok
+}
+
+// Player-record evidence: occupied Mars spaces; area 31 retains its ocean under FakeNewHolland.
+// Player-record evidence: after final production and both final greenery placements.
+// The source has 15 cities. FakeNewHolland deliberately contributes no CityTile.
+Pink {
+    159 VictoryPoint
+}
+// The fake's four points stand for the missing city's four neighboring greeneries.
+// _local/replays/Game20261031/p9a4445506f19/player-p9a4445506f19.json; final Mars map. New
+// Holland is represented by an ocean only; its city remains unsupported.
