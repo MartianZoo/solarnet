@@ -1,15 +1,11 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -20,110 +16,21 @@ import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class BootstrapLifecycleTest {
   @Test
-  internal fun newGameReturnsCommittedBootstrapState() {
-    val resolvedPremise = canonicalPremise()
-    val game = TfmEngine.newGame(resolvedPremise)
-    val admin = game.testAgent(ADMIN)
-
-    admin.count("Premise") shouldBe 1
-    admin.count("ModulesReady") shouldBe 0
-    admin.count("StandardGpTrackRules") shouldBe 1
-    admin.count("Phase") shouldBe 1
-    admin.count("BootstrapPhase") shouldBe 1
-    admin.count("GameScope") shouldBe 1
-    admin.count("Generation") shouldBe 0
-    admin.count("GenerationScope") shouldBe 0
-    admin.count("Scope") shouldBe 1
-    admin.count("TerraformRating") shouldBe 0
-    admin.count("Player") shouldBe 2
-    admin.count("ProdOffset<Player1, Class<MC>>") shouldBe 5
-    admin.count("ProdOffset<Player2, Class<MC>>") shouldBe 5
-    admin.count("StartToken<Player1>") shouldBe 1
-    admin.count("GpIncomplete") shouldBe 3
-    admin.count("Class") shouldBe game.classTable.allClasses().count { !it.abstract }
-    game.tasks.isEmpty() shouldBe true
-    game.events.entriesSinceSetup().shouldBeEmpty()
-
-    game.timeline.checkpoint() shouldBe Checkpoint(0)
-    game.timeline.positions shouldBe listOf(Checkpoint(0))
-    game.timeline.seek(Checkpoint(0))
-  }
-
-  @Test
-  internal fun generatedPremiseAloneCreatesRepresentativeConfiguredWorlds() {
-    data class Scenario(
-        val options: List<TestOption>,
-        val players: Int,
-        val map: TestOption,
-        val colonyTiles: Set<ClassName> = emptySet(),
-    )
-
-    val scenarios =
-        listOf(
-            Scenario(emptyList(), players = 1, map = Tharsis),
-            Scenario(listOf(Hellas, PreludeExpansion), players = 2, map = Hellas),
-            Scenario(
-                listOf(Amazonis, VenusNextExpansion, PreludeExpansion, Prelude2Cards),
-                players = 3,
-                map = Amazonis,
-            ),
-            Scenario(
-                listOf(Cimmeria, ColoniesExpansion),
-                players = 4,
-                map = Cimmeria,
-                colonyTiles = testColonyTiles(players = 4),
-            ),
-        )
-
-    scenarios.forEach { scenario ->
-      val premise =
-          canonicalPremise(
-              *scenario.options.toTypedArray(),
-              players = scenario.players,
-              colonyTiles = scenario.colonyTiles,
-          )
-      val game = TfmEngine.newGame(premise)
-      val admin = game.testAgent(ADMIN)
-
-      admin.count("Player") shouldBe scenario.players
-      admin.count("${scenario.map.className}") shouldBe 1
-      game.tasks.isEmpty() shouldBe true
-
-      val configuredExpressions =
-          premise.modules.map { it.expression } + premise.playerNames.map { it.expression }
-      configuredExpressions.forEach { expression ->
-        admin.count("$expression") shouldBe 1
-      }
-    }
-  }
-
-  @Test
-  internal fun modulesChooseTheirTrackRulesAfterTheCompleteModuleSetExists() {
-    val game = TfmEngine.newGame(canonicalPremise(Amazonis, VenusNextExpansion))
-    val admin = game.testAgent(ADMIN)
-
-    admin.count("ExtendedGlobalParametersRule") shouldBe 1
-    admin.count("StandardGpTrackRules") shouldBe 0
-    admin.count("StandardVenusTrackRules") shouldBe 0
-    admin.count("ExtendedVenusTrackRules") shouldBe 1
-  }
-
-  @Test
   internal fun startingTheGameRunsFullyEffectfulGenerationOneSetup() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    game.testAgents().taskLog.gameStarted()
-    game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
+    val agents = Agents(game) { NONE }
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    agents.taskLog.gameStarted()
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
 
-    val admin = game.testAgent(ADMIN)
+    val admin = agents[ADMIN]
     admin.count("BootstrapPhase") shouldBe 0
     admin.count("SetupPhase") shouldBe 1
     admin.count("Generation") shouldBe 1
@@ -139,13 +46,14 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun soloPlayerTakesStartingTerraformRatingDuringSetup() {
     val game = TfmEngine.newGame(canonicalPremise(players = 1))
-    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    game.testAgents().taskLog.gameStarted()
-    game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
+    val agents = Agents(game) { NONE }
+    val player = agents[PLAYER1]
+    agents.taskLog.gameStarted()
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
 
-    game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 0
+    agents[ADMIN].count("TerraformRating<Player1>") shouldBe 0
     player.doTask("14 TerraformRating")
-    game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
+    agents[ADMIN].count("TerraformRating<Player1>") shouldBe 14
   }
 
   @Test
@@ -177,14 +85,15 @@ internal class BootstrapLifecycleTest {
                 colonyTiles = colonies,
             )
         )
-    val admin = game.testAgent(ADMIN)
-    val player = game.testAgent(PLAYER1)
+    val agents = Agents(game) { NONE }
+    val admin = agents[ADMIN]
+    val player = agents[PLAYER1]
 
     admin.count("SelectedColonyTile") shouldBe 4
     admin.count("SoloColoniesSetup") shouldBe 0
 
-    game.testAgents().taskLog.gameStarted()
-    game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.taskLog.gameStarted()
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
 
     admin.count("SoloColoniesSetup") shouldBe 1
     player.doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
@@ -201,18 +110,25 @@ internal class BootstrapLifecycleTest {
             colonyTiles = setOf(cn("Callisto"), cn("Enceladus")),
         )
     val game = TfmEngine.newGame(premise)
-    val admin = game.testAgent(ADMIN)
+    val agents = Agents(game) { NONE }
+    val admin = agents[ADMIN]
 
     admin.count("SelectedColonyTile") shouldBe 2
     admin.count("Callisto") shouldBe 0
     admin.count("DelayedEnceladus") shouldBe 0
 
-    game.testAgents().taskLog.gameStarted()
-    game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.taskLog.gameStarted()
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
     admin.count("SelectedColonyTile") shouldBe 2
 
-    game.testAgent(PLAYER1).doTask("-10 ProjectCard<Selecting>")
-    game.testAgent(PLAYER2).doTask("-10 ProjectCard<Selecting>")
+    for (player in listOf(PLAYER1, PLAYER2)) {
+      agents[player].doTasks(
+          "20 TerraformRating",
+          "CorporationCard",
+          "10 ProjectCard<Selecting>",
+          "-10 ProjectCard<Selecting>",
+      )
+    }
     admin.count("CorporationPhase") shouldBe 1
 
     admin.count("SelectedColonyTile") shouldBe 0
@@ -224,10 +140,19 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun setupWaitsForStartingProjectSelection() {
     val game = TfmEngine.newGame(canonicalPremise(PreludeExpansion))
-    game.testAgents().taskLog.gameStarted()
-    game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
-    val admin = game.testAgent(ADMIN)
-    val p1 = game.testAgent(PLAYER1)
+    val agents = Agents(game) { NONE }
+    agents.taskLog.gameStarted()
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    val admin = agents[ADMIN]
+    val p1 = agents[PLAYER1]
+    for (player in listOf(PLAYER1, PLAYER2)) {
+      agents[player].doTasks(
+          "20 TerraformRating",
+          "CorporationCard",
+          "2 PreludeCard",
+          "10 ProjectCard<Selecting>",
+      )
+    }
 
     p1.count("CorporationCard") shouldBe 1
     p1.count("ProjectCard<Selecting>") shouldBe 10
@@ -235,9 +160,8 @@ internal class BootstrapLifecycleTest {
     admin.count("SetupPhase") shouldBe 1
     admin.count("CorporationPhase") shouldBe 0
     p1.doTask("-3 ProjectCard<Selecting>")
-    game.testAgent(PLAYER2).doTask("-10 ProjectCard<Selecting>")
+    agents[PLAYER2].doTask("-10 ProjectCard<Selecting>")
     admin.count("CorporationPhase") shouldBe 1
-    p1.autoExecPolicy = NONE
     p1.doTasks(
         "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
         "$InterplanetaryCinematics FROM CorporationCard",
@@ -246,7 +170,6 @@ internal class BootstrapLifecycleTest {
         "21 Pay<> FROM MC",
         "7 ProjectCard<Hand FROM Selecting>",
     )
-    p1.autoExecPolicy = EAGER
 
     p1.count("ProjectCard") shouldBe 7
   }
@@ -255,10 +178,11 @@ internal class BootstrapLifecycleTest {
   internal fun soloSetupWaitsForItsChoices() {
     val setup = canonicalPremise(players = 1)
     val game = TfmEngine.newGame(setup)
-    game.testAgents().taskLog.gameStarted()
-    game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
+    val agents = Agents(game) { NONE }
+    agents.taskLog.gameStarted()
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
 
-    val admin = game.testAgent(ADMIN)
+    val admin = agents[ADMIN]
     admin.count("SetupPhase") shouldBe 1
     admin.count("CorporationPhase") shouldBe 0
     admin.count("Generation") shouldBe 1

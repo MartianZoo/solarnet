@@ -44,7 +44,7 @@ internal class SoloPremiseTest {
           GameFileImporter.replay(
               document,
               Canon,
-              newAgents = { Agents(TfmEngine.newGame(it)) },
+              newAgents = { Agents(TfmEngine.newGame(it)) { NONE } },
               startGame = {
                 it.taskLog.gameStarted()
                 it[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")

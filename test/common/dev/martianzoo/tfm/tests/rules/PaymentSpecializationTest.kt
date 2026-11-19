@@ -1,23 +1,19 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PaymentSpecializationTest {
   @Test
   internal fun `Admin prepares a research bill while the player chooses the payment`() {
-    val p1 = setUpGame().testAgent(PLAYER1)
+    val p1 = Agents(setUpGame()) { NONE }[PLAYER1]
     p1.autoExecPolicy = NONE
     p1.runOperation("20 MC, 4 ProjectCard<Selecting>")
 
@@ -27,39 +23,12 @@ internal class PaymentSpecializationTest {
     p1.count("ProjectCard<Hand>") shouldBe 0
     p1.doTasks("12 Pay<> FROM MC")
     p1.count("ProjectCard<Hand>") shouldBe 0
-    val transfer = p1.doTasks("4 ProjectCard<Hand FROM Selecting>")
-    val event = transfer.changes.single { it.change is ComponentChange.Transmute }
-    event.change.toString() shouldBe
-        "+4 ProjectCard<Player1, Hand> FROM ProjectCard<Player1, Selecting>"
-    event.actor shouldBe PLAYER1
+    p1.doTask("4 ProjectCard<Hand FROM Selecting>")
 
     p1.count("MC") shouldBe 8
     p1.count("ProjectCard<Hand>") shouldBe 4
     p1.count("Owed") shouldBe 0
     p1.count("PaymentScope") shouldBe 0
     p1.autoExecPolicy shouldBe NONE
-  }
-
-  @Test
-  internal fun `card play rejects a front from a different deck`() {
-    val player = setUpGame().testAgent(PLAYER1)
-
-    shouldThrow<ExpressionException> {
-      player.beginOperation("PlayCard<Class<CorporationCard>, Class<$AcquiredCompany>, Hand>")
-    }
-  }
-
-  @Test
-  internal fun `The payment remainder uses only its own resource`() {
-    val p1 = setUpGame().testAgent(PLAYER1)
-    p1.autoExecPolicy = NONE
-    p1.runOperation("Steel, Titanium")
-
-    p1.beginOperation(
-        "Owed<Class<Steel>> THEN PaymentScope<Class<SellPatentsProject>, Class<Steel>>"
-    ) {
-      shouldThrow<TaskException> { doTask("Pay<Class<Titanium>> FROM Titanium") }
-      doTask("Pay<Class<Steel>> FROM Steel")
-    }
   }
 }

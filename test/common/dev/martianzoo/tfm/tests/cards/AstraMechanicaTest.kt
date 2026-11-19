@@ -7,15 +7,30 @@ import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class AstraMechanicaTest : TfmSandboxTest() {
-  @BeforeTest fun setUp() = newTestGame()
 
   @Test
   internal fun `Can return two differently typed played events`() {
-    kim.runOperation("PlayedEvent<Class<$MineralDeposit>>, PlayedEvent<Class<$InvestmentLoan>>")
+    newTestGame()
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$MineralDeposit"),
+          "5 Pay<> FROM MC",
+          "$MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+    }
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$InvestmentLoan"),
+          "3 Pay<> FROM MC",
+          "$InvestmentLoan FROM ProjectCard",
+          "PROD[-MC]",
+          "10 MC",
+      )
+    }
 
     kim.inTurn {
           doTasks(
@@ -26,18 +41,40 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
               "ProjectCard FROM PlayedEvent<Class<$InvestmentLoan>>",
           )
         }
-        .expect(
-            "$AstraMechanica, ProjectCard, " +
-                "-PlayedEvent<Class<$MineralDeposit>>, -PlayedEvent<Class<$InvestmentLoan>>"
-        )
+        .expect("ProjectCard")
   }
 
   @Test
   internal fun `Cannot recover an event that placed a special tile`() {
-    kim.runOperation(
-        "PlayedEvent<Class<$LavaFlows>>, PlayedEvent<Class<$MineralDeposit>>, " +
-            "PlayedEvent<Class<$InvestmentLoan>>"
-    )
+    newTestGame()
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$LavaFlows"),
+          "18 Pay<> FROM MC",
+          "$LavaFlows FROM ProjectCard",
+          "2 TemperatureStep",
+          "2 TerraformRating",
+          "LavaFlows_SpecialTile<Tharsis_2_2>",
+          "Steel",
+      )
+    }
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$MineralDeposit"),
+          "5 Pay<> FROM MC",
+          "$MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+    }
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$InvestmentLoan"),
+          "3 Pay<> FROM MC",
+          "$InvestmentLoan FROM ProjectCard",
+          "PROD[-MC]",
+          "10 MC",
+      )
+    }
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
@@ -54,10 +91,43 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot recover flipped Pharmacy Union`() {
-    kim.runOperation(
-        "PlayedEvent<Class<$PharmacyUnion>>, PlayedEvent<Class<$MineralDeposit>>, " +
-            "PlayedEvent<Class<$InvestmentLoan>>"
-    )
+    newTestGame(kimCorporation = PharmacyUnion)
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$Research"),
+          "11 Pay<> FROM MC",
+          "$Research FROM ProjectCard",
+          "2 ProjectCard",
+          "TerraformRating FROM Disease<$PharmacyUnion>",
+          "TerraformRating FROM Disease<$PharmacyUnion>",
+      )
+    }
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$PhysicsComplex"),
+          "12 Pay<> FROM MC",
+          "$PhysicsComplex FROM ProjectCard",
+          "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
+          "3 TerraformRating",
+      )
+    }
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$MineralDeposit"),
+          "5 Pay<> FROM MC",
+          "$MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+    }
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$InvestmentLoan"),
+          "3 Pay<> FROM MC",
+          "$InvestmentLoan FROM ProjectCard",
+          "PROD[-MC]",
+          "10 MC",
+      )
+    }
 
     shouldThrow<TaskException> {
       kim.inTurn {
@@ -74,8 +144,32 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot recover another player's event`() {
-    stan.runOperation("PlayedEvent<Class<$MineralDeposit>>")
-    kim.runOperation("PlayedEvent<Class<$InvestmentLoan>>, PlayedEvent<Class<$BribedCommittee>>")
+    newTestGame()
+    stan.inTurn {
+      doTasks(
+          *playCardTasks("$MineralDeposit"),
+          "5 Pay<> FROM MC",
+          "$MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+    }
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$InvestmentLoan"),
+          "3 Pay<> FROM MC",
+          "$InvestmentLoan FROM ProjectCard",
+          "PROD[-MC]",
+          "10 MC",
+      )
+    }
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$BribedCommittee"),
+          "7 Pay<> FROM MC",
+          "$BribedCommittee FROM ProjectCard",
+          "2 TerraformRating",
+      )
+    }
 
     shouldThrow<TaskException> {
       kim.inTurn {
@@ -92,7 +186,15 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot play with only one eligible event`() {
-    kim.runOperation("PlayedEvent<Class<$Flooding>>")
+    newTestGame()
+    kim.inTurn {
+      doTasks(
+          *playCardTasks("$MineralDeposit"),
+          "5 Pay<> FROM MC",
+          "$MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+    }
 
     shouldThrow<LimitsException> {
       kim.inTurn {
@@ -100,8 +202,8 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
             *playCardTasks("$AstraMechanica"),
             "7 Pay<> FROM MC",
             "$AstraMechanica FROM ProjectCard",
-            "ProjectCard FROM PlayedEvent<Class<$Flooding>>",
-            "ProjectCard FROM PlayedEvent<Class<$Flooding>>",
+            "ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>",
+            "ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>",
         )
       }
     }

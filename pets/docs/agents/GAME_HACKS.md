@@ -169,8 +169,6 @@ This example gives a determinate solo outcome rather than pretending that a neut
 an official finite wealth to count.
 
 **Source:** `SoloStandardResourceReserve` in [solo.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/solo.pets).
-[CanonClassesTest](../../../test/common/dev/martianzoo/tfm/tests/rules/CanonClassesTest.kt) exercises the
-backing stocks and their replenishment.
 
 ### 5. Tharsis receives a substitute payout for solo cities placed too early
 
@@ -282,8 +280,6 @@ card can follow the printed box exactly, but copying finds two `PROD` nodes and 
 condition inside one `PROD[...]` is an accommodation to the copier.
 
 **Source:** `CopyProductionBox` in [TfmEngine.kt](../../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt).
-[CopyProductionBoxTest](../../../test/common/dev/martianzoo/tfm/tests/rules/CopyProductionBoxTest.kt) makes
-one of the required spelling restrictions explicit.
 
 ### 13. Double Down recognizes only nonautomatic direct effects
 

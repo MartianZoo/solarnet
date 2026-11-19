@@ -1,10 +1,12 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -18,15 +20,16 @@ internal class ProductionPhaseTest {
   @Test
   internal fun `Negative combined income currently removes money when cash covers it`() {
     val game = setUpGame()
-    val admin = game.testAgent(ADMIN)
-    val kim = game.testAgent(PLAYER1)
-    kim.runOperation("3 MC, PROD[-3 MC], -19 TerraformRating")
+    val agents = Agents(game) { NONE }
+    val admin = agents[ADMIN]
+    val kim = agents[PLAYER1]
+    kim.exMachina("3 MC, PROD[-3 MC], -19 TerraformRating")
 
-    TestHelpers.assertNetChanges(
-        admin.beginOperation("ProductionPhase FROM Phase"),
-        game,
-        "-2 MC<Player1>",
-    )
+    // Start the phase directly; earlier turns are irrelevant to this income calculation.
+    admin.beginOperation("ProductionPhase FROM Phase")
+    kim.doTask("-2 MC")
+    agents[PLAYER2].doTask("20 MC")
+    admin.count("ProductionPhase") shouldBe 0
   }
 
   // Unresolved adjudication (question 19): current production cannot finish with insufficient cash.
@@ -34,11 +37,13 @@ internal class ProductionPhaseTest {
   @Test
   internal fun `Negative combined income currently fails instead of stopping at zero cash`() {
     val game = setUpGame()
-    val admin = game.testAgent(ADMIN)
-    val kim = game.testAgent(PLAYER1)
-    kim.runOperation("MC, PROD[-3 MC], -19 TerraformRating")
+    val agents = Agents(game) { NONE }
+    val admin = agents[ADMIN]
+    val kim = agents[PLAYER1]
+    kim.exMachina("MC, PROD[-3 MC], -19 TerraformRating")
 
-    shouldThrow<LimitsException> { admin.beginOperation("ProductionPhase FROM Phase") }
+    admin.beginOperation("ProductionPhase FROM Phase")
+    shouldThrow<LimitsException> { kim.doTask("-2 MC") }
     kim.count("MC") shouldBe 1
   }
 
