@@ -59,6 +59,7 @@ internal constructor(
 
   private val componentAdjustments: Map<ClassName, Int>
   private val premiseClassDeclarations: Set<ClassDeclaration>
+  private var lastDefaultPreview: GamePremise? = null
 
   init {
     val configuredPlayerNames = playerNames
@@ -125,6 +126,17 @@ internal constructor(
 
   /** Completes the exact selections and the ordinary Pets declaration that initializes them. */
   internal fun build(): GamePremise {
+    val premise = snapshot()
+    val preview = lastDefaultPreview ?: return premise
+    // Selection order also determines the order in which roots are processed and diagnosed.
+    return if (
+        preview == premise && preview.classSelections.toList() == premise.classSelections.toList()
+    )
+        preview
+    else premise
+  }
+
+  private fun snapshot(): GamePremise {
     val modules = moduleNames
     val resolvedSelections = linkedMapOf<ClassName, Boolean>()
     included.forEach { resolvedSelections[it] = true }
@@ -161,7 +173,9 @@ internal constructor(
   public fun omitImpossibleDefaults(defaults: Set<ClassName>) {
     val remaining = (defaults.intersect(included) - excluded).toMutableSet()
     while (remaining.isNotEmpty()) {
-      val impossible = build().impossibleSelectedClasses(remaining)
+      val preview = snapshot()
+      val impossible = preview.impossibleSelectedClasses(remaining)
+      lastDefaultPreview = preview
       if (impossible.isEmpty()) return
       included.removeAll(impossible)
       excluded.addAll(impossible)
