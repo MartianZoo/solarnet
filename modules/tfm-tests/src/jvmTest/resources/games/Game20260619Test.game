@@ -167,39 +167,22 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
 
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 2
-// First player this generation is KB
-// ER bought 3 card(s)
-// You bought Business Contacts,Lagrange Observatory,Solar Wind Power
-// KB bought 2 card(s)
-// You bought Magnetic Field Generators,Power Supply Consortium
-Player1: Research {
+    // Generation 2
+    // First player this generation is KB
+    // ER bought 3 card(s)
+    // You bought Business Contacts,Lagrange Observatory,Solar Wind Power
+    // KB bought 2 card(s)
+    // You bought Magnetic Field Generators,Power Supply Consortium
     -ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(9 MC)
-}
-
-Player1: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
-}
-
-Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -280,39 +263,22 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
 
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 3
-// First player this generation is ER
-// KB bought 2 card(s)
-// You bought Soil Factory,Kelp Farming
-// ER bought 2 card(s)
-// You bought Natural Preserve,Nuclear Zone
-Player1: Research {
+    // Generation 3
+    // First player this generation is ER
+    // KB bought 2 card(s)
+    // You bought Soil Factory,Kelp Farming
+    // ER bought 2 card(s)
+    // You bought Natural Preserve,Nuclear Zone
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
-}
-
-Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -431,39 +397,22 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
 
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 4
-// First player this generation is KB
-// KB bought 2 card(s)
-// You bought Regolith Eaters,Power Plant
-// ER bought 2 card(s)
-// You bought Industrial Center,Miranda Resort
-Player1: Research {
+    // Generation 4
+    // First player this generation is KB
+    // KB bought 2 card(s)
+    // You bought Regolith Eaters,Power Plant
+    // ER bought 2 card(s)
+    // You bought Industrial Center,Miranda Resort
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
-}
-
-Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -535,39 +484,22 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
 
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 5
-// First player this generation is ER
-// KB bought 2 card(s)
-// You bought Investment Loan,Tectonic Stress Power
-// ER bought 2 card(s)
-// You bought Micro-Mills,Lava Tube Settlement
-Player1: Research {
+    // Generation 5
+    // First player this generation is ER
+    // KB bought 2 card(s)
+    // You bought Investment Loan,Tectonic Stress Power
+    // ER bought 2 card(s)
+    // You bought Micro-Mills,Lava Tube Settlement
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
-}
-
-Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 

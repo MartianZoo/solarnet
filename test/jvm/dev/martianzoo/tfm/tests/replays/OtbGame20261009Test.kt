@@ -2323,6 +2323,9 @@ internal class OtbGame20261009Test : FullGameTest() {
     // "Wow, this is a really meager pile of cards I've got." "It was a fun game." "Always is."
     // "138." "Well, if you take off the one and you reverse the other two digits, you have my
     // score. Congratulations, son." "Good game."
+    p1.doTask("83 VictoryPoint")
+    p2.doTask("139 VictoryPoint")
+
     p1.assertCounts(83 to "VictoryPoint", 0 to "Victory")
     // Engine categories total 139: 56 TR, 15 milestones, 10 awards, 7 greeneries,
     // 11 cities, and 40 card points. The spoken 138 has no supplied category breakdown.

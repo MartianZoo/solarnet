@@ -148,33 +148,15 @@ ER: Production {
 
 ER: Research {
     4 ProjectCard<Selecting>
-}
-
-KB: Research {
-    4 ProjectCard<Selecting>
-}
-
-ER: Research {
     -ProjectCard<Selecting>
-}
-
-ER: Research {
     Pay(9 MC)
-}
-
-ER: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 KB: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-KB: Research {
     Pay(6 MC)
-}
-
-KB: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 

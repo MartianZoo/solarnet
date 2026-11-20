@@ -16,7 +16,9 @@ Terraforming Mars defines `Action1` through `Action3` as global slots, and its a
 unused slots with `Die` effects. Every concrete Canon `HasActions` class has an authored action,
 so lowering makes each react to all three slots without repeating the missing slots in source.
 Standard actions are `HasActions` providers. The base game creates its fixed providers;
-Scientists and Kelvinists policies offer their actions directly while their policies exist.
+Scientists and Kelvinists policies inherit `UsePolicyAction : StandardAction` and offer their
+actions while their policies exist. `UseAction<UsePolicyAction, Action1>` selects the current
+provider without naming a party; a ruling policy without an action supplies no matching provider.
 `StandardAction` imposes no minimum count, so those temporary providers can disappear normally.
 For example,
 `ConvertPlantsAction { 8 Plant -> PlaceGreeneryTile }` uses the same fixed-cost lowering as a

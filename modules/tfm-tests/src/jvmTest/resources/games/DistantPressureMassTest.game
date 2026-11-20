@@ -128,33 +128,15 @@ Keen: WorldGovernment {
 // Generation 2
 Keen: Research {
     4 ProjectCard<Selecting>
-}
-
-Been: Research {
-    4 ProjectCard<Selecting>
-}
-
-Keen: Research {
     -ProjectCard<Selecting>
-}
-
-Keen: Research {
     Pay(9 MC)
-}
-
-Keen: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Been: Research {
     Pay(15 MC)
-}
-
-Been: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -238,35 +220,19 @@ Been: WorldGovernment {
 // Generation 3
 Keen: Research {
     4 ProjectCard<Selecting>
+
+    // Keep all four research cards.
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
-}
 
-// Keep all four research cards.
-Keen: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Keen: Research {
-    Pay(12 MC)
-}
-
-Keen: Research {
-    4 ProjectCard<Hand FROM Selecting>
-}
-
-// Screenshot evidence: generation-3-research.png, after Keen's purchase and before Been's.
-Been: Research {
+    // Screenshot evidence: generation-3-research.png, after Keen's purchase and before Been's.
     -2 ProjectCard<Selecting>
-}
-
-Been: Research {
     Pay(10 MC)
-}
-
-Been: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -348,35 +314,18 @@ Keen: WorldGovernment {
 // Generation 4
 Keen: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
-}
 
-// Screenshot evidence: generation-4-research.png, before either player's purchase.
-Been: Research {
+    // Screenshot evidence: generation-4-research.png, before either player's purchase.
     -3 ProjectCard<Selecting>
-}
-
-Been: Research {
     Pay(5 MC)
-}
-
-Been: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-Keen: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Keen: Research {
-    Pay(6 MC)
-}
-
-Keen: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: UseAction2(ExtractorBalloons) {
@@ -477,34 +426,16 @@ Been: WorldGovernment {
 // Generation 5
 Keen: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
-}
-
-Been: Research {
     -2 ProjectCard<Selecting>
-}
-
-Been: Research {
     Pay(10 MC)
-}
-
-Been: Research {
     2 ProjectCard<Hand FROM Selecting>
-}
-
-Keen: Research {
-    -ProjectCard<Selecting>
-}
-
-Keen: Research {
-    Pay(9 MC)
-}
-
-Keen: Research {
-    3 ProjectCard<Hand FROM Selecting>
 }
 
 Keen: Trade3 {
@@ -618,33 +549,15 @@ Keen: WorldGovernment {
 // Generation 6
 Keen: Research {
     4 ProjectCard<Selecting>
-}
-
-Been: Research {
-    4 ProjectCard<Selecting>
-}
-
-Keen: Research {
     -2 ProjectCard<Selecting>
-}
-
-Keen: Research {
     Pay(6 MC)
-}
-
-Keen: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Been: Research {
     Pay(10 MC)
-}
-
-Been: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -785,35 +698,18 @@ Been: WorldGovernment {
 // Generation 7
 Keen: Research {
     4 ProjectCard<Selecting>
+
+    // Keep all four research cards.
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
-}
-
-Been: Research {
     -ProjectCard<Selecting>
-}
-
-Been: Research {
     Pay(15 MC)
-}
-
-Been: Research {
     3 ProjectCard<Hand FROM Selecting>
-}
-
-// Keep all four research cards.
-Keen: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Keen: Research {
-    Pay(12 MC)
-}
-
-Keen: Research {
-    4 ProjectCard<Hand FROM Selecting>
 }
 
 Keen: PlayCard(RadSuits) {
@@ -979,35 +875,18 @@ Keen: WorldGovernment {
 // Generation 8
 Keen: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
-}
 
-// Screenshot evidence: generation-8-research.png, before either player's purchase.
-Been: Research {
+    // Screenshot evidence: generation-8-research.png, before either player's purchase.
     -3 ProjectCard<Selecting>
-}
-
-Been: Research {
     Pay(5 MC)
-}
-
-Been: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-Keen: Research {
-    -ProjectCard<Selecting>
-}
-
-Keen: Research {
-    Pay(9 MC)
-}
-
-Keen: Research {
-    3 ProjectCard<Hand FROM Selecting>
 }
 
 Been: UseStandardProject(GreeneryProject) {
@@ -1186,33 +1065,15 @@ Been: WorldGovernment {
 // Generation 9
 Keen: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
-}
-
-Been: Research {
     -2 ProjectCard<Selecting>
-}
-
-Been: Research {
     Pay(10 MC)
-}
-
-Been: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Keen: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Keen: Research {
-    Pay(6 MC)
-}
-
-Keen: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1428,34 +1289,16 @@ Keen: WorldGovernment {
 // Generation 10
 Keen: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
-}
-
-Been: Research {
     -3 ProjectCard<Selecting>
-}
-
-Been: Research {
     Pay(5 MC)
-}
-
-Been: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-Keen: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Keen: Research {
-    Pay(6 MC)
-}
-
-Keen: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: PlayCard(FieldCappedCity) {
@@ -1628,34 +1471,16 @@ Been: WorldGovernment {
 // Generation 11
 Keen: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
-}
-
-Been: Research {
     -3 ProjectCard<Selecting>
-}
-
-Been: Research {
     Pay(5 MC)
-}
-
-Been: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-Keen: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Keen: Research {
-    Pay(6 MC)
-}
-
-Keen: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 Keen: PlayCard(SubZeroSaltFish) {

@@ -191,13 +191,18 @@ internal class ZeroCountTaskTest {
   }
 
   @Test
-  fun `distinct zero tasks for the same type remain ambiguous`() {
+  fun `only Agent combines distinct zero metric tasks`() {
     agent.addTasks("Foo / Meter, Foo / Bar")
     val before = game.events.nextOrdinal
 
-    shouldThrow<TaskException> { agent.doTask("0 Foo") }
-
+    shouldThrow<TaskException> {
+      game.actorEngine(PLAYER1).doTask(parse<InstructionTree>("0! Foo"))
+    }
     game.events.nextOrdinal shouldBe before
+
+    agent.doTask("0 Foo").changes.isEmpty() shouldBe true
+    game.tasks.isEmpty() shouldBe true
+    agent.count("Notice") shouldBe 0
   }
 
   @Test

@@ -2395,6 +2395,9 @@ internal class Game20230521Test : FullGameTest() {
     )
     p2.doTask("Ok") // no more greenery
 
+    p1.doTask("126 VictoryPoint")
+    p2.doTask("92 VictoryPoint")
+
     p1.assertCounts(126 to "VictoryPoint", 1 to "Victory")
     p2.assertCounts(92 to "VictoryPoint", 0 to "Victory")
   }

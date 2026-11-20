@@ -8,6 +8,7 @@ import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.CardTracking
@@ -22,6 +23,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
   private fun newTrackedGame(
       expansions: String = "PreludeExpansion",
       requireSelectingNames: Boolean = false,
+      namesFor: ((NamesRequiredException) -> List<ClassName>)? = null,
   ): Pair<CardTracking, Player> {
     val config = GameConfig(expansions, "Player1")
     game =
@@ -29,7 +31,52 @@ internal class CardTrackingTest : TfmSandboxTest() {
             withTestTurmoilDeck(withTestSoloSetup(canonicalCatalog(config).gamePremise(config)))
         )
     val player = game.actors.filterIsInstance<Player>().single()
-    return CardTracking.start(agents, requireSelectingNames) to player
+    return CardTracking.start(agents, requireSelectingNames, namesFor) to player
+  }
+
+  @Test
+  internal fun requestedNamesSurviveAnEnclosingRollbackAndAreRevalidated() {
+    var requests = 0
+    val (tracking, player) =
+        newTrackedGame(
+            namesFor = {
+              requests++
+              it.count shouldBe 1
+              listOf(cn("Mine"))
+            }
+        )
+    val agent = agents[player]
+    val before = game.events.nextOrdinal
+    shouldThrow<IllegalStateException> {
+      game.timeline.atomic {
+        agent.runOperation("ProjectCard")
+        tracking.hand(player) shouldBe setOf(cn("Mine"))
+        error("Later work failed")
+      }
+    }
+    game.events.nextOrdinal shouldBe before
+    agent.count("ProjectCard") shouldBe 0
+    tracking.hand(player) shouldBe emptySet()
+    agent.runOperation("ProjectCard")
+    tracking.hand(player) shouldBe setOf(cn("Mine"))
+    requests shouldBe 1
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun requestedNamesCannotDuplicateACardAlreadyHeld() {
+    val (tracking, player) = newTrackedGame(namesFor = { listOf(cn("Mine")) })
+    val agent = agents[player]
+    agent.runOperation("ProjectCard")
+    val before = game.events.nextOrdinal
+    shouldThrow<IllegalStateException> { agent.runOperation("ProjectCard") }
+    game.events.nextOrdinal shouldBe before
+    agent.count("ProjectCard") shouldBe 1
+    tracking.hand(player) shouldBe setOf(cn("Mine"))
+    tracking.replacePendingArrivals(player, cn("TitaniumMine"))
+    agent.runOperation("ProjectCard")
+    tracking.hand(player) shouldBe setOf(cn("Mine"), cn("TitaniumMine"))
+    tracking.requireComplete()
   }
 
   @Test
@@ -432,7 +479,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun automaticDrawWaitsForItsName() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
-    agents.taskLog.start()
     agent.autoExecPolicy = NONE
     val taskId = agent.addTasks("ProjectCard").single()
     val before = game.events.nextOrdinal

@@ -141,33 +141,15 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
-}
-
-Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -243,33 +225,15 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
-}
-
-Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -354,33 +318,15 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -3 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(3 MC)
-}
-
-Player1: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
-}
-
-Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -490,33 +436,15 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(9 MC)
-}
-
-Player1: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(9 MC)
-}
-
-Player2: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -628,34 +556,17 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
 
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-// keep all four
-Player1: Research {
+    // keep all four
     -0 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(12 MC)
-}
-
-Player1: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
-}
-
-Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -811,33 +722,15 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(9 MC)
-}
-
-Player1: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(3 MC)
-}
-
-Player2: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -952,33 +845,15 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
-}
-
-Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1124,33 +999,15 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(9 MC)
-}
-
-Player1: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
-}
-
-Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1371,33 +1228,15 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(9 MC)
-}
-
-Player2: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1613,33 +1452,15 @@ Player2: Production {
 
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(3 MC)
-}
-
-Player2: Research {
     ProjectCard<Hand FROM Selecting>
 }
 

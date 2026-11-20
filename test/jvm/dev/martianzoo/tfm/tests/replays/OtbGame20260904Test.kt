@@ -3831,6 +3831,10 @@ internal class OtbGame20260904Test : FullGameTest() {
     // Thermalist 29–12 over Green. Everyone except Yellow has a milestone.
     // 9:47:14 PM — Spoken totals are Green 70, Yellow 70, and Blue 73. Rainbow retracts her 85
     // because she had double-counted card-resource points, so her spoken total is not asserted.
+    yellow.doTask("70 VictoryPoint")
+    rainbow.doTask("86 VictoryPoint")
+    blue.doTask("73 VictoryPoint")
+    green.doTask("70 VictoryPoint")
 
     // The complete engine categories reproduce the spoken totals for Yellow, Blue, and Green.
     // Rainbow's categories total 86; her spoken 85 is the explicitly corrected, unreliable tally.

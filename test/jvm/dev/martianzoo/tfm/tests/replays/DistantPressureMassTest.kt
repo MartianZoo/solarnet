@@ -2077,6 +2077,8 @@ internal class DistantPressureMassTest : FullGameTest() {
     }
     keen.assertCounts(1 to "ProjectCard")
     been.assertCounts(0 to "ProjectCard")
+    keen.doTask("117 VictoryPoint")
+    been.doTask("99 VictoryPoint")
 
     keen.assertCounts(47 to "TerraformRating", 117 to "VictoryPoint", 1 to "Victory")
     been.assertCounts(45 to "TerraformRating", 99 to "VictoryPoint", 0 to "Victory")

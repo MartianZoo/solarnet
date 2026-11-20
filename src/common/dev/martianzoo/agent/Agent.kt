@@ -186,25 +186,31 @@ public interface Agent {
    * pending task's quantifier, the pending quantifier is retained; an explicitly written quantifier
    * must be compatible with the task's quantifier.
    *
+   * A requested child can identify a unique path through EACH, OR, and groups using the shared
+   * engine matcher. Containers are opened and only that child executes; other children remain
+   * pending. Direct and hidden matches compete equally. Ambiguity or failed execution restores the
+   * containers as well as the requested change. Containers whose opening exposes eligible Admin
+   * work must currently be opened explicitly so that Admin can finish before the request.
+   *
    * With no selected task, a concrete gain/removal (including an atomized group) can instead name
    * the signed total of this Actor's gains/removals at the currently eligible deferral of exactly
    * that Type. Agent considers fixed amounts and `/` calculations directly wrapping a change,
-   * ignores zero amounts, and requires at least two matches with a shared quantifier. An
+   * includes zero amounts, and requires at least two matches with a shared quantifier. An
    * unspecified amount prevents combining; an explicit submitted quantifier must match. Agent uses
    * all such matches, never searches subsets, and prefers their total even when an individual task
-   * has that amount. It executes each matched task separately by ID, gains before removals,
-   * preserving its effects and continuation. Newly caused tasks cannot join the total. Any failure
-   * rolls back this call. If the total does not match, ordinary task matching applies. Explicit
-   * task IDs bypass totals; the context-Class overload restricts the considered tasks to that
-   * Class.
+   * has that amount. A distinct matching OR/container path prevents using the total. It executes
+   * each matched task separately by ID, gains before removals, preserving its effects and
+   * continuation. Newly caused tasks cannot join the total. Any failure rolls back this call. If
+   * the total does not match, ordinary task matching applies. Explicit task IDs bypass totals; the
+   * context-Class overload restricts the considered tasks to that Class.
    *
    * A submitted zero count retains its Type constraint: `0 Foo` can match `Foo / metric` when the
    * metric evaluates to zero. An unrelated `Ok` alternative does not identify a matching task. A
    * zero count emits no component changes unless it names offsetting nonzero tasks as above.
    *
-   * Selection or narrowing may transfer the task to another Actor, including Admin for a System
-   * `System` change. Executing NOW consumes the dispatcher and gives its recipient selected work;
-   * the recipient supplies remaining choices and executes through its own Agent. Configured
+   * Selection or narrowing may transfer the task to another Actor, including Admin for a `System`
+   * change. Executing NOW consumes the dispatcher and gives its recipient selected work; the
+   * recipient supplies remaining choices and executes through its own Agent. Configured
    * autoexecution runs, but a successful assignee transfer may leave that recipient's task
    * selected. Admin failures restore the whole call. SOON and other consequences may leave ordinary
    * pending work.
@@ -230,6 +236,23 @@ public interface Agent {
    * operation, such as [completeOperation] or [continueOperation], restores that whole operation.
    */
   public fun doTasks(vararg narrowings: String): TaskResult
+
+  /**
+   * Executes this Actor's explicit request, releasing matching NOW work through [releasedBy]. Both
+   * Agents must belong to the same session and be Players. An already selected task executes
+   * normally. Otherwise, matching fixed/metric amounts include this Actor's currently eligible
+   * tasks and NOW bodies addressed to it in the releaser's queue. A combined request must equal
+   * their whole signed total; no subset is searched, and newly caused work does not join the
+   * snapshot.
+   *
+   * Each release and recipient execution is recorded separately through its proper Actor.
+   * Participating Player autoexecution is suppressed while those explicit steps execute; ordinary
+   * configured handling follows the completed call. Any failure restores the entire call. Requests
+   * not eligible for totals must identify a task through ordinary matching across the recipient's
+   * own tasks and available NOW bodies. Only a matching release is executed. Later THEN stages
+   * remain pending for separate requests.
+   */
+  public fun doTask(narrowing: String, releasedBy: Agent): TaskResult
 
   /** Uses [doTask]'s matching and total rules, restricted to tasks caused by [contextClass]. */
   public fun doTask(narrowing: String, contextClass: ClassName): TaskResult

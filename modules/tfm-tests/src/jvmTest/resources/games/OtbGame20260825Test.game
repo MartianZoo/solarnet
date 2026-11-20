@@ -199,37 +199,21 @@ Yellow: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+
+    // Keep all four Research cards.
+    -0 ProjectCard<Selecting>
+    Pay(4 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-// 9:47:18 pm: Green's TerraLabs purchase buttons record four one-M€ purchases; Yellow's app
-// records two ordinary purchases for six M€.
-Yellow: Research {
+    // 9:47:18 pm: Green's TerraLabs purchase buttons record four one-M€ purchases; Yellow's app
+    // records two ordinary purchases for six M€.
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
-}
-
-// Keep all four Research cards.
-Green: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(4 MC)
-}
-
-Green: Research {
-    4 ProjectCard<Hand FROM Selecting>
 }
 
 // The ocean at 9,5 gives "two money and two plants for placing, two money and two plants
@@ -317,35 +301,18 @@ Yellow: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-// "I'm buying four cards. For four money." Yellow buys three.
-// Keep all four Research cards.
-Green: Research {
+    // "I'm buying four cards. For four money." Yellow buys three.
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(4 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(9 MC)
-}
-
-Yellow: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -473,35 +440,18 @@ Green: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Green buys four cards, leaving 17 M€. Yellow keeps three.
-// Keep all four Research cards.
-Green: Research {
+    // Green buys four cards, leaving 17 M€. Yellow keeps three.
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(4 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(9 MC)
-}
-
-Yellow: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -624,35 +574,18 @@ Yellow: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Green buys four cards; Yellow buys one.
-// Keep all four Research cards.
-Green: Research {
+    // Green buys four cards; Yellow buys one.
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(4 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(3 MC)
-}
-
-Yellow: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -778,37 +711,21 @@ Green: ExMachina {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+
+    // Keep all four Research cards.
+    -0 ProjectCard<Selecting>
+    Pay(4 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-// 12:21:20 pm on Aug 26: Yellow buys two cards. TerraLabs lets Green buy all four for 1 M€
-// apiece.
-Yellow: Research {
+    // 12:21:20 pm on Aug 26: Yellow buys two cards. TerraLabs lets Green buy all four for 1 M€
+    // apiece.
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
-}
-
-// Keep all four Research cards.
-Green: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(4 MC)
-}
-
-Green: Research {
-    4 ProjectCard<Hand FROM Selecting>
 }
 
 // "I've used the convert heat standard action twice, which gets up to minus 24, so I get a
@@ -1038,37 +955,21 @@ Yellow: ExMachina {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+
+    // 12:45:28 pm: Green's TerraLabs research costs 1 M€ per card; Yellow buys all four at the
+    // ordinary 3-M€ rate.
+    // Keep all four Research cards.
+    -0 ProjectCard<Selecting>
+    Pay(4 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-// 12:45:28 pm: Green's TerraLabs research costs 1 M€ per card; Yellow buys all four at the
-// ordinary 3-M€ rate.
-// Keep all four Research cards.
-Green: Research {
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(4 MC)
-}
-
-Green: Research {
-    4 ProjectCard<Hand FROM Selecting>
-}
-
-// Keep all four Research cards.
-Yellow: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(12 MC)
-}
-
-Yellow: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1263,37 +1164,20 @@ Yellow: ExMachina {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-// "It's gen eight, which would make it my start ... let me get my absolute barrage of cards."
-// Green's TerraLabs research costs one M€ per card; Yellow's app records two cards bought for 6
-// M€.
-// Keep all four Research cards.
-Green: Research {
+    // "It's gen eight, which would make it my start ... let me get my absolute barrage of cards."
+    // Green's TerraLabs research costs one M€ per card; Yellow's app records two cards bought for 6
+    // M€.
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(4 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1531,35 +1415,18 @@ Yellow: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-// "I'm buying four cards." "I'll buy two cards." Green is first in Generation 9.
-// Keep all four Research cards.
-Green: Research {
+    // "I'm buying four cards." "I'll buy two cards." Green is first in Generation 9.
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(4 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1823,36 +1690,20 @@ Green: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+
+    // Keep all four Research cards.
+    -0 ProjectCard<Selecting>
+    Pay(4 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-// "I believe you begin." "Yeah, I'll also buy four cards. Boop."
-// Keep all four Research cards.
-Yellow: Research {
+    // "I believe you begin." "Yeah, I'll also buy four cards. Boop."
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(12 MC)
-}
-
-Yellow: Research {
-    4 ProjectCard<Hand FROM Selecting>
-}
-
-// Keep all four Research cards.
-Green: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(4 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 

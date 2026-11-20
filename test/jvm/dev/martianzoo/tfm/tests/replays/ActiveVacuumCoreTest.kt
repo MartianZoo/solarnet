@@ -2656,6 +2656,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
 
     green.doTask("Ok") // decline final greenery
 
+    blue.doTask("74 VictoryPoint")
+    pink.doTask("78 VictoryPoint")
+    green.doTask("70 VictoryPoint")
+    purple.doTask("60 VictoryPoint")
+
     // Database save 626 and the final player API record: completed public boards and scores.
     blue.assertResources(m = 58, s = 1, t = 3, p = 5, e = 0, h = 12)
     blue.assertProduction(m = 18, s = 1, t = 3, p = 4, e = 0, h = 2)

@@ -2509,6 +2509,9 @@ internal class OtbGame20260825Test : FullGameTest() {
     // have fifteen out here." "All right, so I got 122." "What was your score?" "83 points." The
     // loose fourth Fish cube in the final photograph makes Green's rule-correct score 84; the
     // spoken tally evidently missed the displaced cube.
+    green.doTask("84 VictoryPoint")
+    yellow.doTask("122 VictoryPoint")
+
     green.assertCounts(84 to "VictoryPoint", 0 to "Victory")
     yellow.assertCounts(122 to "VictoryPoint", 1 to "Victory")
   }

@@ -9,15 +9,16 @@ owner decisions, and verification evidence are retained in
 ## Responsibility and scope
 
 The engine interprets submitted instructions, enforces the modeled rules, and maintains reversible
-game state. Agent supplies the client-facing calls, recording, application checks, mandatory Admin
+game state. Agent supplies the client-facing calls, application checks, mandatory Admin
 processing, and configured Player automatic behavior. The engine does not authenticate callers;
 [ADVERSARIAL.md](ADVERSARIAL.md) describes the surrounding application's responsibilities.
 
 Admin has no client to supply choices. The required automatic behavior is the work that supported
 Canon rules actually assign to Admin. Setup supplies information that rules cannot determine:
-Turmoil's complete shuffled event order and solo neutral tile locations are in the resolved premise
-and exported game files. Admin draws the next event and handles neutral delegate placement without
-incoming event identities or delegate choices.
+Turmoil's event order (which may be a recorded prefix) and solo neutral tile locations are in the
+resolved premise and exported game files. Drawing beyond the supplied event order fails. Admin
+draws the next event and handles neutral delegate placement without incoming event identities or
+delegate choices.
 
 Player inference is a limited convenience, not a promise to solve every underspecified request.
 Players can supply more specific instructions. Supporting hypothetical Admin tasks or general
@@ -51,8 +52,8 @@ named `EACH` instruction by creating its individual child tasks.
 `doTasks(a, b, c)` is a sequence of individually atomic `doTask` calls. If `c` throws, its changes
 are restored, `a` and `b` remain completed, and later arguments are not attempted. The failed call
 returns no result. A successful call reports the combined changes and surviving new tasks across
-all steps. An empty sequence does nothing. Recording stores the successful steps as ordinary
-`doTask` inputs; a failed later step does not erase them.
+all steps. An empty sequence does nothing. The event history retains successful steps; a failed
+later step does not erase them.
 
 Each engine mutation restores its transaction on an escaping `Throwable`. Other Agent mutation
 calls restore the entire call on an escaping failure, including successful earlier transactions
@@ -84,10 +85,37 @@ continuation, assignee, selection, and deferral. IDs and originating causes do n
 otherwise equivalent tasks; the executed task's actual cause remains in history. Different
 continuations require disambiguation even when the immediate reward is identical.
 
+`TaskMatcher` supplies the same read-only matching to execution and archive rendering. A request
+can identify work inside EACH, an OR arm, or a group. It must identify a unique structural path
+among both directly available work and work behind containers. Opening that path and performing
+the requested child is a single restoring command; other children remain pending. No ordinary
+change or THEN tail is executed to search for a match. OR arms permitting the same operation
+remain equivalent when their only difference is an already satisfied gate on that operation. Existing selection, priority, actor, and
+context restrictions still apply. A container with its own continuation or newly exposed eligible
+Admin work must currently be opened explicitly. `selectTask` chooses from currently exposed work
+without opening containers; it can explicitly choose the complete shorter arm of an OR whose
+other arm has the same head and a different continuation.
+
+The read-only instruction evaluator is shared with execution, rather than reimplemented by the
+exporter. A match establishes permission compatibility, not successful effects or invariant
+checks. Execution still validates the requested change and restores all preparation on failure.
+
 Separate pending tasks are separate permissions. Agent can translate an explicitly submitted
 resource total into several permitted changes, as with production income. Each change retains its
 own effects and follow-up work; the engine does not replace them with a net change or choose among
 permissions by trying their outcomes.
+
+The shared total matcher includes matching zero-valued calculations, so a final VP total also
+consumes cities that score zero. Scoring gains and losses are Player tasks; ending the game waits
+for them before determining the multiplayer winner.
+
+`recipient.doTask(text, releasedBy = activePlayer)` extends the same amount matching to current
+NOW bodies addressed to that recipient. It executes each release and recipient response through
+the corresponding Agent, records those steps separately, and restores the entire call on failure.
+The candidate snapshot excludes newly triggered rewards; a combined request must equal the whole
+matching total. For a non-total request, ordinary matching compares the recipient's own tasks
+with available NOW bodies before releasing any work. Participating Player autoexecution is
+suppressed during the explicit steps.
 
 ## Selection, narrowing, and execution
 

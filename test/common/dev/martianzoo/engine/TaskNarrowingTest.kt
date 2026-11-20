@@ -642,15 +642,17 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `doing only one instruction from a grouped arm is rejected atomically`() {
+  internal fun `a requested member identifies its grouped arm and leaves the other member pending`() {
     initiate("5 Plant OR (4 Heat, 2 Energy)")
 
-    shouldThrow<TaskException> { writer.doTask("4 Heat") }
+    writer.doTask("4 Heat")
 
-    writer.count("Heat") shouldBe 0
+    writer.count("Plant") shouldBe 0
+    writer.count("Heat") shouldBe 4
     writer.count("Energy") shouldBe 0
-    tasksAsText()
-        .shouldContainExactly("5! Plant<Player1> OR (4! Heat<Player1>, 2! Energy<Player1>)")
+    writer.doTask("2 Energy")
+    writer.count("Energy") shouldBe 2
+    tasks.isEmpty() shouldBe true
   }
 
   @Test

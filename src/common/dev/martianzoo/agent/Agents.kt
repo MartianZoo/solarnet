@@ -20,9 +20,6 @@ public class Agents(
     // TODO: migrate Players to a suitable smart policy; the user deferred default-policy cleanup.
     initialPolicy: (Actor) -> AutoExecPolicy = { AutoExecPolicy.EAGER },
 ) {
-  /** Opt-in task recording, including Player autoexecution; see [TaskLog] for supported scope. */
-  public val taskLog: TaskLog = TaskLog(world)
-
   /**
    * Optional application check for this session; fresh sessions and speculative copies have none.
    */
@@ -46,7 +43,7 @@ public class Agents(
     transactionGuard?.validate()
   }
 
-  private val autoExecLoop = AutoExecLoop(world, taskLog, ::validateApplication)
+  private val autoExecLoop = AutoExecLoop(world, ::validateApplication)
   private val elaborator = PetElaborator(world.classTable)
 
   private val agents: Map<Actor, Agent> =
@@ -56,7 +53,6 @@ public class Agents(
             world.actorEngine(it),
             elaborator,
             autoExecLoop,
-            taskLog,
             ::validateApplication,
             if (it == Actor.ADMIN) AutoExecPolicy.EAGER else initialPolicy(it),
         )

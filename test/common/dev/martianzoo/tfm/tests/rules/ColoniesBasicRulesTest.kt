@@ -91,7 +91,6 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
     solo.autoExecPolicy = NONE
 
     admin.assertCounts(0 to "ColonyTile", 4 to "SelectedColonyTile")
-    agents.taskLog.gameStarted()
     admin.beginOperation("SetupPhase FROM BootstrapPhase")
     solo.doTask("-SelectedColonyTile<Class<Luna>>")
     admin.assertCounts(

@@ -101,7 +101,6 @@ public class ScriptSession(
   ) {
     val candidateAgents = Agents(candidateGame) { if (it == ADMIN || purple) EAGER else NONE }
     val candidateAgent = candidateAgents[ADMIN]
-    candidateAgents.taskLog.gameStarted()
     candidateAgent.beginOperation("SetupPhase FROM BootstrapPhase")
     if (!purple) {
       // Outside purple mode the user changes phases, so the game does not leave setup on its own.

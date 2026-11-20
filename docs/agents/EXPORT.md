@@ -1,135 +1,248 @@
-# Full and faithful game export/import
+# Human-readable game archives
 
-> **Agent information:** Selected design and current implementation for native Solarnet game files.
-> Source and tests establish exact behavior.
->
-> **Read when:** changing game export/import, decision capture, recording comparison, or externally
-> supplied card identities.
->
-> **Status:** full and short file codecs, passive import, strict Agent replay, and replay decision
-> positions are implemented. Automatic card-input capture remains a follow-up.
+> **Agent information:** Current game export/import design and migration status.
+> **Read when:** changing archives, event reconstruction, or recorded card identities.
 
-## File and import contracts
+The language's priorities and accepted decisions are in the human-facing
+[game archive language design](../GAME_ARCHIVE_LANGUAGE.md). This note owns implementation status.
 
-`GameFileJson` in `state` encodes a resolved premise recipe, SHA-256 digests of the entire static
-Catalog data and the resolved premise, and a chronological `RecordedInput` list. The first input
-starts the game. Full files also retain the exact event history, including initialization, task
-events, and every event's notes. Playback positions are derived from transaction metadata rather
-than stored separately. An event's transaction is stored
-on the first event that carries it and inherited by the events that follow, so grouping survives
-export and import without enlarging the file; the format identifier is now `solarnet-game-5`.
-A task's instruction is a string for an individual instruction or an array of member strings for
-a selected group. The array preserves empty and singleton groups, whose printed text alone would
-lose their structure and change execution after import.
-`Document.open(catalog)` checks
-the hashes and creates a passive Game World without `engine`. A short file omits events
-but uses the same premise and input fields; state refuses to open it as an exact recording.
-Hashing uses Java `MessageDigest` on the JVM and Web Crypto in the browser. Web Crypto is
-asynchronous, so encoding and hash-checking import methods are suspend functions; browser callers
-need a secure context.
+## Single archive path
 
-The Catalog digest covers every authored and executable declaration, Module selections,
-availability, custom-class vocabulary dependencies, transform names, display names, and
-Catalog-provided fingerprint metadata. Terraforming Mars contributes bundle selection data and
-map definitions through that metadata. The premise digest covers every resolved signed selection,
-setup adjustment, occupied seat, complete game-specific draw order, bootstrap/premise class, and
-local declaration. Hashes exclude
-runtime Kotlin implementations; an equal data hash is not a claim that two different engine builds
-have identical behavior. Strict replay compares the behavior, and the format identifier can be
-advanced when the interpretation of the file changes.
+`GameArchiveExporter` and `GameArchiveImporter` live in `tfm-engine`. The exporter reads a
+`GameRecording` and the original compact `GameConfig`; the importer submits explicit Pets tasks
+through Agents with Player autoexecution disabled. There is no AUTO and no captured Agent-input
+stream. `TaskLog`, `RecordedInput`, `GameFileImporter`, the full/short JSON codecs, and their hash
+machinery have been removed. The engine still records events, and `GameRecording` still supports
+in-memory passive playback. It no longer has a separate game-file codec.
 
-Solo neutral tile locations are retained in the premise-local `SoloTileLocations` declaration,
-which the existing codec and premise digest already include. Both full and short files reconstruct
-the same two city/greenery pairs through automatic Admin execution; no recorded Admin placement
-commands or compatibility conversion are needed. `SoloPremiseTest` verifies both formats.
+Ordinary play is untracked. An optional `Cards` header records named movements and opts into
+CardTracking checks. It is not required for anonymous hands. `SetupRules` preserves premise-local
+Pets declarations, including custom player setup and solo neutral tile locations. The original
+GameConfig keeps card pools compact rather than listing the entire resolved catalog.
 
-`GameFileImporter` in `agent` checks hashes before constructing a live game. The caller supplies
-the game-specific runtime constructor and the game's start. Recorded commands are submitted
-through the corresponding Agent.
-A full import compares the multiset of component changes with Actor and causal ancestry, final
-components, and pending tasks with their causal ancestry. Raw event ordinals, task IDs, component
-change order among independent effects, and intermediate task revisions may differ. The importer
-copies source change notes to corresponding live changes after checking any notes produced by the
-new execution. A mismatch throws; there is no repair or discrepancy UI yet. Task-event notes stay
-in the exact passive recording because compacted task revisions need not have live counterparts.
+`FullGameTest.completedGameArchive()` exports `.game` text. Every JVM replay run imports its
+checked-in fixture through the same catalog and compares final inventory and pending tasks while
+ignoring task IDs and event ordinals. The opt-in export hook additionally writes and verifies a fresh
+uncommented export. `dumpEventlog` imports `.game` files before producing TSV. There is no JSON
+fallback. Old JSON exports are removed when an export run refreshes the directory.
 
-`TaskLog` captures successful Actor submissions through the task API. It
-records selections, single-task and batch execution, tries, drops, and `exMachina` as distinct
-operations. A `doTask` that hands work to another Player retains that execution command; NOW must execute to
-create the selected recipient task. The receiving Player's execution is recorded separately. Admin execution is omitted and repeated automatically during replay;
-Admin `HAS` assertions remain recorded. Its causal task selector helps replay target repeated
-tasks without storing source ordinals. Game start is mandatory. The replay fixture and its import
-callback record `agents.taskLog.gameStarted()`, then submit
-`SetupPhase FROM BootstrapPhase` through Admin's `beginOperation`. The game's own rules drive
-play from there.
-Unique task instructions omit ancestry from their selectors. Context-class disambiguation retains
-the caller's `contextClass` input, including when that class filters a submitted total. A handoff records the chosen task selector and the original command kind, so replay repeats
-selection or execution as submitted before the receiving Player acts.
-Full import compares complete causal ancestry through shared internal signatures, so authored
-phase flow does not require copying the entire preceding game for each change.
-Commands produced by game effects are consequences rather than Actor submissions. Intermediate
-form edits that only narrow an instruction may be omitted; selections and stateful operations stay.
+All 34 replay scenarios have fixtures under `modules/tfm-tests/src/jvmTest/resources/games/`, named
+for their Kotlin test class. These include the 27 active and seven older scenarios, including partial
+games. Source comments, dialogue, corrections, uncertainty, and named-card evidence are retained
+near the relevant entries; Kotlin-only TaskForm helper explanations remain in the test source.
+Generation methods supply headings where the source otherwise had no heading. The Kotlin tests
+retain their assertions and original commentary. Normal exports never overwrite these fixtures.
+When a replay changes, update its fixture deliberately and preserve the surrounding comments.
 
-`RecordedInput.CardInput` records a Player, card back, hand or Selecting movement, and ordered
-names, attached to the command that will need them. The importer passes these to a callback
-**before** the command. Production `CardTracking` exists, but `TaskLog` does not yet derive these
-inputs from its `Cards:` notes or supply them to a tracker automatically. A caller must attach card
-inputs when encoding a file and provide the import callback. Full files preserve existing `Cards:`
-notes exactly through passive state import; live import checks notes generated by a supplied tracker.
+## Migration verification
 
-## When to regenerate replay exports
+The November 11 local mockup remains under `_local/notes/game20261111-format-draft.game`.
+`./gradlew :tfm-tests:archiveDraftTest` compares each generation and final scoring, the multiset of
+all inventory changes, action order, and repeat-export stability. It also checks malformed input
+and incomplete/incorrect tasks. Optional paths are `-ParchiveFile=/absolute/input.game` and
+`-ParchiveOutput=/absolute/output.game`. Normal tests do not require that local file.
 
-Exports are generated artifacts of the current rules and replay tests. Do not maintain an expected
-hash of the evolving Catalog in tests, or edit hashes inside old exports to make them load.
-The import checks detect mismatched data; they are not an instruction to preserve an old hash.
-`Sha256Test` checks the platform hash implementations against fixed standard inputs.
+The user approved `VIA` for explicit source qualification through the normal task matcher.
+`SelectTask(...)` preserves choices such as Flooding's ocean-and-attack option. The approved
+CardTracking callback supplies names from the header during validation. Invalid names still fail
+and roll back the Agent command; ordinary games have no tracker. Flat nested card plays,
+card-held payments, granted actions, and recipient-prefixed payments are implemented.
+The original 36 scenarios passed both checked-in-fixture import and fresh export/re-import with
+equal final component counts and pending tasks. After removing the two replays that relied on
+test-only versions of New Holland, all 34 remaining scenarios passed the same checks. Three older solo replays now submit their existing expected VP
+totals explicitly. Pharmacy Union also verifies a linked choice whose System first step executes
+through Admin during selection; the exporter records that selection without a second execution.
+All 21 local archive tests pass, including every November 11 generation, all inventory changes, action order, stable repeated export, source qualification,
+invalid-source failures, payment/card-name failure behavior, trailing turn declines, and persistent
+deferred priorities. Verification command:
+`./gradlew :tfm-tests:archiveDraftTest :tfm-tests:replayTest :tfm-tests:archivedReplayTest -PreplayExports`.
+The full build passed after the turn-rule merge with `./gradlew build --max-workers=1`.
+An initial Wasm incremental-cache failure cleared after cleaning the affected Pets build outputs; the parallel retry hit browser
+timeouts. The successful serial build used the existing tests and time limits unchanged.
 
-Before using or distributing recordings, regenerate the affected exports when:
+The request-directed matching work was checked with all 643 engine and 85 Agent JVM tests,
+the full TFM JVM suite (1,368 cases, 26 existing skips), and then the final 10 focused archive
+cases after adding the exporter total check. All 36 fixture imports and fresh export/re-imports,
+all 21 local archive checks, and the active Web browser suite's two tests pass. Engine, Agent,
+and TFM JavaScript compile. The generated engine/Agent browser tasks are intentionally inert;
+they are not counted as executed browser tests.
 
-- Catalog data changes, including built-in Pets declarations, Canon cards, module selections,
-  display names, or map definitions. The Catalog hash covers unselected content too, so even a
-  change to a card absent from the recorded game requires regenerating exports using that Catalog.
-- A replay's setup, commands, supplied cards, corrections, or recorded notes change.
-- Engine behavior, task recording, or the game-file format changes. Kotlin implementation changes
-  are not included in the data hashes; a matching hash alone does not establish that an old
-  recording still describes the current execution.
+Compared with the commented fixtures, fresh exports contain 28 SelectTask lines instead of 201
+and 22 EACH lines instead of 34. The November 11 export contains neither, while its generation,
+inventory-change, action-order, and stable-export checks still pass. Existing fixture commentary
+has not been overwritten by generation.
 
-Documentation-only edits and presentation-only changes that do not alter Catalog data or recorded
-execution do not require regeneration. Ordinary builds and replay tests leave existing exports
-untouched; they do not certify that those exports are current.
+### Current draft syntax and ownership
 
-Run `./gradlew :tfm-tests:replayTest -PreplayExports --tests 'dev.martianzoo.tfm.tests.replays.*'`
-to refresh the active replay exports, or replace the filter with the affected replay's fully qualified
-test class when the change is confined to that replay. This writes full `.json` and short
-`.short.json` files under the `tfm-tests` module's `generated/replay-event-logs` build directory
-(relocated under `~/.gradle/solarnet-builds/` locally). The export hook does not replay the files or
-compare reconstructed components; import correctness belongs to dedicated tests. Require a
-successful test run before using the files, then refresh any copies bundled by a consuming app.
-If import reports a Catalog or premise hash mismatch, regenerate from the source replay against
-the intended current Catalog; do not patch the exported hash or weaken the check.
+`Setup` and `Research` are phase-checked groups of explicit tasks; no discard counts are inferred.
+`UseAction1/2(Name)` is for action cards. It uses an already granted card action when present,
+otherwise the existing card-action opener; standard projects follow the same rule.
+`UsePolicy` takes no argument: it submits `UseAction<UsePolicyAction, Action1>`, whose concrete
+provider is the current Scientists or Kelvinists policy. Costs and availability remain model rules.
+`ExMachina { ... }` submits a correction group together.
+`SelectTask(...)` passes its whole Pets expression to `Agent.selectTask`. It takes no body.
+A linked choice is recorded before its separately executed steps, for example:
 
-## Adjacent paths
+```text
+SelectTask(OceanTile<Amazonis_05_10>! THEN -3 MC<Blue>)
+OceanTile<Amazonis_05_10>
+-3 MC<Blue>
+```
 
-- JVM replay tests emit full `.json` and short `.short.json` files
-  when run with `-PreplayExports`. Default replay runs skip input recording and this export workflow.
-  The former `GameRecordingJson`, standalone TaskLog text export, and standalone `EventLogJson`
-  text codec were removed. `EventLogJson` remains an internal part of the full game-file codec.
-- `dumpEventlog` still produces a human TSV report from a full game file.
-- REPL `script`, command history, and `GameConfig` remain separate developer/setup facilities.
-  No game exporter currently generates REPL scripts.
-- The deleted Viewer is not a consumer. The separate `playground-vibes` branch consumes full
-  game files through `GameFileJson` and also provides live play. Its UI and packaging remain on
-  that branch.
-- A public-database ingester and a friendlier way to resolve mismatches come after the lockstep
-  format.
+The exporter obtains these choices from task edits that introduce a selected THEN continuation.
+Action invocations already handled by `PlayCard`/`UseAction` macros do not get duplicate selection
+lines. Player autoexecution remains disabled; normal Admin handling still applies.
+The importer no longer accepts the superseded research-count, unqualified setup-discard, or
+card-only action spellings. Blank lines group turns visually; they have no execution semantics.
+When a different player's action begins while the previous player still holds the Baton, the
+importer submits `Ok` to decline that player's optional second action. Baton completion itself is
+Admin work. The exporter omits that decline only when the next recorded step is another player's
+action; a trailing decline or a decline before intervening work remains explicit. Final greenery
+uses explicit `Ok`, never player-submitted `PassBaton`.
 
-## Remaining decisions
+Research is rendered as a single block per player per generation, containing the draw, discard,
+payment, and purchase transfer. Explicit corrections during research stay nested as ExMachina in
+that player's block. This intentionally collects each player's research even when the recording
+interleaves players' draws and purchases; source comments retain the original observations and
+timing. The importer needs no special handling for this grouping. All 36 fixtures and fresh
+programmatic exports verify the grouped research; the transformation is not a general claim that
+arbitrary pending tasks commute.
 
-- Derive structured card inputs from typed movements and `Cards:` notes, including multiple
-  Players/backs and repeated movements in a single task, then test short and full imports against
-  actual guarded play.
-- Decide whether non-card commentary must also be carried by short files. Today only the full
-  exact event stream retains arbitrary notes, while short files retain supplied card identities.
-- If two indistinguishable component changes have different notes, strict import pairs their notes
-  by the first matching generated note (or source occurrence when neither generated a note).
-  Verify that this is enough for real card-tracked replays.
+### Request-directed preparation
+
+The importer inherits EACH/group expansion and OR inference from the shared `TaskMatcher`; it
+has no retry loop that opens arbitrary pending work. The exporter's passive World supplies the
+same custom metric implementations as live TFM (including Neighbor). It snapshots state before
+structural choices and asks the matcher whether the next exact request identifies the recorded
+root and chosen continuation. It omits that preparation only when the match agrees and no
+intervening component changes or Admin work would move its evaluation. That request is kept
+separate from later amount aggregation so the proof still describes the text actually emitted.
+
+Group children are exported as the actual performed steps, not hidden behind a whole-group
+instruction that would execute unperformed siblings in a partial game. The exporter retains
+SelectTask for different continuations with an equal first step, or to distinguish an exposed
+task from a compatible task behind EACH. Selection refinement without intervening changes is
+rendered as the final choice. Export allows a stop between actions with the usual action offer
+still pending. It rejects an unfinished action, payment, or selected task.
+
+`GameArchiveInferenceTest` covers shorter generated EACH/group/linked-choice output, partial
+group execution, explicit ambiguous choices, and evaluation timing. `TaskPreparationTest` covers
+shared matching, combined-total ambiguity, source qualification, deferral, selected tasks,
+restoration, and refusing to bypass newly exposed Admin work. The exporter remains conservative:
+it does not collapse a chain of multiple preparation steps, infer a total spread across hidden
+children, or remove preparation across state changes.
+
+Other phase grouping may collect each player's tasks that were already eligible at the start of that
+block. Newly created tasks and work with a later priority begin a new block. This keeps a later
+step behind the other players' earlier work. Amount grouping checks all recorded eligible tasks,
+including tasks in subsequent blocks; it cannot emit a partial total because another player acted
+between the matching gains. `VIA`, granted-action detection, and shared total matching use current
+eligibility, since LATER/FINALLY priorities now persist until selection.
+
+An ambiguous raw task can name its source: `Animal<Pets> VIA Pets` submits
+`agent.doTask("Animal<Pets>", cn("Pets"))`. The ordinary matcher restricts candidates to that
+context and applies its usual matching and total rules. A wrong source fails; the importer does
+not try other sources or perform a separate match. VIA cannot qualify archive macros or blocks;
+recipient-prefixed VIA responses are not implemented. The exporter conservatively adds a source
+when other pending work could overlap. Combined complete totals deliberately remain unqualified.
+A zero-result `BY Admin` request keeps that wrapper and its original request instead of becoming
+an unqualified `Ok`.
+
+Typed zero requests such as `-0 Plant<Green>` pass unchanged to the shared matcher. So does
+`BY Admin`. Whether those qualifications may be omitted is a shared task-matching decision that
+must apply equally to programmatic calls and archives, not a syntax exception in this importer.
+
+### Strict prototype input
+
+Recognized commands reject unused arguments and unexpected bodies, including empty braces on raw
+Pets lines. Setup/research/production/solar labels and ExMachina require nonempty bodies.
+Argument lists reject empty members and mismatched delimiters. Config and GlobalEventDeck must
+be flat blocks in their defined positions; player names and listed event identities are checked.
+Pay parses each argument separately and requires exact positive integer amounts of supported
+resources. It must not silently discard an Ok, zero amount, optional quantity, or extra statement.
+
+The shared runtime accepts a distinct recorded global-event prefix, validates every listed name,
+and throws when a draw would exceed it. The importer passes the prefix unchanged; it neither pads
+the deck nor invents events. The failed Agent call rolls back, while earlier archive entries remain.
+
+Pay submits allocations in file order. Just before paying the exact-denomination remainder it
+closes unused optional offers; it also closes the zero remainder after alternatives cover the bill.
+For example, `Pay(4 Titanium, 2 MC)` reduces the bill before paying its MC remainder.
+Card-held resources use their ordinary Pets identity, e.g. `Pay(2 Microbe<Psychrophiles>, 5 MC)`.
+A recipient can pay inside another player's action, e.g. `Blue: Pay(3 Heat, 2 MC)`. The payment
+releases compatible NOW offers through the sending Agent and performs allocations and declines
+through Blue's Agent. Failure restores both players' pending tasks and all spent resources.
+A free play with no positive allocation retains an explicit zero payment task.
+Nested card plays are flat: `PlayCard(SpaceElevator)`, the explicit Excentric Sponsor discount,
+`Pay(2 MC)`, and production effects can all appear in the enclosing Prelude body.
+`Pay(2 MC, 4 Titanium)` fails without spending either resource. No reordering or independence proof
+is performed. REPL changes/sharing remain deferred.
+
+A nested recipient response such as `Pink: 4 MC` uses shared
+`Agent.doTask(text, releasedBy = activePlayer)`. The shared matcher can combine Pink's existing tasks
+and Green's pending NOW bodies addressed to Pink when their eligible amounts sum exactly to four.
+It uses every matching amount, never searches for a subset, and excludes newly triggered rewards.
+Releases and responses execute through their respective Players; failure restores the entire call.
+
+An ordinary response matches the recipient's own tasks and eligible NOW bodies together before
+anything is released. For example, a request for Pink's pending Plant leaves an unrelated NOW
+release for Pink's MC in Green's queue.
+
+Player-only blocks such as `Green { 92 VictoryPoint }` submit ordinary Pets requests. VictoryPoint
+is now non-System, so final scoring waits for each Player's explicit total. The shared matcher
+executes the individual scoring gains and losses, including zero-valued city scores; it does not
+assign a balance. Winner determination waits until this work finishes. The prototype has no
+scoring calculation or scoring autoexecution.
+
+### Arithmetic inventory direction
+
+The selected eventual goal is to read all changes to user-facing inventories from the file and
+compute their totals without executing game rules. The owner has not selected `Iconic` versus
+non-`System` as the exact criterion. Ruling bonuses remain deferred by the owner; explicit player
+scoring is now implemented. Vermin queues its deductions directly to the affected Players.
+
+The current model does not satisfy either blanket criterion:
+
+- `Resource`, `Production` and `TerraformRating` are Iconic and non-System. Turmoil ruling
+  payouts nevertheless execute through Admin because their unowned Party effects inherit that
+  Actor. `TurmoilPhase` immediately applies the annual TR loss; `Party.FormGovernment` immediately
+  applies chairman TR. These are real omissions from the arithmetic view.
+- All six ruling bonuses should be considered together in the next model step. Ordinary explicit
+  player dispatch is the promising mechanism; the exact sequencing must retain Reds' eligibility
+  before chairman TR. Changing assignment or introducing a wait must not re-evaluate eligibility
+  after the chairman gain. Existing programmatic replays must adapt to the shared rule.
+- `PartyLeader` placement immediately demotes the former leader. That changes Iconic, non-System
+  delegate inventories even when the original instruction is submitted by a Player. Player task
+  assignment alone does not make every consequence explicit. Card construction similarly creates
+  printed `Tag` parts without separate tasks.
+- `VictoryPoint` is now Iconic and non-System; `ActionUsedMarker` remains both Iconic and System.
+  Excluding System omits visible action-usage information; including every Iconic component includes derived tags and markers.
+  Neither label currently stands for “all changes the human must explicitly execute.”
+- Quantity and destination visibility is a separate requirement: `Pay(8 Plant)` and
+  `Heat FROM Energy` state concrete removals/gains (the omitted scalar is a single unit).
+  `4* Microbe` requires state to determine the actual amount and holder. A finished archive must
+  resolve those details if it claims arithmetic readability. `PlayCard(Name)` already names its
+  inferred card movement, but does not enumerate the card's printed tags.
+
+The relevant declarations are in Pets' `base/resources.pets`, `base/card-model.pets`,
+`base/scoring.pets`, and `turmoil/classes.pets`. Do not compensate by manufacturing inventory
+lines in the importer, adding hidden `exMachina` adjustments, or enabling player autoexecution.
+Routing and automatic-effect changes belong in the shared model/engine; task matching belongs in
+the shared matcher. Admin's automatic operation remains required for work still assigned to it.
+
+## Regenerating archives
+
+Run `./gradlew :tfm-tests:replayTest :tfm-tests:archivedReplayTest -PreplayExports` to regenerate
+fresh exports for all 34 scenarios. Omit `archivedReplayTest` for the 27 active games.
+A specific replay may be selected with `--tests 'fully.qualified.TestClass'`. Files are under the
+`tfm-tests` module's `generated/replay-event-logs` build directory, relocated beneath
+`~/.gradle/solarnet-builds/` locally. Successful export runs must also pass live re-import checks.
+Ordinary replay runs verify the checked-in fixtures and leave generated exports untouched.
+Fresh exports are a starting point for fixture updates, not permission to discard authored comments.
+
+Regenerate after changing rules, replay choices, configuration, corrections, card identities, or
+archive behavior. Preserve original source evidence separately; generated archives are not new
+independent evidence. Comments are supported in authored archives, but generated exports omit them.
+State-dependent requests such as `4* Microbe` still prevent a complete arithmetic inventory;
+spelling an actual resolved amount is a shared matcher/model issue, not permission for an import
+correction. REPL work and AUTO remain deferred.

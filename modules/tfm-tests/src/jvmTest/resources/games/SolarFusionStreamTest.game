@@ -213,50 +213,23 @@ ER: Production {
 // Generation 2
 JR: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 KB: Research {
     4 ProjectCard<Selecting>
-}
-
-ER: Research {
-    4 ProjectCard<Selecting>
-}
-
-ER: Research {
-    -3 ProjectCard<Selecting>
-}
-
-ER: Research {
-    Pay(3 MC)
-}
-
-ER: Research {
-    ProjectCard<Hand FROM Selecting>
-}
-
-KB: Research {
     -2 ProjectCard<Selecting>
-}
-
-KB: Research {
     Pay(6 MC)
-}
-
-KB: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
-JR: Research {
-    -ProjectCard<Selecting>
-}
-
-JR: Research {
-    Pay(9 MC)
-}
-
-JR: Research {
-    3 ProjectCard<Hand FROM Selecting>
+ER: Research {
+    4 ProjectCard<Selecting>
+    -3 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
 KB: UseAction1(RestrictedArea) {
@@ -350,50 +323,23 @@ ER: Production {
 // Generation 3
 JR: Research {
     4 ProjectCard<Selecting>
-}
-
-KB: Research {
-    4 ProjectCard<Selecting>
-}
-
-ER: Research {
-    4 ProjectCard<Selecting>
-}
-
-JR: Research {
     -3 ProjectCard<Selecting>
-}
-
-JR: Research {
     Pay(3 MC)
-}
-
-JR: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
-ER: Research {
-    -2 ProjectCard<Selecting>
-}
-
-ER: Research {
-    Pay(6 MC)
-}
-
-ER: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
 KB: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-KB: Research {
     Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
-KB: Research {
-    3 ProjectCard<Hand FROM Selecting>
+ER: Research {
+    4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 ER: UseAction1(TychoMagnetics) {
@@ -470,51 +416,26 @@ ER: Production {
 // Generation 4
 JR: Research {
     4 ProjectCard<Selecting>
-}
-
-KB: Research {
-    4 ProjectCard<Selecting>
-}
-
-ER: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Keep all four research cards.
-KB: Research {
-    -0 ProjectCard<Selecting>
-}
-
-KB: Research {
-    Pay(12 MC)
-}
-
-KB: Research {
-    4 ProjectCard<Hand FROM Selecting>
-}
-
-JR: Research {
     -3 ProjectCard<Selecting>
-}
-
-JR: Research {
     Pay(3 MC)
-}
-
-JR: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
-// Keep all four research cards.
-ER: Research {
+KB: Research {
+    4 ProjectCard<Selecting>
+
+    // Keep all four research cards.
     -0 ProjectCard<Selecting>
-}
-
-ER: Research {
     Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 ER: Research {
+    4 ProjectCard<Selecting>
+
+    // Keep all four research cards.
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -657,49 +578,22 @@ ER: Production {
 // Generation 5
 JR: Research {
     4 ProjectCard<Selecting>
-}
-
-KB: Research {
-    4 ProjectCard<Selecting>
-}
-
-ER: Research {
-    4 ProjectCard<Selecting>
-}
-
-JR: Research {
     -ProjectCard<Selecting>
-}
-
-JR: Research {
     Pay(9 MC)
-}
-
-JR: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 KB: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-KB: Research {
     Pay(9 MC)
-}
-
-KB: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 ER: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-ER: Research {
     Pay(6 MC)
-}
-
-ER: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -817,50 +711,24 @@ ER: Production {
 // Generation 6
 JR: Research {
     4 ProjectCard<Selecting>
-}
-
-KB: Research {
-    4 ProjectCard<Selecting>
-}
-
-ER: Research {
-    4 ProjectCard<Selecting>
-}
-
-ER: Research {
     -2 ProjectCard<Selecting>
-}
-
-ER: Research {
     Pay(6 MC)
-}
-
-ER: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
-// Keep all four research cards.
 KB: Research {
+    4 ProjectCard<Selecting>
+
+    // Keep all four research cards.
     -0 ProjectCard<Selecting>
-}
-
-KB: Research {
     Pay(12 MC)
-}
-
-KB: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
-JR: Research {
+ER: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-JR: Research {
     Pay(6 MC)
-}
-
-JR: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1047,51 +915,25 @@ ER: Production {
 // Generation 7
 JR: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 KB: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 ER: Research {
     4 ProjectCard<Selecting>
-}
 
-JR: Research {
-    -2 ProjectCard<Selecting>
-}
-
-JR: Research {
-    Pay(6 MC)
-}
-
-JR: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-// Keep all four research cards.
-ER: Research {
+    // Keep all four research cards.
     -0 ProjectCard<Selecting>
-}
-
-ER: Research {
     Pay(12 MC)
-}
-
-ER: Research {
     4 ProjectCard<Hand FROM Selecting>
-}
-
-KB: Research {
-    -2 ProjectCard<Selecting>
-}
-
-KB: Research {
-    Pay(6 MC)
-}
-
-KB: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 JR: UseAction1(SpaceMirrors) {
@@ -1266,51 +1108,25 @@ ER: Production {
 // Generation 8
 JR: Research {
     4 ProjectCard<Selecting>
-}
-
-KB: Research {
-    4 ProjectCard<Selecting>
-}
-
-ER: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Keep all four research cards.
-ER: Research {
-    -0 ProjectCard<Selecting>
-}
-
-ER: Research {
-    Pay(12 MC)
-}
-
-ER: Research {
-    4 ProjectCard<Hand FROM Selecting>
-}
-
-JR: Research {
     -ProjectCard<Selecting>
-}
-
-JR: Research {
     Pay(9 MC)
-}
-
-JR: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 KB: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-KB: Research {
     Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
-KB: Research {
-    2 ProjectCard<Hand FROM Selecting>
+ER: Research {
+    4 ProjectCard<Selecting>
+
+    // Keep all four research cards.
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 KB: UseAction1(RestrictedArea) {
@@ -1536,50 +1352,23 @@ ER: Production {
 // Generation 9
 JR: Research {
     4 ProjectCard<Selecting>
-}
-
-KB: Research {
-    4 ProjectCard<Selecting>
-}
-
-ER: Research {
-    4 ProjectCard<Selecting>
-}
-
-KB: Research {
-    -ProjectCard<Selecting>
-}
-
-KB: Research {
-    Pay(9 MC)
-}
-
-KB: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-ER: Research {
-    -ProjectCard<Selecting>
-}
-
-ER: Research {
-    Pay(9 MC)
-}
-
-ER: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-JR: Research {
     -3 ProjectCard<Selecting>
-}
-
-JR: Research {
     Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
-JR: Research {
-    ProjectCard<Hand FROM Selecting>
+KB: Research {
+    4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
+}
+
+ER: Research {
+    4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 ER: PlayCard(DeimosDownPromo) {

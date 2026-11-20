@@ -7,8 +7,6 @@ kotlin {
           listOf(rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/state"))
       )
       dependencies {
-        implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.kotlinx.serialization.json)
         implementation(
             "dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}"
         )
@@ -24,7 +22,6 @@ kotlin {
       )
       dependencies {
         implementation(libs.kotest.assertions.core)
-        implementation(libs.kotlinx.coroutines.test)
       }
     }
     jsMain {

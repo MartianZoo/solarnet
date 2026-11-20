@@ -965,6 +965,7 @@ internal class SoloGame20230721Test : FullGameTest() {
       assertTags(5, 7, 0, 5, 5, 1, 3, 2, 1, 0, 0)
 
       assertCounts(69 to "TerraformRating")
+      doTask("95 VictoryPoint")
       assertCounts(95 to "VictoryPoint")
       assertCounts(82 to "MC")
 

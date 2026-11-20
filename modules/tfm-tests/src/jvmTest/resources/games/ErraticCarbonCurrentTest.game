@@ -359,34 +359,16 @@ Blue: WorldGovernment {
 // Generation 2
 Blue: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
-}
-
-Blue: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(6 MC)
-}
-
-Blue: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 23 evidence: after both research purchases.
@@ -456,33 +438,15 @@ Pink: WorldGovernment {
 // Generation 3
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(3 MC)
-}
-
-Pink: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -537,33 +501,15 @@ Blue: WorldGovernment {
 // Generation 4
 Blue: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Blue: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -639,33 +585,15 @@ Pink: WorldGovernment {
 // Generation 5
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -3 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(3 MC)
-}
-
-Blue: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -774,34 +702,16 @@ Blue: WorldGovernment {
 // Generation 6
 Blue: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
-}
-
-Blue: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(6 MC)
-}
-
-Blue: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 133 evidence: after both research purchases.
@@ -895,33 +805,15 @@ Pink: WorldGovernment {
 // Generation 7
 Blue: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Blue: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1056,35 +948,18 @@ Blue: WorldGovernment {
 // Generation 8
 Blue: Research {
     4 ProjectCard<Selecting>
+
+    // discard no research cards
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
-}
-
-// discard no research cards
-Blue: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(12 MC)
-}
-
-Blue: Research {
-    4 ProjectCard<Hand FROM Selecting>
 }
 
 // _local/replays/Game20260827/game-gbf986ef543f0.sqlite; source save 214.
@@ -1210,33 +1085,15 @@ Pink: WorldGovernment {
 // Generation 9
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1392,33 +1249,15 @@ Blue: WorldGovernment {
 // Generation 10
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 

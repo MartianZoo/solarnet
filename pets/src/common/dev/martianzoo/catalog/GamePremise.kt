@@ -27,8 +27,9 @@ import dev.martianzoo.pets.types.PremiseClassTable
  * @property classSelections Exact signed class choices after catalog selection policy is applied.
  * @property componentAdjustments Signed changes to initial component counts after modules are made.
  * @property playerNames Concrete player class names in seat order.
- * @property drawOrder Complete ordered supply of Classes for game-specific draws. Terraforming Mars
- *   requires exactly the available Turmoil Global Events, or an empty list without Turmoil.
+ * @property drawOrder Ordered supply of Classes for game-specific draws. Terraforming Mars accepts
+ *   distinct available Turmoil Global Events, including a recorded prefix, and fails when drawing
+ *   beyond that supply. Without Turmoil the list must be empty.
  * @property bootstrapClassName Optional component Admin creates before the generated premise class.
  * @property premiseClassName Generated configuration class, when setup requires one.
  * @property premiseClassDeclarations Declarations local to this premise, absent from [catalog]'s

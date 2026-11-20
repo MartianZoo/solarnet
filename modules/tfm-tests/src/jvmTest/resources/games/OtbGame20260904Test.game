@@ -388,67 +388,32 @@ Blue: ExMachina {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Rainbow: Research {
     4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Rainbow: Research {
     -ProjectCard<Selecting>
-}
-
-Rainbow: Research {
     Pay(9 MC)
-}
-
-Rainbow: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
-// No heat paid.
 Blue: Research {
+    4 ProjectCard<Selecting>
+
+    // No heat paid.
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
-}
-
-Yellow: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(6 MC)
-}
-
-Yellow: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 // 2:42:41 PM — Green: "So hit your money 27 there, and then the standard projects come up.
@@ -609,68 +574,34 @@ Rainbow: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Rainbow: Research {
     4 ProjectCard<Selecting>
+
+    // Keep all four Research cards.
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-// No heat paid.
-Blue: Research {
+    // No heat paid.
     -3 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(3 MC)
-}
-
-Blue: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
-}
-
-Yellow: Research {
-    -ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(9 MC)
-}
-
-Yellow: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-// Keep all four Research cards.
-Rainbow: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Rainbow: Research {
-    Pay(12 MC)
-}
-
-Rainbow: Research {
-    4 ProjectCard<Hand FROM Selecting>
 }
 
 // 3:01:51 PM — Blue: "Fuck my stupid fucking childish life. Okay. Lunar beam cost me
@@ -929,68 +860,34 @@ Blue: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Rainbow: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
+
+    // No heat paid.
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// Keep all four Research cards.
-Green: Research {
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(12 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
-}
-
-Yellow: Research {
-    -ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(9 MC)
-}
-
-Yellow: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-Rainbow: Research {
-    -ProjectCard<Selecting>
-}
-
-Rainbow: Research {
-    Pay(9 MC)
-}
-
-Rainbow: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-// No heat paid.
-Blue: Research {
-    -ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(9 MC)
-}
-
-Blue: Research {
-    3 ProjectCard<Hand FROM Selecting>
 }
 
 // 3:26:34 PM — Green: "Earth office, earth office."
@@ -1169,66 +1066,31 @@ Green: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Rainbow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Rainbow: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Rainbow: Research {
     Pay(9 MC)
-}
-
-Rainbow: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
-// No heat paid.
 Blue: Research {
+    4 ProjectCard<Selecting>
+
+    // No heat paid.
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1575,74 +1437,39 @@ Green: ExMachina {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Rainbow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Green initially chose four cards, returned one, and bought three; Yellow bought three.
-// The phone histories charge Rainbow for one card and Blue for two despite their quoted
-// two- and three-card statements. Rainbow's later complete card flow confirms that she kept
-// the two cards she names here; preserve the app's observed 3 M€ payment separately.
-Rainbow: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Rainbow: Research {
-    Pay(6 MC)
-}
-
-Rainbow: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Rainbow: ExMachina {
-    3 MC
-}
-
-// No heat paid.
-Blue: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(6 MC)
-}
-
-Blue: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Green: Research {
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Yellow: Research {
+Rainbow: Research {
+    4 ProjectCard<Selecting>
+
+    // Green initially chose four cards, returned one, and bought three; Yellow bought three.
+    // The phone histories charge Rainbow for one card and Blue for two despite their quoted
+    // two- and three-card statements. Rainbow's later complete card flow confirms that she kept
+    // the two cards she names here; preserve the app's observed 3 M€ payment separately.
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
+    ExMachina {
+        3 MC
+    }
+}
+
+Blue: Research {
+    4 ProjectCard<Selecting>
+
+    // No heat paid.
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(9 MC)
-}
-
-Yellow: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -2040,73 +1867,38 @@ Rainbow: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Rainbow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-// 3:31:43 PM — Green: "This time we pass to the right."
-// 3:35:00 PM — Rainbow: "The thing is that... Um, I think I'll buy one card."
-// 3:35:10 PM — Green: "I will stupidly buy three cards."
-// 3:35:17 PM — Blue: "I only buy two cards."
-// 3:35:17 PM — Rainbow: "Wait, I only have three cards in my hand. Thank you."
-// 3:36:40 PM — Rainbow: "I want them both, I want everything, but I'm only keeping two."
-// No heat paid.
-Blue: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(6 MC)
-}
-
-Blue: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Green: Research {
-    -ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(9 MC)
-}
-
-Green: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-Yellow: Research {
     -3 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(3 MC)
-}
-
-Yellow: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Rainbow: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Rainbow: Research {
     Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
-Rainbow: Research {
+Blue: Research {
+    4 ProjectCard<Selecting>
+
+    // 3:31:43 PM — Green: "This time we pass to the right."
+    // 3:35:00 PM — Rainbow: "The thing is that... Um, I think I'll buy one card."
+    // 3:35:10 PM — Green: "I will stupidly buy three cards."
+    // 3:35:17 PM — Blue: "I only buy two cards."
+    // 3:35:17 PM — Rainbow: "Wait, I only have three cards in my hand. Thank you."
+    // 3:36:40 PM — Rainbow: "I want them both, I want everything, but I'm only keeping two."
+    // No heat paid.
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 // 3:36:54 PM — Blue: "I mean I guess for my first action I can just go ahead and convert heat
@@ -2515,75 +2307,41 @@ Green: ExMachina {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Rainbow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-// 5:31:27 PM — Yellow: "I think I'm gonna buy two cards. My butt hurts. Go up."
-// 5:31:46 PM — Blue: "by one card."
-// 5:32:08 PM — Green: "Okay. Buying three cards."
-// 5:32:36 PM — Rainbow: "Your turn. Oh, wait, I need to I need to actually buy two cards so
-// that A_I_ knows that I need to buy two. Yeah. Um I have bought two cards. It is also stupid
-// of
-// me to buy two, but whatever."
-// Research is submitted below in the game's order; the quotes remain in recording order.
-Green: Research {
-    -ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(9 MC)
-}
-
-Green: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-Yellow: Research {
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Rainbow: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Rainbow: Research {
     Pay(6 MC)
-}
-
-Rainbow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
-// No heat paid.
 Blue: Research {
+    4 ProjectCard<Selecting>
+
+    // No heat paid.
     -3 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
-Blue: Research {
-    ProjectCard<Hand FROM Selecting>
+Green: Research {
+    4 ProjectCard<Selecting>
+
+    // 5:31:27 PM — Yellow: "I think I'm gonna buy two cards. My butt hurts. Go up."
+    // 5:31:46 PM — Blue: "by one card."
+    // 5:32:08 PM — Green: "Okay. Buying three cards."
+    // 5:32:36 PM — Rainbow: "Your turn. Oh, wait, I need to I need to actually buy two cards so
+    // that A_I_ knows that I need to buy two. Yeah. Um I have bought two cards. It is also stupid
+    // of
+    // me to buy two, but whatever."
+    // Research is submitted below in the game's order; the quotes remain in recording order.
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 // Generation 8 did not follow strict physical rotation: Blue rescinded a pass and Rainbow
@@ -3012,70 +2770,36 @@ Rainbow: ExMachina {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-Rainbow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-// 6:06:19 PM — Blue: "Pigeon, I'm I'm buying two cards. I'm by one card."
-// 6:06:32 PM — Green: "I would buy one card."
-// All four app histories supply the otherwise unspoken Yellow and Rainbow counts. Research is
-// submitted in the game's order.
-Yellow: Research {
+    // 6:06:19 PM — Blue: "Pigeon, I'm I'm buying two cards. I'm by one card."
+    // 6:06:32 PM — Green: "I would buy one card."
+    // All four app histories supply the otherwise unspoken Yellow and Rainbow counts. Research is
+    // submitted in the game's order.
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Rainbow: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Rainbow: Research {
     Pay(6 MC)
-}
-
-Rainbow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
-// No heat paid.
 Blue: Research {
+    4 ProjectCard<Selecting>
+
+    // No heat paid.
     -3 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(3 MC)
-}
-
-Blue: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(3 MC)
-}
-
-Green: Research {
     ProjectCard<Hand FROM Selecting>
 }
 

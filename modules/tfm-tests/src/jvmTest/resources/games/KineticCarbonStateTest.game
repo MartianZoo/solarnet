@@ -176,19 +176,11 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 2
-// Player-record evidence: globalsPerGeneration[0], after World Government.
-Blue: Research {
+    // Generation 2
+    // Player-record evidence: globalsPerGeneration[0], after World Government.
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -220,19 +212,11 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 3
-// Player-record evidence: globalsPerGeneration[1], after World Government.
-Blue: Research {
+    // Generation 3
+    // Player-record evidence: globalsPerGeneration[1], after World Government.
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -285,19 +269,11 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 4
-// Player-record evidence: globalsPerGeneration[2], after World Government.
-Blue: Research {
+    // Generation 4
+    // Player-record evidence: globalsPerGeneration[2], after World Government.
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -351,19 +327,11 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 5
-// Player-record evidence: globalsPerGeneration[3], after World Government.
-Blue: Research {
+    // Generation 5
+    // Player-record evidence: globalsPerGeneration[3], after World Government.
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -411,19 +379,11 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 6
-// Player-record evidence: globalsPerGeneration[4], after World Government.
-Blue: Research {
+    // Generation 6
+    // Player-record evidence: globalsPerGeneration[4], after World Government.
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -492,19 +452,11 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 7
-// Player-record evidence: globalsPerGeneration[5], after World Government.
-Blue: Research {
+    // Generation 7
+    // Player-record evidence: globalsPerGeneration[5], after World Government.
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -581,19 +533,11 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 8
-// Player-record evidence: globalsPerGeneration[6], after World Government.
-Blue: Research {
+    // Generation 8
+    // Player-record evidence: globalsPerGeneration[6], after World Government.
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -668,19 +612,11 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 9
-// Player-record evidence: globalsPerGeneration[7], after World Government.
-Blue: Research {
+    // Generation 9
+    // Player-record evidence: globalsPerGeneration[7], after World Government.
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -759,19 +695,11 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 10
-// Player-record evidence: globalsPerGeneration[8], after World Government.
-Blue: Research {
+    // Generation 10
+    // Player-record evidence: globalsPerGeneration[8], after World Government.
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -889,19 +817,11 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 11
-// Player-record evidence: globalsPerGeneration[9], after World Government.
-Blue: Research {
+    // Generation 11
+    // Player-record evidence: globalsPerGeneration[9], after World Government.
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1009,11 +929,9 @@ Blue: WorldGovernment {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 12
-// Player-record evidence: globalsPerGeneration[10], after World Government.
-Blue: Research {
+    // Generation 12
+    // Player-record evidence: globalsPerGeneration[10], after World Government.
     -4 ProjectCard<Selecting>
 }
 

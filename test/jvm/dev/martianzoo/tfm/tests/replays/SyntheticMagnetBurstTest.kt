@@ -1728,6 +1728,9 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     pink.assertCounts(0 to "ProjectCard")
     green.assertCounts(0 to "ProjectCard")
 
+    pink.doTask("100 VictoryPoint")
+    green.doTask("75 VictoryPoint")
+
     pink.assertCounts(
         41 to "TerraformRating",
         100 to "VictoryPoint",

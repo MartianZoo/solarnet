@@ -58,8 +58,9 @@ Reject the change if:
   literal task execution, or the correction itself rather than the action's interesting net result;
 - a replay fact comes from generated output, an existing replay, or agent inference when original
   evidence is available;
-- a replay correction is hidden inside an unrelated action, or a generated recording contains
-  evidence, commentary, or assertions owned by its replay test; or
+- a replay correction is hidden inside an unrelated action, or an automatic export copies
+  commentary or assertions from its replay test (the user-requested checked-in `.game` fixtures
+  deliberately retain source comments; exports must not overwrite those annotations); or
 - known incorrect behavior is presented as an ordinary rule or accepted hack instead of an explicit
   passing characterization (`BugsTest`, or a card-test pair following `TESTING.md`).
 

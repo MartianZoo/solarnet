@@ -231,38 +231,22 @@ Green: ExMachina {
 // 12:08:25: both research offers were dealt before the photograph.
 Green: Research {
     4 ProjectCard<Selecting>
+
+    // board-12-08-47.jpg: Research has begun, neither player has bought cards yet.
+    // (12:10:55 PM) "Time to go into stupid mode. Buying all four cards."
+    // no research cards rejected
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
 
-// board-12-08-47.jpg: Research has begun, neither player has bought cards yet.
-// (12:10:55 PM) "Time to go into stupid mode. Buying all four cards."
-// no research cards rejected
-Green: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(12 MC)
-}
-
-Green: Research {
-    4 ProjectCard<Hand FROM Selecting>
-}
-
-// (12:11:08 PM) "I'm buying two. I will play Research Colony for titanium and citrine real."
-// no heat paid
-Pink: Research {
+    // (12:11:08 PM) "I'm buying two. I will play Research Colony for titanium and citrine real."
+    // no heat paid
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -406,17 +390,8 @@ Green: ExMachina {
 // therefore 3 MC below the app log.
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -3 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(3 MC)
-}
-
-Green: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -425,17 +400,8 @@ Green: Research {
 // no heat paid
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -665,17 +631,8 @@ Pink: GlobalEvent {
 // (4:51:38 PM) "I'm gonna buy one card."
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -3 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(3 MC)
-}
-
-Pink: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -683,17 +640,8 @@ Pink: Research {
 // Pink: "I started."
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -870,17 +818,8 @@ Pink: GlobalEvent {
 // "I'm going to actually buy my cards. Buy two cards."
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -888,17 +827,8 @@ Green: Research {
 // no heat paid
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1131,33 +1061,15 @@ Pink: GlobalEvent {
 // no heat paid
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1350,34 +1262,16 @@ Pink: GlobalEvent {
 // Pink: "Oh wait, it is. Sorry, your turn."
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // no heat paid
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1807,17 +1701,8 @@ Green: ExMachina {
 // (6:46:19 PM) "I'm buying two cards."
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1825,17 +1710,8 @@ Green: Research {
 // no heat paid
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -2188,17 +2064,8 @@ Pink: GlobalEvent {
 // (7:17:25 PM) "I'm buying one card."
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -3 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(3 MC)
-}
-
-Green: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -2206,17 +2073,8 @@ Green: Research {
 // no heat paid
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 

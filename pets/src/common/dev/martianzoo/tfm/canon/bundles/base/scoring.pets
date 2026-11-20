@@ -1,7 +1,7 @@
 "Marks the winner after final scoring"
 CLASS Victory : Owned<Player> { HAS MAX 1 This }
 
-CLASS VictoryPoint : Owned<Player>, System, Iconic
+CLASS VictoryPoint : Owned<Player>, Iconic
 
 "A milestone that has been claimed"
 ABSTRACT CLASS Milestone : Content, Owned<Player>, Iconic {

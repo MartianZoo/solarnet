@@ -36,6 +36,11 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     kim.doTask("Ok") // No further final greenery.
     stan.doTask("Ok") // No final greenery.
 
+    kim.count("VictoryPoint") shouldBe 0
+    stan.count("VictoryPoint") shouldBe 0
+    kim.count("Victory") shouldBe 0
+    kim.doTask("21 VictoryPoint")
+    stan.doTask("20 VictoryPoint")
     kim.count("VictoryPoint") shouldBe 21
     stan.count("VictoryPoint") shouldBe 20
     kim.count("Victory") shouldBe 1
@@ -56,6 +61,8 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     kim.doTask("Ok") // No final greenery.
     stan.doTask("Ok") // No final greenery.
 
+    kim.doTask("20 VictoryPoint")
+    stan.doTask("20 VictoryPoint")
     kim.count("VictoryPoint") shouldBe 20
     stan.count("VictoryPoint") shouldBe 20
     kim.count("MC") shouldBe 63
@@ -88,6 +95,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     players.forEach { it.doTask("20 MC") }
     stan.doTask("Ok") // No final greenery.
     kim.doTask("Ok") // No final greenery.
+    players.forEach { it.doTask("20 VictoryPoint") }
     kim.count("Victory") shouldBe 1
     stan.count("Victory") shouldBe 1
   }
@@ -179,6 +187,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     kim.doTask("15 MC")
     kim.count("Victory") shouldBe 1
     kim.doTask("Ok") // No final greenery.
+    kim.doTask("15 VictoryPoint")
     kim.count("VictoryPoint") shouldBe 15
   }
 
@@ -227,6 +236,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     kim.doTask("16 MC")
     kim.count("Victory") shouldBe 1
     kim.doTask("Ok") // No final greenery.
+    kim.doTask("16 VictoryPoint")
     kim.count("VictoryPoint") shouldBe 16
   }
 
@@ -254,6 +264,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
         .expect("0 OxygenStep, 0 TerraformRating")
     kim.doTask("Ok") // No further final greenery.
     kim.count("TerraformRating") shouldBe 63
+    kim.doTask("64 VictoryPoint")
     kim.count("VictoryPoint") shouldBe 64
   }
 

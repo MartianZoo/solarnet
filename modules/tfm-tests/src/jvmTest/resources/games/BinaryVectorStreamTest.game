@@ -215,17 +215,8 @@ Pink: WorldGovernment {
 // Database save 10, before generation 2 Research.
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -283,17 +274,8 @@ Pink: GlobalEvent {
 // Database save 18, before generation 3 Research.
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -3 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(3 MC)
-}
-
-Pink: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -366,17 +348,8 @@ Pink: GlobalEvent {
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -428,18 +401,10 @@ Pink: GlobalEvent {
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
 
-// Keep all four Research cards.
-Pink: Research {
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(12 MC)
-}
-
-Pink: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -535,17 +500,8 @@ Pink: GlobalEvent {
 // Database save 56, before generation 6 Research.
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -609,17 +565,8 @@ Pink: GlobalEvent {
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -730,18 +677,10 @@ Pink: GlobalEvent {
 // Database save 89, before generation 8 Research.
 Pink: Research {
     4 ProjectCard<Selecting>
-}
 
-// Keep four.
-Pink: Research {
+    // Keep four.
     -0 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(12 MC)
-}
-
-Pink: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -880,17 +819,8 @@ Pink: GlobalEvent {
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1002,17 +932,8 @@ Pink: GlobalEvent {
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1147,17 +1068,8 @@ Pink: GlobalEvent {
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1329,17 +1241,8 @@ Pink: GlobalEvent {
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 

@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 
 /** Physical game played November 11–12, 2026; sources: `_local/replays/Game20261111/`. */
 internal class OtbGame20261111Test : FullGameTest() {
-  override val config =
+  public override val config =
       // (11:51:55 AM) "Here begins our Veterans Day game of Terraforming Mars. We're playing on the
       // Vastitas Borealis board. Our milestones are Builder, Coast Guard, Legend, Merchant,
       // Pioneer, and Hoverlord. Our awards are Benefactor, Celebrity, Incorporator, Scientist,
@@ -358,7 +358,7 @@ internal class OtbGame20261111Test : FullGameTest() {
       // (12:13:12 PM) "Probably best if I spend 10 to raise my energy and heat production, which
       // gives me an energy and a heat."
       doTasks(
-          "UseAction<KelvinistsPolicy, Action1>",
+          "UseAction<UsePolicyAction, Action1>",
           "10 Pay<> FROM MC",
           "PROD[Energy]",
           "PROD[Heat]",
@@ -370,7 +370,7 @@ internal class OtbGame20261111Test : FullGameTest() {
       // (12:14:06 PM) "If I do that too, I have just enough. Spend 10 money, gain energy production
       // and heat production."
       doTasks(
-          "UseAction<KelvinistsPolicy, Action1>",
+          "UseAction<UsePolicyAction, Action1>",
           "Ok", // no heat paid
           "10 Pay<> FROM MC",
           "PROD[Energy]",
@@ -673,7 +673,7 @@ internal class OtbGame20261111Test : FullGameTest() {
     green.turn {
       // (1:16:04 PM) "For my turn, I will spend the ten to get three more cards."
       doTasks(
-          "UseAction<ScientistsPolicy, Action1>",
+          "UseAction<UsePolicyAction, Action1>",
           "10 Pay<> FROM MC",
           "3 ProjectCard",
       )
@@ -1459,14 +1459,13 @@ internal class OtbGame20261111Test : FullGameTest() {
     // Green: "You have two bundles over 15."
     // Pink: "28. Yes, I do. I thought I had to get to 30. Our new government: Unity."
     green.doTask("8 MC")
-    pink.doTask("4 MC")
+    pink
+        .doTask("4 MC")
+        .expect("8 MC<Pink>, 5 MC<Green>, TerraformRating<Green>, Ruling<Unity>, Dominant<Greens>")
     // (4:13:09 PM) "Perform the ruling bonus."
     // Green: "I think I get five."
     // Pink: "I believe I get four. Dominant party... you gain a TR. Restore lobby. Move coming to
     // current. We get neutral in Greens."
-    pink
-        .doTask("Ok") // no influence payout
-        .expect("5 MC<Green>, 4 MC<Pink>, TerraformRating<Green>, Ruling<Unity>, Dominant<Greens>")
     green.assertResources(m = 63, s = 1, t = 10, p = 1, e = 2, h = 10)
     pink.assertResources(m = 44, s = 0, t = 10, p = 2, e = 7, h = 17)
     green.assertCounts(22 to "TerraformRating")
@@ -2851,6 +2850,9 @@ internal class OtbGame20261111Test : FullGameTest() {
     // 75."
     // The table announces 92–75. Pink's omitted chairman point and extra printed card point
     // cancel; score both normally here.
+    green.doTask("92 VictoryPoint")
+    pink.doTask("75 VictoryPoint")
+
     green.assertCounts(92 to "VictoryPoint", 1 to "Victory")
     // The table counts Capital and camp resources separately from printed card points.
     pink.assertCounts(75 to "VictoryPoint", 0 to "Victory")

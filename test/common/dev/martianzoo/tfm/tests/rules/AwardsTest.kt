@@ -33,7 +33,9 @@ internal class AwardsTest : TfmSandboxTest() {
     p1.count("CardFront(HAS requirement)") shouldBe 1
     p2.count("CardFront(HAS requirement)") shouldBe 2
 
-    admin.runOperation("End FROM Phase")
+    admin.beginOperation("End FROM Phase")
+    p1.doTask("3 VictoryPoint")
+    p2.doTask("5 VictoryPoint")
 
     p1.assertCounts(
         1 to "SecondPlace<Player1, Forecaster>",
@@ -56,7 +58,10 @@ internal class AwardsTest : TfmSandboxTest() {
 
     p1.exMachina("Thermalist, Miner, Heat")
 
-    admin.runOperation("End FROM Phase")
+    admin.beginOperation("End FROM Phase")
+    p1.doTask("10 VictoryPoint")
+    p2.doTask("7 VictoryPoint")
+    p3.doTask("7 VictoryPoint")
 
     p1.assertCounts(
         1 to "FirstPlace<Player1, Thermalist>",
@@ -92,7 +97,10 @@ internal class AwardsTest : TfmSandboxTest() {
     p2.assertProds(-5 to "MC")
     p3.assertProds(-5 to "MC")
 
-    admin.runOperation("End FROM Phase")
+    admin.beginOperation("End FROM Phase")
+    p1.doTask("5 VictoryPoint")
+    p2.doTask("2 VictoryPoint")
+    p3.doTask("2 VictoryPoint")
 
     p1.assertCounts(1 to "FirstPlace<Player1, Banker>", 5 to "VictoryPoint")
     p2.assertCounts(1 to "SecondPlace<Player2, Banker>", 2 to "VictoryPoint")
@@ -100,7 +108,7 @@ internal class AwardsTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun adminDrivenEndReturnsOnlyAfterAllVictoryPointsAreCounted() {
+  internal fun winnerWaitsForPlayersToTakeTheirScoringTasks() {
     game = TfmEngine.newGame(canonicalPremise())
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
@@ -109,7 +117,13 @@ internal class AwardsTest : TfmSandboxTest() {
     p1.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
 
-    admin.runOperation("End FROM Phase")
+    admin.beginOperation("End FROM Phase")
+    p1.count("VictoryPoint") shouldBe 3
+    p2.count("VictoryPoint") shouldBe 0
+    admin.count("GameScope") shouldBe 1
+    p1.doTask("VictoryPoint")
+    p2.count("Victory") shouldBe 0
+    p2.doTask("5 VictoryPoint")
 
     p1.assertCounts(4 to "VictoryPoint<Player1>", 0 to "Victory<Player1>")
     p2.assertCounts(5 to "VictoryPoint<Player2>", 1 to "Victory<Player2>")
@@ -120,14 +134,18 @@ internal class AwardsTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun adminScoresNegativeCardsAndPlayedEventsWithPlayerAutoexecutionOff() {
+  internal fun playersTakeNetScoresIncludingNegativeCardsAndPlayedEvents() {
     game = TfmEngine.newGame(canonicalPremise())
     val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     p1.exMachina("$CorporateStronghold, $EarthCatapult, 5 TerraformRating")
     p2.exMachina("$EnergyTapping, PlayedEvent<Class<$LargeConvoy>>, 3 TerraformRating")
 
-    admin.runOperation("End FROM Phase")
+    admin.beginOperation("End FROM Phase")
+    p1.count("VictoryPoint") shouldBe 0
+    p2.count("VictoryPoint") shouldBe 0
+    p1.doTask("5 VictoryPoint")
+    p2.doTask("4 VictoryPoint")
 
     p1.count("VictoryPoint") shouldBe 5
     p2.count("VictoryPoint") shouldBe 4

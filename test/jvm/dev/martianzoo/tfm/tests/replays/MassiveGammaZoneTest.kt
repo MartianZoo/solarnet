@@ -195,7 +195,7 @@ internal class MassiveGammaZoneTest : FullGameTest() {
           "-4 ProjectCard<Selecting>",
       )
       me.turn {
-        doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+        doTasks("UseAction<UsePolicyAction, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
         doTasks(
             *cardActionTasks("$BoardOfDirectors"),
             "PreludeCard",
@@ -572,8 +572,7 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "GreeneryTile<Tharsis_3_5>",
             "OxygenStep",
             "Plant",
-            "4 MC",
-            "0 MC",
+            "4 MC", // Includes the zero ocean bonus.
             "TerraformRating",
             "2 MC",
         )
@@ -720,7 +719,7 @@ internal class MassiveGammaZoneTest : FullGameTest() {
           "2 ProjectCard<Hand FROM Selecting>",
       )
       me.turn {
-        doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+        doTasks("UseAction<UsePolicyAction, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
         doTasks(*cardActionTasks("$RestrictedArea"), "2 Pay<> FROM MC", "ProjectCard")
         doTasks(
             *playCardTasks("$MineralDeposit"),
@@ -1242,7 +1241,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "Plant",
             "4 MC",
             "2 Plant",
-            "0 MC",
             "TerraformRating",
             "2 MC",
         )
@@ -1254,7 +1252,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "Plant",
             "4 MC",
             "Plant",
-            "0 MC",
             "TerraformRating",
             "2 MC",
         )
@@ -1265,7 +1262,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "OxygenStep",
             "Plant",
             "4 MC",
-            "0 MC",
             "TerraformRating",
             "2 MC",
         )
@@ -1278,7 +1274,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "4 MC",
             "Plant",
             "Titanium",
-            "0 MC",
             "TerraformRating",
             "2 MC",
         )
@@ -1290,7 +1285,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "Plant",
             "4 MC",
             "Plant",
-            "0 MC",
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
@@ -1299,7 +1293,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "OxygenStep",
             "Plant",
             "4 MC",
-            "0 MC",
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
@@ -1351,7 +1344,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "OxygenStep",
             "Plant",
             "4 MC",
-            "0 MC",
         )
         doTasks(
             *standardProjectTasks("AsteroidProject"),
@@ -1551,6 +1543,7 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       // Decline another final greenery with only 5 plants remaining.
       doTask("Ok") // decline final greenery
       assertCounts(0 to "ProjectCard")
+      doTask("171 VictoryPoint")
 
       // Player-record evidence: complete final dashboard and score table.
       assertResources(m = 124, s = 4, t = 2, p = 5, e = 0, h = 27)

@@ -16,16 +16,16 @@ import dev.martianzoo.tfm.state.tfmCatalog
 
 /**
  * Opt-in, game-wide record of named cards. Call [start] before the first hand movement, then supply
- * names before the Agent operation that needs them. Every successful Agent operation identifies all
- * CardBack movements into or out of Hand; missing required names fail atomically. When [start]
- * enables Selecting tracking, every Selecting movement must also be named. A discarded card may
- * enter the game again. A card cannot occupy a tracked Hand, Selecting area, or played location
- * twice. Direct plays from Selecting are not checked against previously seen cards when Selecting
- * tracking is disabled. A staged card's destination names it when it leaves Hand; playing it from
- * staging needs no supplied name. Supplied names must be concrete catalog CardFront classes with
- * the matching CardBack. Each named change gets a `Cards:` event note; wrong names or missing
- * required names roll back the Agent request. Names queued for a later change are consumed in that
- * Player's per-back, per-location event order.
+ * names before the Agent operation that needs them, or answer requests through [start]'s callback.
+ * Every successful Agent operation identifies all CardBack movements into or out of Hand; missing
+ * required names fail atomically. When [start] enables Selecting tracking, every Selecting movement
+ * must also be named. A discarded card may enter the game again. A card cannot occupy a tracked
+ * Hand, Selecting area, or played location twice. Direct plays from Selecting are not checked
+ * against previously seen cards when Selecting tracking is disabled. A staged card's destination
+ * names it when it leaves Hand; playing it from staging needs no supplied name. Supplied names must
+ * be concrete catalog CardFront classes with the matching CardBack. Each named change gets a
+ * `Cards:` event note; wrong names or missing required names roll back the Agent request. Names
+ * queued for a later change are consumed in that Player's per-back, per-location event order.
  *
  * The current event history and supplied name sequences are the sources of truth. Validation
  * processes new changes incrementally, rebuilding from surviving events after rollback. This tracks
@@ -35,6 +35,7 @@ public class CardTracking
 private constructor(
     private val world: World,
     private val requireSelectingNames: Boolean,
+    private val namesFor: ((NamesRequiredException) -> List<ClassName>)?,
 ) : AgentTransactionGuard {
   private val arrivals =
       mutableMapOf<Triple<Player, ClassName, ClassName>, MutableList<ClassName>>()
@@ -138,7 +139,8 @@ private constructor(
   /**
    * An Agent command moved cards of [back] into ([arriving]) or out of [player]'s [location]
    * without enough supplied names; [count] more are needed. [event] is the first such movement. The
-   * command rolled back, so supplying the names and repeating it can succeed.
+   * command rolls back if this exception escapes validation. Supplying names and repeating it can
+   * then succeed.
    */
   public class NamesRequiredException
   internal constructor(
@@ -177,7 +179,29 @@ private constructor(
   }
 
   override fun validate() {
-    snapshot()
+    while (true) {
+      try {
+        snapshot()
+        return
+      } catch (missing: NamesRequiredException) {
+        val names = namesFor?.invoke(missing) ?: throw missing
+        require(names.size == missing.count) { "Expected ${missing.count} card names" }
+        if (missing.arriving)
+            expectArrivals(
+                missing.player,
+                *names.toTypedArray(),
+                back = missing.back,
+                location = missing.location,
+            )
+        else
+            expectDepartures(
+                missing.player,
+                *names.toTypedArray(),
+                back = missing.back,
+                location = missing.location,
+            )
+      }
+    }
   }
 
   private fun snapshot(): Snapshot {
@@ -655,10 +679,20 @@ private constructor(
      * [requireSelectingNames] is true, start before the first Selecting movement too; every such
      * movement must be named. Otherwise Selecting movements are outside tracking and Selecting
      * names cannot be supplied.
+     *
+     * [namesFor], when supplied, answers missing-name requests during validation, before the Agent
+     * commits or rolls back. It must return exactly the requested count; the usual identity and
+     * location checks still apply. It must not mutate the game. Callback failures roll back the
+     * Agent command. Names already supplied remain queued after rollback, just as with
+     * [expectArrivals] and [expectDepartures]. Without a callback, missing names fail the command.
      */
-    public fun start(agents: Agents, requireSelectingNames: Boolean = false): CardTracking {
+    public fun start(
+        agents: Agents,
+        requireSelectingNames: Boolean = false,
+        namesFor: ((NamesRequiredException) -> List<ClassName>)? = null,
+    ): CardTracking {
       val world = agents.world
-      val tracker = CardTracking(world, requireSelectingNames)
+      val tracker = CardTracking(world, requireSelectingNames, namesFor)
       check(
           world.events.changesSinceSetup().none { event ->
             with(tracker) {

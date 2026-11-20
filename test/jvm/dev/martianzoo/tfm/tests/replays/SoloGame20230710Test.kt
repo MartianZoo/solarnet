@@ -1046,6 +1046,7 @@ internal class SoloGame20230710Test : FullGameTest() {
       doTask("Ok") // decline final greenery
       // Check the summary data on the you-won page
       assertCounts(70 to "TerraformRating")
+      doTask("121 VictoryPoint")
       assertCounts(121 to "VictoryPoint")
       assertCounts(82 to "MC")
     }

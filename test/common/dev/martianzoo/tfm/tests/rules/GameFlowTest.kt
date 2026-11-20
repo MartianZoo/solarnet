@@ -31,7 +31,6 @@ internal class GameFlowTest : TfmGameplayTest() {
           )
       )
       val player = agents[PLAYER1]
-      agents.taskLog.gameStarted()
       admin.beginOperation("SetupPhase FROM BootstrapPhase")
       player.doTasks("14 TerraformRating", "10 ProjectCard<Selecting>")
       player.assertCounts(
@@ -84,7 +83,6 @@ internal class GameFlowTest : TfmGameplayTest() {
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
 
-    agents.taskLog.gameStarted()
     admin.beginOperation("SetupPhase FROM BootstrapPhase")
     p1.assertCounts(
         0 to "BeginnerCard",
@@ -181,7 +179,6 @@ internal class GameFlowTest : TfmGameplayTest() {
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
 
-    agents.taskLog.gameStarted()
     admin.beginOperation("SetupPhase FROM BootstrapPhase")
     listOf(p1, p2).forEach { player ->
       // Select the setup alternatives before narrowing the chosen starting path.
@@ -231,7 +228,6 @@ internal class GameFlowTest : TfmGameplayTest() {
     initializeGame(Canon.gamePremise(GameConfig("PreludeExpansion", "Player1", "Player2")))
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
-    agents.taskLog.gameStarted()
     admin.beginOperation("SetupPhase FROM BootstrapPhase")
     p1.assertCounts(
         1 to "StandardOption",
@@ -288,7 +284,6 @@ internal class GameFlowTest : TfmGameplayTest() {
     )
     val players = listOf(agents[PLAYER1], agents[PLAYER2])
 
-    agents.taskLog.gameStarted()
     admin.beginOperation("SetupPhase FROM BootstrapPhase")
     players.forEach { player ->
       player.doTasks(

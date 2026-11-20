@@ -244,66 +244,30 @@ Blue: WorldGovernment {
 // Research.
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Purple: Research {
-    4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: Research {
+Pink: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Purple: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Purple: Research {
-    Pay(6 MC)
-}
-
-Purple: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
-Green: Research {
-    3 ProjectCard<Hand FROM Selecting>
+Purple: Research {
+    4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 59: public player boards after generation 2 Research purchases.
@@ -425,66 +389,30 @@ Pink: WorldGovernment {
 // Research.
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Purple: Research {
-    4 ProjectCard<Selecting>
-}
-
-Purple: Research {
     -ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(9 MC)
-}
-
-Purple: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: Research {
+Pink: Research {
+    4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Green: Research {
+    4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
+}
+
+Purple: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
-}
-
-Green: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(6 MC)
-}
-
-Green: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Pink: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(6 MC)
-}
-
-Pink: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 111: public player boards after generation 3 Research purchases.
@@ -633,66 +561,30 @@ Green: WorldGovernment {
 // Research.
 Blue: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Purple: Research {
-    4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: Research {
+Green: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(3 MC)
-}
-
-Purple: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-Green: Research {
-    -ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(9 MC)
-}
-
-Green: Research {
-    3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: PlayCard(DeepWellHeating) {
@@ -871,67 +763,32 @@ Purple: WorldGovernment {
 // Research.
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Purple: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
-// Keep all four Research cards.
 Pink: Research {
+    4 ProjectCard<Selecting>
+
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(12 MC)
-}
-
-Pink: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Purple: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Purple: Research {
-    Pay(6 MC)
-}
-
-Purple: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Blue: Research {
+Green: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: Research {
-    3 ProjectCard<Hand FROM Selecting>
+Purple: Research {
+    4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: UseAction1(Psychrophiles) {
@@ -1117,65 +974,29 @@ Blue: WorldGovernment {
 // Research.
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Purple: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(6 MC)
-}
-
-Purple: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1431,66 +1252,30 @@ Blue: WorldGovernment {
 // Research.
 Blue: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    -ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(9 MC)
-}
-
-Pink: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-Blue: Research {
-    -ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(9 MC)
-}
-
-Blue: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-Purple: Research {
     -3 ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(3 MC)
-}
-
-Purple: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-Green: Research {
-    -ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(9 MC)
-}
-
-Green: Research {
-    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: PlayCard(SubterraneanReservoir) {
@@ -1802,58 +1587,28 @@ Green: WorldGovernment {
 // Research.
 Blue: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(6 MC)
-}
-
-Pink: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Blue: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(6 MC)
-}
-
-Blue: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Purple: Research {
     -4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(6 MC)
-}
-
-Green: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: ConvertPlants {

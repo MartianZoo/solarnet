@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.ast.ClassName
@@ -120,7 +119,6 @@ internal class BootstrapLifecycleTest {
     val game = TfmEngine.newGame(canonicalPremise())
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    game.testAgents().taskLog.gameStarted()
     game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
 
     val admin = game.testAgent(ADMIN)
@@ -140,7 +138,6 @@ internal class BootstrapLifecycleTest {
   internal fun soloPlayerTakesStartingTerraformRatingDuringSetup() {
     val game = TfmEngine.newGame(canonicalPremise(players = 1))
     val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    game.testAgents().taskLog.gameStarted()
     game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
 
     game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 0
@@ -183,7 +180,6 @@ internal class BootstrapLifecycleTest {
     admin.count("SelectedColonyTile") shouldBe 4
     admin.count("SoloColoniesSetup") shouldBe 0
 
-    game.testAgents().taskLog.gameStarted()
     game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
 
     admin.count("SoloColoniesSetup") shouldBe 1
@@ -207,7 +203,6 @@ internal class BootstrapLifecycleTest {
     admin.count("Callisto") shouldBe 0
     admin.count("DelayedEnceladus") shouldBe 0
 
-    game.testAgents().taskLog.gameStarted()
     game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
     admin.count("SelectedColonyTile") shouldBe 2
 
@@ -224,7 +219,6 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun setupWaitsForStartingProjectSelection() {
     val game = TfmEngine.newGame(canonicalPremise(PreludeExpansion))
-    game.testAgents().taskLog.gameStarted()
     game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
     val admin = game.testAgent(ADMIN)
     val p1 = game.testAgent(PLAYER1)
@@ -255,7 +249,6 @@ internal class BootstrapLifecycleTest {
   internal fun soloSetupWaitsForItsChoices() {
     val setup = canonicalPremise(players = 1)
     val game = TfmEngine.newGame(setup)
-    game.testAgents().taskLog.gameStarted()
     game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
 
     val admin = game.testAgent(ADMIN)

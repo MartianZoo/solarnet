@@ -799,6 +799,7 @@ internal class SoloGame20230611Test : FullGameTest() {
 
       // Decline the final greenery placement.
       doTask("Ok") // decline final greenery
+      doTask("78 VictoryPoint")
       assertCounts(78 to "VictoryPoint") // wow that was not good
     }
   }

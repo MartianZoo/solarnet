@@ -230,11 +230,10 @@ Several consequences follow for this proposal:
 [CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt)
 names hand movements outside the World. It is an opt-in follow-mode integrity check, not a dealer,
 and does not establish complete tracking of every offer or deck movement.
-[GameRecording](../../src/common/dev/martianzoo/state/GameRecording.kt) and
-[its JSON encoding](../../src/common/dev/martianzoo/state/GameFileJson.kt) support passive event
-playback. The same file can carry Actor inputs for independent replay and change comparison, but
-does not establish shared-player authorization, an appendable live log, or resumption of arbitrary
-unfinished operations. The
+[GameRecording](../../src/common/dev/martianzoo/state/GameRecording.kt) supports passive event
+playback in memory. The [human-readable archive](EXPORT.md) reconstructs games through Agents;
+it does not establish shared-player authorization, an appendable live log, or resumption of
+arbitrary unfinished operations. The
 [existing export direction](../SOLARNET_ROADMAP.md#game-records-and-reconstruction)
 already distinguishes decision reconstruction from exact event playback and records unfinished work.
 

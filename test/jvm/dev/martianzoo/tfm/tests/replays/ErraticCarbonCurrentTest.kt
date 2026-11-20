@@ -1609,6 +1609,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     blue.cardsHand shouldBe emptySet()
     pink.cardsHand shouldBe emptySet()
+    blue.doTask("102 VictoryPoint")
+    pink.doTask("85 VictoryPoint")
+
     blue.assertCounts(45 to "TerraformRating", 102 to "VictoryPoint", 1 to "Victory")
     pink.assertCounts(41 to "TerraformRating", 85 to "VictoryPoint", 0 to "Victory")
     blue.assertResources(m = 63, s = 2, t = 0, p = 0, e = 2, h = 15)

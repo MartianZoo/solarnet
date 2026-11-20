@@ -366,51 +366,25 @@ Green: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 2 Research: "I buy four"; Yellow buys two; Blue buys three.
-// Keep all four Research cards.
-Green: Research {
+    // Generation 2 Research: "I buy four"; Yellow buys two; Blue buys three.
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(12 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -627,50 +601,24 @@ Blue: GlobalEvent {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 3 Research: all three players buy three projects.
-Green: Research {
+    // Generation 3 Research: all three players buy three projects.
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(9 MC)
-}
-
-Yellow: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -851,43 +799,23 @@ Blue: GlobalEvent {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 4 Research: Green buys zero, Yellow buys one, and Blue buys three. The complete
-// ledgers disambiguate which voice owns each purchase.
-Green: Research {
+    // Generation 4 Research: Green buys zero, Yellow buys one, and Blue buys three. The complete
+    // ledgers disambiguate which voice owns each purchase.
     -4 ProjectCard<Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(3 MC)
-}
-
-Yellow: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1116,57 +1044,31 @@ Blue: GlobalEvent {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 5 Research after the dinner break: Yellow and Green buy three; Blue buys one.
-Yellow: Research {
     -ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
+
+    // Generation 5 Research after the dinner break: Yellow and Green buy three; Blue buys one.
+    -ProjectCard<Selecting>
+    Pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(3 MC)
-}
-
-Blue: Research {
     ProjectCard<Hand FROM Selecting>
-}
 
-// Blue says she buys one, but Blue's continuous ledger has no 3 M€ purchase and every later
-// payment reaches the photographed balance only if that charge was missed physically.
-Blue: ExMachina {
-    3 MC
-}
-
-Green: Research {
-    -ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(9 MC)
-}
-
-Green: Research {
-    3 ProjectCard<Hand FROM Selecting>
+    // Blue says she buys one, but Blue's continuous ledger has no 3 M€ purchase and every later
+    // payment reaches the photographed balance only if that charge was missed physically.
+    ExMachina {
+        3 MC
+    }
 }
 
 Yellow: FundAward {
@@ -1429,52 +1331,27 @@ Blue: ExMachina {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 6 Research: Blue buys two, Green three, and Yellow four.
-Blue: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(6 MC)
-}
-
-Blue: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Green: Research {
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
-// Keep all four Research cards.
 Yellow: Research {
+    4 ProjectCard<Selecting>
+
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
-Yellow: Research {
-    4 ProjectCard<Hand FROM Selecting>
+Blue: Research {
+    4 ProjectCard<Selecting>
+
+    // Generation 6 Research: Blue buys two, Green three, and Yellow four.
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: UseAction1(AsteroidHollowing) {
@@ -1835,51 +1712,26 @@ Blue: ExMachina {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 7 Research: Green buys three, Yellow four, and Blue two.
-Green: Research {
+    // Generation 7 Research: Green buys three, Yellow four, and Blue two.
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
-// Keep all four Research cards.
 Yellow: Research {
+    4 ProjectCard<Selecting>
+
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(12 MC)
-}
-
-Yellow: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -2231,50 +2083,24 @@ Blue: GlobalEvent {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+    -3 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-Blue: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Generation 8 Research: Yellow buys two projects, Blue one, and Green one.
-Yellow: Research {
+    // Generation 8 Research: Yellow buys two projects, Blue one, and Green one.
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(3 MC)
-}
-
-Blue: Research {
-    ProjectCard<Hand FROM Selecting>
-}
-
-Green: Research {
-    -3 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(3 MC)
-}
-
-Green: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -2597,51 +2423,25 @@ Yellow: ExMachina {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 9 Research: Blue buys one project; Green and Yellow buy two each.
-Blue: Research {
+    // Generation 9 Research: Blue buys one project; Green and Yellow buy two each.
     -3 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(3 MC)
-}
-
-Blue: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-Green: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(6 MC)
-}
-
-Green: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Yellow: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(6 MC)
-}
-
-Yellow: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: UseStandardProject(AquiferProject) {

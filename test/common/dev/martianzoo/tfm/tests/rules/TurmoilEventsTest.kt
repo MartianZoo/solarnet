@@ -183,7 +183,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         "VenusStep! BY Admin",
         "5 Steel",
     )
-    stan.doTasks("Steel", "0 Steel")
+    stan.doTask("Steel")
     players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     admin.count("ActionPhase") shouldBe 1
   }
@@ -206,7 +206,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         "VenusStep! BY Admin",
         "4 Plant",
     )
-    stan.doTasks("Plant", "0 Plant")
+    stan.doTask("Plant")
     players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     admin.count("ActionPhase") shouldBe 1
   }
@@ -226,7 +226,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         "VenusStep! BY Admin",
         "5 MC",
     )
-    stan.doTasks("10 MC", "0 MC")
+    stan.doTask("10 MC")
     players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
     admin.count("ActionPhase") shouldBe 1
   }
@@ -241,7 +241,6 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     kim.doTasks(
         "VenusStep! BY Admin",
         "4 MC",
-        "0 MC",
     )
     // Both rewards are zero; name the influence term to distinguish them.
     stan.selectTask("2 MC / Influence")
@@ -264,7 +263,6 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     kim.doTasks(
         "VenusStep! BY Admin",
         "4 MC",
-        "0 MC",
     )
     // Both rewards are zero; name the influence term to distinguish them.
     stan.selectTask("2 MC / Influence")
@@ -816,7 +814,6 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     kim.doTasks(
         "VenusStep! BY Admin",
         "4 MC",
-        "0 MC",
     )
     // Both rewards are zero; name the influence term to distinguish them.
     stan.selectTask("2 MC / Influence")

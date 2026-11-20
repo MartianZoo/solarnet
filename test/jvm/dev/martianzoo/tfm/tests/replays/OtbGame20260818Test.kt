@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -10,10 +9,8 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.giveTask
 import dev.martianzoo.tfm.tests.playCardTasks
 import dev.martianzoo.tfm.tests.standardProjectTasks
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlinx.coroutines.test.runTest
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
 internal class OtbGame20260818Test : FullGameTest() {
@@ -2970,25 +2967,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       assertCounts(44 to "TerraformRating", 11 to "Animal<$Pets>")
     }
 
-    if (exportReplay) {
-      runTest {
-        val originalEvents = game.events.entriesSince(0)
-        val file = checkNotNull(completedGameFileJson())
-        val decoded = GameFileJson.parse(file).decode(gamePremise)
-        val reconstructed = decoded.open().world
-        val decodedEvents = reconstructed.events.entriesSince(0)
-        val allComponents = game.classTable.componentClass.baseType
-
-        // The file stores Pets text, which can expand implicit type-variable arguments on parse.
-        GameFileJson.encode(decoded, agents.taskLog.inputs()) shouldBe file
-        decodedEvents.map { it.toString() } shouldBe originalEvents.map { it.toString() }
-        decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
-        reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
-        reconstructed.reader.getComponents(allComponents).entries shouldBe
-            game.reader.getComponents(allComponents).entries
-      }
-    }
-
     with(green) {
       // "So I'm going to 1-2 and 1-3."
       doTasks(
@@ -3012,6 +2990,9 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.doTask("Ok") // decline final greenery
     // Decline the final greenery placement.
     yellow.doTask("Ok") // decline final greenery
+
+    green.doTask("124 VictoryPoint")
+    yellow.doTask("116 VictoryPoint")
 
     green.assertCounts(
         44 to "TerraformRating",

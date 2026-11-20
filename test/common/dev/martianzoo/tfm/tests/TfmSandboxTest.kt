@@ -92,7 +92,6 @@ internal abstract class TfmSandboxTest {
     val prepared =
         preparedWorlds.getOrPut(key) {
           createWorld(addOptions, playerCount, firstGlobalEvents)
-          agents.taskLog.gameStarted()
           admin.beginOperation("SetupPhase FROM BootstrapPhase")
           if (
               playerCount == 1 &&
@@ -194,13 +193,15 @@ internal abstract class TfmSandboxTest {
 
   /**
    * Scores the current position in seat order without retaining scoring effects or history. [body]
-   * resolves any player choices offered during scoring.
+   * resolves any player choices offered during scoring; this temporary query executes the remaining
+   * concrete scoring tasks through the Players before restoring the position.
    */
   protected fun victoryPoints(body: OperationBlock = {}): List<Int> {
     check(game.tasks.isEmpty()) { "Finish pending choices before querying victory points" }
     val checkpoint = game.timeline.checkpoint()
     try {
-      admin.runOperation("End FROM Phase", body)
+      admin.beginOperation("End FROM Phase", body)
+      players.forEach { it.autoExecNow(EAGER) }
       check(game.tasks.isEmpty()) { "Final scoring has unresolved choices" }
       return players.map { it.count("VictoryPoint") }
     } finally {

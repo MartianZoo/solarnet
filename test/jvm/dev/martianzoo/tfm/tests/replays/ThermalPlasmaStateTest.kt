@@ -1229,6 +1229,8 @@ internal class ThermalPlasmaStateTest : FullGameTest() {
       assertSidebar(gen = 12, temp = 8, oxygen = 14, oceans = 8, venus = 30)
       has("Victory") shouldBe true
 
+      doTask("84 VictoryPoint")
+
       assertCounts(84 to "VictoryPoint")
     }
   }

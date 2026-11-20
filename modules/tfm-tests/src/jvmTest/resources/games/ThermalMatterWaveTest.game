@@ -82,17 +82,8 @@ Player1: WorldGovernment {
 // Generation 2
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(9 MC)
-}
-
-Player1: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -117,17 +108,8 @@ Player1: WorldGovernment {
 // Generation 3
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -164,17 +146,8 @@ Player1: WorldGovernment {
 // Generation 4
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -3 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(3 MC)
-}
-
-Player1: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -221,17 +194,8 @@ Player1: WorldGovernment {
 // Generation 5
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(9 MC)
-}
-
-Player1: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -287,17 +251,8 @@ Player1: WorldGovernment {
 // Generation 6
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -3 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(3 MC)
-}
-
-Player1: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -363,17 +318,8 @@ Player1: WorldGovernment {
 // Generation 7
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -3 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(3 MC)
-}
-
-Player1: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -482,17 +428,8 @@ Player1: WorldGovernment {
 // Generation 8
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -557,17 +494,8 @@ Player1: WorldGovernment {
 // Generation 9
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -647,18 +575,10 @@ Player1: WorldGovernment {
 // Generation 10
 Player1: Research {
     4 ProjectCard<Selecting>
-}
 
-// keep all offered cards
-Player1: Research {
+    // keep all offered cards
     -0 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(12 MC)
-}
-
-Player1: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -772,18 +692,10 @@ Player1: WorldGovernment {
 // Generation 11
 Player1: Research {
     4 ProjectCard<Selecting>
-}
 
-// keep all offered cards
-Player1: Research {
+    // keep all offered cards
     -0 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(12 MC)
-}
-
-Player1: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -913,17 +825,8 @@ Player1: WorldGovernment {
 // Generation 12
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(9 MC)
-}
-
-Player1: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 

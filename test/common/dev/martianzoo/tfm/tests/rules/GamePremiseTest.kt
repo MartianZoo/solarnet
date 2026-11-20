@@ -1,13 +1,15 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -30,6 +32,32 @@ import kotlin.test.Test
 import kotlin.test.assertSame
 
 internal class GamePremiseTest {
+  @Test
+  internal fun recordedGlobalEventsNeedOnlyTheObservedPrefix() {
+    val premise =
+        Canon.gamePremise(GameConfig("TurmoilExpansion", "Kim", "Stan"))
+            .copy(drawOrder = listOf(cn("DemocraticReform"), cn("MinimalImpactPolicy")))
+    val agents = Agents(TfmEngine.newGame(premise)) { NONE }
+    val admin = agents[ADMIN]
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    admin.count("Coming<DemocraticReform>") shouldBe 1
+    admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
+    admin.count("GlobalEventDrawn") shouldBe 2
+    shouldThrow<DeadEndException> { admin.runOperation("DrawGlobalEvent") }
+    admin.count("GlobalEventDrawn") shouldBe 2
+    admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
+  }
+
+  @Test
+  internal fun recordedGlobalEventsRejectDuplicatesAndUnavailableNames() {
+    val premise = Canon.gamePremise(GameConfig("TurmoilExpansion", "Kim", "Stan"))
+    for (events in listOf(listOf("DemocraticReform", "DemocraticReform"), listOf("EarthOffice"))) {
+      shouldThrow<InvalidGameConfigException> {
+        TfmEngine.newGame(premise.copy(drawOrder = events.map(::cn)))
+      }
+    }
+  }
+
   @Test
   internal fun directPremisesRequireConcretePlayerClasses() {
     val catalog = Canon.withPlayers(1)
@@ -83,7 +111,6 @@ internal class GamePremiseTest {
     val second = TfmEngine.newGame(premise)
 
     first.classTable shouldBe second.classTable
-    first.testAgents().taskLog.gameStarted()
     first.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
     first.testAgent(ADMIN).count("SetupPhase") shouldBe 1
     second.testAgent(ADMIN).count("SetupPhase") shouldBe 0
@@ -156,7 +183,6 @@ internal class GamePremiseTest {
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
     game.reader.getComponents(cn("Player").expression).map { it.className }.toSet() shouldBe
         setOf(blue, yellow)
-    game.testAgents().taskLog.gameStarted()
     game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
     game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
     game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
@@ -225,7 +251,6 @@ internal class GamePremiseTest {
     admin.count("SelectedEnceladus") shouldBe 1
     admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
 
-    game.testAgents().taskLog.gameStarted()
     game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
     game.testAgent(Player(cn("Player1"))).doTask("-10 ProjectCard<Selecting>")
     game.testAgent(Player(cn("Player2"))).doTask("-10 ProjectCard<Selecting>")

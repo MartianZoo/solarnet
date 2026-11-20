@@ -27,6 +27,29 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   class inventories and incidental implementation checks. The November 19 gameplay cleanup removes
   `PropertyTest`, `CustomMetricTest`, and `PremiseEffectsTest` rather than relocating their probes.
 
+## Human-readable game archive prototype
+
+All 34 remaining replay scenarios have commented `.game` fixtures and pass checked-in import and
+fresh export/re-import. See [archive verification](docs/agents/EXPORT.md#migration-verification).
+
+- Pursue the [arithmetic inventory direction](docs/agents/EXPORT.md#arithmetic-inventory-direction):
+  move all six ruling bonuses to explicit player tasks, preserving Reds' eligibility before chairman
+  TR; also audit annual TR loss, chairman TR, immediate delegate changes, and constructed card tags.
+  Select the inventory criterion before claiming complete coverage. Ruling-bonus model changes
+  remain deferred.
+- Treat omitted actor qualifications and typed-zero matching as shared task-matcher concerns,
+  never archive-only conveniences. Typed zeros in the current draft already work unchanged.
+- Add a direct archive round-trip for Self-Replicating Robots' staged card source. Tracked games,
+  plays from Selecting, and card-held payments now have replay coverage. REPL work is deferred.
+- Resolve how an archive should state the actual zero outcome of `4* Microbe`: changing its limit
+  to `0 Microbe` currently fails shared task matching. Do not hide this with an importer-only rule.
+- Leave AUTO unimplemented until it can prove identical outcomes across all allowed execution
+  orders. Current archives list player effects explicitly.
+- Request-directed EACH/group expansion and OR inference now share a matcher with exporter
+  omission checks. Keep explicit preparation for chains not yet proved, intervening state changes,
+  newly exposed Admin work, and totals spread across hidden children. Extend these only when a
+  concrete Canon/archive example justifies it and the exporter can use the same proof.
+
 ## Gameplay consistency
 
 The [project record](docs/agents/TESTING.md#gameplay-consistency-project) owns the user's decisions,
@@ -40,7 +63,7 @@ and completes focused success paths. The owning testing document records the ret
 and replay correction inventory. The following are separate future work:
 
 - Investigate selection and narrowing that leave execution explicitly pending, including concrete
-  System choices such as PassBaton. Today selecting an alternative can transfer it to Admin and
+  System choices such as UseAction. Today selecting an alternative can transfer it to Admin and
   execute it before returning. The user selected separate engine work; this replay cleanup must
   not change the engine/Agent or TaskForm contract.
 
@@ -69,25 +92,14 @@ a Solarnet defect. Preserve that uncertainty without treating it as a migration 
 
 ## Other work
 
-- New Holland's combined city/ocean tile remains unsupported. `RemoteVacuumFlowTest`
-  uses an identity-only declaration for drawing/discarding; `LatentGammaFieldTest` uses
-  the user-authorized `FakeNewHolland`, which places no city, plus explicit corrections.
-  Both exported games need their test catalogs. Preserve these limitations when reusing
-  either replay; neither demonstrates canonical New Holland support. Source and correction
-  inventory: `_local/replays/Game20261031/p9a4445506f19/README.md`.
+- New Holland's combined city/ocean tile remains unsupported. The two replays that relied on
+  test-only versions of New Holland were removed from the suite. Source and correction inventory:
+  `_local/replays/Game20261031/p9a4445506f19/README.md`.
 
 - Decide whether to expose a final score for lost solo games. `KineticCarbonStateTest` preserves
   the archived loss at 60 TR and final resources; the website displays 90 VP, but Solarnet
   intentionally skips its scoring phase on a solo loss. Source: `_local/replays/Game20261030/`.
   Do not inject a scoring phase into the replay to manufacture the website's displayed total.
-
-- Investigate task matching when an `EACH` request is checked against an unrelated `THEN`
-  task. In `SyntheticMagnetBurstTest` generation 8, Sponsored Academies' opponent draw throws
-  `PetSyntaxException: EACH cannot be followed by THEN` while Mars University's optional
-  discard/draw is pending. Passing `SponsoredAcademies` as the context succeeds; the replay
-  keeps that explicit context and its exported game reconstructs successfully.
-  `OtbGame20260818Test` generation 10 reproduces the same failure for Robotic Workforce's
-  wild-tag election while Mars University's discard/draw is pending; it also names the context.
 
 - Clarify `THEN` after an instruction whose amount resolution atomizes it into a group. The current
   engine releases the continuation when that group is admitted, while Pets forbids an authored

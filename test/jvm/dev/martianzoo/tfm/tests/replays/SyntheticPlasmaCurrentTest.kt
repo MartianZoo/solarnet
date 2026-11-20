@@ -341,7 +341,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "4 MC",
             "Ok", // decline the optional plant removal
         )
-        doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+        doTasks("UseAction<UsePolicyAction, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
         doTasks(
             *playCardTasks("$VestaShipyard"),
             "3 Pay<Class<Titanium>> FROM Titanium",
@@ -479,7 +479,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
 
       me.turn {
         doTasks(
-            "UseAction<KelvinistsPolicy, Action1>",
+            "UseAction<UsePolicyAction, Action1>",
             "10 Pay<> FROM MC",
             "PROD[Heat]",
             "PROD[Energy]",
@@ -633,7 +633,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       assertSidebar(gen = 8, temp = -30, oxygen = 2, oceans = 5, venus = 6)
 
       me.turn {
-        doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+        doTasks("UseAction<UsePolicyAction, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
         doTasks(
             "UseAction<ConvertHeatAction, Action1>",
             "8 Pay<Class<Heat>> FROM Heat",
@@ -967,7 +967,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "PROD[Heat]",
         )
         doTasks(
-            "UseAction<KelvinistsPolicy, Action1>",
+            "UseAction<UsePolicyAction, Action1>",
             "10 Pay<> FROM MC",
             "PROD[Heat]",
             "PROD[Energy]",
@@ -1339,7 +1339,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       // Interplanetary Trade pays before Mars First takes power, then the visible events advance.
       expectChanges("28 MC") {
         doTask("TemperatureStep! BY Admin")
-        doTasks("10 MC", "0 MC")
+        doTask("10 MC")
             .expect("$PateraBoring, Distant<$PateraBoring>, PartyLeader<Scientists, Neutral>")
         // Interplanetary Trade pays 10 M€; the Mars First bonus pays 18 M€ for building tags.
       }
@@ -1577,6 +1577,7 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       )
       doTask("Ok") // decline final greenery
       assertCounts(0 to "ProjectCard")
+      doTask("150 VictoryPoint")
 
       assertResources(m = 113, s = 12, t = 8, p = 2, e = 0, h = 11)
       assertProduction(m = 36, s = 3, t = 5, p = 14, e = 0, h = 11)

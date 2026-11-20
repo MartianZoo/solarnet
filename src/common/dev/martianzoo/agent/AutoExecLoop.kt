@@ -13,14 +13,12 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Motivation
-import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
 /** Mandatory Admin handling followed by optional Player-policy execution. */
 internal class AutoExecLoop(
     private val world: World,
-    private val taskLog: TaskLog,
     private val validateApplication: () -> Unit,
 ) {
   private val allTasks: TaskQueue
@@ -77,7 +75,7 @@ internal class AutoExecLoop(
         if (selected != null || candidates.isNotEmpty()) return false
         val engine = engineFor(taskId)
         engine.transaction(motivationFor(engine.actor)) {
-          command(taskId, Kind.DO_TASK_ID) { executeConcretePlayerTask(engine, taskId) }
+          executeConcretePlayerTask(engine, taskId)
         }
         error("that should've completed")
       }
@@ -91,11 +89,11 @@ internal class AutoExecLoop(
               var progressed = false
               world.timeline.atomic {
                 engine.transaction(motivationFor(engine.actor)) {
-                  command(taskId, Kind.CHOOSE) { engine.selectTask(taskId) }
+                  engine.selectTask(taskId)
                   progressed =
                       allTasks.getTaskData(taskId).assignee != engine.actor ||
                           (canExecuteWithoutChoice(taskId) &&
-                              command(taskId, Kind.TRY_SELECTED) {
+                              run {
                                 try {
                                   engine.doTask(taskId)
                                   taskId !in allTasks
@@ -124,7 +122,7 @@ internal class AutoExecLoop(
         world.timeline.atomic {
           val engine = engineFor(taskId)
           engine.transaction(motivationFor(engine.actor)) {
-            command(taskId, Kind.DO_TASK_ID) { executeConcretePlayerTask(engine, taskId) }
+            executeConcretePlayerTask(engine, taskId)
           }
           validateApplication()
         }
@@ -200,7 +198,7 @@ internal class AutoExecLoop(
             world.timeline.atomic {
               val engine = engineFor(taskId)
               engine.transaction(Motivation.ADMIN_EAGER_POLICY) {
-                command(taskId, Kind.DO_TASK_ID) { engine.doTask(taskId) }
+                engine.doTask(taskId)
               }
               validateApplication()
             }
@@ -238,18 +236,6 @@ internal class AutoExecLoop(
 
   private fun waitsForEarlierWork(taskId: TaskId): Boolean =
       allTasks.getTaskData(taskId).deferral > allTasks.earliestDeferral
-
-  private fun <T> command(taskId: TaskId, kind: Kind, block: () -> T): T {
-    val task = allTasks.getTaskData(taskId)
-    return taskLog.capture(
-        task.assignee,
-        task.instruction.toString(),
-        kind = kind,
-        taskId = taskId,
-        automatic = true,
-        block = block,
-    )
-  }
 
   /** Admin is always fully automatic; a configured or overridden policy applies to Players only. */
   private fun policy(taskId: TaskId): AutoExecPolicy {

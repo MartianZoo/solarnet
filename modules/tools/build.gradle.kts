@@ -98,7 +98,7 @@ tasks.register<JavaExec>("dumpOtbGame20260828EventLog") {
   mainClass.set("dev.martianzoo.tfm.tools.DumpEventlogKt")
   args(
       replayEventLogsDirectory
-          .map { it.file("OtbGame20260828Test.json").asFile.absolutePath }
+          .map { it.file("OtbGame20260828Test.game").asFile.absolutePath }
           .get(),
       otbGame20260828EventLogDumpOutput.asFile.absolutePath,
   )
@@ -114,7 +114,7 @@ tasks.register<JavaExec>("dumpOtbGame20260912EventLog") {
   mainClass.set("dev.martianzoo.tfm.tools.DumpEventlogKt")
   args(
       replayEventLogsDirectory
-          .map { it.file("OtbGame20260912Test.json").asFile.absolutePath }
+          .map { it.file("OtbGame20260912Test.game").asFile.absolutePath }
           .get(),
       otbGame20260912EventLogDumpOutput.asFile.absolutePath,
   )

@@ -314,6 +314,23 @@ internal class EnglishCompositionalRenderingTest {
   }
 
   @Test
+  fun eachPlayerCanReceiveTheirOwnDispatchedScoringInstruction() {
+    english.describe(
+        parse<Effect>(
+            "End IF 9 Animal<This>:: EACH Me@Player { SOON Me@ { -2 VictoryPoint / CityTile } }"
+        )
+    ) shouldBe
+        "If there are at least 9 animals on this card, have each player lose 2 VP per city tile they own."
+    for (recipient in listOf("SOON Admin", "FINALLY Me@")) {
+      english.describe(
+          parse<Effect>(
+              "End IF 9 Animal<This>: EACH Me@Player { $recipient { -2 VictoryPoint / CityTile } }"
+          )
+      ) shouldContain "["
+    }
+  }
+
+  @Test
   fun resourceThresholdsRequireCompleteCategoriesAndMatchingAmounts() {
     english.describe(
         parse<Requirement>(

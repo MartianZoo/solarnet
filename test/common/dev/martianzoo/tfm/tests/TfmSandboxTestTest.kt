@@ -116,7 +116,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     kim.exMachina("$CorporateStronghold, -20 TerraformRating")
     val checkpoint = game.events.nextOrdinal
 
-    shouldThrow<LimitsException> { victoryPoints() }
+    shouldThrow<LimitsException> { victoryPoints { kim.doTask("-2 VictoryPoint") } }
     game.events.nextOrdinal shouldBe checkpoint
 
     kim.exMachina("20 TerraformRating")

@@ -1957,6 +1957,11 @@ internal class Wsbg2025Test : FullGameTest() {
             .render()
             .joinToString("\n"),
     )
+    blue.doTask("77 VictoryPoint")
+    red.doTask("70 VictoryPoint")
+    green.doTask("57 VictoryPoint")
+    black.doTask("60 VictoryPoint")
+
     blue.assertCounts(77 to "VictoryPoint", 1 to "Victory")
     red.assertCounts(70 to "VictoryPoint", 0 to "Victory")
     green.assertCounts(57 to "VictoryPoint", 0 to "Victory")

@@ -2181,6 +2181,11 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
     p3.cardsHand shouldBe emptySet()
     purple.cardsHand shouldBe emptySet()
     assertCardTrackingComplete()
+    p1.doTask("74 VictoryPoint")
+    p2.doTask("69 VictoryPoint")
+    p3.doTask("73 VictoryPoint")
+    purple.doTask("72 VictoryPoint")
+
     // Player-record evidence: final resources, production, rating, and score.
     p1.assertResources(m = 47, s = 2, t = 12, p = 4, e = 2, h = 12)
     p1.assertProduction(m = 5, s = 0, t = 2, p = 8, e = 2, h = 1)

@@ -185,35 +185,19 @@ Yellow: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+
+    // "I'm going to discard two and buy two."
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// (11:39 am) "Wow, these all suck." "I'll buy two."
-Green: Research {
+    // (11:39 am) "Wow, these all suck." "I'll buy two."
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-// "I'm going to discard two and buy two."
-Yellow: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -281,36 +265,20 @@ Green: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+
+    // "I buy one card and discard three."
+    -3 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// (11:46 am) "I'm buying three cards and discarding one."
-Green: Research {
+    // (11:46 am) "I'm buying three cards and discarding one."
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
-}
-
-// "I buy one card and discard three."
-Yellow: Research {
-    -3 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(3 MC)
-}
-
-Yellow: Research {
-    ProjectCard<Hand FROM Selecting>
 }
 
 // "I feel like I can always start by Aquifer Pumping."
@@ -462,36 +430,20 @@ Yellow: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+
+    // "Same."
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// 12:34 pm
-// "I'm discarding one card and buying three cards."
-Green: Research {
+    // 12:34 pm
+    // "I'm discarding one card and buying three cards."
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-// "Same."
-Yellow: Research {
-    -ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(9 MC)
-}
-
-Yellow: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -649,37 +601,21 @@ Green: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+
+    // (12:48 pm) "Shit. It's ruining everything. I need them. I'm buying three cards."
+    // "And discarding one."
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// (12:48 pm) "Shit. It's ruining everything. I need them. I'm buying three cards."
-// "And discarding one."
-Yellow: Research {
+    // ledger entry 124
+    // "I believe I did the same."
     -ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(9 MC)
-}
-
-Yellow: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-// ledger entry 124
-// "I believe I did the same."
-Green: Research {
-    -ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -854,28 +790,18 @@ Yellow: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+
+    // (1:02 pm) "What a bunch of junk." "I'm keeping two cards."
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// (1:02 pm) "What a bunch of junk." "I'm keeping two cards."
-Yellow: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(6 MC)
-}
-
-Yellow: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-// (1:04 pm) "I'm actually gonna not buy this card either."
-// "I'm gonna give myself my three money back again. I bought no cards this time."
-Green: Research {
+    // (1:04 pm) "I'm actually gonna not buy this card either."
+    // "I'm gonna give myself my three money back again. I bought no cards this time."
     -4 ProjectCard<Selecting>
 }
 
@@ -1080,37 +1006,21 @@ Green: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+
+    // (6:21 pm) "We're now playing Generation 7."
+    // "I'm buying three cards and discarding one."
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// (6:21 pm) "We're now playing Generation 7."
-// "I'm buying three cards and discarding one."
-Yellow: Research {
-    -ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(9 MC)
-}
-
-Yellow: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-// "I am... stupidly buying all of my cards. So, 12."
-// Keep all four Research cards.
-Green: Research {
+    // "I am... stupidly buying all of my cards. So, 12."
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(12 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1275,34 +1185,17 @@ Yellow: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// "I'll buy two cards and discard two cards. I'll do the same."
-Green: Research {
+    // "I'll buy two cards and discard two cards. I'll do the same."
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Yellow: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1490,27 +1383,16 @@ Green: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-// (8:03 pm) "We draft. I'll buy one card and discard three."
-// The ledger records Yellow buying three cards and Green buying none.
-Yellow: Research {
+    // (8:03 pm) "We draft. I'll buy one card and discard three."
+    // The ledger records Yellow buying three cards and Green buying none.
     -ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(9 MC)
-}
-
-Yellow: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -4 ProjectCard<Selecting>
 }
 
@@ -1709,34 +1591,17 @@ Yellow: WorldGovernment {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-// "I'm buying two cards. I'm buying three cards."
-Yellow: Research {
+    // "I'm buying two cards. I'm buying three cards."
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -2003,37 +1868,21 @@ Green: ExMachina {
 // Research.
 Yellow: Research {
     4 ProjectCard<Selecting>
+
+    // (8:35 pm) "I think I'll buy dos cartas."
+    // "I really should not buy all of these. 'Tis the struggle. What the fuck? I'll buy them all."
+    // "I mean, what the hell? What the hay bale?"
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// (8:35 pm) "I think I'll buy dos cartas."
-// "I really should not buy all of these. 'Tis the struggle. What the fuck? I'll buy them all."
-// "I mean, what the hell? What the hay bale?"
-Yellow: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(6 MC)
-}
-
-Yellow: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-// Keep all four Research cards.
-Green: Research {
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(12 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 

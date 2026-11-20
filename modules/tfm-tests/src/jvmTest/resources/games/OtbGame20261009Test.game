@@ -190,33 +190,15 @@ Aqua: WorldGovernment {
 // Generation 2. Evening 21:55:19–21:55:55; drafting is represented by its kept counts.
 Aqua: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     -3 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     Pay(3 MC)
-}
-
-Aqua: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -289,33 +271,15 @@ Pink: WorldGovernment {
 // "It is now round three. That was a really fast generation."
 Aqua: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     -ProjectCard<Selecting>
-}
-
-Aqua: Research {
     Pay(9 MC)
-}
-
-Aqua: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -380,34 +344,17 @@ Aqua: WorldGovernment {
 // Generation 4, 22:13:17–22:22:15.
 Aqua: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
 
-Aqua: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Aqua: Research {
-    Pay(6 MC)
-}
-
-Aqua: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-// keep all four research cards
-Pink: Research {
+    // keep all four research cards
     -0 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(12 MC)
-}
-
-Pink: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -508,33 +455,15 @@ Pink: WorldGovernment {
 // "I have got to stop laughing at you." "I know."
 Aqua: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     -2 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     Pay(6 MC)
-}
-
-Aqua: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -688,34 +617,17 @@ Pink: ExMachina {
 // Generation 6 Research: Aqua buys two cards; Pink buys four.
 Aqua: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
-}
 
-Aqua: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Aqua: Research {
-    Pay(6 MC)
-}
-
-Aqua: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-// keep all four
-Pink: Research {
+    // keep all four
     -0 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(12 MC)
-}
-
-Pink: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -850,34 +762,17 @@ Pink: WorldGovernment {
 // Generation 7 Research. Aqua keeps four cards; Pink keeps one.
 Aqua: Research {
     4 ProjectCard<Selecting>
-}
 
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-// keep all four
-Aqua: Research {
+    // keep all four
     -0 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     Pay(12 MC)
-}
-
-Aqua: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(3 MC)
-}
-
-Pink: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -1106,33 +1001,15 @@ Aqua: WorldGovernment {
 // Generation 8 Research. Aqua buys four cards; Pink buys three.
 Aqua: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     -0 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     Pay(12 MC)
-}
-
-Aqua: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1321,33 +1198,15 @@ Pink: WorldGovernment {
 // Generation 9. Both players buy three of the drafted cards.
 Aqua: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     -ProjectCard<Selecting>
-}
-
-Aqua: Research {
     Pay(9 MC)
-}
-
-Aqua: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1545,33 +1404,15 @@ Aqua: WorldGovernment {
 // Generation 10. Aqua says "I'm buying one card"; Pink's phone log records two purchases.
 Aqua: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     -3 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     Pay(3 MC)
-}
-
-Aqua: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1775,25 +1616,13 @@ Pink: WorldGovernment {
 // Generation 11. Pink buys nothing; Aqua keeps three cards.
 Aqua: Research {
     4 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    4 ProjectCard<Selecting>
-}
-
-Aqua: Research {
     -ProjectCard<Selecting>
-}
-
-Aqua: Research {
     Pay(9 MC)
-}
-
-Aqua: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
+    4 ProjectCard<Selecting>
     -4 ProjectCard<Selecting>
 }
 

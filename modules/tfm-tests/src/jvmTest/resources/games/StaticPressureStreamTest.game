@@ -354,33 +354,15 @@ Nor: WorldGovernment {
 // Generation 2
 Nor: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
-}
-
-Vin: Research {
     -2 ProjectCard<Selecting>
-}
-
-Vin: Research {
     Pay(6 MC)
-}
-
-Vin: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Nor: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Nor: Research {
-    Pay(6 MC)
-}
-
-Nor: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -455,33 +437,15 @@ Vin: WorldGovernment {
 // Generation 3
 Nor: Research {
     4 ProjectCard<Selecting>
-}
-
-Vin: Research {
-    4 ProjectCard<Selecting>
-}
-
-Nor: Research {
     -2 ProjectCard<Selecting>
-}
-
-Nor: Research {
     Pay(6 MC)
-}
-
-Nor: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Vin: Research {
     Pay(6 MC)
-}
-
-Vin: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -553,34 +517,17 @@ Nor: WorldGovernment {
 // Generation 4
 Nor: Research {
     4 ProjectCard<Selecting>
+    -3 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
-}
 
-Nor: Research {
-    -3 ProjectCard<Selecting>
-}
-
-Nor: Research {
-    Pay(3 MC)
-}
-
-Nor: Research {
-    ProjectCard<Hand FROM Selecting>
-}
-
-// discard no research cards
-Vin: Research {
+    // discard no research cards
     -0 ProjectCard<Selecting>
-}
-
-Vin: Research {
     Pay(12 MC)
-}
-
-Vin: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -700,33 +647,15 @@ Vin: WorldGovernment {
 // Generation 5
 Nor: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
-}
-
-Vin: Research {
     -ProjectCard<Selecting>
-}
-
-Vin: Research {
     Pay(9 MC)
-}
-
-Vin: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-Nor: Research {
-    -ProjectCard<Selecting>
-}
-
-Nor: Research {
-    Pay(9 MC)
-}
-
-Nor: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -830,34 +759,16 @@ Nor: WorldGovernment {
 // Generation 6
 Nor: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
-}
-
-Vin: Research {
     -ProjectCard<Selecting>
-}
-
-Vin: Research {
     Pay(9 MC)
-}
-
-Vin: Research {
     3 ProjectCard<Hand FROM Selecting>
-}
-
-Nor: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Nor: Research {
-    Pay(6 MC)
-}
-
-Nor: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 160: immediately after both Research purchases in generation 6.
@@ -958,25 +869,13 @@ Vin: WorldGovernment {
 // Generation 7
 Nor: Research {
     4 ProjectCard<Selecting>
-}
-
-Vin: Research {
-    4 ProjectCard<Selecting>
-}
-
-Nor: Research {
     -4 ProjectCard<Selecting>
 }
 
 Vin: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Vin: Research {
     Pay(6 MC)
-}
-
-Vin: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1087,33 +986,15 @@ Nor: WorldGovernment {
 // Generation 8
 Nor: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
-}
-
-Vin: Research {
     -2 ProjectCard<Selecting>
-}
-
-Vin: Research {
     Pay(6 MC)
-}
-
-Vin: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Nor: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Nor: Research {
-    Pay(6 MC)
-}
-
-Nor: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1212,34 +1093,16 @@ Vin: WorldGovernment {
 // Generation 9
 Nor: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
-}
-
-Vin: Research {
     -3 ProjectCard<Selecting>
-}
-
-Vin: Research {
     Pay(3 MC)
-}
-
-Vin: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-Nor: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Nor: Research {
-    Pay(6 MC)
-}
-
-Nor: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 293: immediately after both Research purchases in generation 9.
@@ -1410,35 +1273,18 @@ Nor: WorldGovernment {
 // Source Floyd Continuum is represented by FakeFloydContinuum here.
 Nor: Research {
     4 ProjectCard<Selecting>
+
+    // discard no research cards
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
-}
-
-Vin: Research {
     -3 ProjectCard<Selecting>
-}
-
-Vin: Research {
     Pay(3 MC)
-}
-
-Vin: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-// discard no research cards
-Nor: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Nor: Research {
-    Pay(12 MC)
-}
-
-Nor: Research {
-    4 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 357: immediately after both Research purchases in generation 10.
@@ -1582,33 +1428,15 @@ Vin: WorldGovernment {
 // Generation 11
 Nor: Research {
     4 ProjectCard<Selecting>
-}
-
-Vin: Research {
-    4 ProjectCard<Selecting>
-}
-
-Nor: Research {
     -2 ProjectCard<Selecting>
-}
-
-Nor: Research {
     Pay(6 MC)
-}
-
-Nor: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Vin: Research {
     Pay(6 MC)
-}
-
-Vin: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 

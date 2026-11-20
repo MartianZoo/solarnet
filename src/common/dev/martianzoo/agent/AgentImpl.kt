@@ -15,15 +15,15 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Deferral.FINALLY
+import dev.martianzoo.pets.ast.Deferral.NOW
 import dev.martianzoo.pets.ast.Deferral.SOON
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Dispatch
 import dev.martianzoo.pets.ast.Instruction.Each
-import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.util.Multiset
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -33,7 +33,6 @@ import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
-import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
@@ -46,7 +45,6 @@ internal class AgentImpl(
     private val engine: ActorEngine,
     private val elaborator: PetElaborator,
     private val autoExecLoop: AutoExecLoop,
-    private val taskLog: TaskLog,
     private val validateApplication: () -> Unit,
     initialPolicy: AutoExecPolicy,
 ) : Agent {
@@ -137,20 +135,16 @@ internal class AgentImpl(
 
   override fun exMachina(changes: String): TaskResult =
       world.timeline.atomic {
-        taskLog.capture(actor, changes, kind = Kind.EX_MACHINA) {
-          val unfinished = list("MustCleanUp").entries.associate { it.key to it.value }
-          val correction = parseInstructionGroup(changes)
-          val audited =
-              if (actor is Player)
-                  InstructionGroup.of(listOf(parseInstructionGroup("Audit<$actor>"), correction))
-              else correction
-          engine.exMachina(audited)
-          validateApplication()
-          if (
-              list("MustCleanUp").entries.any { (type, count) -> count > (unfinished[type] ?: 0) }
-          ) {
-            throw NotNowException("exMachina cannot leave new unfinished work")
-          }
+        val unfinished = list("MustCleanUp").entries.associate { it.key to it.value }
+        val correction = parseInstructionGroup(changes)
+        val audited =
+            if (actor is Player)
+                InstructionGroup.of(listOf(parseInstructionGroup("Audit<$actor>"), correction))
+            else correction
+        engine.exMachina(audited)
+        validateApplication()
+        if (list("MustCleanUp").entries.any { (type, count) -> count > (unfinished[type] ?: 0) }) {
+          throw NotNowException("exMachina cannot leave new unfinished work")
         }
       }
 
@@ -167,14 +161,7 @@ internal class AgentImpl(
   override fun dropTask(taskId: TaskId): TaskRemovedEvent {
     lateinit var removed: TaskRemovedEvent
     queueEdit {
-      taskLog.capture(
-          actor,
-          tasks.getTaskData(taskId).instruction.toString(),
-          kind = Kind.DROP,
-          taskId = taskId,
-      ) {
-        removed = engine.dropTask(taskId)
-      }
+      removed = engine.dropTask(taskId)
     }
     return removed
   }
@@ -359,19 +346,12 @@ internal class AgentImpl(
   internal fun changeLimit(change: Change): Int? = engine.changeLimit(change)
 
   internal fun commitForm(taskId: TaskId, narrowing: InstructionTree): TaskResult = decide {
-    taskLog.capture(actor, narrowing.toString(), formTask = taskId, kind = Kind.CHOOSE) {
-      engine.narrowTask(taskId, narrowing)
-    }
+    engine.narrowTask(taskId, narrowing)
   }
 
   override fun narrowTask(narrowing: String) = decide {
     val parsed = parseTaskNarrowing(narrowing)
-    val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
-    val instruction =
-        engine.prepareTaskNarrowing(taskId, parsed.instruction, parsed.quantifierOmitted)
-    taskLog.capture(actor, instruction.toString(), formTask = taskId, kind = Kind.CHOOSE) {
-      engine.narrowTask(parsed.instruction, parsed.quantifierOmitted)
-    }
+    engine.narrowTask(parsed.instruction, parsed.quantifierOmitted)
   }
 
   override fun canSelectTask(taskId: TaskId) = engine.canSelectTask(taskId)
@@ -379,33 +359,16 @@ internal class AgentImpl(
   override fun canExecuteTask(taskId: TaskId) = engine.canExecuteTask(taskId)
 
   override fun selectTask(taskId: TaskId) = decide {
-    taskLog.capture(
-        actor,
-        tasks.getTaskData(taskId).instruction.toString(),
-        kind = Kind.CHOOSE,
-        taskId = taskId,
-    ) {
-      engine.selectTask(taskId)
-    }
+    engine.selectTask(taskId)
   }
 
   override fun selectTask(instruction: String) = decide {
-    taskLog.capture(actor, instruction, kind = Kind.CHOOSE) {
-      val parsed = parseTaskNarrowing(instruction)
-      engine.selectTask(parsed.instruction, parsed.quantifierOmitted, parsed.taskId)
-    }
+    val parsed = parseTaskNarrowing(instruction)
+    engine.selectTask(parsed.instruction, parsed.quantifierOmitted, parsed.taskId)
   }
 
   override fun selectTask(task: Task) = decide {
-    taskLog.capture(
-        actor,
-        task.instruction.toString(),
-        formTask = task.id,
-        kind = Kind.CHOOSE,
-        taskId = task.id,
-    ) {
-      engine.selectTask(task.instruction, taskId = task.id)
-    }
+    engine.selectTask(task.instruction, taskId = task.id)
   }
 
   private fun executeInput(parsed: ParsedTaskNarrowing, contextClass: ClassName? = null) {
@@ -413,139 +376,131 @@ internal class AgentImpl(
     engine.doTask(parsed.instruction, parsed.quantifierOmitted, parsed.taskId, contextClass)
   }
 
-  /** A submitted total describes all matching current amounts, never a searched subset. */
   private fun combineAmounts(parsed: ParsedTaskNarrowing, contextClass: ClassName?): Boolean {
-    val requested =
-        InstructionGroup.of(parsed.instruction).instructions.map { it as? Change ?: return false }
-    val first = requested.firstOrNull() ?: return false
-    if (first.gaining != null && first.removing != null) return false
-    if (requested.any { it.needsNarrowing(reader) || it.count !is ActualScalar }) return false
-    if (
-        requested.any {
-          it.gaining != first.gaining ||
-              it.removing != first.removing ||
-              (!parsed.quantifierOmitted && it.quantifier != first.quantifier)
-        }
-    )
-        return false
-    val target = first.gaining ?: first.removing
-    fun sameTarget(change: Change): Boolean =
-        (change.gaining == target && change.removing == null) ||
-            (change.removing == target && change.gaining == null)
-    fun signedCount(change: Change): Long =
-        (change.count as ActualScalar).value.toLong() * if (change.gaining == null) -1 else 1
     val matches =
-        tasks
-            .extract { it }
-            .mapNotNull { task ->
-              if (
-                  task.deferral > allTasks.earliestDeferral ||
-                      (contextClass != null && task.cause?.context?.className != contextClass)
-              ) {
-                return@mapNotNull null
-              }
-              val instruction = task.instruction
-              val change =
-                  when (instruction) {
-                    is Change -> instruction
-                    is Per -> {
-                      val inner = instruction.inner as? Change ?: return@mapNotNull null
-                      if (!sameTarget(inner)) return@mapNotNull null
-                      (inner * reader.count(instruction.metric)) as? Change
-                          ?: return@mapNotNull null
-                    }
-                    else -> return@mapNotNull null
-                  }
-              if (!sameTarget(change) || change.count == ActualScalar(0)) return@mapNotNull null
-              task to change
-            }
-    if (matches.size < 2) return false
-    val amounts = matches.map { it.second }
-    if (amounts.any { it.count !is ActualScalar }) return false
-    if (amounts.map { it.quantifier }.distinct().size != 1) return false
-    if (!parsed.quantifierOmitted && amounts.any { it.quantifier != first.quantifier }) return false
-    if (amounts.sumOf(::signedCount) != requested.sumOf(::signedCount)) return false
-    // Take the snapshot before executing: newly caused rewards cannot join this total.
-    matches
-        .sortedBy { it.second.gaining == null }
-        .forEach { (task, change) ->
-          engine.doTask(change, taskId = task.id)
-          autoExecLoop.runAdmin()
-        }
+        engine.taskMatcher.matchingAmounts(
+            parsed.instruction,
+            parsed.quantifierOmitted,
+            contextClass,
+            tasks.extract { it to it.instruction },
+        ) ?: return false
+    matches.forEach { (task, change) ->
+      engine.doTask(change, taskId = task.id)
+      autoExecLoop.runAdmin()
+    }
     return true
   }
 
-  override fun doTask(narrowing: String) = decide {
-    taskLog.capture(actor, narrowing, kind = Kind.DO_TASK) {
-      val parsed = parseTaskNarrowing(narrowing)
-      executeInput(parsed)
+  override fun doTask(narrowing: String, releasedBy: Agent): TaskResult = decide {
+    require(releasedBy is AgentImpl && releasedBy.autoExecLoop === autoExecLoop) {
+      "The releasing Agent must belong to the same session"
     }
+    require(actor is Player && releasedBy.actor is Player && actor != releasedBy.actor)
+    releasedBy.withAutoExecPolicyOverride(AutoExecPolicy.NONE) {
+      withAutoExecPolicyOverride(AutoExecPolicy.NONE) {
+        if (allTasks.selectedTask() != null) {
+          doTask(narrowing)
+        } else {
+          val releases =
+              releasedBy.tasks
+                  .extract { task ->
+                    val dispatch = task.instruction as? Dispatch
+                    if (
+                        task.deferral == allTasks.earliestDeferral &&
+                            dispatch?.deferral == NOW &&
+                            dispatch.actor == actor.expression
+                    )
+                        task to dispatch.body
+                    else null
+                  }
+                  .filterNotNull()
+          if (releases.isEmpty()) {
+            doTask(narrowing)
+          } else {
+            val parsed = parseTaskNarrowing(narrowing)
+            val matches =
+                engine.taskMatcher.matchingAmounts(
+                    parsed.instruction,
+                    parsed.quantifierOmitted,
+                    null,
+                    tasks.extract { it to it.instruction } + releases,
+                    requireWholeTotal = true,
+                )
+            if (matches == null) {
+              val task =
+                  engine.taskMatcher
+                      .match(
+                          actor,
+                          parsed.instruction,
+                          parsed.quantifierOmitted,
+                          releases = releases,
+                      )
+                      ?.task ?: throw TaskException("no matching task for `$narrowing`")
+              if (task.assignee != actor) releasedBy.doTask(task.id)
+              doTask(narrowing)
+            } else {
+              matches.forEach { (task, change) ->
+                if (task.assignee == actor) {
+                  doTask(change.toString(), task.id)
+                } else {
+                  releasedBy.doTask("NOW $actor { $change }", task.id)
+                  doTask(change.toString())
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  override fun doTask(narrowing: String) = decide {
+    val parsed = parseTaskNarrowing(narrowing)
+    executeInput(parsed)
     finishTaskHandoff()
   }
 
   override fun doTask(narrowing: String, contextClass: ClassName) = decide {
-    taskLog.capture(actor, narrowing, kind = Kind.DO_TASK, contextClass = contextClass) {
-      val parsed = parseTaskNarrowing(narrowing, contextClass = contextClass)
-      executeInput(parsed, contextClass)
-    }
+    val parsed = parseTaskNarrowing(narrowing, contextClass = contextClass)
+    executeInput(parsed, contextClass)
     finishTaskHandoff()
   }
 
   override fun doTask(narrowing: String, taskId: TaskId) = decide {
-    taskLog.capture(actor, narrowing, kind = Kind.DO_TASK, taskId = taskId) {
-      val parsed = parseTaskNarrowing(narrowing, taskId = taskId)
-      engine.doTask(
-          parsed.instruction,
-          parsed.quantifierOmitted,
-          taskId,
-      )
-    }
+    val parsed = parseTaskNarrowing(narrowing, taskId = taskId)
+    engine.doTask(
+        parsed.instruction,
+        parsed.quantifierOmitted,
+        taskId,
+    )
     finishTaskHandoff()
   }
 
   override fun doTask(taskId: TaskId) = decide {
-    taskLog.capture(
-        actor,
-        tasks.getTaskData(taskId).instruction.toString(),
-        kind = Kind.DO_TASK_ID,
-        taskId = taskId,
-    ) {
-      engine.doTask(taskId)
-    }
+    engine.doTask(taskId)
     finishTaskHandoff()
   }
 
   override fun tryTask(narrowing: String) = decide {
-    taskLog.capture(actor, narrowing, kind = Kind.TRY_TASK) {
-      val parsed = parseTaskNarrowing(narrowing)
-      tryExecution {
-        engine.doTask(parsed.instruction, parsed.quantifierOmitted, parsed.taskId)
-        if (allTasks.selectedTask() != null) throw AbortTransactionException()
-      }
+    val parsed = parseTaskNarrowing(narrowing)
+    tryExecution {
+      engine.doTask(parsed.instruction, parsed.quantifierOmitted, parsed.taskId)
+      if (allTasks.selectedTask() != null) throw AbortTransactionException()
     }
   }
 
   override fun tryTask(narrowing: String, taskId: TaskId) = decide {
-    taskLog.capture(actor, narrowing, kind = Kind.TRY_TASK, taskId = taskId) {
-      val parsed = parseTaskNarrowing(narrowing, taskId = taskId)
-      tryExecution {
-        engine.doTask(parsed.instruction, parsed.quantifierOmitted, taskId)
-        if (allTasks.selectedTask() != null) throw AbortTransactionException()
-      }
+    val parsed = parseTaskNarrowing(narrowing, taskId = taskId)
+    tryExecution {
+      engine.doTask(parsed.instruction, parsed.quantifierOmitted, taskId)
+      if (allTasks.selectedTask() != null) throw AbortTransactionException()
     }
   }
 
   override fun tryTask(taskId: TaskId) = decide {
-    taskLog.capture(
-        actor,
-        tasks.getTaskData(taskId).instruction.toString(),
-        kind = Kind.TRY_TASK_ID,
-        taskId = taskId,
-    ) {
-      tryExecution {
-        engine.doTask(taskId)
-        if (taskId in allTasks) throw AbortTransactionException()
-      }
+    tryExecution {
+      engine.doTask(taskId)
+      if (taskId in allTasks) throw AbortTransactionException()
     }
   }
 

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
@@ -10,8 +11,9 @@ import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.engine.GameArchiveExporter
+import dev.martianzoo.tfm.engine.GameArchiveImporter
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmGameplayTest
@@ -36,7 +38,6 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
     private set
 
   protected abstract val config: GameConfig
-  internal var exportReplay: Boolean = false
   /** Pets declarations for concrete Players with sourced per-seat setup rules. */
   protected open val playerClassPets: String = ""
   /** Neutral solo locations in city, greenery, city, greenery order. */
@@ -45,11 +46,13 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
   protected open val globalEventDeck: List<ClassName> = emptyList()
   protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
 
-  internal suspend fun completedGameFileJson(short: Boolean = false): String? {
+  internal fun completedGameArchive(): String? {
     if (game.events.entriesSinceSetup().isEmpty()) return null
-    val completed = game.recording()
-    return GameFileJson.encode(completed, agents.taskLog.inputs(), short)
+    return GameArchiveExporter(game.recording(), config).export()
   }
+
+  internal fun importGameArchive(source: String): Agents =
+      GameArchiveImporter(source) { catalog }.also { it.run() }.agents
 
   @BeforeTest
   open fun commonSetup() {
@@ -62,7 +65,6 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
             globalEventDeck.map(ClassName::toString),
         )
     initializeGame(gamePremise)
-    if (exportReplay) agents.taskLog.start()
   }
 
   protected open fun player(seat: Int): Agent {
@@ -71,7 +73,6 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
   }
 
   protected fun startGame() {
-    agents.taskLog.gameStarted()
     admin.beginOperation("SetupPhase FROM BootstrapPhase")
   }
 

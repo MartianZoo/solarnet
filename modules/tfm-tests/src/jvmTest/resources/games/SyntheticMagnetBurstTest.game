@@ -175,39 +175,23 @@ Pink: WorldGovernment {
 // Generation 2
 Pink: Research {
     4 ProjectCard<Selecting>
+
+    // Game20260820-dashboards-gen2.png was taken after Green's generation 2 purchase and
+    // before Pink's.
+    // You bought Invention Contest,Decomposers,Colonizer Training Camp,Imported Hydrogen
+    // Keep all four offered cards.
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// You bought Giant Ice Asteroid,Investment Loan,Earth Office,Power Supply Consortium
-// Keep all four offered cards.
-Green: Research {
+    // You bought Giant Ice Asteroid,Investment Loan,Earth Office,Power Supply Consortium
+    // Keep all four offered cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(12 MC)
-}
-
-Green: Research {
-    4 ProjectCard<Hand FROM Selecting>
-}
-
-// Game20260820-dashboards-gen2.png was taken after Green's generation 2 purchase and
-// before Pink's.
-// You bought Invention Contest,Decomposers,Colonizer Training Camp,Imported Hydrogen
-// Keep all four offered cards.
-Pink: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(12 MC)
-}
-
-Pink: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -276,36 +260,20 @@ Green: WorldGovernment {
 // Generation 3
 Pink: Research {
     4 ProjectCard<Selecting>
+
+    // You bought Hackers,ArchaeBacteria
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// You bought Mars University,Neutralizer Factory,Great Dam
-Green: Research {
+    // You bought Mars University,Neutralizer Factory,Great Dam
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
-}
-
-// You bought Hackers,ArchaeBacteria
-Pink: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(6 MC)
-}
-
-Pink: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 // Game20260820-dashboards-gen3.png was taken after generation 3 purchases and before
@@ -372,36 +340,20 @@ Pink: WorldGovernment {
 // Generation 4
 Pink: Research {
     4 ProjectCard<Selecting>
+
+    // You bought Titanium Mine,Ecological Zone
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// You bought Titanium Mine,Ecological Zone
-Pink: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(6 MC)
-}
-
-Pink: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-// You bought Media Group,Ironworks,Research,Miranda Resort
-// Keep all four offered cards.
-Green: Research {
+    // You bought Media Group,Ironworks,Research,Miranda Resort
+    // Keep all four offered cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(12 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -470,36 +422,20 @@ Green: WorldGovernment {
 // Generation 5
 Pink: Research {
     4 ProjectCard<Selecting>
+
+    // You bought Floating Habs,Nuclear Zone,Space Elevator
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// Game20260820-dashboards-gen5.png was taken in generation 5 drafting, before purchases.
-// You bought Thermophiles,Rad-Chem Factory,GHG Factories
-Green: Research {
+    // Game20260820-dashboards-gen5.png was taken in generation 5 drafting, before purchases.
+    // You bought Thermophiles,Rad-Chem Factory,GHG Factories
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-// You bought Floating Habs,Nuclear Zone,Space Elevator
-Pink: Research {
-    -ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(9 MC)
-}
-
-Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -578,35 +514,19 @@ Pink: WorldGovernment {
 // Generation 6
 Pink: Research {
     4 ProjectCard<Selecting>
+
+    // You bought Solar Wind Power,Aerobraked Ammonia Asteroid
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// You bought Solar Wind Power,Aerobraked Ammonia Asteroid
-Pink: Research {
+    // You bought Asteroid,Nitrite Reducing Bacteria
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-// You bought Asteroid,Nitrite Reducing Bacteria
-Green: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -735,35 +655,19 @@ Green: WorldGovernment {
 // Generation 7
 Pink: Research {
     4 ProjectCard<Selecting>
+
+    // You bought Lagrange Observatory,Advanced Ecosystems,Deimos Down
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// You bought Lagrange Observatory,Advanced Ecosystems,Deimos Down
-Pink: Research {
-    -ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(9 MC)
-}
-
-Pink: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-// You bought Terraforming Contract,Sponsored Academies
-Green: Research {
+    // You bought Terraforming Contract,Sponsored Academies
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -859,37 +763,21 @@ Pink: WorldGovernment {
 // Generation 8
 Pink: Research {
     4 ProjectCard<Selecting>
+
+    // You bought Rad-Suits,Geothermal Power,Gene Repair
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// Game20260820-dashboards-gen8.png was taken during generation 8 drafting, before purchases.
-// You bought Ishtar Expedition,Lava Tube Settlement
-Green: Research {
+    // Game20260820-dashboards-gen8.png was taken during generation 8 drafting, before purchases.
+    // You bought Ishtar Expedition,Lava Tube Settlement
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
-}
-
-// You bought Rad-Suits,Geothermal Power,Gene Repair
-Pink: Research {
-    -ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(9 MC)
-}
-
-Pink: Research {
-    3 ProjectCard<Hand FROM Selecting>
 }
 
 // Green drew Stratospheric Birds,Floating Refinery
@@ -1039,36 +927,20 @@ Green: WorldGovernment {
 // Generation 9
 Pink: Research {
     4 ProjectCard<Selecting>
+
+    // You bought Herbivores,Dawn City,Beam From A Thorium Asteroid
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// You bought Land Claim,Bribed Committee
-Green: Research {
+    // You bought Land Claim,Bribed Committee
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
-}
-
-// You bought Herbivores,Dawn City,Beam From A Thorium Asteroid
-Pink: Research {
-    -ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(9 MC)
-}
-
-Pink: Research {
-    3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: UseStandardProject(GreeneryProject) {
@@ -1225,36 +1097,20 @@ Pink: WorldGovernment {
 // Generation 10
 Pink: Research {
     4 ProjectCard<Selecting>
+
+    // You bought CEO's Favorite Project,Fusion Power
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// You bought Business Network
-Green: Research {
+    // You bought Business Network
     -3 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(3 MC)
-}
-
-Green: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-// You bought CEO's Favorite Project,Fusion Power
-Pink: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
-    Pay(6 MC)
-}
-
-Pink: Research {
-    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: UseAction1(Ironworks) {
@@ -1417,35 +1273,19 @@ Green: WorldGovernment {
 // Generation 11
 Pink: Research {
     4 ProjectCard<Selecting>
+
+    // You bought Technology Demonstration,Birds
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-// You bought Technology Demonstration,Birds
-Pink: Research {
+    // You bought Giant Solar Shade,Algae
     -2 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(6 MC)
-}
-
-Pink: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-// You bought Giant Solar Shade,Algae
-Green: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 

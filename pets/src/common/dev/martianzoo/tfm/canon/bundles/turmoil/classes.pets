@@ -122,7 +122,10 @@ CLASS Scientists : Party {
   ApplyRulingBonus<This>: EACH Me@Player { 1 MC / ScienceTag }
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
-CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, StandardAction {
+"The standard action supplied by the current actionable ruling policy"
+ABSTRACT CLASS UsePolicyAction : StandardAction
+
+CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, UsePolicyAction {
   10 MC -> 3 ProjectCard THEN ScientistsUsedMarker
 }
 CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player>, System, Iconic {
@@ -164,7 +167,7 @@ CLASS Kelvinists : Party {
   ApplyRulingBonus<This>: EACH Me@Player { 1 MC / PROD[Heat] }
   ActionPhase IF Ruling<This>:: KelvinistsPolicy
 }
-CLASS KelvinistsPolicy : Policy<Ruling<Kelvinists>>, StandardAction {
+CLASS KelvinistsPolicy : Policy<Ruling<Kelvinists>>, UsePolicyAction {
   10 MC -> PROD[Heat, Energy]
 }
 

@@ -86,17 +86,8 @@ Me: WorldGovernment {
 // You drew Atmo Collectors
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -3 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(3 MC)
-}
-
-Me: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -129,17 +120,8 @@ Me: WorldGovernment {
 // You drew Extractor Balloons, Carbonate Processing and Project Inspection
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(9 MC)
-}
-
-Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -181,17 +163,8 @@ Me: WorldGovernment {
 // You drew Nuclear Power, Earth Office and Energy Saving
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(9 MC)
-}
-
-Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -224,17 +197,8 @@ Me: WorldGovernment {
 // You drew Solar Reflectors
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -3 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(3 MC)
-}
-
-Me: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -296,17 +260,8 @@ Me: WorldGovernment {
 // You drew Flooding and Mining Expedition
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -2 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(6 MC)
-}
-
-Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -373,17 +328,8 @@ Me: WorldGovernment {
 // You drew Geothermal Power and CEO's Favorite Project
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -2 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(6 MC)
-}
-
-Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -439,17 +385,8 @@ Me: WorldGovernment {
 // You drew Interplanetary Colony Ship
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -3 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(3 MC)
-}
-
-Me: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -527,17 +464,8 @@ Me: WorldGovernment {
 // You drew Release of Inert Gases and Moss
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -2 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(6 MC)
-}
-
-Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -611,17 +539,8 @@ Me: WorldGovernment {
 // You drew Ice Moon Colony, Trees and Dust Seals
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(9 MC)
-}
-
-Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -708,17 +627,8 @@ Me: WorldGovernment {
 // You drew Venus Waystation
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -3 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(3 MC)
-}
-
-Me: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -816,17 +726,8 @@ Me: WorldGovernment {
 // You drew Solar Power
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -3 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(3 MC)
-}
-
-Me: Research {
     ProjectCard<Hand FROM Selecting>
 }
 

@@ -1785,6 +1785,10 @@ internal class SolarFusionStreamTest : FullGameTest() {
     KB.count("EVAL Benefactor.metric") shouldBe 43
     ER.count("EVAL Benefactor.metric") shouldBe 38
 
+    JR.doTask("84 VictoryPoint")
+    KB.doTask("75 VictoryPoint")
+    ER.doTask("67 VictoryPoint")
+
     JR.assertCounts(33 to "TerraformRating")
     KB.assertCounts(43 to "TerraformRating")
     ER.assertCounts(38 to "TerraformRating")

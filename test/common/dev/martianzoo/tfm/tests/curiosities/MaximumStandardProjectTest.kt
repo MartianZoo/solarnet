@@ -621,7 +621,7 @@ internal class MaximumStandardProjectTest : FullGameTest() {
         doTask("Pass")
         doTasks("45 MC", "4 Heat")
         // Turmoil: Charismatic WG President.
-        doTasks("4 MC", "0 MC")
+        doTask("4 MC") // Includes the zero-valued influence reward.
       }
       admin.count("Distant<$SelfSufficiencyProgram>") shouldBe 1
     }

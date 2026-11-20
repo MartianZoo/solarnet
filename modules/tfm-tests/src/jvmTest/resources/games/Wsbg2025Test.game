@@ -209,59 +209,30 @@ Black: Production {
 
 Blue: Research {
     4 ProjectCard<Selecting>
+
+    // Provisional Research count: three cards.
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Black: Research {
-    4 ProjectCard<Selecting>
-}
-
-Red: Research {
     -2 ProjectCard<Selecting>
-}
-
-Red: Research {
     Pay(6 MC)
-}
-
-Red: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Black: Research {
+    4 ProjectCard<Selecting>
     -4 ProjectCard<Selecting>
-}
-
-// Provisional Research count: three cards.
-Blue: Research {
-    -ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(9 MC)
-}
-
-Blue: Research {
-    3 ProjectCard<Hand FROM Selecting>
 }
 
 Red: PlayCard(Archaebacteria) {
@@ -376,51 +347,28 @@ Black: Production {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Red: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Black: Research {
-    4 ProjectCard<Selecting>
-}
-
-// visual confirmation
-Red: Research {
     -ProjectCard<Selecting>
-}
-
-Red: Research {
     Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
+    4 ProjectCard<Selecting>
+
+    // visual confirmation
+    -ProjectCard<Selecting>
+    Pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -4 ProjectCard<Selecting>
 }
 
 Black: Research {
+    4 ProjectCard<Selecting>
     -4 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    -ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(9 MC)
-}
-
-Blue: Research {
-    3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: ClaimMilestone {
@@ -569,69 +517,34 @@ Black: Production {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Red: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Black: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Research counts for Blue, Red, and Green remain tentative.
-// visual confirmation
-// discard no Research cards
-Black: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Black: Research {
-    Pay(12 MC)
-}
-
-Black: Research {
-    4 ProjectCard<Hand FROM Selecting>
-}
-
-Blue: Research {
     -3 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(3 MC)
-}
-
-Blue: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Red: Research {
     Pay(3 MC)
-}
-
-Red: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
-Green: Research {
-    3 ProjectCard<Hand FROM Selecting>
+Black: Research {
+    4 ProjectCard<Selecting>
+
+    // Research counts for Blue, Red, and Green remain tentative.
+    // visual confirmation
+    // discard no Research cards
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Black: PlayCard(MarsUniversity) {
@@ -821,67 +734,33 @@ Black: Production {
 
 Blue: Research {
     4 ProjectCard<Selecting>
+
+    // Generation 5. Blue/Green Research counts are provisional.
+    -3 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
     4 ProjectCard<Selecting>
+    -3 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
+    -3 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
 Black: Research {
     4 ProjectCard<Selecting>
-}
 
-// Generation 5. Blue/Green Research counts are provisional.
-Blue: Research {
-    -3 ProjectCard<Selecting>
-}
-
-Blue: Research {
-    Pay(3 MC)
-}
-
-Blue: Research {
-    ProjectCard<Hand FROM Selecting>
-}
-
-Red: Research {
-    -3 ProjectCard<Selecting>
-}
-
-Red: Research {
-    Pay(3 MC)
-}
-
-Red: Research {
-    ProjectCard<Hand FROM Selecting>
-}
-
-Green: Research {
-    -3 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(3 MC)
-}
-
-Green: Research {
-    ProjectCard<Hand FROM Selecting>
-}
-
-// keep all four Research cards
-Black: Research {
+    // keep all four Research cards
     -0 ProjectCard<Selecting>
-}
-
-Black: Research {
     Pay(12 MC)
-}
-
-Black: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1032,66 +911,31 @@ Black: Production {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-Red: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Black: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Research counts are inferred, including Green keeping two before his confirmed patent sale.
-Blue: Research {
+    // Research counts are inferred, including Green keeping two before his confirmed patent sale.
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Red: Research {
     Pay(6 MC)
-}
-
-Red: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Black: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Black: Research {
     Pay(9 MC)
-}
-
-Black: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1313,68 +1157,35 @@ Black: Production {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-Red: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Black: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Blue Research count is provisional.
-Blue: Research {
+    // Blue Research count is provisional.
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Red: Research {
     Pay(9 MC)
-}
-
-Red: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
-// discard no Research cards
 Green: Research {
+    4 ProjectCard<Selecting>
+
+    // discard no Research cards
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(12 MC)
-}
-
-Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
-// discard no Research cards
 Black: Research {
+    4 ProjectCard<Selecting>
+
+    // discard no Research cards
     -0 ProjectCard<Selecting>
-}
-
-Black: Research {
     Pay(12 MC)
-}
-
-Black: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1606,63 +1417,34 @@ Black: ExMachina {
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
 
-Red: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    4 ProjectCard<Selecting>
-}
-
-Black: Research {
-    4 ProjectCard<Selecting>
-}
-
-// 01:50:41 production checkpoint; uncertain resource readings remain in the local notes.
-// visual confirmation
-// visual confirmation
-// visual confirmation
-// 01:50:41 map.
-// Research counts are provisional; Green keeps a single card to fund Open City after the theft.
-Blue: Research {
+    // 01:50:41 production checkpoint; uncertain resource readings remain in the local notes.
+    // visual confirmation
+    // visual confirmation
+    // visual confirmation
+    // 01:50:41 map.
+    // Research counts are provisional; Green keeps a single card to fund Open City after the theft.
     -4 ProjectCard<Selecting>
 }
 
 Red: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Red: Research {
     Pay(6 MC)
-}
-
-Red: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(3 MC)
-}
-
-Green: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Black: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Black: Research {
     Pay(3 MC)
-}
-
-Black: Research {
     ProjectCard<Hand FROM Selecting>
 }
 

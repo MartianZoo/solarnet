@@ -48,9 +48,12 @@ internal class VerminTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_3_2>")
     rob.exMachina("NormalCityTile<Tharsis_3_3>")
 
-    victoryPoints {
-      // Expand the per-player deductions; Admin applies the scoring changes.
-      kim.doTask("EACH")
-    } shouldBe listOf(18, 19, 19)
+    admin.beginOperation("End FROM Phase")
+    kim.count("VictoryPoint") shouldBe 0
+    kim.doTask("18 VictoryPoint")
+    stan.doTask("19 VictoryPoint")
+    rob.doTask("19 VictoryPoint")
+    players.map { it.count("VictoryPoint") } shouldBe listOf(18, 19, 19)
+    game.isIdle() shouldBe true
   }
 }

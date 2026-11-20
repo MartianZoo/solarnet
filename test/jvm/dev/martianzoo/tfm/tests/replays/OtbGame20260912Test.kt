@@ -1635,8 +1635,8 @@ internal class OtbGame20260912Test : FullGameTest() {
     ) {
       yellow.doTask("OceanTile<Vastitas_4_3>! BY Admin")
       green.doTask("12 MC")
-      yellow.doTasks("6 MC", "0 MC")
-      blue.doTasks("4 MC", "0 MC")
+      yellow.doTask("6 MC")
+      blue.doTask("4 MC")
     }
     // Spin-Off Products and the Scientists ruling bonus pay for science tags. Diversity becomes
     // current, Improved Energy Templates becomes coming, and Revolution is revealed.
@@ -1815,7 +1815,7 @@ internal class OtbGame20260912Test : FullGameTest() {
     }
     yellow.turn {
       // Scientists' ruling policy: "I suppose I'll spend ten to draw three cards."
-      doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+      doTasks("UseAction<UsePolicyAction, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
     }
 
     blue.turn {
@@ -3369,6 +3369,10 @@ internal class OtbGame20260912Test : FullGameTest() {
       )
     }
     yellow.doTask("Ok") // decline final greenery
+
+    green.doTask("89 VictoryPoint")
+    yellow.doTask("109 VictoryPoint")
+    blue.doTask("74 VictoryPoint")
 
     assertEquals(
         """

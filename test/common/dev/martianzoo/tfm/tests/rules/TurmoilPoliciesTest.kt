@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
@@ -55,15 +56,17 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
   internal fun `Scientists draws three cards only once per generation`() {
     electGovernment("Scientists")
     stan.doTask("Pass")
-    shouldThrow<DependencyException> { kim.doTask("UseAction<KelvinistsPolicy, Action1>") }
-    kim.turn {
-      doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
-    }
-    shouldThrow<LimitsException> {
+    kim.completeOperation {
+          doTasks("UseAction<UsePolicyAction, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+        }
+        .expect("-10 MC, 3 ProjectCard")
+    val money = kim.count("MC")
+    shouldThrow<NotNowException> {
       kim.completeOperation {
-        doTasks("UseAction<ScientistsPolicy, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
+        doTasks("UseAction<UsePolicyAction, Action1>", "10 Pay<> FROM MC", "3 ProjectCard")
       }
     }
+    kim.count("MC") shouldBe money
     kim.doTask("Pass")
     kim.doTask("20 MC")
     stan.doTask("19 MC")
@@ -180,16 +183,19 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     electGovernment("Kelvinists")
     stan.doTask("Pass")
 
-    kim.turn {
-      doTasks(
-          "UseAction<KelvinistsPolicy, Action1>",
-          "10 Pay<> FROM MC",
-          "PROD[Heat]",
-          "PROD[Energy]",
-      )
+    repeat(2) {
+      kim.completeOperation {
+            doTasks(
+                "UseAction<UsePolicyAction, Action1>",
+                "10 Pay<> FROM MC",
+                "PROD[Heat]",
+                "PROD[Energy]",
+            )
+          }
+          .expect("-10 MC, PROD[Heat, Energy]")
     }
     kim.doTask("Pass")
-    kim.doTasks("20 MC", "Heat", "Energy")
+    kim.doTasks("20 MC", "2 Heat", "2 Energy")
     stan.doTask("19 MC")
     admin.count("KelvinistsPolicy") shouldBe 0
     stan.doTasks(
@@ -199,6 +205,15 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     kim.doTasks("Plant", "Steel")
     stan.doTasks("0 Plant", "0 Steel")
     players.forEach { it.doTasks("4 ProjectCard<Selecting>", "-4 ProjectCard<Selecting>") }
+  }
+
+  @Test
+  internal fun `Greens offers no policy action`() {
+    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    val money = kim.count("MC")
+    shouldThrow<DependencyException> { kim.doTask("UseAction<UsePolicyAction, Action1>") }
+    kim.count("MC") shouldBe money
+    kim.count("Baton") shouldBe 1
   }
 
   private fun electGovernment(

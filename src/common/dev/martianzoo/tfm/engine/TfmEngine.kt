@@ -63,15 +63,20 @@ public object TfmEngine {
 
   /**
    * Builds a live [World] from [premise] with this engine's [customClasses] available. Invalid
-   * premises or missing custom declarations fail during world construction. A solo premise must
-   * include its fixed neutral placement declaration, supplied by `soloTileSetup` before this call.
+   * premises or missing custom declarations fail during world construction. The global-event order
+   * may be a recorded prefix; drawing beyond it fails without inventing an event. A solo premise
+   * must include its fixed neutral placement declaration, supplied by `soloTileSetup` before this
+   * call.
    */
   public fun newGame(premise: GamePremise): World {
     val available = globalEventDeck(premise)
-    if (premise.drawOrder.size != available.size || premise.drawOrder.toSet() != available) {
+    if (
+        premise.drawOrder.distinct().size != premise.drawOrder.size ||
+            !available.containsAll(premise.drawOrder)
+    ) {
       throw InvalidGameConfigException(
-          "Global Event draw order must contain every available event exactly once: " +
-              "expected $available, found ${premise.drawOrder}"
+          "Global Event draw order must contain distinct available events: " +
+              "available $available, supplied ${premise.drawOrder}"
       )
     }
     if (cn("SoloMode") in premise.modules) {
@@ -89,7 +94,7 @@ public object TfmEngine {
     return Engine.newGame(premise, customClasses)
   }
 
-  /** Available Turmoil Global Events that [GamePremise.drawOrder] must contain exactly once. */
+  /** Available Turmoil Global Events. [GamePremise.drawOrder] may supply any distinct prefix. */
   public fun globalEventDeck(premise: GamePremise): Set<ClassName> {
     val eventClass = premise.classTable.findClass(cn("GlobalEvent")) ?: return emptySet()
     return premise.classTable

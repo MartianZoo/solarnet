@@ -67,17 +67,8 @@ Me: WorldGovernment {
 // Generation 2
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -3 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(1 MC)
-}
-
-Me: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -96,17 +87,8 @@ Me: WorldGovernment {
 // Generation 3
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -2 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(2 MC)
-}
-
-Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -149,17 +131,8 @@ Me: WorldGovernment {
 // Generation 4
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(3 MC)
-}
-
-Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -191,17 +164,8 @@ Me: WorldGovernment {
 // Generation 5
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(3 MC)
-}
-
-Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -282,18 +246,10 @@ Me: WorldGovernment {
 // Generation 6
 Me: Research {
     4 ProjectCard<Selecting>
-}
 
-// keep all offered cards
-Me: Research {
+    // keep all offered cards
     -0 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(4 MC)
-}
-
-Me: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -371,18 +327,10 @@ Me: WorldGovernment {
 // Generation 7
 Me: Research {
     4 ProjectCard<Selecting>
-}
 
-// keep all offered cards
-Me: Research {
+    // keep all offered cards
     -0 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(4 MC)
-}
-
-Me: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -466,17 +414,8 @@ Me: WorldGovernment {
 // Generation 8
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -2 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(2 MC)
-}
-
-Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -589,17 +528,8 @@ Me: WorldGovernment {
 // Generation 9
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(3 MC)
-}
-
-Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -704,18 +634,10 @@ Me: WorldGovernment {
 // Generation 10
 Me: Research {
     4 ProjectCard<Selecting>
-}
 
-// keep all offered cards
-Me: Research {
+    // keep all offered cards
     -0 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(4 MC)
-}
-
-Me: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -842,17 +764,8 @@ Me: WorldGovernment {
 // Generation 11
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -3 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(1 MC)
-}
-
-Me: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -984,17 +897,8 @@ Me: WorldGovernment {
 // Generation 12
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -3 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(1 MC)
-}
-
-Me: Research {
     ProjectCard<Hand FROM Selecting>
 }
 

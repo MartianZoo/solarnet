@@ -715,7 +715,7 @@
           "actions": [ "-> Animal<This> OR Microbe" ],
           "effects": [
             "CityTile<Anyone>: Animal<This>",
-            "End IF 10 Animal<This>: EACH Me@Player { -VictoryPoint / CityTile }"
+            "End IF 10 Animal<This>:: EACH Me@Player { SOON Me@ { -VictoryPoint / CityTile } }"
           ],
         },
         {

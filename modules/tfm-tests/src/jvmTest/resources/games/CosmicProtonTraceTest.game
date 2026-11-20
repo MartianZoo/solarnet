@@ -414,65 +414,29 @@ Blue: WorldGovernment {
 // Generation 2
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
-}
-
-Purple: Research {
     -ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(9 MC)
-}
-
-Purple: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -611,65 +575,29 @@ Yellow: WorldGovernment {
 // Database save 108: generation 3, before Research purchases.
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -2 ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(6 MC)
-}
-
-Blue: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
-}
-
-Purple: Research {
     -2 ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(6 MC)
-}
-
-Purple: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -824,65 +752,29 @@ Green: WorldGovernment {
 // Database save 174: generation 4, before Research purchases.
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
-}
-
-Purple: Research {
     -2 ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(6 MC)
-}
-
-Purple: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1070,65 +962,29 @@ Purple: WorldGovernment {
 // Database save 239: generation 5, before Research purchases.
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     -3 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(3 MC)
-}
-
-Yellow: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
-}
-
-Purple: Research {
     -ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(9 MC)
-}
-
-Purple: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -ProjectCard<Selecting>
-}
-
-Blue: Research {
     Pay(9 MC)
-}
-
-Blue: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1373,57 +1229,27 @@ Blue: WorldGovernment {
 // no cards discarded
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     -0 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(12 MC)
-}
-
-Yellow: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -4 ProjectCard<Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
-}
-
-Purple: Research {
     -2 ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(6 MC)
-}
-
-Purple: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1650,57 +1476,27 @@ Green: WorldGovernment {
 // Generation 7
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -3 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(3 MC)
-}
-
-Green: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -4 ProjectCard<Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
-}
-
-Purple: Research {
     -ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(9 MC)
-}
-
-Purple: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1987,57 +1783,27 @@ Green: WorldGovernment {
 // Database save 474: generation 8, before Research purchases.
 Blue: Research {
     4 ProjectCard<Selecting>
-}
-
-Blue: Research {
     -4 ProjectCard<Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     -3 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(3 MC)
-}
-
-Yellow: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -3 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(3 MC)
-}
-
-Green: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
-}
-
-Purple: Research {
     -3 ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(3 MC)
-}
-
-Purple: Research {
     ProjectCard<Hand FROM Selecting>
 }
 

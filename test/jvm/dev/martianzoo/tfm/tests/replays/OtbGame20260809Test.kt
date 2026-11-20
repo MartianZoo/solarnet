@@ -2409,8 +2409,7 @@ internal class OtbGame20260809Test : FullGameTest() {
           *playCardTasks("$MolecularPrinting"),
           "11 Pay<> FROM MC",
           "$MolecularPrinting FROM ProjectCard",
-          "8 MC",
-          "0 MC",
+          "8 MC", // Includes the zero colony payout.
       )
     }
     yellow.assertCounts(48 to "MC") // ledger entry 365
@@ -2654,6 +2653,8 @@ internal class OtbGame20260809Test : FullGameTest() {
     green.doTask("Ok") // decline final greenery
 
     // (9:02 pm) "Final scoring."
+    yellow.doTask("113 VictoryPoint")
+    green.doTask("109 VictoryPoint")
 
     green.assertCounts(42 to "TerraformRating")
 

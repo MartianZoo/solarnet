@@ -118,9 +118,6 @@ EK: Production {
 // Generation 2
 EK: Research {
     4 ProjectCard<Selecting>
-}
-
-EK: Research {
     -4 ProjectCard<Selecting>
 }
 
@@ -166,17 +163,8 @@ EK: GlobalEvent {
 // Generation 3
 EK: Research {
     4 ProjectCard<Selecting>
-}
-
-EK: Research {
     -2 ProjectCard<Selecting>
-}
-
-EK: Research {
     Pay(6 MC)
-}
-
-EK: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -237,17 +225,8 @@ EK: GlobalEvent {
 // Generation 4
 EK: Research {
     4 ProjectCard<Selecting>
-}
-
-EK: Research {
     -2 ProjectCard<Selecting>
-}
-
-EK: Research {
     Pay(6 MC)
-}
-
-EK: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -295,17 +274,8 @@ EK: GlobalEvent {
 // Generation 5
 EK: Research {
     4 ProjectCard<Selecting>
-}
-
-EK: Research {
     -ProjectCard<Selecting>
-}
-
-EK: Research {
     Pay(9 MC)
-}
-
-EK: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -411,17 +381,8 @@ EK: GlobalEvent {
 // Generation 6
 EK: Research {
     4 ProjectCard<Selecting>
-}
-
-EK: Research {
     -2 ProjectCard<Selecting>
-}
-
-EK: Research {
     Pay(6 MC)
-}
-
-EK: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -506,17 +467,8 @@ EK: GlobalEvent {
 // Generation 7
 EK: Research {
     4 ProjectCard<Selecting>
-}
-
-EK: Research {
     -ProjectCard<Selecting>
-}
-
-EK: Research {
     Pay(9 MC)
-}
-
-EK: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -686,17 +638,8 @@ EK: WorldGovernment {
 // Generation 8
 EK: Research {
     4 ProjectCard<Selecting>
-}
-
-EK: Research {
     -2 ProjectCard<Selecting>
-}
-
-EK: Research {
     Pay(6 MC)
-}
-
-EK: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -804,17 +747,8 @@ EK: GlobalEvent {
 // Generation 9
 EK: Research {
     4 ProjectCard<Selecting>
-}
-
-EK: Research {
     -2 ProjectCard<Selecting>
-}
-
-EK: Research {
     Pay(6 MC)
-}
-
-EK: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -918,17 +852,8 @@ EK: WorldGovernment {
 // Generation 10
 EK: Research {
     4 ProjectCard<Selecting>
-}
-
-EK: Research {
     -ProjectCard<Selecting>
-}
-
-EK: Research {
     Pay(9 MC)
-}
-
-EK: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1141,18 +1066,10 @@ EK: WorldGovernment {
 // Generation 11
 EK: Research {
     4 ProjectCard<Selecting>
-}
 
-// keep all offered cards
-EK: Research {
+    // keep all offered cards
     -0 ProjectCard<Selecting>
-}
-
-EK: Research {
     Pay(12 MC)
-}
-
-EK: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1368,17 +1285,8 @@ EK: WorldGovernment {
 // Generation 12
 EK: Research {
     4 ProjectCard<Selecting>
-}
-
-EK: Research {
     -ProjectCard<Selecting>
-}
-
-EK: Research {
     Pay(9 MC)
-}
-
-EK: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 

@@ -120,33 +120,15 @@ Player2: Production {
 // Generation 2 (Player2 first)
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -3 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(3 MC)
-}
-
-Player1: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
     -ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(9 MC)
-}
-
-Player2: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -211,33 +193,15 @@ Player2: Production {
 // Generation 3 (Player1 first)
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player1: Research {
     -ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(9 MC)
-}
-
-Player1: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
     -3 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(3 MC)
-}
-
-Player2: Research {
     ProjectCard<Hand FROM Selecting>
 }
 

@@ -217,33 +217,15 @@ Pink: WorldGovernment {
 // Generation 2
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Purple: Research {
-    4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -3 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(3 MC)
-}
-
-Pink: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(9 MC)
-}
-
-Purple: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -331,33 +313,15 @@ Purple: WorldGovernment {
 // Generation 3
 Pink: Research {
     4 ProjectCard<Selecting>
-}
-
-Purple: Research {
-    4 ProjectCard<Selecting>
-}
-
-Pink: Research {
     -3 ProjectCard<Selecting>
-}
-
-Pink: Research {
     Pay(3 MC)
-}
-
-Pink: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Purple: Research {
     Pay(3 MC)
-}
-
-Purple: Research {
     ProjectCard<Hand FROM Selecting>
 }
 

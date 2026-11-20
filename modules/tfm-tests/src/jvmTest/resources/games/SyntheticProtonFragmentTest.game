@@ -168,50 +168,24 @@ Player3: Production {
 // Generation 2
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player3: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Game20260811-dashboards-gen2.png was taken before cards were bought.
-Player2: Research {
-    -3 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    Pay(3 MC)
-}
-
-Player2: Research {
-    ProjectCard<Hand FROM Selecting>
-}
-
-Player1: Research {
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Player2: Research {
+    4 ProjectCard<Selecting>
+
+    // Game20260811-dashboards-gen2.png was taken before cards were bought.
+    -3 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
+}
+
 Player3: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Player3: Research {
     Pay(9 MC)
-}
-
-Player3: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -320,50 +294,24 @@ Player3: Production {
 // Generation 3
 Player1: Research {
     4 ProjectCard<Selecting>
-}
 
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player3: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Game20260811-dashboards-gen3.png was taken before cards were bought.
-Player1: Research {
+    // Game20260811-dashboards-gen3.png was taken before cards were bought.
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(9 MC)
-}
-
-Player2: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Player3: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Player3: Research {
     Pay(9 MC)
-}
-
-Player3: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -485,50 +433,24 @@ Player3: Production {
 // Generation 4
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player3: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Game20260811-dashboards-gen4.png was taken before cards were bought.
-Player2: Research {
-    -ProjectCard<Selecting>
-}
-
-Player2: Research {
-    Pay(9 MC)
-}
-
-Player2: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-Player1: Research {
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Player2: Research {
+    4 ProjectCard<Selecting>
+
+    // Game20260811-dashboards-gen4.png was taken before cards were bought.
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
+}
+
 Player3: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player3: Research {
     Pay(6 MC)
-}
-
-Player3: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -662,50 +584,24 @@ Player3: Production {
 // Generation 5
 Player1: Research {
     4 ProjectCard<Selecting>
-}
 
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player3: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Game20260811-dashboards-gen5.png was taken before cards were bought.
-Player1: Research {
+    // Game20260811-dashboards-gen5.png was taken before cards were bought.
     -3 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(3 MC)
-}
-
-Player1: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(9 MC)
-}
-
-Player2: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Player3: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Player3: Research {
     Pay(9 MC)
-}
-
-Player3: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -855,51 +751,25 @@ Player3: Production {
 // Generation 6
 Player1: Research {
     4 ProjectCard<Selecting>
-}
 
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player3: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Game20260811-dashboards-gen6.png was taken before cards were bought.
-Player1: Research {
+    // Game20260811-dashboards-gen6.png was taken before cards were bought.
     -2 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(6 MC)
-}
-
-Player1: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Player3: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Player3: Research {
-    Pay(6 MC)
-}
-
-Player3: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
-Player2: Research {
-    3 ProjectCard<Hand FROM Selecting>
+Player3: Research {
+    4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Player3: PlayCard(CupolaCity) {
@@ -1055,51 +925,25 @@ Player3: Production {
 // Generation 7
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player3: Research {
-    4 ProjectCard<Selecting>
-}
-
-// We have no screencap for generation 7, so these only assert what the actual values happen to
-// be.
-Player2: Research {
-    -ProjectCard<Selecting>
-}
-
-Player2: Research {
-    Pay(9 MC)
-}
-
-Player2: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-Player1: Research {
     -3 ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(3 MC)
-}
-
-Player1: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
+Player2: Research {
+    4 ProjectCard<Selecting>
+
+    // We have no screencap for generation 7, so these only assert what the actual values happen to
+    // be.
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
+}
+
 Player3: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player3: Research {
     Pay(6 MC)
-}
-
-Player3: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1289,50 +1133,24 @@ Player3: Production {
 // Generation 8
 Player1: Research {
     4 ProjectCard<Selecting>
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
     4 ProjectCard<Selecting>
+
+    // Game20260811-dashboards-gen8.png was taken before cards were bought.
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Player3: Research {
     4 ProjectCard<Selecting>
-}
-
-// Game20260811-dashboards-gen8.png was taken before cards were bought.
-Player2: Research {
     -ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(9 MC)
-}
-
-Player2: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-Player3: Research {
-    -ProjectCard<Selecting>
-}
-
-Player3: Research {
-    Pay(9 MC)
-}
-
-Player3: Research {
-    3 ProjectCard<Hand FROM Selecting>
-}
-
-Player1: Research {
-    -ProjectCard<Selecting>
-}
-
-Player1: Research {
-    Pay(9 MC)
-}
-
-Player1: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1546,51 +1364,25 @@ Player3: Production {
 // Generation 9
 Player1: Research {
     4 ProjectCard<Selecting>
-}
-
-Player2: Research {
-    4 ProjectCard<Selecting>
-}
-
-Player3: Research {
-    4 ProjectCard<Selecting>
-}
-
-// Game20260811-dashboards-gen9.png was taken before cards were bought.
-Player3: Research {
-    -3 ProjectCard<Selecting>
-}
-
-Player3: Research {
-    Pay(3 MC)
-}
-
-Player3: Research {
-    ProjectCard<Hand FROM Selecting>
-}
-
-Player1: Research {
     -ProjectCard<Selecting>
-}
-
-Player1: Research {
     Pay(9 MC)
-}
-
-Player1: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Player2: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Player2: Research {
     Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
-Player2: Research {
-    2 ProjectCard<Hand FROM Selecting>
+Player3: Research {
+    4 ProjectCard<Selecting>
+
+    // Game20260811-dashboards-gen9.png was taken before cards were bought.
+    -3 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
 Player3: UseStandardProject(GreeneryProject) {

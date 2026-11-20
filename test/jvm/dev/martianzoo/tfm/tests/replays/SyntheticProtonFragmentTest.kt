@@ -1818,6 +1818,10 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     pink.assertCounts(1 to "FirstPlace<Player2>", 1 to "SecondPlace<Player2>")
     green.assertCounts(1 to "FirstPlace<Player3>", 2 to "SecondPlace<Player3>")
 
+    purple.doTask("74 VictoryPoint")
+    pink.doTask("74 VictoryPoint")
+    green.doTask("67 VictoryPoint")
+
     purple.assertCounts(42 to "TerraformRating")
     pink.assertCounts(44 to "TerraformRating")
     green.assertCounts(34 to "TerraformRating")

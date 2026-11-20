@@ -154,7 +154,6 @@ val activeReplayClasses =
             "ErraticCarbonCurrentTest",
             "Game20230521Test",
             "KineticCarbonStateTest",
-            "LatentGammaFieldTest",
             "MassiveGammaZoneTest",
             "OtbGame20260809Test",
             "OtbGame20260818Test",
@@ -164,7 +163,6 @@ val activeReplayClasses =
             "OtbGame20260912Test",
             "OtbGame20261009Test",
             "OtbGame20261111Test",
-            "RemoteVacuumFlowTest",
             "SolarFusionStreamTest",
             "StaticPressureStreamTest",
             "StinaGameTest",
@@ -237,11 +235,10 @@ listOf(replayTest, replayCoverageTest).forEach { replayTask ->
     )
     if (replayExportsEnabled.get()) {
       outputs.dir(replayEventLogsDirectory)
-      val activeNames = activeReplayClasses.map { it.substringAfterLast('.') }.toSet()
       val exportDirectory = replayEventLogsDirectory.get().asFile
       doFirst {
         exportDirectory.listFiles()?.forEach { file ->
-          if (file.extension == "json" && file.name.substringBefore('.') !in activeNames) {
+          if (file.extension == "json") {
             file.delete()
           }
         }
@@ -252,26 +249,37 @@ listOf(replayTest, replayCoverageTest).forEach { replayTask ->
 
 // Focused JVM requests remain independent of replays; aggregate verification includes both suites.
 tasks.named<Test>("jvmTest") {
-  filter { excludeTestsMatching("dev.martianzoo.tfm.tests.replays.*") }
+  filter {
+    excludeTestsMatching("dev.martianzoo.tfm.tests.replays.*")
+    // The evolving human archive is an opt-in local input.
+    excludeTestsMatching("dev.martianzoo.tfm.tests.archive.ArchiveDraftTest")
+  }
 }
 
 listOf("test", "allTests").forEach { taskName ->
   tasks.named(taskName) { dependsOn(replayTest) }
 }
 
-// Intentionally unavailable. Uncomment only to run archived games; they always compile.
-// tasks.register<Test>("archivedReplayTest") {
-//   group = LifecycleBasePlugin.VERIFICATION_GROUP
-//   description = "Runs the archived JVM replays."
-//   dependsOn(jvmTestCompilation.compileTaskProvider)
-//   testClassesDirs = jvmTestCompilation.output.classesDirs
-//   classpath =
-//       files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
-//   filter {
-//     includeTestsMatching("dev.martianzoo.tfm.tests.replays.*")
-//     activeReplayClasses.forEach { excludeTestsMatching(it) }
-//   }
-// }
+// Older scenarios remain opt-in; each also verifies its checked-in archive.
+tasks.register<Test>("archivedReplayTest") {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Runs the archived JVM replays and verifies their checked-in game files."
+  dependsOn(jvmTestCompilation.compileTaskProvider, checkReplayLiterals)
+  testClassesDirs = jvmTestCompilation.output.classesDirs
+  classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
+  filter {
+    includeTestsMatching("dev.martianzoo.tfm.tests.replays.*")
+    activeReplayClasses.forEach { excludeTestsMatching(it) }
+  }
+  systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
+  systemProperty("solarnet.replayExports", replayExportsEnabled.get())
+  systemProperty(
+      "solarnet.replayEventLogDirectory",
+      replayEventLogsDirectory.get().asFile.absolutePath,
+  )
+  if (replayExportsEnabled.get()) outputs.dir(replayEventLogsDirectory)
+  mustRunAfter(replayTest, replayCoverageTest)
+}
 
 val runtimeProjectArtifacts = jvmTestRuntimeClasspath.map { runtimeClasspath ->
   runtimeClasspath.incoming
@@ -297,4 +305,30 @@ tasks.register<JacocoReport>("replayTestCoverage") {
     html.required.set(true)
     xml.required.set(true)
   }
+}
+
+// Opt-in prototype: the human-edited archive stays under _local until its format settles.
+tasks.register<Test>("archiveDraftTest") {
+  description = "Checks the local human-readable archive against the Game20261111 replay."
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  dependsOn(jvmTestCompilation.compileTaskProvider)
+  testClassesDirs = jvmTestCompilation.output.classesDirs
+  classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
+  filter { includeTestsMatching("dev.martianzoo.tfm.tests.archive.ArchiveDraftTest") }
+  val archive =
+      providers
+          .gradleProperty("archiveFile")
+          .orElse(rootProject.file("_local/notes/game20261111-format-draft.game").absolutePath)
+  inputs.file(archive)
+  systemProperty("archive.file", archive.get())
+  val archiveOutput =
+      providers
+          .gradleProperty("archiveOutput")
+          .orElse(
+              layout.buildDirectory.file("generated/archive/game20261111.game").map {
+                it.asFile.absolutePath
+              }
+          )
+  outputs.file(archiveOutput)
+  systemProperty("archive.output", archiveOutput.get())
 }

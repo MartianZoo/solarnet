@@ -97,17 +97,8 @@ Bloo: WorldGovernment {
 // Generation 2
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     -2 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     Pay(6 MC)
-}
-
-Bloo: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -145,9 +136,6 @@ Bloo: GlobalEvent {
 // Generation 3
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     -4 ProjectCard<Selecting>
 }
 
@@ -190,17 +178,8 @@ Bloo: WorldGovernment {
 // Generation 4
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     -ProjectCard<Selecting>
-}
-
-Bloo: Research {
     Pay(9 MC)
-}
-
-Bloo: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -266,18 +245,10 @@ Bloo: GlobalEvent {
 // Generation 5
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
 
-// keep all offered cards
-Bloo: Research {
+    // keep all offered cards
     -0 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     Pay(12 MC)
-}
-
-Bloo: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -335,17 +306,8 @@ Bloo: GlobalEvent {
 // Generation 6
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     -3 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     Pay(3 MC)
-}
-
-Bloo: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -424,17 +386,8 @@ Bloo: ExMachina {
 // Generation 7
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     -2 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     Pay(6 MC)
-}
-
-Bloo: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -488,17 +441,8 @@ Bloo: GlobalEvent {
 // Scientific Community pays 18 M€ for cards and influence; the Scientists bonus pays 4 M€.
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     -2 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     Pay(6 MC)
-}
-
-Bloo: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -615,17 +559,8 @@ Bloo: GlobalEvent {
 // Homeworld Support pays 6 M€; the Unity bonus pays 10 M€ for planetary tags.
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     -2 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     Pay(6 MC)
-}
-
-Bloo: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -754,17 +689,8 @@ Bloo: GlobalEvent {
 // Pandemic costs 9 M€; the Kelvinists bonus pays 5 M€ for heat production.
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     -ProjectCard<Selecting>
-}
-
-Bloo: Research {
     Pay(9 MC)
-}
-
-Bloo: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -907,17 +833,8 @@ Bloo: GlobalEvent {
 // Celebrity Leaders pays 14 M€; the Greens bonus pays 7 M€ for bio tags.
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     -ProjectCard<Selecting>
-}
-
-Bloo: Research {
     Pay(9 MC)
-}
-
-Bloo: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1118,17 +1035,8 @@ Bloo: GlobalEvent {
 // Interplanetary Trade pays 10 M€; the Mars First bonus pays 18 M€ for building tags.
 Bloo: Research {
     4 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     -2 ProjectCard<Selecting>
-}
-
-Bloo: Research {
     Pay(6 MC)
-}
-
-Bloo: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 

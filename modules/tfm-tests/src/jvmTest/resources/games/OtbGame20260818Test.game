@@ -164,38 +164,22 @@ Green: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+
+    // Green first said two, then physically corrected the purchase to three before the action
+    // phase.
+    -ProjectCard<Selecting>
+    Pay(9 MC)
+    3 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-// "I will buy four cards."
-// Keep all four Research cards.
-Yellow: Research {
+    // "I will buy four cards."
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(12 MC)
-}
-
-Yellow: Research {
     4 ProjectCard<Hand FROM Selecting>
-}
-
-// Green first said two, then physically corrected the purchase to three before the action
-// phase.
-Green: Research {
-    -ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(9 MC)
-}
-
-Green: Research {
-    3 ProjectCard<Hand FROM Selecting>
 }
 
 // "I'm going to play Mining Rights... row three, column six. I get two cards and a
@@ -283,27 +267,17 @@ Yellow: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+
+    // "I'm going to buy one."
+    -3 ProjectCard<Selecting>
+    Pay(3 MC)
+    ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-// "I'm going to buy one."
-Green: Research {
-    -3 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(3 MC)
-}
-
-Green: Research {
-    ProjectCard<Hand FROM Selecting>
-}
-
-// Yellow corrected an initial purchase entry: "I'm buying zero cards."
-Yellow: Research {
+    // Yellow corrected an initial purchase entry: "I'm buying zero cards."
     -4 ProjectCard<Selecting>
 }
 
@@ -410,33 +384,15 @@ Green: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Green: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -572,33 +528,15 @@ Yellow: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -3 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(3 MC)
-}
-
-Green: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(3 MC)
-}
-
-Yellow: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -760,33 +698,15 @@ Green: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-Green: Research {
     -2 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(6 MC)
-}
-
-Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(3 MC)
-}
-
-Yellow: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -972,38 +892,20 @@ Green: ExMachina {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
+
+    // And then I immediately screwed up and forgot to pay for my cards!
+    ExMachina {
+        6 MC
+    }
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(6 MC)
-}
-
-Green: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-// And then I immediately screwed up and forgot to pay for my cards!
-Green: ExMachina {
-    6 MC
-}
-
-Yellow: Research {
     -ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(9 MC)
-}
-
-Yellow: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1234,43 +1136,25 @@ Green: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+    -2 ProjectCard<Selecting>
+    Pay(6 MC)
+    2 ProjectCard<Hand FROM Selecting>
+
+    // I suddenly realized my mistake last turn when I forgot to pay for my cards!
+    // So I pay for them now, and realize I wouldn't have afforded VI last round.
+    // I let it stay, but reason that it should lose a microbe that I wouldn't have had the
+    // chance to play.
+    ExMachina {
+        -6 MC
+        -Microbe<VenusianInsects>
+    }
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
-
-Green: Research {
-    -2 ProjectCard<Selecting>
-}
-
-Green: Research {
-    Pay(6 MC)
-}
-
-Green: Research {
-    2 ProjectCard<Hand FROM Selecting>
-}
-
-Yellow: Research {
     -3 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(3 MC)
-}
-
-Yellow: Research {
     ProjectCard<Hand FROM Selecting>
-}
-
-// I suddenly realized my mistake last turn when I forgot to pay for my cards!
-// So I pay for them now, and realize I wouldn't have afforded VI last round.
-// I let it stay, but reason that it should lose a microbe that I wouldn't have had the
-// chance to play.
-Green: ExMachina {
-    -6 MC
-    -Microbe<VenusianInsects>
 }
 
 // Yellow: "Ice Moon Colony. I will pay two of my three titanium for six money, and then 17
@@ -1525,36 +1409,20 @@ Yellow: ExMachina {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
+
+    // "You kept all your cards?" "Bada-bing. Yeah. I just hated to give them up."
+    // Keep all four Research cards.
+    -0 ProjectCard<Selecting>
+    Pay(12 MC)
+    4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
-}
 
-// "You kept all your cards?" "Bada-bing. Yeah. I just hated to give them up."
-// Keep all four Research cards.
-Green: Research {
+    // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(12 MC)
-}
-
-Green: Research {
-    4 ProjectCard<Hand FROM Selecting>
-}
-
-// Keep all four Research cards.
-Yellow: Research {
-    -0 ProjectCard<Selecting>
-}
-
-Yellow: Research {
-    Pay(12 MC)
-}
-
-Yellow: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1828,36 +1696,19 @@ Green: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-// "Well, I'm buying three cards." "All right, [Yellow] buys three cards, and I'm going to
-// stupidly
-// buy two cards. You know what? I'm going to buy three cards. Talk about stupid. Three cards."
-Green: Research {
+    // "Well, I'm buying three cards." "All right, [Yellow] buys three cards, and I'm going to
+    // stupidly
+    // buy two cards. You know what? I'm going to buy three cards. Talk about stupid. Three cards."
     -ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(9 MC)
-}
-
-Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(9 MC)
-}
-
-Yellow: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -2162,34 +2013,17 @@ Yellow: WorldGovernment {
 // Research.
 Green: Research {
     4 ProjectCard<Selecting>
-}
 
-Yellow: Research {
-    4 ProjectCard<Selecting>
-}
-
-// "Man. Yeah. I'm buying two. I'll buy one. I'm gonna actually buy it."
-Green: Research {
+    // "Man. Yeah. I'm buying two. I'll buy one. I'm gonna actually buy it."
     -3 ProjectCard<Selecting>
-}
-
-Green: Research {
     Pay(3 MC)
-}
-
-Green: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
+    4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-}
-
-Yellow: Research {
     Pay(6 MC)
-}
-
-Yellow: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 

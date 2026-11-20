@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.text
 import dev.martianzoo.pets.api.SystemClasses.AUDIT
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Deferral.SOON
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -196,7 +197,16 @@ private fun renderPlayerFanout(
       return null
   if (selector.refinement != null || selector.typeVariableName?.name != "Me") return null
   val subject = NounPhrase.text("each player")
-  val per = instruction.body as? Instruction.Per
+  val playerInstructions =
+      when (val body = instruction.body) {
+        is Instruction.Dispatch -> {
+          val recipient = body.actor ?: return null
+          if (body.deferral != SOON || !sameNamedTypeVariable(recipient, selector)) return null
+          body.body
+        }
+        else -> body
+      }
+  val per = playerInstructions as? Instruction.Per
   val counted = (per?.metric as? Metric.Count)?.expression
   val localCount = counted?.takeIf {
     describers.isPlayerOwned(it.className) &&
@@ -213,7 +223,7 @@ private fun renderPlayerFanout(
                 .phrase
         body.withModifier(Modifier.Per(metric.withModifier(Modifier.Phrase("they own"))))
       } else {
-        renderLoweredInstructions(instruction.body, describers, references).clauses.singleOrNull()
+        renderLoweredInstructions(playerInstructions, describers, references).clauses.singleOrNull()
             as? Clause.Simple ?: return null
       }
   if (result.subject != null || result.unresolved().isNotEmpty()) return null

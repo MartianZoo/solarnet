@@ -87,14 +87,19 @@ internal class EachTaskTest {
   }
 
   @Test
-  internal fun doesNotRematchAgainstAnEachInsideAnAlternative() {
+  internal fun explicitEachLeavesACompetingAlternativeUnchosen() {
     val player =
         Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker"))) { NONE }[PLAYER1]
     player.addTasks("EACH Player { Coin }, EACH Player { Coin } OR Marker")
-    player.doTasks("EACH", "Coin")
+    player.doTask("EACH")
+    shouldThrow<TaskException> { player.doTask("Coin") }
+    player.selectTask("Coin") // Explicitly choose the already exposed task.
+    player.doTask("Coin")
     player.addTasks("EACH Player { Coin }")
     player.selectTask("EACH")
     player.tryTask("EACH")
+    shouldThrow<TaskException> { player.doTask("Coin") }
+    player.selectTask("Coin")
     player.doTask("Coin")
     shouldThrow<TaskException> { player.doTask("EACH") }
     player.doTask("Marker")

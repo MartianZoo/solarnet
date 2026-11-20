@@ -755,7 +755,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "TerraformRating",
           "ProjectCard",
       )
-      doTask("0 MC") // Source log records no ocean bonus at space 44.
+      // The 4 MC total also consumed the zero ocean bonus at space 44.
       doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<MarsFirst> FROM LobbyDelegate")
       doTasks(
           "UseAction<PaidLobbyAction, Action1>",
@@ -995,7 +995,7 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
       )
       doTasks(*cardActionTasks("$StratosphericBirds"), "Animal<$StratosphericBirds>")
       doTasks(
-          "UseAction<KelvinistsPolicy, Action1>",
+          "UseAction<UsePolicyAction, Action1>",
           "10 Pay<> FROM MC",
           "PROD[Heat]",
           "PROD[Energy]",
@@ -1133,7 +1133,6 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "OxygenStep",
           "TerraformRating",
       )
-      doTask("0 MC") // No adjacent ocean for Lakefront Resorts.
       doTask("TemperatureStep") // Oxygen's threshold raises temperature.
       doTask("TerraformRating")
       doTasks(
@@ -1225,7 +1224,6 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "Steel",
           "4 MC",
       )
-      doTask("0 MC") // No adjacent ocean for Lakefront Resorts.
       doTask("OxygenStep") // The plain log omits this oxygen step.
       doTask("TerraformRating")
       doTasks(
@@ -1308,7 +1306,6 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "4 MC",
           "OxygenStep",
           "TerraformRating",
-          "0 MC",
       )
       doTasks(
           *playCardTasks("$NoctisFarming"),
@@ -1352,7 +1349,6 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "4 MC", // The source log records no ocean bonus at space 39.
           "OxygenStep",
           "TerraformRating",
-          "0 MC",
       )
       doTasks(
           *standardProjectTasks("GreeneryProject"),
@@ -1404,7 +1400,6 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
           "4 MC",
       )
       doTask("0 OxygenStep") // Oxygen is at its Amazonis maximum.
-      doTask("0 MC") // No adjacent ocean for Lakefront Resorts.
       doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
       doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
       doTasks("UseAction<PaidLobbyAction, Action1>", "5 Pay<> FROM MC", "PartyLeader<Kelvinists>")
@@ -1431,6 +1426,8 @@ internal class BinaryVectorStreamTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     p1.assertResources(m = 129, s = 4, t = 2, p = 1, e = 0, h = 13)
     p1.assertProduction(m = 51, s = 0, t = 2, p = 8, e = 0, h = 10)
+    p1.doTask("160 VictoryPoint")
+
     p1.assertCounts(77 to "TerraformRating", 160 to "VictoryPoint", 1 to "Victory")
 
     // _local/replays/Game20261102/player-pf66ef32d2f75.json; final Mars map.

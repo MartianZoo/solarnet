@@ -17,7 +17,9 @@ internal class VictoryTest : TfmSandboxTest() {
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
 
-    admin.runOperation("End FROM Phase")
+    admin.beginOperation("End FROM Phase")
+    p1.doTask("20 VictoryPoint")
+    p2.doTask("20 VictoryPoint")
 
     p1.count("Victory<Player1>") shouldBe 1
     p2.count("Victory<Player2>") shouldBe 1

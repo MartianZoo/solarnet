@@ -73,21 +73,22 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `test/jvm/dev/martianzoo/tfm/tests/replays` directory, excluding only its JUnit file-export hook.
   JVM-only tools and filesystem/terminal tests remain outside this target. Comment the target back
   out after a successful run.
-- `./gradlew :tfm-tests:replayTest` runs the curated replay suite without input recording or export.
+- `./gradlew :tfm-tests:replayTest` runs the curated replay suite and imports its checked-in
+  game fixtures, without generating new files.
   `:tfm-tests:jvmTest` excludes replays and can run filtered tests independently. Use
   `:tfm-tests:test` for both JVM suites; `allTests`, `check`, and `build` also include replays.
   The explicit `activeReplayClasses` list in `modules/tfm-tests/build.gradle.kts` selects imports
-  from 2026 plus the retained `Game20230521Test`. All archived replays still compile; their
-  `archivedReplayTest` task registration is commented out and unavailable. The optional, also
-  commented-out `allBrowserTests` task still runs every portable replay when restored.
-  Add `-PreplayExports` to record inputs, write full `.json` and short `.short.json` game files
-  per successful `FullGameTest` subclass. The shared reconstruction check has been removed.
-  Files go under that module's `generated/replay-event-logs` build directory. Export runs remove
-  JSON files for archived games. Ordinary runs
-  leave existing exports untouched. Direct JUnit runs need `-Dsolarnet.replayExports=true` and
-  `-Djunit.jupiter.extensions.autodetection.enabled=true`.
-  See [When to regenerate replay exports](EXPORT.md#when-to-regenerate-replay-exports) before
-  reusing or distributing generated recordings after rules, runtime, or replay changes.
+  from 2026 plus the retained `Game20230521Test`. `:tfm-tests:archivedReplayTest` runs the seven older
+  scenarios and their checked-in imports on request; it remains outside aggregate verification.
+  The optional, commented-out `allBrowserTests` task still runs every portable replay when restored.
+  Add `-PreplayExports` to write a human-readable `.game` archive per successful `FullGameTest`
+  subclass and check its live re-import against the source final inventory and pending tasks.
+  Generated files go under the module's `generated/replay-event-logs` build directory. Export runs
+  remove old JSON files. The 34 commented fixtures live in `modules/tfm-tests/src/jvmTest/resources/games/`;
+  exports never overwrite them. Ordinary runs leave generated exports untouched.
+  Direct JUnit runs need `-Djunit.jupiter.extensions.autodetection.enabled=true` for fixture checks;
+  add `-Dsolarnet.replayExports=true` for fresh exports as well.
+  See [archive verification](EXPORT.md#migration-verification) for current migration limitations.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
   build directory. Its execution data comes from the separate, always-instrumented
@@ -274,8 +275,9 @@ clear coverage of these contracts matters more than preserving every current tes
    observations available to a player rather than internal state or implementation details.
    Named rule suites cover gameplay events outside individual card plays.
 5. **Whole-game tests.** Long scenarios that show the game flow and many rules operating together,
-   especially when reconstructed from independent game records. With `-PreplayExports`, every
-   successful JVM replay test also emits a recording. Import verification is separate.
+   especially when reconstructed from independent game records. Every successful JVM replay
+   verifies its checked-in archive. `-PreplayExports` additionally writes a fresh export and verifies
+   its live re-import.
 6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.
@@ -1077,10 +1079,11 @@ classes were executed: `FirstPartialGameTest`, `Game20260619Test`, `HellasPromoG
 `HellasPromoWithoutPreludeTest`, `SoloGame20230611Test`, `SoloGame20230710Test`, and
 `SoloGame20230721Test`. Result: **7 tests, 0 failures, 0 errors, 0 skipped**.
 
-A temporary Gradle init script used the replay classpath and enabled the JUnit extension; all
-seven ran `assertPendingTasksAtEnd`. Normal suite selection and repository build files were
-unchanged. Input exports/reconstruction were disabled. This verifies those archived scenarios
-on the JVM, not the browser suite or export round trips.
+On November 18, all seven also passed both checked-in archive import and fresh export/re-import.
+Three solo replays now explicitly take their existing expected final VP totals; Pharmacy Union's
+linked flip choice is preserved without repeating its Admin-executed first step. Run
+`./gradlew :tfm-tests:archivedReplayTest -PreplayExports` to repeat this check. The regular suite
+now selects the 27 active scenarios.
 
 ### Remaining audit observations
 
@@ -1111,9 +1114,10 @@ related change below.
 ## Game replay tests
 
 `Game20230521Test` and `Wsbg2025Test` deliberately exercise the raw Agent task API.
-Players submit their tasks explicitly. Admin handles fixed payment bookkeeping and final scoring.
-`VictoryPoint` and `ScoreEventVps` are `System`;
-players do not submit scoring tasks. A pending negative score can wait for a positive score to supply the points.
+Players submit their tasks explicitly. Admin handles fixed payment bookkeeping and expands
+`ScoreEventVps`, but `VictoryPoint` is a Player task. Submit each Player's source-backed net VP
+amount after final greenery. The shared matcher executes scoring gains before deductions, includes
+zero-valued scoring work, and leaves winner determination waiting until scoring finishes.
 Follow the game's flow through the last passes, production, final greenery, and scoring; do not
 directly supply turns or phase transitions. Omit copied game-log
 comments that only restate the submitted tasks.
@@ -1167,28 +1171,19 @@ Replay tests assert victory points only after the game's actual final scoring. M
 checkpoints verify the live state without simulating production or scoring; partial replays
 do not assert hypothetical victory points.
 
-Replay input recording and export are disabled by default, including in browser tests.
+Replay file export is disabled by default, including in browser tests.
 Complete replays check scores and Victory. Intentionally partial games retain their source-position
 checks and may leave work pending. The shared queue-count check has been removed.
-With `-PreplayExports`, `ReplayExportExtension` enables recording before test setup, so
-`FullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
-replay, the extension writes full and short game files. It no longer reexecutes those files or
-compares reconstructed components. The August 18 replay retains its specific pre-scoring file,
-event, note, task, and component checks when exports are enabled.
-Replays must follow the game's normal flow and use
-ordinary task submissions instead of injecting operations. Partial games may stop with decisions
-pending.
-
-Structured inputs retain submitted syntax and record policy-executed Player work. Admin work is
-performed automatically during reconstruction rather than serialized as input, so
-import does not reproduce the source's policies. Batch and single-task operations retain their
-distinct semantics. `CHOOSE` preserves selections and committed form instructions,
-including partial choices that leave work pending. Later full form instructions replace earlier
-form narrowings when they only changed its instruction; steps that selected the task remain.
-Uncommitted form edits are not recorded; round-trips compare resulting state rather than requiring
-identical intermediate events.
-`DROP` and `EX_MACHINA` retain interventions. The file includes the premise recipe and the game's
-start. See `TaskLog` and `GameFileImporter` KDoc for supported scope.
+`ReplayExportExtension` imports each successful JVM replay's checked-in `.game` fixture through
+its catalog and compares final components and pending tasks. Missing fixtures fail the test.
+With `-PreplayExports`, it additionally exports and imports a fresh uncommented archive. Authored
+fixtures preserve source comments; generated output never replaces them automatically.
+It reads the engine's existing event history; no task-log switch or second input stream is needed.
+The importer uses explicit player requests with autoexecution disabled. Replays must follow the
+normal game flow and use ordinary task submissions instead of injecting operations. Partial games
+may stop with decisions pending; unfinished selections need archive coverage before claiming that
+all such positions are supported. The local November 11 test additionally checks every generation
+and stable repeated export. See [EXPORT.md](EXPORT.md) for current migration status.
 
 Whole-game tests are high-value integration coverage. When translating a supplied game log:
 

@@ -105,15 +105,11 @@ internal class CorrectionTest {
         )
     val agents = Agents(world) { NONE }
     val agent = agents[PLAYER1]
-    agents.taskLog.start()
-    agents.taskLog.gameStarted()
     val before = world.events.nextOrdinal
-    val inputs = agents.taskLog.inputs()
 
     for (change in listOf("Coin, Pending", "Coin, StartsWork")) {
       shouldThrow<NotNowException> { agent.exMachina(change) }
       world.events.nextOrdinal shouldBe before
-      agents.taskLog.inputs() shouldBe inputs
       agent.count("Coin") shouldBe 0
       agent.count("Pending") shouldBe 0
       agent.count("StartsWork") shouldBe 0

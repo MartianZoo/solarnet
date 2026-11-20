@@ -424,6 +424,8 @@ Card text reads persistent resource-value grants from exact invariants. Other ex
 invariants remain visible as unresolved Pets in the effect region until their meaning is supported.
 Tags remain card metadata. Lexical `Me` references mean the current owner; a named player fanout
 must explicitly target its selected player, while `EACH Me@Player` rebinds ownership in its body.
+A SOON dispatch back to that same selected player retains the ordinary “have each player” wording;
+other recipients and deferred scheduling are not silently discarded.
 Event attribution uses `Actor`, independently of ownership.
 
 Standalone `English.describe(instruction, player)` optionally addresses a concrete player as

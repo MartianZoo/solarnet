@@ -9,17 +9,16 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameEvent.ChangeEvent
-import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.soloTileSetup
+import dev.martianzoo.tfm.engine.GameArchiveImporter
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.fake.FakeCanon
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlinx.coroutines.runBlocking
 
 private val gameOptions: Set<ClassName> =
     linkedSetOf(
@@ -107,20 +106,21 @@ private fun dump(reader: GameReader, events: EventLog, output: Path) {
 
 public fun main(args: Array<String>) {
   when {
-    args.size == 2 && args[0].endsWith(".json") -> {
+    args.size == 2 && args[0].endsWith(".game") -> {
       val text = Files.readString(Path.of(args[0]))
-      val document = GameFileJson.parse(text)
-      val config = document.config
-      val catalog =
-          if (
-              FakeCanon.bundles.any { it.bundleName in config.includedCardBundles } ||
-                  config.includedClassNames.any { it in FakeCanon.allClassNames }
-          ) {
-            TfmCatalog(Canon, FakeCanon)
-          } else {
-            Canon
+      val importer =
+          GameArchiveImporter(text) { config ->
+            if (
+                FakeCanon.bundles.any { it.bundleName in config.includedCardBundles } ||
+                    config.includedClassNames.any { it in FakeCanon.allClassNames }
+            ) {
+              TfmCatalog(Canon, FakeCanon)
+            } else {
+              Canon
+            }
           }
-      val world = runBlocking { document.open(catalog).world }
+      importer.run()
+      val world = importer.agents.world
       dump(world.reader, world.events, Path.of(args[1]))
     }
     args.size == 2 -> {
@@ -129,7 +129,7 @@ public fun main(args: Array<String>) {
     }
     else ->
         error(
-            "Usage: dumpEventlog <game.json> <game.tsv> OR " +
+            "Usage: dumpEventlog <game.game> <game.tsv> OR " +
                 "dumpEventlog <three-player.tsv> <solo.tsv>"
         )
   }

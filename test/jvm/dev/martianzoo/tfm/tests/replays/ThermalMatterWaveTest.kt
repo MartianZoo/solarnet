@@ -1205,6 +1205,8 @@ internal class ThermalMatterWaveTest : FullGameTest() {
       assertSidebar(gen = 12, temp = 8, oxygen = 10, oceans = 9, venus = 30)
       assertTags(15, 16, 10, 5, eat = 3, jot = 8, vet = 4, plt = 1, mit = 4, ant = 0, cit = 4)
 
+      doTask("131 VictoryPoint")
+
       assertCounts(75 to "TerraformRating")
       assertCounts(131 to "VictoryPoint")
       assertCounts(1 to "Victory")

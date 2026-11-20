@@ -75,17 +75,8 @@ Me: Production {
 // Generation 2
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -2 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(6 MC)
-}
-
-Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -108,17 +99,8 @@ Me: Production {
 // Generation 3
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -2 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(6 MC)
-}
-
-Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -159,17 +141,8 @@ Me: Production {
 // Generation 4
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -3 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(3 MC)
-}
-
-Me: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -204,17 +177,8 @@ Me: Production {
 // Generation 5
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -2 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(6 MC)
-}
-
-Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -262,17 +226,8 @@ Me: Production {
 // Generation 6
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -2 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(6 MC)
-}
-
-Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -323,17 +278,8 @@ Me: Production {
 // Generation 7
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(9 MC)
-}
-
-Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -390,17 +336,8 @@ Me: Production {
 // Generation 8
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(9 MC)
-}
-
-Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -464,17 +401,8 @@ Me: Production {
 // Generation 9
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -2 ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(6 MC)
-}
-
-Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -535,9 +463,6 @@ Me: Production {
 // Generation 10
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -4 ProjectCard<Selecting>
 }
 
@@ -614,17 +539,8 @@ Me: Production {
 // Generation 11
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -ProjectCard<Selecting>
-}
-
-Me: Research {
     Pay(9 MC)
-}
-
-Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -710,9 +626,6 @@ Me: Production {
 // Generation 12
 Me: Research {
     4 ProjectCard<Selecting>
-}
-
-Me: Research {
     -4 ProjectCard<Selecting>
 }
 
