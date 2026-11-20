@@ -3,10 +3,13 @@ package dev.martianzoo.engine
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.tfm.engine.CardTracking
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -98,8 +101,9 @@ internal class WorldOverlayTest {
     overlay.reset()
     (imagined.world.timeline as TimelineImpl).floor shouldBe start
     imaginedAgent.runOperation("Ping") { doTask("Pong") }
-    (imagined.world.timeline as TimelineImpl).stepBack() shouldBe true
-    imagined.world.timeline.stepForward() shouldBe true
+    val timeline = imagined.world.timeline as TimelineImpl
+    timeline.stepBack() shouldBe true
+    timeline.stepForward() shouldBe true
 
     imaginedAgent.count("Pong") shouldBe 1
     imaginedAgent.count("Other") shouldBe 0
@@ -203,9 +207,40 @@ internal class WorldOverlayTest {
     first.timeline.checkpoint() shouldBe before
 
     val second = Engine.overlay(source)
-    agent.canExecuteTask(task)
+    source.actorEngine(PLAYER1).canExecuteTask(task) shouldBe false
     source.timeline.checkpoint() shouldBe before
     second.timeline.checkpoint() shouldBe before
+  }
+
+  @Test
+  internal fun anOverlayDrawsAnonymousCardsWithoutChangingTrackedSource() {
+    val source = TfmEngine.newGame(canonicalPremise(cn("PreludeExpansion"), players = 1))
+    val sourceAgents = Agents(source) { NONE }
+    val sourceTracking = CardTracking.start(sourceAgents)
+    val firstCard = cn("AcquiredCompany")
+    sourceTracking.expectArrivals(PLAYER1, firstCard)
+    sourceAgents[PLAYER1].runOperation("ProjectCard")
+
+    val imagined = Agents(Engine.overlay(source))
+    imagined.transactionGuard shouldBe null
+    imagined[PLAYER1].runOperation("ProjectCard")
+
+    val copied = imagined.fork()
+    copied.transactionGuard shouldBe null
+    copied[PLAYER1].count("ProjectCard<Hand>") shouldBe 2
+    sourceTracking.requireComplete()
+    sourceTracking.hand(PLAYER1) shouldBe setOf(firstCard)
+  }
+
+  @Test
+  internal fun cardTrackingCannotBeStartedOnAnOverlay() {
+    val source = TfmEngine.newGame(canonicalPremise(cn("PreludeExpansion"), players = 1))
+    val imagined = Agents(Engine.overlay(source))
+
+    shouldThrow<IllegalStateException> { CardTracking.start(imagined) }
+    imagined[PLAYER1].runOperation("ProjectCard")
+    imagined[PLAYER1].count("ProjectCard<Hand>") shouldBe 1
+    Agents(source)[PLAYER1].count("ProjectCard<Hand>") shouldBe 0
   }
 
   @Test

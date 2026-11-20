@@ -1,12 +1,10 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.AgentInputRequiredException
-import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
@@ -130,24 +128,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun anOverlayDrawsAnonymousCardsWithoutChangingTrackedSource() {
-    val (sourceTracking, player) = newTrackedGame()
-    val firstCard = AcquiredCompany
-    sourceTracking.expectArrivals(player, firstCard)
-    agents[player].runOperation("ProjectCard")
-
-    val overlay = Engine.overlay(game)
-    val imagined = Agents(overlay)
-    imagined.transactionGuard shouldBe null
-    imagined[player].runOperation("ProjectCard")
-
-    val copied = imagined.fork()
-    copied.transactionGuard shouldBe null
-    copied[player].count("ProjectCard<Hand>") shouldBe 2
-    sourceTracking.requireComplete()
-  }
-
-  @Test
   internal fun fullCopyOfTrackedWorldCanDrawAnonymousCards() {
     val (sourceTracking, player) = newTrackedGame()
     val firstCard = AcquiredCompany
@@ -161,19 +141,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
     sourceTracking.requireComplete()
     sourceTracking.hand(player) shouldBe setOf(firstCard)
     copied[player].count("ProjectCard<Hand>") shouldBe 2
-  }
-
-  @Test
-  internal fun cardTrackingCannotBeStartedOnAnOverlay() {
-    val config = GameConfig("PreludeExpansion", "Player1")
-    game = TfmEngine.newGame(withTestSoloSetup(canonicalCatalog(config).gamePremise(config)))
-    val player = game.actors.filterIsInstance<Player>().single()
-    val imagined = Agents(Engine.overlay(game))
-
-    shouldThrow<IllegalStateException> { CardTracking.start(imagined) }
-    imagined[player].runOperation("ProjectCard")
-    imagined[player].count("ProjectCard<Hand>") shouldBe 1
-    agents[player].count("ProjectCard<Hand>") shouldBe 0
   }
 
   @Test

@@ -61,7 +61,7 @@ internal class AgentImpl(
     get() = engine.actor
 
   override val reader: GameReader
-    get() = engine.reader
+    get() = world.reader
 
   override val tasks: TaskQueue
     get() = engine.tasks
@@ -370,13 +370,11 @@ internal class AgentImpl(
     val instruction =
         engine.prepareTaskNarrowing(taskId, parsed.instruction, parsed.quantifierOmitted)
     taskLog.capture(actor, instruction.toString(), formTask = taskId, kind = Kind.CHOOSE) {
-      engine.narrowTask(parsed.instruction, parsed.quantifierOmitted)
+      engine.narrowTask(taskId, parsed.instruction, parsed.quantifierOmitted)
     }
   }
 
   override fun canSelectTask(taskId: TaskId) = engine.canSelectTask(taskId)
-
-  override fun canExecuteTask(taskId: TaskId) = engine.canExecuteTask(taskId)
 
   override fun selectTask(taskId: TaskId) = decide {
     taskLog.capture(

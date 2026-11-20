@@ -6,8 +6,7 @@ package dev.martianzoo.engine
  * views, even if the source later returns to the same state. Guards are absent and cannot be
  * installed; application validation does not automatically follow the copy.
  *
- * Internal copies support the selected transaction-success checks without notifying source
- * listeners. The scope and continued need of this public copy API remain under review; see the
- * [intended interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md).
+ * The engine creates these copies to check possible transactions without notifying source
+ * listeners. Agent uses this marker to reject installing an application guard on such a copy.
  */
 public interface SpeculativeWorld : World

@@ -168,7 +168,7 @@ internal class TransactionGroupingTest {
     val before = game.events.lastTransaction
     val beforeOrdinal = game.events.nextOrdinal
 
-    agent.canExecuteTask(task) shouldBe false
+    game.actorEngine(PLAYER1).canExecuteTask(task) shouldBe false
     agent.tryTask("Coin OR Token")
 
     game.events.lastTransaction shouldBe before

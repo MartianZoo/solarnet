@@ -41,8 +41,11 @@ records its past, and the timeline supports restoration; neither is an additiona
 `ClassTable` and premise are immutable for the life of the World.
 
 The public `World` exposes component values through `reader`, not its `ComponentGraph`.
-Overlay reset and the timeline's floor and backward-step helper are internal engine methods;
-clients navigate history with recorded positions and `seek`.
+Overlay creation and reset are internal. Clients create independent copies with `Engine.fork` and
+navigate history with recorded positions and `seek`. The timeline's floor and step helpers are
+internal. `compiledComponentEffects` inspects the effects the engine would install for a component
+of a given type without accessing a live World.
+
 Narrower notes own adjacent subjects:
 
 - [SEQUENCING.md](SEQUENCING.md) owns ordering, `THEN`, barriers, and completion scopes.

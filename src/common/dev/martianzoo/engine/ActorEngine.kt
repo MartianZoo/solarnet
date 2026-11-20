@@ -80,7 +80,7 @@ internal constructor(
      * Live state and type queries for the same world as this engine, including other Actors'
      * components.
      */
-    public val reader: GameReader,
+    private val reader: GameReader,
     private val timeline: TimelineImpl,
     /** The Actor to which ordinary mutations through this engine are attributed. */
     public val actor: Actor,
@@ -266,21 +266,6 @@ internal constructor(
   // TASK COMMANDS
 
   /**
-   * Supplies [narrowing] for this Actor's selected task. When [quantifierOmitted] is true, retains
-   * the pending task's quantifier where needed. Evaluates and stores the resulting instruction
-   * without consuming the task or admitting children. Assignee transfer follows [selectTask].
-   * Partial choices remain on the selected task for further narrowing or execution.
-   *
-   * Rejects a missing selection or incompatible narrowing and restores a failed transaction.
-   */
-  public fun narrowTask(narrowing: InstructionTree, quantifierOmitted: Boolean = false) {
-    val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
-    transactions.perform(actor, CLIENT_REQUEST) {
-      narrowSelectedTask(taskId, narrowing, quantifierOmitted)
-    }
-  }
-
-  /**
    * Returns the instruction that submitting [narrowing] for [taskId] would use, without selecting
    * or changing the task. [quantifierOmitted] allows the pending quantifier to fill an omitted
    * amount rule. The task must belong to [actor]; an incompatible narrowing throws.
@@ -462,7 +447,7 @@ internal constructor(
    * listeners.
    */
   // Extend inference only for a concrete Canon Admin need; Player inference remains limited.
-  public fun canExecuteTask(taskId: TaskId): Boolean {
+  internal fun canExecuteTask(taskId: TaskId): Boolean {
     timeline.requireAtEnd()
     val trial = trialWorld()
     return try {
@@ -868,7 +853,8 @@ internal constructor(
           val selectedTask = queueForAnyTask(selected).getTaskData(selected)
           if (selectedTask.assignee != actor) return@perform
           val instruction = selectedTask.instruction
-          narrowTask(
+          narrowSelectedTask(
+              selected,
               intersectTask(evaluated, instruction, quantifierOmitted) ?: evaluated,
               quantifierOmitted,
           )

@@ -104,15 +104,15 @@ internal class TimelineTest {
     while (game.timeline.checkpoint() != start) timeline.stepBack() shouldBe true
     agent.count("Listener") shouldBe 0
     timeline.stepBack() shouldBe false
-    while (game.timeline.checkpoint() != listener) game.timeline.stepForward() shouldBe true
-    while (game.timeline.checkpoint() != end) game.timeline.stepForward() shouldBe true
+    while (game.timeline.checkpoint() != listener) timeline.stepForward() shouldBe true
+    while (game.timeline.checkpoint() != end) timeline.stepForward() shouldBe true
     agent.count("Pong") shouldBe 1
     game.events.entriesSince(game.events.eventOrdinal(start)) shouldBe completeEvents
 
     game.timeline.seek(listener)
     game.timeline.truncate()
     game.timeline.positions shouldBe (0..listener.serial).map(::Checkpoint)
-    game.timeline.stepForward() shouldBe false
+    timeline.stepForward() shouldBe false
     agent.runOperation("Ping") { doTask("Pong") }
     agent.count("Pong") shouldBe 1
   }
@@ -134,7 +134,7 @@ internal class TimelineTest {
       (betweenCalls in game.timeline.positions) shouldBe true
       timeline.stepBack() shouldBe true
       timeline.stepBack() shouldBe false
-      game.timeline.stepForward() shouldBe true
+      timeline.stepForward() shouldBe true
       doTask("ChoiceC")
       game.timeline.seek(betweenCalls)
       game.timeline.truncate()
@@ -166,12 +166,13 @@ internal class TimelineTest {
   @Test
   internal fun aRawTaskEditIsANavigableTransaction() {
     val game = Engine.newGame(testGamePremise("CLASS Choice"))
-    val start = game.timeline.checkpoint()
+    val timeline = game.timeline as TimelineImpl
+    val start = timeline.checkpoint()
     game.actorEngine(PLAYER1).addTasks(InstructionGroup.of(parse<InstructionTree>("Choice")))
 
     game.timeline.seek(start)
     game.tasks.isEmpty() shouldBe true
-    game.timeline.stepForward() shouldBe true
+    timeline.stepForward() shouldBe true
     game.tasks.isEmpty() shouldBe false
   }
 

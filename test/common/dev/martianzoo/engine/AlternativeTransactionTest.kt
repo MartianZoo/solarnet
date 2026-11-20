@@ -102,7 +102,10 @@ internal class AlternativeTransactionTest {
     val task = player.addTasks("X! First OR Second!").single()
     val before = world.events.nextOrdinal
 
-    shouldThrow<IncompleteAnalysisException> { world.actorEngine(PLAYER1).doTask(task) }
+    val engine = world.actorEngine(PLAYER1)
+    shouldThrow<IncompleteAnalysisException> { engine.canExecuteTask(task) }
+    world.events.nextOrdinal shouldBe before
+    shouldThrow<IncompleteAnalysisException> { engine.doTask(task) }
 
     world.events.nextOrdinal shouldBe before
     player.count("Second") shouldBe 0

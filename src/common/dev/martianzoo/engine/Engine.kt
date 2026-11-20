@@ -30,8 +30,7 @@ import dev.martianzoo.state.validateCustomClasses
  * subsequent commands. Construction does not create clients or obtain Player choices.
  *
  * The [intended interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md) uses internal
- * copies to check a requested transaction. The scope of these public copy APIs remains under
- * review.
+ * copies to check a requested transaction. [fork] creates an independent copy for callers.
  */
 public object Engine {
 
@@ -95,13 +94,10 @@ public object Engine {
    * cannot be installed on this result, so application checks such as card-identity tracking are
    * absent.
    *
-   * This documents an existing capability pending the removal review on [SpeculativeWorld]; the
-   * public copy API remains under review independently of internal transaction trials.
-   *
    * @throws IllegalArgumentException if [source] was not created by this Engine
    * @throws IllegalStateException if [source] is not at the end of valid recorded history
    */
-  public fun overlay(source: World): SpeculativeWorld {
+  internal fun overlay(source: World): SpeculativeWorld {
     val wholeWorld = forkSource(source)
     val gameWorld = wholeWorld.gameWorld.overlay()
     return Wiring(gameWorld.premise, gameWorld, overlaySource = wholeWorld).createOverlay()

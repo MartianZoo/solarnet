@@ -66,7 +66,7 @@ internal class AutomaticEffectDepthTest {
             .single()
     val checkpoint = world.events.nextOrdinal
 
-    shouldThrow<ResourceLimitException> { admin.canExecuteTask(task) }
+    shouldThrow<ResourceLimitException> { world.actorEngine(ADMIN).canExecuteTask(task) }
 
     world.events.nextOrdinal shouldBe checkpoint
     admin.tasks.ids() shouldBe setOf(task)
