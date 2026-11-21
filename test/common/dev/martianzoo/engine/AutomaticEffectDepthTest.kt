@@ -21,7 +21,7 @@ import kotlin.test.Test
 internal class AutomaticEffectDepthTest {
   @Test
   internal fun `automatic effect cycle fails atomically at the depth limit`() {
-    val world = TfmEngine.newGame(premise) as WholeWorld
+    val world = TfmEngine.newGame(premise)
     val admin = world.testAgent(ADMIN)
     val checkpoint = world.events.nextOrdinal
 
@@ -37,7 +37,7 @@ internal class AutomaticEffectDepthTest {
 
   @Test
   internal fun canSelectTaskPropagatesResourceLimitsAndRollsBack() {
-    val world = TfmEngine.newGame(premise) as WholeWorld
+    val world = TfmEngine.newGame(premise)
     val admin = world.testAgent(ADMIN)
     val task =
         world
@@ -47,26 +47,6 @@ internal class AutomaticEffectDepthTest {
     val checkpoint = world.events.nextOrdinal
 
     shouldThrow<ResourceLimitException> { admin.canSelectTask(task) }
-
-    world.events.nextOrdinal shouldBe checkpoint
-    admin.tasks.ids() shouldBe setOf(task)
-    admin.count("ChainA") shouldBe 0
-    admin.count("ChainB") shouldBe 0
-    world.events.entriesSince(checkpoint).shouldBeEmpty()
-  }
-
-  @Test
-  internal fun canExecuteTaskPropagatesResourceLimitsAndRollsBack() {
-    val world = TfmEngine.newGame(premise) as WholeWorld
-    val admin = world.testAgent(ADMIN)
-    val task =
-        world
-            .actorEngine(ADMIN)
-            .addTasks(InstructionGroup.of(parse<Instruction>("ChainA!")))
-            .single()
-    val checkpoint = world.events.nextOrdinal
-
-    shouldThrow<ResourceLimitException> { world.actorEngine(ADMIN).canExecuteTask(task) }
 
     world.events.nextOrdinal shouldBe checkpoint
     admin.tasks.ids() shouldBe setOf(task)

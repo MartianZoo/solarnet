@@ -33,8 +33,8 @@ by immediate effects must not be rejected by an over-eager filter.
   concrete limits and invariant headroom.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
   for `Quantifier` and `abstract` to see evaluation of quantified changes.
-- [`InstructionEvaluationTest.kt`](../../test/common/dev/martianzoo/engine/InstructionEvaluationTest.kt) and
-  [`TaskEvaluationTest.kt`](../../test/common/dev/martianzoo/engine/TaskEvaluationTest.kt)
+- [`TaskEvaluationTest.kt`](../../test/common/dev/martianzoo/engine/TaskEvaluationTest.kt) and
+  [`TaskNarrowingTest.kt`](../../test/common/dev/martianzoo/engine/TaskNarrowingTest.kt)
   — select scenarios matching the changed evaluation behavior.
 
 ## Before writing an explicit quantifier

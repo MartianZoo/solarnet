@@ -31,29 +31,27 @@ internal class ComponentEffectsValidationTest {
 
   @Test
   internal fun `valid specialized component effect is retained`() {
-    val component = Component(table.resolve(te("Holder<Good>")))
+    val type = table.resolve(te("Holder<Good>"))
 
-    LiveEffect.compile(component, elaborator)
-        .map(LiveEffect::effect)
+    compiledComponentEffects(table, type)
         .map(Any::toString)
         .shouldContainExactly("This: Good! OR Wrapper<Good>!")
   }
 
   @Test
   internal fun `invalid atomic branch after component specialization becomes Die`() {
-    val component = Component(table.resolve(te("Holder<Bad>")))
+    val type = table.resolve(te("Holder<Bad>"))
 
-    LiveEffect.compile(component, elaborator)
-        .map(LiveEffect::effect)
+    compiledComponentEffects(table, type)
         .map(Any::toString)
         .shouldContainExactly("This: Good! OR Die!")
   }
 
   @Test
   internal fun `invalid specialized component trigger fails validation`() {
-    val component = Component(table.resolve(te("BrokenHolder<Bad>")))
+    val type = table.resolve(te("BrokenHolder<Bad>"))
 
-    shouldThrow<ExpressionException> { LiveEffect.compile(component, elaborator) }
+    shouldThrow<ExpressionException> { compiledComponentEffects(table, type) }
   }
 
   @Test
@@ -114,10 +112,9 @@ internal class ComponentEffectsValidationTest {
             }
             """
         )
-    val component = Component(table.resolve(te("Receipt<Class<Money>, Class<Operation>>")))
+    val type = table.resolve(te("Receipt<Class<Money>, Class<Operation>>"))
 
-    LiveEffect.compile(component, PetElaborator(table))
-        .map(LiveEffect::effect)
+    compiledComponentEffects(table, type)
         .map(Any::toString)
         .shouldContainExactly("This: Debt<Class<Money>>!")
   }

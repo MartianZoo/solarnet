@@ -18,7 +18,7 @@ import kotlin.test.Test
 
 internal class TransactionTrialIsolationTest {
   @Test
-  fun rejectedTrialsAndReadOnlyProbesNeverReachSourceListeners() {
+  fun selectionProbeLeavesSourceStateAndHistoryUntouched() {
     val world =
         Engine.newGame(
             testGamePremise(
@@ -32,29 +32,18 @@ internal class TransactionTrialIsolationTest {
         )
     val engine = world.actorEngine(PLAYER1)
     val task = engine.addTasks(InstructionGroup.of(parse<InstructionTree>("Choice!"))).single()
-    val counts = mutableListOf<Int>()
-    val subscription =
-        (world as WholeWorld)
-            .components
-            .listenToCount(
-                world.reader.resolve(parse("Notice")),
-                world.reader,
-                counts::add,
-            )
     val before = world.events.nextOrdinal
-    val overlay = Engine.overlay(world)
+    val pending = world.tasks.getTaskData(task)
 
     engine.canSelectTask(task) shouldBe true
-    engine.canExecuteTask(task) shouldBe true
-    counts shouldBe listOf(0)
+    world.tasks.getTaskData(task) shouldBe pending
     world.events.nextOrdinal shouldBe before
-    overlay.reader.count(parse<Metric>("Notice")) shouldBe 0
+    world.reader.count(parse<Metric>("Notice")) shouldBe 0
 
     engine.doTask(task)
 
-    counts shouldBe listOf(0, 1)
+    world.reader.count(parse<Metric>("Notice")) shouldBe 1
     world.reader.count(parse<Metric>("Allowed")) shouldBe 1
-    subscription.cancel()
   }
 
   @Test

@@ -26,6 +26,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
@@ -35,8 +36,6 @@ import dev.martianzoo.state.CustomInstruction
 import dev.martianzoo.state.CustomMetric
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
-import dev.martianzoo.state.Task
-import dev.martianzoo.state.Task.TaskId
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -2468,10 +2467,10 @@ internal class PostCatalogDiagnosticsTest {
   @Test
   internal fun sourceSpansStayWithOccurrencesAfterScalingAndRewriting() {
     val authored = parse<Instruction>("TYPO[Water]")
-    val task = Task(TaskId(0), ADMIN, instruction = authored, cause = null)
+    val engine = Engine.newGame(testGamePremise("CLASS Water", players = 0)).actorEngine(ADMIN)
     val scaledError =
         assertFailsWith<ExpressionException> {
-          normalizeTask(task.copy(instruction = authored * 2))
+          engine.addTasks(InstructionGroup.of(authored * 2))
         }
     assertEquals(
         """
@@ -2484,7 +2483,7 @@ internal class PostCatalogDiagnosticsTest {
     )
     val unchangedError =
         assertFailsWith<ExpressionException> {
-          normalizeTask(task.copy(instruction = authored * 1))
+          engine.addTasks(InstructionGroup.of(authored * 1))
         }
     assertEquals(
         """

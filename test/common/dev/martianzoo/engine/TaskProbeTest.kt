@@ -10,7 +10,6 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.CustomInstruction
 import dev.martianzoo.state.GameReader
-import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
@@ -20,15 +19,6 @@ import kotlin.test.Test
 internal class TaskProbeTest {
   @Test
   internal fun selectionPropagatesCustomCodeFailureAndRestoresTheAttempt() {
-    checkBrokenImplementation { engine, task -> engine.canSelectTask(task) }
-  }
-
-  @Test
-  internal fun executionPropagatesCustomCodeFailureAndRestoresTheAttempt() {
-    checkBrokenImplementation { engine, task -> engine.canExecuteTask(task) }
-  }
-
-  private fun checkBrokenImplementation(probe: (ActorEngine, TaskId) -> Boolean) {
     val world =
         Engine.newGame(
             testGamePremise("CLASS Broken : CustomInstruction"),
@@ -44,7 +34,7 @@ internal class TaskProbeTest {
     val pending = world.tasks.extract { it }
     val before = world.events.nextOrdinal
 
-    val failure = shouldThrow<CustomCodeException> { probe(engine, task) }
+    val failure = shouldThrow<CustomCodeException> { engine.canSelectTask(task) }
 
     failure.cause?.message shouldBe "broken translator"
     world.tasks.extract { it } shouldBe pending
@@ -53,15 +43,6 @@ internal class TaskProbeTest {
 
   @Test
   internal fun selectionPropagatesFailureDuringDeferredDispatch() {
-    checkFailedDeferredDispatch { engine, task -> engine.canSelectTask(task) }
-  }
-
-  @Test
-  internal fun executionPropagatesFailureDuringDeferredDispatch() {
-    checkFailedDeferredDispatch { engine, task -> engine.canExecuteTask(task) }
-  }
-
-  private fun checkFailedDeferredDispatch(probe: (ActorEngine, TaskId) -> Boolean) {
     val world = Engine.newGame(testGamePremise("CLASS Token", players = 2))
     val engine = world.actorEngine(ADMIN)
     val task =
@@ -75,7 +56,7 @@ internal class TaskProbeTest {
     val pending = world.tasks.extract { it }
     val before = world.events.nextOrdinal
 
-    shouldThrow<ExpressionException> { probe(engine, task) }
+    shouldThrow<ExpressionException> { engine.canSelectTask(task) }
 
     world.tasks.extract { it } shouldBe pending
     world.events.nextOrdinal shouldBe before
@@ -102,26 +83,14 @@ internal class TaskProbeTest {
         engine.addTasks(InstructionGroup.of(parse<Instruction>("Rejected! BY Player2"))).single()
     val pending = world.tasks.extract { it }
     val before = world.events.nextOrdinal
-    val notices = mutableListOf<Int>()
-    val subscription =
-        (world as WholeWorld)
-            .components
-            .listenToCount(
-                world.reader.resolve(parse("Notice")),
-                world.reader,
-                notices::add,
-            )
 
     engine.canSelectTask(task) shouldBe true
-    engine.canExecuteTask(task) shouldBe false
     world.tasks.extract { it } shouldBe pending
     world.events.nextOrdinal shouldBe before
-    notices shouldBe listOf(0)
 
     engine.selectTask(task)
 
     world.tasks.getTaskData(task).assignee shouldBe PLAYER2
-    notices shouldBe listOf(0)
-    subscription.cancel()
+    world.events.changesSince(before) shouldBe emptyList()
   }
 }

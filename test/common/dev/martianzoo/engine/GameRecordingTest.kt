@@ -41,14 +41,10 @@ internal class GameRecordingTest {
   }
 
   @Test
-  internal fun recordingSeeksAcrossCompletedOperationsAndNotifiesComponentListeners() {
+  internal fun recordingSeeksAcrossCompletedOperationsAndNotifiesPlaybackListeners() {
     val game = TfmEngine.newGame(canonicalPremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val tasks = agent as Agent
-    val heat = game.reader.resolve(parse<Expression>("Heat<Player1>"))
-    val observedCounts = mutableListOf<Int>()
-    val subscription =
-        (game as WholeWorld).components.listenToCount(heat, game.reader, observedCounts::add)
 
     tasks.beginOperation("Heat?")
     val offered = game.timeline.checkpoint()
@@ -67,7 +63,6 @@ internal class GameRecordingTest {
 
     playback.positions.last() shouldBe done
     playback.positionIndex shouldBe done.serial
-    observedCounts.shouldContainExactly(0, 1)
 
     shouldThrow<IllegalArgumentException> { playback.seek(-1) }
 
@@ -79,9 +74,7 @@ internal class GameRecordingTest {
     playback.world.reader.count(playbackHeat) shouldBe 1
     playbackCounts.shouldContainExactly(1, 0, 1)
     agent.count("Heat<Player1>") shouldBe 1
-    observedCounts.shouldContainExactly(0, 1)
 
-    subscription.cancel()
     playbackSubscription.cancel()
   }
 

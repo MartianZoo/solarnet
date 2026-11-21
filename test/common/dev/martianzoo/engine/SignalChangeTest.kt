@@ -27,13 +27,10 @@ internal class SignalChangeTest {
     val game = Engine.newGame(premise)
     val admin = game.testAgent(ADMIN)
     admin.runOperation("Observer")
-    val observedCounts = mutableListOf<Int>()
     val signalType = admin.resolve("Moment")
-    (game as WholeWorld).components.listenToCount(signalType, game.reader, observedCounts::add)
 
     val result = admin.runOperation("Moment!")
 
-    observedCounts.shouldContainExactly(0)
     admin.count("Moment") shouldBe 0
     admin.count("SelfGain") shouldBe 1
     admin.count("SelfRemoval") shouldBe 1
@@ -61,12 +58,9 @@ internal class SignalChangeTest {
     admin.runOperation("Observer, Fuel")
     val signalType = admin.resolve("Moment")
     val fuelType = admin.resolve("Fuel")
-    val observedCounts = mutableListOf<Int>()
-    (game as WholeWorld).components.listenToCount(signalType, game.reader, observedCounts::add)
 
     val result = admin.runOperation("Moment FROM Fuel")
 
-    observedCounts.shouldContainExactly(0, 1, 0)
     admin.count("Moment") shouldBe 0
     admin.count("Fuel") shouldBe 0
     admin.count("SelfGain") shouldBe 1

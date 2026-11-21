@@ -103,8 +103,6 @@ internal class AlternativeTransactionTest {
     val before = world.events.nextOrdinal
 
     val engine = world.actorEngine(PLAYER1)
-    shouldThrow<IncompleteAnalysisException> { engine.canExecuteTask(task) }
-    world.events.nextOrdinal shouldBe before
     shouldThrow<IncompleteAnalysisException> { engine.doTask(task) }
 
     world.events.nextOrdinal shouldBe before

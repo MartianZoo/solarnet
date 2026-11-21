@@ -531,7 +531,7 @@ identify concrete scenarios. The terminology migration's test evidence belongs i
 
 | Area | Existing scenarios |
 | --- | --- |
-| Normalization and variable scopes | [TaskNormalizationTest](../../test/common/dev/martianzoo/engine/TaskNormalizationTest.kt): terminal rewrites, meaningful gated/no-op choices, edits preserving continuation scope. |
+| Normalization and variable scopes | [GroupSubmissionTest](../../test/common/dev/martianzoo/engine/GroupSubmissionTest.kt) covers normalized `THEN` members and distinct continuations. [ZeroCountTaskTest](../../test/common/dev/martianzoo/engine/ZeroCountTaskTest.kt) covers observable no-op choices. |
 | Dispatch and assignee transfer | [TaskDispatchTest](../../test/common/dev/martianzoo/engine/TaskDispatchTest.kt): explicit NOW/SOON transfer, recipient choice, and deferred dispatch; [TaskAssignmentCharacterizationTest](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt): System routing, choices requiring narrowing, `BY` Actor wrappers. |
 | Selection and quantities | [TaskEvaluationTest](../../test/common/dev/martianzoo/engine/TaskEvaluationTest.kt), [TaskNarrowingTest](../../test/common/dev/martianzoo/engine/TaskNarrowingTest.kt), [ZeroCountTaskTest](../../test/common/dev/martianzoo/engine/ZeroCountTaskTest.kt): current-world evaluation, chosen-target AMAP, typed zero. |
 | Deferred work | [DeferredWorkTest](../../test/common/dev/martianzoo/engine/DeferredWorkTest.kt): whole-World persistent priorities, nested deferrals, delayed metric/fanout evaluation, restoration. |

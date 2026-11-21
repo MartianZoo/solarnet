@@ -9,37 +9,9 @@ import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class TimelineTest {
-  @Test
-  internal fun aFailedCallCannotLeaveTheHistoryFloorPastTheRestoredState() {
-    val game = Engine.newGame(testGamePremise("CLASS Token"))
-    val agent = game.testAgent(PLAYER1)
-    val timeline = game.timeline as TimelineImpl
-    val start = timeline.checkpoint()
-    val floor = timeline.floor
-
-    shouldThrow<IllegalStateException> {
-          timeline.atomic {
-            agent.runOperation("Token")
-            timeline.commit()
-          }
-        }
-        .message
-        .shouldContain("during an atomic call")
-
-    agent.count("Token") shouldBe 0
-    timeline.checkpoint() shouldBe start
-    timeline.positions.last() shouldBe start
-    timeline.floor shouldBe floor
-
-    agent.runOperation("Token")
-    timeline.seek(start)
-    agent.count("Token") shouldBe 0
-  }
-
   @Test
   internal fun selectionAndExecutionAreSeparateCompletedPositions() {
     val game = Engine.newGame(testGamePremise("CLASS ChoiceA\nCLASS ChoiceB"))
@@ -58,7 +30,6 @@ internal class TimelineTest {
     game.timeline.seek(offered)
     game.tasks.getTaskData(task).selected shouldBe false
     shouldThrow<IllegalStateException> { game.actorEngine(PLAYER1).canSelectTask(task) }
-    shouldThrow<IllegalStateException> { game.actorEngine(PLAYER1).canExecuteTask(task) }
     game.timeline.seek(selected)
     game.tasks.getTaskData(task).selected shouldBe true
     game.timeline.seek(done)
@@ -80,7 +51,7 @@ internal class TimelineTest {
             )
         )
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val timeline = game.timeline as TimelineImpl
+    val timeline = game.timeline
     val start = game.timeline.checkpoint()
     agent.runOperation("Listener")
     val listener = game.timeline.checkpoint()
@@ -94,25 +65,25 @@ internal class TimelineTest {
     }
     game.timeline.checkpoint() shouldBe end
 
-    while (game.timeline.checkpoint() != listener) timeline.stepBack() shouldBe true
+    timeline.seek(listener)
     agent.count("Pong") shouldBe 0
     game.recording().positions shouldBe (0..listener.serial).map(::Checkpoint)
     shouldThrow<IllegalStateException> { agent.runOperation("Ping") }
     shouldThrow<IllegalStateException> {
       game.actorEngine(PLAYER1).addTasks(parse<InstructionGroup>("Choice"))
     }
-    while (game.timeline.checkpoint() != start) timeline.stepBack() shouldBe true
+    timeline.seek(start)
     agent.count("Listener") shouldBe 0
-    timeline.stepBack() shouldBe false
-    while (game.timeline.checkpoint() != listener) timeline.stepForward() shouldBe true
-    while (game.timeline.checkpoint() != end) timeline.stepForward() shouldBe true
+    timeline.seek(listener)
+    agent.count("Pong") shouldBe 0
+    timeline.seek(end)
     agent.count("Pong") shouldBe 1
     game.events.entriesSince(game.events.eventOrdinal(start)) shouldBe completeEvents
 
     game.timeline.seek(listener)
     game.timeline.truncate()
     game.timeline.positions shouldBe (0..listener.serial).map(::Checkpoint)
-    timeline.stepForward() shouldBe false
+    shouldThrow<IllegalArgumentException> { timeline.seek(end) }
     agent.runOperation("Ping") { doTask("Pong") }
     agent.count("Pong") shouldBe 1
   }
@@ -124,17 +95,18 @@ internal class TimelineTest {
             testGamePremise("CLASS ChoiceA\nCLASS ChoiceB\nCLASS ChoiceC\nCLASS ChoiceD")
         )
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val timeline = game.timeline as TimelineImpl
+    val timeline = game.timeline
+    val beforeOffer = timeline.checkpoint()
     agent.addTasks("ChoiceA OR ChoiceB, ChoiceC OR ChoiceD")
-    lateinit var betweenCalls: Checkpoint
+    val offered = timeline.checkpoint()
 
     agent.continueOperation {
       doTask("ChoiceA")
-      betweenCalls = game.timeline.checkpoint()
+      val betweenCalls = timeline.checkpoint()
       (betweenCalls in game.timeline.positions) shouldBe true
-      timeline.stepBack() shouldBe true
-      timeline.stepBack() shouldBe false
-      timeline.stepForward() shouldBe true
+      timeline.seek(offered)
+      shouldThrow<IllegalStateException> { timeline.seek(beforeOffer) }
+      timeline.seek(betweenCalls)
       doTask("ChoiceC")
       game.timeline.seek(betweenCalls)
       game.timeline.truncate()
@@ -150,14 +122,15 @@ internal class TimelineTest {
   internal fun directDoTasksRecordsNavigablePositions() {
     val game = Engine.newGame(testGamePremise("CLASS ChoiceA\nCLASS ChoiceB"))
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val timeline = game.timeline as TimelineImpl
+    val timeline = game.timeline
     agent.addTasks("ChoiceA")
+    val offered = timeline.checkpoint()
     agent.doTasks("ChoiceA")
 
     game.timeline.positions shouldBe (0..game.timeline.checkpoint().serial).map(::Checkpoint)
     agent.count("ChoiceA") shouldBe 1
     val done = game.timeline.checkpoint()
-    timeline.stepBack() shouldBe true
+    timeline.seek(offered)
     agent.count("ChoiceA") shouldBe 0
     game.timeline.seek(done)
     agent.count("ChoiceA") shouldBe 1
@@ -166,13 +139,14 @@ internal class TimelineTest {
   @Test
   internal fun aRawTaskEditIsANavigableTransaction() {
     val game = Engine.newGame(testGamePremise("CLASS Choice"))
-    val timeline = game.timeline as TimelineImpl
+    val timeline = game.timeline
     val start = timeline.checkpoint()
     game.actorEngine(PLAYER1).addTasks(InstructionGroup.of(parse<InstructionTree>("Choice")))
+    val offered = timeline.checkpoint()
 
     game.timeline.seek(start)
     game.tasks.isEmpty() shouldBe true
-    timeline.stepForward() shouldBe true
+    timeline.seek(offered)
     game.tasks.isEmpty() shouldBe false
   }
 

@@ -62,15 +62,6 @@ internal class WorldForkTest {
     sourceAgent.runOperation("Listener")
     val pendingChoice = sourceAgent.addTasks("Choice?").single()
     source.events.entriesSince(0).first().notes = "captured"
-    val sourceChoiceCounts = mutableListOf<Int>()
-    val sourceChoiceSubscription =
-        (source as WholeWorld)
-            .components
-            .listenToCount(
-                sourceAgent.resolve("Choice"),
-                source.reader,
-                sourceChoiceCounts::add,
-            )
 
     val fork = Engine.fork(source)
     val forkAgent = fork.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
@@ -92,19 +83,16 @@ internal class WorldForkTest {
     sourceAgent.count("Choice") shouldBe 0
     sourceAgent.count("Pong") shouldBe 0
     (pendingChoice in source.tasks) shouldBe true
-    sourceChoiceCounts shouldBe listOf(0)
 
     sourceAgent.doTask("Choice")
     sourceAgent.runOperation("Ping") { doTask("Pong") }
 
     fork.events.entriesSince(0) shouldBe source.events.entriesSince(0)
-    sourceChoiceCounts shouldBe listOf(0, 1)
 
     forkAgent.runOperation("ForkOnly")
 
     forkAgent.count("ForkOnly") shouldBe 1
     sourceAgent.count("ForkOnly") shouldBe 0
-    sourceChoiceSubscription.cancel()
   }
 
   @Test

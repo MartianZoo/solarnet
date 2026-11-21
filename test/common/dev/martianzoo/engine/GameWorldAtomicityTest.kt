@@ -17,7 +17,7 @@ import kotlin.test.Test
 internal class GameWorldAtomicityTest {
   @Test
   internal fun failedOperationRestoresTheWholeWorldTogether() {
-    val world = TfmEngine.newGame(premise) as WholeWorld
+    val world = TfmEngine.newGame(premise)
     val admin = world.testAgent(ADMIN)
     val checkpoint = world.events.nextOrdinal
 

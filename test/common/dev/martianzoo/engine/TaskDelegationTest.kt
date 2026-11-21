@@ -28,7 +28,6 @@ internal class TaskDelegationTest {
 
       shouldThrow<TaskException> { p2.selectTask(reaction.id) }
       shouldThrow<TaskException> { p2.doTask(reaction.id) }
-      game.actorEngine(PLAYER1).canExecuteTask(reaction.id) shouldBe true
       p1.selectTask(reaction.id)
       p2.tasks.isEmpty() shouldBe true
       p1.doTask(reaction.id)
