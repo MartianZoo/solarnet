@@ -35,10 +35,10 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Rules test cleanup
 
-- Review the configuration-contract cases in `ClassTableSelectionTest`. Keep checks that establish
-  supported configuration choices and rejection of incompatible selections; remove duplicated
-  class inventories and incidental implementation checks. The November 19 gameplay cleanup removes
-  `PropertyTest`, `CustomMetricTest`, and `PremiseEffectsTest` rather than relocating their probes.
+- Explicitly deferred on November 19: review the configuration-contract cases in
+  `ClassTableSelectionTest`. Keep checks that establish supported configuration choices and
+  rejection of incompatible selections; remove duplicated class inventories and incidental
+  implementation checks.
 
 ## Human-readable game archive prototype
 

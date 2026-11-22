@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.AgentInputRequiredException
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
@@ -157,193 +156,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun trackedHandsFollowBackwardAndForwardSeeking() {
-    val (tracking, player) = newTrackedGame()
-    val agent = agents[player]
-    tracking.expectArrivals(player, AcquiredCompany, AdaptedLichen)
-    agent.runOperation("ProjectCard")
-    val first = game.timeline.checkpoint()
-    agent.runOperation("ProjectCard")
-    val second = game.timeline.checkpoint()
-    tracking.hand(player) shouldBe setOf(AcquiredCompany, AdaptedLichen)
-
-    game.timeline.seek(first)
-    tracking.hand(player) shouldBe setOf(AcquiredCompany)
-    game.timeline.seek(second)
-    tracking.hand(player) shouldBe setOf(AcquiredCompany, AdaptedLichen)
-    tracking.requireComplete()
-  }
-
-  @Test
-  internal fun fullCopyOfTrackedWorldCanDrawAnonymousCards() {
-    val (sourceTracking, player) = newTrackedGame()
-    val firstCard = AcquiredCompany
-    sourceTracking.expectArrivals(player, firstCard)
-    agents[player].runOperation("ProjectCard")
-
-    val copied = agents.fork()
-    copied.transactionGuard shouldBe null
-    copied[player].runOperation("ProjectCard")
-
-    sourceTracking.requireComplete()
-    sourceTracking.hand(player) shouldBe setOf(firstCard)
-    copied[player].count("ProjectCard<Hand>") shouldBe 2
-  }
-
-  @Test
-  internal fun aDifferentChangeAtTheSameOrdinalDoesNotReuseDiscardedCardLocations() {
-    val (tracking, player) = newTrackedGame()
-    val agent = agents[player]
-    tracking.expectArrivals(player, AcquiredCompany)
-    agent.runOperation("ProjectCard")
-    val beforeDiscard = game.timeline.checkpoint()
-    tracking.expectDepartures(player, AcquiredCompany)
-    agent.runOperation("-ProjectCard")
-    val discarded = game.events.nextOrdinal
-    tracking.hand(player) shouldBe emptySet()
-
-    game.timeline.seek(beforeDiscard)
-    game.timeline.truncate()
-    agent.runOperation("MC")
-
-    game.events.nextOrdinal shouldBe discarded
-    tracking.hand(player) shouldBe setOf(AcquiredCompany)
-    agent.count("MC") shouldBe 1
-  }
-
-  @Test
-  internal fun unnamedHandGainFailsWithoutCommitting() {
-    val (_, player) = newTrackedGame()
-    val before = game.events.nextOrdinal
-
-    shouldThrow<AgentInputRequiredException> { agents[player].runOperation("ProjectCard") }
-
-    game.events.nextOrdinal shouldBe before
-    agents[player].count("ProjectCard<Hand>") shouldBe 0
-  }
-
-  @Test
-  internal fun unnamedHandRemovalFailsWithoutCommitting() {
-    val (tracking, player) = newTrackedGame()
-    val agent = agents[player]
-    tracking.expectArrivals(player, AdaptedLichen)
-    agent.runOperation("ProjectCard")
-    val before = game.events.nextOrdinal
-
-    shouldThrow<AgentInputRequiredException> { agent.runOperation("-ProjectCard") }
-
-    game.events.nextOrdinal shouldBe before
-    tracking.hand(player) shouldBe setOf(AdaptedLichen)
-  }
-
-  @Test
-  internal fun corporationAndPreludeHandMovementsAlsoNeedNames() {
-    val (tracking, player) = newTrackedGame()
-    val agent = agents[player]
-    val before = game.events.nextOrdinal
-
-    shouldThrow<AgentInputRequiredException> { agent.runOperation("CorporationCard") }
-    shouldThrow<AgentInputRequiredException> { agent.runOperation("PreludeCard") }
-
-    game.events.nextOrdinal shouldBe before
-    tracking.expectArrivals(player, Ecoline, back = cn("CorporationCard"))
-    tracking.expectArrivals(player, Biolab, back = cn("PreludeCard"))
-    agent.runOperation("CorporationCard")
-    agent.runOperation("PreludeCard")
-    tracking.expectDepartures(player, Ecoline, back = cn("CorporationCard"))
-    agent.runOperation("-CorporationCard")
-
-    tracking.hand(player) shouldBe setOf(Biolab)
-    game.events.changesSince(before).map { it.notes } shouldBe
-        listOf("Cards: $Ecoline", "Cards: $Biolab", "Cards: $Ecoline")
-    tracking.requireComplete()
-  }
-
-  @Test
-  internal fun suppliedNamesMustBeConcreteCardFrontsWithTheRightBack() {
-    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
-
-    shouldThrow<IllegalArgumentException> {
-      tracking.expectArrivals(player, cn("NeverPrintedCard"))
-    }
-    shouldThrow<IllegalArgumentException> { tracking.expectArrivals(player, cn("MC")) }
-    shouldThrow<IllegalArgumentException> { tracking.expectArrivals(player, cn("CardFront")) }
-    shouldThrow<IllegalArgumentException> { tracking.expectArrivals(player, Ecoline) }
-    shouldThrow<IllegalArgumentException> {
-      tracking.expectDepartures(player, Biolab, back = cn("CorporationCard"))
-    }
-    shouldThrow<IllegalArgumentException> {
-      tracking.expectArrivals(
-          player,
-          Biolab,
-          back = cn("ProjectCard"),
-          location = cn("Selecting"),
-      )
-    }
-    shouldThrow<IllegalArgumentException> {
-      tracking.expectDepartures(player, cn("CardFront"), location = cn("Selecting"))
-    }
-  }
-
-  @Test
-  internal fun suppliedNameCountMustMatchTheActualMovement() {
-    val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, AcquiredCompany)
-    val before = game.events.nextOrdinal
-
-    shouldThrow<AgentInputRequiredException> { agents[player].runOperation("2 ProjectCard") }
-
-    game.events.nextOrdinal shouldBe before
-    tracking.hand(player) shouldBe emptySet()
-    agents[player].runOperation("ProjectCard")
-    tracking.requireComplete()
-  }
-
-  @Test
-  internal fun unusedSuppliedNamesFailTheFinalCountCheck() {
-    val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, AcquiredCompany, AdaptedLichen)
-
-    agents[player].runOperation("ProjectCard")
-
-    shouldThrow<IllegalStateException> { tracking.requireComplete() }
-  }
-
-  @Test
-  internal fun rejectedArrivalNameCanBeCorrectedWithoutChangingRecordedNames() {
-    val (tracking, player) = newTrackedGame()
-    val agent = agents[player]
-    tracking.expectArrivals(player, AdaptedLichen)
-    agent.runOperation("ProjectCard")
-    tracking.expectArrivals(player, AcquiredCompany)
-
-    shouldThrow<IllegalStateException> {
-      agent.runOperation("SearchForCard<TagFilter<Class<PlantTag>>>")
-    }
-    tracking.replacePendingArrivals(player, EcologicalZone)
-    agent.runOperation("SearchForCard<TagFilter<Class<PlantTag>>>")
-
-    tracking.hand(player) shouldBe setOf(AdaptedLichen, EcologicalZone)
-    tracking.requireComplete()
-  }
-
-  @Test
-  internal fun rejectedDepartureNameCanBeCorrected() {
-    val (tracking, player) = newTrackedGame()
-    val agent = agents[player]
-    tracking.expectArrivals(player, AdaptedLichen)
-    agent.runOperation("ProjectCard")
-    tracking.expectDepartures(player, AcquiredCompany)
-
-    shouldThrow<IllegalStateException> { agent.runOperation("-ProjectCard") }
-    tracking.replacePendingDepartures(player, AdaptedLichen)
-    agent.runOperation("-ProjectCard")
-
-    tracking.hand(player) shouldBe emptySet()
-    tracking.requireComplete()
-  }
-
-  @Test
   internal fun aNamedCorporationPlayMustComeFromTheCorporationHand() {
     val (tracking, player) = newTrackedGame()
     tracking.expectArrivals(player, Ecoline, back = cn("CorporationCard"))
@@ -443,26 +255,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun automaticDrawWaitsForItsName() {
-    val (tracking, player) = newTrackedGame()
-    val agent = agents[player]
-    agent.autoExecPolicy = NONE
-    val taskId = agent.addTasks("ProjectCard").single()
-    val before = game.events.nextOrdinal
-
-    agent.autoExecPolicy = EAGER
-
-    game.events.nextOrdinal shouldBe before
-    game.tasks.ids() shouldBe setOf(taskId)
-    tracking.expectArrivals(player, AdaptedLichen)
-    agent.autoExecNow()
-
-    tracking.hand(player) shouldBe setOf(AdaptedLichen)
-    game.events.changesSince(before).single().notes shouldBe "Cards: $AdaptedLichen"
-    tracking.requireComplete()
-  }
-
-  @Test
   internal fun discardedCardMayEnterTheHandAgain() {
     val (tracking, player) = newTrackedGame()
     val agent = agents[player]
@@ -507,20 +299,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
 
     tracking.hand(player) shouldBe emptySet()
     tracking.requireComplete()
-  }
-
-  @Test
-  internal fun anUnrelatedAutomaticTaskCanFinishWhileTheCardTaskWaits() {
-    val (_, player) = newTrackedGame()
-    val agent = agents[player]
-    agent.autoExecPolicy = NONE
-    agent.addTasks("ProjectCard, MC")
-
-    agent.autoExecPolicy = EAGER
-
-    agent.count("MC") shouldBe 1
-    agent.count("ProjectCard<Hand>") shouldBe 0
-    game.tasks.ids().size shouldBe 1
   }
 
   @Test
@@ -700,48 +478,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun missingNamesReportTheMovementAndTheCardsThatCouldMove() {
-    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
-    val agent = agents[player]
-    val selecting = cn("Selecting")
-
-    val dealt =
-        shouldThrow<NamesRequiredException> { agent.runOperation("3 ProjectCard<Selecting>") }
-    dealt.arriving shouldBe true
-    dealt.location shouldBe selecting
-    dealt.count shouldBe 3
-    dealt.candidates shouldBe null
-
-    // The offered cards exist only inside the rolled-back attempt; they are still the candidates.
-    tracking.expectArrivals(
-        player,
-        AcquiredCompany,
-        AdaptedLichen,
-        MicroMills,
-        location = selecting,
-    )
-    tracking.expectDepartures(player, AdaptedLichen, location = selecting)
-    val rejected =
-        shouldThrow<NamesRequiredException> {
-          agent.exMachina("3 ProjectCard<Selecting>, -2 ProjectCard<Selecting>")
-        }
-    rejected.arriving shouldBe false
-    rejected.count shouldBe 1
-    rejected.candidates shouldBe setOf(AcquiredCompany, MicroMills)
-
-    tracking.expectDepartures(player, MicroMills, location = selecting)
-    agent.exMachina("3 ProjectCard<Selecting>, -2 ProjectCard<Selecting>")
-    tracking.hand(player, location = selecting) shouldBe setOf(AcquiredCompany)
-
-    val kept =
-        shouldThrow<NamesRequiredException> {
-          agent.runOperation("ProjectCard<Hand FROM Selecting>")
-        }
-    kept.arriving shouldBe true
-    kept.candidates shouldBe setOf(AcquiredCompany)
-  }
-
-  @Test
   internal fun selectingOfferCannotReuseAHeldCardButCanOfferADiscardedCardAgain() {
     val (tracking, player) = newTrackedGame(requireSelectingNames = true)
     val agent = agents[player]
@@ -761,21 +497,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
     agent.runOperation("ProjectCard<Selecting>")
 
     tracking.hand(player) shouldBe setOf(AdaptedLichen)
-    tracking.requireComplete()
-  }
-
-  @Test
-  internal fun selectingNamesRequireSelectingTrackingAtGameStart() {
-    val (tracking, player) = newTrackedGame()
-    val agent = agents[player]
-    agent.runOperation("ProjectCard<Selecting>")
-    shouldThrow<IllegalArgumentException> {
-      tracking.expectArrivals(player, AcquiredCompany, location = cn("Selecting"))
-    }
-    tracking.expectArrivals(player, AcquiredCompany)
-    agent.runOperation("ProjectCard<Hand FROM Selecting>")
-
-    tracking.hand(player) shouldBe setOf(AcquiredCompany)
     tracking.requireComplete()
   }
 
@@ -804,48 +525,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
     tracking.replacePendingArrivals(player, AcquiredCompany)
     agent.runOperation("ProjectCard<Hand FROM Selecting>")
     tracking.hand(player) shouldBe setOf(AcquiredCompany)
-    tracking.requireComplete()
-  }
-
-  @Test
-  internal fun strictSelectingModeRequiresNamesBeforeTheOfferCompletes() {
-    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
-    val agent = agents[player]
-    val before = game.events.nextOrdinal
-
-    shouldThrow<AgentInputRequiredException> { agent.runOperation("2 ProjectCard<Selecting>") }
-    game.events.nextOrdinal shouldBe before
-    tracking.expectArrivals(player, AcquiredCompany, location = cn("Selecting"))
-    shouldThrow<AgentInputRequiredException> { agent.runOperation("2 ProjectCard<Selecting>") }
-    game.events.nextOrdinal shouldBe before
-    tracking.replacePendingArrivals(
-        player,
-        AcquiredCompany,
-        AdaptedLichen,
-        location = cn("Selecting"),
-    )
-    agent.runOperation("2 ProjectCard<Selecting>")
-    tracking.expectDepartures(player, AdaptedLichen, location = cn("Selecting"))
-    agent.runOperation("-ProjectCard<Selecting>")
-    tracking.expectArrivals(player, AcquiredCompany)
-    agent.runOperation("ProjectCard<Hand FROM Selecting>")
-    tracking.requireComplete()
-  }
-
-  @Test
-  internal fun strictSelectingTaskWaitsForNamesWhileOtherAutomaticWorkRuns() {
-    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
-    val agent = agents[player]
-    agent.autoExecPolicy = NONE
-    agent.addTasks("ProjectCard<Selecting>, MC")
-
-    agent.autoExecPolicy = EAGER
-
-    agent.count("MC") shouldBe 1
-    agent.count("ProjectCard<Selecting>") shouldBe 0
-    tracking.expectArrivals(player, AcquiredCompany, location = cn("Selecting"))
-    agent.autoExecNow()
-    agent.count("ProjectCard<Selecting>") shouldBe 1
     tracking.requireComplete()
   }
 
@@ -925,20 +604,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
     game.events.changesSince(before).map { it.notes } shouldBe
         listOf("Cards: $AcquiredCompany, $AdaptedLichen", "Cards: $AcquiredCompany, $AdaptedLichen")
     tracking.requireComplete()
-  }
-
-  @Test
-  internal fun laterValidationPreservesOtherEventNotesInPlace() {
-    val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, AcquiredCompany)
-    val before = game.events.nextOrdinal
-    agents[player].runOperation("ProjectCard")
-    val event = game.events.changesSince(before).single()
-    event.notes = "Source: archive\n${event.notes}\nReview: checked separately"
-
-    tracking.requireComplete()
-
-    event.notes shouldBe "Source: archive\nCards: $AcquiredCompany\nReview: checked separately"
   }
 
   @Test

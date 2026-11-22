@@ -2,24 +2,19 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
-import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -29,7 +24,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
-import kotlin.test.assertSame
 
 internal class GamePremiseTest {
   @Test
@@ -74,49 +68,6 @@ internal class GamePremiseTest {
   }
 
   @Test
-  internal fun conventionalPlayerCatalogsAreReusableAndAbsentFromCanon() {
-    val catalog = Canon.withPlayers(6)
-
-    assertSame(catalog, Canon.withPlayers(6))
-    Canon.classTable.findClass(cn("Player1")) shouldBe null
-    catalog.classTable
-        .getClass(cn("Player1"))
-        .isSubtypeOf(catalog.classTable.getClass(cn("Player"))) shouldBe true
-    catalog.classTable.getClass(cn("Player6")).abstract shouldBe false
-  }
-
-  @Test
-  internal fun ordinaryPremisesReuseCanonAndOwnTheirGeneratedClasses() {
-    val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
-    val table = premise.classTable
-
-    assertSame(Canon, premise.catalog)
-    assertSame(Canon.classTable.getClass(cn("Card")), table.getClass(cn("Card")))
-    Canon.classTable.findClass(cn("Player1")) shouldBe null
-    table.getClass(cn("Player1")).classTable shouldBe table
-    table.getClass(cn("Premise")).classTable shouldBe table
-  }
-
-  @Test
-  internal fun unchosenOptionsNeedNoNegativePremiseSelections() {
-    val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
-
-    premise.classSelections.filterNot(ClassSelection::included).shouldBeEmpty()
-  }
-
-  @Test
-  internal fun worldsFromOnePremiseShareTheClassModelButNotLiveState() {
-    val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
-    val first = TfmEngine.newGame(premise)
-    val second = TfmEngine.newGame(premise)
-
-    first.classTable shouldBe second.classTable
-    first.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
-    first.testAgent(ADMIN).count("SetupPhase") shouldBe 1
-    second.testAgent(ADMIN).count("SetupPhase") shouldBe 0
-  }
-
-  @Test
   internal fun rawConfigResolvesModulesAndFreezesDefaultGoals() {
     val config = GameConfig("-CorporateEraExpansion", "Player1", "Player2")
 
@@ -142,31 +93,6 @@ internal class GamePremiseTest {
   }
 
   @Test
-  internal fun observationalModuleReferencesDoNotCreateBootstrapDependencies() {
-    val observers =
-        object : Bundle("observers") {
-          override val explicitClassDeclarations =
-              parseClasses(
-                      """
-                      CLASS ObserverA : Module { ObserverB: ObservationFromA }
-                      CLASS ObserverB : Module { ObserverA: ObservationFromB }
-                      CLASS ObservationFromA
-                      CLASS ObservationFromB
-                      """
-                          .trimIndent()
-                  )
-                  .toSetStrict()
-        }
-    val catalog = TfmCatalog(Canon, observers)
-    val premise = catalog.gamePremise(GameConfig("ObserverA, ObserverB", "Player1", "Player2"))
-
-    val game = TfmEngine.newGame(premise)
-
-    game.classTable.isInhabited(cn("ObserverA")) shouldBe true
-    game.classTable.isInhabited(cn("ObserverB")) shouldBe true
-  }
-
-  @Test
   internal fun configuredPlayerNamesBecomeConcretePlayerClasses() {
     val blue = cn("Blue")
     val yellow = cn("Yellow")
@@ -183,9 +109,12 @@ internal class GamePremiseTest {
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
     game.reader.getComponents(cn("Player").expression).map { it.className }.toSet() shouldBe
         setOf(blue, yellow)
-    game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
-    game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
-    game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
+    val agents = Agents(game) { NONE }
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents[Player(blue)].doTask("20 TerraformRating")
+    agents[Player(yellow)].doTask("20 TerraformRating")
+    agents[Player(blue)].count("TerraformRating<Blue>") shouldBe 20
+    agents[Player(yellow)].count("TerraformRating<Yellow>") shouldBe 20
     game.reader
         .getComponents(cn("StartToken").expression)
         .single()
@@ -243,7 +172,8 @@ internal class GamePremiseTest {
                 GameConfig("ColoniesExpansion, Callisto, Luna, Enceladus", "Player1", "Player2")
             )
         )
-    val admin = game.testAgent(ADMIN)
+    val agents = Agents(game) { NONE }
+    val admin = agents[ADMIN]
 
     admin.count("SelectedColonyTile") shouldBe 3
     admin.count("SelectedCallisto") shouldBe 1
@@ -251,9 +181,15 @@ internal class GamePremiseTest {
     admin.count("SelectedEnceladus") shouldBe 1
     admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
 
-    game.testAgent(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
-    game.testAgent(Player(cn("Player1"))).doTask("-10 ProjectCard<Selecting>")
-    game.testAgent(Player(cn("Player2"))).doTask("-10 ProjectCard<Selecting>")
+    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    for (name in listOf("Player1", "Player2")) {
+      agents[Player(cn(name))].doTasks(
+          "20 TerraformRating",
+          "CorporationCard",
+          "10 ProjectCard<Selecting>",
+          "-10 ProjectCard<Selecting>",
+      )
+    }
     admin.count("CorporationPhase") shouldBe 1
 
     admin.count("SelectedColonyTile") shouldBe 0
@@ -270,7 +206,7 @@ internal class GamePremiseTest {
     val premise = Canon.gamePremise(GameConfig.create(included = emptyList(), playerNames = names))
 
     premise.playerNames shouldBe names
-    TfmEngine.newGame(premise).testAgent(ADMIN).count("Player") shouldBe 6
+    Agents(TfmEngine.newGame(premise)) { NONE }[ADMIN].count("Player") shouldBe 6
   }
 
   @Test

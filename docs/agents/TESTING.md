@@ -234,13 +234,13 @@ and `replays` contains whole-game chronologies. General milestone claiming belon
 `MilestonesTest`; general award funding and scoring belong in `AwardsTest`. Card-specific failures
 and payment cases belong with their cards, even when they exercise shared engine behavior.
 Do not add a separate rule scenario when a retained card or rule scenario already exposes the same
-gameplay mistake. Shared integrated-test support lives in the parent
-package. Test placement follows purpose: a test of engine behavior belongs with engine even when it
-uses Terraforming Mars declarations to construct its scenario, while a test of Terraforming Mars
-rules or content belongs in the Terraforming Mars suites. Test-only dependencies may cross that
-direction; production dependencies may not. Small generic declarations are preferable when they
-make a test clearer, but replacing domain examples is independent cleanup rather than a prerequisite
-for correct ownership.
+gameplay mistake. Shared integrated-test support lives in the parent package.
+The `tfm-tests` module is for real gameplay situations, including setup, production, scoring,
+card identities, and other events outside normal player actions. Arithmetic, classification,
+generic task injection, object identity, and helper-validation probes do not belong here.
+Remove pointless technical probes; do not preserve them by renaming or relocating them.
+The explicitly deferred configuration audit, including `ClassTableSelectionTest`, remains separate.
+Other modules retain their own engine, Agent, recording, and language contracts.
 
 **Human direction, October 24, 2026:** functional game scenarios should go through the agent
 layer. Their readability must not depend on low-level task IDs. The selected engine destination
@@ -278,9 +278,8 @@ clear coverage of these contracts matters more than preserving every current tes
    especially when reconstructed from independent game records. Every successful JVM replay
    verifies its checked-in archive. `-PreplayExports` additionally writes a fresh export and verifies
    its live re-import.
-6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
-   that representative supported configurations compose into usable projected class tables and
-   worlds. This is not a demand to restate the contents of every card or bundle in assertions.
+6. **Game configuration coverage.** The existing configuration audit is deferred. Do not add
+   mirrored class inventories or generic authoring probes to `tfm-tests` under this heading.
 7. **Known-defect scenarios.** Focused passing characterizations of important behavior known to be
    wrong, explicitly identified as defects. Card tests use the paired pattern described
    under [Known-defect tests](#known-defect-tests); other suites retain `BugsTest`.
@@ -296,10 +295,10 @@ details; it does not require moving those probes into another suite.
 
 Give each scenario variant its own named test, using a private helper for shared steps. Do not put
 variants in a `for` loop inside one test: the failing test name should identify the case. Exercise
-the behavior under test through gameplay. For sandbox tests, establish incidental
-preconditions through the standardized fixture and corrections by default. Use authentic
-gameplay instead when the way a precondition is reached can affect, or provide useful evidence for,
-the behavior under test.
+the behavior under test through gameplay. Prefer short, plausible real play for incidental
+preparation; use corrections when authentic setup would be tedious, distracting, or artificial.
+Choose direct setup and phase invocation case by case, as described under
+[Sandbox and gameplay fixture migration](#sandbox-and-gameplay-fixture-migration).
 
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
 in a test just to detect that the list changed. Test observable behavior through the normal
@@ -384,8 +383,9 @@ Choose the fixture by what the scenario proves, not the kind of card:
   Use it for focused card interactions and rules that do not depend on authentic turn/phase history.
   With `newTestGame()`, its game enters the corporation phase normally; the fixture then drops
   the turn order that phase begins, so scenarios take turns ex machina. Its private phase correction places
-  later phases without their queued start-of-phase rules. A scenario that needs a phase's real effects,
-  such as production, a solar phase, or research, belongs in `TfmGameplayTest`.
+  later phases without their queued start-of-phase rules. Use `TfmGameplayTest` when the transition
+  into production, solar, or research is part of the claim. A focused rule scenario may instead
+  invoke a real phase effect directly when the surrounding traversal would be incidental.
 - `TfmGameplayTest` starts the game and lets its own rules offer every turn and begin every phase.
   When prior play matters to the claim, reach the scenario through that play, including production
   to obtain resources. **Human direction, November 12, 2026:** focused phase tests may instead
@@ -418,16 +418,18 @@ offers before the exact remainder, and explain each `Ok`. Fixed command abbrevia
 shorten repeated invocation steps; payments and gameplay outcomes remain explicit. Loops remain
 appropriate for seat-order traversal and long generation/endgame progressions.
 
-Fixture or tracking checks may instead assign `game` directly. This creates fresh `Agents` with
-Player autoexecution set to `NONE` and Admin set to `EAGER`, without preparing a position or binding
+Focused rule or card-tracking scenarios may instead assign `game` directly. This creates fresh
+`Agents` with Player autoexecution set to `NONE` and Admin set to `EAGER`, without preparing a position or binding
 `players`, `kim`, `stan`, or `rob`;
 use `agents[player]` and `admin`. These subclasses also run under `:tfm-tests:sandboxTest`,
-so that task measures both prepared-position scenarios and synthetic sandbox checks.
+so that task measures both prepared-position scenarios and directly initialized rule scenarios.
 
-Synthetic engine checks that only need setup use `setUpGame`, which starts the game and drops setup's
-pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCorporationPhaseOutOfTurn`
-moves such a game into the corporation phase through that phase's own start, then drops the turn
-order it begins.
+Focused rule scenarios that only need a prepared starting position may use `setUpGame`.
+It finishes incidental opening choices with scoped `EAGER`, drops setup's pending handoff,
+and leaves the game in `SetupPhase`. Callers own `Agents(game) { NONE }`; do not use the older
+`World.testAgent()` cache, which otherwise inherits Player `EAGER`.
+`startCorporationPhaseOutOfTurn` starts the corporation phase and drops its turn order.
+These shortcuts do not justify a scenario with no real gameplay subject.
 
 Sandbox and gameplay each own their plain `Agent` fixture directly. Both expose
 `newTestGameBeforeCorporationPlay()` for explicit corporation plays; a normal
@@ -583,18 +585,21 @@ preserve sourced FAQ or defect evidence, distinguish tempting targets or choices
 interaction among independently authored rules. Prefer representative coverage over repeating the
 same semantic pattern for another card with different literals.
 
-Every state change in a migrated sandbox test must come from real player-facing gameplay or from
-its explicit fixture methods. Prepared-fixture scenarios do not use `runOperation`, `beginOperation`,
-arbitrary direct phase changes, or other lower-level shortcuts. The focused phase-test exception
-permits `exMachina` setup, not direct invocation of phase effects. Raw synthetic construction follows
-its separate rules in [Sandbox and gameplay fixture migration](#sandbox-and-gameplay-fixture-migration).
+Choose direct setup and phase invocation case by case; this does not need to be consistent across
+test classes. A focused rule test may invoke a real phase or rule effect with `runOperation` or
+`beginOperation` when authentic traversal would add tedious or artificial setup. Explain a
+non-obvious shortcut locally. Exercise and complete the actual behavior being claimed; never
+inject the outcome being asserted. When phase ordering or action legality is the subject, use
+the real flow. A raw operation does not excuse a technical-only scenario.
 The sandbox provides
 `advanceUntilActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
 is irrelevant; finish pending choices first. This is a sandbox shortcut, so other unplayed starting
 cards need not be handled when they are irrelevant to the scenario. Gameplay leaves those choices
 to the test and advances through the game's normal flow.
 
-In sandbox tests, conditions beyond that initial state should normally be visible corrections:
+Prefer real setup play when it is straightforward and produces a plausible situation.
+Astra Mechanica's previously played events are established by actually playing those cards.
+Use visible corrections when authentic setup would be tedious, distracting, or artificial:
 
 - Use `setToExMachina(targetCount, type)` for a desired absolute count. Admin may use it for
   System markers such as colony tracks. It calculates the gain or
@@ -602,17 +607,17 @@ In sandbox tests, conditions beyond that initial state should normally be visibl
   the fixture's prior value. Production types such as `PROD[Heat]` work the same way, including negative printed production.
 - Use `exMachina(adjustment)` for a naturally relative change or a known absent-to-present fact.
   Prefer a concrete Type such as `NormalCityTile` when an abstract Type cannot be created directly.
-- If initial play of the subject card is not being tested, install that card directly. Do not first
-  satisfy its play requirement, pay its price, or reproduce its direct effect. Correct any
-  independent state that the behavior under test actually needs.
+- If initial play is incidental and reproducing it would burden the scenario, install the card
+  directly and correct its necessary independent state. Do not mechanically replace a short,
+  natural card play with a correction merely because the play is setup.
 - If initial play, payment, requirements, direct effects, or entry-trigger interactions are
   the subject, play the card normally and establish whatever legal setup that action requires.
 - To test behavior at a completed global parameter, correct the track to its penultimate step and
   use an ordinary standard project for the final step when available. This preserves the real
   completion lifecycle, including `GpComplete`, instead of asking a correction to stand in for it.
 - `advanceUntilActionPhase()` expires generation-scoped state without production or research.
-  A scenario that needs real phase effects or their ordering belongs in gameplay; do not broaden
-  the sandbox shortcut into another game driver.
+  A scenario that needs phase ordering belongs in gameplay. A focused rule test may invoke
+  the relevant phase effect directly; do not broaden the sandbox shortcut into another game driver.
 
 Corrections intentionally suppress ordinary queued effects while retaining the structural work
 documented in [EX_MACHINA.md](EX_MACHINA.md). Therefore, never treat the correction itself as proof
@@ -623,19 +628,17 @@ Authentic setup through gameplay remains valid and is sometimes preferable. Use 
 when the path into the state matters: trigger history, attribution, task ordering, payment,
 requirements, card-entry effects, global-parameter completion, game flow, or interactions among
 setup actions. It is also appropriate when a broader integration scenario is valuable in its own
-right. Correction is the default for irrelevant preconditions because it keeps focused card
-tests short and makes their real subject obvious; it is not a ban on authentic gameplay.
+right. Short, plausible preparation through real play is preferred even when that history is
+incidental. Correction is appropriate when it avoids burdensome or artificial preparation.
 
 Review each retained scenario before selecting its fixture. A coherent card suite can use gameplay
 throughout even when some methods could use sandbox; `PreservationProgramTest` follows this style.
 When most methods suit sandbox and only a few need the game flow, a normal nested class may extend
 `TfmGameplayTest` inside the sandbox class. It owns its own fixture and does not share the outer
 instance; do not use Kotlin `inner` or JVM-only `@Nested`. See
-`TfmSandboxTestTest.TfmGameplayTestTest` for executable discovery coverage. The reverse arrangement
-also works: `FinalGreeneryPhaseTest.EndConditions` keeps synthetic sandbox checks inside a gameplay
-suite. When filtering by the outer class name, include a trailing wildcard to include nested classes
-as well. Synthetic
-declarations still require separate evaluation.
+`TurmoilDelegatesTest.Gameplay` for focused phase scenarios. When filtering by the outer class name,
+include a trailing wildcard to include nested classes
+as well. Do not retain synthetic declarations without an actual gameplay scenario.
 Do not replace meaningful coverage just to increase the migrated count. An existing base class does
 not itself express a preferred style.
 
@@ -733,10 +736,39 @@ characterization over a disproportionate workaround.
 
 ## Gameplay consistency project
 
-**Status: November 17 and November 19 selected batches implemented and verified.** This section records the user's
+**Status: selected migration complete, including the final November 19 cleanup. The configuration
+audit is explicitly deferred.** This section records the user's
 responses to the gameplay consistency audit, the implemented criteria, and the intentional remaining
 differences. Proposals and observations not yet discussed remain distinct from the completed scope.
 Separate future work is in [`TODO.md`](../../TODO.md#gameplay-consistency).
+
+### Final scope clarification, November 19, 2026
+
+- Direct effect invocation versus full game traversal does **not** need uniformity. Judge whether
+  the setup is short and plausible and whether the actual claim is exercised. Production, scoring,
+  and other behavior outside normal player actions are legitimate `.rules` subjects.
+- Remove implicit Player `EAGER`, including standalone callers of the older `testAgent` helper.
+  Admin stays automatic; scoped incidental opening and the TaskForm replay remain exceptions.
+- This module tests real gameplay situations. Delete generic arithmetic, classification,
+  injected-task, helper-validation, and synthetic-authoring probes rather than relocating them.
+- The `ClassTableSelectionTest` configuration audit is explicitly deferred to another day.
+- Prefer actual card play for easy, natural preparation. In Astra Mechanica, play the earlier
+  events and flip Pharmacy Union through its science-tag effect rather than fabricating history.
+- Keep ProductionPhaseTest's short two-generation energy-conversion scenario: the first production
+  establishes old energy, and the second shows old energy becoming heat alongside new production.
+  An extra generation is not itself a migration defect.
+
+Implemented and verified: all retained standalone callers now own explicit-Player Agents;
+`tfm-tests` has no `testAgent`/`testAgents` callers or implicit Player `EAGER` construction.
+Remaining eager execution is Admin, scoped incidental opening, and the TaskForm replay.
+The cleanup deleted 70 technical-only or duplicate fixture cases, including `MetricTest`, generic
+task-injection and helper probes, synthetic authoring checks, and tracking input-schema probes.
+Actual card identity, search, staging, ownership, and play scenarios remain. All five Astra Mechanica
+cases now establish their earlier events through real plays. The configuration audit was left alone.
+
+Final verification: `:tfm-tests:jvmTest` ran 1,261 tests: 1,235 passed, no failures or errors, and the
+same 26 existing skips. `:tfm-tests:compileTestKotlinJs`, `spotlessCheck`, and `git diff --check`
+passed. Production, build configuration, and replay files were unchanged in this final cleanup.
 
 ### Additional decisions, November 19, 2026
 
@@ -757,8 +789,9 @@ Separate future work is in [`TODO.md`](../../TODO.md#gameplay-consistency).
   a call. Keep separate submissions where an intervening assertion, comment, or choice matters.
 - Direct sandbox World assignment must also give Players `NONE`; automatic execution requires
   an explicit policy test. Ordinary tile placement and tracked-card play are not policy tests.
-- Prepare incidental stocks and cards directly, then execute the phase being proved. In particular,
-  Supercapacitors needs old energy and real production, not an extra preparation generation.
+- For Supercapacitors, prepare the incidental old energy and heat directly, then execute real
+  production. This scenario-specific choice does not require removing preparation generations
+  from other tests; apply the setup judgment described above.
 
 Acceptance checklist for this pass: apply these rules without changing production behavior, retain
 the agreed four test styles and standard-opening exception, preserve meaningful gameplay outcomes,
@@ -875,9 +908,8 @@ The remaining execution differences are intentional:
 - The shared standard opening uses scoped `EAGER`; ordinary scenarios do not change player policy.
 - Ordinary replays use explicit tasks. Card-tracked replays additionally supply card identities.
   The August 28 TaskForm replay retains `EAGER` for its separately tested form interaction style.
-- Technical bootstrap and card-tracking tests may explicitly exercise automatic execution itself.
-  Synthetic World/Agent tests retain their direct setup and mechanism assertions; these are not
-  alternate styles for ordinary card play.
+- Direct setup and phase invocation are intentional judgment calls. Player execution remains
+  explicit in the retained scenarios. Technical-only World/Agent probes are outside this module.
 - A selection may identify otherwise ambiguous work before explicit execution. For example, two
   zero-valued global-event rewards cannot both be identified by `0 MC`; `TurmoilEventsTest` selects
   the influence term and then submits `0 MC`. Linked choices, requirement failures, and Admin

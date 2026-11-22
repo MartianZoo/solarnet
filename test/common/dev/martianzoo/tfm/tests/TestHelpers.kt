@@ -1,8 +1,9 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agenttestsupport.startSetupOnly
-import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -37,10 +38,14 @@ import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(premise: GamePremise): World =
     TfmEngine.newGame(withTestTurmoilDeck(premise)).apply {
-      val agents = testAgents()
-      startSetupOnly()
+      val agents = Agents(this) { NONE }
+      agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+      // This prepared position stays in Setup; no corporation turn is part of the scenario.
+      tasks.extract { it }.filter { it.deferred }.forEach { agents[it.assignee].dropTask(it.id) }
       actors.filterIsInstance<Player>().forEach { player ->
         val agent = agents[player]
+        // Incidental opening only; the Agent's Player policy remains NONE.
+        agent.autoExecNow(EAGER)
         val offered = agent.count("ProjectCard<Selecting>")
         agent.doTask(if (offered == 0) "Ok" else "-$offered ProjectCard<Selecting>")
       }
@@ -68,7 +73,7 @@ internal fun withTestTurmoilDeck(
  * begins: the scenario plays out of turn.
  */
 internal fun World.startCorporationPhaseOutOfTurn() {
-  val agents = testAgents()
+  val agents = Agents(this) { NONE }
   agents[ADMIN].beginOperation("CorporationPhase FROM SetupPhase")
   tasks.extract { it.id to it.assignee }.forEach { (id, assignee) -> agents[assignee].dropTask(id) }
   val admin = agents[ADMIN]

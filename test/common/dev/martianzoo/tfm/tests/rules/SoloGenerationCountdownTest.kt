@@ -1,22 +1,22 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class SoloGenerationCountdownTest {
+internal class SoloGenerationCountdownTest : TfmSandboxTest() {
 
   @Test
   internal fun laterGenerationsRemoveOneGenerationLeft() {
     val game = setUpGame(players = 1)
-    val admin = game.testAgent(ADMIN)
+    val agents = Agents(game) { NONE }
+    val admin = agents[ADMIN]
 
     admin.runOperation("Generation")
 
@@ -26,7 +26,8 @@ internal class SoloGenerationCountdownTest {
   @Test
   internal fun enteringTheFinalSoloGenerationRemovesTheLastGameEndBarrier() {
     val game = setUpGame(players = 1)
-    val admin = game.testAgent(ADMIN)
+    val agents = Agents(game) { NONE }
+    val admin = agents[ADMIN]
     admin.exMachina("-12 SoloGenerationsLeft")
 
     admin.runOperation("-SoloGenerationsLeft")
@@ -36,24 +37,12 @@ internal class SoloGenerationCountdownTest {
   }
 
   @Test
-  internal fun tr63SoloReplacesTheStandardObjectiveAndProvidesBufferGas() {
-    val game = setUpGame(Tr63SoloObjective, players = 1)
-    val admin = game.testAgent(ADMIN)
-    val player = game.testAgent(PLAYER1)
+  internal fun `TR63 solo permits buying a rating step with Buffer Gas`() {
+    newTestGame(addOptions = "Tr63SoloObjective, -ColoniesExpansion", playerCount = 1)
+    kim.setToExMachina(16, "MC")
 
-    player.count("Tr63SoloObjective") shouldBe 1
-    player.count("StandardSoloObjective") shouldBe 0
-    game.classTable.isInhabited(cn("BufferGasProject")) shouldBe true
-
-    player.runOperation("16 MC")
-    player.runOperation("UseAction<BufferGasProject, Action1>") {}
-
-    player.count("MC<Player1>") shouldBe 0
-    player.count("TerraformRating<Player1>") shouldBe 15
-
-    player.runOperation("48 TerraformRating")
-    admin.runOperation("CheckGameEnd")
-
-    player.count("Victory<Player1>") shouldBe 1
+    kim.inTurn {
+      doTasks(*standardProjectTasks("BufferGasProject"), "16 Pay<> FROM MC", "TerraformRating")
+    }
   }
 }

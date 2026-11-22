@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
@@ -15,7 +15,6 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
@@ -94,28 +93,60 @@ internal class StartTokenTest : TfmGameplayTest() {
     internal fun `Turn order reads the start token holder`() {
       val setup = canonicalPremise(Hellas, PromoCards, players = 2)
       val game = TfmEngine.newGame(setup)
-      val admin = game.testAgent(ADMIN)
-      val p1 = game.testAgent(PLAYER1)
-      val p2 = game.testAgent(PLAYER2)
+      val agents = Agents(game) { NONE }
+      val admin = agents[ADMIN]
+      val p1 = agents[PLAYER1]
+      val p2 = agents[PLAYER2]
 
       admin.exMachina("StartToken<Player2> FROM StartToken<Player1>")
       admin.beginOperation("SetupPhase FROM BootstrapPhase")
       admin.count("SetupPhase") shouldBe 1
       admin.count("Baton") shouldBe 0
-      p1.doTask("-3 ProjectCard<Selecting>")
-      p2.doTask("-5 ProjectCard<Selecting>")
-      p2.doTasks("PlayCard<Class<CorporationCard>, Class<$CrediCor>>")
-      p1.doTasks("PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>")
+      p1.doTasks(
+          "20 TerraformRating",
+          "CorporationCard",
+          "10 ProjectCard<Selecting>",
+          "-3 ProjectCard<Selecting>",
+      )
+      p2.doTasks(
+          "20 TerraformRating",
+          "CorporationCard",
+          "10 ProjectCard<Selecting>",
+          "-5 ProjectCard<Selecting>",
+      )
+      p2.completeOperation {
+        doTasks(
+            "PlayCard<Class<CorporationCard>, Class<$CrediCor>>",
+            "$CrediCor FROM CorporationCard",
+            "57 MC",
+            "15 Pay<> FROM MC",
+            "5 ProjectCard<Hand FROM Selecting>",
+        )
+      }
+      p1.completeOperation {
+        doTasks(
+            "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
+            "$InterplanetaryCinematics FROM CorporationCard",
+            "30 MC",
+            "20 Steel",
+            "21 Pay<> FROM MC",
+            "7 ProjectCard<Hand FROM Selecting>",
+        )
+      }
 
       admin.count("ActionPhase") shouldBe 1
-      game.tasks.extract { it }.filterNot { it.deferred }.map { it.assignee } shouldContainExactly
-          listOf(PLAYER2)
+      p2.completeOperation {
+        doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
+        doTask("Ok")
+      }
+      admin.count("Baton<Player1>") shouldBe 1
     }
 
     @Test
     internal fun `Research passes the token according to the explicit seat order`() {
       val game = setUpGame(players = 3)
-      val admin = game.testAgent(ADMIN)
+      val agents = Agents(game) { NONE }
+      val admin = agents[ADMIN]
       admin.exMachina(
           "NextPlayer<Player1, Player3> FROM NextPlayer<Player1, Player2>, " +
               "NextPlayer<Player3, Player2> FROM NextPlayer<Player3, Player1>, " +
@@ -123,15 +154,6 @@ internal class StartTokenTest : TfmGameplayTest() {
       )
       admin.beginOperation("ResearchPhase FROM SetupPhase")
       admin.assertCounts(0 to "StartToken<Player1>", 1 to "StartToken<Player3>")
-    }
-
-    @Test
-    internal fun `Seat order and start token reject invalid corrections`() {
-      val game = setUpGame(players = 3)
-      val admin = game.testAgent(ADMIN)
-      shouldThrow<LimitsException> { admin.exMachina("-StartToken<Player1>") }
-      shouldThrow<LimitsException> { admin.exMachina("NextPlayer<Player1, Player3>") }
-      shouldThrow<LimitsException> { admin.exMachina("NextPlayer<Player3, Player2>") }
     }
   }
 }

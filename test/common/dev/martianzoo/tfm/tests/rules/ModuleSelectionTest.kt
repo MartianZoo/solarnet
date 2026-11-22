@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -125,7 +126,8 @@ internal class ModuleSelectionTest {
     val config = "PreludeExpansion, Prelude2Expansion"
     resolvesToExactly(config, multiplayerWith("PreludeExpansion", "Prelude2Expansion"))
     val game = TfmEngine.newGame(premise(config, players = 2))
-    game.testAgent(ADMIN).count("Prelude2Expansion") shouldBe 1
+    val agents = Agents(game) { NONE }
+    agents[ADMIN].count("Prelude2Expansion") shouldBe 1
     game.classTable.isInhabited(SpaceLanes) shouldBe true
 
     val cardsOnly = classTable("prelude2:cards")

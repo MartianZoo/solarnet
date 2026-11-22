@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.*
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER2
@@ -33,8 +34,9 @@ internal class WorldGovernmentTerraformingTest : TfmGameplayTest() {
     @Test
     internal fun `first player chooses the threshold ocean after Admin raises temperature`() {
       val game = setUpGame(VenusNextExpansion, players = 2)
-      val admin = game.testAgent(ADMIN)
-      val p2 = game.testAgent(PLAYER2)
+      val agents = Agents(game) { NONE }
+      val admin = agents[ADMIN]
+      val p2 = agents[PLAYER2]
       admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
       admin.runOperation("14 TemperatureStep")
       val checkpoint = game.events.nextOrdinal
@@ -52,7 +54,8 @@ internal class WorldGovernmentTerraformingTest : TfmGameplayTest() {
     @Test
     internal fun `World Government is skipped after every parameter is complete`() {
       val game = setUpGame(VenusNextExpansion)
-      val admin = game.testAgent(ADMIN)
+      val agents = Agents(game) { NONE }
+      val admin = agents[ADMIN]
       admin.runOperation(
           "GpComplete<Class<TemperatureStep>>, " +
               "GpComplete<Class<OxygenStep>>, " +
