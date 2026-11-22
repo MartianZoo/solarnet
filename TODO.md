@@ -20,6 +20,19 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   while money was owed and later evaluates to zero; keep the explicit `0 Pay<> FROM MC` until
   the payment model can finish that scope without an extra player submission.
 
+## Build and test speed
+
+- Prune the `:engine` tests. Keep distinct engine contract checks and remove cases that repeat
+  coverage already provided by other tests.
+- Prune the `:script` tests. Keep coverage of script-specific behavior and remove duplicate
+  gameplay scenarios.
+- Investigate why the `:tools:test` Gradle task was open for about two minutes while its three
+  test cases took about one second combined. Measure worker wait separately from test execution.
+- Investigate why the `:pets:pets:jvmTest` Gradle task was open for about two minutes while its
+  JVM test cases took about ten seconds combined. Measure worker wait and test execution separately.
+- Substantially reduce routine testing for `:pets:search`. Review how much distinct coverage its
+  JVM, JS, and Wasm runs provide and retain focused coverage for differences that matter.
+
 ## Rules test cleanup
 
 - Review the configuration-contract cases in `ClassTableSelectionTest`. Keep checks that establish

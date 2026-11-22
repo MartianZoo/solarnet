@@ -10,6 +10,8 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertNotSame
+import kotlin.test.assertSame
 
 internal class GamePremiseTest {
   @Test
@@ -76,6 +78,28 @@ internal class GamePremiseTest {
     shouldThrow<InvalidGameConfigException> {
       premise(catalog, premiseDeclarations = parseClasses("CLASS Existing").toSet())
     }
+  }
+
+  @Test
+  internal fun drawOrderCopiesShareTheLazyClassTable() {
+    val first = cn("First")
+    val second = cn("Second")
+    val original =
+        premise(
+            testCatalog("CLASS First\nCLASS Second"),
+            selections = setOf(ClassSelection(first), ClassSelection(second)),
+        )
+    val reordered = original.copy(drawOrder = listOf(first, second))
+    val table = reordered.classTable
+    assertSame(table, original.classTable)
+    assertSame(table, reordered.copy(drawOrder = listOf(second, first)).classTable)
+    reordered.drawOrder shouldBe listOf(first, second)
+    original.drawOrder shouldBe emptyList<ClassName>()
+
+    val differentSelection =
+        reordered.copy(classSelections = setOf(ClassSelection(first)), drawOrder = listOf(first))
+    assertNotSame(table, differentSelection.classTable)
+    differentSelection.classTable.allClassNames.contains(second) shouldBe false
   }
 
   private fun shouldReject(

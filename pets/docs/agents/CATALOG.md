@@ -43,8 +43,8 @@ as a parallel premise choice. Unchosen catalog Classes have no selection entry; 
 record explicit or policy-imposed exclusions rather than listing every unavailable Module or goal.
 Setup adjustments and game-specific setup become ordinary effects of the generated premise Class.
 The premise retains one immutable game `ClassTable` view sharing its
-Catalog's compiled master structure; separate Worlds from that premise share compiled class facts
-but no mutable game state. See
+Catalog's compiled master structure. A draw-order-only copy shares that same lazy view. Separate
+Worlds share the compiled class facts and each owns its mutable game state. See
 [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt).
 
 Terraforming Mars solo setup uses `soloTileSetup(premise, locations)` to add a selected local
@@ -59,8 +59,10 @@ View construction reads each included declaration once. Structural references en
 frontier directly; constructive references retain their trigger and enclosing instruction gates in
 a temporary worklist. A reference leaves that worklist when its target classes are already included
 or its conditions permit inclusion. Later frontiers reconsider only unresolved references, preserving
-the complete enclosing conditions. This worklist belongs to the current construction; no premise or
-selection result is cached across games.
+the complete enclosing conditions. This worklist belongs to the current construction. The premise
+builder reuses its last default-selection preview if the resolved inputs still match, including
+selection order and local declarations. The first access to the final table still validates every
+selected root and runs the Catalog's content validation.
 
 After its inclusion closure is complete, that game Class Table also derives immutable executable
 effects for its included Classes from the shared declarations. Using only fixed premise facts

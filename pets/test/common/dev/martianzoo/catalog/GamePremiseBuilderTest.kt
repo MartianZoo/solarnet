@@ -1,12 +1,17 @@
 package dev.martianzoo.catalog
 
 import dev.martianzoo.catalogtestsupport.testCatalog
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.types.ClassTable
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
+import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 
 internal class GamePremiseBuilderTest {
@@ -46,6 +51,76 @@ internal class GamePremiseBuilderTest {
     val alone = catalog.gamePremise(GameConfig("", "Blue"))
     alone.modules shouldBe emptySet()
     alone.classSelections shouldBe emptySet()
+  }
+
+  @Test
+  internal fun matchingDefaultPreviewReusesTheTableAndRunsCatalogValidation() {
+    var validations = 0
+    val catalog =
+        object : Catalog(testCatalog("CLASS Selected\nCLASS Added")) {
+          override fun validateSelectedContent(classTable: ClassTable, modules: Set<ClassName>) {
+            validations++
+          }
+        }
+    val selected = cn("Selected")
+    val builder = GamePremiseBuilder(catalog, GameConfig(""))
+    builder.included.add(selected)
+    builder.omitImpossibleDefaults(setOf(selected))
+    validations shouldBe 0
+
+    val premise = builder.build()
+    val table = premise.classTable
+    assertSame(table, builder.build().classTable)
+    validations shouldBe 1
+    table.isInhabited(cn("Added")) shouldBe false
+
+    builder.initializationEffects.add(parse("This: Added"))
+    val changed = builder.build()
+    changed.classSelections shouldBe premise.classSelections
+    assertNotSame(table, changed.classTable)
+    changed.classTable.isInhabited(cn("Added")) shouldBe true
+    validations shouldBe 2
+  }
+
+  @Test
+  internal fun matchingDefaultPreviewStillRejectsAnImpossibleExplicitSelection() {
+    val catalog =
+        testCatalog(
+            """
+            CLASS DefaultChoice
+            CLASS Missing
+            CLASS ExplicitChoice { This: -Missing! }
+            """
+                .trimIndent()
+        )
+    val defaultChoice = cn("DefaultChoice")
+    val builder = GamePremiseBuilder(catalog, GameConfig("ExplicitChoice"))
+    builder.included.add(defaultChoice)
+    builder.omitImpossibleDefaults(setOf(defaultChoice))
+
+    val failure = shouldThrow<InvalidGameConfigException> { builder.build().classTable }
+    failure.message.orEmpty() shouldContain
+        "`ExplicitChoice` has reachable mandatory removal Missing"
+  }
+
+  @Test
+  internal fun removingTheLastDefaultDiscardsItsPreview() {
+    val catalog =
+        testCatalog(
+            """
+            CLASS Missing
+            CLASS DefaultChoice { This: -Missing! }
+            """
+                .trimIndent()
+        )
+    val defaultChoice = cn("DefaultChoice")
+    val builder = GamePremiseBuilder(catalog, GameConfig(""))
+    builder.included.add(defaultChoice)
+    builder.omitImpossibleDefaults(setOf(defaultChoice))
+
+    val premise = builder.build()
+    premise.classSelections shouldBe setOf(ClassSelection(defaultChoice, included = false))
+    premise.classTable.isInhabited(defaultChoice) shouldBe false
   }
 
   @Test

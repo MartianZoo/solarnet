@@ -62,7 +62,7 @@ public data class GamePremise(
   private val premiseClassTable: PremiseClassTable
     get() = premiseClassTableLazy.value
 
-  private val classTableLazy = lazy(::createClassTable)
+  private var classTableLazy = lazy(::createClassTable)
   /**
    * Immutable premise-selected class-table view shared by every World built from this premise.
    * Effect lookup is premise-specialized while the underlying class declarations remain reusable.
@@ -72,7 +72,11 @@ public data class GamePremise(
   public val classTable: ClassTable
     get() = classTableLazy.value
 
-  /** Finds selected roots with provably impossible behavior before final premise validation. */
+  /** Copies this premise with a different draw order, sharing the same lazy [classTable]. */
+  public fun copy(drawOrder: List<ClassName>): GamePremise =
+      copy(catalog = catalog, drawOrder = drawOrder).also { it.classTableLazy = classTableLazy }
+
+  /** Finds impossible defaults on a fresh premise, deferring full validation to [classTable]. */
   internal fun impossibleSelectedClasses(names: Set<ClassName>): Set<ClassName> {
     val table = createClassTable(validateViability = false)
     return PremiseViability.impossibleSelections(table, names.intersect(table.allClassNames)).keys
@@ -162,10 +166,14 @@ public data class GamePremise(
           "structural selection conflicts with excluded classes: ${includedExclusions.joinToString { "`$it`" }}"
       )
     }
-    if (validateViability) {
-      PremiseViability.validate(table, roots)
-      catalog.validateSelectedContent(table, modules)
-    }
+    if (validateViability) return validateClassTable(table, roots)
+    classTableLazy = lazy { validateClassTable(table, roots) }
+    return table
+  }
+
+  private fun validateClassTable(table: ClassTable, roots: Set<ClassName>): ClassTable {
+    PremiseViability.validate(table, roots)
+    catalog.validateSelectedContent(table, modules)
     return table
   }
 
