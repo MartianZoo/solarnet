@@ -59,7 +59,7 @@ internal class AgentImpl(
     get() = engine.actor
 
   override val reader: GameReader
-    get() = engine.reader
+    get() = world.reader
 
   override val tasks: TaskQueue
     get() = engine.tasks
@@ -351,12 +351,11 @@ internal class AgentImpl(
 
   override fun narrowTask(narrowing: String) = decide {
     val parsed = parseTaskNarrowing(narrowing)
-    engine.narrowTask(parsed.instruction, parsed.quantifierOmitted)
+    val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
+    engine.narrowTask(taskId, parsed.instruction, parsed.quantifierOmitted)
   }
 
   override fun canSelectTask(taskId: TaskId) = engine.canSelectTask(taskId)
-
-  override fun canExecuteTask(taskId: TaskId) = engine.canExecuteTask(taskId)
 
   override fun selectTask(taskId: TaskId) = decide {
     engine.selectTask(taskId)

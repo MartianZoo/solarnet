@@ -1333,9 +1333,9 @@ internal class TaskNarrowingTest {
             .addTasks(InstructionGroup.of(parse<Instruction>("Tile<Place(HAS Marker)>!")))
             .single()
     engine.selectTask(id)
-    shouldThrow<NarrowingException> { engine.narrowTask(parse<Instruction>("Tile<Place>!")) }
-    shouldThrow<NarrowingException> { engine.narrowTask(parse<Instruction>("Tile<Second>!")) }
-    engine.narrowTask(parse<Instruction>("Tile<First>!"))
+    shouldThrow<NarrowingException> { engine.narrowTask(id, parse<Instruction>("Tile<Place>!")) }
+    shouldThrow<NarrowingException> { engine.narrowTask(id, parse<Instruction>("Tile<Second>!")) }
+    engine.narrowTask(id, parse<Instruction>("Tile<First>!"))
     agent.count("Tile") shouldBe 0
     engine.doTask(id)
     agent.count("Tile<First>") shouldBe 1

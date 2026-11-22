@@ -1,9 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.state.Component
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
@@ -36,34 +34,30 @@ internal class DependencyVariableTest {
           """
               .trimIndent()
       )
-  private val elaborator = PetElaborator(table)
 
   @Test
   internal fun `header variable specialization also specializes effects`() {
-    val component = Component(table.resolve(te("InheritedLink<Player1, Card>")))
+    val type = table.resolve(te("InheritedLink<Player1, Card>"))
 
-    LiveEffect.compile(component, elaborator)
-        .map(LiveEffect::effect)
+    compiledComponentEffects(table, type)
         .map(Any::toString)
         .shouldContainExactly("This: Token<Player1>!")
   }
 
   @Test
   internal fun `a fixed represented class specializes an inherited payment trigger`() {
-    val component = Component(table.resolve(te("MetalValue<Player1>")))
+    val type = table.resolve(te("MetalValue<Player1>"))
 
-    LiveEffect.compile(component, elaborator)
-        .map(LiveEffect::effect)
+    compiledComponentEffects(table, type)
         .map(Any::toString)
         .shouldContainExactly("Payment<Player1, Class<Metal>>: Token<Player1>!")
   }
 
   @Test
   internal fun `an independent nested owner does not capture lexical Me in effects`() {
-    val component = Component(table.resolve(te("Independent<Player1, Card<Player2>>")))
+    val type = table.resolve(te("Independent<Player1, Card<Player2>>"))
 
-    LiveEffect.compile(component, elaborator)
-        .map(LiveEffect::effect)
+    compiledComponentEffects(table, type)
         .map(Any::toString)
         .shouldContainExactly("This: Token<Player1>!")
   }

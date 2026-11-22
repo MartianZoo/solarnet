@@ -161,15 +161,14 @@ internal class TransactionGroupingTest {
   }
 
   @Test
-  internal fun aRestoredProbeAdvancesNoSerial() {
+  internal fun anUnsuccessfulTryAdvancesNoSerial() {
     val game = Engine.newGame(premise)
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val task = agent.addTasks("Coin OR Token").single()
     val before = game.events.lastTransaction
     val beforeOrdinal = game.events.nextOrdinal
 
-    agent.canExecuteTask(task) shouldBe false
-    agent.tryTask("Coin OR Token")
+    agent.tryTask("Coin OR Token", task)
 
     game.events.lastTransaction shouldBe before
     game.events.nextOrdinal shouldBe beforeOrdinal

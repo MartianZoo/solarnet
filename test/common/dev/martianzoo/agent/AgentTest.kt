@@ -30,7 +30,6 @@ internal class AgentTest {
 
     val taskId = agent.addTasks("Token").single()
     agent.tasks.ids() shouldBe setOf(taskId)
-    agent.canExecuteTask(taskId) shouldBe true
 
     agent.tryTask(taskId)
 
@@ -39,20 +38,19 @@ internal class AgentTest {
   }
 
   @Test
-  internal fun executionProbeAndTryLeaveAnAbstractTaskUnchanged() {
+  internal fun tryLeavesAnAbstractTaskUnchanged() {
     val game = Engine.newGame(testGamePremise())
     val agent = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     val taskId = agent.addTasks("Token?").single()
     val taskBefore = agent.tasks.getTaskData(taskId)
 
-    agent.canExecuteTask(taskId) shouldBe false
     agent.tryTask(taskId)
 
     agent.tasks.getTaskData(taskId) shouldBe taskBefore
   }
 
   @Test
-  internal fun incompleteExecutionAnalysisIsReportedByQueriesAndEveryTryOverload() {
+  internal fun incompleteExecutionAnalysisIsReportedByEveryTryOverload() {
     val game = Engine.newGame(testGamePremise())
     val agent = Agents(game) { NONE }[PLAYER1]
     // Unbound numeric domains are currently outside the engine's finite proof.
@@ -63,7 +61,6 @@ internal class AgentTest {
 
     val attempts: List<() -> Unit> =
         listOf(
-            { agent.canExecuteTask(task) },
             { agent.tryTask(task) },
             { agent.tryTask("X Token") },
             { agent.tryTask("X Token", task) },

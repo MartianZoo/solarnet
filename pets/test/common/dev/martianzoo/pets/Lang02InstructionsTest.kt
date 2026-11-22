@@ -309,10 +309,8 @@ internal class Lang02InstructionsTest {
   // L2-14 EACH
 
   /**
-   * This module can pin the fanout's syntax and scope. Enumerating a live world and rejecting a
-   * concrete selector happen where the fanout is resolved:
-   * `test/common/dev/martianzoo/engine/EachSelectorBindingTest.kt` and
-   * `InstructionEvaluationTest.kt`.
+   * This module pins the fanout's syntax and scope. Live selector binding is exercised in
+   * `test/common/dev/martianzoo/engine/EachSelectorBindingTest.kt`.
    */
   @Test
   internal fun `L2-14 EACH names a selector and a body`() {

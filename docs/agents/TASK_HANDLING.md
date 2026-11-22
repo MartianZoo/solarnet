@@ -531,7 +531,7 @@ identify concrete scenarios. The terminology migration's test evidence belongs i
 
 | Area | Existing scenarios |
 | --- | --- |
-| Normalization and variable scopes | [TaskNormalizationTest](../../test/common/dev/martianzoo/engine/TaskNormalizationTest.kt): terminal rewrites, meaningful gated/no-op choices, edits preserving continuation scope. |
+| Normalization and variable scopes | [GroupSubmissionTest](../../test/common/dev/martianzoo/engine/GroupSubmissionTest.kt) covers normalized `THEN` members and distinct continuations. [ZeroCountTaskTest](../../test/common/dev/martianzoo/engine/ZeroCountTaskTest.kt) covers observable no-op choices. |
 | Dispatch and assignee transfer | [TaskDispatchTest](../../test/common/dev/martianzoo/engine/TaskDispatchTest.kt): explicit NOW/SOON transfer, recipient choice, and deferred dispatch; [TaskAssignmentCharacterizationTest](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt): System routing, choices requiring narrowing, `BY` Actor wrappers. |
 | Selection and quantities | [TaskEvaluationTest](../../test/common/dev/martianzoo/engine/TaskEvaluationTest.kt), [TaskNarrowingTest](../../test/common/dev/martianzoo/engine/TaskNarrowingTest.kt), [ZeroCountTaskTest](../../test/common/dev/martianzoo/engine/ZeroCountTaskTest.kt): current-world evaluation, chosen-target AMAP, typed zero. |
 | Deferred work | [DeferredWorkTest](../../test/common/dev/martianzoo/engine/DeferredWorkTest.kt): whole-World persistent priorities, nested deferrals, delayed metric/fanout evaluation, restoration. |
@@ -584,14 +584,14 @@ separate module; public visibility alone does not make a low-level method the cl
 
 | Surface | Current required caller and disposition |
 | --- | --- |
-| `actor`, `reader`, `tasks` | Agent attribution, queries, forms, and automatic execution. Retain shared read views. |
+| `actor`, `tasks` | Agent attribution and the live task view for that Actor. Agent reads shared game state through `World.reader`. |
 | `doTask` by ID or instruction | Agent requests, Admin/Player automatic execution, initialization, and transaction trials. Core execution with the approved matching and structural rules. Unsupported inference remains explicit. |
 | `selectTask` by ID or instruction | Agent selections and automatic execution. Selected groups and dispatches retain their parent until execution; partial choices remain in engine. |
-| `narrowTask` for selected or identified task | Agent partial choices and form commit; engine also uses narrowing during explicit execution. The owner selected retaining partial choices in engine. |
+| `narrowTask` by ID | Agent resolves the selected task or form to an ID. Engine retains partial choices and also uses narrowing during explicit execution. |
 | `prepareTaskNarrowing` | Agent form preparation and input recording. Read-only instruction compatibility, not a proof of transaction success. |
 | `changeLimit` | Agent form amount options. Retain the quantity read; it bounds candidates without proving success. |
-| `canSelectTask`, `canExecuteTask` | Agent queries and existing policy; selection probe also enforces engine Admin priority. Both propagate incomplete analysis rather than treating unfinished proof as a negative result. |
-| `transact` | Agent groups a client call, automatic work, and application checks. Request and automatic work share the restoring block; the unused completion hook is removed. |
+| `canSelectTask` | Agent query and automatic-execution policy. The engine also probes selection for Admin priority. `canExecuteTask` is internal and serves bootstrap. Both propagate incomplete analysis. |
+| `transact` | Agent groups a client call, automatic work, and application checks. Request and automatic work share the restoring block with Agent’s completion check. |
 | `transaction` | AutoExecLoop supplies automatic-execution motivation. Retain until transaction attribution can be expressed without a separate public wrapper. |
 | `addTasks`, `dropTask` | Legacy Agent call seeding and explicit queue edits. Ordinary task execution does not need either. Adding tasks or dropping a competing task is excluded while a task is selected; dropping the selected task is allowed. |
 | `exMachina` | Elementary correction used across modules by Agent, which adds Audit, input recording, application validation, and the unfinished-work check. Existing tasks are unchanged; explicit `SOON` dispatches from `::` add pending work. The former `sneak` and `restoreTask` methods are removed. |

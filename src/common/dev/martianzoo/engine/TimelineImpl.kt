@@ -97,7 +97,7 @@ internal class TimelineImpl(
     return true
   }
 
-  override fun stepForward(): Boolean {
+  internal fun stepForward(): Boolean {
     val next = positions.firstOrNull { it.serial > checkpoint().serial } ?: return false
     seek(next)
     return true

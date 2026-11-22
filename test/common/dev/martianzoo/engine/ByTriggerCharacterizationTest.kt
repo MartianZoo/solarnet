@@ -213,8 +213,8 @@ internal class ByTriggerCharacterizationTest {
           sourceEffect.typeVariables.expressionsOf(variable).map(Any::toString).toSet()
     } shouldBe mapOf("Me@Owner" to setOf("Me@Owner"))
 
-    LiveEffect.compile(component, elaborator)
-        .map { it.effect.toString() }
+    compiledComponentEffects(table, component.type)
+        .map(Any::toString)
         .shouldContainExactly("OwnedActorTrigger<Anyone>: Plant<Player1>!")
   }
 

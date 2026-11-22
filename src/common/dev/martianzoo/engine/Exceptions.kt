@@ -11,7 +11,8 @@ public object Exceptions {
    * Failed task transactions restore their game state. Callers can distinguish this result from a
    * known missing choice by checking this subtype of [NotFullySpecifiedException].
    */
-  public class IncompleteAnalysisException(
+  public class IncompleteAnalysisException
+  internal constructor(
       message: String,
       sourceLocation: SourceLocation? = null,
   ) : NotFullySpecifiedException(message, sourceLocation)

@@ -38,12 +38,6 @@ public interface Timeline {
   public fun seek(checkpoint: Checkpoint)
 
   /**
-   * Moves to the next recorded position, returning true if it moves or false when already at the
-   * last position. Uses [seek], so it does not run effects or choose task instructions again.
-   */
-  public fun stepForward(): Boolean
-
-  /**
    * Discards retained events and positions after the current recorded position, allowing new
    * gameplay there. The current position must be recorded. Components and pending tasks are
    * unchanged; this cannot restore anything previously discarded.

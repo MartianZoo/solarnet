@@ -119,17 +119,6 @@ public interface Agent {
   public fun canSelectTask(taskId: TaskId): Boolean
 
   /**
-   * Probes whether this actor can select and finish [taskId] now without another choice or assignee
-   * transfer. A missing or unfinished task yields false. The probe uses a disposable World; source
-   * listeners and existing overlays remain unaffected. Gameplay rejection and known missing choices
-   * yield false. [IncompleteAnalysisException] propagates when the engine cannot finish its proof;
-   * other failures also propagate.
-   */
-  // TODO(ENGINE_CONTRACT): investigate whether callers need this execution probe. If retained,
-  // define its answer using this instruction's whole transaction, without checking spawned tasks.
-  public fun canExecuteTask(taskId: TaskId): Boolean
-
-  /**
    * Selects a pending task and evaluates its instruction against the current World. Closed and open
    * results remain pending for an execution command. A `BY` whose Actor needs no further narrowing
    * or System routing may assign it to another Actor. The call's task handling then runs, so that

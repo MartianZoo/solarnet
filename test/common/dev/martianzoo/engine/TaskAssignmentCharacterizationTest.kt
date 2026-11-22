@@ -13,8 +13,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.state.GameWorld
-import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
@@ -595,24 +594,21 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun pendingTaskReceivesItsAddEventOrdinalWhenInsertedIntoItsAssigneesQueue() {
-    val world = GameWorld(testGamePremise("CLASS Token<Player>", players = 2))
-    val queues = TaskQueues(world)
+  internal fun addedTaskReceivesItsAddEventOrdinalInItsAssigneesQueue() {
+    val world = Engine.newGame(testGamePremise("CLASS Token<Player>", players = 2))
+    val player = world.actorEngine(PLAYER2)
+    val before = world.events.nextOrdinal
     val cause = Cause(parse<Expression>("Token"), triggerEvent = 0)
-    val pending =
-        PendingTask(
-            assignee = PLAYER2,
-            instruction = InstructionGroup(listOf(parse<Instruction>("Token<Player2>!"))),
-            cause = cause,
-        )
+    val instruction = parse<Instruction>("Token<Player2>!")
 
-    val event = queues.addTasks(pending).single()
-    val added = event.task
+    val id = player.addTasks(InstructionGroup.of(instruction), cause).single()
+    val event = world.events.entriesSince(before).filterIsInstance<TaskAddedEvent>().single()
 
-    added.id.ordinal shouldBe event.ordinal
-    added.assignee shouldBe PLAYER2
-    added.instruction shouldBe pending.instruction.instructions.single()
-    added.cause shouldBe cause
-    world.tasksFor(PLAYER2).ids().shouldContainExactly(TaskId(event.ordinal))
+    id.ordinal shouldBe event.ordinal
+    event.task shouldBe world.tasks.getTaskData(id)
+    event.task.assignee shouldBe PLAYER2
+    event.task.instruction shouldBe instruction
+    event.task.cause shouldBe cause
+    player.tasks.ids().shouldContainExactly(id)
   }
 }

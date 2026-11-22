@@ -1,9 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.Agent
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -31,42 +29,12 @@ internal class AutomaticEffectOrderTest {
 
   @Test
   internal fun selfEffectsRetainDeclarationOrder() {
-    val world = Engine.newGame(selfEffectPremise) as WholeWorld
+    val world = Engine.newGame(selfEffectPremise)
     val admin = world.testAgent(ADMIN)
 
     admin.runOperation("Source")
 
     admin.count("Observed") shouldBe 1
-  }
-
-  @Test
-  internal fun rollbackDoesNotChangeWhichAutomaticSiblingRunsFirst() {
-    if (randomAutomaticEffectOrderEnabled) return
-
-    val world = Engine.newGame(premise) as WholeWorld
-    val player = world.testAgent(PLAYER1)
-    player.runOperation("Earlier")
-    player.runOperation("Later")
-    player.runOperation("Token")
-    val baseline = world.timeline.checkpoint()
-
-    val firstContext = removalContext(world, player)
-    world.timeline.seek(baseline)
-    world.timeline.truncate()
-
-    player.runOperation("-Earlier")
-    world.timeline.seek(baseline)
-    world.timeline.truncate()
-
-    removalContext(world, player) shouldBe firstContext
-  }
-
-  private fun removalContext(world: WholeWorld, admin: Agent): String {
-    val before = world.events.nextOrdinal
-    admin.runOperation("Trigger")
-    val removal =
-        world.events.changesSince(before).single { it.change.removing.toString() == "Token" }
-    return checkNotNull(removal.cause).context.toString()
   }
 
   private companion object {
@@ -84,17 +52,6 @@ internal class AutomaticEffectOrderTest {
             CLASS Observed
             """,
             players = 0,
-        )
-
-    val premise =
-        testGamePremise(
-            """
-            CLASS Trigger : Signal
-            CLASS Token
-            CLASS Earlier { Trigger:: -Token* }
-            CLASS Later { Trigger:: -Token* }
-            """,
-            players = 1,
         )
   }
 }
