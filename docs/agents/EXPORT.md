@@ -178,7 +178,8 @@ finished. Player autoexecution is not required for that movement.
 Nested card plays are flat: `PlayCard(SpaceElevator)`, the explicit Excentric Sponsor discount,
 `Pay(2 MC)`, and production effects can all appear in the enclosing Prelude body.
 `Pay(2 MC, 4 Titanium)` fails without spending either resource. No reordering or independence proof
-is performed. REPL changes/sharing remain deferred.
+is performed. Executable archive directives delegate to the same [Kotlin routines](ROUTINES.md)
+used by the REPL; the importer owns headers, grouping, and source-line errors.
 
 A nested recipient response such as `Pink: 4 MC` uses shared
 `Agent.doTask(text, releasedBy = activePlayer)`. The shared matcher can combine Pink's existing tasks

@@ -332,6 +332,16 @@ public interface Agent {
   public fun continueOperation(body: OperationBlock = {}): TaskResult
 
   /**
+   * Runs automatic work and [body] under a scoped [policy] override, allowing tasks to remain. The
+   * override applies before any automatic work and never changes [autoExecPolicy]. Failure restores
+   * this call's changes, including automatic work, and always removes the override.
+   *
+   * Returning restores the enclosing effective policy without executing it; call [autoExecNow] when
+   * the enclosing interaction is ready for that work. Admin accepts only EAGER.
+   */
+  public fun doWithAutoExecPolicy(policy: AutoExecPolicy, body: OperationBlock): TaskResult
+
+  /**
    * Runs `body` atomically and requires the initiated work to be complete afterward. An incomplete
    * or failed call rolls back this call. Nested calls have the same limitation on final completion
    * validation described by [runOperation].

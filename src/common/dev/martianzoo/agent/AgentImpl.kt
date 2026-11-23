@@ -206,6 +206,11 @@ internal class AgentImpl(
     return atomic { continueOperationBody { Adapter().body() } }
   }
 
+  override fun doWithAutoExecPolicy(policy: AutoExecPolicy, body: OperationBlock): TaskResult =
+      withAutoExecPolicyOverride(policy) {
+        atomic { continueOperationBody { Adapter().body() } }
+      }
+
   override fun completeOperation(body: OperationBlock): TaskResult {
     return atomic(
         block = {

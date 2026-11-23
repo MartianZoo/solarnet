@@ -38,12 +38,16 @@ the external caller.
 The [model pieces](../../pets/docs/agents/PAYMENTS.md#current-pieces) own pricing and acceptance.
 Sandbox tests and migrated replays submit resource exchanges directly before the purchased result.
 
-The REPL `tfm_pay` command submits the stated standard resources through the Player's Agent,
-with alternatives before the bill's denomination. It declines unused optional payment offers
-before the exact remainder, and acknowledges an offered zero remainder after a payment in metals.
-These choices use the offered instructions, not their causes. The command restores the caller's
-automatic-execution policy and leaves subsequent card effects to that policy or explicit calls.
-A failed submission rolls back the whole payment. `tfm_play` and `tfm_action` reuse this command.
+The shared `TfmRoutines` Pay routine submits the stated standard or card-held resources in the
+caller's order. It declines unused optional offers before paying the exact-denomination remainder
+and acknowledges an offered zero remainder after alternatives cover the bill. These choices use
+the offered instructions, not their causes.
+
+Pay temporarily pauses the participating Players' effective automatic-execution policies while
+submitting that complete allocation. Mandatory Admin processing remains active. It then restores
+the enclosing policies and runs configured work before returning. Failure restores the whole
+invocation, including automatic work; a previously returned PlayCard invocation remains pending.
+The importer and REPL both call this implementation. See [routines](ROUTINES.md).
 
 ## Allocation validation
 
@@ -52,8 +56,8 @@ sequence, but they do not give a task separately chosen quantities of cash, Stee
 card-held resources. A complete allocation task would require new task semantics or a domain
 instruction; it is not a spelling change.
 
-Engine tasks and `tfm_pay` do not check whether a selected resource unit could be returned while
-the remaining allocation still covers the debt. Card-held resources are submitted separately.
+Engine tasks and the Pay routine do not check whether a selected resource unit could be returned
+while the remaining allocation still covers the debt. Card-held resources are submitted separately.
 
 ## Evidence
 

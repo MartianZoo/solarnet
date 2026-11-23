@@ -316,8 +316,3 @@ general Player exploration, installed-policy design, operation lifecycle redesig
 correction-time recalculation remain separate work.
 
 - Compare future generated map PNGs with the published maps for coastline shapes that the current shared-edge and opposing-water-space counts miss; add a measurable check if repeated odd shapes appear.
-
-## Shared Terraforming Mars routines
-
-- Extract all importer operations into shared tfm-engine routines with fixed registration.
-- Route the REPL and applicable test helpers through those routines; retain scoped Player policies.

@@ -76,8 +76,6 @@ internal abstract class FullGameTest(playerPolicy: AutoExecPolicy = NONE) :
     admin.beginOperation("SetupPhase FROM BootstrapPhase")
   }
 
-  // Script-local counterparts live in
-  // test/common/dev/martianzoo/tfm/script/StinaScriptTest.kt.
   protected fun Agent.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertProds(
         m to "MC",
