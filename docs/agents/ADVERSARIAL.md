@@ -37,13 +37,11 @@ operates that Agent or demanding evidence of FooPlayer's consent. Any program ma
 Actor's Agent; acceptance of its submitted decisions belongs to the surrounding arrangement.
 
 **The shared record identifies the game being played.** A readable textual record of the game
-in progress is committed to Git. “Type 3 export” refers to the combined recording in the project's
-export design: a premise recipe, an Actor decision stream, and an exact event stream. The decisions
-explain the result; the events record what happened. The historical export note described these as
-the third of three views, and the
-[current roadmap](../SOLARNET_ROADMAP.md#game-records-and-reconstruction) retains that direction.
-The combined format remains unspecified and unimplemented. A state digest alone would not replace
-the exact events needed for its independent passive playback.
+in progress is committed to Git. The current `.game` archive records setup and explicit tasks;
+replaying it reconstructs the game through the engine. In-memory event recordings support passive
+playback, but there is no separate event-recording file codec. Whether the archive can satisfy all
+of the acceptance requirements below remains to be investigated; see the
+[current export design](EXPORT.md).
 
 Each participant has the same agreed rules and engine implementation available locally. The game
 records enough setup and version information to reproduce its meaning. Upgrading the rules during
@@ -71,8 +69,8 @@ Before continuing from a candidate, participants or their software check that:
 
 Git ancestry alone does not establish the unchanged-prefix property: a later commit can modify
 earlier lines. Similarly, an event log that can be played back is not proof that its events follow
-from legal decisions. The combined export's decision and event streams must reconstruct the game
-independently and agree, rather than use asserted consequences to repair missing decisions.
+from legal decisions. Replaying the archive must establish the consequences from the submitted
+decisions, rather than use asserted consequences to repair missing decisions.
 
 An accepted prefix must also have a fixed meaning. A later append cannot retrospectively change
 which choice an earlier line represented or who was waiting to act. This is stronger than keeping
@@ -235,7 +233,7 @@ playback in memory. The [human-readable archive](EXPORT.md) reconstructs games t
 it does not establish shared-player authorization, an appendable live log, or resumption of
 arbitrary unfinished operations. The
 [existing export direction](../SOLARNET_ROADMAP.md#game-records-and-reconstruction)
-already distinguishes decision reconstruction from exact event playback and records unfinished work.
+distinguishes archive reconstruction from in-memory event playback.
 
 The next useful design work is to settle the acceptance and information-release agreement, then
 work through a draw, a named discard, an Icy Impactors handoff, and an agreed undo on paper. Any

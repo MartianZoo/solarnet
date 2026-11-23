@@ -113,19 +113,17 @@ with timing and current differences from the interaction contract.
 
 ## Game records and reconstruction
 
-1. **Make full and faithful export/import round-trip.** **Active.** `work4` has a shared full/short
-   JSON format, hashes of Catalog data and the resolved premise, state-only exact import, and
-   Agent replay through recorded commands. Replay tests now emit both forms and compare
-   component changes and pending work without requiring matching task IDs or event ordinals.
-   Finish production card-input capture and replay with the uncommitted `work1` tracker, then
-   connect Playground's upload path. A public-database ingester and friendlier discrepancy flow
-   follow later. [Export design](agents/EXPORT.md) owns the details.
+1. **Make human-readable game archives faithful and useful.** **Active.** The `.game` archive
+   records explicit tasks and can be imported through Agents. Replay tests import checked-in
+   archives and compare final inventory and pending tasks; optional fresh exports are re-imported.
+   Continue addressing the concrete archive and task-matching limitations in
+   [TODO.md](../TODO.md). Connect archives to applications when their needs are clear.
+   [Export design](agents/EXPORT.md) owns the implementation and verification details.
 
-2. **Keep exact event recordings independently useful.** **Implemented foundation.** A recording
-   must reconstruct components, pending tasks, history, and approved navigation points without an
-   engine, firing effects, or needing the original live World. Continue treating this exact stream
-   and the decision stream as separate views of the same game. The combined file permits passive
-   playback and independent Agent reconstruction, then compares their results.
+2. **Keep in-memory event recordings independently useful.** **Implemented foundation.**
+   `GameRecording` supports passive playback without re-executing game rules. Human-readable
+   archives reconstruct a game by executing its recorded tasks; there is no separate recording
+   file codec. Preserve useful history navigation without maintaining a parallel file format.
 
 3. **Make game provenance durable.** Record enough premise and implementation identity to know
    which rules produced a game and to diagnose mismatches later. Saving and resuming an unfinished
@@ -145,8 +143,8 @@ with timing and current differences from the interaction contract.
 
 2. **Turn replay viewing and reconstruction into a compelling way to explore games.** Use Mars
    Playground to browse exact recordings, coherent history positions, useful queries, and trustworthy
-   provenance. Pair it eventually with the compact decision format so a game can be read as both an
-   exact evolving World and an explanatory sequence of choices. Broader causal analytics remain
+   provenance. Use human-readable archives to reconstruct a game and its choices alongside the
+   resulting in-memory history. Broader causal analytics remain
    conditional on being derived cheaply from these foundations; see the exploratory
    [card attribution and learning research](agents/ATTRIBUTION.md).
 

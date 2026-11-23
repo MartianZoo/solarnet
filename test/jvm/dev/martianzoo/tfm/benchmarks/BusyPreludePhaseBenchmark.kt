@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.benchmarks
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
@@ -51,7 +52,7 @@ public open class BusyPreludePhaseBenchmark {
                 listOf("Tharsis_4_1", "Tharsis_5_1", "Tharsis_5_8", "Tharsis_5_7").map(::cn),
             )
         )
-    val agents = Agents(game)
+    val agents = Agents(game) { EAGER }
     me = agents[PLAYER1]
     val admin = agents[ADMIN]
 

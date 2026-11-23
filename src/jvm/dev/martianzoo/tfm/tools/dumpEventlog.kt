@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tools
 
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.SystemClasses.ICONIC
@@ -53,7 +54,7 @@ private fun createGame(playerCount: Int): World {
       } else premise
   val deck = TfmEngine.globalEventDeck(preparedPremise).shuffled(kotlin.random.Random(0))
   return TfmEngine.newGame(preparedPremise.copy(drawOrder = deck)).also { game ->
-    val agents = Agents(game)
+    val agents = Agents(game) { EAGER }
     agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
     val players = game.actors.filterIsInstance<Player>()
     if (playerCount == 1) {

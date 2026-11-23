@@ -253,8 +253,9 @@ schedules the later offered handoff. Philares resource choices likewise belong t
 
 Each Agent belongs to an Agents session. That session supplies Player policies and application
 validation; separate sessions sharing a World do not inherit each other's settings. The shared
-AutoExecLoop runs Admin before each optional Player step. NONE, SOLE_TASK, and EAGER retain their
-current behavior; EAGER can choose successful Player work in queue order. This is configurable
+AutoExecLoop runs Admin before each optional Player step. Players default to NONE, leaving their
+work pending until explicitly submitted; Admin remains automatic. SOLE_TASK and EAGER remain
+configurable Player policies; EAGER can choose successful Player work in queue order. This is
 existing behavior, not a guarantee that Player choices are strategically equivalent.
 
 The current `runOperation`/`beginOperation`/`continueOperation`/`completeOperation` helpers retain
