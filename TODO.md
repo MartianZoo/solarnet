@@ -89,8 +89,7 @@ a Solarnet defect. Preserve that uncertainty without treating it as a migration 
 - Audit replay choices and assertions against original evidence, including expectations copied
   from current engine output and unresolved historical score discrepancies.
 - Add source-backed ASCII maps to the remaining older replays when independent board evidence is
-  recovered: `FirstPartialGameTest`, `Game20230521Test`, `Game20260619Test`,
-  `HellasPromoGameTest`, `HellasPromoWithoutPreludeTest`, `SoloGame20230611Test`,
+  recovered: `Game20230521Test`, `SoloGame20230611Test`,
   `SoloGame20230710Test`, `SoloGame20230721Test`, and `StinaGameTest`. No suitable original
   board dataset was located in this audit; generated recordings are not independent evidence.
   The August 9, August 18, and November 11 physical replays now check their middle and latest

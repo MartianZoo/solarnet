@@ -160,11 +160,16 @@ internal class GameArchiveInferenceTest {
   @Test
   fun exportsBetweenActionsButRejectsAnActionStillInProgress() {
     val source =
-        requireNotNull(javaClass.getResource("/games/FirstPartialGameTest.game")).readText()
-    val prefix = source.substringBefore("Player2: PlayCard(NaturalPreserve)")
+        requireNotNull(javaClass.getResource("/games/Game20230521Test.game")).readText()
+    val prefix = source.substringBefore("Player2: PlayCard(ArcticAlgae)")
     val original = GameArchiveImporter(prefix).also { it.run() }.agents
     val player = original[original.world.actors.filterIsInstance<Player>().first()]
-    val config = GameConfig("ElysiumMap, PreludeExpansion, LakefrontResorts", "Player1", "Player2")
+    val config =
+        GameConfig(
+            "VenusNextExpansion, PreludeExpansion, promos:cards, -WorldGovernmentRule",
+            "Player1",
+            "Player2",
+        )
     fun export() = GameArchiveExporter(original.world.recording(), config).export()
     fun pending(tasks: TaskQueue) = tasks.extract { "${it.assignee}|${it.instruction}" }.sorted()
 
@@ -181,11 +186,16 @@ internal class GameArchiveInferenceTest {
   @Test
   fun rejectsAnUnpaidResearchPurchaseOutsideAnAction() {
     val source =
-        requireNotNull(javaClass.getResource("/games/FirstPartialGameTest.game")).readText()
+        requireNotNull(javaClass.getResource("/games/Game20230521Test.game")).readText()
     val original =
         GameArchiveImporter(source.substringBefore("Player1: Research")).also { it.run() }.agents
     val player = original[original.world.actors.filterIsInstance<Player>().first()]
-    val config = GameConfig("ElysiumMap, PreludeExpansion, LakefrontResorts", "Player1", "Player2")
+    val config =
+        GameConfig(
+            "VenusNextExpansion, PreludeExpansion, promos:cards, -WorldGovernmentRule",
+            "Player1",
+            "Player2",
+        )
     player.doTasks("4 ProjectCard<Selecting>", "-0 ProjectCard<Selecting>")
 
     assertTrue(player.has("MAX 0 ActionScope"))
